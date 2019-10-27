@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 906ADE6841
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6D92E65BA
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732290AbfJ0VXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:23:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44252 "EHLO mail.kernel.org"
+        id S1727570AbfJ0VEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:04:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731618AbfJ0VXH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:23:07 -0400
+        id S1727275AbfJ0VEl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:04:41 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 995C1205C9;
-        Sun, 27 Oct 2019 21:23:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB7DA2064A;
+        Sun, 27 Oct 2019 21:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211386;
-        bh=2K+kbrC0pT7NeYLIPxFN+7ukgau/pSNVnR6/Ps6OhsQ=;
+        s=default; t=1572210280;
+        bh=OEMEAnqXLXECNbzBi+S+06vmw7HQa6AKkVWSqlb1UlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eXGd61xJjXv9goeFIqUj9LMfPQA1fb+cSkkndbKlMyih5myB+plF26TjCXwHYQoM4
-         pLa1+v1CsUp7+iHdT3Jj8JG6w2Yvn47cLDS2XJYCr9tro3MCvtgcY6MexNEYOaS6qX
-         LF37qwNSpQgcYqRc0F5lHWg9G7QmFtwdjjm3ieFo=
+        b=x3nzn7YV7wXweFLKfSqJY3Ifonl5iei8eQRMxdVh0S5KLBouQI7Bp3HLu9V14IJOF
+         kHuqf0cQe2HjpIKXqZHxilej4YesTHc9+9uQqQZsSU4yOfoyCHpvk0T5oH1SKqlJR+
+         GU8FRNApJPkKkeYTqe8IveQ8MxrXCqcM8F/KQ3to=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.3 131/197] drm/amdgpu/vce: fix allocation size in enc ring test
+        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/49] namespace: fix namespace.pl script to support relative paths
 Date:   Sun, 27 Oct 2019 22:00:49 +0100
-Message-Id: <20191027203358.794097652@linuxfoundation.org>
+Message-Id: <20191027203126.358110065@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,102 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-commit ee027828c40faa92a7ef4c2b0641bbb3f4be95d3 upstream.
+[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
 
-We need to allocate a large enough buffer for the
-feedback buffer, otherwise the IB test can overwrite
-other memory.
+The namespace.pl script does not work properly if objtree is not set to
+an absolute path. The do_nm function is run from within the find
+function, which changes directories.
 
-Reviewed-by: James Zhu <James.Zhu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Because of this, appending objtree, $File::Find::dir, and $source, will
+return a path which is not valid from the current directory.
 
+This used to work when objtree was set to an absolute path when using
+"make namespacecheck". It appears to have not worked when calling
+./scripts/namespace.pl directly.
+
+This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
+for $(objtree)", 2014-05-14)
+
+Rather than fixing the Makefile to set objtree to an absolute path, just
+fix namespace.pl to work when srctree and objtree are relative. Also fix
+the script to use an absolute path for these by default.
+
+Use the File::Spec module for this purpose. It's been part of perl
+5 since 5.005.
+
+The curdir() function is used to get the current directory when the
+objtree and srctree aren't set in the environment.
+
+rel2abs() is used to convert possibly relative objtree and srctree
+environment variables to absolute paths.
+
+Finally, the catfile() function is used instead of string appending
+paths together, since this is more robust when joining paths together.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
+Acked-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c |   20 +++++++++++++++-----
- drivers/gpu/drm/amd/amdgpu/amdgpu_vce.h |    1 +
- 2 files changed, 16 insertions(+), 5 deletions(-)
+ scripts/namespace.pl | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c
-@@ -429,13 +429,14 @@ void amdgpu_vce_free_handles(struct amdg
-  * Open up a stream for HW test
-  */
- int amdgpu_vce_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
-+			      struct amdgpu_bo *bo,
- 			      struct dma_fence **fence)
- {
- 	const unsigned ib_size_dw = 1024;
- 	struct amdgpu_job *job;
- 	struct amdgpu_ib *ib;
- 	struct dma_fence *f = NULL;
--	uint64_t dummy;
-+	uint64_t addr;
- 	int i, r;
+diff --git a/scripts/namespace.pl b/scripts/namespace.pl
+index 9f3c9d47a4a5d..4dddd4c01b625 100755
+--- a/scripts/namespace.pl
++++ b/scripts/namespace.pl
+@@ -65,13 +65,14 @@
+ require 5;	# at least perl 5
+ use strict;
+ use File::Find;
++use File::Spec;
  
- 	r = amdgpu_job_alloc_with_ib(ring->adev, ib_size_dw * 4, &job);
-@@ -444,7 +445,7 @@ int amdgpu_vce_get_create_msg(struct amd
+ my $nm = ($ENV{'NM'} || "nm") . " -p";
+ my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
+-my $srctree = "";
+-my $objtree = "";
+-$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
+-$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
++my $srctree = File::Spec->curdir();
++my $objtree = File::Spec->curdir();
++$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
++$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
  
- 	ib = &job->ibs[0];
- 
--	dummy = ib->gpu_addr + 1024;
-+	addr = amdgpu_bo_gpu_offset(bo);
- 
- 	/* stitch together an VCE create msg */
- 	ib->length_dw = 0;
-@@ -476,8 +477,8 @@ int amdgpu_vce_get_create_msg(struct amd
- 
- 	ib->ptr[ib->length_dw++] = 0x00000014; /* len */
- 	ib->ptr[ib->length_dw++] = 0x05000005; /* feedback buffer */
--	ib->ptr[ib->length_dw++] = upper_32_bits(dummy);
--	ib->ptr[ib->length_dw++] = dummy;
-+	ib->ptr[ib->length_dw++] = upper_32_bits(addr);
-+	ib->ptr[ib->length_dw++] = addr;
- 	ib->ptr[ib->length_dw++] = 0x00000001;
- 
- 	for (i = ib->length_dw; i < ib_size_dw; ++i)
-@@ -1110,13 +1111,20 @@ int amdgpu_vce_ring_test_ring(struct amd
- int amdgpu_vce_ring_test_ib(struct amdgpu_ring *ring, long timeout)
- {
- 	struct dma_fence *fence = NULL;
-+	struct amdgpu_bo *bo = NULL;
- 	long r;
- 
- 	/* skip vce ring1/2 ib test for now, since it's not reliable */
- 	if (ring != &ring->adev->vce.ring[0])
- 		return 0;
- 
--	r = amdgpu_vce_get_create_msg(ring, 1, NULL);
-+	r = amdgpu_bo_create_reserved(ring->adev, 512, PAGE_SIZE,
-+				      AMDGPU_GEM_DOMAIN_VRAM,
-+				      &bo, NULL, NULL);
-+	if (r)
-+		return r;
-+
-+	r = amdgpu_vce_get_create_msg(ring, 1, bo, NULL);
- 	if (r)
- 		goto error;
- 
-@@ -1132,5 +1140,7 @@ int amdgpu_vce_ring_test_ib(struct amdgp
- 
- error:
- 	dma_fence_put(fence);
-+	amdgpu_bo_unreserve(bo);
-+	amdgpu_bo_unref(&bo);
- 	return r;
- }
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_vce.h
-@@ -59,6 +59,7 @@ int amdgpu_vce_entity_init(struct amdgpu
- int amdgpu_vce_suspend(struct amdgpu_device *adev);
- int amdgpu_vce_resume(struct amdgpu_device *adev);
- int amdgpu_vce_get_create_msg(struct amdgpu_ring *ring, uint32_t handle,
-+			      struct amdgpu_bo *bo,
- 			      struct dma_fence **fence);
- int amdgpu_vce_get_destroy_msg(struct amdgpu_ring *ring, uint32_t handle,
- 			       bool direct, struct dma_fence **fence);
+ if ($#ARGV != -1) {
+ 	print STDERR "usage: $0 takes no parameters\n";
+@@ -231,9 +232,9 @@ sub do_nm
+ 	}
+ 	($source = $basename) =~ s/\.o$//;
+ 	if (-e "$source.c" || -e "$source.S") {
+-		$source = "$objtree$File::Find::dir/$source";
++		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
+ 	} else {
+-		$source = "$srctree$File::Find::dir/$source";
++		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
+ 	}
+ 	if (! -e "$source.c" && ! -e "$source.S") {
+ 		# No obvious source, exclude the object if it is conglomerate
+-- 
+2.20.1
+
 
 
