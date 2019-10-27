@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1ACE67B4
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11438E6591
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:03:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730419AbfJ0VXe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:23:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44722 "EHLO mail.kernel.org"
+        id S1728276AbfJ0VDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731704AbfJ0VXb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:23:31 -0400
+        id S1728267AbfJ0VDQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:03:16 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1ED0205C9;
-        Sun, 27 Oct 2019 21:23:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A06BF2064A;
+        Sun, 27 Oct 2019 21:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211411;
-        bh=txFVa3o1tO0XS4afHK4M0KfRj3uMT4moVpCZDTRCnuQ=;
+        s=default; t=1572210196;
+        bh=DNogohxJudpJgaAhRb6Da2/JiIzdCiOlJWxWHOT7MTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toZ10yMHw7FOdT58aXlKPLd4MpdK+BSI+A1ACI8JlWqFzlZI3XSFtY4QlOqBkiqjO
-         SAMFN911EWUz+5uODWqo5Bs0au8VHblTTnv/u6nx/gAS8ETnwZaGLOq5Tj4L+wFXeh
-         eLFp64ddHgq/Cc1qxb+XMmGBD66bYc+PdQ40MX8k=
+        b=gYgVtlVHFp6BGJJRKOJZI79hNqZdHepnQAZy/lc6WqY4K6emuYyGm6FEOOwe1xOpS
+         0Af3FEqBDgGHwejDLEVhdEFvi0I9I6Rrn09EAq7Y+Bp6kRTiCWD3SjRVVVvHUV4dfW
+         7hnZ/NRpTUb2XVfKdqS9cFXLFoNsrIcPZlNRTnk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.3 143/197] mmc: sdhci-omap: Fix Tuning procedure for temperatures < -20C
+        stable@vger.kernel.org,
+        syzbot+cd24df4d075c319ebfc5@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 23/41] USB: usblp: fix use-after-free on disconnect
 Date:   Sun, 27 Oct 2019 22:01:01 +0100
-Message-Id: <20191027203359.418304808@linuxfoundation.org>
+Message-Id: <20191027203119.192858701@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit feb40824d78eac5e48f56498dca941754dff33d7 upstream.
+commit 7a759197974894213621aa65f0571b51904733d6 upstream.
 
-According to the App note[1] detailing the tuning algorithm, for
-temperatures < -20C, the initial tuning value should be min(largest value
-in LPW - 24, ceil(13/16 ratio of LPW)). The largest value in LPW is
-(max_window + 4 * (max_len - 1)) and not (max_window + 4 * max_len) itself.
-Fix this implementation.
+A recent commit addressing a runtime PM use-count regression, introduced
+a use-after-free by not making sure we held a reference to the struct
+usb_interface for the lifetime of the driver data.
 
-[1] http://www.ti.com/lit/an/spraca9b/spraca9b.pdf
-
-Fixes: 961de0a856e3 ("mmc: sdhci-omap: Workaround errata regarding SDR104/HS200 tuning failures (i929)")
-Cc: stable@vger.kernel.org
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 9a31535859bf ("USB: usblp: fix runtime PM after driver unbind")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+cd24df4d075c319ebfc5@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191015175522.18490-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mmc/host/sdhci-omap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/class/usblp.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci-omap.c
-+++ b/drivers/mmc/host/sdhci-omap.c
-@@ -372,7 +372,7 @@ static int sdhci_omap_execute_tuning(str
- 	 * on temperature
- 	 */
- 	if (temperature < -20000)
--		phase_delay = min(max_window + 4 * max_len - 24,
-+		phase_delay = min(max_window + 4 * (max_len - 1) - 24,
- 				  max_window +
- 				  DIV_ROUND_UP(13 * max_len, 16) * 4);
- 	else if (temperature < 20000)
+--- a/drivers/usb/class/usblp.c
++++ b/drivers/usb/class/usblp.c
+@@ -458,6 +458,7 @@ static void usblp_cleanup(struct usblp *
+ 	kfree(usblp->readbuf);
+ 	kfree(usblp->device_id_string);
+ 	kfree(usblp->statusbuf);
++	usb_put_intf(usblp->intf);
+ 	kfree(usblp);
+ }
+ 
+@@ -1120,7 +1121,7 @@ static int usblp_probe(struct usb_interf
+ 	init_waitqueue_head(&usblp->wwait);
+ 	init_usb_anchor(&usblp->urbs);
+ 	usblp->ifnum = intf->cur_altsetting->desc.bInterfaceNumber;
+-	usblp->intf = intf;
++	usblp->intf = usb_get_intf(intf);
+ 
+ 	/* Malloc device ID string buffer to the largest expected length,
+ 	 * since we can re-query it on an ioctl and a dynamic string
+@@ -1209,6 +1210,7 @@ abort:
+ 	kfree(usblp->readbuf);
+ 	kfree(usblp->statusbuf);
+ 	kfree(usblp->device_id_string);
++	usb_put_intf(usblp->intf);
+ 	kfree(usblp);
+ abort_ret:
+ 	return retval;
 
 
