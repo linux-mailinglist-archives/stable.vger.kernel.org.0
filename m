@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE616E6472
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:22:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 797DDE6473
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:22:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727235AbfJ0RWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 13:22:52 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:47381 "EHLO
+        id S1727617AbfJ0RWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 13:22:53 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:47665 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
         by vger.kernel.org with ESMTP id S1727280AbfJ0RWw (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:22:52 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 13C34220E7;
-        Sun, 27 Oct 2019 13:22:50 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:22:50 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 3CEE622131;
+        Sun, 27 Oct 2019 13:22:52 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:22:52 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=W6NmTE
-        t3lZMfusUKrIpRm+jzojqG7wYPa4a8NuvttD4=; b=VEjn6vAlcfisOqNjlwL2R5
-        B/q6ji85bGwBFN3yFXu4yqi7AiacQ3ffJ0KPeVbbgU2Ar1Ic4w+Tpowi/GrBEgKl
-        odE1/QeFl7O5LX03HPz/5Cy2W8NzqjWUM4UNhuOyHGitORPfvhb5fEe4V37zFc4O
-        7KFuEKcrm9WdB54/ZT7Ue5D0+NUokOv7QQpeWTv9/sY+Td4IhEjYbiDxVdXMOrC/
-        fWyl7YKEV50MDuxTaN8tjkKKZI+euKyZE01Lfhv8fHN/OY+Sx85AyXSnDNwDG6Z8
-        z3CTYtfwHxZ5cdWA/7coUhhLkmeDkPSJBO3lti6BhaD4nTB+LJbbNITkUZac45Xw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=NF8inI
+        gLFhf8pvCRRMiflc6Bv+AjTWQdfHOZcM6QV/Q=; b=PA/HlSYEsni/vl5ryEfLnI
+        ewcLLxEGKP3/rleubadKC1xyTDQXOz/5XIoWgsnlu3gi8Vsn92e+8EQS1SBl4tBM
+        5QQ1WSvS1YTcrM0lomyFkjc71U5UohVMts5gh8VZS7znPN5OAEtqfxxEu+tpcZis
+        bDyk4+rw9eO6igb3G2HVd1b9OmRMPHG2AItRuj9cJJxESFcVuNy6/2uYHOEbAaCp
+        lQE2B5/KUHO93bl5+xOvCPqjQwAACS+kso+kPnI3eoxKCjz8YS94a07ifWsQm3P9
+        kgCSMYKrZPeD085iL8NqYYif/9dcPzdPjOJeq9nX/saSLDC6Mpe4wQcL1ok+D0Zw
         ==
-X-ME-Sender: <xms:adK1Xa-xChMaZce-IdjBtPSMqySrlt6WVCrewkSckH3MrnC7ZZEc7g>
+X-ME-Sender: <xms:a9K1XQpkRo57S_rwDWtuMHBU4qx9mfwaG0GiZTJiPFTxzacKJYOvUw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgddutdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehrvgguhhgrthdrtghomhenucfkphepjeejrdduheekrdehtd
-    druddttdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-    necuvehluhhsthgvrhfuihiivgepfe
-X-ME-Proxy: <xmx:adK1XXjxMqldOeJNcAhmYus2-oU4Y3wKuty00ZauRAsK58DMobRIwg>
-    <xmx:adK1XUMl7EK8eOjp9M0ad7yF03NcUmgwEul3DEECnF8nFX37XT9dYg>
-    <xmx:adK1XQl5aUgEd1oKQZ6QJRvwaz00h3rlaI4ApqBBj-P3RzcR7jJiBg>
-    <xmx:atK1XdrYrvYcI2VjYAFfhLt2jHndA4OoD9ITsWz7-4mrlf2QtoMPTQ>
+    gheqnecukfhppeejjedrudehkedrhedtrddutddtnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:a9K1XSGmWrYxpO3e54SwkuqlIudPTKdHZhRUxYeBJIt0n9_V9P2OKw>
+    <xmx:a9K1XT6INyrhQfMZ9zdfUA-01zEkYIAe2_r1-yZw-otyoJRRKXlasw>
+    <xmx:a9K1XVDl1pNN_4wuG5Ip1Huw1JV1vSF61miUeH9msHN4WJggwZLTTg>
+    <xmx:bNK1XSyrq0vTy9uy818DiXQIcPixk0QlHrfKA0ZANKz6X4p_JQT6kg>
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 8C04980062;
-        Sun, 27 Oct 2019 13:22:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] dm snapshot: rework COW throttling to fix deadlock" failed to apply to 4.4-stable tree
-To:     mpatocka@redhat.com, guru2018@gmail.com, ntsironis@arrikto.com,
-        snitzer@redhat.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 687C2D6005B;
+        Sun, 27 Oct 2019 13:22:51 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: check for the full sync flag while holding the inode" failed to apply to 4.14-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Oct 2019 16:37:40 +0100
-Message-ID: <1572190660244117@kroah.com>
+Date:   Sun, 27 Oct 2019 16:47:16 +0100
+Message-ID: <1572191236128114@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,237 +67,95 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b21555786f18cd77f2311ad89074533109ae3ffa Mon Sep 17 00:00:00 2001
-From: Mikulas Patocka <mpatocka@redhat.com>
-Date: Wed, 2 Oct 2019 06:15:53 -0400
-Subject: [PATCH] dm snapshot: rework COW throttling to fix deadlock
+From ba0b084ac309283db6e329785c1dc4f45fdbd379 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Wed, 16 Oct 2019 16:28:52 +0100
+Subject: [PATCH] Btrfs: check for the full sync flag while holding the inode
+ lock during fsync
 
-Commit 721b1d98fb517a ("dm snapshot: Fix excessive memory usage and
-workqueue stalls") introduced a semaphore to limit the maximum number of
-in-flight kcopyd (COW) jobs.
+We were checking for the full fsync flag in the inode before locking the
+inode, which is racy, since at that that time it might not be set but
+after we acquire the inode lock some other task set it. One case where
+this can happen is on a system low on memory and some concurrent task
+failed to allocate an extent map and therefore set the full sync flag on
+the inode, to force the next fsync to work in full mode.
 
-The implementation of this throttling mechanism is prone to a deadlock:
+A consequence of missing the full fsync flag set is hitting the problems
+fixed by commit 0c713cbab620 ("Btrfs: fix race between ranged fsync and
+writeback of adjacent ranges"), BUG_ON() when dropping extents from a log
+tree, hitting assertion failures at tree-log.c:copy_items() or all sorts
+of weird inconsistencies after replaying a log due to file extents items
+representing ranges that overlap.
 
-1. One or more threads write to the origin device causing COW, which is
-   performed by kcopyd.
+So just move the check such that it's done after locking the inode and
+before starting writeback again.
 
-2. At some point some of these threads might reach the s->cow_count
-   semaphore limit and block in down(&s->cow_count), holding a read lock
-   on _origins_lock.
+Fixes: 0c713cbab620 ("Btrfs: fix race between ranged fsync and writeback of adjacent ranges")
+CC: stable@vger.kernel.org # 5.2+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 
-3. Someone tries to acquire a write lock on _origins_lock, e.g.,
-   snapshot_ctr(), which blocks because the threads at step (2) already
-   hold a read lock on it.
-
-4. A COW operation completes and kcopyd runs dm-snapshot's completion
-   callback, which ends up calling pending_complete().
-   pending_complete() tries to resubmit any deferred origin bios. This
-   requires acquiring a read lock on _origins_lock, which blocks.
-
-   This happens because the read-write semaphore implementation gives
-   priority to writers, meaning that as soon as a writer tries to enter
-   the critical section, no readers will be allowed in, until all
-   writers have completed their work.
-
-   So, pending_complete() waits for the writer at step (3) to acquire
-   and release the lock. This writer waits for the readers at step (2)
-   to release the read lock and those readers wait for
-   pending_complete() (the kcopyd thread) to signal the s->cow_count
-   semaphore: DEADLOCK.
-
-The above was thoroughly analyzed and documented by Nikos Tsironis as
-part of his initial proposal for fixing this deadlock, see:
-https://www.redhat.com/archives/dm-devel/2019-October/msg00001.html
-
-Fix this deadlock by reworking COW throttling so that it waits without
-holding any locks. Add a variable 'in_progress' that counts how many
-kcopyd jobs are running. A function wait_for_in_progress() will sleep if
-'in_progress' is over the limit. It drops _origins_lock in order to
-avoid the deadlock.
-
-Reported-by: Guruswamy Basavaiah <guru2018@gmail.com>
-Reported-by: Nikos Tsironis <ntsironis@arrikto.com>
-Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
-Tested-by: Nikos Tsironis <ntsironis@arrikto.com>
-Fixes: 721b1d98fb51 ("dm snapshot: Fix excessive memory usage and workqueue stalls")
-Cc: stable@vger.kernel.org # v5.0+
-Depends-on: 4a3f111a73a8c ("dm snapshot: introduce account_start_copy() and account_end_copy()")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-
-diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
-index da3bd1794ee0..4fb1a40e68a0 100644
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -18,7 +18,6 @@
- #include <linux/vmalloc.h>
- #include <linux/log2.h>
- #include <linux/dm-kcopyd.h>
--#include <linux/semaphore.h>
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index e955e7fa9201..435a502a3226 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2067,25 +2067,7 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
+ 	struct btrfs_trans_handle *trans;
+ 	struct btrfs_log_ctx ctx;
+ 	int ret = 0, err;
+-	u64 len;
  
- #include "dm.h"
+-	/*
+-	 * If the inode needs a full sync, make sure we use a full range to
+-	 * avoid log tree corruption, due to hole detection racing with ordered
+-	 * extent completion for adjacent ranges, and assertion failures during
+-	 * hole detection.
+-	 */
+-	if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
+-		     &BTRFS_I(inode)->runtime_flags)) {
+-		start = 0;
+-		end = LLONG_MAX;
+-	}
+-
+-	/*
+-	 * The range length can be represented by u64, we have to do the typecasts
+-	 * to avoid signed overflow if it's [0, LLONG_MAX] eg. from fsync()
+-	 */
+-	len = (u64)end - (u64)start + 1;
+ 	trace_btrfs_sync_file(file, datasync);
  
-@@ -107,8 +106,8 @@ struct dm_snapshot {
- 	/* The on disk metadata handler */
- 	struct dm_exception_store *store;
+ 	btrfs_init_log_ctx(&ctx, inode);
+@@ -2111,6 +2093,19 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
  
--	/* Maximum number of in-flight COW jobs. */
--	struct semaphore cow_count;
-+	unsigned in_progress;
-+	struct wait_queue_head in_progress_wait;
+ 	atomic_inc(&root->log_batch);
  
- 	struct dm_kcopyd_client *kcopyd_client;
- 
-@@ -162,8 +161,8 @@ struct dm_snapshot {
-  */
- #define DEFAULT_COW_THRESHOLD 2048
- 
--static int cow_threshold = DEFAULT_COW_THRESHOLD;
--module_param_named(snapshot_cow_threshold, cow_threshold, int, 0644);
-+static unsigned cow_threshold = DEFAULT_COW_THRESHOLD;
-+module_param_named(snapshot_cow_threshold, cow_threshold, uint, 0644);
- MODULE_PARM_DESC(snapshot_cow_threshold, "Maximum number of chunks being copied on write");
- 
- DECLARE_DM_KCOPYD_THROTTLE_WITH_MODULE_PARM(snapshot_copy_throttle,
-@@ -1327,7 +1326,7 @@ static int snapshot_ctr(struct dm_target *ti, unsigned int argc, char **argv)
- 		goto bad_hash_tables;
- 	}
- 
--	sema_init(&s->cow_count, (cow_threshold > 0) ? cow_threshold : INT_MAX);
-+	init_waitqueue_head(&s->in_progress_wait);
- 
- 	s->kcopyd_client = dm_kcopyd_client_create(&dm_kcopyd_throttle);
- 	if (IS_ERR(s->kcopyd_client)) {
-@@ -1509,17 +1508,54 @@ static void snapshot_dtr(struct dm_target *ti)
- 
- 	dm_put_device(ti, s->origin);
- 
-+	WARN_ON(s->in_progress);
-+
- 	kfree(s);
- }
- 
- static void account_start_copy(struct dm_snapshot *s)
- {
--	down(&s->cow_count);
-+	spin_lock(&s->in_progress_wait.lock);
-+	s->in_progress++;
-+	spin_unlock(&s->in_progress_wait.lock);
- }
- 
- static void account_end_copy(struct dm_snapshot *s)
- {
--	up(&s->cow_count);
-+	spin_lock(&s->in_progress_wait.lock);
-+	BUG_ON(!s->in_progress);
-+	s->in_progress--;
-+	if (likely(s->in_progress <= cow_threshold) &&
-+	    unlikely(waitqueue_active(&s->in_progress_wait)))
-+		wake_up_locked(&s->in_progress_wait);
-+	spin_unlock(&s->in_progress_wait.lock);
-+}
-+
-+static bool wait_for_in_progress(struct dm_snapshot *s, bool unlock_origins)
-+{
-+	if (unlikely(s->in_progress > cow_threshold)) {
-+		spin_lock(&s->in_progress_wait.lock);
-+		if (likely(s->in_progress > cow_threshold)) {
-+			/*
-+			 * NOTE: this throttle doesn't account for whether
-+			 * the caller is servicing an IO that will trigger a COW
-+			 * so excess throttling may result for chunks not required
-+			 * to be COW'd.  But if cow_threshold was reached, extra
-+			 * throttling is unlikely to negatively impact performance.
-+			 */
-+			DECLARE_WAITQUEUE(wait, current);
-+			__add_wait_queue(&s->in_progress_wait, &wait);
-+			__set_current_state(TASK_UNINTERRUPTIBLE);
-+			spin_unlock(&s->in_progress_wait.lock);
-+			if (unlock_origins)
-+				up_read(&_origins_lock);
-+			io_schedule();
-+			remove_wait_queue(&s->in_progress_wait, &wait);
-+			return false;
-+		}
-+		spin_unlock(&s->in_progress_wait.lock);
-+	}
-+	return true;
- }
- 
- /*
-@@ -1537,7 +1573,7 @@ static void flush_bios(struct bio *bio)
- 	}
- }
- 
--static int do_origin(struct dm_dev *origin, struct bio *bio);
-+static int do_origin(struct dm_dev *origin, struct bio *bio, bool limit);
- 
- /*
-  * Flush a list of buffers.
-@@ -1550,7 +1586,7 @@ static void retry_origin_bios(struct dm_snapshot *s, struct bio *bio)
- 	while (bio) {
- 		n = bio->bi_next;
- 		bio->bi_next = NULL;
--		r = do_origin(s->origin, bio);
-+		r = do_origin(s->origin, bio, false);
- 		if (r == DM_MAPIO_REMAPPED)
- 			generic_make_request(bio);
- 		bio = n;
-@@ -1926,6 +1962,11 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
- 	if (!s->valid)
- 		return DM_MAPIO_KILL;
- 
-+	if (bio_data_dir(bio) == WRITE) {
-+		while (unlikely(!wait_for_in_progress(s, false)))
-+			; /* wait_for_in_progress() has slept */
++	/*
++	 * If the inode needs a full sync, make sure we use a full range to
++	 * avoid log tree corruption, due to hole detection racing with ordered
++	 * extent completion for adjacent ranges, and assertion failures during
++	 * hole detection. Do this while holding the inode lock, to avoid races
++	 * with other tasks.
++	 */
++	if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
++		     &BTRFS_I(inode)->runtime_flags)) {
++		start = 0;
++		end = LLONG_MAX;
 +	}
 +
- 	down_read(&s->lock);
- 	dm_exception_table_lock(&lock);
- 
-@@ -2122,7 +2163,7 @@ static int snapshot_merge_map(struct dm_target *ti, struct bio *bio)
- 
- 	if (bio_data_dir(bio) == WRITE) {
- 		up_write(&s->lock);
--		return do_origin(s->origin, bio);
-+		return do_origin(s->origin, bio, false);
- 	}
- 
- out_unlock:
-@@ -2497,15 +2538,24 @@ static int __origin_write(struct list_head *snapshots, sector_t sector,
- /*
-  * Called on a write from the origin driver.
-  */
--static int do_origin(struct dm_dev *origin, struct bio *bio)
-+static int do_origin(struct dm_dev *origin, struct bio *bio, bool limit)
- {
- 	struct origin *o;
- 	int r = DM_MAPIO_REMAPPED;
- 
-+again:
- 	down_read(&_origins_lock);
- 	o = __lookup_origin(origin->bdev);
--	if (o)
-+	if (o) {
-+		if (limit) {
-+			struct dm_snapshot *s;
-+			list_for_each_entry(s, &o->snapshots, list)
-+				if (unlikely(!wait_for_in_progress(s, true)))
-+					goto again;
-+		}
-+
- 		r = __origin_write(&o->snapshots, bio->bi_iter.bi_sector, bio);
-+	}
- 	up_read(&_origins_lock);
- 
- 	return r;
-@@ -2618,7 +2668,7 @@ static int origin_map(struct dm_target *ti, struct bio *bio)
- 		dm_accept_partial_bio(bio, available_sectors);
- 
- 	/* Only tell snapshots if this is a write */
--	return do_origin(o->dev, bio);
-+	return do_origin(o->dev, bio, true);
- }
- 
- /*
+ 	/*
+ 	 * Before we acquired the inode's lock, someone may have dirtied more
+ 	 * pages in the target range. We need to make sure that writeback for
+@@ -2138,8 +2133,11 @@ int btrfs_sync_file(struct file *file, loff_t start, loff_t end, int datasync)
+ 	/*
+ 	 * We have to do this here to avoid the priority inversion of waiting on
+ 	 * IO of a lower priority task while holding a transaction open.
++	 *
++	 * Also, the range length can be represented by u64, we have to do the
++	 * typecasts to avoid signed overflow if it's [0, LLONG_MAX].
+ 	 */
+-	ret = btrfs_wait_ordered_range(inode, start, len);
++	ret = btrfs_wait_ordered_range(inode, start, (u64)end - (u64)start + 1);
+ 	if (ret) {
+ 		up_write(&BTRFS_I(inode)->dio_sem);
+ 		inode_unlock(inode);
 
