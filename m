@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56DA6E6768
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E5B9E676B
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730886AbfJ0VUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:20:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41292 "EHLO mail.kernel.org"
+        id S1731743AbfJ0VUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:20:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728941AbfJ0VUk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:20:40 -0400
+        id S1731765AbfJ0VUn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:20:43 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FC5D205C9;
-        Sun, 27 Oct 2019 21:20:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B09A205C9;
+        Sun, 27 Oct 2019 21:20:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211239;
-        bh=4HTSAcKMHHhArRvWh4ks/beeLB7R+fEj+N19kWOwOaU=;
+        s=default; t=1572211242;
+        bh=5XqMLD8iGPlbW6virlcrv14XF0qzAbPIBv74bVt0L3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8IjIzWoCtPDrsFpb7sAa7NaPHYlBfpu7QEjIW12uYJlUrhqmsoegRzAazqegkkgr
-         ZTDsVj3Xs4UJJsomT2J3HHM7MBT7NF9WnRt+5xsCJfJ8gEsBP0SoubXxd5hXFUhAKD
-         lhaoUusy+JonRUHvp9qBHCjjiBw2jh0UUjRVVIRo=
+        b=Elr3B/8T8VCqIb9KZxI/LvHywqw2ASzUcBlnNFAfcpoDuh3BcHyjFOQ90mZPptJdS
+         3u7hfdn9w1ME8i/up1X+A5m9/v75FmmFpAast/4D8SWZaOpc4IUFiyAvVY9EAHQ7Mu
+         DlF7oiU54UVXxtoxIHd+2DXIuR+pPqtV3CTXpDtY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ederson de Souza <ederson.desouza@intel.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 079/197] sched: etf: Fix ordering of packets with same txtime
-Date:   Sun, 27 Oct 2019 21:59:57 +0100
-Message-Id: <20191027203355.952831914@linuxfoundation.org>
+Subject: [PATCH 5.3 080/197] sctp: change sctp_prot .no_autobind with true
+Date:   Sun, 27 Oct 2019 21:59:58 +0100
+Message-Id: <20191027203356.015238643@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -45,47 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 28aa7c86c2b49f659c8460a89e53b506c45979bb ]
+[ Upstream commit 63dfb7938b13fa2c2fbcb45f34d065769eb09414 ]
 
-When a application sends many packets with the same txtime, they may
-be transmitted out of order (different from the order in which they
-were enqueued).
+syzbot reported a memory leak:
 
-This happens because when inserting elements into the tree, when the
-txtime of two packets are the same, the new packet is inserted at the
-left side of the tree, causing the reordering. The only effect of this
-change should be that packets with the same txtime will be transmitted
-in the order they are enqueued.
+  BUG: memory leak, unreferenced object 0xffff888120b3d380 (size 64):
+  backtrace:
 
-The application in question (the AVTP GStreamer plugin, still in
-development) is sending video traffic, in which each video frame have
-a single presentation time, the problem is that when packetizing,
-multiple packets end up with the same txtime.
+    [...] slab_alloc mm/slab.c:3319 [inline]
+    [...] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
+    [...] sctp_bucket_create net/sctp/socket.c:8523 [inline]
+    [...] sctp_get_port_local+0x189/0x5a0 net/sctp/socket.c:8270
+    [...] sctp_do_bind+0xcc/0x200 net/sctp/socket.c:402
+    [...] sctp_bindx_add+0x4b/0xd0 net/sctp/socket.c:497
+    [...] sctp_setsockopt_bindx+0x156/0x1b0 net/sctp/socket.c:1022
+    [...] sctp_setsockopt net/sctp/socket.c:4641 [inline]
+    [...] sctp_setsockopt+0xaea/0x2dc0 net/sctp/socket.c:4611
+    [...] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3147
+    [...] __sys_setsockopt+0x10f/0x220 net/socket.c:2084
+    [...] __do_sys_setsockopt net/socket.c:2100 [inline]
 
-The receiving side was rejecting packets because they were being
-received out of order.
+It was caused by when sending msgs without binding a port, in the path:
+inet_sendmsg() -> inet_send_prepare() -> inet_autobind() ->
+.get_port/sctp_get_port(), sp->bind_hash will be set while bp->port is
+not. Later when binding another port by sctp_setsockopt_bindx(), a new
+bucket will be created as bp->port is not set.
 
-Fixes: 25db26a91364 ("net/sched: Introduce the ETF Qdisc")
-Reported-by: Ederson de Souza <ederson.desouza@intel.com>
-Signed-off-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+sctp's autobind is supposed to call sctp_autobind() where it does all
+things including setting bp->port. Since sctp_autobind() is called in
+sctp_sendmsg() if the sk is not yet bound, it should have skipped the
+auto bind.
+
+THis patch is to avoid calling inet_autobind() in inet_send_prepare()
+by changing sctp_prot .no_autobind with true, also remove the unused
+.get_port.
+
+Reported-by: syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_etf.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/socket.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/sched/sch_etf.c
-+++ b/net/sched/sch_etf.c
-@@ -177,7 +177,7 @@ static int etf_enqueue_timesortedlist(st
- 
- 		parent = *p;
- 		skb = rb_to_skb(parent);
--		if (ktime_after(txtime, skb->tstamp)) {
-+		if (ktime_compare(txtime, skb->tstamp) >= 0) {
- 			p = &parent->rb_right;
- 			leftmost = false;
- 		} else {
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -9353,7 +9353,7 @@ struct proto sctp_prot = {
+ 	.backlog_rcv =	sctp_backlog_rcv,
+ 	.hash        =	sctp_hash,
+ 	.unhash      =	sctp_unhash,
+-	.get_port    =	sctp_get_port,
++	.no_autobind =	true,
+ 	.obj_size    =  sizeof(struct sctp_sock),
+ 	.useroffset  =  offsetof(struct sctp_sock, subscribe),
+ 	.usersize    =  offsetof(struct sctp_sock, initmsg) -
+@@ -9395,7 +9395,7 @@ struct proto sctpv6_prot = {
+ 	.backlog_rcv	= sctp_backlog_rcv,
+ 	.hash		= sctp_hash,
+ 	.unhash		= sctp_unhash,
+-	.get_port	= sctp_get_port,
++	.no_autobind	= true,
+ 	.obj_size	= sizeof(struct sctp6_sock),
+ 	.useroffset	= offsetof(struct sctp6_sock, sctp.subscribe),
+ 	.usersize	= offsetof(struct sctp6_sock, sctp.initmsg) -
 
 
