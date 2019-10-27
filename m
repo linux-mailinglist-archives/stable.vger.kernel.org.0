@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1595E6973
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A08E9E6906
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727488AbfJ0VGc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:06:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52432 "EHLO mail.kernel.org"
+        id S1729968AbfJ0VLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:11:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727716AbfJ0VGb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:06:31 -0400
+        id S1727643AbfJ0VLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:11:49 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0D4120873;
-        Sun, 27 Oct 2019 21:06:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1ABDC20873;
+        Sun, 27 Oct 2019 21:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210390;
-        bh=CFYqWASh+zwVBmqClQT5wi/Bqwf2yZuyfWW7zvxxAZg=;
+        s=default; t=1572210708;
+        bh=6gtE+bESW59NPm1mXQqI0kxfVsPL/7i+8MWDrhj3JRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kaafw5P8D/jOPpSQe8fytuiBFFDASUsQ7tVXPmJYBgR/vAQ6opPBTsPlSNfVNKkpX
-         CVwCtCCTxWRjwFNjQtE6DkqIq5WlbxgPB9ec8J5c4T9toxgHXcl1UTGmX1laP6H18L
-         q+5SfRUT91QZrAGHFp0Evg0eMkAAYzETij11k/Tk=
+        b=G397yLYXAkBo9HwrI45diQS7FBJKHSnej4IgR5rPi9FarC0QN1m7Bmr/MObD1yHZb
+         4RPnSiPm/y/L2SFRH0JnPQtlXXPJQTbGwUKdyznDGJ3qNhpJxW0BEfIw8uKQp5ZLiX
+         f5RwQ1ezD/xQ1tn5TRIBXzjsfXgVhwjCiso7+Zi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.9 49/49] RDMA/cxgb4: Do not dma memory off of the stack
+        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 110/119] btrfs: block-group: Fix a memory leak due to missing btrfs_put_block_group()
 Date:   Sun, 27 Oct 2019 22:01:27 +0100
-Message-Id: <20191027203208.381693146@linuxfoundation.org>
+Message-Id: <20191027203349.523940873@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg KH <gregkh@linuxfoundation.org>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 3840c5b78803b2b6cc1ff820100a74a092c40cbb upstream.
+commit 4b654acdae850f48b8250b9a578a4eaa518c7a6f upstream.
 
-Nicolas pointed out that the cxgb4 driver is doing dma off of the stack,
-which is generally considered a very bad thing.  On some architectures it
-could be a security problem, but odds are none of them actually run this
-driver, so it's just a "normal" bug.
+In btrfs_read_block_groups(), if we have an invalid block group which
+has mixed type (DATA|METADATA) while the fs doesn't have MIXED_GROUPS
+feature, we error out without freeing the block group cache.
 
-Resolve this by allocating the memory for a message off of the heap
-instead of the stack.  kmalloc() always will give us a proper memory
-location that DMA will work correctly from.
+This patch will add the missing btrfs_put_block_group() to prevent
+memory leak.
 
-Link: https://lore.kernel.org/r/20191001165611.GA3542072@kroah.com
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Tested-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Note for stable backports: the file to patch in versions <= 5.3 is
+fs/btrfs/extent-tree.c
+
+Fixes: 49303381f19a ("Btrfs: bail out if block group has different mixed flag")
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/cxgb4/mem.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ fs/btrfs/extent-tree.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/infiniband/hw/cxgb4/mem.c
-+++ b/drivers/infiniband/hw/cxgb4/mem.c
-@@ -264,13 +264,17 @@ static int write_tpt_entry(struct c4iw_r
- 			   struct sk_buff *skb)
- {
- 	int err;
--	struct fw_ri_tpte tpt;
-+	struct fw_ri_tpte *tpt;
- 	u32 stag_idx;
- 	static atomic_t key;
- 
- 	if (c4iw_fatal_error(rdev))
- 		return -EIO;
- 
-+	tpt = kmalloc(sizeof(*tpt), GFP_KERNEL);
-+	if (!tpt)
-+		return -ENOMEM;
-+
- 	stag_state = stag_state > 0;
- 	stag_idx = (*stag) >> 8;
- 
-@@ -280,6 +284,7 @@ static int write_tpt_entry(struct c4iw_r
- 			mutex_lock(&rdev->stats.lock);
- 			rdev->stats.stag.fail++;
- 			mutex_unlock(&rdev->stats.lock);
-+			kfree(tpt);
- 			return -ENOMEM;
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -10255,6 +10255,7 @@ int btrfs_read_block_groups(struct btrfs
+ 			btrfs_err(info,
+ "bg %llu is a mixed block group but filesystem hasn't enabled mixed block groups",
+ 				  cache->key.objectid);
++			btrfs_put_block_group(cache);
+ 			ret = -EINVAL;
+ 			goto error;
  		}
- 		mutex_lock(&rdev->stats.lock);
-@@ -294,28 +299,28 @@ static int write_tpt_entry(struct c4iw_r
- 
- 	/* write TPT entry */
- 	if (reset_tpt_entry)
--		memset(&tpt, 0, sizeof(tpt));
-+		memset(tpt, 0, sizeof(*tpt));
- 	else {
--		tpt.valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
-+		tpt->valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
- 			FW_RI_TPTE_STAGKEY_V((*stag & FW_RI_TPTE_STAGKEY_M)) |
- 			FW_RI_TPTE_STAGSTATE_V(stag_state) |
- 			FW_RI_TPTE_STAGTYPE_V(type) | FW_RI_TPTE_PDID_V(pdid));
--		tpt.locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
-+		tpt->locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
- 			(bind_enabled ? FW_RI_TPTE_MWBINDEN_F : 0) |
- 			FW_RI_TPTE_ADDRTYPE_V((zbva ? FW_RI_ZERO_BASED_TO :
- 						      FW_RI_VA_BASED_TO))|
- 			FW_RI_TPTE_PS_V(page_size));
--		tpt.nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
-+		tpt->nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
- 			FW_RI_TPTE_PBLADDR_V(PBL_OFF(rdev, pbl_addr)>>3));
--		tpt.len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
--		tpt.va_hi = cpu_to_be32((u32)(to >> 32));
--		tpt.va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
--		tpt.dca_mwbcnt_pstag = cpu_to_be32(0);
--		tpt.len_hi = cpu_to_be32((u32)(len >> 32));
-+		tpt->len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
-+		tpt->va_hi = cpu_to_be32((u32)(to >> 32));
-+		tpt->va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
-+		tpt->dca_mwbcnt_pstag = cpu_to_be32(0);
-+		tpt->len_hi = cpu_to_be32((u32)(len >> 32));
- 	}
- 	err = write_adapter_mem(rdev, stag_idx +
- 				(rdev->lldi.vr->stag.start >> 5),
--				sizeof(tpt), &tpt, skb);
-+				sizeof(*tpt), tpt, skb);
- 
- 	if (reset_tpt_entry) {
- 		c4iw_put_resource(&rdev->resource.tpt_table, stag_idx);
-@@ -323,6 +328,7 @@ static int write_tpt_entry(struct c4iw_r
- 		rdev->stats.stag.cur -= 32;
- 		mutex_unlock(&rdev->stats.lock);
- 	}
-+	kfree(tpt);
- 	return err;
- }
- 
 
 
