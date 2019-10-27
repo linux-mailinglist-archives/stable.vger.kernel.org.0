@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E01E68EF
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:33:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0769E690C
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730207AbfJ0VNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:13:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60264 "EHLO mail.kernel.org"
+        id S1729274AbfJ0VLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:11:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730205AbfJ0VNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:13:12 -0400
+        id S1729873AbfJ0VLU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:11:20 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D53621726;
-        Sun, 27 Oct 2019 21:13:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00502214AF;
+        Sun, 27 Oct 2019 21:11:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210791;
-        bh=a+jnrrLUjZCnLTg1MYH2H3uUUeyvZnRqF6KjRTHV+GY=;
+        s=default; t=1572210679;
+        bh=0Yf3Sk80zrmXm6bH+9w5Mz+Gheo+SF6FY/8Hxrs8ppQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvcVfpz1g7nLst8AEova+z9TS4CqUFU191E1j4VxG4hTdQ0UnSwSdET7NU92gS0IN
-         ZH4d2BdZ0Gk5L9QO3YqpzfrSXpZjKqePogOxHJh8doC/Vy9AHOig5llYvLDPrtWoKE
-         xhQpGPeHD4pTlQD8x4BaGqGfGv9bvW6ZlL/XL36Q=
+        b=qy0/wXN0XgOvjdfROp1tDZn7rUxNI7gzb2o3F77IDutNFaDt78U1c2ER+GLX5URGp
+         x1gKQyIoSeIcRNkWu3k4m6AJuo7msFTDJngOWTpVcnq9AOlWbPFwwYA0UmQGEA4ivW
+         E3UuIkd2nN5IkTE1xrTHGctVl//6YCpPnQkD2riQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/93] r8152: Set macpassthru in reset_resume callback
-Date:   Sun, 27 Oct 2019 22:00:31 +0100
-Message-Id: <20191027203255.499752331@linuxfoundation.org>
+        Dave Martin <dave.martin@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 055/119] arm64: capabilities: Allow features based on local CPU scope
+Date:   Sun, 27 Oct 2019 22:00:32 +0100
+Message-Id: <20191027203324.012028429@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit a54cdeeb04fc719e4c7f19d6e28dba7ea86cee5b ]
+[ Upstream commit fbd890b9b8497bab04c1d338bd97579a7bc53fab ]
 
-r8152 may fail to establish network connection after resume from system
-suspend.
+So far we have treated the feature capabilities as system wide
+and this wouldn't help with features that could be detected locally
+on one or more CPUs (e.g, KPTI, Software prefetch). This patch
+splits the feature detection to two phases :
 
-If the USB port connects to r8152 lost its power during system suspend,
-the MAC address was written before is lost. The reason is that The MAC
-address doesn't get written again in its reset_resume callback.
+ 1) Local CPU features are checked on all boot time active CPUs.
+ 2) System wide features are checked only once after all CPUs are
+    active.
 
-So let's set MAC address again in reset_resume callback. Also remove
-unnecessary lock as no other locking attempt will happen during
-reset_resume.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Dave Martin <dave.martin@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/r8152.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm64/kernel/cpufeature.c |   17 +++++++++++------
+ 1 file changed, 11 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index a065a6184f7e4..a291e5f2daef6 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -4474,10 +4474,9 @@ static int rtl8152_reset_resume(struct usb_interface *intf)
- 	struct r8152 *tp = usb_get_intfdata(intf);
- 
- 	clear_bit(SELECTIVE_SUSPEND, &tp->flags);
--	mutex_lock(&tp->control);
- 	tp->rtl_ops.init(tp);
- 	queue_delayed_work(system_long_wq, &tp->hw_phy_work, 0);
--	mutex_unlock(&tp->control);
-+	set_ethernet_addr(tp);
- 	return rtl8152_resume(intf);
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -485,6 +485,7 @@ static void __init init_cpu_ftr_reg(u32
  }
  
--- 
-2.20.1
-
+ extern const struct arm64_cpu_capabilities arm64_errata[];
++static const struct arm64_cpu_capabilities arm64_features[];
+ static void update_cpu_capabilities(const struct arm64_cpu_capabilities *caps,
+ 				    u16 scope_mask, const char *info);
+ 
+@@ -526,11 +527,12 @@ void __init init_cpu_features(struct cpu
+ 	}
+ 
+ 	/*
+-	 * Run the errata work around checks on the boot CPU, once we have
+-	 * initialised the cpu feature infrastructure.
++	 * Run the errata work around and local feature checks on the
++	 * boot CPU, once we have initialised the cpu feature infrastructure.
+ 	 */
+ 	update_cpu_capabilities(arm64_errata, SCOPE_LOCAL_CPU,
+ 				"enabling workaround for");
++	update_cpu_capabilities(arm64_features, SCOPE_LOCAL_CPU, "detected:");
+ }
+ 
+ static void update_cpu_ftr_reg(struct arm64_ftr_reg *reg, u64 new)
+@@ -1349,15 +1351,18 @@ void check_local_cpu_capabilities(void)
+ 
+ 	/*
+ 	 * If we haven't finalised the system capabilities, this CPU gets
+-	 * a chance to update the errata work arounds.
++	 * a chance to update the errata work arounds and local features.
+ 	 * Otherwise, this CPU should verify that it has all the system
+ 	 * advertised capabilities.
+ 	 */
+-	if (!sys_caps_initialised)
++	if (!sys_caps_initialised) {
+ 		update_cpu_capabilities(arm64_errata, SCOPE_LOCAL_CPU,
+ 					"enabling workaround for");
+-	else
++		update_cpu_capabilities(arm64_features, SCOPE_LOCAL_CPU,
++					"detected:");
++	} else {
+ 		verify_local_cpu_capabilities();
++	}
+ }
+ 
+ DEFINE_STATIC_KEY_FALSE(arm64_const_caps_ready);
+@@ -1382,7 +1387,7 @@ void __init setup_cpu_features(void)
+ 	int cls;
+ 
+ 	/* Set the CPU feature capabilies */
+-	update_cpu_capabilities(arm64_features, SCOPE_ALL, "detected:");
++	update_cpu_capabilities(arm64_features, SCOPE_SYSTEM, "detected:");
+ 	update_cpu_capabilities(arm64_errata, SCOPE_SYSTEM,
+ 				"enabling workaround for");
+ 	enable_cpu_capabilities(arm64_features, SCOPE_ALL);
 
 
