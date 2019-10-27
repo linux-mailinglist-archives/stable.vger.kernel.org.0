@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06776E675E
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6574AE65FB
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:07:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731679AbfJ0VUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40792 "EHLO mail.kernel.org"
+        id S1729111AbfJ0VHP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:07:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731667AbfJ0VUR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:20:17 -0400
+        id S1728037AbfJ0VHL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:07:11 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 86FD42070B;
-        Sun, 27 Oct 2019 21:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A122B214E0;
+        Sun, 27 Oct 2019 21:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211217;
-        bh=gRsaA9BFRtMmHUz3JFgDHmKdlFZXSf5015JSexpU7Kg=;
+        s=default; t=1572210431;
+        bh=KSTyBycvaBF6MzT0NdhfrBGaaI+TnTsiPM3uavlCd/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CW7O87PSw85i+Rcq15GZHEMq9xq8YiJCqygV1wbdfajjiwRTbO/gUYT8mSAaXvE+2
-         HaDJJJnu+SpwH5Hr8GdTIp03Cxnn7hwi3YceSGpiX6OqdtWJLVcFnCimsNFmaJ7GsX
-         4fSd/MiVx3VmlNM3JRdayxri6jLDJDaukM+1VJCw=
+        b=0LnF7LkO4HKOLQgiKX+QISUEY9w19Q0RVGRWU+RtkYPbxG7CsxYeauZM5DesWdm/k
+         0KwnBm7kuirbTDRi10L+tuntE9h2cPH4cyUuxa0e4tC1ktbuNt5F24Ssa6dC7VfF8Z
+         9MH2WR/4WbiYQnugEvO2CGwS9ZJX+ylFmG8T0aeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Doug Berger <opendmb@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 072/197] net: bcmgenet: Fix RGMII_MODE_EN value for GENET v1/2/3
+        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 013/119] net: hisilicon: Fix usage of uninitialized variable in function mdio_sc_cfg_reg_write()
 Date:   Sun, 27 Oct 2019 21:59:50 +0100
-Message-Id: <20191027203355.534586578@linuxfoundation.org>
+Message-Id: <20191027203303.152336287@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Yizhuo <yzhai003@ucr.edu>
 
-[ Upstream commit efb86fede98cdc70b674692ff617b1162f642c49 ]
+[ Upstream commit 53de429f4e88f538f7a8ec2b18be8c0cd9b2c8e1 ]
 
-The RGMII_MODE_EN bit value was 0 for GENET versions 1 through 3, and
-became 6 for GENET v4 and above, account for that difference.
+In function mdio_sc_cfg_reg_write(), variable "reg_value" could be
+uninitialized if regmap_read() fails. However, "reg_value" is used
+to decide the control flow later in the if statement, which is
+potentially unsafe.
 
-Fixes: aa09677cba42 ("net: bcmgenet: add MDIO routines")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.h |    1 +
- drivers/net/ethernet/broadcom/genet/bcmmii.c   |    6 +++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns_mdio.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-@@ -366,6 +366,7 @@ struct bcmgenet_mib_counters {
- #define  EXT_PWR_DOWN_PHY_EN		(1 << 20)
+diff --git a/drivers/net/ethernet/hisilicon/hns_mdio.c b/drivers/net/ethernet/hisilicon/hns_mdio.c
+index baf5cc251f329..9a3bc0994a1db 100644
+--- a/drivers/net/ethernet/hisilicon/hns_mdio.c
++++ b/drivers/net/ethernet/hisilicon/hns_mdio.c
+@@ -156,11 +156,15 @@ static int mdio_sc_cfg_reg_write(struct hns_mdio_device *mdio_dev,
+ {
+ 	u32 time_cnt;
+ 	u32 reg_value;
++	int ret;
  
- #define EXT_RGMII_OOB_CTRL		0x0C
-+#define  RGMII_MODE_EN_V123		(1 << 0)
- #define  RGMII_LINK			(1 << 4)
- #define  OOB_DISABLE			(1 << 5)
- #define  RGMII_MODE_EN			(1 << 6)
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -258,7 +258,11 @@ int bcmgenet_mii_config(struct net_devic
- 	 */
- 	if (priv->ext_phy) {
- 		reg = bcmgenet_ext_readl(priv, EXT_RGMII_OOB_CTRL);
--		reg |= RGMII_MODE_EN | id_mode_dis;
-+		reg |= id_mode_dis;
-+		if (GENET_IS_V1(priv) || GENET_IS_V2(priv) || GENET_IS_V3(priv))
-+			reg |= RGMII_MODE_EN_V123;
-+		else
-+			reg |= RGMII_MODE_EN;
- 		bcmgenet_ext_writel(priv, reg, EXT_RGMII_OOB_CTRL);
- 	}
+ 	regmap_write(mdio_dev->subctrl_vbase, cfg_reg, set_val);
  
+ 	for (time_cnt = MDIO_TIMEOUT; time_cnt; time_cnt--) {
+-		regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
++		ret = regmap_read(mdio_dev->subctrl_vbase, st_reg, &reg_value);
++		if (ret)
++			return ret;
++
+ 		reg_value &= st_msk;
+ 		if ((!!check_st) == (!!reg_value))
+ 			break;
+-- 
+2.20.1
+
 
 
