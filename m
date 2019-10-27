@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D621AE65C9
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:05:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 359CCE6632
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:09:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728775AbfJ0VFL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:05:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50870 "EHLO mail.kernel.org"
+        id S1729519AbfJ0VJe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:09:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728767AbfJ0VFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:05:06 -0400
+        id S1728976AbfJ0VJe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:09:34 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7E2F214AF;
-        Sun, 27 Oct 2019 21:05:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F16020873;
+        Sun, 27 Oct 2019 21:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210306;
-        bh=MAUIFzvj0oCaU6nDVjrgFqLlv1Ar4V2sW0PJ1BSPT3A=;
+        s=default; t=1572210573;
+        bh=guMc78V86eIqIsGt3antPGPaD57jfmvrq6eLIvdlquc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aN4Kmu3nf7vb4qaLhvuzSQc4aDIqokmt3/ZAaFg/Hi5YF8YV1Ms0idgl9HwWBryeT
-         cQkELK8DStV6lT13E/gwQ9XHuzy1zzN7dpzNFyN6bM96/5t05nXrJA5DX+SQhSNouH
-         lkP7WHXEdt0R4fliG7XHrnX3VhPSnYF6qGiS4gMc=
+        b=PTNxSSSuH+Bci+VndZ+4agnxHo8q/VwCFWF6KRtJvL4YmDMc3mu+FR82ebYdGdWS8
+         cYFAYQIKS0kFskuqnPExQTmkUX40AI6dD3LBL/SrDrBKZL5vDAHhandeQq1xWEZohO
+         TeDjKxlspaGPVydni9QzM0h7OJuaH9HT99Pxh+gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 02/49] scsi: megaraid: disable device when probe failed after enabled device
+        Mark Rutland <mark.rutland@arm.com>,
+        Dave Martin <dave.martin@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 063/119] arm64: Add MIDR encoding for Arm Cortex-A55 and Cortex-A35
 Date:   Sun, 27 Oct 2019 22:00:40 +0100
-Message-Id: <20191027203121.575796632@linuxfoundation.org>
+Message-Id: <20191027203328.879416494@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiang Chen <chenxiang66@hisilicon.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit 70054aa39a013fa52eff432f2223b8bd5c0048f8 ]
+[ Upstream commit 6e616864f21160d8d503523b60a53a29cecc6f24 ]
 
-For pci device, need to disable device when probe failed after enabled
-device.
+Update the MIDR encodings for the Cortex-A55 and Cortex-A35
 
-Link: https://lore.kernel.org/r/1567818450-173315-1-git-send-email-chenxiang66@hisilicon.com
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Reviewed-by: Dave Martin <dave.martin@arm.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/megaraid.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/include/asm/cputype.h |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/megaraid.c b/drivers/scsi/megaraid.c
-index 19bffe0b2cc0a..2cbfec6a74662 100644
---- a/drivers/scsi/megaraid.c
-+++ b/drivers/scsi/megaraid.c
-@@ -4219,11 +4219,11 @@ megaraid_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 		 */
- 		if (pdev->subsystem_vendor == PCI_VENDOR_ID_COMPAQ &&
- 		    pdev->subsystem_device == 0xC000)
--		   	return -ENODEV;
-+			goto out_disable_device;
- 		/* Now check the magic signature byte */
- 		pci_read_config_word(pdev, PCI_CONF_AMISIG, &magic);
- 		if (magic != HBA_SIGNATURE_471 && magic != HBA_SIGNATURE)
--			return -ENODEV;
-+			goto out_disable_device;
- 		/* Ok it is probably a megaraid */
- 	}
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -85,6 +85,8 @@
+ #define ARM_CPU_PART_CORTEX_A53		0xD03
+ #define ARM_CPU_PART_CORTEX_A73		0xD09
+ #define ARM_CPU_PART_CORTEX_A75		0xD0A
++#define ARM_CPU_PART_CORTEX_A35		0xD04
++#define ARM_CPU_PART_CORTEX_A55		0xD05
  
--- 
-2.20.1
-
+ #define APM_CPU_PART_POTENZA		0x000
+ 
+@@ -108,6 +110,8 @@
+ #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
+ #define MIDR_CORTEX_A73 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
+ #define MIDR_CORTEX_A75 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
++#define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
++#define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
+ #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
+ #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
+ #define MIDR_THUNDERX_83XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_83XX)
 
 
