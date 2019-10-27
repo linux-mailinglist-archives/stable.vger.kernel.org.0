@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B46C6E65DF
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:06:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14A5DE66C9
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:15:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728953AbfJ0VGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:06:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52008 "EHLO mail.kernel.org"
+        id S1730025AbfJ0VPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:15:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727935AbfJ0VGG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:06:06 -0400
+        id S1730609AbfJ0VPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:15:12 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74A35214AF;
-        Sun, 27 Oct 2019 21:06:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4036208C0;
+        Sun, 27 Oct 2019 21:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210366;
-        bh=xfn2grFNQHAMa2mnB8e9OG/12JI0L+LK0zEft7BaaBI=;
+        s=default; t=1572210912;
+        bh=a6NWeb/cvRKPTVMgErLPrNuC4T2h0kGuFR/Mxng+wDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JzptqsSoBpYRE060pMbIIK84iwpMHNI5ycxPwEx2BuPuM7MI7lYsDe4tIM/S5i3q1
-         qghbS+VI/g9+KTFOfhfxw/gdfApUxUKKtCbkKIbhEil2tOURgLUzOQcYG3utEIuQIX
-         GPz2uTmY8AsplO5aqyuvhRBttDQfcxomtO4E50nk=
+        b=2WFYLTrOUaC5BJh4QDHT4yz3TbOtPBTdnLr5NOh1EHxGTno7Sw6p37T4HtaCchMAK
+         mRbR974n/Vr9pc9G2Ep/PbbsBUDuuQIUZ/PnoNpXrSoCkC13Gqx07IY10pZEcIqXPj
+         EpFiMHdjqE+TvCx8gL81L0wpDz9/cFrX48SuT8uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Felsch <m.felsch@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.9 33/49] Input: da9063 - fix capability and drop KEY_SLEEP
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>
+Subject: [PATCH 4.19 59/93] drm/edid: Add 6 bpc quirk for SDC panel in Lenovo G50
 Date:   Sun, 27 Oct 2019 22:01:11 +0100
-Message-Id: <20191027203147.681498332@linuxfoundation.org>
+Message-Id: <20191027203303.729200921@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,41 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit afce285b859cea91c182015fc9858ea58c26cd0e upstream.
+commit 11bcf5f78905b90baae8fb01e16650664ed0cb00 upstream.
 
-Since commit f889beaaab1c ("Input: da9063 - report KEY_POWER instead of
-KEY_SLEEP during power key-press") KEY_SLEEP isn't supported anymore. This
-caused input device to not generate any events if "dlg,disable-key-power"
-is set.
+Another panel that needs 6BPC quirk.
 
-Fix this by unconditionally setting KEY_POWER capability, and not
-declaring KEY_SLEEP.
-
-Fixes: f889beaaab1c ("Input: da9063 - report KEY_POWER instead of KEY_SLEEP during power key-press")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+BugLink: https://bugs.launchpad.net/bugs/1819968
+Cc: <stable@vger.kernel.org> # v4.8+
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190402033037.21877-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/input/misc/da9063_onkey.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/gpu/drm/drm_edid.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/input/misc/da9063_onkey.c
-+++ b/drivers/input/misc/da9063_onkey.c
-@@ -247,10 +247,7 @@ static int da9063_onkey_probe(struct pla
- 	onkey->input->phys = onkey->phys;
- 	onkey->input->dev.parent = &pdev->dev;
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -166,6 +166,9 @@ static const struct edid_quirk {
+ 	/* Medion MD 30217 PG */
+ 	{ "MED", 0x7b8, EDID_QUIRK_PREFER_LARGE_75 },
  
--	if (onkey->key_power)
--		input_set_capability(onkey->input, EV_KEY, KEY_POWER);
--
--	input_set_capability(onkey->input, EV_KEY, KEY_SLEEP);
-+	input_set_capability(onkey->input, EV_KEY, KEY_POWER);
- 
- 	INIT_DELAYED_WORK(&onkey->work, da9063_poll_on);
++	/* Lenovo G50 */
++	{ "SDC", 18514, EDID_QUIRK_FORCE_6BPC },
++
+ 	/* Panel in Samsung NP700G7A-S01PL notebook reports 6bpc */
+ 	{ "SEC", 0xd033, EDID_QUIRK_FORCE_8BPC },
  
 
 
