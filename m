@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45CE5E67C0
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC69E67C3
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732435AbfJ0VYE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:24:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45526 "EHLO mail.kernel.org"
+        id S1732449AbfJ0VYK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:24:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732428AbfJ0VYD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:24:03 -0400
+        id S1730777AbfJ0VYG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:24:06 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 22FBC2184C;
-        Sun, 27 Oct 2019 21:24:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0727A21726;
+        Sun, 27 Oct 2019 21:24:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211442;
-        bh=Z13k9Rr+oBpf3ED7rjGzDOEk10lgri0uRu9QWWRnjeQ=;
+        s=default; t=1572211445;
+        bh=ZGKy0LfQM2/wY5dYcXvQFbwuLbdK5gPKL1YPowHNLoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvXUK1uUHmvOc7qES7FO1eFiFi3RdaxEw/JZWiZzTtjPx71EUuS+edSpRqAW7udH+
-         QZjfBp7iAccmAu86WCG2VQ7JIxffJ5UR+6dX8ZPusoR8a23TxHXmKwvcvwlPQBDkXO
-         7Gh+59DsIIdbuT368RBCRAnxBw1bg2/dLPnjG8W4=
+        b=gsuENh9vddJXKUaXv3cLDhGlYbCshjCZmMpyqfC+xBRbFEd2fff/YFBYVopeGUstz
+         jgSIpSwdpN0v3eZVjL+WSpf71F6VQQmMDpQTH3F01baLBsIJs77dT4a1NniZJwAeKf
+         d8uhjbLMsRF51QWRw0MDXjqtmbwZKQDWLXparITA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Michal Hocko <mhocko@kernel.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 153/197] hugetlbfs: dont access uninitialized memmaps in pfn_range_valid_gigantic()
-Date:   Sun, 27 Oct 2019 22:01:11 +0100
-Message-Id: <20191027203359.945985294@linuxfoundation.org>
+Subject: [PATCH 5.3 154/197] mm/memory-failure: poison read receives SIGKILL instead of SIGBUS if mmaped more than once
+Date:   Sun, 27 Oct 2019 22:01:12 +0100
+Message-Id: <20191027203400.001440568@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -48,59 +47,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Jane Chu <jane.chu@oracle.com>
 
-commit f231fe4235e22e18d847e05cbe705deaca56580a upstream.
+commit 3d7fed4ad8ccb691d217efbb0f934e6a4df5ef91 upstream.
 
-Uninitialized memmaps contain garbage and in the worst case trigger
-kernel BUGs, especially with CONFIG_PAGE_POISONING.  They should not get
-touched.
+Mmap /dev/dax more than once, then read the poison location using
+address from one of the mappings.  The other mappings due to not having
+the page mapped in will cause SIGKILLs delivered to the process.
+SIGKILL succeeds over SIGBUS, so user process loses the opportunity to
+handle the UE.
 
-Let's make sure that we only consider online memory (managed by the
-buddy) that has initialized memmaps.  ZONE_DEVICE is not applicable.
+Although one may add MAP_POPULATE to mmap(2) to work around the issue,
+MAP_POPULATE makes mapping 128GB of pmem several magnitudes slower, so
+isn't always an option.
 
-page_zone() will call page_to_nid(), which will trigger
-VM_BUG_ON_PGFLAGS(PagePoisoned(page), page) with CONFIG_PAGE_POISONING
-and CONFIG_DEBUG_VM_PGFLAGS when called on uninitialized memmaps.  This
-can be the case when an offline memory block (e.g., never onlined) is
-spanned by a zone.
+Details -
 
-Note: As explained by Michal in [1], alloc_contig_range() will verify
-the range.  So it boils down to the wrong access in this function.
+  ndctl inject-error --block=10 --count=1 namespace6.0
 
-[1] http://lkml.kernel.org/r/20180423000943.GO17484@dhcp22.suse.cz
+  ./read_poison -x dax6.0 -o 5120 -m 2
+  mmaped address 0x7f5bb6600000
+  mmaped address 0x7f3cf3600000
+  doing local read at address 0x7f3cf3601400
+  Killed
 
-Link: http://lkml.kernel.org/r/20191015120717.4858-1-david@redhat.com
-Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reported-by: Michal Hocko <mhocko@kernel.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: <stable@vger.kernel.org>	[4.13+]
+Console messages in instrumented kernel -
+
+  mce: Uncorrected hardware memory error in user-access at edbe201400
+  Memory failure: tk->addr = 7f5bb6601000
+  Memory failure: address edbe201: call dev_pagemap_mapping_shift
+  dev_pagemap_mapping_shift: page edbe201: no PUD
+  Memory failure: tk->size_shift == 0
+  Memory failure: Unable to find user space address edbe201 in read_poison
+  Memory failure: tk->addr = 7f3cf3601000
+  Memory failure: address edbe201: call dev_pagemap_mapping_shift
+  Memory failure: tk->size_shift = 21
+  Memory failure: 0xedbe201: forcibly killing read_poison:22434 because of failure to unmap corrupted page
+    => to deliver SIGKILL
+  Memory failure: 0xedbe201: Killing read_poison:22434 due to hardware memory corruption
+    => to deliver SIGBUS
+
+Link: http://lkml.kernel.org/r/1565112345-28754-3-git-send-email-jane.chu@oracle.com
+Signed-off-by: Jane Chu <jane.chu@oracle.com>
+Suggested-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/hugetlb.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ mm/memory-failure.c |   22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1084,11 +1084,10 @@ static bool pfn_range_valid_gigantic(str
- 	struct page *page;
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -199,7 +199,6 @@ struct to_kill {
+ 	struct task_struct *tsk;
+ 	unsigned long addr;
+ 	short size_shift;
+-	char addr_valid;
+ };
  
- 	for (i = start_pfn; i < end_pfn; i++) {
--		if (!pfn_valid(i))
-+		page = pfn_to_online_page(i);
-+		if (!page)
- 			return false;
+ /*
+@@ -324,22 +323,27 @@ static void add_to_kill(struct task_stru
+ 		}
+ 	}
+ 	tk->addr = page_address_in_vma(p, vma);
+-	tk->addr_valid = 1;
+ 	if (is_zone_device_page(p))
+ 		tk->size_shift = dev_pagemap_mapping_shift(p, vma);
+ 	else
+ 		tk->size_shift = compound_order(compound_head(p)) + PAGE_SHIFT;
  
--		page = pfn_to_page(i);
--
- 		if (page_zone(page) != z)
- 			return false;
- 
+ 	/*
+-	 * In theory we don't have to kill when the page was
+-	 * munmaped. But it could be also a mremap. Since that's
+-	 * likely very rare kill anyways just out of paranoia, but use
+-	 * a SIGKILL because the error is not contained anymore.
++	 * Send SIGKILL if "tk->addr == -EFAULT". Also, as
++	 * "tk->size_shift" is always non-zero for !is_zone_device_page(),
++	 * so "tk->size_shift == 0" effectively checks no mapping on
++	 * ZONE_DEVICE. Indeed, when a devdax page is mmapped N times
++	 * to a process' address space, it's possible not all N VMAs
++	 * contain mappings for the page, but at least one VMA does.
++	 * Only deliver SIGBUS with payload derived from the VMA that
++	 * has a mapping for the page.
+ 	 */
+-	if (tk->addr == -EFAULT || tk->size_shift == 0) {
++	if (tk->addr == -EFAULT) {
+ 		pr_info("Memory failure: Unable to find user space address %lx in %s\n",
+ 			page_to_pfn(p), tsk->comm);
+-		tk->addr_valid = 0;
++	} else if (tk->size_shift == 0) {
++		kfree(tk);
++		return;
+ 	}
+ 	get_task_struct(tsk);
+ 	tk->tsk = tsk;
+@@ -366,7 +370,7 @@ static void kill_procs(struct list_head
+ 			 * make sure the process doesn't catch the
+ 			 * signal and then access the memory. Just kill it.
+ 			 */
+-			if (fail || tk->addr_valid == 0) {
++			if (fail || tk->addr == -EFAULT) {
+ 				pr_err("Memory failure: %#lx: forcibly killing %s:%d because of failure to unmap corrupted page\n",
+ 				       pfn, tk->tsk->comm, tk->tsk->pid);
+ 				do_send_sig_info(SIGKILL, SEND_SIG_PRIV,
 
 
