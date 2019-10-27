@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 998F0E66DE
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38EC3E663A
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:09:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730212AbfJ0VQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:16:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35502 "EHLO mail.kernel.org"
+        id S1729582AbfJ0VJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:09:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730746AbfJ0VQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:16:01 -0400
+        id S1728381AbfJ0VJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:09:54 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C4C020717;
-        Sun, 27 Oct 2019 21:16:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95B842064A;
+        Sun, 27 Oct 2019 21:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210961;
-        bh=CzjJGI9pfHkZbK+2YWhIK0w8TLcspavH7qQCc7Fm0CQ=;
+        s=default; t=1572210593;
+        bh=exaceR17ZpyK+a9qmuDwq+GnWzptwDX/tjY8NgAgLjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGKPdW4oNh91UTWwVkwX7GEiezRaWsZZ+LJA6gyGwd5kjvUPvTYJYTp/RLeS44R61
-         VQG/p+xPMZknFrKvvR5NATaIcQvMzOXVoeX/0H2aHvVHt9opzYCPJ2x69iMz6vGFU9
-         ZYT9NUCJBP9PsIP3rLXPTbOqzO0KikT8PApLr5WE=
+        b=DWnq3DVPx3m/Bw3ifHDIpfWMqdo+9tIEVMdFxnaAhvQ7HxsIzVRpUBcKwZz9byhXx
+         BT8dxbIN7HE5PNcEvXsshNQp+2/VGzZk5aSF6EtsfWZraOQYyGoSWuiO24erxH9dX3
+         LHyoJxamRfVpnNH7ypmd/ewqoo0RBJk0sSwL+Jzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biao Huang <biao.huang@mediatek.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 33/93] net: stmmac: disable/enable ptp_ref_clk in suspend/resume flow
-Date:   Sun, 27 Oct 2019 22:00:45 +0100
-Message-Id: <20191027203257.708941532@linuxfoundation.org>
+        Will Deacon <will.deacon@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 069/119] arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3
+Date:   Sun, 27 Oct 2019 22:00:46 +0100
+Message-Id: <20191027203335.061613590@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,296 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biao Huang <biao.huang@mediatek.com>
+From: Will Deacon <will.deacon@arm.com>
 
-[ Upstream commit e497c20e203680aba9ccf7bb475959595908ca7e ]
+[ Upstream commit 8f04e8e6e29c93421a95b61cad62e3918425eac7 ]
 
-disable ptp_ref_clk in suspend flow, and enable it in resume flow.
+On CPUs with support for PSTATE.SSBS, the kernel can toggle the SSBD
+state without needing to call into firmware.
 
-Fixes: f573c0b9c4e0 ("stmmac: move stmmac_clk, pclk, clk_ptp_ref and stmmac_rst to platform structure")
-Signed-off-by: Biao Huang <biao.huang@mediatek.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch hooks into the existing SSBD infrastructure so that SSBS is
+used on CPUs that support it, but it's all made horribly complicated by
+the very real possibility of big/little systems that don't uniformly
+provide the new capability.
+
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[ardb: add #include of asm/compat.h]
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/processor.h   |    7 +++++
+ arch/arm64/include/asm/ptrace.h      |    1 
+ arch/arm64/include/asm/sysreg.h      |    3 ++
+ arch/arm64/include/uapi/asm/ptrace.h |    1 
+ arch/arm64/kernel/cpu_errata.c       |   26 ++++++++++++++++++--
+ arch/arm64/kernel/cpufeature.c       |   45 +++++++++++++++++++++++++++++++++++
+ arch/arm64/kernel/process.c          |    4 +++
+ arch/arm64/kernel/ssbd.c             |   22 +++++++++++++++++
+ 8 files changed, 107 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -4522,8 +4522,10 @@ int stmmac_suspend(struct device *dev)
- 		stmmac_mac_set(priv, priv->ioaddr, false);
- 		pinctrl_pm_select_sleep_state(priv->device);
- 		/* Disable clock in case of PWM is off */
--		clk_disable(priv->plat->pclk);
--		clk_disable(priv->plat->stmmac_clk);
-+		if (priv->plat->clk_ptp_ref)
-+			clk_disable_unprepare(priv->plat->clk_ptp_ref);
-+		clk_disable_unprepare(priv->plat->pclk);
-+		clk_disable_unprepare(priv->plat->stmmac_clk);
- 	}
- 	mutex_unlock(&priv->lock);
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -153,6 +153,10 @@ static inline void start_thread(struct p
+ {
+ 	start_thread_common(regs, pc);
+ 	regs->pstate = PSR_MODE_EL0t;
++
++	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
++		regs->pstate |= PSR_SSBS_BIT;
++
+ 	regs->sp = sp;
+ }
  
-@@ -4588,8 +4590,10 @@ int stmmac_resume(struct device *dev)
- 	} else {
- 		pinctrl_pm_select_default_state(priv->device);
- 		/* enable the clk previously disabled */
--		clk_enable(priv->plat->stmmac_clk);
--		clk_enable(priv->plat->pclk);
-+		clk_prepare_enable(priv->plat->stmmac_clk);
-+		clk_prepare_enable(priv->plat->pclk);
-+		if (priv->plat->clk_ptp_ref)
-+			clk_prepare_enable(priv->plat->clk_ptp_ref);
- 		/* reset the phy so that it's ready */
- 		if (priv->mii)
- 			stmmac_mdio_reset(priv->mii);
+@@ -169,6 +173,9 @@ static inline void compat_start_thread(s
+ 	regs->pstate |= COMPAT_PSR_E_BIT;
+ #endif
+ 
++	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
++		regs->pstate |= PSR_AA32_SSBS_BIT;
++
+ 	regs->compat_sp = sp;
+ }
+ #endif
+--- a/arch/arm64/include/asm/ptrace.h
++++ b/arch/arm64/include/asm/ptrace.h
+@@ -50,6 +50,7 @@
+ #define PSR_AA32_I_BIT		0x00000080
+ #define PSR_AA32_A_BIT		0x00000100
+ #define PSR_AA32_E_BIT		0x00000200
++#define PSR_AA32_SSBS_BIT	0x00800000
+ #define PSR_AA32_DIT_BIT	0x01000000
+ #define PSR_AA32_Q_BIT		0x08000000
+ #define PSR_AA32_V_BIT		0x10000000
+--- a/arch/arm64/include/asm/sysreg.h
++++ b/arch/arm64/include/asm/sysreg.h
+@@ -86,11 +86,14 @@
+ 
+ #define REG_PSTATE_PAN_IMM		sys_reg(0, 0, 4, 0, 4)
+ #define REG_PSTATE_UAO_IMM		sys_reg(0, 0, 4, 0, 3)
++#define REG_PSTATE_SSBS_IMM		sys_reg(0, 3, 4, 0, 1)
+ 
+ #define SET_PSTATE_PAN(x) __emit_inst(0xd5000000 | REG_PSTATE_PAN_IMM |	\
+ 				      (!!x)<<8 | 0x1f)
+ #define SET_PSTATE_UAO(x) __emit_inst(0xd5000000 | REG_PSTATE_UAO_IMM |	\
+ 				      (!!x)<<8 | 0x1f)
++#define SET_PSTATE_SSBS(x) __emit_inst(0xd5000000 | REG_PSTATE_SSBS_IMM | \
++				       (!!x)<<8 | 0x1f)
+ 
+ #define SYS_DC_ISW			sys_insn(1, 0, 7, 6, 2)
+ #define SYS_DC_CSW			sys_insn(1, 0, 7, 10, 2)
+--- a/arch/arm64/include/uapi/asm/ptrace.h
++++ b/arch/arm64/include/uapi/asm/ptrace.h
+@@ -45,6 +45,7 @@
+ #define PSR_I_BIT	0x00000080
+ #define PSR_A_BIT	0x00000100
+ #define PSR_D_BIT	0x00000200
++#define PSR_SSBS_BIT	0x00001000
+ #define PSR_PAN_BIT	0x00400000
+ #define PSR_UAO_BIT	0x00800000
+ #define PSR_Q_BIT	0x08000000
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -304,6 +304,14 @@ void __init arm64_enable_wa2_handling(st
+ 
+ void arm64_set_ssbd_mitigation(bool state)
+ {
++	if (this_cpu_has_cap(ARM64_SSBS)) {
++		if (state)
++			asm volatile(SET_PSTATE_SSBS(0));
++		else
++			asm volatile(SET_PSTATE_SSBS(1));
++		return;
++	}
++
+ 	switch (psci_ops.conduit) {
+ 	case PSCI_CONDUIT_HVC:
+ 		arm_smccc_1_1_hvc(ARM_SMCCC_ARCH_WORKAROUND_2, state, NULL);
+@@ -328,6 +336,11 @@ static bool has_ssbd_mitigation(const st
+ 
+ 	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
+ 
++	if (this_cpu_has_cap(ARM64_SSBS)) {
++		required = false;
++		goto out_printmsg;
++	}
++
+ 	if (psci_ops.smccc_version == SMCCC_VERSION_1_0) {
+ 		ssbd_state = ARM64_SSBD_UNKNOWN;
+ 		return false;
+@@ -376,7 +389,6 @@ static bool has_ssbd_mitigation(const st
+ 
+ 	switch (ssbd_state) {
+ 	case ARM64_SSBD_FORCE_DISABLE:
+-		pr_info_once("%s disabled from command-line\n", entry->desc);
+ 		arm64_set_ssbd_mitigation(false);
+ 		required = false;
+ 		break;
+@@ -389,7 +401,6 @@ static bool has_ssbd_mitigation(const st
+ 		break;
+ 
+ 	case ARM64_SSBD_FORCE_ENABLE:
+-		pr_info_once("%s forced from command-line\n", entry->desc);
+ 		arm64_set_ssbd_mitigation(true);
+ 		required = true;
+ 		break;
+@@ -399,6 +410,17 @@ static bool has_ssbd_mitigation(const st
+ 		break;
+ 	}
+ 
++out_printmsg:
++	switch (ssbd_state) {
++	case ARM64_SSBD_FORCE_DISABLE:
++		pr_info_once("%s disabled from command-line\n", entry->desc);
++		break;
++
++	case ARM64_SSBD_FORCE_ENABLE:
++		pr_info_once("%s forced from command-line\n", entry->desc);
++		break;
++	}
++
+ 	return required;
+ }
+ #endif	/* CONFIG_ARM64_SSBD */
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -925,6 +925,48 @@ static void cpu_copy_el2regs(const struc
+ 		write_sysreg(read_sysreg(tpidr_el1), tpidr_el2);
+ }
+ 
++#ifdef CONFIG_ARM64_SSBD
++static int ssbs_emulation_handler(struct pt_regs *regs, u32 instr)
++{
++	if (user_mode(regs))
++		return 1;
++
++	if (instr & BIT(CRm_shift))
++		regs->pstate |= PSR_SSBS_BIT;
++	else
++		regs->pstate &= ~PSR_SSBS_BIT;
++
++	arm64_skip_faulting_instruction(regs, 4);
++	return 0;
++}
++
++static struct undef_hook ssbs_emulation_hook = {
++	.instr_mask	= ~(1U << CRm_shift),
++	.instr_val	= 0xd500001f | REG_PSTATE_SSBS_IMM,
++	.fn		= ssbs_emulation_handler,
++};
++
++static void cpu_enable_ssbs(const struct arm64_cpu_capabilities *__unused)
++{
++	static bool undef_hook_registered = false;
++	static DEFINE_SPINLOCK(hook_lock);
++
++	spin_lock(&hook_lock);
++	if (!undef_hook_registered) {
++		register_undef_hook(&ssbs_emulation_hook);
++		undef_hook_registered = true;
++	}
++	spin_unlock(&hook_lock);
++
++	if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE) {
++		sysreg_clear_set(sctlr_el1, 0, SCTLR_ELx_DSSBS);
++		arm64_set_ssbd_mitigation(false);
++	} else {
++		arm64_set_ssbd_mitigation(true);
++	}
++}
++#endif /* CONFIG_ARM64_SSBD */
++
+ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 	{
+ 		.desc = "GIC system register CPU interface",
+@@ -1049,6 +1091,7 @@ static const struct arm64_cpu_capabiliti
+ 		.min_field_value = 1,
+ 	},
+ #endif
++#ifdef CONFIG_ARM64_SSBD
+ 	{
+ 		.desc = "Speculative Store Bypassing Safe (SSBS)",
+ 		.capability = ARM64_SSBS,
+@@ -1058,7 +1101,9 @@ static const struct arm64_cpu_capabiliti
+ 		.field_pos = ID_AA64PFR1_SSBS_SHIFT,
+ 		.sign = FTR_UNSIGNED,
+ 		.min_field_value = ID_AA64PFR1_SSBS_PSTATE_ONLY,
++		.cpu_enable = cpu_enable_ssbs,
+ 	},
++#endif
+ 	{},
+ };
+ 
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -296,6 +296,10 @@ int copy_thread(unsigned long clone_flag
+ 		if (IS_ENABLED(CONFIG_ARM64_UAO) &&
+ 		    cpus_have_const_cap(ARM64_HAS_UAO))
+ 			childregs->pstate |= PSR_UAO_BIT;
++
++		if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
++			childregs->pstate |= PSR_SSBS_BIT;
++
+ 		p->thread.cpu_context.x19 = stack_start;
+ 		p->thread.cpu_context.x20 = stk_sz;
+ 	}
+--- a/arch/arm64/kernel/ssbd.c
++++ b/arch/arm64/kernel/ssbd.c
+@@ -3,13 +3,32 @@
+  * Copyright (C) 2018 ARM Ltd, All Rights Reserved.
+  */
+ 
++#include <linux/compat.h>
+ #include <linux/errno.h>
+ #include <linux/prctl.h>
+ #include <linux/sched.h>
++#include <linux/sched/task_stack.h>
+ #include <linux/thread_info.h>
+ 
++#include <asm/compat.h>
+ #include <asm/cpufeature.h>
+ 
++static void ssbd_ssbs_enable(struct task_struct *task)
++{
++	u64 val = is_compat_thread(task_thread_info(task)) ?
++		  PSR_AA32_SSBS_BIT : PSR_SSBS_BIT;
++
++	task_pt_regs(task)->pstate |= val;
++}
++
++static void ssbd_ssbs_disable(struct task_struct *task)
++{
++	u64 val = is_compat_thread(task_thread_info(task)) ?
++		  PSR_AA32_SSBS_BIT : PSR_SSBS_BIT;
++
++	task_pt_regs(task)->pstate &= ~val;
++}
++
+ /*
+  * prctl interface for SSBD
+  */
+@@ -45,12 +64,14 @@ static int ssbd_prctl_set(struct task_st
+ 			return -EPERM;
+ 		task_clear_spec_ssb_disable(task);
+ 		clear_tsk_thread_flag(task, TIF_SSBD);
++		ssbd_ssbs_enable(task);
+ 		break;
+ 	case PR_SPEC_DISABLE:
+ 		if (state == ARM64_SSBD_FORCE_DISABLE)
+ 			return -EPERM;
+ 		task_set_spec_ssb_disable(task);
+ 		set_tsk_thread_flag(task, TIF_SSBD);
++		ssbd_ssbs_disable(task);
+ 		break;
+ 	case PR_SPEC_FORCE_DISABLE:
+ 		if (state == ARM64_SSBD_FORCE_DISABLE)
+@@ -58,6 +79,7 @@ static int ssbd_prctl_set(struct task_st
+ 		task_set_spec_ssb_disable(task);
+ 		task_set_spec_ssb_force_disable(task);
+ 		set_tsk_thread_flag(task, TIF_SSBD);
++		ssbd_ssbs_disable(task);
+ 		break;
+ 	default:
+ 		return -ERANGE;
 
 
