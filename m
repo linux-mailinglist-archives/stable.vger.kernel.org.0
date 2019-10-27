@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16024E677D
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:22:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C180E66A3
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:13:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731927AbfJ0VV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:21:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42258 "EHLO mail.kernel.org"
+        id S1730338AbfJ0VNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:13:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731925AbfJ0VVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:21:25 -0400
+        id S1730330AbfJ0VNq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:13:46 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EFE1205C9;
-        Sun, 27 Oct 2019 21:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C3BA205C9;
+        Sun, 27 Oct 2019 21:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211284;
-        bh=szCVL3WGa8C+AIWwGVnSsMk9yNrdZonwa70Sb3Pb0e0=;
+        s=default; t=1572210826;
+        bh=hgWiUJDqFhtiAu2EufDq0H/kyP+i6BeWCEBmU9Aiu3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBbJJms5MS5r/Ls7UT2LBxY6lfP59bP1D0U/1m1exbyUOpsg4PeOjs49IUxRXBGhy
-         fWlT9IeM9qw0e2LqPTWgiADdPPlVRd9CkPSz1ni2OJ7Lb5/pBcCQgQ4BubgBmWTSlg
-         zoMxSgoVo3hVTwvUY04ZBvOE3CxbxXwJzmnofZ9Y=
+        b=qETjWUhsXUKy76iYK81RWchGD+qAukYj0sXn+b8e8qsN48w+VIOZh10DkrDfvED5y
+         vmsahIh4M7qG2JhoBhs+J2gIHDgFOHucXj4CSmKuSPIM10YmddxtIjP8a/pgYanlw0
+         Ikpa4S6G63mzUcOkpb4sG4xWtemEM9yXATFK3GUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.3 098/197] ALSA: hda/realtek - Enable headset mic on Asus MJ401TA
-Date:   Sun, 27 Oct 2019 22:00:16 +0100
-Message-Id: <20191027203357.054427454@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 05/93] ARM: OMAP2+: Fix missing reset done flag for am3 and am43
+Date:   Sun, 27 Oct 2019 22:00:17 +0100
+Message-Id: <20191027203253.088898277@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,62 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 8c8967a7dc01a25f57a0757fdca10987773cd1f2 upstream.
+[ Upstream commit 8ad8041b98c665b6147e607b749586d6e20ba73a ]
 
-On Asus MJ401TA (with Realtek ALC256), the headset mic is connected to
-pin 0x19, with default configuration value 0x411111f0 (indicating no
-physical connection).
+For ti,sysc-omap4 compatible devices with no sysstatus register, we do have
+reset done status available in the SOFTRESET bit that clears when the reset
+is done. This is documented for example in am437x TRM for DMTIMER_TIOCP_CFG
+register. The am335x TRM just says that SOFTRESET bit value 1 means reset is
+ongoing, but it behaves the same way clearing after reset is done.
 
-Enable this by quirking the pin. Mic jack detection was also tested and
-found to be working.
+With the ti-sysc driver handling this automatically based on no sysstatus
+register defined, we see warnings if SYSC_HAS_RESET_STATUS is missing in the
+legacy platform data:
 
-This enables use of the headset mic on this product.
+ti-sysc 48042000.target-module: sysc_flags 00000222 != 00000022
+ti-sysc 48044000.target-module: sysc_flags 00000222 != 00000022
+ti-sysc 48046000.target-module: sysc_flags 00000222 != 00000022
+...
 
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191017081501.17135-1-drake@endlessm.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's fix these warnings by adding SYSC_HAS_RESET_STATUS. Let's also
+remove the useless parentheses while at it.
 
+If it turns out we do have ti,sysc-omap4 compatible devices without a
+working SOFTRESET bit we can set up additional quirk handling for it.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5868,6 +5868,7 @@ enum {
- 	ALC225_FIXUP_WYSE_AUTO_MUTE,
- 	ALC225_FIXUP_WYSE_DISABLE_MIC_VREF,
- 	ALC286_FIXUP_ACER_AIO_HEADSET_MIC,
-+	ALC256_FIXUP_ASUS_HEADSET_MIC,
- 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
- 	ALC299_FIXUP_PREDATOR_SPK,
- 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
-@@ -6902,6 +6903,15 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE
- 	},
-+	[ALC256_FIXUP_ASUS_HEADSET_MIC] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x03a11020 }, /* headset mic with jack detect */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
-+	},
- 	[ALC256_FIXUP_ASUS_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = (const struct hda_pintbl[]) {
-@@ -7098,6 +7108,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
- 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
+diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
+index 9ded7bf972e71..3b8fe014a3e94 100644
+--- a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
++++ b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
+@@ -946,7 +946,8 @@ static struct omap_hwmod_class_sysconfig am33xx_timer_sysc = {
+ 	.rev_offs	= 0x0000,
+ 	.sysc_offs	= 0x0010,
+ 	.syss_offs	= 0x0014,
+-	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET),
++	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
++			  SYSC_HAS_RESET_STATUS,
+ 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART |
+ 			  SIDLE_SMART_WKUP),
+ 	.sysc_fields	= &omap_hwmod_sysc_type2,
+-- 
+2.20.1
+
 
 
