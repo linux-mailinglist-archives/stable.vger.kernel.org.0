@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D61E68B0
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1595E6973
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbfJ0VRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:17:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36976 "EHLO mail.kernel.org"
+        id S1727488AbfJ0VGc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:06:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730990AbfJ0VRK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:17:10 -0400
+        id S1727716AbfJ0VGb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:06:31 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8BCF2070B;
-        Sun, 27 Oct 2019 21:17:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0D4120873;
+        Sun, 27 Oct 2019 21:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211029;
-        bh=/Xw7BhYA+kwXh7NFcln0984td5k3Pk8C3Zla/ek6nGc=;
+        s=default; t=1572210390;
+        bh=CFYqWASh+zwVBmqClQT5wi/Bqwf2yZuyfWW7zvxxAZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7w4klHQIWPEkdl19ZJ2T+NlgGk7Oa3z0Vg4L1bV1Kf0ms5ZYYK7vydOxZFkDiob6
-         eAoOy5ds7+nx39h0Fqv/Z9IJZiIhTh1/k12tHQwa9fGChnSxCyghPXB5ifHihEJKvR
-         VumveiPwG1XbVA8owD+St+dZ/zB/PVj1VgVcWMeU=
+        b=Kaafw5P8D/jOPpSQe8fytuiBFFDASUsQ7tVXPmJYBgR/vAQ6opPBTsPlSNfVNKkpX
+         CVwCtCCTxWRjwFNjQtE6DkqIq5WlbxgPB9ec8J5c4T9toxgHXcl1UTGmX1laP6H18L
+         q+5SfRUT91QZrAGHFp0Evg0eMkAAYzETij11k/Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 75/93] CIFS: Fix use after free of file info structures
+        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.9 49/49] RDMA/cxgb4: Do not dma memory off of the stack
 Date:   Sun, 27 Oct 2019 22:01:27 +0100
-Message-Id: <20191027203310.813651313@linuxfoundation.org>
+Message-Id: <20191027203208.381693146@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Greg KH <gregkh@linuxfoundation.org>
 
-commit 1a67c415965752879e2e9fad407bc44fc7f25f23 upstream.
+commit 3840c5b78803b2b6cc1ff820100a74a092c40cbb upstream.
 
-Currently the code assumes that if a file info entry belongs
-to lists of open file handles of an inode and a tcon then
-it has non-zero reference. The recent changes broke that
-assumption when putting the last reference of the file info.
-There may be a situation when a file is being deleted but
-nothing prevents another thread to reference it again
-and start using it. This happens because we do not hold
-the inode list lock while checking the number of references
-of the file info structure. Fix this by doing the proper
-locking when doing the check.
+Nicolas pointed out that the cxgb4 driver is doing dma off of the stack,
+which is generally considered a very bad thing.  On some architectures it
+could be a security problem, but odds are none of them actually run this
+driver, so it's just a "normal" bug.
 
-Fixes: 487317c99477d ("cifs: add spinlock for the openFileList to cifsInodeInfo")
-Fixes: cb248819d209d ("cifs: use cifsInodeInfo->open_file_lock while iterating to avoid a panic")
-Cc: Stable <stable@vger.kernel.org>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Resolve this by allocating the memory for a message off of the heap
+instead of the stack.  kmalloc() always will give us a proper memory
+location that DMA will work correctly from.
+
+Link: https://lore.kernel.org/r/20191001165611.GA3542072@kroah.com
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Tested-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/file.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/cxgb4/mem.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -403,10 +403,11 @@ void _cifsFileInfo_put(struct cifsFileIn
- 	bool oplock_break_cancelled;
+--- a/drivers/infiniband/hw/cxgb4/mem.c
++++ b/drivers/infiniband/hw/cxgb4/mem.c
+@@ -264,13 +264,17 @@ static int write_tpt_entry(struct c4iw_r
+ 			   struct sk_buff *skb)
+ {
+ 	int err;
+-	struct fw_ri_tpte tpt;
++	struct fw_ri_tpte *tpt;
+ 	u32 stag_idx;
+ 	static atomic_t key;
  
- 	spin_lock(&tcon->open_file_lock);
--
-+	spin_lock(&cifsi->open_file_lock);
- 	spin_lock(&cifs_file->file_info_lock);
- 	if (--cifs_file->count > 0) {
- 		spin_unlock(&cifs_file->file_info_lock);
-+		spin_unlock(&cifsi->open_file_lock);
- 		spin_unlock(&tcon->open_file_lock);
- 		return;
+ 	if (c4iw_fatal_error(rdev))
+ 		return -EIO;
+ 
++	tpt = kmalloc(sizeof(*tpt), GFP_KERNEL);
++	if (!tpt)
++		return -ENOMEM;
++
+ 	stag_state = stag_state > 0;
+ 	stag_idx = (*stag) >> 8;
+ 
+@@ -280,6 +284,7 @@ static int write_tpt_entry(struct c4iw_r
+ 			mutex_lock(&rdev->stats.lock);
+ 			rdev->stats.stag.fail++;
+ 			mutex_unlock(&rdev->stats.lock);
++			kfree(tpt);
+ 			return -ENOMEM;
+ 		}
+ 		mutex_lock(&rdev->stats.lock);
+@@ -294,28 +299,28 @@ static int write_tpt_entry(struct c4iw_r
+ 
+ 	/* write TPT entry */
+ 	if (reset_tpt_entry)
+-		memset(&tpt, 0, sizeof(tpt));
++		memset(tpt, 0, sizeof(*tpt));
+ 	else {
+-		tpt.valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
++		tpt->valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
+ 			FW_RI_TPTE_STAGKEY_V((*stag & FW_RI_TPTE_STAGKEY_M)) |
+ 			FW_RI_TPTE_STAGSTATE_V(stag_state) |
+ 			FW_RI_TPTE_STAGTYPE_V(type) | FW_RI_TPTE_PDID_V(pdid));
+-		tpt.locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
++		tpt->locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
+ 			(bind_enabled ? FW_RI_TPTE_MWBINDEN_F : 0) |
+ 			FW_RI_TPTE_ADDRTYPE_V((zbva ? FW_RI_ZERO_BASED_TO :
+ 						      FW_RI_VA_BASED_TO))|
+ 			FW_RI_TPTE_PS_V(page_size));
+-		tpt.nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
++		tpt->nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
+ 			FW_RI_TPTE_PBLADDR_V(PBL_OFF(rdev, pbl_addr)>>3));
+-		tpt.len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
+-		tpt.va_hi = cpu_to_be32((u32)(to >> 32));
+-		tpt.va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
+-		tpt.dca_mwbcnt_pstag = cpu_to_be32(0);
+-		tpt.len_hi = cpu_to_be32((u32)(len >> 32));
++		tpt->len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
++		tpt->va_hi = cpu_to_be32((u32)(to >> 32));
++		tpt->va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
++		tpt->dca_mwbcnt_pstag = cpu_to_be32(0);
++		tpt->len_hi = cpu_to_be32((u32)(len >> 32));
  	}
-@@ -419,9 +420,7 @@ void _cifsFileInfo_put(struct cifsFileIn
- 	cifs_add_pending_open_locked(&fid, cifs_file->tlink, &open);
+ 	err = write_adapter_mem(rdev, stag_idx +
+ 				(rdev->lldi.vr->stag.start >> 5),
+-				sizeof(tpt), &tpt, skb);
++				sizeof(*tpt), tpt, skb);
  
- 	/* remove it from the lists */
--	spin_lock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->flist);
--	spin_unlock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->tlist);
- 
- 	if (list_empty(&cifsi->openFileList)) {
-@@ -437,6 +436,7 @@ void _cifsFileInfo_put(struct cifsFileIn
- 		cifs_set_oplock_level(cifsi, 0);
+ 	if (reset_tpt_entry) {
+ 		c4iw_put_resource(&rdev->resource.tpt_table, stag_idx);
+@@ -323,6 +328,7 @@ static int write_tpt_entry(struct c4iw_r
+ 		rdev->stats.stag.cur -= 32;
+ 		mutex_unlock(&rdev->stats.lock);
  	}
++	kfree(tpt);
+ 	return err;
+ }
  
-+	spin_unlock(&cifsi->open_file_lock);
- 	spin_unlock(&tcon->open_file_lock);
- 
- 	oplock_break_cancelled = wait_oplock_handler ?
 
 
