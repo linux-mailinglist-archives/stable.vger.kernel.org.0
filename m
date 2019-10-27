@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E563E6896
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C77E6895
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:30:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731286AbfJ0VS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38586 "EHLO mail.kernel.org"
+        id S1731390AbfJ0Vah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729984AbfJ0VS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:18:27 -0400
+        id S1731310AbfJ0VSi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:18:38 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCA92205C9;
-        Sun, 27 Oct 2019 21:18:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA16520717;
+        Sun, 27 Oct 2019 21:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211106;
-        bh=R/w1Klkh0QclIluf+LWpLEXbuhm2KYdmkpHGPzrey6o=;
+        s=default; t=1572211117;
+        bh=pE0yT9Ol68fBMk/rzKDUq3s4Y8QKqjuEq7VMxFMPklc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TY8MayrTRYNqdmREvZMOtofo9CVaupFd1QnSdNASDNaYAlwiDCg7tjn+J94237EnP
-         7rFlsUDJp9jkDdhGyEcZxWykN2H3q4aEDDJlIoSmuaHfe8Q2c0Kp/vb0yPVtwCqgRh
-         MQ3f4MNaIpMRZDUtLXu/XQeWoFLIn/EXSuOqum9w=
+        b=iiOiojoZAv6DR+EihEm9o5W/zql8Fq6LvGeEOsrxK9yCLI4Ay7umTWsOz5e5mPdfc
+         W3u/y8hCktsDHRbQRaF+knFCAyJ5D/4zvONjRzkH2SFKPfMwkWq+2H4WvVTfsLPhzF
+         b6P6f/lBu+5pjkmhNtUnLqY4ykEsC1u6gShByNNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqing Pan <miaoqing@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Wen Yang <wenyang@linux.alibaba.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 033/197] nl80211: fix null pointer dereference
-Date:   Sun, 27 Oct 2019 21:59:11 +0100
-Message-Id: <20191027203353.522538964@linuxfoundation.org>
+Subject: [PATCH 5.3 037/197] net: dsa: rtl8366rb: add missing of_node_put after calling of_get_child_by_name
+Date:   Sun, 27 Oct 2019 21:59:15 +0100
+Message-Id: <20191027203353.725873412@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,60 +48,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqing Pan <miaoqing@codeaurora.org>
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-[ Upstream commit b501426cf86e70649c983c52f4c823b3c40d72a3 ]
+[ Upstream commit f32eb9d80470dab05df26b6efd02d653c72e6a11 ]
 
-If the interface is not in MESH mode, the command 'iw wlanx mpath del'
-will cause kernel panic.
+of_node_put needs to be called when the device node which is got
+from of_get_child_by_name finished using.
+irq_domain_add_linear() also calls of_node_get() to increase refcount,
+so irq_domain will not be affected when it is released.
 
-The root cause is null pointer access in mpp_flush_by_proxy(), as the
-pointer 'sdata->u.mesh.mpp_paths' is NULL for non MESH interface.
-
-Unable to handle kernel NULL pointer dereference at virtual address 00000068
-[...]
-PC is at _raw_spin_lock_bh+0x20/0x5c
-LR is at mesh_path_del+0x1c/0x17c [mac80211]
-[...]
-Process iw (pid: 4537, stack limit = 0xd83e0238)
-[...]
-[<c021211c>] (_raw_spin_lock_bh) from [<bf8c7648>] (mesh_path_del+0x1c/0x17c [mac80211])
-[<bf8c7648>] (mesh_path_del [mac80211]) from [<bf6cdb7c>] (extack_doit+0x20/0x68 [compat])
-[<bf6cdb7c>] (extack_doit [compat]) from [<c05c309c>] (genl_rcv_msg+0x274/0x30c)
-[<c05c309c>] (genl_rcv_msg) from [<c05c25d8>] (netlink_rcv_skb+0x58/0xac)
-[<c05c25d8>] (netlink_rcv_skb) from [<c05c2e14>] (genl_rcv+0x20/0x34)
-[<c05c2e14>] (genl_rcv) from [<c05c1f90>] (netlink_unicast+0x11c/0x204)
-[<c05c1f90>] (netlink_unicast) from [<c05c2420>] (netlink_sendmsg+0x30c/0x370)
-[<c05c2420>] (netlink_sendmsg) from [<c05886d0>] (sock_sendmsg+0x70/0x84)
-[<c05886d0>] (sock_sendmsg) from [<c0589f4c>] (___sys_sendmsg.part.3+0x188/0x228)
-[<c0589f4c>] (___sys_sendmsg.part.3) from [<c058add4>] (__sys_sendmsg+0x4c/0x70)
-[<c058add4>] (__sys_sendmsg) from [<c0208c80>] (ret_fast_syscall+0x0/0x44)
-Code: e2822c02 e2822001 e5832004 f590f000 (e1902f9f)
----[ end trace bbd717600f8f884d ]---
-
-Signed-off-by: Miaoqing Pan <miaoqing@codeaurora.org>
-Link: https://lore.kernel.org/r/1569485810-761-1-git-send-email-miaoqing@codeaurora.org
-[trim useless data from commit message]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: d8652956cf37 ("net: dsa: realtek-smi: Add Realtek SMI driver")
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Vivien Didelot <vivien.didelot@gmail.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/nl80211.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/dsa/rtl8366rb.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index f03459ddc840a..c2ce582ea1437 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -6184,6 +6184,9 @@ static int nl80211_del_mpath(struct sk_buff *skb, struct genl_info *info)
- 	if (!rdev->ops->del_mpath)
- 		return -EOPNOTSUPP;
+diff --git a/drivers/net/dsa/rtl8366rb.c b/drivers/net/dsa/rtl8366rb.c
+index a268085ffad28..f5cc8b0a7c74c 100644
+--- a/drivers/net/dsa/rtl8366rb.c
++++ b/drivers/net/dsa/rtl8366rb.c
+@@ -507,7 +507,8 @@ static int rtl8366rb_setup_cascaded_irq(struct realtek_smi *smi)
+ 	irq = of_irq_get(intc, 0);
+ 	if (irq <= 0) {
+ 		dev_err(smi->dev, "failed to get parent IRQ\n");
+-		return irq ? irq : -EINVAL;
++		ret = irq ? irq : -EINVAL;
++		goto out_put_node;
+ 	}
  
-+	if (dev->ieee80211_ptr->iftype != NL80211_IFTYPE_MESH_POINT)
-+		return -EOPNOTSUPP;
-+
- 	return rdev_del_mpath(rdev, dev, dst);
+ 	/* This clears the IRQ status register */
+@@ -515,7 +516,7 @@ static int rtl8366rb_setup_cascaded_irq(struct realtek_smi *smi)
+ 			  &val);
+ 	if (ret) {
+ 		dev_err(smi->dev, "can't read interrupt status\n");
+-		return ret;
++		goto out_put_node;
+ 	}
+ 
+ 	/* Fetch IRQ edge information from the descriptor */
+@@ -537,7 +538,7 @@ static int rtl8366rb_setup_cascaded_irq(struct realtek_smi *smi)
+ 				 val);
+ 	if (ret) {
+ 		dev_err(smi->dev, "could not configure IRQ polarity\n");
+-		return ret;
++		goto out_put_node;
+ 	}
+ 
+ 	ret = devm_request_threaded_irq(smi->dev, irq, NULL,
+@@ -545,7 +546,7 @@ static int rtl8366rb_setup_cascaded_irq(struct realtek_smi *smi)
+ 					"RTL8366RB", smi);
+ 	if (ret) {
+ 		dev_err(smi->dev, "unable to request irq: %d\n", ret);
+-		return ret;
++		goto out_put_node;
+ 	}
+ 	smi->irqdomain = irq_domain_add_linear(intc,
+ 					       RTL8366RB_NUM_INTERRUPT,
+@@ -553,12 +554,15 @@ static int rtl8366rb_setup_cascaded_irq(struct realtek_smi *smi)
+ 					       smi);
+ 	if (!smi->irqdomain) {
+ 		dev_err(smi->dev, "failed to create IRQ domain\n");
+-		return -EINVAL;
++		ret = -EINVAL;
++		goto out_put_node;
+ 	}
+ 	for (i = 0; i < smi->num_ports; i++)
+ 		irq_set_parent(irq_create_mapping(smi->irqdomain, i), irq);
+ 
+-	return 0;
++out_put_node:
++	of_node_put(intc);
++	return ret;
  }
  
+ static int rtl8366rb_set_addr(struct realtek_smi *smi)
 -- 
 2.20.1
 
