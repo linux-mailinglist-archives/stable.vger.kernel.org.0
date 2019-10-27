@@ -2,137 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A420E61D6
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 10:32:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3E9E61F5
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 11:08:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726265AbfJ0Jca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 05:32:30 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42711 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726106AbfJ0Jca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 05:32:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572168747;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Brt12eroTnBSuocOIrOnaBRgY6eEG5OTxhduVRLWoHo=;
-        b=LoAhIncJFNIXESEu9hO8qvtitgpgQ6+/IAlmjUKMZcfwSFSheF4zJM4PZ39QUf6AjgAzUI
-        iIWF81SPMY/IXvmbQ3tXSMDgaDKp7KyYFdzieedY0bnZ6I+mxHycsOyD/XMP8RjkseMT6d
-        pzbnB9nIln6lVcMh5RDehAAeI1DPXyE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-394-xLzG1hxvNamOpilH46Ypcw-1; Sun, 27 Oct 2019 05:32:24 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726707AbfJ0KIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 06:08:13 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:39346 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726684AbfJ0KIN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 06:08:13 -0400
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A891E801E56;
-        Sun, 27 Oct 2019 09:32:23 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id A040E90AB;
-        Sun, 27 Oct 2019 09:32:23 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 8D04D1808878;
-        Sun, 27 Oct 2019 09:32:23 +0000 (UTC)
-Date:   Sun, 27 Oct 2019 05:32:23 -0400 (EDT)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        LTP List <ltp@lists.linux.it>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        CKI Project <cki-project@redhat.com>,
-        Memory Management <mm-qe@redhat.com>
-Message-ID: <2111263587.9218283.1572168743324.JavaMail.zimbra@redhat.com>
-In-Reply-To: <CA+G9fYurG8gSO+xFc5LJvLMrqTyHG85oxH9=pSQ1LmPCa6PkqQ@mail.gmail.com>
-References: <cki.61C56EFD16.AR8ITWHB7P@redhat.com> <CA+G9fYurG8gSO+xFc5LJvLMrqTyHG85oxH9=pSQ1LmPCa6PkqQ@mail.gmail.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Stable_queue:_queue-5.3?=
+        by mx1.redhat.com (Postfix) with ESMTPS id A3C6EC049E10
+        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 10:08:12 +0000 (UTC)
+Received: by mail-qk1-f198.google.com with SMTP id h9so7318663qkk.16
+        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 03:08:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=2LKFbpd/57zdcxL2B5zndGKqrGlJbgH02f3Dnv6OaXo=;
+        b=c7OlzPDQtsFYJh2AtLMTjGcrwdlf5pW2J3polKu4BCAr/gC//nl3ZiT0uQsoUOu99d
+         iySCc7rJM0C34p2otBp7FBUSZQ+V5PqAGackNch1TXwunC1sikI+DMGFUuvegQGCp0sq
+         3VNlqQTATU9wBboPauLAw5+VfAHr8YmB16HDGFkeV44xltHxItXn+z3vLITKCA8cnsH4
+         d7zCkekAfSQFvBiY8uIs2Uah2t3LIA6ZJehsCSUcrMVzj/NxNyDZFbtKfGT43YmxQZrf
+         3FiyjMwC0sIZud+DLwdwrodlZj2c8gj46ZRTt4yMrzlQ8G3pNdFw/TfKDbhL+3g3RGs6
+         Cuug==
+X-Gm-Message-State: APjAAAXrzalhAG+y7gPZZP6tViIsrMNJ6xINkWngGcHG5Do8kAE8ompQ
+        q8WyAwF8qp35XI9UMq7q0WsJ+iSGnOry6SvytF//H5VA//ATn8ABDAbjf9ervphqGEWd/IOsGZi
+        7vgLEX32PNwsp5g5O
+X-Received: by 2002:ac8:3711:: with SMTP id o17mr12438944qtb.159.1572170891945;
+        Sun, 27 Oct 2019 03:08:11 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqy4yH+6ZR2wBZq+Jvuc7lC5oL5AYqVi9r9IYLRVIAL0mc77PKJB7RThLM03NDFUqz9i1FUPjw==
+X-Received: by 2002:ac8:3711:: with SMTP id o17mr12438933qtb.159.1572170891717;
+        Sun, 27 Oct 2019 03:08:11 -0700 (PDT)
+Received: from redhat.com (bzq-79-176-10-77.red.bezeqint.net. [79.176.10.77])
+        by smtp.gmail.com with ESMTPSA id y33sm7072062qta.18.2019.10.27.03.08.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Oct 2019 03:08:11 -0700 (PDT)
+Date:   Sun, 27 Oct 2019 06:08:07 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Marvin Liu <yong.liu@intel.com>, stable@vger.kernel.org,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH] virtio_ring: fix stalls for packed rings
+Message-ID: <20191027100705.11644-1-mst@redhat.com>
 MIME-Version: 1.0
-X-Originating-IP: [10.43.17.163, 10.4.195.1]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Stable queue: queue-5.3
-Thread-Index: gNe4i/TBRrbrR5tiA3xma7jiYmwpjA==
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: xLzG1hxvNamOpilH46Ypcw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email 2.22.0.678.g13338e74b8
+X-Mutt-Fcc: =sent
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Marvin Liu <yong.liu@intel.com>
+
+When VIRTIO_F_RING_EVENT_IDX is negotiated, virtio devices can
+use virtqueue_enable_cb_delayed_packed to reduce the number of device
+interrupts.  At the moment, this is the case for virtio-net when the
+napi_tx module parameter is set to false.
+
+In this case, the virtio driver selects an event offset and expects that
+the device will send a notification when rolling over the event offset
+in the ring.  However, if this roll-over happens before the event
+suppression structure update, the notification won't be sent. To address
+this race condition the driver needs to check wether the device rolled
+over the offset after updating the event suppression structure.
+
+With VIRTIO_F_RING_PACKED, the virtio driver did this by reading the
+flags field of the descriptor at the specified offset.
+
+Unfortunately, checking at the event offset isn't reliable: if
+descriptors are chained (e.g. when INDIRECT is off) not all descriptors
+are overwritten by the device, so it's possible that the device skipped
+the specific descriptor driver is checking when writing out used
+descriptors. If this happens, the driver won't detect the race condition
+and will incorrectly expect the device to send a notification.
+
+For virtio-net, the result will be a TX queue stall, with the
+transmission getting blocked forever.
+
+With the packed ring, it isn't easy to find a location which is
+guaranteed to change upon the roll-over, except the next device
+descriptor, as described in the spec:
+
+        Writes of device and driver descriptors can generally be
+        reordered, but each side (driver and device) are only required to
+        poll (or test) a single location in memory: the next device descriptor after
+        the one they processed previously, in circular order.
+
+while this might be sub-optimal, let's do exactly this for now.
+
+Cc: stable@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Marvin Liu <yong.liu@intel.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+So this is what I have in my tree now - this is just Marvin's patch
+with a tweaked description.
 
 
------ Original Message -----
-> Hi Jan,
->=20
-> On Sun, 27 Oct 2019 at 04:04, CKI Project <cki-project@redhat.com> wrote:
-> >
-> >
-> > Hello,
-> >
-> > We ran automated tests on a patchset that was proposed for merging into
-> > this
-> > kernel tree. The patches were applied to:
-> >
-> >        Kernel repo:
-> >        https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-> >             Commit: 365dab61f74e - Linux 5.3.7
-> >
-> > The results of these automated tests are provided below.
-> >
-> >     Overall result: FAILED (see details below)
-> >              Merge: OK
-> >            Compile: OK
-> >              Tests: FAILED
-> >
-> > All kernel binaries, config files, and logs are available for download
-> > here:
-> >
-> >   https://artifacts.cki-project.org/pipelines/249576
-> >
-> > One or more kernel tests failed:
-> >
-> >     x86_64:
-> >      =E2=9D=8C LTP lite
->=20
-> I see these three failures from the logs,
+ drivers/virtio/virtio_ring.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-[CC LTP list]
-
->=20
-> LTP syscalls:
-> fallocate05                                        FAIL       1
-
-tst_mkfs.c:89: INFO: Formatting /dev/loop0 with ext4 opts=3D'' extra opts=
-=3D''
-mke2fs 1.45.3 (14-Jul-2019)
-tst_test.c:1116: INFO: Timeout per run is 0h 05m 00s
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file0 size 21710183
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file1 size 8070086
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file2 size 3971177
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file3 size 36915315
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file4 size 70310993
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file5 size 4807935
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file6 size 90739786
-tst_fill_fs.c:29: INFO: Creating file mntpoint/file7 size 76896492
-tst_fill_fs.c:49: INFO: write(): ENOSPC (28)
-fallocate05.c:50: PASS: write() wrote 8192 bytes
-fallocate05.c:54: FAIL: fallocate() succeeded unexpectedly
-
-So, test filled filesystem and fallocate() succeeded anyway.
-
->=20
-> LTP mm:
-> oom03                                              FAIL       2
-> oom05                                              FAIL       2
-
-This looks like test issue. systemd on Fedora31 started using cgroup2 exclu=
-sively:
-  cgroup2 on /sys/fs/cgroup type cgroup2 (rw,nosuid,nodev,noexec,relatime,s=
-eclabel,nsdelegate)
-
-Tests are trying to mount single hierarchy on cgroup1:
-[pid 283933] 04:57:26 mkdir("/dev/cgroup", 0777) =3D 0
-[pid 283933] 04:57:26 mount("memcg", "/dev/cgroup", "cgroup", 0, "memory") =
-=3D -1 EBUSY (Device or resource busy)
-
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index bdc08244a648..a8041e451e9e 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1499,9 +1499,6 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+ 		 * counter first before updating event flags.
+ 		 */
+ 		virtio_wmb(vq->weak_barriers);
+-	} else {
+-		used_idx = vq->last_used_idx;
+-		wrap_counter = vq->packed.used_wrap_counter;
+ 	}
+ 
+ 	if (vq->packed.event_flags_shadow == VRING_PACKED_EVENT_FLAG_DISABLE) {
+@@ -1518,7 +1515,9 @@ static bool virtqueue_enable_cb_delayed_packed(struct virtqueue *_vq)
+ 	 */
+ 	virtio_mb(vq->weak_barriers);
+ 
+-	if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
++	if (is_used_desc_packed(vq,
++				vq->last_used_idx,
++				vq->packed.used_wrap_counter)) {
+ 		END_USE(vq);
+ 		return false;
+ 	}
+-- 
+MST
