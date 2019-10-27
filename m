@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A971E6822
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C90EE67E2
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:25:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732685AbfJ0VZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46930 "EHLO mail.kernel.org"
+        id S1732697AbfJ0VZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:25:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732678AbfJ0VZN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:25:13 -0400
+        id S1732692AbfJ0VZP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:15 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 047F72064A;
-        Sun, 27 Oct 2019 21:25:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D043F21783;
+        Sun, 27 Oct 2019 21:25:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211511;
-        bh=3BnMbfPndXojbnIO/KjTzKqKNjsSSST0nsbkX7y7L8M=;
+        s=default; t=1572211514;
+        bh=+fUGPU/cUvr4r1VruQzw+nmYANorNrfj6Z+QY1jRk18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=anIMeuqaS5IWC3Hr2ligPuXAcbaOQ5gi5AurbCbPCfxV8W1beIX/sC5hER8gmrz9k
-         0BLOdaBM5+lk7oLanjB025FomrD074yLXOFORjHrF39sNUd7ll6yNgM8zTgc36bfDL
-         61m/v4hQ6kvxp7we5lRnBMI/1S22NwW7Ldwe6utU=
+        b=Ydku8zuFdPxfihrZijqqSwBgqGKIddNuyWhQ4VFIipf9qF7mq6DF7rXOKx5P7NOOn
+         pFs3UBH69XHH8FFEqmIpf10XAVWHJ3tP5lUAtB6HPdvPJfpmZ83A7xIt2t954XKdqx
+         OB2/BQenm69RqUl8z1mFoSrmAcbDPikv46nqm4U0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Wahl <steve.wahl@hpe.com>,
-        Borislav Petkov <bp@suse.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Baoquan He <bhe@redhat.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        dimitri.sivanich@hpe.com, Feng Tang <feng.tang@intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Jordan Borgner <mail@jordan-borgner.de>,
-        Juergen Gross <jgross@suse.com>, mike.travis@hpe.com,
-        russ.anderson@hpe.com, Thomas Gleixner <tglx@linutronix.de>,
-        x86-ml <x86@kernel.org>,
-        Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Subject: [PATCH 5.3 175/197] x86/boot/64: Make level2_kernel_pgt pages invalid outside kernel area
-Date:   Sun, 27 Oct 2019 22:01:33 +0100
-Message-Id: <20191027203404.708490338@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.3 176/197] x86/apic/x2apic: Fix a NULL pointer deref when handling a dying cpu
+Date:   Sun, 27 Oct 2019 22:01:34 +0100
+Message-Id: <20191027203404.857732611@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -54,107 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Wahl <steve.wahl@hpe.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 2aa85f246c181b1fa89f27e8e20c5636426be624 upstream.
+commit 7a22e03b0c02988e91003c505b34d752a51de344 upstream.
 
-Our hardware (UV aka Superdome Flex) has address ranges marked
-reserved by the BIOS. Access to these ranges is caught as an error,
-causing the BIOS to halt the system.
+Check that the per-cpu cluster mask pointer has been set prior to
+clearing a dying cpu's bit.  The per-cpu pointer is not set until the
+target cpu reaches smp_callin() during CPUHP_BRINGUP_CPU, whereas the
+teardown function, x2apic_dead_cpu(), is associated with the earlier
+CPUHP_X2APIC_PREPARE.  If an error occurs before the cpu is awakened,
+e.g. if do_boot_cpu() itself fails, x2apic_dead_cpu() will dereference
+the NULL pointer and cause a panic.
 
-Initial page tables mapped a large range of physical addresses that
-were not checked against the list of BIOS reserved addresses, and
-sometimes included reserved addresses in part of the mapped range.
-Including the reserved range in the map allowed processor speculative
-accesses to the reserved range, triggering a BIOS halt.
+  smpboot: do_boot_cpu failed(-22) to wakeup CPU#1
+  BUG: kernel NULL pointer dereference, address: 0000000000000008
+  RIP: 0010:x2apic_dead_cpu+0x1a/0x30
+  Call Trace:
+   cpuhp_invoke_callback+0x9a/0x580
+   _cpu_up+0x10d/0x140
+   do_cpu_up+0x69/0xb0
+   smp_init+0x63/0xa9
+   kernel_init_freeable+0xd7/0x229
+   ? rest_init+0xa0/0xa0
+   kernel_init+0xa/0x100
+   ret_from_fork+0x35/0x40
 
-Used early in booting, the page table level2_kernel_pgt addresses 1
-GiB divided into 2 MiB pages, and it was set up to linearly map a full
- 1 GiB of physical addresses that included the physical address range
-of the kernel image, as chosen by KASLR.  But this also included a
-large range of unused addresses on either side of the kernel image.
-And unlike the kernel image's physical address range, this extra
-mapped space was not checked against the BIOS tables of usable RAM
-addresses.  So there were times when the addresses chosen by KASLR
-would result in processor accessible mappings of BIOS reserved
-physical addresses.
-
-The kernel code did not directly access any of this extra mapped
-space, but having it mapped allowed the processor to issue speculative
-accesses into reserved memory, causing system halts.
-
-This was encountered somewhat rarely on a normal system boot, and much
-more often when starting the crash kernel if "crashkernel=512M,high"
-was specified on the command line (this heavily restricts the physical
-address of the crash kernel, in our case usually within 1 GiB of
-reserved space).
-
-The solution is to invalidate the pages of this table outside the kernel
-image's space before the page table is activated. It fixes this problem
-on our hardware.
-
- [ bp: Touchups. ]
-
-Signed-off-by: Steve Wahl <steve.wahl@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: dimitri.sivanich@hpe.com
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jordan Borgner <mail@jordan-borgner.de>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: mike.travis@hpe.com
-Cc: russ.anderson@hpe.com
+Fixes: 023a611748fd5 ("x86/apic/x2apic: Simplify cluster management")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Cc: Zhenzhong Duan <zhenzhong.duan@oracle.com>
-Link: https://lkml.kernel.org/r/9c011ee51b081534a7a15065b1681d200298b530.1569358539.git.steve.wahl@hpe.com
+Link: https://lkml.kernel.org/r/20191001205019.5789-1-sean.j.christopherson@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kernel/head64.c |   22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ arch/x86/kernel/apic/x2apic_cluster.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -222,13 +222,31 @@ unsigned long __head __startup_64(unsign
- 	 * we might write invalid pmds, when the kernel is relocated
- 	 * cleanup_highmap() fixes this up along with the mappings
- 	 * beyond _end.
-+	 *
-+	 * Only the region occupied by the kernel image has so far
-+	 * been checked against the table of usable memory regions
-+	 * provided by the firmware, so invalidate pages outside that
-+	 * region. A page table entry that maps to a reserved area of
-+	 * memory would allow processor speculation into that area,
-+	 * and on some hardware (particularly the UV platform) even
-+	 * speculative access to some reserved areas is caught as an
-+	 * error, causing the BIOS to halt the system.
- 	 */
+--- a/arch/x86/kernel/apic/x2apic_cluster.c
++++ b/arch/x86/kernel/apic/x2apic_cluster.c
+@@ -158,7 +158,8 @@ static int x2apic_dead_cpu(unsigned int
+ {
+ 	struct cluster_mask *cmsk = per_cpu(cluster_masks, dead_cpu);
  
- 	pmd = fixup_pointer(level2_kernel_pgt, physaddr);
--	for (i = 0; i < PTRS_PER_PMD; i++) {
-+
-+	/* invalidate pages before the kernel image */
-+	for (i = 0; i < pmd_index((unsigned long)_text); i++)
-+		pmd[i] &= ~_PAGE_PRESENT;
-+
-+	/* fixup pages that are part of the kernel image */
-+	for (; i <= pmd_index((unsigned long)_end); i++)
- 		if (pmd[i] & _PAGE_PRESENT)
- 			pmd[i] += load_delta;
--	}
-+
-+	/* invalidate pages after the kernel image */
-+	for (; i < PTRS_PER_PMD; i++)
-+		pmd[i] &= ~_PAGE_PRESENT;
- 
- 	/*
- 	 * Fixup phys_base - remove the memory encryption mask to obtain
+-	cpumask_clear_cpu(dead_cpu, &cmsk->mask);
++	if (cmsk)
++		cpumask_clear_cpu(dead_cpu, &cmsk->mask);
+ 	free_cpumask_var(per_cpu(ipi_mask, dead_cpu));
+ 	return 0;
+ }
 
 
