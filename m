@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E03B9E680A
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:26:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 945DCE66F4
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732934AbfJ0V01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:26:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48376 "EHLO mail.kernel.org"
+        id S1730889AbfJ0VQp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732928AbfJ0V00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:26:26 -0400
+        id S1730886AbfJ0VQo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:44 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FDAD21E6F;
-        Sun, 27 Oct 2019 21:26:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05AD821726;
+        Sun, 27 Oct 2019 21:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211585;
-        bh=2dkV0I/ttTsDq2uK0syJ7uNnKrFVDYIZq51ZA9hvSWg=;
+        s=default; t=1572211003;
+        bh=LI1+dhirixYEYs7FYCxZTa41ybRrG0gdklv7SZqhNTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w/ORJfyfLyq+8SLsKV8YB8wl6lbiE9uC5Q8awLZN/RgRqr9XP/Xao9ZrpRAlZS4k8
-         AifGPNo166YOzSWAV8UxAXKXIDlelCQQS4YU+tcOh7eVRRTVb9c6ZK/AX43tfMuQpN
-         6voQTXHuAFP6uvJRBYyciJsalRcW35NsDpz57oEw=
+        b=l0b+692S2iGNTNfdQy/sQi/jggwGUNE82U/MUtGpaYbfjG/Ogn9JYgwG8Wu9IJywZ
+         LlUokTIfHQcRI+kLJXz4W9vXofiO1zzSmJPvkNAUM5zUCHrYzP6efL5owWqx8GdPQS
+         5Iyo3oKL/JNE3eBAXkhQKgO65xA+A7MWkVxKqfDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.3 187/197] btrfs: tracepoints: Fix bad entry members of qgroup events
+        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.19 93/93] RDMA/cxgb4: Do not dma memory off of the stack
 Date:   Sun, 27 Oct 2019 22:01:45 +0100
-Message-Id: <20191027203406.582477867@linuxfoundation.org>
+Message-Id: <20191027203318.790103764@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,66 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Greg KH <gregkh@linuxfoundation.org>
 
-commit 1b2442b4ae0f234daeadd90e153b466332c466d8 upstream.
+commit 3840c5b78803b2b6cc1ff820100a74a092c40cbb upstream.
 
-[BUG]
-For btrfs:qgroup_meta_reserve event, the trace event can output garbage:
+Nicolas pointed out that the cxgb4 driver is doing dma off of the stack,
+which is generally considered a very bad thing.  On some architectures it
+could be a security problem, but odds are none of them actually run this
+driver, so it's just a "normal" bug.
 
-  qgroup_meta_reserve: 9c7f6acc-b342-4037-bc47-7f6e4d2232d7: refroot=5(FS_TREE) type=DATA diff=2
-  qgroup_meta_reserve: 9c7f6acc-b342-4037-bc47-7f6e4d2232d7: refroot=5(FS_TREE) type=0x258792 diff=2
+Resolve this by allocating the memory for a message off of the heap
+instead of the stack.  kmalloc() always will give us a proper memory
+location that DMA will work correctly from.
 
-The @type can be completely garbage, as DATA type is not possible for
-trace_qgroup_meta_reserve() trace event.
-
-[CAUSE]
-Ther are several problems related to qgroup trace events:
-- Unassigned entry member
-  Member entry::type of trace_qgroup_update_reserve() and
-  trace_qgourp_meta_reserve() is not assigned
-
-- Redundant entry member
-  Member entry::type is completely useless in
-  trace_qgroup_meta_convert()
-
-Fixes: 4ee0d8832c2e ("btrfs: qgroup: Update trace events for metadata reservation")
-CC: stable@vger.kernel.org # 4.10+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Link: https://lore.kernel.org/r/20191001165611.GA3542072@kroah.com
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Tested-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/trace/events/btrfs.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/cxgb4/mem.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/include/trace/events/btrfs.h
-+++ b/include/trace/events/btrfs.h
-@@ -1687,6 +1687,7 @@ TRACE_EVENT(qgroup_update_reserve,
- 		__entry->qgid		= qgroup->qgroupid;
- 		__entry->cur_reserved	= qgroup->rsv.values[type];
- 		__entry->diff		= diff;
-+		__entry->type		= type;
- 	),
+--- a/drivers/infiniband/hw/cxgb4/mem.c
++++ b/drivers/infiniband/hw/cxgb4/mem.c
+@@ -274,13 +274,17 @@ static int write_tpt_entry(struct c4iw_r
+ 			   struct sk_buff *skb, struct c4iw_wr_wait *wr_waitp)
+ {
+ 	int err;
+-	struct fw_ri_tpte tpt;
++	struct fw_ri_tpte *tpt;
+ 	u32 stag_idx;
+ 	static atomic_t key;
  
- 	TP_printk_btrfs("qgid=%llu type=%s cur_reserved=%llu diff=%lld",
-@@ -1709,6 +1710,7 @@ TRACE_EVENT(qgroup_meta_reserve,
- 	TP_fast_assign_btrfs(root->fs_info,
- 		__entry->refroot	= root->root_key.objectid;
- 		__entry->diff		= diff;
-+		__entry->type		= type;
- 	),
+ 	if (c4iw_fatal_error(rdev))
+ 		return -EIO;
  
- 	TP_printk_btrfs("refroot=%llu(%s) type=%s diff=%lld",
-@@ -1725,7 +1727,6 @@ TRACE_EVENT(qgroup_meta_convert,
- 	TP_STRUCT__entry_btrfs(
- 		__field(	u64,	refroot			)
- 		__field(	s64,	diff			)
--		__field(	int,	type			)
- 	),
++	tpt = kmalloc(sizeof(*tpt), GFP_KERNEL);
++	if (!tpt)
++		return -ENOMEM;
++
+ 	stag_state = stag_state > 0;
+ 	stag_idx = (*stag) >> 8;
  
- 	TP_fast_assign_btrfs(root->fs_info,
+@@ -290,6 +294,7 @@ static int write_tpt_entry(struct c4iw_r
+ 			mutex_lock(&rdev->stats.lock);
+ 			rdev->stats.stag.fail++;
+ 			mutex_unlock(&rdev->stats.lock);
++			kfree(tpt);
+ 			return -ENOMEM;
+ 		}
+ 		mutex_lock(&rdev->stats.lock);
+@@ -304,28 +309,28 @@ static int write_tpt_entry(struct c4iw_r
+ 
+ 	/* write TPT entry */
+ 	if (reset_tpt_entry)
+-		memset(&tpt, 0, sizeof(tpt));
++		memset(tpt, 0, sizeof(*tpt));
+ 	else {
+-		tpt.valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
++		tpt->valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
+ 			FW_RI_TPTE_STAGKEY_V((*stag & FW_RI_TPTE_STAGKEY_M)) |
+ 			FW_RI_TPTE_STAGSTATE_V(stag_state) |
+ 			FW_RI_TPTE_STAGTYPE_V(type) | FW_RI_TPTE_PDID_V(pdid));
+-		tpt.locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
++		tpt->locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
+ 			(bind_enabled ? FW_RI_TPTE_MWBINDEN_F : 0) |
+ 			FW_RI_TPTE_ADDRTYPE_V((zbva ? FW_RI_ZERO_BASED_TO :
+ 						      FW_RI_VA_BASED_TO))|
+ 			FW_RI_TPTE_PS_V(page_size));
+-		tpt.nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
++		tpt->nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
+ 			FW_RI_TPTE_PBLADDR_V(PBL_OFF(rdev, pbl_addr)>>3));
+-		tpt.len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
+-		tpt.va_hi = cpu_to_be32((u32)(to >> 32));
+-		tpt.va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
+-		tpt.dca_mwbcnt_pstag = cpu_to_be32(0);
+-		tpt.len_hi = cpu_to_be32((u32)(len >> 32));
++		tpt->len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
++		tpt->va_hi = cpu_to_be32((u32)(to >> 32));
++		tpt->va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
++		tpt->dca_mwbcnt_pstag = cpu_to_be32(0);
++		tpt->len_hi = cpu_to_be32((u32)(len >> 32));
+ 	}
+ 	err = write_adapter_mem(rdev, stag_idx +
+ 				(rdev->lldi.vr->stag.start >> 5),
+-				sizeof(tpt), &tpt, skb, wr_waitp);
++				sizeof(*tpt), tpt, skb, wr_waitp);
+ 
+ 	if (reset_tpt_entry) {
+ 		c4iw_put_resource(&rdev->resource.tpt_table, stag_idx);
+@@ -333,6 +338,7 @@ static int write_tpt_entry(struct c4iw_r
+ 		rdev->stats.stag.cur -= 32;
+ 		mutex_unlock(&rdev->stats.lock);
+ 	}
++	kfree(tpt);
+ 	return err;
+ }
+ 
 
 
