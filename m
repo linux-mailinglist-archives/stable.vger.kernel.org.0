@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2DAE67E5
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E63EE6677
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:12:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732099AbfJ0VZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47218 "EHLO mail.kernel.org"
+        id S1728237AbfJ0VMT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:12:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732715AbfJ0VZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:25:21 -0400
+        id S1730037AbfJ0VMT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:12:19 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BE9621D80;
-        Sun, 27 Oct 2019 21:25:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C402208C0;
+        Sun, 27 Oct 2019 21:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211520;
-        bh=fpFNoSccBHLbv0vrydrZEkMT1fnZ0IAWrJKSOGe1NeU=;
+        s=default; t=1572210738;
+        bh=UwVtbbT58WKj2ejT1LaVytt/OzL+CzP+J5ulerQNzMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTcNy0aTJ6qWElLUdfVZdO5xx84gCjyln9hmAaAjB/qeGDRFiSJWD+5ayMsW/Lgzu
-         zr2cEr0milKgJfmqOozuaZG/toW5SfxErV5heOJY3S8rXKkXXpUC6e9tu0Zu+BUYxH
-         AJ14Ev2NLXr/F3UJG53oUecWjkL43PfLKfh7tqBM=
+        b=pdovGfCfHidFgHsJ07lr0OHNIwoUzyjBW4y2i1k6Cd/caSZQUdpYBEM7i+IELxyje
+         4+fJFo+q56spSQK8c5bOxzJcaxfAuRmnOMaoMLwiuqOWG0/+LWsK3tO/xfBKYPfySg
+         0K9SjkKmd4FYztSwuZ1aHjO/MHyqhxvZ1R3N2mcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Levin <levinale@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.3 178/197] pinctrl: cherryview: restore Strago DMI workaround for all versions
+        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 4.14 119/119] RDMA/cxgb4: Do not dma memory off of the stack
 Date:   Sun, 27 Oct 2019 22:01:36 +0100
-Message-Id: <20191027203405.334728832@linuxfoundation.org>
+Message-Id: <20191027203350.079648942@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Greg KH <gregkh@linuxfoundation.org>
 
-commit 260996c30f4f3a732f45045e3e0efe27017615e4 upstream.
+commit 3840c5b78803b2b6cc1ff820100a74a092c40cbb upstream.
 
-This is essentially a revert of:
+Nicolas pointed out that the cxgb4 driver is doing dma off of the stack,
+which is generally considered a very bad thing.  On some architectures it
+could be a security problem, but odds are none of them actually run this
+driver, so it's just a "normal" bug.
 
-e3f72b749da2 pinctrl: cherryview: fix Strago DMI workaround
-86c5dd6860a6 pinctrl: cherryview: limit Strago DMI workarounds to version 1.0
+Resolve this by allocating the memory for a message off of the heap
+instead of the stack.  kmalloc() always will give us a proper memory
+location that DMA will work correctly from.
 
-because even with 1.1 versions of BIOS there are some pins that are
-configured as interrupts but not claimed by any driver, and they
-sometimes fire up and result in interrupt storms that cause touchpad
-stop functioning and other issues.
-
-Given that we are unlikely to qualify another firmware version for a
-while it is better to keep the workaround active on all Strago boards.
-
-Reported-by: Alex Levin <levinale@chromium.org>
-Fixes: 86c5dd6860a6 ("pinctrl: cherryview: limit Strago DMI workarounds to version 1.0")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Alex Levin <levinale@chromium.org>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20191001165611.GA3542072@kroah.com
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Tested-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pinctrl/intel/pinctrl-cherryview.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/infiniband/hw/cxgb4/mem.c |   28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
---- a/drivers/pinctrl/intel/pinctrl-cherryview.c
-+++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
-@@ -1513,7 +1513,6 @@ static const struct dmi_system_id chv_no
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
- 			DMI_MATCH(DMI_PRODUCT_FAMILY, "Intel_Strago"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
- 		},
- 	},
- 	{
-@@ -1521,7 +1520,6 @@ static const struct dmi_system_id chv_no
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Setzer"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
- 		},
- 	},
- 	{
-@@ -1529,7 +1527,6 @@ static const struct dmi_system_id chv_no
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Cyan"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
- 		},
- 	},
- 	{
-@@ -1537,7 +1534,6 @@ static const struct dmi_system_id chv_no
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "GOOGLE"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Celes"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "1.0"),
- 		},
- 	},
- 	{}
+--- a/drivers/infiniband/hw/cxgb4/mem.c
++++ b/drivers/infiniband/hw/cxgb4/mem.c
+@@ -260,13 +260,17 @@ static int write_tpt_entry(struct c4iw_r
+ 			   struct sk_buff *skb)
+ {
+ 	int err;
+-	struct fw_ri_tpte tpt;
++	struct fw_ri_tpte *tpt;
+ 	u32 stag_idx;
+ 	static atomic_t key;
+ 
+ 	if (c4iw_fatal_error(rdev))
+ 		return -EIO;
+ 
++	tpt = kmalloc(sizeof(*tpt), GFP_KERNEL);
++	if (!tpt)
++		return -ENOMEM;
++
+ 	stag_state = stag_state > 0;
+ 	stag_idx = (*stag) >> 8;
+ 
+@@ -276,6 +280,7 @@ static int write_tpt_entry(struct c4iw_r
+ 			mutex_lock(&rdev->stats.lock);
+ 			rdev->stats.stag.fail++;
+ 			mutex_unlock(&rdev->stats.lock);
++			kfree(tpt);
+ 			return -ENOMEM;
+ 		}
+ 		mutex_lock(&rdev->stats.lock);
+@@ -290,28 +295,28 @@ static int write_tpt_entry(struct c4iw_r
+ 
+ 	/* write TPT entry */
+ 	if (reset_tpt_entry)
+-		memset(&tpt, 0, sizeof(tpt));
++		memset(tpt, 0, sizeof(*tpt));
+ 	else {
+-		tpt.valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
++		tpt->valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
+ 			FW_RI_TPTE_STAGKEY_V((*stag & FW_RI_TPTE_STAGKEY_M)) |
+ 			FW_RI_TPTE_STAGSTATE_V(stag_state) |
+ 			FW_RI_TPTE_STAGTYPE_V(type) | FW_RI_TPTE_PDID_V(pdid));
+-		tpt.locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
++		tpt->locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
+ 			(bind_enabled ? FW_RI_TPTE_MWBINDEN_F : 0) |
+ 			FW_RI_TPTE_ADDRTYPE_V((zbva ? FW_RI_ZERO_BASED_TO :
+ 						      FW_RI_VA_BASED_TO))|
+ 			FW_RI_TPTE_PS_V(page_size));
+-		tpt.nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
++		tpt->nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
+ 			FW_RI_TPTE_PBLADDR_V(PBL_OFF(rdev, pbl_addr)>>3));
+-		tpt.len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
+-		tpt.va_hi = cpu_to_be32((u32)(to >> 32));
+-		tpt.va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
+-		tpt.dca_mwbcnt_pstag = cpu_to_be32(0);
+-		tpt.len_hi = cpu_to_be32((u32)(len >> 32));
++		tpt->len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
++		tpt->va_hi = cpu_to_be32((u32)(to >> 32));
++		tpt->va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
++		tpt->dca_mwbcnt_pstag = cpu_to_be32(0);
++		tpt->len_hi = cpu_to_be32((u32)(len >> 32));
+ 	}
+ 	err = write_adapter_mem(rdev, stag_idx +
+ 				(rdev->lldi.vr->stag.start >> 5),
+-				sizeof(tpt), &tpt, skb);
++				sizeof(*tpt), tpt, skb);
+ 
+ 	if (reset_tpt_entry) {
+ 		c4iw_put_resource(&rdev->resource.tpt_table, stag_idx);
+@@ -319,6 +324,7 @@ static int write_tpt_entry(struct c4iw_r
+ 		rdev->stats.stag.cur -= 32;
+ 		mutex_unlock(&rdev->stats.lock);
+ 	}
++	kfree(tpt);
+ 	return err;
+ }
+ 
 
 
