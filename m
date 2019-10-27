@@ -2,85 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C21CE6260
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 13:06:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AAE1E6278
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 13:53:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726674AbfJ0MG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 08:06:26 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:42298 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726469AbfJ0MG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 08:06:26 -0400
-Received: by mail-pf1-f193.google.com with SMTP id 21so4731456pfj.9
-        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 05:06:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:from:to:cc:references:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=qbGT3k7kbmTIvKilRXtZPhGxYdxoPdbbkjO2kJy3DD4=;
-        b=cmvj1vthJjxWSu57NCDMMpxLHaUXRFe/eHxfw/cpIvxUEt0u5P30gTzmqt0Dvuq1cK
-         Z7OLtAhmCDUoQnOwg2aTGFVfVL3sZyDQYe6Rwdfx67zsFyW/sEwvQ6VUzcktqmCQqOaw
-         ogRESCBIGt7ZdVOkNjR0atZ3l0gj997unQaQvrMxP0Uwuh3mwOK0N4S5CWNHHbrd/BVz
-         CLvpjfbqXsWVP7ShMqvpP1qfmctujlZKrNctoReD08w/sJZZ5812kcvyHi3a5nPyR4Yo
-         ShDGga2HuGOfClsUBNbYXsqjWqYlAql02yJDFpq4LTMZco/uyIbIl5hWODgMovHSiZT8
-         Ylkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:from:to:cc:references:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=qbGT3k7kbmTIvKilRXtZPhGxYdxoPdbbkjO2kJy3DD4=;
-        b=lvPFKnqfkc8pNYYNmtQB8p3IVN/9gYopTUNzDlsXAcfgOw/YPPtLuOsuNbNSVZZYEi
-         pmC3Uf5PYedP7bGhMrelLhw7uHQbsaRmDsbcHxhZFyGe0prthOSEyGrm27Ng2lKprrPR
-         sAAFMvA2AC5qRfiDeRLsSOF/jJDXFe7YuDLVaeZNBC8vD4n86sKRRU6O7roITJtpypnT
-         sX0/NwvxWRuKBrEh+pPcUxil4PmPWOZJXOG87TCtiSbG0E17CdcHdYE+dc7Jb7XJVls5
-         AWSjfvFfB07aiEa4/kDSBLLXnQ4E1zNvEy4GnldAiNs6QmHncpytER3gTTrUZYqW8oLC
-         LOMA==
-X-Gm-Message-State: APjAAAUf/aJ42M9VDJGEITSuxFD+ryeZ+P9/C2r1rYnjaCZugb7243H2
-        8tr5SgzznU6Eid/yjyrq3/j1PbQRO9khFQ==
-X-Google-Smtp-Source: APXvYqw4VgN2kSo6dT+SxXLxsjUkA4V0Otuwc9ORmYnoGn56iXq/ag0CWQTha3ewzDE1ZulMHGeeiw==
-X-Received: by 2002:a17:90a:a417:: with SMTP id y23mr15813198pjp.126.1572177984833;
-        Sun, 27 Oct 2019 05:06:24 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id q23sm6752888pjd.2.2019.10.27.05.06.23
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 27 Oct 2019 05:06:23 -0700 (PDT)
-Subject: Re: io_uring stable 5.3 backports
-From:   Jens Axboe <axboe@kernel.dk>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org
-References: <efc9278b-de72-40b2-9a0a-48df0c64edc1@kernel.dk>
- <20191027085204.GA1560@sasha-vm>
- <f90a0bd3-3074-ee14-dea9-63d520bd72a2@kernel.dk>
-Message-ID: <a6a6fd4d-a469-43d2-7ea9-1a57e38d62cf@kernel.dk>
-Date:   Sun, 27 Oct 2019 06:06:22 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1726533AbfJ0MxK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 08:53:10 -0400
+Received: from sonic314-13.consmr.mail.bf2.yahoo.com ([74.6.132.123]:43026
+        "EHLO sonic314-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725807AbfJ0MxK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 08:53:10 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1572180789; bh=tnR598H/QqPT1Ph/+p7nVdpgic7bknwMcbeRQcbc5RI=; h=Date:From:Reply-To:Subject:From:Subject; b=BTr01Td9KQCbUqhADiTJengkr0KktS1DZmG+/E91jLuqfNfXO7Uj9aNGlqaHyFXDI3gScoMrUb0DfrnzoLZe3fWhX6i0Hl5z2aW7YZFQjuIVIxMuTSr58kb0EX1hC2TZzVDrb+uU921NaK/FdeN+Ps8RZExT5pNPfeyH+NMRfAoqp05mxXr/7Xx5a9OhOtdSXDQQYGmW+u+J3VGMxe9/OYvweAU2HnnAttAm82+deOLoUR3C7oKeb3x8cJs0VtMF9YGrRz3a5A2f74BPAVu+rBy+EUdF/Gxei6GwIBGEfPxsvjRMgVf/fEU71x7Ynl2m9rtdo3pv7ZLFkLUO3Z3AVQ==
+X-YMail-OSG: layDttIVM1l93juOB1vlmlFXzWmA3auh6lgeFsSmyRaTnkGHoi.HcelH2FJyz8t
+ ptYULPFh4aSs9b212g3J8nP0refRZwh3YT_lKxb00g26OOeBfErgBJO8UVvoQ2OS3BK7Vjv1zIWE
+ T9v__0UTQfS_.jhHbhrpMWcGy7JvrGuOLUksWRd0OEsO4aaz2UGxaBwerZ4KJWMbyrJ3_3da1wUu
+ OPRIaiG1mll.tJRof54zTLLQEv8E8qJ2RQqLUTRtGeA9TGKPcW_ElijitDJg75Dw8eQw07mfwyYF
+ MxwRLghtEN2mxIk.GvT2DJo8TP3YiPcP5g5iWRhDqpFtXbpPoPSFLK65kpVgaY8b4J1hgwpS7yzR
+ WqVkXwqdeilzxqL6V3eQ1Hcp5LLzxbkeZnT9blhuyukhDXbpLsEpXa4VKSqVy2uxD.gt7rggEcIR
+ umwWLID1.UESGJs6iEDxPBtjqKOllwsiBVgyK5qveZY8oxGL5AiD7.RNAobJruzU5ZP407kiSxB3
+ c5DjbpT5d72ErZlxNpzPq6hk3mr.j1L7Y5xP8ZHPgjefP0ytT0ir.hMtNPkG52zWEVwLRsyXtQB1
+ szTwh3zL2HihsQ.h.0XKK8rMLQZlA5kFXlFUl8_SJNXCUViigap.y486ig4tln0fHtO9hHT29np8
+ kp226oRqXSLWsjN_lIKK82BN4UoHQNLS9k6BZYRbS92Bk2CqCCXIwvXxXP4MWPyLh9qx7p1s3KO_
+ oOzWFeMPm3JxSNVTOdCj4vP_qJfHbQsJifCaY_7cs7ap8pSomAqqHZx35vfxjK_shD8hpXpWePil
+ uC4ngB2QDTnc7cr5mgJvO_r80fTHMhTsyGK6hKp7IGe4sAOgkzYPTdchgvk.VV9vedTc5UM9Evxm
+ WZZANoyLfRsH87.fQAcj8ZXXMeUXZ4TzTGwGuk4Iq7qDQOBFh2us7NJUklVefCdfmgz6HDHXPdsQ
+ uqsvQZjVii.1LiPaj51C3JiW3XQ6gefbfA7ppmK638_jP6Tbn02gFczoyyIH6_eJmu2FWN_uMua6
+ NLKNo6ZSsj1oYf3G8KcAyQFa8PXxc37.DL3PzlrWaRf6dW6OvUHC8iEkRZzhBQP0qEL1UGdpWyn3
+ eXwgkUtRWj5qP0e6JFBC.x.XJTIpPqyr9g.REL3fKZGUrLY9PwuKNrpIAXNAUbztQb.LUrbbyX5V
+ eS70z60C2YHYDSRitAuUmwmj4MYXrsXBAwqwARvUhf3VbdF4itNOLXtiSkahjZIiiNNKSGlZ0Waw
+ IomNilQZ5yZk6ldHOcUMjpr9znbmtdjlDDI51SOkdbWiuYKOg070Gb4DSZYI7iFrN3n0CAleurEr
+ Mi2yE
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic314.consmr.mail.bf2.yahoo.com with HTTP; Sun, 27 Oct 2019 12:53:09 +0000
+Date:   Sun, 27 Oct 2019 12:53:03 +0000 (UTC)
+From:   Mrs Elodie Antoine <elodieantoine890@gmail.com>
+Reply-To: elodiem97@yahoo.com
+Message-ID: <1831858520.1022837.1572180783914@mail.yahoo.com>
+Subject: Greetings From Mrs Elodie,
 MIME-Version: 1.0
-In-Reply-To: <f90a0bd3-3074-ee14-dea9-63d520bd72a2@kernel.dk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/27/19 6:01 AM, Jens Axboe wrote:
->> Jens, could you please take a look at my backport of fb5ccc98782f65:
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.3/io_uring-fix-broken-links-with-offloading.patch
->>
->> And 498ccd9eda491:
->>
->> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/queue-5.3/io_uring-used-cached-copies-of-sq-dropped-and-cq-ove.patch
->>
->> And confirm I did the right thing?
-> 
-> Of course, I'll take a look right now. Thanks for taking care of these!
 
-Both look good to me.
 
--- 
-Jens Axboe
+Greetings From Mrs Elodie,
 
+Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS CHRIST the giver of every good thing. Good day,i know this letter will definitely come to you as a huge surprise, but I implore you to take the time to go through it carefully as the decision you make will go off a long way to determine my future and continued existence. I am Mrs Elodie Antoine
+aging widow of 59 years old suffering from long time illness. I have some funds I inherited from my late husband,
+
+The sum of (US$4.5 Million Dollars) and I needed a very honest and God fearing who can withdraw this money then use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found your email address from the internet after honest prayers to the LORD to bring me a helper and i decided to contact you if you may be willing and interested to handle these trust funds in good faith before anything happens to me.
+I accept this decision because I do not have any child who will inherit this money after I die. I want your urgent reply to me so that I will give you the deposit receipt which the COMPANY issued to me as next of kin for immediate transfer of the money to your account in your country, to start the good work of God, I want you to use the 15/percent of the total amount to help yourself in doing the project.
+
+
+I am desperately in keen need of assistance and I have summoned up courage to contact you for this task, you must not fail me and the millions of the poor people in our todays WORLD. This is no stolen money and there are no dangers involved,100% RISK FREE with full legal proof. Please if you would be able to use the funds for the Charity works kindly let me know immediately.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish. I want you to take 15 percent of the total money for your personal use while 85% of the money will go to charity.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish.
+
+
+kindly respond for further details.
+
+
+Thanks and God bless you,
+
+Mrs Elodie Antoine
