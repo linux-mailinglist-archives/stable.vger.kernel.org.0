@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 152A2E67F3
+	by mail.lfdr.de (Postfix) with ESMTP id 7E680E67F4
 	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:26:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731794AbfJ0VZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:25:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47796 "EHLO mail.kernel.org"
+        id S1732833AbfJ0VZ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:25:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732232AbfJ0VZz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:25:55 -0400
+        id S1732829AbfJ0VZ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:57 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D826B222BD;
-        Sun, 27 Oct 2019 21:25:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFBC821D80;
+        Sun, 27 Oct 2019 21:25:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211554;
-        bh=YNG+w3TVAqBqgDIyeJTMNfUZKtV9oZ6NkI/ZnG1nj00=;
+        s=default; t=1572211557;
+        bh=Eof4RQ75s/RksPlJ6cpa2YwMVmYN29cmy7xpvAAcZqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S2YqqKqhfYgofbCf6wTZvOtx7EgmHpr116BP1U9tBwnALHCMfDzMxq4bFYY8UxX0j
-         z0+tfUzbezkXtyYnVvDwaRQfcQ6VwBBPn4fbSdlKIXrN0NdHTuTQkxhax5ErTocUDl
-         ZROcBQLlJR9KO4WD9oaFzpPSfzleFwyQBCKMgTBs=
+        b=GV3CVZIo+2xgAEO5tTaHslDmsxhIeHK/ViAQWOclEpg0XaC9XgZmgAKVrzIRojJAx
+         qu2UsR8XNZQlh7UrzbCLhso2R2jzWSAaD3CyT/lTXr+v6hKDBNY55tg+eOyYYqHuTZ
+         tj12Vwf8Hq0OdJuVS0Wxdn+iuR1lCLKOmJSbH3ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.3 193/197] PCI: PM: Fix pci_power_up()
-Date:   Sun, 27 Oct 2019 22:01:51 +0100
-Message-Id: <20191027203406.906068286@linuxfoundation.org>
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>
+Subject: [PATCH 5.3 194/197] opp: of: drop incorrect lockdep_assert_held()
+Date:   Sun, 27 Oct 2019 22:01:52 +0100
+Message-Id: <20191027203406.961951101@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,81 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-commit 45144d42f299455911cc29366656c7324a3a7c97 upstream.
+commit f2edbb6699b0bc6e4f789846b99007200546c6c2 upstream.
 
-There is an arbitrary difference between the system resume and
-runtime resume code paths for PCI devices regarding the delay to
-apply when switching the devices from D3cold to D0.
+_find_opp_of_np() doesn't traverse the list of OPP tables but instead
+just the entries within an OPP table and so only requires to lock the
+OPP table itself.
 
-Namely, pci_restore_standard_config() used in the runtime resume
-code path calls pci_set_power_state() which in turn invokes
-__pci_start_power_transition() to power up the device through the
-platform firmware and that function applies the transition delay
-(as per PCI Express Base Specification Revision 2.0, Section 6.6.1).
-However, pci_pm_default_resume_early() used in the system resume
-code path calls pci_power_up() which doesn't apply the delay at
-all and that causes issues to occur during resume from
-suspend-to-idle on some systems where the delay is required.
+The lockdep_assert_held() was added there by mistake and isn't really
+required.
 
-Since there is no reason for that difference to exist, modify
-pci_power_up() to follow pci_set_power_state() more closely and
-invoke __pci_start_power_transition() from there to call the
-platform firmware to power up the device (in case that's necessary).
-
-Fixes: db288c9c5f9d ("PCI / PM: restore the original behavior of pci_set_power_state()")
-Reported-by: Daniel Drake <drake@endlessm.com>
-Tested-by: Daniel Drake <drake@endlessm.com>
-Link: https://lore.kernel.org/linux-pm/CAD8Lp44TYxrMgPLkHCqF9hv6smEurMXvmmvmtyFhZ6Q4SE+dig@mail.gmail.com/T/#m21be74af263c6a34f36e0fc5c77c5449d9406925
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Fixes: 5d6d106fa455 ("OPP: Populate required opp tables from "required-opps" property")
+Cc: v5.0+ <stable@vger.kernel.org> # v5.0+
+Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci.c |   24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ drivers/opp/of.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -959,19 +959,6 @@ void pci_refresh_power_state(struct pci_
- }
+--- a/drivers/opp/of.c
++++ b/drivers/opp/of.c
+@@ -77,8 +77,6 @@ static struct dev_pm_opp *_find_opp_of_n
+ {
+ 	struct dev_pm_opp *opp;
  
- /**
-- * pci_power_up - Put the given device into D0 forcibly
-- * @dev: PCI device to power up
-- */
--void pci_power_up(struct pci_dev *dev)
--{
--	if (platform_pci_power_manageable(dev))
--		platform_pci_set_power_state(dev, PCI_D0);
+-	lockdep_assert_held(&opp_table_lock);
 -
--	pci_raw_set_power_state(dev, PCI_D0);
--	pci_update_current_state(dev, PCI_D0);
--}
--
--/**
-  * pci_platform_power_transition - Use platform to change device power state
-  * @dev: PCI device to handle.
-  * @state: State to put the device into.
-@@ -1154,6 +1141,17 @@ int pci_set_power_state(struct pci_dev *
- EXPORT_SYMBOL(pci_set_power_state);
+ 	mutex_lock(&opp_table->lock);
  
- /**
-+ * pci_power_up - Put the given device into D0 forcibly
-+ * @dev: PCI device to power up
-+ */
-+void pci_power_up(struct pci_dev *dev)
-+{
-+	__pci_start_power_transition(dev, PCI_D0);
-+	pci_raw_set_power_state(dev, PCI_D0);
-+	pci_update_current_state(dev, PCI_D0);
-+}
-+
-+/**
-  * pci_choose_state - Choose the power state of a PCI device
-  * @dev: PCI device to be suspended
-  * @state: target sleep state for the whole system. This is the value
+ 	list_for_each_entry(opp, &opp_table->opp_list, node) {
 
 
