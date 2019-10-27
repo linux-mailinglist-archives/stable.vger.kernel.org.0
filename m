@@ -2,2407 +2,484 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D239E69F8
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 23:58:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2F5E6A3E
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 00:47:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727432AbfJ0W62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 18:58:28 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:53342 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727139AbfJ0W62 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 18:58:28 -0400
-Received: by mail-wm1-f65.google.com with SMTP id n7so7509362wmc.3
-        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 15:58:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0C2oKLlUNiolTj4uFcLyPA2qE3ycWHI09Ql+V1AQLp8=;
-        b=zO0+vbGbuewtU5M2VtH+q+ALtsPAd++yiiEe3HKZWKM7k/wxL1BIrAjE+sa2a4pbcF
-         +T9nPlywJGkMLZjYlzvf+S1gxPU5oe3QcmsRVdqd4y+Shc6XaQ5ofhRu7sBBtw34Wlm/
-         Pe+KulIbrFeso88FBXMJjmrawcIOJtd6CFwfhLXnUBa4ukJKNwbujNmsdoHJcAIdw50n
-         PQV3ynER2lI14ebtUQFDv+psSEK8ZYjv1WcvEzCtNMOpxS8BIq4VAesq8T1xD9MjdQtM
-         hZlRTJCkg/d9LwIl8hcbKegolBTE6G1XdmPzanCgNwe8HjY27MTcEZBBRT16RHqzhnao
-         0rMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0C2oKLlUNiolTj4uFcLyPA2qE3ycWHI09Ql+V1AQLp8=;
-        b=rjBvbPhcZGsAR5pYjefcXRz/5qMEc0M+3KWDsBa0ozBhQmY8w6EZD5+/rb9bZOqDuY
-         asnhDUiQbRdRjJI/eAxgLorN0IVRXyDnKbDyEjf9JzmIUqwSZGukPMKvI/zkx5iIXMcA
-         Ker2KzynOuW0ibrVu+3FZKA6vgD5KrYcMcgAdpvbnpanqs4Ve9NAGuHLotU1126xPsv/
-         IzsgaFW2ijdoB9HfnY4HVI7mwhBsafCmqszUKfkQsvtmw1dwas1tVIrUeIc+WHSigD5l
-         QmocIMGULuQc5h1pzKBtPMSsf66ZByEhJ9wKZAUbUvCvtLHePeVAbLfldqy3ZZfEcleE
-         KhSw==
-X-Gm-Message-State: APjAAAUxClyhdrgSKSsTnGGpV+1BG6T06f6Ve54giWgAGonyvxi49xdo
-        QRgEk/1jEOfKMKWLcY9sQa5YeFHGv7Q=
-X-Google-Smtp-Source: APXvYqxc9oMTTJCet+CX5gpvf6Tm7l3hq2FOcxyE2kQTWOx3en+HiyaX3Oxf3dsoSXGUDKYLTQDLFw==
-X-Received: by 2002:a1c:39c1:: with SMTP id g184mr12966003wma.75.1572217100168;
-        Sun, 27 Oct 2019 15:58:20 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o70sm10069633wme.29.2019.10.27.15.58.19
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Oct 2019 15:58:19 -0700 (PDT)
-Message-ID: <5db6210b.1c69fb81.88f9c.26a1@mx.google.com>
-Date:   Sun, 27 Oct 2019 15:58:19 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1727981AbfJ0XrM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 19:47:12 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56066 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727957AbfJ0XrM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 19:47:12 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572220030;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=SVhDfYi3Zc56U6vnrzYhZqImRyfR0bOvJOLCcOWBliA=;
+        b=QIp6D56HAJevVUR469eNZwF81PsHiLdTDk8CivqyYYida+rVDNyDG1e8Nf2GDR41MtsvG0
+        h00CjzPf2lj+6XLRcXY8aaW7ZKcr0tOKfLb/1bNBgrEp88+r/Wf+CkQ1qPC0Zdcb8V5yfU
+        7qEBYd7Tpd6tM/WUQGnrRszxcnLys4c=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-423-uAD85mMXPdC43OzYaNZk0Q-1; Sun, 27 Oct 2019 19:47:08 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C20C81005500
+        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 23:47:07 +0000 (UTC)
+Received: from [172.54.88.5] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CF3825D9E5;
+        Sun, 27 Oct 2019 23:47:04 +0000 (UTC)
 MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
+Date:   Sun, 27 Oct 2019 23:47:04 -0000
+CC:     Xiong Zhou <xzhou@redhat.com>, Jakub Krysl <jkrysl@redhat.com>
+Message-ID: <cki.A68324370A.MIDC3VFKLY@redhat.com>
+X-Gitlab-Pipeline-ID: 251522
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/251522
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: uAD85mMXPdC43OzYaNZk0Q-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.150-120-gea1df089eebe
-X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.14.y build: 201 builds: 64 failed, 137 passed,
- 128 errors, 167 warnings (v4.14.150-120-gea1df089eebe)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y build: 201 builds: 64 failed, 137 passed, 128 errors=
-, 167 warnings (v4.14.150-120-gea1df089eebe)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.150-120-gea1df089eebe/
+Hello,
+
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 365dab61f74e - Linux 5.3.7
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here=
+:
+
+  https://artifacts.cki-project.org/pipelines/251522
+
+One or more kernel tests failed:
+
+    ppc64le:
+     =E2=9D=8C xfstests: xfs
+
+    aarch64:
+     =E2=9D=8C xfstests: xfs
+     =E2=9D=8C lvm thinp sanity
+
+    x86_64:
+     =E2=9D=8C xfstests: xfs
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
+
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 365dab61f74e - Linux 5.3.7
+
+
+We grabbed the 3b22940455ac commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  drm-free-the-writeback_job-when-it-with-an-empty-fb.patch
+  drm-clear-the-fence-pointer-when-writeback-job-signa.patch
+  clk-ti-dra7-fix-mcasp8-clock-bits.patch
+  arm-dts-fix-wrong-clocks-for-dra7-mcasp.patch
+  nvme-pci-fix-a-race-in-controller-removal.patch
+  scsi-ufs-skip-shutdown-if-hba-is-not-powered.patch
+  scsi-megaraid-disable-device-when-probe-failed-after.patch
+  scsi-qla2xxx-silence-fwdump-template-message.patch
+  scsi-qla2xxx-fix-unbound-sleep-in-fcport-delete-path.patch
+  scsi-qla2xxx-fix-stale-mem-access-on-driver-unload.patch
+  scsi-qla2xxx-fix-n2n-link-reset.patch
+  scsi-qla2xxx-fix-n2n-link-up-fail.patch
+  arm-dts-fix-gpio0-flags-for-am335x-icev2.patch
+  arm-omap2-fix-missing-reset-done-flag-for-am3-and-am.patch
+  arm-omap2-add-missing-lcdc-midlemode-for-am335x.patch
+  arm-omap2-fix-warnings-with-broken-omap2_set_init_vo.patch
+  nvme-tcp-fix-wrong-stop-condition-in-io_work.patch
+  nvme-pci-save-pci-state-before-putting-drive-into-de.patch
+  nvme-fix-an-error-code-in-nvme_init_subsystem.patch
+  nvme-rdma-fix-max_hw_sectors-calculation.patch
+  added-quirks-for-adata-xpg-sx8200-pro-512gb.patch
+  nvme-add-quirk-for-kingston-nvme-ssd-running-fw-e8fk.patch
+  nvme-allow-64-bit-results-in-passthru-commands.patch
+  drm-komeda-prevent-memory-leak-in-komeda_wb_connecto.patch
+  nvme-rdma-fix-possible-use-after-free-in-connect-tim.patch
+  blk-mq-honor-io-scheduler-for-multiqueue-devices.patch
+  ieee802154-ca8210-prevent-memory-leak.patch
+  arm-dts-am4372-set-memory-bandwidth-limit-for-dispc.patch
+  net-dsa-qca8k-use-up-to-7-ports-for-all-operations.patch
+  mips-dts-ar9331-fix-interrupt-controller-size.patch
+  xen-efi-set-nonblocking-callbacks.patch
+  loop-change-queue-block-size-to-match-when-using-dio.patch
+  nl80211-fix-null-pointer-dereference.patch
+  mac80211-fix-txq-null-pointer-dereference.patch
+  netfilter-nft_connlimit-disable-bh-on-garbage-collec.patch
+  net-mscc-ocelot-add-missing-of_node_put-after-callin.patch
+  net-dsa-rtl8366rb-add-missing-of_node_put-after-call.patch
+  net-stmmac-xgmac-not-all-unicast-addresses-may-be-av.patch
+  net-stmmac-dwmac4-always-update-the-mac-hash-filter.patch
+  net-stmmac-correctly-take-timestamp-for-ptpv2.patch
+  net-stmmac-do-not-stop-phy-if-wol-is-enabled.patch
+  net-ag71xx-fix-mdio-subnode-support.patch
+  risc-v-clear-load-reservations-while-restoring-hart-.patch
+  riscv-fix-memblock-reservation-for-device-tree-blob.patch
+  drm-amdgpu-fix-multiple-memory-leaks-in-acp_hw_init.patch
+  drm-amd-display-memory-leak.patch
+  mips-loongson-fix-the-link-time-qualifier-of-serial_.patch
+  net-hisilicon-fix-usage-of-uninitialized-variable-in.patch
+  net-stmmac-avoid-deadlock-on-suspend-resume.patch
+  selftests-kvm-fix-libkvm-build-error.patch
+  lib-textsearch-fix-escapes-in-example-code.patch
+  s390-mm-fix-wunused-but-set-variable-warnings.patch
+  r8152-set-macpassthru-in-reset_resume-callback.patch
+  net-phy-allow-for-reset-line-to-be-tied-to-a-sleepy-.patch
+  net-phy-fix-write-to-mii-ctrl1000-register.patch
+  namespace-fix-namespace.pl-script-to-support-relativ.patch
+  convert-filldir-64-from-__put_user-to-unsafe_put_use.patch
+  elf-don-t-use-map_fixed_noreplace-for-elf-executable.patch
+  make-filldir-64-verify-the-directory-entry-filename-.patch
+  uaccess-implement-a-proper-unsafe_copy_to_user-and-s.patch
+  filldir-64-remove-warn_on_once-for-bad-directory-ent.patch
+  net_sched-fix-backward-compatibility-for-tca_kind.patch
+  net_sched-fix-backward-compatibility-for-tca_act_kin.patch
+  libata-ahci-fix-pcs-quirk-application.patch
+  md-raid0-fix-warning-message-for-parameter-default_l.patch
+  revert-drm-radeon-fix-eeh-during-kexec.patch
+  ocfs2-fix-panic-due-to-ocfs2_wq-is-null.patch
+  nvme-pci-set-the-prp2-correctly-when-using-more-than-4k-page.patch
+  ipv4-fix-race-condition-between-route-lookup-and-invalidation.patch
+  ipv4-return-enetunreach-if-we-can-t-create-route-but-saddr-is-valid.patch
+  net-avoid-potential-infinite-loop-in-tc_ctl_action.patch
+  net-bcmgenet-fix-rgmii_mode_en-value-for-genet-v1-2-3.patch
+  net-bcmgenet-set-phydev-dev_flags-only-for-internal-phys.patch
+  net-i82596-fix-dma_alloc_attr-for-sni_82596.patch
+  net-ibmvnic-fix-eoi-when-running-in-xive-mode.patch
+  net-ipv6-fix-listify-ip6_rcv_finish-in-case-of-forwarding.patch
+  net-stmmac-disable-enable-ptp_ref_clk-in-suspend-resume-flow.patch
+  rxrpc-fix-possible-null-pointer-access-in-icmp-handling.patch
+  sched-etf-fix-ordering-of-packets-with-same-txtime.patch
+  sctp-change-sctp_prot-.no_autobind-with-true.patch
+  net-aquantia-temperature-retrieval-fix.patch
+  net-aquantia-when-cleaning-hw-cache-it-should-be-toggled.patch
+  net-aquantia-do-not-pass-lro-session-with-invalid-tcp-checksum.patch
+  net-aquantia-correctly-handle-macvlan-and-multicast-coexistence.patch
+  net-phy-micrel-discern-ksz8051-and-ksz8795-phys.patch
+  net-phy-micrel-update-ksz87xx-phy-name.patch
+  net-avoid-errors-when-trying-to-pop-mlps-header-on-non-mpls-packets.patch
+  net-sched-fix-corrupted-l2-header-with-mpls-push-and-pop-actions.patch
+  netdevsim-fix-error-handling-in-nsim_fib_init-and-nsim_fib_exit.patch
+  net-ethernet-broadcom-have-drivers-select-dimlib-as-needed.patch
+  net-phy-fix-link-partner-information-disappear-issue.patch
+  lsm-safesetid-stop-releasing-uninitialized-ruleset.patch
+  rxrpc-use-rcu-protection-while-reading-sk-sk_user_da.patch
+  io_uring-fix-bad-inflight-accounting-for-setup_iopoll-setup_sqthread.patc=
+h
+  io_uring-fix-corrupted-user_data.patch
+  usb-legousbtower-fix-memleak-on-disconnect.patch
+  alsa-hda-realtek-add-support-for-alc711.patch
+  alsa-hda-realtek-enable-headset-mic-on-asus-mj401ta.patch
+  alsa-usb-audio-disable-quirks-for-boss-katana-amplifiers.patch
+  alsa-hda-force-runtime-pm-on-nvidia-hdmi-codecs.patch
+  usb-udc-lpc32xx-fix-bad-bit-shift-operation.patch
+  usb-serial-ti_usb_3410_5052-fix-port-close-races.patch
+  usb-ldusb-fix-memleak-on-disconnect.patch
+  usb-usblp-fix-use-after-free-on-disconnect.patch
+  usb-ldusb-fix-read-info-leaks.patch
+  binder-don-t-modify-vma-bounds-in-mmap-handler.patch
+  mips-tlbex-fix-build_restore_pagemask-kscratch-restore.patch
+  staging-wlan-ng-fix-exit-return-when-sme-key_idx-num_wepkeys.patch
+  scsi-zfcp-fix-reaction-on-bit-error-threshold-notification.patch
+  scsi-sd-ignore-a-failure-to-sync-cache-due-to-lack-of-authorization.patch
+  scsi-core-save-restore-command-resid-for-error-handling.patch
+  scsi-core-try-to-get-module-before-removing-device.patch
+  scsi-ch-make-it-possible-to-open-a-ch-device-multiple-times-again.patch
+  revert-input-elantech-enable-smbus-on-new-2018-systems.patch
+  input-da9063-fix-capability-and-drop-key_sleep.patch
+  input-synaptics-rmi4-avoid-processing-unknown-irqs.patch
+  input-st1232-fix-reporting-multitouch-coordinates.patch
+  asoc-rsnd-reinitialize-bit-clock-inversion-flag-for-every-format-setting.=
+patch
+  acpi-cppc-set-pcc_data-to-null-in-acpi_cppc_processor_exit.patch
+  acpi-nfit-fix-unlock-on-error-in-scrub_show.patch
+  iwlwifi-pcie-change-qu-with-jf-devices-to-use-qu-configuration.patch
+  cfg80211-wext-avoid-copying-malformed-ssids.patch
+  mac80211-reject-malformed-ssid-elements.patch
+  drm-edid-add-6-bpc-quirk-for-sdc-panel-in-lenovo-g50.patch
+  drm-ttm-restore-ttm-prefaulting.patch
+  drm-panfrost-handle-resetting-on-timeout-better.patch
+  drm-amdgpu-bail-earlier-when-amdgpu.cik_-si_support-is-not-set-to-1.patch
+  drm-amdgpu-sdma5-fix-mask-value-of-poll_regmem-packet-for-pipe-sync.patch
+  drm-i915-userptr-never-allow-userptr-into-the-mappable-ggtt.patch
+  drm-i915-favor-last-vbt-child-device-with-conflicting-aux-ch-ddc-pin.patc=
+h
+  drm-amdgpu-vce-fix-allocation-size-in-enc-ring-test.patch
+  drm-amdgpu-vcn-fix-allocation-size-in-enc-ring-test.patch
+  drm-amdgpu-uvd6-fix-allocation-size-in-enc-ring-test-v2.patch
+  drm-amdgpu-uvd7-fix-allocation-size-in-enc-ring-test-v2.patch
+  drm-amdgpu-user-pages-array-memory-leak-fix.patch
+  drivers-base-memory.c-don-t-access-uninitialized-memmaps-in-soft_offline_=
+page_store.patch
+  fs-proc-page.c-don-t-access-uninitialized-memmaps-in-fs-proc-page.c.patch
+  io_uring-fix-broken-links-with-offloading.patch
+  io_uring-fix-race-for-sqes-with-userspace.patch
+  io_uring-used-cached-copies-of-sq-dropped-and-cq-ove.patch
+  mmc-mxs-fix-flags-passed-to-dmaengine_prep_slave_sg.patch
+  mmc-cqhci-commit-descriptors-before-setting-the-doorbell.patch
+  mmc-sdhci-omap-fix-tuning-procedure-for-temperatures-20c.patch
+  mm-memory-failure.c-don-t-access-uninitialized-memmaps-in-memory_failure.=
+patch
+  mm-slub-fix-a-deadlock-in-show_slab_objects.patch
+  mm-page_owner-don-t-access-uninitialized-memmaps-when-reading-proc-pagety=
+peinfo.patch
+  mm-memory_hotplug-don-t-access-uninitialized-memmaps-in-shrink_pgdat_span=
+.patch
+  mm-memunmap-don-t-access-uninitialized-memmap-in-memunmap_pages.patch
+  mm-memcg-slab-fix-panic-in-__free_slab-caused-by-premature-memcg-pointer-=
+release.patch
+  mm-compaction-fix-wrong-pfn-handling-in-__reset_isolation_pfn.patch
+  mm-memcg-get-number-of-pages-on-the-lru-list-in-memcgroup-base-on-lru_zon=
+e_size.patch
+  mm-memblock-do-not-enforce-current-limit-for-memblock_phys-family.patch
+  hugetlbfs-don-t-access-uninitialized-memmaps-in-pfn_range_valid_gigantic.=
+patch
+  mm-memory-failure-poison-read-receives-sigkill-instead-of-sigbus-if-mmape=
+d-more-than-once.patch
+  zram-fix-race-between-backing_dev_show-and-backing_dev_store.patch
+  xtensa-drop-export_symbol-for-outs-ins.patch
+  xtensa-fix-change_bit-in-exclusive-access-option.patch
+  s390-zcrypt-fix-memleak-at-release.patch
+  s390-kaslr-add-support-for-r_390_glob_dat-relocation-type.patch
+  lib-vdso-make-clock_getres-posix-compliant-again.patch
+  parisc-fix-vmap-memory-leak-in-ioremap-iounmap.patch
+  edac-ghes-fix-use-after-free-in-ghes_edac-remove-path.patch
+  arm64-kvm-trap-vm-ops-when-arm64_workaround_cavium_tx2_219_tvm-is-set.pat=
+ch
+  arm64-avoid-cavium-tx2-erratum-219-when-switching-ttbr.patch
+  arm64-enable-workaround-for-cavium-tx2-erratum-219-when-running-smt.patch
+  arm64-allow-cavium_tx2_erratum_219-to-be-selected.patch
+  cifs-avoid-using-mid-0xffff.patch
+  cifs-fix-missed-free-operations.patch
+  cifs-fix-use-after-free-of-file-info-structures.patch
+  perf-aux-fix-aux-output-stopping.patch
+  tracing-fix-race-in-perf_trace_buf-initialization.patch
+  fs-dax-fix-pmd-vs-pte-conflict-detection.patch
+  dm-cache-fix-bugs-when-a-gfp_nowait-allocation-fails.patch
+  irqchip-sifive-plic-switch-to-fasteoi-flow.patch
+  x86-boot-64-make-level2_kernel_pgt-pages-invalid-outside-kernel-area.patc=
+h
+  x86-apic-x2apic-fix-a-null-pointer-deref-when-handling-a-dying-cpu.patch
+  x86-hyperv-make-vapic-support-x2apic-mode.patch
+  pinctrl-cherryview-restore-strago-dmi-workaround-for-all-versions.patch
+  pinctrl-armada-37xx-fix-control-of-pins-32-and-up.patch
+  pinctrl-armada-37xx-swap-polarity-on-led-group.patch
+  btrfs-block-group-fix-a-memory-leak-due-to-missing-btrfs_put_block_group.=
+patch
+  btrfs-add-missing-extents-release-on-file-extent-cluster-relocation-error=
+.patch
+  btrfs-don-t-needlessly-create-extent-refs-kernel-thread.patch
+  btrfs-fix-qgroup-double-free-after-failure-to-reserve-metadata-for-delall=
+oc.patch
+  btrfs-check-for-the-full-sync-flag-while-holding-the-inode-lock-during-fs=
+ync.patch
+  btrfs-tracepoints-fix-wrong-parameter-order-for-qgroup-events.patch
+  btrfs-tracepoints-fix-bad-entry-members-of-qgroup-events.patch
+  kvm-ppc-book3s-hv-xive-ensure-vp-isn-t-already-in-use.patch
+  memstick-jmb38x_ms-fix-an-error-handling-path-in-jmb38x_ms_probe.patch
+  cpufreq-avoid-cpufreq_suspend-deadlock-on-system-shutdown.patch
+  ceph-just-skip-unrecognized-info-in-ceph_reply_info_extra.patch
+  xen-netback-fix-error-path-of-xenvif_connect_data.patch
+  pci-pm-fix-pci_power_up.patch
+  opp-of-drop-incorrect-lockdep_assert_held.patch
+  of-reserved_mem-add-missing-of_node_put-for-proper-ref-counting.patch
+  blk-rq-qos-fix-first-node-deletion-of-rq_qos_del.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9D=8C lvm thinp sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9D=8C xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.150-120-gea1df089eebe
-Git Commit: ea1df089eebe2babf969ff53de3fefe3898c2362
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failures Detected:
-
-mips:
-    32r2el_defconfig: (gcc-8) FAIL
-    allnoconfig: (gcc-8) FAIL
-    ar7_defconfig: (gcc-8) FAIL
-    ath25_defconfig: (gcc-8) FAIL
-    ath79_defconfig: (gcc-8) FAIL
-    bcm47xx_defconfig: (gcc-8) FAIL
-    bcm63xx_defconfig: (gcc-8) FAIL
-    bigsur_defconfig: (gcc-8) FAIL
-    bmips_be_defconfig: (gcc-8) FAIL
-    bmips_stb_defconfig: (gcc-8) FAIL
-    capcella_defconfig: (gcc-8) FAIL
-    cavium_octeon_defconfig: (gcc-8) FAIL
-    ci20_defconfig: (gcc-8) FAIL
-    cobalt_defconfig: (gcc-8) FAIL
-    db1xxx_defconfig: (gcc-8) FAIL
-    decstation_defconfig: (gcc-8) FAIL
-    e55_defconfig: (gcc-8) FAIL
-    fuloong2e_defconfig: (gcc-8) FAIL
-    gpr_defconfig: (gcc-8) FAIL
-    ip22_defconfig: (gcc-8) FAIL
-    ip27_defconfig: (gcc-8) FAIL
-    ip28_defconfig: (gcc-8) FAIL
-    ip32_defconfig: (gcc-8) FAIL
-    jazz_defconfig: (gcc-8) FAIL
-    jmr3927_defconfig: (gcc-8) FAIL
-    lasat_defconfig: (gcc-8) FAIL
-    lemote2f_defconfig: (gcc-8) FAIL
-    loongson1b_defconfig: (gcc-8) FAIL
-    loongson1c_defconfig: (gcc-8) FAIL
-    loongson3_defconfig: (gcc-8) FAIL
-    malta_defconfig: (gcc-8) FAIL
-    malta_kvm_defconfig: (gcc-8) FAIL
-    malta_kvm_guest_defconfig: (gcc-8) FAIL
-    malta_qemu_32r6_defconfig: (gcc-8) FAIL
-    maltaaprp_defconfig: (gcc-8) FAIL
-    maltasmvp_defconfig: (gcc-8) FAIL
-    maltasmvp_eva_defconfig: (gcc-8) FAIL
-    maltaup_defconfig: (gcc-8) FAIL
-    maltaup_xpa_defconfig: (gcc-8) FAIL
-    markeins_defconfig: (gcc-8) FAIL
-    mips_paravirt_defconfig: (gcc-8) FAIL
-    mpc30x_defconfig: (gcc-8) FAIL
-    msp71xx_defconfig: (gcc-8) FAIL
-    mtx1_defconfig: (gcc-8) FAIL
-    nlm_xlp_defconfig: (gcc-8) FAIL
-    nlm_xlr_defconfig: (gcc-8) FAIL
-    omega2p_defconfig: (gcc-8) FAIL
-    pic32mzda_defconfig: (gcc-8) FAIL
-    pistachio_defconfig: (gcc-8) FAIL
-    pnx8335_stb225_defconfig: (gcc-8) FAIL
-    qi_lb60_defconfig: (gcc-8) FAIL
-    rb532_defconfig: (gcc-8) FAIL
-    rbtx49xx_defconfig: (gcc-8) FAIL
-    rm200_defconfig: (gcc-8) FAIL
-    rt305x_defconfig: (gcc-8) FAIL
-    sb1250_swarm_defconfig: (gcc-8) FAIL
-    tb0219_defconfig: (gcc-8) FAIL
-    tb0226_defconfig: (gcc-8) FAIL
-    tb0287_defconfig: (gcc-8) FAIL
-    tinyconfig: (gcc-8) FAIL
-    vocore2_defconfig: (gcc-8) FAIL
-    workpad_defconfig: (gcc-8) FAIL
-    xilfpga_defconfig: (gcc-8) FAIL
-    xway_defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-
-arm64:
-    allnoconfig (gcc-8): 2 warnings
-    defconfig (gcc-8): 1 warning
-    tinyconfig (gcc-8): 2 warnings
-
-arm:
-    acs5k_defconfig (gcc-8): 1 warning
-    acs5k_tiny_defconfig (gcc-8): 1 warning
-    aspeed_g4_defconfig (gcc-8): 1 warning
-    aspeed_g5_defconfig (gcc-8): 1 warning
-    assabet_defconfig (gcc-8): 1 warning
-    axm55xx_defconfig (gcc-8): 1 warning
-    badge4_defconfig (gcc-8): 1 warning
-    cerfcube_defconfig (gcc-8): 1 warning
-    clps711x_defconfig (gcc-8): 1 warning
-    cm_x300_defconfig (gcc-8): 1 warning
-    cns3420vb_defconfig (gcc-8): 1 warning
-    colibri_pxa270_defconfig (gcc-8): 1 warning
-    colibri_pxa300_defconfig (gcc-8): 1 warning
-    collie_defconfig (gcc-8): 1 warning
-    corgi_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    dove_defconfig (gcc-8): 1 warning
-    ebsa110_defconfig (gcc-8): 1 warning
-    ep93xx_defconfig (gcc-8): 1 warning
-    eseries_pxa_defconfig (gcc-8): 1 warning
-    exynos_defconfig (gcc-8): 1 warning
-    ezx_defconfig (gcc-8): 1 warning
-    footbridge_defconfig (gcc-8): 1 warning
-    gemini_defconfig (gcc-8): 1 warning
-    h3600_defconfig (gcc-8): 1 warning
-    hackkit_defconfig (gcc-8): 1 warning
-    hisi_defconfig (gcc-8): 1 warning
-    imote2_defconfig (gcc-8): 1 warning
-    imx_v6_v7_defconfig (gcc-8): 1 warning
-    integrator_defconfig (gcc-8): 1 warning
-    iop13xx_defconfig (gcc-8): 1 warning
-    iop32x_defconfig (gcc-8): 1 warning
-    iop33x_defconfig (gcc-8): 1 warning
-    ixp4xx_defconfig (gcc-8): 1 warning
-    jornada720_defconfig (gcc-8): 1 warning
-    keystone_defconfig (gcc-8): 1 warning
-    ks8695_defconfig (gcc-8): 1 warning
-    lart_defconfig (gcc-8): 1 warning
-    lpd270_defconfig (gcc-8): 1 warning
-    lubbock_defconfig (gcc-8): 1 warning
-    magician_defconfig (gcc-8): 1 warning
-    mainstone_defconfig (gcc-8): 1 warning
-    mini2440_defconfig (gcc-8): 1 warning
-    mmp2_defconfig (gcc-8): 1 warning
-    moxart_defconfig (gcc-8): 1 warning
-    multi_v4t_defconfig (gcc-8): 1 warning
-    multi_v5_defconfig (gcc-8): 1 warning
-    multi_v7_defconfig (gcc-8): 1 warning
-    mv78xx0_defconfig (gcc-8): 1 warning
-    mvebu_v5_defconfig (gcc-8): 1 warning
-    mvebu_v7_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
-    neponset_defconfig (gcc-8): 1 warning
-    netwinder_defconfig (gcc-8): 1 warning
-    netx_defconfig (gcc-8): 1 warning
-    nhk8815_defconfig (gcc-8): 1 warning
-    nuc910_defconfig (gcc-8): 1 warning
-    nuc950_defconfig (gcc-8): 1 warning
-    nuc960_defconfig (gcc-8): 1 warning
-    omap2plus_defconfig (gcc-8): 1 warning
-    orion5x_defconfig (gcc-8): 1 warning
-    palmz72_defconfig (gcc-8): 1 warning
-    pcm027_defconfig (gcc-8): 1 warning
-    prima2_defconfig (gcc-8): 1 warning
-    pxa168_defconfig (gcc-8): 1 warning
-    pxa255-idp_defconfig (gcc-8): 1 warning
-    pxa3xx_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    pxa_defconfig (gcc-8): 1 warning
-    qcom_defconfig (gcc-8): 1 warning
-    raumfeld_defconfig (gcc-8): 1 warning
-    realview_defconfig (gcc-8): 1 warning
-    rpc_defconfig (gcc-8): 1 warning
-    s3c2410_defconfig (gcc-8): 1 warning
-    s3c6400_defconfig (gcc-8): 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
-    sama5_defconfig (gcc-8): 1 warning
-    shannon_defconfig (gcc-8): 1 warning
-    simpad_defconfig (gcc-8): 1 warning
-    socfpga_defconfig (gcc-8): 1 warning
-    spear13xx_defconfig (gcc-8): 1 warning
-    spear3xx_defconfig (gcc-8): 1 warning
-    spear6xx_defconfig (gcc-8): 1 warning
-    spitz_defconfig (gcc-8): 1 warning
-    sunxi_defconfig (gcc-8): 1 warning
-    tango4_defconfig (gcc-8): 1 warning
-    tegra_defconfig (gcc-8): 1 warning
-    trizeps4_defconfig (gcc-8): 1 warning
-    u300_defconfig (gcc-8): 1 warning
-    u8500_defconfig (gcc-8): 1 warning
-    versatile_defconfig (gcc-8): 1 warning
-    vexpress_defconfig (gcc-8): 1 warning
-    vt8500_v6_v7_defconfig (gcc-8): 1 warning
-    zeus_defconfig (gcc-8): 1 warning
-    zx_defconfig (gcc-8): 1 warning
-
-i386:
-    i386_defconfig (gcc-8): 1 warning
-
-mips:
-    32r2el_defconfig (gcc-8): 2 errors, 1 warning
-    allnoconfig (gcc-8): 2 errors, 1 warning
-    ar7_defconfig (gcc-8): 2 errors, 1 warning
-    ath25_defconfig (gcc-8): 2 errors, 1 warning
-    ath79_defconfig (gcc-8): 2 errors, 1 warning
-    bcm47xx_defconfig (gcc-8): 2 errors, 1 warning
-    bcm63xx_defconfig (gcc-8): 2 errors, 1 warning
-    bigsur_defconfig (gcc-8): 2 errors, 1 warning
-    bmips_be_defconfig (gcc-8): 2 errors, 1 warning
-    bmips_stb_defconfig (gcc-8): 2 errors, 1 warning
-    capcella_defconfig (gcc-8): 2 errors, 1 warning
-    cavium_octeon_defconfig (gcc-8): 2 errors, 1 warning
-    ci20_defconfig (gcc-8): 2 errors, 1 warning
-    cobalt_defconfig (gcc-8): 2 errors, 1 warning
-    db1xxx_defconfig (gcc-8): 2 errors, 1 warning
-    decstation_defconfig (gcc-8): 2 errors, 1 warning
-    e55_defconfig (gcc-8): 2 errors, 1 warning
-    fuloong2e_defconfig (gcc-8): 2 errors, 1 warning
-    gpr_defconfig (gcc-8): 2 errors, 1 warning
-    ip22_defconfig (gcc-8): 2 errors, 1 warning
-    ip27_defconfig (gcc-8): 2 errors, 1 warning
-    ip28_defconfig (gcc-8): 2 errors, 1 warning
-    ip32_defconfig (gcc-8): 2 errors, 1 warning
-    jazz_defconfig (gcc-8): 2 errors, 1 warning
-    jmr3927_defconfig (gcc-8): 2 errors, 1 warning
-    lasat_defconfig (gcc-8): 2 errors, 1 warning
-    lemote2f_defconfig (gcc-8): 2 errors, 1 warning
-    loongson1b_defconfig (gcc-8): 2 errors, 1 warning
-    loongson1c_defconfig (gcc-8): 2 errors, 1 warning
-    loongson3_defconfig (gcc-8): 2 errors, 1 warning
-    malta_defconfig (gcc-8): 2 errors, 1 warning
-    malta_kvm_defconfig (gcc-8): 2 errors, 1 warning
-    malta_kvm_guest_defconfig (gcc-8): 2 errors, 1 warning
-    malta_qemu_32r6_defconfig (gcc-8): 2 errors, 1 warning
-    maltaaprp_defconfig (gcc-8): 2 errors, 1 warning
-    maltasmvp_defconfig (gcc-8): 2 errors, 1 warning
-    maltasmvp_eva_defconfig (gcc-8): 2 errors, 1 warning
-    maltaup_defconfig (gcc-8): 2 errors, 1 warning
-    maltaup_xpa_defconfig (gcc-8): 2 errors, 1 warning
-    markeins_defconfig (gcc-8): 2 errors, 1 warning
-    mips_paravirt_defconfig (gcc-8): 2 errors, 1 warning
-    mpc30x_defconfig (gcc-8): 2 errors, 1 warning
-    msp71xx_defconfig (gcc-8): 2 errors, 1 warning
-    mtx1_defconfig (gcc-8): 2 errors, 1 warning
-    nlm_xlp_defconfig (gcc-8): 2 errors, 1 warning
-    nlm_xlr_defconfig (gcc-8): 2 errors, 1 warning
-    omega2p_defconfig (gcc-8): 2 errors, 1 warning
-    pic32mzda_defconfig (gcc-8): 2 errors, 1 warning
-    pistachio_defconfig (gcc-8): 2 errors, 1 warning
-    pnx8335_stb225_defconfig (gcc-8): 2 errors, 1 warning
-    qi_lb60_defconfig (gcc-8): 2 errors, 1 warning
-    rb532_defconfig (gcc-8): 2 errors, 1 warning
-    rbtx49xx_defconfig (gcc-8): 2 errors, 1 warning
-    rm200_defconfig (gcc-8): 2 errors, 1 warning
-    rt305x_defconfig (gcc-8): 2 errors, 1 warning
-    sb1250_swarm_defconfig (gcc-8): 2 errors, 1 warning
-    tb0219_defconfig (gcc-8): 2 errors, 1 warning
-    tb0226_defconfig (gcc-8): 2 errors, 1 warning
-    tb0287_defconfig (gcc-8): 2 errors, 1 warning
-    tinyconfig (gcc-8): 2 errors, 1 warning
-    vocore2_defconfig (gcc-8): 2 errors, 1 warning
-    workpad_defconfig (gcc-8): 2 errors, 1 warning
-    xilfpga_defconfig (gcc-8): 2 errors, 1 warning
-    xway_defconfig (gcc-8): 2 errors, 1 warning
-
-x86_64:
-    tinyconfig (gcc-8): 1 warning
-    x86_64_defconfig (gcc-8): 1 warning
-
-Errors summary:
-
-    64   arch/mips/include/asm/cpu-features.h:352:31: error: implicit decla=
-ration of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-func=
-tion-declaration]
-    52   arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' =
-undeclared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-    12   arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' =
-undeclared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings summary:
-
-    98   fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitia=
-lized in this function [-Wmaybe-uninitialized]
-    64   cc1: all warnings being treated as errors
-    2    arch/arm64/kernel/cpufeature.c:940:13: warning: 'cpu_copy_el2regs'=
- defined but not used [-Wunused-function]
-    2    arch/arm64/kernel/cpufeature.c:802:13: warning: 'runs_at_el2' defi=
-ned but not used [-Wunused-function]
-    1    .config:1023:warning: override: UNWINDER_GUESS changes choice state
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
-mismatches
-
-Warnings:
-    arch/arm64/kernel/cpufeature.c:940:13: warning: 'cpu_copy_el2regs' defi=
-ned but not used [-Wunused-function]
-    arch/arm64/kernel/cpufeature.c:802:13: warning: 'runs_at_el2' defined b=
-ut not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mi=
-smatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning=
-, 0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning=
-, 0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 =
-section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, =
-0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_MMI'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning,=
- 0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0=
- section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
-ismatches
-
-Warnings:
-    arch/arm64/kernel/cpufeature.c:940:13: warning: 'cpu_copy_el2regs' defi=
-ned but not used [-Wunused-function]
-    arch/arm64/kernel/cpufeature.c:802:13: warning: 'runs_at_el2' defined b=
-ut not used [-Wunused-function]
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    .config:1023:warning: override: UNWINDER_GUESS changes choice state
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section mis=
-matches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 FAIL, 2 errors, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:352:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-    arch/mips/kernel/cpu-probe.c:2108:16: error: 'HWCAP_LOONGSON_CAM' undec=
-lared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
-smatches
-
-Warnings:
-    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
- in this function [-Wmaybe-uninitialized]
-
----
-For more info write to <info@kernelci.org>
