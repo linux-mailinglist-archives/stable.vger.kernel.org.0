@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC16DE69A4
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25573E696D
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728532AbfJ0VEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:04:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49518 "EHLO mail.kernel.org"
+        id S1729051AbfJ0VGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727572AbfJ0VED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:04:03 -0400
+        id S1729047AbfJ0VGv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:06:51 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02FAB208C0;
-        Sun, 27 Oct 2019 21:04:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4AA720873;
+        Sun, 27 Oct 2019 21:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210242;
-        bh=uowiTPItwsRrmuICZPSjEomKfgT65K0+Y34I2IFq3jw=;
+        s=default; t=1572210410;
+        bh=GQCxfnCFNNCNX5PCNOhkenmDHt9pXVPSq4JZ8mAOQXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V5MFZTxotCQwSS1QgKxavccoXW5lgPv7hDSyWDqY4wb8u6Lfv74tknV++SBDnQQq4
-         dQA6F/8v9NADy47wpAiECWUrBAZz7jE4IIR7EbWYQcRMnTQD5VAitIKByVEF8PMrkg
-         h1EJQnJs/Qxa3jSiDS3yNNGcKqNFli9z5dr/6v3k=
+        b=W0lZ4c9yjIcbpji1eT+2zB3g65UrilvwGjSgssRtWRcRQw8kQQsSAKbvUhZFhO5Iw
+         E1zKzrk+ExZEfJrzfi/JPLxcMAdEImaXbwt2T/VnfwBy94AmqinSOEUH3rekvFzk3O
+         YKBU/MlC/s4idTk+Gfo9GOFGYGcpR5VPoGK3Ysks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Zubin Mithra <zsm@chromium.org>
-Subject: [PATCH 4.4 40/41] net: sched: Fix memory exposure from short TCA_U32_SEL
+        stable@vger.kernel.org, Max Filippov <jcmvbkbc@gmail.com>
+Subject: [PATCH 4.9 40/49] xtensa: drop EXPORT_SYMBOL for outs*/ins*
 Date:   Sun, 27 Oct 2019 22:01:18 +0100
-Message-Id: <20191027203136.357413424@linuxfoundation.org>
+Message-Id: <20191027203157.584046258@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-References: <20191027203056.220821342@linuxfoundation.org>
+In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
+References: <20191027203119.468466356@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,64 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Max Filippov <jcmvbkbc@gmail.com>
 
-commit 98c8f125fd8a6240ea343c1aa50a1be9047791b8 upstream.
+commit 8b39da985194aac2998dd9e3a22d00b596cebf1e upstream.
 
-Via u32_change(), TCA_U32_SEL has an unspecified type in the netlink
-policy, so max length isn't enforced, only minimum. This means nkeys
-(from userspace) was being trusted without checking the actual size of
-nla_len(), which could lead to a memory over-read, and ultimately an
-exposure via a call to u32_dump(). Reachability is CAP_NET_ADMIN within
-a namespace.
+Custom outs*/ins* implementations are long gone from the xtensa port,
+remove matching EXPORT_SYMBOLs.
+This fixes the following build warnings issued by modpost since commit
+15bfc2348d54 ("modpost: check for static EXPORT_SYMBOL* functions"):
 
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: netdev@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
+  WARNING: "insb" [vmlinux] is a static EXPORT_SYMBOL
+  WARNING: "insw" [vmlinux] is a static EXPORT_SYMBOL
+  WARNING: "insl" [vmlinux] is a static EXPORT_SYMBOL
+  WARNING: "outsb" [vmlinux] is a static EXPORT_SYMBOL
+  WARNING: "outsw" [vmlinux] is a static EXPORT_SYMBOL
+  WARNING: "outsl" [vmlinux] is a static EXPORT_SYMBOL
+
+Cc: stable@vger.kernel.org
+Fixes: d38efc1f150f ("xtensa: adopt generic io routines")
+Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/sched/cls_u32.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/xtensa/kernel/xtensa_ksyms.c |    7 -------
+ 1 file changed, 7 deletions(-)
 
---- a/net/sched/cls_u32.c
-+++ b/net/sched/cls_u32.c
-@@ -734,6 +734,7 @@ static int u32_change(struct net *net, s
- 	struct nlattr *opt = tca[TCA_OPTIONS];
- 	struct nlattr *tb[TCA_U32_MAX + 1];
- 	u32 htid;
-+	size_t sel_size;
- 	int err;
- #ifdef CONFIG_CLS_U32_PERF
- 	size_t size;
-@@ -827,8 +828,11 @@ static int u32_change(struct net *net, s
- 		return -EINVAL;
- 
- 	s = nla_data(tb[TCA_U32_SEL]);
-+	sel_size = sizeof(*s) + sizeof(*s->keys) * s->nkeys;
-+	if (nla_len(tb[TCA_U32_SEL]) < sel_size)
-+		return -EINVAL;
- 
--	n = kzalloc(sizeof(*n) + s->nkeys*sizeof(struct tc_u32_key), GFP_KERNEL);
-+	n = kzalloc(offsetof(typeof(*n), sel) + sel_size, GFP_KERNEL);
- 	if (n == NULL)
- 		return -ENOBUFS;
- 
-@@ -841,7 +845,7 @@ static int u32_change(struct net *net, s
- 	}
+--- a/arch/xtensa/kernel/xtensa_ksyms.c
++++ b/arch/xtensa/kernel/xtensa_ksyms.c
+@@ -114,13 +114,6 @@ EXPORT_SYMBOL(__invalidate_icache_range)
+ // FIXME EXPORT_SYMBOL(screen_info);
  #endif
  
--	memcpy(&n->sel, s, sizeof(*s) + s->nkeys*sizeof(struct tc_u32_key));
-+	memcpy(&n->sel, s, sel_size);
- 	RCU_INIT_POINTER(n->ht_up, ht);
- 	n->handle = handle;
- 	n->fshift = s->hmask ? ffs(ntohl(s->hmask)) - 1 : 0;
+-EXPORT_SYMBOL(outsb);
+-EXPORT_SYMBOL(outsw);
+-EXPORT_SYMBOL(outsl);
+-EXPORT_SYMBOL(insb);
+-EXPORT_SYMBOL(insw);
+-EXPORT_SYMBOL(insl);
+-
+ extern long common_exception_return;
+ EXPORT_SYMBOL(common_exception_return);
+ 
 
 
