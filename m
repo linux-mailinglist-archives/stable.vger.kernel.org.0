@@ -2,73 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81878E61CA
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 10:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56555E61CC
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 10:21:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726217AbfJ0JUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 05:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34138 "EHLO mail.kernel.org"
+        id S1726674AbfJ0JVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 05:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726106AbfJ0JUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 05:20:33 -0400
+        id S1726106AbfJ0JVu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 05:21:50 -0400
 Received: from localhost (smb-adpcdg1-03.hotspot.hub-one.net [213.174.99.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C658E20679;
-        Sun, 27 Oct 2019 09:20:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A179520679;
+        Sun, 27 Oct 2019 09:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572168033;
-        bh=vW/fZBUaOOIOA5ZT9AZtEp8kRpkJlWaZVSCXXeEtMbo=;
+        s=default; t=1572168109;
+        bh=0/pbKqpTr5lGUr4Xz6T30pfs11oEb6XnW2Q1fgajRM8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xoxk8vZOHzpokTJcbnyTRiudvGldf5zW0CLee/whoG6MGBTc9r97sy/eAvcrqZ9l3
-         kB5+YouBFQPD0T5UMapwodwn6k9Oy78WfW6ff6LNZSlD99Elemp4EmZ01yu6jnw86o
-         TYD9YTbWp/t4b6v1ukegzd7Z6fzzJFl9Fn1nvPXQ=
-Date:   Sun, 27 Oct 2019 05:20:30 -0400
+        b=jb84wkEIvVKDCJ6XYcYr+1faM1U7A1f/esJXdEcUZ/M15t+ETJ3tHlAPBkgyoBIa5
+         FljSFBEesgYf2ZHG4DeHHchlfjtWMCzOYSdnp/1RrZAqvNb+LJSdINKVjxEFdIs94S
+         ldVXk/A43DvNA5/wNP0FoYDJLv4ErUdWzCpYz7Ec=
+Date:   Sun, 27 Oct 2019 05:21:46 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.3
-Message-ID: <20191027092030.GB1560@sasha-vm>
-References: <cki.50B692ED30.9T78VCP4SR@redhat.com>
+To:     gregkh@linuxfoundation.org
+Cc:     maier@linux.ibm.com, bblock@linux.ibm.com, jremus@linux.ibm.com,
+        martin.petersen@oracle.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] scsi: zfcp: fix reaction on bit error
+ threshold notification" failed to apply to 4.14-stable tree
+Message-ID: <20191027092146.GC1560@sasha-vm>
+References: <15721645544387@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <cki.50B692ED30.9T78VCP4SR@redhat.com>
+In-Reply-To: <15721645544387@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 27, 2019 at 09:08:40AM -0000, CKI Project wrote:
+On Sun, Oct 27, 2019 at 09:22:34AM +0100, gregkh@linuxfoundation.org wrote:
 >
->Hello,
+>The patch below does not apply to the 4.14-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
 >
->We ran automated tests on a patchset that was proposed for merging into this
->kernel tree. The patches were applied to:
+>thanks,
 >
->       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->            Commit: 365dab61f74e - Linux 5.3.7
+>greg k-h
 >
->The results of these automated tests are provided below.
+>------------------ original commit in Linus's tree ------------------
 >
->    Overall result: FAILED (see details below)
->             Merge: OK
->           Compile: FAILED
+>From 2190168aaea42c31bff7b9a967e7b045f07df095 Mon Sep 17 00:00:00 2001
+>From: Steffen Maier <maier@linux.ibm.com>
+>Date: Tue, 1 Oct 2019 12:49:49 +0200
+>Subject: [PATCH] scsi: zfcp: fix reaction on bit error threshold notification
 >
->All kernel binaries, config files, and logs are available for download here:
+>On excessive bit errors for the FCP channel ingress fibre path, the channel
+>notifies us.  Previously, we only emitted a kernel message and a trace
+>record.  Since performance can become suboptimal with I/O timeouts due to
+>bit errors, we now stop using an FCP device by default on channel
+>notification so multipath on top can timely failover to other paths.  A new
+>module parameter zfcp.ber_stop can be used to get zfcp old behavior.
 >
->  https://artifacts.cki-project.org/pipelines/250837
+>User explanation of new kernel message:
 >
->We attempted to compile the kernel for multiple architectures, but the compile
->failed on one or more architectures:
+> * Description:
+> * The FCP channel reported that its bit error threshold has been exceeded.
+> * These errors might result from a problem with the physical components
+> * of the local fibre link into the FCP channel.
+> * The problem might be damage or malfunction of the cable or
+> * cable connection between the FCP channel and
+> * the adjacent fabric switch port or the point-to-point peer.
+> * Find details about the errors in the HBA trace for the FCP device.
+> * The zfcp device driver closed down the FCP device
+> * to limit the performance impact from possible I/O command timeouts.
+> * User action:
+> * Check for problems on the local fibre link, ensure that fibre optics are
+> * clean and functional, and all cables are properly plugged.
+> * After the repair action, you can manually recover the FCP device by
+> * writing "0" into its "failed" sysfs attribute.
+> * If recovery through sysfs is not possible, set the CHPID of the device
+> * offline and back online on the service element.
 >
->           aarch64: FAILED (see build-aarch64.log.xz attachment)
->           ppc64le: FAILED (see build-ppc64le.log.xz attachment)
->             s390x: FAILED (see build-s390x.log.xz attachment)
->            x86_64: FAILED (see build-x86_64.log.xz attachment)
+>Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+>Cc: <stable@vger.kernel.org> #2.6.30+
+>Link: https://lore.kernel.org/r/20191001104949.42810-1-maier@linux.ibm.com
+>Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+>Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+>Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+>Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 
-My bad. Should be fixed now.
+Just context conflicts because of missing 75492a51568b9 ("s390/scsi:
+Convert timers to use timer_setup()"). I've fixed it up and queued for
+4.14, 4.9, and 4.4.
 
 -- 
 Thanks,
