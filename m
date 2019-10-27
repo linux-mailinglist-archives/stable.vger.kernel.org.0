@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03895E6845
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33F65E66CC
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:16:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726961AbfJ0VWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:22:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43900 "EHLO mail.kernel.org"
+        id S1730628AbfJ0VPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:15:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728739AbfJ0VWt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:22:49 -0400
+        id S1730591AbfJ0VPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:15:07 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19DD4205C9;
-        Sun, 27 Oct 2019 21:22:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34036214AF;
+        Sun, 27 Oct 2019 21:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211368;
-        bh=lCqS4E0uEPjyXJmJtHuFFGjg724ePFJdZapNyiHa+hE=;
+        s=default; t=1572210906;
+        bh=Btr509zcY8sglwO9PqXNHTttCMolbSlE3k5KFWWtbpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WeXRP9onOgp/092WsvlkH7Ul05NIB7IuMzhuJET0wyLRQ41fOycWNzlXCXB34q+PL
-         wC57TEgskHRneBjZTfHYS7WRyU+/j7V9vgtIYOs4OFByDebzapMJPd5kIidqQtajnE
-         nLxjo0K9Ppjl8CDPKATM6H9MULJsgmWRJ9qtJaSc=
+        b=MlLpcd1EyWe/oYNpgEVB50E8XHsuyaI8OFuG5ii6J+7oKO7wLehUv7RNZp1p1Urxv
+         b7tHUEBb7anQytWGDFE6LgNvg5tbJQBCWmyO/1wCwb5aXeOYKl6HcSrjDaT1l6sHU2
+         8WqfnVETs72NDOgK0t8vfDNKpIkWG91sd8P6ugNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Souptick Joarder <jrdr.linux@gmail.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Thomas Hellstrom <thellstrom@vmware.com>
-Subject: [PATCH 5.3 125/197] drm/ttm: Restore ttm prefaulting
+        stable@vger.kernel.org,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 31/93] net/ibmvnic: Fix EOI when running in XIVE mode.
 Date:   Sun, 27 Oct 2019 22:00:43 +0100
-Message-Id: <20191027203358.480134362@linuxfoundation.org>
+Message-Id: <20191027203257.252862748@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: "C�dric Le Goater" <clg@kaod.org>
 
-commit 941f2f72dbbe0cf8c2d6e0b180a8021a0ec477fa upstream.
+[ Upstream commit 11d49ce9f7946dfed4dcf5dbde865c78058b50ab ]
 
-Commit 4daa4fba3a38 ("gpu: drm: ttm: Adding new return type vm_fault_t")
-broke TTM prefaulting. Since vmf_insert_mixed() typically always returns
-VM_FAULT_NOPAGE, prefaulting stops after the second PTE.
+pSeries machines on POWER9 processors can run with the XICS (legacy)
+interrupt mode or with the XIVE exploitation interrupt mode. These
+interrupt contollers have different interfaces for interrupt
+management : XICS uses hcalls and XIVE loads and stores on a page.
+H_EOI being a XICS interface the enable_scrq_irq() routine can fail
+when the machine runs in XIVE mode.
 
-Restore (almost) the original behaviour. Unfortunately we can no longer
-with the new vm_fault_t return type determine whether a prefaulting
-PTE insertion hit an already populated PTE, and terminate the insertion
-loop. Instead we continue with the pre-determined number of prefaults.
+Fix that by calling the EOI handler of the interrupt chip.
 
-Fixes: 4daa4fba3a38 ("gpu: drm: ttm: Adding new return type vm_fault_t")
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: Christian König <christian.koenig@amd.com>
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Link: https://patchwork.freedesktop.org/patch/330387/
+Fixes: f23e0643cd0b ("ibmvnic: Clear pending interrupt after device reset")
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/ttm/ttm_bo_vm.c |   16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/ibm/ibmvnic.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/ttm/ttm_bo_vm.c
-+++ b/drivers/gpu/drm/ttm/ttm_bo_vm.c
-@@ -278,15 +278,13 @@ static vm_fault_t ttm_bo_vm_fault(struct
- 		else
- 			ret = vmf_insert_pfn(&cvma, address, pfn);
+--- a/drivers/net/ethernet/ibm/ibmvnic.c
++++ b/drivers/net/ethernet/ibm/ibmvnic.c
+@@ -2731,12 +2731,10 @@ static int enable_scrq_irq(struct ibmvni
  
--		/*
--		 * Somebody beat us to this PTE or prefaulting to
--		 * an already populated PTE, or prefaulting error.
--		 */
--
--		if (unlikely((ret == VM_FAULT_NOPAGE && i > 0)))
--			break;
--		else if (unlikely(ret & VM_FAULT_ERROR))
--			goto out_io_unlock;
-+		/* Never error on prefaulted PTEs */
-+		if (unlikely((ret & VM_FAULT_ERROR))) {
-+			if (i == 0)
-+				goto out_io_unlock;
-+			else
-+				break;
-+		}
+ 	if (adapter->resetting &&
+ 	    adapter->reset_reason == VNIC_RESET_MOBILITY) {
+-		u64 val = (0xff000000) | scrq->hw_irq;
++		struct irq_desc *desc = irq_to_desc(scrq->irq);
++		struct irq_chip *chip = irq_desc_get_chip(desc);
  
- 		address += PAGE_SIZE;
- 		if (unlikely(++page_offset >= page_last))
+-		rc = plpar_hcall_norets(H_EOI, val);
+-		if (rc)
+-			dev_err(dev, "H_EOI FAILED irq 0x%llx. rc=%ld\n",
+-				val, rc);
++		chip->irq_eoi(&desc->irq_data);
+ 	}
+ 
+ 	rc = plpar_hcall_norets(H_VIOCTL, adapter->vdev->unit_address,
 
 
