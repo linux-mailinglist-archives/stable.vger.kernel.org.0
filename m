@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01ADAE6847
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61930E657B
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731239AbfJ0VXE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:23:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44164 "EHLO mail.kernel.org"
+        id S1728076AbfJ0VCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728015AbfJ0VXE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:23:04 -0400
+        id S1727099AbfJ0VCh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:02:37 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B63022064A;
-        Sun, 27 Oct 2019 21:23:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7442D208C0;
+        Sun, 27 Oct 2019 21:02:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211383;
-        bh=vdyYnKwvAV0Rcj7lYYBcr2EqFHtlSNWDkV77CDNA09c=;
+        s=default; t=1572210155;
+        bh=yJSJj+ITuIJKMs7+vc2CHCVTSpYCGIZ3tQbBjXT/Olk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d+B7JSkm2NegXvgSq3NKUinQ70m7Fq+hrXSXCilqA87ltonrbSmc3h+LHLbFtC3hq
-         9ik1DGD4yBNbgSxxv9nCunHKZeTEyR3CfJJWi90EBu+vWJ/OmVAGpcUsSSlO+fxVyO
-         sxASQdNbem/UFuSKOMHBFZNfyZ80864GzVuZ4Mn8=
+        b=bPdlCma7AuZ+pgwjp1tYLFrFWYMcZtdmPj8QixgX61VKzNBCk6sa+rW27rjFLhaBc
+         1BmNzAtJDLngTjVxEM+c2qzzrqGEdh9yX+Nh2qu4H0W4drSx/gJCtHUf2byKPycNKG
+         cp2YKG1erVbYOLuvUGcO4l0p02Js6GHJWRvf7K5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
-        Masami Ichikawa <masami256@gmail.com>,
-        Torsten <freedesktop201910@liggy.de>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.3 130/197] drm/i915: Favor last VBT child device with conflicting AUX ch/DDC pin
+        stable@vger.kernel.org, Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Huacai Chen <chenhc@lemote.com>,
+        Yunqiang Su <ysu@wavecomp.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 10/41] MIPS: Treat Loongson Extensions as ASEs
 Date:   Sun, 27 Oct 2019 22:00:48 +0100
-Message-Id: <20191027203358.739910000@linuxfoundation.org>
+Message-Id: <20191027203108.485466107@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,88 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Jiaxun Yang <jiaxun.yang@flygoat.com>
 
-commit 0336ab580878f4c5663dfa2b66095821fdc3e588 upstream.
+[ Upstream commit d2f965549006acb865c4638f1f030ebcefdc71f6 ]
 
-The first come first served apporoach to handling the VBT
-child device AUX ch conflicts has backfired. We have machines
-in the wild where the VBT specifies both port A eDP and
-port E DP (in that order) with port E being the real one.
+Recently, binutils had split Loongson-3 Extensions into four ASEs:
+MMI, CAM, EXT, EXT2. This patch do the samething in kernel and expose
+them in cpuinfo so applications can probe supported ASEs at runtime.
 
-So let's try to flip the preference around and let the last
-child device win once again.
-
-Cc: stable@vger.kernel.org
-Cc: Jani Nikula <jani.nikula@intel.com>
-Tested-by: Masami Ichikawa <masami256@gmail.com>
-Tested-by: Torsten <freedesktop201910@liggy.de>
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=111966
-Fixes: 36a0f92020dc ("drm/i915/bios: make child device order the priority order")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191011202030.8829-1-ville.syrjala@linux.intel.com
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 41e35ffb380bde1379e4030bb5b2ac824d5139cf)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: Huacai Chen <chenhc@lemote.com>
+Cc: Yunqiang Su <ysu@wavecomp.com>
+Cc: stable@vger.kernel.org # v4.14+
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_bios.c |   22 ++++++++++++++++------
- 1 file changed, 16 insertions(+), 6 deletions(-)
+ arch/mips/include/asm/cpu-features.h | 8 ++++++++
+ arch/mips/include/asm/cpu.h          | 2 ++
+ arch/mips/kernel/cpu-probe.c         | 2 ++
+ arch/mips/kernel/proc.c              | 2 ++
+ 4 files changed, 14 insertions(+)
 
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -1269,7 +1269,7 @@ static void sanitize_ddc_pin(struct drm_
- 		DRM_DEBUG_KMS("port %c trying to use the same DDC pin (0x%x) as port %c, "
- 			      "disabling port %c DVI/HDMI support\n",
- 			      port_name(port), info->alternate_ddc_pin,
--			      port_name(p), port_name(port));
-+			      port_name(p), port_name(p));
+diff --git a/arch/mips/include/asm/cpu-features.h b/arch/mips/include/asm/cpu-features.h
+index d1e04c943f5f7..ff60510357f63 100644
+--- a/arch/mips/include/asm/cpu-features.h
++++ b/arch/mips/include/asm/cpu-features.h
+@@ -307,6 +307,14 @@
+ #define cpu_has_dsp2		(cpu_data[0].ases & MIPS_ASE_DSP2P)
+ #endif
  
- 		/*
- 		 * If we have multiple ports supposedly sharing the
-@@ -1277,9 +1277,14 @@ static void sanitize_ddc_pin(struct drm_
- 		 * port. Otherwise they share the same ddc bin and
- 		 * system couldn't communicate with them separately.
- 		 *
--		 * Give child device order the priority, first come first
--		 * served.
-+		 * Give inverse child device order the priority,
-+		 * last one wins. Yes, there are real machines
-+		 * (eg. Asrock B250M-HDV) where VBT has both
-+		 * port A and port E with the same AUX ch and
-+		 * we must pick port E :(
- 		 */
-+		info = &dev_priv->vbt.ddi_port_info[p];
++#ifndef cpu_has_loongson_mmi
++#define cpu_has_loongson_mmi		__ase(MIPS_ASE_LOONGSON_MMI)
++#endif
 +
- 		info->supports_dvi = false;
- 		info->supports_hdmi = false;
- 		info->alternate_ddc_pin = 0;
-@@ -1315,7 +1320,7 @@ static void sanitize_aux_ch(struct drm_i
- 		DRM_DEBUG_KMS("port %c trying to use the same AUX CH (0x%x) as port %c, "
- 			      "disabling port %c DP support\n",
- 			      port_name(port), info->alternate_aux_channel,
--			      port_name(p), port_name(port));
-+			      port_name(p), port_name(p));
++#ifndef cpu_has_loongson_ext
++#define cpu_has_loongson_ext		__ase(MIPS_ASE_LOONGSON_EXT)
++#endif
++
+ #ifndef cpu_has_mipsmt
+ #define cpu_has_mipsmt		(cpu_data[0].ases & MIPS_ASE_MIPSMT)
+ #endif
+diff --git a/arch/mips/include/asm/cpu.h b/arch/mips/include/asm/cpu.h
+index 82ad15f110492..08cb7a5661d07 100644
+--- a/arch/mips/include/asm/cpu.h
++++ b/arch/mips/include/asm/cpu.h
+@@ -399,5 +399,7 @@ enum cpu_type_enum {
+ #define MIPS_ASE_DSP2P		0x00000040 /* Signal Processing ASE Rev 2 */
+ #define MIPS_ASE_VZ		0x00000080 /* Virtualization ASE */
+ #define MIPS_ASE_MSA		0x00000100 /* MIPS SIMD Architecture */
++#define MIPS_ASE_LOONGSON_MMI	0x00000800 /* Loongson MultiMedia extensions Instructions */
++#define MIPS_ASE_LOONGSON_EXT	0x00002000 /* Loongson EXTensions */
  
- 		/*
- 		 * If we have multiple ports supposedlt sharing the
-@@ -1323,9 +1328,14 @@ static void sanitize_aux_ch(struct drm_i
- 		 * port. Otherwise they share the same aux channel
- 		 * and system couldn't communicate with them separately.
- 		 *
--		 * Give child device order the priority, first come first
--		 * served.
-+		 * Give inverse child device order the priority,
-+		 * last one wins. Yes, there are real machines
-+		 * (eg. Asrock B250M-HDV) where VBT has both
-+		 * port A and port E with the same AUX ch and
-+		 * we must pick port E :(
- 		 */
-+		info = &dev_priv->vbt.ddi_port_info[p];
-+
- 		info->supports_dp = false;
- 		info->alternate_aux_channel = 0;
- 	}
+ #endif /* _ASM_CPU_H */
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index 6b9064499bd3d..ee71bda53d4e6 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -1016,6 +1016,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "ICT Loongson-3";
+ 			set_elf_platform(cpu, "loongson3a");
+ 			set_isa(c, MIPS_CPU_ISA_M64R1);
++			c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_EXT);
+ 			break;
+ 		case PRID_REV_LOONGSON3B_R1:
+ 		case PRID_REV_LOONGSON3B_R2:
+@@ -1023,6 +1024,7 @@ static inline void cpu_probe_legacy(struct cpuinfo_mips *c, unsigned int cpu)
+ 			__cpu_name[cpu] = "ICT Loongson-3";
+ 			set_elf_platform(cpu, "loongson3b");
+ 			set_isa(c, MIPS_CPU_ISA_M64R1);
++			c->ases |= (MIPS_ASE_LOONGSON_MMI | MIPS_ASE_LOONGSON_EXT);
+ 			break;
+ 		}
+ 
+diff --git a/arch/mips/kernel/proc.c b/arch/mips/kernel/proc.c
+index f1fab6ff53e63..33c6cdff2331e 100644
+--- a/arch/mips/kernel/proc.c
++++ b/arch/mips/kernel/proc.c
+@@ -121,6 +121,8 @@ static int show_cpuinfo(struct seq_file *m, void *v)
+ 	if (cpu_has_eva)	seq_printf(m, "%s", " eva");
+ 	if (cpu_has_htw)	seq_printf(m, "%s", " htw");
+ 	if (cpu_has_xpa)	seq_printf(m, "%s", " xpa");
++	if (cpu_has_loongson_mmi)	seq_printf(m, "%s", " loongson-mmi");
++	if (cpu_has_loongson_ext)	seq_printf(m, "%s", " loongson-ext");
+ 	seq_printf(m, "\n");
+ 
+ 	if (cpu_has_mmips) {
+-- 
+2.20.1
+
 
 
