@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB14E69BE
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:39:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FFCAE68DF
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbfJ0VCm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:02:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
+        id S1729466AbfJ0VOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727099AbfJ0VCl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:02:41 -0400
+        id S1730391AbfJ0VOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:14:07 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EB0D20873;
-        Sun, 27 Oct 2019 21:02:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1AA02064A;
+        Sun, 27 Oct 2019 21:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210160;
-        bh=WclGftjhtADkb4qHB3tRje/8CLOt7Ubn4RbsQk7VAXU=;
+        s=default; t=1572210846;
+        bh=E5SOf4JtBUhudpAnV1eKCgn6mcp3hoOUlmAWiHMcZHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdKRAulHz2Z1ajKBhsusIGlPih/tIiybGZhSmGZN1DIU87tXePZxdJFn95arhl6d3
-         Lu8xqJ3zOmRPYgWw204b+lKbH01wKbJz8D58hxpX9ClTapO5ntTP93hmh9V/m9ZYZy
-         grYCJq4n+LBMvIWVIrVkaw7+402TFdCETrvuVPJ4=
+        b=nzlBMZtpJ0uJiWlu2esoozOIvX5iW/KG8dvYN6ZZAw4OpUSSBugWRu+OmtQV76uJ5
+         OEMI2liEeS1KSD7zklDBkX+JDK7nZysKs6gZqhdcIVSPyn52y85mL/S/b51dJf5Sb5
+         gKYihhvoBrXgaL1MxeyStCqPfOQ++okMSS/FhrIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        Alessio Balsini <balsini@android.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/41] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
+        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 38/93] ALSA: hda/realtek - Enable headset mic on Asus MJ401TA
 Date:   Sun, 27 Oct 2019 22:00:50 +0100
-Message-Id: <20191027203110.371349330@linuxfoundation.org>
+Message-Id: <20191027203258.198878626@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-References: <20191027203056.220821342@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alessio Balsini <balsini@android.com>
+From: Daniel Drake <drake@endlessm.com>
 
-[ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
+commit 8c8967a7dc01a25f57a0757fdca10987773cd1f2 upstream.
 
-Enabling Direct I/O with loop devices helps reducing memory usage by
-avoiding double caching.  32 bit applications running on 64 bits systems
-are currently not able to request direct I/O because is missing from the
-lo_compat_ioctl.
+On Asus MJ401TA (with Realtek ALC256), the headset mic is connected to
+pin 0x19, with default configuration value 0x411111f0 (indicating no
+physical connection).
 
-This patch fixes the compatibility issue mentioned above by exporting
-LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
-The input argument for this ioctl is a single long converted to a 1-bit
-boolean, so compatibility is preserved.
+Enable this by quirking the pin. Mic jack detection was also tested and
+found to be working.
 
-Cc: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Alessio Balsini <balsini@android.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This enables use of the headset mic on this product.
+
+Signed-off-by: Daniel Drake <drake@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191017081501.17135-1-drake@endlessm.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/block/loop.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/block/loop.c
-+++ b/drivers/block/loop.c
-@@ -1557,6 +1557,7 @@ static int lo_compat_ioctl(struct block_
- 		arg = (unsigned long) compat_ptr(arg);
- 	case LOOP_SET_FD:
- 	case LOOP_CHANGE_FD:
-+	case LOOP_SET_DIRECT_IO:
- 		err = lo_ioctl(bdev, mode, cmd, arg);
- 		break;
- 	default:
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5677,6 +5677,7 @@ enum {
+ 	ALC225_FIXUP_WYSE_AUTO_MUTE,
+ 	ALC225_FIXUP_WYSE_DISABLE_MIC_VREF,
+ 	ALC286_FIXUP_ACER_AIO_HEADSET_MIC,
++	ALC256_FIXUP_ASUS_HEADSET_MIC,
+ 	ALC256_FIXUP_ASUS_MIC_NO_PRESENCE,
+ 	ALC299_FIXUP_PREDATOR_SPK,
+ 	ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC,
+@@ -6693,6 +6694,15 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC286_FIXUP_ACER_AIO_MIC_NO_PRESENCE
+ 	},
++	[ALC256_FIXUP_ASUS_HEADSET_MIC] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x03a11020 }, /* headset mic with jack detect */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC256_FIXUP_ASUS_HEADSET_MODE
++	},
+ 	[ALC256_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = (const struct hda_pintbl[]) {
+@@ -6889,6 +6899,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
+ 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_INTSPK_HEADSET_MIC),
++	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1a13, "Asus G73Jw", ALC269_FIXUP_ASUS_G73JW),
+ 	SND_PCI_QUIRK(0x1043, 0x1a30, "ASUS X705UD", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1b13, "Asus U41SV", ALC269_FIXUP_INV_DMIC),
 
 
