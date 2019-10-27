@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06008E6932
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:35:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEB84E69BC
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730681AbfJ0Ven (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:34:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56716 "EHLO mail.kernel.org"
+        id S1728184AbfJ0VC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:02:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729659AbfJ0VKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:20 -0400
+        id S1728174AbfJ0VC5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:02:57 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F32920B7C;
-        Sun, 27 Oct 2019 21:10:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85E8220873;
+        Sun, 27 Oct 2019 21:02:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210618;
-        bh=tSqkmqnfXoX2DXObang/oy5lGOvr0Kq+arr3Bk2N6kE=;
+        s=default; t=1572210176;
+        bh=8gIA3V41/3J43CAYj47tmKFyGTBoCvmym5f6K35owe0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cyX2DEOCCA+SqZ2oE9aA7WQNhJs9Z42WDet7Qez4AhpC5yebv6rtah3LAgzfNc6jt
-         lYoIGh46LTJzpsAl19CaP9UKv1zMDLx7aZGds9iqrPrNxf3O4GXTh9IJCNz14AOhxM
-         Qosb5DOneHWJTtYDwUpz9gnBvm11bJg+e61Nwc2E=
+        b=0wdyXsmdRXXzXKPe0DX67gsZCNEuTjm6IwMYUN3ctI65et8/pxXDBPupvhVKRkWLX
+         IcuhsITtXTqi+iJWiFW/Vo4RqpyNWQhP9CDjLjGge0dOSQqPuneJTAc9r5likHBeZP
+         G8CrHN8wUqB/fw3+CMJJ3/BOVsIepnzU2DNxB7qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 078/119] arm64: Always enable spectre-v2 vulnerability detection
+        stable@vger.kernel.org, Stefan Walter <walteste@inf.ethz.ch>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Gonzalo Siero <gsierohu@redhat.com>
+Subject: [PATCH 4.4 17/41] ipv4: Return -ENETUNREACH if we cant create route but saddr is valid
 Date:   Sun, 27 Oct 2019 22:00:55 +0100
-Message-Id: <20191027203344.153460145@linuxfoundation.org>
+Message-Id: <20191027203114.166284431@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,90 +46,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Linton <jeremy.linton@arm.com>
+From: Stefano Brivio <sbrivio@redhat.com>
 
-[ Upstream commit 8c1e3d2bb44cbb998cb28ff9a18f105fee7f1eb3 ]
+[ Upstream commit 595e0651d0296bad2491a4a29a7a43eae6328b02 ]
 
-Ensure we are always able to detect whether or not the CPU is affected
-by Spectre-v2, so that we can later advertise this to userspace.
+...instead of -EINVAL. An issue was found with older kernel versions
+while unplugging a NFS client with pending RPCs, and the wrong error
+code here prevented it from recovering once link is back up with a
+configured address.
 
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Incidentally, this is not an issue anymore since commit 4f8943f80883
+("SUNRPC: Replace direct task wakeups from softirq context"), included
+in 5.2-rc7, had the effect of decoupling the forwarding of this error
+by using SO_ERROR in xs_wake_error(), as pointed out by Benjamin
+Coddington.
+
+To the best of my knowledge, this isn't currently causing any further
+issue, but the error code doesn't look appropriate anyway, and we
+might hit this in other paths as well.
+
+In detail, as analysed by Gonzalo Siero, once the route is deleted
+because the interface is down, and can't be resolved and we return
+-EINVAL here, this ends up, courtesy of inet_sk_rebuild_header(),
+as the socket error seen by tcp_write_err(), called by
+tcp_retransmit_timer().
+
+In turn, tcp_write_err() indirectly calls xs_error_report(), which
+wakes up the RPC pending tasks with a status of -EINVAL. This is then
+seen by call_status() in the SUN RPC implementation, which aborts the
+RPC call calling rpc_exit(), instead of handling this as a
+potentially temporary condition, i.e. as a timeout.
+
+Return -EINVAL only if the input parameters passed to
+ip_route_output_key_hash_rcu() are actually invalid (this is the case
+if the specified source address is multicast, limited broadcast or
+all zeroes), but return -ENETUNREACH in all cases where, at the given
+moment, the given source address doesn't allow resolving the route.
+
+While at it, drop the initialisation of err to -ENETUNREACH, which
+was added to __ip_route_output_key() back then by commit
+0315e3827048 ("net: Fix behaviour of unreachable, blackhole and
+prohibit routes"), but actually had no effect, as it was, and is,
+overwritten by the fib_lookup() return code assignment, and anyway
+ignored in all other branches, including the if (fl4->saddr) one:
+I find this rather confusing, as it would look like -ENETUNREACH is
+the "default" error, while that statement has no effect.
+
+Also note that after commit fc75fc8339e7 ("ipv4: dont create routes
+on down devices"), we would get -ENETUNREACH if the device is down,
+but -EINVAL if the source address is specified and we can't resolve
+the route, and this appears to be rather inconsistent.
+
+Reported-by: Stefan Walter <walteste@inf.ethz.ch>
+Analysed-by: Benjamin Coddington <bcodding@redhat.com>
+Analysed-by: Gonzalo Siero <gsierohu@redhat.com>
+Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpu_errata.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ net/ipv4/route.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -76,7 +76,6 @@ cpu_enable_trap_ctr_access(const struct
- 	config_sctlr_el1(SCTLR_EL1_UCT, 0);
- }
+--- a/net/ipv4/route.c
++++ b/net/ipv4/route.c
+@@ -2209,7 +2209,7 @@ struct rtable *__ip_route_output_key_has
+ 	struct fib_result res;
+ 	struct rtable *rth;
+ 	int orig_oif;
+-	int err = -ENETUNREACH;
++	int err;
  
--#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- #include <asm/mmu_context.h>
- #include <asm/cacheflush.h>
+ 	res.tclassid	= 0;
+ 	res.fi		= NULL;
+@@ -2224,11 +2224,14 @@ struct rtable *__ip_route_output_key_has
  
-@@ -217,11 +216,11 @@ static int detect_harden_bp_fw(void)
- 	    ((midr & MIDR_CPU_MODEL_MASK) == MIDR_QCOM_FALKOR_V1))
- 		cb = qcom_link_stack_sanitization;
- 
--	install_bp_hardening_cb(cb, smccc_start, smccc_end);
-+	if (IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR))
-+		install_bp_hardening_cb(cb, smccc_start, smccc_end);
- 
- 	return 1;
- }
--#endif	/* CONFIG_HARDEN_BRANCH_PREDICTOR */
- 
- DEFINE_PER_CPU_READ_MOSTLY(u64, arm64_ssbd_callback_required);
- 
-@@ -457,7 +456,6 @@ out_printmsg:
- 	.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,			\
- 	CAP_MIDR_RANGE_LIST(midr_list)
- 
--#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- /*
-  * List of CPUs that do not need any Spectre-v2 mitigation at all.
-  */
-@@ -489,6 +487,12 @@ check_branch_predictor(const struct arm6
- 	if (!need_wa)
- 		return false;
- 
-+	if (!IS_ENABLED(CONFIG_HARDEN_BRANCH_PREDICTOR)) {
-+		pr_warn_once("spectrev2 mitigation disabled by kernel configuration\n");
-+		__hardenbp_enab = false;
-+		return false;
-+	}
+ 	rcu_read_lock();
+ 	if (fl4->saddr) {
+-		rth = ERR_PTR(-EINVAL);
+ 		if (ipv4_is_multicast(fl4->saddr) ||
+ 		    ipv4_is_lbcast(fl4->saddr) ||
+-		    ipv4_is_zeronet(fl4->saddr))
++		    ipv4_is_zeronet(fl4->saddr)) {
++			rth = ERR_PTR(-EINVAL);
+ 			goto out;
++		}
 +
- 	/* forced off */
- 	if (__nospectre_v2) {
- 		pr_info_once("spectrev2 mitigation disabled by command line option\n");
-@@ -500,7 +504,6 @@ check_branch_predictor(const struct arm6
++		rth = ERR_PTR(-ENETUNREACH);
  
- 	return (need_wa > 0);
- }
--#endif
- 
- const struct arm64_cpu_capabilities arm64_errata[] = {
- #if	defined(CONFIG_ARM64_ERRATUM_826319) || \
-@@ -640,13 +643,11 @@ const struct arm64_cpu_capabilities arm6
- 		ERRATA_MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
- 	},
- #endif
--#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
- 	{
- 		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
- 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
- 		.matches = check_branch_predictor,
- 	},
--#endif
- 	{
- 		.desc = "Speculative Store Bypass Disable",
- 		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
+ 		/* I removed check for oif == dev_out->oif here.
+ 		   It was wrong for two reasons:
 
 
