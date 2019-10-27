@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E63EE6677
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28BAEE66E8
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728237AbfJ0VMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:12:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59020 "EHLO mail.kernel.org"
+        id S1730811AbfJ0VQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730037AbfJ0VMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:12:19 -0400
+        id S1730810AbfJ0VQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:21 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C402208C0;
-        Sun, 27 Oct 2019 21:12:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26D7121783;
+        Sun, 27 Oct 2019 21:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210738;
-        bh=UwVtbbT58WKj2ejT1LaVytt/OzL+CzP+J5ulerQNzMM=;
+        s=default; t=1572210980;
+        bh=19DK42xMFXFJqJtl0anLycud8kNLzCwwMFq8BCP7JqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdovGfCfHidFgHsJ07lr0OHNIwoUzyjBW4y2i1k6Cd/caSZQUdpYBEM7i+IELxyje
-         4+fJFo+q56spSQK8c5bOxzJcaxfAuRmnOMaoMLwiuqOWG0/+LWsK3tO/xfBKYPfySg
-         0K9SjkKmd4FYztSwuZ1aHjO/MHyqhxvZ1R3N2mcc=
+        b=AGEgiuvJtDYm/o8wMB7SWXWEjYeyFv+PW06uYKsEgNJVX6gfpthJC0PLiXFdwf3A6
+         QEDJKKList3yhWIpZfZ2jwNQLyxVCUSWBZSOXsjBYApE6bJmYCSBsbs2P/55Mo0QCW
+         NhrQYUClyX0GGYQo5jW8HeTPi9Eg8yZjf15s5yqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.14 119/119] RDMA/cxgb4: Do not dma memory off of the stack
-Date:   Sun, 27 Oct 2019 22:01:36 +0100
-Message-Id: <20191027203350.079648942@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 85/93] Btrfs: add missing extents release on file extent cluster relocation error
+Date:   Sun, 27 Oct 2019 22:01:37 +0100
+Message-Id: <20191027203314.601523054@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg KH <gregkh@linuxfoundation.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 3840c5b78803b2b6cc1ff820100a74a092c40cbb upstream.
+commit 44db1216efe37bf670f8d1019cdc41658d84baf5 upstream.
 
-Nicolas pointed out that the cxgb4 driver is doing dma off of the stack,
-which is generally considered a very bad thing.  On some architectures it
-could be a security problem, but odds are none of them actually run this
-driver, so it's just a "normal" bug.
+If we error out when finding a page at relocate_file_extent_cluster(), we
+need to release the outstanding extents counter on the relocation inode,
+set by the previous call to btrfs_delalloc_reserve_metadata(), otherwise
+the inode's block reserve size can never decrease to zero and metadata
+space is leaked. Therefore add a call to btrfs_delalloc_release_extents()
+in case we can't find the target page.
 
-Resolve this by allocating the memory for a message off of the heap
-instead of the stack.  kmalloc() always will give us a proper memory
-location that DMA will work correctly from.
-
-Link: https://lore.kernel.org/r/20191001165611.GA3542072@kroah.com
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Tested-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 8b62f87bad9c ("Btrfs: rework outstanding_extents")
+CC: stable@vger.kernel.org # 4.19+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/cxgb4/mem.c |   28 +++++++++++++++++-----------
- 1 file changed, 17 insertions(+), 11 deletions(-)
+ fs/btrfs/relocation.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/hw/cxgb4/mem.c
-+++ b/drivers/infiniband/hw/cxgb4/mem.c
-@@ -260,13 +260,17 @@ static int write_tpt_entry(struct c4iw_r
- 			   struct sk_buff *skb)
- {
- 	int err;
--	struct fw_ri_tpte tpt;
-+	struct fw_ri_tpte *tpt;
- 	u32 stag_idx;
- 	static atomic_t key;
- 
- 	if (c4iw_fatal_error(rdev))
- 		return -EIO;
- 
-+	tpt = kmalloc(sizeof(*tpt), GFP_KERNEL);
-+	if (!tpt)
-+		return -ENOMEM;
-+
- 	stag_state = stag_state > 0;
- 	stag_idx = (*stag) >> 8;
- 
-@@ -276,6 +280,7 @@ static int write_tpt_entry(struct c4iw_r
- 			mutex_lock(&rdev->stats.lock);
- 			rdev->stats.stag.fail++;
- 			mutex_unlock(&rdev->stats.lock);
-+			kfree(tpt);
- 			return -ENOMEM;
- 		}
- 		mutex_lock(&rdev->stats.lock);
-@@ -290,28 +295,28 @@ static int write_tpt_entry(struct c4iw_r
- 
- 	/* write TPT entry */
- 	if (reset_tpt_entry)
--		memset(&tpt, 0, sizeof(tpt));
-+		memset(tpt, 0, sizeof(*tpt));
- 	else {
--		tpt.valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
-+		tpt->valid_to_pdid = cpu_to_be32(FW_RI_TPTE_VALID_F |
- 			FW_RI_TPTE_STAGKEY_V((*stag & FW_RI_TPTE_STAGKEY_M)) |
- 			FW_RI_TPTE_STAGSTATE_V(stag_state) |
- 			FW_RI_TPTE_STAGTYPE_V(type) | FW_RI_TPTE_PDID_V(pdid));
--		tpt.locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
-+		tpt->locread_to_qpid = cpu_to_be32(FW_RI_TPTE_PERM_V(perm) |
- 			(bind_enabled ? FW_RI_TPTE_MWBINDEN_F : 0) |
- 			FW_RI_TPTE_ADDRTYPE_V((zbva ? FW_RI_ZERO_BASED_TO :
- 						      FW_RI_VA_BASED_TO))|
- 			FW_RI_TPTE_PS_V(page_size));
--		tpt.nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
-+		tpt->nosnoop_pbladdr = !pbl_size ? 0 : cpu_to_be32(
- 			FW_RI_TPTE_PBLADDR_V(PBL_OFF(rdev, pbl_addr)>>3));
--		tpt.len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
--		tpt.va_hi = cpu_to_be32((u32)(to >> 32));
--		tpt.va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
--		tpt.dca_mwbcnt_pstag = cpu_to_be32(0);
--		tpt.len_hi = cpu_to_be32((u32)(len >> 32));
-+		tpt->len_lo = cpu_to_be32((u32)(len & 0xffffffffUL));
-+		tpt->va_hi = cpu_to_be32((u32)(to >> 32));
-+		tpt->va_lo_fbo = cpu_to_be32((u32)(to & 0xffffffffUL));
-+		tpt->dca_mwbcnt_pstag = cpu_to_be32(0);
-+		tpt->len_hi = cpu_to_be32((u32)(len >> 32));
- 	}
- 	err = write_adapter_mem(rdev, stag_idx +
- 				(rdev->lldi.vr->stag.start >> 5),
--				sizeof(tpt), &tpt, skb);
-+				sizeof(*tpt), tpt, skb);
- 
- 	if (reset_tpt_entry) {
- 		c4iw_put_resource(&rdev->resource.tpt_table, stag_idx);
-@@ -319,6 +324,7 @@ static int write_tpt_entry(struct c4iw_r
- 		rdev->stats.stag.cur -= 32;
- 		mutex_unlock(&rdev->stats.lock);
- 	}
-+	kfree(tpt);
- 	return err;
- }
- 
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3187,6 +3187,8 @@ static int relocate_file_extent_cluster(
+ 			if (!page) {
+ 				btrfs_delalloc_release_metadata(BTRFS_I(inode),
+ 							PAGE_SIZE, true);
++				btrfs_delalloc_release_extents(BTRFS_I(inode),
++							PAGE_SIZE, true);
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
 
 
