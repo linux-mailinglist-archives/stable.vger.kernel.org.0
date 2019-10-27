@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4AE1E660D
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F0FBE660E
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728508AbfJ0VIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:08:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54174 "EHLO mail.kernel.org"
+        id S1729317AbfJ0VIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728456AbfJ0VIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:08:01 -0400
+        id S1729313AbfJ0VID (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:08:03 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC93620873;
-        Sun, 27 Oct 2019 21:07:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7364B2064A;
+        Sun, 27 Oct 2019 21:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210480;
-        bh=Ac3FKcAqWgiejFUBgLqLaR+hkkhRMrcjAXj8UqIpnlE=;
+        s=default; t=1572210483;
+        bh=NmV6U+ZW2iYHDa8chiDrZg4AJ8VaQfyPNlEP5oIhy58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maVgB+4mFfavoMqTBhaK8rZWsUf78dVwkABWrspg0EG2ADXsBfL8kSZ8W8qHaRJXU
-         /21k+pXVTvtsDoygspboKHb2rOovJaT06cp2uOa12EEJydemrhUEUe4gDr2hzoffwh
-         kjvJC/stQsAHlySoxBfZwUIhvR9TpeVtoalHSj5Y=
+        b=WzL8BQiGIzGDb6HCDkyboQ9/zRVRhesRLZVryPWjaLUhBhFRKJCE1VrrnC3y6nIkZ
+         bB91Grj5T52tj6LHeZ4Q6cy04p8mLQjsX99F3fmGMxtaybcHnEE1KK0hC3D/h8Maw8
+         HzAbt7UOYRuKd9hrCL3c3y/lv+Spv3j23is9SP5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 029/119] memfd: Fix locking when tagging pins
-Date:   Sun, 27 Oct 2019 22:00:06 +0100
-Message-Id: <20191027203309.163284422@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 030/119] USB: legousbtower: fix memleak on disconnect
+Date:   Sun, 27 Oct 2019 22:00:07 +0100
+Message-Id: <20191027203309.490183100@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
 References: <20191027203259.948006506@linuxfoundation.org>
@@ -44,99 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Johan Hovold <johan@kernel.org>
 
-The RCU lock is insufficient to protect the radix tree iteration as
-a deletion from the tree can occur before we take the spinlock to
-tag the entry.  In 4.19, this has manifested as a bug with the following
-trace:
+commit b6c03e5f7b463efcafd1ce141bd5a8fc4e583ae2 upstream.
 
-kernel BUG at lib/radix-tree.c:1429!
-invalid opcode: 0000 [#1] SMP KASAN PTI
-CPU: 7 PID: 6935 Comm: syz-executor.2 Not tainted 4.19.36 #25
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-RIP: 0010:radix_tree_tag_set+0x200/0x2f0 lib/radix-tree.c:1429
-Code: 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 44 24 10 e8 a3 29 7e fe 48 8b 44 24 10 48 0f ab 03 e9 d2 fe ff ff e8 90 29 7e fe <0f> 0b 48 c7 c7 e0 5a 87 84 e8 f0 e7 08 ff 4c 89 ef e8 4a ff ac fe
-RSP: 0018:ffff88837b13fb60 EFLAGS: 00010016
-RAX: 0000000000040000 RBX: ffff8883c5515d58 RCX: ffffffff82cb2ef0
-RDX: 0000000000000b72 RSI: ffffc90004cf2000 RDI: ffff8883c5515d98
-RBP: ffff88837b13fb98 R08: ffffed106f627f7e R09: ffffed106f627f7e
-R10: 0000000000000001 R11: ffffed106f627f7d R12: 0000000000000004
-R13: ffffea000d7fea80 R14: 1ffff1106f627f6f R15: 0000000000000002
-FS:  00007fa1b8df2700(0000) GS:ffff8883e2fc0000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fa1b8df1db8 CR3: 000000037d4d2001 CR4: 0000000000160ee0
-Call Trace:
- memfd_tag_pins mm/memfd.c:51 [inline]
- memfd_wait_for_pins+0x2c5/0x12d0 mm/memfd.c:81
- memfd_add_seals mm/memfd.c:215 [inline]
- memfd_fcntl+0x33d/0x4a0 mm/memfd.c:247
- do_fcntl+0x589/0xeb0 fs/fcntl.c:421
- __do_sys_fcntl fs/fcntl.c:463 [inline]
- __se_sys_fcntl fs/fcntl.c:448 [inline]
- __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:448
- do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:293
+If disconnect() races with release() after a process has been
+interrupted, release() could end up returning early and the driver would
+fail to free its driver data.
 
-The problem does not occur in mainline due to the XArray rewrite which
-changed the locking to exclude modification of the tree during iteration.
-At the time, nobody realised this was a bugfix.  Backport the locking
-changes to stable.
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191010125835.27031-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Cc: stable@vger.kernel.org
-Reported-by: zhong jiang <zhongjiang@huawei.com>
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/shmem.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/usb/misc/legousbtower.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/mm/shmem.c b/mm/shmem.c
-index 037e2ee9ccacc..5b2cc9f9b1f1d 100644
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2657,11 +2657,12 @@ static void shmem_tag_pins(struct address_space *mapping)
- 	void **slot;
- 	pgoff_t start;
- 	struct page *page;
-+	unsigned int tagged = 0;
- 
- 	lru_add_drain();
- 	start = 0;
--	rcu_read_lock();
- 
-+	spin_lock_irq(&mapping->tree_lock);
- 	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
- 		page = radix_tree_deref_slot(slot);
- 		if (!page || radix_tree_exception(page)) {
-@@ -2670,18 +2671,19 @@ static void shmem_tag_pins(struct address_space *mapping)
- 				continue;
- 			}
- 		} else if (page_count(page) - page_mapcount(page) > 1) {
--			spin_lock_irq(&mapping->tree_lock);
- 			radix_tree_tag_set(&mapping->page_tree, iter.index,
- 					   SHMEM_TAG_PINNED);
--			spin_unlock_irq(&mapping->tree_lock);
- 		}
- 
--		if (need_resched()) {
--			slot = radix_tree_iter_resume(slot, &iter);
--			cond_resched_rcu();
--		}
-+		if (++tagged % 1024)
-+			continue;
-+
-+		slot = radix_tree_iter_resume(slot, &iter);
-+		spin_unlock_irq(&mapping->tree_lock);
-+		cond_resched();
-+		spin_lock_irq(&mapping->tree_lock);
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -423,10 +423,7 @@ static int tower_release (struct inode *
+ 		goto exit;
  	}
--	rcu_read_unlock();
-+	spin_unlock_irq(&mapping->tree_lock);
- }
  
- /*
--- 
-2.20.1
-
+-	if (mutex_lock_interruptible(&dev->lock)) {
+-	        retval = -ERESTARTSYS;
+-		goto exit;
+-	}
++	mutex_lock(&dev->lock);
+ 
+ 	if (dev->open_count != 1) {
+ 		dev_dbg(&dev->udev->dev, "%s: device not opened exactly once\n",
 
 
