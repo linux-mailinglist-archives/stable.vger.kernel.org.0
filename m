@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E14D2E6706
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F21EE6709
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731041AbfJ0VRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37218 "EHLO mail.kernel.org"
+        id S1731036AbfJ0VRd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:17:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731036AbfJ0VRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:17:24 -0400
+        id S1730494AbfJ0VRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:17:33 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BD99205C9;
-        Sun, 27 Oct 2019 21:17:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFF882070B;
+        Sun, 27 Oct 2019 21:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211044;
-        bh=fZWWucbpLxJGkKOUSdJkJb/oxZDR/zbWPQ//eAJTko8=;
+        s=default; t=1572211052;
+        bh=Rmt2vC1gq7Y1SdH5bjjb7PSiYPSvnWGQM7T5c8N6Eh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPBsgPBdVfjy9H4LGnCxuia1xcOmvP4IWe1UM3BRkyFzfzieIj2O22/HeFabQOWji
-         NYMcWOhoHa3YKOJ8Oj0EfJTD9kkd1xvCA0PGJ0zmJd+Hj6QmexKc7qtZCsChuxAu/l
-         nsI7he4PsyrJirYcbilVXCSQQnX5cb5Iw43qsz70=
+        b=Rayyjv9mgv+uC/sK2ifmQQf8nefCopQ62oOE00t7G2SkRefAOAcaVgKf4aF+vz3uE
+         ykQ9I/ZK3fmRMsdrF/Oi+gGW4KJJMpSr14+8djHRHcbxTPpdcOrpdY12wtA3upepBg
+         LmZFZRSkb2FkzsYz7h4U1CIGYO1Em+kU1/2Vp9z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lokesh Vutla <lokeshvutla@ti.com>,
-        Suman Anna <s-anna@ti.com>, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        =?UTF-8?q?Andr=C3=A9=20Roth?= <neolynx@gmail.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Nishanth Menon <nm@ti.com>, Tero Kristo <t-kristo@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 013/197] ARM: dts: Fix gpio0 flags for am335x-icev2
-Date:   Sun, 27 Oct 2019 21:58:51 +0100
-Message-Id: <20191027203352.392665239@linuxfoundation.org>
+Subject: [PATCH 5.3 016/197] ARM: OMAP2+: Fix warnings with broken omap2_set_init_voltage()
+Date:   Sun, 27 Oct 2019 21:58:54 +0100
+Message-Id: <20191027203352.549707686@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -46,52 +49,165 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 4ef5d76b453908f21341e661a9b6f96862f6f589 ]
+[ Upstream commit cf395f7ddb9ebc6b2d28d83b53d18aa4e7c19701 ]
 
-The ti,no-idle-on-init and ti,no-reset-on-init flags need to be at
-the interconnect target module level for the modules that have it
-defined. Otherwise we get the following warnings:
+This code is currently unable to find the dts opp tables as ti-cpufreq
+needs to set them up first based on speed binning.
 
-dts flag should be at module level for ti,no-idle-on-init
-dts flag should be at module level for ti,no-reset-on-init
+We stopped initializing the opp tables with platform code years ago for
+device tree based booting with commit 92d51856d740 ("ARM: OMAP3+: do not
+register non-dt OPP tables for device tree boot"), and all of mach-omap2
+is now booting using device tree.
 
-Fixes: 87fc89ced3a7 ("ARM: dts: am335x: Move l4 child devices to probe them with ti-sysc")
-Cc: Lokesh Vutla <lokeshvutla@ti.com>
-Reported-by: Suman Anna <s-anna@ti.com>
-Reviewed-by: Lokesh Vutla <lokeshvutla@ti.com>
+We currently get the following errors on init:
+
+omap2_set_init_voltage: unable to find boot up OPP for vdd_mpu
+omap2_set_init_voltage: unable to set vdd_mpu
+omap2_set_init_voltage: unable to find boot up OPP for vdd_core
+omap2_set_init_voltage: unable to set vdd_core
+omap2_set_init_voltage: unable to find boot up OPP for vdd_iva
+omap2_set_init_voltage: unable to set vdd_iva
+
+Let's just drop the unused code. Nowadays ti-cpufreq should be used to
+to initialize things properly.
+
+Cc: Adam Ford <aford173@gmail.com>
+Cc: André Roth <neolynx@gmail.com>
+Cc: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Nishanth Menon <nm@ti.com>
+Cc: Tero Kristo <t-kristo@ti.com>
+Tested-by: Adam Ford <aford173@gmail.com> #logicpd-torpedo-37xx-devkit
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-icev2.dts | 2 +-
- arch/arm/boot/dts/am33xx-l4.dtsi   | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/mach-omap2/pm.c | 100 ---------------------------------------
+ 1 file changed, 100 deletions(-)
 
-diff --git a/arch/arm/boot/dts/am335x-icev2.dts b/arch/arm/boot/dts/am335x-icev2.dts
-index 18f70b35da4c7..204bccfcc110a 100644
---- a/arch/arm/boot/dts/am335x-icev2.dts
-+++ b/arch/arm/boot/dts/am335x-icev2.dts
-@@ -432,7 +432,7 @@
- 	pinctrl-0 = <&mmc0_pins_default>;
- };
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index 1fde1bf53fb65..7ac9af56762df 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -74,83 +74,6 @@ int omap_pm_clkdms_setup(struct clockdomain *clkdm, void *unused)
+ 	return 0;
+ }
  
--&gpio0 {
-+&gpio0_target {
- 	/* Do not idle the GPIO used for holding the VTT regulator */
- 	ti,no-reset-on-init;
- 	ti,no-idle-on-init;
-diff --git a/arch/arm/boot/dts/am33xx-l4.dtsi b/arch/arm/boot/dts/am33xx-l4.dtsi
-index 46849d6ecb3e2..1515f4f914999 100644
---- a/arch/arm/boot/dts/am33xx-l4.dtsi
-+++ b/arch/arm/boot/dts/am33xx-l4.dtsi
-@@ -127,7 +127,7 @@
- 			ranges = <0x0 0x5000 0x1000>;
- 		};
+-/*
+- * This API is to be called during init to set the various voltage
+- * domains to the voltage as per the opp table. Typically we boot up
+- * at the nominal voltage. So this function finds out the rate of
+- * the clock associated with the voltage domain, finds out the correct
+- * opp entry and sets the voltage domain to the voltage specified
+- * in the opp entry
+- */
+-static int __init omap2_set_init_voltage(char *vdd_name, char *clk_name,
+-					 const char *oh_name)
+-{
+-	struct voltagedomain *voltdm;
+-	struct clk *clk;
+-	struct dev_pm_opp *opp;
+-	unsigned long freq, bootup_volt;
+-	struct device *dev;
+-
+-	if (!vdd_name || !clk_name || !oh_name) {
+-		pr_err("%s: invalid parameters\n", __func__);
+-		goto exit;
+-	}
+-
+-	if (!strncmp(oh_name, "mpu", 3))
+-		/* 
+-		 * All current OMAPs share voltage rail and clock
+-		 * source, so CPU0 is used to represent the MPU-SS.
+-		 */
+-		dev = get_cpu_device(0);
+-	else
+-		dev = omap_device_get_by_hwmod_name(oh_name);
+-
+-	if (IS_ERR(dev)) {
+-		pr_err("%s: Unable to get dev pointer for hwmod %s\n",
+-			__func__, oh_name);
+-		goto exit;
+-	}
+-
+-	voltdm = voltdm_lookup(vdd_name);
+-	if (!voltdm) {
+-		pr_err("%s: unable to get vdd pointer for vdd_%s\n",
+-			__func__, vdd_name);
+-		goto exit;
+-	}
+-
+-	clk =  clk_get(NULL, clk_name);
+-	if (IS_ERR(clk)) {
+-		pr_err("%s: unable to get clk %s\n", __func__, clk_name);
+-		goto exit;
+-	}
+-
+-	freq = clk_get_rate(clk);
+-	clk_put(clk);
+-
+-	opp = dev_pm_opp_find_freq_ceil(dev, &freq);
+-	if (IS_ERR(opp)) {
+-		pr_err("%s: unable to find boot up OPP for vdd_%s\n",
+-			__func__, vdd_name);
+-		goto exit;
+-	}
+-
+-	bootup_volt = dev_pm_opp_get_voltage(opp);
+-	dev_pm_opp_put(opp);
+-
+-	if (!bootup_volt) {
+-		pr_err("%s: unable to find voltage corresponding to the bootup OPP for vdd_%s\n",
+-		       __func__, vdd_name);
+-		goto exit;
+-	}
+-
+-	voltdm_scale(voltdm, bootup_volt);
+-	return 0;
+-
+-exit:
+-	pr_err("%s: unable to set vdd_%s\n", __func__, vdd_name);
+-	return -EINVAL;
+-}
+-
+ #ifdef CONFIG_SUSPEND
+ static int omap_pm_enter(suspend_state_t suspend_state)
+ {
+@@ -208,25 +131,6 @@ void omap_common_suspend_init(void *pm_suspend)
+ }
+ #endif /* CONFIG_SUSPEND */
  
--		target-module@7000 {			/* 0x44e07000, ap 14 20.0 */
-+		gpio0_target: target-module@7000 {	/* 0x44e07000, ap 14 20.0 */
- 			compatible = "ti,sysc-omap2", "ti,sysc";
- 			ti,hwmods = "gpio1";
- 			reg = <0x7000 0x4>,
+-static void __init omap3_init_voltages(void)
+-{
+-	if (!soc_is_omap34xx())
+-		return;
+-
+-	omap2_set_init_voltage("mpu_iva", "dpll1_ck", "mpu");
+-	omap2_set_init_voltage("core", "l3_ick", "l3_main");
+-}
+-
+-static void __init omap4_init_voltages(void)
+-{
+-	if (!soc_is_omap44xx())
+-		return;
+-
+-	omap2_set_init_voltage("mpu", "dpll_mpu_ck", "mpu");
+-	omap2_set_init_voltage("core", "l3_div_ck", "l3_main_1");
+-	omap2_set_init_voltage("iva", "dpll_iva_m5x2_ck", "iva");
+-}
+-
+ int __maybe_unused omap_pm_nop_init(void)
+ {
+ 	return 0;
+@@ -246,10 +150,6 @@ int __init omap2_common_pm_late_init(void)
+ 	omap4_twl_init();
+ 	omap_voltage_late_init();
+ 
+-	/* Initialize the voltages */
+-	omap3_init_voltages();
+-	omap4_init_voltages();
+-
+ 	/* Smartreflex device init */
+ 	omap_devinit_smartreflex();
+ 
 -- 
 2.20.1
 
