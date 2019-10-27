@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 359CCE6632
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:09:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C322E684F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729519AbfJ0VJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:09:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55952 "EHLO mail.kernel.org"
+        id S1732199AbfJ0VWj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:22:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728976AbfJ0VJe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:09:34 -0400
+        id S1732193AbfJ0VWi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:22:38 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F16020873;
-        Sun, 27 Oct 2019 21:09:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DCDE205C9;
+        Sun, 27 Oct 2019 21:22:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210573;
-        bh=guMc78V86eIqIsGt3antPGPaD57jfmvrq6eLIvdlquc=;
+        s=default; t=1572211357;
+        bh=G8fdBiczYjP1dj+XAo4W0fgeejN6M3is5d/XqM9NW8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PTNxSSSuH+Bci+VndZ+4agnxHo8q/VwCFWF6KRtJvL4YmDMc3mu+FR82ebYdGdWS8
-         cYFAYQIKS0kFskuqnPExQTmkUX40AI6dD3LBL/SrDrBKZL5vDAHhandeQq1xWEZohO
-         TeDjKxlspaGPVydni9QzM0h7OJuaH9HT99Pxh+gg=
+        b=CeHKb/OsBAzZwnGM8B9m2eYMcMVVSlxlkPJ7PJhfntqiAPjwv7ag65XlvNmC0oxCW
+         A7knKxx+GRFFarPIQzmjkuwXDnsKcvcc93W3M8VlNK+mHhuIifZQNpSjZuCl2QM0yC
+         Itt9SRnxMGmAmEsNF4Q95BTAgx8BscnnMSNFiatA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Dave Martin <dave.martin@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 063/119] arm64: Add MIDR encoding for Arm Cortex-A55 and Cortex-A35
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nicolas Waisman <nico@semmle.com>,
+        Will Deacon <will@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.3 122/197] cfg80211: wext: avoid copying malformed SSIDs
 Date:   Sun, 27 Oct 2019 22:00:40 +0100
-Message-Id: <20191027203328.879416494@linuxfoundation.org>
+Message-Id: <20191027203358.324038638@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 6e616864f21160d8d503523b60a53a29cecc6f24 ]
+commit 4ac2813cc867ae563a1ba5a9414bfb554e5796fa upstream.
 
-Update the MIDR encodings for the Cortex-A55 and Cortex-A35
+Ensure the SSID element is bounds-checked prior to invoking memcpy()
+with its length field, when copying to userspace.
 
-Cc: Mark Rutland <mark.rutland@arm.com>
-Reviewed-by: Dave Martin <dave.martin@arm.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: <stable@vger.kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20191004095132.15777-2-will@kernel.org
+[adjust commit log a bit]
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/arm64/include/asm/cputype.h |    4 ++++
- 1 file changed, 4 insertions(+)
 
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -85,6 +85,8 @@
- #define ARM_CPU_PART_CORTEX_A53		0xD03
- #define ARM_CPU_PART_CORTEX_A73		0xD09
- #define ARM_CPU_PART_CORTEX_A75		0xD0A
-+#define ARM_CPU_PART_CORTEX_A35		0xD04
-+#define ARM_CPU_PART_CORTEX_A55		0xD05
+---
+ net/wireless/wext-sme.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/net/wireless/wext-sme.c
++++ b/net/wireless/wext-sme.c
+@@ -202,6 +202,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
+ 			       struct iw_point *data, char *ssid)
+ {
+ 	struct wireless_dev *wdev = dev->ieee80211_ptr;
++	int ret = 0;
  
- #define APM_CPU_PART_POTENZA		0x000
+ 	/* call only for station! */
+ 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
+@@ -219,7 +220,10 @@ int cfg80211_mgd_wext_giwessid(struct ne
+ 		if (ie) {
+ 			data->flags = 1;
+ 			data->length = ie[1];
+-			memcpy(ssid, ie + 2, data->length);
++			if (data->length > IW_ESSID_MAX_SIZE)
++				ret = -EINVAL;
++			else
++				memcpy(ssid, ie + 2, data->length);
+ 		}
+ 		rcu_read_unlock();
+ 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
+@@ -229,7 +233,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
+ 	}
+ 	wdev_unlock(wdev);
  
-@@ -108,6 +110,8 @@
- #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
- #define MIDR_CORTEX_A73 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
- #define MIDR_CORTEX_A75 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
-+#define MIDR_CORTEX_A35 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A35)
-+#define MIDR_CORTEX_A55 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
- #define MIDR_THUNDERX	MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX)
- #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
- #define MIDR_THUNDERX_83XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_83XX)
+-	return 0;
++	return ret;
+ }
+ 
+ int cfg80211_mgd_wext_siwap(struct net_device *dev,
 
 
