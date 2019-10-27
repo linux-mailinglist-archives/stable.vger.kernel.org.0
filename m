@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB6EE6981
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:37:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3612EE691F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728792AbfJ0VFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:05:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50958 "EHLO mail.kernel.org"
+        id S1728820AbfJ0Veh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:34:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728776AbfJ0VFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:05:12 -0400
+        id S1728768AbfJ0VKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:10:35 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6875720873;
-        Sun, 27 Oct 2019 21:05:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6015208C0;
+        Sun, 27 Oct 2019 21:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210312;
-        bh=KlEZ86iupsiV+W6cbYN+k7MMDobQXDrIkXofB4Cs1hA=;
+        s=default; t=1572210634;
+        bh=6u/I12k282DOBG2MRmZ69eO1I+TUxQ9KbrQ2nM3A04A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8omY7xp5WlC2298CKICFswhUIXI+mu4CfTEj3lZfnMAJ6z2CkjPIDwhYDykB0ADp
-         eLb67zp/LFaZc0Jdo93cYcZWv4HBGl1+NLB59tFsZtI8o7STpndx1bRUzGRBHzJqKg
-         oV3rNghr5vBq11lCJIt+X+1JzF0eCSGulm0DvbB0=
+        b=wmaSuoRxphQ/N1E5qgVtCIjfEGP62HbCXBwk75POoLT3nzBBSNcCdL2B/teMJcRv+
+         PY8iN2dO7ZO6qkpf44dJEZgqHYVwlRQZ6uhjCTMF2o3OxBDVT1dAsqNxauG9VCrXBW
+         n6mDQMdV4tGkuTFVkKSvsNbSjs5SbzGsW/YH9JhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Walter <walteste@inf.ethz.ch>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Gonzalo Siero <gsierohu@redhat.com>
-Subject: [PATCH 4.9 21/49] ipv4: Return -ENETUNREACH if we cant create route but saddr is valid
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Subject: [PATCH 4.14 082/119] arm64: Force SSBS on context switch
 Date:   Sun, 27 Oct 2019 22:00:59 +0100
-Message-Id: <20191027203135.574241772@linuxfoundation.org>
+Message-Id: <20191027203345.704836456@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,94 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Brivio <sbrivio@redhat.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-[ Upstream commit 595e0651d0296bad2491a4a29a7a43eae6328b02 ]
+[ Upstream commit cbdf8a189a66001c36007bf0f5c975d0376c5c3a ]
 
-...instead of -EINVAL. An issue was found with older kernel versions
-while unplugging a NFS client with pending RPCs, and the wrong error
-code here prevented it from recovering once link is back up with a
-configured address.
+On a CPU that doesn't support SSBS, PSTATE[12] is RES0.  In a system
+where only some of the CPUs implement SSBS, we end-up losing track of
+the SSBS bit across task migration.
 
-Incidentally, this is not an issue anymore since commit 4f8943f80883
-("SUNRPC: Replace direct task wakeups from softirq context"), included
-in 5.2-rc7, had the effect of decoupling the forwarding of this error
-by using SO_ERROR in xs_wake_error(), as pointed out by Benjamin
-Coddington.
+To address this issue, let's force the SSBS bit on context switch.
 
-To the best of my knowledge, this isn't currently causing any further
-issue, but the error code doesn't look appropriate anyway, and we
-might hit this in other paths as well.
-
-In detail, as analysed by Gonzalo Siero, once the route is deleted
-because the interface is down, and can't be resolved and we return
--EINVAL here, this ends up, courtesy of inet_sk_rebuild_header(),
-as the socket error seen by tcp_write_err(), called by
-tcp_retransmit_timer().
-
-In turn, tcp_write_err() indirectly calls xs_error_report(), which
-wakes up the RPC pending tasks with a status of -EINVAL. This is then
-seen by call_status() in the SUN RPC implementation, which aborts the
-RPC call calling rpc_exit(), instead of handling this as a
-potentially temporary condition, i.e. as a timeout.
-
-Return -EINVAL only if the input parameters passed to
-ip_route_output_key_hash_rcu() are actually invalid (this is the case
-if the specified source address is multicast, limited broadcast or
-all zeroes), but return -ENETUNREACH in all cases where, at the given
-moment, the given source address doesn't allow resolving the route.
-
-While at it, drop the initialisation of err to -ENETUNREACH, which
-was added to __ip_route_output_key() back then by commit
-0315e3827048 ("net: Fix behaviour of unreachable, blackhole and
-prohibit routes"), but actually had no effect, as it was, and is,
-overwritten by the fib_lookup() return code assignment, and anyway
-ignored in all other branches, including the if (fl4->saddr) one:
-I find this rather confusing, as it would look like -ENETUNREACH is
-the "default" error, while that statement has no effect.
-
-Also note that after commit fc75fc8339e7 ("ipv4: dont create routes
-on down devices"), we would get -ENETUNREACH if the device is down,
-but -EINVAL if the source address is specified and we can't resolve
-the route, and this appears to be rather inconsistent.
-
-Reported-by: Stefan Walter <walteste@inf.ethz.ch>
-Analysed-by: Benjamin Coddington <bcodding@redhat.com>
-Analysed-by: Gonzalo Siero <gsierohu@redhat.com>
-Signed-off-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8f04e8e6e29c ("arm64: ssbd: Add support for PSTATE.SSBS rather than trapping to EL3")
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+[will: inverted logic and added comments]
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/route.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm64/include/asm/processor.h |   14 ++++++++++++--
+ arch/arm64/kernel/process.c        |   29 ++++++++++++++++++++++++++++-
+ 2 files changed, 40 insertions(+), 3 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -2221,7 +2221,7 @@ struct rtable *__ip_route_output_key_has
- 	struct fib_result res;
- 	struct rtable *rth;
- 	int orig_oif;
--	int err = -ENETUNREACH;
-+	int err;
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -148,6 +148,16 @@ static inline void start_thread_common(s
+ 	regs->pc = pc;
+ }
  
- 	res.tclassid	= 0;
- 	res.fi		= NULL;
-@@ -2236,11 +2236,14 @@ struct rtable *__ip_route_output_key_has
- 
- 	rcu_read_lock();
- 	if (fl4->saddr) {
--		rth = ERR_PTR(-EINVAL);
- 		if (ipv4_is_multicast(fl4->saddr) ||
- 		    ipv4_is_lbcast(fl4->saddr) ||
--		    ipv4_is_zeronet(fl4->saddr))
-+		    ipv4_is_zeronet(fl4->saddr)) {
-+			rth = ERR_PTR(-EINVAL);
- 			goto out;
-+		}
++static inline void set_ssbs_bit(struct pt_regs *regs)
++{
++	regs->pstate |= PSR_SSBS_BIT;
++}
 +
-+		rth = ERR_PTR(-ENETUNREACH);
++static inline void set_compat_ssbs_bit(struct pt_regs *regs)
++{
++	regs->pstate |= PSR_AA32_SSBS_BIT;
++}
++
+ static inline void start_thread(struct pt_regs *regs, unsigned long pc,
+ 				unsigned long sp)
+ {
+@@ -155,7 +165,7 @@ static inline void start_thread(struct p
+ 	regs->pstate = PSR_MODE_EL0t;
  
- 		/* I removed check for oif == dev_out->oif here.
- 		   It was wrong for two reasons:
+ 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
+-		regs->pstate |= PSR_SSBS_BIT;
++		set_ssbs_bit(regs);
+ 
+ 	regs->sp = sp;
+ }
+@@ -174,7 +184,7 @@ static inline void compat_start_thread(s
+ #endif
+ 
+ 	if (arm64_get_ssbd_state() != ARM64_SSBD_FORCE_ENABLE)
+-		regs->pstate |= PSR_AA32_SSBS_BIT;
++		set_compat_ssbs_bit(regs);
+ 
+ 	regs->compat_sp = sp;
+ }
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -298,7 +298,7 @@ int copy_thread(unsigned long clone_flag
+ 			childregs->pstate |= PSR_UAO_BIT;
+ 
+ 		if (arm64_get_ssbd_state() == ARM64_SSBD_FORCE_DISABLE)
+-			childregs->pstate |= PSR_SSBS_BIT;
++			set_ssbs_bit(childregs);
+ 
+ 		p->thread.cpu_context.x19 = stack_start;
+ 		p->thread.cpu_context.x20 = stk_sz;
+@@ -340,6 +340,32 @@ void uao_thread_switch(struct task_struc
+ }
+ 
+ /*
++ * Force SSBS state on context-switch, since it may be lost after migrating
++ * from a CPU which treats the bit as RES0 in a heterogeneous system.
++ */
++static void ssbs_thread_switch(struct task_struct *next)
++{
++	struct pt_regs *regs = task_pt_regs(next);
++
++	/*
++	 * Nothing to do for kernel threads, but 'regs' may be junk
++	 * (e.g. idle task) so check the flags and bail early.
++	 */
++	if (unlikely(next->flags & PF_KTHREAD))
++		return;
++
++	/* If the mitigation is enabled, then we leave SSBS clear. */
++	if ((arm64_get_ssbd_state() == ARM64_SSBD_FORCE_ENABLE) ||
++	    test_tsk_thread_flag(next, TIF_SSBD))
++		return;
++
++	if (compat_user_mode(regs))
++		set_compat_ssbs_bit(regs);
++	else if (user_mode(regs))
++		set_ssbs_bit(regs);
++}
++
++/*
+  * We store our current task in sp_el0, which is clobbered by userspace. Keep a
+  * shadow copy so that we can restore this upon entry from userspace.
+  *
+@@ -367,6 +393,7 @@ __notrace_funcgraph struct task_struct *
+ 	contextidr_thread_switch(next);
+ 	entry_task_switch(next);
+ 	uao_thread_switch(next);
++	ssbs_thread_switch(next);
+ 
+ 	/*
+ 	 * Complete any pending TLB or cache maintenance on this CPU in case
 
 
