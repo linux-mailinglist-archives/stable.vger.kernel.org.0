@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E520E6970
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:36:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF9D0E68A4
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728990AbfJ0VGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52380 "EHLO mail.kernel.org"
+        id S1730737AbfJ0VP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:15:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35368 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727503AbfJ0VGY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:06:24 -0400
+        id S1730718AbfJ0VP4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:15:56 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B26221783;
-        Sun, 27 Oct 2019 21:06:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1E94205C9;
+        Sun, 27 Oct 2019 21:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210383;
-        bh=4kpBjFVHBtSenIMSIQp2j0JOTMmGi0qrCsyJrZ/a9kY=;
+        s=default; t=1572210955;
+        bh=8IOV29BNjDY+REp3WUyqDVAt2o6u+fOSAlETP48YXZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A83qr1HJLlwNb5J4CcpDNu9UyJYDtdc+WeaGfCFRU7z59YGeHImNSKwmUHxd74Ne8
-         zDKZvsZn2Rc+wjyhXxfQaz4jnFVaLUUQFG1wmnmbdI980huJCqg0/wb083mGUm9efj
-         fK82wnZQ+8n58bEAMC+HjN/Hl9WF8vFAXKH8v5oI=
+        b=hr0pqfHjpSBNS8p9sB0LYq1W1T43P2Xqbm1Wx1BbsxJuVy33RlO5SKyQyCinBOKLO
+         c1k/Is5GTFeKlYmnVi3MDP7qG2EwiF6ZyIYYBgBaeRVyqH/TWTUnEmZjX5Kq+Awhup
+         oYi8YPitjvuALjLIF9+7cvCA9huC7xv4ZX8FDAQg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Drake <drake@endlessm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.9 47/49] PCI: PM: Fix pci_power_up()
+        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.19 73/93] arm64: Enable workaround for Cavium TX2 erratum 219 when running SMT
 Date:   Sun, 27 Oct 2019 22:01:25 +0100
-Message-Id: <20191027203205.369411821@linuxfoundation.org>
+Message-Id: <20191027203310.113079555@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,81 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit 45144d42f299455911cc29366656c7324a3a7c97 upstream.
+commit 93916beb70143c46bf1d2bacf814be3a124b253b upstream.
 
-There is an arbitrary difference between the system resume and
-runtime resume code paths for PCI devices regarding the delay to
-apply when switching the devices from D3cold to D0.
+It appears that the only case where we need to apply the TX2_219_TVM
+mitigation is when the core is in SMT mode. So let's condition the
+enabling on detecting a CPU whose MPIDR_EL1.Aff0 is non-zero.
 
-Namely, pci_restore_standard_config() used in the runtime resume
-code path calls pci_set_power_state() which in turn invokes
-__pci_start_power_transition() to power up the device through the
-platform firmware and that function applies the transition delay
-(as per PCI Express Base Specification Revision 2.0, Section 6.6.1).
-However, pci_pm_default_resume_early() used in the system resume
-code path calls pci_power_up() which doesn't apply the delay at
-all and that causes issues to occur during resume from
-suspend-to-idle on some systems where the delay is required.
-
-Since there is no reason for that difference to exist, modify
-pci_power_up() to follow pci_set_power_state() more closely and
-invoke __pci_start_power_transition() from there to call the
-platform firmware to power up the device (in case that's necessary).
-
-Fixes: db288c9c5f9d ("PCI / PM: restore the original behavior of pci_set_power_state()")
-Reported-by: Daniel Drake <drake@endlessm.com>
-Tested-by: Daniel Drake <drake@endlessm.com>
-Link: https://lore.kernel.org/linux-pm/CAD8Lp44TYxrMgPLkHCqF9hv6smEurMXvmmvmtyFhZ6Q4SE+dig@mail.gmail.com/T/#m21be74af263c6a34f36e0fc5c77c5449d9406925
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: 3.10+ <stable@vger.kernel.org> # 3.10+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/pci.c |   24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ arch/arm64/kernel/cpu_errata.c |   33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -754,19 +754,6 @@ void pci_update_current_state(struct pci
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -23,6 +23,7 @@
+ #include <asm/cpu.h>
+ #include <asm/cputype.h>
+ #include <asm/cpufeature.h>
++#include <asm/smp_plat.h>
+ 
+ static bool __maybe_unused
+ is_affected_midr_range(const struct arm64_cpu_capabilities *entry, int scope)
+@@ -618,6 +619,30 @@ check_branch_predictor(const struct arm6
+ 	return (need_wa > 0);
  }
  
- /**
-- * pci_power_up - Put the given device into D0 forcibly
-- * @dev: PCI device to power up
-- */
--void pci_power_up(struct pci_dev *dev)
--{
--	if (platform_pci_power_manageable(dev))
--		platform_pci_set_power_state(dev, PCI_D0);
--
--	pci_raw_set_power_state(dev, PCI_D0);
--	pci_update_current_state(dev, PCI_D0);
--}
--
--/**
-  * pci_platform_power_transition - Use platform to change device power state
-  * @dev: PCI device to handle.
-  * @state: State to put the device into.
-@@ -942,6 +929,17 @@ int pci_set_power_state(struct pci_dev *
- EXPORT_SYMBOL(pci_set_power_state);
- 
- /**
-+ * pci_power_up - Put the given device into D0 forcibly
-+ * @dev: PCI device to power up
-+ */
-+void pci_power_up(struct pci_dev *dev)
++static const __maybe_unused struct midr_range tx2_family_cpus[] = {
++	MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
++	MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
++	{},
++};
++
++static bool __maybe_unused
++needs_tx2_tvm_workaround(const struct arm64_cpu_capabilities *entry,
++			 int scope)
 +{
-+	__pci_start_power_transition(dev, PCI_D0);
-+	pci_raw_set_power_state(dev, PCI_D0);
-+	pci_update_current_state(dev, PCI_D0);
++	int i;
++
++	if (!is_affected_midr_range_list(entry, scope) ||
++	    !is_hyp_mode_available())
++		return false;
++
++	for_each_possible_cpu(i) {
++		if (MPIDR_AFFINITY_LEVEL(cpu_logical_map(i), 0) != 0)
++			return true;
++	}
++
++	return false;
 +}
 +
-+/**
-  * pci_choose_state - Choose the power state of a PCI device
-  * @dev: PCI device to be suspended
-  * @state: target sleep state for the whole system. This is the value
+ #ifdef CONFIG_HARDEN_EL2_VECTORS
+ 
+ static const struct midr_range arm64_harden_el2_vectors[] = {
+@@ -802,6 +827,14 @@ const struct arm64_cpu_capabilities arm6
+ 		.matches = has_cortex_a76_erratum_1463225,
+ 	},
+ #endif
++#ifdef CONFIG_CAVIUM_TX2_ERRATUM_219
++	{
++		.desc = "Cavium ThunderX2 erratum 219 (KVM guest sysreg trapping)",
++		.capability = ARM64_WORKAROUND_CAVIUM_TX2_219_TVM,
++		ERRATA_MIDR_RANGE_LIST(tx2_family_cpus),
++		.matches = needs_tx2_tvm_workaround,
++	},
++#endif
+ 	{
+ 	}
+ };
 
 
