@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90A8EE69B7
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:38:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B366E68D3
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728321AbfJ0VD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:03:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48664 "EHLO mail.kernel.org"
+        id S1730529AbfJ0VOv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:14:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728306AbfJ0VDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:03:24 -0400
+        id S1730520AbfJ0VOr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:14:47 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCEB02064A;
-        Sun, 27 Oct 2019 21:03:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0B5D205C9;
+        Sun, 27 Oct 2019 21:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210202;
-        bh=eC4kqw7y8Mry2Ild5BsQkv6oXMEROa9mGIErhvejQ3I=;
+        s=default; t=1572210886;
+        bh=nXrWP2wHk09raeSq2KLpKPpeF6JLbFUfCYLlZRKqu0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjzO3V50FY1XlfezAExQyH5RNWEohjXyoGX748crcobSA0V9GPNDAn+br1LBc+FwP
-         //yDKO8O6ZUnqCT1HSmYd4+J4s5P6uREypb+48xPeWdDwCBy/y51QuviF8vK9MUgQL
-         oBBGlPCZzVz6OKs1/dRmxPG+KPCqPFCGgxqnZ//I=
+        b=gp5EwC8PTH3cOIBL1rvU0Qfrd6/ExXK+sjIjSNsqCHE3fvJanINEmQ/K6QEx6xoK7
+         xRHjMzzfF1jG/YtGPUezroVv6GRs9ILQCEpYHIn5wMZw7whIN6H+lAchu6J9LEVMAV
+         cVOd77co95C4M3c6c6B+Vs8uBuZ6MRooTXgxB544=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
         Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 25/41] scsi: core: try to get module before removing device
+Subject: [PATCH 4.19 51/93] scsi: core: try to get module before removing device
 Date:   Sun, 27 Oct 2019 22:01:03 +0100
-Message-Id: <20191027203121.568006673@linuxfoundation.org>
+Message-Id: <20191027203301.071664796@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-References: <20191027203056.220821342@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -106,7 +106,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/scsi/scsi_sysfs.c
 +++ b/drivers/scsi/scsi_sysfs.c
-@@ -679,6 +679,14 @@ sdev_store_delete(struct device *dev, st
+@@ -723,6 +723,14 @@ sdev_store_delete(struct device *dev, st
  		  const char *buf, size_t count)
  {
  	struct kernfs_node *kn;
@@ -121,7 +121,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	kn = sysfs_break_active_protection(&dev->kobj, &attr->attr);
  	WARN_ON_ONCE(!kn);
-@@ -693,9 +701,10 @@ sdev_store_delete(struct device *dev, st
+@@ -737,9 +745,10 @@ sdev_store_delete(struct device *dev, st
  	 * state into SDEV_DEL.
  	 */
  	device_remove_file(dev, attr);
