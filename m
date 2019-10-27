@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF9D0E68A4
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F39CE6913
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730737AbfJ0VP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35368 "EHLO mail.kernel.org"
+        id S1729040AbfJ0VeC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:34:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730718AbfJ0VP4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:15:56 -0400
+        id S1729074AbfJ0VLq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:11:46 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1E94205C9;
-        Sun, 27 Oct 2019 21:15:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1359D205C9;
+        Sun, 27 Oct 2019 21:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210955;
-        bh=8IOV29BNjDY+REp3WUyqDVAt2o6u+fOSAlETP48YXZE=;
+        s=default; t=1572210705;
+        bh=gQSgm9615ylTqStbQ+zmWn2KzgDQK2vHXBXyg1Y7cJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hr0pqfHjpSBNS8p9sB0LYq1W1T43P2Xqbm1Wx1BbsxJuVy33RlO5SKyQyCinBOKLO
-         c1k/Is5GTFeKlYmnVi3MDP7qG2EwiF6ZyIYYBgBaeRVyqH/TWTUnEmZjX5Kq+Awhup
-         oYi8YPitjvuALjLIF9+7cvCA9huC7xv4ZX8FDAQg=
+        b=z78QIg3HMWqrpMDF/QI9pHg2HqJSnmRL4TzUbHYkIv7pYte6A5z/Azftb6kixua2F
+         z21Fqp0oWNvtsSXbC+No59/3Ev/21JsGdqfiB9Fdmp8c1Xf9JiGUq9ZZwtDFFDXGIy
+         BBaT9zx4YdRTMJWM9UvQuHB5da9g84kIzmmPgGA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.19 73/93] arm64: Enable workaround for Cavium TX2 erratum 219 when running SMT
-Date:   Sun, 27 Oct 2019 22:01:25 +0100
-Message-Id: <20191027203310.113079555@linuxfoundation.org>
+        stable@vger.kernel.org, Patrick Williams <alpawi@amazon.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 4.14 109/119] pinctrl: armada-37xx: swap polarity on LED group
+Date:   Sun, 27 Oct 2019 22:01:26 +0100
+Message-Id: <20191027203349.467637020@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Patrick Williams <alpawi@amazon.com>
 
-commit 93916beb70143c46bf1d2bacf814be3a124b253b upstream.
+commit b835d6953009dc350d61402a854b5a7178d8c615 upstream.
 
-It appears that the only case where we need to apply the TX2_219_TVM
-mitigation is when the core is in SMT mode. So let's condition the
-enabling on detecting a CPU whose MPIDR_EL1.Aff0 is non-zero.
+The configuration registers for the LED group have inverted
+polarity, which puts the GPIO into open-drain state when used in
+GPIO mode.  Switch to '0' for GPIO and '1' for LED modes.
 
+Fixes: 87466ccd9401 ("pinctrl: armada-37xx: Add pin controller support for Armada 37xx")
+Signed-off-by: Patrick Williams <alpawi@amazon.com>
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20191001155154.99710-1-alpawi@amazon.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/cpu_errata.c |   33 +++++++++++++++++++++++++++++++++
- 1 file changed, 33 insertions(+)
+ drivers/pinctrl/mvebu/pinctrl-armada-37xx.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -23,6 +23,7 @@
- #include <asm/cpu.h>
- #include <asm/cputype.h>
- #include <asm/cpufeature.h>
-+#include <asm/smp_plat.h>
+--- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
++++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
+@@ -170,10 +170,10 @@ static struct armada_37xx_pin_group arma
+ 	PIN_GRP_EXTRA("uart2", 9, 2, BIT(1) | BIT(13) | BIT(14) | BIT(19),
+ 		      BIT(1) | BIT(13) | BIT(14), BIT(1) | BIT(19),
+ 		      18, 2, "gpio", "uart"),
+-	PIN_GRP_GPIO("led0_od", 11, 1, BIT(20), "led"),
+-	PIN_GRP_GPIO("led1_od", 12, 1, BIT(21), "led"),
+-	PIN_GRP_GPIO("led2_od", 13, 1, BIT(22), "led"),
+-	PIN_GRP_GPIO("led3_od", 14, 1, BIT(23), "led"),
++	PIN_GRP_GPIO_2("led0_od", 11, 1, BIT(20), BIT(20), 0, "led"),
++	PIN_GRP_GPIO_2("led1_od", 12, 1, BIT(21), BIT(21), 0, "led"),
++	PIN_GRP_GPIO_2("led2_od", 13, 1, BIT(22), BIT(22), 0, "led"),
++	PIN_GRP_GPIO_2("led3_od", 14, 1, BIT(23), BIT(23), 0, "led"),
  
- static bool __maybe_unused
- is_affected_midr_range(const struct arm64_cpu_capabilities *entry, int scope)
-@@ -618,6 +619,30 @@ check_branch_predictor(const struct arm6
- 	return (need_wa > 0);
- }
- 
-+static const __maybe_unused struct midr_range tx2_family_cpus[] = {
-+	MIDR_ALL_VERSIONS(MIDR_BRCM_VULCAN),
-+	MIDR_ALL_VERSIONS(MIDR_CAVIUM_THUNDERX2),
-+	{},
-+};
-+
-+static bool __maybe_unused
-+needs_tx2_tvm_workaround(const struct arm64_cpu_capabilities *entry,
-+			 int scope)
-+{
-+	int i;
-+
-+	if (!is_affected_midr_range_list(entry, scope) ||
-+	    !is_hyp_mode_available())
-+		return false;
-+
-+	for_each_possible_cpu(i) {
-+		if (MPIDR_AFFINITY_LEVEL(cpu_logical_map(i), 0) != 0)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- #ifdef CONFIG_HARDEN_EL2_VECTORS
- 
- static const struct midr_range arm64_harden_el2_vectors[] = {
-@@ -802,6 +827,14 @@ const struct arm64_cpu_capabilities arm6
- 		.matches = has_cortex_a76_erratum_1463225,
- 	},
- #endif
-+#ifdef CONFIG_CAVIUM_TX2_ERRATUM_219
-+	{
-+		.desc = "Cavium ThunderX2 erratum 219 (KVM guest sysreg trapping)",
-+		.capability = ARM64_WORKAROUND_CAVIUM_TX2_219_TVM,
-+		ERRATA_MIDR_RANGE_LIST(tx2_family_cpus),
-+		.matches = needs_tx2_tvm_workaround,
-+	},
-+#endif
- 	{
- 	}
  };
+ 
 
 
