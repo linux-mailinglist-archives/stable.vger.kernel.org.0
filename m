@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F81E66E5
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:16:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDCECE679F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730800AbfJ0VQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:16:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35814 "EHLO mail.kernel.org"
+        id S1732209AbfJ0VWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:22:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730791AbfJ0VQP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:16:15 -0400
+        id S1732204AbfJ0VWl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:22:41 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83D9B21783;
-        Sun, 27 Oct 2019 21:16:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB4FA205C9;
+        Sun, 27 Oct 2019 21:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210975;
-        bh=3iJ3qKVbyTkIAzRYUW0YRonG/XHJgsleQiyTF+dZR08=;
+        s=default; t=1572211360;
+        bh=V6ng7xpzLPI3DMpBaiK2pJdhQwz26GI1Xsq0xxxcOA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gORjVdwfPOqd/yJsWmH+mmvg2A/W8H/gMAinWQpa6Pz/vSTPy2tg4TZoyrzYcPLps
-         oySJPsC9IjKS9ZiPExFnpynCWRhM7W+kTdzkK8x4tG1P6cdJ0Q0sVQEQVcG7odATCK
-         4082dRGFYLhZDq9cu1Q81hy/xk3O+sDbBW4SzSWM=
+        b=UZi6TzBKl9RbmP5lFhM6s9naaYbrMp018vMR40LfWGLShfZQ43GbXIaj+b+vVBHE6
+         8UQpJO6sGf/FDkYqDrop+u7/ZjTDJlTsyPvIsNLpBFszKFB1P9Y0uhVEWuUFEVmCQG
+         9NhAf6FpUUMGywto9NhzopRgeVJK4iyZQEEPNvB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Doug Berger <opendmb@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 28/93] net: bcmgenet: Fix RGMII_MODE_EN value for GENET v1/2/3
-Date:   Sun, 27 Oct 2019 22:00:40 +0100
-Message-Id: <20191027203256.762646938@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Nicolas Waisman <nico@semmle.com>,
+        Will Deacon <will@kernel.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.3 123/197] mac80211: Reject malformed SSID elements
+Date:   Sun, 27 Oct 2019 22:00:41 +0100
+Message-Id: <20191027203358.376623458@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit efb86fede98cdc70b674692ff617b1162f642c49 ]
+commit 4152561f5da3fca92af7179dd538ea89e248f9d0 upstream.
 
-The RGMII_MODE_EN bit value was 0 for GENET versions 1 through 3, and
-became 6 for GENET v4 and above, account for that difference.
+Although this shouldn't occur in practice, it's a good idea to bounds
+check the length field of the SSID element prior to using it for things
+like allocations or memcpy operations.
 
-Fixes: aa09677cba42 ("net: bcmgenet: add MDIO routines")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Acked-by: Doug Berger <opendmb@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20191004095132.15777-1-will@kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/genet/bcmgenet.h |    1 +
- drivers/net/ethernet/broadcom/genet/bcmmii.c   |    6 +++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.h
-@@ -369,6 +369,7 @@ struct bcmgenet_mib_counters {
- #define  EXT_PWR_DOWN_PHY_EN		(1 << 20)
+---
+ net/mac80211/mlme.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2629,7 +2629,8 @@ struct sk_buff *ieee80211_ap_probereq_ge
  
- #define EXT_RGMII_OOB_CTRL		0x0C
-+#define  RGMII_MODE_EN_V123		(1 << 0)
- #define  RGMII_LINK			(1 << 4)
- #define  OOB_DISABLE			(1 << 5)
- #define  RGMII_MODE_EN			(1 << 6)
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -261,7 +261,11 @@ int bcmgenet_mii_config(struct net_devic
- 	 */
- 	if (priv->ext_phy) {
- 		reg = bcmgenet_ext_readl(priv, EXT_RGMII_OOB_CTRL);
--		reg |= RGMII_MODE_EN | id_mode_dis;
-+		reg |= id_mode_dis;
-+		if (GENET_IS_V1(priv) || GENET_IS_V2(priv) || GENET_IS_V3(priv))
-+			reg |= RGMII_MODE_EN_V123;
-+		else
-+			reg |= RGMII_MODE_EN;
- 		bcmgenet_ext_writel(priv, reg, EXT_RGMII_OOB_CTRL);
- 	}
+ 	rcu_read_lock();
+ 	ssid = ieee80211_bss_get_ie(cbss, WLAN_EID_SSID);
+-	if (WARN_ON_ONCE(ssid == NULL))
++	if (WARN_ONCE(!ssid || ssid[1] > IEEE80211_MAX_SSID_LEN,
++		      "invalid SSID element (len=%d)", ssid ? ssid[1] : -1))
+ 		ssid_len = 0;
+ 	else
+ 		ssid_len = ssid[1];
+@@ -5227,7 +5228,7 @@ int ieee80211_mgd_assoc(struct ieee80211
  
+ 	rcu_read_lock();
+ 	ssidie = ieee80211_bss_get_ie(req->bss, WLAN_EID_SSID);
+-	if (!ssidie) {
++	if (!ssidie || ssidie[1] > sizeof(assoc_data->ssid)) {
+ 		rcu_read_unlock();
+ 		kfree(assoc_data);
+ 		return -EINVAL;
 
 
