@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F65E66CC
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:16:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0E66E67A3
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730628AbfJ0VPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:15:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
+        id S1731587AbfJ0VWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730591AbfJ0VPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:15:07 -0400
+        id S1732245AbfJ0VWw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:22:52 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34036214AF;
-        Sun, 27 Oct 2019 21:15:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D06F205C9;
+        Sun, 27 Oct 2019 21:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210906;
-        bh=Btr509zcY8sglwO9PqXNHTttCMolbSlE3k5KFWWtbpQ=;
+        s=default; t=1572211371;
+        bh=d7BXlQMeshVMcQHLgh1CG8CHXyxlJSuwgcNotI58I5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MlLpcd1EyWe/oYNpgEVB50E8XHsuyaI8OFuG5ii6J+7oKO7wLehUv7RNZp1p1Urxv
-         b7tHUEBb7anQytWGDFE6LgNvg5tbJQBCWmyO/1wCwb5aXeOYKl6HcSrjDaT1l6sHU2
-         8WqfnVETs72NDOgK0t8vfDNKpIkWG91sd8P6ugNc=
+        b=yjis6Ax6qCzquvNJTrwXm4zHL2t1p8NXeGB7TcdoxtdSUidu85Zl3viI6Fh3S9Lnj
+         jO7dJTjmdOEtbEtmm89TfUYu+RRhTvrjm30f3e+lz/GY8UE7qUeAxh2ZTUyk7d8DiS
+         daidl9dg5UqR61F+sB0/0ogQCrzyjyOQffIgDZIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 31/93] net/ibmvnic: Fix EOI when running in XIVE mode.
-Date:   Sun, 27 Oct 2019 22:00:43 +0100
-Message-Id: <20191027203257.252862748@linuxfoundation.org>
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Steven Price <steven.price@arm.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.3 126/197] drm/panfrost: Handle resetting on timeout better
+Date:   Sun, 27 Oct 2019 22:00:44 +0100
+Message-Id: <20191027203358.534250985@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Cédric Le Goater" <clg@kaod.org>
+From: Steven Price <steven.price@arm.com>
 
-[ Upstream commit 11d49ce9f7946dfed4dcf5dbde865c78058b50ab ]
+commit 5b3ec8134f5f9fa1ed0a538441a495521078bbee upstream.
 
-pSeries machines on POWER9 processors can run with the XICS (legacy)
-interrupt mode or with the XIVE exploitation interrupt mode. These
-interrupt contollers have different interfaces for interrupt
-management : XICS uses hcalls and XIVE loads and stores on a page.
-H_EOI being a XICS interface the enable_scrq_irq() routine can fail
-when the machine runs in XIVE mode.
+Panfrost uses multiple schedulers (one for each slot, so 2 in reality),
+and on a timeout has to stop all the schedulers to safely perform a
+reset. However more than one scheduler can trigger a timeout at the same
+time. This race condition results in jobs being freed while they are
+still in use.
 
-Fix that by calling the EOI handler of the interrupt chip.
+When stopping other slots use cancel_delayed_work_sync() to ensure that
+any timeout started for that slot has completed. Also use
+mutex_trylock() to obtain reset_lock. This means that only one thread
+attempts the reset, the other threads will simply complete without doing
+anything (the first thread will wait for this in the call to
+cancel_delayed_work_sync()).
 
-Fixes: f23e0643cd0b ("ibmvnic: Clear pending interrupt after device reset")
-Signed-off-by: CÃ©dric Le Goater <clg@kaod.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+While we're here and since the function is already dependent on
+sched_job not being NULL, let's remove the unnecessary checks.
+
+Fixes: aa20236784ab ("drm/panfrost: Prevent concurrent resets")
+Tested-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191009094456.9704-1-steven.price@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/ibm/ibmvnic.c |    8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/ibm/ibmvnic.c
-+++ b/drivers/net/ethernet/ibm/ibmvnic.c
-@@ -2731,12 +2731,10 @@ static int enable_scrq_irq(struct ibmvni
+---
+ drivers/gpu/drm/panfrost/panfrost_job.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
+
+--- a/drivers/gpu/drm/panfrost/panfrost_job.c
++++ b/drivers/gpu/drm/panfrost/panfrost_job.c
+@@ -384,13 +384,19 @@ static void panfrost_job_timedout(struct
+ 		job_read(pfdev, JS_TAIL_LO(js)),
+ 		sched_job);
  
- 	if (adapter->resetting &&
- 	    adapter->reset_reason == VNIC_RESET_MOBILITY) {
--		u64 val = (0xff000000) | scrq->hw_irq;
-+		struct irq_desc *desc = irq_to_desc(scrq->irq);
-+		struct irq_chip *chip = irq_desc_get_chip(desc);
+-	mutex_lock(&pfdev->reset_lock);
++	if (!mutex_trylock(&pfdev->reset_lock))
++		return;
  
--		rc = plpar_hcall_norets(H_EOI, val);
--		if (rc)
--			dev_err(dev, "H_EOI FAILED irq 0x%llx. rc=%ld\n",
--				val, rc);
-+		chip->irq_eoi(&desc->irq_data);
- 	}
+-	for (i = 0; i < NUM_JOB_SLOTS; i++)
+-		drm_sched_stop(&pfdev->js->queue[i].sched, sched_job);
++	for (i = 0; i < NUM_JOB_SLOTS; i++) {
++		struct drm_gpu_scheduler *sched = &pfdev->js->queue[i].sched;
  
- 	rc = plpar_hcall_norets(H_VIOCTL, adapter->vdev->unit_address,
+-	if (sched_job)
+-		drm_sched_increase_karma(sched_job);
++		drm_sched_stop(sched, sched_job);
++		if (js != i)
++			/* Ensure any timeouts on other slots have finished */
++			cancel_delayed_work_sync(&sched->work_tdr);
++	}
++
++	drm_sched_increase_karma(sched_job);
+ 
+ 	/* panfrost_core_dump(pfdev); */
+ 
 
 
