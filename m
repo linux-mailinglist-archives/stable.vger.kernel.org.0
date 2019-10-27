@@ -2,36 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE08DE6825
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B0BE67DB
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728860AbfJ0VYw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:24:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46532 "EHLO mail.kernel.org"
+        id S1731600AbfJ0VY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:24:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46586 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732607AbfJ0VYv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:24:51 -0400
+        id S1732607AbfJ0VYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:24:55 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5232A21848;
-        Sun, 27 Oct 2019 21:24:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 799552064A;
+        Sun, 27 Oct 2019 21:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211490;
-        bh=n5SPVYOGa0Hne9esLU2PNZLxEkZ0+lzMCBm6UmU2O58=;
+        s=default; t=1572211495;
+        bh=q5B/yQeXzBm8k6uC+pLPwwWwKzsG+wyhHgoE4s85yVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fnlQ/6dQV6iTG8ZitVg8LOVrhposB6kOkGklltZSpEhfFBo2b7QumkI/lEtK5JlL/
-         rEXmgZ6GDv4HVMyme1a7ADj0cvVEvqcUm0HS59RJvIFZjMMEj8Q+pdD/Wy0KPOk3n8
-         Jn3/nvhyq7ugV9+4zUEnQaLISYVcZIZEaxZxE1uU=
+        b=UFnxUj3eo7mAQPC4Fo52wfV6CAoq2QWheq7Lwn40zA+ryunmBZW7tO4QX0mPciPHA
+         OYsy3lCNNEO5Qm9izWc5M5l/cC2bekyrzl4s8GQxTq2RH/ddtSRCAVaeSjsS9DoOzV
+         ai/hbtqYH+WxukadvTGKEHB4wThG5sXKarw62Djw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.3 169/197] CIFS: Fix use after free of file info structures
-Date:   Sun, 27 Oct 2019 22:01:27 +0100
-Message-Id: <20191027203403.639707713@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.3 170/197] perf/aux: Fix AUX output stopping
+Date:   Sun, 27 Oct 2019 22:01:28 +0100
+Message-Id: <20191027203403.772778913@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -44,65 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 1a67c415965752879e2e9fad407bc44fc7f25f23 upstream.
+commit f3a519e4add93b7b31a6616f0b09635ff2e6a159 upstream.
 
-Currently the code assumes that if a file info entry belongs
-to lists of open file handles of an inode and a tcon then
-it has non-zero reference. The recent changes broke that
-assumption when putting the last reference of the file info.
-There may be a situation when a file is being deleted but
-nothing prevents another thread to reference it again
-and start using it. This happens because we do not hold
-the inode list lock while checking the number of references
-of the file info structure. Fix this by doing the proper
-locking when doing the check.
+Commit:
 
-Fixes: 487317c99477d ("cifs: add spinlock for the openFileList to cifsInodeInfo")
-Fixes: cb248819d209d ("cifs: use cifsInodeInfo->open_file_lock while iterating to avoid a panic")
-Cc: Stable <stable@vger.kernel.org>
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+  8a58ddae2379 ("perf/core: Fix exclusive events' grouping")
+
+allows CAP_EXCLUSIVE events to be grouped with other events. Since all
+of those also happen to be AUX events (which is not the case the other
+way around, because arch/s390), this changes the rules for stopping the
+output: the AUX event may not be on its PMU's context any more, if it's
+grouped with a HW event, in which case it will be on that HW event's
+context instead. If that's the case, munmap() of the AUX buffer can't
+find and stop the AUX event, potentially leaving the last reference with
+the atomic context, which will then end up freeing the AUX buffer. This
+will then trip warnings:
+
+Fix this by using the context's PMU context when looking for events
+to stop, instead of the event's PMU context.
+
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191022073940.61814-1-alexander.shishkin@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/file.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/events/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -405,10 +405,11 @@ void _cifsFileInfo_put(struct cifsFileIn
- 	bool oplock_break_cancelled;
- 
- 	spin_lock(&tcon->open_file_lock);
--
-+	spin_lock(&cifsi->open_file_lock);
- 	spin_lock(&cifs_file->file_info_lock);
- 	if (--cifs_file->count > 0) {
- 		spin_unlock(&cifs_file->file_info_lock);
-+		spin_unlock(&cifsi->open_file_lock);
- 		spin_unlock(&tcon->open_file_lock);
- 		return;
- 	}
-@@ -421,9 +422,7 @@ void _cifsFileInfo_put(struct cifsFileIn
- 	cifs_add_pending_open_locked(&fid, cifs_file->tlink, &open);
- 
- 	/* remove it from the lists */
--	spin_lock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->flist);
--	spin_unlock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->tlist);
- 	atomic_dec(&tcon->num_local_opens);
- 
-@@ -440,6 +439,7 @@ void _cifsFileInfo_put(struct cifsFileIn
- 		cifs_set_oplock_level(cifsi, 0);
- 	}
- 
-+	spin_unlock(&cifsi->open_file_lock);
- 	spin_unlock(&tcon->open_file_lock);
- 
- 	oplock_break_cancelled = wait_oplock_handler ?
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6839,7 +6839,7 @@ static void __perf_event_output_stop(str
+ static int __perf_pmu_output_stop(void *info)
+ {
+ 	struct perf_event *event = info;
+-	struct pmu *pmu = event->pmu;
++	struct pmu *pmu = event->ctx->pmu;
+ 	struct perf_cpu_context *cpuctx = this_cpu_ptr(pmu->pmu_cpu_context);
+ 	struct remote_output ro = {
+ 		.rb	= event->rb,
 
 
