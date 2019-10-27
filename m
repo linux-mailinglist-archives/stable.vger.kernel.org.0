@@ -2,251 +2,304 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD0B6E6436
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 17:24:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 638B2E646E
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726817AbfJ0QYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 12:24:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49344 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726796AbfJ0QYs (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 12:24:48 -0400
-Received: from archlinux (cpc149474-cmbg20-2-0-cust94.5-4.cable.virginm.net [82.4.196.95])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C5B9214AF;
-        Sun, 27 Oct 2019 16:24:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572193486;
-        bh=7CxSVaCmpBSmJBldFUW1mN06d37PpbyhFpePM6EfMao=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=DabJdPOL1eH6HQgeocxByhYlH11DzUmJ3W6l4Ygc8PAWgd3sU0wUg0Bkk/5LbVUCo
-         o+GPiF9k9PrilwFXXPpsSf3deK0DBu9S5GPZDJi7B56aQ5595480ByXH6m2HnJkUg0
-         EZEfvpgV5nGgUlWwxMjVu4MTgeBh+DKOBZSLQk8E=
-Date:   Sun, 27 Oct 2019 16:24:40 +0000
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>
-Cc:     <linux-iio@vger.kernel.org>, Lars-Peter Clausen <lars@metafoo.de>,
-        Michael Hennerich <Michael.Hennerich@analog.com>,
-        Hartmut Knaack <knaack.h@gmx.de>,
-        Peter Meerwald-Stadler <pmeerw@pmeerw.net>,
-        <Stable@vger.kernel.org>
-Subject: Re: [PATCH 1/2] iio: adis16480: Fix scales factors
-Message-ID: <20191027162440.1fadebfe@archlinux>
-In-Reply-To: <20191025124508.166648-1-nuno.sa@analog.com>
-References: <20191025124508.166648-1-nuno.sa@analog.com>
-X-Mailer: Claws Mail 3.17.4 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1727648AbfJ0RWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 13:22:43 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:47133 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726884AbfJ0RWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:22:43 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id A6B4122131;
+        Sun, 27 Oct 2019 13:22:41 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:22:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+NEqGp
+        AMUGnaZJcWFEQWZwuw0XJmJCQMVIuAvC7kdDY=; b=V4Ot8p54/d9VhOePZuveLO
+        Rf9eII8ZDPGF/Rk6QTrOgVUqkPChp3brInz8Ow3LZ2mgJ2iumfQC8vQu62oNHy2E
+        ldcsT13vJXhEwdCqF9j4FpBxt5I0HhPYlToUNMtIJfUa2fr1fT7Znom9Gp0aagVD
+        bzkkCcv8jIPslqAiRKJaTcUOnGcO3cVwynZMlGhDzwbUeMKgAg4qrFKPsxhE7DyH
+        CJWuaMuaoKRu/8ulsAdoacA4ksSOfxqKXL2Ek6JLY8+guuzNbWz1dpIaZMhXOi8u
+        6Yen1tzwNOtlZ2ENgvbi9j+LmribcDpnGqBCyImGRA6a1lhPfwnQdIyIuz4HWz2w
+        ==
+X-ME-Sender: <xms:YdK1XbqJKTo-Z9zGECx_woCqksN362ONJStf9G8lAlXTef4gcVGPkg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgddutdehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehrvgguhhgrthdrtghomhenucfkphepjeejrdduheekrdehtd
+    druddttdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:YdK1XRvT-VoLN-5LVItT_1Y1v3q84Dx_6iBHregKpHgAAjSKzmK81g>
+    <xmx:YdK1XRkrimS8eNE_PXFNjVAQrUrnhggWfjkarAMOEnXoQbpB9vdV9w>
+    <xmx:YdK1XXGmMB4TrYu8rpW4h7IoeMr3oLGCcReD2iwC_PDPBc-cNah7Vw>
+    <xmx:YdK1XVQ5Vms6ZoIyRw4FiE9VI0THWYw3X7JGpDt4m4sMdKkgsMDq-A>
+Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 35A01D6005B;
+        Sun, 27 Oct 2019 13:22:41 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] dm snapshot: rework COW throttling to fix deadlock" failed to apply to 5.3-stable tree
+To:     mpatocka@redhat.com, guru2018@gmail.com, ntsironis@arrikto.com,
+        snitzer@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 27 Oct 2019 16:37:28 +0100
+Message-ID: <157219064719033@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 25 Oct 2019 14:45:07 +0200
-Nuno S=C3=A1 <nuno.sa@analog.com> wrote:
 
-> This patch fixes the scales for the gyroscope, accelerometer and
-> barometer. The pressure scale was just wrong. For the others, the scale
-> factors were not taking into account that a 32bit word is being read
-> from the device.
->=20
-> Fixes: 7abad1063deb ("iio: adis16480: Fix scale factors")
-> Fixes: 9fe09f1337ee ("iio: imu: adis16480: Add support for ADIS1649x fami=
-ly of devices")
-> Fixes: 49c4a18357c8 ("iio: imu: adis16480: Add support for ADIS16490")
-> Cc: <Stable@vger.kernel.org>
->=20
-> Signed-off-by: Nuno S=C3=A1 <nuno.sa@analog.com>
+The patch below does not apply to the 5.3-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I can see why this was wrong.  The adis16375 data sheet presents what looks
-like a nice easy to understand table with the values stated (Table 14) but
-that only covers the upper 16 bits.
+thanks,
 
-Anyhow, fix seems correct to me. The snag is going to be that backporting
-is going to be tricky.
+greg k-h
 
-Also, that second fixes tag appears to be non existent in my tree or
-mainline.  Could you fix that and resend.
+------------------ original commit in Linus's tree ------------------
 
-Thanks,
+From b21555786f18cd77f2311ad89074533109ae3ffa Mon Sep 17 00:00:00 2001
+From: Mikulas Patocka <mpatocka@redhat.com>
+Date: Wed, 2 Oct 2019 06:15:53 -0400
+Subject: [PATCH] dm snapshot: rework COW throttling to fix deadlock
 
-Jonathan
+Commit 721b1d98fb517a ("dm snapshot: Fix excessive memory usage and
+workqueue stalls") introduced a semaphore to limit the maximum number of
+in-flight kcopyd (COW) jobs.
 
+The implementation of this throttling mechanism is prone to a deadlock:
 
-> ---
->  drivers/iio/imu/adis16480.c | 77 ++++++++++++++++++++-----------------
->  1 file changed, 41 insertions(+), 36 deletions(-)
->=20
-> diff --git a/drivers/iio/imu/adis16480.c b/drivers/iio/imu/adis16480.c
-> index b99d73887c9f..3b53bbb11bfb 100644
-> --- a/drivers/iio/imu/adis16480.c
-> +++ b/drivers/iio/imu/adis16480.c
-> @@ -620,9 +620,13 @@ static int adis16480_read_raw(struct iio_dev *indio_=
-dev,
->  			*val2 =3D (st->chip_info->temp_scale % 1000) * 1000;
->  			return IIO_VAL_INT_PLUS_MICRO;
->  		case IIO_PRESSURE:
-> -			*val =3D 0;
-> -			*val2 =3D 4000; /* 40ubar =3D 0.004 kPa */
-> -			return IIO_VAL_INT_PLUS_MICRO;
-> +			/*
-> +			 * max scale is 1310 mbar
-> +			 * max raw value is 32767 shifted for 32bits
-> +			 */
-> +			*val =3D 131; /* 1310mbar =3D 131 kPa */
-> +			*val2 =3D 32767 << 16;
-> +			return IIO_VAL_FRACTIONAL;
->  		default:
->  			return -EINVAL;
->  		}
-> @@ -783,13 +787,14 @@ static const struct adis16480_chip_info adis16480_c=
-hip_info[] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
->  		/*
-> -		 * storing the value in rad/degree and the scale in degree
-> -		 * gives us the result in rad and better precession than
-> -		 * storing the scale directly in rad.
-> +		 * Typically we do IIO_RAD_TO_DEGREE in the denominator, which
-> +		 * is exactly the same as IIO_DEGREE_TO_RAD in numerator, since
-> +		 * it gives better approximation. However, in this case we
-> +		 * cannot do it since it would not fit in a 32bit variable.
->  		 */
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(22887),
-> -		.gyro_max_scale =3D 300,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(21973),
-> +		.gyro_max_val =3D 22887 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(300),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(21973 << 16),
->  		.accel_max_scale =3D 18,
->  		.temp_scale =3D 5650, /* 5.65 milli degree Celsius */
->  		.int_clk =3D 2460000,
-> @@ -799,9 +804,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16480] =3D {
->  		.channels =3D adis16480_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16480_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(22500),
-> -		.gyro_max_scale =3D 450,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(12500),
-> +		.gyro_max_val =3D 22500 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(450),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(12500 << 16),
->  		.accel_max_scale =3D 10,
->  		.temp_scale =3D 5650, /* 5.65 milli degree Celsius */
->  		.int_clk =3D 2460000,
-> @@ -811,9 +816,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16485] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(22500),
-> -		.gyro_max_scale =3D 450,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(20000),
-> +		.gyro_max_val =3D 22500 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(450),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(20000 << 16),
->  		.accel_max_scale =3D 5,
->  		.temp_scale =3D 5650, /* 5.65 milli degree Celsius */
->  		.int_clk =3D 2460000,
-> @@ -823,9 +828,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16488] =3D {
->  		.channels =3D adis16480_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16480_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(22500),
-> -		.gyro_max_scale =3D 450,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(22500),
-> +		.gyro_max_val =3D 22500 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(450),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(22500 << 16),
->  		.accel_max_scale =3D 18,
->  		.temp_scale =3D 5650, /* 5.65 milli degree Celsius */
->  		.int_clk =3D 2460000,
-> @@ -835,9 +840,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16495_1] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(20000),
-> -		.gyro_max_scale =3D 125,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(32000),
-> +		.gyro_max_val =3D 20000 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(125),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(32000 << 16),
->  		.accel_max_scale =3D 8,
->  		.temp_scale =3D 12500, /* 12.5 milli degree Celsius */
->  		.int_clk =3D 4250000,
-> @@ -848,9 +853,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16495_2] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(18000),
-> -		.gyro_max_scale =3D 450,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(32000),
-> +		.gyro_max_val =3D 18000 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(450),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(32000 << 16),
->  		.accel_max_scale =3D 8,
->  		.temp_scale =3D 12500, /* 12.5 milli degree Celsius */
->  		.int_clk =3D 4250000,
-> @@ -861,9 +866,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16495_3] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(20000),
-> -		.gyro_max_scale =3D 2000,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(32000),
-> +		.gyro_max_val =3D 20000 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(2000),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(32000 << 16),
->  		.accel_max_scale =3D 8,
->  		.temp_scale =3D 12500, /* 12.5 milli degree Celsius */
->  		.int_clk =3D 4250000,
-> @@ -874,9 +879,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16497_1] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(20000),
-> -		.gyro_max_scale =3D 125,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(32000),
-> +		.gyro_max_val =3D 20000 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(125),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(32000 << 16),
->  		.accel_max_scale =3D 40,
->  		.temp_scale =3D 12500, /* 12.5 milli degree Celsius */
->  		.int_clk =3D 4250000,
-> @@ -887,9 +892,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16497_2] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(18000),
-> -		.gyro_max_scale =3D 450,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(32000),
-> +		.gyro_max_val =3D 18000 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(450),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(32000 << 16),
->  		.accel_max_scale =3D 40,
->  		.temp_scale =3D 12500, /* 12.5 milli degree Celsius */
->  		.int_clk =3D 4250000,
-> @@ -900,9 +905,9 @@ static const struct adis16480_chip_info adis16480_chi=
-p_info[] =3D {
->  	[ADIS16497_3] =3D {
->  		.channels =3D adis16485_channels,
->  		.num_channels =3D ARRAY_SIZE(adis16485_channels),
-> -		.gyro_max_val =3D IIO_RAD_TO_DEGREE(20000),
-> -		.gyro_max_scale =3D 2000,
-> -		.accel_max_val =3D IIO_M_S_2_TO_G(32000),
-> +		.gyro_max_val =3D 20000 << 16,
-> +		.gyro_max_scale =3D IIO_DEGREE_TO_RAD(2000),
-> +		.accel_max_val =3D IIO_M_S_2_TO_G(32000 << 16),
->  		.accel_max_scale =3D 40,
->  		.temp_scale =3D 12500, /* 12.5 milli degree Celsius */
->  		.int_clk =3D 4250000,
+1. One or more threads write to the origin device causing COW, which is
+   performed by kcopyd.
+
+2. At some point some of these threads might reach the s->cow_count
+   semaphore limit and block in down(&s->cow_count), holding a read lock
+   on _origins_lock.
+
+3. Someone tries to acquire a write lock on _origins_lock, e.g.,
+   snapshot_ctr(), which blocks because the threads at step (2) already
+   hold a read lock on it.
+
+4. A COW operation completes and kcopyd runs dm-snapshot's completion
+   callback, which ends up calling pending_complete().
+   pending_complete() tries to resubmit any deferred origin bios. This
+   requires acquiring a read lock on _origins_lock, which blocks.
+
+   This happens because the read-write semaphore implementation gives
+   priority to writers, meaning that as soon as a writer tries to enter
+   the critical section, no readers will be allowed in, until all
+   writers have completed their work.
+
+   So, pending_complete() waits for the writer at step (3) to acquire
+   and release the lock. This writer waits for the readers at step (2)
+   to release the read lock and those readers wait for
+   pending_complete() (the kcopyd thread) to signal the s->cow_count
+   semaphore: DEADLOCK.
+
+The above was thoroughly analyzed and documented by Nikos Tsironis as
+part of his initial proposal for fixing this deadlock, see:
+https://www.redhat.com/archives/dm-devel/2019-October/msg00001.html
+
+Fix this deadlock by reworking COW throttling so that it waits without
+holding any locks. Add a variable 'in_progress' that counts how many
+kcopyd jobs are running. A function wait_for_in_progress() will sleep if
+'in_progress' is over the limit. It drops _origins_lock in order to
+avoid the deadlock.
+
+Reported-by: Guruswamy Basavaiah <guru2018@gmail.com>
+Reported-by: Nikos Tsironis <ntsironis@arrikto.com>
+Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
+Tested-by: Nikos Tsironis <ntsironis@arrikto.com>
+Fixes: 721b1d98fb51 ("dm snapshot: Fix excessive memory usage and workqueue stalls")
+Cc: stable@vger.kernel.org # v5.0+
+Depends-on: 4a3f111a73a8c ("dm snapshot: introduce account_start_copy() and account_end_copy()")
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+
+diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
+index da3bd1794ee0..4fb1a40e68a0 100644
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -18,7 +18,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/log2.h>
+ #include <linux/dm-kcopyd.h>
+-#include <linux/semaphore.h>
+ 
+ #include "dm.h"
+ 
+@@ -107,8 +106,8 @@ struct dm_snapshot {
+ 	/* The on disk metadata handler */
+ 	struct dm_exception_store *store;
+ 
+-	/* Maximum number of in-flight COW jobs. */
+-	struct semaphore cow_count;
++	unsigned in_progress;
++	struct wait_queue_head in_progress_wait;
+ 
+ 	struct dm_kcopyd_client *kcopyd_client;
+ 
+@@ -162,8 +161,8 @@ struct dm_snapshot {
+  */
+ #define DEFAULT_COW_THRESHOLD 2048
+ 
+-static int cow_threshold = DEFAULT_COW_THRESHOLD;
+-module_param_named(snapshot_cow_threshold, cow_threshold, int, 0644);
++static unsigned cow_threshold = DEFAULT_COW_THRESHOLD;
++module_param_named(snapshot_cow_threshold, cow_threshold, uint, 0644);
+ MODULE_PARM_DESC(snapshot_cow_threshold, "Maximum number of chunks being copied on write");
+ 
+ DECLARE_DM_KCOPYD_THROTTLE_WITH_MODULE_PARM(snapshot_copy_throttle,
+@@ -1327,7 +1326,7 @@ static int snapshot_ctr(struct dm_target *ti, unsigned int argc, char **argv)
+ 		goto bad_hash_tables;
+ 	}
+ 
+-	sema_init(&s->cow_count, (cow_threshold > 0) ? cow_threshold : INT_MAX);
++	init_waitqueue_head(&s->in_progress_wait);
+ 
+ 	s->kcopyd_client = dm_kcopyd_client_create(&dm_kcopyd_throttle);
+ 	if (IS_ERR(s->kcopyd_client)) {
+@@ -1509,17 +1508,54 @@ static void snapshot_dtr(struct dm_target *ti)
+ 
+ 	dm_put_device(ti, s->origin);
+ 
++	WARN_ON(s->in_progress);
++
+ 	kfree(s);
+ }
+ 
+ static void account_start_copy(struct dm_snapshot *s)
+ {
+-	down(&s->cow_count);
++	spin_lock(&s->in_progress_wait.lock);
++	s->in_progress++;
++	spin_unlock(&s->in_progress_wait.lock);
+ }
+ 
+ static void account_end_copy(struct dm_snapshot *s)
+ {
+-	up(&s->cow_count);
++	spin_lock(&s->in_progress_wait.lock);
++	BUG_ON(!s->in_progress);
++	s->in_progress--;
++	if (likely(s->in_progress <= cow_threshold) &&
++	    unlikely(waitqueue_active(&s->in_progress_wait)))
++		wake_up_locked(&s->in_progress_wait);
++	spin_unlock(&s->in_progress_wait.lock);
++}
++
++static bool wait_for_in_progress(struct dm_snapshot *s, bool unlock_origins)
++{
++	if (unlikely(s->in_progress > cow_threshold)) {
++		spin_lock(&s->in_progress_wait.lock);
++		if (likely(s->in_progress > cow_threshold)) {
++			/*
++			 * NOTE: this throttle doesn't account for whether
++			 * the caller is servicing an IO that will trigger a COW
++			 * so excess throttling may result for chunks not required
++			 * to be COW'd.  But if cow_threshold was reached, extra
++			 * throttling is unlikely to negatively impact performance.
++			 */
++			DECLARE_WAITQUEUE(wait, current);
++			__add_wait_queue(&s->in_progress_wait, &wait);
++			__set_current_state(TASK_UNINTERRUPTIBLE);
++			spin_unlock(&s->in_progress_wait.lock);
++			if (unlock_origins)
++				up_read(&_origins_lock);
++			io_schedule();
++			remove_wait_queue(&s->in_progress_wait, &wait);
++			return false;
++		}
++		spin_unlock(&s->in_progress_wait.lock);
++	}
++	return true;
+ }
+ 
+ /*
+@@ -1537,7 +1573,7 @@ static void flush_bios(struct bio *bio)
+ 	}
+ }
+ 
+-static int do_origin(struct dm_dev *origin, struct bio *bio);
++static int do_origin(struct dm_dev *origin, struct bio *bio, bool limit);
+ 
+ /*
+  * Flush a list of buffers.
+@@ -1550,7 +1586,7 @@ static void retry_origin_bios(struct dm_snapshot *s, struct bio *bio)
+ 	while (bio) {
+ 		n = bio->bi_next;
+ 		bio->bi_next = NULL;
+-		r = do_origin(s->origin, bio);
++		r = do_origin(s->origin, bio, false);
+ 		if (r == DM_MAPIO_REMAPPED)
+ 			generic_make_request(bio);
+ 		bio = n;
+@@ -1926,6 +1962,11 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
+ 	if (!s->valid)
+ 		return DM_MAPIO_KILL;
+ 
++	if (bio_data_dir(bio) == WRITE) {
++		while (unlikely(!wait_for_in_progress(s, false)))
++			; /* wait_for_in_progress() has slept */
++	}
++
+ 	down_read(&s->lock);
+ 	dm_exception_table_lock(&lock);
+ 
+@@ -2122,7 +2163,7 @@ static int snapshot_merge_map(struct dm_target *ti, struct bio *bio)
+ 
+ 	if (bio_data_dir(bio) == WRITE) {
+ 		up_write(&s->lock);
+-		return do_origin(s->origin, bio);
++		return do_origin(s->origin, bio, false);
+ 	}
+ 
+ out_unlock:
+@@ -2497,15 +2538,24 @@ static int __origin_write(struct list_head *snapshots, sector_t sector,
+ /*
+  * Called on a write from the origin driver.
+  */
+-static int do_origin(struct dm_dev *origin, struct bio *bio)
++static int do_origin(struct dm_dev *origin, struct bio *bio, bool limit)
+ {
+ 	struct origin *o;
+ 	int r = DM_MAPIO_REMAPPED;
+ 
++again:
+ 	down_read(&_origins_lock);
+ 	o = __lookup_origin(origin->bdev);
+-	if (o)
++	if (o) {
++		if (limit) {
++			struct dm_snapshot *s;
++			list_for_each_entry(s, &o->snapshots, list)
++				if (unlikely(!wait_for_in_progress(s, true)))
++					goto again;
++		}
++
+ 		r = __origin_write(&o->snapshots, bio->bi_iter.bi_sector, bio);
++	}
+ 	up_read(&_origins_lock);
+ 
+ 	return r;
+@@ -2618,7 +2668,7 @@ static int origin_map(struct dm_target *ti, struct bio *bio)
+ 		dm_accept_partial_bio(bio, available_sectors);
+ 
+ 	/* Only tell snapshots if this is a write */
+-	return do_origin(o->dev, bio);
++	return do_origin(o->dev, bio, true);
+ }
+ 
+ /*
 
