@@ -2,37 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C25FE66AD
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:14:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 014D8E6823
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730432AbfJ0VOS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:14:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33228 "EHLO mail.kernel.org"
+        id S1731773AbfJ0VZE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:25:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730426AbfJ0VOS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:14:18 -0400
+        id S1732634AbfJ0VZB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:25:01 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05FCA21726;
-        Sun, 27 Oct 2019 21:14:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F29221848;
+        Sun, 27 Oct 2019 21:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210857;
-        bh=snwh3EKd/53QyFR5k10t0nDsAEQGi5MWIG+F2BMIzEw=;
+        s=default; t=1572211500;
+        bh=3v2CFzO8u+SwFTSx3GvJ7V2Rq8W5YnaxDv4MV1yXFjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fF9IvkRKTO1+DE5IPDDylCeoyyVwLat0cLOBBcQJzuBO5bJI9xDje6I1uOhuBciP5
-         fITXNo+vKIvR1JVWTGHpSq79nLsCoa3M1K3i9ZgcY7YPc9IeT7NTnnsthROSJhIadK
-         /Chc+qrafmmzuv06bE4nh0heQmlYU03hPMJO8Rds=
+        b=RFN7OwTOR+nPTbeHxx0iegMIZGOiGeeTqLXbJT0UdKTH+1aGKrjWjvwMUF8QHv8oC
+         ADknZ5a7f0pTmqEOZeBZ5Gj/xK7rpMybYJ1S5thHtcp83T+nOIZb5JQCNKKMFeBakT
+         5rSgFcYbrkhYZ8V6Ll4cjN4MFoEcEJ1H9CkdKP74=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 42/93] USB: serial: ti_usb_3410_5052: fix port-close races
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 136/197] drivers/base/memory.c: dont access uninitialized memmaps in soft_offline_page_store()
 Date:   Sun, 27 Oct 2019 22:00:54 +0100
-Message-Id: <20191027203258.624058230@linuxfoundation.org>
+Message-Id: <20191027203359.053510896@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit 6f1d1dc8d540a9aa6e39b9cb86d3a67bbc1c8d8d upstream.
+commit 641fe2e9387a36f9ee01d7c69382d1fe147a5e98 upstream.
 
-Fix races between closing a port and opening or closing another port on
-the same device which could lead to a failure to start or stop the
-shared interrupt URB. The latter could potentially cause a
-use-after-free or worse in the completion handler on driver unbind.
+Uninitialized memmaps contain garbage and in the worst case trigger kernel
+BUGs, especially with CONFIG_PAGE_POISONING.  They should not get touched.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Right now, when trying to soft-offline a PFN that resides on a memory
+block that was never onlined, one gets a misleading error with
+CONFIG_PAGE_POISONING:
+
+  :/# echo 5637144576 > /sys/devices/system/memory/soft_offline_page
+  [   23.097167] soft offline: 0x150000 page already poisoned
+
+But the actual result depends on the garbage in the memmap.
+
+soft_offline_page() can only work with online pages, it returns -EIO in
+case of ZONE_DEVICE.  Make sure to only forward pages that are online
+(iow, managed by the buddy) and, therefore, have an initialized memmap.
+
+Add a check against pfn_to_online_page() and similarly return -EIO.
+
+Link: http://lkml.kernel.org/r/20191010141200.8985-1-david@redhat.com
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online")	[visible after d0dc12e86b319]
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Acked-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.13+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/ti_usb_3410_5052.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/base/memory.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/serial/ti_usb_3410_5052.c
-+++ b/drivers/usb/serial/ti_usb_3410_5052.c
-@@ -776,7 +776,6 @@ static void ti_close(struct usb_serial_p
- 	struct ti_port *tport;
- 	int port_number;
- 	int status;
--	int do_unlock;
- 	unsigned long flags;
- 
- 	tdev = usb_get_serial_data(port->serial);
-@@ -800,16 +799,13 @@ static void ti_close(struct usb_serial_p
- 			"%s - cannot send close port command, %d\n"
- 							, __func__, status);
- 
--	/* if mutex_lock is interrupted, continue anyway */
--	do_unlock = !mutex_lock_interruptible(&tdev->td_open_close_lock);
-+	mutex_lock(&tdev->td_open_close_lock);
- 	--tport->tp_tdev->td_open_port_count;
--	if (tport->tp_tdev->td_open_port_count <= 0) {
-+	if (tport->tp_tdev->td_open_port_count == 0) {
- 		/* last port is closed, shut down interrupt urb */
- 		usb_kill_urb(port->serial->port[0]->interrupt_in_urb);
--		tport->tp_tdev->td_open_port_count = 0;
- 	}
--	if (do_unlock)
--		mutex_unlock(&tdev->td_open_close_lock);
-+	mutex_unlock(&tdev->td_open_close_lock);
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -554,6 +554,9 @@ static ssize_t soft_offline_page_store(s
+ 	pfn >>= PAGE_SHIFT;
+ 	if (!pfn_valid(pfn))
+ 		return -ENXIO;
++	/* Only online pages can be soft-offlined (esp., not ZONE_DEVICE). */
++	if (!pfn_to_online_page(pfn))
++		return -EIO;
+ 	ret = soft_offline_page(pfn_to_page(pfn), 0);
+ 	return ret == 0 ? count : ret;
  }
- 
- 
 
 
