@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A08E9E6906
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65837E68BF
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729968AbfJ0VLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58456 "EHLO mail.kernel.org"
+        id S1728554AbfJ0Vbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:31:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727643AbfJ0VLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:11:49 -0400
+        id S1730783AbfJ0VQS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:18 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1ABDC20873;
-        Sun, 27 Oct 2019 21:11:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 317DD205C9;
+        Sun, 27 Oct 2019 21:16:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210708;
-        bh=6gtE+bESW59NPm1mXQqI0kxfVsPL/7i+8MWDrhj3JRw=;
+        s=default; t=1572210977;
+        bh=kBixZciC+SwAD5N9IqEnDJit+WNCuEd8YTzQB0ENBSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G397yLYXAkBo9HwrI45diQS7FBJKHSnej4IgR5rPi9FarC0QN1m7Bmr/MObD1yHZb
-         4RPnSiPm/y/L2SFRH0JnPQtlXXPJQTbGwUKdyznDGJ3qNhpJxW0BEfIw8uKQp5ZLiX
-         f5RwQ1ezD/xQ1tn5TRIBXzjsfXgVhwjCiso7+Zi8=
+        b=2U7BFUZvPIVuLbuNx+N10fAKiXfT+savOGig0L88K8ulM5zIc+ct0r0JV8e2/gHla
+         ymgDq3gSS3Uhl3tPvNu6YPG7+2HxOijVDbmimRgbSuozPHq2/ClnloNxetgMR694/Z
+         KV/V8MOx1n2PEfE96DIKfrAx5s5q5uAO3abK1M4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anand Jain <anand.jain@oracle.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 110/119] btrfs: block-group: Fix a memory leak due to missing btrfs_put_block_group()
-Date:   Sun, 27 Oct 2019 22:01:27 +0100
-Message-Id: <20191027203349.523940873@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 4.19 76/93] perf/aux: Fix AUX output stopping
+Date:   Sun, 27 Oct 2019 22:01:28 +0100
+Message-Id: <20191027203311.208096055@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit 4b654acdae850f48b8250b9a578a4eaa518c7a6f upstream.
+commit f3a519e4add93b7b31a6616f0b09635ff2e6a159 upstream.
 
-In btrfs_read_block_groups(), if we have an invalid block group which
-has mixed type (DATA|METADATA) while the fs doesn't have MIXED_GROUPS
-feature, we error out without freeing the block group cache.
+Commit:
 
-This patch will add the missing btrfs_put_block_group() to prevent
-memory leak.
+  8a58ddae2379 ("perf/core: Fix exclusive events' grouping")
 
-Note for stable backports: the file to patch in versions <= 5.3 is
-fs/btrfs/extent-tree.c
+allows CAP_EXCLUSIVE events to be grouped with other events. Since all
+of those also happen to be AUX events (which is not the case the other
+way around, because arch/s390), this changes the rules for stopping the
+output: the AUX event may not be on its PMU's context any more, if it's
+grouped with a HW event, in which case it will be on that HW event's
+context instead. If that's the case, munmap() of the AUX buffer can't
+find and stop the AUX event, potentially leaving the last reference with
+the atomic context, which will then end up freeing the AUX buffer. This
+will then trip warnings:
 
-Fixes: 49303381f19a ("Btrfs: bail out if block group has different mixed flag")
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fix this by using the context's PMU context when looking for events
+to stop, instead of the event's PMU context.
+
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191022073940.61814-1-alexander.shishkin@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/extent-tree.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/events/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -10255,6 +10255,7 @@ int btrfs_read_block_groups(struct btrfs
- 			btrfs_err(info,
- "bg %llu is a mixed block group but filesystem hasn't enabled mixed block groups",
- 				  cache->key.objectid);
-+			btrfs_put_block_group(cache);
- 			ret = -EINVAL;
- 			goto error;
- 		}
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6813,7 +6813,7 @@ static void __perf_event_output_stop(str
+ static int __perf_pmu_output_stop(void *info)
+ {
+ 	struct perf_event *event = info;
+-	struct pmu *pmu = event->pmu;
++	struct pmu *pmu = event->ctx->pmu;
+ 	struct perf_cpu_context *cpuctx = this_cpu_ptr(pmu->pmu_cpu_context);
+ 	struct remote_output ro = {
+ 		.rb	= event->rb,
 
 
