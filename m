@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E69B7E66C4
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:15:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38000E66C7
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:15:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730584AbfJ0VPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:15:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34200 "EHLO mail.kernel.org"
+        id S1730604AbfJ0VPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:15:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729353AbfJ0VPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:15:04 -0400
+        id S1729353AbfJ0VPK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:15:10 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 723A4214AF;
-        Sun, 27 Oct 2019 21:15:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E633B214E0;
+        Sun, 27 Oct 2019 21:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210904;
-        bh=G8fdBiczYjP1dj+XAo4W0fgeejN6M3is5d/XqM9NW8A=;
+        s=default; t=1572210909;
+        bh=kzLgkatN03oAoSCm0PyuozQvym8DkEP2IAbCKiizFyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lgFlJlfz4YN+ch7uqjnif8a362U5NHr47cTt8jvI35WLdQ5qfCQuCpnZGDf4tfL9q
-         OxcFi0fcYPw5HwBq1L8q3DFqLi3C3+KSenrxcng8f6GtM8lFiC6G9hKcAXQJZxKI1J
-         YVRgATe9YBe9MINd8+npcVv3zo/PAs0UhRaXj1z0=
+        b=mzIGOp/p/zPrG/IGMs3h7CYa7/exZalyXxQdW54YQnX1vcxFyskWcu6ypm+dAjHKQ
+         8xWBMMnWwYWfA7ph9r8klfTRWCpyQd6vptYJ8TB+VKAA7USCG5hWQGZgTG5ejQ15Ty
+         ckq7dLrEVBSE2IRgon0O0vhqB1Vn1643O9uGJUKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Nicolas Waisman <nico@semmle.com>,
         Will Deacon <will@kernel.org>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 57/93] cfg80211: wext: avoid copying malformed SSIDs
-Date:   Sun, 27 Oct 2019 22:01:09 +0100
-Message-Id: <20191027203303.102049509@linuxfoundation.org>
+Subject: [PATCH 4.19 58/93] mac80211: Reject malformed SSID elements
+Date:   Sun, 27 Oct 2019 22:01:10 +0100
+Message-Id: <20191027203303.292196375@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
 References: <20191027203251.029297948@linuxfoundation.org>
@@ -47,54 +47,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Will Deacon <will@kernel.org>
 
-commit 4ac2813cc867ae563a1ba5a9414bfb554e5796fa upstream.
+commit 4152561f5da3fca92af7179dd538ea89e248f9d0 upstream.
 
-Ensure the SSID element is bounds-checked prior to invoking memcpy()
-with its length field, when copying to userspace.
+Although this shouldn't occur in practice, it's a good idea to bounds
+check the length field of the SSID element prior to using it for things
+like allocations or memcpy operations.
 
 Cc: <stable@vger.kernel.org>
 Cc: Kees Cook <keescook@chromium.org>
 Reported-by: Nicolas Waisman <nico@semmle.com>
 Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191004095132.15777-2-will@kernel.org
-[adjust commit log a bit]
+Link: https://lore.kernel.org/r/20191004095132.15777-1-will@kernel.org
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/wext-sme.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/mac80211/mlme.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/wireless/wext-sme.c
-+++ b/net/wireless/wext-sme.c
-@@ -202,6 +202,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 			       struct iw_point *data, char *ssid)
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	int ret = 0;
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -2554,7 +2554,8 @@ struct sk_buff *ieee80211_ap_probereq_ge
  
- 	/* call only for station! */
- 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
-@@ -219,7 +220,10 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 		if (ie) {
- 			data->flags = 1;
- 			data->length = ie[1];
--			memcpy(ssid, ie + 2, data->length);
-+			if (data->length > IW_ESSID_MAX_SIZE)
-+				ret = -EINVAL;
-+			else
-+				memcpy(ssid, ie + 2, data->length);
- 		}
+ 	rcu_read_lock();
+ 	ssid = ieee80211_bss_get_ie(cbss, WLAN_EID_SSID);
+-	if (WARN_ON_ONCE(ssid == NULL))
++	if (WARN_ONCE(!ssid || ssid[1] > IEEE80211_MAX_SSID_LEN,
++		      "invalid SSID element (len=%d)", ssid ? ssid[1] : -1))
+ 		ssid_len = 0;
+ 	else
+ 		ssid_len = ssid[1];
+@@ -5039,7 +5040,7 @@ int ieee80211_mgd_assoc(struct ieee80211
+ 
+ 	rcu_read_lock();
+ 	ssidie = ieee80211_bss_get_ie(req->bss, WLAN_EID_SSID);
+-	if (!ssidie) {
++	if (!ssidie || ssidie[1] > sizeof(assoc_data->ssid)) {
  		rcu_read_unlock();
- 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
-@@ -229,7 +233,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 	}
- 	wdev_unlock(wdev);
- 
--	return 0;
-+	return ret;
- }
- 
- int cfg80211_mgd_wext_siwap(struct net_device *dev,
+ 		kfree(assoc_data);
+ 		return -EINVAL;
 
 
