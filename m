@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C322E684F
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:28:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5F81E66E5
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:16:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732199AbfJ0VWj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:22:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43690 "EHLO mail.kernel.org"
+        id S1730800AbfJ0VQS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732193AbfJ0VWi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:22:38 -0400
+        id S1730791AbfJ0VQP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:15 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DCDE205C9;
-        Sun, 27 Oct 2019 21:22:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 83D9B21783;
+        Sun, 27 Oct 2019 21:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211357;
-        bh=G8fdBiczYjP1dj+XAo4W0fgeejN6M3is5d/XqM9NW8A=;
+        s=default; t=1572210975;
+        bh=3iJ3qKVbyTkIAzRYUW0YRonG/XHJgsleQiyTF+dZR08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeHKb/OsBAzZwnGM8B9m2eYMcMVVSlxlkPJ7PJhfntqiAPjwv7ag65XlvNmC0oxCW
-         A7knKxx+GRFFarPIQzmjkuwXDnsKcvcc93W3M8VlNK+mHhuIifZQNpSjZuCl2QM0yC
-         Itt9SRnxMGmAmEsNF4Q95BTAgx8BscnnMSNFiatA=
+        b=gORjVdwfPOqd/yJsWmH+mmvg2A/W8H/gMAinWQpa6Pz/vSTPy2tg4TZoyrzYcPLps
+         oySJPsC9IjKS9ZiPExFnpynCWRhM7W+kTdzkK8x4tG1P6cdJ0Q0sVQEQVcG7odATCK
+         4082dRGFYLhZDq9cu1Q81hy/xk3O+sDbBW4SzSWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Nicolas Waisman <nico@semmle.com>,
-        Will Deacon <will@kernel.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.3 122/197] cfg80211: wext: avoid copying malformed SSIDs
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Doug Berger <opendmb@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 28/93] net: bcmgenet: Fix RGMII_MODE_EN value for GENET v1/2/3
 Date:   Sun, 27 Oct 2019 22:00:40 +0100
-Message-Id: <20191027203358.324038638@linuxfoundation.org>
+Message-Id: <20191027203256.762646938@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 4ac2813cc867ae563a1ba5a9414bfb554e5796fa upstream.
+[ Upstream commit efb86fede98cdc70b674692ff617b1162f642c49 ]
 
-Ensure the SSID element is bounds-checked prior to invoking memcpy()
-with its length field, when copying to userspace.
+The RGMII_MODE_EN bit value was 0 for GENET versions 1 through 3, and
+became 6 for GENET v4 and above, account for that difference.
 
-Cc: <stable@vger.kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Will Deacon <will@kernel.org>
-Link: https://lore.kernel.org/r/20191004095132.15777-2-will@kernel.org
-[adjust commit log a bit]
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: aa09677cba42 ("net: bcmgenet: add MDIO routines")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/wireless/wext-sme.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmgenet.h |    1 +
+ drivers/net/ethernet/broadcom/genet/bcmmii.c   |    6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/wireless/wext-sme.c
-+++ b/net/wireless/wext-sme.c
-@@ -202,6 +202,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 			       struct iw_point *data, char *ssid)
- {
- 	struct wireless_dev *wdev = dev->ieee80211_ptr;
-+	int ret = 0;
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.h
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.h
+@@ -369,6 +369,7 @@ struct bcmgenet_mib_counters {
+ #define  EXT_PWR_DOWN_PHY_EN		(1 << 20)
  
- 	/* call only for station! */
- 	if (WARN_ON(wdev->iftype != NL80211_IFTYPE_STATION))
-@@ -219,7 +220,10 @@ int cfg80211_mgd_wext_giwessid(struct ne
- 		if (ie) {
- 			data->flags = 1;
- 			data->length = ie[1];
--			memcpy(ssid, ie + 2, data->length);
-+			if (data->length > IW_ESSID_MAX_SIZE)
-+				ret = -EINVAL;
-+			else
-+				memcpy(ssid, ie + 2, data->length);
- 		}
- 		rcu_read_unlock();
- 	} else if (wdev->wext.connect.ssid && wdev->wext.connect.ssid_len) {
-@@ -229,7 +233,7 @@ int cfg80211_mgd_wext_giwessid(struct ne
+ #define EXT_RGMII_OOB_CTRL		0x0C
++#define  RGMII_MODE_EN_V123		(1 << 0)
+ #define  RGMII_LINK			(1 << 4)
+ #define  OOB_DISABLE			(1 << 5)
+ #define  RGMII_MODE_EN			(1 << 6)
+--- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
+@@ -261,7 +261,11 @@ int bcmgenet_mii_config(struct net_devic
+ 	 */
+ 	if (priv->ext_phy) {
+ 		reg = bcmgenet_ext_readl(priv, EXT_RGMII_OOB_CTRL);
+-		reg |= RGMII_MODE_EN | id_mode_dis;
++		reg |= id_mode_dis;
++		if (GENET_IS_V1(priv) || GENET_IS_V2(priv) || GENET_IS_V3(priv))
++			reg |= RGMII_MODE_EN_V123;
++		else
++			reg |= RGMII_MODE_EN;
+ 		bcmgenet_ext_writel(priv, reg, EXT_RGMII_OOB_CTRL);
  	}
- 	wdev_unlock(wdev);
  
--	return 0;
-+	return ret;
- }
- 
- int cfg80211_mgd_wext_siwap(struct net_device *dev,
 
 
