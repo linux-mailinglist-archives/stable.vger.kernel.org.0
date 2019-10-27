@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A923E6907
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:34:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5014E68AA
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:32:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728484AbfJ0VLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58526 "EHLO mail.kernel.org"
+        id S1729738AbfJ0VQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729949AbfJ0VLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:11:52 -0400
+        id S1730896AbfJ0VQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:47 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DFCE205C9;
-        Sun, 27 Oct 2019 21:11:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B040D20717;
+        Sun, 27 Oct 2019 21:16:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210711;
-        bh=ssO/fgfxNpvpT7q/HqGLGpAcTTDrtqgKuanlAZwDpQA=;
+        s=default; t=1572211006;
+        bh=VjuvPT47fQEVdtE0EJLHgkIrVxCYhOshqwCqj7yCM9I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zzdLe2tVhiYtHWixGUmNcH0ZjtGjnL/xJt0SaHhdDHePhhSLw8Wq1nhNEbHmKzAl5
-         DI6KC0mg++L8i0BiDjmHT+XJpKQAjYkLsNmuYYXx2/5tx6YozSIQtqcU3ZME1dJY/a
-         5LsWqxwgcCnPkC2Wrxc0Bk8m0/xHepOZn8Lnvgpg=
+        b=O3M3IvsHPbl2tvIaKCthR23he58gst8yktyju2sWq+D+1WZdxfFHY8LTgvpRf8BnN
+         aEppt+21QWuBAyeikAcAfvBLVU9uz2ccLvoyNco5hxBcYKEhh6UJzkzJEaUVLCLfM1
+         08yqUaMXcUIrzndQZfFbbMJ7WOR3Z89sxpU+MR+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 111/119] memstick: jmb38x_ms: Fix an error handling path in jmb38x_ms_probe()
-Date:   Sun, 27 Oct 2019 22:01:28 +0100
-Message-Id: <20191027203349.582152782@linuxfoundation.org>
+        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
+        Prateek Sood <prsood@codeaurora.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 77/93] tracing: Fix race in perf_trace_buf initialization
+Date:   Sun, 27 Oct 2019 22:01:29 +0100
+Message-Id: <20191027203311.513159687@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Prateek Sood <prsood@codeaurora.org>
 
-commit 28c9fac09ab0147158db0baeec630407a5e9b892 upstream.
+commit 6b1340cc00edeadd52ebd8a45171f38c8de2a387 upstream.
 
-If 'jmb38x_ms_count_slots()' returns 0, we must undo the previous
-'pci_request_regions()' call.
+A race condition exists while initialiazing perf_trace_buf from
+perf_trace_init() and perf_kprobe_init().
 
-Goto 'err_out_int' to fix it.
+      CPU0                                        CPU1
+perf_trace_init()
+  mutex_lock(&event_mutex)
+    perf_trace_event_init()
+      perf_trace_event_reg()
+        total_ref_count == 0
+	buf = alloc_percpu()
+        perf_trace_buf[i] = buf
+        tp_event->class->reg() //fails       perf_kprobe_init()
+	goto fail                              perf_trace_event_init()
+                                                 perf_trace_event_reg()
+        fail:
+	  total_ref_count == 0
 
-Fixes: 60fdd931d577 ("memstick: add support for JMicron jmb38x MemoryStick host controller")
+                                                   total_ref_count == 0
+                                                   buf = alloc_percpu()
+                                                   perf_trace_buf[i] = buf
+                                                   tp_event->class->reg()
+                                                   total_ref_count++
+
+          free_percpu(perf_trace_buf[i])
+          perf_trace_buf[i] = NULL
+
+Any subsequent call to perf_trace_event_reg() will observe total_ref_count > 0,
+causing the perf_trace_buf to be always NULL. This can result in perf_trace_buf
+getting accessed from perf_trace_buf_alloc() without being initialized. Acquiring
+event_mutex in perf_kprobe_init() before calling perf_trace_event_init() should
+fix this race.
+
+The race caused the following bug:
+
+ Unable to handle kernel paging request at virtual address 0000003106f2003c
+ Mem abort info:
+   ESR = 0x96000045
+   Exception class = DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000045
+   CM = 0, WnR = 1
+ user pgtable: 4k pages, 39-bit VAs, pgdp = ffffffc034b9b000
+ [0000003106f2003c] pgd=0000000000000000, pud=0000000000000000
+ Internal error: Oops: 96000045 [#1] PREEMPT SMP
+ Process syz-executor (pid: 18393, stack limit = 0xffffffc093190000)
+ pstate: 80400005 (Nzcv daif +PAN -UAO)
+ pc : __memset+0x20/0x1ac
+ lr : memset+0x3c/0x50
+ sp : ffffffc09319fc50
+
+  __memset+0x20/0x1ac
+  perf_trace_buf_alloc+0x140/0x1a0
+  perf_trace_sys_enter+0x158/0x310
+  syscall_trace_enter+0x348/0x7c0
+  el0_svc_common+0x11c/0x368
+  el0_svc_handler+0x12c/0x198
+  el0_svc+0x8/0xc
+
+Ramdumps showed the following:
+  total_ref_count = 3
+  perf_trace_buf = (
+      0x0 -> NULL,
+      0x0 -> NULL,
+      0x0 -> NULL,
+      0x0 -> NULL)
+
+Link: http://lkml.kernel.org/r/1571120245-4186-1-git-send-email-prsood@codeaurora.org
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: e12f03d7031a9 ("perf/core: Implement the 'perf_kprobe' PMU")
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Prateek Sood <prsood@codeaurora.org>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/memstick/host/jmb38x_ms.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_event_perf.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/memstick/host/jmb38x_ms.c
-+++ b/drivers/memstick/host/jmb38x_ms.c
-@@ -947,7 +947,7 @@ static int jmb38x_ms_probe(struct pci_de
- 	if (!cnt) {
- 		rc = -ENODEV;
- 		pci_dev_busy = 1;
--		goto err_out;
-+		goto err_out_int;
+--- a/kernel/trace/trace_event_perf.c
++++ b/kernel/trace/trace_event_perf.c
+@@ -272,9 +272,11 @@ int perf_kprobe_init(struct perf_event *
+ 		goto out;
  	}
  
- 	jm = kzalloc(sizeof(struct jmb38x_ms)
++	mutex_lock(&event_mutex);
+ 	ret = perf_trace_event_init(tp_event, p_event);
+ 	if (ret)
+ 		destroy_local_trace_kprobe(tp_event);
++	mutex_unlock(&event_mutex);
+ out:
+ 	kfree(func);
+ 	return ret;
+@@ -282,8 +284,10 @@ out:
+ 
+ void perf_kprobe_destroy(struct perf_event *p_event)
+ {
++	mutex_lock(&event_mutex);
+ 	perf_trace_event_close(p_event);
+ 	perf_trace_event_unreg(p_event);
++	mutex_unlock(&event_mutex);
+ 
+ 	destroy_local_trace_kprobe(p_event->tp_event);
+ }
 
 
