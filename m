@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06626E674C
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:19:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05256E6748
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731530AbfJ0VTq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:19:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39958 "EHLO mail.kernel.org"
+        id S1731517AbfJ0VTj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:19:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731452AbfJ0VTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:19:36 -0400
+        id S1731509AbfJ0VTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:19:39 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A798920717;
-        Sun, 27 Oct 2019 21:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68724214E0;
+        Sun, 27 Oct 2019 21:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211175;
-        bh=RI9MPlO+lvnuqKMcP+8ukZ2/t6jJxYoBzXCL0CCGbsU=;
+        s=default; t=1572211177;
+        bh=pdGeY4BdZh9wxfXX9Yk77xJOQObU4tbUQX9BnmzykKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B9S3hPBSMGYdrun1nTVqFlmz0d2v6EN9WDzaDzQ3jQ7kOxg04dLexgNjRULGlei+k
-         Pzw9nEMXzFQ/NcDTEAyXr/tPru4LtCUHiV/ZUItLMp+IGbaUtCpVvaA2xKcLwMwslB
-         IaqvZa9JL9zPW/X9uULYe4fvVV8DXsnELq4h6Mn4=
+        b=aDdzFDU/paDv3GeGwTV311Vx6p3AVTmZn9PBW9YY+0jNZvAsWnaffNwRu//TD1v+0
+         nEA2eWa4/izpLFEHhXdFr/3KVCzlpCljWybLsk2qdwy8K70FRN8+9ZEi2ppLXekzuO
+         w6jKFGULCdlNVIUDCKUm3ua8j/y6gr2vtInKx2kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Michal Hocko <mhocko@suse.com>,
-        Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>,
+        Jann Horn <jannh@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 058/197] elf: dont use MAP_FIXED_NOREPLACE for elf executable mappings
-Date:   Sun, 27 Oct 2019 21:59:36 +0100
-Message-Id: <20191027203354.803599528@linuxfoundation.org>
+Subject: [PATCH 5.3 059/197] Make filldir[64]() verify the directory entry filename is valid
+Date:   Sun, 27 Oct 2019 21:59:37 +0100
+Message-Id: <20191027203354.857292722@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
 References: <20191027203351.684916567@linuxfoundation.org>
@@ -48,102 +48,141 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit b212921b13bda088a004328457c5c21458262fe2 ]
+[ Upstream commit 8a23eb804ca4f2be909e372cf5a9e7b30ae476cd ]
 
-In commit 4ed28639519c ("fs, elf: drop MAP_FIXED usage from elf_map") we
-changed elf to use MAP_FIXED_NOREPLACE instead of MAP_FIXED for the
-executable mappings.
+This has been discussed several times, and now filesystem people are
+talking about doing it individually at the filesystem layer, so head
+that off at the pass and just do it in getdents{64}().
 
-Then, people reported that it broke some binaries that had overlapping
-segments from the same file, and commit ad55eac74f20 ("elf: enforce
-MAP_FIXED on overlaying elf segments") re-instated MAP_FIXED for some
-overlaying elf segment cases.  But only some - despite the summary line
-of that commit, it only did it when it also does a temporary brk vma for
-one obvious overlapping case.
+This is partially based on a patch by Jann Horn, but checks for NUL
+bytes as well, and somewhat simplified.
 
-Now Russell King reports another overlapping case with old 32-bit x86
-binaries, which doesn't trigger that limited case.  End result: we had
-better just drop MAP_FIXED_NOREPLACE entirely, and go back to MAP_FIXED.
+There's also commentary about how it might be better if invalid names
+due to filesystem corruption don't cause an immediate failure, but only
+an error at the end of the readdir(), so that people can still see the
+filenames that are ok.
 
-Yes, it's a sign of old binaries generated with old tool-chains, but we
-do pride ourselves on not breaking existing setups.
+There's also been discussion about just how much POSIX strictly speaking
+requires this since it's about filesystem corruption.  It's really more
+"protect user space from bad behavior" as pointed out by Jann.  But
+since Eric Biederman looked up the POSIX wording, here it is for context:
 
-This still leaves MAP_FIXED_NOREPLACE in place for the load_elf_interp()
-and the old load_elf_library() use-cases, because nobody has reported
-breakage for those. Yet.
+ "From readdir:
 
-Note that in all the cases seen so far, the overlapping elf sections
-seem to be just re-mapping of the same executable with different section
-attributes.  We could possibly introduce a new MAP_FIXED_NOFILECHANGE
-flag or similar, which acts like NOREPLACE, but allows just remapping
-the same executable file using different protection flags.
+   The readdir() function shall return a pointer to a structure
+   representing the directory entry at the current position in the
+   directory stream specified by the argument dirp, and position the
+   directory stream at the next entry. It shall return a null pointer
+   upon reaching the end of the directory stream. The structure dirent
+   defined in the <dirent.h> header describes a directory entry.
 
-It's not clear that would make a huge difference to anything, but if
-people really hate that "elf remaps over previous maps" behavior, maybe
-at least a more limited form of remapping would alleviate some concerns.
+  From definitions:
 
-Alternatively, we should take a look at our elf_map() logic to see if we
-end up not mapping things properly the first time.
+   3.129 Directory Entry (or Link)
 
-In the meantime, this is the minimal "don't do that then" patch while
-people hopefully think about it more.
+   An object that associates a filename with a file. Several directory
+   entries can associate names with the same file.
 
-Reported-by: Russell King <linux@armlinux.org.uk>
-Fixes: 4ed28639519c ("fs, elf: drop MAP_FIXED usage from elf_map")
-Fixes: ad55eac74f20 ("elf: enforce  MAP_FIXED on overlaying elf segments")
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Kees Cook <keescook@chromium.org>
+  ...
+
+   3.169 Filename
+
+   A name consisting of 1 to {NAME_MAX} bytes used to name a file. The
+   characters composing the name may be selected from the set of all
+   character values excluding the slash character and the null byte. The
+   filenames dot and dot-dot have special meaning. A filename is
+   sometimes referred to as a 'pathname component'."
+
+Note that I didn't bother adding the checks to any legacy interfaces
+that nobody uses.
+
+Also note that if this ends up being noticeable as a performance
+regression, we can fix that to do a much more optimized model that
+checks for both NUL and '/' at the same time one word at a time.
+
+We haven't really tended to optimize 'memchr()', and it only checks for
+one pattern at a time anyway, and we really _should_ check for NUL too
+(but see the comment about "soft errors" in the code about why it
+currently only checks for '/')
+
+See the CONFIG_DCACHE_WORD_ACCESS case of hash_name() for how the name
+lookup code looks for pathname terminating characters in parallel.
+
+Link: https://lore.kernel.org/lkml/20190118161440.220134-2-jannh@google.com/
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Jann Horn <jannh@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_elf.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+ fs/readdir.c | 40 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 40 insertions(+)
 
-diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-index f131651502b8a..c62903290f3a5 100644
---- a/fs/binfmt_elf.c
-+++ b/fs/binfmt_elf.c
-@@ -899,7 +899,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 	   the correct location in memory. */
- 	for(i = 0, elf_ppnt = elf_phdata;
- 	    i < loc->elf_ex.e_phnum; i++, elf_ppnt++) {
--		int elf_prot, elf_flags, elf_fixed = MAP_FIXED_NOREPLACE;
-+		int elf_prot, elf_flags;
- 		unsigned long k, vaddr;
- 		unsigned long total_size = 0;
+diff --git a/fs/readdir.c b/fs/readdir.c
+index 579c8ea894ae3..19bea591c3f1d 100644
+--- a/fs/readdir.c
++++ b/fs/readdir.c
+@@ -118,6 +118,40 @@ out:
+ }
+ EXPORT_SYMBOL(iterate_dir);
  
-@@ -931,13 +931,6 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 					 */
- 				}
- 			}
--
--			/*
--			 * Some binaries have overlapping elf segments and then
--			 * we have to forcefully map over an existing mapping
--			 * e.g. over this newly established brk mapping.
--			 */
--			elf_fixed = MAP_FIXED;
- 		}
++/*
++ * POSIX says that a dirent name cannot contain NULL or a '/'.
++ *
++ * It's not 100% clear what we should really do in this case.
++ * The filesystem is clearly corrupted, but returning a hard
++ * error means that you now don't see any of the other names
++ * either, so that isn't a perfect alternative.
++ *
++ * And if you return an error, what error do you use? Several
++ * filesystems seem to have decided on EUCLEAN being the error
++ * code for EFSCORRUPTED, and that may be the error to use. Or
++ * just EIO, which is perhaps more obvious to users.
++ *
++ * In order to see the other file names in the directory, the
++ * caller might want to make this a "soft" error: skip the
++ * entry, and return the error at the end instead.
++ *
++ * Note that this should likely do a "memchr(name, 0, len)"
++ * check too, since that would be filesystem corruption as
++ * well. However, that case can't actually confuse user space,
++ * which has to do a strlen() on the name anyway to find the
++ * filename length, and the above "soft error" worry means
++ * that it's probably better left alone until we have that
++ * issue clarified.
++ */
++static int verify_dirent_name(const char *name, int len)
++{
++	if (WARN_ON_ONCE(!len))
++		return -EIO;
++	if (WARN_ON_ONCE(memchr(name, '/', len)))
++		return -EIO;
++	return 0;
++}
++
+ /*
+  * Traditional linux readdir() handling..
+  *
+@@ -227,6 +261,9 @@ static int filldir(struct dir_context *ctx, const char *name, int namlen,
+ 	int reclen = ALIGN(offsetof(struct linux_dirent, d_name) + namlen + 2,
+ 		sizeof(long));
  
- 		elf_prot = make_prot(elf_ppnt->p_flags);
-@@ -950,7 +943,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 		 * the ET_DYN load_addr calculations, proceed normally.
- 		 */
- 		if (loc->elf_ex.e_type == ET_EXEC || load_addr_set) {
--			elf_flags |= elf_fixed;
-+			elf_flags |= MAP_FIXED;
- 		} else if (loc->elf_ex.e_type == ET_DYN) {
- 			/*
- 			 * This logic is run once for the first LOAD Program
-@@ -986,7 +979,7 @@ static int load_elf_binary(struct linux_binprm *bprm)
- 				load_bias = ELF_ET_DYN_BASE;
- 				if (current->flags & PF_RANDOMIZE)
- 					load_bias += arch_mmap_rnd();
--				elf_flags |= elf_fixed;
-+				elf_flags |= MAP_FIXED;
- 			} else
- 				load_bias = 0;
++	buf->error = verify_dirent_name(name, namlen);
++	if (unlikely(buf->error))
++		return buf->error;
+ 	buf->error = -EINVAL;	/* only used if we fail.. */
+ 	if (reclen > buf->count)
+ 		return -EINVAL;
+@@ -316,6 +353,9 @@ static int filldir64(struct dir_context *ctx, const char *name, int namlen,
+ 	int reclen = ALIGN(offsetof(struct linux_dirent64, d_name) + namlen + 1,
+ 		sizeof(u64));
  
++	buf->error = verify_dirent_name(name, namlen);
++	if (unlikely(buf->error))
++		return buf->error;
+ 	buf->error = -EINVAL;	/* only used if we fail.. */
+ 	if (reclen > buf->count)
+ 		return -EINVAL;
 -- 
 2.20.1
 
