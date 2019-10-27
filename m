@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1B5E6820
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:27:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C184BE66F9
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:17:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731647AbfJ0VZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:25:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46852 "EHLO mail.kernel.org"
+        id S1730931AbfJ0VQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732654AbfJ0VZH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:25:07 -0400
+        id S1730934AbfJ0VQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:56 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F10F2064A;
-        Sun, 27 Oct 2019 21:25:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E64FD21D80;
+        Sun, 27 Oct 2019 21:16:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211506;
-        bh=geCA7WKbHfFDzbjT2Ap1pwSwpmUYXwdqOX48VBY2FyI=;
+        s=default; t=1572211015;
+        bh=+fUGPU/cUvr4r1VruQzw+nmYANorNrfj6Z+QY1jRk18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCz0NW3wq/xfKv5GsGGPzk/p3uqjFeEbwxHrPnR9G7Hykx0kSIFFn8dL9cuQr8R8S
-         1dcDrUuDDIlZNJbMfmNon7tqk58s0QzjqbgJ/7eRxqNeTKOhtHbPdeBv+EEA7M/QbM
-         IHJ5L+ztlI37gESWpOKkbu5V7zkdjzQuybCky584=
+        b=ZvQfryEvcJcgrvNi4khxkrDj9GaDzwpEiA7ktRZHyNyYgccz8+dvnaQtQGJbnL9OO
+         5gouWlUInjNG5Fu2JvN4qi65Dz79vRjvEX/vwDxec/N2X6ziuLbqDePC/jfsDWPig6
+         qntd5iV/aHeubiexNxiWeWbTjAV5euZeqMioxf6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.3 173/197] dm cache: fix bugs when a GFP_NOWAIT allocation fails
-Date:   Sun, 27 Oct 2019 22:01:31 +0100
-Message-Id: <20191027203404.309364288@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 80/93] x86/apic/x2apic: Fix a NULL pointer deref when handling a dying cpu
+Date:   Sun, 27 Oct 2019 22:01:32 +0100
+Message-Id: <20191027203313.153509910@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,118 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Sean Christopherson <sean.j.christopherson@intel.com>
 
-commit 13bd677a472d534bf100bab2713efc3f9e3f5978 upstream.
+commit 7a22e03b0c02988e91003c505b34d752a51de344 upstream.
 
-GFP_NOWAIT allocation can fail anytime - it doesn't wait for memory being
-available and it fails if the mempool is exhausted and there is not enough
-memory.
+Check that the per-cpu cluster mask pointer has been set prior to
+clearing a dying cpu's bit.  The per-cpu pointer is not set until the
+target cpu reaches smp_callin() during CPUHP_BRINGUP_CPU, whereas the
+teardown function, x2apic_dead_cpu(), is associated with the earlier
+CPUHP_X2APIC_PREPARE.  If an error occurs before the cpu is awakened,
+e.g. if do_boot_cpu() itself fails, x2apic_dead_cpu() will dereference
+the NULL pointer and cause a panic.
 
-If we go down this path:
-  map_bio -> mg_start -> alloc_migration -> mempool_alloc(GFP_NOWAIT)
-we can see that map_bio() doesn't check the return value of mg_start(),
-and the bio is leaked.
+  smpboot: do_boot_cpu failed(-22) to wakeup CPU#1
+  BUG: kernel NULL pointer dereference, address: 0000000000000008
+  RIP: 0010:x2apic_dead_cpu+0x1a/0x30
+  Call Trace:
+   cpuhp_invoke_callback+0x9a/0x580
+   _cpu_up+0x10d/0x140
+   do_cpu_up+0x69/0xb0
+   smp_init+0x63/0xa9
+   kernel_init_freeable+0xd7/0x229
+   ? rest_init+0xa0/0xa0
+   kernel_init+0xa/0x100
+   ret_from_fork+0x35/0x40
 
-If we go down this path:
-  map_bio -> mg_start -> mg_lock_writes -> alloc_prison_cell ->
-  dm_bio_prison_alloc_cell_v2 -> mempool_alloc(GFP_NOWAIT) ->
-  mg_lock_writes -> mg_complete
-the bio is ended with an error - it is unacceptable because it could
-cause filesystem corruption if the machine ran out of memory
-temporarily.
-
-Change GFP_NOWAIT to GFP_NOIO, so that the mempool code will properly
-wait until memory becomes available. mempool_alloc with GFP_NOIO can't
-fail, so remove the code paths that deal with allocation failure.
-
+Fixes: 023a611748fd5 ("x86/apic/x2apic: Simplify cluster management")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: https://lkml.kernel.org/r/20191001205019.5789-1-sean.j.christopherson@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-cache-target.c |   28 ++--------------------------
- 1 file changed, 2 insertions(+), 26 deletions(-)
+ arch/x86/kernel/apic/x2apic_cluster.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-cache-target.c
-+++ b/drivers/md/dm-cache-target.c
-@@ -542,7 +542,7 @@ static void wake_migration_worker(struct
- 
- static struct dm_bio_prison_cell_v2 *alloc_prison_cell(struct cache *cache)
+--- a/arch/x86/kernel/apic/x2apic_cluster.c
++++ b/arch/x86/kernel/apic/x2apic_cluster.c
+@@ -158,7 +158,8 @@ static int x2apic_dead_cpu(unsigned int
  {
--	return dm_bio_prison_alloc_cell_v2(cache->prison, GFP_NOWAIT);
-+	return dm_bio_prison_alloc_cell_v2(cache->prison, GFP_NOIO);
+ 	struct cluster_mask *cmsk = per_cpu(cluster_masks, dead_cpu);
+ 
+-	cpumask_clear_cpu(dead_cpu, &cmsk->mask);
++	if (cmsk)
++		cpumask_clear_cpu(dead_cpu, &cmsk->mask);
+ 	free_cpumask_var(per_cpu(ipi_mask, dead_cpu));
+ 	return 0;
  }
- 
- static void free_prison_cell(struct cache *cache, struct dm_bio_prison_cell_v2 *cell)
-@@ -554,9 +554,7 @@ static struct dm_cache_migration *alloc_
- {
- 	struct dm_cache_migration *mg;
- 
--	mg = mempool_alloc(&cache->migration_pool, GFP_NOWAIT);
--	if (!mg)
--		return NULL;
-+	mg = mempool_alloc(&cache->migration_pool, GFP_NOIO);
- 
- 	memset(mg, 0, sizeof(*mg));
- 
-@@ -664,10 +662,6 @@ static bool bio_detain_shared(struct cac
- 	struct dm_bio_prison_cell_v2 *cell_prealloc, *cell;
- 
- 	cell_prealloc = alloc_prison_cell(cache); /* FIXME: allow wait if calling from worker */
--	if (!cell_prealloc) {
--		defer_bio(cache, bio);
--		return false;
--	}
- 
- 	build_key(oblock, end, &key);
- 	r = dm_cell_get_v2(cache->prison, &key, lock_level(bio), bio, cell_prealloc, &cell);
-@@ -1493,11 +1487,6 @@ static int mg_lock_writes(struct dm_cach
- 	struct dm_bio_prison_cell_v2 *prealloc;
- 
- 	prealloc = alloc_prison_cell(cache);
--	if (!prealloc) {
--		DMERR_LIMIT("%s: alloc_prison_cell failed", cache_device_name(cache));
--		mg_complete(mg, false);
--		return -ENOMEM;
--	}
- 
- 	/*
- 	 * Prevent writes to the block, but allow reads to continue.
-@@ -1535,11 +1524,6 @@ static int mg_start(struct cache *cache,
- 	}
- 
- 	mg = alloc_migration(cache);
--	if (!mg) {
--		policy_complete_background_work(cache->policy, op, false);
--		background_work_end(cache);
--		return -ENOMEM;
--	}
- 
- 	mg->op = op;
- 	mg->overwrite_bio = bio;
-@@ -1628,10 +1612,6 @@ static int invalidate_lock(struct dm_cac
- 	struct dm_bio_prison_cell_v2 *prealloc;
- 
- 	prealloc = alloc_prison_cell(cache);
--	if (!prealloc) {
--		invalidate_complete(mg, false);
--		return -ENOMEM;
--	}
- 
- 	build_key(mg->invalidate_oblock, oblock_succ(mg->invalidate_oblock), &key);
- 	r = dm_cell_lock_v2(cache->prison, &key,
-@@ -1669,10 +1649,6 @@ static int invalidate_start(struct cache
- 		return -EPERM;
- 
- 	mg = alloc_migration(cache);
--	if (!mg) {
--		background_work_end(cache);
--		return -ENOMEM;
--	}
- 
- 	mg->overwrite_bio = bio;
- 	mg->invalidate_cblock = cblock;
 
 
