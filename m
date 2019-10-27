@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3317FE692E
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:35:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB14E69BE
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:39:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729619AbfJ0VKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56438 "EHLO mail.kernel.org"
+        id S1728109AbfJ0VCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728850AbfJ0VKC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:10:02 -0400
+        id S1727099AbfJ0VCl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:02:41 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8B4320873;
-        Sun, 27 Oct 2019 21:10:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EB0D20873;
+        Sun, 27 Oct 2019 21:02:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210602;
-        bh=HblxHirBThSqzUAUJVTeMTe3PxV+0QZyprrOJNCznqI=;
+        s=default; t=1572210160;
+        bh=WclGftjhtADkb4qHB3tRje/8CLOt7Ubn4RbsQk7VAXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fpNrRy4JGwGTePoBiomJRe3jB//NN7KucaVHcFM98Ja9AMShtaWiXPWc281dfq2+w
-         2pVzs1PNdHeRAvGFa+TXxpqcF8FrV9qiT/AykYPyRo6htXTEKgoDon+ZscVsb52EUI
-         F3QI6zhkFpYZIDkNew8ihC62gaoAmYOd3VyUaBB4=
+        b=qdKRAulHz2Z1ajKBhsusIGlPih/tIiybGZhSmGZN1DIU87tXePZxdJFn95arhl6d3
+         Lu8xqJ3zOmRPYgWw204b+lKbH01wKbJz8D58hxpX9ClTapO5ntTP93hmh9V/m9ZYZy
+         grYCJq4n+LBMvIWVIrVkaw7+402TFdCETrvuVPJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mian Yousaf Kaukab <ykaukab@suse.de>,
-        Jeremy Linton <jeremy.linton@arm.com>,
-        Andre Przywara <andre.przywara@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Subject: [PATCH 4.14 072/119] arm64: Add sysfs vulnerability show for spectre-v1
-Date:   Sun, 27 Oct 2019 22:00:49 +0100
-Message-Id: <20191027203338.579311139@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Alessio Balsini <balsini@android.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 12/41] loop: Add LOOP_SET_DIRECT_IO to compat ioctl
+Date:   Sun, 27 Oct 2019 22:00:50 +0100
+Message-Id: <20191027203110.371349330@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-References: <20191027203259.948006506@linuxfoundation.org>
+In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
+References: <20191027203056.220821342@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,37 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mian Yousaf Kaukab <ykaukab@suse.de>
+From: Alessio Balsini <balsini@android.com>
 
-[ Upstream commit 3891ebccace188af075ce143d8b072b65e90f695 ]
+[ Upstream commit fdbe4eeeb1aac219b14f10c0ed31ae5d1123e9b8 ]
 
-spectre-v1 has been mitigated and the mitigation is always active.
-Report this to userspace via sysfs
+Enabling Direct I/O with loop devices helps reducing memory usage by
+avoiding double caching.  32 bit applications running on 64 bits systems
+are currently not able to request direct I/O because is missing from the
+lo_compat_ioctl.
 
-Signed-off-by: Mian Yousaf Kaukab <ykaukab@suse.de>
-Signed-off-by: Jeremy Linton <jeremy.linton@arm.com>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
-Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
-Acked-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fixes the compatibility issue mentioned above by exporting
+LOOP_SET_DIRECT_IO as additional lo_compat_ioctl() entry.
+The input argument for this ioctl is a single long converted to a 1-bit
+boolean, so compatibility is preserved.
+
+Cc: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Alessio Balsini <balsini@android.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpu_errata.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/block/loop.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -638,3 +638,9 @@ const struct arm64_cpu_capabilities arm6
- 	{
- 	}
- };
-+
-+ssize_t cpu_show_spectre_v1(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	return sprintf(buf, "Mitigation: __user pointer sanitization\n");
-+}
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -1557,6 +1557,7 @@ static int lo_compat_ioctl(struct block_
+ 		arg = (unsigned long) compat_ptr(arg);
+ 	case LOOP_SET_FD:
+ 	case LOOP_CHANGE_FD:
++	case LOOP_SET_DIRECT_IO:
+ 		err = lo_ioctl(bdev, mode, cmd, arg);
+ 		break;
+ 	default:
 
 
