@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C180E66A3
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:13:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D56E677F
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730338AbfJ0VNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:13:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60922 "EHLO mail.kernel.org"
+        id S1731937AbfJ0VVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:21:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730330AbfJ0VNq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:13:46 -0400
+        id S1731929AbfJ0VV2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:21:28 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C3BA205C9;
-        Sun, 27 Oct 2019 21:13:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FACE208C0;
+        Sun, 27 Oct 2019 21:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210826;
-        bh=hgWiUJDqFhtiAu2EufDq0H/kyP+i6BeWCEBmU9Aiu3U=;
+        s=default; t=1572211287;
+        bh=zOf6QBfl7HHOIgvm0cyDG+mhCRuEGWYUeiUlNmlofOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qETjWUhsXUKy76iYK81RWchGD+qAukYj0sXn+b8e8qsN48w+VIOZh10DkrDfvED5y
-         vmsahIh4M7qG2JhoBhs+J2gIHDgFOHucXj4CSmKuSPIM10YmddxtIjP8a/pgYanlw0
-         Ikpa4S6G63mzUcOkpb4sG4xWtemEM9yXATFK3GUg=
+        b=LyYDb0bqXMJFwrh4MZ/qpPsEqX/cX/RJvJ7MpAMbwB9rregMaFN3Zf3FGMQFMpsXc
+         qommLexIpBT1X7gw/3ffcNUbQ2NEAB3erLxv7201Hipri63hmy2ToS1jbpXnwNmFwT
+         vyF8/RFB7CS/lI5U64Hoxl3YDbIke2VVj9dhVkzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 05/93] ARM: OMAP2+: Fix missing reset done flag for am3 and am43
+        stable@vger.kernel.org,
+        =?UTF-8?q?Szabolcs=20Sz=C5=91ke?= <szszoke.code@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.3 099/197] ALSA: usb-audio: Disable quirks for BOSS Katana amplifiers
 Date:   Sun, 27 Oct 2019 22:00:17 +0100
-Message-Id: <20191027203253.088898277@linuxfoundation.org>
+Message-Id: <20191027203357.104434455@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
-References: <20191027203251.029297948@linuxfoundation.org>
+In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
+References: <20191027203351.684916567@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Szabolcs Szőke <szszoke.code@gmail.com>
 
-[ Upstream commit 8ad8041b98c665b6147e607b749586d6e20ba73a ]
+commit 7571b6a17fcc5e4f6903f065a82d0e38011346ed upstream.
 
-For ti,sysc-omap4 compatible devices with no sysstatus register, we do have
-reset done status available in the SOFTRESET bit that clears when the reset
-is done. This is documented for example in am437x TRM for DMTIMER_TIOCP_CFG
-register. The am335x TRM just says that SOFTRESET bit value 1 means reset is
-ongoing, but it behaves the same way clearing after reset is done.
+BOSS Katana amplifiers cannot be used for recording or playback if quirks
+are applied
 
-With the ti-sysc driver handling this automatically based on no sysstatus
-register defined, we see warnings if SYSC_HAS_RESET_STATUS is missing in the
-legacy platform data:
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=195223
+Signed-off-by: Szabolcs Szőke <szszoke.code@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191011171937.8013-1-szszoke.code@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-ti-sysc 48042000.target-module: sysc_flags 00000222 != 00000022
-ti-sysc 48044000.target-module: sysc_flags 00000222 != 00000022
-ti-sysc 48046000.target-module: sysc_flags 00000222 != 00000022
-...
-
-Let's fix these warnings by adding SYSC_HAS_RESET_STATUS. Let's also
-remove the useless parentheses while at it.
-
-If it turns out we do have ti,sysc-omap4 compatible devices without a
-working SOFTRESET bit we can set up additional quirk handling for it.
-
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/usb/pcm.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
-index 9ded7bf972e71..3b8fe014a3e94 100644
---- a/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
-+++ b/arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c
-@@ -946,7 +946,8 @@ static struct omap_hwmod_class_sysconfig am33xx_timer_sysc = {
- 	.rev_offs	= 0x0000,
- 	.sysc_offs	= 0x0010,
- 	.syss_offs	= 0x0014,
--	.sysc_flags	= (SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET),
-+	.sysc_flags	= SYSC_HAS_SIDLEMODE | SYSC_HAS_SOFTRESET |
-+			  SYSC_HAS_RESET_STATUS,
- 	.idlemodes	= (SIDLE_FORCE | SIDLE_NO | SIDLE_SMART |
- 			  SIDLE_SMART_WKUP),
- 	.sysc_fields	= &omap_hwmod_sysc_type2,
--- 
-2.20.1
-
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -348,6 +348,9 @@ static int set_sync_ep_implicit_fb_quirk
+ 		ep = 0x84;
+ 		ifnum = 0;
+ 		goto add_sync_ep_from_ifnum;
++	case USB_ID(0x0582, 0x01d8): /* BOSS Katana */
++		/* BOSS Katana amplifiers do not need quirks */
++		return 0;
+ 	}
+ 
+ 	if (attr == USB_ENDPOINT_SYNC_ASYNC &&
 
 
