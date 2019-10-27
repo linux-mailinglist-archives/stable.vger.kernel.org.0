@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6D92E65BA
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFCCE66E3
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:16:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727570AbfJ0VEm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:04:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50384 "EHLO mail.kernel.org"
+        id S1730787AbfJ0VQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:16:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727275AbfJ0VEl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:04:41 -0400
+        id S1730783AbfJ0VQN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:16:13 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB7DA2064A;
-        Sun, 27 Oct 2019 21:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C760F205C9;
+        Sun, 27 Oct 2019 21:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572210280;
-        bh=OEMEAnqXLXECNbzBi+S+06vmw7HQa6AKkVWSqlb1UlM=;
+        s=default; t=1572210972;
+        bh=QW6MRCRLYhtplUwDHGu9qu0e/8biqeJI/X84mmGWZKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x3nzn7YV7wXweFLKfSqJY3Ifonl5iei8eQRMxdVh0S5KLBouQI7Bp3HLu9V14IJOF
-         kHuqf0cQe2HjpIKXqZHxilej4YesTHc9+9uQqQZsSU4yOfoyCHpvk0T5oH1SKqlJR+
-         GU8FRNApJPkKkeYTqe8IveQ8MxrXCqcM8F/KQ3to=
+        b=E0/VkZdtkBAsa2ZReVr6Jf3Nnkuq3DMXmCi8shkgrsNVBrTg5m1BviWy0j0zltjpi
+         ChAUEi0dDorEU3ld6loLwq/L+TqW/NeN75JIVRRVlurLLhTOc8dqjUJgRN3kau6+zr
+         i18GnbJ0r2ixBp7aTLpyik0va7X9sIhgffoREY5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Keller <jacob.e.keller@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 11/49] namespace: fix namespace.pl script to support relative paths
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 37/93] ALSA: hda/realtek - Add support for ALC711
 Date:   Sun, 27 Oct 2019 22:00:49 +0100
-Message-Id: <20191027203126.358110065@linuxfoundation.org>
+Message-Id: <20191027203258.122885374@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203119.468466356@linuxfoundation.org>
-References: <20191027203119.468466356@linuxfoundation.org>
+In-Reply-To: <20191027203251.029297948@linuxfoundation.org>
+References: <20191027203251.029297948@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,86 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacob Keller <jacob.e.keller@intel.com>
+From: Kailang Yang <kailang@realtek.com>
 
-[ Upstream commit 82fdd12b95727640c9a8233c09d602e4518e71f7 ]
+commit 83629532ce45ef9df1f297b419b9ea112045685d upstream.
 
-The namespace.pl script does not work properly if objtree is not set to
-an absolute path. The do_nm function is run from within the find
-function, which changes directories.
+Support new codec ALC711.
 
-Because of this, appending objtree, $File::Find::dir, and $source, will
-return a path which is not valid from the current directory.
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This used to work when objtree was set to an absolute path when using
-"make namespacecheck". It appears to have not worked when calling
-./scripts/namespace.pl directly.
-
-This behavior was changed in 7e1c04779efd ("kbuild: Use relative path
-for $(objtree)", 2014-05-14)
-
-Rather than fixing the Makefile to set objtree to an absolute path, just
-fix namespace.pl to work when srctree and objtree are relative. Also fix
-the script to use an absolute path for these by default.
-
-Use the File::Spec module for this purpose. It's been part of perl
-5 since 5.005.
-
-The curdir() function is used to get the current directory when the
-objtree and srctree aren't set in the environment.
-
-rel2abs() is used to convert possibly relative objtree and srctree
-environment variables to absolute paths.
-
-Finally, the catfile() function is used instead of string appending
-paths together, since this is more robust when joining paths together.
-
-Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
-Acked-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/namespace.pl | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ sound/pci/hda/patch_realtek.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/scripts/namespace.pl b/scripts/namespace.pl
-index 9f3c9d47a4a5d..4dddd4c01b625 100755
---- a/scripts/namespace.pl
-+++ b/scripts/namespace.pl
-@@ -65,13 +65,14 @@
- require 5;	# at least perl 5
- use strict;
- use File::Find;
-+use File::Spec;
- 
- my $nm = ($ENV{'NM'} || "nm") . " -p";
- my $objdump = ($ENV{'OBJDUMP'} || "objdump") . " -s -j .comment";
--my $srctree = "";
--my $objtree = "";
--$srctree = "$ENV{'srctree'}/" if (exists($ENV{'srctree'}));
--$objtree = "$ENV{'objtree'}/" if (exists($ENV{'objtree'}));
-+my $srctree = File::Spec->curdir();
-+my $objtree = File::Spec->curdir();
-+$srctree = File::Spec->rel2abs($ENV{'srctree'}) if (exists($ENV{'srctree'}));
-+$objtree = File::Spec->rel2abs($ENV{'objtree'}) if (exists($ENV{'objtree'}));
- 
- if ($#ARGV != -1) {
- 	print STDERR "usage: $0 takes no parameters\n";
-@@ -231,9 +232,9 @@ sub do_nm
- 	}
- 	($source = $basename) =~ s/\.o$//;
- 	if (-e "$source.c" || -e "$source.S") {
--		$source = "$objtree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($objtree, $File::Find::dir, $source)
- 	} else {
--		$source = "$srctree$File::Find::dir/$source";
-+		$source = File::Spec->catfile($srctree, $File::Find::dir, $source)
- 	}
- 	if (! -e "$source.c" && ! -e "$source.S") {
- 		# No obvious source, exclude the object if it is conglomerate
--- 
-2.20.1
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -405,6 +405,7 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0700:
+ 	case 0x10ec0701:
+ 	case 0x10ec0703:
++	case 0x10ec0711:
+ 		alc_update_coef_idx(codec, 0x10, 1<<15, 0);
+ 		break;
+ 	case 0x10ec0662:
+@@ -7752,6 +7753,7 @@ static int patch_alc269(struct hda_codec
+ 	case 0x10ec0700:
+ 	case 0x10ec0701:
+ 	case 0x10ec0703:
++	case 0x10ec0711:
+ 		spec->codec_variant = ALC269_TYPE_ALC700;
+ 		spec->gen.mixer_nid = 0; /* ALC700 does not have any loopback mixer path */
+ 		alc_update_coef_idx(codec, 0x4a, 1 << 15, 0); /* Combo jack auto trigger control */
+@@ -8883,6 +8885,7 @@ static const struct hda_device_id snd_hd
+ 	HDA_CODEC_ENTRY(0x10ec0700, "ALC700", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0701, "ALC701", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0703, "ALC703", patch_alc269),
++	HDA_CODEC_ENTRY(0x10ec0711, "ALC711", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0867, "ALC891", patch_alc662),
+ 	HDA_CODEC_ENTRY(0x10ec0880, "ALC880", patch_alc880),
+ 	HDA_CODEC_ENTRY(0x10ec0882, "ALC882", patch_alc882),
 
 
