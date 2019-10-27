@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6DFE6798
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:23:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4AE1E660D
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732113AbfJ0VWV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:22:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43260 "EHLO mail.kernel.org"
+        id S1728508AbfJ0VIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732084AbfJ0VWQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:22:16 -0400
+        id S1728456AbfJ0VIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:08:01 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 820CA2070B;
-        Sun, 27 Oct 2019 21:22:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC93620873;
+        Sun, 27 Oct 2019 21:07:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211335;
-        bh=2nEcRshp5xhvza40m8+vlnqa7DtGgn2vAsX0H6M8crY=;
+        s=default; t=1572210480;
+        bh=Ac3FKcAqWgiejFUBgLqLaR+hkkhRMrcjAXj8UqIpnlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zXLLOP5ruz6BZZYS91AF4THc0E0f8a/uRqXwSgsR2wyrUhw0oENWGiIjwpL0qjW7e
-         KQt14A5BfaNAv+lAAexlL4kf+PfCRoWfNc8Oc7gE5CSCcEeGEfHPajhvlRxkEpaKqw
-         p8Nip9kghUTMww/fg4Km4hcy3d7xct2i/2DUhsig=
+        b=maVgB+4mFfavoMqTBhaK8rZWsUf78dVwkABWrspg0EG2ADXsBfL8kSZ8W8qHaRJXU
+         /21k+pXVTvtsDoygspboKHb2rOovJaT06cp2uOa12EEJydemrhUEUe4gDr2hzoffwh
+         kjvJC/stQsAHlySoxBfZwUIhvR9TpeVtoalHSj5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Simon Horman <simon.horman@netronome.com>,
-        John Hurley <john.hurley@netronome.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 088/197] net/sched: fix corrupted L2 header with MPLS push and pop actions
+        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 029/119] memfd: Fix locking when tagging pins
 Date:   Sun, 27 Oct 2019 22:00:06 +0100
-Message-Id: <20191027203356.491152717@linuxfoundation.org>
+Message-Id: <20191027203309.163284422@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,188 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-[ Upstream commit fa4e0f8855fcba600e0be2575ee29c69166f74bd ]
+The RCU lock is insufficient to protect the radix tree iteration as
+a deletion from the tree can occur before we take the spinlock to
+tag the entry.  In 4.19, this has manifested as a bug with the following
+trace:
 
-the following script:
+kernel BUG at lib/radix-tree.c:1429!
+invalid opcode: 0000 [#1] SMP KASAN PTI
+CPU: 7 PID: 6935 Comm: syz-executor.2 Not tainted 4.19.36 #25
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+RIP: 0010:radix_tree_tag_set+0x200/0x2f0 lib/radix-tree.c:1429
+Code: 00 00 5b 5d 41 5c 41 5d 41 5e 41 5f c3 48 89 44 24 10 e8 a3 29 7e fe 48 8b 44 24 10 48 0f ab 03 e9 d2 fe ff ff e8 90 29 7e fe <0f> 0b 48 c7 c7 e0 5a 87 84 e8 f0 e7 08 ff 4c 89 ef e8 4a ff ac fe
+RSP: 0018:ffff88837b13fb60 EFLAGS: 00010016
+RAX: 0000000000040000 RBX: ffff8883c5515d58 RCX: ffffffff82cb2ef0
+RDX: 0000000000000b72 RSI: ffffc90004cf2000 RDI: ffff8883c5515d98
+RBP: ffff88837b13fb98 R08: ffffed106f627f7e R09: ffffed106f627f7e
+R10: 0000000000000001 R11: ffffed106f627f7d R12: 0000000000000004
+R13: ffffea000d7fea80 R14: 1ffff1106f627f6f R15: 0000000000000002
+FS:  00007fa1b8df2700(0000) GS:ffff8883e2fc0000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fa1b8df1db8 CR3: 000000037d4d2001 CR4: 0000000000160ee0
+Call Trace:
+ memfd_tag_pins mm/memfd.c:51 [inline]
+ memfd_wait_for_pins+0x2c5/0x12d0 mm/memfd.c:81
+ memfd_add_seals mm/memfd.c:215 [inline]
+ memfd_fcntl+0x33d/0x4a0 mm/memfd.c:247
+ do_fcntl+0x589/0xeb0 fs/fcntl.c:421
+ __do_sys_fcntl fs/fcntl.c:463 [inline]
+ __se_sys_fcntl fs/fcntl.c:448 [inline]
+ __x64_sys_fcntl+0x12d/0x180 fs/fcntl.c:448
+ do_syscall_64+0xc8/0x580 arch/x86/entry/common.c:293
 
- # tc qdisc add dev eth0 clsact
- # tc filter add dev eth0 egress protocol ip matchall \
- > action mpls push protocol mpls_uc label 0x355aa bos 1
+The problem does not occur in mainline due to the XArray rewrite which
+changed the locking to exclude modification of the tree during iteration.
+At the time, nobody realised this was a bugfix.  Backport the locking
+changes to stable.
 
-causes corruption of all IP packets transmitted by eth0. On TC egress, we
-can't rely on the value of skb->mac_len, because it's 0 and a MPLS 'push'
-operation will result in an overwrite of the first 4 octets in the packet
-L2 header (e.g. the Destination Address if eth0 is an Ethernet); the same
-error pattern is present also in the MPLS 'pop' operation. Fix this error
-in act_mpls data plane, computing 'mac_len' as the difference between the
-network header and the mac header (when not at TC ingress), and use it in
-MPLS 'push'/'pop' core functions.
-
-v2: unbreak 'make htmldocs' because of missing documentation of 'mac_len'
-    in skb_mpls_pop(), reported by kbuild test robot
-
-CC: Lorenzo Bianconi <lorenzo@kernel.org>
-Fixes: 2a2ea50870ba ("net: sched: add mpls manipulation actions to TC")
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Acked-by: John Hurley <john.hurley@netronome.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Reported-by: zhong jiang <zhongjiang@huawei.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h    |    5 +++--
- net/core/skbuff.c         |   19 +++++++++++--------
- net/openvswitch/actions.c |    5 +++--
- net/sched/act_mpls.c      |   12 ++++++++----
- 4 files changed, 25 insertions(+), 16 deletions(-)
+ mm/shmem.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -3465,8 +3465,9 @@ int skb_ensure_writable(struct sk_buff *
- int __skb_vlan_pop(struct sk_buff *skb, u16 *vlan_tci);
- int skb_vlan_pop(struct sk_buff *skb);
- int skb_vlan_push(struct sk_buff *skb, __be16 vlan_proto, u16 vlan_tci);
--int skb_mpls_push(struct sk_buff *skb, __be32 mpls_lse, __be16 mpls_proto);
--int skb_mpls_pop(struct sk_buff *skb, __be16 next_proto);
-+int skb_mpls_push(struct sk_buff *skb, __be32 mpls_lse, __be16 mpls_proto,
-+		  int mac_len);
-+int skb_mpls_pop(struct sk_buff *skb, __be16 next_proto, int mac_len);
- int skb_mpls_update_lse(struct sk_buff *skb, __be32 mpls_lse);
- int skb_mpls_dec_ttl(struct sk_buff *skb);
- struct sk_buff *pskb_extract(struct sk_buff *skb, int off, int to_copy,
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -5465,12 +5465,14 @@ static void skb_mod_eth_type(struct sk_b
-  * @skb: buffer
-  * @mpls_lse: MPLS label stack entry to push
-  * @mpls_proto: ethertype of the new MPLS header (expects 0x8847 or 0x8848)
-+ * @mac_len: length of the MAC header
-  *
-  * Expects skb->data at mac header.
-  *
-  * Returns 0 on success, -errno otherwise.
-  */
--int skb_mpls_push(struct sk_buff *skb, __be32 mpls_lse, __be16 mpls_proto)
-+int skb_mpls_push(struct sk_buff *skb, __be32 mpls_lse, __be16 mpls_proto,
-+		  int mac_len)
- {
- 	struct mpls_shim_hdr *lse;
- 	int err;
-@@ -5487,15 +5489,15 @@ int skb_mpls_push(struct sk_buff *skb, _
- 		return err;
+diff --git a/mm/shmem.c b/mm/shmem.c
+index 037e2ee9ccacc..5b2cc9f9b1f1d 100644
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2657,11 +2657,12 @@ static void shmem_tag_pins(struct address_space *mapping)
+ 	void **slot;
+ 	pgoff_t start;
+ 	struct page *page;
++	unsigned int tagged = 0;
  
- 	if (!skb->inner_protocol) {
--		skb_set_inner_network_header(skb, skb->mac_len);
-+		skb_set_inner_network_header(skb, mac_len);
- 		skb_set_inner_protocol(skb, skb->protocol);
+ 	lru_add_drain();
+ 	start = 0;
+-	rcu_read_lock();
+ 
++	spin_lock_irq(&mapping->tree_lock);
+ 	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
+ 		page = radix_tree_deref_slot(slot);
+ 		if (!page || radix_tree_exception(page)) {
+@@ -2670,18 +2671,19 @@ static void shmem_tag_pins(struct address_space *mapping)
+ 				continue;
+ 			}
+ 		} else if (page_count(page) - page_mapcount(page) > 1) {
+-			spin_lock_irq(&mapping->tree_lock);
+ 			radix_tree_tag_set(&mapping->page_tree, iter.index,
+ 					   SHMEM_TAG_PINNED);
+-			spin_unlock_irq(&mapping->tree_lock);
+ 		}
+ 
+-		if (need_resched()) {
+-			slot = radix_tree_iter_resume(slot, &iter);
+-			cond_resched_rcu();
+-		}
++		if (++tagged % 1024)
++			continue;
++
++		slot = radix_tree_iter_resume(slot, &iter);
++		spin_unlock_irq(&mapping->tree_lock);
++		cond_resched();
++		spin_lock_irq(&mapping->tree_lock);
  	}
+-	rcu_read_unlock();
++	spin_unlock_irq(&mapping->tree_lock);
+ }
  
- 	skb_push(skb, MPLS_HLEN);
- 	memmove(skb_mac_header(skb) - MPLS_HLEN, skb_mac_header(skb),
--		skb->mac_len);
-+		mac_len);
- 	skb_reset_mac_header(skb);
--	skb_set_network_header(skb, skb->mac_len);
-+	skb_set_network_header(skb, mac_len);
- 
- 	lse = mpls_hdr(skb);
- 	lse->label_stack_entry = mpls_lse;
-@@ -5514,29 +5516,30 @@ EXPORT_SYMBOL_GPL(skb_mpls_push);
-  *
-  * @skb: buffer
-  * @next_proto: ethertype of header after popped MPLS header
-+ * @mac_len: length of the MAC header
-  *
-  * Expects skb->data at mac header.
-  *
-  * Returns 0 on success, -errno otherwise.
-  */
--int skb_mpls_pop(struct sk_buff *skb, __be16 next_proto)
-+int skb_mpls_pop(struct sk_buff *skb, __be16 next_proto, int mac_len)
- {
- 	int err;
- 
- 	if (unlikely(!eth_p_mpls(skb->protocol)))
- 		return 0;
- 
--	err = skb_ensure_writable(skb, skb->mac_len + MPLS_HLEN);
-+	err = skb_ensure_writable(skb, mac_len + MPLS_HLEN);
- 	if (unlikely(err))
- 		return err;
- 
- 	skb_postpull_rcsum(skb, mpls_hdr(skb), MPLS_HLEN);
- 	memmove(skb_mac_header(skb) + MPLS_HLEN, skb_mac_header(skb),
--		skb->mac_len);
-+		mac_len);
- 
- 	__skb_pull(skb, MPLS_HLEN);
- 	skb_reset_mac_header(skb);
--	skb_set_network_header(skb, skb->mac_len);
-+	skb_set_network_header(skb, mac_len);
- 
- 	if (skb->dev && skb->dev->type == ARPHRD_ETHER) {
- 		struct ethhdr *hdr;
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -165,7 +165,8 @@ static int push_mpls(struct sk_buff *skb
- {
- 	int err;
- 
--	err = skb_mpls_push(skb, mpls->mpls_lse, mpls->mpls_ethertype);
-+	err = skb_mpls_push(skb, mpls->mpls_lse, mpls->mpls_ethertype,
-+			    skb->mac_len);
- 	if (err)
- 		return err;
- 
-@@ -178,7 +179,7 @@ static int pop_mpls(struct sk_buff *skb,
- {
- 	int err;
- 
--	err = skb_mpls_pop(skb, ethertype);
-+	err = skb_mpls_pop(skb, ethertype, skb->mac_len);
- 	if (err)
- 		return err;
- 
---- a/net/sched/act_mpls.c
-+++ b/net/sched/act_mpls.c
-@@ -55,7 +55,7 @@ static int tcf_mpls_act(struct sk_buff *
- 	struct tcf_mpls *m = to_mpls(a);
- 	struct tcf_mpls_params *p;
- 	__be32 new_lse;
--	int ret;
-+	int ret, mac_len;
- 
- 	tcf_lastuse_update(&m->tcf_tm);
- 	bstats_cpu_update(this_cpu_ptr(m->common.cpu_bstats), skb);
-@@ -63,8 +63,12 @@ static int tcf_mpls_act(struct sk_buff *
- 	/* Ensure 'data' points at mac_header prior calling mpls manipulating
- 	 * functions.
- 	 */
--	if (skb_at_tc_ingress(skb))
-+	if (skb_at_tc_ingress(skb)) {
- 		skb_push_rcsum(skb, skb->mac_len);
-+		mac_len = skb->mac_len;
-+	} else {
-+		mac_len = skb_network_header(skb) - skb_mac_header(skb);
-+	}
- 
- 	ret = READ_ONCE(m->tcf_action);
- 
-@@ -72,12 +76,12 @@ static int tcf_mpls_act(struct sk_buff *
- 
- 	switch (p->tcfm_action) {
- 	case TCA_MPLS_ACT_POP:
--		if (skb_mpls_pop(skb, p->tcfm_proto))
-+		if (skb_mpls_pop(skb, p->tcfm_proto, mac_len))
- 			goto drop;
- 		break;
- 	case TCA_MPLS_ACT_PUSH:
- 		new_lse = tcf_mpls_get_lse(NULL, p, !eth_p_mpls(skb->protocol));
--		if (skb_mpls_push(skb, new_lse, p->tcfm_proto))
-+		if (skb_mpls_push(skb, new_lse, p->tcfm_proto, mac_len))
- 			goto drop;
- 		break;
- 	case TCA_MPLS_ACT_MODIFY:
+ /*
+-- 
+2.20.1
+
 
 
