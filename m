@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E5B9E676B
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:21:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A7E2E6601
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 22:08:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731743AbfJ0VUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 17:20:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41344 "EHLO mail.kernel.org"
+        id S1729186AbfJ0VHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 17:07:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731765AbfJ0VUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 27 Oct 2019 17:20:43 -0400
+        id S1728297AbfJ0VHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 27 Oct 2019 17:07:36 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B09A205C9;
-        Sun, 27 Oct 2019 21:20:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3CD1214AF;
+        Sun, 27 Oct 2019 21:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572211242;
-        bh=5XqMLD8iGPlbW6virlcrv14XF0qzAbPIBv74bVt0L3c=;
+        s=default; t=1572210454;
+        bh=UBso9M+qKYhSGLEwkFSKqdYqM7WurwWRzBBWfdS9tOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Elr3B/8T8VCqIb9KZxI/LvHywqw2ASzUcBlnNFAfcpoDuh3BcHyjFOQ90mZPptJdS
-         3u7hfdn9w1ME8i/up1X+A5m9/v75FmmFpAast/4D8SWZaOpc4IUFiyAvVY9EAHQ7Mu
-         DlF7oiU54UVXxtoxIHd+2DXIuR+pPqtV3CTXpDtY=
+        b=ZUEmqZUPHFZodtcGNs8JQCdf2KVB7MKdGIKpu4Sc9TbOgC6bLCn4wdN2yPZDwV9Fb
+         MxQtZDDkm2cQmeA1HOSt98mzwL86ohYVo6RbNSMzsHz8MPC7/QPu7EGXPLC9BtNcj8
+         T3G8cACGWAFi4w3DTi0gtim5zVNF/VddGFP/p+gE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Doug Berger <opendmb@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 080/197] sctp: change sctp_prot .no_autobind with true
+Subject: [PATCH 4.14 021/119] net: bcmgenet: Set phydev->dev_flags only for internal PHYs
 Date:   Sun, 27 Oct 2019 21:59:58 +0100
-Message-Id: <20191027203356.015238643@linuxfoundation.org>
+Message-Id: <20191027203306.431188966@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-References: <20191027203351.684916567@linuxfoundation.org>
+In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
+References: <20191027203259.948006506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,71 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 63dfb7938b13fa2c2fbcb45f34d065769eb09414 ]
+[ Upstream commit 92696286f3bb37ba50e4bd8d1beb24afb759a799 ]
 
-syzbot reported a memory leak:
+phydev->dev_flags is entirely dependent on the PHY device driver which
+is going to be used, setting the internal GENET PHY revision in those
+bits only makes sense when drivers/net/phy/bcm7xxx.c is the PHY driver
+being used.
 
-  BUG: memory leak, unreferenced object 0xffff888120b3d380 (size 64):
-  backtrace:
-
-    [...] slab_alloc mm/slab.c:3319 [inline]
-    [...] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
-    [...] sctp_bucket_create net/sctp/socket.c:8523 [inline]
-    [...] sctp_get_port_local+0x189/0x5a0 net/sctp/socket.c:8270
-    [...] sctp_do_bind+0xcc/0x200 net/sctp/socket.c:402
-    [...] sctp_bindx_add+0x4b/0xd0 net/sctp/socket.c:497
-    [...] sctp_setsockopt_bindx+0x156/0x1b0 net/sctp/socket.c:1022
-    [...] sctp_setsockopt net/sctp/socket.c:4641 [inline]
-    [...] sctp_setsockopt+0xaea/0x2dc0 net/sctp/socket.c:4611
-    [...] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3147
-    [...] __sys_setsockopt+0x10f/0x220 net/socket.c:2084
-    [...] __do_sys_setsockopt net/socket.c:2100 [inline]
-
-It was caused by when sending msgs without binding a port, in the path:
-inet_sendmsg() -> inet_send_prepare() -> inet_autobind() ->
-.get_port/sctp_get_port(), sp->bind_hash will be set while bp->port is
-not. Later when binding another port by sctp_setsockopt_bindx(), a new
-bucket will be created as bp->port is not set.
-
-sctp's autobind is supposed to call sctp_autobind() where it does all
-things including setting bp->port. Since sctp_autobind() is called in
-sctp_sendmsg() if the sk is not yet bound, it should have skipped the
-auto bind.
-
-THis patch is to avoid calling inet_autobind() in inet_send_prepare()
-by changing sctp_prot .no_autobind with true, also remove the unused
-.get_port.
-
-Reported-by: syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: 487320c54143 ("net: bcmgenet: communicate integrated PHY revision to PHY driver")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Doug Berger <opendmb@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmmii.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -9353,7 +9353,7 @@ struct proto sctp_prot = {
- 	.backlog_rcv =	sctp_backlog_rcv,
- 	.hash        =	sctp_hash,
- 	.unhash      =	sctp_unhash,
--	.get_port    =	sctp_get_port,
-+	.no_autobind =	true,
- 	.obj_size    =  sizeof(struct sctp_sock),
- 	.useroffset  =  offsetof(struct sctp_sock, subscribe),
- 	.usersize    =  offsetof(struct sctp_sock, initmsg) -
-@@ -9395,7 +9395,7 @@ struct proto sctpv6_prot = {
- 	.backlog_rcv	= sctp_backlog_rcv,
- 	.hash		= sctp_hash,
- 	.unhash		= sctp_unhash,
--	.get_port	= sctp_get_port,
-+	.no_autobind	= true,
- 	.obj_size	= sizeof(struct sctp6_sock),
- 	.useroffset	= offsetof(struct sctp6_sock, sctp.subscribe),
- 	.usersize	= offsetof(struct sctp6_sock, sctp.initmsg) -
+--- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
+@@ -296,11 +296,12 @@ int bcmgenet_mii_probe(struct net_device
+ 	struct bcmgenet_priv *priv = netdev_priv(dev);
+ 	struct device_node *dn = priv->pdev->dev.of_node;
+ 	struct phy_device *phydev;
+-	u32 phy_flags;
++	u32 phy_flags = 0;
+ 	int ret;
+ 
+ 	/* Communicate the integrated PHY revision */
+-	phy_flags = priv->gphy_rev;
++	if (priv->internal_phy)
++		phy_flags = priv->gphy_rev;
+ 
+ 	/* Initialize link state variables that bcmgenet_mii_setup() uses */
+ 	priv->old_link = -1;
 
 
