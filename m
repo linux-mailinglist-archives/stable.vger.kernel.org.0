@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB331E6474
-	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:22:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14B2E6475
+	for <lists+stable@lfdr.de>; Sun, 27 Oct 2019 18:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727616AbfJ0RWz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 13:22:55 -0400
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:36069 "EHLO
+        id S1727658AbfJ0RW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 13:22:57 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:45169 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727280AbfJ0RWz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:22:55 -0400
+        by vger.kernel.org with ESMTP id S1727280AbfJ0RW5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 13:22:57 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 86400220E7;
-        Sun, 27 Oct 2019 13:22:54 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 2B2C222182;
+        Sun, 27 Oct 2019 13:22:56 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:22:54 -0400
+  by compute6.internal (MEProxy); Sun, 27 Oct 2019 13:22:56 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WV0HRI
-        H07aj2wBP7vubuCONZfwqBIeck1cGJA0TSNsI=; b=y3GbzI9KukDl5uBxeS6Vkt
-        donUlS+pAUcl6DMJy57ZwDhi9uBz7zfjsUhBsTXcSBVFvCDS6EyDX1Widty5LZXQ
-        p7vUEdO+I1kkw5RUjeLjuIWGe1ja1xWJU0VHKspzYJoeloyPuGlc7vL7nZbCx4ZZ
-        gStQzIVCk105keNZs7qRuIxJg1tYJjwou+EEfDEyYhk/pqiJ0flKtNFcmAQvU6Sx
-        3cEdfBnx2UoO4xMCEkxS0TSU+7oD3ATHx2Y2ERS/L4JI5yXFiFPg2omA9Y5svmjx
-        75JxvDbUgK9JjiR9ucFaLjezA671/O0krTSlIAw4IRaSJOZftdTfbB6DwJsafwkA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XPlDEh
+        kPcqXysLzlf/KG3QdWZbFwHHfqRn6dereQUnU=; b=PjhdC3z0YKMnPUSri5CHsb
+        o7lCdlGAl37Cz2FVVIg4coc4BWxiVM3NYjpzkT4uZsrEOEVTcbWG8Z2xjpghsoFf
+        QUUlTglAHTvUdb/tEvI4EPnMxChJkSDf1xuXHH1LfQinkRIQXE2D3Aglg/ANjaWz
+        CJ/T8MI2nCmf+voA2AqtCHlv0GlTU7AMz+c3jjILhtuldycv8xHkaUKcbxUecwMA
+        b2HElCxa6i++QWa817zzl7jy602o/gFBoQZnnhVVBmTWrjX1k5eYj4AHgFoCGygw
+        EKxuMQVhN+qySh0FSKStWGwcAHQt38kIHK1d/G1W1zKc5VD2/OzWYjqA6/8fLZkA
         ==
-X-ME-Sender: <xms:btK1XSfS0swLUAuyz9TsaioikOeR87j9uMMdCxS9wE9JgtffenDFaA>
+X-ME-Sender: <xms:cNK1XcMECHEDPz6fytnoDVNVykwB7MHxf4iBBeFig8pT7sPBdFvmqw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrleejgddutdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeejjedrudehkedrhedtrddutddtnecurfgrrhgrmhepmhgrihhlfhhroh
     hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:btK1XTp8WN4V8X81gtP-1a-lK23eS_IbAB4AiGcJxZO9fdAqNCFYlg>
-    <xmx:btK1XQ4JPzEgMkvqMElPK-kxh9yebFIuZ-y4QdUEiyWzzDZ2j1gIzw>
-    <xmx:btK1XZryq_-smUtghyBCDpCvIJWEkEEVGA0wbVPvbM3a9IN6VRfKMA>
-    <xmx:btK1Xfr6tvldKgL_abs7t-oWYagnioVFW-XVElNydBk_K5_HiZ0S0A>
+X-ME-Proxy: <xmx:cNK1XQ6CT_rAC7m1kOZMRBb6WWDVB72x-8gE7w_NmgMgZ-lML9L1JQ>
+    <xmx:cNK1Xa1xYfURM8pBKZutoifuFD0yDOYmyiAUiJVbaglSwADnCQZT_g>
+    <xmx:cNK1XRbAsnWOuzFcDnqX4kbWhgjQwarLiCW71ZWeJTRQJJh5M691Mg>
+    <xmx:cNK1XYdd_1GZ8cVnGvPofVemrgMzSmCrMhAMhoLn90GhezBBER8Jfw>
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 173AD80059;
-        Sun, 27 Oct 2019 13:22:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: check for the full sync flag while holding the inode" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 98AEB8005A;
+        Sun, 27 Oct 2019 13:22:55 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: check for the full sync flag while holding the inode" failed to apply to 4.4-stable tree
 To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 27 Oct 2019 16:47:18 +0100
-Message-ID: <157219123862159@kroah.com>
+Date:   Sun, 27 Oct 2019 16:47:19 +0100
+Message-ID: <1572191239517@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
