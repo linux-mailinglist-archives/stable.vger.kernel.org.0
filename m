@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45EA0E7478
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 16:08:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4580E7479
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 16:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389615AbfJ1PIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 11:08:32 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:33580 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726945AbfJ1PIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 11:08:31 -0400
+        id S2390451AbfJ1PIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 11:08:40 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:57139 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726945AbfJ1PIk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 11:08:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572275309;
+        s=mimecast20190719; t=1572275318;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=4AXDG1SlM4BfMPOydubwR0/7i74zV7RWrMysKLII4UQ=;
-        b=WB/H0QtdHOzNYJAfsKInqRhAS5S4FDZBXRtjI8F7Hm/+GGPQrkmbRfT5m4WwGh1es9TcXO
-        nZ0M3avXqIuZxy6bHvK3w1fDvzKDezAuT7SbwV+RxuQxg8W6fSmQfnmWKPhW070AJW2jZr
-        a8gwJmQR4bOkGKfwk/KLMwUM5nFSiAM=
+        bh=vEnxaTykMlNOFE8mPsoI1DOBUkdENjJ4vxl1KjWnhb4=;
+        b=brNJ7W8JX6m9aJ9bxoY4pJ4I1h8Wwud34yZdhAqQgkkyPeGSAT/6b8lQBjKqE5BBehu5se
+        rakIMizIt0TDJz+DdjFEeDi5QVmRGtOpKxCagZ5hl0r3ybWXNkE7G60xGOP6El/2FLDMyq
+        SD/lnumIyXI0DW1cyhUYb2GWY9yZDsU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-297-Wy0RusvaM4yAx0B8CtaDhg-1; Mon, 28 Oct 2019 11:08:24 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-276-oofbZBZsMuqSiZTtKvUUvw-1; Mon, 28 Oct 2019 11:08:36 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 95C361005509;
-        Mon, 28 Oct 2019 15:08:19 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0DC891005510;
+        Mon, 28 Oct 2019 15:08:31 +0000 (UTC)
 Received: from [10.36.117.63] (ovpn-117-63.ams2.redhat.com [10.36.117.63])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DAAD510016DA;
-        Mon, 28 Oct 2019 15:08:04 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3CADF2636C;
+        Mon, 28 Oct 2019 15:08:21 +0000 (UTC)
 Subject: Re: FAILED: patch "[PATCH] mm/memory_hotplug: don't access
- uninitialized memmaps in" failed to apply to 4.14-stable tree
+ uninitialized memmaps in" failed to apply to 4.19-stable tree
 To:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
         alexander.h.duyck@linux.intel.com, aneesh.kumar@linux.ibm.com,
         anshuman.khandual@arm.com, benh@kernel.crashing.org,
@@ -56,18 +56,18 @@ To:     gregkh@linuxfoundation.org, akpm@linux-foundation.org,
         willy@infradead.org, yamada.masahiro@socionext.com,
         yaojun8558363@gmail.com, ysato@users.sourceforge.jp,
         yuzhao@google.com
-References: <15721838171019@kroah.com>
+References: <1572183819118174@kroah.com>
 From:   David Hildenbrand <david@redhat.com>
 Organization: Red Hat GmbH
-Message-ID: <14032c0a-fd05-6ac4-3b2b-0d5256d92112@redhat.com>
-Date:   Mon, 28 Oct 2019 16:08:04 +0100
+Message-ID: <38c8a759-85db-04c4-95d1-9268d36d1b94@redhat.com>
+Date:   Mon, 28 Oct 2019 16:08:20 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.1.1
 MIME-Version: 1.0
-In-Reply-To: <15721838171019@kroah.com>
+In-Reply-To: <1572183819118174@kroah.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: Wy0RusvaM4yAx0B8CtaDhg-1
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-MC-Unique: oofbZBZsMuqSiZTtKvUUvw-1
 X-Mimecast-Spam-Score: 0
 Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
 Content-Transfer-Encoding: quoted-printable
@@ -78,7 +78,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 On 27.10.19 14:43, gregkh@linuxfoundation.org wrote:
 >=20
-> The patch below does not apply to the 4.14-stable tree.
+> The patch below does not apply to the 4.19-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
