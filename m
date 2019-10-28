@@ -2,86 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 264E1E72BB
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 14:39:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67C92E72DA
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 14:49:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731242AbfJ1NjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 09:39:12 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:47097 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729742AbfJ1NjM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 09:39:12 -0400
-Received: by mail-pf1-f195.google.com with SMTP id b25so6879472pfi.13;
-        Mon, 28 Oct 2019 06:39:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=tmr54Q5Qr/0fvZprRn/mxU/Hu8sttOZ5X5l+6lthxhk=;
-        b=QWDThVKDpzTBW5lVtkCPqAODLuSkCr7fRhKQ8gwdT2WnG0XqP+7cr/4/uFgjEjtSqz
-         S44K3jdTr6S7r1AF1LiJb5ntHu7Jehfdh/JEfjFOnilcuTRBbAd1irZ/VOFGz5Z0UPR/
-         OASlSlBaidDcjt7Q3cCGlVHNOBn0uOy0sr0Ul/cMoIWZuyWGrX0WTgK3OpaRLG6dpakN
-         9wuznaWfl4NK6xuyPRD/uDDrVvm7KRSA9S3FrMLsSVzjKu45BA3EnJ15fvUActMxEdbm
-         DcbYAIckBro9lRWusSg0yrP0i2g4tEbO/mraq0SzT2qgaXEqxlMPRbvexI2eyePvkR2/
-         LXsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=tmr54Q5Qr/0fvZprRn/mxU/Hu8sttOZ5X5l+6lthxhk=;
-        b=oz5J+5u08uxJOsiUaNCvG3hCqm3xdtjZzBK00IlW4yCljks3A/2ky+s1jvz5k0jsG8
-         Vhzp8AHOOynGkz1mrvxmw2tymVqURGnD3f/3X8CEceJ287VCOHk5253xosAY2OfjcAbB
-         UDHc/nkm614aK4zXqb1q/HuNkTFvMrSOuAPjv6NtbGuw7Rlo865ETaX+ZhCZEfpGc9p6
-         tsA/XBj4I/TphWD+ahtsnYazOMjuTD0HT5alse15mvo/OGa8jdTBdgwb5a8DN6N/lTMc
-         CA9CXRQ9GHCdcNy+iIYfyaHbLQxZkztpqU7PZsAZf+29km32wiGgA2bs9KRIOCNHTqMl
-         M1wA==
-X-Gm-Message-State: APjAAAXn3JiPKxBbN9BTPqHe+2Dk4d4akvgjplHsitc5mCuOLwZx9IDu
-        nLp/j3vWNlJPx+gfsCGR+0M4Odpz
-X-Google-Smtp-Source: APXvYqyX5rfytHGtXP46KcsGMlKnTJSgYc2gqhtoRAuQeL4TyOARfPvfIoHDT0Cycvsa2J1sSJAp5A==
-X-Received: by 2002:a17:90a:eb02:: with SMTP id j2mr71338pjz.80.1572269949687;
-        Mon, 28 Oct 2019 06:39:09 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id j6sm10202591pfa.124.2019.10.28.06.39.08
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 28 Oct 2019 06:39:09 -0700 (PDT)
-Subject: Re: [PATCH 5.3 000/197] 5.3.8-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
+        id S1725959AbfJ1NtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 09:49:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53666 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725774AbfJ1NtI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Oct 2019 09:49:08 -0400
+Received: from localhost (unknown [91.217.168.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id A10CF20862;
+        Mon, 28 Oct 2019 13:49:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572270548;
+        bh=TIem8yhgrFj1zfc0iyle9zHw38NS9oGCLDSzUjsDd/k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VKIGu9s6hREp7uYQUWgJ0AckdQgKnPg+uGovC51qpYZmr5mgsIOF54RnZc8x/UWdz
+         36A32qcGcLTf59MFay8TlT0DH6RcD5c8MJEU2ubDy2DqdtjhafPn34zLvc6djnnU7T
+         ANN+XR7+p4tahCxi2bi1IkWdr6X8wFVW4tKAoNpQ=
+Date:   Mon, 28 Oct 2019 14:49:05 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
-References: <20191027203351.684916567@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <ca7be240-e71f-58aa-79ef-9d35acb3bc8e@roeck-us.net>
-Date:   Mon, 28 Oct 2019 06:39:08 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+Subject: Re: [PATCH 4.4 00/41] 4.4.198-stable review
+Message-ID: <20191028134905.GA53500@kroah.com>
+References: <20191027203056.220821342@linuxfoundation.org>
+ <3961082b-17bc-cef7-f0e5-7bf029b2de2a@roeck-us.net>
 MIME-Version: 1.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3961082b-17bc-cef7-f0e5-7bf029b2de2a@roeck-us.net>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/27/19 1:58 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.3.8 release.
-> There are 197 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Mon, Oct 28, 2019 at 06:32:14AM -0700, Guenter Roeck wrote:
+> On 10/27/19 2:00 PM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 4.4.198 release.
+> > There are 41 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> > 
+> > Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
+> > Anything received after that time might be too late.
+> > 
 > 
-> Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> Anything received after that time might be too late.
 > 
+> Building mips:defconfig ... failed
+> --------------
+> Error log:
+> In file included from /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/include/asm/bitops.h:21,
+>                  from /opt/buildbot/slave/stable-queue-4.9/build/include/linux/bitops.h:17,
+>                  from /opt/buildbot/slave/stable-queue-4.9/build/include/linux/kernel.h:10,
+>                  from /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:15:
+> /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c: In function 'cpu_probe':
+> /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/include/asm/cpu-features.h:349:31: error: implicit declaration of function '__ase' [-Werror=implicit-function-declaration]
+>   349 | #define cpu_has_loongson_mmi  __ase(MIPS_ASE_LOONGSON_MMI)
+>       |                               ^~~~~
+> /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2079:6: note: in expansion of macro 'cpu_has_loongson_mmi'
+>  2079 |  if (cpu_has_loongson_mmi)
+>       |      ^~~~~~~~~~~~~~~~~~~~
+> /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2083:16: error: 'HWCAP_LOONGSON_CAM' undeclared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
+>  2083 |   elf_hwcap |= HWCAP_LOONGSON_CAM;
+>       |                ^~~~~~~~~~~~~~~~~~
+>       |                HWCAP_LOONGSON_EXT
+> /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2083:16: note: each undeclared identifier is reported only once for each function it appears in
+> 
+> 
+> Affects all mips builds in v{4.4, 4.9, 4.14}.
 
-
-Build results:
-	total: 158 pass: 158 fail: 0
-Qemu test results:
-	total: 391 pass: 391 fail: 0
-
-Guenter
+Ugh, let me see what happened...
