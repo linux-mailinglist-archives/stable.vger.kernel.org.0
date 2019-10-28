@@ -2,114 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0932FE782A
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 19:13:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C058E7869
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 19:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730963AbfJ1SND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 14:13:03 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:37722 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730690AbfJ1SND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 14:13:03 -0400
-Received: by mail-pg1-f194.google.com with SMTP id p1so7421999pgi.4;
-        Mon, 28 Oct 2019 11:13:03 -0700 (PDT)
+        id S1733284AbfJ1S17 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 14:27:59 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:54352 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1733276AbfJ1S17 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 14:27:59 -0400
+Received: by mail-wm1-f65.google.com with SMTP id g7so10573342wmk.4
+        for <stable@vger.kernel.org>; Mon, 28 Oct 2019 11:27:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=7/YManxxrXMGA7cACVdmSHAatXDpp8qM6jzpbsBeexY=;
-        b=JhyDsvpTchOiMxVkb7YsfkV5FYRi7ywU6edxD96DTLFkyE7Y9DihOEkVV20CHw8f+Q
-         snB62JN12f5r6M81w/veOo/d2H/1yS11TsolCjiSzasH9T7BdktZ4CKeZFM4CrVUPc3e
-         3desTUy9k1tiP+Yd0aEbDOGHnf01l/5ZMDVYAXCn/VX4wfjs+re6Pm7FVKSYjARGlZNd
-         YUnARW0RVCUqoONMXPgXC98AhmrujOrXfWnwmi6g/SmsrNLZQteLG08z8Xh3Ztkf/YOS
-         v+MzN/6r2pib4FnxYtRW0c2WmWSFWIh5lKdaqdoAiWOHAH4kkKngTI4QkBqkJmRNMier
-         VMfA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OXZjwZMcbtN1nQHKUI6x2sDOK9o4nPzSxKg89KFvOBI=;
+        b=FzLRbXZLRBNxPne2Nnz/KBbtjDt1IPsgOMuCWc+Oeu0EKml4ZvWXj7rqq+iXoKCb4f
+         Kt3j9HV2RviDaMNCvFmzz1NyXfLuVuhBAbL4l7NXLg4sAiWjAZGlCGXRYqm9jkg+kDnO
+         Bh2BlNhvt5lSmTKqyMwY/TmskXuy0MljV4iy0vDhO5FnF2TxnC2Os0TphnKf3eNxBe7w
+         mXiBixgXFi/GG+XLM1knnPTiWfGO0Q1g281oY8hPM+vbfo9iuvzlwdYzk26rVVuXnMsI
+         PQABbKAMG+V4SD4nKT9eQtZWNUriz4wsCNwEcfbUMZdm4/LFnXeD1DoCGm3PYk0enEoN
+         YqKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=7/YManxxrXMGA7cACVdmSHAatXDpp8qM6jzpbsBeexY=;
-        b=dQMybcafo/WU7MreXIwhQWl0g1JBrvvlTJdey3nK2DbGMmT/kE/A4xwfTx2Q0YM/TE
-         9LSDqSsjTVcDV7KQ7QOoBfbo4zjXP/G6fZm1CIWzBXpYxLvC46B3IRKOOmpXB9Kq9vkL
-         WIGUOrK9NcEEvYPObD+xsU+62wJBXzEgevX2fN6CA2nxN+uR69dwaECzH80L/UYant9L
-         jl6m4Ob1O1UA1lWMYGTJXwkVLN8XA9Wek0B0wOXGJXbS/NCF6JEUVN2BoOiExVHvUxVa
-         BeOdtJcFLLApmrZZN4KK8MuWr0N34j9FoUjTC8CxzRwbcKD6UcKoBb9UQ+A8jvLaJVeX
-         j/BA==
-X-Gm-Message-State: APjAAAU6PXSnlLal3ME1UNVgNdTYIh3NPK9p8zJFueZ+alH7pRS0+jiq
-        UUXet7Mz69cm0+TO9ytKcGNUNPu5
-X-Google-Smtp-Source: APXvYqxT37Qs5qDMEEYQ89TSleRCWeDfazdObpqvImSAFVuPZt/n41i/9zLL/BPIwh8ZtGoPSLXt5g==
-X-Received: by 2002:a17:90a:f991:: with SMTP id cq17mr796327pjb.30.1572286382386;
-        Mon, 28 Oct 2019 11:13:02 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 19sm185492pjd.23.2019.10.28.11.13.00
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 28 Oct 2019 11:13:00 -0700 (PDT)
-Date:   Mon, 28 Oct 2019 11:12:59 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 00/41] 4.4.198-stable review
-Message-ID: <20191028181259.GA875@roeck-us.net>
-References: <20191027203056.220821342@linuxfoundation.org>
- <3961082b-17bc-cef7-f0e5-7bf029b2de2a@roeck-us.net>
- <20191028134905.GA53500@kroah.com>
- <20191028135756.GA97772@kroah.com>
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OXZjwZMcbtN1nQHKUI6x2sDOK9o4nPzSxKg89KFvOBI=;
+        b=Re7r381OS8mdCWpdg3Mo/tU+D/TNmlrh1TraZowxXjGy9CuEKwv0PkhIA1AFK69YWg
+         aBh3LfHJf6sbVvSqDDY1IIYj8GHwI+LYIl3jLBe0pRrqIdyeZDVwESYNA8230z+A9JIx
+         dKiQ2X30/ZaSw34PZERooRCs6S0D9ubGuxHZDosVRQlvprsHHbTg1NtZoWV3OBrrKeBv
+         UehcNLnmbkQ/HKAzGvLLfENe2GyQiwVp1knjuQxsCrZVum5lyb6cN98x7PX2IRf9OHTr
+         v1wFiiisHl43S53c0eP5vZ9hhBYcRT+p9cFw2NM5xMpWbisJEMRg+fKrTNjmXkHZeSpT
+         8pfQ==
+X-Gm-Message-State: APjAAAXghVlUbwaZyqesGx9FeHDAyau/MsqUZhL30Cf+ifyr8R9mdmHo
+        fGYB5963CSUvl7phXtEMsevWUTjJM1L8Sw==
+X-Google-Smtp-Source: APXvYqwDoCFVLxGgn0++mS5KgHsCwEHoUOvfeM4bjK16OAAobyNZskz5mkLperG+gb/1ou6q0yX6mQ==
+X-Received: by 2002:a1c:7c16:: with SMTP id x22mr631449wmc.46.1572287277560;
+        Mon, 28 Oct 2019 11:27:57 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id q6sm13308993wrx.30.2019.10.28.11.27.56
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Oct 2019 11:27:56 -0700 (PDT)
+Message-ID: <5db7332c.1c69fb81.4c895.5a9d@mx.google.com>
+Date:   Mon, 28 Oct 2019 11:27:56 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191028135756.GA97772@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.150-118-g80117985de06
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.14.y boot: 120 boots: 0 failed,
+ 113 passed with 7 offline (v4.14.150-118-g80117985de06)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 28, 2019 at 02:57:56PM +0100, Greg Kroah-Hartman wrote:
-> On Mon, Oct 28, 2019 at 02:49:05PM +0100, Greg Kroah-Hartman wrote:
-> > On Mon, Oct 28, 2019 at 06:32:14AM -0700, Guenter Roeck wrote:
-> > > On 10/27/19 2:00 PM, Greg Kroah-Hartman wrote:
-> > > > This is the start of the stable review cycle for the 4.4.198 release.
-> > > > There are 41 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > > 
-> > > > Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> > > > Anything received after that time might be too late.
-> > > > 
-> > > 
-> > > 
-> > > Building mips:defconfig ... failed
-> > > --------------
-> > > Error log:
-> > > In file included from /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/include/asm/bitops.h:21,
-> > >                  from /opt/buildbot/slave/stable-queue-4.9/build/include/linux/bitops.h:17,
-> > >                  from /opt/buildbot/slave/stable-queue-4.9/build/include/linux/kernel.h:10,
-> > >                  from /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:15:
-> > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c: In function 'cpu_probe':
-> > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/include/asm/cpu-features.h:349:31: error: implicit declaration of function '__ase' [-Werror=implicit-function-declaration]
-> > >   349 | #define cpu_has_loongson_mmi  __ase(MIPS_ASE_LOONGSON_MMI)
-> > >       |                               ^~~~~
-> > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2079:6: note: in expansion of macro 'cpu_has_loongson_mmi'
-> > >  2079 |  if (cpu_has_loongson_mmi)
-> > >       |      ^~~~~~~~~~~~~~~~~~~~
-> > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2083:16: error: 'HWCAP_LOONGSON_CAM' undeclared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
-> > >  2083 |   elf_hwcap |= HWCAP_LOONGSON_CAM;
-> > >       |                ^~~~~~~~~~~~~~~~~~
-> > >       |                HWCAP_LOONGSON_EXT
-> > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2083:16: note: each undeclared identifier is reported only once for each function it appears in
-> > > 
-> > > 
-> > > Affects all mips builds in v{4.4, 4.9, 4.14}.
-> > 
-> > Ugh, let me see what happened...
-> 
-> Ok, two MIPS patches dropped from 4.4, 4.9, and 4.14 queues, and -rc2
-> are now pushed out for all 3 of those trees.  It "should" be clean now.
-> 
-Confirmed.
+stable-rc/linux-4.14.y boot: 120 boots: 0 failed, 113 passed with 7 offline=
+ (v4.14.150-118-g80117985de06)
 
-Thanks,
-Guenter
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.150-118-g80117985de06/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.150-118-g80117985de06/
+
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.150-118-g80117985de06
+Git Commit: 80117985de0635c8d7fa58fa198b7bbbd465542d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 65 unique boards, 22 SoC families, 13 builds out of 201
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
