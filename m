@@ -2,164 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B220E74B5
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 16:15:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5238FE74F1
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 16:21:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726196AbfJ1PPc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 11:15:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48970 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390639AbfJ1PPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Oct 2019 11:15:31 -0400
-Received: from localhost (unknown [91.217.168.176])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D637520830;
-        Mon, 28 Oct 2019 15:15:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572275730;
-        bh=5zkD/vp3Gc9wDtzgScCzXQ8nvjSH0sfq5NS766Q8rAE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LXYfWc5iZWFdFBwPFxA0RP8ujNVg9N/z1yP0NSvoL1OVBGdp8MWc86AGkZ5bhmF8L
-         oXiKMv9GLKG3TdSTvWWV1//Q5eTshKzumZohEX2tBe1+UUS462TO1cAmWSbF/3JJD1
-         49uesXO0mwj1rn6l6KyKFeZiIFJUa961SUllySa0=
-Date:   Mon, 28 Oct 2019 11:15:27 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     wqu@suse.com, dsterba@suse.com, fdmanana@suse.com,
+        id S1728892AbfJ1PVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 11:21:14 -0400
+Received: from mail-io1-f66.google.com ([209.85.166.66]:45658 "EHLO
+        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727615AbfJ1PVO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 11:21:14 -0400
+Received: by mail-io1-f66.google.com with SMTP id s17so3994701iol.12
+        for <stable@vger.kernel.org>; Mon, 28 Oct 2019 08:21:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=HxpZ1ZDATeLWTNfuZUczckkjppf6TWr8DGKt6RqwR4k=;
+        b=0m1fTmgMAAGTmbVeRdv79G4lbkHPOU+8PvrAF3/odh7fE/+VS9sujVaxkk7o3Zoqa9
+         Znz4E138IG2ypLOhKQetxtbrQ57T4wrOuMiaotAMNpB+5hZK8JOfMXxLg1dnM8C1wCzd
+         6oBCKx2mKx7wRQeuBluE2Ua+nnz3d8SoBn/A9AWSmi7Npt2jgoHHFQaW+ZXGMqM9Jghm
+         vR5oiVj0COs/EApANK5jMfEJNKhRNE0eYP3VQXOa0k2TQOBXz6Y6ZV727tfz05a7PB/E
+         V05PqEhH2wmpkLFeu2hQ/ukTwYert1p62ZK8XpVAlZWnir4LUlsBe6msq9J3Ji0kk3bQ
+         2PMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=HxpZ1ZDATeLWTNfuZUczckkjppf6TWr8DGKt6RqwR4k=;
+        b=gPSvS+JGW/PG1peS2nW943yp1dOe1cohBkhKT0g7GzIbezdvwVv46uJpmdc6WYejgJ
+         NxeOmJW1roOu5kFLI6usnZ+AcLT3phqKYdWO6MZ2trSFn1OzdAW314tW9XIzM9/LlYhw
+         SvnDkCUz0jE5vqCxLIlHopyFfwi8c5i4BcFzIW6YThE+IxVY2hWUTQ/CejCwD34xrpyt
+         ptsml2zlkuo4cpKvgw7V9vPEfV9614YjzP76qFGdxgpI3chKOHQ9W7+QZ3mw67POLi7B
+         /Sj0Q04lDoPh27ilFk9seFXgVpRcXfme4beoCs7P4S01AYl9qTSWf9bYOMW054DnQ4f+
+         QP8Q==
+X-Gm-Message-State: APjAAAUJPcyxpkmg9MhYpizaeuSCrddhT0Gn7QsREAT8J3uBw+AISbLi
+        ei9rojG9Nb2lZnHEjhjUxjESnmtWZ8xhzw==
+X-Google-Smtp-Source: APXvYqxvX8RHdmcm9Ww5GUDZdKovkwlkUxJvtqz81//toCkzlzYrE3nhZAst+lnMFHDP3wZtk1DilQ==
+X-Received: by 2002:a5e:d917:: with SMTP id n23mr10408961iop.28.1572276073459;
+        Mon, 28 Oct 2019 08:21:13 -0700 (PDT)
+Received: from [192.168.1.159] ([65.144.74.34])
+        by smtp.gmail.com with ESMTPSA id w75sm1596618ill.78.2019.10.28.08.21.10
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 28 Oct 2019 08:21:12 -0700 (PDT)
+Subject: Re: FAILED: patch "[PATCH] io_uring: fix up O_NONBLOCK handling for
+ sockets" failed to apply to 5.3-stable tree
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, zeba.hrvoje@gmail.com,
         stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] btrfs: qgroup: Always free PREALLOC META
- reserve in" failed to apply to 5.3-stable tree
-Message-ID: <20191028151527.GB1554@sasha-vm>
-References: <1572191283164109@kroah.com>
+References: <1572191635100175@kroah.com>
+ <da7d616b-a7e1-5cf5-5b38-75ecf8843ccb@kernel.dk>
+ <20191027200020.GB2587661@kroah.com>
+ <b9a4a9f8-2588-b13e-b010-916895d7a8dc@kernel.dk>
+ <20191027202633.GA2608793@kroah.com>
+ <25f998ae-e6d4-9e62-3b3d-996cd92e80cb@kernel.dk>
+ <20191028082632.GI1560@sasha-vm>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <be4498de-8fc9-95e6-bb91-60446d305366@kernel.dk>
+Date:   Mon, 28 Oct 2019 09:21:09 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <1572191283164109@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191028082632.GI1560@sasha-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 27, 2019 at 04:48:03PM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.3-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 8702ba9396bf7bbae2ab93c94acd4bd37cfa4f09 Mon Sep 17 00:00:00 2001
->From: Qu Wenruo <wqu@suse.com>
->Date: Mon, 14 Oct 2019 14:34:51 +0800
->Subject: [PATCH] btrfs: qgroup: Always free PREALLOC META reserve in
-> btrfs_delalloc_release_extents()
->
->[Background]
->Btrfs qgroup uses two types of reserved space for METADATA space,
->PERTRANS and PREALLOC.
->
->PERTRANS is metadata space reserved for each transaction started by
->btrfs_start_transaction().
->While PREALLOC is for delalloc, where we reserve space before joining a
->transaction, and finally it will be converted to PERTRANS after the
->writeback is done.
->
->[Inconsistency]
->However there is inconsistency in how we handle PREALLOC metadata space.
->
->The most obvious one is:
->In btrfs_buffered_write():
->	btrfs_delalloc_release_extents(BTRFS_I(inode), reserve_bytes, true);
->
->We always free qgroup PREALLOC meta space.
->
->While in btrfs_truncate_block():
->	btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize, (ret != 0));
->
->We only free qgroup PREALLOC meta space when something went wrong.
->
->[The Correct Behavior]
->The correct behavior should be the one in btrfs_buffered_write(), we
->should always free PREALLOC metadata space.
->
->The reason is, the btrfs_delalloc_* mechanism works by:
->- Reserve metadata first, even it's not necessary
->  In btrfs_delalloc_reserve_metadata()
->
->- Free the unused metadata space
->  Normally in:
->  btrfs_delalloc_release_extents()
->  |- btrfs_inode_rsv_release()
->     Here we do calculation on whether we should release or not.
->
->E.g. for 64K buffered write, the metadata rsv works like:
->
->/* The first page */
->reserve_meta:	num_bytes=calc_inode_reservations()
->free_meta:	num_bytes=0
->total:		num_bytes=calc_inode_reservations()
->/* The first page caused one outstanding extent, thus needs metadata
->   rsv */
->
->/* The 2nd page */
->reserve_meta:	num_bytes=calc_inode_reservations()
->free_meta:	num_bytes=calc_inode_reservations()
->total:		not changed
->/* The 2nd page doesn't cause new outstanding extent, needs no new meta
->   rsv, so we free what we have reserved */
->
->/* The 3rd~16th pages */
->reserve_meta:	num_bytes=calc_inode_reservations()
->free_meta:	num_bytes=calc_inode_reservations()
->total:		not changed (still space for one outstanding extent)
->
->This means, if btrfs_delalloc_release_extents() determines to free some
->space, then those space should be freed NOW.
->So for qgroup, we should call btrfs_qgroup_free_meta_prealloc() other
->than btrfs_qgroup_convert_reserved_meta().
->
->The good news is:
->- The callers are not that hot
->  The hottest caller is in btrfs_buffered_write(), which is already
->  fixed by commit 336a8bb8e36a ("btrfs: Fix wrong
->  btrfs_delalloc_release_extents parameter"). Thus it's not that
->  easy to cause false EDQUOT.
->
->- The trans commit in advance for qgroup would hide the bug
->  Since commit f5fef4593653 ("btrfs: qgroup: Make qgroup async transaction
->  commit more aggressive"), when btrfs qgroup metadata free space is slow,
->  it will try to commit transaction and free the wrongly converted
->  PERTRANS space, so it's not that easy to hit such bug.
->
->[FIX]
->So to fix the problem, remove the @qgroup_free parameter for
->btrfs_delalloc_release_extents(), and always pass true to
->btrfs_inode_rsv_release().
->
->Reported-by: Filipe Manana <fdmanana@suse.com>
->Fixes: 43b18595d660 ("btrfs: qgroup: Use separate meta reservation type for delalloc")
->CC: stable@vger.kernel.org # 4.19+
->Reviewed-by: Filipe Manana <fdmanana@suse.com>
->Signed-off-by: Qu Wenruo <wqu@suse.com>
->Signed-off-by: David Sterba <dsterba@suse.com>
+On 10/28/19 2:26 AM, Sasha Levin wrote:
+> On Sun, Oct 27, 2019 at 02:39:06PM -0600, Jens Axboe wrote:
+>> On 10/27/19 2:26 PM, Greg KH wrote:
+>>> On Sun, Oct 27, 2019 at 02:22:06PM -0600, Jens Axboe wrote:
+>>>> On 10/27/19 2:00 PM, Greg KH wrote:
+>>>>> On Sun, Oct 27, 2019 at 12:58:14PM -0600, Jens Axboe wrote:
+>>>>>> On 10/27/19 9:53 AM, gregkh@linuxfoundation.org wrote:
+>>>>>>>
+>>>>>>> The patch below does not apply to the 5.3-stable tree.
+>>>>>>> If someone wants it applied there, or to any other stable or longterm
+>>>>>>> tree, then please email the backport, including the original git commit
+>>>>>>> id to <stable@vger.kernel.org>.
+>>>>>>
+>>>>>> I can fix this up, but I probably need to see Sasha's queue first for
+>>>>>> the io_uring patches. I need to base it against that.
+>>>>>
+>>>>> Ok, wait for the next 5.3.y release in a few days and send stuff off of
+>>>>> that if you can.
+>>>>
+>>>> Is there no "current" or similar tree to work of off? Would be a shame
+>>>> to miss the next one, especially since the newer fixes are already in.
+>>>
+>>> I'm about to push out the -rcs right now.  You can base off of that and
+>>> send me the patch and I'll add it, or just wait a few days, either is
+>>> fine.
+>>
+>> Sounds good, thanks Greg.
+> 
+> I'll queue up a backport for this. The conflict is due to not having the
+> io_queue_sqe()/__io_queue_sqe() split introduced by 4fe2c963154c3
+> ("io_uring: add support for link with drain").
 
-The conflict was due to not having 29d47d00e0ae6 ("Btrfs: fix inode
-cache block reserve leak on failure to allocate data space") on 5.3 so I
-took it as well as it's a fix.
-
-On 4.19, in addition to 29d47d00e0ae6m, I also took 17e762bd8e32d ("dm
-snapshot: rework COW throttling to fix deadlock") as it's tagged for
-stable but needed trivial massaging to backport to 4.19, and worked
-around the code movement introduced by 867363429d706 ("btrfs: migrate
-the delalloc space stuff to it's own home").
+Thanks!
 
 -- 
-Thanks,
-Sasha
+Jens Axboe
+
