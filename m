@@ -2,100 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 784E8E7BB8
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 22:48:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8FDE7BC0
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 22:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732691AbfJ1VsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 17:48:10 -0400
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:13859 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730592AbfJ1VsK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 17:48:10 -0400
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5db7621e0000>; Mon, 28 Oct 2019 14:48:14 -0700
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Mon, 28 Oct 2019 14:48:09 -0700
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Mon, 28 Oct 2019 14:48:09 -0700
-Received: from DRHQMAIL107.nvidia.com (10.27.9.16) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 28 Oct
- 2019 21:48:09 +0000
-Received: from [10.26.11.236] (10.124.1.5) by DRHQMAIL107.nvidia.com
- (10.27.9.16) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 28 Oct
- 2019 21:48:06 +0000
-Subject: Re: [PATCH 5.3 000/197] 5.3.8-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191027203351.684916567@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <ec238058-1eaf-a33f-cbbf-fd49e1ddaa82@nvidia.com>
-Date:   Mon, 28 Oct 2019 21:48:04 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1731303AbfJ1VtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 17:49:25 -0400
+Received: from vps.xff.cz ([195.181.215.36]:50070 "EHLO vps.xff.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730592AbfJ1VtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Oct 2019 17:49:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=megous.com; s=mail;
+        t=1572299363; bh=yfQ5bNur1qQsSwWai80uin5ZDClxDtOcYUot2/fijL0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RVD9lhOKFIWyR8uwdk2pCEi1JXI/uuyWgSwtBUN3we5JB1c5A5vVxcsn92C47QBc3
+         nU/lzm4szLyF6lnP6vBtiKuiNZ/DtVMsFUIocfOEhl1LTdROS25HWBRU2SA2j2MLqT
+         xjJKew//0G2ek76ewJ6TrFzTUjb3lW3lW3QYv408=
+From:   Ondrej Jirman <megous@megous.com>
+To:     linux-sunxi@googlegroups.com
+Cc:     Ondrej Jirman <megous@megous.com>, stable@vger.kernel.org,
+        Maxime Ripard <mripard@kernel.org>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Russell King <linux@armlinux.org.uk>,
+        linux-arm-kernel@lists.infradead.org (moderated list:ARM/Allwinner
+        sunXi SoC support), linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] ARM: sunxi: Fix CPU powerdown on A83T
+Date:   Mon, 28 Oct 2019 22:49:14 +0100
+Message-Id: <20191028214914.3465156-1-megous@megous.com>
 MIME-Version: 1.0
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- DRHQMAIL107.nvidia.com (10.27.9.16)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1572299294; bh=mTTcSVLUyOS1hjod0gJhHeIejk2l8cyWa7r8Zx3f7Z8=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=PLniqjIKvJXZBKLVt21jBjooxKlKn2wPXwq0fqRhKYzzSSNOgWGnAuSusZZC/tz+O
-         +6U9zPGeJxiQZymRC7xt3mASYiVBSYFOT5v0qxY0JQBeuJBsiUyECpSOEw2XwAsxzl
-         ATOFHwVHFmNEq42iv4kGwwUr6awRBolKzTKlQqFraexvA9gaheyLa1qntKiS3c4wKE
-         FsgTrem1KwBKyAJkBbYj3URUkGC0M6lKwbHC0t3OAfmQ9oOViATF5G+Pjd+kKvuytQ
-         IxI4BR7WomyKx8/K3tTPKchdRE/QQZRADJD4WexD7SCqfDBDLNV1AKAD263PKr6Mly
-         fRz9hrLx94n8Q==
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+PRCM_PWROFF_GATING_REG has CPU0 at bit 4 on A83T. So without this
+patch, instead of gating the CPU0, the whole cluster was power gated,
+when shutting down first CPU in the cluster.
 
-On 27/10/2019 20:58, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.3.8 release.
-> There are 197 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Fixes: 6961275e72a8c1 ("ARM: sun8i: smp: Add support for A83T")
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Cc: stable@vger.kernel.org
+---
+ arch/arm/mach-sunxi/mc_smp.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-All tests are passing for Tegra ...
-
-Test results for stable-v5.3:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
-
-Linux version:	5.3.8-rc1-g740177dc0d52
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Cheers
-Jon
-
+diff --git a/arch/arm/mach-sunxi/mc_smp.c b/arch/arm/mach-sunxi/mc_smp.c
+index 239084cf8192..26cbce135338 100644
+--- a/arch/arm/mach-sunxi/mc_smp.c
++++ b/arch/arm/mach-sunxi/mc_smp.c
+@@ -481,14 +481,18 @@ static void sunxi_mc_smp_cpu_die(unsigned int l_cpu)
+ static int sunxi_cpu_powerdown(unsigned int cpu, unsigned int cluster)
+ {
+ 	u32 reg;
++	int gating_bit = cpu;
+ 
+ 	pr_debug("%s: cluster %u cpu %u\n", __func__, cluster, cpu);
+ 	if (cpu >= SUNXI_CPUS_PER_CLUSTER || cluster >= SUNXI_NR_CLUSTERS)
+ 		return -EINVAL;
+ 
++	if (is_a83t && cpu == 0)
++		gating_bit = 4;
++
+ 	/* gate processor power */
+ 	reg = readl(prcm_base + PRCM_PWROFF_GATING_REG(cluster));
+-	reg |= PRCM_PWROFF_GATING_REG_CORE(cpu);
++	reg |= PRCM_PWROFF_GATING_REG_CORE(gating_bit);
+ 	writel(reg, prcm_base + PRCM_PWROFF_GATING_REG(cluster));
+ 	udelay(20);
+ 
 -- 
-nvpublic
+2.23.0
+
