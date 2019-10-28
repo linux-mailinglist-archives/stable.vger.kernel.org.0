@@ -2,141 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E354E6CC4
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 08:14:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 817CFE6D9A
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 08:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730752AbfJ1HOA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 03:14:00 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:32493 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1730715AbfJ1HOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 03:14:00 -0400
+        id S1731133AbfJ1H4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 03:56:33 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:34577 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1733014AbfJ1H4d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 03:56:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572246839;
+        s=mimecast20190719; t=1572249391;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=gF7SCUNNkREDqMPabWX15Cl/xUWOTTN3vml4/5CORAM=;
-        b=IDbqdbrBFW6fPEdNNbt3S1V91E/yQ7jWhwRWw2lcCp/Gjxp8/R1Cwaz9/wsZ9N6Tg1ry0n
-        uosGleQIzvLuhbUiOCUpcftsHj/AbzWJWWdeHRnPBnReUcI8+jKx6KhxG5UbKN3f94rMQ/
-        mdRwyHTyiWzO4uYSjEEUi5AVizCetfE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-43-tcVWAHiHOTGi6qxv19Hl2g-1; Mon, 28 Oct 2019 03:13:55 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ED404800D41;
-        Mon, 28 Oct 2019 07:13:54 +0000 (UTC)
-Received: from [10.72.12.88] (ovpn-12-88.pek2.redhat.com [10.72.12.88])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 84B035DA32;
-        Mon, 28 Oct 2019 07:13:49 +0000 (UTC)
-Subject: Re: [PATCH] virtio_ring: fix stalls for packed rings
-To:     "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc:     Marvin Liu <yong.liu@intel.com>, stable@vger.kernel.org,
-        virtualization@lists.linux-foundation.org
-References: <20191027100705.11644-1-mst@redhat.com>
-From:   Jason Wang <jasowang@redhat.com>
-Message-ID: <efe3c06f-0a80-c266-c7fc-ac33901f51c7@redhat.com>
-Date:   Mon, 28 Oct 2019 15:13:44 +0800
+         in-reply-to:in-reply-to:references:references:openpgp:openpgp;
+        bh=7eZcqHF8b9Ji9D25pn09VHOG3WM+NKx8xJbvY/2TLqA=;
+        b=DbyZ1xQIU/cQOKXqY36GKaDvmznKy9CqnikuRE7wX9jOVLqZhYAi6cbeCSOufpoHqhgVim
+        GDPbVRO08mf6aaXlJTNLRfAXJN3U+m6avExz5fyBOd4ZtgOpU9VwYD2gPK2yNzCJNYz5Js
+        B+MQQEuR/n8IOTUqbl1jkLAChFJrum0=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-232-DBh7Jo9uNF6naolqo2J8-A-1; Mon, 28 Oct 2019 03:56:30 -0400
+Received: by mail-wr1-f69.google.com with SMTP id t2so2560079wri.18
+        for <stable@vger.kernel.org>; Mon, 28 Oct 2019 00:56:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=S5NXpo19hb3uDxW1OhHDcHE5G0aGpOZOkhWsFlEbgJg=;
+        b=LtNNMm4NFEIIgAnefZNSyCE9N4U6WKRUAj71qDlw8TZy2eg8aft/ufwS/d5ieRkccA
+         7vSp/4ftaWXIQPbgS+4CziIOqWUHktE5hu2IL6y4V2F+XXxglH9W9TZqnc7Z0hJhTIa4
+         547YDFjw/R1HKvUIkKFdZWeE1DDF0ZBZxrCjpAnWZEXYxhBYY5iNOTyGNXZl1N888WdP
+         ZNVK31Aeiw1Ewd6PB3m4W1JMmpn5yFuh2Qg7Bb2dlMIdh+EjcRdqZtQbKA6jkiNvR7bD
+         CpmRVnwddpRGv/k7IBVDqV69PRWraBd3d2n0mnFjx9bt0bej3t9g7cQ5fl+dVP3yRtKO
+         XotQ==
+X-Gm-Message-State: APjAAAUXhcXWhsePKcCPjPgXSMuf3R32jBVLD832oD72ePy3qkUmWxwb
+        WrAxJvYM6VGRw1VC9mrK9dgsdQdjDVCDCfp3RogcrIJUGFLKOIzN8PE4P9uIg1X0MvelhRt7Vuu
+        wZ0ycBGItOE1d4MA/
+X-Received: by 2002:a1c:a6c8:: with SMTP id p191mr13488545wme.99.1572249388646;
+        Mon, 28 Oct 2019 00:56:28 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqxdujLnbZ/mVVjeXxdogH1Figcm+nBuCvScMbkWCn3k8Tpyjlo4tv3ouf7+I5YMO36ZXlV4Ug==
+X-Received: by 2002:a1c:a6c8:: with SMTP id p191mr13488519wme.99.1572249388348;
+        Mon, 28 Oct 2019 00:56:28 -0700 (PDT)
+Received: from [192.168.42.37] (mob-37-176-198-149.net.vodafone.it. [37.176.198.149])
+        by smtp.gmail.com with ESMTPSA id v9sm8889789wro.51.2019.10.28.00.56.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Oct 2019 00:56:27 -0700 (PDT)
+Subject: Re: [PATCH] KVM: vmx, svm: always run with EFER.NXE=1 when shadow
+ paging is active
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org
+Cc:     stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>
+References: <20191027152323.24326-1-pbonzini@redhat.com>
+ <20191028065919.AB8C3208C0@mail.kernel.org>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Message-ID: <b08a0103-312e-5441-9ffe-33c9df0a9d57@redhat.com>
+Date:   Mon, 28 Oct 2019 08:56:26 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.8.0
 MIME-Version: 1.0
-In-Reply-To: <20191027100705.11644-1-mst@redhat.com>
+In-Reply-To: <20191028065919.AB8C3208C0@mail.kernel.org>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-MC-Unique: tcVWAHiHOTGi6qxv19Hl2g-1
+X-MC-Unique: DBh7Jo9uNF6naolqo2J8-A-1
 X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 28/10/19 07:59, Sasha Levin wrote:
+>=20
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>=20
+> The bot has tested the following trees: v5.3.7, v4.19.80, v4.14.150, v4.9=
+.197, v4.4.197.
+>=20
+> v5.3.7: Build OK!
+> v4.19.80: Failed to apply! Possible dependencies:
+>     Unable to calculate
+>=20
+> v4.14.150: Failed to apply! Possible dependencies:
+>     Unable to calculate
+>=20
+> v4.9.197: Failed to apply! Possible dependencies:
+>     Unable to calculate
+>=20
+> v4.4.197: Failed to apply! Possible dependencies:
+>     Unable to calculate
+>=20
+>=20
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>=20
+> How should we proceed with this patch?
 
-On 2019/10/27 =E4=B8=8B=E5=8D=886:08, Michael S. Tsirkin wrote:
-> From: Marvin Liu <yong.liu@intel.com>
->
-> When VIRTIO_F_RING_EVENT_IDX is negotiated, virtio devices can
-> use virtqueue_enable_cb_delayed_packed to reduce the number of device
-> interrupts.  At the moment, this is the case for virtio-net when the
-> napi_tx module parameter is set to false.
->
-> In this case, the virtio driver selects an event offset and expects that
-> the device will send a notification when rolling over the event offset
-> in the ring.  However, if this roll-over happens before the event
-> suppression structure update, the notification won't be sent. To address
-> this race condition the driver needs to check wether the device rolled
-> over the offset after updating the event suppression structure.
->
-> With VIRTIO_F_RING_PACKED, the virtio driver did this by reading the
-> flags field of the descriptor at the specified offset.
->
-> Unfortunately, checking at the event offset isn't reliable: if
-> descriptors are chained (e.g. when INDIRECT is off) not all descriptors
-> are overwritten by the device, so it's possible that the device skipped
-> the specific descriptor driver is checking when writing out used
-> descriptors. If this happens, the driver won't detect the race condition
-> and will incorrectly expect the device to send a notification.
->
-> For virtio-net, the result will be a TX queue stall, with the
-> transmission getting blocked forever.
->
-> With the packed ring, it isn't easy to find a location which is
-> guaranteed to change upon the roll-over, except the next device
-> descriptor, as described in the spec:
->
->          Writes of device and driver descriptors can generally be
->          reordered, but each side (driver and device) are only required t=
-o
->          poll (or test) a single location in memory: the next device desc=
-riptor after
->          the one they processed previously, in circular order.
->
-> while this might be sub-optimal, let's do exactly this for now.
->
-> Cc: stable@vger.kernel.org
-Fixes: f51f982682e2a ("virtio_ring: leverage event idx in packed ring")
-> Cc: Jason Wang <jasowang@redhat.com>
-> Signed-off-by: Marvin Liu <yong.liu@intel.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> So this is what I have in my tree now - this is just Marvin's patch
-> with a tweaked description.
->
->
->   drivers/virtio/virtio_ring.c | 7 +++----
->   1 file changed, 3 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index bdc08244a648..a8041e451e9e 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -1499,9 +1499,6 @@ static bool virtqueue_enable_cb_delayed_packed(stru=
-ct virtqueue *_vq)
->   =09=09 * counter first before updating event flags.
->   =09=09 */
->   =09=09virtio_wmb(vq->weak_barriers);
-> -=09} else {
-> -=09=09used_idx =3D vq->last_used_idx;
-> -=09=09wrap_counter =3D vq->packed.used_wrap_counter;
->   =09}
->  =20
->   =09if (vq->packed.event_flags_shadow =3D=3D VRING_PACKED_EVENT_FLAG_DIS=
-ABLE) {
-> @@ -1518,7 +1515,9 @@ static bool virtqueue_enable_cb_delayed_packed(stru=
-ct virtqueue *_vq)
->   =09 */
->   =09virtio_mb(vq->weak_barriers);
->  =20
-> -=09if (is_used_desc_packed(vq, used_idx, wrap_counter)) {
-> +=09if (is_used_desc_packed(vq,
-> +=09=09=09=09vq->last_used_idx,
-> +=09=09=09=09vq->packed.used_wrap_counter)) {
->   =09=09END_USE(vq);
->   =09=09return false;
->   =09}
+It should apply just fine to all branches, just to arch/x86/kvm/vmx.c
+instead of arch/x86/kvm/vmx/vmx.c.
+
+Paolo
 
