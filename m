@@ -2,68 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF299E6CB3
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 08:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A50E6CBE
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 08:12:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732324AbfJ1HH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 03:07:28 -0400
-Received: from mga18.intel.com ([134.134.136.126]:19783 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728107AbfJ1HH1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Oct 2019 03:07:27 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 28 Oct 2019 00:07:27 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.68,239,1569308400"; 
-   d="scan'208";a="205111268"
-Received: from black.fi.intel.com (HELO black.fi.intel.com.) ([10.237.72.28])
-  by FMSMGA003.fm.intel.com with ESMTP; 28 Oct 2019 00:07:25 -0700
-From:   Alexander Shishkin <alexander.shishkin@linux.intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [GIT PULL 7/7] intel_th: pci: Add Jasper Lake PCH support
-Date:   Mon, 28 Oct 2019 09:06:51 +0200
-Message-Id: <20191028070651.9770-8-alexander.shishkin@linux.intel.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191028070651.9770-1-alexander.shishkin@linux.intel.com>
-References: <20191028070651.9770-1-alexander.shishkin@linux.intel.com>
+        id S1726834AbfJ1HMf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 03:12:35 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:33307 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1730856AbfJ1HMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 03:12:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572246753;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=1bJKnujWpr7YRcLrIv1lIWngHNVCjyX+UL1+wlKxJ2g=;
+        b=UY8+90j8gnkK6KZAPFS4HUWzJXt63JuWzv2R46tK2Tlv8g4LyoVYCqAAiTi9CskDqHmOlO
+        PMtb2wsCONBEVOBy6ZRZ1MKIGCOCisb7hvC3q47EctayD/Jpc4NqW5mE8sQu45mUnnUKh2
+        EuRtCFF1r+zHCDF47L467jThUe8cPB4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-344-At9xNW3hOQm_R1yoPs1x2Q-1; Mon, 28 Oct 2019 03:12:31 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id ACF261005509;
+        Mon, 28 Oct 2019 07:12:30 +0000 (UTC)
+Received: from [10.72.12.88] (ovpn-12-88.pek2.redhat.com [10.72.12.88])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7E2E45DA32;
+        Mon, 28 Oct 2019 07:12:22 +0000 (UTC)
+Subject: Re: [PATCH] virtio_ring: fix stalls for packed rings
+To:     Sasha Levin <sashal@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Marvin Liu <yong.liu@intel.com>, linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20191027100705.11644-1-mst@redhat.com>
+ <20191028065918.8487020873@mail.kernel.org>
+From:   Jason Wang <jasowang@redhat.com>
+Message-ID: <66297f13-4c92-ae1a-25b1-8573f12b30d7@redhat.com>
+Date:   Mon, 28 Oct 2019 15:12:19 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191028065918.8487020873@mail.kernel.org>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: At9xNW3hOQm_R1yoPs1x2Q-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This adds support for Intel TH on Jasper Lake PCH.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org
----
- drivers/hwtracing/intel_th/pci.c | 5 +++++
- 1 file changed, 5 insertions(+)
+On 2019/10/28 =E4=B8=8B=E5=8D=882:59, Sasha Levin wrote:
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+>
+> The bot has tested the following trees: v5.3.7, v4.19.80, v4.14.150, v4.9=
+.197, v4.4.197.
+>
+> v5.3.7: Build OK!
+> v4.19.80: Failed to apply! Possible dependencies:
+>      138fd25148638 ("virtio_ring: add _split suffix for split ring functi=
+ons")
+>      1ce9e6055fa0a ("virtio_ring: introduce packed ring support")
+>      cbeedb72b97ad ("virtio_ring: allocate desc state for split ring sepa=
+rately")
+>      d79dca75c7968 ("virtio_ring: extract split ring handling from ring c=
+reation")
+>      e593bf9751566 ("virtio_ring: put split ring fields in a sub struct")
+>      e6f633e5beab6 ("virtio_ring: put split ring functions together")
+>      f51f982682e2a ("virtio_ring: leverage event idx in packed ring")
+>      fb3fba6b162aa ("virtio_ring: cache whether we will use DMA API")
+>
+> v4.14.150: Failed to apply! Possible dependencies:
+>      138fd25148638 ("virtio_ring: add _split suffix for split ring functi=
+ons")
+>      1ce9e6055fa0a ("virtio_ring: introduce packed ring support")
+>      cbeedb72b97ad ("virtio_ring: allocate desc state for split ring sepa=
+rately")
+>      d79dca75c7968 ("virtio_ring: extract split ring handling from ring c=
+reation")
+>      e593bf9751566 ("virtio_ring: put split ring fields in a sub struct")
+>      e6f633e5beab6 ("virtio_ring: put split ring functions together")
+>      f51f982682e2a ("virtio_ring: leverage event idx in packed ring")
+>      fb3fba6b162aa ("virtio_ring: cache whether we will use DMA API")
+>
+> v4.9.197: Failed to apply! Possible dependencies:
+>      0c7eaf5930e14 ("virtio_ring: fix description of virtqueue_get_buf")
+>      138fd25148638 ("virtio_ring: add _split suffix for split ring functi=
+ons")
+>      1ce9e6055fa0a ("virtio_ring: introduce packed ring support")
+>      44ed8089e991a ("scsi: virtio: Reduce BUG if total_sg > virtqueue siz=
+e to WARN.")
+>      5a08b04f63792 ("virtio: allow extra context per descriptor")
+>      c60923cb9cb5e ("virtio_ring: fix complaint by sparse")
+>      cbeedb72b97ad ("virtio_ring: allocate desc state for split ring sepa=
+rately")
+>      e593bf9751566 ("virtio_ring: put split ring fields in a sub struct")
+>      e6f633e5beab6 ("virtio_ring: put split ring functions together")
+>      f51f982682e2a ("virtio_ring: leverage event idx in packed ring")
+>      fb3fba6b162aa ("virtio_ring: cache whether we will use DMA API")
+>
+> v4.4.197: Failed to apply! Possible dependencies:
+>      0c7eaf5930e14 ("virtio_ring: fix description of virtqueue_get_buf")
+>      138fd25148638 ("virtio_ring: add _split suffix for split ring functi=
+ons")
+>      1ce9e6055fa0a ("virtio_ring: introduce packed ring support")
+>      44ed8089e991a ("scsi: virtio: Reduce BUG if total_sg > virtqueue siz=
+e to WARN.")
+>      5a08b04f63792 ("virtio: allow extra context per descriptor")
+>      780bc7903a32e ("virtio_ring: Support DMA APIs")
+>      c60923cb9cb5e ("virtio_ring: fix complaint by sparse")
+>      d26c96c810254 ("vring: Introduce vring_use_dma_api()")
+>      e6f633e5beab6 ("virtio_ring: put split ring functions together")
+>      f51f982682e2a ("virtio_ring: leverage event idx in packed ring")
+>      fb3fba6b162aa ("virtio_ring: cache whether we will use DMA API")
+>
+>
+> NOTE: The patch will not be queued to stable trees until it is upstream.
+>
+> How should we proceed with this patch?
 
-diff --git a/drivers/hwtracing/intel_th/pci.c b/drivers/hwtracing/intel_th/pci.c
-index 4088e1865b07..03ca5b1bef9f 100644
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -214,6 +214,11 @@ static const struct pci_device_id intel_th_pci_id_table[] = {
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa0a6),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
-+	{
-+		/* Jasper Lake PCH */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4da6),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
- 	{ 0 },
- };
- 
--- 
-2.23.0
+
+It is only needed for kernel > 4.20.
+
+Thanks
+
+
+>
 
