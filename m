@@ -2,77 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74076E6BBA
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 05:39:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAD38E6C00
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 06:33:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726183AbfJ1Ejq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 00:39:46 -0400
-Received: from sender4-of-o54.zoho.com ([136.143.188.54]:21427 "EHLO
-        sender4-of-o54.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726154AbfJ1Ejp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 00:39:45 -0400
-ARC-Seal: i=1; a=rsa-sha256; t=1572237546; cv=none; 
-        d=zohomail.com; s=zohoarc; 
-        b=CpFBBWjERBJ3cKBVNHuwjpaeShDrpL4mDpk7NZ/tDyJWVtn9TNshu4m6ZQQkaoMPTMqzo0IVFfp9Xj53bazhhgXb7Xuv/5KR4R8G5YoY7xO/8Bn6362cFrEp4Z0nEgRzWFazFlxOE4yMdVyn16m9BCeT5dqkwFBCV1AtXNSdIXk=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-        t=1572237546; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
-        bh=bFB0pVj3q69YS47LEB4+p6yzNDeTqcKBksznuz1aAK4=; 
-        b=aC+sm7wsAvU5S2SO3ES9e6/5p4+fYhdoaabzMKsy699BHTJgAwd+5ool0SlCw5S/xDX4+tzA3VW/X8BgyGu/nvsVG3hKCEY1rRqbOfjVVOl+KtUNedTHZhnbj3hFaSTfHmJuc07Be9rYKGB95r+t4/3nUBALEiZVY/3jIIPodUA=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-        dkim=pass  header.i=didiksetiawan.com;
-        spf=pass  smtp.mailfrom=ds@didiksetiawan.com;
-        dmarc=pass header.from=<ds@didiksetiawan.com> header.from=<ds@didiksetiawan.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1572237546;
-        s=zoho; d=didiksetiawan.com; i=ds@didiksetiawan.com;
-        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To;
-        l=855; bh=bFB0pVj3q69YS47LEB4+p6yzNDeTqcKBksznuz1aAK4=;
-        b=Y87v6ugjcp23bN6Kta9K+OChjIE4bN6hKDf8sJII6dQQj46CVI7YBCv2TqH5otg8
-        uf/zo02zcZeq92Nik1JBl26BuBFGq9wqBwIIYML5fF9TwJn49i8B8TbkOZlDJUtHBXR
-        mm6Cfee/1vwWg/+NhK7FgfT0L9Kc0s8cuiR8Ntss=
-Received: from notebook (117.102.74.82 [117.102.74.82]) by mx.zohomail.com
-        with SMTPS id 1572237544365671.9832677221943; Sun, 27 Oct 2019 21:39:04 -0700 (PDT)
-Date:   Mon, 28 Oct 2019 11:38:55 +0700
-From:   Didik Setiawan <ds@didiksetiawan.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.3 000/197] 5.3.8-stable review
-Message-ID: <20191028043855.GA18500@notebook>
-References: <20191027203351.684916567@linuxfoundation.org>
+        id S1729971AbfJ1FdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 01:33:25 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:33047 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726550AbfJ1FdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 28 Oct 2019 01:33:25 -0400
+Received: by mail-wm1-f66.google.com with SMTP id 6so8719157wmf.0
+        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 22:33:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=rzLHlZoYGoBkmiTzE56K1uPGO2KAEAPsBpdpBbsSlK0=;
+        b=wuo3O4Ff9ViMoNoSLOmmNnEqye+22H+6oIhHdsTRZydsGrM8DaSMlT+PRCP9KBbzIo
+         EdftOUsBVFinZpyK8ZYIWolPR6D9TzkZfqozsA9bmFS+vyte2aCdo7wXAkDICWiGuPzv
+         c4Tt1sYSmWnpxu1eBE+OF4E+Zi2z+VxbLVRS9aE/He/K9RYl26BmQ1IKBTgxjGUU6ujq
+         vGFg/lrWiMKQN8sQA3FZ4Nj2MVDjbDHZmcw2s218DfGrltKUeTvMDkTbIbeHFU8xJWJc
+         BZkMwe49OnwqItk7AYCFqWnK6TuWhychsx+sbHJcoZWpoBKKitBba/kw03w/m5gGMdaX
+         pVww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=rzLHlZoYGoBkmiTzE56K1uPGO2KAEAPsBpdpBbsSlK0=;
+        b=K3detPxcWYl0ydoab9YRxgEz6yYwgec8MLdEIuP43teUyQMCgFGAjuws779t4A2icW
+         JZu+iF6JvocK9jNDZsyDjyQLpDWqU9lga27DSJcQPDE/8vGVJ7f/9IpKvjXybMuwWT3e
+         DXO0Bbm+NKInIJsXW/ecivq50Do/VqgEkIiVL1eYGr6H5+7/YvAkdpt1/ERW2fKLzMZg
+         BWobwBTZGZe7us6ENHoK422kQgYdd3ka7E0clTdVLIIdloNbEUeKw8nvzyyj8mfEqZPZ
+         DQdaWIoj4GAi4x8mYVUBw6G0MULP8jyPqO/c1tm1RKYPOSpADbKvuW8qv/vXHiZoYLAu
+         N78g==
+X-Gm-Message-State: APjAAAVlj7VJYLn2jiiin+SLnC4rwHiIqv9yS7OE/KcQy/tY3F9HLy2P
+        PnKs8rAl1LQURveTikQtHNTYBjnw1tw=
+X-Google-Smtp-Source: APXvYqzSEcrK09kqPXI8FGqv+17HVpHUkz6b5BRaFtUIgEx01/xc1x03yWTpgXPajwDjOkTgyoMyOg==
+X-Received: by 2002:a7b:c0ca:: with SMTP id s10mr13589258wmh.166.1572240803377;
+        Sun, 27 Oct 2019 22:33:23 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o187sm3977273wmo.20.2019.10.27.22.33.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 27 Oct 2019 22:33:22 -0700 (PDT)
+Message-ID: <5db67da2.1c69fb81.68937.3590@mx.google.com>
+Date:   Sun, 27 Oct 2019 22:33:22 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191027203351.684916567@linuxfoundation.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
-X-ZohoMailClient: External
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.197-50-g55a89a78f76e
+X-Kernelci-Report-Type: boot
+Subject: stable-rc/linux-4.9.y boot: 101 boots: 0 failed,
+ 94 passed with 7 offline (v4.9.197-50-g55a89a78f76e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Oct 27, 2019 at 09:58:38PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.3.8 release.
-> There are 197 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
- 
-Compiled, booted, and no regressions found on my x86_64 system.
+stable-rc/linux-4.9.y boot: 101 boots: 0 failed, 94 passed with 7 offline (=
+v4.9.197-50-g55a89a78f76e)
 
-Thanks,
-Didik Setiawan
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.197-50-g55a89a78f76e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.197-50-g55a89a78f76e/
 
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.197-50-g55a89a78f76e
+Git Commit: 55a89a78f76e92ca9b2045c8dac71ff64e0eb03d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 19 SoC families, 14 builds out of 197
+
+Offline Platforms:
+
+arm:
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
