@@ -2,1715 +2,222 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5E7AE6A4B
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 01:17:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC9EBE6A5A
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 01:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727317AbfJ1ARC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 27 Oct 2019 20:17:02 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:38982 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726909AbfJ1ARC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 20:17:02 -0400
-Received: by mail-wr1-f66.google.com with SMTP id a11so8025534wra.6
-        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 17:16:54 -0700 (PDT)
+        id S1727051AbfJ1A65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 27 Oct 2019 20:58:57 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:42167 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728489AbfJ1A65 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 27 Oct 2019 20:58:57 -0400
+Received: by mail-lf1-f67.google.com with SMTP id z12so6476186lfj.9
+        for <stable@vger.kernel.org>; Sun, 27 Oct 2019 17:58:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=s8XB0bJtKpf1IJExrUL8grvOT7c3Jfr3W1OJeSFxSz0=;
-        b=yqZcteFv2WboDJy6qs7I2xAfF3syb6L5Bv4CjPfuBKCkNb44ik9o9r2auc0bQieGQl
-         MIf8tpiMghvUJCRfYCBt6ySIsAF+jQDyfVkBRCP0Jx+nVDZHMOjd2bVzKGZPkXscRGVM
-         Jvc2Vg+U+LU+9KfZHhnWzLT75PF8OC4T1OA/NNn40RRHuh4+PEfJ3FxkFuVH0fUDdCt+
-         89dUtFoDchXCpNyccGuMguZHlKitRoOVuJymbPhjUj4mbUid+tnjvivxJ67uvqX2S/73
-         qxppP4fmUejITpLcD/ct21nbAaRAD9A5eCFQi0ZBC2qNwK9xNqjrHGj0FZe9qA6Fmlmp
-         7TJw==
+        d=hev-cc.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1aMsAP2PxExyB/E1NoTV0dqnnfdxMUwdxPX5EmrFyzA=;
+        b=O77cxxp0TiDbHCipSNxBDPQs6T3YuiXf2d6J838uRz/Yz+afk4zkR4cPIm4g3CsmLU
+         +BQIeATLcLKQ3CnG6y/WT1V6Wder0rgPEQQOcvJLBXyqGsXF44D7R/iyUcHJZdJUnlQ5
+         +FKKNxPCswaqseS4VUyoitrkxGU/Xg/Mg6Nu6OYsvG4oOjj7V/sH3Aa+VajjKaSI5flC
+         5RfLygrqux7RvLJcNKY0PfyXkS0784Dgxwvw6BQAJQJgqUJGj4NUukHElgcB73eiWejp
+         Ch8wzrgFhJkDlErFtU7bxaYsLF/DhvBa20f/1dphxEnP9jFGkBzHzVzXqvtA+jPR4iLu
+         jC3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=s8XB0bJtKpf1IJExrUL8grvOT7c3Jfr3W1OJeSFxSz0=;
-        b=WOCn1U8mwvePqCASsHiGwLGweEmOQfkMrtDVKmASZCMEAS8iUHSLnkqJvTtaSMzvlq
-         h6WVglzZ5+MqNtYjzKSfemBGjMzFaa//RRb/IWH7EJLnjDwsz8unz+mRoo6PUPdpvjAa
-         HNiB2hUCnfIvQIpLW8+Fc2XGobD5b37BFqLsZgcIE/JHAwOx2bN4inddgN2ZpZ2zFsRr
-         32FUScEqL08bTbu2OrI+n79aG9lzNusckiF0QZzwNE9GMUlt1s3PrAxHOTSFXfwHwelJ
-         cAvJFIqga6mJz2VeVIFoo6YUnhuJJOsHXnM/pbtbTXg2/EG5O1VVwsaEI2ox/3uwivwP
-         osdg==
-X-Gm-Message-State: APjAAAU6HAj4CmVy7gK5zzUuvPNCYzu0VvK0aAkJddn2Uax/oo0VwBKe
-        TbBgvlN85XeQPzHo+ZqD7MPC47E2PRM=
-X-Google-Smtp-Source: APXvYqwR4AZ3S43BdiggXayFCgmIqrzmVBvoKlFZdaIe1d4wUweQL+olZ5g/DDjSRum8UM7n5qRnIg==
-X-Received: by 2002:adf:f192:: with SMTP id h18mr13444773wro.148.1572221812636;
-        Sun, 27 Oct 2019 17:16:52 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id q2sm3536555wmq.30.2019.10.27.17.16.50
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Oct 2019 17:16:51 -0700 (PDT)
-Message-ID: <5db63373.1c69fb81.1d856.16ca@mx.google.com>
-Date:   Sun, 27 Oct 2019 17:16:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1aMsAP2PxExyB/E1NoTV0dqnnfdxMUwdxPX5EmrFyzA=;
+        b=PFyG5uzJ/XEgFp5JUEFgs6/ykR1rGsKUwwjjItoU/sjKsSZpLp6Tl33rFTa+CtwgCF
+         3eiMMbZJjKU0WpC7X8k6C0MKvFMg/8zbedd4bukNh4nILx7sJMi03qvHy1QfPPo5SZYn
+         Ik2qC3ArK2jEFFeceCvOghePfzIc7MVhqqNXN+y+qlvgzF7DjdY4xzDF1qxAvkGpKQGp
+         w6fxy6fF2eTH0lwrk/1kvnYkgUW2s6wxlv+7lVukQwjwANptB06JIKU1Q8p0w/SYkskh
+         JlbSCpAqKSMhE1yKpqw1SthGNV8rsgMEGF+kTm+pua03HR2dEotyrt4syuaiwvF42baU
+         rMFg==
+X-Gm-Message-State: APjAAAVbaumJYWSWXzHto7o2sTwA6xSQ0bwTsErYJ6wgOqmeyHjrjG+s
+        gphobcOi0jabShtre19eaXoBs1If4B03LrPTtC5aMIE4
+X-Google-Smtp-Source: APXvYqxuFefFQRfxYLkJfVt6hHBd6Eyt1FmfLGZfeU+h+svNEOHgMHfQEyL/zqhvT47BmrFDaTpQdCnU0C81rSHyBto=
+X-Received: by 2002:a05:6512:146:: with SMTP id m6mr47893lfo.98.1572224332997;
+ Sun, 27 Oct 2019 17:58:52 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.197-42-gc1c6537ef129
-X-Kernelci-Report-Type: build
-Subject: stable-rc/linux-4.4.y build: 190 builds: 60 failed, 130 passed,
- 60 errors, 71 warnings (v4.4.197-42-gc1c6537ef129)
+References: <20191009060516.3577-1-r@hev.cc> <0911c1130bb79fd8c8e266bc7701b251@suse.de>
+In-Reply-To: <0911c1130bb79fd8c8e266bc7701b251@suse.de>
+From:   Heiher <r@hev.cc>
+Date:   Mon, 28 Oct 2019 08:58:35 +0800
+Message-ID: <CAHirt9iJhPA2BbHYFU81M3bcCwd9uk8T_Cvx9_3MRauwz-2+hg@mail.gmail.com>
+Subject: Re: [PATCH RESEND v5] fs/epoll: Remove unnecessary wakeups of nested epoll
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Roman Penyaev <rpenyaev@suse.de>, linux-fsdevel@vger.kernel.org,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Davide Libenzi <davidel@xmailserver.org>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Eric Wong <e@80x24.org>, Jason Baron <jbaron@akamai.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sridhar Samudrala <sridhar.samudrala@intel.com>,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 190 builds: 60 failed, 130 passed, 60 errors, =
-71 warnings (v4.4.197-42-gc1c6537ef129)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.197-42-gc1c6537ef129/
-
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.197-42-gc1c6537ef129
-Git Commit: c1c6537ef129f3034eecbe2f57b332978eae2d2c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failures Detected:
-
-mips:
-    allnoconfig: (gcc-8) FAIL
-    ar7_defconfig: (gcc-8) FAIL
-    ath79_defconfig: (gcc-8) FAIL
-    bcm47xx_defconfig: (gcc-8) FAIL
-    bcm63xx_defconfig: (gcc-8) FAIL
-    bigsur_defconfig: (gcc-8) FAIL
-    bmips_be_defconfig: (gcc-8) FAIL
-    bmips_stb_defconfig: (gcc-8) FAIL
-    capcella_defconfig: (gcc-8) FAIL
-    cavium_octeon_defconfig: (gcc-8) FAIL
-    ci20_defconfig: (gcc-8) FAIL
-    cobalt_defconfig: (gcc-8) FAIL
-    db1xxx_defconfig: (gcc-8) FAIL
-    decstation_defconfig: (gcc-8) FAIL
-    e55_defconfig: (gcc-8) FAIL
-    fuloong2e_defconfig: (gcc-8) FAIL
-    gpr_defconfig: (gcc-8) FAIL
-    ip22_defconfig: (gcc-8) FAIL
-    ip27_defconfig: (gcc-8) FAIL
-    ip28_defconfig: (gcc-8) FAIL
-    ip32_defconfig: (gcc-8) FAIL
-    jazz_defconfig: (gcc-8) FAIL
-    jmr3927_defconfig: (gcc-8) FAIL
-    lasat_defconfig: (gcc-8) FAIL
-    lemote2f_defconfig: (gcc-8) FAIL
-    loongson3_defconfig: (gcc-8) FAIL
-    ls1b_defconfig: (gcc-8) FAIL
-    malta_defconfig: (gcc-8) FAIL
-    malta_kvm_defconfig: (gcc-8) FAIL
-    malta_kvm_guest_defconfig: (gcc-8) FAIL
-    malta_qemu_32r6_defconfig: (gcc-8) FAIL
-    maltaaprp_defconfig: (gcc-8) FAIL
-    maltasmvp_defconfig: (gcc-8) FAIL
-    maltasmvp_eva_defconfig: (gcc-8) FAIL
-    maltaup_defconfig: (gcc-8) FAIL
-    maltaup_xpa_defconfig: (gcc-8) FAIL
-    markeins_defconfig: (gcc-8) FAIL
-    mips_paravirt_defconfig: (gcc-8) FAIL
-    mpc30x_defconfig: (gcc-8) FAIL
-    msp71xx_defconfig: (gcc-8) FAIL
-    mtx1_defconfig: (gcc-8) FAIL
-    nlm_xlp_defconfig: (gcc-8) FAIL
-    nlm_xlr_defconfig: (gcc-8) FAIL
-    pistachio_defconfig: (gcc-8) FAIL
-    pnx8335_stb225_defconfig: (gcc-8) FAIL
-    qi_lb60_defconfig: (gcc-8) FAIL
-    rb532_defconfig: (gcc-8) FAIL
-    rbtx49xx_defconfig: (gcc-8) FAIL
-    rm200_defconfig: (gcc-8) FAIL
-    rt305x_defconfig: (gcc-8) FAIL
-    sb1250_swarm_defconfig: (gcc-8) FAIL
-    sead3_defconfig: (gcc-8) FAIL
-    sead3micro_defconfig: (gcc-8) FAIL
-    tb0219_defconfig: (gcc-8) FAIL
-    tb0226_defconfig: (gcc-8) FAIL
-    tb0287_defconfig: (gcc-8) FAIL
-    tinyconfig: (gcc-8) FAIL
-    workpad_defconfig: (gcc-8) FAIL
-    xilfpga_defconfig: (gcc-8) FAIL
-    xway_defconfig: (gcc-8) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    allnoconfig (gcc-8): 3 warnings
-    tinyconfig (gcc-8): 4 warnings
-
-arm64:
-
-arm:
-    clps711x_defconfig (gcc-8): 1 warning
-    davinci_all_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    mxs_defconfig (gcc-8): 1 warning
-
-i386:
-
-mips:
-    allnoconfig (gcc-8): 1 error, 1 warning
-    ar7_defconfig (gcc-8): 1 error, 1 warning
-    ath79_defconfig (gcc-8): 1 error, 1 warning
-    bcm47xx_defconfig (gcc-8): 1 error, 1 warning
-    bcm63xx_defconfig (gcc-8): 1 error, 1 warning
-    bigsur_defconfig (gcc-8): 1 error, 1 warning
-    bmips_be_defconfig (gcc-8): 1 error, 1 warning
-    bmips_stb_defconfig (gcc-8): 1 error, 1 warning
-    capcella_defconfig (gcc-8): 1 error, 1 warning
-    cavium_octeon_defconfig (gcc-8): 1 error, 1 warning
-    ci20_defconfig (gcc-8): 1 error, 1 warning
-    cobalt_defconfig (gcc-8): 1 error, 1 warning
-    db1xxx_defconfig (gcc-8): 1 error, 1 warning
-    decstation_defconfig (gcc-8): 1 error, 1 warning
-    e55_defconfig (gcc-8): 1 error, 1 warning
-    fuloong2e_defconfig (gcc-8): 1 error, 1 warning
-    gpr_defconfig (gcc-8): 1 error, 1 warning
-    ip22_defconfig (gcc-8): 1 error, 1 warning
-    ip27_defconfig (gcc-8): 1 error, 1 warning
-    ip28_defconfig (gcc-8): 1 error, 1 warning
-    ip32_defconfig (gcc-8): 1 error, 1 warning
-    jazz_defconfig (gcc-8): 1 error, 1 warning
-    jmr3927_defconfig (gcc-8): 1 error, 1 warning
-    lasat_defconfig (gcc-8): 1 error, 1 warning
-    lemote2f_defconfig (gcc-8): 1 error, 1 warning
-    loongson3_defconfig (gcc-8): 1 error, 1 warning
-    ls1b_defconfig (gcc-8): 1 error, 1 warning
-    malta_defconfig (gcc-8): 1 error, 1 warning
-    malta_kvm_defconfig (gcc-8): 1 error, 1 warning
-    malta_kvm_guest_defconfig (gcc-8): 1 error, 1 warning
-    malta_qemu_32r6_defconfig (gcc-8): 1 error, 1 warning
-    maltaaprp_defconfig (gcc-8): 1 error, 1 warning
-    maltasmvp_defconfig (gcc-8): 1 error, 1 warning
-    maltasmvp_eva_defconfig (gcc-8): 1 error, 1 warning
-    maltaup_defconfig (gcc-8): 1 error, 1 warning
-    maltaup_xpa_defconfig (gcc-8): 1 error, 1 warning
-    markeins_defconfig (gcc-8): 1 error, 1 warning
-    mips_paravirt_defconfig (gcc-8): 1 error, 1 warning
-    mpc30x_defconfig (gcc-8): 1 error, 1 warning
-    msp71xx_defconfig (gcc-8): 1 error, 1 warning
-    mtx1_defconfig (gcc-8): 1 error, 1 warning
-    nlm_xlp_defconfig (gcc-8): 1 error, 1 warning
-    nlm_xlr_defconfig (gcc-8): 1 error, 1 warning
-    pistachio_defconfig (gcc-8): 1 error, 1 warning
-    pnx8335_stb225_defconfig (gcc-8): 1 error, 1 warning
-    qi_lb60_defconfig (gcc-8): 1 error, 1 warning
-    rb532_defconfig (gcc-8): 1 error, 1 warning
-    rbtx49xx_defconfig (gcc-8): 1 error, 1 warning
-    rm200_defconfig (gcc-8): 1 error, 1 warning
-    rt305x_defconfig (gcc-8): 1 error, 1 warning
-    sb1250_swarm_defconfig (gcc-8): 1 error, 1 warning
-    sead3_defconfig (gcc-8): 1 error, 1 warning
-    sead3micro_defconfig (gcc-8): 1 error, 1 warning
-    tb0219_defconfig (gcc-8): 1 error, 1 warning
-    tb0226_defconfig (gcc-8): 1 error, 1 warning
-    tb0287_defconfig (gcc-8): 1 error, 1 warning
-    tinyconfig (gcc-8): 1 error, 1 warning
-    workpad_defconfig (gcc-8): 1 error, 1 warning
-    xilfpga_defconfig (gcc-8): 1 error, 1 warning
-    xway_defconfig (gcc-8): 1 error, 1 warning
-
-x86_64:
-
-Errors summary:
-
-    60   arch/mips/include/asm/cpu-features.h:311:31: error: implicit decla=
-ration of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-func=
-tion-declaration]
-
-Warnings summary:
-
-    60   cc1: all warnings being treated as errors
-    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
-ependencies (FUTEX)
-    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate 'const' de=
-claration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate 'const'=
- declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate 'const'=
- declaration specifier [-Wduplicate-decl-specifier]
-    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
- 'const' declaration specifier [-Wduplicate-decl-specifier]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section mi=
-smatches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mis=
-matches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bcm_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
- section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate 'con=
-st' declaration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate 'const' decl=
-aration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section m=
-ismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate 'const' decl=
-aration specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ls1b_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning,=
- 0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning,=
- 0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
- section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 s=
-ection mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0=
- section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate 'const' declara=
-tion specifier [-Wduplicate-decl-specifier]
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sec=
-tion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, =
-0 section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sect=
-ion mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-realview-smp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 =
-section mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-sead3_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section=
- mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-sead3micro_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 se=
-ction mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 sectio=
-n mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
-matches
-
----------------------------------------------------------------------------=
------
-tinyconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section mism=
-atches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mis=
-matches
-
-Warnings:
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
-encies (FUTEX)
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-xilfpga_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
-on mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-xway_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 section =
-mismatches
-
-Errors:
-    arch/mips/include/asm/cpu-features.h:311:31: error: implicit declaratio=
-n of function '__ase'; did you mean '__iget'? [-Werror=3Dimplicit-function-=
-declaration]
-
-Warnings:
-    cc1: all warnings being treated as errors
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----
-For more info write to <info@kernelci.org>
+Hi,
+
+On Wed, Oct 9, 2019 at 5:21 PM Roman Penyaev <rpenyaev@suse.de> wrote:
+>
+> On 2019-10-09 08:05, hev wrote:
+> > From: Heiher <r@hev.cc>
+> >
+> > Take the case where we have:
+> >
+> >         t0
+> >          | (ew)
+> >         e0
+> >          | (et)
+> >         e1
+> >          | (lt)
+> >         s0
+> >
+> > t0: thread 0
+> > e0: epoll fd 0
+> > e1: epoll fd 1
+> > s0: socket fd 0
+> > ew: epoll_wait
+> > et: edge-trigger
+> > lt: level-trigger
+> >
+> > We remove unnecessary wakeups to prevent the nested epoll that working
+> > in edge-
+> > triggered mode to waking up continuously.
+> >
+> > Test code:
+> >  #include <unistd.h>
+> >  #include <sys/epoll.h>
+> >  #include <sys/socket.h>
+> >
+> >  int main(int argc, char *argv[])
+> >  {
+> >       int sfd[2];
+> >       int efd[2];
+> >       struct epoll_event e;
+> >
+> >       if (socketpair(AF_UNIX, SOCK_STREAM, 0, sfd) < 0)
+> >               goto out;
+> >
+> >       efd[0] = epoll_create(1);
+> >       if (efd[0] < 0)
+> >               goto out;
+> >
+> >       efd[1] = epoll_create(1);
+> >       if (efd[1] < 0)
+> >               goto out;
+> >
+> >       e.events = EPOLLIN;
+> >       if (epoll_ctl(efd[1], EPOLL_CTL_ADD, sfd[0], &e) < 0)
+> >               goto out;
+> >
+> >       e.events = EPOLLIN | EPOLLET;
+> >       if (epoll_ctl(efd[0], EPOLL_CTL_ADD, efd[1], &e) < 0)
+> >               goto out;
+> >
+> >       if (write(sfd[1], "w", 1) != 1)
+> >               goto out;
+> >
+> >       if (epoll_wait(efd[0], &e, 1, 0) != 1)
+> >               goto out;
+> >
+> >       if (epoll_wait(efd[0], &e, 1, 0) != 0)
+> >               goto out;
+> >
+> >       close(efd[0]);
+> >       close(efd[1]);
+> >       close(sfd[0]);
+> >       close(sfd[1]);
+> >
+> >       return 0;
+> >
+> >  out:
+> >       return -1;
+> >  }
+> >
+> > More tests:
+> >  https://github.com/heiher/epoll-wakeup
+> >
+> > Cc: Al Viro <viro@ZenIV.linux.org.uk>
+> > Cc: Andrew Morton <akpm@linux-foundation.org>
+> > Cc: Davide Libenzi <davidel@xmailserver.org>
+> > Cc: Davidlohr Bueso <dave@stgolabs.net>
+> > Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+> > Cc: Eric Wong <e@80x24.org>
+> > Cc: Jason Baron <jbaron@akamai.com>
+> > Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> > Cc: Roman Penyaev <rpenyaev@suse.de>
+> > Cc: Sridhar Samudrala <sridhar.samudrala@intel.com>
+> > Cc: linux-kernel@vger.kernel.org
+> > Cc: linux-fsdevel@vger.kernel.org
+> > Signed-off-by: hev <r@hev.cc>
+> > ---
+> >  fs/eventpoll.c | 16 ----------------
+> >  1 file changed, 16 deletions(-)
+> >
+> > diff --git a/fs/eventpoll.c b/fs/eventpoll.c
+> > index c4159bcc05d9..75fccae100b5 100644
+> > --- a/fs/eventpoll.c
+> > +++ b/fs/eventpoll.c
+> > @@ -671,7 +671,6 @@ static __poll_t ep_scan_ready_list(struct eventpoll
+> > *ep,
+> >                             void *priv, int depth, bool ep_locked)
+> >  {
+> >       __poll_t res;
+> > -     int pwake = 0;
+> >       struct epitem *epi, *nepi;
+> >       LIST_HEAD(txlist);
+> >
+> > @@ -738,26 +737,11 @@ static __poll_t ep_scan_ready_list(struct
+> > eventpoll *ep,
+> >        */
+> >       list_splice(&txlist, &ep->rdllist);
+> >       __pm_relax(ep->ws);
+> > -
+> > -     if (!list_empty(&ep->rdllist)) {
+> > -             /*
+> > -              * Wake up (if active) both the eventpoll wait list and
+> > -              * the ->poll() wait list (delayed after we release the lock).
+> > -              */
+> > -             if (waitqueue_active(&ep->wq))
+> > -                     wake_up(&ep->wq);
+> > -             if (waitqueue_active(&ep->poll_wait))
+> > -                     pwake++;
+> > -     }
+> >       write_unlock_irq(&ep->lock);
+> >
+> >       if (!ep_locked)
+> >               mutex_unlock(&ep->mtx);
+> >
+> > -     /* We have to call this outside the lock */
+> > -     if (pwake)
+> > -             ep_poll_safewake(&ep->poll_wait);
+> > -
+> >       return res;
+> >  }
+>
+> This looks good to me.  Heiher, mind to make kselftest out of your test
+> suite?
+>
+> Reviewed-by: Roman Penyaev <rpenyaev@suse.de>
+>
+> --
+> Roman
+>
+>
+>
+
+Need to back port this patch to stable branches?
+
+-- 
+Best regards!
+Hev
+https://hev.cc
