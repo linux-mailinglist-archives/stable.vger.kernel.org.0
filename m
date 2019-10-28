@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7729CE76FA
-	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 17:48:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88976E770F
+	for <lists+stable@lfdr.de>; Mon, 28 Oct 2019 17:55:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403892AbfJ1QsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 28 Oct 2019 12:48:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51656 "EHLO mail.kernel.org"
+        id S1729317AbfJ1QzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 28 Oct 2019 12:55:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403879AbfJ1QsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 28 Oct 2019 12:48:10 -0400
+        id S1726234AbfJ1QzL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 28 Oct 2019 12:55:11 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8EF6208C0;
-        Mon, 28 Oct 2019 16:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7707B21721;
+        Mon, 28 Oct 2019 16:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572281289;
-        bh=wkTmxMF7R8LEPgRdoDDjEJHPBsYF2QiUcXsqSEQWOTU=;
+        s=default; t=1572281709;
+        bh=zU5wn3kZVtjzMCwNoJgtVXV9l1NGPZ0r0pMuv4nTST8=;
         h=Subject:To:From:Date:From;
-        b=KJmKHNdPjIn+GXOaAcxE/2jzd2+YwsWKdFtWM4Fsxl/C8dnuto3jcQgzlxsdx20P1
-         xiEV6L3d2h9WyEMeXIF5fHhlgxYdsYZEf6Uc7HBCKqw8KbPJF4Z8gfxAPYaBX/ayZi
-         Wr2g6ORCmWih5t/ib99FgGNT0+YZc9zeaM1zqasU=
-Subject: patch "usb: xhci: fix __le32/__le64 accessors in debugfs code" added to usb-linus
-To:     ben.dooks@codethink.co.uk, gregkh@linuxfoundation.org,
-        mathias.nyman@linux.intel.com, stable@vger.kernel.org
+        b=diHORhyU5Jv9ZDn7DIzZM06IKwTsxMxrhtvroSBfgxfuVdHyLhfmDo2ahKfQ0Khs1
+         7LmuOnS+fVRy7MYQKJmeB04n1Zer6kuupl04eVAVu51GlJ0/80qbXRBvE1sFC1YP0N
+         8VB0YvnMbkbDkGANkgb5p7/+nqqKhkOaVUrREm1c=
+Subject: patch "usb-storage: Revert commit 747668dbc061 ("usb-storage: Set" added to usb-linus
+To:     stern@rowland.harvard.edu, Seth.Bollinger@digi.com,
+        gregkh@linuxfoundation.org, hch@lst.de,
+        piergiorgio.sartor@nexgo.de, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 28 Oct 2019 17:47:53 +0100
-Message-ID: <1572281273119159@kroah.com>
+Date:   Mon, 28 Oct 2019 17:55:02 +0100
+Message-ID: <1572281702164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: xhci: fix __le32/__le64 accessors in debugfs code
+    usb-storage: Revert commit 747668dbc061 ("usb-storage: Set
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,83 +56,88 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From d5501d5c29a2e684640507cfee428178d6fd82ca Mon Sep 17 00:00:00 2001
-From: "Ben Dooks (Codethink)" <ben.dooks@codethink.co.uk>
-Date: Fri, 25 Oct 2019 17:30:29 +0300
-Subject: usb: xhci: fix __le32/__le64 accessors in debugfs code
+From 9a976949613132977098fc49510b46fa8678d864 Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Mon, 21 Oct 2019 11:48:06 -0400
+Subject: usb-storage: Revert commit 747668dbc061 ("usb-storage: Set
+ virt_boundary_mask to avoid SG overflows")
 
-It looks like some of the xhci debug code is passing u32 to functions
-directly from __le32/__le64 fields.
-Fix this by using le{32,64}_to_cpu() on these to fix the following
-sparse warnings;
+Commit 747668dbc061 ("usb-storage: Set virt_boundary_mask to avoid SG
+overflows") attempted to solve a problem involving scatter-gather I/O
+and USB/IP by setting the virt_boundary_mask for mass-storage devices.
 
-xhci-debugfs.c:205:62: warning: incorrect type in argument 1 (different base types)
-xhci-debugfs.c:205:62:    expected unsigned int [usertype] field0
-xhci-debugfs.c:205:62:    got restricted __le32
-xhci-debugfs.c:206:62: warning: incorrect type in argument 2 (different base types)
-xhci-debugfs.c:206:62:    expected unsigned int [usertype] field1
-xhci-debugfs.c:206:62:    got restricted __le32
-...
+However, it now turns out that this interacts badly with commit
+09324d32d2a0 ("block: force an unlimited segment size on queues with a
+virt boundary"), which was added later.  A typical error message is:
 
-[Trim down commit message, sparse warnings were similar -Mathias]
-Cc: <stable@vger.kernel.org> # 4.15+
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1572013829-14044-4-git-send-email-mathias.nyman@linux.intel.com
+	ehci-pci 0000:00:13.2: swiotlb buffer is full (sz: 327680 bytes),
+	total 32768 (slots), used 97 (slots)
+
+There is no longer any reason to keep the virt_boundary_mask setting
+for usb-storage.  It was needed in the first place only for handling
+devices with a block size smaller than the maxpacket size and where
+the host controller was not capable of fully general scatter-gather
+operation (that is, able to merge two SG segments into a single USB
+packet).  But:
+
+	High-speed or slower connections never use a bulk maxpacket
+	value larger than 512;
+
+	The SCSI layer does not handle block devices with a block size
+	smaller than 512 bytes;
+
+	All the host controllers capable of SuperSpeed operation can
+	handle fully general SG;
+
+	Since commit ea44d190764b ("usbip: Implement SG support to
+	vhci-hcd and stub driver") was merged, the USB/IP driver can
+	also handle SG.
+
+Therefore all supported device/controller combinations should be okay
+with no need for any special virt_boundary_mask.  So in order to fix
+the swiotlb problem, this patch reverts commit 747668dbc061.
+
+Reported-and-tested-by: Piergiorgio Sartor <piergiorgio.sartor@nexgo.de>
+Link: https://marc.info/?l=linux-usb&m=157134199501202&w=2
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+CC: Seth Bollinger <Seth.Bollinger@digi.com>
+CC: <stable@vger.kernel.org>
+Fixes: 747668dbc061 ("usb-storage: Set virt_boundary_mask to avoid SG overflows")
+Acked-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910211145520.1673-100000@iolanthe.rowland.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-debugfs.c | 24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ drivers/usb/storage/scsiglue.c | 10 ----------
+ 1 file changed, 10 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-debugfs.c b/drivers/usb/host/xhci-debugfs.c
-index 7ba6afc7ef23..76c3f29562d2 100644
---- a/drivers/usb/host/xhci-debugfs.c
-+++ b/drivers/usb/host/xhci-debugfs.c
-@@ -202,10 +202,10 @@ static void xhci_ring_dump_segment(struct seq_file *s,
- 		trb = &seg->trbs[i];
- 		dma = seg->dma + i * sizeof(*trb);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_trb(trb->generic.field[0],
--					   trb->generic.field[1],
--					   trb->generic.field[2],
--					   trb->generic.field[3]));
-+			   xhci_decode_trb(le32_to_cpu(trb->generic.field[0]),
-+					   le32_to_cpu(trb->generic.field[1]),
-+					   le32_to_cpu(trb->generic.field[2]),
-+					   le32_to_cpu(trb->generic.field[3])));
- 	}
- }
+diff --git a/drivers/usb/storage/scsiglue.c b/drivers/usb/storage/scsiglue.c
+index 6737fab94959..54a3c8195c96 100644
+--- a/drivers/usb/storage/scsiglue.c
++++ b/drivers/usb/storage/scsiglue.c
+@@ -68,7 +68,6 @@ static const char* host_info(struct Scsi_Host *host)
+ static int slave_alloc (struct scsi_device *sdev)
+ {
+ 	struct us_data *us = host_to_us(sdev->host);
+-	int maxp;
  
-@@ -263,10 +263,10 @@ static int xhci_slot_context_show(struct seq_file *s, void *unused)
- 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
- 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
- 	seq_printf(s, "%pad: %s\n", &dev->out_ctx->dma,
--		   xhci_decode_slot_context(slot_ctx->dev_info,
--					    slot_ctx->dev_info2,
--					    slot_ctx->tt_info,
--					    slot_ctx->dev_state));
-+		   xhci_decode_slot_context(le32_to_cpu(slot_ctx->dev_info),
-+					    le32_to_cpu(slot_ctx->dev_info2),
-+					    le32_to_cpu(slot_ctx->tt_info),
-+					    le32_to_cpu(slot_ctx->dev_state)));
+ 	/*
+ 	 * Set the INQUIRY transfer length to 36.  We don't use any of
+@@ -77,15 +76,6 @@ static int slave_alloc (struct scsi_device *sdev)
+ 	 */
+ 	sdev->inquiry_len = 36;
  
- 	return 0;
- }
-@@ -286,10 +286,10 @@ static int xhci_endpoint_context_show(struct seq_file *s, void *unused)
- 		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, dci);
- 		dma = dev->out_ctx->dma + dci * CTX_SIZE(xhci->hcc_params);
- 		seq_printf(s, "%pad: %s\n", &dma,
--			   xhci_decode_ep_context(ep_ctx->ep_info,
--						  ep_ctx->ep_info2,
--						  ep_ctx->deq,
--						  ep_ctx->tx_info));
-+			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
-+						  le32_to_cpu(ep_ctx->ep_info2),
-+						  le64_to_cpu(ep_ctx->deq),
-+						  le32_to_cpu(ep_ctx->tx_info)));
- 	}
- 
- 	return 0;
+-	/*
+-	 * USB has unusual scatter-gather requirements: the length of each
+-	 * scatterlist element except the last must be divisible by the
+-	 * Bulk maxpacket value.  Fortunately this value is always a
+-	 * power of 2.  Inform the block layer about this requirement.
+-	 */
+-	maxp = usb_maxpacket(us->pusb_dev, us->recv_bulk_pipe, 0);
+-	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
+-
+ 	/*
+ 	 * Some host controllers may have alignment requirements.
+ 	 * We'll play it safe by requiring 512-byte alignment always.
 -- 
 2.23.0
 
