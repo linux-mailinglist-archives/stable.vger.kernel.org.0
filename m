@@ -2,66 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48CE4E86A5
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 12:21:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B833CE8728
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 12:31:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725839AbfJ2LVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 07:21:17 -0400
-Received: from sonic310-23.consmr.mail.ne1.yahoo.com ([66.163.186.204]:39706
-        "EHLO sonic310-23.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725776AbfJ2LVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 07:21:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1572348075; bh=Acg6cR0d4icHEW7zNvIWmQRAFY+LtLbaox2Ux1TaSkE=; h=Date:From:Reply-To:Subject:From:Subject; b=L9mHsQN0RmhgwYF9jIEnWqd2qF6CCwDjas/3gb0/AftY1CI84QOjeevq9kTaeLunjzH7EISDQIrYSDLeYnfM88HJuMLh8ND+bLtc27GmKm6JOGRJmw5AulCd4sEto3NeoDOJ93VrAda2kneOVa/bV4w8MrpBaxnpy61VShQ1+Z627dDIgK5WQKJI6WJpFPq9O9w7Nep4+/JFSTf11TFr3CjJAhwn2bhy0PFyCavS9fa3lisF3sbzP4AbeHp/BWL1nIoQ5EXv6eYMOhBqdrDbhvj6FG+GMLTV+1PjkKHLzuEdPXiiFDyRjyqhq+7PwEkKxmPK4UBWLt8xJABfWbMfOA==
-X-YMail-OSG: fpNsm2kVM1mlDQVGWTx0ls6bsQDGO6l.gYFzFuhyPjv62qHwZp7bVQxqF.NL36f
- CF345.Gzboan60Gzv4RmTsuusWe.etci2W5E2zQqdX0FT3HcqtNzSWACNz8q7JaMi7Wz2P29vV6T
- Rnr_K.FlH5mcol1p__Bwo8t4n05EBx23naliKZsN_5aHEH.tppu7tGK7OOEDWWMisO9KuIrOTyIF
- 6svvqOmx4jdb3zi3KCcVbIzifw28dj9gf9HdySESB2SLzaPFyCWSSpeU.MIeNq8sPqcBK0o1y3j_
- y9H0b2U_wYe8L2kU9XxF0KYqPyr4GJqAa.js9uMZaVsnzwuoflvmqWHhUe556POOLvmx_a.dk7.P
- xNK0uaIko4eN5J39MR9nomNsp__vqR1vEsqbyXfCbMMzyev15AW7zYJ6kdArO6UUzzvMhelAii7E
- n8MG0178E6f8qXSAxEiIySDAGKDqkeDRzK1T60LHQKh9HYzY5pKZUEyW7FhAQBUCEPiP2_ZUTAZP
- C95FEQkebdQDbRzkIUWqkXYJ8Bp7t38O5KGSK6Qke81EpJL1lWFAql5tnr54iNr28DLOsncElYVM
- jVIvDWaCAtbtCLrUwbvZNCgbVU06hjAQpSb8aMPhP08AWe_lYN76DlzK6m_nDeCWwaZNOwII2BTG
- v5iV0kGOMIAyD62bNRXfbeLzQnUiDYf8HzWisXoO_0kPrhy6KCzaM2yR2EIlIfg23OQod81OWYng
- zm5WL753r6pm5eXtTI_grUsbZiypqhZOCD7jmk_AG9p8lfZ_TT3MrGl6558YRY.PwDrYjphcnGZU
- WltszSTKccMsJLuTwdx.kR2svISCMHFs5mAzFVb9kD0Ogu.vFd.qX.OIEgPpS6bMLaPIQr.YQmlY
- tgfTkNvjqxYBcdppj7HoyJXiT6TIq531HOtSyx9vMZiq4Cv39uPLYqAkja8tt9X3co1mlhvaLyS6
- Fu0NyfkBc6YcSWqZQvpSlumXHsLnMtUzHvwem._77zn8UyzPogsJSGsXdHX3IVyIY.ZFar7VpyOf
- biXYLIWEVonljguFp7E3uuvtCDf.SaWCoM.8HdYcSvQj3Puwbq.3YwxqORADtKRHHL0g7Yd5Ij0c
- 8sk_VGdIODdUIs1nF9adjhrBisbB_S0swmp.Anekxjd9cqtIZc6vgVpiXq4.e1fkeDAkcffp1sji
- tezDpD2nHoiSBR5MKTTphsbl1qFb34rLEMH57ls2ifryNTq0KDYK9Fsa1iIkoBwiOFH1OZnHqjHS
- YjrnU15Z.XZN2OX4lZwd62TEEX83EXnOYelvBKfsrySW_JhLcMF1DELqHsZ_3DGVPqjRPfmCpUCb
- W17BpseV4
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic310.consmr.mail.ne1.yahoo.com with HTTP; Tue, 29 Oct 2019 11:21:15 +0000
-Date:   Tue, 29 Oct 2019 11:21:11 +0000 (UTC)
-From:   Aisha Gaddafi <gaddffiaaisha@gmail.com>
-Reply-To: aishagaddffia@gmail.com
-Message-ID: <1155810190.3719453.1572348071053@mail.yahoo.com>
-Subject: Inquiry for Investment.
+        id S1729070AbfJ2Lbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 07:31:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726952AbfJ2Lbf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 07:31:35 -0400
+Received: from localhost (unknown [91.217.168.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DBED20663;
+        Tue, 29 Oct 2019 11:31:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572348694;
+        bh=XFtJgZJFVHvrAkpPKTLWBkBHuMI73X4JnH2pdvD2HaU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FaxdDc7uSvBKTteWK3QZghPazDqPKcW9c/xX5BOUroVX3wiiMPtARTD41TSlGx6Wt
+         rD/FCBHmlch2j0ATFC1J1zqsnfRhIK2GgcSCQVpyemKoad2VukthtKfV6A8ATTMCUL
+         V1kRyhiyD4R1VRyfT35cSCMG6g3QRzEvwI6qoGnk=
+Date:   Tue, 29 Oct 2019 07:31:31 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Murphy Zhou <xzhou@redhat.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        deepa.kernel@gmail.com,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, guaneryu@gmail.com,
+        CKI Project <cki-project@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.3.8-rc2-96dab43.cki (stable)
+Message-ID: <20191029113131.GM1554@sasha-vm>
+References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
+ <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
+ <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
+ <20191029080855.GA512708@kroah.com>
+ <20191029091126.ijvixns6fe3dzte3@xzhoux.usersys.redhat.com>
+ <20191029092158.GA582092@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191029092158.GA582092@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Oct 29, 2019 at 10:21:58AM +0100, Greg KH wrote:
+>On Tue, Oct 29, 2019 at 05:11:26PM +0800, Murphy Zhou wrote:
+>> On Tue, Oct 29, 2019 at 09:08:55AM +0100, Greg KH wrote:
+>> > On Tue, Oct 29, 2019 at 03:33:18PM +0800, Murphy Zhou wrote:
+>> > > On Tue, Oct 29, 2019 at 10:55:34AM +0530, Naresh Kamboju wrote:
+>> > > > On Tue, 29 Oct 2019 at 07:33, CKI Project <cki-project@redhat.com> wrote:
+>> > > > >
+>> > > > >
+>> > > > > Hello,
+>> > > > >
+>> > > > > We ran automated tests on a recent commit from this kernel tree:
+>> > > > >
+>> > > > >        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>> > > > >             Commit: 96dab4347cbe - Linux 5.3.8-rc2
+>> > > > >
+>> > > > > The results of these automated tests are provided below.
+>> > > > >
+>> > > > >     Overall result: FAILED (see details below)
+>> > > > >              Merge: OK
+>> > > > >            Compile: OK
+>> > > > >              Tests: FAILED
+>> > > > >
+>> > > > > All kernel binaries, config files, and logs are available for download here:
+>> > > > >
+>> > > > >   https://artifacts.cki-project.org/pipelines/253188
+>> > > > >
+>> > > > > One or more kernel tests failed:
+>> > > > >
+>> > > > >     ppc64le:
+>> > > > >      ❌ xfstests: ext4
+>> > > > >      ❌ xfstests: xfs
+>> > > > >
+>> > > > >     aarch64:
+>> > > > >      ❌ xfstests: ext4
+>> > > > >      ❌ xfstests: xfs
+>> > > > >
+>> > > > >     x86_64:
+>> > > > >      ❌ xfstests: ext4
+>> > > > >      ❌ xfstests: xfs
+>> > > > >
+>> > > >
+>> > > > FYI,
+>> > > > The test log output,
+>> > > >
+>> > > > Running test generic/402
+>> > > > #! /bin/bash
+>> > > > # SPDX-License-Identifier: GPL-2.0
+>> > > > # Copyright (c) 2016 Deepa Dinamani.  All Rights Reserved.
+>> > > > #
+>> > > > # FS QA Test 402
+>> > > > #
+>> > > > # Test to verify filesystem timestamps for supported ranges.
+>> > > > #
+>> > > > # Exit status 1: test failed.
+>> > > > # Exit status 0: test passed.
+>> > > > FSTYP         -- xfs (non-debug)
+>> > > > PLATFORM      -- Linux/aarch64 apm-mustang-b0-11 5.3.8-rc2-96dab43.cki
+>> > > > #1 SMP Mon Oct 28 14:23:22 UTC 2019
+>> > > > MKFS_OPTIONS  -- -f -m crc=1,finobt=1,rmapbt=1,reflink=1 -i sparse=1 /dev/sda4
+>> > > > MOUNT_OPTIONS -- -o context=system_u:object_r:nfs_t:s0 /dev/sda4
+>> > > > /mnt/xfstests/mnt2
+>> > > >
+>> > > > generic/402 - output mismatch (see
+>> > > > /var/lib/xfstests/results//generic/402.out.bad)
+>> > > >     --- tests/generic/402.out 2019-10-28 12:19:13.835212771 -0400
+>> > > >     +++ /var/lib/xfstests/results//generic/402.out.bad 2019-10-28
+>> > > > 13:13:55.503682127 -0400
+>> > > >     @@ -1,2 +1,4 @@
+>> > > >      QA output created by 402
+>> > > >     +2147483647;2147483647 != 2147483648;2147483648
+>> > > >     +2147483647;2147483647 != -2147483648;-2147483648
+>> > > >      Silence is golden
+>> > > >     ...
+>> > > >     (Run 'diff -u /var/lib/xfstests/tests/generic/402.out
+>> > > > /var/lib/xfstests/results//generic/402.out.bad'  to see the entire
+>> > > > diff)
+>> > > > Ran: generic/402
+>> > > > Failures: generic/402
+>> > > > Failed 1 of 1 tests
+>> > > >
+>> > > > Test source:
+>> > > > https://github.com/kdave/xfstests/blob/master/tests/generic/402
+>> > > >
+>> > > > Here is the latest test case commit,
+>> > > >
+>> > > > generic/402: fix for updated behavior of timestamp limits
+>> > > >
+>> > > > The mount behavior will not be altered because of the unsupported
+>> > > > timestamps on the filesystems.
+>> > > >
+>> > > > Adjust the test accordingly.
+>> > > >
+>> > > > You can find the series at
+>> > > > https://git.kernel.org/torvalds/c/cfb82e1df8b7c76991ea12958855897c2fb4debc
+>> > >
+>> > > Yes, stable trees need this series to pass the test.
+>> >
+>> > I do not understand, what "series"?  Can you provide the exact git
+>> > commit ids that I need to apply to the stable tree to resolve this?
+>>
+>> Linus tree:
+>>
+>> cba465b4f982 ext4: Reduce ext4 timestamp warnings
+>> 5ad32b3acded isofs: Initialize filesystem timestamp ranges
+>> 83b8a3fbe3aa pstore: fs superblock limits
+>> 8833293d0acc fs: omfs: Initialize filesystem timestamp ranges
+>> cdd62b5b07e8 fs: hpfs: Initialize filesystem timestamp ranges
+>> 028ca4db0a6e fs: ceph: Initialize filesystem timestamp ranges
+>> 452c2779410a fs: sysv: Initialize filesystem timestamp ranges
+>> 487b25bc4be9 fs: affs: Initialize filesystem timestamp ranges
+>> c0da64f6bb67 fs: fat: Initialize filesystem timestamp ranges
+>> cb7a69e60590 fs: cifs: Initialize filesystem timestamp ranges
+>> 1fcb79c1b218 fs: nfs: Initialize filesystem timestamp ranges
+>> 4881c4971df0 ext4: Initialize timestamps limits
+>> d5c6e2d5188d 9p: Fill min and max timestamps in sb
+>> 22b139691f9e fs: Fill in max and min timestamps in superblock
+>> 42e729b9ddbb utimes: Clamp the timestamps before update
+>> f8b92ba67c5d mount: Add mount warning for impending timestamp expiry
+>> 3818c1907a5e timestamp_truncate: Replace users of timespec64_trunc
+>> 50e17c000c46 vfs: Add timestamp_truncate() api
+>> 188d20bcd1eb vfs: Add file timestamp range support
+>
+>That really looks like a new feature, not a bugfix for something, right?
 
+Oh I look at that series last month. It's a new feature, but it's there
+to fix a bug. It was too big for me to feel comfortable with and I
+wasn't aware it's more than a theoretical issue.
 
-Inquiry for Investment.
-
-Assalamu Alaikum Wa Rahmatullahi Wa Barakatuh,
-
-Dear Friend,
-
-I came across your e-mail contact prior a private search while in need of your assistance. My name is Aisha Gaddafi a single Mother and a Widow with three Children. I am the only biological Daughter of late Libyan President (Late Colonel Muammar Gaddafi).
-
-I have an investment funds worth Twenty Seven Million Five Hundred Thousand United State Dollar ($27,500,000.00 ) and i need an investment Manager/Partner and because of the asylum status i will authorize you the ownership of the funds, however, I am interested in you for investment project assistance in your country, may be from there, we can build a business relationship in the near future.
-
-I am willing to negotiate investment/business profit sharing ratio with you base on the future investment earning profits.
-
-If you are willing to handle this project kindly reply urgent to enable me provide you more information about the investment funds.
-
-Your Urgent Reply Will Be Appreciated
-Best Regards
-Mrs Aisha Gaddafi
+-- 
+Thanks,
+Sasha
