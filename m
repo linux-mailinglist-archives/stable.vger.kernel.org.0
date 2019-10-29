@@ -2,82 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 278B4E8EE8
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 19:02:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F075EE8F10
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 19:12:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730036AbfJ2SCj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 14:02:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58308 "EHLO mail.kernel.org"
+        id S1731001AbfJ2SM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 14:12:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729496AbfJ2SCj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Oct 2019 14:02:39 -0400
+        id S1730830AbfJ2SM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 14:12:28 -0400
 Received: from localhost (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2225220830;
-        Tue, 29 Oct 2019 18:02:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3D1C20830;
+        Tue, 29 Oct 2019 18:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572372156;
-        bh=tam/vdvRmWiQuMdkTFiryx+Yc+aYI6npBacdppufB7k=;
+        s=default; t=1572372746;
+        bh=//hHLrLuHCFCNZmZeJxLLNEYHGxHBHQ94GJJ1qN+ZQg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VPs9HYjWRYYoKQ+Vv5fy48pbx5XYV5bRXDhkkucRcURDm6cNd2OUuCZHcgoBEB11p
-         6K9w5ambrga/MjkkIb0I5oTibMswn5rDUHzp8lZYQZpBXBacCwJP2PzTcQ9XFZE6pY
-         903CAziGMVRZFOWB1zHGVZWGKZC0ZwSobG+ig5eo=
-Date:   Tue, 29 Oct 2019 19:02:33 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 00/93] 4.19.81-stable review
-Message-ID: <20191029180233.GA587491@kroah.com>
-References: <20191027203251.029297948@linuxfoundation.org>
- <20191029162419.cumhku6smn2x2bq4@ucw.cz>
+        b=XdiWRYSGefUGeE+ILUkeri5BmVmf+mbOKYUMtTTCojoxUktFincUxxYSfIoAat9qS
+         KvnQvql026zBvScr4s+MPOzOwmHAeZDFaMe1nDBU7MuIm2Onz/tsr33dMW1h8mYjQ/
+         4xzyXw2w57xP1V19K4WM3XhTQMJMBLJmg7SdiADE=
+Date:   Tue, 29 Oct 2019 19:12:23 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Deepa Dinamani <deepa.kernel@gmail.com>
+Cc:     Murphy Zhou <xzhou@redhat.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org, Eryu Guan <guaneryu@gmail.com>,
+        CKI Project <cki-project@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.3.8-rc2-96dab43.cki (stable)
+Message-ID: <20191029181223.GB587491@kroah.com>
+References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
+ <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
+ <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
+ <20191029080855.GA512708@kroah.com>
+ <20191029091126.ijvixns6fe3dzte3@xzhoux.usersys.redhat.com>
+ <20191029092158.GA582092@kroah.com>
+ <20191029124029.yygp2yetcjst4s6p@xzhoux.usersys.redhat.com>
+ <CABeXuvpPQugDd9BOwtfKjmT+H+-mpeE83UOZKTLJTTZZ6DeHrQ@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191029162419.cumhku6smn2x2bq4@ucw.cz>
+In-Reply-To: <CABeXuvpPQugDd9BOwtfKjmT+H+-mpeE83UOZKTLJTTZZ6DeHrQ@mail.gmail.com>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 29, 2019 at 05:24:19PM +0100, Pavel Machek wrote:
-> > This is the start of the stable review cycle for the 4.19.81 release.
-> > There are 93 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> > Anything received after that time might be too late.
+On Tue, Oct 29, 2019 at 07:57:05AM -0700, Deepa Dinamani wrote:
+> The test is expected to fail on all kernels without the series.
 > 
-> > Date: Tue, 29 Oct 2019 10:19:29 +0100
-> > From: Greg KH <gregkh@linuxfoundation.org>
-> > To: linux-kernel@vger.kernel.org, Andrew Morton
-> > Subject: Linux 4.19.81
+> The series is a bugfix in the sense that vfs is no longer allowed to
+> set timestamps that filesystems have no way of supporting.
+> There have been a couple of fixes after the series also.
 > 
-> > [-- The following data is signed --]
-> 
-> >  I'm announcing the release of the 4.19.81 kernel.
-> 
-> > All users of the 4.19 kernel series must upgrade.
-> 
-> Am I confused or was the 4.19.81 released a bit early?
+> We can either disable the test or include the series for stable kernels.
 
-I said:
-	Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-
-And I released at:
-	Date: Tue, 29 Oct 2019 10:19:29 +0100
-
-So really, I was a few minutes late :)
-
-I generally just wait for the big testers to come back with responses.
-If I have all of them looking good, I often times release early
-depending on what is happening with my travel and other things.  But
-this time, I actually took the whole time I said I would.
+I don't see adding this series for the stable kernels, it does not make
+sense.
 
 thanks,
 
