@@ -2,105 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE28E926B
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 22:55:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9278CE9302
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 23:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727739AbfJ2Vzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 17:55:39 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:25420 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726748AbfJ2Vzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 17:55:39 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572386136;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Jy2/mS03N45D4dk7FIsyngeO3+lgnwoUbAxzsbAhrdc=;
-        b=dKq+mkd4/dFaYMi/HlQn2f67bUvkBihFo+X70COCBwrSbbASG8vQyb9A3dIrI1GnPiFFZI
-        ex66JRJHyRT4H1cBqHCXbUuIbLbZE0W3sF02iVICUZyFdNjkyFbGDgF2v3wWB0kptHPpgm
-        2PGM14IJgw2YnAhJw0e4TGXEoAGOMWE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-206-fsnuvduSNja8YL4XSnp9jA-1; Tue, 29 Oct 2019 17:55:31 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726364AbfJ2WYy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 18:24:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56826 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725830AbfJ2WYy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 18:24:54 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E3ADD8017DD;
-        Tue, 29 Oct 2019 21:55:29 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-121-15.rdu2.redhat.com [10.10.121.15])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9EF6760870;
-        Tue, 29 Oct 2019 21:55:25 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e3=2e8-?=
- =?UTF-8?Q?rc2-96dab43=2ecki_=28stable=29?=
-To:     Deepa Dinamani <deepa.kernel@gmail.com>,
-        Xiong Zhou <xzhou@redhat.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Eryu Guan <guaneryu@gmail.com>, lkft-triage@lists.linaro.org,
-        CKI Project <cki-project@redhat.com>
-References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
- <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
- <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
- <20191029080855.GA512708@kroah.com>
- <20191029091126.ijvixns6fe3dzte3@xzhoux.usersys.redhat.com>
- <20191029092158.GA582092@kroah.com>
- <20191029124029.yygp2yetcjst4s6p@xzhoux.usersys.redhat.com>
- <CABeXuvpPQugDd9BOwtfKjmT+H+-mpeE83UOZKTLJTTZZ6DeHrQ@mail.gmail.com>
- <20191029181223.GB587491@kroah.com>
- <114dc6b2-846b-240d-db33-dd67aac51d30@redhat.com>
- <CABeXuvpEQoJ5F3vxjC4WUaUbKQJsdZJk-RERvwC1=YKG08_CyQ@mail.gmail.com>
-From:   Rachel Sibley <rasibley@redhat.com>
-Message-ID: <13a8f979-7760-94e5-a32b-a3444caee6c2@redhat.com>
-Date:   Tue, 29 Oct 2019 17:55:24 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <CABeXuvpEQoJ5F3vxjC4WUaUbKQJsdZJk-RERvwC1=YKG08_CyQ@mail.gmail.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: fsnuvduSNja8YL4XSnp9jA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AF3620717;
+        Tue, 29 Oct 2019 22:24:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572387891;
+        bh=POQ9+cGttHVQimeZd/9E8M4ZDWL/RPoHrVU/G2sj+K8=;
+        h=Date:From:To:Subject:From;
+        b=gOajdKj6RkJ+W1fmexVjrrSfS8KgSgjDXf5jYtxMgBq9wxhLtWXKWgTgPBgs9TkzI
+         hh74BNrarChS0lo4cesUKIk70kD7Uhq+/uvnwTXGlAt5TmC2iHLfeUt/1wnFFkBNf3
+         F42oqj1VE5NVxMaDh6llRzMzBA34QQJj9BV+ICGo=
+Date:   Tue, 29 Oct 2019 15:24:51 -0700
+From:   akpm@linux-foundation.org
+To:     cgxu519@mykernel.net, dhowells@redhat.com, mike.kravetz@oracle.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        viro@zeniv.linux.org.uk
+Subject:  +
+ mm-hugetlbfs-fix-error-handling-when-setting-up-mounts.patch added to -mm
+ tree
+Message-ID: <20191029222451.CUrFrcx_e%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+The patch titled
+     Subject: mm/hugetlbfs: fix error handling when setting up mounts
+has been added to the -mm tree.  Its filename is
+     mm-hugetlbfs-fix-error-handling-when-setting-up-mounts.patch
 
-On 10/29/19 5:21 PM, Deepa Dinamani wrote:
-> On Tue, Oct 29, 2019 at 1:08 PM Rachel Sibley <rasibley@redhat.com> wrote=
-:
->>
->>
->> On 10/29/19 2:12 PM, Greg KH wrote:
->>> On Tue, Oct 29, 2019 at 07:57:05AM -0700, Deepa Dinamani wrote:
->>>> The test is expected to fail on all kernels without the series.
->>>>
->>>> The series is a bugfix in the sense that vfs is no longer allowed to
->>>> set timestamps that filesystems have no way of supporting.
->>>> There have been a couple of fixes after the series also.
->>>>
->>>> We can either disable the test or include the series for stable kernel=
-s.
->>> I don't see adding this series for the stable kernels, it does not make
->>> sense.
-> I can disable the test from running within the xfs tests if needed.
-> But, how is it done for new tests that rely on features not present on
-> the stable kernels?
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlbfs-fix-error-handling-when-setting-up-mounts.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlbfs-fix-error-handling-when-setting-up-mounts.patch
 
-Xiong's version of the test should be able to mask/skip the test based=20
-on a kernel
-or distro version, but unsure how to mask if missing a specific feature,=20
-I'm hoping
-Xiong can help answer that.
-https://github.com/CKI-project/tests-beaker/tree/master/filesystems/xfs/xfs=
-tests
->
-> -Deepa
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: mm/hugetlbfs: fix error handling when setting up mounts
+
+It is assumed that the hugetlbfs_vfsmount[] array will contain either a
+valid vfsmount pointer or NULL for each hstate after initialization. 
+Changes made while converting to use fs_context broke this assumption.
+
+While fixing the hugetlbfs_vfsmount issue, it was discovered that
+init_hugetlbfs_fs never did correctly clean up when encountering a vfs
+mount error.
+
+Link: http://lkml.kernel.org/r/94b6244d-2c24-e269-b12c-e3ba694b242d@oracle.com
+Reported-by: Chengguang Xu <cgxu519@mykernel.net>
+Fixes: 32021982a324 ("hugetlbfs: Convert to fs_context")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/hugetlbfs/inode.c |   31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
+
+--- a/fs/hugetlbfs/inode.c~mm-hugetlbfs-fix-error-handling-when-setting-up-mounts
++++ a/fs/hugetlbfs/inode.c
+@@ -1461,28 +1461,41 @@ static int __init init_hugetlbfs_fs(void
+ 					sizeof(struct hugetlbfs_inode_info),
+ 					0, SLAB_ACCOUNT, init_once);
+ 	if (hugetlbfs_inode_cachep == NULL)
+-		goto out2;
++		goto out;
+ 
+ 	error = register_filesystem(&hugetlbfs_fs_type);
+ 	if (error)
+-		goto out;
++		goto out_free;
++
++	/* default hstate mount is required */
++	mnt = mount_one_hugetlbfs(&hstates[default_hstate_idx]);
++	if (IS_ERR(mnt)) {
++		error = PTR_ERR(mnt);
++		goto out_unreg;
++	}
++	hugetlbfs_vfsmount[default_hstate_idx] = mnt;
+ 
++	/* other hstates are optional */
+ 	i = 0;
+ 	for_each_hstate(h) {
++		if (i == default_hstate_idx)
++			continue;
++
+ 		mnt = mount_one_hugetlbfs(h);
+-		if (IS_ERR(mnt) && i == 0) {
+-			error = PTR_ERR(mnt);
+-			goto out;
+-		}
+-		hugetlbfs_vfsmount[i] = mnt;
++		if (IS_ERR(mnt))
++			hugetlbfs_vfsmount[i] = NULL;
++		else
++			hugetlbfs_vfsmount[i] = mnt;
+ 		i++;
+ 	}
+ 
+ 	return 0;
+ 
+- out:
++ out_unreg:
++	(void)unregister_filesystem(&hugetlbfs_fs_type);
++ out_free:
+ 	kmem_cache_destroy(hugetlbfs_inode_cachep);
+- out2:
++ out:
+ 	return error;
+ }
+ fs_initcall(init_hugetlbfs_fs)
+_
+
+Patches currently in -mm which might be from mike.kravetz@oracle.com are
+
+mm-hugetlbfs-fix-error-handling-when-setting-up-mounts.patch
+hugetlbfs-hugetlb_fault_mutex_hash-cleanup.patch
 
