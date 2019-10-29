@@ -2,66 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7E4E9095
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 21:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F08EBE90C3
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 21:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726575AbfJ2UIm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 16:08:42 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:46949 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726535AbfJ2UIm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 16:08:42 -0400
+        id S1725840AbfJ2UXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 16:23:07 -0400
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:54713 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725959AbfJ2UXH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 16:23:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572379720;
+        s=mimecast20190719; t=1572380585;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=WVMR/1qX6q2o8+G1jONU+fXGcDMObD5fAQeZ0YhInKg=;
-        b=V86NcpS6Om4RSDNglbICVPXxtM+JTqQYclGymgt9KoP/AQE2PBUm2y+dVNCC5mPG+5TgHA
-        gbqtgf1Jr1x6kIPMQhSO/FHvl0I4hAHV8PLNR3yjHqku5zTvRmjYP3gr61fUOYm1XdSJQN
-        2s7wf4EM+X7QYdlq2vCmfXKwsbvV5Lw=
+         content-transfer-encoding:content-transfer-encoding;
+        bh=YBhQKJtxx3ee6lV0C1x2mqJpTz9G+s/OlxLkKOOQa90=;
+        b=LncWyLkXIsfZu/JTJnThh+034h3J3D54BOzXNiKEQVkAfPOsJr7Ts2R8G6pZ0dfvwKgS+G
+        Tj8MKgMpAkeM4Id8i/cW5SLjUFv6RfhIUrrDkYHAV1Br7SEfXCJdN5i/6nhBya9F5nbrOM
+        dKFjVMSEvM2dury2ZGnGlygpPke2hvg=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-112-ZEttjrsGPEKzvwW2uTU6jQ-1; Tue, 29 Oct 2019 16:08:38 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-23-59OPINUCPYC-VoUQZccf-Q-1; Tue, 29 Oct 2019 16:23:01 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A4FBA1005500;
-        Tue, 29 Oct 2019 20:08:34 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-121-15.rdu2.redhat.com [10.10.121.15])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 206741001B09;
-        Tue, 29 Oct 2019 20:08:28 +0000 (UTC)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e3=2e8-?=
- =?UTF-8?Q?rc2-96dab43=2ecki_=28stable=29?=
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Deepa Dinamani <deepa.kernel@gmail.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Eryu Guan <guaneryu@gmail.com>, lkft-triage@lists.linaro.org,
-        CKI Project <cki-project@redhat.com>
-References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
- <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
- <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
- <20191029080855.GA512708@kroah.com>
- <20191029091126.ijvixns6fe3dzte3@xzhoux.usersys.redhat.com>
- <20191029092158.GA582092@kroah.com>
- <20191029124029.yygp2yetcjst4s6p@xzhoux.usersys.redhat.com>
- <CABeXuvpPQugDd9BOwtfKjmT+H+-mpeE83UOZKTLJTTZZ6DeHrQ@mail.gmail.com>
- <20191029181223.GB587491@kroah.com>
-From:   Rachel Sibley <rasibley@redhat.com>
-Message-ID: <114dc6b2-846b-240d-db33-dd67aac51d30@redhat.com>
-Date:   Tue, 29 Oct 2019 16:08:27 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BC2A381A334
+        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 20:23:00 +0000 (UTC)
+Received: from [172.54.88.5] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 88DFD5C1D8;
+        Tue, 29 Oct 2019 20:22:42 +0000 (UTC)
 MIME-Version: 1.0
-In-Reply-To: <20191029181223.GB587491@kroah.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: ZEttjrsGPEKzvwW2uTU6jQ-1
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
+Date:   Tue, 29 Oct 2019 20:22:42 -0000
+CC:     Xiong Zhou <xzhou@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>
+Message-ID: <cki.D46C52C2A9.QSZG3OD1UI@redhat.com>
+X-Gitlab-Pipeline-ID: 254944
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/254944
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-MC-Unique: 59OPINUCPYC-VoUQZccf-Q-1
 X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -69,29 +54,333 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
+Hello,
 
-On 10/29/19 2:12 PM, Greg KH wrote:
-> On Tue, Oct 29, 2019 at 07:57:05AM -0700, Deepa Dinamani wrote:
->> The test is expected to fail on all kernels without the series.
->>
->> The series is a bugfix in the sense that vfs is no longer allowed to
->> set timestamps that filesystems have no way of supporting.
->> There have been a couple of fixes after the series also.
->>
->> We can either disable the test or include the series for stable kernels.
-> I don't see adding this series for the stable kernels, it does not make
-> sense.
-I'm not sure what the final decision is here, but I've moved the test to=20
-a waived status for now,
-which means it should stop causing the job to fail. However, you may see=20
-a few lingering
-reports sneak in before I made this change. Once resolved, I'll remove=20
-the waived tag.
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
 
-Thanks,
-Rachel
-> thanks,
->
-> greg k-h
->
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 95180e47e77a - Linux 5.3.8
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here=
+:
+
+  https://artifacts.cki-project.org/pipelines/254944
+
+One or more kernel tests failed:
+
+    x86_64:
+     =E2=9D=8C xfstests: xfs
+     =E2=9D=8C LTP lite
+
+    ppc64le:
+     =E2=9D=8C xfstests: xfs
+
+    aarch64:
+     =E2=9D=8C xfstests: xfs
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
+
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 95180e47e77a - Linux 5.3.8
+
+
+We grabbed the cd7c09bbb80c commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  io_uring-fix-up-o_nonblock-handling-for-sockets.patch
+  dm-snapshot-introduce-account_start_copy-and-account.patch
+  dm-snapshot-rework-cow-throttling-to-fix-deadlock.patch
+  btrfs-fix-inode-cache-block-reserve-leak-on-failure-.patch
+  btrfs-qgroup-always-free-prealloc-meta-reserve-in-bt.patch
+  iio-adc-meson_saradc-fix-memory-allocation-order.patch
+  iio-fix-center-temperature-of-bmc150-accel-core.patch
+  libsubcmd-make-_fortify_source-defines-dependent-on-.patch
+  perf-tests-avoid-raising-segv-using-an-obvious-null-.patch
+  perf-map-fix-overlapped-map-handling.patch
+  perf-script-brstackinsn-fix-recovery-from-lbr-binary.patch
+  perf-jevents-fix-period-for-intel-fixed-counters.patch
+  perf-tools-propagate-get_cpuid-error.patch
+  perf-annotate-propagate-perf_env__arch-error.patch
+  perf-annotate-fix-the-signedness-of-failure-returns.patch
+  perf-annotate-propagate-the-symbol__annotate-error-r.patch
+  perf-annotate-fix-arch-specific-init-failure-errors.patch
+  perf-annotate-return-appropriate-error-code-for-allo.patch
+  perf-annotate-don-t-return-1-for-error-when-doing-bp.patch
+  staging-rtl8188eu-fix-null-dereference-when-kzalloc-.patch
+  rdma-siw-fix-serialization-issue-in-write_space.patch
+  rdma-hfi1-prevent-memory-leak-in-sdma_init.patch
+  rdma-iw_cxgb4-fix-srq-access-from-dump_qp.patch
+  rdma-iwcm-fix-a-lock-inversion-issue.patch
+  hid-hyperv-use-in-place-iterator-api-in-the-channel-.patch
+  kselftest-exclude-failed-targets-from-runlist.patch
+  selftests-kselftest-runner.sh-add-45-second-timeout-.patch
+  nfs-fix-nfsi-nrequests-count-error-on-nfs_inode_remo.patch
+  arm64-cpufeature-effectively-expose-frint-capability.patch
+  arm64-fix-incorrect-irqflag-restore-for-priority-mas.patch
+  arm64-ftrace-ensure-synchronisation-in-plt-setup-for.patch
+  tty-serial-owl-fix-the-link-time-qualifier-of-owl_ua.patch
+  tty-serial-rda-fix-the-link-time-qualifier-of-rda_ua.patch
+  serial-sifive-select-serial_earlycon.patch
+  tty-n_hdlc-fix-build-on-sparc.patch
+  misc-fastrpc-prevent-memory-leak-in-fastrpc_dma_buf_.patch
+  rdma-core-fix-an-error-handling-path-in-res_get_comm.patch
+  rdma-cm-fix-memory-leak-in-cm_add-remove_one.patch
+  rdma-nldev-reshuffle-the-code-to-avoid-need-to-rebin.patch
+  rdma-mlx5-do-not-allow-rereg-of-a-odp-mr.patch
+  rdma-mlx5-order-num_pending_prefetch-properly-with-s.patch
+  rdma-mlx5-add-missing-synchronize_srcu-for-mw-cases.patch
+  gpio-max77620-use-correct-unit-for-debounce-times.patch
+  fs-cifs-mute-wunused-const-variable-message.patch
+  arm64-vdso32-fix-broken-compat-vdso-build-warnings.patch
+  arm64-vdso32-detect-binutils-support-for-dmb-ishld.patch
+  serial-mctrl_gpio-check-for-null-pointer.patch
+  serial-8250_omap-fix-gpio-check-for-auto-rts-cts.patch
+  arm64-default-to-building-compat-vdso-with-clang-whe.patch
+  arm64-vdso32-don-t-use-kbuild_cppflags-unconditional.patch
+  efi-cper-fix-endianness-of-pcie-class-code.patch
+  efi-x86-do-not-clean-dummy-variable-in-kexec-path.patch
+  mips-include-mark-__cmpxchg-as-__always_inline.patch
+  riscv-avoid-kernel-hangs-when-trapped-in-bug.patch
+  riscv-avoid-sending-a-sigtrap-to-a-user-thread-trapp.patch
+  riscv-correct-the-handling-of-unexpected-ebreak-in-d.patch
+  x86-xen-return-from-panic-notifier.patch
+  ocfs2-clear-zero-in-unaligned-direct-io.patch
+  fs-ocfs2-fix-possible-null-pointer-dereferences-in-o.patch
+  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
+  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
+  btrfs-silence-maybe-uninitialized-warning-in-clone_r.patch
+  arm64-armv8_deprecated-checking-return-value-for-mem.patch
+  x86-cpu-add-comet-lake-to-the-intel-cpu-models-heade.patch
+  sched-fair-scale-bandwidth-quota-and-period-without-.patch
+  sched-vtime-fix-guest-system-mis-accounting-on-task-.patch
+  perf-core-rework-memory-accounting-in-perf_mmap.patch
+  perf-core-fix-corner-case-in-perf_rotate_context.patch
+  perf-x86-amd-change-fix-nmi-latency-mitigation-to-us.patch
+  drm-amdgpu-fix-memory-leak.patch
+  iio-imu-adis16400-release-allocated-memory-on-failur.patch
+  iio-imu-adis16400-fix-memory-leak.patch
+  iio-imu-st_lsm6dsx-fix-waitime-for-st_lsm6dsx-i2c-co.patch
+  mips-include-mark-__xchg-as-__always_inline.patch
+  mips-fw-sni-fix-out-of-bounds-init-of-o32-stack.patch
+  s390-cio-fix-virtio-ccw-dma-without-pv.patch
+  virt-vbox-fix-memory-leak-in-hgcm_call_preprocess_li.patch
+  nbd-fix-possible-sysfs-duplicate-warning.patch
+  nfsv4-fix-leak-of-clp-cl_acceptor-string.patch
+  sunrpc-fix-race-to-sk_err-after-xs_error_report.patch
+  s390-uaccess-avoid-false-positive-compiler-warnings.patch
+  tracing-initialize-iter-seq-after-zeroing-in-tracing.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C xfstests: xfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9D=8C LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 5:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 6:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
