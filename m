@@ -2,72 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B13A9E84B2
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 10:51:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E609E8481
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 10:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728146AbfJ2JvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 05:51:17 -0400
-Received: from ivanoab7.miniserver.com ([37.128.132.42]:58028 "EHLO
-        www.kot-begemot.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728070AbfJ2JvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 05:51:17 -0400
-X-Greylist: delayed 2250 seconds by postgrey-1.27 at vger.kernel.org; Tue, 29 Oct 2019 05:51:17 EDT
-Received: from tun252.jain.kot-begemot.co.uk ([192.168.18.6] helo=jain.kot-begemot.co.uk)
-        by www.kot-begemot.co.uk with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1iPNZM-00048S-N4; Tue, 29 Oct 2019 09:13:40 +0000
-Received: from jain.kot-begemot.co.uk ([192.168.3.3])
-        by jain.kot-begemot.co.uk with esmtp (Exim 4.92)
-        (envelope-from <anton.ivanov@cambridgegreys.com>)
-        id 1iPNZJ-0000q5-3w; Tue, 29 Oct 2019 09:13:38 +0000
-From:   Anton Ivanov <anton.ivanov@cambridgegreys.com>
-To:     linux-um@lists.infradead.org
-Cc:     richard@nod.at, rrs@researchut.com, axboe@kernel.dk, hch@lst.de,
-        stable@vger.kernel.org,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Subject: [PATCH v2] um: Entrust re-queue to the upper layers
-Date:   Tue, 29 Oct 2019 09:13:34 +0000
-Message-Id: <20191029091334.3095-1-anton.ivanov@cambridgegreys.com>
-X-Mailer: git-send-email 2.20.1
+        id S1726713AbfJ2Jca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 05:32:30 -0400
+Received: from mx2.suse.de ([195.135.220.15]:47870 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725791AbfJ2Jc3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 05:32:29 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id E24A2B277;
+        Tue, 29 Oct 2019 09:32:27 +0000 (UTC)
+Date:   Tue, 29 Oct 2019 10:32:26 +0100
+From:   Joerg Roedel <jroedel@suse.de>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] KVM: vmx, svm: always run with EFER.NXE=1 when shadow
+ paging is active
+Message-ID: <20191029093226.GE838@suse.de>
+References: <20191027152323.24326-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -1.0
-X-Spam-Score: -1.0
-X-Clacks-Overhead: GNU Terry Pratchett
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191027152323.24326-1-pbonzini@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fixes crashes due to ubd requeue logic conflicting with the block-mq
-logic. Crash is reproducible in 5.0 - 5.3.
+Hi Paolo,
 
-Fixes: 53766defb8c860a47e2a965f5b4b05ed2848e2d0
-Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
----
- arch/um/drivers/ubd_kern.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+On Sun, Oct 27, 2019 at 04:23:23PM +0100, Paolo Bonzini wrote:
+> VMX already does so if the host has SMEP, in order to support the combination of
+> CR0.WP=1 and CR4.SMEP=1.  However, it is perfectly safe to always do so, and in
+> fact VMX already ends up running with EFER.NXE=1 on old processors that lack the
+> "load EFER" controls, because it may help avoiding a slow MSR write.  Removing
+> all the conditionals simplifies the code.
+> 
+> SVM does not have similar code, but it should since recent AMD processors do
+> support SMEP.  So this patch also makes the code for the two vendors more similar
+> while fixing NPT=0, CR0.WP=1 and CR4.SMEP=1 on AMD processors.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Joerg Roedel <jroedel@suse.de>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/arch/um/drivers/ubd_kern.c b/arch/um/drivers/ubd_kern.c
-index 33c1cd6a12ac..40ab9ad7aa96 100644
---- a/arch/um/drivers/ubd_kern.c
-+++ b/arch/um/drivers/ubd_kern.c
-@@ -1403,8 +1403,12 @@ static blk_status_t ubd_queue_rq(struct blk_mq_hw_ctx *hctx,
- 
- 	spin_unlock_irq(&ubd_dev->lock);
- 
--	if (ret < 0)
--		blk_mq_requeue_request(req, true);
-+	if (ret < 0) {
-+		if (ret == -ENOMEM)
-+			res = BLK_STS_RESOURCE;
-+		else
-+			res = BLK_STS_DEV_RESOURCE;
-+	}
- 
- 	return res;
- }
--- 
-2.20.1
+Looks good to me.
 
+Reviewed-by: Joerg Roedel <jroedel@suse.de>
+
+> ---
+>  arch/x86/kvm/svm.c     | 10 ++++++++--
+>  arch/x86/kvm/vmx/vmx.c | 14 +++-----------
+>  2 files changed, 11 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+> index b6feb6a11a8d..2c452293c7cc 100644
+> --- a/arch/x86/kvm/svm.c
+> +++ b/arch/x86/kvm/svm.c
+> @@ -732,8 +732,14 @@ static int get_npt_level(struct kvm_vcpu *vcpu)
+>  static void svm_set_efer(struct kvm_vcpu *vcpu, u64 efer)
+>  {
+>  	vcpu->arch.efer = efer;
+> -	if (!npt_enabled && !(efer & EFER_LMA))
+> -		efer &= ~EFER_LME;
+> +
+> +	if (!npt_enabled) {
+> +		/* Shadow paging assumes NX to be available.  */
+> +		efer |= EFER_NX;
+> +
+> +		if (!(efer & EFER_LMA))
+> +			efer &= ~EFER_LME;
+> +	}
+>  
+>  	to_svm(vcpu)->vmcb->save.efer = efer | EFER_SVME;
+>  	mark_dirty(to_svm(vcpu)->vmcb, VMCB_CR);
+> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+> index 2a2ba277c676..e191d41afb34 100644
+> --- a/arch/x86/kvm/vmx/vmx.c
+> +++ b/arch/x86/kvm/vmx/vmx.c
+> @@ -896,17 +896,9 @@ static bool update_transition_efer(struct vcpu_vmx *vmx, int efer_offset)
+>  	u64 guest_efer = vmx->vcpu.arch.efer;
+>  	u64 ignore_bits = 0;
+>  
+> -	if (!enable_ept) {
+> -		/*
+> -		 * NX is needed to handle CR0.WP=1, CR4.SMEP=1.  Testing
+> -		 * host CPUID is more efficient than testing guest CPUID
+> -		 * or CR4.  Host SMEP is anyway a requirement for guest SMEP.
+> -		 */
+> -		if (boot_cpu_has(X86_FEATURE_SMEP))
+> -			guest_efer |= EFER_NX;
+> -		else if (!(guest_efer & EFER_NX))
+> -			ignore_bits |= EFER_NX;
+> -	}
+> +	/* Shadow paging assumes NX to be available.  */
+> +	if (!enable_ept)
+> +		guest_efer |= EFER_NX;
+>  
+>  	/*
+>  	 * LMA and LME handled by hardware; SCE meaningless outside long mode.
+> -- 
+> 2.21.0
