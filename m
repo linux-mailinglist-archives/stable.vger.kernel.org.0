@@ -2,176 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74D3EE81E7
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 08:16:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19D8CE828B
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 08:33:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727119AbfJ2HQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 03:16:07 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:33671 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726222AbfJ2HQH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 03:16:07 -0400
-Received: by mail-lf1-f67.google.com with SMTP id y127so9722866lfc.0
-        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 00:16:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=l276QuAtSp3Hos0lCYccY4XpvMkVxXX0RdmbHt48ywg=;
-        b=srVTGJ8SX+LbAxa40BtUDs13Y5wPHPKaIL9iylymE51cWXq3w8/2T1JdaA+WZoY7i2
-         Pcf9WoHywLTu90AwOhYIana1/x+/agZWTTETL3DSWkQwoqWpbMCsLDk0B6KJ+2shrqpU
-         2yO3XZmlqhIaIB2gyJlBori2p8JioVw39lGr789iiNrvcu6aI1+r08vTrhXJFPNfPqJi
-         L9meNqg/nQLi7KyHMGMCpuN5WCeUs56XDDPd9GFpOe7+BcXC/t6VicPVJ64qMM+hGoLp
-         HBqPvrlpbl0Vy5QyccTP/N2TbDAeCm87f5DyE5j/7fr904BjAvJEX/C2+04J2Ahuukwb
-         sCXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=l276QuAtSp3Hos0lCYccY4XpvMkVxXX0RdmbHt48ywg=;
-        b=hVM/KjTyjn1uxHiqftCPEVzYXLrsOF9rE23ZUa3xX+Dy3FHyIO64eyfbzLb3gpPFJi
-         NkqTIH6nb9YDRyikoL47VTVdhRVTN0PwfK/qxaqG4LdAzoTcGIZv1DGn4FU7RwinhZ1O
-         wAukgRg3WwoT4WfljojuS/7Im6DI0nklfP1eyze8cwBm3jQOh4EFAslPXxWQlh6soVx/
-         3gpKYSu4fFkZGwLFfMcfytVOr7SrPjrN/CkWK1zJjyNBxTAueoxbGyujRUFjPL0gzcEh
-         8G2E8OYaqCupupislU47qAle3n2ltg2hxrBYtRrD17i7uYUAhAjT8RMoVrUoZ0mwqn1p
-         IwnQ==
-X-Gm-Message-State: APjAAAVUW27s6eeW2HD2LPpqoox17N7tvfrFHgY7EzuCM4QDiCT8wDVE
-        qLyw+eQ0GyPx2+PNeDsKdEBybivxdCpnb5PiemzjQQ==
-X-Google-Smtp-Source: APXvYqy2HqUmOhrSFK6XoAgiSK7lUkNA4wd7unmVEpk6hCNXL0NUfVT1uiGWkDmVmSXlEcoiiWS8xddMLzDzX+2okcI=
-X-Received: by 2002:a19:3f0a:: with SMTP id m10mr1245555lfa.67.1572333365605;
- Tue, 29 Oct 2019 00:16:05 -0700 (PDT)
+        id S1725840AbfJ2Hdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 03:33:32 -0400
+Received: from us-smtp-2.mimecast.com ([207.211.31.81]:40526 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725839AbfJ2Hdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 03:33:31 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572334410;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=u+JQaagmfKe/fneBkfD4UQR7vr9L5AoGK7+7f9TiQNM=;
+        b=CobafMsr9YaKmB6H7a6dMBFK2jLejUfh10iq5MoFSdUFYkeBgZe3KgFW4BsqRCVRViSp4n
+        mJJjM6QPRQrNNFkzivT+5OpdWQ2p08EZFLSpuJTu+AkCJHth+lJngpKzGtG7a867kncuUT
+        41QmNrCSGp1dqNeBRV4ep35x/0vWd4E=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-69-g5F18trMOOOWiICQEEKHaQ-1; Tue, 29 Oct 2019 03:33:27 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06E441005500;
+        Tue, 29 Oct 2019 07:33:26 +0000 (UTC)
+Received: from localhost (dhcp-12-196.nay.redhat.com [10.66.12.196])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4E6855D9C3;
+        Tue, 29 Oct 2019 07:33:20 +0000 (UTC)
+Date:   Tue, 29 Oct 2019 15:33:18 +0800
+From:   Murphy Zhou <xzhou@redhat.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     deepa.kernel@gmail.com,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Xiong Zhou <xzhou@redhat.com>, lkft-triage@lists.linaro.org,
+        guaneryu@gmail.com, CKI Project <cki-project@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.3.8-rc2-96dab43.cki (stable)
+Message-ID: <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
+References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
+ <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
 MIME-Version: 1.0
-References: <20191027203259.948006506@linuxfoundation.org>
-In-Reply-To: <20191027203259.948006506@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 29 Oct 2019 12:45:53 +0530
-Message-ID: <CA+G9fYvGEEjnf0paJLS7UDJt0hJg8G+MOD+7hPdyyORVnGkoDw@mail.gmail.com>
-Subject: Re: [PATCH 4.14 000/119] 4.14.151-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        LTP List <ltp@lists.linux.it>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: g5F18trMOOOWiICQEEKHaQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Oct 2019 at 02:38, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.151 release.
-> There are 119 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.151-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, Oct 29, 2019 at 10:55:34AM +0530, Naresh Kamboju wrote:
+> On Tue, 29 Oct 2019 at 07:33, CKI Project <cki-project@redhat.com> wrote:
+> >
+> >
+> > Hello,
+> >
+> > We ran automated tests on a recent commit from this kernel tree:
+> >
+> >        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stabl=
+e/linux-stable-rc.git
+> >             Commit: 96dab4347cbe - Linux 5.3.8-rc2
+> >
+> > The results of these automated tests are provided below.
+> >
+> >     Overall result: FAILED (see details below)
+> >              Merge: OK
+> >            Compile: OK
+> >              Tests: FAILED
+> >
+> > All kernel binaries, config files, and logs are available for download =
+here:
+> >
+> >   https://artifacts.cki-project.org/pipelines/253188
+> >
+> > One or more kernel tests failed:
+> >
+> >     ppc64le:
+> >      =E2=9D=8C xfstests: ext4
+> >      =E2=9D=8C xfstests: xfs
+> >
+> >     aarch64:
+> >      =E2=9D=8C xfstests: ext4
+> >      =E2=9D=8C xfstests: xfs
+> >
+> >     x86_64:
+> >      =E2=9D=8C xfstests: ext4
+> >      =E2=9D=8C xfstests: xfs
+> >
+>=20
+> FYI,
+> The test log output,
+>=20
+> Running test generic/402
+> #! /bin/bash
+> # SPDX-License-Identifier: GPL-2.0
+> # Copyright (c) 2016 Deepa Dinamani.  All Rights Reserved.
+> #
+> # FS QA Test 402
+> #
+> # Test to verify filesystem timestamps for supported ranges.
+> #
+> # Exit status 1: test failed.
+> # Exit status 0: test passed.
+> FSTYP         -- xfs (non-debug)
+> PLATFORM      -- Linux/aarch64 apm-mustang-b0-11 5.3.8-rc2-96dab43.cki
+> #1 SMP Mon Oct 28 14:23:22 UTC 2019
+> MKFS_OPTIONS  -- -f -m crc=3D1,finobt=3D1,rmapbt=3D1,reflink=3D1 -i spars=
+e=3D1 /dev/sda4
+> MOUNT_OPTIONS -- -o context=3Dsystem_u:object_r:nfs_t:s0 /dev/sda4
+> /mnt/xfstests/mnt2
+>=20
+> generic/402 - output mismatch (see
+> /var/lib/xfstests/results//generic/402.out.bad)
+>     --- tests/generic/402.out 2019-10-28 12:19:13.835212771 -0400
+>     +++ /var/lib/xfstests/results//generic/402.out.bad 2019-10-28
+> 13:13:55.503682127 -0400
+>     @@ -1,2 +1,4 @@
+>      QA output created by 402
+>     +2147483647;2147483647 !=3D 2147483648;2147483648
+>     +2147483647;2147483647 !=3D -2147483648;-2147483648
+>      Silence is golden
+>     ...
+>     (Run 'diff -u /var/lib/xfstests/tests/generic/402.out
+> /var/lib/xfstests/results//generic/402.out.bad'  to see the entire
+> diff)
+> Ran: generic/402
+> Failures: generic/402
+> Failed 1 of 1 tests
+>=20
+> Test source:
+> https://github.com/kdave/xfstests/blob/master/tests/generic/402
+>=20
+> Here is the latest test case commit,
+>=20
+> generic/402: fix for updated behavior of timestamp limits
+>=20
+> The mount behavior will not be altered because of the unsupported
+> timestamps on the filesystems.
+>=20
+> Adjust the test accordingly.
+>=20
+> You can find the series at
+> https://git.kernel.org/torvalds/c/cfb82e1df8b7c76991ea12958855897c2fb4deb=
+c
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Yes, stable trees need this series to pass the test.
 
-Note:
-The new test case  from LTP version upgrade syscalls sync_file_range02 is a=
-n
-intermittent failure. We are investigating this case.
-The listed fixes in the below section are due to LTP upgrade to v20190930.
+Thanks,
+Murphy
 
-Summary
-------------------------------------------------------------------------
+>=20
+> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
+>=20
+> - Naresh
 
-kernel: 4.14.151-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.14.y
-git commit: 80117985de0635c8d7fa58fa198b7bbbd465542d
-git describe: v4.14.150-118-g80117985de06
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.14-oe/bu=
-ild/v4.14.150-118-g80117985de06
-
-No regressions (compared to build v4.14.149-66-g66f69184d722)
-
-
-Fixes (compared to build v4.14.149-66-g66f69184d722)
-------------------------------------------------------------------------
-
-ltp-syscalls-tests:
-    * ustat02
-    * ioctl_ns05
-    * ioctl_ns06
-
-Ran 17364 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* network-basic-tests
-* ltp-open-posix-tests
-* ssuite
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* kvm-unit-tests
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
