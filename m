@@ -2,385 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F08EBE90C3
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 21:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 23F36E909E
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 21:15:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725840AbfJ2UXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 16:23:07 -0400
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:54713 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725959AbfJ2UXH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 16:23:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572380585;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=YBhQKJtxx3ee6lV0C1x2mqJpTz9G+s/OlxLkKOOQa90=;
-        b=LncWyLkXIsfZu/JTJnThh+034h3J3D54BOzXNiKEQVkAfPOsJr7Ts2R8G6pZ0dfvwKgS+G
-        Tj8MKgMpAkeM4Id8i/cW5SLjUFv6RfhIUrrDkYHAV1Br7SEfXCJdN5i/6nhBya9F5nbrOM
-        dKFjVMSEvM2dury2ZGnGlygpPke2hvg=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-23-59OPINUCPYC-VoUQZccf-Q-1; Tue, 29 Oct 2019 16:23:01 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BC2A381A334
-        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 20:23:00 +0000 (UTC)
-Received: from [172.54.88.5] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 88DFD5C1D8;
-        Tue, 29 Oct 2019 20:22:42 +0000 (UTC)
+        id S1726104AbfJ2UO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 16:14:59 -0400
+Received: from mail-vs1-f68.google.com ([209.85.217.68]:36536 "EHLO
+        mail-vs1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725905AbfJ2UO7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 16:14:59 -0400
+Received: by mail-vs1-f68.google.com with SMTP id q21so120125vsg.3;
+        Tue, 29 Oct 2019 13:14:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=oUPe8+g8QO9sbSdgxCxbpw5Ik2ET6/dUf4DYcYcM6yo=;
+        b=BFzI+Hef2YM7faql8YQLVbAj/vTVRqfN6eo0ORO5IJf70grC0sFJ268g2mBt34wWMe
+         Qomx8NknUb/aEVhhw+DwoNrDzLExV28KK6fywNgG5aJJEGFhhtixUzjJbRdip7uP/o0x
+         vCbyQVEnk4YE+H8dGTWMJvPoqFH5T54Tb1OZVLhHJM26GqEePtGwGfUbLHJWbMZkTpkn
+         lCPNJB7oFjQONippofSVpo1QMMhA3sZ/KArvgGnVOJiVA4gks7uClrIJQlvv1tUC6/ed
+         Wgc0lYwWM5F2awtR9wO7VAO2Ql8NL3rgR3mQ7ZbzV/q0FOsvaVAewDlocjZraHrz4Csw
+         VkHA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=oUPe8+g8QO9sbSdgxCxbpw5Ik2ET6/dUf4DYcYcM6yo=;
+        b=j9CkuvtAj3qteTsGjXGRJZ1C7QDC0Ac3RMPgpKDt2CpZUSUNaJQC3KO5/I8e4lFshd
+         Twb1rkZrItBclIQl8khTsupvfl8uG6HqPV37exEe6/LXZ28XTYlPO1nX1PXsT4DbhYHF
+         TNCWmN86lbsufUz1+qrOP8bt0ICORYqci2ouTFw0oSVioruAnVCrfS7LERyo/Zk1j2wT
+         L5nu6H6ASY6jq5tgMFsLU7hH3RRufgyA0ypS6unuQDxg0CPy0QQxTB4fbyVa8Ky+auob
+         KiDYWyvzfzCWdgPY9Pg6d9AbBkHr9vqQs+MtnnbtUMVZkyCRW1NF2d5wkngZx3oGiI8e
+         ftDg==
+X-Gm-Message-State: APjAAAWzsyf5TjQ7W4NjA+T6YJteW+BRTs2qZ1w4ssNqaiJ6i2XgDmt2
+        P3xUriVXYAkFigBxoIKGjTA7KPrH8Ns2wBolhQQU7zvf
+X-Google-Smtp-Source: APXvYqy0iF0H7fg/gsdfMDCBT84OIlFj1y2W5tngZwsKJpQshGzllj3js0Eni7wBdglkOB28ZATWs+uadUcUC67yoJo=
+X-Received: by 2002:a67:fb45:: with SMTP id e5mr2737596vsr.96.1572380097240;
+ Tue, 29 Oct 2019 13:14:57 -0700 (PDT)
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
-Date:   Tue, 29 Oct 2019 20:22:42 -0000
-CC:     Xiong Zhou <xzhou@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>
-Message-ID: <cki.D46C52C2A9.QSZG3OD1UI@redhat.com>
-X-Gitlab-Pipeline-ID: 254944
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/254944
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-MC-Unique: 59OPINUCPYC-VoUQZccf-Q-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+References: <20191025103919.128171-1-christian.gmeiner@gmail.com> <6026247c6700516988111c77a8e951e03d09e96e.camel@pengutronix.de>
+In-Reply-To: <6026247c6700516988111c77a8e951e03d09e96e.camel@pengutronix.de>
+From:   Christian Gmeiner <christian.gmeiner@gmail.com>
+Date:   Tue, 29 Oct 2019 22:14:55 +0100
+Message-ID: <CAH9NwWeDgJTFw0stQ9QnB8dkuc6x9XrJJMdjjB-a7Ov-mgxahw@mail.gmail.com>
+Subject: Re: [PATCH] etnaviv: fix dumping of iommuv2
+To:     Lucas Stach <l.stach@pengutronix.de>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        The etnaviv authors <etnaviv@lists.freedesktop.org>,
+        stable@vger.kernel.org,
+        DRI mailing list <dri-devel@lists.freedesktop.org>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Russell King <linux+etnaviv@armlinux.org.uk>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Lucas,
 
-Hello,
+Am Di., 29. Okt. 2019 um 18:18 Uhr schrieb Lucas Stach <l.stach@pengutronix.de>:
+>
+> Hi Christian,
+>
+> On Fr, 2019-10-25 at 12:39 +0200, Christian Gmeiner wrote:
+> > etnaviv_iommuv2_dump_size(..) returns the number of PTE * SZ_4K but etnaviv_iommuv2_dump(..)
+> > increments buf pointer even if there is no PTE. This results in a bad buf pointer which gets
+> > used for memcpy(..).
+> >
+> > [  264.408474] 8<--- cut here ---
+> > [  264.412048] Unable to handle kernel paging request at virtual address f1a2c268
+> > [  264.419321] pgd = e5846004
+> > [  264.422069] [f1a2c268] *pgd=00000000
+> > [  264.425702] Internal error: Oops: 805 [#1] SMP ARM
+> > [  264.430520] Modules linked in:
+> > [  264.433616] CPU: 2 PID: 130 Comm: kworker/2:2 Tainted: G        W         5.4.0-rc4 #10
+> > [  264.441643] Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+> > [  264.448227] Workqueue: events drm_sched_job_timedout
+> > [  264.453237] PC is at memcpy+0x50/0x330
+> > [  264.457012] LR is at 0x2
+> > [  264.459572] pc : [<c0c04650>]    lr : [<00000002>]    psr: 200f0013
+> > [  264.465863] sp : ec96fe64  ip : 00000002  fp : 00000140
+> > [  264.471112] r10: 00003000  r9 : ec688040  r8 : 00000002
+> > [  264.476364] r7 : 00000002  r6 : 00000002  r5 : 00000002  r4 : 00000002
+> > [  264.482917] r3 : 00000002  r2 : 00000f60  r1 : f162a020  r0 : f1a2c268
+> > [  264.489472] Flags: nzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+> > [  264.496635] Control: 10c5387d  Table: 3d26804a  DAC: 00000051
+> > [  264.502407] Process kworker/2:2 (pid: 130, stack limit = 0xe8f69f3d)
+> > [  264.508786] Stack: (0xec96fe64 to 0xec970000)
+> > [  264.513180] fe60:          f1622000 f162218c f162c000 414e5445 f1a2c268 00000ffc c0655a8c
+> > [  264.521394] fe80: 00000000 0000012a f162c268 c064fd78 c0657350 c0187f64 00000001 00000000
+> > [  264.529606] fea0: ed0f9c00 00000001 00000002 435d587d ec688140 ec688100 ed0f9c00 ec688040
+> > [  264.537818] fec0: ed0f9c00 c1308b28 ec96ff1c c13e55b0 c13e41c8 c0657358 ec688260 ed0f9c18
+> > [  264.546029] fee0: ec688100 c0641278 ec688260 ec2f6180 ee1ba700 ee1bda00 c1308b28 c0149b98
+> > [  264.554240] ff00: 00000001 00000000 c0149ae4 c0c21fb0 00000000 00000000 c014a194 c1a4be34
+> > [  264.562452] ff20: c1870740 00000000 c1015384 435d587d ffffe000 ec2f6180 ec2f6194 ee1ba700
+> > [  264.570663] ff40: 00000008 ee1ba734 c1305900 ee1ba700 ffffe000 c014a0e4 ec9537a4 c0c28e64
+> > [  264.578874] ff60: ec96e000 00000000 ec2be780 ec2f99c0 ec96e000 ec2f6180 c014a0b8 ec13fe90
+> > [  264.587086] ff80: ec2be7b8 c0152890 ec96e000 ec2f99c0 c0152750 00000000 00000000 00000000
+> > [  264.595296] ffa0: 00000000 00000000 00000000 c01010b4 00000000 00000000 00000000 00000000
+> > [  264.603506] ffc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+> > [  264.611716] ffe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+> > [  264.619944] [<c0c04650>] (memcpy) from [<c0655a8c>] (etnaviv_iommuv2_dump+0x58/0x60)
+> > [  264.627738] [<c0655a8c>] (etnaviv_iommuv2_dump) from [<c064fd78>] (etnaviv_core_dump+0x140/0x45c)
+> > [  264.636658] [<c064fd78>] (etnaviv_core_dump) from [<c0657358>] (etnaviv_sched_timedout_job+0x8c/0xb8)
+> > [  264.645923] [<c0657358>] (etnaviv_sched_timedout_job) from [<c0641278>] (drm_sched_job_timedout+0x38/0x88)
+> > [  264.655631] [<c0641278>] (drm_sched_job_timedout) from [<c0149b98>] (process_one_work+0x2c4/0x7e4)
+> > [  264.664633] [<c0149b98>] (process_one_work) from [<c014a0e4>] (worker_thread+0x2c/0x59c)
+> > [  264.672765] [<c014a0e4>] (worker_thread) from [<c0152890>] (kthread+0x140/0x158)
+> > [  264.680200] [<c0152890>] (kthread) from [<c01010b4>] (ret_from_fork+0x14/0x20)
+> > [  264.687448] Exception stack(0xec96ffb0 to 0xec96fff8)
+> > [  264.692530] ffa0:                                     00000000 00000000 00000000 00000000
+> > [  264.700741] ffc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+> > [  264.708949] ffe0: 00000000 00000000 00000000 00000000 00000013 00000000
+> > [  264.715599] Code: f5d1f05c f5d1f07c e8b151f8 e2522020 (e8a051f8)
+> > [  264.721727] ---[ end trace 8afcd79e9e2725b3 ]---
+>
+> Code change is fine, but the commit message has a lot of lines over 80
+> characters and generally the kernel trace is mostly noise. I trimmed it
+> out and applied it to my fixes branch. If you don't agree with my
+> changes, please shout now as I'm planning on sending the fixes pull
+> tomorrow.
+>
 
-We ran automated tests on a patchset that was proposed for merging into thi=
-s
-kernel tree. The patches were applied to:
+I am fine with that!
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux.git
-            Commit: 95180e47e77a - Linux 5.3.8
+-- 
+thanks
+--
+Christian Gmeiner, MSc
 
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/254944
-
-One or more kernel tests failed:
-
-    x86_64:
-     =E2=9D=8C xfstests: xfs
-     =E2=9D=8C LTP lite
-
-    ppc64le:
-     =E2=9D=8C xfstests: xfs
-
-    aarch64:
-     =E2=9D=8C xfstests: xfs
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 95180e47e77a - Linux 5.3.8
-
-
-We grabbed the cd7c09bbb80c commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  io_uring-fix-up-o_nonblock-handling-for-sockets.patch
-  dm-snapshot-introduce-account_start_copy-and-account.patch
-  dm-snapshot-rework-cow-throttling-to-fix-deadlock.patch
-  btrfs-fix-inode-cache-block-reserve-leak-on-failure-.patch
-  btrfs-qgroup-always-free-prealloc-meta-reserve-in-bt.patch
-  iio-adc-meson_saradc-fix-memory-allocation-order.patch
-  iio-fix-center-temperature-of-bmc150-accel-core.patch
-  libsubcmd-make-_fortify_source-defines-dependent-on-.patch
-  perf-tests-avoid-raising-segv-using-an-obvious-null-.patch
-  perf-map-fix-overlapped-map-handling.patch
-  perf-script-brstackinsn-fix-recovery-from-lbr-binary.patch
-  perf-jevents-fix-period-for-intel-fixed-counters.patch
-  perf-tools-propagate-get_cpuid-error.patch
-  perf-annotate-propagate-perf_env__arch-error.patch
-  perf-annotate-fix-the-signedness-of-failure-returns.patch
-  perf-annotate-propagate-the-symbol__annotate-error-r.patch
-  perf-annotate-fix-arch-specific-init-failure-errors.patch
-  perf-annotate-return-appropriate-error-code-for-allo.patch
-  perf-annotate-don-t-return-1-for-error-when-doing-bp.patch
-  staging-rtl8188eu-fix-null-dereference-when-kzalloc-.patch
-  rdma-siw-fix-serialization-issue-in-write_space.patch
-  rdma-hfi1-prevent-memory-leak-in-sdma_init.patch
-  rdma-iw_cxgb4-fix-srq-access-from-dump_qp.patch
-  rdma-iwcm-fix-a-lock-inversion-issue.patch
-  hid-hyperv-use-in-place-iterator-api-in-the-channel-.patch
-  kselftest-exclude-failed-targets-from-runlist.patch
-  selftests-kselftest-runner.sh-add-45-second-timeout-.patch
-  nfs-fix-nfsi-nrequests-count-error-on-nfs_inode_remo.patch
-  arm64-cpufeature-effectively-expose-frint-capability.patch
-  arm64-fix-incorrect-irqflag-restore-for-priority-mas.patch
-  arm64-ftrace-ensure-synchronisation-in-plt-setup-for.patch
-  tty-serial-owl-fix-the-link-time-qualifier-of-owl_ua.patch
-  tty-serial-rda-fix-the-link-time-qualifier-of-rda_ua.patch
-  serial-sifive-select-serial_earlycon.patch
-  tty-n_hdlc-fix-build-on-sparc.patch
-  misc-fastrpc-prevent-memory-leak-in-fastrpc_dma_buf_.patch
-  rdma-core-fix-an-error-handling-path-in-res_get_comm.patch
-  rdma-cm-fix-memory-leak-in-cm_add-remove_one.patch
-  rdma-nldev-reshuffle-the-code-to-avoid-need-to-rebin.patch
-  rdma-mlx5-do-not-allow-rereg-of-a-odp-mr.patch
-  rdma-mlx5-order-num_pending_prefetch-properly-with-s.patch
-  rdma-mlx5-add-missing-synchronize_srcu-for-mw-cases.patch
-  gpio-max77620-use-correct-unit-for-debounce-times.patch
-  fs-cifs-mute-wunused-const-variable-message.patch
-  arm64-vdso32-fix-broken-compat-vdso-build-warnings.patch
-  arm64-vdso32-detect-binutils-support-for-dmb-ishld.patch
-  serial-mctrl_gpio-check-for-null-pointer.patch
-  serial-8250_omap-fix-gpio-check-for-auto-rts-cts.patch
-  arm64-default-to-building-compat-vdso-with-clang-whe.patch
-  arm64-vdso32-don-t-use-kbuild_cppflags-unconditional.patch
-  efi-cper-fix-endianness-of-pcie-class-code.patch
-  efi-x86-do-not-clean-dummy-variable-in-kexec-path.patch
-  mips-include-mark-__cmpxchg-as-__always_inline.patch
-  riscv-avoid-kernel-hangs-when-trapped-in-bug.patch
-  riscv-avoid-sending-a-sigtrap-to-a-user-thread-trapp.patch
-  riscv-correct-the-handling-of-unexpected-ebreak-in-d.patch
-  x86-xen-return-from-panic-notifier.patch
-  ocfs2-clear-zero-in-unaligned-direct-io.patch
-  fs-ocfs2-fix-possible-null-pointer-dereferences-in-o.patch
-  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
-  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
-  btrfs-silence-maybe-uninitialized-warning-in-clone_r.patch
-  arm64-armv8_deprecated-checking-return-value-for-mem.patch
-  x86-cpu-add-comet-lake-to-the-intel-cpu-models-heade.patch
-  sched-fair-scale-bandwidth-quota-and-period-without-.patch
-  sched-vtime-fix-guest-system-mis-accounting-on-task-.patch
-  perf-core-rework-memory-accounting-in-perf_mmap.patch
-  perf-core-fix-corner-case-in-perf_rotate_context.patch
-  perf-x86-amd-change-fix-nmi-latency-mitigation-to-us.patch
-  drm-amdgpu-fix-memory-leak.patch
-  iio-imu-adis16400-release-allocated-memory-on-failur.patch
-  iio-imu-adis16400-fix-memory-leak.patch
-  iio-imu-st_lsm6dsx-fix-waitime-for-st_lsm6dsx-i2c-co.patch
-  mips-include-mark-__xchg-as-__always_inline.patch
-  mips-fw-sni-fix-out-of-bounds-init-of-o32-stack.patch
-  s390-cio-fix-virtio-ccw-dma-without-pv.patch
-  virt-vbox-fix-memory-leak-in-hgcm_call_preprocess_li.patch
-  nbd-fix-possible-sysfs-duplicate-warning.patch
-  nfsv4-fix-leak-of-clp-cl_acceptor-string.patch
-  sunrpc-fix-race-to-sk_err-after-xs_error_report.patch
-  s390-uaccess-avoid-false-positive-compiler-warnings.patch
-  tracing-initialize-iter-seq-after-zeroing-in-tracing.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9D=8C LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 4:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 5:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 6:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+https://christian-gmeiner.info/privacypolicy
