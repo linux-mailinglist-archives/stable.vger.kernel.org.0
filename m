@@ -2,97 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86340E911F
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 21:57:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 453EDE91B4
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 22:19:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727041AbfJ2U5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 16:57:00 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:37527 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726747AbfJ2U5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 16:57:00 -0400
-Received: by mail-wm1-f67.google.com with SMTP id q130so3890845wme.2
-        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 13:56:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=CkkSpgU0Ah4rcNnaoXFMpZv+ScakfzqWcNdYgvBYkvs=;
-        b=0+QJLzHbO1lcPMNavyWnlDt+gIt2OPvuVVW2gTvbEFM2bxp2QDwiSuSRFDdvyMz9MO
-         PQlH7CUp9K98UyvfWkG4WlGG+k/YX9BVAFpxy3DA+s5+s7u+ho8+rcjM3aIIjG+xAwCY
-         FjxxWqADzYiPtdhZs+t/iO0LS2CpCTfH6guTIz3tChQhmnhF/0z35dfLLYzyBe9sDWW8
-         OwfXXLpeLg2HBh+Ie0LoQGHxP+kz6Mg04BYPCuhuGnWIB7k5/+hdlzLUy96s/+5bLgN7
-         B/+AopjuS0qlP/IIyylkS6KYLwaQGAGHlZ6my4pnyvWznaPVjh799S4i+K+onf51KJOd
-         N1bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=CkkSpgU0Ah4rcNnaoXFMpZv+ScakfzqWcNdYgvBYkvs=;
-        b=mPLs1uWpmCbB3ocSm5riCoLqHc/FRL9bsoEoovccikK37kwvb9GYTAdYeUXwBhnCZl
-         YhxdlpWPVh3oGMS+D9yuMgRm86C7SumkrpStHv08aheE2qFT1eJbDE23UZSnN2qyociU
-         Y1Lui759ZS2qkrKLZUsTA6Tmqc2j2J259zdqASb+tLN6IsqbJ37lkcphk9YMTNoRF5Pf
-         c6plRzfjOCcgufwLhKl2pPI7/Rf6izd/oZ0lFE1LswcqUMtFXmOWqUYOPMMVnjQkgLW9
-         btu4Vu+HQr7ejHgK2fxBCoQp1vRGkJCAp5a1bwlxX/HmNOAFGax4cgzrCaJf79LeMH0B
-         Eajg==
-X-Gm-Message-State: APjAAAWZ0mhtwThOIZn6V05h0OAM8aOekHirZMbUzCDsDY/WZlnErnI+
-        NFz5EO8P0BNFKRbdP16ezuMzbWvYXLR9tg==
-X-Google-Smtp-Source: APXvYqxBV+MZoSBbm+H88sNT0mafRp+hqqQWcd6EUDvb+PiweqMt+WR8kZ6vdsUiZtNC+KWME/8Uzw==
-X-Received: by 2002:a7b:c186:: with SMTP id y6mr6189539wmi.67.1572382618070;
-        Tue, 29 Oct 2019 13:56:58 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id t133sm4154929wmb.1.2019.10.29.13.56.57
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Oct 2019 13:56:57 -0700 (PDT)
-Message-ID: <5db8a799.1c69fb81.f71a8.627f@mx.google.com>
-Date:   Tue, 29 Oct 2019 13:56:57 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1728567AbfJ2VTj convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 29 Oct 2019 17:19:39 -0400
+Received: from mga07.intel.com ([134.134.136.100]:45831 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727041AbfJ2VTj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 17:19:39 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 29 Oct 2019 14:19:38 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,245,1569308400"; 
+   d="scan'208";a="230215688"
+Received: from fmsmsx108.amr.corp.intel.com ([10.18.124.206])
+  by fmsmga002.fm.intel.com with ESMTP; 29 Oct 2019 14:19:36 -0700
+Received: from fmsmsx155.amr.corp.intel.com (10.18.116.71) by
+ FMSMSX108.amr.corp.intel.com (10.18.124.206) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Tue, 29 Oct 2019 14:19:36 -0700
+Received: from fmsmsx120.amr.corp.intel.com ([169.254.15.63]) by
+ FMSMSX155.amr.corp.intel.com ([169.254.5.15]) with mapi id 14.03.0439.000;
+ Tue, 29 Oct 2019 14:19:35 -0700
+From:   "Marciniszyn, Mike" <mike.marciniszyn@intel.com>
+To:     Jason Gunthorpe <jgg@ziepe.ca>,
+        "Dalessandro, Dennis" <dennis.dalessandro@intel.com>
+CC:     "dledford@redhat.com" <dledford@redhat.com>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "Wan, Kaike" <kaike.wan@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Erwin, James" <james.erwin@intel.com>
+Subject: RE: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than
+ gen3
+Thread-Topic: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than
+ gen3
+Thread-Index: AQHVi26R/0lyV/3sa0qeVr5XnHCm8adygzMA//+iA+A=
+Date:   Tue, 29 Oct 2019 21:19:34 +0000
+Message-ID: <32E1700B9017364D9B60AED9960492BC729594E1@fmsmsx120.amr.corp.intel.com>
+References: <20191025161717.106825.14421.stgit@awfm-01.aw.intel.com>
+ <20191025195823.106825.63080.stgit@awfm-01.aw.intel.com>
+ <20191029195214.GA1802@ziepe.ca>
+In-Reply-To: <20191029195214.GA1802@ziepe.ca>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-titus-metadata-40: eyJDYXRlZ29yeUxhYmVscyI6IiIsIk1ldGFkYXRhIjp7Im5zIjoiaHR0cDpcL1wvd3d3LnRpdHVzLmNvbVwvbnNcL0ludGVsMyIsImlkIjoiNWViNGUzOTQtNGUxZS00NzRjLWExOTYtNTJjYTFhYjE4Y2E4IiwicHJvcHMiOlt7Im4iOiJDVFBDbGFzc2lmaWNhdGlvbiIsInZhbHMiOlt7InZhbHVlIjoiQ1RQX05UIn1dfV19LCJTdWJqZWN0TGFiZWxzIjpbXSwiVE1DVmVyc2lvbiI6IjE3LjEwLjE4MDQuNDkiLCJUcnVzdGVkTGFiZWxIYXNoIjoiYndwVStURmF6YkF4MGxcL1dwbzVoelBMZDNQUFNDZ1c2QklZUGJLNjFJV1pqUktHM0ZMUjhWeFBpRXBPZU55MXAifQ==
+x-ctpclassification: CTP_NT
+dlp-product: dlpe-windows
+dlp-version: 11.2.0.6
+dlp-reaction: no-action
+x-originating-ip: [10.1.200.107]
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.4.198
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.4.y boot: 43 boots: 0 failed,
- 41 passed with 2 conflicts (v4.4.198)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.4.y boot: 43 boots: 0 failed, 41 passed with 2 conflicts (v4=
-.4.198)
+> Subject: Re: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than gen3
+> 
+> On Fri, Oct 25, 2019 at 03:58:24PM -0400, Dennis Dalessandro wrote:
+> > From: James Erwin <james.erwin@intel.com>
+> >
+> > The driver avoids the gen3 speed bump when the parent
+> > bus speed isn't identical to gen3, 8.0GT/s.  This is not
+> > compatible with gen4 and newer speeds.
+> >
+> > Fix by relaxing the test to explicitly look for the lower
+> > capability speeds which inherently allows for all future speeds.
+> 
+> This description does not seem like stable material to me.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-4.y/kernel/v4.4.198/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
-rnel/v4.4.198/
+Having a card unknowingly operate at half speed would seem pretty serious to me.
 
-Tree: stable
-Branch: linux-4.4.y
-Git Describe: v4.4.198
-Git Commit: da259d0284b69e084d65200b69462bed9b86a4c7
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 22 unique boards, 10 SoC families, 8 builds out of 189
+Perhaps the description should say:
 
-Conflicting Boot Failures Detected: (These likely are not failures as other=
- labs are reporting PASS. Needs review.)
+IB/hfi1: Insure full Gen3 speed in a Gen4 system
 
-i386:
-    i386_defconfig:
-        qemu_i386:
-            lab-collabora: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-
-x86_64:
-    x86_64_defconfig:
-        qemu_x86_64:
-            lab-collabora: PASS (gcc-8)
-            lab-baylibre: FAIL (gcc-8)
-
----
-For more info write to <info@kernelci.org>
+Mike
