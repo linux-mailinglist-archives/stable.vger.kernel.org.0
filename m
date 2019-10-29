@@ -2,87 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E919E8BBE
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 16:24:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C227FE8BD1
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 16:31:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389858AbfJ2PYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 11:24:38 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:43902 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389695AbfJ2PYi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 11:24:38 -0400
-Received: by mail-wr1-f67.google.com with SMTP id n1so6649288wra.10
-        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 08:24:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=+9ayP7yV3KvvihMVoA0Lx+j+7pm+dEwg1tGTOpHlVvI=;
-        b=u+oTVWmz3BTj0Lek4wofN3i5hCWJTCmgLQLkSOsQwaazuvbL5k+idt2ZRgO9LtXltD
-         FlL+JzOS7NhHfTeP7ptRnm7B4AOgHO9YPAYvJJ7Oz4gvkni6eNJWbOP6QT847A+8nOsX
-         TROpyMJT20vPmIKxCBu6v0cJ7cU7axSH90FRomcIpp6vFN5IYHdYbgnSjS32lf0FtnRH
-         91xNsEKrKYRhn17LknskpwMj46eOsFjTGJ/ux+2epeo1S4iPLrHBbneSDVqDq2FY9lHz
-         XlO1gemmEnybYpZtw0c6z8OA0lOGmz65fqlfITMS5h2o9xguiCC/H91Nh+DuLZttpiU0
-         Uu4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=+9ayP7yV3KvvihMVoA0Lx+j+7pm+dEwg1tGTOpHlVvI=;
-        b=BnFrnI53NSp3FL/61RwkIZjHznmXoECw4Q1T2OQ+1l8obJzpcJz9Cdk50674WGolLa
-         0s7W0vrmM3ymwrhndsePUnf+pdxDEKQbaJMAtxBNnicZKdt2FrSnPmbmcVOE3upjLvgX
-         Mj9Xhyna6Qt0qH7ICZAnVOoMCaEHk6vMT575MXKplYxpV/mumDmhmSq3ZdXvd6gGjE1Y
-         1q9C3AkI2dEujzsrhCrmXckL397pEnT6v9+ex5oNZknZQY6NiZNQzfD9/r/dHXCJFpM2
-         sUwrD2d0hZBKix5zzYNac1CmlMgrTvojg7Ib/RdWFixIK/9ttyJWsspEv+cTq+jdTyhu
-         afTA==
-X-Gm-Message-State: APjAAAXj8kUY09ZS7hVYVD8XYHKUeyCbCNziFTUartgmm+SnPR7cmG/G
-        NlQ/NI6spTOMSM893Ljyi3Y5Ht8ncGPW+g==
-X-Google-Smtp-Source: APXvYqyITEbqAVR1jehRh2wPoTI0EtNpNTsEF201r2pLEN8Q8bIeFZiJ9KC8Sv7xuMwJmO8Q3OD/qA==
-X-Received: by 2002:adf:9185:: with SMTP id 5mr21541870wri.389.1572362676271;
-        Tue, 29 Oct 2019 08:24:36 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id q14sm18692975wre.27.2019.10.29.08.24.34
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Oct 2019 08:24:35 -0700 (PDT)
-Message-ID: <5db859b3.1c69fb81.12fd9.f272@mx.google.com>
-Date:   Tue, 29 Oct 2019 08:24:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2389809AbfJ2PbF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 11:31:05 -0400
+Received: from foss.arm.com ([217.140.110.172]:53402 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2389319AbfJ2PbF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 11:31:05 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 40DCE1F1;
+        Tue, 29 Oct 2019 08:31:05 -0700 (PDT)
+Received: from arrakis.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 8E5C03F71F;
+        Tue, 29 Oct 2019 08:31:04 -0700 (PDT)
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     linux-arm-kernel@lists.infradead.org
+Cc:     stable@vger.kernel.org, Will Deacon <will@kernel.org>
+Subject: [PATCH] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by default
+Date:   Tue, 29 Oct 2019 15:30:51 +0000
+Message-Id: <20191029153051.24367-1-catalin.marinas@arm.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.3.8
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-5.3.y boot: 55 boots: 1 failed, 54 passed (v5.3.8)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.3.y boot: 55 boots: 1 failed, 54 passed (v5.3.8)
+Shared and writable mappings (__S.1.) should be clean (!dirty) initially
+and made dirty on a subsequent write either through the hardware DBM
+(dirty bit management) mechanism or through a write page fault. A clean
+pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
+clear.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-3.y/kernel/v5.3.8/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.3.y/ke=
-rnel/v5.3.8/
+The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
+PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
+bit handling out of set_pte_at()"), it was the responsibility of
+set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
+software PTE_DIRTY bit was not set. However, the above commit removed
+the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
+set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
+unchanged. The result is that shared+writable mappings are now dirty by
+default
 
-Tree: stable
-Branch: linux-5.3.y
-Git Describe: v5.3.8
-Git Commit: db0655e705be645ad673b0a70160921e088517c0
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 43 unique boards, 14 SoC families, 11 builds out of 208
+Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
+In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
+attributes.
 
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            apq8096-db820c: 1 failed lab
-
+Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
+Cc: <stable@vger.kernel.org> # 4.14.x-
+Cc: Will Deacon <will@kernel.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 ---
-For more info write to <info@kernelci.org>
+ arch/arm64/include/asm/pgtable-prot.h | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm64/include/asm/pgtable-prot.h b/arch/arm64/include/asm/pgtable-prot.h
+index 9a21b84536f2..8dc6c5cdabe6 100644
+--- a/arch/arm64/include/asm/pgtable-prot.h
++++ b/arch/arm64/include/asm/pgtable-prot.h
+@@ -32,11 +32,11 @@
+ #define PROT_DEFAULT		(_PROT_DEFAULT | PTE_MAYBE_NG)
+ #define PROT_SECT_DEFAULT	(_PROT_SECT_DEFAULT | PMD_MAYBE_NG)
+ 
+-#define PROT_DEVICE_nGnRnE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRnE))
+-#define PROT_DEVICE_nGnRE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRE))
+-#define PROT_NORMAL_NC		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_NC))
+-#define PROT_NORMAL_WT		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_WT))
+-#define PROT_NORMAL		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL))
++#define PROT_DEVICE_nGnRnE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRnE))
++#define PROT_DEVICE_nGnRE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRE))
++#define PROT_NORMAL_NC		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_NC))
++#define PROT_NORMAL_WT		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_WT))
++#define PROT_NORMAL		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL))
+ 
+ #define PROT_SECT_DEVICE_nGnRE	(PROT_SECT_DEFAULT | PMD_SECT_PXN | PMD_SECT_UXN | PMD_ATTRINDX(MT_DEVICE_nGnRE))
+ #define PROT_SECT_NORMAL	(PROT_SECT_DEFAULT | PMD_SECT_PXN | PMD_SECT_UXN | PMD_ATTRINDX(MT_NORMAL))
+@@ -80,8 +80,9 @@
+ #define PAGE_S2_DEVICE		__pgprot(_PROT_DEFAULT | PAGE_S2_MEMATTR(DEVICE_nGnRE) | PTE_S2_RDONLY | PTE_S2_XN)
+ 
+ #define PAGE_NONE		__pgprot(((_PAGE_DEFAULT) & ~PTE_VALID) | PTE_PROT_NONE | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN)
+-#define PAGE_SHARED		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN | PTE_UXN | PTE_WRITE)
+-#define PAGE_SHARED_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN | PTE_WRITE)
++/* shared+writable pages are clean by default, hence PTE_RDONLY|PTE_WRITE */
++#define PAGE_SHARED		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN | PTE_WRITE)
++#define PAGE_SHARED_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_WRITE)
+ #define PAGE_READONLY		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN)
+ #define PAGE_READONLY_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN)
+ #define PAGE_EXECONLY		__pgprot(_PAGE_DEFAULT | PTE_RDONLY | PTE_NG | PTE_PXN)
