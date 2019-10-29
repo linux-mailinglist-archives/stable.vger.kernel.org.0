@@ -2,184 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B833CE8728
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 12:31:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E96C7E874D
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 12:40:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729070AbfJ2Lbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 07:31:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
+        id S1728077AbfJ2LkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 07:40:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726952AbfJ2Lbf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Oct 2019 07:31:35 -0400
-Received: from localhost (unknown [91.217.168.176])
+        id S1725880AbfJ2LkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 07:40:02 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DBED20663;
-        Tue, 29 Oct 2019 11:31:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39E53217D9;
+        Tue, 29 Oct 2019 11:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572348694;
-        bh=XFtJgZJFVHvrAkpPKTLWBkBHuMI73X4JnH2pdvD2HaU=;
+        s=default; t=1572349201;
+        bh=b0Yx/pOD5w63B522OXKc4nLFXgNhCQem4ZHf05cCJ/g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FaxdDc7uSvBKTteWK3QZghPazDqPKcW9c/xX5BOUroVX3wiiMPtARTD41TSlGx6Wt
-         rD/FCBHmlch2j0ATFC1J1zqsnfRhIK2GgcSCQVpyemKoad2VukthtKfV6A8ATTMCUL
-         V1kRyhiyD4R1VRyfT35cSCMG6g3QRzEvwI6qoGnk=
-Date:   Tue, 29 Oct 2019 07:31:31 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Murphy Zhou <xzhou@redhat.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        deepa.kernel@gmail.com,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, guaneryu@gmail.com,
-        CKI Project <cki-project@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.3.8-rc2-96dab43.cki (stable)
-Message-ID: <20191029113131.GM1554@sasha-vm>
-References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
- <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
- <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
- <20191029080855.GA512708@kroah.com>
- <20191029091126.ijvixns6fe3dzte3@xzhoux.usersys.redhat.com>
- <20191029092158.GA582092@kroah.com>
+        b=ZmaImj/3fhMnxq2LJucsm59PXeqHQgfZdnKGWM3z08zi1lSOJM6NqcZfdRb0MtxXa
+         U+z49SFHLkVTLSkePIR15C+hnvOLdZa9MwpR8XToJkzrtTEdsNdz5EguB9DH9PLqOQ
+         p4aS4h+HcZc4G4k6QhPXz1ZwG3PmNOigtBkTEXNY=
+Date:   Tue, 29 Oct 2019 11:39:57 +0000
+From:   Will Deacon <will@kernel.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, stable@vger.kernel.org,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH] arm64: cpufeature: Enable Qualcomm erratas
+Message-ID: <20191029113956.GC12103@willie-the-truck>
+References: <20191029060432.1208859-1-bjorn.andersson@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191029092158.GA582092@kroah.com>
+In-Reply-To: <20191029060432.1208859-1-bjorn.andersson@linaro.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 29, 2019 at 10:21:58AM +0100, Greg KH wrote:
->On Tue, Oct 29, 2019 at 05:11:26PM +0800, Murphy Zhou wrote:
->> On Tue, Oct 29, 2019 at 09:08:55AM +0100, Greg KH wrote:
->> > On Tue, Oct 29, 2019 at 03:33:18PM +0800, Murphy Zhou wrote:
->> > > On Tue, Oct 29, 2019 at 10:55:34AM +0530, Naresh Kamboju wrote:
->> > > > On Tue, 29 Oct 2019 at 07:33, CKI Project <cki-project@redhat.com> wrote:
->> > > > >
->> > > > >
->> > > > > Hello,
->> > > > >
->> > > > > We ran automated tests on a recent commit from this kernel tree:
->> > > > >
->> > > > >        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->> > > > >             Commit: 96dab4347cbe - Linux 5.3.8-rc2
->> > > > >
->> > > > > The results of these automated tests are provided below.
->> > > > >
->> > > > >     Overall result: FAILED (see details below)
->> > > > >              Merge: OK
->> > > > >            Compile: OK
->> > > > >              Tests: FAILED
->> > > > >
->> > > > > All kernel binaries, config files, and logs are available for download here:
->> > > > >
->> > > > >   https://artifacts.cki-project.org/pipelines/253188
->> > > > >
->> > > > > One or more kernel tests failed:
->> > > > >
->> > > > >     ppc64le:
->> > > > >      ❌ xfstests: ext4
->> > > > >      ❌ xfstests: xfs
->> > > > >
->> > > > >     aarch64:
->> > > > >      ❌ xfstests: ext4
->> > > > >      ❌ xfstests: xfs
->> > > > >
->> > > > >     x86_64:
->> > > > >      ❌ xfstests: ext4
->> > > > >      ❌ xfstests: xfs
->> > > > >
->> > > >
->> > > > FYI,
->> > > > The test log output,
->> > > >
->> > > > Running test generic/402
->> > > > #! /bin/bash
->> > > > # SPDX-License-Identifier: GPL-2.0
->> > > > # Copyright (c) 2016 Deepa Dinamani.  All Rights Reserved.
->> > > > #
->> > > > # FS QA Test 402
->> > > > #
->> > > > # Test to verify filesystem timestamps for supported ranges.
->> > > > #
->> > > > # Exit status 1: test failed.
->> > > > # Exit status 0: test passed.
->> > > > FSTYP         -- xfs (non-debug)
->> > > > PLATFORM      -- Linux/aarch64 apm-mustang-b0-11 5.3.8-rc2-96dab43.cki
->> > > > #1 SMP Mon Oct 28 14:23:22 UTC 2019
->> > > > MKFS_OPTIONS  -- -f -m crc=1,finobt=1,rmapbt=1,reflink=1 -i sparse=1 /dev/sda4
->> > > > MOUNT_OPTIONS -- -o context=system_u:object_r:nfs_t:s0 /dev/sda4
->> > > > /mnt/xfstests/mnt2
->> > > >
->> > > > generic/402 - output mismatch (see
->> > > > /var/lib/xfstests/results//generic/402.out.bad)
->> > > >     --- tests/generic/402.out 2019-10-28 12:19:13.835212771 -0400
->> > > >     +++ /var/lib/xfstests/results//generic/402.out.bad 2019-10-28
->> > > > 13:13:55.503682127 -0400
->> > > >     @@ -1,2 +1,4 @@
->> > > >      QA output created by 402
->> > > >     +2147483647;2147483647 != 2147483648;2147483648
->> > > >     +2147483647;2147483647 != -2147483648;-2147483648
->> > > >      Silence is golden
->> > > >     ...
->> > > >     (Run 'diff -u /var/lib/xfstests/tests/generic/402.out
->> > > > /var/lib/xfstests/results//generic/402.out.bad'  to see the entire
->> > > > diff)
->> > > > Ran: generic/402
->> > > > Failures: generic/402
->> > > > Failed 1 of 1 tests
->> > > >
->> > > > Test source:
->> > > > https://github.com/kdave/xfstests/blob/master/tests/generic/402
->> > > >
->> > > > Here is the latest test case commit,
->> > > >
->> > > > generic/402: fix for updated behavior of timestamp limits
->> > > >
->> > > > The mount behavior will not be altered because of the unsupported
->> > > > timestamps on the filesystems.
->> > > >
->> > > > Adjust the test accordingly.
->> > > >
->> > > > You can find the series at
->> > > > https://git.kernel.org/torvalds/c/cfb82e1df8b7c76991ea12958855897c2fb4debc
->> > >
->> > > Yes, stable trees need this series to pass the test.
->> >
->> > I do not understand, what "series"?  Can you provide the exact git
->> > commit ids that I need to apply to the stable tree to resolve this?
->>
->> Linus tree:
->>
->> cba465b4f982 ext4: Reduce ext4 timestamp warnings
->> 5ad32b3acded isofs: Initialize filesystem timestamp ranges
->> 83b8a3fbe3aa pstore: fs superblock limits
->> 8833293d0acc fs: omfs: Initialize filesystem timestamp ranges
->> cdd62b5b07e8 fs: hpfs: Initialize filesystem timestamp ranges
->> 028ca4db0a6e fs: ceph: Initialize filesystem timestamp ranges
->> 452c2779410a fs: sysv: Initialize filesystem timestamp ranges
->> 487b25bc4be9 fs: affs: Initialize filesystem timestamp ranges
->> c0da64f6bb67 fs: fat: Initialize filesystem timestamp ranges
->> cb7a69e60590 fs: cifs: Initialize filesystem timestamp ranges
->> 1fcb79c1b218 fs: nfs: Initialize filesystem timestamp ranges
->> 4881c4971df0 ext4: Initialize timestamps limits
->> d5c6e2d5188d 9p: Fill min and max timestamps in sb
->> 22b139691f9e fs: Fill in max and min timestamps in superblock
->> 42e729b9ddbb utimes: Clamp the timestamps before update
->> f8b92ba67c5d mount: Add mount warning for impending timestamp expiry
->> 3818c1907a5e timestamp_truncate: Replace users of timespec64_trunc
->> 50e17c000c46 vfs: Add timestamp_truncate() api
->> 188d20bcd1eb vfs: Add file timestamp range support
->
->That really looks like a new feature, not a bugfix for something, right?
+On Mon, Oct 28, 2019 at 11:04:32PM -0700, Bjorn Andersson wrote:
+> With the introduction of 'cce360b54ce6 ("arm64: capabilities: Filter the
+> entries based on a given mask")' the Qualcomm erratas are no long
+> applied.
+> 
+> The result of not applying errata 1003 is that MSM8996 runs into various
+> RCU stalls and fails to boot most of the times.
+> 
+> Give both 1003 and 1009 a "type" to ensure they are not filtered out in
+> update_cpu_capabilities().
 
-Oh I look at that series last month. It's a new feature, but it's there
-to fix a bug. It was too big for me to feel comfortable with and I
-wasn't aware it's more than a theoretical issue.
+Oh nasty. Thanks for debugging and fixing this.
 
--- 
-Thanks,
-Sasha
+> Fixes: cce360b54ce6 ("arm64: capabilities: Filter the entries based on a given mask")
+> Cc: stable@vger.kernel.org
+> Reported-by: Mark Brown <broonie@kernel.org>
+> Suggested-by: Will Deacon <will@kernel.org>
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+>  arch/arm64/kernel/cpu_errata.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+> index df9465120e2f..cdd8df033536 100644
+> --- a/arch/arm64/kernel/cpu_errata.c
+> +++ b/arch/arm64/kernel/cpu_errata.c
+> @@ -780,6 +780,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>  	{
+>  		.desc = "Qualcomm Technologies Falkor/Kryo erratum 1003",
+>  		.capability = ARM64_WORKAROUND_QCOM_FALKOR_E1003,
+> +		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+>  		.matches = cpucap_multi_entry_cap_matches,
+
+This should probably be ARM64_CPUCAP_LOCAL_CPU_ERRATUM instead, but I'll
+want Suzuki's ack before I take the change.
+
+>  		.match_list = qcom_erratum_1003_list,
+>  	},
+> @@ -788,6 +789,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>  	{
+>  		.desc = "Qualcomm erratum 1009, ARM erratum 1286807",
+>  		.capability = ARM64_WORKAROUND_REPEAT_TLBI,
+> +		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+>  		ERRATA_MIDR_RANGE_LIST(arm64_repeat_tlbi_cpus),
+
+ERRATA_MIDR_RANGE_LIST sets the type already, so I think this is redundant.
+
+Will
