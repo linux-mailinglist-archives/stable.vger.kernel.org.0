@@ -2,109 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E609E8481
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 10:32:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1DAFE849F
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 10:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726713AbfJ2Jca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 05:32:30 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47870 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725791AbfJ2Jc3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Oct 2019 05:32:29 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id E24A2B277;
-        Tue, 29 Oct 2019 09:32:27 +0000 (UTC)
-Date:   Tue, 29 Oct 2019 10:32:26 +0100
-From:   Joerg Roedel <jroedel@suse.de>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] KVM: vmx, svm: always run with EFER.NXE=1 when shadow
- paging is active
-Message-ID: <20191029093226.GE838@suse.de>
-References: <20191027152323.24326-1-pbonzini@redhat.com>
+        id S1726867AbfJ2JnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 05:43:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44034 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726689AbfJ2JnZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 05:43:25 -0400
+Received: from localhost (unknown [91.217.168.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBAB32087E;
+        Tue, 29 Oct 2019 09:43:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572342204;
+        bh=wfH6HpOMrQ8JJk8YTc5ZX31N64KCBGtRjp8Rl5bdk6I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=N6PYH1H7UaLzWmvmxEWgivHothCUvMDoCzLVUxBgJJzQcnq9REoG/81uZa0IEJ3ON
+         A/xdIqe0+c5pGvU6Aluh9PzjwoLuqfiqOUg6B//pZn9Ovn8PEy+bSgQGqAjzGkpcok
+         Zk3vHCiX+9rOoI5ualgUjzkh+5r2dxIMm1BbPo9Y=
+Date:   Tue, 29 Oct 2019 10:43:21 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>, linux-usb@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 095/100] USB: usb-skeleton: fix
+ use-after-free after driver unbind
+Message-ID: <20191029094321.GA582711@kroah.com>
+References: <20191018220525.9042-1-sashal@kernel.org>
+ <20191018220525.9042-95-sashal@kernel.org>
+ <20191018222205.GA6978@kroah.com>
+ <20191029090435.GJ1554@sasha-vm>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191027152323.24326-1-pbonzini@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191029090435.GJ1554@sasha-vm>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Paolo,
-
-On Sun, Oct 27, 2019 at 04:23:23PM +0100, Paolo Bonzini wrote:
-> VMX already does so if the host has SMEP, in order to support the combination of
-> CR0.WP=1 and CR4.SMEP=1.  However, it is perfectly safe to always do so, and in
-> fact VMX already ends up running with EFER.NXE=1 on old processors that lack the
-> "load EFER" controls, because it may help avoiding a slow MSR write.  Removing
-> all the conditionals simplifies the code.
+On Tue, Oct 29, 2019 at 05:04:35AM -0400, Sasha Levin wrote:
+> On Fri, Oct 18, 2019 at 06:22:05PM -0400, Greg Kroah-Hartman wrote:
+> > On Fri, Oct 18, 2019 at 06:05:20PM -0400, Sasha Levin wrote:
+> > > From: Johan Hovold <johan@kernel.org>
+> > > 
+> > > [ Upstream commit 6353001852776e7eeaab4da78922d4c6f2b076af ]
+> > > 
+> > > The driver failed to stop its read URB on disconnect, something which
+> > > could lead to a use-after-free in the completion handler after driver
+> > > unbind in case the character device has been closed.
+> > > 
+> > > Fixes: e7389cc9a7ff ("USB: skel_read really sucks royally")
+> > > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > > Link: https://lore.kernel.org/r/20191009170944.30057-3-johan@kernel.org
+> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  drivers/usb/usb-skeleton.c | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > 
+> > This file does not even get built in the kernel tree, no need to
+> > backport anything for it :)
 > 
-> SVM does not have similar code, but it should since recent AMD processors do
-> support SMEP.  So this patch also makes the code for the two vendors more similar
-> while fixing NPT=0, CR0.WP=1 and CR4.SMEP=1 on AMD processors.
-> 
-> Cc: stable@vger.kernel.org
-> Cc: Joerg Roedel <jroedel@suse.de>
-> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> I'll drop it, but you're taking patches for this driver:
+> https://lore.kernel.org/patchwork/patch/1140673/ .
 
-Looks good to me.
+Ah yeah, I probably shouldn't have taken stable backports for that, my
+fault.
 
-Reviewed-by: Joerg Roedel <jroedel@suse.de>
-
-> ---
->  arch/x86/kvm/svm.c     | 10 ++++++++--
->  arch/x86/kvm/vmx/vmx.c | 14 +++-----------
->  2 files changed, 11 insertions(+), 13 deletions(-)
-> 
-> diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-> index b6feb6a11a8d..2c452293c7cc 100644
-> --- a/arch/x86/kvm/svm.c
-> +++ b/arch/x86/kvm/svm.c
-> @@ -732,8 +732,14 @@ static int get_npt_level(struct kvm_vcpu *vcpu)
->  static void svm_set_efer(struct kvm_vcpu *vcpu, u64 efer)
->  {
->  	vcpu->arch.efer = efer;
-> -	if (!npt_enabled && !(efer & EFER_LMA))
-> -		efer &= ~EFER_LME;
-> +
-> +	if (!npt_enabled) {
-> +		/* Shadow paging assumes NX to be available.  */
-> +		efer |= EFER_NX;
-> +
-> +		if (!(efer & EFER_LMA))
-> +			efer &= ~EFER_LME;
-> +	}
->  
->  	to_svm(vcpu)->vmcb->save.efer = efer | EFER_SVME;
->  	mark_dirty(to_svm(vcpu)->vmcb, VMCB_CR);
-> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-> index 2a2ba277c676..e191d41afb34 100644
-> --- a/arch/x86/kvm/vmx/vmx.c
-> +++ b/arch/x86/kvm/vmx/vmx.c
-> @@ -896,17 +896,9 @@ static bool update_transition_efer(struct vcpu_vmx *vmx, int efer_offset)
->  	u64 guest_efer = vmx->vcpu.arch.efer;
->  	u64 ignore_bits = 0;
->  
-> -	if (!enable_ept) {
-> -		/*
-> -		 * NX is needed to handle CR0.WP=1, CR4.SMEP=1.  Testing
-> -		 * host CPUID is more efficient than testing guest CPUID
-> -		 * or CR4.  Host SMEP is anyway a requirement for guest SMEP.
-> -		 */
-> -		if (boot_cpu_has(X86_FEATURE_SMEP))
-> -			guest_efer |= EFER_NX;
-> -		else if (!(guest_efer & EFER_NX))
-> -			ignore_bits |= EFER_NX;
-> -	}
-> +	/* Shadow paging assumes NX to be available.  */
-> +	if (!enable_ept)
-> +		guest_efer |= EFER_NX;
->  
->  	/*
->  	 * LMA and LME handled by hardware; SCE meaningless outside long mode.
-> -- 
-> 2.21.0
+greg k-h
