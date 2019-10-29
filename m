@@ -2,164 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65997E897E
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 14:29:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 408D0E89CB
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 14:41:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388530AbfJ2N3b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 09:29:31 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:35087 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388527AbfJ2N3b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 09:29:31 -0400
-Received: by mail-lf1-f65.google.com with SMTP id y6so10527060lfj.2
-        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 06:29:29 -0700 (PDT)
+        id S2388702AbfJ2Nlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 09:41:55 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:34524 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388604AbfJ2Nlz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 09:41:55 -0400
+Received: by mail-wr1-f67.google.com with SMTP id t16so13728694wrr.1
+        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 06:41:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Xu8apSxRKH3HFmHAIww+OjNpsskAxGY7U9dHEs1Yj34=;
-        b=fCQ4ACvx8jtoiDDKm15+5oLsiHRUid9NDgEVy2XBjYAzdqVgjZLYoPbxldFUvSMWIp
-         TNzLW+f8MBmaszrgu99ii47/rUXykX975ucUXzxC67Pk8Ozm9nF6izFQuoNeq4R6kPqZ
-         1lOzzcOHqMZDhAUVDrAz4wKg8wnT50l9MSqdb58MWrO/D+VrI17lczrpmPhnI3REDsli
-         2ZiPRM5i4byGpWvAlbNJl/YnDNA12+Vg3oe63+A/7YFUSpgeUbjrTVdl/GZRFcF6XUWb
-         aD56Pn0HZb03J4V1qEfkcnOIj0xuI6KGJ4W9POXhxhcSrZsmpAxCWYeTqsW2uNP9nbpw
-         qNAw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=WzC/rKAbLR0JzwhY3uw0zaCrhsiUVDMHGAq0oAK7wBQ=;
+        b=lNM7pYp+lCxu7p7RdNi+eMETqCfBKh4+9QQ1j1n1B7FWXnTbDuAupSCEKynWh7kEGd
+         5mVqzv9gXLjLpNOAeupk89pzLGEhhfQvVJUYS8t+E756CFSBbqXTbrZGsFVR/7nfcyml
+         Pq1mzno9o3eTiMjpf03cd+dgdNtu+jO+UYsCIGLP3zENNx/myc/R6CsJTfPvDeOT5NlX
+         flxbqBiDoI7Ejuo4/uWe/pzul+DiUAv4A3fk7WEm+PMSHtEnOsYSZJjzwM3DT96gEVrl
+         sG2YKAbKDkzwCfTUNjDwrTJIXeW4u8oL9qMJABWshnyuLv9BV0yCygnzGZtX5PaHDq1P
+         5XKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Xu8apSxRKH3HFmHAIww+OjNpsskAxGY7U9dHEs1Yj34=;
-        b=bDEDRYsI9UfwNWn91qDzHl7BVtlB4+0gNS8k6+VZOZcPrjmzP54YUCcRaUShtR7895
-         PH1mlr0iv2bgWrq5sI5JefusMRmcfVFJLDdY3RT1O3E5Ln07nkgUQp37ANaKwsHpxo91
-         5qKKF2ebmg1WTafiphnIvH0gCXsWTMkMeiaNpa6o7FnSD9nMHKc5poMK+55AS4PrDdU3
-         ILswyNfGEb95GNfYjb/mPm/WMIJrBqdLuOqpVUZO7xW96+A2cJQUKyg1tRpks4zuoSVg
-         THpSADd8ndRV/14SLW4Tod5O12K/kBf9M+rDsTvD4B6fZM4N25V04/7mAc/nhf/uWTJF
-         jxXg==
-X-Gm-Message-State: APjAAAUeWSj1SQiADLPNOAx7ZlTptfgbL70l/ZUfjpuXOE3dRWRHfSo5
-        EbyUbNEZ4gZb9fMN6GzL9tbWcf1f6oOmUZ1tw6Svow==
-X-Google-Smtp-Source: APXvYqwnUFOcokWRMSlEU7lFeUIhO4qkBj+lBlMcEbTZL3TiNXXGYmK//HoccMXo9/EoMJfn1EOq28qfUafDb1BrMwM=
-X-Received: by 2002:a19:9116:: with SMTP id t22mr942866lfd.99.1572355768687;
- Tue, 29 Oct 2019 06:29:28 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=WzC/rKAbLR0JzwhY3uw0zaCrhsiUVDMHGAq0oAK7wBQ=;
+        b=OC/FcZp6VmCIO856ZMkEWHROdT42NTNs8sW43wjDHk6HG1Xb9NOFRl+WLyWMhdXBGk
+         vLvpyQg1CmLVtSRGpYcq1wm5FniW4XlHd2Yc0wdDNHk08niUV8lVhn1c5KbInD/sbWmk
+         xoGAi8/vqHoleKPlu/1Ct/f5WwcmC7gjN6yt939Q6J+vBoNRcDcGjsGItGH9RyuCQV4+
+         JHP0DQ2I3HL3RIvf9LQmJX37NVmtMQac3ZS4hqsxQnTBCOhl9j67cG9qohS/zw7VVsdu
+         ZWdXg5cdKVVzNjmi6mnaWmxg3GWEkfUgTAHUFfG4LlmCxDjrKQCIyI9Dn2+Tf12FHmPW
+         0wLA==
+X-Gm-Message-State: APjAAAXVKgYihNBzlkqxCuBym5kKenSLIJeKhULStqEy0qanQyr1levd
+        6pJiXeDPJTl6+NlxOdrdg+wMUxoSdeR7Ag==
+X-Google-Smtp-Source: APXvYqyeAWAU7rEpz7Hr0eSN3QfO/rsF6lwXFmugSgAq3QWnFfw/nHmLVHldTrYrVE2qYDENpmQqbw==
+X-Received: by 2002:a5d:464f:: with SMTP id j15mr19944162wrs.366.1572356513057;
+        Tue, 29 Oct 2019 06:41:53 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l15sm2834359wme.5.2019.10.29.06.41.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Oct 2019 06:41:52 -0700 (PDT)
+Message-ID: <5db841a0.1c69fb81.120c1.f2c5@mx.google.com>
+Date:   Tue, 29 Oct 2019 06:41:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20191027203056.220821342@linuxfoundation.org>
-In-Reply-To: <20191027203056.220821342@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 29 Oct 2019 18:59:17 +0530
-Message-ID: <CA+G9fYsH31J-d27n59SWNuJFiZfZpT7bQSn2axOEj2icFvg52Q@mail.gmail.com>
-Subject: Re: [PATCH 4.4 00/41] 4.4.198-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.9.198
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.9.y boot: 47 boots: 0 failed,
+ 46 passed with 1 conflict (v4.9.198)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 28 Oct 2019 at 02:33, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.198 release.
-> There are 41 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.198-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+stable/linux-4.9.y boot: 47 boots: 0 failed, 46 passed with 1 conflict (v4.=
+9.198)
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.198/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.198/
 
-Note:
-The new test case  from LTP version upgrade syscalls sync_file_range02 is a=
-n
-intermittent failure. We are investigating this case.
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.198
+Git Commit: 9e48f0c28dd505e39bd136ec92a042b311b127c6
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 25 unique boards, 12 SoC families, 9 builds out of 197
 
-Summary
-------------------------------------------------------------------------
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
-kernel: 4.4.198-rc2
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.4.y
-git commit: 3e3483176187700a1041c9c454d38c9d361d6a60
-git describe: v4.4.197-40-g3e3483176187
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.4-oe/bui=
-ld/v4.4.197-40-g3e3483176187
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: FAIL (gcc-8)
+            lab-baylibre: PASS (gcc-8)
 
-No regressions (compared to build v4.4.197-42-gc1c6537ef129)
-
-No fixes (compared to build v4.4.197-42-gc1c6537ef129)
-
-Ran 13332 total tests in the following environments and test suites.
-
-Environments
---------------
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* network-basic-tests
-* ltp-open-posix-tests
-* ssuite
-* kselftest-vsyscall-mode-none
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+---
+For more info write to <info@kernelci.org>
