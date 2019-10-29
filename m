@@ -2,80 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47F43E8969
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 14:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6387E896C
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 14:25:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730343AbfJ2NZH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 09:25:07 -0400
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:44513 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730112AbfJ2NZH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 09:25:07 -0400
-Received: by mail-wr1-f54.google.com with SMTP id z11so13607031wro.11
-        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 06:25:06 -0700 (PDT)
+        id S2387863AbfJ2NZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 09:25:50 -0400
+Received: from mail-il1-f194.google.com ([209.85.166.194]:36445 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730112AbfJ2NZt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 09:25:49 -0400
+Received: by mail-il1-f194.google.com with SMTP id s75so11337353ilc.3
+        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 06:25:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=HPVCNDFiZpxarLuOJ8W+x4IeHqNpffk13GAp1Z7ew2Q=;
-        b=Hbqtf8AzuJ7edw050bW7xlJels11gb4V2rPw9vABB5u4s8GasF0ut6fcjypwusCsNf
-         RFZnIgNgKTMHeYadnffxSgxYVCw9DK8EKLJ+yhEXedHQv/MWuMT1CwBG0vyX+yCnJ4xu
-         jK5/9gp87AX/wsdEZIX2gmfRpPwr7FbE22ibYWoDIhIPhXW3zyjW1mUa1CLHGVjJScAg
-         HGXFoAIGP4C/dLFr4NpxmwF0TJjXLrLrcIqexBT5+WfZwMCrNCVuTZZk+tgaQuq+jejJ
-         2LsloBxZ0Y7TwFuGaGI6ICj+2l8feZj9NDgP8AJpJPnXar6OYj4g6Al+jsGvYZzapkXy
-         d3Kg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=okI+WKXZnivApTS1Oqi6dD5Ms0rFCprYxF1H61WduWk=;
+        b=GLmGsPxKdPwu/c/o15NUyEXcwtYTS86/Ft23Mdg8a+UTAA0lMyDIs/0bO7scH3ia9W
+         l2koeRdjBFewGmSh4KU5Wmx9jlTA55DahuMCoE6bf98kzLJXVp/y+VxoYpfGSJeUwZQU
+         +BycfG1r3y13xa3TaINi0H1yXRMzWhL4PvL47oF864Xkd+tjNIDImVWOAhK7KMX+Auc/
+         bIxAOlmVqjRANWgTXcrqIKevrxQ8UCHTgc+qLIPEi1ZJuz76lVc6m4XaUYAa1HtKgd9Q
+         JF1Z+BecxG+bJDhagRbmAu1jRoJCRJWw/YgmbL8PjtjnfY3i3nWL8zAZCAT8YVyeTMby
+         /T5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=HPVCNDFiZpxarLuOJ8W+x4IeHqNpffk13GAp1Z7ew2Q=;
-        b=NxIn0vdcNm82sRpTCm4I664SGFQY3gObSFludH5Bs/ZEEKyQcm/l5Rgo7OMwuQpzlh
-         j+GcOW1TzA45/UB0ddZYibIH2t4v9JcVJULdd4XqBFEJZwJs/JgPVdICbOPNgY/nTnjv
-         Wd9iNWQvsNJIp0v7koQ5TeO6HYr3QU2I6duX9+CFpwkz8dRTIob1OlJ/+Q/rKVgeqeSE
-         /HnNu1WPxQbq8ntb01boOH5nbA8au2v8LQKN1ccW1JQwtUwsxlrSYlhQjDx6EmPMHiaO
-         VdiDU56C4RzP6K0xATf4Mlg+z6d113JoT1ooY5AOV4E7GN2S/++91X0F/IEIpu+r8G+f
-         /Uyw==
-X-Gm-Message-State: APjAAAWDN84tydaQDYcV8QriYrGrKmLY5GdiRUynB487yFXwrqhHAPjm
-        Af0i38P/BHQfyR0Cb0kw0I860Pll6Ytfgg==
-X-Google-Smtp-Source: APXvYqw9MXT5zGQYEQ2zoQZKoKG7Bx/4ooYwYBebqbqnqPMTCkjMPUAyi66ZkeF0sN2DCR9x7bJ4Dw==
-X-Received: by 2002:a5d:694a:: with SMTP id r10mr19982217wrw.117.1572355505405;
-        Tue, 29 Oct 2019 06:25:05 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id m6sm13372131wrs.58.2019.10.29.06.25.03
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 29 Oct 2019 06:25:04 -0700 (PDT)
-Message-ID: <5db83db0.1c69fb81.e8c98.3f87@mx.google.com>
-Date:   Tue, 29 Oct 2019 06:25:04 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=okI+WKXZnivApTS1Oqi6dD5Ms0rFCprYxF1H61WduWk=;
+        b=QSyB+F1NgwUAtW9Yy4QtPJCdtUtF5xi/105Iqf4zEy257faLGOdkrs77k7j0hGIGHQ
+         R6yLAUCFFA/zIUddmyOvbklpoa03XC4iCZulkI7y2/Cq8Di3wdGIvoaXhdY5XxMsD7Hh
+         780EwHq+K03iXK5IzkrlM/jWibKzOafe7MzeWtynWVkg2zyxbGOXhS3+u+3iDYGP/esW
+         01rhOhzUGXXMTfeBfoT+dIQF1Qn8B4JcmxK+5pjnojsehoiF45xWRhbbxbyH3lD3rJfe
+         BaqKVSGRbsX8WePfq5uJyv1aMfx7CPynCevCbxltRm5+KayOFQLg184p7G0PaLGAm9rq
+         o4Pw==
+X-Gm-Message-State: APjAAAUvJSLEd94FCIRXfF6Ix/yTQb2LIBV+qdOJicsEgf0TKzE9RDzI
+        TS6HRdNYlmKYi1lxHMq4rLTa8TQDLN7LMusWo44=
+X-Google-Smtp-Source: APXvYqxCFH3D8yHl0Vd+IQAmEwQY1J1DL5TfadSUqqrLvLg6KQmFk35XLE4OT87HQ5VCL2N7TY/1lHlP7FEwIIHOYis=
+X-Received: by 2002:a92:84c4:: with SMTP id y65mr12204180ilk.10.1572355549053;
+ Tue, 29 Oct 2019 06:25:49 -0700 (PDT)
 MIME-Version: 1.0
+Received: by 2002:a05:6638:504:0:0:0:0 with HTTP; Tue, 29 Oct 2019 06:25:48
+ -0700 (PDT)
+Reply-To: eddywilliam0002@gmail.com
+From:   eddy william <greogebrown@gmail.com>
+Date:   Tue, 29 Oct 2019 14:25:48 +0100
+Message-ID: <CAH0Hv2gNg+Fx__vHDLW9OWRQyqcj0yF0ciDF4GvHb7ivzUn0YA@mail.gmail.com>
+Subject: hello
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.14.151
-X-Kernelci-Report-Type: boot
-Subject: stable/linux-4.14.y boot: 58 boots: 0 failed, 58 passed (v4.14.151)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 58 boots: 0 failed, 58 passed (v4.14.151)
+Hallo
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.151/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.151/
+Mein Name ist Eddy William. Ich bin von Beruf Rechtsanwalt. Ich m=C3=B6chte
+Ihnen anbieten
+die n=C3=A4chsten Verwandten zu meinem Klienten. Sie erben die Summe von
+($8,5 Millionen US-Dollar)
+Dollar, die mein Kunde vor seinem Tod in der Bank gelassen hat.
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.151
-Git Commit: ddef1e8e3f6eb26034833b7255e3fa584d54a230
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 34 unique boards, 14 SoC families, 9 builds out of 201
+Mein Mandant ist ein Staatsb=C3=BCrger Ihres Landes, der mit seiner Frau
+bei einem Autounfall ums Leben gekommen ist
+und nur Sohn. Ich werde mit 50% des Gesamtfonds berechtigt sein, w=C3=A4hre=
+nd 50%
+sein f=C3=BCr dich.
+Bitte kontaktieren Sie meine private E-Mail hier f=C3=BCr weitere
+Informationen: eddywilliam0002gmail.com
 
----
-For more info write to <info@kernelci.org>
+Vielen Dank im Voraus,
+Mr. Eddy William,
+
+
+
+Hello
+
+My name is Eddy William I am a lawyer by profession. I wish to offer you
+the next of kin to my client. You will inherit the sum of ($8.5 Million)
+dollars my client left in the bank before his death.
+
+My client is a citizen of your country who died in auto crash with his wife
+and only son. I will be entitled with 50% of the total fund while 50% will
+be for you.
+Please contact my private email here for more details:eddywilliam0002gmail.=
+com
+
+Many thanks in advance,
+Mr.Eddy William,
