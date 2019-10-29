@@ -2,46 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DC50E87F6
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 13:20:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C5BE87A7
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 13:00:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387527AbfJ2MUo convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 29 Oct 2019 08:20:44 -0400
-Received: from s0090.ppsmtp.net ([91.90.154.91]:53810 "EHLO s0090.ppsmtp.net"
+        id S1729039AbfJ2MAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 08:00:46 -0400
+Received: from foss.arm.com ([217.140.110.172]:51218 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729058AbfJ2MUn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Oct 2019 08:20:43 -0400
-Received: from pps.filterd (s0090.ppsmtp.net [127.0.0.1])
-        by s0090.ppsmtp.net (8.16.0.27/8.16.0.27) with SMTP id x9T23qaA029656;
-        Tue, 29 Oct 2019 03:06:26 +0100
-Received: from mail.schuetz.net ([212.185.169.233])
-        by s0090.ppsmtp.net with ESMTP id 2vx8bh84yp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 29 Oct 2019 03:06:26 +0100
-Received: from julia02 (localhost [127.0.0.1])
-        by mail.schuetz.net (Postfix) with ESMTP id E78BE201BD6F;
-        Tue, 29 Oct 2019 03:06:25 +0100 (CET)
+        id S1725776AbfJ2MAp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 08:00:45 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C98F41F1;
+        Tue, 29 Oct 2019 05:00:44 -0700 (PDT)
+Received: from [10.37.13.3] (unknown [10.37.13.3])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 261F03F71E;
+        Tue, 29 Oct 2019 05:00:42 -0700 (PDT)
+Subject: Re: [PATCH] arm64: cpufeature: Enable Qualcomm erratas
+To:     will@kernel.org, bjorn.andersson@linaro.org
+Cc:     catalin.marinas@arm.com, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        stable@vger.kernel.org, broonie@kernel.org
+References: <20191029060432.1208859-1-bjorn.andersson@linaro.org>
+ <20191029113956.GC12103@willie-the-truck>
+From:   Suzuki K Poulose <suzuki.poulose@arm.com>
+Message-ID: <1d1a3dca-16ce-f541-5d78-e61ad24227e0@arm.com>
+Date:   Tue, 29 Oct 2019 12:04:21 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
+ Thunderbird/52.7.0
 MIME-Version: 1.0
-Subject: Dear Friend,
-To:     Recipients <infocarfer1@aim.com>
-From:   "Mr.R.C" <infocarfer1@aim.com>
-Date:   Tue, 29 Oct 2019 02:06:09 +0000
-Reply-To: infocarfer@aim.com
-X-TNEFEvaluated: 1
-Message-ID: <OFF9ED8F4A.0D034766-ON882584A2.000B92ED@schuetz.net>
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Description: Mail message body
-X-Proofpoint-ID: SID=2vx8bh84yp QID=2vx8bh84yp-1
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-10-28_07:,,
- signatures=0
+In-Reply-To: <20191029113956.GC12103@willie-the-truck>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On 10/29/2019 11:39 AM, Will Deacon wrote:
+> On Mon, Oct 28, 2019 at 11:04:32PM -0700, Bjorn Andersson wrote:
+>> With the introduction of 'cce360b54ce6 ("arm64: capabilities: Filter the
+>> entries based on a given mask")' the Qualcomm erratas are no long
+>> applied.
+>>
+>> The result of not applying errata 1003 is that MSM8996 runs into various
+>> RCU stalls and fails to boot most of the times.
+>>
+>> Give both 1003 and 1009 a "type" to ensure they are not filtered out in
+>> update_cpu_capabilities().
+> 
+> Oh nasty. Thanks for debugging and fixing this.
+> 
+>> Fixes: cce360b54ce6 ("arm64: capabilities: Filter the entries based on a given mask")
+>> Cc: stable@vger.kernel.org
+>> Reported-by: Mark Brown <broonie@kernel.org>
+>> Suggested-by: Will Deacon <will@kernel.org>
+>> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+>> ---
+>>   arch/arm64/kernel/cpu_errata.c | 2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+>> index df9465120e2f..cdd8df033536 100644
+>> --- a/arch/arm64/kernel/cpu_errata.c
+>> +++ b/arch/arm64/kernel/cpu_errata.c
+>> @@ -780,6 +780,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>>   	{
+>>   		.desc = "Qualcomm Technologies Falkor/Kryo erratum 1003",
+>>   		.capability = ARM64_WORKAROUND_QCOM_FALKOR_E1003,
+>> +		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+>>   		.matches = cpucap_multi_entry_cap_matches,
+> 
+> This should probably be ARM64_CPUCAP_LOCAL_CPU_ERRATUM instead, but I'll
+> want Suzuki's ack before I take the change.
 
-I am Vice Chairman of Hang Seng Bank, I have Important Matter to Discuss with you concerning my late client, Died without a NEXT OF KIN. Send me your private email for full details information. email me at (infocarfer@aim.com)
-Mail:
-Regards
+Yes, it must be ARM64_CPUCAP_LOCAL_CPU_ERRATUM.
+
+It may be a good idea to stick in a check to make sure that the scope is
+set for all the capabilities in a separate patch. e.g,
+
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index d260e3bdf07b..51a79b4a44eb 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -546,6 +546,8 @@ static void __init
+  init_cpu_hwcaps_indirect_list_from_array(const struct 
+arm64_cpu_capabilities *caps)
+  {
+  	for (; caps->matches; caps++) {
++		WARN(!cpucap_default_scope(caps),
++		     "Invalid scope for capability %d\n", caps->capability);
+  		if (WARN(caps->capability >= ARM64_NCAPS,
+  			"Invalid capability %d\n", caps->capability))
+			continue;
+
+Otherwise looks good to me.
+
+>>   		.match_list = qcom_erratum_1003_list,
+>>   	},
+>> @@ -788,6 +789,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>>   	{
+>>   		.desc = "Qualcomm erratum 1009, ARM erratum 1286807",
+>>   		.capability = ARM64_WORKAROUND_REPEAT_TLBI,
+>> +		.type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+>>   		ERRATA_MIDR_RANGE_LIST(arm64_repeat_tlbi_cpus),
+> 
+> ERRATA_MIDR_RANGE_LIST sets the type already, so I think this is redundant.
+> 
+> Will
+> 
+
+
+
+Cheers
+Suzuki
