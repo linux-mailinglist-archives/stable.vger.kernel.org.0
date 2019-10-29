@@ -2,116 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76640E8928
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 14:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F43E8969
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 14:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388225AbfJ2NP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 09:15:57 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:43694 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2388105AbfJ2NP5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 09:15:57 -0400
-Received: from [91.217.168.176] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iPRLm-00015Z-Qa; Tue, 29 Oct 2019 13:15:54 +0000
-Received: from ben by deadeye with local (Exim 4.92.2)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iPRLm-0000r3-3e; Tue, 29 Oct 2019 14:15:54 +0100
-Message-ID: <8301f887ce091340b6662371ab2bd1628a06118e.camel@decadent.org.uk>
-Subject: Re: [PATCH 3.16 58/87] cifs: add spinlock for the openFileList to
- cifsInodeInfo
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Pavel Shilovskiy <pshilov@microsoft.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        Denis Kirjanov <kda@linux-powerpc.org>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steven French <Steven.French@microsoft.com>
-Date:   Tue, 29 Oct 2019 14:15:45 +0100
-In-Reply-To: <DM5PR21MB0185257853E50A73C593B891B6660@DM5PR21MB0185.namprd21.prod.outlook.com>
-References: <lsq.1570043210.379046399@decadent.org.uk>
-         <lsq.1570043211.844466427@decadent.org.uk>
-         <DM5PR21MB0185257853E50A73C593B891B6660@DM5PR21MB0185.namprd21.prod.outlook.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-aXEdqtHx4Y9xfbklpuEp"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1730343AbfJ2NZH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 09:25:07 -0400
+Received: from mail-wr1-f54.google.com ([209.85.221.54]:44513 "EHLO
+        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730112AbfJ2NZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 09:25:07 -0400
+Received: by mail-wr1-f54.google.com with SMTP id z11so13607031wro.11
+        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 06:25:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HPVCNDFiZpxarLuOJ8W+x4IeHqNpffk13GAp1Z7ew2Q=;
+        b=Hbqtf8AzuJ7edw050bW7xlJels11gb4V2rPw9vABB5u4s8GasF0ut6fcjypwusCsNf
+         RFZnIgNgKTMHeYadnffxSgxYVCw9DK8EKLJ+yhEXedHQv/MWuMT1CwBG0vyX+yCnJ4xu
+         jK5/9gp87AX/wsdEZIX2gmfRpPwr7FbE22ibYWoDIhIPhXW3zyjW1mUa1CLHGVjJScAg
+         HGXFoAIGP4C/dLFr4NpxmwF0TJjXLrLrcIqexBT5+WfZwMCrNCVuTZZk+tgaQuq+jejJ
+         2LsloBxZ0Y7TwFuGaGI6ICj+2l8feZj9NDgP8AJpJPnXar6OYj4g6Al+jsGvYZzapkXy
+         d3Kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HPVCNDFiZpxarLuOJ8W+x4IeHqNpffk13GAp1Z7ew2Q=;
+        b=NxIn0vdcNm82sRpTCm4I664SGFQY3gObSFludH5Bs/ZEEKyQcm/l5Rgo7OMwuQpzlh
+         j+GcOW1TzA45/UB0ddZYibIH2t4v9JcVJULdd4XqBFEJZwJs/JgPVdICbOPNgY/nTnjv
+         Wd9iNWQvsNJIp0v7koQ5TeO6HYr3QU2I6duX9+CFpwkz8dRTIob1OlJ/+Q/rKVgeqeSE
+         /HnNu1WPxQbq8ntb01boOH5nbA8au2v8LQKN1ccW1JQwtUwsxlrSYlhQjDx6EmPMHiaO
+         VdiDU56C4RzP6K0xATf4Mlg+z6d113JoT1ooY5AOV4E7GN2S/++91X0F/IEIpu+r8G+f
+         /Uyw==
+X-Gm-Message-State: APjAAAWDN84tydaQDYcV8QriYrGrKmLY5GdiRUynB487yFXwrqhHAPjm
+        Af0i38P/BHQfyR0Cb0kw0I860Pll6Ytfgg==
+X-Google-Smtp-Source: APXvYqw9MXT5zGQYEQ2zoQZKoKG7Bx/4ooYwYBebqbqnqPMTCkjMPUAyi66ZkeF0sN2DCR9x7bJ4Dw==
+X-Received: by 2002:a5d:694a:: with SMTP id r10mr19982217wrw.117.1572355505405;
+        Tue, 29 Oct 2019 06:25:05 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id m6sm13372131wrs.58.2019.10.29.06.25.03
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 29 Oct 2019 06:25:04 -0700 (PDT)
+Message-ID: <5db83db0.1c69fb81.e8c98.3f87@mx.google.com>
+Date:   Tue, 29 Oct 2019 06:25:04 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 91.217.168.176
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+X-Kernelci-Kernel: v4.14.151
+X-Kernelci-Report-Type: boot
+Subject: stable/linux-4.14.y boot: 58 boots: 0 failed, 58 passed (v4.14.151)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.14.y boot: 58 boots: 0 failed, 58 passed (v4.14.151)
 
---=-aXEdqtHx4Y9xfbklpuEp
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.151/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.151/
 
-On Mon, 2019-10-28 at 22:19 +0000, Pavel Shilovskiy wrote:
-> > -----Original Message-----
-> > From: Ben Hutchings <ben@decadent.org.uk>
-> > Sent: Wednesday, October 2, 2019 12:07 PM
-> > To: linux-kernel@vger.kernel.org; stable@vger.kernel.org
-> > Cc: akpm@linux-foundation.org; Denis Kirjanov <kda@linux-powerpc.org>; =
-Ronnie Sahlberg <lsahlber@redhat.com>; Steven French <Steven.French@microso=
-ft.com>; Pavel Shilovskiy <pshilov@microsoft.com>
-> > Subject: [PATCH 3.16 58/87] cifs: add spinlock for the openFileList to =
-cifsInodeInfo
-> >=20
-> > 3.16.75-rc1 review patch.  If anyone has any objections, please let me =
-know.
-> >=20
-> > ------------------
-> >=20
-> > From: Ronnie Sahlberg <lsahlber@redhat.com>
-> >=20
-> > commit 487317c99477d00f22370625d53be3239febabbe upstream.
-[...]
-> We have recently found regressions in this patch that are addressed in th=
-e following two patches:
->=20
-> cb248819d209d ("cifs: use cifsInodeInfo->open_file_lock while iterating t=
-o avoid a panic")
-> 1a67c41596575 ("CIFS: Fix use after free of file info structures")
->=20
-> So, I would suggest either to apply those two patches above or to revert =
-this one.
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.151
+Git Commit: ddef1e8e3f6eb26034833b7255e3fa584d54a230
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 34 unique boards, 14 SoC families, 9 builds out of 201
 
-Thanks for pointing thse out.  I will try to include those in a later
-update.
-
-Ben.
-
---=20
-Ben Hutchings
-Any sufficiently advanced bug is indistinguishable from a feature.
-
-
-
---=-aXEdqtHx4Y9xfbklpuEp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl24O4EACgkQ57/I7JWG
-EQlO+Q/9ERJdUmTM9CMXqx1b2UvtT8KH+GAuF75obVUHZCN3ysjyLINP5J+I/QjQ
-MfefJCJXd7+kFtp7kTe6w+EdxEms6QCQzHmGDGMSzW3wrdMD0ct5N0/3VED8Jqsz
-f0kchBegnpNbThc5xMnhpStkcASRlWmrhGMrMIKrN6ybR8doroJ7hD2R6EQ28RPd
-j62twwV3v0G1a3BX1DwDuLH3ZuGJhiDZE4AZdLIdZfhZXc9+QX9SOPcCV/i3Zxvp
-d/TWzbfaX9jC/K+FlbFIzTYRAIKKLnvSpHEZTnj3qzYR3iO93qvTiILUcxB6z5j5
-2cHwcKwINMh/cL+elIVGDqztqcc4vIdqybtGGXkmjRyH3B5BW/3wvpACGHW2Fghw
-2f44m4jGHk/VfKemmbBD2NSegKpzffM5g2ioTa6aZT55oMD4yA2Caj3KfGK4nuUc
-s5lYXuwXbhRH7HdvIJkK5juoEppbZVvuR/IYGNyXZpqw7ANL+t8AdUu99uyPXSMn
-OUGZD25awMkcXTTSD/IMZhrRg4HeaMbQw56QjC/fLwbiwP7BCQowodoXiX82HfKC
-GmjfAJsNdJHJzX8s9cnv0lkkGAs9SWO8h5YvHMavoZGmkRzAy4cf+8tUUy0ImR/3
-RIcr81FYQ6NLLBC2oWZ3DpbkAg5osjeF2JthnyeuP7w+QW2wVts=
-=8ShN
------END PGP SIGNATURE-----
-
---=-aXEdqtHx4Y9xfbklpuEp--
+---
+For more info write to <info@kernelci.org>
