@@ -2,82 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10579E9054
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 20:52:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7E4E9095
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 21:08:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726619AbfJ2TwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 15:52:16 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:42198 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725870AbfJ2TwQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 15:52:16 -0400
-Received: by mail-qt1-f193.google.com with SMTP id z17so15440037qts.9
-        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 12:52:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=etY+CBhDEUwzAdor1k/bGcw3XJJ1m/Kp3y65R3dEiKM=;
-        b=farqsGSisMFfToV5/jjl1jtlqaSaWVnx0Dkc1EINYpyGLuTn8XU7M1DVa63vG7qSSe
-         NHF/BYHgnkG09TnrjKfQl89ViAKy8yfJSLoUmQCDVpVBYDEGM9hUd/+J1DeOist5yEtH
-         wYJZqreDuTHrg4dryu3x+k+f2uXuZCoe7QOgCcP4zKLVKJb/Tgf4t043zuSCmywaFK8c
-         hg65jqY8BKSkkuezxXM3W0c80Lk+t7DMbsJ6h/tc1xs9OADPs11wzPpDlFu9n+J8kipX
-         GwkWbbLUmGDzkmcQI1/2GlGg3/yMuFCGlhccJhfJ0vY6EVMqbgHdPd37YCVXLk9+RCvY
-         tipA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=etY+CBhDEUwzAdor1k/bGcw3XJJ1m/Kp3y65R3dEiKM=;
-        b=Qwnp83CetIvF7f5ltSIKlWIvs6FMrgFIhfxDe2wRRsUUXx3fYZRILNAZ0RApYlJCC2
-         P6cXbdbQxoyRf88tkmwPN4Zx9VLEqz81fGkn2iJM1FVhz+nL9yh4vdCoMd0KB09x1wPl
-         aYAZpbcjMYKv2TmPtSUvACOia8YPQu1fh5JuiDCjrwS+U8oNo5jV50HpbGSrhNjGB4rR
-         AvVSRh9KvZ28BwBLk5AMd5DdZ5oycdIhPAMAWgnVQQFhzxiQMyv4BsuMNPHEp28UDK1J
-         rS6fmBrZpV5VD3mnIWoE4ASijcAx6nJpRcIU2DPDOtWDmZnOnsVfAK5EJnrWF0EpcgMi
-         0kKg==
-X-Gm-Message-State: APjAAAVphlKToZcg9cNdxbkDVUT8z3BRT0M+3ljgVVc2vMxaFiVTYrAF
-        PchNKB6JiIeqNGqKDLoCFGji3g==
-X-Google-Smtp-Source: APXvYqxCYJgqGvmvouxwJHd0bRUeKLMfivNA75lKFRTkDA36hMn3sldqw9mK3gXzdCg1ydVYXI6u5g==
-X-Received: by 2002:ad4:52c8:: with SMTP id p8mr11346512qvs.114.1572378735270;
-        Tue, 29 Oct 2019 12:52:15 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-180.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.180])
-        by smtp.gmail.com with ESMTPSA id u11sm6973420qtg.11.2019.10.29.12.52.14
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 29 Oct 2019 12:52:14 -0700 (PDT)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1iPXXK-0000Tg-35; Tue, 29 Oct 2019 16:52:14 -0300
-Date:   Tue, 29 Oct 2019 16:52:14 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Dennis Dalessandro <dennis.dalessandro@intel.com>
-Cc:     dledford@redhat.com, linux-rdma@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>, stable@vger.kernel.org,
-        James Erwin <james.erwin@intel.com>
-Subject: Re: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than gen3
-Message-ID: <20191029195214.GA1802@ziepe.ca>
-References: <20191025161717.106825.14421.stgit@awfm-01.aw.intel.com>
- <20191025195823.106825.63080.stgit@awfm-01.aw.intel.com>
+        id S1726575AbfJ2UIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 16:08:42 -0400
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:46949 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726535AbfJ2UIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 16:08:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572379720;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WVMR/1qX6q2o8+G1jONU+fXGcDMObD5fAQeZ0YhInKg=;
+        b=V86NcpS6Om4RSDNglbICVPXxtM+JTqQYclGymgt9KoP/AQE2PBUm2y+dVNCC5mPG+5TgHA
+        gbqtgf1Jr1x6kIPMQhSO/FHvl0I4hAHV8PLNR3yjHqku5zTvRmjYP3gr61fUOYm1XdSJQN
+        2s7wf4EM+X7QYdlq2vCmfXKwsbvV5Lw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-112-ZEttjrsGPEKzvwW2uTU6jQ-1; Tue, 29 Oct 2019 16:08:38 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A4FBA1005500;
+        Tue, 29 Oct 2019 20:08:34 +0000 (UTC)
+Received: from localhost.localdomain (ovpn-121-15.rdu2.redhat.com [10.10.121.15])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 206741001B09;
+        Tue, 29 Oct 2019 20:08:28 +0000 (UTC)
+Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Test_report_for_kernel_5=2e3=2e8-?=
+ =?UTF-8?Q?rc2-96dab43=2ecki_=28stable=29?=
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Eryu Guan <guaneryu@gmail.com>, lkft-triage@lists.linaro.org,
+        CKI Project <cki-project@redhat.com>
+References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
+ <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
+ <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
+ <20191029080855.GA512708@kroah.com>
+ <20191029091126.ijvixns6fe3dzte3@xzhoux.usersys.redhat.com>
+ <20191029092158.GA582092@kroah.com>
+ <20191029124029.yygp2yetcjst4s6p@xzhoux.usersys.redhat.com>
+ <CABeXuvpPQugDd9BOwtfKjmT+H+-mpeE83UOZKTLJTTZZ6DeHrQ@mail.gmail.com>
+ <20191029181223.GB587491@kroah.com>
+From:   Rachel Sibley <rasibley@redhat.com>
+Message-ID: <114dc6b2-846b-240d-db33-dd67aac51d30@redhat.com>
+Date:   Tue, 29 Oct 2019 16:08:27 -0400
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191025195823.106825.63080.stgit@awfm-01.aw.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20191029181223.GB587491@kroah.com>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-MC-Unique: ZEttjrsGPEKzvwW2uTU6jQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Oct 25, 2019 at 03:58:24PM -0400, Dennis Dalessandro wrote:
-> From: James Erwin <james.erwin@intel.com>
-> 
-> The driver avoids the gen3 speed bump when the parent
-> bus speed isn't identical to gen3, 8.0GT/s.  This is not
-> compatible with gen4 and newer speeds.
-> 
-> Fix by relaxing the test to explicitly look for the lower
-> capability speeds which inherently allows for all future speeds.
 
-This description does not seem like stable material to me.
 
-Jason
+On 10/29/19 2:12 PM, Greg KH wrote:
+> On Tue, Oct 29, 2019 at 07:57:05AM -0700, Deepa Dinamani wrote:
+>> The test is expected to fail on all kernels without the series.
+>>
+>> The series is a bugfix in the sense that vfs is no longer allowed to
+>> set timestamps that filesystems have no way of supporting.
+>> There have been a couple of fixes after the series also.
+>>
+>> We can either disable the test or include the series for stable kernels.
+> I don't see adding this series for the stable kernels, it does not make
+> sense.
+I'm not sure what the final decision is here, but I've moved the test to=20
+a waived status for now,
+which means it should stop causing the job to fail. However, you may see=20
+a few lingering
+reports sneak in before I made this change. Once resolved, I'll remove=20
+the waived tag.
+
+Thanks,
+Rachel
+> thanks,
+>
+> greg k-h
+>
+
