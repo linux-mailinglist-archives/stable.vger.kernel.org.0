@@ -2,83 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA64DE8300
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 09:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58853E8311
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 09:19:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728370AbfJ2IL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 04:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53424 "EHLO mail.kernel.org"
+        id S1728872AbfJ2ITq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 04:19:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727331AbfJ2IL4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 29 Oct 2019 04:11:56 -0400
+        id S1728869AbfJ2ITq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 04:19:46 -0400
 Received: from localhost (unknown [91.217.168.176])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8FDAD20663;
-        Tue, 29 Oct 2019 08:11:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B10720717;
+        Tue, 29 Oct 2019 08:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572336715;
-        bh=xMQy0ECOBqAsX4RmgHCvcArYbt/NqSQud23/yGL1Koc=;
+        s=default; t=1572337184;
+        bh=WTMCDWuBd0HoXwhiTMmnCFeYVEV1/y4kOWa/VmSc6CU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ePup3Pmt8KMwGeLRIe4wrsR07Sl4mdPMGyGcSzBYHApUPH15BVoRHZNzEzSd7W4wJ
-         JZv0fE/Lqa4J8gRF+eDyY1YOINdYQcpLihx45ydcNkcrxyLGCUWQ9Hnjvm94Ml8chK
-         1ULFPLg6UcDBceg4zBhpZ/aXu9X5DgHslI5hg2Uk=
-Date:   Tue, 29 Oct 2019 09:11:52 +0100
+        b=NLwgyCV1DLwzmrXD2E6Ntl6GQiJ4rtiFfHA6rdbnb372j5aebM0yvTJHOoSCl3d7/
+         bT1Os4qlYD4tdFJJFG2K8JsPxRQWSGmXWxdw5U2joAXQQ7iFtgWS2RiQxBv1aGQ+D3
+         myi3vkmVRiyfJJtK8T1+BcQl6Ul2/nonVJzXHbu8=
+Date:   Tue, 29 Oct 2019 09:19:41 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
+To:     Guenter Roeck <linux@roeck-us.net>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.3 000/197] 5.3.8-stable review
-Message-ID: <20191029081152.GA520765@kroah.com>
-References: <20191027203351.684916567@linuxfoundation.org>
- <ec238058-1eaf-a33f-cbbf-fd49e1ddaa82@nvidia.com>
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 00/41] 4.4.198-stable review
+Message-ID: <20191029081941.GA553246@kroah.com>
+References: <20191027203056.220821342@linuxfoundation.org>
+ <3961082b-17bc-cef7-f0e5-7bf029b2de2a@roeck-us.net>
+ <20191028134905.GA53500@kroah.com>
+ <20191028135756.GA97772@kroah.com>
+ <20191028181259.GA875@roeck-us.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ec238058-1eaf-a33f-cbbf-fd49e1ddaa82@nvidia.com>
+In-Reply-To: <20191028181259.GA875@roeck-us.net>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Oct 28, 2019 at 09:48:04PM +0000, Jon Hunter wrote:
-> 
-> On 27/10/2019 20:58, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.3.8 release.
-> > There are 197 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+On Mon, Oct 28, 2019 at 11:12:59AM -0700, Guenter Roeck wrote:
+> On Mon, Oct 28, 2019 at 02:57:56PM +0100, Greg Kroah-Hartman wrote:
+> > On Mon, Oct 28, 2019 at 02:49:05PM +0100, Greg Kroah-Hartman wrote:
+> > > On Mon, Oct 28, 2019 at 06:32:14AM -0700, Guenter Roeck wrote:
+> > > > On 10/27/19 2:00 PM, Greg Kroah-Hartman wrote:
+> > > > > This is the start of the stable review cycle for the 4.4.198 release.
+> > > > > There are 41 patches in this series, all will be posted as a response
+> > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > let me know.
+> > > > > 
+> > > > > Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
+> > > > > Anything received after that time might be too late.
+> > > > > 
+> > > > 
+> > > > 
+> > > > Building mips:defconfig ... failed
+> > > > --------------
+> > > > Error log:
+> > > > In file included from /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/include/asm/bitops.h:21,
+> > > >                  from /opt/buildbot/slave/stable-queue-4.9/build/include/linux/bitops.h:17,
+> > > >                  from /opt/buildbot/slave/stable-queue-4.9/build/include/linux/kernel.h:10,
+> > > >                  from /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:15:
+> > > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c: In function 'cpu_probe':
+> > > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/include/asm/cpu-features.h:349:31: error: implicit declaration of function '__ase' [-Werror=implicit-function-declaration]
+> > > >   349 | #define cpu_has_loongson_mmi  __ase(MIPS_ASE_LOONGSON_MMI)
+> > > >       |                               ^~~~~
+> > > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2079:6: note: in expansion of macro 'cpu_has_loongson_mmi'
+> > > >  2079 |  if (cpu_has_loongson_mmi)
+> > > >       |      ^~~~~~~~~~~~~~~~~~~~
+> > > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2083:16: error: 'HWCAP_LOONGSON_CAM' undeclared (first use in this function); did you mean 'HWCAP_LOONGSON_EXT'?
+> > > >  2083 |   elf_hwcap |= HWCAP_LOONGSON_CAM;
+> > > >       |                ^~~~~~~~~~~~~~~~~~
+> > > >       |                HWCAP_LOONGSON_EXT
+> > > > /opt/buildbot/slave/stable-queue-4.9/build/arch/mips/kernel/cpu-probe.c:2083:16: note: each undeclared identifier is reported only once for each function it appears in
+> > > > 
+> > > > 
+> > > > Affects all mips builds in v{4.4, 4.9, 4.14}.
+> > > 
+> > > Ugh, let me see what happened...
 > > 
-> > Responses should be made by Tue 29 Oct 2019 08:27:02 PM UTC.
-> > Anything received after that time might be too late.
+> > Ok, two MIPS patches dropped from 4.4, 4.9, and 4.14 queues, and -rc2
+> > are now pushed out for all 3 of those trees.  It "should" be clean now.
 > > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.8-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> All tests are passing for Tegra ...
-> 
-> Test results for stable-v5.3:
->     12 builds:	12 pass, 0 fail
->     22 boots:	22 pass, 0 fail
->     38 tests:	38 pass, 0 fail
-> 
-> Linux version:	5.3.8-rc1-g740177dc0d52
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra30-cardhu-a04
-> 
+> Confirmed.
 
-THanks for testing all of these and letting me know.
+Wonderful.  Thanks for testing all of these and letting me know.
 
 greg k-h
