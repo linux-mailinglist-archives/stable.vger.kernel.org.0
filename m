@@ -2,193 +2,202 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22B5AE83E9
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 10:11:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54FFAE8417
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 10:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731245AbfJ2JLm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 05:11:42 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:56017 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726071AbfJ2JLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 05:11:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572340300;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=JFIk1llA9j0Jn2BDclMRUaU7tXmJY0g8DEeaDw211jc=;
-        b=gQ1qmr61HVwLLRsfEi8QtvwqYAgchO37hq9HVM2Zd4ggj/nb4mYZEFLmxToWuMG3zTRNDX
-        Vy4ClakuXvsWwd0tZvgTgyRMYNxZraGCw5sFxcKa5CpKvCU7N9kBM3uHH4hWYGljt3pPCG
-        WO4ih1DgDs9p3do8PzqQs6SQC+3zO38=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-81-Ecu1p6UdOVulqdoEihzMlw-1; Tue, 29 Oct 2019 05:11:35 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1730066AbfJ2JST (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 05:18:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59084 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727347AbfJ2JST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 29 Oct 2019 05:18:19 -0400
+Received: from localhost (unknown [91.217.168.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BE4771005500;
-        Tue, 29 Oct 2019 09:11:34 +0000 (UTC)
-Received: from localhost (dhcp-12-196.nay.redhat.com [10.66.12.196])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6DD1860863;
-        Tue, 29 Oct 2019 09:11:28 +0000 (UTC)
-Date:   Tue, 29 Oct 2019 17:11:26 +0800
-From:   Murphy Zhou <xzhou@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Murphy Zhou <xzhou@redhat.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        deepa.kernel@gmail.com,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org, guaneryu@gmail.com,
-        CKI Project <cki-project@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.3.8-rc2-96dab43.cki (stable)
-Message-ID: <20191029091126.ijvixns6fe3dzte3@xzhoux.usersys.redhat.com>
-References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
- <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
- <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
- <20191029080855.GA512708@kroah.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id 341F820717;
+        Tue, 29 Oct 2019 09:18:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572340697;
+        bh=q8XFgcB4jDKwya47LrQUgKLfVm4Q60UwOANyhSymBjs=;
+        h=Date:From:To:Cc:Subject:From;
+        b=1c34SjajscY0ibqqDfioJ+oRg14QBJwnZpPXdX24ZS+tgoOWYiTbwh0llHGxiDPVd
+         axAapwXPk1V5J5CVTH11HhhcKQ5hPhnJ7vV9WNEBLDGL2jUoSeZ29Psd4Vgl/L++q0
+         xHYtGugJFWepTQ6ZOFNJAZzzzDPMTexdxErcxee4=
+Date:   Tue, 29 Oct 2019 10:18:14 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, Jiri Slaby <jslaby@suse.cz>
+Subject: Linux 4.4.198
+Message-ID: <20191029091814.GA581590@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20191029080855.GA512708@kroah.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: Ecu1p6UdOVulqdoEihzMlw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 29, 2019 at 09:08:55AM +0100, Greg KH wrote:
-> On Tue, Oct 29, 2019 at 03:33:18PM +0800, Murphy Zhou wrote:
-> > On Tue, Oct 29, 2019 at 10:55:34AM +0530, Naresh Kamboju wrote:
-> > > On Tue, 29 Oct 2019 at 07:33, CKI Project <cki-project@redhat.com> wr=
-ote:
-> > > >
-> > > >
-> > > > Hello,
-> > > >
-> > > > We ran automated tests on a recent commit from this kernel tree:
-> > > >
-> > > >        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/s=
-table/linux-stable-rc.git
-> > > >             Commit: 96dab4347cbe - Linux 5.3.8-rc2
-> > > >
-> > > > The results of these automated tests are provided below.
-> > > >
-> > > >     Overall result: FAILED (see details below)
-> > > >              Merge: OK
-> > > >            Compile: OK
-> > > >              Tests: FAILED
-> > > >
-> > > > All kernel binaries, config files, and logs are available for downl=
-oad here:
-> > > >
-> > > >   https://artifacts.cki-project.org/pipelines/253188
-> > > >
-> > > > One or more kernel tests failed:
-> > > >
-> > > >     ppc64le:
-> > > >      =E2=9D=8C xfstests: ext4
-> > > >      =E2=9D=8C xfstests: xfs
-> > > >
-> > > >     aarch64:
-> > > >      =E2=9D=8C xfstests: ext4
-> > > >      =E2=9D=8C xfstests: xfs
-> > > >
-> > > >     x86_64:
-> > > >      =E2=9D=8C xfstests: ext4
-> > > >      =E2=9D=8C xfstests: xfs
-> > > >
-> > >=20
-> > > FYI,
-> > > The test log output,
-> > >=20
-> > > Running test generic/402
-> > > #! /bin/bash
-> > > # SPDX-License-Identifier: GPL-2.0
-> > > # Copyright (c) 2016 Deepa Dinamani.  All Rights Reserved.
-> > > #
-> > > # FS QA Test 402
-> > > #
-> > > # Test to verify filesystem timestamps for supported ranges.
-> > > #
-> > > # Exit status 1: test failed.
-> > > # Exit status 0: test passed.
-> > > FSTYP         -- xfs (non-debug)
-> > > PLATFORM      -- Linux/aarch64 apm-mustang-b0-11 5.3.8-rc2-96dab43.ck=
-i
-> > > #1 SMP Mon Oct 28 14:23:22 UTC 2019
-> > > MKFS_OPTIONS  -- -f -m crc=3D1,finobt=3D1,rmapbt=3D1,reflink=3D1 -i s=
-parse=3D1 /dev/sda4
-> > > MOUNT_OPTIONS -- -o context=3Dsystem_u:object_r:nfs_t:s0 /dev/sda4
-> > > /mnt/xfstests/mnt2
-> > >=20
-> > > generic/402 - output mismatch (see
-> > > /var/lib/xfstests/results//generic/402.out.bad)
-> > >     --- tests/generic/402.out 2019-10-28 12:19:13.835212771 -0400
-> > >     +++ /var/lib/xfstests/results//generic/402.out.bad 2019-10-28
-> > > 13:13:55.503682127 -0400
-> > >     @@ -1,2 +1,4 @@
-> > >      QA output created by 402
-> > >     +2147483647;2147483647 !=3D 2147483648;2147483648
-> > >     +2147483647;2147483647 !=3D -2147483648;-2147483648
-> > >      Silence is golden
-> > >     ...
-> > >     (Run 'diff -u /var/lib/xfstests/tests/generic/402.out
-> > > /var/lib/xfstests/results//generic/402.out.bad'  to see the entire
-> > > diff)
-> > > Ran: generic/402
-> > > Failures: generic/402
-> > > Failed 1 of 1 tests
-> > >=20
-> > > Test source:
-> > > https://github.com/kdave/xfstests/blob/master/tests/generic/402
-> > >=20
-> > > Here is the latest test case commit,
-> > >=20
-> > > generic/402: fix for updated behavior of timestamp limits
-> > >=20
-> > > The mount behavior will not be altered because of the unsupported
-> > > timestamps on the filesystems.
-> > >=20
-> > > Adjust the test accordingly.
-> > >=20
-> > > You can find the series at
-> > > https://git.kernel.org/torvalds/c/cfb82e1df8b7c76991ea12958855897c2fb=
-4debc
-> >=20
-> > Yes, stable trees need this series to pass the test.
->=20
-> I do not understand, what "series"?  Can you provide the exact git
-> commit ids that I need to apply to the stable tree to resolve this?
+I'm announcing the release of the 4.4.198 kernel.
 
-Linus tree:
+All users of the 4.4 kernel series must upgrade.
 
-cba465b4f982 ext4: Reduce ext4 timestamp warnings
-5ad32b3acded isofs: Initialize filesystem timestamp ranges
-83b8a3fbe3aa pstore: fs superblock limits
-8833293d0acc fs: omfs: Initialize filesystem timestamp ranges
-cdd62b5b07e8 fs: hpfs: Initialize filesystem timestamp ranges
-028ca4db0a6e fs: ceph: Initialize filesystem timestamp ranges
-452c2779410a fs: sysv: Initialize filesystem timestamp ranges
-487b25bc4be9 fs: affs: Initialize filesystem timestamp ranges
-c0da64f6bb67 fs: fat: Initialize filesystem timestamp ranges
-cb7a69e60590 fs: cifs: Initialize filesystem timestamp ranges
-1fcb79c1b218 fs: nfs: Initialize filesystem timestamp ranges
-4881c4971df0 ext4: Initialize timestamps limits
-d5c6e2d5188d 9p: Fill min and max timestamps in sb
-22b139691f9e fs: Fill in max and min timestamps in superblock
-42e729b9ddbb utimes: Clamp the timestamps before update
-f8b92ba67c5d mount: Add mount warning for impending timestamp expiry
-3818c1907a5e timestamp_truncate: Replace users of timespec64_trunc
-50e17c000c46 vfs: Add timestamp_truncate() api
-188d20bcd1eb vfs: Add file timestamp range support
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
->=20
-> thanks,
->=20
-> greg k-h
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                                                |    2 -
+ arch/arm/boot/dts/am4372.dtsi                           |    2 +
+ arch/arm/mach-omap2/omap_hwmod_33xx_43xx_ipblock_data.c |    3 +
+ arch/mips/loongson64/common/serial.c                    |    2 -
+ arch/parisc/mm/ioremap.c                                |   12 ++++--
+ arch/xtensa/kernel/xtensa_ksyms.c                       |    7 ----
+ drivers/base/core.c                                     |    3 +
+ drivers/block/loop.c                                    |    1 
+ drivers/cpufreq/cpufreq.c                               |   10 -----
+ drivers/gpu/drm/drm_edid.c                              |    3 +
+ drivers/infiniband/hw/cxgb4/mem.c                       |   28 +++++++++-------
+ drivers/memstick/host/jmb38x_ms.c                       |    2 -
+ drivers/net/ethernet/broadcom/genet/bcmgenet.h          |    1 
+ drivers/net/ethernet/broadcom/genet/bcmmii.c            |   11 ++++--
+ drivers/net/ethernet/hisilicon/hns_mdio.c               |    6 ++-
+ drivers/net/xen-netback/interface.c                     |    1 
+ drivers/pci/pci.c                                       |   24 ++++++-------
+ drivers/s390/scsi/zfcp_fsf.c                            |   16 +++++++--
+ drivers/scsi/megaraid.c                                 |    4 +-
+ drivers/scsi/qla2xxx/qla_target.c                       |    4 ++
+ drivers/scsi/scsi_sysfs.c                               |   11 +++++-
+ drivers/scsi/ufs/ufshcd.c                               |    3 +
+ drivers/usb/class/usblp.c                               |    4 +-
+ drivers/usb/gadget/udc/lpc32xx_udc.c                    |    6 +--
+ drivers/usb/misc/ldusb.c                                |   20 ++++++-----
+ drivers/usb/misc/legousbtower.c                         |    5 --
+ drivers/usb/serial/ti_usb_3410_5052.c                   |   10 +----
+ fs/btrfs/extent-tree.c                                  |    1 
+ fs/cifs/smb1ops.c                                       |    3 +
+ mm/shmem.c                                              |   20 ++++++-----
+ mm/slub.c                                               |   13 ++++++-
+ net/ipv4/route.c                                        |    9 +++--
+ net/mac80211/mlme.c                                     |    5 +-
+ net/sched/act_api.c                                     |   12 ++++--
+ net/sched/cls_u32.c                                     |    8 +++-
+ net/sctp/socket.c                                       |    4 +-
+ net/wireless/nl80211.c                                  |    3 +
+ net/wireless/wext-sme.c                                 |    8 +++-
+ scripts/namespace.pl                                    |   13 ++++---
+ sound/soc/sh/rcar/core.c                                |    1 
+ 40 files changed, 184 insertions(+), 117 deletions(-)
+
+Alessio Balsini (1):
+      loop: Add LOOP_SET_DIRECT_IO to compat ioctl
+
+Christophe JAILLET (2):
+      mips: Loongson: Fix the link time qualifier of 'serial_exit()'
+      memstick: jmb38x_ms: Fix an error handling path in 'jmb38x_ms_probe()'
+
+Eric Dumazet (1):
+      net: avoid potential infinite loop in tc_ctl_action()
+
+Florian Fainelli (2):
+      net: bcmgenet: Fix RGMII_MODE_EN value for GENET v1/2/3
+      net: bcmgenet: Set phydev->dev_flags only for internal PHYs
+
+Greg KH (1):
+      RDMA/cxgb4: Do not dma memory off of the stack
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.198
+
+Gustavo A. R. Silva (1):
+      usb: udc: lpc32xx: fix bad bit shift operation
+
+Helge Deller (1):
+      parisc: Fix vmap memory leak in ioremap()/iounmap()
+
+Jacob Keller (1):
+      namespace: fix namespace.pl script to support relative paths
+
+Johan Hovold (5):
+      USB: legousbtower: fix memleak on disconnect
+      USB: serial: ti_usb_3410_5052: fix port-close races
+      USB: ldusb: fix memleak on disconnect
+      USB: usblp: fix use-after-free on disconnect
+      USB: ldusb: fix read info leaks
+
+Juergen Gross (1):
+      xen/netback: fix error path of xenvif_connect_data()
+
+Junya Monden (1):
+      ASoC: rsnd: Reinitialize bit clock inversion flag for every format setting
+
+Kai-Heng Feng (1):
+      drm/edid: Add 6 bpc quirk for SDC panel in Lenovo G50
+
+Kees Cook (1):
+      net: sched: Fix memory exposure from short TCA_U32_SEL
+
+Matthew Wilcox (Oracle) (1):
+      memfd: Fix locking when tagging pins
+
+Max Filippov (1):
+      xtensa: drop EXPORT_SYMBOL for outs*/ins*
+
+Miaoqing Pan (1):
+      nl80211: fix null pointer dereference
+
+Peter Ujfalusi (1):
+      ARM: dts: am4372: Set memory bandwidth limit for DISPC
+
+Qian Cai (1):
+      mm/slub: fix a deadlock in show_slab_objects()
+
+Qu Wenruo (1):
+      btrfs: block-group: Fix a memory leak due to missing btrfs_put_block_group()
+
+Quinn Tran (1):
+      scsi: qla2xxx: Fix unbound sleep in fcport delete path.
+
+Rafael J. Wysocki (2):
+      cpufreq: Avoid cpufreq_suspend() deadlock on system shutdown
+      PCI: PM: Fix pci_power_up()
+
+Roberto Bergantinos Corpas (1):
+      CIFS: avoid using MID 0xFFFF
+
+Stanley Chu (1):
+      scsi: ufs: skip shutdown if hba is not powered
+
+Stefano Brivio (1):
+      ipv4: Return -ENETUNREACH if we can't create route but saddr is valid
+
+Steffen Maier (1):
+      scsi: zfcp: fix reaction on bit error threshold notification
+
+Tony Lindgren (1):
+      ARM: OMAP2+: Fix missing reset done flag for am3 and am43
+
+Will Deacon (2):
+      cfg80211: wext: avoid copying malformed SSIDs
+      mac80211: Reject malformed SSID elements
+
+Xiang Chen (1):
+      scsi: megaraid: disable device when probe failed after enabled device
+
+Xin Long (1):
+      sctp: change sctp_prot .no_autobind with true
+
+Yizhuo (1):
+      net: hisilicon: Fix usage of uninitialized variable in function mdio_sc_cfg_reg_write()
+
+Yufen Yu (1):
+      scsi: core: try to get module before removing device
 
