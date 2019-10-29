@@ -2,163 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D8CE828B
-	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 08:33:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3E9BE82AC
+	for <lists+stable@lfdr.de>; Tue, 29 Oct 2019 08:47:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725840AbfJ2Hdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 29 Oct 2019 03:33:32 -0400
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:40526 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725839AbfJ2Hdb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 03:33:31 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572334410;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=u+JQaagmfKe/fneBkfD4UQR7vr9L5AoGK7+7f9TiQNM=;
-        b=CobafMsr9YaKmB6H7a6dMBFK2jLejUfh10iq5MoFSdUFYkeBgZe3KgFW4BsqRCVRViSp4n
-        mJJjM6QPRQrNNFkzivT+5OpdWQ2p08EZFLSpuJTu+AkCJHth+lJngpKzGtG7a867kncuUT
-        41QmNrCSGp1dqNeBRV4ep35x/0vWd4E=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-69-g5F18trMOOOWiICQEEKHaQ-1; Tue, 29 Oct 2019 03:33:27 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 06E441005500;
-        Tue, 29 Oct 2019 07:33:26 +0000 (UTC)
-Received: from localhost (dhcp-12-196.nay.redhat.com [10.66.12.196])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4E6855D9C3;
-        Tue, 29 Oct 2019 07:33:20 +0000 (UTC)
-Date:   Tue, 29 Oct 2019 15:33:18 +0800
-From:   Murphy Zhou <xzhou@redhat.com>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     deepa.kernel@gmail.com,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Xiong Zhou <xzhou@redhat.com>, lkft-triage@lists.linaro.org,
-        guaneryu@gmail.com, CKI Project <cki-project@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.3.8-rc2-96dab43.cki (stable)
-Message-ID: <20191029073318.c33ocl76zsgnx2y5@xzhoux.usersys.redhat.com>
-References: <cki.42EF9B43EC.BJO3Y6IXAB@redhat.com>
- <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
+        id S1727414AbfJ2HrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 29 Oct 2019 03:47:11 -0400
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:36408 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727190AbfJ2HrK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 29 Oct 2019 03:47:10 -0400
+Received: by mail-wm1-f67.google.com with SMTP id c22so1291702wmd.1
+        for <stable@vger.kernel.org>; Tue, 29 Oct 2019 00:47:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=QL/t4s8oYyoEwjRvdWwn1+QXeN2oYFTHoVrFWP/brZc=;
+        b=LyqeUSga6k71OeNBPvq+4QehX6Y8Ls6aPEN7SbV01MeUAl2yuW/kMBBMiXOqRf1Mw8
+         atxzwUfggK4xFAVXM56mnRmXWvdqIbP5WaMng2GM6onoKwcQgi96aTWv0ReK0/8cYYZX
+         7Up+UbiMgTR+0dDale5j+LabelruOC9Cl1hjhL7/E7Hr7o+jbcIpAYFE5mjJtU5mlu7+
+         F/YiS0Zz7M1My2dSS45Nxr+RqwzJ9SOnBOEWpUAOmMHiN2QG2g/c5npaFbC4QN7h4gkk
+         A6xyFPHdS3DdDp9OTgqrgXbf5gdjeYk4TVtqNVm/7K3DbgqXPjwIiWLT1Hfw/NKmw8Cc
+         pQcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=QL/t4s8oYyoEwjRvdWwn1+QXeN2oYFTHoVrFWP/brZc=;
+        b=pbOmlveKxZR3OJ11nkiYObF+mJ2PTQz3AKQiVJjbNhGVT68WuxSA9GKJKCYloJRUP5
+         SXngihecBMLktC+0Ns3MT+pW7ctOG+KtNhILJn/tN2jdYbilZhxQTYHFdsEOdE/pZW3B
+         bxf2l2PsiMBWxy98HZ91SwQ+8HhDmya6zQ6wI4gI/AT7wxxt8DMuaCw7LSpt0bA/y7++
+         iWcxQV10WEkWZKkc1nglqBWvRFqKvYHooM8JNRS1kiOriSpI+ha0a9M7KYmJJZowCu/Y
+         KzSSAv9JqIeOCrDhjCnfDOtVi2TvPS4xTTyrJYSJuroYtQaG1oqeCaaZsnFauDsaIXSi
+         Sw/A==
+X-Gm-Message-State: APjAAAV6eGGb4D73St4BC2FulZexd2yTApHWR2iFN/dp30bYktPtfToR
+        6TKPaGxpCmizJhlea6fXVSQRAs3GinhzJyTLz5ju0w==
+X-Google-Smtp-Source: APXvYqwu+5kNM2vsauI6RJYqxigG/JZTD84blgv9rKnBvwKkfn+X4kP0j+KgIxfY/to+sAtOuw95AbutLfqR2x5m6ZM=
+X-Received: by 2002:a7b:c925:: with SMTP id h5mr2413014wml.61.1572335228112;
+ Tue, 29 Oct 2019 00:47:08 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <CA+G9fYvhBRweWheZjLqOMrm_cTAxNvexGuk16w9FCt12+V1tpg@mail.gmail.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-MC-Unique: g5F18trMOOOWiICQEEKHaQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+References: <20191029060432.1208859-1-bjorn.andersson@linaro.org>
+In-Reply-To: <20191029060432.1208859-1-bjorn.andersson@linaro.org>
+From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date:   Tue, 29 Oct 2019 08:46:56 +0100
+Message-ID: <CAKv+Gu--4h4gup97XkBz2P5SMXyOay5e5OoE1RYsnodyx==CfQ@mail.gmail.com>
+Subject: Re: [PATCH] arm64: cpufeature: Enable Qualcomm erratas
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Will Deacon <will@kernel.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Mark Brown <broonie@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 29, 2019 at 10:55:34AM +0530, Naresh Kamboju wrote:
-> On Tue, 29 Oct 2019 at 07:33, CKI Project <cki-project@redhat.com> wrote:
-> >
-> >
-> > Hello,
-> >
-> > We ran automated tests on a recent commit from this kernel tree:
-> >
-> >        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stabl=
-e/linux-stable-rc.git
-> >             Commit: 96dab4347cbe - Linux 5.3.8-rc2
-> >
-> > The results of these automated tests are provided below.
-> >
-> >     Overall result: FAILED (see details below)
-> >              Merge: OK
-> >            Compile: OK
-> >              Tests: FAILED
-> >
-> > All kernel binaries, config files, and logs are available for download =
-here:
-> >
-> >   https://artifacts.cki-project.org/pipelines/253188
-> >
-> > One or more kernel tests failed:
-> >
-> >     ppc64le:
-> >      =E2=9D=8C xfstests: ext4
-> >      =E2=9D=8C xfstests: xfs
-> >
-> >     aarch64:
-> >      =E2=9D=8C xfstests: ext4
-> >      =E2=9D=8C xfstests: xfs
-> >
-> >     x86_64:
-> >      =E2=9D=8C xfstests: ext4
-> >      =E2=9D=8C xfstests: xfs
-> >
->=20
-> FYI,
-> The test log output,
->=20
-> Running test generic/402
-> #! /bin/bash
-> # SPDX-License-Identifier: GPL-2.0
-> # Copyright (c) 2016 Deepa Dinamani.  All Rights Reserved.
-> #
-> # FS QA Test 402
-> #
-> # Test to verify filesystem timestamps for supported ranges.
-> #
-> # Exit status 1: test failed.
-> # Exit status 0: test passed.
-> FSTYP         -- xfs (non-debug)
-> PLATFORM      -- Linux/aarch64 apm-mustang-b0-11 5.3.8-rc2-96dab43.cki
-> #1 SMP Mon Oct 28 14:23:22 UTC 2019
-> MKFS_OPTIONS  -- -f -m crc=3D1,finobt=3D1,rmapbt=3D1,reflink=3D1 -i spars=
-e=3D1 /dev/sda4
-> MOUNT_OPTIONS -- -o context=3Dsystem_u:object_r:nfs_t:s0 /dev/sda4
-> /mnt/xfstests/mnt2
->=20
-> generic/402 - output mismatch (see
-> /var/lib/xfstests/results//generic/402.out.bad)
->     --- tests/generic/402.out 2019-10-28 12:19:13.835212771 -0400
->     +++ /var/lib/xfstests/results//generic/402.out.bad 2019-10-28
-> 13:13:55.503682127 -0400
->     @@ -1,2 +1,4 @@
->      QA output created by 402
->     +2147483647;2147483647 !=3D 2147483648;2147483648
->     +2147483647;2147483647 !=3D -2147483648;-2147483648
->      Silence is golden
->     ...
->     (Run 'diff -u /var/lib/xfstests/tests/generic/402.out
-> /var/lib/xfstests/results//generic/402.out.bad'  to see the entire
-> diff)
-> Ran: generic/402
-> Failures: generic/402
-> Failed 1 of 1 tests
->=20
-> Test source:
-> https://github.com/kdave/xfstests/blob/master/tests/generic/402
->=20
-> Here is the latest test case commit,
->=20
-> generic/402: fix for updated behavior of timestamp limits
->=20
-> The mount behavior will not be altered because of the unsupported
-> timestamps on the filesystems.
->=20
-> Adjust the test accordingly.
->=20
-> You can find the series at
-> https://git.kernel.org/torvalds/c/cfb82e1df8b7c76991ea12958855897c2fb4deb=
-c
+On Tue, 29 Oct 2019 at 07:04, Bjorn Andersson
+<bjorn.andersson@linaro.org> wrote:
+>
+> With the introduction of 'cce360b54ce6 ("arm64: capabilities: Filter the
+> entries based on a given mask")' the Qualcomm erratas are no long
+> applied.
+>
+> The result of not applying errata 1003 is that MSM8996 runs into various
+> RCU stalls and fails to boot most of the times.
+>
+> Give both 1003 and 1009 a "type" to ensure they are not filtered out in
+> update_cpu_capabilities().
+>
+> Fixes: cce360b54ce6 ("arm64: capabilities: Filter the entries based on a given mask")
+> Cc: stable@vger.kernel.org
+> Reported-by: Mark Brown <broonie@kernel.org>
+> Suggested-by: Will Deacon <will@kernel.org>
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-Yes, stable trees need this series to pass the test.
+FYI the offending commit is now queued up for 4.14 as well.
 
-Thanks,
-Murphy
-
->=20
-> Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
->=20
-> - Naresh
-
+> ---
+>  arch/arm64/kernel/cpu_errata.c | 2 ++
+>  1 file changed, 2 insertions(+)
+>
+> diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+> index df9465120e2f..cdd8df033536 100644
+> --- a/arch/arm64/kernel/cpu_errata.c
+> +++ b/arch/arm64/kernel/cpu_errata.c
+> @@ -780,6 +780,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>         {
+>                 .desc = "Qualcomm Technologies Falkor/Kryo erratum 1003",
+>                 .capability = ARM64_WORKAROUND_QCOM_FALKOR_E1003,
+> +               .type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+>                 .matches = cpucap_multi_entry_cap_matches,
+>                 .match_list = qcom_erratum_1003_list,
+>         },
+> @@ -788,6 +789,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+>         {
+>                 .desc = "Qualcomm erratum 1009, ARM erratum 1286807",
+>                 .capability = ARM64_WORKAROUND_REPEAT_TLBI,
+> +               .type = ARM64_CPUCAP_SCOPE_LOCAL_CPU,
+>                 ERRATA_MIDR_RANGE_LIST(arm64_repeat_tlbi_cpus),
+>         },
+>  #endif
+> --
+> 2.23.0
+>
+>
+> _______________________________________________
+> linux-arm-kernel mailing list
+> linux-arm-kernel@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
