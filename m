@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D61F9EA0E1
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB04AEA0E3
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728592AbfJ3Pz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:55:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57032 "EHLO mail.kernel.org"
+        id S1728594AbfJ3Pzg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:55:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728570AbfJ3Pz0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:55:26 -0400
+        id S1727934AbfJ3Pzf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:55:35 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C13FB21734;
-        Wed, 30 Oct 2019 15:55:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 057D1208C0;
+        Wed, 30 Oct 2019 15:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450926;
-        bh=ILInvjgqKHt6USRV+yI3xJFvX/OSj+lwjEbmcOh66G0=;
+        s=default; t=1572450934;
+        bh=aF3caouMCJR+I05UNHMA4nYiaKKB5pBJ0PHu03c3BEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEMYzks5y5htzcbpcYrKSwg5kT/MajHOiR1ji7GiC/dNdspep6TvnYl7UBaB1szcQ
-         mL13Lgmhlu5wFOcul5sFA5w7NQyhpsUMxmkl8n3oFbxiwncq3DwDPD8L9ihziI6ssL
-         KkHqTmF0r00ewbnHpKJj/V804GnaEgpEfXBoA/dQ=
+        b=as6JCRqCMK7TSAeY1l1EzOAJh8dh/TJIf9p4+8+2OcF3up91UfB5XXeo7SgjRx92S
+         P1uSswzWYRKc8F0y9GyVKxhYxxU+jE+PUROmolpH5NnSQAHRoEORlxgwD750C2nAyD
+         8kQXgS0UVNpAAR2gU4PA/XxArhWfMQoz5adBnmnI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     afzal mohammed <afzal.mohd.ma@gmail.com>,
-        Vladimir Murzin <vladimir.murzin@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+Cc:     Jonas Gorski <jonas.gorski@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Paul Burton <paulburton@kernel.org>,
+        linux-mips@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 28/38] ARM: 8926/1: v7m: remove register save to stack before svc
-Date:   Wed, 30 Oct 2019 11:53:56 -0400
-Message-Id: <20191030155406.10109-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 30/38] MIPS: bmips: mark exception vectors as char arrays
+Date:   Wed, 30 Oct 2019 11:53:58 -0400
+Message-Id: <20191030155406.10109-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
 References: <20191030155406.10109-1-sashal@kernel.org>
@@ -44,61 +46,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
+From: Jonas Gorski <jonas.gorski@gmail.com>
 
-[ Upstream commit 2ecb287998a47cc0a766f6071f63bc185f338540 ]
+[ Upstream commit e4f5cb1a9b27c0f94ef4f5a0178a3fde2d3d0e9e ]
 
-r0-r3 & r12 registers are saved & restored, before & after svc
-respectively. Intention was to preserve those registers across thread to
-handler mode switch.
+The vectors span more than one byte, so mark them as arrays.
 
-On v7-M, hardware saves the register context upon exception in AAPCS
-complaint way. Restoring r0-r3 & r12 is done from stack location where
-hardware saves it, not from the location on stack where these registers
-were saved.
+Fixes the following build error when building when using GCC 8.3:
 
-To clarify, on stm32f429 discovery board:
+In file included from ./include/linux/string.h:19,
+                 from ./include/linux/bitmap.h:9,
+                 from ./include/linux/cpumask.h:12,
+                 from ./arch/mips/include/asm/processor.h:15,
+                 from ./arch/mips/include/asm/thread_info.h:16,
+                 from ./include/linux/thread_info.h:38,
+                 from ./include/asm-generic/preempt.h:5,
+                 from ./arch/mips/include/generated/asm/preempt.h:1,
+                 from ./include/linux/preempt.h:81,
+                 from ./include/linux/spinlock.h:51,
+                 from ./include/linux/mmzone.h:8,
+                 from ./include/linux/bootmem.h:8,
+                 from arch/mips/bcm63xx/prom.c:10:
+arch/mips/bcm63xx/prom.c: In function 'prom_init':
+./arch/mips/include/asm/string.h:162:11: error: '__builtin_memcpy' forming offset [2, 32] is out of the bounds [0, 1] of object 'bmips_smp_movevec' with type 'char' [-Werror=array-bounds]
+   __ret = __builtin_memcpy((dst), (src), __len); \
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+arch/mips/bcm63xx/prom.c:97:3: note: in expansion of macro 'memcpy'
+   memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
+   ^~~~~~
+In file included from arch/mips/bcm63xx/prom.c:14:
+./arch/mips/include/asm/bmips.h:80:13: note: 'bmips_smp_movevec' declared here
+ extern char bmips_smp_movevec;
 
-1. before svc, sp - 0x90009ff8
-2. r0-r3,r12 saved to 0x90009ff8 - 0x9000a00b
-3. upon svc, h/w decrements sp by 32 & pushes registers onto stack
-4. after svc,  sp - 0x90009fd8
-5. r0-r3,r12 restored from 0x90009fd8 - 0x90009feb
-
-Above means r0-r3,r12 is not restored from the location where they are
-saved, but since hardware pushes the registers onto stack, the registers
-are restored correctly.
-
-Note that during register saving to stack (step 2), it goes past
-0x9000a000. And it seems, based on objdump, there are global symbols
-residing there, and it perhaps can cause issues on a non-XIP Kernel
-(on XIP, data section is setup later).
-
-Based on the analysis above, manually saving registers onto stack is at
-best no-op and at worst can cause data section corruption. Hence remove
-storing of registers onto stack before svc.
-
-Fixes: b70cd406d7fe ("ARM: 8671/1: V7M: Preserve registers across switch from Thread to Handler mode")
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
-Acked-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: 18a1eef92dcd ("MIPS: BMIPS: Introduce bmips.h")
+Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Paul Burton <paulburton@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-v7m.S | 1 -
- 1 file changed, 1 deletion(-)
+ arch/mips/bcm63xx/prom.c      |  2 +-
+ arch/mips/include/asm/bmips.h | 10 +++++-----
+ arch/mips/kernel/smp-bmips.c  |  8 ++++----
+ 3 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/mm/proc-v7m.S b/arch/arm/mm/proc-v7m.S
-index 59d82864c134b..9c2978c128d97 100644
---- a/arch/arm/mm/proc-v7m.S
-+++ b/arch/arm/mm/proc-v7m.S
-@@ -135,7 +135,6 @@ __v7m_setup_cont:
- 	dsb
- 	mov	r6, lr			@ save LR
- 	ldr	sp, =init_thread_union + THREAD_START_SP
--	stmia	sp, {r0-r3, r12}
- 	cpsie	i
- 	svc	#0
- 1:	cpsid	i
+diff --git a/arch/mips/bcm63xx/prom.c b/arch/mips/bcm63xx/prom.c
+index 7019e2967009e..bbbf8057565b2 100644
+--- a/arch/mips/bcm63xx/prom.c
++++ b/arch/mips/bcm63xx/prom.c
+@@ -84,7 +84,7 @@ void __init prom_init(void)
+ 		 * Here we will start up CPU1 in the background and ask it to
+ 		 * reconfigure itself then go back to sleep.
+ 		 */
+-		memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
++		memcpy((void *)0xa0000200, bmips_smp_movevec, 0x20);
+ 		__sync();
+ 		set_c0_cause(C_SW0);
+ 		cpumask_set_cpu(1, &bmips_booted_mask);
+diff --git a/arch/mips/include/asm/bmips.h b/arch/mips/include/asm/bmips.h
+index bf6a8afd7ad27..581a6a3c66e40 100644
+--- a/arch/mips/include/asm/bmips.h
++++ b/arch/mips/include/asm/bmips.h
+@@ -75,11 +75,11 @@ static inline int register_bmips_smp_ops(void)
+ #endif
+ }
+ 
+-extern char bmips_reset_nmi_vec;
+-extern char bmips_reset_nmi_vec_end;
+-extern char bmips_smp_movevec;
+-extern char bmips_smp_int_vec;
+-extern char bmips_smp_int_vec_end;
++extern char bmips_reset_nmi_vec[];
++extern char bmips_reset_nmi_vec_end[];
++extern char bmips_smp_movevec[];
++extern char bmips_smp_int_vec[];
++extern char bmips_smp_int_vec_end[];
+ 
+ extern int bmips_smp_enabled;
+ extern int bmips_cpu_offset;
+diff --git a/arch/mips/kernel/smp-bmips.c b/arch/mips/kernel/smp-bmips.c
+index 159e83add4bb3..5ec546b5eed1c 100644
+--- a/arch/mips/kernel/smp-bmips.c
++++ b/arch/mips/kernel/smp-bmips.c
+@@ -457,10 +457,10 @@ static void bmips_wr_vec(unsigned long dst, char *start, char *end)
+ 
+ static inline void bmips_nmi_handler_setup(void)
+ {
+-	bmips_wr_vec(BMIPS_NMI_RESET_VEC, &bmips_reset_nmi_vec,
+-		&bmips_reset_nmi_vec_end);
+-	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, &bmips_smp_int_vec,
+-		&bmips_smp_int_vec_end);
++	bmips_wr_vec(BMIPS_NMI_RESET_VEC, bmips_reset_nmi_vec,
++		bmips_reset_nmi_vec_end);
++	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, bmips_smp_int_vec,
++		bmips_smp_int_vec_end);
+ }
+ 
+ struct reset_vec_info {
 -- 
 2.20.1
 
