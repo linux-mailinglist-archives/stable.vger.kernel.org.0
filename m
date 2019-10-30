@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D63EA0CF
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F0DDEA0D0
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728322AbfJ3PyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:54:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55738 "EHLO mail.kernel.org"
+        id S1728340AbfJ3Py0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:54:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727813AbfJ3PyT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:54:19 -0400
+        id S1728337AbfJ3Py0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:54:26 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D79521734;
-        Wed, 30 Oct 2019 15:54:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADD292173E;
+        Wed, 30 Oct 2019 15:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450858;
-        bh=Pkh8O6u6Xi3YkNZ+kgSiq60tEkoy6kaOzhQaxlLsPqA=;
+        s=default; t=1572450865;
+        bh=+7sjtycYthxBbTdXZOuBgjunJxe9qUow+unZqqYmg7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=13HjwxueiSx+RBCJKaoKMIdjQGzaZ1Ss1amqlGss+lGaNZeREkI1HqRsZa22pKKio
-         o2OGXZAkpEjFyuX2tMbLq0HJT4Uk6UjXkAVWKQlxDNu/0VY9Jm+LyFEPNArvB1SfIF
-         avB1AtHqhHAdEW0g+56rRLXWTRMsMvSrBQfDf9zc=
+        b=sc6tOfklJkQ49g69zc/LGyWl7BofEcLdRzSErT6X+WMnwEU4bF0ibfqBumZPoOWAa
+         Zs0bcJ9zbd0AXYjWgd7629qcYdG/bf4r6ZSeMuKALyJFPa5kmXhJY1Im30szE5golr
+         R12n6E6oSyxaWEFC4M3/iKqx5y/XefuIrV7Z0EY8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <mripard@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/38] arm64: dts: allwinner: a64: sopine-baseboard: Add PHY regulator delay
-Date:   Wed, 30 Oct 2019 11:53:32 -0400
-Message-Id: <20191030155406.10109-4-sashal@kernel.org>
+Cc:     Jaska Uimonen <jaska.uimonen@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 07/38] ASoC: rt5682: add NULL handler to set_jack function
+Date:   Wed, 30 Oct 2019 11:53:35 -0400
+Message-Id: <20191030155406.10109-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
 References: <20191030155406.10109-1-sashal@kernel.org>
@@ -43,47 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Jaska Uimonen <jaska.uimonen@intel.com>
 
-[ Upstream commit ccdf3aaa27ded6db9a93eed3ca7468bb2353b8fe ]
+[ Upstream commit a315e76fc544f09daf619530a7b2f85865e6b25e ]
 
-It turns out that sopine-baseboard needs same fix as pine64-plus
-for ethernet PHY. Here too Realtek ethernet PHY chip needs additional
-power on delay to properly initialize. Datasheet mentions that chip
-needs 30 ms to be properly powered on and that it needs some more time
-to be initialized.
+Implement NULL handler in set_jack function to disable
+irq's.
 
-Fix that by adding 100ms ramp delay to regulator responsible for
-powering PHY.
-
-Note that issue was found out and fix tested on pine64-lts, but it's
-basically the same as sopine-baseboard, only layout and connectors
-differ.
-
-Fixes: bdfe4cebea11 ("arm64: allwinner: a64: add Ethernet PHY regulator for several boards")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <mripard@kernel.org>
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190927201408.925-4-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts      | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/soc/codecs/rt5682.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
-index c21f2331add60..285cb7143b96c 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
-@@ -113,6 +113,12 @@
- };
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index 6f5dac09ceded..21e7c430baf7f 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -982,6 +982,16 @@ static int rt5682_set_jack_detect(struct snd_soc_component *component,
+ {
+ 	struct rt5682_priv *rt5682 = snd_soc_component_get_drvdata(component);
  
- &reg_dc1sw {
-+	/*
-+	 * Ethernet PHY needs 30ms to properly power up and some more
-+	 * to initialize. 100ms should be plenty of time to finish
-+	 * whole process.
-+	 */
-+	regulator-enable-ramp-delay = <100000>;
- 	regulator-name = "vcc-phy";
- };
++	rt5682->hs_jack = hs_jack;
++
++	if (!hs_jack) {
++		regmap_update_bits(rt5682->regmap, RT5682_IRQ_CTRL_2,
++				   RT5682_JD1_EN_MASK, RT5682_JD1_DIS);
++		regmap_update_bits(rt5682->regmap, RT5682_RC_CLK_CTRL,
++				   RT5682_POW_JDH | RT5682_POW_JDL, 0);
++		return 0;
++	}
++
+ 	switch (rt5682->pdata.jd_src) {
+ 	case RT5682_JD1:
+ 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_2,
+@@ -1019,8 +1029,6 @@ static int rt5682_set_jack_detect(struct snd_soc_component *component,
+ 		break;
+ 	}
+ 
+-	rt5682->hs_jack = hs_jack;
+-
+ 	return 0;
+ }
  
 -- 
 2.20.1
