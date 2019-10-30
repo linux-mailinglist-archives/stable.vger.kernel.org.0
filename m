@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 773ADEA093
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:58:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAB6FEA098
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:58:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729108AbfJ3P5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:57:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59390 "EHLO mail.kernel.org"
+        id S1727219AbfJ3P56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:57:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728346AbfJ3P5l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:57:41 -0400
+        id S1729178AbfJ3P56 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:57:58 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C489A2067D;
-        Wed, 30 Oct 2019 15:57:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 124D221835;
+        Wed, 30 Oct 2019 15:57:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572451061;
-        bh=D4v9sx3RRX0dU7Q3sH3IEQS/k618r0wxMght8d1CSyU=;
+        s=default; t=1572451077;
+        bh=VUwH/AuwUiUuH2m0jq4xzOerAgHsaYC1KAQxUccPK4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caTG0sC9/JU1v7dds63E7em7CgT0zqNApwRnkB2aul6ZjrDIuBc8osovv/AEuUeDn
-         IVBIo0u7DGypvSCv+dsucjv/hJMwDwqi7TA+seyOi2mBadnkVrSGmC2u+hJ0HgD6XT
-         e0a1Znl5Z7V7e9FJSlFfEN79F8WryMP2KEu5YPaI=
+        b=YveAxKuskVUxQc1qY3t5gefxsY3IpkMguSXM/d3eq3UvK6MfHudojESJHlD8rO7el
+         6KqEru/CJpRf8Mvd3Jgrv7Pbku9Z/PEjO+TJY5zu34OXO01WEoriakKBX8Lzctv7TL
+         P0Vvp+bD21aFpgNDvDFRJdRxKkxwT46QIMrFhllM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 16/18] of: unittest: fix memory leak in unittest_data_add
-Date:   Wed, 30 Oct 2019 11:56:58 -0400
-Message-Id: <20191030155700.10748-16-sashal@kernel.org>
+Cc:     Yizhuo <yzhai003@ucr.edu>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 02/13] regulator: pfuze100-regulator: Variable "val" in pfuze100_regulator_probe() could be uninitialized
+Date:   Wed, 30 Oct 2019 11:57:40 -0400
+Message-Id: <20191030155751.10960-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191030155700.10748-1-sashal@kernel.org>
-References: <20191030155700.10748-1-sashal@kernel.org>
+In-Reply-To: <20191030155751.10960-1-sashal@kernel.org>
+References: <20191030155751.10960-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,35 +42,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Yizhuo <yzhai003@ucr.edu>
 
-[ Upstream commit e13de8fe0d6a51341671bbe384826d527afe8d44 ]
+[ Upstream commit 1252b283141f03c3dffd139292c862cae10e174d ]
 
-In unittest_data_add, a copy buffer is created via kmemdup. This buffer
-is leaked if of_fdt_unflatten_tree fails. The release for the
-unittest_data buffer is added.
+In function pfuze100_regulator_probe(), variable "val" could be
+initialized if regmap_read() fails. However, "val" is used to
+decide the control flow later in the if statement, which is
+potentially unsafe.
 
-Fixes: b951f9dc7f25 ("Enabling OF selftest to run without machine's devicetree")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Yizhuo <yzhai003@ucr.edu>
+Link: https://lore.kernel.org/r/20190929170957.14775-1-yzhai003@ucr.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/unittest.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/pfuze100-regulator.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 0a1ebbbd3f163..92530525e3556 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -933,6 +933,7 @@ static int __init unittest_data_add(void)
- 	of_fdt_unflatten_tree(unittest_data, NULL, &unittest_data_node);
- 	if (!unittest_data_node) {
- 		pr_warn("%s: No tree to attach; not running tests\n", __func__);
-+		kfree(unittest_data);
- 		return -ENODATA;
- 	}
- 	of_node_set_flag(unittest_data_node, OF_DETACHED);
+diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
+index c68556bf6f399..ec185502dcebd 100644
+--- a/drivers/regulator/pfuze100-regulator.c
++++ b/drivers/regulator/pfuze100-regulator.c
+@@ -609,7 +609,13 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
+ 
+ 		/* SW2~SW4 high bit check and modify the voltage value table */
+ 		if (i >= sw_check_start && i <= sw_check_end) {
+-			regmap_read(pfuze_chip->regmap, desc->vsel_reg, &val);
++			ret = regmap_read(pfuze_chip->regmap,
++						desc->vsel_reg, &val);
++			if (ret) {
++				dev_err(&client->dev, "Fails to read from the register.\n");
++				return ret;
++			}
++
+ 			if (val & sw_hi) {
+ 				if (pfuze_chip->chip_id == PFUZE3000) {
+ 					desc->volt_table = pfuze3000_sw2hi;
 -- 
 2.20.1
 
