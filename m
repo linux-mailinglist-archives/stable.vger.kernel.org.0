@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8B1AE9FBD
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A8FE9FD5
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:56:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727793AbfJ3Pvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:51:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52342 "EHLO mail.kernel.org"
+        id S1727811AbfJ3Pvf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:51:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727791AbfJ3Pvc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:51:32 -0400
+        id S1727805AbfJ3Pve (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:51:34 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E421D20874;
-        Wed, 30 Oct 2019 15:51:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E8092087E;
+        Wed, 30 Oct 2019 15:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450691;
-        bh=Du/6PTSuGoZ0Qf9UkdU/yHUEIgefC9EtDGfESH88STo=;
+        s=default; t=1572450693;
+        bh=Sab2lu3lsOYA2LODitlLuvKjU5crS02ruw/fNrVJLaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Nhr00SU9g5/5OehlzG6ky5i59mQSXgL3ph7dI/JwgDRToZgt1Muda3pXT1sqdoiZ
-         KKtDm+OhXkoWJV9z62yhATfT4QTlnFd5J5m4neepOx13KIEj2mA1+krShk54rybakH
-         d1+kfKIXGFgeiScc989HxFwICB3YUxjy2U/GKmpk=
+        b=B13gErkyxGtqMLAfydwynjNCWcIRcfsJDVGBTVHXjxqrnRJa5+DqPSA/NTGHWNKZI
+         dPnKJNn+Khmgg4jK2CNNqnoogTd3vxm7s1XgIyJcEONfqT03Cb5Bui1Ywcg3P11k0u
+         ofACceKnA2MhwTA+/X5RFauMBZNzmwerzmBcHCwc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Soeren Moch <smoch@web.de>, Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 26/81] arm64: dts: rockchip: fix RockPro64 sdhci settings
-Date:   Wed, 30 Oct 2019 11:48:32 -0400
-Message-Id: <20191030154928.9432-26-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.3 27/81] pinctrl: ns2: Fix off by one bugs in ns2_pinmux_enable()
+Date:   Wed, 30 Oct 2019 11:48:33 -0400
+Message-Id: <20191030154928.9432-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030154928.9432-1-sashal@kernel.org>
 References: <20191030154928.9432-1-sashal@kernel.org>
@@ -43,41 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Soeren Moch <smoch@web.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 2558b3b1b11a1b32b336be2dd0aabfa6d35ddcb5 ]
+[ Upstream commit 39b65fbb813089e366b376bd8acc300b6fd646dc ]
 
-The RockPro64 schematics [1], [2] show that the rk3399 EMMC_STRB pin is
-connected to the RESET pin instead of the DATA_STROBE pin of the eMMC module.
-So the data strobe cannot be used for its intended purpose on this board,
-and so the HS400 eMMC mode is not functional. Limit the controller to HS200.
+The pinctrl->functions[] array has pinctrl->num_functions elements and
+the pinctrl->groups[] array is the same way.  These are set in
+ns2_pinmux_probe().  So the > comparisons should be >= so that we don't
+read one element beyond the end of the array.
 
-[1] http://files.pine64.org/doc/rockpro64/rockpro64_v21-SCH.pdf
-[2] http://files.pine64.org/doc/rock64/PINE64_eMMC_Module_20170719.pdf
-
-Fixes: e4f3fb490967 ("arm64: dts: rockchip: add initial dts support for Rockpro64")
-Signed-off-by: Soeren Moch <smoch@web.de>
-Link: https://lore.kernel.org/r/20191003215036.15023-2-smoch@web.de
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Fixes: b5aa1006e4a9 ("pinctrl: ns2: add pinmux driver support for Broadcom NS2 SoC")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20190926081426.GB2332@mwanda
+Acked-by: Scott Branden <scott.branden@broadcom.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/pinctrl/bcm/pinctrl-ns2-mux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
-index cad314f708300..1ff617230f6c4 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
-@@ -625,8 +625,7 @@
+diff --git a/drivers/pinctrl/bcm/pinctrl-ns2-mux.c b/drivers/pinctrl/bcm/pinctrl-ns2-mux.c
+index 2bf6af7df7d94..9fabc451550ea 100644
+--- a/drivers/pinctrl/bcm/pinctrl-ns2-mux.c
++++ b/drivers/pinctrl/bcm/pinctrl-ns2-mux.c
+@@ -640,8 +640,8 @@ static int ns2_pinmux_enable(struct pinctrl_dev *pctrl_dev,
+ 	const struct ns2_pin_function *func;
+ 	const struct ns2_pin_group *grp;
  
- &sdhci {
- 	bus-width = <8>;
--	mmc-hs400-1_8v;
--	mmc-hs400-enhanced-strobe;
-+	mmc-hs200-1_8v;
- 	non-removable;
- 	status = "okay";
- };
+-	if (grp_select > pinctrl->num_groups ||
+-		func_select > pinctrl->num_functions)
++	if (grp_select >= pinctrl->num_groups ||
++		func_select >= pinctrl->num_functions)
+ 		return -EINVAL;
+ 
+ 	func = &pinctrl->functions[func_select];
 -- 
 2.20.1
 
