@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 370E1EA0CB
+	by mail.lfdr.de (Postfix) with ESMTP id A0F35EA0CC
 	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727582AbfJ3PyL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:54:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55606 "EHLO mail.kernel.org"
+        id S1727798AbfJ3PyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:54:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727486AbfJ3PyL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:54:11 -0400
+        id S1727486AbfJ3PyQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:54:16 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09F9D21734;
-        Wed, 30 Oct 2019 15:54:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9E94218DE;
+        Wed, 30 Oct 2019 15:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450850;
-        bh=OskzKgyekS9GSE+7yGkOwIcQl8F2JurHkstQr69ZI+o=;
-        h=From:To:Cc:Subject:Date:From;
-        b=CH2bQoS7PiHgVLFUHW2UzUpDvMgcR8DdPndHITxuO5x9DwFTBkMQ934s8MY/hgint
-         iyG/RfPQkmBDqGKH1V0S5m5DVsdPA/FY7z/SA1CUh1xTt0xiS4qPh2mGgPECtrdUTS
-         oXBez+EmMl+CC7TOIFsmxj4qSy7I96pGjvyNHqbA=
+        s=default; t=1572450854;
+        bh=E/66I8gVAHeHm9drdzDI89rAtaP9NZE3+thIh4jkC9U=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=2RyF+/Z44iuJbEKh6psUyYAFMjocTpTX47oDT6opEKzeSN4tYAbdkAdwEznlXosIt
+         D4m4sRgxmxmjARgJaWY1Yo3AGEEqFHoisL+ZKh3XBwC5V/6fCR7P0L3WogrKphFSas
+         bvgZRi4yuQKHM7yQNG0FsJD1Ue2YzAiLKiXwlqlA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Felsch <m.felsch@pengutronix.de>,
+Cc:     Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 01/38] regulator: of: fix suspend-min/max-voltage parsing
-Date:   Wed, 30 Oct 2019 11:53:29 -0400
-Message-Id: <20191030155406.10109-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 4.19 02/38] ASoC: wm8994: Do not register inapplicable controls for WM1811
+Date:   Wed, 30 Oct 2019 11:53:30 -0400
+Message-Id: <20191030155406.10109-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
+References: <20191030155406.10109-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,47 +45,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Felsch <m.felsch@pengutronix.de>
+From: Sylwester Nawrocki <s.nawrocki@samsung.com>
 
-[ Upstream commit 131cb1210d4b58acb0695707dad2eb90dcb50a2a ]
+[ Upstream commit ca2347190adb5e4eece73a2b16e96e651c46246b ]
 
-Currently the regulator-suspend-min/max-microvolt must be within the
-root regulator node but the dt-bindings specifies it as subnode
-properties for the regulator-state-[mem/disk/standby] node. The only DT
-using this bindings currently is the at91-sama5d2_xplained.dts and this
-DT uses it correctly. I don't know if it isn't tested but it can't work
-without this fix.
+In case of WM1811 device there are currently being registered controls
+referring to registers not existing on that device.
+It has been noticed when getting values of "AIF1ADC2 Volume", "AIF1DAC2
+Volume" controls was failing during ALSA state restoring at boot time:
+ "amixer: Mixer hw:0 load error: Device or resource busy"
 
-Fixes: f7efad10b5c4 ("regulator: add PM suspend and resume hooks")
-Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
-Link: https://lore.kernel.org/r/20190917154021.14693-3-m.felsch@pengutronix.de
+Reading some registers through I2C was failing with EBUSY error and
+indeed these registers were not available according to the datasheet.
+
+To fix this controls not available on WM1811 are moved to a separate
+array and registered only for WM8994 and WM8958.
+
+There are some further differences between WM8994 and WM1811,
+e.g. registers 603h, 604h, 605h, which are not covered in this patch.
+
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Link: https://lore.kernel.org/r/20190920130218.32690-2-s.nawrocki@samsung.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/of_regulator.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/soc/codecs/wm8994.c | 43 +++++++++++++++++++++++----------------
+ 1 file changed, 26 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/regulator/of_regulator.c b/drivers/regulator/of_regulator.c
-index 210fc20f7de7a..b255590aef36e 100644
---- a/drivers/regulator/of_regulator.c
-+++ b/drivers/regulator/of_regulator.c
-@@ -214,12 +214,12 @@ static void of_get_regulation_constraints(struct device_node *np,
- 					"regulator-off-in-suspend"))
- 			suspend_state->enabled = DISABLE_IN_SUSPEND;
+diff --git a/sound/soc/codecs/wm8994.c b/sound/soc/codecs/wm8994.c
+index 14f1b0c0d286a..01acb8da2f48e 100644
+--- a/sound/soc/codecs/wm8994.c
++++ b/sound/soc/codecs/wm8994.c
+@@ -537,13 +537,10 @@ static SOC_ENUM_SINGLE_DECL(dac_osr,
+ static SOC_ENUM_SINGLE_DECL(adc_osr,
+ 			    WM8994_OVERSAMPLING, 1, osr_text);
  
--		if (!of_property_read_u32(np, "regulator-suspend-min-microvolt",
--					  &pval))
-+		if (!of_property_read_u32(suspend_np,
-+				"regulator-suspend-min-microvolt", &pval))
- 			suspend_state->min_uV = pval;
+-static const struct snd_kcontrol_new wm8994_snd_controls[] = {
++static const struct snd_kcontrol_new wm8994_common_snd_controls[] = {
+ SOC_DOUBLE_R_TLV("AIF1ADC1 Volume", WM8994_AIF1_ADC1_LEFT_VOLUME,
+ 		 WM8994_AIF1_ADC1_RIGHT_VOLUME,
+ 		 1, 119, 0, digital_tlv),
+-SOC_DOUBLE_R_TLV("AIF1ADC2 Volume", WM8994_AIF1_ADC2_LEFT_VOLUME,
+-		 WM8994_AIF1_ADC2_RIGHT_VOLUME,
+-		 1, 119, 0, digital_tlv),
+ SOC_DOUBLE_R_TLV("AIF2ADC Volume", WM8994_AIF2_ADC_LEFT_VOLUME,
+ 		 WM8994_AIF2_ADC_RIGHT_VOLUME,
+ 		 1, 119, 0, digital_tlv),
+@@ -560,8 +557,6 @@ SOC_ENUM("AIF2DACR Source", aif2dacr_src),
  
--		if (!of_property_read_u32(np, "regulator-suspend-max-microvolt",
--					  &pval))
-+		if (!of_property_read_u32(suspend_np,
-+				"regulator-suspend-max-microvolt", &pval))
- 			suspend_state->max_uV = pval;
+ SOC_DOUBLE_R_TLV("AIF1DAC1 Volume", WM8994_AIF1_DAC1_LEFT_VOLUME,
+ 		 WM8994_AIF1_DAC1_RIGHT_VOLUME, 1, 96, 0, digital_tlv),
+-SOC_DOUBLE_R_TLV("AIF1DAC2 Volume", WM8994_AIF1_DAC2_LEFT_VOLUME,
+-		 WM8994_AIF1_DAC2_RIGHT_VOLUME, 1, 96, 0, digital_tlv),
+ SOC_DOUBLE_R_TLV("AIF2DAC Volume", WM8994_AIF2_DAC_LEFT_VOLUME,
+ 		 WM8994_AIF2_DAC_RIGHT_VOLUME, 1, 96, 0, digital_tlv),
  
- 		if (!of_property_read_u32(suspend_np,
+@@ -569,17 +564,12 @@ SOC_SINGLE_TLV("AIF1 Boost Volume", WM8994_AIF1_CONTROL_2, 10, 3, 0, aif_tlv),
+ SOC_SINGLE_TLV("AIF2 Boost Volume", WM8994_AIF2_CONTROL_2, 10, 3, 0, aif_tlv),
+ 
+ SOC_SINGLE("AIF1DAC1 EQ Switch", WM8994_AIF1_DAC1_EQ_GAINS_1, 0, 1, 0),
+-SOC_SINGLE("AIF1DAC2 EQ Switch", WM8994_AIF1_DAC2_EQ_GAINS_1, 0, 1, 0),
+ SOC_SINGLE("AIF2 EQ Switch", WM8994_AIF2_EQ_GAINS_1, 0, 1, 0),
+ 
+ WM8994_DRC_SWITCH("AIF1DAC1 DRC Switch", WM8994_AIF1_DRC1_1, 2),
+ WM8994_DRC_SWITCH("AIF1ADC1L DRC Switch", WM8994_AIF1_DRC1_1, 1),
+ WM8994_DRC_SWITCH("AIF1ADC1R DRC Switch", WM8994_AIF1_DRC1_1, 0),
+ 
+-WM8994_DRC_SWITCH("AIF1DAC2 DRC Switch", WM8994_AIF1_DRC2_1, 2),
+-WM8994_DRC_SWITCH("AIF1ADC2L DRC Switch", WM8994_AIF1_DRC2_1, 1),
+-WM8994_DRC_SWITCH("AIF1ADC2R DRC Switch", WM8994_AIF1_DRC2_1, 0),
+-
+ WM8994_DRC_SWITCH("AIF2DAC DRC Switch", WM8994_AIF2_DRC_1, 2),
+ WM8994_DRC_SWITCH("AIF2ADCL DRC Switch", WM8994_AIF2_DRC_1, 1),
+ WM8994_DRC_SWITCH("AIF2ADCR DRC Switch", WM8994_AIF2_DRC_1, 0),
+@@ -598,9 +588,6 @@ SOC_SINGLE("Sidetone HPF Switch", WM8994_SIDETONE, 6, 1, 0),
+ SOC_ENUM("AIF1ADC1 HPF Mode", aif1adc1_hpf),
+ SOC_DOUBLE("AIF1ADC1 HPF Switch", WM8994_AIF1_ADC1_FILTERS, 12, 11, 1, 0),
+ 
+-SOC_ENUM("AIF1ADC2 HPF Mode", aif1adc2_hpf),
+-SOC_DOUBLE("AIF1ADC2 HPF Switch", WM8994_AIF1_ADC2_FILTERS, 12, 11, 1, 0),
+-
+ SOC_ENUM("AIF2ADC HPF Mode", aif2adc_hpf),
+ SOC_DOUBLE("AIF2ADC HPF Switch", WM8994_AIF2_ADC_FILTERS, 12, 11, 1, 0),
+ 
+@@ -641,6 +628,24 @@ SOC_SINGLE("AIF2DAC 3D Stereo Switch", WM8994_AIF2_DAC_FILTERS_2,
+ 	   8, 1, 0),
+ };
+ 
++/* Controls not available on WM1811 */
++static const struct snd_kcontrol_new wm8994_snd_controls[] = {
++SOC_DOUBLE_R_TLV("AIF1ADC2 Volume", WM8994_AIF1_ADC2_LEFT_VOLUME,
++		 WM8994_AIF1_ADC2_RIGHT_VOLUME,
++		 1, 119, 0, digital_tlv),
++SOC_DOUBLE_R_TLV("AIF1DAC2 Volume", WM8994_AIF1_DAC2_LEFT_VOLUME,
++		 WM8994_AIF1_DAC2_RIGHT_VOLUME, 1, 96, 0, digital_tlv),
++
++SOC_SINGLE("AIF1DAC2 EQ Switch", WM8994_AIF1_DAC2_EQ_GAINS_1, 0, 1, 0),
++
++WM8994_DRC_SWITCH("AIF1DAC2 DRC Switch", WM8994_AIF1_DRC2_1, 2),
++WM8994_DRC_SWITCH("AIF1ADC2L DRC Switch", WM8994_AIF1_DRC2_1, 1),
++WM8994_DRC_SWITCH("AIF1ADC2R DRC Switch", WM8994_AIF1_DRC2_1, 0),
++
++SOC_ENUM("AIF1ADC2 HPF Mode", aif1adc2_hpf),
++SOC_DOUBLE("AIF1ADC2 HPF Switch", WM8994_AIF1_ADC2_FILTERS, 12, 11, 1, 0),
++};
++
+ static const struct snd_kcontrol_new wm8994_eq_controls[] = {
+ SOC_SINGLE_TLV("AIF1DAC1 EQ1 Volume", WM8994_AIF1_DAC1_EQ_GAINS_1, 11, 31, 0,
+ 	       eq_tlv),
+@@ -4262,13 +4267,15 @@ static int wm8994_component_probe(struct snd_soc_component *component)
+ 	wm8994_handle_pdata(wm8994);
+ 
+ 	wm_hubs_add_analogue_controls(component);
+-	snd_soc_add_component_controls(component, wm8994_snd_controls,
+-			     ARRAY_SIZE(wm8994_snd_controls));
++	snd_soc_add_component_controls(component, wm8994_common_snd_controls,
++				       ARRAY_SIZE(wm8994_common_snd_controls));
+ 	snd_soc_dapm_new_controls(dapm, wm8994_dapm_widgets,
+ 				  ARRAY_SIZE(wm8994_dapm_widgets));
+ 
+ 	switch (control->type) {
+ 	case WM8994:
++		snd_soc_add_component_controls(component, wm8994_snd_controls,
++					       ARRAY_SIZE(wm8994_snd_controls));
+ 		snd_soc_dapm_new_controls(dapm, wm8994_specific_dapm_widgets,
+ 					  ARRAY_SIZE(wm8994_specific_dapm_widgets));
+ 		if (control->revision < 4) {
+@@ -4288,8 +4295,10 @@ static int wm8994_component_probe(struct snd_soc_component *component)
+ 		}
+ 		break;
+ 	case WM8958:
++		snd_soc_add_component_controls(component, wm8994_snd_controls,
++					       ARRAY_SIZE(wm8994_snd_controls));
+ 		snd_soc_add_component_controls(component, wm8958_snd_controls,
+-				     ARRAY_SIZE(wm8958_snd_controls));
++					       ARRAY_SIZE(wm8958_snd_controls));
+ 		snd_soc_dapm_new_controls(dapm, wm8958_dapm_widgets,
+ 					  ARRAY_SIZE(wm8958_dapm_widgets));
+ 		if (control->revision < 1) {
 -- 
 2.20.1
 
