@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30598EA0E4
+	by mail.lfdr.de (Postfix) with ESMTP id 99A7AEA0E5
 	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbfJ3Pzi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:55:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57184 "EHLO mail.kernel.org"
+        id S1728027AbfJ3Pzk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:55:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728628AbfJ3Pzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:55:37 -0400
+        id S1728641AbfJ3Pzj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:55:39 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E60821734;
-        Wed, 30 Oct 2019 15:55:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 626D8217F9;
+        Wed, 30 Oct 2019 15:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450936;
-        bh=tF0E1giTSXxJHmVP2hupSm5VRPNu7THTyO2tRFdVq+4=;
+        s=default; t=1572450939;
+        bh=JDr0T7LlkJ8UHSj7zH/ZxVkHytUH/XKb4qVDCm8HdCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UfxvRBEbU5Kififr1prFTJSgG6zX8ZaTRaUKk47GoKb6RlwiDhCh9fL/F7tUioFwd
-         UoT/Y/qGNbsDQy7LhxwPbbNzCaq7izyx6GZrTCbQUEO0/Q6SpFSOxJnWuvKB06Y7tG
-         G1wOm4NkSFog3f+wymmjR85YjmqYkBRPQoQhsVc8=
+        b=uZodgQtSqxjgGbj9Jsw3LWC81uaj7aEUUD3bTV8znDy++J5tR4Czv9sEkEVFZOQak
+         QjsbOaQ4OWGyOjSRT9NgjfkTvle9fPfJ0WTaciku/JZ8haFobmMikdQaJAT2rcqlt5
+         rySdFBH/kkKYGcPlNkRp+r0rgPRKzcV/Mx+s0CAc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zenghui Yu <yuzenghui@huawei.com>, Marc Zyngier <maz@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 31/38] irqchip/gic-v3-its: Use the exact ITSList for VMOVP
-Date:   Wed, 30 Oct 2019 11:53:59 -0400
-Message-Id: <20191030155406.10109-31-sashal@kernel.org>
+Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 32/38] i2c: stm32f7: fix first byte to send in slave mode
+Date:   Wed, 30 Oct 2019 11:54:00 -0400
+Message-Id: <20191030155406.10109-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
 References: <20191030155406.10109-1-sashal@kernel.org>
@@ -42,89 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit 8424312516e5d9baeeb0a95d0e4523579b7aa395 ]
+[ Upstream commit 02e64276c6dbcc4c5f39844f33d18180832a58f3 ]
 
-On a system without Single VMOVP support (say GITS_TYPER.VMOVP == 0),
-we will map vPEs only on ITSs that will actually control interrupts
-for the given VM.  And when moving a vPE, the VMOVP command will be
-issued only for those ITSs.
+The slave-interface documentation [1] states "the bus driver should
+transmit the first byte" upon I2C_SLAVE_READ_REQUESTED slave event:
+- 'val': backend returns first byte to be sent
+The driver currently ignores the 1st byte to send on this event.
 
-But when issuing VMOVPs we seemed fail to present the exact ITSList
-to ITSs who are actually included in the synchronization operation.
-The its_list_map we're currently using includes all ITSs in the system,
-even though some of them don't have the corresponding vPE mapping at all.
+[1] https://www.kernel.org/doc/Documentation/i2c/slave-interface
 
-Introduce get_its_list() to get the per-VM its_list_map, to indicate
-which ITSs have vPE mappings for the given VM, and use this map as
-the expected ITSList when building VMOVP. This is hopefully a performance
-gain not to do some synchronization with those unsuspecting ITSs.
-And initialize the whole command descriptor to zero at beginning, since
-the seq_num and its_list should be RES0 when GITS_TYPER.VMOVP == 1.
-
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/1571802386-2680-1-git-send-email-yuzenghui@huawei.com
+Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3-its.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
-index e7549a2b1482b..050d6e040128d 100644
---- a/drivers/irqchip/irq-gic-v3-its.c
-+++ b/drivers/irqchip/irq-gic-v3-its.c
-@@ -182,6 +182,22 @@ static DEFINE_IDA(its_vpeid_ida);
- #define gic_data_rdist_rd_base()	(gic_data_rdist()->rd_base)
- #define gic_data_rdist_vlpi_base()	(gic_data_rdist_rd_base() + SZ_128K)
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index ac9c9486b834c..48521bc8a4d23 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1177,6 +1177,8 @@ static void stm32f7_i2c_slave_start(struct stm32f7_i2c_dev *i2c_dev)
+ 			STM32F7_I2C_CR1_TXIE;
+ 		stm32f7_i2c_set_bits(base + STM32F7_I2C_CR1, mask);
  
-+static u16 get_its_list(struct its_vm *vm)
-+{
-+	struct its_node *its;
-+	unsigned long its_list = 0;
-+
-+	list_for_each_entry(its, &its_nodes, entry) {
-+		if (!its->is_v4)
-+			continue;
-+
-+		if (vm->vlpi_count[its->list_nr])
-+			__set_bit(its->list_nr, &its_list);
-+	}
-+
-+	return (u16)its_list;
-+}
-+
- static struct its_collection *dev_event_to_col(struct its_device *its_dev,
- 					       u32 event)
- {
-@@ -983,17 +999,15 @@ static void its_send_vmapp(struct its_node *its,
- 
- static void its_send_vmovp(struct its_vpe *vpe)
- {
--	struct its_cmd_desc desc;
-+	struct its_cmd_desc desc = {};
- 	struct its_node *its;
- 	unsigned long flags;
- 	int col_id = vpe->col_idx;
- 
- 	desc.its_vmovp_cmd.vpe = vpe;
--	desc.its_vmovp_cmd.its_list = (u16)its_list_map;
- 
- 	if (!its_list_map) {
- 		its = list_first_entry(&its_nodes, struct its_node, entry);
--		desc.its_vmovp_cmd.seq_num = 0;
- 		desc.its_vmovp_cmd.col = &its->collections[col_id];
- 		its_send_single_vcommand(its, its_build_vmovp_cmd, &desc);
- 		return;
-@@ -1010,6 +1024,7 @@ static void its_send_vmovp(struct its_vpe *vpe)
- 	raw_spin_lock_irqsave(&vmovp_lock, flags);
- 
- 	desc.its_vmovp_cmd.seq_num = vmovp_seq_num++;
-+	desc.its_vmovp_cmd.its_list = get_its_list(vpe->its_vm);
- 
- 	/* Emit VMOVPs */
- 	list_for_each_entry(its, &its_nodes, entry) {
++		/* Write 1st data byte */
++		writel_relaxed(value, base + STM32F7_I2C_TXDR);
+ 	} else {
+ 		/* Notify i2c slave that new write transfer is starting */
+ 		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
 -- 
 2.20.1
 
