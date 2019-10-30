@@ -2,173 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4591BEA1FE
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:45:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E8BEA227
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:59:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726806AbfJ3QpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 12:45:01 -0400
-Received: from mail-ua1-f65.google.com ([209.85.222.65]:33330 "EHLO
-        mail-ua1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726999AbfJ3QpA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 12:45:00 -0400
-Received: by mail-ua1-f65.google.com with SMTP id c16so920086uan.0
-        for <stable@vger.kernel.org>; Wed, 30 Oct 2019 09:44:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=p3/pbvedwS4IhZb4B6nbOhbMOZh2AXw7ndulwhv3TfM=;
-        b=uKbzD6z3ZGjc1fWALJKpEEB/bbWW4HPabd5njl25crREYFACWhI8l1Kir807xOxFpf
-         uaLa/jYOBB4myt492ky0Bm4YMaUYwzK/94ra2AKsk/hjtGfxyIUNsYZMw3k03FhB7aa+
-         D2OMDUrVDFG4lh3JnM9JNhFiNrQATzIWHgWWrsFo/gfWlZcp7D/KPuimOVmXF9dmZDOE
-         kqpQKHr+JjnMM9ArF0cPmyy5HSVupmLBQmTJ2rUO9BmpLiphAUI7CTD1n8sVbxM3f7P+
-         y4tJ9cXCf+NQfuudxvOK6UYmowPV5Kf2WNvQcUvzZdfMJCJXPEp22cQ//ywxY1dvTRRP
-         vp1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=p3/pbvedwS4IhZb4B6nbOhbMOZh2AXw7ndulwhv3TfM=;
-        b=On6xJ76O0WUbE5CRkpj3xFA3IMdnp+xHm1zqIxcOwsWtGfQ5W6MgNwGXoseslbEtRX
-         1IYRNkxcTj+nHIJf02hqJULhSt/ACSNNimmC1voUQHBjhk4iw9tSSASQhlCpiwlWGa8Z
-         /Bze6/JXPEsaiOMkV3sKmo4Q1UPDGLhanve8cTcaUuUHA1VFsMZD6pAR8m5Y/7/YRGa7
-         0C9Tc+fmTEed88bcLZT1PxAfyIGETjPch131YB4xUDPtM0io/1AKM8NZQyzPWTXifA11
-         1fmHejwJKSyQ9FqtBhZeManT/3I7JFX2iAmcekSHmx4mytqzBoAJs2HZPa2cPRTMokde
-         AXNQ==
-X-Gm-Message-State: APjAAAWvalkjUbtRfJjrZEQsfIHGkHiXXXTc5CWFmiUvLxasQ7t6eJCl
-        caWq+73Vop4xgKm3NN4z6lhbcNyAkWfbqTxKZlXI1g==
-X-Google-Smtp-Source: APXvYqxJtN6SyNTtxvr9eHmowjOiNggxSentSJ3MZnyqcgsnfmMgt0WjJPDMGJJ+lnTYhFM/TEriRkTW1hDBpWXDXFc=
-X-Received: by 2002:ab0:2258:: with SMTP id z24mr367974uan.100.1572453897721;
- Wed, 30 Oct 2019 09:44:57 -0700 (PDT)
-MIME-Version: 1.0
-References: <cover.1571510481.git.hns@goldelico.com> <bec9d76e6da03d734649b9bdf76e9d575c57631a.1571510481.git.hns@goldelico.com>
-In-Reply-To: <bec9d76e6da03d734649b9bdf76e9d575c57631a.1571510481.git.hns@goldelico.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Wed, 30 Oct 2019 17:44:21 +0100
-Message-ID: <CAPDyKFrMQ3fBaeeAYVJfUdL8m=PDRU9Xt_9oGw6D1XOY68qDuQ@mail.gmail.com>
-Subject: Re: [PATCH v2 03/11] DTS: ARM: pandora-common: define wl1251 as child
- node of mmc3
-To:     "H. Nikolaus Schaller" <hns@goldelico.com>
-Cc:     =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        David Sterba <dsterba@suse.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Yangtao Li <tiny.windzz@gmail.com>,
-        Alexios Zavras <alexios.zavras@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Allison Randal <allison@lohutok.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        linux-omap <linux-omap@vger.kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        Discussions about the Letux Kernel 
-        <letux-kernel@openphoenux.org>, kernel@pyra-handheld.com,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726671AbfJ3Q7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 12:59:02 -0400
+Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:49164 "EHLO
+        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726619AbfJ3Q7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 12:59:02 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07486;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Tgiqt6T_1572454731;
+Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tgiqt6T_1572454731)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 31 Oct 2019 00:58:58 +0800
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+To:     lixinhai.lxh@gmail.com, vbabka@suse.cz, mhocko@suse.com,
+        mgorman@techsingularity.net, akpm@linux-foundation.org
+Cc:     yang.shi@linux.alibaba.com, stable@vger.kernel.org,
+        linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] mm: mempolicy: fix the wrong return value and potential pages leak of mbind
+Date:   Thu, 31 Oct 2019 00:58:51 +0800
+Message-Id: <1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com>
+X-Mailer: git-send-email 1.8.3.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 19 Oct 2019 at 20:42, H. Nikolaus Schaller <hns@goldelico.com> wrote:
->
-> Since v4.7 the dma initialization requires that there is a
-> device tree property for "rx" and "tx" channels which is
-> not provided by the pdata-quirks initialization.
->
-> By conversion of the mmc3 setup to device tree this will
-> finally allows to remove the OpenPandora wlan specific omap3
-> data-quirks.
->
-> Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
->
-> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-> Cc: <stable@vger.kernel.org> # 4.7.0
-> ---
->  arch/arm/boot/dts/omap3-pandora-common.dtsi | 37 +++++++++++++++++++--
->  1 file changed, 35 insertions(+), 2 deletions(-)
->
-> diff --git a/arch/arm/boot/dts/omap3-pandora-common.dtsi b/arch/arm/boot/dts/omap3-pandora-common.dtsi
-> index ec5891718ae6..c595b3eb314d 100644
-> --- a/arch/arm/boot/dts/omap3-pandora-common.dtsi
-> +++ b/arch/arm/boot/dts/omap3-pandora-common.dtsi
-> @@ -226,6 +226,18 @@
->                 gpio = <&gpio6 4 GPIO_ACTIVE_HIGH>;     /* GPIO_164 */
->         };
->
-> +       /* wl1251 wifi+bt module */
-> +       wlan_en: fixed-regulator-wg7210_en {
-> +               compatible = "regulator-fixed";
-> +               regulator-name = "vwlan";
-> +               regulator-min-microvolt = <1800000>;
-> +               regulator-max-microvolt = <1800000>;
+The commit d883544515aa ("mm: mempolicy: make the behavior consistent
+when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified") fixed the return
+value of mbind() for a couple of corner cases.  But, it altered the
+errno for some other cases, for example, mbind() should return -EFAULT
+when part or all of the memory range specified by nodemask and maxnode
+points  outside your accessible address space, or there was an unmapped
+hole in the specified memory range specified by addr and len.
 
-I doubt these are correct.
+Fixed this by preserving the errno returned by queue_pages_range().
+And, the pagelist may be not empty even though queue_pages_range()
+returns error, put the pages back to LRU since mbind_range() is not called
+to really apply the policy so those pages should not be migrated, this
+is also the old behavior before the problematic commit.
 
-I guess this should be in the range of 2.7V-3.6V.
+Reported-by: Li Xinhai <lixinhai.lxh@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org> v4.19 and v5.2+
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+---
+ mm/mempolicy.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-> +               startup-delay-us = <50000>;
-> +               regulator-always-on;
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index 4ae967b..e08c941 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -672,7 +672,9 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
+  * 1 - there is unmovable page, but MPOL_MF_MOVE* & MPOL_MF_STRICT were
+  *     specified.
+  * 0 - queue pages successfully or no misplaced page.
+- * -EIO - there is misplaced page and only MPOL_MF_STRICT was specified.
++ * errno - i.e. misplaced pages with MPOL_MF_STRICT specified (-EIO) or
++ *         memory range specified by nodemask and maxnode points outside
++ *         your accessible address space (-EFAULT)
+  */
+ static int
+ queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+@@ -1286,7 +1288,7 @@ static long do_mbind(unsigned long start, unsigned long len,
+ 			  flags | MPOL_MF_INVERT, &pagelist);
+ 
+ 	if (ret < 0) {
+-		err = -EIO;
++		err = ret;
+ 		goto up_out;
+ 	}
+ 
+@@ -1305,10 +1307,12 @@ static long do_mbind(unsigned long start, unsigned long len,
+ 
+ 		if ((ret > 0) || (nr_failed && (flags & MPOL_MF_STRICT)))
+ 			err = -EIO;
+-	} else
+-		putback_movable_pages(&pagelist);
+-
++	} else {
+ up_out:
++		if (!list_empty(&pagelist))
++			putback_movable_pages(&pagelist);
++	}
++
+ 	up_write(&mm->mmap_sem);
+ mpol_out:
+ 	mpol_put(new);
+-- 
+1.8.3.1
 
-Always on?
-
-> +               enable-active-high;
-> +               gpio = <&gpio1 23 GPIO_ACTIVE_HIGH>;
-> +       };
-> +
->         /* wg7210 (wifi+bt module) 32k clock buffer */
->         wg7210_32k: fixed-regulator-wg7210_32k {
->                 compatible = "regulator-fixed";
-> @@ -522,9 +534,30 @@
->         /*wp-gpios = <&gpio4 31 GPIO_ACTIVE_HIGH>;*/    /* GPIO_127 */
->  };
->
-> -/* mmc3 is probed using pdata-quirks to pass wl1251 card data */
->  &mmc3 {
-> -       status = "disabled";
-> +       vmmc-supply = <&wlan_en>;
-> +
-> +       bus-width = <4>;
-> +       non-removable;
-> +       ti,non-removable;
-> +       cap-power-off-card;
-> +
-> +       pinctrl-names = "default";
-> +       pinctrl-0 = <&mmc3_pins>;
-> +
-> +       #address-cells = <1>;
-> +       #size-cells = <0>;
-> +
-> +       wlan: wl1251@1 {
-> +               compatible = "ti,wl1251";
-> +
-> +               reg = <1>;
-> +
-> +               interrupt-parent = <&gpio1>;
-> +               interrupts = <21 IRQ_TYPE_LEVEL_HIGH>;  /* GPIO_21 */
-> +
-> +               ti,wl1251-has-eeprom;
-> +       };
->  };
->
->  /* bluetooth*/
-> --
-> 2.19.1
->
-
-Kind regards
-Uffe
