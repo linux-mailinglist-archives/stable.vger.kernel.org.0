@@ -2,301 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96558EA2D3
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 18:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2735EEA302
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 19:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727580AbfJ3Ryk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 13:54:40 -0400
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:35896 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1727012AbfJ3Ryk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 13:54:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572458078;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=DvoBgGBryJ1iO2VYcccKKH7VuakUWp0E7LIb8kR96Kg=;
-        b=Utm8Ccp2bf0XipqpaVmTrnLkkxEjjxLbm0yTVHGTaWuyLg29vMHmG74ltgKuJbRh7Tudxx
-        u0ZXsm5VuPU2j69uEos9WXgOdT74Xs3LjHm9pkwoWRVCl3PKt2hPi/RjZ+0tPcAvpWEEFb
-        npkt/+yOWp6QDhpLAqkd95bJHPSawFk=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-365-CrrjMdntMeymh8rVLVfW3w-1; Wed, 30 Oct 2019 13:54:34 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CD0751800D67
-        for <stable@vger.kernel.org>; Wed, 30 Oct 2019 17:54:33 +0000 (UTC)
-Received: from [172.54.88.5] (cpt-1048.paas.prod.upshift.rdu2.redhat.com [10.0.19.70])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3D08419757;
-        Wed, 30 Oct 2019 17:54:25 +0000 (UTC)
+        id S1727391AbfJ3SH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 14:07:58 -0400
+Received: from mail-qk1-f195.google.com ([209.85.222.195]:38253 "EHLO
+        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727334AbfJ3SH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 14:07:58 -0400
+Received: by mail-qk1-f195.google.com with SMTP id e2so3732553qkn.5
+        for <stable@vger.kernel.org>; Wed, 30 Oct 2019 11:07:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=XJY+w7yizKxquEzbyxjzEiCQZwBiOWc+VGOuPrD25Qs=;
+        b=JSwH6ovbuXwq2Pf68PzSieWnzNnCS308vjyg+4TLtfoRBfpvTai5D0W/g2EAV14DhJ
+         zgxYD79pqBAMsDXuMjanG3XWevZ7+EC9etO5kZKwLqlym9jQFIxyoPCc5E+g+qzZOqhB
+         JwiUJ/jFP/ejxCGHUPMZU6q2t1JNjdoqLvzXHV7fCoycxZNACO23CmJjNPzV1KHjGBrN
+         1ZiJzkCs6ohrp8OnxMoJsudsuxhKKTINJIX2TEOiJPz0PvPH1c6i6d5hQyHyS0JBmF9f
+         hwVCT+Z+oUu0Sy7bRkzl/T0WjNSX34TMYBugSqBUbCuWKorZ1I8T+lVcWkIHuFu9Gpuh
+         QakA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=XJY+w7yizKxquEzbyxjzEiCQZwBiOWc+VGOuPrD25Qs=;
+        b=DNRsBUdtIuT1X/lEWoDrFe/FtW+dfL/2h7g6c71keD3msQLqRCJK3NJ3iq+2G8gUkb
+         LQGvPY2w97WMwluSl4kO2XlZx92YC2oidGlxno9YvkcvrLM0tNMQqisvVK4MHmY8yxRS
+         O7uZmxPfr5+POddF+e0PnKdSTKNatT1XKvrSdSDlejU/jedKJ2Eats9P5hOaWZTnMpl/
+         WkTS/5gh+bmqGd5kUo9ShgqQZ87+nEja2nDsCRSJq9RX9yGD7yJmcny/7Ztl4dflXBG2
+         zX5NGyGJQERwQN1x1zDF1N6ubmDJsZbGtlNiL2y3pp4PjYTNpIBvkFkoEljWOfM+Iq86
+         YQiw==
+X-Gm-Message-State: APjAAAWY4cAZxD78GB5lGQ6b95TBbQnbd96ri1pWcZJ3YbCxF0/gcrf3
+        E000edWXw4toSzAI1/pP2OFpuN+da8E=
+X-Google-Smtp-Source: APXvYqylMdF5kMHuUc7sqZ3iYup6lO5rHJ/zCFi+bOdgHp1wi6H/GV0nzc36/k4dYQ1kBvGn6qhzbw==
+X-Received: by 2002:a37:e407:: with SMTP id y7mr1248304qkf.77.1572458876487;
+        Wed, 30 Oct 2019 11:07:56 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-142-162-113-180.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.180])
+        by smtp.gmail.com with ESMTPSA id v137sm396839qka.64.2019.10.30.11.07.55
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Wed, 30 Oct 2019 11:07:55 -0700 (PDT)
+Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1iPsNu-00013G-Oj; Wed, 30 Oct 2019 15:07:54 -0300
+Date:   Wed, 30 Oct 2019 15:07:54 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     "Marciniszyn, Mike" <mike.marciniszyn@intel.com>
+Cc:     "Dalessandro, Dennis" <dennis.dalessandro@intel.com>,
+        "dledford@redhat.com" <dledford@redhat.com>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "Wan, Kaike" <kaike.wan@intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Erwin, James" <james.erwin@intel.com>
+Subject: Re: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than gen3
+Message-ID: <20191030180754.GA31799@ziepe.ca>
+References: <20191025161717.106825.14421.stgit@awfm-01.aw.intel.com>
+ <20191025195823.106825.63080.stgit@awfm-01.aw.intel.com>
+ <20191029195214.GA1802@ziepe.ca>
+ <32E1700B9017364D9B60AED9960492BC729594E1@fmsmsx120.amr.corp.intel.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.4.0-rc5-c15dde9.cki
- (stable-next)
-Date:   Wed, 30 Oct 2019 17:54:24 -0000
-CC:     Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        William Gomeringer <wgomeringer@redhat.com>
-Message-ID: <cki.988D4031A9.LPRH57O40D@redhat.com>
-X-Gitlab-Pipeline-ID: 256777
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/256777
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-MC-Unique: CrrjMdntMeymh8rVLVfW3w-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <32E1700B9017364D9B60AED9960492BC729594E1@fmsmsx120.amr.corp.intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Oct 29, 2019 at 09:19:34PM +0000, Marciniszyn, Mike wrote:
+> > Subject: Re: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than gen3
+> > 
+> > On Fri, Oct 25, 2019 at 03:58:24PM -0400, Dennis Dalessandro wrote:
+> > > From: James Erwin <james.erwin@intel.com>
+> > >
+> > > The driver avoids the gen3 speed bump when the parent
+> > > bus speed isn't identical to gen3, 8.0GT/s.  This is not
+> > > compatible with gen4 and newer speeds.
+> > >
+> > > Fix by relaxing the test to explicitly look for the lower
+> > > capability speeds which inherently allows for all future speeds.
+> > 
+> > This description does not seem like stable material to me.
+> > 
+> 
+> Having a card unknowingly operate at half speed would seem pretty serious to me.
 
-Hello,
+Since gen4 systems are really new this also sounds like a new feature
+to me.. You need to be concerned that changing the pci setup doesn't
+cause regressions on existing systems too.
 
-We ran automated tests on a recent commit from this kernel tree:
+> Perhaps the description should say:
+> 
+> IB/hfi1: Insure full Gen3 speed in a Gen4 system
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/li=
-nux-stable.git
-            Commit: c15dde9190b4 - scsi: zfcp: trace channel log even for F=
-CP command responses
+And maybe explain what the actual user visible impact is here. Sounds
+like plugging a card into a gen4 system will not run at gen3 speeds?
 
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/256777
-
-One or more kernel tests failed:
-
-    x86_64:
-     =E2=9D=8C LTP lite
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 xfstests: ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests: xfs
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Networking bridge: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9C=85 L2TP basic test
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 ALSA PCM loopback test
-       =F0=9F=9A=A7 =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns transport
-       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns tunnel
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 xfstests: ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests: xfs
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Networking bridge: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9C=85 L2TP basic test
-       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns tunnel
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 ALSA PCM loopback test
-       =F0=9F=9A=A7 =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9D=8C LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 Memory function: memfd_create
-       =E2=9C=85 Memory function: kaslr
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking MACsec: sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking: igmp conformance test
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: geneve basic test
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 Networking bridge: sanity
-       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9C=85 L2TP basic test
-       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
-       =F0=9F=9A=A7 =E2=9C=85 ALSA PCM loopback test
-       =F0=9F=9A=A7 =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns transport
-       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns tunnel
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9D=8C IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-       =F0=9F=9A=A7 =E2=9C=85 xfstests: ext4
-       =F0=9F=9A=A7 =E2=9C=85 xfstests: xfs
-
-    Host 3:
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
-       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+Jason
