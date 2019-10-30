@@ -2,122 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D99ACE98D6
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 10:07:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B04BE99A1
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 11:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726213AbfJ3JHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 05:07:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726028AbfJ3JHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 05:07:30 -0400
-Received: from localhost (unknown [91.217.168.176])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A23AC2083E;
-        Wed, 30 Oct 2019 09:07:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572426448;
-        bh=srbrmF0lTcygFSXUVGgE4s5lrWuXkZwrxB7yQoZ5y8U=;
-        h=Subject:To:From:Date:From;
-        b=d1SAgjCSOCPspb+J5SruIuM474uEOMD6cbWRfyEyBzSTnS1GRE24x/XV0FG6wz09r
-         YBxYq1oVD3Vqbn8yyFlC6sX7xlnyu1WOVKFTlLNEEUxm/lqukpB2ITctdlBUE8UcBj
-         bGJ4Ge/H8u8sZSXL6EnldTmYp0LLxFX6v7NvbL2c=
-Subject: patch "USB: serial: whiteheat: fix line-speed endianness" added to usb-linus
-To:     johan@kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 30 Oct 2019 10:07:17 +0100
-Message-ID: <157242643715712@kroah.com>
+        id S1726071AbfJ3KDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 06:03:08 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:34025 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726032AbfJ3KDI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 06:03:08 -0400
+Received: by mail-wr1-f67.google.com with SMTP id t16so1581439wrr.1;
+        Wed, 30 Oct 2019 03:03:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=FMrNiLDlAG4LHDqZ/Yl8QilQGiUU1TiZ+I44MHl2pe8=;
+        b=HNN3Pn/vNFFcDuiCrIDZIAg0jUIX3Ma1J5xZ3pi4cQbbPvRlhWTxNCRZL1BXGTPgBV
+         mZPHjz9jzkrIab3DlA5QEPaVJmy/ml4Tiz+kinEe21oAK4IzLkyNrQqRwGZjY526zI03
+         Z5/XYQ5xvo82fUpG0b99AjLqOdTD5Hy5ATzwdglzhLO2gOMRy7HmXuhcVJ4mJ9T62sQQ
+         IGOs35f/F3IXziTFj002YE8D8BG+FaADlIa+AjvOYNtyG4bUsls0rfgjy5xaOS3Ln+1r
+         GdSeKJfaSlW8NXyZh1Z+dmZ6LV0170yMWq0z9sHwaV8MAjf2aN8k+utW+vHNhwTNZuSc
+         YfSw==
+X-Gm-Message-State: APjAAAXTKukUTE41VU2SDz8W6jg53jemBoHMy4yFizvee+S+yDRsfMh2
+        5OO/oOaso980dlZW7c6YhWU=
+X-Google-Smtp-Source: APXvYqx9yWpySXQAETRsK0lzvhrydwfQ9Qwl8MxBphTqjmTCxz57hjMnqNjhMrjsPw6+qJUa5JnAIA==
+X-Received: by 2002:adf:ec4b:: with SMTP id w11mr1963541wrn.243.1572429785547;
+        Wed, 30 Oct 2019 03:03:05 -0700 (PDT)
+Received: from pi (100.50.158.77.rev.sfr.net. [77.158.50.100])
+        by smtp.gmail.com with ESMTPSA id a11sm1768504wmh.40.2019.10.30.03.03.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Oct 2019 03:03:04 -0700 (PDT)
+Received: from johan by pi with local (Exim 4.92.2)
+        (envelope-from <johan@pi>)
+        id 1iPknS-0002ZQ-F2; Wed, 30 Oct 2019 11:01:46 +0100
+Date:   Wed, 30 Oct 2019 11:01:46 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
+        Daniel Vetter <daniel@ffwll.ch>
+Cc:     David Airlie <airlied@linux.ie>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-s390@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Johan Hovold <johan@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Fabien Dessenne <fabien.dessenne@st.com>
+Subject: Re: [PATCH 1/4] drm/msm: fix memleak on release
+Message-ID: <20191030100146.GC4691@localhost>
+References: <20191010131333.23635-1-johan@kernel.org>
+ <20191010131333.23635-2-johan@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191010131333.23635-2-johan@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Oct 10, 2019 at 03:13:30PM +0200, Johan Hovold wrote:
+> If a process is interrupted while accessing the "gpu" debugfs file and
+> the drm device struct_mutex is contended, release() could return early
+> and fail to free related resources.
+> 
+> Note that the return value from release() is ignored.
+> 
+> Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
+> Cc: stable <stable@vger.kernel.org>     # 4.18
+> Cc: Jordan Crouse <jcrouse@codeaurora.org>
+> Cc: Rob Clark <robdclark@gmail.com>
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
 
-This is a note to let you know that I've just added the patch titled
+Rob, Sean,
 
-    USB: serial: whiteheat: fix line-speed endianness
+Sending a reminder about this one, which is not yet in linux-next.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Perhaps Daniel can pick it up otherwise?
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Thanks,
+Johan
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 84968291d7924261c6a0624b9a72f952398e258b Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Tue, 29 Oct 2019 11:23:54 +0100
-Subject: USB: serial: whiteheat: fix line-speed endianness
-
-Add missing endianness conversion when setting the line speed so that
-this driver might work also on big-endian machines.
-
-Also use an unsigned format specifier in the corresponding debug
-message.
-
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191029102354.2733-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/serial/whiteheat.c | 9 ++++++---
- drivers/usb/serial/whiteheat.h | 2 +-
- 2 files changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/usb/serial/whiteheat.c b/drivers/usb/serial/whiteheat.c
-index 76cabcb30d21..ca3bd58f2025 100644
---- a/drivers/usb/serial/whiteheat.c
-+++ b/drivers/usb/serial/whiteheat.c
-@@ -636,6 +636,7 @@ static void firm_setup_port(struct tty_struct *tty)
- 	struct device *dev = &port->dev;
- 	struct whiteheat_port_settings port_settings;
- 	unsigned int cflag = tty->termios.c_cflag;
-+	speed_t baud;
- 
- 	port_settings.port = port->port_number + 1;
- 
-@@ -696,11 +697,13 @@ static void firm_setup_port(struct tty_struct *tty)
- 	dev_dbg(dev, "%s - XON = %2x, XOFF = %2x\n", __func__, port_settings.xon, port_settings.xoff);
- 
- 	/* get the baud rate wanted */
--	port_settings.baud = tty_get_baud_rate(tty);
--	dev_dbg(dev, "%s - baud rate = %d\n", __func__, port_settings.baud);
-+	baud = tty_get_baud_rate(tty);
-+	port_settings.baud = cpu_to_le32(baud);
-+	dev_dbg(dev, "%s - baud rate = %u\n", __func__, baud);
- 
- 	/* fixme: should set validated settings */
--	tty_encode_baud_rate(tty, port_settings.baud, port_settings.baud);
-+	tty_encode_baud_rate(tty, baud, baud);
-+
- 	/* handle any settings that aren't specified in the tty structure */
- 	port_settings.lloop = 0;
- 
-diff --git a/drivers/usb/serial/whiteheat.h b/drivers/usb/serial/whiteheat.h
-index 00398149cd8d..269e727a92f9 100644
---- a/drivers/usb/serial/whiteheat.h
-+++ b/drivers/usb/serial/whiteheat.h
-@@ -87,7 +87,7 @@ struct whiteheat_simple {
- 
- struct whiteheat_port_settings {
- 	__u8	port;		/* port number (1 to N) */
--	__u32	baud;		/* any value 7 - 460800, firmware calculates
-+	__le32	baud;		/* any value 7 - 460800, firmware calculates
- 				   best fit; arrives little endian */
- 	__u8	bits;		/* 5, 6, 7, or 8 */
- 	__u8	stop;		/* 1 or 2, default 1 (2 = 1.5 if bits = 5) */
--- 
-2.23.0
-
-
+>  drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
+>  1 file changed, 1 insertion(+), 5 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
+> index 6be879578140..1c74381a4fc9 100644
+> --- a/drivers/gpu/drm/msm/msm_debugfs.c
+> +++ b/drivers/gpu/drm/msm/msm_debugfs.c
+> @@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
+>  	struct msm_gpu_show_priv *show_priv = m->private;
+>  	struct msm_drm_private *priv = show_priv->dev->dev_private;
+>  	struct msm_gpu *gpu = priv->gpu;
+> -	int ret;
+> -
+> -	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
+> -	if (ret)
+> -		return ret;
+>  
+> +	mutex_lock(&show_priv->dev->struct_mutex);
+>  	gpu->funcs->gpu_state_put(show_priv->state);
+>  	mutex_unlock(&show_priv->dev->struct_mutex);
