@@ -2,119 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C54DEA1D4
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4591BEA1FE
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:45:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726302AbfJ3Qer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 12:34:47 -0400
-Received: from smtp1.de.adit-jv.com ([93.241.18.167]:55252 "EHLO
-        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726261AbfJ3Qeq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 12:34:46 -0400
-Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
-        by smtp1.de.adit-jv.com (Postfix) with ESMTP id D87733C0585;
-        Wed, 30 Oct 2019 17:34:42 +0100 (CET)
-Received: from smtp1.de.adit-jv.com ([127.0.0.1])
-        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id gPYWxzqq8IGP; Wed, 30 Oct 2019 17:34:35 +0100 (CET)
-Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id D77463C0582;
-        Wed, 30 Oct 2019 17:34:35 +0100 (CET)
-Received: from vmlxhi-102.adit-jv.com (10.72.93.184) by HI2EXCH01.adit-jv.com
- (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Wed, 30 Oct
- 2019 17:34:35 +0100
-Date:   Wed, 30 Oct 2019 17:34:31 +0100
-From:   Eugeniu Rosca <erosca@de.adit-jv.com>
-To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-CC:     <horms@verge.net.au>, <linux-pci@vger.kernel.org>,
-        <linux-renesas-soc@vger.kernel.org>, <stable@vger.kernel.org>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Asano Yasushi <yasano@jp.adit-jv.com>,
-        Yohhei Fukui <yohhei.fukui@denso-ten.com>,
-        Eugeniu Rosca <erosca@de.adit-jv.com>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>
-Subject: Re: [PATCH 2/2] PCI: rcar: Fix missing MACCTLR register setting in
- initialize sequence
-Message-ID: <20191030163431.GA882@vmlxhi-102.adit-jv.com>
-References: <1572434824-1850-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
- <1572434824-1850-3-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+        id S1726806AbfJ3QpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 12:45:01 -0400
+Received: from mail-ua1-f65.google.com ([209.85.222.65]:33330 "EHLO
+        mail-ua1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726999AbfJ3QpA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 12:45:00 -0400
+Received: by mail-ua1-f65.google.com with SMTP id c16so920086uan.0
+        for <stable@vger.kernel.org>; Wed, 30 Oct 2019 09:44:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=p3/pbvedwS4IhZb4B6nbOhbMOZh2AXw7ndulwhv3TfM=;
+        b=uKbzD6z3ZGjc1fWALJKpEEB/bbWW4HPabd5njl25crREYFACWhI8l1Kir807xOxFpf
+         uaLa/jYOBB4myt492ky0Bm4YMaUYwzK/94ra2AKsk/hjtGfxyIUNsYZMw3k03FhB7aa+
+         D2OMDUrVDFG4lh3JnM9JNhFiNrQATzIWHgWWrsFo/gfWlZcp7D/KPuimOVmXF9dmZDOE
+         kqpQKHr+JjnMM9ArF0cPmyy5HSVupmLBQmTJ2rUO9BmpLiphAUI7CTD1n8sVbxM3f7P+
+         y4tJ9cXCf+NQfuudxvOK6UYmowPV5Kf2WNvQcUvzZdfMJCJXPEp22cQ//ywxY1dvTRRP
+         vp1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=p3/pbvedwS4IhZb4B6nbOhbMOZh2AXw7ndulwhv3TfM=;
+        b=On6xJ76O0WUbE5CRkpj3xFA3IMdnp+xHm1zqIxcOwsWtGfQ5W6MgNwGXoseslbEtRX
+         1IYRNkxcTj+nHIJf02hqJULhSt/ACSNNimmC1voUQHBjhk4iw9tSSASQhlCpiwlWGa8Z
+         /Bze6/JXPEsaiOMkV3sKmo4Q1UPDGLhanve8cTcaUuUHA1VFsMZD6pAR8m5Y/7/YRGa7
+         0C9Tc+fmTEed88bcLZT1PxAfyIGETjPch131YB4xUDPtM0io/1AKM8NZQyzPWTXifA11
+         1fmHejwJKSyQ9FqtBhZeManT/3I7JFX2iAmcekSHmx4mytqzBoAJs2HZPa2cPRTMokde
+         AXNQ==
+X-Gm-Message-State: APjAAAWvalkjUbtRfJjrZEQsfIHGkHiXXXTc5CWFmiUvLxasQ7t6eJCl
+        caWq+73Vop4xgKm3NN4z6lhbcNyAkWfbqTxKZlXI1g==
+X-Google-Smtp-Source: APXvYqxJtN6SyNTtxvr9eHmowjOiNggxSentSJ3MZnyqcgsnfmMgt0WjJPDMGJJ+lnTYhFM/TEriRkTW1hDBpWXDXFc=
+X-Received: by 2002:ab0:2258:: with SMTP id z24mr367974uan.100.1572453897721;
+ Wed, 30 Oct 2019 09:44:57 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <1572434824-1850-3-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-User-Agent: Mutt/1.12.1+40 (7f8642d4ee82) (2019-06-28)
-X-Originating-IP: [10.72.93.184]
+References: <cover.1571510481.git.hns@goldelico.com> <bec9d76e6da03d734649b9bdf76e9d575c57631a.1571510481.git.hns@goldelico.com>
+In-Reply-To: <bec9d76e6da03d734649b9bdf76e9d575c57631a.1571510481.git.hns@goldelico.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Wed, 30 Oct 2019 17:44:21 +0100
+Message-ID: <CAPDyKFrMQ3fBaeeAYVJfUdL8m=PDRU9Xt_9oGw6D1XOY68qDuQ@mail.gmail.com>
+Subject: Re: [PATCH v2 03/11] DTS: ARM: pandora-common: define wl1251 as child
+ node of mmc3
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        David Sterba <dsterba@suse.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Allison Randal <allison@lohutok.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-omap <linux-omap@vger.kernel.org>,
+        DTML <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>, kernel@pyra-handheld.com,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Shimoda-san, hi Geert, hi Sergei,
-
-On Wed, Oct 30, 2019 at 08:27:04PM +0900, Yoshihiro Shimoda wrote:
-> According to the R-Car Gen2/3 manual, "Be sure to write the initial
-> value (= H'80FF 0000) to MACCTLR before enabling PCIETCTLR.CFINIT."
-> To avoid unexpected behaviors, this patch fixes it.
-> 
-> Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
-> Fixes: be20bbcb0a8c ("PCI: rcar: Add the initialization of PCIe link in resume_noirq()")
-> Cc: <stable@vger.kernel.org> # v5.2+
-> Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+On Sat, 19 Oct 2019 at 20:42, H. Nikolaus Schaller <hns@goldelico.com> wrote:
+>
+> Since v4.7 the dma initialization requires that there is a
+> device tree property for "rx" and "tx" channels which is
+> not provided by the pdata-quirks initialization.
+>
+> By conversion of the mmc3 setup to device tree this will
+> finally allows to remove the OpenPandora wlan specific omap3
+> data-quirks.
+>
+> Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
+>
+> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+> Cc: <stable@vger.kernel.org> # 4.7.0
 > ---
->  drivers/pci/controller/pcie-rcar.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
-> index 40d8c54..d470ab8 100644
-> --- a/drivers/pci/controller/pcie-rcar.c
-> +++ b/drivers/pci/controller/pcie-rcar.c
-> @@ -91,6 +91,7 @@
->  #define  LINK_SPEED_2_5GTS	(1 << 16)
->  #define  LINK_SPEED_5_0GTS	(2 << 16)
->  #define MACCTLR			0x011058
-> +#define  MACCTLR_INIT_VAL	0x80ff0000
+>  arch/arm/boot/dts/omap3-pandora-common.dtsi | 37 +++++++++++++++++++--
+>  1 file changed, 35 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/arm/boot/dts/omap3-pandora-common.dtsi b/arch/arm/boot/dts/omap3-pandora-common.dtsi
+> index ec5891718ae6..c595b3eb314d 100644
+> --- a/arch/arm/boot/dts/omap3-pandora-common.dtsi
+> +++ b/arch/arm/boot/dts/omap3-pandora-common.dtsi
+> @@ -226,6 +226,18 @@
+>                 gpio = <&gpio6 4 GPIO_ACTIVE_HIGH>;     /* GPIO_164 */
+>         };
+>
+> +       /* wl1251 wifi+bt module */
+> +       wlan_en: fixed-regulator-wg7210_en {
+> +               compatible = "regulator-fixed";
+> +               regulator-name = "vwlan";
+> +               regulator-min-microvolt = <1800000>;
+> +               regulator-max-microvolt = <1800000>;
 
-Actually, I do believe there is an inconsistency in the manual,
-since the following statements pretty much contradict one another:
+I doubt these are correct.
 
-1. (as quoted by Shimoda-san from "Initial Setting of PCI Express")
-   > Be sure to write the initial value (= H'80FF 0000) to MACCTLR
-   > before enabling PCIETCTLR.CFINIT.
-2. Description of SPCHG bit in "54.2.98 MAC Control Register (MACCTLR)"
-   > Only writing 1 is valid and writing 0 is invalid.
+I guess this should be in the range of 2.7V-3.6V.
 
-The last "invalid" sounds like "bad things can happen" aka "expect
-undefined behaviors" when SPCHG is written "0".
+> +               startup-delay-us = <50000>;
+> +               regulator-always-on;
 
-While leaving the decision on the patch inclusion to the maintainers, I
-hope, in the long run, Renesas can resolve the documentation conflict
-with the HW team and the tech writers.
+Always on?
 
->  #define  SPEED_CHANGE		BIT(24)
->  #define  SCRAMBLE_DISABLE	BIT(27)
->  #define PMSR			0x01105c
-> @@ -613,6 +614,8 @@ static int rcar_pcie_hw_init(struct rcar_pcie *pcie)
->  	if (IS_ENABLED(CONFIG_PCI_MSI))
->  		rcar_pci_write_reg(pcie, 0x801f0000, PCIEMSITXR);
->  
-> +	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
+> +               enable-active-high;
+> +               gpio = <&gpio1 23 GPIO_ACTIVE_HIGH>;
+> +       };
 > +
->  	/* Finish initialization - establish a PCI Express link */
->  	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
->  
-> @@ -1235,6 +1238,7 @@ static int rcar_pcie_resume_noirq(struct device *dev)
->  		return 0;
->  
->  	/* Re-establish the PCIe link */
-> +	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
->  	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
->  	return rcar_pcie_wait_for_dl(pcie);
->  }
+>         /* wg7210 (wifi+bt module) 32k clock buffer */
+>         wg7210_32k: fixed-regulator-wg7210_32k {
+>                 compatible = "regulator-fixed";
+> @@ -522,9 +534,30 @@
+>         /*wp-gpios = <&gpio4 31 GPIO_ACTIVE_HIGH>;*/    /* GPIO_127 */
+>  };
+>
+> -/* mmc3 is probed using pdata-quirks to pass wl1251 card data */
+>  &mmc3 {
+> -       status = "disabled";
+> +       vmmc-supply = <&wlan_en>;
+> +
+> +       bus-width = <4>;
+> +       non-removable;
+> +       ti,non-removable;
+> +       cap-power-off-card;
+> +
+> +       pinctrl-names = "default";
+> +       pinctrl-0 = <&mmc3_pins>;
+> +
+> +       #address-cells = <1>;
+> +       #size-cells = <0>;
+> +
+> +       wlan: wl1251@1 {
+> +               compatible = "ti,wl1251";
+> +
+> +               reg = <1>;
+> +
+> +               interrupt-parent = <&gpio1>;
+> +               interrupts = <21 IRQ_TYPE_LEVEL_HIGH>;  /* GPIO_21 */
+> +
+> +               ti,wl1251-has-eeprom;
+> +       };
+>  };
+>
+>  /* bluetooth*/
+> --
+> 2.19.1
+>
 
--- 
-Best Regards,
-Eugeniu
+Kind regards
+Uffe
