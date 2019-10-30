@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57CECEA048
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:57:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8529AEA04F
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:57:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727587AbfJ3PzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:55:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56582 "EHLO mail.kernel.org"
+        id S1728574AbfJ3PzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:55:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728512AbfJ3PzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:55:02 -0400
+        id S1728570AbfJ3PzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:55:22 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F31D52087E;
-        Wed, 30 Oct 2019 15:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDAC7217D9;
+        Wed, 30 Oct 2019 15:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450902;
-        bh=1fs3qqd4O57VF5HWpCFLDPCsDsLjL3x6D7m8D8Cgxq0=;
+        s=default; t=1572450922;
+        bh=qXGTM2oCfxyP+vBtLzKiCjtARCt/2w0XbTT/leTHjvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbUh0OOvNu36ULyD3QAh03yHE3rRhXGWbKDyeMi9tPi96WsY6hSiR5pVp1fgwQWOI
-         E5iNGjLClfi7hoY1Gj5Yus3ZRsMnesnVJAxVEy5KzI0WKKvZWf6NaLKI7UaZQ5gFON
-         1Up9MhjpEYdwyzzPifm2ZP3iYXKcx38OXoiShAPU=
+        b=ilxE5FIfSMgGm6S87C1IiPyJNB3soaK6ITJ3eynX5m6w9fHHntKiV6tgiJznUNjej
+         iIDPUzYA6v8nifsKkbsxjBLZKNFra5SBPgipgzByJfMN61BCIo7p3uUdmfN2hhYEub
+         +nQg/tWuCePTp/llmJS9xxX6o6aMj2OEjeWub+D8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunfeng Ye <yeyunfeng@huawei.com>, Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Hu Shiyuan <hushiyuan@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+Cc:     Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        Tom Zanussi <tom.zanussi@linux.intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 20/38] perf c2c: Fix memory leak in build_cl_output()
-Date:   Wed, 30 Oct 2019 11:53:48 -0400
-Message-Id: <20191030155406.10109-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 27/38] tracing: Fix "gfp_t" format for synthetic events
+Date:   Wed, 30 Oct 2019 11:53:55 -0400
+Message-Id: <20191030155406.10109-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
 References: <20191030155406.10109-1-sashal@kernel.org>
@@ -49,70 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-[ Upstream commit ae199c580da1754a2b051321eeb76d6dacd8707b ]
+[ Upstream commit 9fa8c9c647be624e91b09ecffa7cd97ee0600b40 ]
 
-There is a memory leak problem in the failure paths of
-build_cl_output(), so fix it.
+In the format of synthetic events, the "gfp_t" is shown as "signed:1",
+but in fact the "gfp_t" is "unsigned", should be shown as "signed:0".
 
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Feilong Lin <linfeilong@huawei.com>
-Cc: Hu Shiyuan <hushiyuan@huawei.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/4d3c0178-5482-c313-98e1-f82090d2d456@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+The issue can be reproduced by the following commands:
+
+echo 'memlatency u64 lat; unsigned int order; gfp_t gfp_flags; int migratetype' > /sys/kernel/debug/tracing/synthetic_events
+cat  /sys/kernel/debug/tracing/events/synthetic/memlatency/format
+
+name: memlatency
+ID: 2233
+format:
+        field:unsigned short common_type;       offset:0;       size:2; signed:0;
+        field:unsigned char common_flags;       offset:2;       size:1; signed:0;
+        field:unsigned char common_preempt_count;       offset:3;       size:1; signed:0;
+        field:int common_pid;   offset:4;       size:4; signed:1;
+
+        field:u64 lat;  offset:8;       size:8; signed:0;
+        field:unsigned int order;       offset:16;      size:4; signed:0;
+        field:gfp_t gfp_flags;  offset:24;      size:4; signed:1;
+        field:int migratetype;  offset:32;      size:4; signed:1;
+
+print fmt: "lat=%llu, order=%u, gfp_flags=%x, migratetype=%d", REC->lat, REC->order, REC->gfp_flags, REC->migratetype
+
+Link: http://lkml.kernel.org/r/20191018012034.6404-1-zhengjun.xing@linux.intel.com
+
+Reviewed-by: Tom Zanussi <tom.zanussi@linux.intel.com>
+Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-c2c.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ kernel/trace/trace_events_hist.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-index 763c2edf52e7d..1452e5153c604 100644
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -2626,6 +2626,7 @@ static int build_cl_output(char *cl_sort, bool no_source)
- 	bool add_sym   = false;
- 	bool add_dso   = false;
- 	bool add_src   = false;
-+	int ret = 0;
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index bdf104596d122..dac518977e7d0 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -448,6 +448,8 @@ static bool synth_field_signed(char *type)
+ {
+ 	if (strncmp(type, "u", 1) == 0)
+ 		return false;
++	if (strcmp(type, "gfp_t") == 0)
++		return false;
  
- 	if (!buf)
- 		return -ENOMEM;
-@@ -2644,7 +2645,8 @@ static int build_cl_output(char *cl_sort, bool no_source)
- 			add_dso = true;
- 		} else if (strcmp(tok, "offset")) {
- 			pr_err("unrecognized sort token: %s\n", tok);
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto err;
- 		}
- 	}
- 
-@@ -2667,13 +2669,15 @@ static int build_cl_output(char *cl_sort, bool no_source)
- 		add_sym ? "symbol," : "",
- 		add_dso ? "dso," : "",
- 		add_src ? "cl_srcline," : "",
--		"node") < 0)
--		return -ENOMEM;
-+		"node") < 0) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
- 
- 	c2c.show_src = add_src;
--
-+err:
- 	free(buf);
--	return 0;
-+	return ret;
+ 	return true;
  }
- 
- static int setup_coalesce(const char *coalesce, bool no_source)
 -- 
 2.20.1
 
