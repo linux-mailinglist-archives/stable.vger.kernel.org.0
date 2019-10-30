@@ -2,97 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E8BEA227
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:59:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE19AEA271
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 18:25:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726671AbfJ3Q7C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 12:59:02 -0400
-Received: from out30-56.freemail.mail.aliyun.com ([115.124.30.56]:49164 "EHLO
-        out30-56.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726619AbfJ3Q7C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 12:59:02 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e07486;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=9;SR=0;TI=SMTPD_---0Tgiqt6T_1572454731;
-Received: from e19h19392.et15sqa.tbsite.net(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tgiqt6T_1572454731)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Thu, 31 Oct 2019 00:58:58 +0800
-From:   Yang Shi <yang.shi@linux.alibaba.com>
-To:     lixinhai.lxh@gmail.com, vbabka@suse.cz, mhocko@suse.com,
-        mgorman@techsingularity.net, akpm@linux-foundation.org
-Cc:     yang.shi@linux.alibaba.com, stable@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] mm: mempolicy: fix the wrong return value and potential pages leak of mbind
-Date:   Thu, 31 Oct 2019 00:58:51 +0800
-Message-Id: <1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1727345AbfJ3RZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 13:25:00 -0400
+Received: from mo4-p02-ob.smtp.rzone.de ([85.215.255.81]:20940 "EHLO
+        mo4-p02-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726488AbfJ3RZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 13:25:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1572456294;
+        s=strato-dkim-0002; d=goldelico.com;
+        h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:
+        X-RZG-CLASS-ID:X-RZG-AUTH:From:Subject:Sender;
+        bh=HxQ8LImbajVfHnvi6HR4za1A89vyuEJ5woLuz6S6thE=;
+        b=gYaUiUSt8IILSOrV92GEBt6jbFcW0ZGIZoq/GfwNowX2XiDmxuQf1sL+e1636Druyt
+        ZV8DEnogRIAb4S15M6u97keyiJq0GXXSzEaBgsROvaTrFcfMT2tmo/xD2ad4/nXARhYC
+        QBEgwXvzXlUV4rISnRJbnaq6E38VERWJBJlhNVFx4eNCt7WqEq/LluEFJzh//Uc1n9hd
+        4YHgqYEW7aNB5DbglAf8kgBoMKFQ3FnMcbbuDgNlGfXjsi8xLrEC4REbHtZKcMpHww0q
+        VK/7egLMbf0ufKPBnoiYG1VbkUpoZ3t2A6T5uaizyBxKf2qQqfbXMbwnEhzUzSMPDkxN
+        F6XQ==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMgPgp8VKxflSZ1P34KBj7wpz8NMGHPrpwDvG"
+X-RZG-CLASS-ID: mo00
+Received: from mbp-13-nikolaus.fritz.box
+        by smtp.strato.de (RZmta 44.29.0 DYNA|AUTH)
+        with ESMTPSA id L09db3v9UHOT5oz
+        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (curve secp521r1 with 521 ECDH bits, eq. 15360 bits RSA))
+        (Client did not present a certificate);
+        Wed, 30 Oct 2019 18:24:29 +0100 (CET)
+Content-Type: text/plain; charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 9.3 \(3124\))
+Subject: Re: [PATCH v2 04/11] mmc: host: omap_hsmmc: add code for special init of wl1251 to get rid of pandora_wl1251_init_card
+From:   "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <CAPDyKFp3EjTuCTj+HXhxf+Ssti0hW8eMDR-NrGYWDWSDmQz6Lw@mail.gmail.com>
+Date:   Wed, 30 Oct 2019 18:24:28 +0100
+Cc:     =?utf-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        David Sterba <dsterba@suse.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Allison Randal <allison@lohutok.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-omap <linux-omap@vger.kernel.org>,
+        DTML <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>, kernel@pyra-handheld.com,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <607E3AE4-65BF-4003-86BE-C70646D53D09@goldelico.com>
+References: <cover.1571510481.git.hns@goldelico.com> <0887d84402f796d1e7361261b88ec6057fbb0065.1571510481.git.hns@goldelico.com> <CAPDyKFp3EjTuCTj+HXhxf+Ssti0hW8eMDR-NrGYWDWSDmQz6Lw@mail.gmail.com>
+To:     Ulf Hansson <ulf.hansson@linaro.org>
+X-Mailer: Apple Mail (2.3124)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The commit d883544515aa ("mm: mempolicy: make the behavior consistent
-when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified") fixed the return
-value of mbind() for a couple of corner cases.  But, it altered the
-errno for some other cases, for example, mbind() should return -EFAULT
-when part or all of the memory range specified by nodemask and maxnode
-points  outside your accessible address space, or there was an unmapped
-hole in the specified memory range specified by addr and len.
+Hi Ulf,
 
-Fixed this by preserving the errno returned by queue_pages_range().
-And, the pagelist may be not empty even though queue_pages_range()
-returns error, put the pages back to LRU since mbind_range() is not called
-to really apply the policy so those pages should not be migrated, this
-is also the old behavior before the problematic commit.
+> Am 30.10.2019 um 16:51 schrieb Ulf Hansson <ulf.hansson@linaro.org>:
+>=20
+>> +
+>> +               np =3D of_get_compatible_child(np, "ti,wl1251");
+>> +               if (np) {
+>> +                       /*
+>> +                        * We have TI wl1251 attached to MMC3. Pass =
+this information to
+>> +                        * SDIO core because it can't be probed by =
+normal methods.
+>> +                        */
+>> +
+>> +                       dev_info(host->dev, "found wl1251\n");
+>> +                       card->quirks |=3D MMC_QUIRK_NONSTD_SDIO;
+>> +                       card->cccr.wide_bus =3D 1;
+>> +                       card->cis.vendor =3D 0x104c;
+>> +                       card->cis.device =3D 0x9066;
+>> +                       card->cis.blksize =3D 512;
+>> +                       card->cis.max_dtr =3D 24000000;
+>> +                       card->ocr =3D 0x80;
+>=20
+> These things should really be figured out by the mmc core during SDIO
+> card initialization itself, not via the host ops ->init_card()
+> callback. That is just poor hack, which in the long run should go
+> away.
 
-Reported-by: Li Xinhai <lixinhai.lxh@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org> v4.19 and v5.2+
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
----
- mm/mempolicy.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+Yes, I agree.
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 4ae967b..e08c941 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -672,7 +672,9 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
-  * 1 - there is unmovable page, but MPOL_MF_MOVE* & MPOL_MF_STRICT were
-  *     specified.
-  * 0 - queue pages successfully or no misplaced page.
-- * -EIO - there is misplaced page and only MPOL_MF_STRICT was specified.
-+ * errno - i.e. misplaced pages with MPOL_MF_STRICT specified (-EIO) or
-+ *         memory range specified by nodemask and maxnode points outside
-+ *         your accessible address space (-EFAULT)
-  */
- static int
- queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
-@@ -1286,7 +1288,7 @@ static long do_mbind(unsigned long start, unsigned long len,
- 			  flags | MPOL_MF_INVERT, &pagelist);
- 
- 	if (ret < 0) {
--		err = -EIO;
-+		err = ret;
- 		goto up_out;
- 	}
- 
-@@ -1305,10 +1307,12 @@ static long do_mbind(unsigned long start, unsigned long len,
- 
- 		if ((ret > 0) || (nr_failed && (flags & MPOL_MF_STRICT)))
- 			err = -EIO;
--	} else
--		putback_movable_pages(&pagelist);
--
-+	} else {
- up_out:
-+		if (!list_empty(&pagelist))
-+			putback_movable_pages(&pagelist);
-+	}
-+
- 	up_write(&mm->mmap_sem);
- mpol_out:
- 	mpol_put(new);
--- 
-1.8.3.1
+But I am just the poor guy who is trying to fix really broken code with
+as low effort as possible.
+
+I don't even have a significant clue what this code is exactly doing and =
+what
+the magic values mean. They were setup by pandora_wl1251_init_card() in =
+the
+same way so that I have just moved the code here and make it called in =
+(almost)
+the same situation.
+
+> Moreover, I think we should add a subnode to the host node in the DT,
+> to describe the embedded SDIO card, rather than parsing the subnode
+> for the SDIO func - as that seems wrong to me.
+
+You mean a second subnode?
+
+The wl1251 is the child node of the mmc node and describes the SDIO =
+card.
+We just check if it is a wl1251 or e.g. wl1837 or something else or even
+no child.
+
+> To add a subnode for the SDIO card, we already have a binding that I
+> think we should extend. Please have a look at
+> Documentation/devicetree/bindings/mmc/mmc-card.txt.
+>=20
+> If you want an example of how to implement this for your case, do a
+> git grep "broken-hpi" in the driver/mmc/core/, I think it will tell
+> you more of what I have in mind.
+
+So while I agree that it should be improved in the long run, we should
+IMHO fix the hack first (broken since v4.9!), even if it remains a hack
+for now. Improving this part seems to be quite independent and focussed
+on the mmc subsystem, while the other patches involve other subsystems.
+
+Maybe should we make a REVISIT note in the code? Or add something to
+the commit message about the idea how it should be done right?
+
+>=20
+>> +                       of_node_put(np);
+>> +               }
+>> +       }
+>> }
+>>=20
+>> static void omap_hsmmc_enable_sdio_irq(struct mmc_host *mmc, int =
+enable)
+>> --
+>> 2.19.1
+>>=20
+>=20
+> Kind regards
+> Uffe
+
+
+BR and thanks,
+Nikolaus
 
