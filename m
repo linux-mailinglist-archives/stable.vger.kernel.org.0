@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 777DCEA0FE
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 563C4EA100
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728823AbfJ3P43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:56:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58122 "EHLO mail.kernel.org"
+        id S1728843AbfJ3P4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:56:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728153AbfJ3P43 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:56:29 -0400
+        id S1728840AbfJ3P4b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:56:31 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCCB82087E;
-        Wed, 30 Oct 2019 15:56:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBD3A218DE;
+        Wed, 30 Oct 2019 15:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450988;
-        bh=kQUuXibv8QS6TvbhT84UpCgvgdJC5JMLRc2/g0gyjrA=;
+        s=default; t=1572450990;
+        bh=x8Cfy8ltv+5u7ZV5lSMae+39UiLroe1qUIdwBVjHK90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uf4xjcuIdorNaley35dyusxuLGtl8diKuvrgfedyYmL3ajK1N1uTf9jFvqOcftnDx
-         02ibjGYEeX2/mnLEcFGkjmvSvA4DwxxQwK01SQvt5I3tH165sKUiSoPyhkOU5w0Gn1
-         dyBwgjvF5cqK/hfkrs+JLgmSTfnmtM9WL92ewMDM=
+        b=arSg9iRuhaiUg6XUl/hbEdm3GIm5azCRoHUx+ztnmjEdj2euYOam8y4q9n0oQUHtV
+         Wgr2HQFUyQLInINmIvkK53ku/d9UpzQiHNcHBdCTnBuXX3P5pSHVYnMxchKHD+O0Zd
+         JtZ0jUuqsNbxvK/UEcg0GlYH0oouTPbd1qHRUTR4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunfeng Ye <yeyunfeng@huawei.com>, Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Hu Shiyuan <hushiyuan@huawei.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 13/24] perf c2c: Fix memory leak in build_cl_output()
-Date:   Wed, 30 Oct 2019 11:55:44 -0400
-Message-Id: <20191030155555.10494-13-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Johan Hovold <johan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        legousb-devel@lists.sourceforge.net, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 14/24] USB: legousbtower: fix a signedness bug in tower_probe()
+Date:   Wed, 30 Oct 2019 11:55:45 -0400
+Message-Id: <20191030155555.10494-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030155555.10494-1-sashal@kernel.org>
 References: <20191030155555.10494-1-sashal@kernel.org>
@@ -49,70 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfeng Ye <yeyunfeng@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ae199c580da1754a2b051321eeb76d6dacd8707b ]
+[ Upstream commit fd47a417e75e2506eb3672ae569b1c87e3774155 ]
 
-There is a memory leak problem in the failure paths of
-build_cl_output(), so fix it.
+The problem is that sizeof() is unsigned long so negative error codes
+are type promoted to high positive values and the condition becomes
+false.
 
-Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Feilong Lin <linfeilong@huawei.com>
-Cc: Hu Shiyuan <hushiyuan@huawei.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/4d3c0178-5482-c313-98e1-f82090d2d456@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 1d427be4a39d ("USB: legousbtower: fix slab info leak at probe")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191011141115.GA4521@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/builtin-c2c.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/usb/misc/legousbtower.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/builtin-c2c.c b/tools/perf/builtin-c2c.c
-index 32e64a8a6443f..bec7a2f1fb4dc 100644
---- a/tools/perf/builtin-c2c.c
-+++ b/tools/perf/builtin-c2c.c
-@@ -2454,6 +2454,7 @@ static int build_cl_output(char *cl_sort, bool no_source)
- 	bool add_sym   = false;
- 	bool add_dso   = false;
- 	bool add_src   = false;
-+	int ret = 0;
- 
- 	if (!buf)
- 		return -ENOMEM;
-@@ -2472,7 +2473,8 @@ static int build_cl_output(char *cl_sort, bool no_source)
- 			add_dso = true;
- 		} else if (strcmp(tok, "offset")) {
- 			pr_err("unrecognized sort token: %s\n", tok);
--			return -EINVAL;
-+			ret = -EINVAL;
-+			goto err;
- 		}
- 	}
- 
-@@ -2495,13 +2497,15 @@ static int build_cl_output(char *cl_sort, bool no_source)
- 		add_sym ? "symbol," : "",
- 		add_dso ? "dso," : "",
- 		add_src ? "cl_srcline," : "",
--		"node") < 0)
--		return -ENOMEM;
-+		"node") < 0) {
-+		ret = -ENOMEM;
-+		goto err;
-+	}
- 
- 	c2c.show_src = add_src;
--
-+err:
- 	free(buf);
--	return 0;
-+	return ret;
- }
- 
- static int setup_coalesce(const char *coalesce, bool no_source)
+diff --git a/drivers/usb/misc/legousbtower.c b/drivers/usb/misc/legousbtower.c
+index 378a565ec989f..a1ed6be874715 100644
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -881,7 +881,7 @@ static int tower_probe (struct usb_interface *interface, const struct usb_device
+ 				  get_version_reply,
+ 				  sizeof(*get_version_reply),
+ 				  1000);
+-	if (result < sizeof(*get_version_reply)) {
++	if (result != sizeof(*get_version_reply)) {
+ 		if (result >= 0)
+ 			result = -EIO;
+ 		dev_err(idev, "get version request failed: %d\n", result);
 -- 
 2.20.1
 
