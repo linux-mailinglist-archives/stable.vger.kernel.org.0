@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 834CFEA0E7
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A603EA140
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:10:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728654AbfJ3Pzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57288 "EHLO mail.kernel.org"
+        id S1727041AbfJ3QAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 12:00:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728645AbfJ3Pzm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:55:42 -0400
+        id S1728043AbfJ3Pzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:55:44 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C07A92173E;
-        Wed, 30 Oct 2019 15:55:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE1A6217D9;
+        Wed, 30 Oct 2019 15:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450941;
-        bh=ajrQFUpHfoZrFxmZ57IP0Y32djqaiWekFynq+8+EYS8=;
+        s=default; t=1572450943;
+        bh=+r78vgMnDR87npOWjtfsxJzphjSo8BM6zb8n59LRG3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xikIvcNKjV59W4m+PWW+O/Crf4wBCAQfMtc9qb894kpXhEThH9iruisqhzMH4/wjn
-         mJmz2w3r3ypuBP5Nm2gIH+8ar+OzOaLu9lAl2y2LFordD4d9JvZCpfc9GpoRUEWiZF
-         Wh3HJLdo1U05VnPn/5ok1u35IVixU0PftjOpNTZc=
+        b=UIsrDZOtwV2SKdI78zQ8+dRWEv7MK+Q8PztIoNb1F6tkTwQWqjUd/JthhTL0r0liA
+         DcwHz3MRenEtoiY6ChvoHSDzAkRDN/SAfLfA/NQ8bt1y+0uz+lTQ1fI9NL7QR8KTVZ
+         0ATs14SZFE7c76C9q+TycV+8I259/oU+WiXAENRI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabrice Gasnier <fabrice.gasnier@st.com>,
+Cc:     Alain Volmat <alain.volmat@st.com>,
         Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
         Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 33/38] i2c: stm32f7: fix a race in slave mode with arbitration loss irq
-Date:   Wed, 30 Oct 2019 11:54:01 -0400
-Message-Id: <20191030155406.10109-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 34/38] i2c: stm32f7: remove warning when compiling with W=1
+Date:   Wed, 30 Oct 2019 11:54:02 -0400
+Message-Id: <20191030155406.10109-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
 References: <20191030155406.10109-1-sashal@kernel.org>
@@ -44,72 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Alain Volmat <alain.volmat@st.com>
 
-[ Upstream commit 6d6b0d0d5afc8c4c84b08261260ba11dfa5206f2 ]
+[ Upstream commit 348e46fbb4cdb2aead79aee1fd8bb25ec5fd25db ]
 
-When in slave mode, an arbitration loss (ARLO) may be detected before the
-slave had a chance to detect the stop condition (STOPF in ISR).
-This is seen when two master + slave adapters switch their roles. It
-provokes the i2c bus to be stuck, busy as SCL line is stretched.
-- the I2C_SLAVE_STOP event is never generated due to STOPF flag is set but
-  don't generate an irq (race with ARLO irq, STOPIE is masked). STOPF flag
-  remains set until next master xfer (e.g. when STOPIE irq get unmasked).
-  In this case, completion is generated too early: immediately upon new
-  transfer request (then it doesn't send all data).
-- Some data get stuck in TXDR register. As a consequence, the controller
-  stretches the SCL line: the bus gets busy until a future master transfer
-  triggers the bus busy / recovery mechanism (this can take time... and
-  may never happen at all)
+Remove the following warning:
 
-So choice is to let the STOPF being detected by the slave isr handler,
-to properly handle this stop condition. E.g. don't mask IRQs in error
-handler, when the slave is running.
+drivers/i2c/busses/i2c-stm32f7.c:315:
+warning: cannot understand function prototype:
+'struct stm32f7_i2c_spec i2c_specs[] =
 
-Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Replace a comment starting with /** by simply /* to avoid having
+it interpreted as a kernel-doc comment.
+
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+Signed-off-by: Alain Volmat <alain.volmat@st.com>
 Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 48521bc8a4d23..362b23505f214 100644
+index 362b23505f214..f4e3613f9361b 100644
 --- a/drivers/i2c/busses/i2c-stm32f7.c
 +++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1488,7 +1488,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
- 	void __iomem *base = i2c_dev->base;
- 	struct device *dev = i2c_dev->dev;
- 	struct stm32_i2c_dma *dma = i2c_dev->dma;
--	u32 mask, status;
-+	u32 status;
+@@ -297,7 +297,7 @@ struct stm32f7_i2c_dev {
+ 	bool use_dma;
+ };
  
- 	status = readl_relaxed(i2c_dev->base + STM32F7_I2C_ISR);
- 
-@@ -1513,12 +1513,15 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
- 		f7_msg->result = -EINVAL;
- 	}
- 
--	/* Disable interrupts */
--	if (stm32f7_i2c_is_slave_registered(i2c_dev))
--		mask = STM32F7_I2C_XFER_IRQ_MASK;
--	else
--		mask = STM32F7_I2C_ALL_IRQ_MASK;
--	stm32f7_i2c_disable_irq(i2c_dev, mask);
-+	if (!i2c_dev->slave_running) {
-+		u32 mask;
-+		/* Disable interrupts */
-+		if (stm32f7_i2c_is_slave_registered(i2c_dev))
-+			mask = STM32F7_I2C_XFER_IRQ_MASK;
-+		else
-+			mask = STM32F7_I2C_ALL_IRQ_MASK;
-+		stm32f7_i2c_disable_irq(i2c_dev, mask);
-+	}
- 
- 	/* Disable dma */
- 	if (i2c_dev->use_dma) {
+-/**
++/*
+  * All these values are coming from I2C Specification, Version 6.0, 4th of
+  * April 2014.
+  *
 -- 
 2.20.1
 
