@@ -2,103 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2735EEA302
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 19:07:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 295D8EA31A
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 19:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727391AbfJ3SH6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 14:07:58 -0400
-Received: from mail-qk1-f195.google.com ([209.85.222.195]:38253 "EHLO
-        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727334AbfJ3SH6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 14:07:58 -0400
-Received: by mail-qk1-f195.google.com with SMTP id e2so3732553qkn.5
-        for <stable@vger.kernel.org>; Wed, 30 Oct 2019 11:07:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=XJY+w7yizKxquEzbyxjzEiCQZwBiOWc+VGOuPrD25Qs=;
-        b=JSwH6ovbuXwq2Pf68PzSieWnzNnCS308vjyg+4TLtfoRBfpvTai5D0W/g2EAV14DhJ
-         zgxYD79pqBAMsDXuMjanG3XWevZ7+EC9etO5kZKwLqlym9jQFIxyoPCc5E+g+qzZOqhB
-         JwiUJ/jFP/ejxCGHUPMZU6q2t1JNjdoqLvzXHV7fCoycxZNACO23CmJjNPzV1KHjGBrN
-         1ZiJzkCs6ohrp8OnxMoJsudsuxhKKTINJIX2TEOiJPz0PvPH1c6i6d5hQyHyS0JBmF9f
-         hwVCT+Z+oUu0Sy7bRkzl/T0WjNSX34TMYBugSqBUbCuWKorZ1I8T+lVcWkIHuFu9Gpuh
-         QakA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=XJY+w7yizKxquEzbyxjzEiCQZwBiOWc+VGOuPrD25Qs=;
-        b=DNRsBUdtIuT1X/lEWoDrFe/FtW+dfL/2h7g6c71keD3msQLqRCJK3NJ3iq+2G8gUkb
-         LQGvPY2w97WMwluSl4kO2XlZx92YC2oidGlxno9YvkcvrLM0tNMQqisvVK4MHmY8yxRS
-         O7uZmxPfr5+POddF+e0PnKdSTKNatT1XKvrSdSDlejU/jedKJ2Eats9P5hOaWZTnMpl/
-         WkTS/5gh+bmqGd5kUo9ShgqQZ87+nEja2nDsCRSJq9RX9yGD7yJmcny/7Ztl4dflXBG2
-         zX5NGyGJQERwQN1x1zDF1N6ubmDJsZbGtlNiL2y3pp4PjYTNpIBvkFkoEljWOfM+Iq86
-         YQiw==
-X-Gm-Message-State: APjAAAWY4cAZxD78GB5lGQ6b95TBbQnbd96ri1pWcZJ3YbCxF0/gcrf3
-        E000edWXw4toSzAI1/pP2OFpuN+da8E=
-X-Google-Smtp-Source: APXvYqylMdF5kMHuUc7sqZ3iYup6lO5rHJ/zCFi+bOdgHp1wi6H/GV0nzc36/k4dYQ1kBvGn6qhzbw==
-X-Received: by 2002:a37:e407:: with SMTP id y7mr1248304qkf.77.1572458876487;
-        Wed, 30 Oct 2019 11:07:56 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-142-162-113-180.dhcp-dynamic.fibreop.ns.bellaliant.net. [142.162.113.180])
-        by smtp.gmail.com with ESMTPSA id v137sm396839qka.64.2019.10.30.11.07.55
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 30 Oct 2019 11:07:55 -0700 (PDT)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1iPsNu-00013G-Oj; Wed, 30 Oct 2019 15:07:54 -0300
-Date:   Wed, 30 Oct 2019 15:07:54 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     "Marciniszyn, Mike" <mike.marciniszyn@intel.com>
-Cc:     "Dalessandro, Dennis" <dennis.dalessandro@intel.com>,
-        "dledford@redhat.com" <dledford@redhat.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "Wan, Kaike" <kaike.wan@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Erwin, James" <james.erwin@intel.com>
-Subject: Re: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than gen3
-Message-ID: <20191030180754.GA31799@ziepe.ca>
-References: <20191025161717.106825.14421.stgit@awfm-01.aw.intel.com>
- <20191025195823.106825.63080.stgit@awfm-01.aw.intel.com>
- <20191029195214.GA1802@ziepe.ca>
- <32E1700B9017364D9B60AED9960492BC729594E1@fmsmsx120.amr.corp.intel.com>
+        id S1726325AbfJ3SPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 14:15:11 -0400
+Received: from out30-43.freemail.mail.aliyun.com ([115.124.30.43]:42174 "EHLO
+        out30-43.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726184AbfJ3SPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 14:15:11 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04423;MF=yang.shi@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0Tgir3np_1572459299;
+Received: from US-143344MP.local(mailfrom:yang.shi@linux.alibaba.com fp:SMTPD_---0Tgir3np_1572459299)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 31 Oct 2019 02:15:07 +0800
+Subject: Re: [PATCH] mm: mempolicy: fix the wrong return value and potential
+ pages leak of mbind
+To:     lixinhai.lxh@gmail.com, vbabka@suse.cz, mhocko@suse.com,
+        mgorman@techsingularity.net, akpm@linux-foundation.org
+Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org
+References: <1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com>
+From:   Yang Shi <yang.shi@linux.alibaba.com>
+Message-ID: <12ac5b41-27a6-5a5b-0d07-7e9cb847829d@linux.alibaba.com>
+Date:   Wed, 30 Oct 2019 11:14:58 -0700
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:52.0)
+ Gecko/20100101 Thunderbird/52.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32E1700B9017364D9B60AED9960492BC729594E1@fmsmsx120.amr.corp.intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 29, 2019 at 09:19:34PM +0000, Marciniszyn, Mike wrote:
-> > Subject: Re: [PATCH for-rc 1/4] IB/hfi1: Allow for all speeds higher than gen3
-> > 
-> > On Fri, Oct 25, 2019 at 03:58:24PM -0400, Dennis Dalessandro wrote:
-> > > From: James Erwin <james.erwin@intel.com>
-> > >
-> > > The driver avoids the gen3 speed bump when the parent
-> > > bus speed isn't identical to gen3, 8.0GT/s.  This is not
-> > > compatible with gen4 and newer speeds.
-> > >
-> > > Fix by relaxing the test to explicitly look for the lower
-> > > capability speeds which inherently allows for all future speeds.
-> > 
-> > This description does not seem like stable material to me.
-> > 
-> 
-> Having a card unknowingly operate at half speed would seem pretty serious to me.
 
-Since gen4 systems are really new this also sounds like a new feature
-to me.. You need to be concerned that changing the pci setup doesn't
-cause regressions on existing systems too.
 
-> Perhaps the description should say:
-> 
-> IB/hfi1: Insure full Gen3 speed in a Gen4 system
+On 10/30/19 9:58 AM, Yang Shi wrote:
+> The commit d883544515aa ("mm: mempolicy: make the behavior consistent
+> when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified") fixed the return
+> value of mbind() for a couple of corner cases.  But, it altered the
+> errno for some other cases, for example, mbind() should return -EFAULT
+> when part or all of the memory range specified by nodemask and maxnode
+> points  outside your accessible address space, or there was an unmapped
+> hole in the specified memory range specified by addr and len.
+>
+> Fixed this by preserving the errno returned by queue_pages_range().
+> And, the pagelist may be not empty even though queue_pages_range()
+> returns error, put the pages back to LRU since mbind_range() is not called
+> to really apply the policy so those pages should not be migrated, this
+> is also the old behavior before the problematic commit.
+Forgot fixes tag.
 
-And maybe explain what the actual user visible impact is here. Sounds
-like plugging a card into a gen4 system will not run at gen3 speeds?
+Fixes: d883544515aa ("mm: mempolicy: make the behavior consistent when 
+MPOL_MF_MOVE* and MPOL_MF_STRICT were specified")
 
-Jason
+> Reported-by: Li Xinhai <lixinhai.lxh@gmail.com>
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Mel Gorman <mgorman@techsingularity.net>
+> Cc: <stable@vger.kernel.org> v4.19 and v5.2+
+> Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+> ---
+>   mm/mempolicy.c | 14 +++++++++-----
+>   1 file changed, 9 insertions(+), 5 deletions(-)
+>
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index 4ae967b..e08c941 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -672,7 +672,9 @@ static int queue_pages_test_walk(unsigned long start, unsigned long end,
+>    * 1 - there is unmovable page, but MPOL_MF_MOVE* & MPOL_MF_STRICT were
+>    *     specified.
+>    * 0 - queue pages successfully or no misplaced page.
+> - * -EIO - there is misplaced page and only MPOL_MF_STRICT was specified.
+> + * errno - i.e. misplaced pages with MPOL_MF_STRICT specified (-EIO) or
+> + *         memory range specified by nodemask and maxnode points outside
+> + *         your accessible address space (-EFAULT)
+>    */
+>   static int
+>   queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+> @@ -1286,7 +1288,7 @@ static long do_mbind(unsigned long start, unsigned long len,
+>   			  flags | MPOL_MF_INVERT, &pagelist);
+>   
+>   	if (ret < 0) {
+> -		err = -EIO;
+> +		err = ret;
+>   		goto up_out;
+>   	}
+>   
+> @@ -1305,10 +1307,12 @@ static long do_mbind(unsigned long start, unsigned long len,
+>   
+>   		if ((ret > 0) || (nr_failed && (flags & MPOL_MF_STRICT)))
+>   			err = -EIO;
+> -	} else
+> -		putback_movable_pages(&pagelist);
+> -
+> +	} else {
+>   up_out:
+> +		if (!list_empty(&pagelist))
+> +			putback_movable_pages(&pagelist);
+> +	}
+> +
+>   	up_write(&mm->mmap_sem);
+>   mpol_out:
+>   	mpol_put(new);
+
