@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 705E1E9FBC
+	by mail.lfdr.de (Postfix) with ESMTP id D8B1AE9FBD
 	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:51:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbfJ3Pv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:51:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52200 "EHLO mail.kernel.org"
+        id S1727793AbfJ3Pvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:51:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727725AbfJ3Pv1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:51:27 -0400
+        id S1727791AbfJ3Pvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:51:32 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74C06208C0;
-        Wed, 30 Oct 2019 15:51:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E421D20874;
+        Wed, 30 Oct 2019 15:51:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450686;
-        bh=Jcb41jK/gNTOcohgptRyqBDiCEXmFksh7t2MhPz/fk8=;
+        s=default; t=1572450691;
+        bh=Du/6PTSuGoZ0Qf9UkdU/yHUEIgefC9EtDGfESH88STo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mMRBS3LFbJsx2GZwh1IkIuNYtVwBWNjmA8TLDfo+umrZ5//lsyLd6e4Kilwkrx1Fw
-         dZHV0D22BNNn//xXX+xR0iibX2gY6EA+I7PetQQV2FIt9RbaM083UDU7eJCQpGzDtH
-         qvhfj1tSU7E5ptXm1H2MX0rwEZ38kACyPvoUGSgU=
+        b=1Nhr00SU9g5/5OehlzG6ky5i59mQSXgL3ph7dI/JwgDRToZgt1Muda3pXT1sqdoiZ
+         KKtDm+OhXkoWJV9z62yhATfT4QTlnFd5J5m4neepOx13KIEj2mA1+krShk54rybakH
+         d1+kfKIXGFgeiScc989HxFwICB3YUxjy2U/GKmpk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Soeren Moch <smoch@web.de>, Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.3 25/81] arm64: dts: rockchip: fix RockPro64 vdd-log regulator settings
-Date:   Wed, 30 Oct 2019 11:48:31 -0400
-Message-Id: <20191030154928.9432-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.3 26/81] arm64: dts: rockchip: fix RockPro64 sdhci settings
+Date:   Wed, 30 Oct 2019 11:48:32 -0400
+Message-Id: <20191030154928.9432-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030154928.9432-1-sashal@kernel.org>
 References: <20191030154928.9432-1-sashal@kernel.org>
@@ -45,39 +45,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Soeren Moch <smoch@web.de>
 
-[ Upstream commit 0990c5e7573098117c69651821647c228483e31b ]
+[ Upstream commit 2558b3b1b11a1b32b336be2dd0aabfa6d35ddcb5 ]
 
-The RockPro64 schematic [1] page 18 states a min voltage of 0.8V and a
-max voltage of 1.4V for the VDD_LOG pwm regulator. However, there is an
-additional note that the pwm parameter needs to be modified.
-From the schematics a voltage range of 0.8V to 1.7V can be calculated.
-Additional voltage measurements on the board show that this fix indeed
-leads to the correct voltage, while without this fix the voltage was set
-too high.
+The RockPro64 schematics [1], [2] show that the rk3399 EMMC_STRB pin is
+connected to the RESET pin instead of the DATA_STROBE pin of the eMMC module.
+So the data strobe cannot be used for its intended purpose on this board,
+and so the HS400 eMMC mode is not functional. Limit the controller to HS200.
 
 [1] http://files.pine64.org/doc/rockpro64/rockpro64_v21-SCH.pdf
+[2] http://files.pine64.org/doc/rock64/PINE64_eMMC_Module_20170719.pdf
 
 Fixes: e4f3fb490967 ("arm64: dts: rockchip: add initial dts support for Rockpro64")
 Signed-off-by: Soeren Moch <smoch@web.de>
-Link: https://lore.kernel.org/r/20191003215036.15023-1-smoch@web.de
+Link: https://lore.kernel.org/r/20191003215036.15023-2-smoch@web.de
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
 diff --git a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
-index 5818b85255123..cad314f708300 100644
+index cad314f708300..1ff617230f6c4 100644
 --- a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
 +++ b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dts
-@@ -166,7 +166,7 @@
- 		regulator-always-on;
- 		regulator-boot-on;
- 		regulator-min-microvolt = <800000>;
--		regulator-max-microvolt = <1400000>;
-+		regulator-max-microvolt = <1700000>;
- 		vin-supply = <&vcc5v0_sys>;
- 	};
+@@ -625,8 +625,7 @@
+ 
+ &sdhci {
+ 	bus-width = <8>;
+-	mmc-hs400-1_8v;
+-	mmc-hs400-enhanced-strobe;
++	mmc-hs200-1_8v;
+ 	non-removable;
+ 	status = "okay";
  };
 -- 
 2.20.1
