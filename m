@@ -2,67 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EAFC5E9788
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 09:02:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E542EE9792
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 09:06:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726020AbfJ3IC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 04:02:29 -0400
-Received: from sonic317-34.consmr.mail.ne1.yahoo.com ([66.163.184.45]:38573
-        "EHLO sonic317-34.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725942AbfJ3IC3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 04:02:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1572422547; bh=tnR598H/QqPT1Ph/+p7nVdpgic7bknwMcbeRQcbc5RI=; h=Date:From:Reply-To:Subject:From:Subject; b=Qn0vlaGl/DYBigj1dqlAwvUoWDxG56isl/jI2ubiPCuEQmBPSsN4QFdJcsj66XLnL50nqWQJqtXDK9upaVJ+xP5euyA4HBX4kaQLP6nXlbYrbE9Kibgz6WO8LD5Uj0cF/VE0naj7yMilRoIUl9l4Q2aHx27kJm7CAc682w884L+dAa84TWomtOCv8qPf5t7CBlGZTCCpgixDJrVOnzY59Lk3vphMB3jINJ4D2g8vF3qGVpu6H7VRr4cgrIVVUAtS2PqI/TEPJ+radi7wEW8dEeZE0Hj9ar6kp94K9E1xWbESsRuPhmIxHXOErsxSpqMv1W3U8bHjcGyfoxV8mnH+Dw==
-X-YMail-OSG: UXRf1bUVM1mSSq2CNP6ne81_UzC68bJYAYRH.ygBDgOVeqzL1OmjCRINc33UOLS
- DMfYWbgfuZPRTH72TCW4vad1pHQiW7UYzpPWF5Z1sMicQ1..ZnOF3HvlLNvy8e0Nfs8poBKIIjQ6
- 9BMqbbPw.4Z4ZxGib4xjWIwMQzg9BtYx2_6fPC9pSCo9rfgqCBOK8WcFoTO0SwhA.BqOTbZHgflu
- q0K37.pEFV8O0BRqZupmHSGb4GLTLWAEVlVXl0wldY8RbsMFiLpPdKrVWNkLb2fRfpSPsNHjmO51
- k7OecAn1wi4r4B0qZ51_MLSMeFsWFT50gArTCznVn_MQk9wRkQdGd_n1Vy6LSY4IhbOQKkaaJBrH
- FnBv94MzzeiMaz_CKdtLVoUL2I7Oh2ba4WfgYyec_4ODO.dgAnRxylldOijIQh.MA2GbjpqMq25h
- uiKEDbg.6EOEo7zVoMem.tVg2OuY.CX1nMOBfaWqGdW5mPEjK0mAckOYt00TBS2Aiz67agrucpPU
- iTE_k2.VvhPEa7MCM2GdIljn.nKmy8ejwXkS0PGa1Xybvtgs8AJNXsCG_Pigdj349DC_Hd3GLain
- 5D2Q8Vt_rfNxqWAJnfW6Fol.iAkpc.IBoaLSIRIDENIylzOS.zUc8pdmKOcrDq.qtibZllwzq.ey
- RM5X8LQnDNLuvjUuvuN9dDhpZEXLClgjDJzEY.YH9elUl1qrniP2JqyrOU4YHwqqfRnwXzKx4oH_
- EhN88tAEtL65OCQcz.q67npZrgYPcaMI0YmAc3eBFtvUP4.Bu3mgxUxaqUG1on.z6_fANzWBxsTw
- JDmS5edrFd3IEHMc0BdsSD7rHIV1FnWfQ1kTVg05VJ2bhx.0bwn6RSsmvlwtQprqEZRcR9lm.DGJ
- muZzr560KgcN9u20kLcLpIykkp84tbqMlxsuX2pG0IHg7WDv3r3wmCaTyJT1BixtP2JpcV7vbZGw
- NE6mXA2sT61XI3v.CjJGh1wEjtJ0QFuEtd6foQYc8p3U8fiAXB2zQPOkzn3Ot.5Soe9hNm45D6GU
- KZ_tbQSXezIv.fyo1nX5V3xpqFZDk2LeLyYX7cmiNZ3_Gp53qYrQ9qf2mPiqGeqmSnIBqXGU5HFz
- mrkigAjdJjpz5K21NpE1PYzO7f4RQVAhbA4yC4rCtx3VswtPfTZ5wIz_CKoWUY._7_3JLuJsKNc3
- n.tNorIEqhp2Ji_gMMndqnBVf_NOeB8UbKkzAhc5pJP6UnhGeMCb8ZgJJF2Gv1Tr7i06yy3ZtQdz
- MutKdfx9uMU876PynoLxWmIMSwrJs10FXF1LgwAmBHLigP_cfteHBgGF.tzEKQr5EBJkL.DmXN2e
- m3tU-
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Wed, 30 Oct 2019 08:02:27 +0000
-Date:   Wed, 30 Oct 2019 08:02:24 +0000 (UTC)
-From:   Mrs Elodie Antoine <elodieantoine890@gmail.com>
-Reply-To: elodiem97@yahoo.com
-Message-ID: <1474667639.4288876.1572422544513@mail.yahoo.com>
-Subject: Greetings From Mrs Elodie,
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+        id S1726184AbfJ3IGV convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 30 Oct 2019 04:06:21 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:40385 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726137AbfJ3IGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 04:06:20 -0400
+Received: from mail-pl1-f197.google.com ([209.85.214.197])
+        by youngberry.canonical.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <kai.heng.feng@canonical.com>)
+        id 1iPizi-0008DW-8t
+        for stable@vger.kernel.org; Wed, 30 Oct 2019 08:06:18 +0000
+Received: by mail-pl1-f197.google.com with SMTP id 40so1113579plf.15
+        for <stable@vger.kernel.org>; Wed, 30 Oct 2019 01:06:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=L0tOiWIydj5CKljWNZmAK+aAA1mTh46IOLFAvkfBMjs=;
+        b=PQbhyQvHufbvXNSDGpMLg1ee4GRzcI36Nf36pQB6ifKFOSRI535MMTKrDJbNxL6SVz
+         FLW3DGuZFzcqU1n3C3/lCnUrm0XTjSW+2/UspdSRMn5bY0WubgeEzSbYfFrM6WY368kl
+         yLHlsj9BaGXW470LxlCMcLkzTOGHuYVLdhUuLLYWRWiqCDkn4IBmxoLA9YcIviJeK2Pf
+         Z+yeKfRWbA65OWBYmoCvCVgWbERglsEDi2sU02sbi33LgGcDcZPSxaDnQhqIUlTf83Er
+         cmflmWhc19lODLoKHKp4YRbRB78mZjd+TG6KegcBjuXDBUGpOYTKOUbYRI+/Dk0HMERG
+         /AHQ==
+X-Gm-Message-State: APjAAAXLsmpm55G1jIy8P3jR8mTzQiN+2sYRfLYCnJ+V7B+B7iZt0lFf
+        I9b3hUR2xLziK+/Tk/bn0tHvmh4+f0zPx/NsMM4VUHp2gG3hjWcSt/XVBQKSESFXSYCd47UMjNx
+        Mvu8UHMm2ze7n7NIp2mmtlqn/IBGcpZCy9A==
+X-Received: by 2002:a65:588e:: with SMTP id d14mr30104940pgu.56.1572422776862;
+        Wed, 30 Oct 2019 01:06:16 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqxjqeW/O9+0sJrDZkNWl5XuojZ9KLMO5fRYWvaW19tO/ikhUNfKG+QPqQ2zG4XhPzCTUlry1Q==
+X-Received: by 2002:a65:588e:: with SMTP id d14mr30104908pgu.56.1572422776541;
+        Wed, 30 Oct 2019 01:06:16 -0700 (PDT)
+Received: from 2001-b011-380f-3c42-507c-6d05-b0b1-d40f.dynamic-ip6.hinet.net (2001-b011-380f-3c42-507c-6d05-b0b1-d40f.dynamic-ip6.hinet.net. [2001:b011:380f:3c42:507c:6d05:b0b1:d40f])
+        by smtp.gmail.com with ESMTPSA id q7sm1739666pff.19.2019.10.30.01.06.14
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 30 Oct 2019 01:06:15 -0700 (PDT)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3601\))
+Subject: Re: [PATCH] x86/intel: Disable HPET on Intel Coffe Lake platforms
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+In-Reply-To: <20191016103816.30650-1-kai.heng.feng@canonical.com>
+Date:   Wed, 30 Oct 2019 16:06:13 +0800
+Cc:     "H. Peter Anvin" <hpa@zytor.com>, Harry Pan <harry.pan@intel.com>,
+        feng.tang@intel.com, x86@kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+Message-Id: <9CFF6CF0-9053-4206-B2C3-D286019B785F@canonical.com>
+References: <20191016103816.30650-1-kai.heng.feng@canonical.com>
+To:     Thomas Gleixner <tglx@linutronix.de>, mingo@redhat.com,
+        Borislav Petkov <bp@alien8.de>
+X-Mailer: Apple Mail (2.3601)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Thomas,
 
+> On Oct 16, 2019, at 18:38, Kai-Heng Feng <kai.heng.feng@canonical.com> wrote:
+> 
+> Some Coffee Lake platforms have skewed HPET timer once the SoCs entered
+> PC10, and marked TSC as unstable clocksource as result.
+> 
+> Harry Pan identified it's a firmware bug [1].
+> 
+> To prevent creating a circular dependency between HPET and TSC, let's
+> disable HPET on affected platforms.
+> 
+> [1]: https://lore.kernel.org/lkml/20190516090651.1396-1-harry.pan@intel.com/
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203183
 
-Greetings From Mrs Elodie,
+Do you think it's a sane approach?
 
-Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS CHRIST the giver of every good thing. Good day,i know this letter will definitely come to you as a huge surprise, but I implore you to take the time to go through it carefully as the decision you make will go off a long way to determine my future and continued existence. I am Mrs Elodie Antoine
-aging widow of 59 years old suffering from long time illness. I have some funds I inherited from my late husband,
+Kai-Heng
 
-The sum of (US$4.5 Million Dollars) and I needed a very honest and God fearing who can withdraw this money then use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found your email address from the internet after honest prayers to the LORD to bring me a helper and i decided to contact you if you may be willing and interested to handle these trust funds in good faith before anything happens to me.
-I accept this decision because I do not have any child who will inherit this money after I die. I want your urgent reply to me so that I will give you the deposit receipt which the COMPANY issued to me as next of kin for immediate transfer of the money to your account in your country, to start the good work of God, I want you to use the 15/percent of the total amount to help yourself in doing the project.
+> 
+> Cc: <stable@vger.kernel.org>
+> Suggested-by: Feng Tang <feng.tang@intel.com>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+> arch/x86/kernel/early-quirks.c | 2 ++
+> 1 file changed, 2 insertions(+)
+> 
+> diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
+> index 6f6b1d04dadf..4cba91ec8049 100644
+> --- a/arch/x86/kernel/early-quirks.c
+> +++ b/arch/x86/kernel/early-quirks.c
+> @@ -710,6 +710,8 @@ static struct chipset early_qrk[] __initdata = {
+> 	 */
+> 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
+> 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> +	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
+> +		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+> 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
+> 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+> 	{}
+> -- 
+> 2.17.1
+> 
 
-
-I am desperately in keen need of assistance and I have summoned up courage to contact you for this task, you must not fail me and the millions of the poor people in our todays WORLD. This is no stolen money and there are no dangers involved,100% RISK FREE with full legal proof. Please if you would be able to use the funds for the Charity works kindly let me know immediately.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish. I want you to take 15 percent of the total money for your personal use while 85% of the money will go to charity.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish.
-
-
-kindly respond for further details.
-
-
-Thanks and God bless you,
-
-Mrs Elodie Antoine
