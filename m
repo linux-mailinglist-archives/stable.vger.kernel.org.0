@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E6BFEEA106
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69B94EA134
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727527AbfJ3P45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:56:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58524 "EHLO mail.kernel.org"
+        id S1726668AbfJ3P7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:59:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728929AbfJ3P45 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:56:57 -0400
+        id S1728989AbfJ3P5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:57:12 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C7722067D;
-        Wed, 30 Oct 2019 15:56:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77AD021835;
+        Wed, 30 Oct 2019 15:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572451016;
-        bh=rc56oxVDzxSyspd9WL/F3AQ8LjXvk4rfeFvwFp/w1uc=;
+        s=default; t=1572451031;
+        bh=b0x8Gs9Zpom0YF4Flfqrm3qMH3OCo1FV30kw02Qse9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Dj3LdBGdrHKehXom1s1JUeKzutH0PMEHSxYjuAU1q+ST0nq0v8LZMWvHOk//odHq
-         JtbHPch1onzmAfLxuUJAwxwk6yV3tPqZSTNeeyi9j0WANTJMd1wZSqgo14ySFUCo7i
-         a+SB/xmQzhAYmnPXe6DjzbHIVOGoVSnQ1L8/nJMU=
+        b=HmuLSpNj9KS/dLW6MZPcnPnbt+GvgK8UDBgvg8xvJB3eQvtUKQc6T+PDD7cvgpt9s
+         KLq2hqs8zfR6nRl2qEypcSNMQ0Qmy+AFpYW2JAd9YESaMKD2tZ4bW92jWzY84LcKif
+         vGoVGo5lfLN5EQTRBTdKQcegeZbaDuQ6vpPI2dro=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Mike Christie <mchristi@redhat.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org, nbd@other.debian.org
-Subject: [PATCH AUTOSEL 4.14 23/24] nbd: handle racing with error'ed out commands
-Date:   Wed, 30 Oct 2019 11:55:54 -0400
-Message-Id: <20191030155555.10494-23-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 04/18] ASoc: rockchip: i2s: Fix RPM imbalance
+Date:   Wed, 30 Oct 2019 11:56:46 -0400
+Message-Id: <20191030155700.10748-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191030155555.10494-1-sashal@kernel.org>
-References: <20191030155555.10494-1-sashal@kernel.org>
+In-Reply-To: <20191030155700.10748-1-sashal@kernel.org>
+References: <20191030155700.10748-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,67 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 7ce23e8e0a9cd38338fc8316ac5772666b565ca9 ]
+[ Upstream commit b1e620e7d32f5aad5353cc3cfc13ed99fea65d3a ]
 
-We hit the following warning in production
+If rockchip_pcm_platform_register() fails, e.g. upon deferring to wait
+for an absent DMA channel, we return without disabling RPM, which makes
+subsequent re-probe attempts scream with errors about the unbalanced
+enable. Don't do that.
 
-print_req_error: I/O error, dev nbd0, sector 7213934408 flags 80700
-------------[ cut here ]------------
-refcount_t: underflow; use-after-free.
-WARNING: CPU: 25 PID: 32407 at lib/refcount.c:190 refcount_sub_and_test_checked+0x53/0x60
-Workqueue: knbd-recv recv_work [nbd]
-RIP: 0010:refcount_sub_and_test_checked+0x53/0x60
-Call Trace:
- blk_mq_free_request+0xb7/0xf0
- blk_mq_complete_request+0x62/0xf0
- recv_work+0x29/0xa1 [nbd]
- process_one_work+0x1f5/0x3f0
- worker_thread+0x2d/0x3d0
- ? rescuer_thread+0x340/0x340
- kthread+0x111/0x130
- ? kthread_create_on_node+0x60/0x60
- ret_from_fork+0x1f/0x30
----[ end trace b079c3c67f98bb7c ]---
-
-This was preceded by us timing out everything and shutting down the
-sockets for the device.  The problem is we had a request in the queue at
-the same time, so we completed the request twice.  This can actually
-happen in a lot of cases, we fail to get a ref on our config, we only
-have one connection and just error out the command, etc.
-
-Fix this by checking cmd->status in nbd_read_stat.  We only change this
-under the cmd->lock, so we are safe to check this here and see if we've
-already error'ed this command out, which would indicate that we've
-completed it as well.
-
-Reviewed-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ebb75c0bdba2 ("ASoC: rockchip: i2s: Adjust devm usage")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/bcb12a849a05437fb18372bc7536c649b94bdf07.1570029862.git.robin.murphy@arm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/soc/rockchip/rockchip_i2s.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index a234600849558..f322bb3286910 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -648,6 +648,12 @@ static struct nbd_cmd *nbd_read_stat(struct nbd_device *nbd, int index)
- 		ret = -ENOENT;
- 		goto out;
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 08bfee447a365..94b6f9c7dd6bb 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -649,7 +649,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not register PCM\n");
+-		return ret;
++		goto err_suspend;
  	}
-+	if (cmd->status != BLK_STS_OK) {
-+		dev_err(disk_to_dev(nbd->disk), "Command already handled %p\n",
-+			req);
-+		ret = -ENOENT;
-+		goto out;
-+	}
- 	if (test_bit(NBD_CMD_REQUEUED, &cmd->flags)) {
- 		dev_err(disk_to_dev(nbd->disk), "Raced with timeout on req %p\n",
- 			req);
+ 
+ 	return 0;
 -- 
 2.20.1
 
