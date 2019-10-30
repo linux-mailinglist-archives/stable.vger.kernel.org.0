@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3BE6E9C33
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 14:23:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CF28E9C32
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 14:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726222AbfJ3NXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 09:23:51 -0400
-Received: from forward102p.mail.yandex.net ([77.88.28.102]:47761 "EHLO
-        forward102p.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726119AbfJ3NXv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 09:23:51 -0400
-Received: from mxback21g.mail.yandex.net (mxback21g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:321])
-        by forward102p.mail.yandex.net (Yandex) with ESMTP id 3DDCA1D41E15;
-        Wed, 30 Oct 2019 16:23:47 +0300 (MSK)
-Received: from sas8-93a22d3a76f4.qloud-c.yandex.net (sas8-93a22d3a76f4.qloud-c.yandex.net [2a02:6b8:c1b:2988:0:640:93a2:2d3a])
-        by mxback21g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id uPlcrWIFet-NlrWnuoI;
-        Wed, 30 Oct 2019 16:23:47 +0300
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; s=mail; t=1572441827;
+        id S1726206AbfJ3NXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 09:23:41 -0400
+Received: from forward105p.mail.yandex.net ([77.88.28.108]:34694 "EHLO
+        forward105p.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726119AbfJ3NXl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 09:23:41 -0400
+Received: from mxback29j.mail.yandex.net (mxback29j.mail.yandex.net [IPv6:2a02:6b8:0:1619::229])
+        by forward105p.mail.yandex.net (Yandex) with ESMTP id 11F1A4D41EBE;
+        Wed, 30 Oct 2019 16:23:37 +0300 (MSK)
+Received: from myt3-372f9bf9bd7d.qloud-c.yandex.net (myt3-372f9bf9bd7d.qloud-c.yandex.net [2a02:6b8:c12:70e:0:640:372f:9bf9])
+        by mxback29j.mail.yandex.net (nwsmtp/Yandex) with ESMTP id Nvq3btGlO5-NaXGS7fq;
+        Wed, 30 Oct 2019 16:23:37 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; s=mail; t=1572441817;
         bh=KfhJ/UE2KV/nn9miMf2ABXtPoXMVwWg7U6oyL3DH0NU=;
         h=In-Reply-To:Subject:To:From:Cc:References:Date:Message-Id;
-        b=dLU1W2iH9u8yDimQw9ntzPG8OdadZur+DHVnii86ISC3Y1zboWGLylgO9N3xugTPQ
-         UqRlc9JPRxD1+W7pKb+eM5TKxk8TFxzBT7fXLm/UTHW7ADS4QnyzMOlMAEXJ49V6Sa
-         MRV9agIR0x61FyZK2OY7raGAx7ewto9CgPh18ezw=
-Authentication-Results: mxback21g.mail.yandex.net; dkim=pass header.i=@flygoat.com
-Received: by sas8-93a22d3a76f4.qloud-c.yandex.net (nwsmtp/Yandex) with ESMTPSA id ZJ1N6fEznp-MiVmvGgF;
-        Wed, 30 Oct 2019 16:23:02 +0300
+        b=ZjufzQ/8KUWuOd3CGdXfYSs7qBX/sDr+amGrUMzFuSVZmdvU5L+xYQ+hLqR6BUUM0
+         4ZrwXNmpCTm2gNtkimIOgYUedmBjtC7J18pRH0o9NSnm05jV68sLtSboppxYnKKf6s
+         AMnki7zuoo+xWZzuwtnW0TdnVxE0JbtapkbADHv4=
+Authentication-Results: mxback29j.mail.yandex.net; dkim=pass header.i=@flygoat.com
+Received: by myt3-372f9bf9bd7d.qloud-c.yandex.net (nwsmtp/Yandex) with ESMTPSA id TyIYfkmJey-NWViSBGq;
+        Wed, 30 Oct 2019 16:23:34 +0300
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
         (Client certificate not present)
 From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
 To:     gregkh@linuxfoundation.org
 Cc:     stable@vger.kernel.org
 Subject: [PATCH] MIPS: elf_hwcap: Export userspace ASEs
-Date:   Wed, 30 Oct 2019 21:22:24 +0800
-Message-Id: <20191030132224.15731-1-jiaxun.yang@flygoat.com>
+Date:   Wed, 30 Oct 2019 21:23:24 +0800
+Message-Id: <20191030132324.15800-1-jiaxun.yang@flygoat.com>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191030090214.GA628862@kroah.com>
 References: <20191030090214.GA628862@kroah.com>
