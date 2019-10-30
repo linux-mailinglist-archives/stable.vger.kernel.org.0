@@ -2,103 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE8AE9716
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 08:16:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAFC5E9788
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 09:02:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726266AbfJ3HQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 03:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44072 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725855AbfJ3HQb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 03:16:31 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3EA3205C9;
-        Wed, 30 Oct 2019 07:16:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572419791;
-        bh=EhXSMhIQw1JQQRMH+PqtZz7vHfx8X1v+krmMz8QXJJA=;
-        h=Date:From:To:Subject:From;
-        b=mjRzhlcN2U/1GZi9j1d9yxeTv73NyAhtQ4tuiHNFQvXZjakEMssNGYS6ns5jzz4f9
-         HaTeuMcSCtajpq+jla7Ca9avLwBtVss/6VrgZRE4wzBQztLQ9ayY0E18m0cRv9XUQE
-         RIZdVLWYtorH4Aj4TV+C00Z4cgfwCPEzwY0CLDEM=
-Date:   Wed, 30 Oct 2019 00:16:30 -0700
-From:   akpm@linux-foundation.org
-To:     haokexin@gmail.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  + dump_stack-avoid-the-livelock-of-the-dump_lock.patch
- added to -mm tree
-Message-ID: <20191030071630.NUNB72Rra%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726020AbfJ3IC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 04:02:29 -0400
+Received: from sonic317-34.consmr.mail.ne1.yahoo.com ([66.163.184.45]:38573
+        "EHLO sonic317-34.consmr.mail.ne1.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725942AbfJ3IC3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 04:02:29 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1572422547; bh=tnR598H/QqPT1Ph/+p7nVdpgic7bknwMcbeRQcbc5RI=; h=Date:From:Reply-To:Subject:From:Subject; b=Qn0vlaGl/DYBigj1dqlAwvUoWDxG56isl/jI2ubiPCuEQmBPSsN4QFdJcsj66XLnL50nqWQJqtXDK9upaVJ+xP5euyA4HBX4kaQLP6nXlbYrbE9Kibgz6WO8LD5Uj0cF/VE0naj7yMilRoIUl9l4Q2aHx27kJm7CAc682w884L+dAa84TWomtOCv8qPf5t7CBlGZTCCpgixDJrVOnzY59Lk3vphMB3jINJ4D2g8vF3qGVpu6H7VRr4cgrIVVUAtS2PqI/TEPJ+radi7wEW8dEeZE0Hj9ar6kp94K9E1xWbESsRuPhmIxHXOErsxSpqMv1W3U8bHjcGyfoxV8mnH+Dw==
+X-YMail-OSG: UXRf1bUVM1mSSq2CNP6ne81_UzC68bJYAYRH.ygBDgOVeqzL1OmjCRINc33UOLS
+ DMfYWbgfuZPRTH72TCW4vad1pHQiW7UYzpPWF5Z1sMicQ1..ZnOF3HvlLNvy8e0Nfs8poBKIIjQ6
+ 9BMqbbPw.4Z4ZxGib4xjWIwMQzg9BtYx2_6fPC9pSCo9rfgqCBOK8WcFoTO0SwhA.BqOTbZHgflu
+ q0K37.pEFV8O0BRqZupmHSGb4GLTLWAEVlVXl0wldY8RbsMFiLpPdKrVWNkLb2fRfpSPsNHjmO51
+ k7OecAn1wi4r4B0qZ51_MLSMeFsWFT50gArTCznVn_MQk9wRkQdGd_n1Vy6LSY4IhbOQKkaaJBrH
+ FnBv94MzzeiMaz_CKdtLVoUL2I7Oh2ba4WfgYyec_4ODO.dgAnRxylldOijIQh.MA2GbjpqMq25h
+ uiKEDbg.6EOEo7zVoMem.tVg2OuY.CX1nMOBfaWqGdW5mPEjK0mAckOYt00TBS2Aiz67agrucpPU
+ iTE_k2.VvhPEa7MCM2GdIljn.nKmy8ejwXkS0PGa1Xybvtgs8AJNXsCG_Pigdj349DC_Hd3GLain
+ 5D2Q8Vt_rfNxqWAJnfW6Fol.iAkpc.IBoaLSIRIDENIylzOS.zUc8pdmKOcrDq.qtibZllwzq.ey
+ RM5X8LQnDNLuvjUuvuN9dDhpZEXLClgjDJzEY.YH9elUl1qrniP2JqyrOU4YHwqqfRnwXzKx4oH_
+ EhN88tAEtL65OCQcz.q67npZrgYPcaMI0YmAc3eBFtvUP4.Bu3mgxUxaqUG1on.z6_fANzWBxsTw
+ JDmS5edrFd3IEHMc0BdsSD7rHIV1FnWfQ1kTVg05VJ2bhx.0bwn6RSsmvlwtQprqEZRcR9lm.DGJ
+ muZzr560KgcN9u20kLcLpIykkp84tbqMlxsuX2pG0IHg7WDv3r3wmCaTyJT1BixtP2JpcV7vbZGw
+ NE6mXA2sT61XI3v.CjJGh1wEjtJ0QFuEtd6foQYc8p3U8fiAXB2zQPOkzn3Ot.5Soe9hNm45D6GU
+ KZ_tbQSXezIv.fyo1nX5V3xpqFZDk2LeLyYX7cmiNZ3_Gp53qYrQ9qf2mPiqGeqmSnIBqXGU5HFz
+ mrkigAjdJjpz5K21NpE1PYzO7f4RQVAhbA4yC4rCtx3VswtPfTZ5wIz_CKoWUY._7_3JLuJsKNc3
+ n.tNorIEqhp2Ji_gMMndqnBVf_NOeB8UbKkzAhc5pJP6UnhGeMCb8ZgJJF2Gv1Tr7i06yy3ZtQdz
+ MutKdfx9uMU876PynoLxWmIMSwrJs10FXF1LgwAmBHLigP_cfteHBgGF.tzEKQr5EBJkL.DmXN2e
+ m3tU-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic317.consmr.mail.ne1.yahoo.com with HTTP; Wed, 30 Oct 2019 08:02:27 +0000
+Date:   Wed, 30 Oct 2019 08:02:24 +0000 (UTC)
+From:   Mrs Elodie Antoine <elodieantoine890@gmail.com>
+Reply-To: elodiem97@yahoo.com
+Message-ID: <1474667639.4288876.1572422544513@mail.yahoo.com>
+Subject: Greetings From Mrs Elodie,
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: dump_stack: avoid the livelock of the dump_lock
-has been added to the -mm tree.  Its filename is
-     dump_stack-avoid-the-livelock-of-the-dump_lock.patch
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/dump_stack-avoid-the-livelock-of-the-dump_lock.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/dump_stack-avoid-the-livelock-of-the-dump_lock.patch
+Greetings From Mrs Elodie,
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS CHRIST the giver of every good thing. Good day,i know this letter will definitely come to you as a huge surprise, but I implore you to take the time to go through it carefully as the decision you make will go off a long way to determine my future and continued existence. I am Mrs Elodie Antoine
+aging widow of 59 years old suffering from long time illness. I have some funds I inherited from my late husband,
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+The sum of (US$4.5 Million Dollars) and I needed a very honest and God fearing who can withdraw this money then use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found your email address from the internet after honest prayers to the LORD to bring me a helper and i decided to contact you if you may be willing and interested to handle these trust funds in good faith before anything happens to me.
+I accept this decision because I do not have any child who will inherit this money after I die. I want your urgent reply to me so that I will give you the deposit receipt which the COMPANY issued to me as next of kin for immediate transfer of the money to your account in your country, to start the good work of God, I want you to use the 15/percent of the total amount to help yourself in doing the project.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
 
-------------------------------------------------------
-From: Kevin Hao <haokexin@gmail.com>
-Subject: dump_stack: avoid the livelock of the dump_lock
+I am desperately in keen need of assistance and I have summoned up courage to contact you for this task, you must not fail me and the millions of the poor people in our todays WORLD. This is no stolen money and there are no dangers involved,100% RISK FREE with full legal proof. Please if you would be able to use the funds for the Charity works kindly let me know immediately.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish. I want you to take 15 percent of the total money for your personal use while 85% of the money will go to charity.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish.
 
-In the current code, we use the atomic_cmpxchg() to serialize the output
-of the dump_stack(), but this implementation suffers the thundering herd
-problem.  We have observed such kind of livelock on a Marvell cn96xx
-board(24 cpus) when heavily using the dump_stack() in a kprobe handler. 
-Actually we can let the competitors to wait for the releasing of the lock
-before jumping to atomic_cmpxchg().  This will definitely mitigate the
-thundering herd problem.  Thanks Linus for the suggestion.
 
-Link: http://lkml.kernel.org/r/20191030031637.6025-1-haokexin@gmail.com
-Fixes: b58d977432c8 ("dump_stack: serialize the output from dump_stack()")
-Signed-off-by: Kevin Hao <haokexin@gmail.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+kindly respond for further details.
 
- lib/dump_stack.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/lib/dump_stack.c~dump_stack-avoid-the-livelock-of-the-dump_lock
-+++ a/lib/dump_stack.c
-@@ -106,7 +106,11 @@ retry:
- 		was_locked = 1;
- 	} else {
- 		local_irq_restore(flags);
--		cpu_relax();
-+		/*
-+		 * Wait the lock to release before jumping to atomic_cmpxchg()
-+		 * in order to mitigate the thundering herd problem.
-+		 */
-+		do { cpu_relax(); } while (atomic_read(&dump_lock) != -1);
- 		goto retry;
- 	}
- 
-_
+Thanks and God bless you,
 
-Patches currently in -mm which might be from haokexin@gmail.com are
-
-dump_stack-avoid-the-livelock-of-the-dump_lock.patch
-
+Mrs Elodie Antoine
