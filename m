@@ -2,135 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E26F1E9830
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 09:30:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 360BAE98AE
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 10:02:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726073AbfJ3IaU convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 30 Oct 2019 04:30:20 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:40983 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726063AbfJ3IaU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 04:30:20 -0400
-Received: by mail-ot1-f67.google.com with SMTP id 94so1352755oty.8;
-        Wed, 30 Oct 2019 01:30:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=shaH6wyN32drrguPI+9Ka7J8m35ewqocN24h2TWk6Ig=;
-        b=bnUB0zeYPnBP/TGMcOO/i61FnrZekgN/msG9b/Lyz+6l7d4X2zPq3bFQzZh6RAtgis
-         ouW+COUUKLWAPc/tUiblitJjIFCZUZK21HKz4+5S6IOT8IkgyAyAa3gW7P9aFP+4jR0b
-         sbASaxc26ULZsrrcMyMLhqKxobh7F1Hi5HrRDQVwU04PbjQx0g+7AZ5c6JMF1/nVRlHQ
-         OZQHZM/zAsRkpvw7a7WGZDZyXgC1wG4SrIgpa1ZHKOPHT/qQh9UQezoqlORinBC2UhQV
-         8H5kqkkxxSBqSWnTGkP+6XoHvVCRUpO+D8h5HPDgfzS9juUqG1QTrJ8+Arhj5Vxtsans
-         XlnA==
-X-Gm-Message-State: APjAAAWvhJDNZUdxNq28Y3ILQKqbnA9QcYRXO7YW9E4NUlmD7pXSwzqR
-        OrztGgKqpKwAQX2XOhptESxEOc69mg2On1bVg/8=
-X-Google-Smtp-Source: APXvYqzKCLMaWvbhAzJd4Mbqecnc5FnVdcMo+ZI6kUn/bYWdI5LaTSfzEByozgHdvHKWt9J/YtslquCxPdHC+5Eyi8U=
-X-Received: by 2002:a9d:7d19:: with SMTP id v25mr18567689otn.250.1572424218495;
- Wed, 30 Oct 2019 01:30:18 -0700 (PDT)
+        id S1726664AbfJ3JCU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 05:02:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35346 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726084AbfJ3JCU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 05:02:20 -0400
+Received: from localhost (unknown [91.217.168.176])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE7742083E;
+        Wed, 30 Oct 2019 09:02:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572426138;
+        bh=qDDn6Pqi5gdg0xPqXhf/M0A/TQfM681Mptbd731RAOg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RC/Tpy5ZNRHF6PoKQHXz0uRgEcUe20OnXfZiM9/V4ayevaeTbGlZ8JzjHjG1AUlS9
+         8O0uw5k1oePaQb9QFj44dStIAfTgZQ83ebpLqpPJvdiXGIC8qx6cNmVXubeg6p56xz
+         FJykEcfDv0CQTfU91w/FA2gg0o47M6sP4JfcB294=
+Date:   Wed, 30 Oct 2019 10:02:14 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Meng Zhuo <mengzhuo1203@gmail.com>, linux-mips@vger.kernel.org,
+        Paul Burton <paul.burton@mips.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.14 027/119] MIPS: elf_hwcap: Export userspace ASEs
+Message-ID: <20191030090214.GA628862@kroah.com>
+References: <20191027203259.948006506@linuxfoundation.org>
+ <20191027203308.417745883@linuxfoundation.org>
+ <c7cea5a0-bb68-b8ad-0548-6f246465a8b6@flygoat.com>
 MIME-Version: 1.0
-References: <1570769432-15358-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
- <20191029143753.GA28404@vmlxhi-102.adit-jv.com> <TYAPR01MB45441F470C83E7CAEF4D72E0D8600@TYAPR01MB4544.jpnprd01.prod.outlook.com>
-In-Reply-To: <TYAPR01MB45441F470C83E7CAEF4D72E0D8600@TYAPR01MB4544.jpnprd01.prod.outlook.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Wed, 30 Oct 2019 09:30:06 +0100
-Message-ID: <CAMuHMdXxhrJ0bqGi3JZkjgrr7=p-_NfA7Lmd8q32=Ho4tEXw0A@mail.gmail.com>
-Subject: Re: [PATCH v4] PCI: rcar: Fix missing MACCTLR register setting in rcar_pcie_hw_init()
-To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc:     "REE erosca@DE.ADIT-JV.COM" <erosca@de.adit-jv.com>,
-        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        "horms@verge.net.au" <horms@verge.net.au>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org" 
-        <linux-renesas-soc@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Yohhei Fukui <yohhei.fukui@denso-ten.com>,
-        Asano Yasushi <yasano@jp.adit-jv.com>,
-        Steffen Pengel <spengel@jp.adit-jv.com>,
-        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
-        Eugeniu Rosca <roscaeugeniu@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c7cea5a0-bb68-b8ad-0548-6f246465a8b6@flygoat.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Shimoda-san,
+On Tue, Oct 29, 2019 at 06:50:38PM +0800, Jiaxun Yang wrote:
+> 
+> 在 2019/10/28 上午5:00, Greg Kroah-Hartman 写道:
+> > From: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> > 
+> > [ Upstream commit 38dffe1e4dde1d3174fdce09d67370412843ebb5 ]
+> > 
+> > A Golang developer reported MIPS hwcap isn't reflecting instructions
+> > that the processor actually supported so programs can't apply optimized
+> > code at runtime.
+> > 
+> > Thus we export the ASEs that can be used in userspace programs.
+> > 
+> > Reported-by: Meng Zhuo <mengzhuo1203@gmail.com>
+> > Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+> > Cc: linux-mips@vger.kernel.org
+> > Cc: Paul Burton <paul.burton@mips.com>
+> > Cc: <stable@vger.kernel.org> # 4.14+
+> > Signed-off-by: Paul Burton <paul.burton@mips.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > ---
+> >   arch/mips/include/uapi/asm/hwcap.h | 11 ++++++++++
+> >   arch/mips/kernel/cpu-probe.c       | 33 ++++++++++++++++++++++++++++++
+> >   2 files changed, 44 insertions(+)
+> > 
+> > diff --git a/arch/mips/include/uapi/asm/hwcap.h b/arch/mips/include/uapi/asm/hwcap.h
+> > index 600ad8fd68356..2475294c3d185 100644
+> > --- a/arch/mips/include/uapi/asm/hwcap.h
+> > +++ b/arch/mips/include/uapi/asm/hwcap.h
+> > @@ -5,5 +5,16 @@
+> >   /* HWCAP flags */
+> >   #define HWCAP_MIPS_R6		(1 << 0)
+> >   #define HWCAP_MIPS_MSA		(1 << 1)
+> > +#define HWCAP_MIPS_MIPS16	(1 << 3)
+> > +#define HWCAP_MIPS_MDMX     (1 << 4)
+> > +#define HWCAP_MIPS_MIPS3D   (1 << 5)
+> > +#define HWCAP_MIPS_SMARTMIPS (1 << 6)
+> > +#define HWCAP_MIPS_DSP      (1 << 7)
+> > +#define HWCAP_MIPS_DSP2     (1 << 8)
+> > +#define HWCAP_MIPS_DSP3     (1 << 9)
+> > +#define HWCAP_MIPS_MIPS16E2 (1 << 10)
+> > +#define HWCAP_LOONGSON_MMI  (1 << 11)
+> > +#define HWCAP_LOONGSON_EXT  (1 << 12)
+> > +#define HWCAP_LOONGSON_EXT2 (1 << 13)
+> >   #endif /* _UAPI_ASM_HWCAP_H */
+> > diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+> > index 3007ae1bb616a..c38cd62879f4e 100644
+> > --- a/arch/mips/kernel/cpu-probe.c
+> > +++ b/arch/mips/kernel/cpu-probe.c
+> > @@ -2080,6 +2080,39 @@ void cpu_probe(void)
+> >   		elf_hwcap |= HWCAP_MIPS_MSA;
+> >   	}
+> > +	if (cpu_has_mips16)
+> > +		elf_hwcap |= HWCAP_MIPS_MIPS16;
+> > +
+> > +	if (cpu_has_mdmx)
+> > +		elf_hwcap |= HWCAP_MIPS_MDMX;
+> > +
+> > +	if (cpu_has_mips3d)
+> > +		elf_hwcap |= HWCAP_MIPS_MIPS3D;
+> > +
+> > +	if (cpu_has_smartmips)
+> > +		elf_hwcap |= HWCAP_MIPS_SMARTMIPS;
+> > +
+> > +	if (cpu_has_dsp)
+> > +		elf_hwcap |= HWCAP_MIPS_DSP;
+> > +
+> > +	if (cpu_has_dsp2)
+> > +		elf_hwcap |= HWCAP_MIPS_DSP2;
+> > +
+> > +	if (cpu_has_dsp3)
+> > +		elf_hwcap |= HWCAP_MIPS_DSP3;
+> > +
+> > +	if (cpu_has_loongson_mmi)
+> > +		elf_hwcap |= HWCAP_LOONGSON_MMI;
+> > +
+> > +	if (cpu_has_loongson_mmi)
+> > +		elf_hwcap |= HWCAP_LOONGSON_CAM;
+> 
+> Hi:
+> 
+> Sorry, there is a typo causing build failure.
+> 
+> Should be:
 
-On Wed, Oct 30, 2019 at 3:15 AM Yoshihiro Shimoda
-<yoshihiro.shimoda.uh@renesas.com> wrote:
-> > From: Eugeniu Rosca, Sent: Tuesday, October 29, 2019 11:38 PM
-> > On Fri, Oct 11, 2019 at 01:50:32PM +0900, Yoshihiro Shimoda wrote:
-> > > According to the R-Car Gen2/3 manual, the bit 0 of MACCTLR register
-> > > should be written to 0 before enabling PCIETCTLR.CFINIT because
-> > > the bit 0 is set to 1 on reset. To avoid unexpected behaviors from
-> > > this incorrect setting, this patch fixes it.
-> >
-> > Your development and reviewing effort to reach v4 is very appreciated.
-> >
-> > However, in the context of some internal reviews of this patch, we are
-> > having hard times reconciling the change with our (possibly incomplete
-> > or inaccurate) interpretation of the R-Car3 HW User’s Manual (Rev.2.00
-> > Jul 2019). The latter says in
-> > Chapter "54. PCIE Controller" / "(2) Initial Setting of PCI Express":
-> >
-> >  ----snip----
-> >  Be sure to write the initial value (= H'80FF 0000) to MACCTLR before
-> >  enabling PCIETCTLR.CFINIT.
-> >  ----snip----
-> >
-> > Is my assumption correct that the description of this patch is a
-> > rewording of the above quote from the manual <snip>
->
-> You are correct. Since the reset value of MACCTLR is H'80FF 0001, I thought
-> clearing the LSB bit was enough.
-> However, as your situation, I think I should have described the above quote
-> from the manual and have such a code (writing the value instead of clearing
-> the LSB only).
->
-> > If it is only the LSB which "should be written to 0 before enabling
-> > PCIETCTLR.CFINIT", would you agree that the statement quoted from the
-> > manual would better be rephrased appropriately? TIA.
->
-> As I mentioned above, I think the above quote from the manual is better
-> than rephrased.
->
-> Sergei, Geert-san, I think we should revert this patch and fix code/commit
-> log to follow the manual. What do you think?
+Can you resend this in a format we can apply it in?
 
-The initial value mentioned in the manual makes sense to me.
-Of course when using that, #defines should be added for bits used, to
-avoid writing the magical value "0x80ff0001".
+thanks,
 
-Initially, the "ff" part worried me.  Fortunately some archaeology learned
-me that these bits where called "NFTS" in the SH7786 Hardware User's
-Manual, and used to specify the number of Fast Training Sequences to
-be transferred when the MAC returns from L0 to L0s (6--255).
-
-arch/sh/drivers/pci/pcie-sh7786.c seems to be aware of this:
-
-        /*
-         * Set fast training sequences to the maximum 255,
-         * and enable MAC data scrambling.
-         */
-        data = pci_read_reg(chan, SH4A_PCIEMACCTLR);
-        data &= ~PCIEMACCTLR_SCR_DIS;
-        data |= (0xff << 16);
-        pci_write_reg(chan, data, SH4A_PCIEMACCTLR);
-
-No idea why this was deemed not-to-be-modified by the user later
-(as of R-Car H1).
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+greg k-h
