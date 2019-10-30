@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F293EA051
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:57:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2832EA061
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 16:58:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728599AbfJ3Pz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:55:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57070 "EHLO mail.kernel.org"
+        id S1727634AbfJ3P4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728594AbfJ3Pz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:55:29 -0400
+        id S1727535AbfJ3P4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:56:08 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5C5F217F9;
-        Wed, 30 Oct 2019 15:55:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1D89217D9;
+        Wed, 30 Oct 2019 15:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450928;
-        bh=yhwW3OSD4OMkVwZMox1fzcqQYREfFWwiXMt1NWhoEQA=;
+        s=default; t=1572450968;
+        bh=eK03D9qDn2tTGcCq3GV9jpYR+3ahyJ+u39Vf1XxYdwQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mh/V0NRfb6Nh5dDPdwJJsBnHIlSToFjD+//sjmsyvZ0drTdxul8OQijswPf2w+6D6
-         0tclY2eHR2i8l0Y/P5yZg9nk9aHsgGdKCA5g2ngj6/6+AokZ/aULzzRDHCvVOS2Sbr
-         n7TJoDDZvIbDk0+JtAEP3tDNkCbtHw8nh8zuE1wk=
+        b=rn86h3Se8QUA3zxnXm68w/WTO0NbcgK3tKjsRVWKPNXjszDllGJw7UzXKX9FmrgSr
+         hI0TzbpeLn8DCqcMda+r7FwBr5LSJNUTqS+3L2kgwnwpCVlMh2HZiMbRD/3rPe5+ve
+         4k/arD3WNzPvS3AGA2cEfeKQk6aIagRFIXp1lvPM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 29/38] of: unittest: fix memory leak in unittest_data_add
-Date:   Wed, 30 Oct 2019 11:53:57 -0400
-Message-Id: <20191030155406.10109-29-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 05/24] ASoc: rockchip: i2s: Fix RPM imbalance
+Date:   Wed, 30 Oct 2019 11:55:36 -0400
+Message-Id: <20191030155555.10494-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
-References: <20191030155406.10109-1-sashal@kernel.org>
+In-Reply-To: <20191030155555.10494-1-sashal@kernel.org>
+References: <20191030155555.10494-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,35 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit e13de8fe0d6a51341671bbe384826d527afe8d44 ]
+[ Upstream commit b1e620e7d32f5aad5353cc3cfc13ed99fea65d3a ]
 
-In unittest_data_add, a copy buffer is created via kmemdup. This buffer
-is leaked if of_fdt_unflatten_tree fails. The release for the
-unittest_data buffer is added.
+If rockchip_pcm_platform_register() fails, e.g. upon deferring to wait
+for an absent DMA channel, we return without disabling RPM, which makes
+subsequent re-probe attempts scream with errors about the unbalanced
+enable. Don't do that.
 
-Fixes: b951f9dc7f25 ("Enabling OF selftest to run without machine's devicetree")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Reviewed-by: Frank Rowand <frowand.list@gmail.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: ebb75c0bdba2 ("ASoC: rockchip: i2s: Adjust devm usage")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/bcb12a849a05437fb18372bc7536c649b94bdf07.1570029862.git.robin.murphy@arm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/unittest.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/rockchip/rockchip_i2s.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 7f42314da6ae3..bac4b4bbc33de 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -1159,6 +1159,7 @@ static int __init unittest_data_add(void)
- 	of_fdt_unflatten_tree(unittest_data, NULL, &unittest_data_node);
- 	if (!unittest_data_node) {
- 		pr_warn("%s: No tree to attach; not running tests\n", __func__);
-+		kfree(unittest_data);
- 		return -ENODATA;
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 66fc13a2396a0..0e07e3dea7de4 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -676,7 +676,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not register PCM\n");
+-		return ret;
++		goto err_suspend;
  	}
  
+ 	return 0;
 -- 
 2.20.1
 
