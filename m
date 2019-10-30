@@ -2,87 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F9D3E9814
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 09:25:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E26F1E9830
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 09:30:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726065AbfJ3IZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 04:25:24 -0400
-Received: from relay12.mail.gandi.net ([217.70.178.232]:57173 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725923AbfJ3IZY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 04:25:24 -0400
-Received: from localhost.localdomain (67.173.185.81.rev.sfr.net [81.185.173.67])
-        (Authenticated sender: miquel.raynal@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 4DF55200002;
-        Wed, 30 Oct 2019 08:25:20 +0000 (UTC)
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Tudor Ambarus <Tudor.Ambarus@microchip.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>
-Cc:     Russell King <linux@armlinux.org.uk>, stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        linux-mtd@lists.infradead.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4] mtd: spear_smi: Fix Write Burst mode
-Date:   Wed, 30 Oct 2019 09:25:17 +0100
-Message-Id: <20191030082517.12836-1-miquel.raynal@bootlin.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191022145859.5202-1-miquel.raynal@bootlin.com>
-References: 
+        id S1726073AbfJ3IaU convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 30 Oct 2019 04:30:20 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:40983 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726063AbfJ3IaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 04:30:20 -0400
+Received: by mail-ot1-f67.google.com with SMTP id 94so1352755oty.8;
+        Wed, 30 Oct 2019 01:30:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=shaH6wyN32drrguPI+9Ka7J8m35ewqocN24h2TWk6Ig=;
+        b=bnUB0zeYPnBP/TGMcOO/i61FnrZekgN/msG9b/Lyz+6l7d4X2zPq3bFQzZh6RAtgis
+         ouW+COUUKLWAPc/tUiblitJjIFCZUZK21HKz4+5S6IOT8IkgyAyAa3gW7P9aFP+4jR0b
+         sbASaxc26ULZsrrcMyMLhqKxobh7F1Hi5HrRDQVwU04PbjQx0g+7AZ5c6JMF1/nVRlHQ
+         OZQHZM/zAsRkpvw7a7WGZDZyXgC1wG4SrIgpa1ZHKOPHT/qQh9UQezoqlORinBC2UhQV
+         8H5kqkkxxSBqSWnTGkP+6XoHvVCRUpO+D8h5HPDgfzS9juUqG1QTrJ8+Arhj5Vxtsans
+         XlnA==
+X-Gm-Message-State: APjAAAWvhJDNZUdxNq28Y3ILQKqbnA9QcYRXO7YW9E4NUlmD7pXSwzqR
+        OrztGgKqpKwAQX2XOhptESxEOc69mg2On1bVg/8=
+X-Google-Smtp-Source: APXvYqzKCLMaWvbhAzJd4Mbqecnc5FnVdcMo+ZI6kUn/bYWdI5LaTSfzEByozgHdvHKWt9J/YtslquCxPdHC+5Eyi8U=
+X-Received: by 2002:a9d:7d19:: with SMTP id v25mr18567689otn.250.1572424218495;
+ Wed, 30 Oct 2019 01:30:18 -0700 (PDT)
 MIME-Version: 1.0
-X-linux-mtd-patch-notification: thanks
-X-linux-mtd-patch-commit: 69c7f4618c16b4678f8a4949b6bb5ace259c0033
-Content-Transfer-Encoding: 8bit
+References: <1570769432-15358-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+ <20191029143753.GA28404@vmlxhi-102.adit-jv.com> <TYAPR01MB45441F470C83E7CAEF4D72E0D8600@TYAPR01MB4544.jpnprd01.prod.outlook.com>
+In-Reply-To: <TYAPR01MB45441F470C83E7CAEF4D72E0D8600@TYAPR01MB4544.jpnprd01.prod.outlook.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Wed, 30 Oct 2019 09:30:06 +0100
+Message-ID: <CAMuHMdXxhrJ0bqGi3JZkjgrr7=p-_NfA7Lmd8q32=Ho4tEXw0A@mail.gmail.com>
+Subject: Re: [PATCH v4] PCI: rcar: Fix missing MACCTLR register setting in rcar_pcie_hw_init()
+To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc:     "REE erosca@DE.ADIT-JV.COM" <erosca@de.adit-jv.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        "horms@verge.net.au" <horms@verge.net.au>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Yohhei Fukui <yohhei.fukui@denso-ten.com>,
+        Asano Yasushi <yasano@jp.adit-jv.com>,
+        Steffen Pengel <spengel@jp.adit-jv.com>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2019-10-22 at 14:58:59 UTC, Miquel Raynal wrote:
-> Any write with either dd or flashcp to a device driven by the
-> spear_smi.c driver will pass through the spear_smi_cpy_toio()
-> function. This function will get called for chunks of up to 256 bytes.
-> If the amount of data is smaller, we may have a problem if the data
-> length is not 4-byte aligned. In this situation, the kernel panics
-> during the memcpy:
-> 
->     # dd if=/dev/urandom bs=1001 count=1 of=/dev/mtd6
->     spear_smi_cpy_toio [620] dest c9070000, src c7be8800, len 256
->     spear_smi_cpy_toio [620] dest c9070100, src c7be8900, len 256
->     spear_smi_cpy_toio [620] dest c9070200, src c7be8a00, len 256
->     spear_smi_cpy_toio [620] dest c9070300, src c7be8b00, len 233
->     Unhandled fault: external abort on non-linefetch (0x808) at 0xc90703e8
->     [...]
->     PC is at memcpy+0xcc/0x330
-> 
-> The above error occurs because the implementation of memcpy_toio()
-> tries to optimize the number of I/O by writing 4 bytes at a time as
-> much as possible, until there are less than 4 bytes left and then
-> switches to word or byte writes.
-> 
-> Unfortunately, the specification states about the Write Burst mode:
-> 
->         "the next AHB Write request should point to the next
-> 	incremented address and should have the same size (byte,
-> 	half-word or word)"
-> 
-> This means ARM architecture implementation of memcpy_toio() cannot
-> reliably be used blindly here. Workaround this situation by update the
-> write path to stick to byte access when the burst length is not
-> multiple of 4.
-> 
-> Fixes: f18dbbb1bfe0 ("mtd: ST SPEAr: Add SMI driver for serial NOR flash")
-> Cc: Russell King <linux@armlinux.org.uk>
-> Cc: Boris Brezillon <boris.brezillon@collabora.com>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-> Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
+Hi Shimoda-san,
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/mtd/linux.git mtd/next.
+On Wed, Oct 30, 2019 at 3:15 AM Yoshihiro Shimoda
+<yoshihiro.shimoda.uh@renesas.com> wrote:
+> > From: Eugeniu Rosca, Sent: Tuesday, October 29, 2019 11:38 PM
+> > On Fri, Oct 11, 2019 at 01:50:32PM +0900, Yoshihiro Shimoda wrote:
+> > > According to the R-Car Gen2/3 manual, the bit 0 of MACCTLR register
+> > > should be written to 0 before enabling PCIETCTLR.CFINIT because
+> > > the bit 0 is set to 1 on reset. To avoid unexpected behaviors from
+> > > this incorrect setting, this patch fixes it.
+> >
+> > Your development and reviewing effort to reach v4 is very appreciated.
+> >
+> > However, in the context of some internal reviews of this patch, we are
+> > having hard times reconciling the change with our (possibly incomplete
+> > or inaccurate) interpretation of the R-Car3 HW User’s Manual (Rev.2.00
+> > Jul 2019). The latter says in
+> > Chapter "54. PCIE Controller" / "(2) Initial Setting of PCI Express":
+> >
+> >  ----snip----
+> >  Be sure to write the initial value (= H'80FF 0000) to MACCTLR before
+> >  enabling PCIETCTLR.CFINIT.
+> >  ----snip----
+> >
+> > Is my assumption correct that the description of this patch is a
+> > rewording of the above quote from the manual <snip>
+>
+> You are correct. Since the reset value of MACCTLR is H'80FF 0001, I thought
+> clearing the LSB bit was enough.
+> However, as your situation, I think I should have described the above quote
+> from the manual and have such a code (writing the value instead of clearing
+> the LSB only).
+>
+> > If it is only the LSB which "should be written to 0 before enabling
+> > PCIETCTLR.CFINIT", would you agree that the statement quoted from the
+> > manual would better be rephrased appropriately? TIA.
+>
+> As I mentioned above, I think the above quote from the manual is better
+> than rephrased.
+>
+> Sergei, Geert-san, I think we should revert this patch and fix code/commit
+> log to follow the manual. What do you think?
 
-Miquel
+The initial value mentioned in the manual makes sense to me.
+Of course when using that, #defines should be added for bits used, to
+avoid writing the magical value "0x80ff0001".
+
+Initially, the "ff" part worried me.  Fortunately some archaeology learned
+me that these bits where called "NFTS" in the SH7786 Hardware User's
+Manual, and used to specify the number of Fast Training Sequences to
+be transferred when the MAC returns from L0 to L0s (6--255).
+
+arch/sh/drivers/pci/pcie-sh7786.c seems to be aware of this:
+
+        /*
+         * Set fast training sequences to the maximum 255,
+         * and enable MAC data scrambling.
+         */
+        data = pci_read_reg(chan, SH4A_PCIEMACCTLR);
+        data &= ~PCIEMACCTLR_SCR_DIS;
+        data |= (0xff << 16);
+        pci_write_reg(chan, data, SH4A_PCIEMACCTLR);
+
+No idea why this was deemed not-to-be-modified by the user later
+(as of R-Car H1).
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
