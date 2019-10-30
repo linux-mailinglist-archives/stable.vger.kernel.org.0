@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB04AEA0E3
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30598EA0E4
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 17:09:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728594AbfJ3Pzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 11:55:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57156 "EHLO mail.kernel.org"
+        id S1727935AbfJ3Pzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 11:55:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727934AbfJ3Pzf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 30 Oct 2019 11:55:35 -0400
+        id S1728628AbfJ3Pzh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 30 Oct 2019 11:55:37 -0400
 Received: from sasha-vm.mshome.net (100.50.158.77.rev.sfr.net [77.158.50.100])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 057D1208C0;
-        Wed, 30 Oct 2019 15:55:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E60821734;
+        Wed, 30 Oct 2019 15:55:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572450934;
-        bh=aF3caouMCJR+I05UNHMA4nYiaKKB5pBJ0PHu03c3BEg=;
+        s=default; t=1572450936;
+        bh=tF0E1giTSXxJHmVP2hupSm5VRPNu7THTyO2tRFdVq+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=as6JCRqCMK7TSAeY1l1EzOAJh8dh/TJIf9p4+8+2OcF3up91UfB5XXeo7SgjRx92S
-         P1uSswzWYRKc8F0y9GyVKxhYxxU+jE+PUROmolpH5NnSQAHRoEORlxgwD750C2nAyD
-         8kQXgS0UVNpAAR2gU4PA/XxArhWfMQoz5adBnmnI=
+        b=UfxvRBEbU5Kififr1prFTJSgG6zX8ZaTRaUKk47GoKb6RlwiDhCh9fL/F7tUioFwd
+         UoT/Y/qGNbsDQy7LhxwPbbNzCaq7izyx6GZrTCbQUEO0/Q6SpFSOxJnWuvKB06Y7tG
+         G1wOm4NkSFog3f+wymmjR85YjmqYkBRPQoQhsVc8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonas Gorski <jonas.gorski@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paul Burton <paulburton@kernel.org>,
-        linux-mips@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
+Cc:     Zenghui Yu <yuzenghui@huawei.com>, Marc Zyngier <maz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 30/38] MIPS: bmips: mark exception vectors as char arrays
-Date:   Wed, 30 Oct 2019 11:53:58 -0400
-Message-Id: <20191030155406.10109-30-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 31/38] irqchip/gic-v3-its: Use the exact ITSList for VMOVP
+Date:   Wed, 30 Oct 2019 11:53:59 -0400
+Message-Id: <20191030155406.10109-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191030155406.10109-1-sashal@kernel.org>
 References: <20191030155406.10109-1-sashal@kernel.org>
@@ -46,105 +42,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Gorski <jonas.gorski@gmail.com>
+From: Zenghui Yu <yuzenghui@huawei.com>
 
-[ Upstream commit e4f5cb1a9b27c0f94ef4f5a0178a3fde2d3d0e9e ]
+[ Upstream commit 8424312516e5d9baeeb0a95d0e4523579b7aa395 ]
 
-The vectors span more than one byte, so mark them as arrays.
+On a system without Single VMOVP support (say GITS_TYPER.VMOVP == 0),
+we will map vPEs only on ITSs that will actually control interrupts
+for the given VM.  And when moving a vPE, the VMOVP command will be
+issued only for those ITSs.
 
-Fixes the following build error when building when using GCC 8.3:
+But when issuing VMOVPs we seemed fail to present the exact ITSList
+to ITSs who are actually included in the synchronization operation.
+The its_list_map we're currently using includes all ITSs in the system,
+even though some of them don't have the corresponding vPE mapping at all.
 
-In file included from ./include/linux/string.h:19,
-                 from ./include/linux/bitmap.h:9,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/mips/include/asm/processor.h:15,
-                 from ./arch/mips/include/asm/thread_info.h:16,
-                 from ./include/linux/thread_info.h:38,
-                 from ./include/asm-generic/preempt.h:5,
-                 from ./arch/mips/include/generated/asm/preempt.h:1,
-                 from ./include/linux/preempt.h:81,
-                 from ./include/linux/spinlock.h:51,
-                 from ./include/linux/mmzone.h:8,
-                 from ./include/linux/bootmem.h:8,
-                 from arch/mips/bcm63xx/prom.c:10:
-arch/mips/bcm63xx/prom.c: In function 'prom_init':
-./arch/mips/include/asm/string.h:162:11: error: '__builtin_memcpy' forming offset [2, 32] is out of the bounds [0, 1] of object 'bmips_smp_movevec' with type 'char' [-Werror=array-bounds]
-   __ret = __builtin_memcpy((dst), (src), __len); \
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-arch/mips/bcm63xx/prom.c:97:3: note: in expansion of macro 'memcpy'
-   memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
-   ^~~~~~
-In file included from arch/mips/bcm63xx/prom.c:14:
-./arch/mips/include/asm/bmips.h:80:13: note: 'bmips_smp_movevec' declared here
- extern char bmips_smp_movevec;
+Introduce get_its_list() to get the per-VM its_list_map, to indicate
+which ITSs have vPE mappings for the given VM, and use this map as
+the expected ITSList when building VMOVP. This is hopefully a performance
+gain not to do some synchronization with those unsuspecting ITSs.
+And initialize the whole command descriptor to zero at beginning, since
+the seq_num and its_list should be RES0 when GITS_TYPER.VMOVP == 1.
 
-Fixes: 18a1eef92dcd ("MIPS: BMIPS: Introduce bmips.h")
-Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
+Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/1571802386-2680-1-git-send-email-yuzenghui@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm63xx/prom.c      |  2 +-
- arch/mips/include/asm/bmips.h | 10 +++++-----
- arch/mips/kernel/smp-bmips.c  |  8 ++++----
- 3 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/irqchip/irq-gic-v3-its.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/bcm63xx/prom.c b/arch/mips/bcm63xx/prom.c
-index 7019e2967009e..bbbf8057565b2 100644
---- a/arch/mips/bcm63xx/prom.c
-+++ b/arch/mips/bcm63xx/prom.c
-@@ -84,7 +84,7 @@ void __init prom_init(void)
- 		 * Here we will start up CPU1 in the background and ask it to
- 		 * reconfigure itself then go back to sleep.
- 		 */
--		memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
-+		memcpy((void *)0xa0000200, bmips_smp_movevec, 0x20);
- 		__sync();
- 		set_c0_cause(C_SW0);
- 		cpumask_set_cpu(1, &bmips_booted_mask);
-diff --git a/arch/mips/include/asm/bmips.h b/arch/mips/include/asm/bmips.h
-index bf6a8afd7ad27..581a6a3c66e40 100644
---- a/arch/mips/include/asm/bmips.h
-+++ b/arch/mips/include/asm/bmips.h
-@@ -75,11 +75,11 @@ static inline int register_bmips_smp_ops(void)
- #endif
- }
+diff --git a/drivers/irqchip/irq-gic-v3-its.c b/drivers/irqchip/irq-gic-v3-its.c
+index e7549a2b1482b..050d6e040128d 100644
+--- a/drivers/irqchip/irq-gic-v3-its.c
++++ b/drivers/irqchip/irq-gic-v3-its.c
+@@ -182,6 +182,22 @@ static DEFINE_IDA(its_vpeid_ida);
+ #define gic_data_rdist_rd_base()	(gic_data_rdist()->rd_base)
+ #define gic_data_rdist_vlpi_base()	(gic_data_rdist_rd_base() + SZ_128K)
  
--extern char bmips_reset_nmi_vec;
--extern char bmips_reset_nmi_vec_end;
--extern char bmips_smp_movevec;
--extern char bmips_smp_int_vec;
--extern char bmips_smp_int_vec_end;
-+extern char bmips_reset_nmi_vec[];
-+extern char bmips_reset_nmi_vec_end[];
-+extern char bmips_smp_movevec[];
-+extern char bmips_smp_int_vec[];
-+extern char bmips_smp_int_vec_end[];
- 
- extern int bmips_smp_enabled;
- extern int bmips_cpu_offset;
-diff --git a/arch/mips/kernel/smp-bmips.c b/arch/mips/kernel/smp-bmips.c
-index 159e83add4bb3..5ec546b5eed1c 100644
---- a/arch/mips/kernel/smp-bmips.c
-+++ b/arch/mips/kernel/smp-bmips.c
-@@ -457,10 +457,10 @@ static void bmips_wr_vec(unsigned long dst, char *start, char *end)
- 
- static inline void bmips_nmi_handler_setup(void)
++static u16 get_its_list(struct its_vm *vm)
++{
++	struct its_node *its;
++	unsigned long its_list = 0;
++
++	list_for_each_entry(its, &its_nodes, entry) {
++		if (!its->is_v4)
++			continue;
++
++		if (vm->vlpi_count[its->list_nr])
++			__set_bit(its->list_nr, &its_list);
++	}
++
++	return (u16)its_list;
++}
++
+ static struct its_collection *dev_event_to_col(struct its_device *its_dev,
+ 					       u32 event)
  {
--	bmips_wr_vec(BMIPS_NMI_RESET_VEC, &bmips_reset_nmi_vec,
--		&bmips_reset_nmi_vec_end);
--	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, &bmips_smp_int_vec,
--		&bmips_smp_int_vec_end);
-+	bmips_wr_vec(BMIPS_NMI_RESET_VEC, bmips_reset_nmi_vec,
-+		bmips_reset_nmi_vec_end);
-+	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, bmips_smp_int_vec,
-+		bmips_smp_int_vec_end);
- }
+@@ -983,17 +999,15 @@ static void its_send_vmapp(struct its_node *its,
  
- struct reset_vec_info {
+ static void its_send_vmovp(struct its_vpe *vpe)
+ {
+-	struct its_cmd_desc desc;
++	struct its_cmd_desc desc = {};
+ 	struct its_node *its;
+ 	unsigned long flags;
+ 	int col_id = vpe->col_idx;
+ 
+ 	desc.its_vmovp_cmd.vpe = vpe;
+-	desc.its_vmovp_cmd.its_list = (u16)its_list_map;
+ 
+ 	if (!its_list_map) {
+ 		its = list_first_entry(&its_nodes, struct its_node, entry);
+-		desc.its_vmovp_cmd.seq_num = 0;
+ 		desc.its_vmovp_cmd.col = &its->collections[col_id];
+ 		its_send_single_vcommand(its, its_build_vmovp_cmd, &desc);
+ 		return;
+@@ -1010,6 +1024,7 @@ static void its_send_vmovp(struct its_vpe *vpe)
+ 	raw_spin_lock_irqsave(&vmovp_lock, flags);
+ 
+ 	desc.its_vmovp_cmd.seq_num = vmovp_seq_num++;
++	desc.its_vmovp_cmd.its_list = get_its_list(vpe->its_vm);
+ 
+ 	/* Emit VMOVPs */
+ 	list_for_each_entry(its, &its_nodes, entry) {
 -- 
 2.20.1
 
