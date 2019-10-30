@@ -2,78 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC74E9AC4
-	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 12:27:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3BE6E9C33
+	for <lists+stable@lfdr.de>; Wed, 30 Oct 2019 14:23:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726487AbfJ3L1H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 30 Oct 2019 07:27:07 -0400
-Received: from relmlor1.renesas.com ([210.160.252.171]:16210 "EHLO
-        relmlie5.idc.renesas.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726451AbfJ3L1H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 07:27:07 -0400
-X-IronPort-AV: E=Sophos;i="5.68,247,1569250800"; 
-   d="scan'208";a="30414674"
-Received: from unknown (HELO relmlir5.idc.renesas.com) ([10.200.68.151])
-  by relmlie5.idc.renesas.com with ESMTP; 30 Oct 2019 20:27:05 +0900
-Received: from localhost.localdomain (unknown [10.166.17.210])
-        by relmlir5.idc.renesas.com (Postfix) with ESMTP id ECB9F400C442;
-        Wed, 30 Oct 2019 20:27:04 +0900 (JST)
-From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-To:     horms@verge.net.au, linux-pci@vger.kernel.org
-Cc:     linux-renesas-soc@vger.kernel.org, stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 2/2] PCI: rcar: Fix missing MACCTLR register setting in initialize sequence
-Date:   Wed, 30 Oct 2019 20:27:04 +0900
-Message-Id: <1572434824-1850-3-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1572434824-1850-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
-References: <1572434824-1850-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+        id S1726222AbfJ3NXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 30 Oct 2019 09:23:51 -0400
+Received: from forward102p.mail.yandex.net ([77.88.28.102]:47761 "EHLO
+        forward102p.mail.yandex.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726119AbfJ3NXv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 30 Oct 2019 09:23:51 -0400
+Received: from mxback21g.mail.yandex.net (mxback21g.mail.yandex.net [IPv6:2a02:6b8:0:1472:2741:0:8b7:321])
+        by forward102p.mail.yandex.net (Yandex) with ESMTP id 3DDCA1D41E15;
+        Wed, 30 Oct 2019 16:23:47 +0300 (MSK)
+Received: from sas8-93a22d3a76f4.qloud-c.yandex.net (sas8-93a22d3a76f4.qloud-c.yandex.net [2a02:6b8:c1b:2988:0:640:93a2:2d3a])
+        by mxback21g.mail.yandex.net (nwsmtp/Yandex) with ESMTP id uPlcrWIFet-NlrWnuoI;
+        Wed, 30 Oct 2019 16:23:47 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flygoat.com; s=mail; t=1572441827;
+        bh=KfhJ/UE2KV/nn9miMf2ABXtPoXMVwWg7U6oyL3DH0NU=;
+        h=In-Reply-To:Subject:To:From:Cc:References:Date:Message-Id;
+        b=dLU1W2iH9u8yDimQw9ntzPG8OdadZur+DHVnii86ISC3Y1zboWGLylgO9N3xugTPQ
+         UqRlc9JPRxD1+W7pKb+eM5TKxk8TFxzBT7fXLm/UTHW7ADS4QnyzMOlMAEXJ49V6Sa
+         MRV9agIR0x61FyZK2OY7raGAx7ewto9CgPh18ezw=
+Authentication-Results: mxback21g.mail.yandex.net; dkim=pass header.i=@flygoat.com
+Received: by sas8-93a22d3a76f4.qloud-c.yandex.net (nwsmtp/Yandex) with ESMTPSA id ZJ1N6fEznp-MiVmvGgF;
+        Wed, 30 Oct 2019 16:23:02 +0300
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (Client certificate not present)
+From:   Jiaxun Yang <jiaxun.yang@flygoat.com>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] MIPS: elf_hwcap: Export userspace ASEs
+Date:   Wed, 30 Oct 2019 21:22:24 +0800
+Message-Id: <20191030132224.15731-1-jiaxun.yang@flygoat.com>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191030090214.GA628862@kroah.com>
+References: <20191030090214.GA628862@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-According to the R-Car Gen2/3 manual, "Be sure to write the initial
-value (= H'80FF 0000) to MACCTLR before enabling PCIETCTLR.CFINIT."
-To avoid unexpected behaviors, this patch fixes it.
+A Golang developer reported MIPS hwcap isn't reflecting instructions
+that the processor actually supported so programs can't apply optimized
+code at runtime.
 
-Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
-Fixes: be20bbcb0a8c ("PCI: rcar: Add the initialization of PCIe link in resume_noirq()")
-Cc: <stable@vger.kernel.org> # v5.2+
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Thus we export the ASEs that can be used in userspace programs.
+
+Reported-by: Meng Zhuo <mengzhuo1203@gmail.com>
+Signed-off-by: Jiaxun Yang <jiaxun.yang@flygoat.com>
+Cc: linux-mips@vger.kernel.org
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: <stable@vger.kernel.org> # 4.14+
+Signed-off-by: Paul Burton <paul.burton@mips.com>
 ---
- drivers/pci/controller/pcie-rcar.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/mips/include/uapi/asm/hwcap.h | 11 ++++++++++
+ arch/mips/kernel/cpu-probe.c       | 33 ++++++++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
 
-diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
-index 40d8c54..d470ab8 100644
---- a/drivers/pci/controller/pcie-rcar.c
-+++ b/drivers/pci/controller/pcie-rcar.c
-@@ -91,6 +91,7 @@
- #define  LINK_SPEED_2_5GTS	(1 << 16)
- #define  LINK_SPEED_5_0GTS	(2 << 16)
- #define MACCTLR			0x011058
-+#define  MACCTLR_INIT_VAL	0x80ff0000
- #define  SPEED_CHANGE		BIT(24)
- #define  SCRAMBLE_DISABLE	BIT(27)
- #define PMSR			0x01105c
-@@ -613,6 +614,8 @@ static int rcar_pcie_hw_init(struct rcar_pcie *pcie)
- 	if (IS_ENABLED(CONFIG_PCI_MSI))
- 		rcar_pci_write_reg(pcie, 0x801f0000, PCIEMSITXR);
+diff --git a/arch/mips/include/uapi/asm/hwcap.h b/arch/mips/include/uapi/asm/hwcap.h
+index a2aba4b059e63..1ade1daa49210 100644
+--- a/arch/mips/include/uapi/asm/hwcap.h
++++ b/arch/mips/include/uapi/asm/hwcap.h
+@@ -6,5 +6,16 @@
+ #define HWCAP_MIPS_R6		(1 << 0)
+ #define HWCAP_MIPS_MSA		(1 << 1)
+ #define HWCAP_MIPS_CRC32	(1 << 2)
++#define HWCAP_MIPS_MIPS16	(1 << 3)
++#define HWCAP_MIPS_MDMX     (1 << 4)
++#define HWCAP_MIPS_MIPS3D   (1 << 5)
++#define HWCAP_MIPS_SMARTMIPS (1 << 6)
++#define HWCAP_MIPS_DSP      (1 << 7)
++#define HWCAP_MIPS_DSP2     (1 << 8)
++#define HWCAP_MIPS_DSP3     (1 << 9)
++#define HWCAP_MIPS_MIPS16E2 (1 << 10)
++#define HWCAP_LOONGSON_MMI  (1 << 11)
++#define HWCAP_LOONGSON_EXT  (1 << 12)
++#define HWCAP_LOONGSON_EXT2 (1 << 13)
  
-+	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
+ #endif /* _UAPI_ASM_HWCAP_H */
+diff --git a/arch/mips/kernel/cpu-probe.c b/arch/mips/kernel/cpu-probe.c
+index c2eb392597bf6..f521cbf934e76 100644
+--- a/arch/mips/kernel/cpu-probe.c
++++ b/arch/mips/kernel/cpu-probe.c
+@@ -2180,6 +2180,39 @@ void cpu_probe(void)
+ 		elf_hwcap |= HWCAP_MIPS_MSA;
+ 	}
+ 
++	if (cpu_has_mips16)
++		elf_hwcap |= HWCAP_MIPS_MIPS16;
 +
- 	/* Finish initialization - establish a PCI Express link */
- 	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
++	if (cpu_has_mdmx)
++		elf_hwcap |= HWCAP_MIPS_MDMX;
++
++	if (cpu_has_mips3d)
++		elf_hwcap |= HWCAP_MIPS_MIPS3D;
++
++	if (cpu_has_smartmips)
++		elf_hwcap |= HWCAP_MIPS_SMARTMIPS;
++
++	if (cpu_has_dsp)
++		elf_hwcap |= HWCAP_MIPS_DSP;
++
++	if (cpu_has_dsp2)
++		elf_hwcap |= HWCAP_MIPS_DSP2;
++
++	if (cpu_has_dsp3)
++		elf_hwcap |= HWCAP_MIPS_DSP3;
++
++	if (cpu_has_mips16e2)
++		elf_hwcap |= HWCAP_MIPS_MIPS16E2;
++
++	if (cpu_has_loongson_mmi)
++		elf_hwcap |= HWCAP_LOONGSON_MMI;
++
++	if (cpu_has_loongson_ext)
++		elf_hwcap |= HWCAP_LOONGSON_EXT;
++
++	if (cpu_has_loongson_ext2)
++		elf_hwcap |= HWCAP_LOONGSON_EXT2;
++
+ 	if (cpu_has_vz)
+ 		cpu_probe_vz(c);
  
-@@ -1235,6 +1238,7 @@ static int rcar_pcie_resume_noirq(struct device *dev)
- 		return 0;
- 
- 	/* Re-establish the PCIe link */
-+	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
- 	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
- 	return rcar_pcie_wait_for_dl(pcie);
- }
--- 
-2.7.4
-
