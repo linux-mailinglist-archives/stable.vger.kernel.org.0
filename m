@@ -2,119 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C674CEB549
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 17:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4967EB5A5
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 17:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728722AbfJaQro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 12:47:44 -0400
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:54720 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1728920AbfJaQrE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 12:47:04 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572540423;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=IN5IfNgFP34DHGSztrtam2F8ra3NciZQQBpcLS3E0ho=;
-        b=WJXbXNxtVyq0YHnAbSeFTBk1MO2fqxQtNDLXNXlEY9VYqPwzwm74u8jVSOQvISZOCKOT6T
-        OvWNY+7vYW2mEgpCH8dfZcHqS65y2TM8PvRGXKkXVCvnKNSSpRQ9ItIabhaDWV6lWAWVSc
-        n7YnquOAzheA7g+T7i/J/vGJtCZE7V4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-384-v6RguP_-OjCguHYJtNow1g-1; Thu, 31 Oct 2019 12:46:59 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D4ABB1800D55;
-        Thu, 31 Oct 2019 16:46:57 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.44])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 6B1AC60852;
-        Thu, 31 Oct 2019 16:46:55 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Thu, 31 Oct 2019 17:46:56 +0100 (CET)
-Date:   Thu, 31 Oct 2019 17:46:53 +0100
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     linux-kernel@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
-        GNU C Library <libc-alpha@sourceware.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        linux-api@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] clone3: validate stack arguments
-Message-ID: <20191031164653.GA24629@redhat.com>
-References: <20191031113608.20713-1-christian.brauner@ubuntu.com>
+        id S1728857AbfJaQ7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 12:59:43 -0400
+Received: from mail-vs1-f66.google.com ([209.85.217.66]:33359 "EHLO
+        mail-vs1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728699AbfJaQ7n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 12:59:43 -0400
+Received: by mail-vs1-f66.google.com with SMTP id k1so4586109vsm.0
+        for <stable@vger.kernel.org>; Thu, 31 Oct 2019 09:59:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=rBXjy64QhAJngU1bLCgW8NmRIabhTqAJ4rYpSUJH/vA=;
+        b=MFPuR6yrPRTAmL9shB7f7ccQmfeaxlzOoX57mPiTDTNTInAdnhDq1qiWaZtEhzbSLI
+         aLEv7aV9AfTmYN2RGLov44yiuhk/5h8r4Z03gT3ZXWcaMGCrA2GoczDlv5IVrmoOhv4t
+         WcfOOehtYLlEpYEn0voLWT83cdteFabhYfsqZC54x6OQXZwgDcqZkFmA5SMMHwjWTNSG
+         sYg9VpHJwIznNow79XZhVdyqPv493SMXP9sXVX7fApFQoibaYXQZ08TdkHafK52H7w9Y
+         fikkLMrmkfpckOrp6DlZiXfmWE8rD0t0Bw6Jbyw+t93JF2MRH6PaH9+QYnvO5UucNtMy
+         ON5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=rBXjy64QhAJngU1bLCgW8NmRIabhTqAJ4rYpSUJH/vA=;
+        b=SZiel+XcTAhMijZ5KM/zz0wsDQPQ8XQUcH/XKqEwFwn3T8FlWPulH0jaGxY2ccQAu+
+         3tL06Y8k51DsA3pE46VD1dhCMalQ2bDTdnGYfzCvVqOnHakcc03il8oBh1f0kjmNTNNZ
+         LvheyP7P8fkxl92cd9U/lOZygp4auHA11cneHmMBneKWCXzY1N9dkHgE0WCTQjCybwBv
+         CQvZxnUSReOr1G8kJK3qhYwq6CGckkpIMX/Gaa8YoWrBF/NKuJT/nj39Tt/0HrHhVQQW
+         C8EQTdkqFKxv8oTa5NucFRiCKl7OlUbQgBxmOtQ0p7UD6NTv9O80uG5S1l1ZFwFMFifF
+         5ciQ==
+X-Gm-Message-State: APjAAAVZ0e/f3r6Fg/v2YM00ygqPDAbpHpP5ETlR1SUocBWHEWp+Q19f
+        UnwUM53sf9V5Gpsoagcg7n1iugApr8hU0Ff1O33vUA==
+X-Google-Smtp-Source: APXvYqxUDYzIwZUL5FbFN+ofBpA8OFEwiksm7t/nLo1J8VkpA/QJoge6ynXgiOcDbF0m20N6ahz2Rokt9mlDmh48qB4=
+X-Received: by 2002:a67:fb5a:: with SMTP id e26mr3354691vsr.200.1572541182099;
+ Thu, 31 Oct 2019 09:59:42 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20191031113608.20713-1-christian.brauner@ubuntu.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: v6RguP_-OjCguHYJtNow1g-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+References: <cover.1571510481.git.hns@goldelico.com> <bec9d76e6da03d734649b9bdf76e9d575c57631a.1571510481.git.hns@goldelico.com>
+ <CAPDyKFrMQ3fBaeeAYVJfUdL8m=PDRU9Xt_9oGw6D1XOY68qDuQ@mail.gmail.com> <D9A82904-35BE-41F2-A308-9A49606428B1@goldelico.com>
+In-Reply-To: <D9A82904-35BE-41F2-A308-9A49606428B1@goldelico.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Thu, 31 Oct 2019 17:59:05 +0100
+Message-ID: <CAPDyKFrbOH=ROv_JefSQsEnmGqN6oFVfbhpqscOK=KUqJgzarw@mail.gmail.com>
+Subject: Re: [PATCH v2 03/11] DTS: ARM: pandora-common: define wl1251 as child
+ node of mmc3
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     =?UTF-8?Q?Beno=C3=AEt_Cousson?= <bcousson@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        David Sterba <dsterba@suse.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Allison Randal <allison@lohutok.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-omap <linux-omap@vger.kernel.org>,
+        DTML <devicetree@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        "linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+        linux-wireless <linux-wireless@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        Discussions about the Letux Kernel 
+        <letux-kernel@openphoenux.org>, kernel@pyra-handheld.com,
+        "# 4.0+" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/31, Christian Brauner wrote:
+On Wed, 30 Oct 2019 at 18:25, H. Nikolaus Schaller <hns@goldelico.com> wrote:
 >
-> --- a/include/uapi/linux/sched.h
-> +++ b/include/uapi/linux/sched.h
-> @@ -51,6 +51,10 @@
->   *               sent when the child exits.
->   * @stack:       Specify the location of the stack for the
->   *               child process.
-> + *               Note, @stack is expected to point to the
-> + *               lowest address. The stack direction will be
-> + *               determined by the kernel and set up
-> + *               appropriately based on @stack_size.
+>
+> > Am 30.10.2019 um 17:44 schrieb Ulf Hansson <ulf.hansson@linaro.org>:
+> >
+> > On Sat, 19 Oct 2019 at 20:42, H. Nikolaus Schaller <hns@goldelico.com> wrote:
+> >>
+> >> Since v4.7 the dma initialization requires that there is a
+> >> device tree property for "rx" and "tx" channels which is
+> >> not provided by the pdata-quirks initialization.
+> >>
+> >> By conversion of the mmc3 setup to device tree this will
+> >> finally allows to remove the OpenPandora wlan specific omap3
+> >> data-quirks.
+> >>
+> >> Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
+> >>
+> >> Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+> >> Cc: <stable@vger.kernel.org> # 4.7.0
+> >> ---
+> >> arch/arm/boot/dts/omap3-pandora-common.dtsi | 37 +++++++++++++++++++--
+> >> 1 file changed, 35 insertions(+), 2 deletions(-)
+> >>
+> >> diff --git a/arch/arm/boot/dts/omap3-pandora-common.dtsi b/arch/arm/boot/dts/omap3-pandora-common.dtsi
+> >> index ec5891718ae6..c595b3eb314d 100644
+> >> --- a/arch/arm/boot/dts/omap3-pandora-common.dtsi
+> >> +++ b/arch/arm/boot/dts/omap3-pandora-common.dtsi
+> >> @@ -226,6 +226,18 @@
+> >>                gpio = <&gpio6 4 GPIO_ACTIVE_HIGH>;     /* GPIO_164 */
+> >>        };
+> >>
+> >> +       /* wl1251 wifi+bt module */
+> >> +       wlan_en: fixed-regulator-wg7210_en {
+> >> +               compatible = "regulator-fixed";
+> >> +               regulator-name = "vwlan";
+> >> +               regulator-min-microvolt = <1800000>;
+> >> +               regulator-max-microvolt = <1800000>;
+> >
+> > I doubt these are correct.
+> >
+> > I guess this should be in the range of 2.7V-3.6V.
+>
+> Well, it is a gpio which enables some LDO inside the
+> wifi chip. We do not really know the voltage it produces
+> and it does not matter. The gpio voltage is 1.8V.
+>
+> Basically we use a fixed-regulator to "translate" a
+> regulator into a control gpio because the mmc interface
+> wants to see a vmmc-supply.
 
-I can't review this patch, I have no idea what does stack_size mean
-if !arch/x86.
+The vmmc supply represent the core power to the SDIO card (or
+SD/(e)MMC). Depending on what voltage range the vmmc supply supports,
+the so called OCR mask is created by the mmc core. The mask is then
+used to let the core negotiate the voltage level with the SDIO card,
+during the card initialization. This is not to confuse with the I/O
+voltage level, which is a different regulator.
 
-x86 doesn't use stack_size unless a kthread does kernel_thread(), so
-this change is probably fine...
+Anyway, according to the TI WiLink series specifications, it looks
+like vmmc should be a regulator supporting 3-3.3V (in many schematics
+it's called VBAT).
 
-Hmm. Off-topic question, why did 7f192e3cd3 ("fork: add clone3") add
-"& ~CSIGNAL" in kernel_thread() ? This looks pointless and confusing
-to me...
+Furthermore I decided to dig into various DTS files that specifies the
+vmmc regulator, of course for mmc nodes having a subnode specifying an
+SDIO card for a TI WiLink. In most cases a 1.8V fixed GPIO regulator
+is used. This looks wrong to me. The fixed GPIO regulator isn't really
+the one that should model vmmc.
 
-> +static inline bool clone3_stack_valid(struct kernel_clone_args *kargs)
-> +{
-> +=09if (kargs->stack =3D=3D 0) {
-> +=09=09if (kargs->stack_size > 0)
-> +=09=09=09return false;
-> +=09} else {
-> +=09=09if (kargs->stack_size =3D=3D 0)
-> +=09=09=09return false;
+The proper solution, would rather be to use separate regulator for
+vmmc and instead use a so called mmc-pwrseq node to manage the GPIO.
 
-So to implement clone3_wrapper(void *bottom_of_stack) you need to do
+To conclude from my side, as we have lots of DTS that are wrong, I
+don't really care if we add another one in the way you suggest above.
+But feel free to look into the mmc-pwrseq option.
 
-=09clone3_wrapper(void *bottom_of_stack)
-=09{
-=09=09struct clone_args args =3D {
-=09=09=09...
-=09=09=09// make clone3_stack_valid() happy
-=09=09=09.stack =3D bottom_of_stack - 1,
-=09=09=09.stack_size =3D 1,
-=09=09};
-=09}
+>
+> >
+> >> +               startup-delay-us = <50000>;
+> >> +               regulator-always-on;
+> >
+> > Always on?
+>
+> Oops. Yes, that is something to check!
 
-looks a bit strange. OK, I agree, this example is very artificial.
-But why do you think clone3() should nack stack_size =3D=3D 0 ?
+As it's a GPIO regulator, for sure it's not always on.
 
-> +=09=09if (!access_ok((void __user *)kargs->stack, kargs->stack_size))
-> +=09=09=09return false;
+>
+> >
+> >> +               enable-active-high;
+> >> +               gpio = <&gpio1 23 GPIO_ACTIVE_HIGH>;
+> >> +       };
+> >> +
+> >>        /* wg7210 (wifi+bt module) 32k clock buffer */
+> >>        wg7210_32k: fixed-regulator-wg7210_32k {
+> >>                compatible = "regulator-fixed";
+> >> @@ -522,9 +534,30 @@
+> >>        /*wp-gpios = <&gpio4 31 GPIO_ACTIVE_HIGH>;*/    /* GPIO_127 */
+> >> };
+> >>
+> >> -/* mmc3 is probed using pdata-quirks to pass wl1251 card data */
+> >> &mmc3 {
+> >> -       status = "disabled";
+> >> +       vmmc-supply = <&wlan_en>;
+> >> +
+> >> +       bus-width = <4>;
+> >> +       non-removable;
+> >> +       ti,non-removable;
+> >> +       cap-power-off-card;
+> >> +
+> >> +       pinctrl-names = "default";
+> >> +       pinctrl-0 = <&mmc3_pins>;
+> >> +
+> >> +       #address-cells = <1>;
+> >> +       #size-cells = <0>;
+> >> +
+> >> +       wlan: wl1251@1 {
+> >> +               compatible = "ti,wl1251";
+> >> +
+> >> +               reg = <1>;
+> >> +
+> >> +               interrupt-parent = <&gpio1>;
+> >> +               interrupts = <21 IRQ_TYPE_LEVEL_HIGH>;  /* GPIO_21 */
+> >> +
+> >> +               ti,wl1251-has-eeprom;
+> >> +       };
+> >> };
+> >>
+> >> /* bluetooth*/
+> >> --
+> >> 2.19.1
+> >>
+>
+> BR and thanks,
+> Nikolaus
+>
 
-Why?
-
-Oleg.
-
+Kind regards
+Uffe
