@@ -2,116 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE34EB8D7
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 22:19:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45FEDEB97C
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 23:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728775AbfJaVTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 17:19:04 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:38726 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726540AbfJaVTE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 17:19:04 -0400
-Received: by mail-pf1-f193.google.com with SMTP id c13so5322558pfp.5;
-        Thu, 31 Oct 2019 14:19:03 -0700 (PDT)
+        id S1728648AbfJaWC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 18:02:56 -0400
+Received: from mail-il1-f196.google.com ([209.85.166.196]:43304 "EHLO
+        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727715AbfJaWCz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 18:02:55 -0400
+Received: by mail-il1-f196.google.com with SMTP id j2so4726868ilc.10;
+        Thu, 31 Oct 2019 15:02:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id;
-        bh=QHjg6cf8a3DCHiEQ6cgO5fiuIXYg8F/FcsSBS84DcVQ=;
-        b=MUAhSaRmFPpX6bIB1saz7LVQ1ZusfwUfceSkJLUkimjuHeFcEnZK9f6AAiEYkuuPeD
-         B5mQN3jCO55l6nMMn5T3kxLQzBl5szbUFq9pqm2pbHBHLQ97wH23w7lBZ0Y7xAFrcB9v
-         fQyvNsgz1nRDBIP0ad3VPVvLY36zeDLq97K7XbAOWbr4dM5Aaynr09SehE11woGdv+3R
-         ZWs7uAXKpjUOL68BW9z4fFF5uXjRv1bv9vI4F4IucO9GR5iKZHWS2G4t017SeaKUzYpU
-         f6iDtwxnb7WG0OGg9ckn0EqFMKgPpRiuvcKCwY4Q9jjNcKFRVpyXHbqiorPxeTpFKhf6
-         XZzw==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kcEj0zagT1kdGnm51IepUWol06DL1z1IUNa12dd8Jp4=;
+        b=li15LPx+6k9TbBmNsi4igNQNptExK0rDlvtE6zga52XA1/6JpM1H5iL8Cyv5EckBka
+         rygvNDBf+Xlm7lmmOfW5tECTv9en0bqRJhvPOYv26SBWrdLF2xffJDYa2hwXjoLf/xeW
+         OUQynDulrDqZc5hkFbkbJi7umsIAuUJoFisT2hB5XjKb92+GrofWHPFtBQRMZsiU2Bcg
+         0WSegVaW+AqgTyvgGJyFSnjPite1+L0M9+uBqQgaWa3URv7zJYO9vx5+AryEVndHBsJj
+         Mb82OGQbJK+InTipjZJyyTIRTfh4fhH4vh6qlYEzQPsSTWb2GisNNa/CQR4FOf/7u4ey
+         oLLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=QHjg6cf8a3DCHiEQ6cgO5fiuIXYg8F/FcsSBS84DcVQ=;
-        b=WiTVTpXI8XRnXU+a5waPUX3gB2PHbDv8NmU4xPg4Yn0cUoe2FV6a0qTxzETr959E28
-         xEgt2XozXEvlbNBCR9q+9BER+K+ZNDMUr1ryE2WA7LrSuydjQD3jBpBABopWqfpsFBTK
-         doA53Q82/9OvaqJVRYiYr2Je54+IJgKKzTSyUKSY8ldPXS6njyx39wN1DZ8aDFXeqEhP
-         oTYlhbmPocsyhR9aRFZSrsgl+u6jKkCCAqsaBNgpJX3O0uLRi5nwcXDnhKeH6zwmURyZ
-         RYvInHyndTIWdoD6LvhyXF7vqTrnpm3jzml9ppBhim3aAy7Jcz9VSo7nhxySjOFI5RyC
-         eaqw==
-X-Gm-Message-State: APjAAAVG5M0AziHiEGwhQByw2JdKMbE2SW0Zny+2WR8cED8XsPdoAb9a
-        DkcNObP/rgK1zE2lRKlAy7G80Dc=
-X-Google-Smtp-Source: APXvYqxbZMzzdlV7mMn8ygiaqDn3ouJm8ewGKkDaLhFiJ+c+f9jwlEDkKxpanRSWF4NqmqxG+eWLyg==
-X-Received: by 2002:a17:90a:a002:: with SMTP id q2mr10307944pjp.124.1572556742949;
-        Thu, 31 Oct 2019 14:19:02 -0700 (PDT)
-Received: from ubuntu-vm.mshome.net ([167.220.2.106])
-        by smtp.gmail.com with ESMTPSA id x14sm3954604pfm.96.2019.10.31.14.19.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Oct 2019 14:19:02 -0700 (PDT)
-From:   Pavel Shilovsky <piastryyy@gmail.com>
-X-Google-Original-From: Pavel Shilovsky <pshilov@microsoft.com>
-To:     linux-cifs@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] CIFS: Fix SMB2 oplock break processing
-Date:   Thu, 31 Oct 2019 14:18:57 -0700
-Message-Id: <20191031211857.18989-1-pshilov@microsoft.com>
-X-Mailer: git-send-email 2.17.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kcEj0zagT1kdGnm51IepUWol06DL1z1IUNa12dd8Jp4=;
+        b=Kyk9iGCbZSyYhxaWOkWKUMFnYp0PEUP9oP5UMrHm0jO6lIxiXZ6f3UIIvVRg5IdEui
+         S5t4pQGd63svG4sVIKWR4BlVE9pbBYHLbJYNnUzjnpFRxo4D33rbn/PYKydTpu65qZU4
+         X4oxMqCowTh2qbrZXfhP3kJ7PCIquYZFGjv6gtigJpg01spNbVdS7cIin8uDVyaExhLV
+         PPiblPOAitOkjoJ9/T/AxnZjN60ZIGPXD/lIV+XiQxJesjOR+XJNYmWs+Z7Z6A1ZWEdw
+         +oAhRw86pn/eYpmIgn1qvHK4/Plv+hjA+dJ2f1G42JTXZjnJde5U6Y/gYe9yqOd1SSFx
+         83rQ==
+X-Gm-Message-State: APjAAAXEpoUX/bBi6J6880rRh9oReVenMC9NsMNYh9jzNhQ/b35qaudk
+        i92tom/Mve2t4ehKHsjlSb7uOCQfccju6QWN3lWdzA==
+X-Google-Smtp-Source: APXvYqyErskCKg+NeuRncOCekaI3GkjEMhqdfrRmscKc1Oz87aqPjneGSPfs7vE8B2GOy+pmRuWVrKlHURiOwcI5JlQ=
+X-Received: by 2002:a92:17c8:: with SMTP id 69mr9020215ilx.42.1572559374831;
+ Thu, 31 Oct 2019 15:02:54 -0700 (PDT)
+MIME-Version: 1.0
+References: <20191031184632.2938295-1-bjorn.andersson@linaro.org>
+ <20191031184632.2938295-2-bjorn.andersson@linaro.org> <CAOCk7Noq8dvKsWzAfAXRGhmoMG4_tHD0kw8_KVEBvyjm_fGc5A@mail.gmail.com>
+ <20191031194347.GO1929@tuxbook-pro>
+In-Reply-To: <20191031194347.GO1929@tuxbook-pro>
+From:   Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Date:   Thu, 31 Oct 2019 16:02:43 -0600
+Message-ID: <CAOCk7NoC+BmB7UH=-=g7ufmGUAfrc9JcPxwnVh9ytb9Xuq4FTQ@mail.gmail.com>
+Subject: Re: [PATCH 1/2] remoteproc: qcom_q6v5_mss: Don't reassign mpss region
+ on shutdown
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Ohad Ben-Cohen <ohad@wizery.com>,
+        Avaneesh Kumar Dwivedi <akdwived@codeaurora.org>,
+        MSM <linux-arm-msm@vger.kernel.org>,
+        linux-remoteproc@vger.kernel.org,
+        lkml <linux-kernel@vger.kernel.org>,
+        Jeffrey Hugo <jhugo@codeaurora.org>,
+        Sibi Sankar <sibis@codeaurora.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Even when mounting modern protocol version the server may be
-configured without supporting SMB2.1 leases and the client
-uses SMB2 oplock to optimize IO performance through local caching.
+On Thu, Oct 31, 2019 at 1:43 PM Bjorn Andersson
+<bjorn.andersson@linaro.org> wrote:
+>
+> On Thu 31 Oct 12:36 PDT 2019, Jeffrey Hugo wrote:
+>
+> > On Thu, Oct 31, 2019 at 12:48 PM Bjorn Andersson
+> > <bjorn.andersson@linaro.org> wrote:
+> > >
+> > > Trying to reclaim mpss memory while the mba is not running causes the
+> > > system to crash on devices with security fuses blown, so leave it
+> > > assigned to the remote on shutdown and recover it on a subsequent boot.
+> > >
+> > > Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > > ---
+> >
+> > Excellent.  This addresses the issue I was seeing with the Lenovo Miix 630
+> >
+>
+> Sweet!
+>
+> > Reviewed-by: Jeffrey Hugo<jeffrey.l.hugo@gmail.com>
+> > Tested-by: Jeffrey Hugo<jeffrey.l.hugo@gmail.com>
+>
+> Thanks!
 
-However there is a problem in oplock break handling that leads
-to missing a break notification on the client who has a file
-opened. It latter causes big latencies to other clients that
-are trying to open the same file.
-
-The problem reproduces when there are multiple shares from the
-same server mounted on the client. The processing code tries to
-match persistent and volatile file ids from the break notification
-with an open file but it skips all share besides the first one.
-Fix this by looking up in all shares belonging to the server that
-issued the oplock break.
-
-Cc: Stable <stable@vger.kernel.org>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
----
- fs/cifs/smb2misc.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
-index 8db6201b18ba..527c9efd3de0 100644
---- a/fs/cifs/smb2misc.c
-+++ b/fs/cifs/smb2misc.c
-@@ -664,10 +664,10 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
- 	spin_lock(&cifs_tcp_ses_lock);
- 	list_for_each(tmp, &server->smb_ses_list) {
- 		ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
-+
- 		list_for_each(tmp1, &ses->tcon_list) {
- 			tcon = list_entry(tmp1, struct cifs_tcon, tcon_list);
- 
--			cifs_stats_inc(&tcon->stats.cifs_stats.num_oplock_brks);
- 			spin_lock(&tcon->open_file_lock);
- 			list_for_each(tmp2, &tcon->openFileList) {
- 				cfile = list_entry(tmp2, struct cifsFileInfo,
-@@ -679,6 +679,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
- 					continue;
- 
- 				cifs_dbg(FYI, "file id match, oplock break\n");
-+				cifs_stats_inc(
-+				    &tcon->stats.cifs_stats.num_oplock_brks);
- 				cinode = CIFS_I(d_inode(cfile->dentry));
- 				spin_lock(&cfile->file_info_lock);
- 				if (!CIFS_CACHE_WRITE(cinode) &&
-@@ -702,9 +704,6 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
- 				return true;
- 			}
- 			spin_unlock(&tcon->open_file_lock);
--			spin_unlock(&cifs_tcp_ses_lock);
--			cifs_dbg(FYI, "No matching file for oplock break\n");
--			return true;
- 		}
- 	}
- 	spin_unlock(&cifs_tcp_ses_lock);
--- 
-2.17.1
-
+As we talked offline, it appears we both missed the crashdump
+scenario, so please spin a v2 that reclaims the memory just before
+trying to access it in the crashdump scenario.  I'll be happy to
+re-review and re-test.
