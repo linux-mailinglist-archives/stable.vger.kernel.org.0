@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE754EA9F2
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 05:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DAE5EAA1D
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 06:15:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726479AbfJaEmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 00:42:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33048 "EHLO mail.kernel.org"
+        id S1726757AbfJaFPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 01:15:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725816AbfJaEma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 31 Oct 2019 00:42:30 -0400
+        id S1726501AbfJaFPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 31 Oct 2019 01:15:05 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5C3C20862;
-        Thu, 31 Oct 2019 04:42:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE33F2067D;
+        Thu, 31 Oct 2019 05:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572496950;
-        bh=H/SOUamg33M6zHpAMCdLNDJj9eTJC66TFz9y6Bq20rQ=;
+        s=default; t=1572498902;
+        bh=PVQkjgBw/Ntg5wQsJM+rQUQ86T+ICwCysut3fITh2hQ=;
         h=Date:From:To:Subject:From;
-        b=J2ZH/cYOluwwkKpJMenLeGCpAxqY4xtqbeqiPbZXec9ZU+xCrf3740bRHzeco5o7h
-         TC/bTXSBfRWAF3lOeuhVmaLqbM1gvdkKLVpBLgnB16rGLBvyUARkgXdw8eC+JaT7oZ
-         oHIW3KwOFVL9QmPoOfTRqBu4AXoz2i+dcJeFCQZM=
-Date:   Wed, 30 Oct 2019 21:42:29 -0700
+        b=CuRMf6SIRqpEF8g+wbdsZP1sGUyg/AaEoX1a/zkJ0D0ukHVFgK0JpECqDgS2KtPNu
+         xP1XEaBXXVfx53oih6c9npE6ovkJ4Fq3fqsxuWgvcl4Sl+IExLfNlVto7GYpdzeNrv
+         dEFNmHlKqGrnYDG5DbxesANzW0lhnYPbnnvIgHZA=
+Date:   Wed, 30 Oct 2019 22:15:01 -0700
 From:   akpm@linux-foundation.org
-To:     david@redhat.com, mhocko@suse.com, mm-commits@vger.kernel.org,
-        osalvador@suse.de, pasha.tatashin@soleen.com,
-        stable@vger.kernel.org, vincent.whitchurch@axis.com
-Subject:  + mm-sparse-consistently-do-not-zero-memmap.patch added
- to -mm tree
-Message-ID: <20191031044229.FntU02eez%akpm@linux-foundation.org>
+To:     hannes@cmpxchg.org, mhocko@kernel.org, mm-commits@vger.kernel.org,
+        shakeelb@google.com, stable@vger.kernel.org, suleiman@google.com
+Subject:  +
+ mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
+ added to -mm tree
+Message-ID: <20191031051501.3T8fBydK7%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -39,14 +39,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm/sparse: consistently do not zero memmap
+     Subject: mm: memcontrol: fix network errors from failing __GFP_ATOMIC charges
 has been added to the -mm tree.  Its filename is
-     mm-sparse-consistently-do-not-zero-memmap.patch
+     mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
 
 This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-sparse-consistently-do-not-zero-memmap.patch
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
 and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-sparse-consistently-do-not-zero-memmap.patch
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -60,57 +60,105 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Subject: mm/sparse: consistently do not zero memmap
+From: Johannes Weiner <hannes@cmpxchg.org>
+Subject: mm: memcontrol: fix network errors from failing __GFP_ATOMIC charges
 
-sparsemem without VMEMMAP has two allocation paths to allocate the memory
-needed for its memmap (done in sparse_mem_map_populate()).
+While upgrading from 4.16 to 5.2, we noticed these allocation errors in
+the log of the new kernel:
 
-In one allocation path (sparse_buffer_alloc() succeeds), the memory is not
-zeroed (since it was previously allocated with
-memblock_alloc_try_nid_raw()).
+[ 8642.253395] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
+[ 8642.269170]   cache: tw_sock_TCPv6(960:helper-logs), object size: 232, buffer size: 240, default order: 1, min order: 0
+[ 8642.293009]   node 0: slabs: 5, objs: 170, free: 0
 
-In the other allocation path (sparse_buffer_alloc() fails and
-sparse_mem_map_populate() falls back to memblock_alloc_try_nid()), the
-memory is zeroed.
+        slab_out_of_memory+1
+        ___slab_alloc+969
+        __slab_alloc+14
+        kmem_cache_alloc+346
+        inet_twsk_alloc+60
+        tcp_time_wait+46
+        tcp_fin+206
+        tcp_data_queue+2034
+        tcp_rcv_state_process+784
+        tcp_v6_do_rcv+405
+        __release_sock+118
+        tcp_close+385
+        inet_release+46
+        __sock_release+55
+        sock_close+17
+        __fput+170
+        task_work_run+127
+        exit_to_usermode_loop+191
+        do_syscall_64+212
+        entry_SYSCALL_64_after_hwframe+68
 
-AFAICS this difference does not appear to be on purpose.  If the code is
-supposed to work with non-initialized memory (__init_single_page() takes
-care of zeroing the struct pages which are actually used), we should
-consistently not zero the memory, to avoid masking bugs.
+accompanied by an increase in machines going completely radio silent under
+memory pressure.
 
-(I noticed this because on my ARM64 platform, with 1 GiB of memory the
- first [and only] section is allocated from the zeroing path while with
- 2 GiB of memory the first 1 GiB section is allocated from the
- non-zeroing path.)
+One thing that changed since 4.16 is e699e2c6a654 ("net, mm: account sock
+objects to kmemcg"), which made these slab caches subject to cgroup memory
+accounting and control.
 
-Link: http://lkml.kernel.org/r/20191030131122.8256-1-vincent.whitchurch@axis.com
-Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: <stable@vger.kernel.org>
+The problem with that is that cgroups, unlike the page allocator, do not
+maintain dedicated atomic reserves.  As a cgroup's usage hovers at its
+limit, atomic allocations - such as done during network rx - can fail
+consistently for extended periods of time.  The kernel is not able to
+operate under these conditions.
+
+We don't want to revert the culprit patch, because it indeed tracks a
+potentially substantial amount of memory used by a cgroup.
+
+We also don't want to implement dedicated atomic reserves for cgroups. 
+There is no point in keeping a fixed margin of unused bytes in the
+cgroup's memory budget to accomodate a consumer that is impossible to
+predict - we'd be wasting memory and get into configuration headaches, not
+unlike what we have going with min_free_kbytes.  We do this for physical
+mem because we have to, but cgroups are an accounting game.
+
+Instead, account these privileged allocations to the cgroup, but let them
+bypass the configured limit if they have to.  This way, we get the
+benefits of accounting the consumed memory and have it exert pressure on
+the rest of the cgroup, but like with the page allocator, we shift the
+burden of reclaimining on behalf of atomic allocations onto the regular
+allocations that can block.
+
+Link: http://lkml.kernel.org/r/20191022233708.365764-1-hannes@cmpxchg.org
+Fixes: e699e2c6a654 ("net, mm: account sock objects to kmemcg")
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Suleiman Souhlal <suleiman@google.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: <stable@vger.kernel.org>	[4.18+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/sparse.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/memcontrol.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/mm/sparse.c~mm-sparse-consistently-do-not-zero-memmap
-+++ a/mm/sparse.c
-@@ -458,7 +458,7 @@ struct page __init *__populate_section_m
- 	if (map)
- 		return map;
+--- a/mm/memcontrol.c~mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges
++++ a/mm/memcontrol.c
+@@ -2535,6 +2535,15 @@ retry:
+ 	}
  
--	map = memblock_alloc_try_nid(size,
-+	map = memblock_alloc_try_nid_raw(size,
- 					  PAGE_SIZE, addr,
- 					  MEMBLOCK_ALLOC_ACCESSIBLE, nid);
- 	if (!map)
+ 	/*
++	 * Memcg doesn't have a dedicated reserve for atomic
++	 * allocations. But like the global atomic pool, we need to
++	 * put the burden of reclaim on regular allocation requests
++	 * and let these go through as privileged allocations.
++	 */
++	if (gfp_mask & __GFP_ATOMIC)
++		goto force;
++
++	/*
+ 	 * Unlike in global OOM situations, memcg is not in a physical
+ 	 * memory shortage.  Allow dying and OOM-killed tasks to
+ 	 * bypass the last charges so that they can exit quickly and
 _
 
-Patches currently in -mm which might be from vincent.whitchurch@axis.com are
+Patches currently in -mm which might be from hannes@cmpxchg.org are
 
-mm-sparse-consistently-do-not-zero-memmap.patch
+mm-rate-limit-allocation-failure-warnings-more-aggressively.patch
+mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
+mm-memcontrol-remove-dead-code-from-memory_max_write.patch
+mm-memcontrol-try-harder-to-set-a-new-memoryhigh.patch
+mm-drop-mmap_sem-before-calling-balance_dirty_pages-in-write-fault.patch
 
