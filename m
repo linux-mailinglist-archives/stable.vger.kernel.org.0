@@ -2,198 +2,219 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB92EAB25
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 08:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B23D4EAC6C
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 10:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726774AbfJaHyR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 03:54:17 -0400
-Received: from mail-eopbgr130098.outbound.protection.outlook.com ([40.107.13.98]:29760
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726769AbfJaHyR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 31 Oct 2019 03:54:17 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=alkPh5JW79LDt8uoAmPMXX9p+aYPt4vfQlBz2NyuWzYUPK0ZIYMMlWeTUcQsXojOt1QykDQLclBHPeSMFAhNWPdJdBZB3LiBNUO4h+oQKJXU4Er/PQ2UlL4SvmAnEyOoXRBC5SKzaAFt8SeBtdEJnjqulxlaLBlpBa6vJTweDxpGGkWBGsgHWxz9fjb799APrVmbyqAPQAKCGNZHYq88RX4f6i5mpfaiY58udwxz3vOPcLMWoHyY0JLFwg14ceyfIVSCWxCSSs6+lyFcMx3SqfMnJMQsCFI47oSG7NbPnb/JbdTCzMfP9QezQSoq9L3fdCjWIs6rB/ZD7RSInTSNeQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dgDOzXBlgdk9qveVtcTKZIvPmXMQb6cb/IwSv77B9CM=;
- b=drJxeifo69b6yAqtDEyI+L1pw0WhrH7nPOrKFm2eco57rWz9BJG5SP4ymm+Kcv2TATpofZ96KtIByoMf3wSnbQDhZwBsqAUBAMV+e/d3mBWUbo39RTO+58Jy/j4YP9kZy1TfYLCeZsCO2oKx5sO0IUF9qEnGmc6hLFgmem5oi4RKWcACbTuqEQF9V9QBXRq1FWu2pEQ6xbLlGSpMIwh/n2xbNvXHcjJNg3/aIFdHu8PEdjZvr0V6As67V+TusPTK4Imykvi8VRtT+GMZSpAlt+oIvhEUMSgjm1d2ioU/LlTYkOl0b1bUbqd6lEsiKqv9mFax+jL505SRyd5j8hh4eg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
- dkim=pass header.d=nokia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dgDOzXBlgdk9qveVtcTKZIvPmXMQb6cb/IwSv77B9CM=;
- b=taEknUr0LFQfQ+1hQKR9XDf1vXrwufF3tjoTWJb2Az3buUiDkKkKJYIAUMHzfyh0B2X8Ju+vmEemqIelJhExIts3Nwg0g5TybnpqpLxA71cC2OrW6lQOXzJu8XOdbkPKwYY2XpyTvlcF04yA4HTOgyXmaeLZJpJEx0nt4K36+ZU=
-Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com (10.167.127.12) by
- HE1PR0702MB3819.eurprd07.prod.outlook.com (10.167.126.11) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2387.14; Thu, 31 Oct 2019 07:54:05 +0000
-Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com
- ([fe80::7193:f6cc:3771:95b9]) by HE1PR0702MB3675.eurprd07.prod.outlook.com
- ([fe80::7193:f6cc:3771:95b9%7]) with mapi id 15.20.2387.030; Thu, 31 Oct 2019
- 07:54:05 +0000
-From:   "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "lucien.xin@gmail.com" <lucien.xin@gmail.com>,
+        id S1726864AbfJaJOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 05:14:04 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:38655 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726776AbfJaJOE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 05:14:04 -0400
+Received: by mail-wr1-f66.google.com with SMTP id v9so5351163wrq.5;
+        Thu, 31 Oct 2019 02:14:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DwGRG3/zucfy6TYRbn+kLcFz9oFEfIbTg62MDuhmTvw=;
+        b=RxFlxK/AAf/AV/xFCW+o3VzXwY9++S8LJxI8XWv3DsA130Tq9UCM6NCETf/Ah4XQcq
+         Z7Gb92BzN2mEWenbTKbsA/jUA1+7g0q4v6VyaWrGZqA0DHZQb7EIFJdxk5hhMrjgxKjT
+         dPA1QOFzq9rODYSBhCCeOFXXwEWBUTHvcSxxboPPbdBtOSZeCNOJGVEPAcFs+0vvvAgr
+         tQ05fnkgCrBwiXNOpEXBsvhGOaujGQPBVFW3vY7ZS7p58jT4TIRF7l6whDBEjdv2tswb
+         Zyy3yckc2h/skp1W+ygxazD5uB1vlDzxVYcoyTXgbsOCOTEqh4mjM/A+j987FaB7TCzD
+         3lAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DwGRG3/zucfy6TYRbn+kLcFz9oFEfIbTg62MDuhmTvw=;
+        b=WB8wwIOhv7rddSa3ETLCiVv/w9u2r4+wLMlrXGLYlUeT98Fyk+297q+GWgR/Bfrs7P
+         AdCZWEndNALCYJJYl+oln+jjdDGVNfbXbTw7prR01ZBgq0GY3VY/ec19UKMFAhx1OrYI
+         7QMi3R119tMVx/z3qO53ub0iXzHhev0jjvvFxsbrZmXe7aQM7vNBLXsnxsDpEiBet8rY
+         KD1OOdbEX7uevW6EPg8PXK7oPIJ3kzsO72eedBuLnA44Zu6iQQaK15RNuWwL4DiJCvmj
+         dJplO/fcmnwXFDZ9KLiAdLkVHiSjz/ec3BUYU0l7MFqdJylbqRs7qwDgLbdqQ6Wkll+r
+         ApRQ==
+X-Gm-Message-State: APjAAAWX3LR5tR3rKtutFW9MTvTJdELCrYTPNPoX//lH3V+a84/QRQAu
+        H9gTrOW1t/H+sy2u2Nbn4eEbHA20i43trY+fr4o=
+X-Google-Smtp-Source: APXvYqzZlyy0ojCdisc5mKiP7KI3KB8ScsjkNt2woKbQi+qwZtspMo5DxjNMK8nd/6Z9nQeoGERizX+B/EOjYztFaOk=
+X-Received: by 2002:adf:f78f:: with SMTP id q15mr4335498wrp.282.1572513241149;
+ Thu, 31 Oct 2019 02:14:01 -0700 (PDT)
+MIME-Version: 1.0
+References: <20191027203259.948006506@linuxfoundation.org> <20191027203307.303661015@linuxfoundation.org>
+ <3e9de35dda19c0ac207d49d24c2735655b1d8d64.camel@nokia.com>
+In-Reply-To: <3e9de35dda19c0ac207d49d24c2735655b1d8d64.camel@nokia.com>
+From:   Xin Long <lucien.xin@gmail.com>
+Date:   Thu, 31 Oct 2019 17:14:15 +0800
+Message-ID: <CADvbK_dx=dT6j-XMA=p9QgJJp5YgA2zRCLuY08u4pz0v=vXorw@mail.gmail.com>
+Subject: Re: [PATCH 4.14 024/119] sctp: change sctp_prot .no_autobind with true
+To:     "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>,
         "davem@davemloft.net" <davem@davemloft.net>,
         "syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com" 
         <syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com>,
         "marcelo.leitner@gmail.com" <marcelo.leitner@gmail.com>
-Subject: Re: [PATCH 4.14 024/119] sctp: change sctp_prot .no_autobind with
- true
-Thread-Topic: [PATCH 4.14 024/119] sctp: change sctp_prot .no_autobind with
- true
-Thread-Index: AQHVjQqbiJexuTmoE0C1wK8ToRSb7Kd0ZqUA
-Date:   Thu, 31 Oct 2019 07:54:05 +0000
-Message-ID: <3e9de35dda19c0ac207d49d24c2735655b1d8d64.camel@nokia.com>
-References: <20191027203259.948006506@linuxfoundation.org>
-         <20191027203307.303661015@linuxfoundation.org>
-In-Reply-To: <20191027203307.303661015@linuxfoundation.org>
-Accept-Language: fi-FI, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=tommi.t.rantala@nokia.com; 
-x-originating-ip: [131.228.2.23]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: cdf3eb81-e13f-4a71-958a-08d75dd780a4
-x-ms-traffictypediagnostic: HE1PR0702MB3819:
-x-microsoft-antispam-prvs: <HE1PR0702MB3819FBE9417279AE12D2ADCDB4630@HE1PR0702MB3819.eurprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:4714;
-x-forefront-prvs: 02070414A1
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(366004)(346002)(136003)(39860400002)(376002)(396003)(189003)(199004)(229853002)(36756003)(2906002)(54906003)(6486002)(7736002)(305945005)(110136005)(6246003)(6436002)(3846002)(6116002)(6512007)(316002)(66476007)(66446008)(64756008)(66946007)(66556008)(76116006)(99286004)(76176011)(476003)(11346002)(446003)(6506007)(102836004)(186003)(26005)(478600001)(81166006)(45080400002)(14454004)(8936002)(4001150100001)(81156014)(2501003)(8676002)(25786009)(2616005)(486006)(66066001)(118296001)(4326008)(5660300002)(86362001)(256004)(71190400001)(71200400001)(142923001);DIR:OUT;SFP:1102;SCL:1;SRVR:HE1PR0702MB3819;H:HE1PR0702MB3675.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: nokia.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: QM1jWnBCCDy/mrXji8vW+J+y7ZGDaL3BbTubN3gnb6HCE3itIiwp4j1rYwp9YtgM7bvG9zCXAxtyqxLBRUFdp72CEwQA3/nKqjAXh7fyLE6XLc06iTBz6j5rl1/geyIPR5vd+wq15sjn+ySQVPPtqXQMBbO1uuTURVzENMKc3OxF0IS6z+1SvflkdkjDSg756nx2w5PFEQp2t9nRCSPPGQtoftkYCJVVmCQa/xGDQXkU48x/7mosgltighxbJKADXjjFEvicw21aUX248VaDvSno37iPrYew6ljz7eORwNeq9Uy5/OG/+fJdNy78lK9Q/u1wASVN2tE0qv/0Ss1119D0YJX1KD2b+j4XG67NkpE0Xo7Slm7oiHQR7yZW1mPglXT4AntNdfwXtH8U4V3NfQfcJS1f6QHsowu68djIQjqDH5C9pvHOgZa6sxV6Mevl
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <20059BB418EB3D41B356CB85A4701FBC@eurprd07.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: cdf3eb81-e13f-4a71-958a-08d75dd780a4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Oct 2019 07:54:05.2406
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: iJDQkQ/RA53uP4X04JsDfDCwPzt3qj21CaPKniBokiw+4A+r1ScNmzxN5qeZnPENxfA+sTjZ/VM7jTxjznqssZzhx6JkzBwmf3xHzFGoVn0=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1PR0702MB3819
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gU3VuLCAyMDE5LTEwLTI3IGF0IDIyOjAwICswMTAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
-dGU6DQo+IEZyb206IFhpbiBMb25nIDxsdWNpZW4ueGluQGdtYWlsLmNvbT4NCj4gDQo+IFsgVXBz
-dHJlYW0gY29tbWl0IDYzZGZiNzkzOGIxM2ZhMmMyZmJjYjQ1ZjM0ZDA2NTc2OWViMDk0MTQgXQ0K
-PiANCj4gc3l6Ym90IHJlcG9ydGVkIGEgbWVtb3J5IGxlYWs6DQo+IA0KPiAgIEJVRzogbWVtb3J5
-IGxlYWssIHVucmVmZXJlbmNlZCBvYmplY3QgMHhmZmZmODg4MTIwYjNkMzgwIChzaXplIDY0KToN
-Cj4gICBiYWNrdHJhY2U6DQo+IA0KPiAgICAgWy4uLl0gc2xhYl9hbGxvYyBtbS9zbGFiLmM6MzMx
-OSBbaW5saW5lXQ0KPiAgICAgWy4uLl0ga21lbV9jYWNoZV9hbGxvYysweDEzZi8weDJjMCBtbS9z
-bGFiLmM6MzQ4Mw0KPiAgICAgWy4uLl0gc2N0cF9idWNrZXRfY3JlYXRlIG5ldC9zY3RwL3NvY2tl
-dC5jOjg1MjMgW2lubGluZV0NCj4gICAgIFsuLi5dIHNjdHBfZ2V0X3BvcnRfbG9jYWwrMHgxODkv
-MHg1YTAgbmV0L3NjdHAvc29ja2V0LmM6ODI3MA0KPiAgICAgWy4uLl0gc2N0cF9kb19iaW5kKzB4
-Y2MvMHgyMDAgbmV0L3NjdHAvc29ja2V0LmM6NDAyDQo+ICAgICBbLi4uXSBzY3RwX2JpbmR4X2Fk
-ZCsweDRiLzB4ZDAgbmV0L3NjdHAvc29ja2V0LmM6NDk3DQo+ICAgICBbLi4uXSBzY3RwX3NldHNv
-Y2tvcHRfYmluZHgrMHgxNTYvMHgxYjAgbmV0L3NjdHAvc29ja2V0LmM6MTAyMg0KPiAgICAgWy4u
-Ll0gc2N0cF9zZXRzb2Nrb3B0IG5ldC9zY3RwL3NvY2tldC5jOjQ2NDEgW2lubGluZV0NCj4gICAg
-IFsuLi5dIHNjdHBfc2V0c29ja29wdCsweGFlYS8weDJkYzAgbmV0L3NjdHAvc29ja2V0LmM6NDYx
-MQ0KPiAgICAgWy4uLl0gc29ja19jb21tb25fc2V0c29ja29wdCsweDM4LzB4NTAgbmV0L2NvcmUv
-c29jay5jOjMxNDcNCj4gICAgIFsuLi5dIF9fc3lzX3NldHNvY2tvcHQrMHgxMGYvMHgyMjAgbmV0
-L3NvY2tldC5jOjIwODQNCj4gICAgIFsuLi5dIF9fZG9fc3lzX3NldHNvY2tvcHQgbmV0L3NvY2tl
-dC5jOjIxMDAgW2lubGluZV0NCj4gDQo+IEl0IHdhcyBjYXVzZWQgYnkgd2hlbiBzZW5kaW5nIG1z
-Z3Mgd2l0aG91dCBiaW5kaW5nIGEgcG9ydCwgaW4gdGhlIHBhdGg6DQo+IGluZXRfc2VuZG1zZygp
-IC0+IGluZXRfc2VuZF9wcmVwYXJlKCkgLT4gaW5ldF9hdXRvYmluZCgpIC0+DQo+IC5nZXRfcG9y
-dC9zY3RwX2dldF9wb3J0KCksIHNwLT5iaW5kX2hhc2ggd2lsbCBiZSBzZXQgd2hpbGUgYnAtPnBv
-cnQgaXMNCj4gbm90LiBMYXRlciB3aGVuIGJpbmRpbmcgYW5vdGhlciBwb3J0IGJ5IHNjdHBfc2V0
-c29ja29wdF9iaW5keCgpLCBhIG5ldw0KPiBidWNrZXQgd2lsbCBiZSBjcmVhdGVkIGFzIGJwLT5w
-b3J0IGlzIG5vdCBzZXQuDQo+IA0KPiBzY3RwJ3MgYXV0b2JpbmQgaXMgc3VwcG9zZWQgdG8gY2Fs
-bCBzY3RwX2F1dG9iaW5kKCkgd2hlcmUgaXQgZG9lcyBhbGwNCj4gdGhpbmdzIGluY2x1ZGluZyBz
-ZXR0aW5nIGJwLT5wb3J0LiBTaW5jZSBzY3RwX2F1dG9iaW5kKCkgaXMgY2FsbGVkIGluDQo+IHNj
-dHBfc2VuZG1zZygpIGlmIHRoZSBzayBpcyBub3QgeWV0IGJvdW5kLCBpdCBzaG91bGQgaGF2ZSBz
-a2lwcGVkIHRoZQ0KPiBhdXRvIGJpbmQuDQo+IA0KPiBUSGlzIHBhdGNoIGlzIHRvIGF2b2lkIGNh
-bGxpbmcgaW5ldF9hdXRvYmluZCgpIGluIGluZXRfc2VuZF9wcmVwYXJlKCkNCj4gYnkgY2hhbmdp
-bmcgc2N0cF9wcm90IC5ub19hdXRvYmluZCB3aXRoIHRydWUsIGFsc28gcmVtb3ZlIHRoZSB1bnVz
-ZWQNCj4gLmdldF9wb3J0Lg0KDQpIaSwNCg0KSSdtIHNlZWluZyBTQ1RQIG9vcHMgaW4gNC4xNC4x
-NTEsIHJlcHJvZHVjaWJsZSBlYXNpbHkgd2l0aCBpcGVyZjoNCg0KIyBpcGVyZjMgLXMgLTEgJg0K
-IyBpcGVyZjMgLWMgbG9jYWxob3N0IC0tc2N0cA0KDQpUaGlzIHBhdGNoIHdhcyBhbHNvIGluY2x1
-ZGVkIGluIDQuMTkuODEsIGJ1dCB0aGVyZSBpdCBzZWVtcyB0byBiZSB3b3JraW5nDQpmaW5lLg0K
-DQpBbnkgaWRlYXMgaWYgdGhpcyBwYXRjaCBpcyB2YWxpZCBmb3IgNC4xNCwgb3Igd2hhdCdzIG1p
-c3NpbmcgaW4gNC4xNCB0bw0KbWFrZSB0aGlzIHdvcms/DQoNCg0KWyAgIDI5LjE3OTExNl0gc2N0
-cDogSGFzaCB0YWJsZXMgY29uZmlndXJlZCAoYmluZCAyNTYvMjU2KQ0KWyAgIDI5LjE4ODg0Nl0g
-QlVHOiB1bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2UNCmF0
-ICAgICAgICAgICAobnVsbCkNClsgICAyOS4xOTAxODldIElQOiAgICAgICAgICAgKG51bGwpDQpb
-ICAgMjkuMTkwNzU4XSBQR0QgMCBQNEQgMCANClsgICAyOS4xOTEyMjRdIE9vcHM6IDAwMTAgWyMx
-XSBTTVAgUFRJDQpbICAgMjkuMTkxNzg2XSBNb2R1bGVzIGxpbmtlZCBpbjogaG1hYyBzY3RwIGxp
-YmNyYzMyYyBpc29mcyBrdm1faW50ZWwga3ZtDQppcnFieXBhc3Mgc2NoX2ZxX2NvZGVsIHBjYmMg
-YWVzbmlfaW50ZWwgYWVzX3g4Nl82NCBjcnlwdG9fc2ltZCBjcnlwdGQNCmdsdWVfaGVscGVyIGF0
-YV9waWl4IGRtX21pcnJvciBkbV9yZWdpb25faGFzaCBkbV9sb2cgZG1fbW9kIGRheCBhdXRvZnM0
-DQpbICAgMjkuMTk0NTg1XSBDUFU6IDUgUElEOiA3MzMgQ29tbTogaXBlcmYzIE5vdCB0YWludGVk
-IDQuMTQuMTUxLTEueDg2XzY0DQojMQ0KWyAgIDI5LjE5NTY4OV0gSGFyZHdhcmUgbmFtZTogUUVN
-VSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksIEJJT1MNCjEuMTIuMC0yLmZjMzAg
-MDQvMDEvMjAxNA0KWyAgIDI5LjE5NzAwOV0gdGFzazogZmZmZjkzZWRiMGU2NWJjMCB0YXNrLnN0
-YWNrOiBmZmZmOWZjZGMxMWI4MDAwDQpbICAgMjkuMTk3OTE2XSBSSVA6IDAwMTA6ICAgICAgICAg
-IChudWxsKQ0KWyAgIDI5LjE5ODUzMl0gUlNQOiAwMDE4OmZmZmY5ZmNkYzExYmJlNTAgRUZMQUdT
-OiAwMDAxMDI0Ng0KWyAgIDI5LjE5OTM0OV0gUkFYOiAwMDAwMDAwMDAwMDAwMDAwIFJCWDogZmZm
-ZjkzZWRiMDJkMDY4MCBSQ1g6DQowMDAwMDAwMDAwMDAwMDAyDQpbICAgMjkuMjAwNDI2XSBSRFg6
-IDAwMDAwMDAwMDAwMDAwMDEgUlNJOiAwMDAwMDAwMDAwMDAwMDAwIFJESToNCmZmZmY5M2VkYjAy
-ZDA2ODANClsgICAyOS4yMDE0OTddIFJCUDogMDAwMDAwMDAwMDAwMDAxYyBSMDg6IDAxMDAwMDAw
-MDAwMDAwMDAgUjA5Og0KMDAwMDU2NDI3N2FiYjRlOA0KWyAgIDI5LjIwMjU3N10gUjEwOiAwMDAw
-MDAwMDAwMDAwMDAwIFIxMTogMDAwMDAwMDAwMDAwMDAwMCBSMTI6DQpmZmZmOWZjZGMxMWJiZTkw
-DQpbICAgMjkuMjAzNjU2XSBSMTM6IDAwMDA1NjQyNzdhYmI0ZTAgUjE0OiAwMDAwMDAwMDAwMDAw
-MDAwIFIxNToNCjAwMDAwMDAwMDAwMDAwMDANClsgICAyOS4yMDQ3MzddIEZTOiAgMDAwMDdmMGY2
-MjQyY2I4MCgwMDAwKSBHUzpmZmZmOTNlZGJmZDQwMDAwKDAwMDApDQprbmxHUzowMDAwMDAwMDAw
-MDAwMDAwDQpbICAgMjkuMjA1OTY3XSBDUzogIDAwMTAgRFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAw
-MDAwMDAwMDgwMDUwMDMzDQpbICAgMjkuMjA2ODYzXSBDUjI6IDAwMDAwMDAwMDAwMDAwMDAgQ1Iz
-OiAwMDAwMDAwMjMwMzdjMDAyIENSNDoNCjAwMDAwMDAwMDAzNjA2ZTANClsgICAyOS4yMDc5NThd
-IERSMDogMDAwMDAwMDAwMDAwMDAwMCBEUjE6IDAwMDAwMDAwMDAwMDAwMDAgRFIyOg0KMDAwMDAw
-MDAwMDAwMDAwMA0KWyAgIDI5LjIwOTA3OV0gRFIzOiAwMDAwMDAwMDAwMDAwMDAwIERSNjogMDAw
-MDAwMDBmZmZlMGZmMCBEUjc6DQowMDAwMDAwMDAwMDAwNDAwDQpbICAgMjkuMjEwMTYyXSBDYWxs
-IFRyYWNlOg0KWyAgIDI5LjIxMDU3N10gIGluZXRfYXV0b2JpbmQrMHgyYy8weDYwDQpbICAgMjku
-MjExMTcyXSAgaW5ldF9kZ3JhbV9jb25uZWN0KzB4NDUvMHg4MA0KWyAgIDI5LjIxMTgwOF0gIFNZ
-U0NfY29ubmVjdCsweDg5LzB4YjANClsgICAyOS4yMTIzODRdICA/IHNvY2tfbWFwX2ZkKzB4M2Qv
-MHg2MA0KWyAgIDI5LjIxMjk2MF0gIGRvX3N5c2NhbGxfNjQrMHg3NC8weDE5MA0KWyAgIDI5LjIx
-MzUxN10gIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdmcmFtZSsweDNkLzB4YTINClsgICAyOS4y
-MTQyMTJdIFJJUDogMDAzMzoweDdmMGY2MjZiNTc1OA0KWyAgIDI5LjIxNDcxMF0gUlNQOiAwMDJi
-OjAwMDA3ZmZjN2NhNjI0ZjggRUZMQUdTOiAwMDAwMDI0NiBPUklHX1JBWDoNCjAwMDAwMDAwMDAw
-MDAwMmENClsgICAyOS4yMTU3MjddIFJBWDogZmZmZmZmZmZmZmZmZmZkYSBSQlg6IDAwMDA1NjQy
-NzdhYmEyNjAgUkNYOg0KMDAwMDdmMGY2MjZiNTc1OA0KWyAgIDI5LjIxNjY2MF0gUkRYOiAwMDAw
-MDAwMDAwMDAwMDFjIFJTSTogMDAwMDU2NDI3N2FiYjRlMCBSREk6DQowMDAwMDAwMDAwMDAwMDA1
-DQpbICAgMjkuMjE3NjEzXSBSQlA6IDAwMDAwMDAwMDAwMDAwMDUgUjA4OiAwMDAwNTY0Mjc3YWJj
-OWQwIFIwOToNCjAwMDA1NjQyNzdhYmI0ZTgNClsgICAyOS4yMTg2MDRdIFIxMDogMDAwMDAwMDAw
-MDAwMDAwMCBSMTE6IDAwMDAwMDAwMDAwMDAyNDYgUjEyOg0KMDAwMDdmMGY2MjdhNzE3MA0KWyAg
-IDI5LjIxOTYwNl0gUjEzOiAwMDAwN2ZmYzdjYTYyNTIwIFIxNDogMDAwMDU2NDI3N2FiYTI2MCBS
-MTU6DQowMDAwMDAwMDAwMDAwMDAxDQpbICAgMjkuMjIwNTk2XSBDb2RlOiAgQmFkIFJJUCB2YWx1
-ZS4NClsgICAyOS4yMjEwNzVdIFJJUDogICAgICAgICAgIChudWxsKSBSU1A6IGZmZmY5ZmNkYzEx
-YmJlNTANClsgICAyOS4yMjE3NzJdIENSMjogMDAwMDAwMDAwMDAwMDAwMA0KWyAgIDI5LjIyMjI2
-MF0gLS0tWyBlbmQgdHJhY2UgODMxYzRjMWYxMTEwOWNhMCBdLS0tDQoNCg0KPiBSZXBvcnRlZC1i
-eTogc3l6Ym90K2Q0NGY3YmJlYmRlYTQ5ZGJjODRhQHN5emthbGxlci5hcHBzcG90bWFpbC5jb20N
-Cj4gU2lnbmVkLW9mZi1ieTogWGluIExvbmcgPGx1Y2llbi54aW5AZ21haWwuY29tPg0KPiBBY2tl
-ZC1ieTogTWFyY2VsbyBSaWNhcmRvIExlaXRuZXIgPG1hcmNlbG8ubGVpdG5lckBnbWFpbC5jb20+
-DQo+IFNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4N
-Cj4gU2lnbmVkLW9mZi1ieTogR3JlZyBLcm9haC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0
-aW9uLm9yZz4NCj4gLS0tDQo+ICBuZXQvc2N0cC9zb2NrZXQuYyB8ICAgIDQgKystLQ0KPiAgMSBm
-aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4gDQo+IC0tLSBh
-L25ldC9zY3RwL3NvY2tldC5jDQo+ICsrKyBiL25ldC9zY3RwL3NvY2tldC5jDQo+IEBAIC04MzEz
-LDcgKzgzMTMsNyBAQCBzdHJ1Y3QgcHJvdG8gc2N0cF9wcm90ID0gew0KPiAgCS5iYWNrbG9nX3Jj
-diA9CXNjdHBfYmFja2xvZ19yY3YsDQo+ICAJLmhhc2ggICAgICAgID0Jc2N0cF9oYXNoLA0KPiAg
-CS51bmhhc2ggICAgICA9CXNjdHBfdW5oYXNoLA0KPiAtCS5nZXRfcG9ydCAgICA9CXNjdHBfZ2V0
-X3BvcnQsDQo+ICsJLm5vX2F1dG9iaW5kID0JdHJ1ZSwNCj4gIAkub2JqX3NpemUgICAgPSAgc2l6
-ZW9mKHN0cnVjdCBzY3RwX3NvY2spLA0KPiAgCS5zeXNjdGxfbWVtICA9ICBzeXNjdGxfc2N0cF9t
-ZW0sDQo+ICAJLnN5c2N0bF9ybWVtID0gIHN5c2N0bF9zY3RwX3JtZW0sDQo+IEBAIC04MzUyLDcg
-KzgzNTIsNyBAQCBzdHJ1Y3QgcHJvdG8gc2N0cHY2X3Byb3QgPSB7DQo+ICAJLmJhY2tsb2dfcmN2
-CT0gc2N0cF9iYWNrbG9nX3JjdiwNCj4gIAkuaGFzaAkJPSBzY3RwX2hhc2gsDQo+ICAJLnVuaGFz
-aAkJPSBzY3RwX3VuaGFzaCwNCj4gLQkuZ2V0X3BvcnQJPSBzY3RwX2dldF9wb3J0LA0KPiArCS5u
-b19hdXRvYmluZAk9IHRydWUsDQo+ICAJLm9ial9zaXplCT0gc2l6ZW9mKHN0cnVjdCBzY3RwNl9z
-b2NrKSwNCj4gIAkuc3lzY3RsX21lbQk9IHN5c2N0bF9zY3RwX21lbSwNCj4gIAkuc3lzY3RsX3Jt
-ZW0JPSBzeXNjdGxfc2N0cF9ybWVtLA0KPiANCj4gDQoNCg==
+On Thu, Oct 31, 2019 at 3:54 PM Rantala, Tommi T. (Nokia - FI/Espoo)
+<tommi.t.rantala@nokia.com> wrote:
+>
+> On Sun, 2019-10-27 at 22:00 +0100, Greg Kroah-Hartman wrote:
+> > From: Xin Long <lucien.xin@gmail.com>
+> >
+> > [ Upstream commit 63dfb7938b13fa2c2fbcb45f34d065769eb09414 ]
+> >
+> > syzbot reported a memory leak:
+> >
+> >   BUG: memory leak, unreferenced object 0xffff888120b3d380 (size 64):
+> >   backtrace:
+> >
+> >     [...] slab_alloc mm/slab.c:3319 [inline]
+> >     [...] kmem_cache_alloc+0x13f/0x2c0 mm/slab.c:3483
+> >     [...] sctp_bucket_create net/sctp/socket.c:8523 [inline]
+> >     [...] sctp_get_port_local+0x189/0x5a0 net/sctp/socket.c:8270
+> >     [...] sctp_do_bind+0xcc/0x200 net/sctp/socket.c:402
+> >     [...] sctp_bindx_add+0x4b/0xd0 net/sctp/socket.c:497
+> >     [...] sctp_setsockopt_bindx+0x156/0x1b0 net/sctp/socket.c:1022
+> >     [...] sctp_setsockopt net/sctp/socket.c:4641 [inline]
+> >     [...] sctp_setsockopt+0xaea/0x2dc0 net/sctp/socket.c:4611
+> >     [...] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3147
+> >     [...] __sys_setsockopt+0x10f/0x220 net/socket.c:2084
+> >     [...] __do_sys_setsockopt net/socket.c:2100 [inline]
+> >
+> > It was caused by when sending msgs without binding a port, in the path:
+> > inet_sendmsg() -> inet_send_prepare() -> inet_autobind() ->
+> > .get_port/sctp_get_port(), sp->bind_hash will be set while bp->port is
+> > not. Later when binding another port by sctp_setsockopt_bindx(), a new
+> > bucket will be created as bp->port is not set.
+> >
+> > sctp's autobind is supposed to call sctp_autobind() where it does all
+> > things including setting bp->port. Since sctp_autobind() is called in
+> > sctp_sendmsg() if the sk is not yet bound, it should have skipped the
+> > auto bind.
+> >
+> > THis patch is to avoid calling inet_autobind() in inet_send_prepare()
+> > by changing sctp_prot .no_autobind with true, also remove the unused
+> > .get_port.
+>
+> Hi,
+>
+> I'm seeing SCTP oops in 4.14.151, reproducible easily with iperf:
+>
+> # iperf3 -s -1 &
+> # iperf3 -c localhost --sctp
+>
+> This patch was also included in 4.19.81, but there it seems to be working
+> fine.
+>
+> Any ideas if this patch is valid for 4.14, or what's missing in 4.14 to
+> make this work?
+pls get this commit into 4.14, which has been in 4.19:
+
+commit 644fbdeacf1d3edd366e44b8ba214de9d1dd66a9
+Author: Xin Long <lucien.xin@gmail.com>
+Date:   Sun May 20 16:39:10 2018 +0800
+
+    sctp: fix the issue that flags are ignored when using kernel_connect
+
+>
+>
+> [   29.179116] sctp: Hash tables configured (bind 256/256)
+> [   29.188846] BUG: unable to handle kernel NULL pointer dereference
+> at           (null)
+> [   29.190189] IP:           (null)
+> [   29.190758] PGD 0 P4D 0
+> [   29.191224] Oops: 0010 [#1] SMP PTI
+> [   29.191786] Modules linked in: hmac sctp libcrc32c isofs kvm_intel kvm
+> irqbypass sch_fq_codel pcbc aesni_intel aes_x86_64 crypto_simd cryptd
+> glue_helper ata_piix dm_mirror dm_region_hash dm_log dm_mod dax autofs4
+> [   29.194585] CPU: 5 PID: 733 Comm: iperf3 Not tainted 4.14.151-1.x86_64
+> #1
+> [   29.195689] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+> 1.12.0-2.fc30 04/01/2014
+> [   29.197009] task: ffff93edb0e65bc0 task.stack: ffff9fcdc11b8000
+> [   29.197916] RIP: 0010:          (null)
+> [   29.198532] RSP: 0018:ffff9fcdc11bbe50 EFLAGS: 00010246
+> [   29.199349] RAX: 0000000000000000 RBX: ffff93edb02d0680 RCX:
+> 0000000000000002
+> [   29.200426] RDX: 0000000000000001 RSI: 0000000000000000 RDI:
+> ffff93edb02d0680
+> [   29.201497] RBP: 000000000000001c R08: 0100000000000000 R09:
+> 0000564277abb4e8
+> [   29.202577] R10: 0000000000000000 R11: 0000000000000000 R12:
+> ffff9fcdc11bbe90
+> [   29.203656] R13: 0000564277abb4e0 R14: 0000000000000000 R15:
+> 0000000000000000
+> [   29.204737] FS:  00007f0f6242cb80(0000) GS:ffff93edbfd40000(0000)
+> knlGS:0000000000000000
+> [   29.205967] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> [   29.206863] CR2: 0000000000000000 CR3: 000000023037c002 CR4:
+> 00000000003606e0
+> [   29.207958] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+> 0000000000000000
+> [   29.209079] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+> 0000000000000400
+> [   29.210162] Call Trace:
+> [   29.210577]  inet_autobind+0x2c/0x60
+> [   29.211172]  inet_dgram_connect+0x45/0x80
+> [   29.211808]  SYSC_connect+0x89/0xb0
+> [   29.212384]  ? sock_map_fd+0x3d/0x60
+> [   29.212960]  do_syscall_64+0x74/0x190
+> [   29.213517]  entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+> [   29.214212] RIP: 0033:0x7f0f626b5758
+> [   29.214710] RSP: 002b:00007ffc7ca624f8 EFLAGS: 00000246 ORIG_RAX:
+> 000000000000002a
+> [   29.215727] RAX: ffffffffffffffda RBX: 0000564277aba260 RCX:
+> 00007f0f626b5758
+> [   29.216660] RDX: 000000000000001c RSI: 0000564277abb4e0 RDI:
+> 0000000000000005
+> [   29.217613] RBP: 0000000000000005 R08: 0000564277abc9d0 R09:
+> 0000564277abb4e8
+> [   29.218604] R10: 0000000000000000 R11: 0000000000000246 R12:
+> 00007f0f627a7170
+> [   29.219606] R13: 00007ffc7ca62520 R14: 0000564277aba260 R15:
+> 0000000000000001
+> [   29.220596] Code:  Bad RIP value.
+> [   29.221075] RIP:           (null) RSP: ffff9fcdc11bbe50
+> [   29.221772] CR2: 0000000000000000
+> [   29.222260] ---[ end trace 831c4c1f11109ca0 ]---
+>
+>
+> > Reported-by: syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com
+> > Signed-off-by: Xin Long <lucien.xin@gmail.com>
+> > Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+> > Signed-off-by: David S. Miller <davem@davemloft.net>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > ---
+> >  net/sctp/socket.c |    4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > --- a/net/sctp/socket.c
+> > +++ b/net/sctp/socket.c
+> > @@ -8313,7 +8313,7 @@ struct proto sctp_prot = {
+> >       .backlog_rcv =  sctp_backlog_rcv,
+> >       .hash        =  sctp_hash,
+> >       .unhash      =  sctp_unhash,
+> > -     .get_port    =  sctp_get_port,
+> > +     .no_autobind =  true,
+> >       .obj_size    =  sizeof(struct sctp_sock),
+> >       .sysctl_mem  =  sysctl_sctp_mem,
+> >       .sysctl_rmem =  sysctl_sctp_rmem,
+> > @@ -8352,7 +8352,7 @@ struct proto sctpv6_prot = {
+> >       .backlog_rcv    = sctp_backlog_rcv,
+> >       .hash           = sctp_hash,
+> >       .unhash         = sctp_unhash,
+> > -     .get_port       = sctp_get_port,
+> > +     .no_autobind    = true,
+> >       .obj_size       = sizeof(struct sctp6_sock),
+> >       .sysctl_mem     = sysctl_sctp_mem,
+> >       .sysctl_rmem    = sysctl_sctp_rmem,
+> >
+> >
+>
