@@ -2,75 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BB5EBA00
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 23:53:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4897EBA17
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 23:56:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727707AbfJaWxf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 18:53:35 -0400
-Received: from smtprelay0099.hostedemail.com ([216.40.44.99]:43479 "EHLO
-        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726540AbfJaWxf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 18:53:35 -0400
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
-        by smtprelay03.hostedemail.com (Postfix) with ESMTP id F01BB837F24D;
-        Thu, 31 Oct 2019 22:53:33 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Spam-Summary: 2,0,0,,d41d8cd98f00b204,joe@perches.com,:::::::::::::::,RULES_HIT:41:355:379:599:988:989:1260:1277:1311:1313:1314:1345:1359:1437:1515:1516:1518:1534:1541:1593:1594:1711:1730:1747:1777:1792:2110:2393:2559:2562:2828:2911:3138:3139:3140:3141:3142:3352:3622:3865:3866:3867:3868:3871:3873:3874:4321:4425:5007:6119:6120:7901:7903:10004:10400:10848:11232:11473:11658:11914:12048:12296:12297:12555:12740:12760:12895:13069:13160:13229:13255:13311:13357:13439:14096:14097:14180:14659:14721:21080:21212:21451:21627:30054:30091,0,RBL:47.151.135.224:@perches.com:.lbl8.mailshell.net-62.8.0.100 64.201.201.201,CacheIP:none,Bayesian:0.5,0.5,0.5,Netcheck:none,DomainCache:0,MSF:not bulk,SPF:fn,MSBL:0,DNSBL:neutral,Custom_rules:0:0:0,LFtime:25,LUA_SUMMARY:none
-X-HE-Tag: pipe73_3c057c4d0b128
-X-Filterd-Recvd-Size: 2331
-Received: from XPS-9350.home (unknown [47.151.135.224])
-        (Authenticated sender: joe@perches.com)
-        by omf05.hostedemail.com (Postfix) with ESMTPA;
-        Thu, 31 Oct 2019 22:53:32 +0000 (UTC)
-Message-ID: <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
+        id S1728207AbfJaW44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 18:56:56 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:46225 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726680AbfJaW44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 18:56:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572562613;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references:openpgp:openpgp;
+        bh=hsazX/2cdvsd2UrhLyRGFR2m9XT3QtbL6U2YX0qY3fM=;
+        b=disZyg79oKSKAbvzEFhtktCkFzoYXPaIyBBtMI5YlpiUVC6e/0mZMVeDX4EwM0fNvtDD2D
+        RSDknEMi5ylDALJeb+nxvaak4+elXaV/49c2yAR0gQRRYMfBQjSd2brxcn2FQm6h4emFjY
+        dhRhtSOTweZW5MxBdcejVR1vF0mWCao=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-26-ier4xrGpNnSXVmlKOcNCBg-1; Thu, 31 Oct 2019 18:56:51 -0400
+Received: by mail-wr1-f70.google.com with SMTP id 4so4384865wrf.19
+        for <stable@vger.kernel.org>; Thu, 31 Oct 2019 15:56:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=XLka1Wegs5Poy1s6KcdsjNpn4BlCfTOrvfQWXEfo7jw=;
+        b=ry2KCfLCA9q3mgyfb9n680LrD9qWsxH9MrXsWfqnL1P8n8R/J+AsOwdEpHbb6kw7EY
+         /sHHJX79MiLIU6r01zrV/bsHSgK+aF7EKAokmdOAY26hrKr7e0N/5KpADubTusgARvW2
+         68uZzCHhQhtV691xVSK/fOIOJb4D8P9e8vO21Ze5DJ32VthDGQyOgEKJ+CutX6po9C2M
+         Z8fRFhDRv4hOrkw2t+KDFah1fm/afrsTYbKGuGSgbucG9Sq6IlRah1ATYIlCwfFHM/OE
+         HDs1W+d3pyQ+SAO3fwv9sM0Z0I7ijgCITUpg1jyl+RfPnHUcVSizO2UpJS9FvAeodOkf
+         ZHeg==
+X-Gm-Message-State: APjAAAX9iqTQ5/v+qJcbv1srqG5SoWxJ/S/FQxZDaE2BZd1eg4nGIwFE
+        k+ZKlUq9HcQtrrfRBtQWhkJXFrt5IFd7Bc455ExJFy7zg4mK2Q7zZaitMQJxX2B9BhaELFmheYb
+        XLhedSZQ+JG0fMbRS
+X-Received: by 2002:adf:db0d:: with SMTP id s13mr7666998wri.319.1572562610334;
+        Thu, 31 Oct 2019 15:56:50 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqzv6DS9Kcssbe/HxbCJzzfTDCkzm4UhsJt0D6LeXtynHPukfhwlCvibJv4SH0s9VZ2rReHldA==
+X-Received: by 2002:adf:db0d:: with SMTP id s13mr7666976wri.319.1572562610034;
+        Thu, 31 Oct 2019 15:56:50 -0700 (PDT)
+Received: from [192.168.20.72] (94.222.26.109.rev.sfr.net. [109.26.222.94])
+        by smtp.gmail.com with ESMTPSA id w17sm5812390wra.34.2019.10.31.15.56.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 31 Oct 2019 15:56:49 -0700 (PDT)
 Subject: Re: [PATCH 3.16 47/47] KVM: x86/vPMU: refine kvm_pmu err msg when
  event creation failed
-From:   Joe Perches <joe@perches.com>
-To:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>
+To:     Joe Perches <joe@perches.com>, Ben Hutchings <ben@decadent.org.uk>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Greg KH <gregkh@linuxfoundation.org>
 Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Like Xu <like.xu@linux.intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Date:   Thu, 31 Oct 2019 15:53:23 -0700
-In-Reply-To: <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
+        Like Xu <like.xu@linux.intel.com>
 References: <lsq.1572026582.631294584@decadent.org.uk>
-         <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
-         <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.34.1-2 
+ <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
+ <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
+ <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Openpgp: preference=signencrypt
+Message-ID: <35a63ec6-234b-3dda-fbbc-df344e97e468@redhat.com>
+Date:   Thu, 31 Oct 2019 23:56:52 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
+Content-Language: en-US
+X-MC-Unique: ier4xrGpNnSXVmlKOcNCBg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2019-10-31 at 22:14 +0000, Ben Hutchings wrote:
-> On Fri, 2019-10-25 at 12:05 -0700, Joe Perches wrote:
-> > On Fri, 2019-10-25 at 19:03 +0100, Ben Hutchings wrote:
-> > > 3.16.76-rc1 review patch.  If anyone has any objections, please let me know.
-> > 
-> > This seems more like an enhancement than a bug fix.
-> > 
-> > Is this really the type of patch that is appropriate
-> > for stable?
-> 
-> Apparently so:
-> 
-> v4.14.135: eba797dbf352 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
-> v4.19.61: ba27a25df6df KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
-> v4.4.187: 505c011f9f53 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
-> v4.9.187: 3984eae04473 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
-> v5.1.20: edadec197fbf KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
-> v5.2.3: 9f062aef7356 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+On 31/10/19 23:53, Joe Perches wrote:
+> I think not, but hey, maybe you and Greg do.
+>=20
+> Porting enhancements, even trivial ones, imo is
+> not a great thing for stable branches.
+>=20
+> My perspective is that only bug fixes should be
+> applied to stable branches.
+>=20
+> cheers, Joe
 
-I think not, but hey, maybe you and Greg do.
+I agree this is borderline.  The main reason why I applied is that I get
+occasional bug reports about it even from experienced Linux developers,
+probably because the printk_once hides the message on systems that have
+been up for a while.
 
-Porting enhancements, even trivial ones, imo is
-not a great thing for stable branches.
-
-My perspective is that only bug fixes should be
-applied to stable branches.
-
-cheers, Joe
+Paolo
 
