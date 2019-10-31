@@ -2,94 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D5ABEAE7A
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 12:10:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42BA7EAEFD
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 12:36:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727364AbfJaLKV convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 31 Oct 2019 07:10:21 -0400
-Received: from mailserv.eflyermarketing.co ([149.56.43.101]:51415 "EHLO
-        office365.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726932AbfJaLKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 07:10:21 -0400
-X-Greylist: delayed 39721 seconds by postgrey-1.27 at vger.kernel.org; Thu, 31 Oct 2019 07:10:21 EDT
-Reply-To: "Admin" <Info@office365.com>
-From:   "Admin" <Info@office365.com>
-To:     stable@vger.kernel.org
-Subject: voice message 
-Date:   31 Oct 2019 12:10:20 +0100
-Message-ID: <20191031121020.5CAA8A6BA7C14ACC@office365.com>
+        id S1726506AbfJaLgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 07:36:22 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:50044 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726462AbfJaLgW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 07:36:22 -0400
+Received: from [91.217.168.176] (helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <christian.brauner@ubuntu.com>)
+        id 1iQ8kU-0000Jq-Oo; Thu, 31 Oct 2019 11:36:18 +0000
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     linux-kernel@vger.kernel.org, Florian Weimer <fweimer@redhat.com>,
+        GNU C Library <libc-alpha@sourceware.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
+        Jann Horn <jannh@google.com>,
+        David Howells <dhowells@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        linux-api@vger.kernel.org, stable@vger.kernel.org,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH] clone3: validate stack arguments
+Date:   Thu, 31 Oct 2019 12:36:08 +0100
+Message-Id: <20191031113608.20713-1-christian.brauner@ubuntu.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir/Madam,
+Validate the stack arguments and setup the stack depening on whether or not
+it is growing down or up.
 
-                          We require the following items please 
-quote best price, with weight and size of shipment, minimum 
-delivery period, maximum validity and other terms of sales. If 
-required quantity is not fulfilling your requirement; please 
-quote on MOV (Minimum order value) & MOQ (Minimum order quantity) 
-basis. Kindly quote items which are in your scope of supply only, 
-if you have any representative / distributor / stockist in our 
-area please forward to relevant company /personal and Cc to us. 
-Please confirm your company have any sales, supply & stock 
-agreement with any other company (i.e. Grainger, RS, CPC-Farnell, 
-Digi-Key, McMater-Carr, 3M, PVL, Transcat, Maida International, 
-etc), from where we can purchase your products with best prices 
-and minimum delivery period.
+Legacy clone() required userspace to know in which direction the stack is
+growing and pass down the stack pointer appropriately. To make things more
+confusing microblaze uses a variant of the clone() syscall selected by
+CONFIG_CLONE_BACKWARDS3 that takes an additional stack_size argument.
+IA64 has a separate clone2() syscall which also takes an additional
+stack_size argument. Finally, parisc has a stack that is growing upwards.
+Userspace therefore has a lot nasty code like the following:
 
+ #define __STACK_SIZE (8 * 1024 * 1024)
+ pid_t sys_clone(int (*fn)(void *), void *arg, int flags, int *pidfd)
+ {
+         pid_t ret;
+         void *stack;
+
+         stack = malloc(__STACK_SIZE);
+         if (!stack)
+                 return -ENOMEM;
+
+ #ifdef __ia64__
+         ret = __clone2(fn, stack, __STACK_SIZE, flags | SIGCHLD, arg, pidfd);
+ #elif defined(__parisc__) /* stack grows up */
+         ret = clone(fn, stack, flags | SIGCHLD, arg, pidfd);
+ #else
+         ret = clone(fn, stack + __STACK_SIZE, flags | SIGCHLD, arg, pidfd);
+ #endif
+         return ret;
+ }
+
+or even crazier variants such as [3].
+
+With clone3() we have the ability to validate the stack. We can check that
+when stack_size is passed, the stack pointer is valid and the other way
+around. We can also check that the memory area userspace gave us is fine to
+use via access_ok(). Furthermore, we probably should not require
+userspace to know in which direction the stack is growing. It is easy
+for us to do this in the kernel and I couldn't find the original
+reasoning behind exposing this detail to userspace.
+
+/* Intentional user visible API change */
+clone3() was released with 5.3. Currently, it is not documented and very
+unclear to userspace how the stack and stack_size argument have to be
+passed. After talking to glibc folks we concluded that trying to change
+clone3() to setup the stack instead of requiring userspace to do this is
+the right course of action.
+Note, that this is an explicit change in user visible behavior we introduce
+with this patch. If it breaks someone's use-case we will revert! (And then
+e.g. place the new behavior under an appropriate flag.)
+Breaking someone's use-case is very unlikely though. First, neither glibc
+nor musl currently expose a wrapper for clone3(). Second, there is no real
+motivation for anyone to use clone3() directly since it does not provide
+features that legacy clone doesn't. New features for clone3() will first
+happen in v5.5 which is why v5.4 is still a good time to try and make that
+change now and backport it to v5.3. Searches on [4] did not reveal any
+packages calling clone3().
+
+[1]: https://lore.kernel.org/r/CAG48ez3q=BeNcuVTKBN79kJui4vC6nw0Bfq6xc-i0neheT17TA@mail.gmail.com
+[2]: https://lore.kernel.org/r/20191028172143.4vnnjpdljfnexaq5@wittgenstein
+[3]: https://github.com/systemd/systemd/blob/5238e9575906297608ff802a27e2ff9effa3b338/src/basic/raw-clone.h#L31
+[4]: https://codesearch.debian.net
+Fixes: 7f192e3cd316 ("fork: add clone3")
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Florian Weimer <fweimer@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-api@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: <stable@vger.kernel.org> # 5.3
+Cc: GNU C Library <libc-alpha@sourceware.org>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+---
+ include/uapi/linux/sched.h |  4 ++++
+ kernel/fork.c              | 33 ++++++++++++++++++++++++++++++++-
+ 2 files changed, 36 insertions(+), 1 deletion(-)
+
+diff --git a/include/uapi/linux/sched.h b/include/uapi/linux/sched.h
+index 99335e1f4a27..25b4fa00bad1 100644
+--- a/include/uapi/linux/sched.h
++++ b/include/uapi/linux/sched.h
+@@ -51,6 +51,10 @@
+  *               sent when the child exits.
+  * @stack:       Specify the location of the stack for the
+  *               child process.
++ *               Note, @stack is expected to point to the
++ *               lowest address. The stack direction will be
++ *               determined by the kernel and set up
++ *               appropriately based on @stack_size.
+  * @stack_size:  The size of the stack for the child process.
+  * @tls:         If CLONE_SETTLS is set, the tls descriptor
+  *               is set to tls.
+diff --git a/kernel/fork.c b/kernel/fork.c
+index bcdf53125210..55af6931c6ec 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -2561,7 +2561,35 @@ noinline static int copy_clone_args_from_user(struct kernel_clone_args *kargs,
+ 	return 0;
+ }
  
-
-Technical data sheet, material safety data sheet (for chemicals) 
-required along with quotation and confirm make and origin, also 
-confirm required material manufacturing, assembling & packing 
-(confirm origin).
-
+-static bool clone3_args_valid(const struct kernel_clone_args *kargs)
++/**
++ * clone3_stack_valid - check and prepare stack
++ * @kargs: kernel clone args
++ *
++ * Verify that the stack arguments userspace gave us are sane.
++ * In addition, set the stack direction for userspace since it's easy for us to
++ * determine.
++ */
++static inline bool clone3_stack_valid(struct kernel_clone_args *kargs)
++{
++	if (kargs->stack == 0) {
++		if (kargs->stack_size > 0)
++			return false;
++	} else {
++		if (kargs->stack_size == 0)
++			return false;
++
++		if (!access_ok((void __user *)kargs->stack, kargs->stack_size))
++			return false;
++
++#if !defined(CONFIG_STACK_GROWSUP) && !defined(CONFIG_IA64)
++		kargs->stack += kargs->stack_size;
++#endif
++	}
++
++	return true;
++}
++
++static bool clone3_args_valid(struct kernel_clone_args *kargs)
+ {
+ 	/*
+ 	 * All lower bits of the flag word are taken.
+@@ -2581,6 +2609,9 @@ static bool clone3_args_valid(const struct kernel_clone_args *kargs)
+ 	    kargs->exit_signal)
+ 		return false;
  
-
-Please confirm shipment status: Ex stock / Manufacture on firm 
-order / import on firm order (third country)
-
-If you cannot quote, please inform us by telephone, e-mail, or 
-facsimile with reason
-
-Kindly confirm us with evidence that you are manufacturer / 
-distributor / stockist, etc. also confirm warrantee and guarantee 
-of items offering.
-
++	if (!clone3_stack_valid(kargs))
++		return false;
++
+ 	return true;
+ }
  
+-- 
+2.23.0
 
-Note: Advance Payment is not provided as per policy of SBP & FBR 
-for Foreign & Local Bidders but against bank guarantee. In case 
-any quoted item falls in dangerous / harmonized goods category, 
-please mention in your quotation with packing detail. Please 
-confirm shipment through LCL/FCL; also confirm type & size (20’ 
-or 40’) of container. Kindly send company registration 
-certificate (CNIC/NTN/VAT, GST, Trade & Manufacturing License) 
-with quotation.
-
- 
-
-Certificates: Material Certificates, Calibration Certificates, 
-Factory Test Certificates or Certificates of Conformity, Third 
-party Inspection certificate, OEM certificate, Certificate of 
-origin from local/foreign Chamber and FTA Certificate (China & 
-Sri Lanka etc) MUST be provided along with shipment, please 
-confirm all related charges.
-
-If you have any query, please feel free to contact us, enquiry 
-closing date is 24-09-2018 Kindly send quotation before this 
-date, by email and facsimile, if you need more time please apply 
-for extension.
-
- 
-
-Kindly acknowledge the receipt
-
-Note: Please do not remove enquiry Ref # 262-0918 for future 
-correspondence; this is our general enquiry.
