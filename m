@@ -2,104 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9A8EAC92
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 10:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5ABEAE7A
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 12:10:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727175AbfJaJf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 05:35:59 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:38094 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727009AbfJaJf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 05:35:58 -0400
-Received: by mail-pl1-f195.google.com with SMTP id w8so2465466plq.5
-        for <stable@vger.kernel.org>; Thu, 31 Oct 2019 02:35:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DpBkpuyfEz89me+buFs+WwtT8XRjvBF3yFBftzqlsQk=;
-        b=JdLYApaHHSdUFo4j1OUWJrbghTLy5sNyEB5YolVD7rb4pjkaCXORZ6YsgpbuJrlo/V
-         tvEBmGb12tib+aqhP4RKjJlaJURPv05T12dWome0EoDMZk6g2GiuCOLpyreiYTFdP8bq
-         +xMNuDjKk97ONXGcpxwQQ2atL3vymdgSlRC2fqUwrH3+/m605N+EH8wvpFfCfltDOyEh
-         AlAVWF4FLDs9arQtYXkNFDNZyzLcnc68HEV4e5RUxtvpfuXI5feUTnUgM5YwuURQfidK
-         W1Ct8JUM3rdyYYHN2IYoDYqXYZLhWkIn+uZ3HuSvTlU4m/K1RMEm/URF2xTfWTUYBXYx
-         xciw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=DpBkpuyfEz89me+buFs+WwtT8XRjvBF3yFBftzqlsQk=;
-        b=N8GG1hAerDs6X3uuNi77qNvhsWzGI0fiuiP9n0/+TmTSEFz3QlVfIwYWTxELwR9V1U
-         oLEZh2DcmmiSDYM33tSyRuvYzBzH5aOs1ri9UswB0U7lVUombLdGSnuvF3ihE76rSb1A
-         7LzbAM7zL0KHpPF3+LyufKhXu7onL2IU/+pTooLK8qENuerU7Wda/XFgGQUAGBLy+W5M
-         6cMLdJzSFv4yhxNoEpBP/1gVYFJQ8KfyZTUMIU9u5mom+FfIGvJqlapCbk3hof4akh5c
-         p6iNqHBkPSigZk1Qc3K5/A7ir9zeweI6aEqz4V2rA9MzKFMQhi3CBG6IRkCDRLZUNO2f
-         p4TA==
-X-Gm-Message-State: APjAAAWkD643EiSAeSXczazK13dKh5ElQ8SN1fCA9amPNBcx/oFLPO/v
-        cMjetI4vDp5ime5O5GuP5UU3QQ==
-X-Google-Smtp-Source: APXvYqwnFWHm7nPbOa+XzFm1q9aR2vjbqEZF/KUN16CVmZa8X1+clj8plDglCup4NMBtOxDqkW3Y3A==
-X-Received: by 2002:a17:902:9347:: with SMTP id g7mr5320801plp.291.1572514557950;
-        Thu, 31 Oct 2019 02:35:57 -0700 (PDT)
-Received: from starnight.endlessm-sf.com (123-204-46-122.static.seed.net.tw. [123.204.46.122])
-        by smtp.gmail.com with ESMTPSA id b23sm5240079pju.16.2019.10.31.02.35.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 31 Oct 2019 02:35:57 -0700 (PDT)
-From:   Jian-Hong Pan <jian-hong@endlessm.com>
-To:     Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@fb.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Bjorn Helgaas <helgaas@kernel.org>
-Cc:     linux-nvme@lists.infradead.org, linux-pci@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux@endlessm.com,
-        Jian-Hong Pan <jian-hong@endlessm.com>, stable@vger.kernel.org
-Subject: [PATCH v2] Revert "nvme: Add quirk for Kingston NVME SSD running FW E8FK11.T"
-Date:   Thu, 31 Oct 2019 17:34:09 +0800
-Message-Id: <20191031093408.9322-1-jian-hong@endlessm.com>
-X-Mailer: git-send-email 2.23.0
+        id S1727364AbfJaLKV convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 31 Oct 2019 07:10:21 -0400
+Received: from mailserv.eflyermarketing.co ([149.56.43.101]:51415 "EHLO
+        office365.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726932AbfJaLKV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 07:10:21 -0400
+X-Greylist: delayed 39721 seconds by postgrey-1.27 at vger.kernel.org; Thu, 31 Oct 2019 07:10:21 EDT
+Reply-To: "Admin" <Info@office365.com>
+From:   "Admin" <Info@office365.com>
+To:     stable@vger.kernel.org
+Subject: voice message 
+Date:   31 Oct 2019 12:10:20 +0100
+Message-ID: <20191031121020.5CAA8A6BA7C14ACC@office365.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit 253eaf4faaaa ("PCI/MSI: Fix incorrect MSI-X masking on
-resume") is merged, we can revert the previous quirk now.
+Dear Sir/Madam,
 
-This reverts commit 19ea025e1d28c629b369c3532a85b3df478cc5c6.
+                          We require the following items please 
+quote best price, with weight and size of shipment, minimum 
+delivery period, maximum validity and other terms of sales. If 
+required quantity is not fulfilling your requirement; please 
+quote on MOV (Minimum order value) & MOQ (Minimum order quantity) 
+basis. Kindly quote items which are in your scope of supply only, 
+if you have any representative / distributor / stockist in our 
+area please forward to relevant company /personal and Cc to us. 
+Please confirm your company have any sales, supply & stock 
+agreement with any other company (i.e. Grainger, RS, CPC-Farnell, 
+Digi-Key, McMater-Carr, 3M, PVL, Transcat, Maida International, 
+etc), from where we can purchase your products with best prices 
+and minimum delivery period.
 
-Fixes: 19ea025e1d28 ("nvme: Add quirk for Kingston NVME SSD running FW E8FK11.T")
-Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=204887
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Cc: stable@vger.kernel.org
----
-v2:
-  Re-send for mailing failure
-
- drivers/nvme/host/core.c | 10 ----------
- 1 file changed, 10 deletions(-)
-
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index fa7ba09dca77..94bfbee1e5f7 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -2404,16 +2404,6 @@ static const struct nvme_core_quirk_entry core_quirks[] = {
- 		.vid = 0x14a4,
- 		.fr = "22301111",
- 		.quirks = NVME_QUIRK_SIMPLE_SUSPEND,
--	},
--	{
--		/*
--		 * This Kingston E8FK11.T firmware version has no interrupt
--		 * after resume with actions related to suspend to idle
--		 * https://bugzilla.kernel.org/show_bug.cgi?id=204887
--		 */
--		.vid = 0x2646,
--		.fr = "E8FK11.T",
--		.quirks = NVME_QUIRK_SIMPLE_SUSPEND,
- 	}
- };
  
--- 
-2.23.0
 
+Technical data sheet, material safety data sheet (for chemicals) 
+required along with quotation and confirm make and origin, also 
+confirm required material manufacturing, assembling & packing 
+(confirm origin).
+
+ 
+
+Please confirm shipment status: Ex stock / Manufacture on firm 
+order / import on firm order (third country)
+
+If you cannot quote, please inform us by telephone, e-mail, or 
+facsimile with reason
+
+Kindly confirm us with evidence that you are manufacturer / 
+distributor / stockist, etc. also confirm warrantee and guarantee 
+of items offering.
+
+ 
+
+Note: Advance Payment is not provided as per policy of SBP & FBR 
+for Foreign & Local Bidders but against bank guarantee. In case 
+any quoted item falls in dangerous / harmonized goods category, 
+please mention in your quotation with packing detail. Please 
+confirm shipment through LCL/FCL; also confirm type & size (20’ 
+or 40’) of container. Kindly send company registration 
+certificate (CNIC/NTN/VAT, GST, Trade & Manufacturing License) 
+with quotation.
+
+ 
+
+Certificates: Material Certificates, Calibration Certificates, 
+Factory Test Certificates or Certificates of Conformity, Third 
+party Inspection certificate, OEM certificate, Certificate of 
+origin from local/foreign Chamber and FTA Certificate (China & 
+Sri Lanka etc) MUST be provided along with shipment, please 
+confirm all related charges.
+
+If you have any query, please feel free to contact us, enquiry 
+closing date is 24-09-2018 Kindly send quotation before this 
+date, by email and facsimile, if you need more time please apply 
+for extension.
+
+ 
+
+Kindly acknowledge the receipt
+
+Note: Please do not remove enquiry Ref # 262-0918 for future 
+correspondence; this is our general enquiry.
