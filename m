@@ -2,95 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD60DEB2A5
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 15:28:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 998BDEB36F
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 16:09:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728001AbfJaO1j convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 31 Oct 2019 10:27:39 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:28018 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726741AbfJaO1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 10:27:39 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-70-YU6WXDc2PrG1nexM6IIzbw-1; Thu, 31 Oct 2019 14:27:31 +0000
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Thu, 31 Oct 2019 14:27:30 +0000
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Thu, 31 Oct 2019 14:27:30 +0000
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Christian Brauner' <christian.brauner@ubuntu.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Florian Weimer <fweimer@redhat.com>,
-        GNU C Library <libc-alpha@sourceware.org>
-CC:     Arnd Bergmann <arnd@arndb.de>, Kees Cook <keescook@chromium.org>,
-        "Jann Horn" <jannh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "linux-api@vger.kernel.org" <linux-api@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] clone3: validate stack arguments
-Thread-Topic: [PATCH] clone3: validate stack arguments
-Thread-Index: AQHVj99vS5K32QXnq0iIRbo0zlqhOad0zlFw
-Date:   Thu, 31 Oct 2019 14:27:30 +0000
-Message-ID: <7f59e7e573aa40f08cb0e465d8d0150e@AcuMS.aculab.com>
-References: <20191031113608.20713-1-christian.brauner@ubuntu.com>
-In-Reply-To: <20191031113608.20713-1-christian.brauner@ubuntu.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1727669AbfJaPJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 11:09:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42580 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726664AbfJaPJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 31 Oct 2019 11:09:32 -0400
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D36942083E;
+        Thu, 31 Oct 2019 15:09:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572534572;
+        bh=9tBCz/fylc7VVVgD21eF7T6KAra9agC6ZKRM9LyDwgE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=z8TnPqQT4tTuMQMa6dylinO6OKAdSfX2nsQZ4a3PLSgREOT+u/NMPEiozETqT21/8
+         W+Yilb9SMOyw49j8YNr7Y6JnaB7j+55vh6tc8+FqFlFwKC0zktIACa3WAaceFp4eeX
+         TzWO8rM1aqYeoI9oe5isljc5OgIsloqXzmcJBTOM=
+Date:   Thu, 31 Oct 2019 15:09:27 +0000
+From:   Will Deacon <will@kernel.org>
+To:     linux-media@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, andreyknvl@google.com,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Kostya Serebryany <kcc@google.com>, stable@vger.kernel.org
+Subject: Re: [RESEND PATCH] media: uvc: Avoid cyclic entity chains due to
+ malformed USB descriptors
+Message-ID: <20191031150925.GA27535@willie-the-truck>
+References: <20191016195800.22099-1-will@kernel.org>
 MIME-Version: 1.0
-X-MC-Unique: YU6WXDc2PrG1nexM6IIzbw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191016195800.22099-1-will@kernel.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From Christian Brauner
-> Sent: 31 October 2019 11:36
+On Wed, Oct 16, 2019 at 08:58:00PM +0100, Will Deacon wrote:
+> Add a check before adding an entity to a chain list to ensure that the
+> entity is not already part of a chain.
 > 
-> Validate the stack arguments and setup the stack depening on whether or not
-> it is growing down or up.
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Cc: Dmitry Vyukov <dvyukov@google.com>
+> Cc: Kostya Serebryany <kcc@google.com>
+> Cc: <stable@vger.kernel.org>
+> Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
+> Reported-by: Andrey Konovalov <andreyknvl@google.com>
+> Link: https://lore.kernel.org/linux-media/CAAeHK+z+Si69jUR+N-SjN9q4O+o5KFiNManqEa-PjUta7EOb7A@mail.gmail.com/
+> Signed-off-by: Will Deacon <will@kernel.org>
+> ---
 > 
-...
-> -static bool clone3_args_valid(const struct kernel_clone_args *kargs)
-> +/**
-> + * clone3_stack_valid - check and prepare stack
-> + * @kargs: kernel clone args
-> + *
-> + * Verify that the stack arguments userspace gave us are sane.
-> + * In addition, set the stack direction for userspace since it's easy for us to
-> + * determine.
-> + */
-> +static inline bool clone3_stack_valid(struct kernel_clone_args *kargs)
-> +{
-> +	if (kargs->stack == 0) {
-> +		if (kargs->stack_size > 0)
-> +			return false;
-> +	} else {
-> +		if (kargs->stack_size == 0)
-> +			return false;
-> +
-> +		if (!access_ok((void __user *)kargs->stack, kargs->stack_size))
-> +			return false;
+> Resending since I don't think any material changes are required to address
+> the comments on the previous posting:
+> 
+> http://lkml.kernel.org/r/20191002112753.21630-1-will@kernel.org
+> 
+>  drivers/media/usb/uvc/uvc_driver.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
 
-Does access_ok() do anything useful here?
-It only verifies that the buffer isn't in kernel space.
+Gentle nudge on this patch, since I don't see it in -next and I've not
+received any comments on it for a while.
 
-	David
+Cheers,
 
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+Will
