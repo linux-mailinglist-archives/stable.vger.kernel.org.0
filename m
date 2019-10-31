@@ -2,163 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DAE5EAA1D
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 06:15:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FB92EAB25
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 08:54:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726757AbfJaFPF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 01:15:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35836 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726501AbfJaFPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 31 Oct 2019 01:15:05 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE33F2067D;
-        Thu, 31 Oct 2019 05:15:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572498902;
-        bh=PVQkjgBw/Ntg5wQsJM+rQUQ86T+ICwCysut3fITh2hQ=;
-        h=Date:From:To:Subject:From;
-        b=CuRMf6SIRqpEF8g+wbdsZP1sGUyg/AaEoX1a/zkJ0D0ukHVFgK0JpECqDgS2KtPNu
-         xP1XEaBXXVfx53oih6c9npE6ovkJ4Fq3fqsxuWgvcl4Sl+IExLfNlVto7GYpdzeNrv
-         dEFNmHlKqGrnYDG5DbxesANzW0lhnYPbnnvIgHZA=
-Date:   Wed, 30 Oct 2019 22:15:01 -0700
-From:   akpm@linux-foundation.org
-To:     hannes@cmpxchg.org, mhocko@kernel.org, mm-commits@vger.kernel.org,
-        shakeelb@google.com, stable@vger.kernel.org, suleiman@google.com
-Subject:  +
- mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
- added to -mm tree
-Message-ID: <20191031051501.3T8fBydK7%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726774AbfJaHyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 03:54:17 -0400
+Received: from mail-eopbgr130098.outbound.protection.outlook.com ([40.107.13.98]:29760
+        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726769AbfJaHyR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 31 Oct 2019 03:54:17 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=alkPh5JW79LDt8uoAmPMXX9p+aYPt4vfQlBz2NyuWzYUPK0ZIYMMlWeTUcQsXojOt1QykDQLclBHPeSMFAhNWPdJdBZB3LiBNUO4h+oQKJXU4Er/PQ2UlL4SvmAnEyOoXRBC5SKzaAFt8SeBtdEJnjqulxlaLBlpBa6vJTweDxpGGkWBGsgHWxz9fjb799APrVmbyqAPQAKCGNZHYq88RX4f6i5mpfaiY58udwxz3vOPcLMWoHyY0JLFwg14ceyfIVSCWxCSSs6+lyFcMx3SqfMnJMQsCFI47oSG7NbPnb/JbdTCzMfP9QezQSoq9L3fdCjWIs6rB/ZD7RSInTSNeQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dgDOzXBlgdk9qveVtcTKZIvPmXMQb6cb/IwSv77B9CM=;
+ b=drJxeifo69b6yAqtDEyI+L1pw0WhrH7nPOrKFm2eco57rWz9BJG5SP4ymm+Kcv2TATpofZ96KtIByoMf3wSnbQDhZwBsqAUBAMV+e/d3mBWUbo39RTO+58Jy/j4YP9kZy1TfYLCeZsCO2oKx5sO0IUF9qEnGmc6hLFgmem5oi4RKWcACbTuqEQF9V9QBXRq1FWu2pEQ6xbLlGSpMIwh/n2xbNvXHcjJNg3/aIFdHu8PEdjZvr0V6As67V+TusPTK4Imykvi8VRtT+GMZSpAlt+oIvhEUMSgjm1d2ioU/LlTYkOl0b1bUbqd6lEsiKqv9mFax+jL505SRyd5j8hh4eg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
+ dkim=pass header.d=nokia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
+ s=selector1-nokia-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dgDOzXBlgdk9qveVtcTKZIvPmXMQb6cb/IwSv77B9CM=;
+ b=taEknUr0LFQfQ+1hQKR9XDf1vXrwufF3tjoTWJb2Az3buUiDkKkKJYIAUMHzfyh0B2X8Ju+vmEemqIelJhExIts3Nwg0g5TybnpqpLxA71cC2OrW6lQOXzJu8XOdbkPKwYY2XpyTvlcF04yA4HTOgyXmaeLZJpJEx0nt4K36+ZU=
+Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com (10.167.127.12) by
+ HE1PR0702MB3819.eurprd07.prod.outlook.com (10.167.126.11) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2387.14; Thu, 31 Oct 2019 07:54:05 +0000
+Received: from HE1PR0702MB3675.eurprd07.prod.outlook.com
+ ([fe80::7193:f6cc:3771:95b9]) by HE1PR0702MB3675.eurprd07.prod.outlook.com
+ ([fe80::7193:f6cc:3771:95b9%7]) with mapi id 15.20.2387.030; Thu, 31 Oct 2019
+ 07:54:05 +0000
+From:   "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC:     "lucien.xin@gmail.com" <lucien.xin@gmail.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com" 
+        <syzbot+d44f7bbebdea49dbc84a@syzkaller.appspotmail.com>,
+        "marcelo.leitner@gmail.com" <marcelo.leitner@gmail.com>
+Subject: Re: [PATCH 4.14 024/119] sctp: change sctp_prot .no_autobind with
+ true
+Thread-Topic: [PATCH 4.14 024/119] sctp: change sctp_prot .no_autobind with
+ true
+Thread-Index: AQHVjQqbiJexuTmoE0C1wK8ToRSb7Kd0ZqUA
+Date:   Thu, 31 Oct 2019 07:54:05 +0000
+Message-ID: <3e9de35dda19c0ac207d49d24c2735655b1d8d64.camel@nokia.com>
+References: <20191027203259.948006506@linuxfoundation.org>
+         <20191027203307.303661015@linuxfoundation.org>
+In-Reply-To: <20191027203307.303661015@linuxfoundation.org>
+Accept-Language: fi-FI, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=tommi.t.rantala@nokia.com; 
+x-originating-ip: [131.228.2.23]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: cdf3eb81-e13f-4a71-958a-08d75dd780a4
+x-ms-traffictypediagnostic: HE1PR0702MB3819:
+x-microsoft-antispam-prvs: <HE1PR0702MB3819FBE9417279AE12D2ADCDB4630@HE1PR0702MB3819.eurprd07.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:4714;
+x-forefront-prvs: 02070414A1
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(366004)(346002)(136003)(39860400002)(376002)(396003)(189003)(199004)(229853002)(36756003)(2906002)(54906003)(6486002)(7736002)(305945005)(110136005)(6246003)(6436002)(3846002)(6116002)(6512007)(316002)(66476007)(66446008)(64756008)(66946007)(66556008)(76116006)(99286004)(76176011)(476003)(11346002)(446003)(6506007)(102836004)(186003)(26005)(478600001)(81166006)(45080400002)(14454004)(8936002)(4001150100001)(81156014)(2501003)(8676002)(25786009)(2616005)(486006)(66066001)(118296001)(4326008)(5660300002)(86362001)(256004)(71190400001)(71200400001)(142923001);DIR:OUT;SFP:1102;SCL:1;SRVR:HE1PR0702MB3819;H:HE1PR0702MB3675.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nokia.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: QM1jWnBCCDy/mrXji8vW+J+y7ZGDaL3BbTubN3gnb6HCE3itIiwp4j1rYwp9YtgM7bvG9zCXAxtyqxLBRUFdp72CEwQA3/nKqjAXh7fyLE6XLc06iTBz6j5rl1/geyIPR5vd+wq15sjn+ySQVPPtqXQMBbO1uuTURVzENMKc3OxF0IS6z+1SvflkdkjDSg756nx2w5PFEQp2t9nRCSPPGQtoftkYCJVVmCQa/xGDQXkU48x/7mosgltighxbJKADXjjFEvicw21aUX248VaDvSno37iPrYew6ljz7eORwNeq9Uy5/OG/+fJdNy78lK9Q/u1wASVN2tE0qv/0Ss1119D0YJX1KD2b+j4XG67NkpE0Xo7Slm7oiHQR7yZW1mPglXT4AntNdfwXtH8U4V3NfQfcJS1f6QHsowu68djIQjqDH5C9pvHOgZa6sxV6Mevl
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <20059BB418EB3D41B356CB85A4701FBC@eurprd07.prod.outlook.com>
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: nokia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cdf3eb81-e13f-4a71-958a-08d75dd780a4
+X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Oct 2019 07:54:05.2406
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: iJDQkQ/RA53uP4X04JsDfDCwPzt3qj21CaPKniBokiw+4A+r1ScNmzxN5qeZnPENxfA+sTjZ/VM7jTxjznqssZzhx6JkzBwmf3xHzFGoVn0=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: HE1PR0702MB3819
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch titled
-     Subject: mm: memcontrol: fix network errors from failing __GFP_ATOMIC charges
-has been added to the -mm tree.  Its filename is
-     mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
-
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Johannes Weiner <hannes@cmpxchg.org>
-Subject: mm: memcontrol: fix network errors from failing __GFP_ATOMIC charges
-
-While upgrading from 4.16 to 5.2, we noticed these allocation errors in
-the log of the new kernel:
-
-[ 8642.253395] SLUB: Unable to allocate memory on node -1, gfp=0xa20(GFP_ATOMIC)
-[ 8642.269170]   cache: tw_sock_TCPv6(960:helper-logs), object size: 232, buffer size: 240, default order: 1, min order: 0
-[ 8642.293009]   node 0: slabs: 5, objs: 170, free: 0
-
-        slab_out_of_memory+1
-        ___slab_alloc+969
-        __slab_alloc+14
-        kmem_cache_alloc+346
-        inet_twsk_alloc+60
-        tcp_time_wait+46
-        tcp_fin+206
-        tcp_data_queue+2034
-        tcp_rcv_state_process+784
-        tcp_v6_do_rcv+405
-        __release_sock+118
-        tcp_close+385
-        inet_release+46
-        __sock_release+55
-        sock_close+17
-        __fput+170
-        task_work_run+127
-        exit_to_usermode_loop+191
-        do_syscall_64+212
-        entry_SYSCALL_64_after_hwframe+68
-
-accompanied by an increase in machines going completely radio silent under
-memory pressure.
-
-One thing that changed since 4.16 is e699e2c6a654 ("net, mm: account sock
-objects to kmemcg"), which made these slab caches subject to cgroup memory
-accounting and control.
-
-The problem with that is that cgroups, unlike the page allocator, do not
-maintain dedicated atomic reserves.  As a cgroup's usage hovers at its
-limit, atomic allocations - such as done during network rx - can fail
-consistently for extended periods of time.  The kernel is not able to
-operate under these conditions.
-
-We don't want to revert the culprit patch, because it indeed tracks a
-potentially substantial amount of memory used by a cgroup.
-
-We also don't want to implement dedicated atomic reserves for cgroups. 
-There is no point in keeping a fixed margin of unused bytes in the
-cgroup's memory budget to accomodate a consumer that is impossible to
-predict - we'd be wasting memory and get into configuration headaches, not
-unlike what we have going with min_free_kbytes.  We do this for physical
-mem because we have to, but cgroups are an accounting game.
-
-Instead, account these privileged allocations to the cgroup, but let them
-bypass the configured limit if they have to.  This way, we get the
-benefits of accounting the consumed memory and have it exert pressure on
-the rest of the cgroup, but like with the page allocator, we shift the
-burden of reclaimining on behalf of atomic allocations onto the regular
-allocations that can block.
-
-Link: http://lkml.kernel.org/r/20191022233708.365764-1-hannes@cmpxchg.org
-Fixes: e699e2c6a654 ("net, mm: account sock objects to kmemcg")
-Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Suleiman Souhlal <suleiman@google.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: <stable@vger.kernel.org>	[4.18+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/memcontrol.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
-
---- a/mm/memcontrol.c~mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges
-+++ a/mm/memcontrol.c
-@@ -2535,6 +2535,15 @@ retry:
- 	}
- 
- 	/*
-+	 * Memcg doesn't have a dedicated reserve for atomic
-+	 * allocations. But like the global atomic pool, we need to
-+	 * put the burden of reclaim on regular allocation requests
-+	 * and let these go through as privileged allocations.
-+	 */
-+	if (gfp_mask & __GFP_ATOMIC)
-+		goto force;
-+
-+	/*
- 	 * Unlike in global OOM situations, memcg is not in a physical
- 	 * memory shortage.  Allow dying and OOM-killed tasks to
- 	 * bypass the last charges so that they can exit quickly and
-_
-
-Patches currently in -mm which might be from hannes@cmpxchg.org are
-
-mm-rate-limit-allocation-failure-warnings-more-aggressively.patch
-mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
-mm-memcontrol-remove-dead-code-from-memory_max_write.patch
-mm-memcontrol-try-harder-to-set-a-new-memoryhigh.patch
-mm-drop-mmap_sem-before-calling-balance_dirty_pages-in-write-fault.patch
-
+T24gU3VuLCAyMDE5LTEwLTI3IGF0IDIyOjAwICswMTAwLCBHcmVnIEtyb2FoLUhhcnRtYW4gd3Jv
+dGU6DQo+IEZyb206IFhpbiBMb25nIDxsdWNpZW4ueGluQGdtYWlsLmNvbT4NCj4gDQo+IFsgVXBz
+dHJlYW0gY29tbWl0IDYzZGZiNzkzOGIxM2ZhMmMyZmJjYjQ1ZjM0ZDA2NTc2OWViMDk0MTQgXQ0K
+PiANCj4gc3l6Ym90IHJlcG9ydGVkIGEgbWVtb3J5IGxlYWs6DQo+IA0KPiAgIEJVRzogbWVtb3J5
+IGxlYWssIHVucmVmZXJlbmNlZCBvYmplY3QgMHhmZmZmODg4MTIwYjNkMzgwIChzaXplIDY0KToN
+Cj4gICBiYWNrdHJhY2U6DQo+IA0KPiAgICAgWy4uLl0gc2xhYl9hbGxvYyBtbS9zbGFiLmM6MzMx
+OSBbaW5saW5lXQ0KPiAgICAgWy4uLl0ga21lbV9jYWNoZV9hbGxvYysweDEzZi8weDJjMCBtbS9z
+bGFiLmM6MzQ4Mw0KPiAgICAgWy4uLl0gc2N0cF9idWNrZXRfY3JlYXRlIG5ldC9zY3RwL3NvY2tl
+dC5jOjg1MjMgW2lubGluZV0NCj4gICAgIFsuLi5dIHNjdHBfZ2V0X3BvcnRfbG9jYWwrMHgxODkv
+MHg1YTAgbmV0L3NjdHAvc29ja2V0LmM6ODI3MA0KPiAgICAgWy4uLl0gc2N0cF9kb19iaW5kKzB4
+Y2MvMHgyMDAgbmV0L3NjdHAvc29ja2V0LmM6NDAyDQo+ICAgICBbLi4uXSBzY3RwX2JpbmR4X2Fk
+ZCsweDRiLzB4ZDAgbmV0L3NjdHAvc29ja2V0LmM6NDk3DQo+ICAgICBbLi4uXSBzY3RwX3NldHNv
+Y2tvcHRfYmluZHgrMHgxNTYvMHgxYjAgbmV0L3NjdHAvc29ja2V0LmM6MTAyMg0KPiAgICAgWy4u
+Ll0gc2N0cF9zZXRzb2Nrb3B0IG5ldC9zY3RwL3NvY2tldC5jOjQ2NDEgW2lubGluZV0NCj4gICAg
+IFsuLi5dIHNjdHBfc2V0c29ja29wdCsweGFlYS8weDJkYzAgbmV0L3NjdHAvc29ja2V0LmM6NDYx
+MQ0KPiAgICAgWy4uLl0gc29ja19jb21tb25fc2V0c29ja29wdCsweDM4LzB4NTAgbmV0L2NvcmUv
+c29jay5jOjMxNDcNCj4gICAgIFsuLi5dIF9fc3lzX3NldHNvY2tvcHQrMHgxMGYvMHgyMjAgbmV0
+L3NvY2tldC5jOjIwODQNCj4gICAgIFsuLi5dIF9fZG9fc3lzX3NldHNvY2tvcHQgbmV0L3NvY2tl
+dC5jOjIxMDAgW2lubGluZV0NCj4gDQo+IEl0IHdhcyBjYXVzZWQgYnkgd2hlbiBzZW5kaW5nIG1z
+Z3Mgd2l0aG91dCBiaW5kaW5nIGEgcG9ydCwgaW4gdGhlIHBhdGg6DQo+IGluZXRfc2VuZG1zZygp
+IC0+IGluZXRfc2VuZF9wcmVwYXJlKCkgLT4gaW5ldF9hdXRvYmluZCgpIC0+DQo+IC5nZXRfcG9y
+dC9zY3RwX2dldF9wb3J0KCksIHNwLT5iaW5kX2hhc2ggd2lsbCBiZSBzZXQgd2hpbGUgYnAtPnBv
+cnQgaXMNCj4gbm90LiBMYXRlciB3aGVuIGJpbmRpbmcgYW5vdGhlciBwb3J0IGJ5IHNjdHBfc2V0
+c29ja29wdF9iaW5keCgpLCBhIG5ldw0KPiBidWNrZXQgd2lsbCBiZSBjcmVhdGVkIGFzIGJwLT5w
+b3J0IGlzIG5vdCBzZXQuDQo+IA0KPiBzY3RwJ3MgYXV0b2JpbmQgaXMgc3VwcG9zZWQgdG8gY2Fs
+bCBzY3RwX2F1dG9iaW5kKCkgd2hlcmUgaXQgZG9lcyBhbGwNCj4gdGhpbmdzIGluY2x1ZGluZyBz
+ZXR0aW5nIGJwLT5wb3J0LiBTaW5jZSBzY3RwX2F1dG9iaW5kKCkgaXMgY2FsbGVkIGluDQo+IHNj
+dHBfc2VuZG1zZygpIGlmIHRoZSBzayBpcyBub3QgeWV0IGJvdW5kLCBpdCBzaG91bGQgaGF2ZSBz
+a2lwcGVkIHRoZQ0KPiBhdXRvIGJpbmQuDQo+IA0KPiBUSGlzIHBhdGNoIGlzIHRvIGF2b2lkIGNh
+bGxpbmcgaW5ldF9hdXRvYmluZCgpIGluIGluZXRfc2VuZF9wcmVwYXJlKCkNCj4gYnkgY2hhbmdp
+bmcgc2N0cF9wcm90IC5ub19hdXRvYmluZCB3aXRoIHRydWUsIGFsc28gcmVtb3ZlIHRoZSB1bnVz
+ZWQNCj4gLmdldF9wb3J0Lg0KDQpIaSwNCg0KSSdtIHNlZWluZyBTQ1RQIG9vcHMgaW4gNC4xNC4x
+NTEsIHJlcHJvZHVjaWJsZSBlYXNpbHkgd2l0aCBpcGVyZjoNCg0KIyBpcGVyZjMgLXMgLTEgJg0K
+IyBpcGVyZjMgLWMgbG9jYWxob3N0IC0tc2N0cA0KDQpUaGlzIHBhdGNoIHdhcyBhbHNvIGluY2x1
+ZGVkIGluIDQuMTkuODEsIGJ1dCB0aGVyZSBpdCBzZWVtcyB0byBiZSB3b3JraW5nDQpmaW5lLg0K
+DQpBbnkgaWRlYXMgaWYgdGhpcyBwYXRjaCBpcyB2YWxpZCBmb3IgNC4xNCwgb3Igd2hhdCdzIG1p
+c3NpbmcgaW4gNC4xNCB0bw0KbWFrZSB0aGlzIHdvcms/DQoNCg0KWyAgIDI5LjE3OTExNl0gc2N0
+cDogSGFzaCB0YWJsZXMgY29uZmlndXJlZCAoYmluZCAyNTYvMjU2KQ0KWyAgIDI5LjE4ODg0Nl0g
+QlVHOiB1bmFibGUgdG8gaGFuZGxlIGtlcm5lbCBOVUxMIHBvaW50ZXIgZGVyZWZlcmVuY2UNCmF0
+ICAgICAgICAgICAobnVsbCkNClsgICAyOS4xOTAxODldIElQOiAgICAgICAgICAgKG51bGwpDQpb
+ICAgMjkuMTkwNzU4XSBQR0QgMCBQNEQgMCANClsgICAyOS4xOTEyMjRdIE9vcHM6IDAwMTAgWyMx
+XSBTTVAgUFRJDQpbICAgMjkuMTkxNzg2XSBNb2R1bGVzIGxpbmtlZCBpbjogaG1hYyBzY3RwIGxp
+YmNyYzMyYyBpc29mcyBrdm1faW50ZWwga3ZtDQppcnFieXBhc3Mgc2NoX2ZxX2NvZGVsIHBjYmMg
+YWVzbmlfaW50ZWwgYWVzX3g4Nl82NCBjcnlwdG9fc2ltZCBjcnlwdGQNCmdsdWVfaGVscGVyIGF0
+YV9waWl4IGRtX21pcnJvciBkbV9yZWdpb25faGFzaCBkbV9sb2cgZG1fbW9kIGRheCBhdXRvZnM0
+DQpbICAgMjkuMTk0NTg1XSBDUFU6IDUgUElEOiA3MzMgQ29tbTogaXBlcmYzIE5vdCB0YWludGVk
+IDQuMTQuMTUxLTEueDg2XzY0DQojMQ0KWyAgIDI5LjE5NTY4OV0gSGFyZHdhcmUgbmFtZTogUUVN
+VSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsgUElJWCwgMTk5NiksIEJJT1MNCjEuMTIuMC0yLmZjMzAg
+MDQvMDEvMjAxNA0KWyAgIDI5LjE5NzAwOV0gdGFzazogZmZmZjkzZWRiMGU2NWJjMCB0YXNrLnN0
+YWNrOiBmZmZmOWZjZGMxMWI4MDAwDQpbICAgMjkuMTk3OTE2XSBSSVA6IDAwMTA6ICAgICAgICAg
+IChudWxsKQ0KWyAgIDI5LjE5ODUzMl0gUlNQOiAwMDE4OmZmZmY5ZmNkYzExYmJlNTAgRUZMQUdT
+OiAwMDAxMDI0Ng0KWyAgIDI5LjE5OTM0OV0gUkFYOiAwMDAwMDAwMDAwMDAwMDAwIFJCWDogZmZm
+ZjkzZWRiMDJkMDY4MCBSQ1g6DQowMDAwMDAwMDAwMDAwMDAyDQpbICAgMjkuMjAwNDI2XSBSRFg6
+IDAwMDAwMDAwMDAwMDAwMDEgUlNJOiAwMDAwMDAwMDAwMDAwMDAwIFJESToNCmZmZmY5M2VkYjAy
+ZDA2ODANClsgICAyOS4yMDE0OTddIFJCUDogMDAwMDAwMDAwMDAwMDAxYyBSMDg6IDAxMDAwMDAw
+MDAwMDAwMDAgUjA5Og0KMDAwMDU2NDI3N2FiYjRlOA0KWyAgIDI5LjIwMjU3N10gUjEwOiAwMDAw
+MDAwMDAwMDAwMDAwIFIxMTogMDAwMDAwMDAwMDAwMDAwMCBSMTI6DQpmZmZmOWZjZGMxMWJiZTkw
+DQpbICAgMjkuMjAzNjU2XSBSMTM6IDAwMDA1NjQyNzdhYmI0ZTAgUjE0OiAwMDAwMDAwMDAwMDAw
+MDAwIFIxNToNCjAwMDAwMDAwMDAwMDAwMDANClsgICAyOS4yMDQ3MzddIEZTOiAgMDAwMDdmMGY2
+MjQyY2I4MCgwMDAwKSBHUzpmZmZmOTNlZGJmZDQwMDAwKDAwMDApDQprbmxHUzowMDAwMDAwMDAw
+MDAwMDAwDQpbICAgMjkuMjA1OTY3XSBDUzogIDAwMTAgRFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAw
+MDAwMDAwMDgwMDUwMDMzDQpbICAgMjkuMjA2ODYzXSBDUjI6IDAwMDAwMDAwMDAwMDAwMDAgQ1Iz
+OiAwMDAwMDAwMjMwMzdjMDAyIENSNDoNCjAwMDAwMDAwMDAzNjA2ZTANClsgICAyOS4yMDc5NThd
+IERSMDogMDAwMDAwMDAwMDAwMDAwMCBEUjE6IDAwMDAwMDAwMDAwMDAwMDAgRFIyOg0KMDAwMDAw
+MDAwMDAwMDAwMA0KWyAgIDI5LjIwOTA3OV0gRFIzOiAwMDAwMDAwMDAwMDAwMDAwIERSNjogMDAw
+MDAwMDBmZmZlMGZmMCBEUjc6DQowMDAwMDAwMDAwMDAwNDAwDQpbICAgMjkuMjEwMTYyXSBDYWxs
+IFRyYWNlOg0KWyAgIDI5LjIxMDU3N10gIGluZXRfYXV0b2JpbmQrMHgyYy8weDYwDQpbICAgMjku
+MjExMTcyXSAgaW5ldF9kZ3JhbV9jb25uZWN0KzB4NDUvMHg4MA0KWyAgIDI5LjIxMTgwOF0gIFNZ
+U0NfY29ubmVjdCsweDg5LzB4YjANClsgICAyOS4yMTIzODRdICA/IHNvY2tfbWFwX2ZkKzB4M2Qv
+MHg2MA0KWyAgIDI5LjIxMjk2MF0gIGRvX3N5c2NhbGxfNjQrMHg3NC8weDE5MA0KWyAgIDI5LjIx
+MzUxN10gIGVudHJ5X1NZU0NBTExfNjRfYWZ0ZXJfaHdmcmFtZSsweDNkLzB4YTINClsgICAyOS4y
+MTQyMTJdIFJJUDogMDAzMzoweDdmMGY2MjZiNTc1OA0KWyAgIDI5LjIxNDcxMF0gUlNQOiAwMDJi
+OjAwMDA3ZmZjN2NhNjI0ZjggRUZMQUdTOiAwMDAwMDI0NiBPUklHX1JBWDoNCjAwMDAwMDAwMDAw
+MDAwMmENClsgICAyOS4yMTU3MjddIFJBWDogZmZmZmZmZmZmZmZmZmZkYSBSQlg6IDAwMDA1NjQy
+NzdhYmEyNjAgUkNYOg0KMDAwMDdmMGY2MjZiNTc1OA0KWyAgIDI5LjIxNjY2MF0gUkRYOiAwMDAw
+MDAwMDAwMDAwMDFjIFJTSTogMDAwMDU2NDI3N2FiYjRlMCBSREk6DQowMDAwMDAwMDAwMDAwMDA1
+DQpbICAgMjkuMjE3NjEzXSBSQlA6IDAwMDAwMDAwMDAwMDAwMDUgUjA4OiAwMDAwNTY0Mjc3YWJj
+OWQwIFIwOToNCjAwMDA1NjQyNzdhYmI0ZTgNClsgICAyOS4yMTg2MDRdIFIxMDogMDAwMDAwMDAw
+MDAwMDAwMCBSMTE6IDAwMDAwMDAwMDAwMDAyNDYgUjEyOg0KMDAwMDdmMGY2MjdhNzE3MA0KWyAg
+IDI5LjIxOTYwNl0gUjEzOiAwMDAwN2ZmYzdjYTYyNTIwIFIxNDogMDAwMDU2NDI3N2FiYTI2MCBS
+MTU6DQowMDAwMDAwMDAwMDAwMDAxDQpbICAgMjkuMjIwNTk2XSBDb2RlOiAgQmFkIFJJUCB2YWx1
+ZS4NClsgICAyOS4yMjEwNzVdIFJJUDogICAgICAgICAgIChudWxsKSBSU1A6IGZmZmY5ZmNkYzEx
+YmJlNTANClsgICAyOS4yMjE3NzJdIENSMjogMDAwMDAwMDAwMDAwMDAwMA0KWyAgIDI5LjIyMjI2
+MF0gLS0tWyBlbmQgdHJhY2UgODMxYzRjMWYxMTEwOWNhMCBdLS0tDQoNCg0KPiBSZXBvcnRlZC1i
+eTogc3l6Ym90K2Q0NGY3YmJlYmRlYTQ5ZGJjODRhQHN5emthbGxlci5hcHBzcG90bWFpbC5jb20N
+Cj4gU2lnbmVkLW9mZi1ieTogWGluIExvbmcgPGx1Y2llbi54aW5AZ21haWwuY29tPg0KPiBBY2tl
+ZC1ieTogTWFyY2VsbyBSaWNhcmRvIExlaXRuZXIgPG1hcmNlbG8ubGVpdG5lckBnbWFpbC5jb20+
+DQo+IFNpZ25lZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4N
+Cj4gU2lnbmVkLW9mZi1ieTogR3JlZyBLcm9haC1IYXJ0bWFuIDxncmVna2hAbGludXhmb3VuZGF0
+aW9uLm9yZz4NCj4gLS0tDQo+ICBuZXQvc2N0cC9zb2NrZXQuYyB8ICAgIDQgKystLQ0KPiAgMSBm
+aWxlIGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4gDQo+IC0tLSBh
+L25ldC9zY3RwL3NvY2tldC5jDQo+ICsrKyBiL25ldC9zY3RwL3NvY2tldC5jDQo+IEBAIC04MzEz
+LDcgKzgzMTMsNyBAQCBzdHJ1Y3QgcHJvdG8gc2N0cF9wcm90ID0gew0KPiAgCS5iYWNrbG9nX3Jj
+diA9CXNjdHBfYmFja2xvZ19yY3YsDQo+ICAJLmhhc2ggICAgICAgID0Jc2N0cF9oYXNoLA0KPiAg
+CS51bmhhc2ggICAgICA9CXNjdHBfdW5oYXNoLA0KPiAtCS5nZXRfcG9ydCAgICA9CXNjdHBfZ2V0
+X3BvcnQsDQo+ICsJLm5vX2F1dG9iaW5kID0JdHJ1ZSwNCj4gIAkub2JqX3NpemUgICAgPSAgc2l6
+ZW9mKHN0cnVjdCBzY3RwX3NvY2spLA0KPiAgCS5zeXNjdGxfbWVtICA9ICBzeXNjdGxfc2N0cF9t
+ZW0sDQo+ICAJLnN5c2N0bF9ybWVtID0gIHN5c2N0bF9zY3RwX3JtZW0sDQo+IEBAIC04MzUyLDcg
+KzgzNTIsNyBAQCBzdHJ1Y3QgcHJvdG8gc2N0cHY2X3Byb3QgPSB7DQo+ICAJLmJhY2tsb2dfcmN2
+CT0gc2N0cF9iYWNrbG9nX3JjdiwNCj4gIAkuaGFzaAkJPSBzY3RwX2hhc2gsDQo+ICAJLnVuaGFz
+aAkJPSBzY3RwX3VuaGFzaCwNCj4gLQkuZ2V0X3BvcnQJPSBzY3RwX2dldF9wb3J0LA0KPiArCS5u
+b19hdXRvYmluZAk9IHRydWUsDQo+ICAJLm9ial9zaXplCT0gc2l6ZW9mKHN0cnVjdCBzY3RwNl9z
+b2NrKSwNCj4gIAkuc3lzY3RsX21lbQk9IHN5c2N0bF9zY3RwX21lbSwNCj4gIAkuc3lzY3RsX3Jt
+ZW0JPSBzeXNjdGxfc2N0cF9ybWVtLA0KPiANCj4gDQoNCg==
