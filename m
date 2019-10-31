@@ -2,120 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3534CEB8A9
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 22:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE34EB8D7
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 22:19:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729830AbfJaVDg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 17:03:36 -0400
-Received: from mga02.intel.com ([134.134.136.20]:34915 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727742AbfJaVDg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 31 Oct 2019 17:03:36 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 31 Oct 2019 14:03:35 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.68,253,1569308400"; 
-   d="scan'208";a="194457177"
-Received: from epobrien-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.10.103])
-  by orsmga008.jf.intel.com with ESMTP; 31 Oct 2019 14:03:31 -0700
-Date:   Thu, 31 Oct 2019 23:03:30 +0200
-From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-To:     James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc:     "Safford, David (GE Global Research, US)" <david.safford@ge.com>,
-        Ken Goldman <kgold@linux.ibm.com>,
-        Mimi Zohar <zohar@linux.ibm.com>,
-        "linux-integrity@vger.kernel.org" <linux-integrity@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "open list:ASYMMETRIC KEYS" <keyrings@vger.kernel.org>,
-        "open list:CRYPTO API" <linux-crypto@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] KEYS: asym_tpm: Switch to get_random_bytes()
-Message-ID: <20191031210330.GA10507@linux.intel.com>
-References: <20191014190033.GA15552@linux.intel.com>
- <1571081397.3728.9.camel@HansenPartnership.com>
- <20191016110031.GE10184@linux.intel.com>
- <1571229252.3477.7.camel@HansenPartnership.com>
- <20191016162543.GB6279@linux.intel.com>
- <1571253029.17520.5.camel@HansenPartnership.com>
- <20191017180440.GG6667@linux.intel.com>
- <20191021113939.GA11649@linux.intel.com>
- <20191029084258.GA5649@linux.intel.com>
- <1572361096.4812.3.camel@HansenPartnership.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1572361096.4812.3.camel@HansenPartnership.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1728775AbfJaVTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 17:19:04 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:38726 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726540AbfJaVTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 17:19:04 -0400
+Received: by mail-pf1-f193.google.com with SMTP id c13so5322558pfp.5;
+        Thu, 31 Oct 2019 14:19:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id;
+        bh=QHjg6cf8a3DCHiEQ6cgO5fiuIXYg8F/FcsSBS84DcVQ=;
+        b=MUAhSaRmFPpX6bIB1saz7LVQ1ZusfwUfceSkJLUkimjuHeFcEnZK9f6AAiEYkuuPeD
+         B5mQN3jCO55l6nMMn5T3kxLQzBl5szbUFq9pqm2pbHBHLQ97wH23w7lBZ0Y7xAFrcB9v
+         fQyvNsgz1nRDBIP0ad3VPVvLY36zeDLq97K7XbAOWbr4dM5Aaynr09SehE11woGdv+3R
+         ZWs7uAXKpjUOL68BW9z4fFF5uXjRv1bv9vI4F4IucO9GR5iKZHWS2G4t017SeaKUzYpU
+         f6iDtwxnb7WG0OGg9ckn0EqFMKgPpRiuvcKCwY4Q9jjNcKFRVpyXHbqiorPxeTpFKhf6
+         XZzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=QHjg6cf8a3DCHiEQ6cgO5fiuIXYg8F/FcsSBS84DcVQ=;
+        b=WiTVTpXI8XRnXU+a5waPUX3gB2PHbDv8NmU4xPg4Yn0cUoe2FV6a0qTxzETr959E28
+         xEgt2XozXEvlbNBCR9q+9BER+K+ZNDMUr1ryE2WA7LrSuydjQD3jBpBABopWqfpsFBTK
+         doA53Q82/9OvaqJVRYiYr2Je54+IJgKKzTSyUKSY8ldPXS6njyx39wN1DZ8aDFXeqEhP
+         oTYlhbmPocsyhR9aRFZSrsgl+u6jKkCCAqsaBNgpJX3O0uLRi5nwcXDnhKeH6zwmURyZ
+         RYvInHyndTIWdoD6LvhyXF7vqTrnpm3jzml9ppBhim3aAy7Jcz9VSo7nhxySjOFI5RyC
+         eaqw==
+X-Gm-Message-State: APjAAAVG5M0AziHiEGwhQByw2JdKMbE2SW0Zny+2WR8cED8XsPdoAb9a
+        DkcNObP/rgK1zE2lRKlAy7G80Dc=
+X-Google-Smtp-Source: APXvYqxbZMzzdlV7mMn8ygiaqDn3ouJm8ewGKkDaLhFiJ+c+f9jwlEDkKxpanRSWF4NqmqxG+eWLyg==
+X-Received: by 2002:a17:90a:a002:: with SMTP id q2mr10307944pjp.124.1572556742949;
+        Thu, 31 Oct 2019 14:19:02 -0700 (PDT)
+Received: from ubuntu-vm.mshome.net ([167.220.2.106])
+        by smtp.gmail.com with ESMTPSA id x14sm3954604pfm.96.2019.10.31.14.19.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Oct 2019 14:19:02 -0700 (PDT)
+From:   Pavel Shilovsky <piastryyy@gmail.com>
+X-Google-Original-From: Pavel Shilovsky <pshilov@microsoft.com>
+To:     linux-cifs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] CIFS: Fix SMB2 oplock break processing
+Date:   Thu, 31 Oct 2019 14:18:57 -0700
+Message-Id: <20191031211857.18989-1-pshilov@microsoft.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 29, 2019 at 07:58:16AM -0700, James Bottomley wrote:
-> On Tue, 2019-10-29 at 10:42 +0200, Jarkko Sakkinen wrote:
-> > On Mon, Oct 21, 2019 at 02:39:39PM +0300, Jarkko Sakkinen wrote:
-> > > On Thu, Oct 17, 2019 at 09:04:40PM +0300, Jarkko Sakkinen wrote:
-> > > > On Wed, Oct 16, 2019 at 03:10:29PM -0400, James Bottomley wrote:
-> > > > > On Wed, 2019-10-16 at 19:25 +0300, Jarkko Sakkinen wrote:
-> > > > > > On Wed, Oct 16, 2019 at 08:34:12AM -0400, James Bottomley
-> > > > > > wrote:
-> > > > > > > reversible ciphers are generally frowned upon in random
-> > > > > > > number
-> > > > > > > generation, that's why the krng uses chacha20.  In general
-> > > > > > > I think
-> > > > > > > we shouldn't try to code our own mixing and instead should
-> > > > > > > get the
-> > > > > > > krng to do it for us using whatever the algorithm du jour
-> > > > > > > that the
-> > > > > > > crypto guys have blessed is.  That's why I proposed adding
-> > > > > > > the TPM
-> > > > > > > output to the krng as entropy input and then taking the
-> > > > > > > output of
-> > > > > > > the krng.
-> > > > > > 
-> > > > > > It is already registered as hwrng. What else?
-> > > > > 
-> > > > > It only contributes entropy once at start of OS.
-> > > > 
-> > > > Ok.
-> > > > 
-> > > > > >  Was the issue that it is only used as seed when the rng is
-> > > > > > init'd
-> > > > > > first? I haven't at this point gone to the internals of krng.
-> > > > > 
-> > > > > Basically it was similar to your xor patch except I got the
-> > > > > kernel rng
-> > > > > to do the mixing, so it would use the chacha20 cipher at the
-> > > > > moment
-> > > > > until they decide that's unsafe and change it to something
-> > > > > else:
-> > > > > 
-> > > > > https://lore.kernel.org/linux-crypto/1570227068.17537.4.camel@H
-> > > > > ansenPartnership.com/
-> > > > > 
-> > > > > It uses add_hwgenerator_randomness() to do the mixing.  It also
-> > > > > has an
-> > > > > unmixed source so that read of the TPM hwrng device works as
-> > > > > expected.
-> > > > 
-> > > > Thinking that could this potentially racy? I.e. between the calls
-> > > > something else could eat the entropy added?
-> > > 
-> > > Also, what is wrong just taking one value from krng and mixing
-> > > it with a value from TPM RNG where needed? That would be non-racy
-> > > too.
-> > 
-> > I guess we can move forward with this?
-> 
-> Sure I suppose; can we can figure out how to get the mixing function du
-> jour exposed?
+Even when mounting modern protocol version the server may be
+configured without supporting SMB2.1 leases and the client
+uses SMB2 oplock to optimize IO performance through local caching.
 
-Maybe it is best to reflect the whole issue in the context of the
-Sumit's 2nd patch set, which adds ARM TEE support in order to move
-forward.
+However there is a problem in oplock break handling that leads
+to missing a break notification on the client who has a file
+opened. It latter causes big latencies to other clients that
+are trying to open the same file.
 
-/Jarkko
+The problem reproduces when there are multiple shares from the
+same server mounted on the client. The processing code tries to
+match persistent and volatile file ids from the break notification
+with an open file but it skips all share besides the first one.
+Fix this by looking up in all shares belonging to the server that
+issued the oplock break.
+
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+---
+ fs/cifs/smb2misc.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+index 8db6201b18ba..527c9efd3de0 100644
+--- a/fs/cifs/smb2misc.c
++++ b/fs/cifs/smb2misc.c
+@@ -664,10 +664,10 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+ 	spin_lock(&cifs_tcp_ses_lock);
+ 	list_for_each(tmp, &server->smb_ses_list) {
+ 		ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
++
+ 		list_for_each(tmp1, &ses->tcon_list) {
+ 			tcon = list_entry(tmp1, struct cifs_tcon, tcon_list);
+ 
+-			cifs_stats_inc(&tcon->stats.cifs_stats.num_oplock_brks);
+ 			spin_lock(&tcon->open_file_lock);
+ 			list_for_each(tmp2, &tcon->openFileList) {
+ 				cfile = list_entry(tmp2, struct cifsFileInfo,
+@@ -679,6 +679,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+ 					continue;
+ 
+ 				cifs_dbg(FYI, "file id match, oplock break\n");
++				cifs_stats_inc(
++				    &tcon->stats.cifs_stats.num_oplock_brks);
+ 				cinode = CIFS_I(d_inode(cfile->dentry));
+ 				spin_lock(&cfile->file_info_lock);
+ 				if (!CIFS_CACHE_WRITE(cinode) &&
+@@ -702,9 +704,6 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+ 				return true;
+ 			}
+ 			spin_unlock(&tcon->open_file_lock);
+-			spin_unlock(&cifs_tcp_ses_lock);
+-			cifs_dbg(FYI, "No matching file for oplock break\n");
+-			return true;
+ 		}
+ 	}
+ 	spin_unlock(&cifs_tcp_ses_lock);
+-- 
+2.17.1
+
