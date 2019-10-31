@@ -2,96 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45FEDEB97C
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 23:03:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A0CEB992
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 23:14:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728648AbfJaWC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 18:02:56 -0400
-Received: from mail-il1-f196.google.com ([209.85.166.196]:43304 "EHLO
-        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727715AbfJaWCz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 18:02:55 -0400
-Received: by mail-il1-f196.google.com with SMTP id j2so4726868ilc.10;
-        Thu, 31 Oct 2019 15:02:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kcEj0zagT1kdGnm51IepUWol06DL1z1IUNa12dd8Jp4=;
-        b=li15LPx+6k9TbBmNsi4igNQNptExK0rDlvtE6zga52XA1/6JpM1H5iL8Cyv5EckBka
-         rygvNDBf+Xlm7lmmOfW5tECTv9en0bqRJhvPOYv26SBWrdLF2xffJDYa2hwXjoLf/xeW
-         OUQynDulrDqZc5hkFbkbJi7umsIAuUJoFisT2hB5XjKb92+GrofWHPFtBQRMZsiU2Bcg
-         0WSegVaW+AqgTyvgGJyFSnjPite1+L0M9+uBqQgaWa3URv7zJYO9vx5+AryEVndHBsJj
-         Mb82OGQbJK+InTipjZJyyTIRTfh4fhH4vh6qlYEzQPsSTWb2GisNNa/CQR4FOf/7u4ey
-         oLLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kcEj0zagT1kdGnm51IepUWol06DL1z1IUNa12dd8Jp4=;
-        b=Kyk9iGCbZSyYhxaWOkWKUMFnYp0PEUP9oP5UMrHm0jO6lIxiXZ6f3UIIvVRg5IdEui
-         S5t4pQGd63svG4sVIKWR4BlVE9pbBYHLbJYNnUzjnpFRxo4D33rbn/PYKydTpu65qZU4
-         X4oxMqCowTh2qbrZXfhP3kJ7PCIquYZFGjv6gtigJpg01spNbVdS7cIin8uDVyaExhLV
-         PPiblPOAitOkjoJ9/T/AxnZjN60ZIGPXD/lIV+XiQxJesjOR+XJNYmWs+Z7Z6A1ZWEdw
-         +oAhRw86pn/eYpmIgn1qvHK4/Plv+hjA+dJ2f1G42JTXZjnJde5U6Y/gYe9yqOd1SSFx
-         83rQ==
-X-Gm-Message-State: APjAAAXEpoUX/bBi6J6880rRh9oReVenMC9NsMNYh9jzNhQ/b35qaudk
-        i92tom/Mve2t4ehKHsjlSb7uOCQfccju6QWN3lWdzA==
-X-Google-Smtp-Source: APXvYqyErskCKg+NeuRncOCekaI3GkjEMhqdfrRmscKc1Oz87aqPjneGSPfs7vE8B2GOy+pmRuWVrKlHURiOwcI5JlQ=
-X-Received: by 2002:a92:17c8:: with SMTP id 69mr9020215ilx.42.1572559374831;
- Thu, 31 Oct 2019 15:02:54 -0700 (PDT)
+        id S1728657AbfJaWOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 18:14:40 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:59024 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728640AbfJaWOj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 18:14:39 -0400
+Received: from 188.29.164.72.threembb.co.uk ([188.29.164.72] helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iQIi6-0001MD-If; Thu, 31 Oct 2019 22:14:37 +0000
+Received: from ben by deadeye with local (Exim 4.92.2)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iQIhw-0000pL-Vi; Thu, 31 Oct 2019 22:14:20 +0000
+Message-ID: <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
+Subject: Re: [PATCH 3.16 47/47] KVM: x86/vPMU: refine kvm_pmu err msg when
+ event creation failed
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Like Xu <like.xu@linux.intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Date:   Thu, 31 Oct 2019 22:14:15 +0000
+In-Reply-To: <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
+References: <lsq.1572026582.631294584@decadent.org.uk>
+         <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-hKUhIv2BLLOi+f5RLV/D"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-References: <20191031184632.2938295-1-bjorn.andersson@linaro.org>
- <20191031184632.2938295-2-bjorn.andersson@linaro.org> <CAOCk7Noq8dvKsWzAfAXRGhmoMG4_tHD0kw8_KVEBvyjm_fGc5A@mail.gmail.com>
- <20191031194347.GO1929@tuxbook-pro>
-In-Reply-To: <20191031194347.GO1929@tuxbook-pro>
-From:   Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Date:   Thu, 31 Oct 2019 16:02:43 -0600
-Message-ID: <CAOCk7NoC+BmB7UH=-=g7ufmGUAfrc9JcPxwnVh9ytb9Xuq4FTQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] remoteproc: qcom_q6v5_mss: Don't reassign mpss region
- on shutdown
-To:     Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc:     Ohad Ben-Cohen <ohad@wizery.com>,
-        Avaneesh Kumar Dwivedi <akdwived@codeaurora.org>,
-        MSM <linux-arm-msm@vger.kernel.org>,
-        linux-remoteproc@vger.kernel.org,
-        lkml <linux-kernel@vger.kernel.org>,
-        Jeffrey Hugo <jhugo@codeaurora.org>,
-        Sibi Sankar <sibis@codeaurora.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+X-SA-Exim-Connect-IP: 188.29.164.72
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 31, 2019 at 1:43 PM Bjorn Andersson
-<bjorn.andersson@linaro.org> wrote:
->
-> On Thu 31 Oct 12:36 PDT 2019, Jeffrey Hugo wrote:
->
-> > On Thu, Oct 31, 2019 at 12:48 PM Bjorn Andersson
-> > <bjorn.andersson@linaro.org> wrote:
-> > >
-> > > Trying to reclaim mpss memory while the mba is not running causes the
-> > > system to crash on devices with security fuses blown, so leave it
-> > > assigned to the remote on shutdown and recover it on a subsequent boot.
-> > >
-> > > Fixes: 6c5a9dc2481b ("remoteproc: qcom: Make secure world call for mem ownership switch")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-> > > ---
-> >
-> > Excellent.  This addresses the issue I was seeing with the Lenovo Miix 630
-> >
->
-> Sweet!
->
-> > Reviewed-by: Jeffrey Hugo<jeffrey.l.hugo@gmail.com>
-> > Tested-by: Jeffrey Hugo<jeffrey.l.hugo@gmail.com>
->
-> Thanks!
 
-As we talked offline, it appears we both missed the crashdump
-scenario, so please spin a v2 that reclaims the memory just before
-trying to access it in the crashdump scenario.  I'll be happy to
-re-review and re-test.
+--=-hKUhIv2BLLOi+f5RLV/D
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, 2019-10-25 at 12:05 -0700, Joe Perches wrote:
+> On Fri, 2019-10-25 at 19:03 +0100, Ben Hutchings wrote:
+> > 3.16.76-rc1 review patch.  If anyone has any objections, please let me =
+know.
+>=20
+> This seems more like an enhancement than a bug fix.
+>=20
+> Is this really the type of patch that is appropriate
+> for stable?
+
+Apparently so:
+
+v4.14.135: eba797dbf352 KVM: x86/vPMU: refine kvm_pmu err msg when event cr=
+eation failed
+v4.19.61: ba27a25df6df KVM: x86/vPMU: refine kvm_pmu err msg when event cre=
+ation failed
+v4.4.187: 505c011f9f53 KVM: x86/vPMU: refine kvm_pmu err msg when event cre=
+ation failed
+v4.9.187: 3984eae04473 KVM: x86/vPMU: refine kvm_pmu err msg when event cre=
+ation failed
+v5.1.20: edadec197fbf KVM: x86/vPMU: refine kvm_pmu err msg when event crea=
+tion failed
+v5.2.3: 9f062aef7356 KVM: x86/vPMU: refine kvm_pmu err msg when event creat=
+ion failed
+
+Ben.
+
+> > ------------------
+> >=20
+> > From: Like Xu <like.xu@linux.intel.com>
+> >=20
+> > commit 6fc3977ccc5d3c22e851f2dce2d3ce2a0a843842 upstream.
+> >=20
+> > If a perf_event creation fails due to any reason of the host perf
+> > subsystem, it has no chance to log the corresponding event for guest
+> > which may cause abnormal sampling data in guest result. In debug mode,
+> > this message helps to understand the state of vPMC and we may not
+> > limit the number of occurrences but not in a spamming style.
+> >=20
+> > Suggested-by: Joe Perches <joe@perches.com>
+> > Signed-off-by: Like Xu <like.xu@linux.intel.com>
+> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> > [bwh: Backported to 3.16: adjust context]
+> > Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> > ---
+> >  arch/x86/kvm/pmu.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >=20
+> > --- a/arch/x86/kvm/pmu.c
+> > +++ b/arch/x86/kvm/pmu.c
+> > @@ -187,8 +187,8 @@ static void reprogram_counter(struct kvm
+> >  						 intr ? kvm_perf_overflow_intr :
+> >  						 kvm_perf_overflow, pmc);
+> >  	if (IS_ERR(event)) {
+> > -		printk_once("kvm: pmu event creation failed %ld\n",
+> > -				PTR_ERR(event));
+> > +		pr_debug_ratelimited("kvm_pmu: event creation failed %ld for pmc->id=
+x =3D %d\n",
+> > +			    PTR_ERR(event), pmc->idx);
+> >  		return;
+> >  	}
+> > =20
+> >=20
+--=20
+Ben Hutchings
+Klipstein's 4th Law of Prototyping and Production:
+                               A fail-safe circuit will destroy others.
+
+
+
+--=-hKUhIv2BLLOi+f5RLV/D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl27XLgACgkQ57/I7JWG
+EQkqSQ//RR8xY73bxtHVjVHg0wo49KzosxapaAi+qo+HxB2zL7OfW9CJVOMTpOk+
+QT+iqkYNNcMAbRClkb86WoATNzC5Crau5quovdJdLbPNq/ANd1HP91jTwAhHc/cK
+8rSZTzUz1c13mBSFHGbTn+HQaiDsw+iElA06hcqARpe0lxm7m4Usvp6kiKOwlShK
+NKGzUz7GjntXzj+0r02jwKc7OEx73bQRc4Zng2QrAFwC4smeghiSm7zrrG12SC2Y
+Jipc6cGdeQ1/RVcnuEO93ZCEl6PHTZ4ngKlpdB5u9nFPgYvIQ60U6w/USNcdIu6C
+yNmnnOMt3XNOpYdeqYm1dYQ2jPy0S2POBawDd3+B68fLBgNt54lhIIgJt0imybj4
+/u9mznUCt+KWNAgwR5tYapxgWlrsAyH775S/7+0Svxir162A6YzCckGG7g0y7Ln0
+Q8Wp3jIQyq35ofh7gl69H/68A7FFKUnsvPKpxT/8QS67MCzDzSXxuTReHQaSLeVA
+638YTj0JAfEXipA1bP0JTcsBJaNEeqxwJHYwwz3exTL+Kr/a/C8WrvPSLGpmG1O3
+KugLzLeoJ0s66qnZdD79B/LKulAm6bP5GS1ujvvnuBYOOLlLwvCHw7nMmEq/YWEd
+lxWi06TTgsZ2+PhXBQvQspX966YWifIPjTBmtVyhVq7i1puVbBM=
+=r0nb
+-----END PGP SIGNATURE-----
+
+--=-hKUhIv2BLLOi+f5RLV/D--
