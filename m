@@ -2,70 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11C24EA9E7
-	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 05:31:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE754EA9F2
+	for <lists+stable@lfdr.de>; Thu, 31 Oct 2019 05:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726246AbfJaEbq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 00:31:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59212 "EHLO mail.kernel.org"
+        id S1726479AbfJaEmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 00:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726141AbfJaEbq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 31 Oct 2019 00:31:46 -0400
+        id S1725816AbfJaEma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 31 Oct 2019 00:42:30 -0400
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75D5420862;
-        Thu, 31 Oct 2019 04:31:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5C3C20862;
+        Thu, 31 Oct 2019 04:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572496305;
-        bh=/vZVdjfx1+eTSFpDQ3YOtaUgovcc9xcDfUIxOh8R22I=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=ngIQBfRVYieR754lwPCFY+0f48qLBs7EhpJ8sl+stFK9/SW4b/hfY8/JlpNlmncLH
-         b86c5OrxpOlpZHy4qOuqc5SqoVTCJdu3biDQv29Bp3CmBCezR+wr0ARKym1rSDnrTh
-         i76l2zZ5lxqJcM8J2tI9aUOG+M3J8kv44C7tUmNU=
-Date:   Wed, 30 Oct 2019 21:31:44 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Yang Shi <yang.shi@linux.alibaba.com>
-Cc:     lixinhai.lxh@gmail.com, vbabka@suse.cz, mhocko@suse.com,
-        mgorman@techsingularity.net, stable@vger.kernel.org,
-        linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-        "Li Xinhai" <lixinhai.lxh@gmail.com>
-Subject: Re: [PATCH] mm: mempolicy: fix the wrong return value and potential
- pages leak of mbind
-Message-Id: <20191030213144.dd7cd8084d4171e29abba875@linux-foundation.org>
-In-Reply-To: <12ac5b41-27a6-5a5b-0d07-7e9cb847829d@linux.alibaba.com>
-References: <1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com>
-        <12ac5b41-27a6-5a5b-0d07-7e9cb847829d@linux.alibaba.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        s=default; t=1572496950;
+        bh=H/SOUamg33M6zHpAMCdLNDJj9eTJC66TFz9y6Bq20rQ=;
+        h=Date:From:To:Subject:From;
+        b=J2ZH/cYOluwwkKpJMenLeGCpAxqY4xtqbeqiPbZXec9ZU+xCrf3740bRHzeco5o7h
+         TC/bTXSBfRWAF3lOeuhVmaLqbM1gvdkKLVpBLgnB16rGLBvyUARkgXdw8eC+JaT7oZ
+         oHIW3KwOFVL9QmPoOfTRqBu4AXoz2i+dcJeFCQZM=
+Date:   Wed, 30 Oct 2019 21:42:29 -0700
+From:   akpm@linux-foundation.org
+To:     david@redhat.com, mhocko@suse.com, mm-commits@vger.kernel.org,
+        osalvador@suse.de, pasha.tatashin@soleen.com,
+        stable@vger.kernel.org, vincent.whitchurch@axis.com
+Subject:  + mm-sparse-consistently-do-not-zero-memmap.patch added
+ to -mm tree
+Message-ID: <20191031044229.FntU02eez%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 30 Oct 2019 11:14:58 -0700 Yang Shi <yang.shi@linux.alibaba.com> wrote:
 
-> On 10/30/19 9:58 AM, Yang Shi wrote:
-> > The commit d883544515aa ("mm: mempolicy: make the behavior consistent
-> > when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified") fixed the return
-> > value of mbind() for a couple of corner cases.  But, it altered the
-> > errno for some other cases, for example, mbind() should return -EFAULT
-> > when part or all of the memory range specified by nodemask and maxnode
-> > points  outside your accessible address space, or there was an unmapped
-> > hole in the specified memory range specified by addr and len.
-> >
-> > Fixed this by preserving the errno returned by queue_pages_range().
-> > And, the pagelist may be not empty even though queue_pages_range()
-> > returns error, put the pages back to LRU since mbind_range() is not called
-> > to really apply the policy so those pages should not be migrated, this
-> > is also the old behavior before the problematic commit.
-> Forgot fixes tag.
-> 
-> Fixes: d883544515aa ("mm: mempolicy: make the behavior consistent when 
-> MPOL_MF_MOVE* and MPOL_MF_STRICT were specified")
+The patch titled
+     Subject: mm/sparse: consistently do not zero memmap
+has been added to the -mm tree.  Its filename is
+     mm-sparse-consistently-do-not-zero-memmap.patch
 
-What's the relationship between this patch and
-http://lkml.kernel.org/r/201910291756045288126@gmail.com?
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-sparse-consistently-do-not-zero-memmap.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-sparse-consistently-do-not-zero-memmap.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Subject: mm/sparse: consistently do not zero memmap
+
+sparsemem without VMEMMAP has two allocation paths to allocate the memory
+needed for its memmap (done in sparse_mem_map_populate()).
+
+In one allocation path (sparse_buffer_alloc() succeeds), the memory is not
+zeroed (since it was previously allocated with
+memblock_alloc_try_nid_raw()).
+
+In the other allocation path (sparse_buffer_alloc() fails and
+sparse_mem_map_populate() falls back to memblock_alloc_try_nid()), the
+memory is zeroed.
+
+AFAICS this difference does not appear to be on purpose.  If the code is
+supposed to work with non-initialized memory (__init_single_page() takes
+care of zeroing the struct pages which are actually used), we should
+consistently not zero the memory, to avoid masking bugs.
+
+(I noticed this because on my ARM64 platform, with 1 GiB of memory the
+ first [and only] section is allocated from the zeroing path while with
+ 2 GiB of memory the first 1 GiB section is allocated from the
+ non-zeroing path.)
+
+Link: http://lkml.kernel.org/r/20191030131122.8256-1-vincent.whitchurch@axis.com
+Signed-off-by: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/sparse.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/sparse.c~mm-sparse-consistently-do-not-zero-memmap
++++ a/mm/sparse.c
+@@ -458,7 +458,7 @@ struct page __init *__populate_section_m
+ 	if (map)
+ 		return map;
+ 
+-	map = memblock_alloc_try_nid(size,
++	map = memblock_alloc_try_nid_raw(size,
+ 					  PAGE_SIZE, addr,
+ 					  MEMBLOCK_ALLOC_ACCESSIBLE, nid);
+ 	if (!map)
+_
+
+Patches currently in -mm which might be from vincent.whitchurch@axis.com are
+
+mm-sparse-consistently-do-not-zero-memmap.patch
 
