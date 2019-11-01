@@ -2,90 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93344EBECF
-	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 08:59:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E22BBEBF1F
+	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 09:18:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729980AbfKAH72 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Nov 2019 03:59:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38356 "EHLO mail.kernel.org"
+        id S1729975AbfKAISw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Nov 2019 04:18:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728769AbfKAH72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 Nov 2019 03:59:28 -0400
+        id S1730034AbfKAISw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Nov 2019 04:18:52 -0400
 Received: from localhost (unknown [91.217.168.176])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6DCC208CB;
-        Fri,  1 Nov 2019 07:59:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97A57208CB;
+        Fri,  1 Nov 2019 08:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572595167;
-        bh=u1ArBY4X4AHCNAGQiJTNVumMzm9QbEr0Lwt684kDq+o=;
+        s=default; t=1572596331;
+        bh=asDV6Jv1udhmik0e8GZTrjcA/yFx7JhC9wDqE8hzT70=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SsPNeg3YJym5jA4Mmh1BCm4a5tRZ83pked0qlQVcmoWFriT0ZXBgPul78TeV25rBz
-         EC8goHEzoNQMFCzX7xLD1DTvDqTtIWPfjOebN4QhAVQWTRD6VUDj5/vHyOmY1srzG1
-         NkuTaATuJ++/3edVkFzEcsSDejRTmyoumHGPzgEs=
-Date:   Fri, 1 Nov 2019 03:48:21 -0400
+        b=b3CsOsJdMkvq6qeN1p59MyBCxmyX0D0b/qMH6c5Pz9fzq6h4CcINli1OQkhDlsdh5
+         luTAwW+m0fpol3FT82WIKGB7WL+b8LUdvv7dbGuqMjZIPhAyZappaTj0zzQmoIZm8w
+         3JQFIyY0q5MG756MvxPTdnXrAz7FaPMbifegpqac=
+Date:   Fri, 1 Nov 2019 04:07:45 -0400
 From:   Sasha Levin <sashal@kernel.org>
-To:     Zubin Mithra <zsm@chromium.org>
-Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        groeck@chromium.org, xiyou.wangcong@gmail.com, davem@davemloft.net
-Subject: Re: [v4.14.y] net_sched: check cops->tcf_block in tc_bind_tclass()
-Message-ID: <20191101074821.GS1554@sasha-vm>
-References: <20191031184259.165183-1-zsm@chromium.org>
+To:     Joe Perches <joe@perches.com>
+Cc:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
+        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Like Xu <like.xu@linux.intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 3.16 47/47] KVM: x86/vPMU: refine kvm_pmu err msg when
+ event creation failed
+Message-ID: <20191101080745.GT1554@sasha-vm>
+References: <lsq.1572026582.631294584@decadent.org.uk>
+ <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
+ <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
+ <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20191031184259.165183-1-zsm@chromium.org>
+In-Reply-To: <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 31, 2019 at 11:42:59AM -0700, Zubin Mithra wrote:
->From: Cong Wang <xiyou.wangcong@gmail.com>
+On Thu, Oct 31, 2019 at 03:53:23PM -0700, Joe Perches wrote:
+>On Thu, 2019-10-31 at 22:14 +0000, Ben Hutchings wrote:
+>> On Fri, 2019-10-25 at 12:05 -0700, Joe Perches wrote:
+>> > On Fri, 2019-10-25 at 19:03 +0100, Ben Hutchings wrote:
+>> > > 3.16.76-rc1 review patch.  If anyone has any objections, please let me know.
+>> >
+>> > This seems more like an enhancement than a bug fix.
+>> >
+>> > Is this really the type of patch that is appropriate
+>> > for stable?
+>>
+>> Apparently so:
+>>
+>> v4.14.135: eba797dbf352 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> v4.19.61: ba27a25df6df KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> v4.4.187: 505c011f9f53 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> v4.9.187: 3984eae04473 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> v5.1.20: edadec197fbf KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> v5.2.3: 9f062aef7356 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
 >
->commit 8b142a00edcf8422ca48b8de88d286efb500cb53 upstream
+>I think not, but hey, maybe you and Greg do.
 >
->At least sch_red and sch_tbf don't implement ->tcf_block()
->while still have a non-zero tc "class".
+>Porting enhancements, even trivial ones, imo is
+>not a great thing for stable branches.
 >
->Instead of adding nop implementations to each of such qdisc's,
->we can just relax the check of cops->tcf_block() in
->tc_bind_tclass(). They don't support TC filter anyway.
->
->Reported-by: syzbot+21b29db13c065852f64b@syzkaller.appspotmail.com
->Cc: Jamal Hadi Salim <jhs@mojatatu.com>
->Cc: Jiri Pirko <jiri@resnulli.us>
->Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
->Signed-off-by: David S. Miller <davem@davemloft.net>
->Signed-off-by: Zubin Mithra <zsm@chromium.org>
->---
->Notes:
->* Syzkaller triggered a NULL pointer dereference with the following
->stacktrace:
-> tc_bind_tclass+0x139/0x550 net/sched/sch_api.c:1697
-> tc_ctl_tclass+0x9de/0xb30 net/sched/sch_api.c:1831
-> rtnetlink_rcv_msg+0x545/0x1010 net/core/rtnetlink.c:4287
-> netlink_rcv_skb+0x15e/0x3a0 net/netlink/af_netlink.c:2432
-> rtnetlink_rcv+0x22/0x30 net/core/rtnetlink.c:4299
-> netlink_unicast_kernel net/netlink/af_netlink.c:1286 [inline]
-> netlink_unicast+0x4ac/0x6a0 net/netlink/af_netlink.c:1312
-> netlink_sendmsg+0x943/0xec0 net/netlink/af_netlink.c:1877
-> sock_sendmsg_nosec net/socket.c:646 [inline]
-> sock_sendmsg+0xd5/0x110 net/socket.c:656
-> ___sys_sendmsg+0x754/0x890 net/socket.c:2062
-> __sys_sendmsg+0xd2/0x1f0 net/socket.c:2096
-> C_SYSC_sendmsg net/compat.c:744 [inline]
-> compat_SyS_sendmsg+0x2f/0x40 net/compat.c:742
-> do_syscall_32_irqs_on arch/x86/entry/common.c:352 [inline]
-> do_fast_syscall_32+0x3bb/0xdd1 arch/x86/entry/common.c:415
-> entry_SYSENTER_compat+0x84/0x96 arch/x86/entry/entry_64_compat.S:139
->
->* This commit is present in linux-4.19.y.
->
->* Tests run: Chrome OS tryjobs, Syzkaller reproducer
+>My perspective is that only bug fixes should be
+>applied to stable branches.
 
-Queued up for 4.14, thank you.
+Usability issues are just as bad as code bugs. Our human interface is at
+least as important as the functionality of our code.
 
 -- 
 Thanks,
