@@ -2,143 +2,290 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F114CEBB5D
-	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 01:10:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A9A8EBB73
+	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 01:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728443AbfKAAKb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 31 Oct 2019 20:10:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728259AbfKAAKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 31 Oct 2019 20:10:31 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727332AbfKAAnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 31 Oct 2019 20:43:43 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:54945 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726803AbfKAAnn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 31 Oct 2019 20:43:43 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572569021;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=jCklECGtMlV3V1lBgbv58zxvw2dlFwuOqCMt/STsSTk=;
+        b=QJ5MpkFfSi8RKGgXaU6ezP+zMdpRimS8GmKTjS8fux0zE9WqKeF+EhGinu9u2tPQ9z1sBf
+        U/iVy2yfp0+yqymoHAIdV1D240ZUOfBsTA1bFPfkCEvsHk+gDiQQRnkDvSaLxDRN6UISQi
+        2RzjRGQTvwO6sW7dQpc6WhlHp61f+0M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-8-hqrZ-vrUMCqGx0oVY0z4RQ-1; Thu, 31 Oct 2019 20:43:39 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7C3C2086D;
-        Fri,  1 Nov 2019 00:10:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572567030;
-        bh=mLKaBjn+yVUa7o5FSn9XztCX2maRN05UfKNwq7Wmb8Y=;
-        h=Date:From:To:Subject:From;
-        b=gxpQqbUqgWL5asJBLTbvVIOJQwhevTgeOhxkRBToFlfxl7vxQdRuRuhKUuDmQo1b3
-         ZEURUjIyDljkZm7d3VkwstV8nmPG5JyfQ92cv5ggWuk/8lYqHhkvL+FWUL6hOpZNzJ
-         a4IdUPirNyeU6AmqICEwwBDpTJYHUuYi/1n145rw=
-Date:   Thu, 31 Oct 2019 17:10:29 -0700
-From:   akpm@linux-foundation.org
-To:     lixinhai.lxh@gmail.com, mgorman@techsingularity.net,
-        mhocko@suse.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, vbabka@suse.cz, yang.shi@linux.alibaba.com
-Subject:  +
- =?US-ASCII?Q?mm-mempolicy-fix-the-wrong-return-value-and-potential-pages?=
- =?US-ASCII?Q?-leak-of-mbind.patch?= added to -mm tree
-Message-ID: <20191101001029.KfhrrNZr0%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9D6EB1005500
+        for <stable@vger.kernel.org>; Fri,  1 Nov 2019 00:43:38 +0000 (UTC)
+Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 028F65D6A7;
+        Fri,  1 Nov 2019 00:43:35 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.4.0-rc5-d86e19b.cki
+ (stable-next)
+Date:   Fri, 01 Nov 2019 00:43:35 -0000
+CC:     Xiong Zhou <xzhou@redhat.com>
+Message-ID: <cki.92316C7279.A20VXTVPMI@redhat.com>
+X-Gitlab-Pipeline-ID: 259375
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/259375
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-MC-Unique: hqrZ-vrUMCqGx0oVY0z4RQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm: mempolicy: fix the wrong return value and potential pages leak of mbind
-has been added to the -mm tree.  Its filename is
-     mm-mempolicy-fix-the-wrong-return-value-and-potential-pages-leak-of-mbind.patch
+Hello,
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-mempolicy-fix-the-wrong-return-value-and-potential-pages-leak-of-mbind.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-mempolicy-fix-the-wrong-return-value-and-potential-pages-leak-of-mbind.patch
+We ran automated tests on a recent commit from this kernel tree:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/li=
+nux-stable.git
+            Commit: d86e19b51225 - mm: drop mmap_sem before calling balance=
+_dirty_pages() in write fault
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+The results of these automated tests are provided below.
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-------------------------------------------------------
-From: Yang Shi <yang.shi@linux.alibaba.com>
-Subject: mm: mempolicy: fix the wrong return value and potential pages leak of mbind
+All kernel binaries, config files, and logs are available for download here=
+:
 
-Commit d883544515aa ("mm: mempolicy: make the behavior consistent when
-MPOL_MF_MOVE* and MPOL_MF_STRICT were specified") fixed the return value
-of mbind() for a couple of corner cases.  But, it altered the errno for
-some other cases, for example, mbind() should return -EFAULT when part or
-all of the memory range specified by nodemask and maxnode points outside
-your accessible address space, or there was an unmapped hole in the
-specified memory range specified by addr and len.
+  https://artifacts.cki-project.org/pipelines/259375
 
-Fix this by preserving the errno returned by queue_pages_range().  And,
-the pagelist may be not empty even though queue_pages_range() returns
-error, put the pages back to LRU since mbind_range() is not called to
-really apply the policy so those pages should not be migrated, this is
-also the old behavior before the problematic commit.
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
 
-Link: http://lkml.kernel.org/r/1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: d883544515aa ("mm: mempolicy: make the behavior consistent when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Li Xinhai <lixinhai.lxh@gmail.com>
-Reviewed-by:Li Xinhai <lixinhai.lxh@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[4.19 and 5.2+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
 
- mm/mempolicy.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+Compile testing
+---------------
 
---- a/mm/mempolicy.c~mm-mempolicy-fix-the-wrong-return-value-and-potential-pages-leak-of-mbind
-+++ a/mm/mempolicy.c
-@@ -672,7 +672,9 @@ static const struct mm_walk_ops queue_pa
-  * 1 - there is unmovable page, but MPOL_MF_MOVE* & MPOL_MF_STRICT were
-  *     specified.
-  * 0 - queue pages successfully or no misplaced page.
-- * -EIO - there is misplaced page and only MPOL_MF_STRICT was specified.
-+ * errno - i.e. misplaced pages with MPOL_MF_STRICT specified (-EIO) or
-+ *         memory range specified by nodemask and maxnode points outside
-+ *         your accessible address space (-EFAULT)
-  */
- static int
- queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
-@@ -1286,7 +1288,7 @@ static long do_mbind(unsigned long start
- 			  flags | MPOL_MF_INVERT, &pagelist);
- 
- 	if (ret < 0) {
--		err = -EIO;
-+		err = ret;
- 		goto up_out;
- 	}
- 
-@@ -1305,10 +1307,12 @@ static long do_mbind(unsigned long start
- 
- 		if ((ret > 0) || (nr_failed && (flags & MPOL_MF_STRICT)))
- 			err = -EIO;
--	} else
--		putback_movable_pages(&pagelist);
--
-+	} else {
- up_out:
-+		if (!list_empty(&pagelist))
-+			putback_movable_pages(&pagelist);
-+	}
-+
- 	up_write(&mm->mmap_sem);
- mpol_out:
- 	mpol_put(new);
-_
+We compiled the kernel for 3 architectures:
 
-Patches currently in -mm which might be from yang.shi@linux.alibaba.com are
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
-mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap-v4.patch
-mm-mempolicy-fix-the-wrong-return-value-and-potential-pages-leak-of-mbind.patch
-mm-vmscan-remove-unused-scan_control-parameter-from-pageout.patch
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking bridge: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9C=85 L2TP basic test
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 ALSA PCM loopback test
+       =F0=9F=9A=A7 =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns transport
+       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns tunnel
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9C=85 xfstests: ext4
+       =F0=9F=9A=A7 =E2=9C=85 xfstests: xfs
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking bridge: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9C=85 L2TP basic test
+       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns tunnel
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 ALSA PCM loopback test
+       =F0=9F=9A=A7 =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C xfstests: ext4
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9C=85 IPMItool loop stress test
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking bridge: sanity
+       =F0=9F=9A=A7 =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9C=85 L2TP basic test
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 ALSA PCM loopback test
+       =F0=9F=9A=A7 =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns transport
+       =F0=9F=9A=A7 =E2=9C=85 Networking ipsec: basic netns tunnel
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+       =F0=9F=9A=A7 =E2=9D=8C xfstests: ext4
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
