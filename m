@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2CBD1024F1
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 13:56:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BE7E1024F2
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 13:56:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727965AbfKSM4I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 07:56:08 -0500
-Received: from bombadil.infradead.org ([198.137.202.133]:54816 "EHLO
+        id S1727968AbfKSM4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 07:56:11 -0500
+Received: from bombadil.infradead.org ([198.137.202.133]:54924 "EHLO
         bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727351AbfKSM4H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 07:56:07 -0500
+        with ESMTP id S1727351AbfKSM4K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 07:56:10 -0500
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
         d=infradead.org; s=bombadil.20170209; h=Content-Transfer-Encoding:
         MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:
         Resent-To:Resent-Message-ID:Resent-Date:Resent-From:Sender:Reply-To:
         Content-Type:Content-ID:Content-Description:Resent-Sender:Resent-Cc:List-Id:
         List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=632Tt0ty3zzQ0GZkuJr5PZW7MUMhvFVMhU5VFLhLGoU=; b=RYswK1jPRfAJQ1t3xv6sAZBvp
-        ItcgrV8MBQvYVBVXXRd3ogsXgdMUYekox6iUOhnjMW8bcewKwywy/TJQG/sy+8uxPKEm1sQmjqS1Y
-        a01uwlMM2fq5i32GVcBhgV6JWLPQtBocQgkfA8v3Qsh8LPa9IDneBINt/mai+ptzukHlLWeW0Pknv
-        udGP8Jvp+o0w+xe2uZvV+E0MYMvg6MoPij4kQg/qCudq0rqkJy/T6MIWbGhC5M8MCveuvCeej+RQM
-        VfoEW2tpw4aIOx9hFImNgpq8/qF1ZrfjOtS+i7reqjhwHXZ/ZAp+i53t2my6DVu+b9blbmnV3x6Dm
-        Gs1wtLp1w==;
+         bh=0tgIlFJjpjpbDdix/1oQ/HFhEM8dR4TKNHBx9u5EotA=; b=L1Uf4wrrGFMxqztstHlopfe0f
+        fC76FI3OduqoS3Ry0FEo4PqUOPefZFZ9TmpgGVDWO4YBgkEYir6rJ+6xNxthQtiPEJElcRYLOiP9M
+        6cb1a+7+zfr7ka80e3y5Kq0T61BOvOjj2CmAKT67XU/yoLB+yVbDejFF9juxGWKlBiueJdRnbs7+Y
+        NrNyhnUg5dhVV7X/r39DSYJbX1eUXpYTzO/b+E4GoygXLmoVKdfob2OIMIXL5h6n92Ij0dX17X8Uj
+        Q3t6yC0fG0aPWVtpLACnZLTkQvUGyaN1GhPsWkSH3ikqYXURiC8LFM8SWlfI7BHV7PgP+om1INFiM
+        P3EocsEBQ==;
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iX338-0001xF-OV
-        for stable@vger.kernel.org; Tue, 19 Nov 2019 12:56:06 +0000
+        id 1iX33C-0001zy-Es
+        for stable@vger.kernel.org; Tue, 19 Nov 2019 12:56:10 +0000
 Received: from willy by bombadil.infradead.org with local (Exim 4.92.3 #3 (Red Hat Linux))
-        id 1iQZzD-000829-UH; Fri, 01 Nov 2019 16:41:19 +0000
+        id 1iQdIB-0007EX-Hm; Fri, 01 Nov 2019 20:13:07 +0000
 From:   Matthew Wilcox <willy@infradead.org>
 To:     Jakub Jankowski <jjankowski@open-systems.com>
 Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>, stable@kernel.org,
         Mathias Hemsley <mhemsley@open-systems.com>,
         Ramon Schwammberger <rschwammberger@open-systems.com>,
         Brendan Gregg <bgregg@netflix.com>
-Subject: [PATCH 4.19] idr: Fix idr_get_next race with idr_remove
-Date:   Fri,  1 Nov 2019 09:41:05 -0700
-Message-Id: <20191101164105.30789-1-willy@infradead.org>
+Subject: [PATCH 4.14] idr: Fix idr_get_next race with idr_remove
+Date:   Fri,  1 Nov 2019 13:12:57 -0700
+Message-Id: <20191101201257.27753-1-willy@infradead.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <7e81dcaf18a7b5a41f8a79a8a6496935ea8f3e5d.camel@open-systems.com>
 References: <7e81dcaf18a7b5a41f8a79a8a6496935ea8f3e5d.camel@open-systems.com>
@@ -71,25 +71,23 @@ Reported-by: Brendan Gregg <bgregg@netflix.com>
 Tested-by: Brendan Gregg <bgregg@netflix.com>
 Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 ---
- lib/idr.c                           | 15 +++++++--
+ lib/idr.c                           | 20 +++++++++--
  tools/testing/radix-tree/idr-test.c | 52 +++++++++++++++++++++++++++++
- 2 files changed, 65 insertions(+), 2 deletions(-)
+ 2 files changed, 69 insertions(+), 3 deletions(-)
 
 diff --git a/lib/idr.c b/lib/idr.c
-index fab2fd5bc326..6747ba16cf7a 100644
+index edd9b2be1651..948ee5320921 100644
 --- a/lib/idr.c
 +++ b/lib/idr.c
-@@ -231,11 +231,22 @@ void *idr_get_next(struct idr *idr, int *nextid)
+@@ -111,13 +111,27 @@ void *idr_get_next(struct idr *idr, int *nextid)
  {
  	struct radix_tree_iter iter;
  	void __rcu **slot;
+-
+-	slot = radix_tree_iter_find(&idr->idr_rt, &iter, *nextid);
 +	void *entry = NULL;
- 	unsigned long base = idr->idr_base;
- 	unsigned long id = *nextid;
- 
- 	id = (id < base) ? 0 : id - base;
--	slot = radix_tree_iter_find(&idr->idr_rt, &iter, id);
-+	radix_tree_for_each_slot(slot, &idr->idr_rt, &iter, id) {
++
++	radix_tree_for_each_slot(slot, &idr->idr_rt, &iter, *nextid) {
 +		entry = radix_tree_deref_slot(slot);
 +		if (!entry)
 +			continue;
@@ -102,22 +100,22 @@ index fab2fd5bc326..6747ba16cf7a 100644
 +	}
  	if (!slot)
  		return NULL;
- 	id = iter.index + base;
-@@ -244,7 +255,7 @@ void *idr_get_next(struct idr *idr, int *nextid)
- 		return NULL;
  
- 	*nextid = id;
++	if (WARN_ON_ONCE(iter.index > INT_MAX))
++		return NULL;
++
+ 	*nextid = iter.index;
 -	return rcu_dereference_raw(*slot);
 +	return entry;
  }
  EXPORT_SYMBOL(idr_get_next);
  
 diff --git a/tools/testing/radix-tree/idr-test.c b/tools/testing/radix-tree/idr-test.c
-index 321ba92c70d2..235eef71f3d1 100644
+index 8e61aad0ca3f..07cec1b5a0d8 100644
 --- a/tools/testing/radix-tree/idr-test.c
 +++ b/tools/testing/radix-tree/idr-test.c
-@@ -227,6 +227,57 @@ void idr_u32_test(int base)
- 	idr_u32_test1(&idr, 0xffffffff);
+@@ -177,6 +177,57 @@ void idr_get_next_test(void)
+ 	idr_destroy(&idr);
  }
  
 +static inline void *idr_mk_value(unsigned long v)
@@ -174,14 +172,14 @@ index 321ba92c70d2..235eef71f3d1 100644
  void idr_checks(void)
  {
  	unsigned long i;
-@@ -307,6 +358,7 @@ void idr_checks(void)
- 	idr_u32_test(4);
- 	idr_u32_test(1);
- 	idr_u32_test(0);
+@@ -234,6 +285,7 @@ void idr_checks(void)
+ 	idr_null_test();
+ 	idr_nowait_test();
+ 	idr_get_next_test();
 +	idr_find_test();
  }
  
- #define module_init(x)
+ /*
 -- 
 2.24.0.rc1
 
