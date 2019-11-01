@@ -2,90 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77FADEC8D5
-	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 20:04:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C135FEC918
+	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 20:34:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727325AbfKATEj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Nov 2019 15:04:39 -0400
-Received: from mail-qt1-f194.google.com ([209.85.160.194]:41472 "EHLO
-        mail-qt1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726671AbfKATEi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Nov 2019 15:04:38 -0400
-Received: by mail-qt1-f194.google.com with SMTP id o3so14249220qtj.8
-        for <stable@vger.kernel.org>; Fri, 01 Nov 2019 12:04:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XhqExbZh5kPvj3K4NZnoOcF081VOsziHuz7IlqtxrcQ=;
-        b=pZeGw3P0RHdQki9K0gEObnP8OHglDuZpmvPq+OFKsU6xgeQL13BnAHlulP/AXJaNhH
-         ZwTok1P9GNkau5IjixzgvwHoRsMHZDO4mQHl58gONYUVmICu+ICmGAtlNEveE0COrV9y
-         /Xa/uFFqFErQaCPkaMjXEPyOF3xZXKviJzxY5RswiEk3RU1cFRsNAAq86vhLr+M4iejN
-         DUSzb9XHpmVLLc2pvB9NkEKqyofyX55556V+I2ArroDUo1pUEBLty4g6IEse0WyTjh8w
-         PDU5nOG+jTcNTKTvoqF9nxDfT1BF6OsABjs+f7dv3bSZ1ICuWpkn9uNUWSuindYPhE30
-         ehAw==
+        id S1727698AbfKATeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Nov 2019 15:34:03 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:44772 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727600AbfKATeD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 1 Nov 2019 15:34:03 -0400
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com [209.85.128.72])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 8F1C18553A
+        for <stable@vger.kernel.org>; Fri,  1 Nov 2019 19:34:03 +0000 (UTC)
+Received: by mail-wm1-f72.google.com with SMTP id f191so265664wme.1
+        for <stable@vger.kernel.org>; Fri, 01 Nov 2019 12:34:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XhqExbZh5kPvj3K4NZnoOcF081VOsziHuz7IlqtxrcQ=;
-        b=cJ30TJiuW2GfnS+C+LhW1JWI/s2370mH7PCHW9lgST0iSLkRTkRfRwsOu2h/Arn7bc
-         UmTf+4WL/P3rqPBFV50dK/bYyS/tIP/MJSBEVzJwZte3YFV48Kk5cMe6ONSi1XlDbiyn
-         IGtSo3TKh/drSof5gb2FAmzjJiuWTxHUDJCrsiuVKxDMZ27hxszLR3Q1zRUU198IrcpU
-         ZZ3eOnzaI1hIHsmnQBz9iJeIJ5mRtjxWrqM8dHJdOU5WplFIeX24vKIj7kDtLui71k3g
-         XRQZJ5TIAdtQadvKwF6ik8CP7m0Obc6zVLzdGhY/QZC5oIQNBBzRmwuoL/GOlxsKiUSK
-         xvcw==
-X-Gm-Message-State: APjAAAX3wDQ+3+FjC9Zorai8dRV0iQ8SKD4/L/GL8ZkSASfL2g8eTxeK
-        TIkR5MwZWQ3KiGQpK5XTjVQtvPkfabvstWpVG7wE5A==
-X-Google-Smtp-Source: APXvYqzaVfaVFf4/E1qtu06OCKxRakja8j6eb7eFWaPT90bJMEaqpKJybo0BQto3pfGWV02Havz8W/MP/51N1VZFBBk=
-X-Received: by 2002:a0c:c392:: with SMTP id o18mr11435117qvi.75.1572635077831;
- Fri, 01 Nov 2019 12:04:37 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=DDu4dZguSc1AuhYOU131Dph2BpOLdkpSLt78cfUXrP4=;
+        b=BWuVvjWgOBjC9zpelfSOGKeIxtgxY2eSaxM6EvWNseYkKSt9uY1Cnoi/i5hiCdFFfD
+         dgXoZRGQkvGMRapSqVJyHjUnvIiLvpdCA6axw2fX8jY51zLj6xZNHFBNCYPLF30WCfGU
+         v1ktovxspCtPFZIEipoOqsER5HEUXtBzMSHUF7pAcXtvnSUCbfVTpeH9u0EuFjfR3evn
+         npcZtTf23QK6SBoLajEknrXdKvis+CNPRrO+4JPA/qw2FRThs3Z/x0tODvyEXtJY/nGS
+         NyLK20qJ3k7bKIohzlhOArmSEHtIVCuPAwwIIf8Bcg9j+8K/ud4RErQfY9iOqVXuqYrU
+         IGiQ==
+X-Gm-Message-State: APjAAAUvxrh9XtWfducTIUYtfgUKlBHxJPsqRZe64oM3BfakCG6u4mx9
+        rvz4VnjJ42gKIC6yvRmbyBmQhSlSwnTTk3qnNHpdjQQoRS6rcmb0HQIGJum3EeQVPyEdS8DRMza
+        hr2J+AIklknzGsrbw
+X-Received: by 2002:a1c:3dc4:: with SMTP id k187mr11325439wma.167.1572636841902;
+        Fri, 01 Nov 2019 12:34:01 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqz0xUERtPHGhyf71lfOGgMY82PECMv5XY2AKvQnIIKeMbgOF3SlGefp223udCXQMXep6c44yw==
+X-Received: by 2002:a1c:3dc4:: with SMTP id k187mr11325432wma.167.1572636841676;
+        Fri, 01 Nov 2019 12:34:01 -0700 (PDT)
+Received: from redhat.com (94.222.26.109.rev.sfr.net. [109.26.222.94])
+        by smtp.gmail.com with ESMTPSA id 65sm12393239wrs.9.2019.11.01.12.33.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 01 Nov 2019 12:34:00 -0700 (PDT)
+Date:   Fri, 1 Nov 2019 15:33:57 -0400
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, jasowang@redhat.com, mst@redhat.com,
+        sgarzare@redhat.com, yong.liu@intel.com
+Subject: [PULL RESEND] virtio: fixes
+Message-ID: <20191028042900-1-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-References: <CAG=yYwmQHyp62qKDoiM091iXKs5iP8rNBLs9kc7Wi_PDCgMrbw@mail.gmail.com>
-In-Reply-To: <CAG=yYwmQHyp62qKDoiM091iXKs5iP8rNBLs9kc7Wi_PDCgMrbw@mail.gmail.com>
-From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
-Date:   Sat, 2 Nov 2019 00:34:01 +0530
-Message-ID: <CAG=yYwmYCLOktQxhsyjarybbR+aF2Z3RuXVj4hfE5wD_6nJjNA@mail.gmail.com>
-Subject: Re: PROBLEM: PCIe Bus Error atleast
-To:     ruscur@russell.cc, sbobroff@linux.ibm.com, oohall@gmail.com,
-        Bjorn Helgaas <bhelgaas@google.com>
-Cc:     linuxppc-dev@lists.ozlabs.org, linux-pci@vger.kernel.org,
-        lkml <linux-kernel@vger.kernel.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mutt-Fcc: =sent
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 2, 2019 at 12:15 AM Jeffrin Thalakkottoor
-<jeffrin@rajagiritech.edu.in> wrote:
+Could not figure out whether I sent this pull request or not. Sorry about
+the noise if I did.
 
-> But i think when i tried again today i could not reprodu....
-i do not know why, but now iam able to reproduce the error
+The following changes since commit 7d194c2100ad2a6dded545887d02754948ca5241:
 
-more details follows
----------------------x------x------------------------------------------
-GNU Make            4.2.1
-Binutils            2.33.1
-Util-linux          2.33.1
-Mount                2.33.1
-Linux C Library      2.29
-Dynamic linker (ldd) 2.29
-Procps              3.3.15
-Kbd                  2.0.4
-Console-tools        2.0.4
-Sh-utils            8.30
-Udev                241
-------------------------x-----------------x---------------------------
+  Linux 5.4-rc4 (2019-10-20 15:56:22 -0400)
 
-$gcc --version
-gcc (Debian 9.2.1-14) 9.2.1 20191025
-Copyright (C) 2019 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+are available in the Git repository at:
 
----------------------x----------x----------------------------------
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
--- 
-software engineer
-rajagiri school of engineering and technology
+for you to fetch changes up to b3683dee840274e9997d958b9d82e5de95950f0b:
+
+  vringh: fix copy direction of vringh_iov_push_kern() (2019-10-28 04:25:04 -0400)
+
+----------------------------------------------------------------
+virtio: fixes
+
+Some minor fixes
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Jason Wang (1):
+      vringh: fix copy direction of vringh_iov_push_kern()
+
+Marvin Liu (1):
+      virtio_ring: fix stalls for packed rings
+
+Stefano Garzarella (1):
+      vsock/virtio: remove unused 'work' field from 'struct virtio_vsock_pkt'
+
+ drivers/vhost/vringh.c       | 8 +++++++-
+ drivers/virtio/virtio_ring.c | 7 +++----
+ include/linux/virtio_vsock.h | 1 -
+ 3 files changed, 10 insertions(+), 6 deletions(-)
