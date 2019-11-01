@@ -2,78 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5EF4EC112
-	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 11:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A781EC118
+	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 11:09:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729545AbfKAKI4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Nov 2019 06:08:56 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46216 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1728048AbfKAKI4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 Nov 2019 06:08:56 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 08099B4CD;
-        Fri,  1 Nov 2019 10:08:55 +0000 (UTC)
-Date:   Fri, 1 Nov 2019 11:08:50 +0100
-From:   Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>
-To:     Valentin Schneider <valentin.schneider@arm.com>
-Cc:     linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
-        lizefan@huawei.com, tj@kernel.org, hannes@cmpxchg.org,
-        mingo@kernel.org, peterz@infradead.org, vincent.guittot@linaro.org,
-        Dietmar.Eggemann@arm.com, morten.rasmussen@arm.com,
-        qperret@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH v4 1/2] sched/topology: Don't try to build empty sched
- domains
-Message-ID: <20191101100850.GA16165@blackbody.suse.cz>
-References: <20191023153745.19515-1-valentin.schneider@arm.com>
- <20191023153745.19515-2-valentin.schneider@arm.com>
- <20191031162334.GA18570@blackbody.suse.cz>
- <3752bca9-a670-f415-4aaa-e8ff75ea6fcc@arm.com>
+        id S1729606AbfKAKJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Nov 2019 06:09:40 -0400
+Received: from smtp1.de.adit-jv.com ([93.241.18.167]:35982 "EHLO
+        smtp1.de.adit-jv.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729346AbfKAKJk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Nov 2019 06:09:40 -0400
+Received: from localhost (smtp1.de.adit-jv.com [127.0.0.1])
+        by smtp1.de.adit-jv.com (Postfix) with ESMTP id EE3073C0585;
+        Fri,  1 Nov 2019 11:09:36 +0100 (CET)
+Received: from smtp1.de.adit-jv.com ([127.0.0.1])
+        by localhost (smtp1.de.adit-jv.com [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id MhaYGHxy-4I0; Fri,  1 Nov 2019 11:09:31 +0100 (CET)
+Received: from HI2EXCH01.adit-jv.com (hi2exch01.adit-jv.com [10.72.92.24])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtp1.de.adit-jv.com (Postfix) with ESMTPS id A6A4A3C004C;
+        Fri,  1 Nov 2019 11:09:31 +0100 (CET)
+Received: from vmlxhi-102.adit-jv.com (10.72.93.184) by HI2EXCH01.adit-jv.com
+ (10.72.92.24) with Microsoft SMTP Server (TLS) id 14.3.468.0; Fri, 1 Nov 2019
+ 11:09:31 +0100
+Date:   Fri, 1 Nov 2019 11:09:28 +0100
+From:   Eugeniu Rosca <erosca@de.adit-jv.com>
+To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+CC:     "REE erosca@DE.ADIT-JV.COM" <erosca@DE.ADIT-JV.COM>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        "horms@verge.net.au" <horms@verge.net.au>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Andrew Gabbasov <andrew_gabbasov@mentor.com>,
+        Asano Yasushi <yasano@jp.adit-jv.com>,
+        Yohhei Fukui <yohhei.fukui@denso-ten.com>,
+        Eugeniu Rosca <roscaeugeniu@gmail.com>
+Subject: Re: [PATCH 2/2] PCI: rcar: Fix missing MACCTLR register setting in
+ initialize sequence
+Message-ID: <20191101100928.GA20839@vmlxhi-102.adit-jv.com>
+References: <1572434824-1850-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+ <1572434824-1850-3-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+ <20191030163431.GA882@vmlxhi-102.adit-jv.com>
+ <TYAPR01MB45442B94AAFF1F7E8FFB0CE6D8620@TYAPR01MB4544.jpnprd01.prod.outlook.com>
+ <TYAPR01MB4544C58FAB805796583B428AD8620@TYAPR01MB4544.jpnprd01.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Type: text/plain; charset="us-ascii"
 Content-Disposition: inline
-In-Reply-To: <3752bca9-a670-f415-4aaa-e8ff75ea6fcc@arm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <TYAPR01MB4544C58FAB805796583B428AD8620@TYAPR01MB4544.jpnprd01.prod.outlook.com>
+User-Agent: Mutt/1.12.1+40 (7f8642d4ee82) (2019-06-28)
+X-Originating-IP: [10.72.93.184]
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Shimoda-san,
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Nov 01, 2019 at 06:39:03AM +0000, Yoshihiro Shimoda wrote:
+> Hello again,
+> 
+> > From: Yoshihiro Shimoda, Sent: Friday, November 1, 2019 2:08 PM
+> <snip>
+> > Hello Eugeniu-san,
+> > 
+> > > From: Eugeniu Rosca, Sent: Thursday, October 31, 2019 1:35 AM
+> > <snip>
+> > > > diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
+> > > > index 40d8c54..d470ab8 100644
+> > > > --- a/drivers/pci/controller/pcie-rcar.c
+> > > > +++ b/drivers/pci/controller/pcie-rcar.c
+> > > > @@ -91,6 +91,7 @@
+> > > >  #define  LINK_SPEED_2_5GTS	(1 << 16)
+> > > >  #define  LINK_SPEED_5_0GTS	(2 << 16)
+> > > >  #define MACCTLR			0x011058
+> > > > +#define  MACCTLR_INIT_VAL	0x80ff0000
+> > >
+> > > Actually, I do believe there is an inconsistency in the manual,
+> > > since the following statements pretty much contradict one another:
+> > >
+> > > 1. (as quoted by Shimoda-san from "Initial Setting of PCI Express")
+> > >    > Be sure to write the initial value (= H'80FF 0000) to MACCTLR
+> > >    > before enabling PCIETCTLR.CFINIT.
+> > > 2. Description of SPCHG bit in "54.2.98 MAC Control Register (MACCTLR)"
+> > >    > Only writing 1 is valid and writing 0 is invalid.
+> > >
+> > > The last "invalid" sounds like "bad things can happen" aka "expect
+> > > undefined behaviors" when SPCHG is written "0".
+> > 
+> > I asked the hardware team about the "invalid" in the SPCHG bit and then
+> > this "invalid" means "ignored", not "prohibited". So, even if we write
+> > the SPCHG to 0, no bad things/undefined behaviors happen.
+> > 
+> > > While leaving the decision on the patch inclusion to the maintainers, I
+> > > hope, in the long run, Renesas can resolve the documentation conflict
+> > > with the HW team and the tech writers.
+> > 
+> > So, I don't think the documentation conflict exists about the MACCTLR register.
+> > But, what do you think?
+> 
+> JFYI, I have submitted v2 patch series which was described about the SPCHG:
+> https://patchwork.kernel.org/project/linux-renesas-soc/list/?series=196557
 
-On Thu, Oct 31, 2019 at 06:23:12PM +0100, Valentin Schneider <valentin.schn=
-eider@arm.com> wrote:
-> Do you reckon the following would work?=20
-LGTM (i.e. cpuset will be skipped if no CPUs taking part in load
-balancing remain in it after hot(un)plug event).
+Thanks for clarifying the exact meaning of the "invalid" wording in the
+description of the SPCHG bit so promptly and for stressing that in v2.
+Greatly appreciated from our side.
 
-Michal
-
---M9NhX3UHpAaciwkO
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEEoQaUCWq8F2Id1tNia1+riC5qSgFAl28BC0ACgkQia1+riC5
-qShiWQ//coKu7sUzL9S712rBkjJuuZTbEgiG4vayWNJkI6CiV4/kPvqoRqqHW6jx
-tqjaJc8WnvcGPzviRbO2MxxSolez/lV3YBsEG7yxAWEOqEl8KLTAiYXk//muLupK
-e95/iLA/abTMER+gTOLi4qqMsKBtnH433QTCP/c9jzxaQjlXlo/T5D9s0lDD0bEN
-+/wkfUdHyQyOB2+LZpufCjaPdQSKkjsa1o29J48VV5lBaIb86rX1AWmcz5woCULP
-R4b3sO2lvcUwalH/ri6n7soF8Vm/IivPawNqSwVbK84te6SKzqSfnHO75gCalCWW
-6W+kilNsX2A9pDPj3omTvC4LzCNkeeXW7UQyOYmEOikDhj5aVAUcJDeeuCPiUXMW
-/WeQD6dT8adPMBAJEnN/GwsPW2QLAy5jXtbVJBonOD6syF7oSGLONMVl8LDMA2Es
-PHpyRCKcvZGPmpjXA65ooE9ZV52732RHlGGqxnsgN6iXns6XRxD7H9M37NIIc+FK
-8c61qsrcMVZEtxBehdchoXe6vcvdmS8Ic4o8auQWzVJjoa1BYNJcWo7YYnMsdMW4
-cBbg9JlUeuIiCg8I016NtBUOwkRa656L/3OtroXD5Xqbq2/T9k0UVbVM2r16wLMD
-xDouMZUIBFUaPspkEqS1PQwgXGt8D/7dNtFP4iiVNHMDhhc1xO4=
-=bZv+
------END PGP SIGNATURE-----
-
---M9NhX3UHpAaciwkO--
+-- 
+Best Regards,
+Eugeniu
