@@ -2,83 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E22BBEBF1F
-	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 09:18:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CEABEBF49
+	for <lists+stable@lfdr.de>; Fri,  1 Nov 2019 09:39:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729975AbfKAISw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Nov 2019 04:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43434 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730034AbfKAISw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 1 Nov 2019 04:18:52 -0400
-Received: from localhost (unknown [91.217.168.176])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97A57208CB;
-        Fri,  1 Nov 2019 08:18:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572596331;
-        bh=asDV6Jv1udhmik0e8GZTrjcA/yFx7JhC9wDqE8hzT70=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=b3CsOsJdMkvq6qeN1p59MyBCxmyX0D0b/qMH6c5Pz9fzq6h4CcINli1OQkhDlsdh5
-         luTAwW+m0fpol3FT82WIKGB7WL+b8LUdvv7dbGuqMjZIPhAyZappaTj0zzQmoIZm8w
-         3JQFIyY0q5MG756MvxPTdnXrAz7FaPMbifegpqac=
-Date:   Fri, 1 Nov 2019 04:07:45 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Joe Perches <joe@perches.com>
-Cc:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Like Xu <like.xu@linux.intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 3.16 47/47] KVM: x86/vPMU: refine kvm_pmu err msg when
- event creation failed
-Message-ID: <20191101080745.GT1554@sasha-vm>
-References: <lsq.1572026582.631294584@decadent.org.uk>
- <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
- <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
- <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
+        id S1726636AbfKAIjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 1 Nov 2019 04:39:22 -0400
+Received: from sonic315-15.consmr.mail.bf2.yahoo.com ([74.6.134.125]:33506
+        "EHLO sonic315-15.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726532AbfKAIjW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 1 Nov 2019 04:39:22 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1572597560; bh=yspjrTSmVCHOgCQdguSo3B1Yi7JBdS5yhkJ9zTaBtgk=; h=Date:From:Reply-To:Subject:From:Subject; b=U/St1/rcUFeGGmcUQ/H4FGxvHSWsh1Rgu+PuAoFMp9v4ju2N01kIZ//Hgf/CkrNWSxchG7KHl9bJuqi+DjwSnv4f5hCzeK+3DAzu54+sYYB/IPTRSbR4KUtRDXXduGN3OPPb/wivghewnhA4iCvraub2WX4TJs5SdJBI4ekKPmUH7kPepPqpuq19wf8EvDPW+zIuVyVflvqaA9jMUddoAfZOgQN1sPGTYj/5YOZmROFXh2C2xJQ5/gtKb5eVMWya5GWFUZz4VNdBcGfHS4nYQXy1mpb8CEgiFjmPH1h3SGJeNjstp7lCPrF0a6P1DcjWRrhRK7yGj4IOWJ7XlR0FWQ==
+X-YMail-OSG: urm8xxUVM1mKux3yftcIixbOoQOyyZgAoYZZv4rL5X02zEv6ctAivQccxQDhZz.
+ o.sC1iA42fMrerSmdTZwVJ.UidW4rW3LPi4hUyKRblb8c0p2HT82NOWrC2RGk6ZYMOqvCN8Loiu9
+ JOJRF5hQp6Oq_2UMQcC1DGvA06XdlN.1BXhiGSlPA9RKAXANXlSRh9ZDGYbGfW2E_J0YzMmjCeaz
+ UzUq3QTvl9sTuAaPQF8wDSML9UEkDCeJ8Mw_YtLFlYUfKqOv3v0dIIxJwt1saE7mF4STnjOvpw4w
+ KHQLlEE98sfnxdKSeMtzCWTF_..46ggqLLPXDsfcCYR4lbu93F7ii2mvgubyXN4m3UQhXB1brMp8
+ o9GqTAoS4w7a_FeHL7bgv6pOXijBrirJimbfxN.K75K.LmwSxdiR0lVND7QY6E96KFpI5ZLdclU0
+ VKvnFDommfyz9x3o4VhoB91ALkViVUqPMqhtDi1zBpf5Ci9y58tvn9qx5q40PneaiYSpvZlnzOtr
+ y54NEYIL7YKzW5G4BCtD.ks.bulcbfGObWt2HLkT9Y.sepIV1Y9y8diwtCDhcX_onLEJ59_6MyxK
+ V899Q3GNWy3SH.K.DhhRU9QCLhtk98SN9_Z9DibuQtpiyZnTmb9jxXERBdILjOvY1sOH1BcsW2rv
+ eaPTPaIy3Sd77qudSiInp_sYho6CtD5vC.xvLUekKkVjyMAUW1rIin361Lxr4zDrCzvCOIMxthe.
+ WO.eepZH5N1s3BPAbgOhK9LI4MIj3LAj_Q1e5c_9mdUqbd8Mi88QpYUyxvYNTp6Z29Lhli1iPncV
+ AnCn0xQ2LUMoT6gYovuMpurOqQny3.z_S3Y5Bp3e3d4bQFFYXXxGbHy41qu3SWeYjCJAMdEYG0ap
+ jRy2QK4huKhiHq2v1xiHv9kCsyATanaW3jex8VneqBHNgkdfXW0grCf.zQYfCHyq0Tb.R3EexS2T
+ 5RruaXU18ajDhON6i2KDqmWF9VZPNYKGNnLezp6Q4aRt0w9Rk7hPw6Wj5npuNymKmfrAfj7L6qo.
+ cANTNOA6Z9cEBE_myR13hR2lqBvsqF1jHN7oqF11PcyJb44TuwWMXjaaB.4rUu5ZtNC_GW4wToy7
+ EX4wiiwsT.yIrMsKhOClmwQIi6Yc1xSEiogIWBky7UIylFOpfXiriZNPO0K4o66b1_k5Uy6N4abp
+ WfX4mSLQ9a7RHdQxT0vCeLmsUHkN6iNTFeXbETdcgBuoB2B4HC3rTGeoHwW1xTE_XJ17U2UoJ8oA
+ 2qGbAsqYRjiMK5MexW3Ap00_KZeaDMM2iVS0KiX4cEtxIrhjlXoI4CetBOATCMjTko16H8b0qQ0I
+ pRFqE_mM-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic315.consmr.mail.bf2.yahoo.com with HTTP; Fri, 1 Nov 2019 08:39:20 +0000
+Date:   Fri, 1 Nov 2019 08:39:19 +0000 (UTC)
+From:   Ruby Williams <rubywilliams266@gmail.com>
+Reply-To: rubywilliams266@gmail.com
+Message-ID: <1132432703.2712588.1572597559251@mail.yahoo.com>
+Subject: Greetings My Dear,
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 31, 2019 at 03:53:23PM -0700, Joe Perches wrote:
->On Thu, 2019-10-31 at 22:14 +0000, Ben Hutchings wrote:
->> On Fri, 2019-10-25 at 12:05 -0700, Joe Perches wrote:
->> > On Fri, 2019-10-25 at 19:03 +0100, Ben Hutchings wrote:
->> > > 3.16.76-rc1 review patch.  If anyone has any objections, please let me know.
->> >
->> > This seems more like an enhancement than a bug fix.
->> >
->> > Is this really the type of patch that is appropriate
->> > for stable?
->>
->> Apparently so:
->>
->> v4.14.135: eba797dbf352 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> v4.19.61: ba27a25df6df KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> v4.4.187: 505c011f9f53 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> v4.9.187: 3984eae04473 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> v5.1.20: edadec197fbf KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> v5.2.3: 9f062aef7356 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->
->I think not, but hey, maybe you and Greg do.
->
->Porting enhancements, even trivial ones, imo is
->not a great thing for stable branches.
->
->My perspective is that only bug fixes should be
->applied to stable branches.
+=C2=A0Greetings=C2=A0My=C2=A0Dear,
 
-Usability issues are just as bad as code bugs. Our human interface is at
-least as important as the functionality of our code.
+=C2=A0=C2=A0=C2=A0=C2=A0I=C2=A0sent=C2=A0this=C2=A0mail=C2=A0praying=C2=A0i=
+t=C2=A0will=C2=A0found=C2=A0you=C2=A0in=C2=A0a=C2=A0good=C2=A0condition=C2=
+=A0of=C2=A0health,=C2=A0since=C2=A0I=C2=A0myself=C2=A0are=C2=A0in=C2=A0a=C2=
+=A0very=C2=A0critical=C2=A0health=C2=A0condition=C2=A0in=C2=A0which=C2=A0I=
+=C2=A0=C2=A0sleep=C2=A0every=C2=A0night=C2=A0without=C2=A0knowing=C2=A0if=
+=C2=A0I=C2=A0may=C2=A0be=C2=A0alive=C2=A0to=C2=A0see=C2=A0the=C2=A0next=C2=
+=A0day.=C2=A0I=C2=A0am=C2=A0Mrs.=C2=A0Ruby=C2=A0Williams=C2=A0=C2=A0Johnson=
+=C2=A0a=C2=A0widow=C2=A0suffering=C2=A0from=C2=A0long=C2=A0time=C2=A0illnes=
+s.=C2=A0I=C2=A0have=C2=A0some=C2=A0funds=C2=A0I=C2=A0inherited=C2=A0from=C2=
+=A0my=C2=A0late=C2=A0husband,=C2=A0the=C2=A0sum=C2=A0of=C2=A0($=C2=A011,000=
+,000.00,=C2=A0Eleven=C2=A0Million=C2=A0Dollars)=C2=A0my=C2=A0Doctor=C2=A0to=
+ld=C2=A0me=C2=A0recently=C2=A0that=C2=A0I=C2=A0have=C2=A0serious=C2=A0sickn=
+ess=C2=A0which=C2=A0is=C2=A0cancer=C2=A0problem.=C2=A0What=C2=A0disturbs=C2=
+=A0me=C2=A0most=C2=A0is=C2=A0my=C2=A0stroke=C2=A0sickness.=C2=A0Having=C2=
+=A0known=C2=A0my=C2=A0condition,=C2=A0I=C2=A0decided=C2=A0to=C2=A0donate=C2=
+=A0this=C2=A0fund=C2=A0to=C2=A0a=C2=A0good=C2=A0person=C2=A0that=C2=A0will=
+=C2=A0utilize=C2=A0it=C2=A0the=C2=A0way=C2=A0i=C2=A0am=C2=A0going=C2=A0to=
+=C2=A0instruct=C2=A0herein.=C2=A0I=C2=A0need=C2=A0a=C2=A0very=C2=A0honest=
+=C2=A0and=C2=A0God=C2=A0fearing=C2=A0person=C2=A0who=C2=A0can=C2=A0claim=C2=
+=A0this=C2=A0money=C2=A0and=C2=A0use=C2=A0it=C2=A0for=C2=A0Charity=C2=A0wor=
+ks,=C2=A0for=C2=A0orphanages,=C2=A0widows=C2=A0and=C2=A0also=C2=A0build=C2=
+=A0schools=C2=A0for=C2=A0less=C2=A0privileges=C2=A0that=C2=A0will=C2=A0be=
+=C2=A0named=C2=A0after=C2=A0my=C2=A0late=C2=A0husband=C2=A0if=C2=A0possible=
+=C2=A0and=C2=A0to=C2=A0promote=C2=A0the=C2=A0word=C2=A0of=C2=A0God=C2=A0and=
+=C2=A0the=C2=A0effort=C2=A0that=C2=A0the=C2=A0house=C2=A0of=C2=A0God=C2=A0i=
+s=C2=A0maintained.
 
--- 
-Thanks,
-Sasha
+I=C2=A0do=C2=A0not=C2=A0want=C2=A0a=C2=A0situation=C2=A0where=C2=A0this=C2=
+=A0money=C2=A0will=C2=A0be=C2=A0used=C2=A0in=C2=A0an=C2=A0ungodly=C2=A0mann=
+er.=C2=A0That's=C2=A0why=C2=A0I'm=C2=A0taking=C2=A0this=C2=A0decision.=C2=
+=A0I'm=C2=A0not=C2=A0afraid=C2=A0of=C2=A0death=C2=A0so=C2=A0I=C2=A0know=C2=
+=A0where=C2=A0I'm=C2=A0going.=C2=A0I=C2=A0accept=C2=A0this=C2=A0decision=C2=
+=A0because=C2=A0I=C2=A0do=C2=A0not=C2=A0have=C2=A0any=C2=A0child=C2=A0who=
+=C2=A0will=C2=A0inherit=C2=A0this=C2=A0money=C2=A0after=C2=A0I=C2=A0die.=C2=
+=A0Please=C2=A0I=C2=A0want=C2=A0your=C2=A0sincerely=C2=A0and=C2=A0urgent=C2=
+=A0answer=C2=A0to=C2=A0know=C2=A0if=C2=A0you=C2=A0will=C2=A0be=C2=A0able=C2=
+=A0to=C2=A0execute=C2=A0this=C2=A0project,=C2=A0and=C2=A0I=C2=A0will=C2=A0g=
+ive=C2=A0you=C2=A0more=C2=A0information=C2=A0on=C2=A0how=C2=A0the=C2=A0fund=
+=C2=A0will=C2=A0be=C2=A0transferred=C2=A0to=C2=A0your=C2=A0bank=C2=A0accoun=
+t.=C2=A0I=C2=A0am=C2=A0waiting=C2=A0for=C2=A0your=C2=A0reply.
+
+May=C2=A0God=C2=A0Bless=C2=A0you,
+Mrs.=C2=A0Ruby=C2=A0Williams.
