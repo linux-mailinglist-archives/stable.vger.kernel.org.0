@@ -2,100 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B23FECDAA
-	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 08:39:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79670ECDBD
+	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 09:02:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726999AbfKBHjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Nov 2019 03:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48946 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726014AbfKBHjd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 2 Nov 2019 03:39:33 -0400
-Received: from localhost (smb-adpcdg1-02.hotspot.hub-one.net [213.174.99.130])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726080AbfKBIC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Nov 2019 04:02:27 -0400
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:48939 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726044AbfKBIC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Nov 2019 04:02:27 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572681746;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=TMCEdevrU7bRW4SpQI8SBdcaxtFmL8hYAWppn4dTBQk=;
+        b=Aa5icWr5qVNuA3JyIXwNa4NZeJ3yDilClfNG4zNmTrSqt3ylRRgHSBKYz4KYXex9ME40Hf
+        zh6fMmB/sWdPyI3AEIF7T5zuzzWG5cKOlZxwkFaoJ53phH7LFF+9aWdFfPJNUTWdolHVtg
+        q4fYEilEr13nQDz0BEm33Hr7+qarijA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-320-59gF5HU6MkCHvpqSePO3zQ-1; Sat, 02 Nov 2019 04:02:24 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2844B2085B;
-        Sat,  2 Nov 2019 07:39:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572680372;
-        bh=YEAQqDGj7v6sYWQ1kt+iZ4QoTk0LxJxXBQzcvHiakUg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wTwraJcZhlgLkIKU0xVKzoIGr3OTqmQx+Sooqe0c1+rspsrVG2ES4pZih8I87f3s9
-         dFBPufPHU8T24popkM3cGEZQ8AqtHhEBw57rBVWAR/ygXyOg3knxX6P+2SGve0kICT
-         ILmciY53u/rmf1HUQvDKyzKaNOSvXWOdV8zgqnrc=
-Date:   Sat, 2 Nov 2019 03:39:30 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Joe Perches <joe@perches.com>
-Cc:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        Like Xu <like.xu@linux.intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 3.16 47/47] KVM: x86/vPMU: refine kvm_pmu err msg when
- event creation failed
-Message-ID: <20191102073930.GZ1554@sasha-vm>
-References: <lsq.1572026582.631294584@decadent.org.uk>
- <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
- <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
- <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
- <20191101080745.GT1554@sasha-vm>
- <bb87f5753b949dee813f226c8317148f6cf5644f.camel@perches.com>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 70AFD107ACC0;
+        Sat,  2 Nov 2019 08:02:23 +0000 (UTC)
+Received: from localhost (ovpn-8-18.pek2.redhat.com [10.72.8.18])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 09B0B5D6D8;
+        Sat,  2 Nov 2019 08:02:19 +0000 (UTC)
+From:   Ming Lei <ming.lei@redhat.com>
+To:     Jens Axboe <axboe@kernel.dk>
+Cc:     linux-block@vger.kernel.org, Ming Lei <ming.lei@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] blk-mq: avoid sysfs buffer overflow by too many CPU cores
+Date:   Sat,  2 Nov 2019 16:02:15 +0800
+Message-Id: <20191102080215.20223-1-ming.lei@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <bb87f5753b949dee813f226c8317148f6cf5644f.camel@perches.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-MC-Unique: 59gF5HU6MkCHvpqSePO3zQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 01, 2019 at 08:40:23AM -0700, Joe Perches wrote:
->On Fri, 2019-11-01 at 04:07 -0400, Sasha Levin wrote:
->> On Thu, Oct 31, 2019 at 03:53:23PM -0700, Joe Perches wrote:
->> > On Thu, 2019-10-31 at 22:14 +0000, Ben Hutchings wrote:
->> > > On Fri, 2019-10-25 at 12:05 -0700, Joe Perches wrote:
->> > > > On Fri, 2019-10-25 at 19:03 +0100, Ben Hutchings wrote:
->> > > > > 3.16.76-rc1 review patch.  If anyone has any objections, please let me know.
->> > > >
->> > > > This seems more like an enhancement than a bug fix.
->> > > >
->> > > > Is this really the type of patch that is appropriate
->> > > > for stable?
->> > >
->> > > Apparently so:
->> > >
->> > > v4.14.135: eba797dbf352 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> > > v4.19.61: ba27a25df6df KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> > > v4.4.187: 505c011f9f53 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> > > v4.9.187: 3984eae04473 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> > > v5.1.20: edadec197fbf KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> > > v5.2.3: 9f062aef7356 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
->> >
->> > I think not, but hey, maybe you and Greg do.
->> >
->> > Porting enhancements, even trivial ones, imo is
->> > not a great thing for stable branches.
->> >
->> > My perspective is that only bug fixes should be
->> > applied to stable branches.
->>
->> Usability issues are just as bad as code bugs. Our human interface is at
->> least as important as the functionality of our code.
->
->Umm.
->
->#define DEBUG is not set here.
->
->Changing from printk_once to pr_debug_ratelimited completely
->eliminates the output from non CONFIG_DYNAMIC_DEBUG configs,
->and this output message is not enabled by default either.
+It is reported that sysfs buffer overflow can be triggered in case
+of too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
+hctx via /sys/block/$DEV/mq/$N/cpu_list.
 
-Maybe I'm missing something, but Paolo explained why: it was a useless
-debug feature because it used to print once early on but not when it's
-actually needed. Now it's actually useful for users who want to debug
-but it won't flood regular users who are not inteterested in it.
+So use snprintf for avoiding the potential buffer overflow.
 
--- 
-Thanks,
-Sasha
+This version doesn't change the attribute format, and simply stop
+to show CPU number if the buffer is to be overflow.
+
+Cc: stable@vger.kernel.org
+Fixes: 676141e48af7("blk-mq: don't dump CPU -> hw queue map on driver load"=
+)
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+---
+ block/blk-mq-sysfs.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
+index a0d3ce30fa08..68996ef1d339 100644
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -166,20 +166,25 @@ static ssize_t blk_mq_hw_sysfs_nr_reserved_tags_show(=
+struct blk_mq_hw_ctx *hctx,
+=20
+ static ssize_t blk_mq_hw_sysfs_cpus_show(struct blk_mq_hw_ctx *hctx, char =
+*page)
+ {
++=09const size_t size =3D PAGE_SIZE - 1;
+ =09unsigned int i, first =3D 1;
+-=09ssize_t ret =3D 0;
++=09int ret =3D 0, pos =3D 0;
+=20
+ =09for_each_cpu(i, hctx->cpumask) {
+ =09=09if (first)
+-=09=09=09ret +=3D sprintf(ret + page, "%u", i);
++=09=09=09ret =3D snprintf(pos + page, size - pos, "%u", i);
+ =09=09else
+-=09=09=09ret +=3D sprintf(ret + page, ", %u", i);
++=09=09=09ret =3D snprintf(pos + page, size - pos, ", %u", i);
++
++=09=09if (ret >=3D size - pos)
++=09=09=09break;
+=20
+ =09=09first =3D 0;
++=09=09pos +=3D ret;
+ =09}
+=20
+-=09ret +=3D sprintf(ret + page, "\n");
+-=09return ret;
++=09ret =3D snprintf(pos + page, size - pos, "\n");
++=09return pos + ret;
+ }
+=20
+ static struct blk_mq_hw_ctx_sysfs_entry blk_mq_hw_sysfs_nr_tags =3D {
+--=20
+2.20.1
+
