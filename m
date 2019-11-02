@@ -2,107 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF46ECF62
-	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 16:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD9CED00A
+	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 18:52:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726454AbfKBPJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Nov 2019 11:09:28 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:48759 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726440AbfKBPJ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Nov 2019 11:09:28 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5888520E72;
-        Sat,  2 Nov 2019 11:09:27 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sat, 02 Nov 2019 11:09:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm3; bh=7n7hiJWEp4TyIgvBs6OOKhwxBc
-        f2hgKRHro7PFOOqSY=; b=tXe7s5auRgp0ztPbhMhJfqptTv0XMk74PJKcK7p9Xk
-        pfTz6ehFQmNx3/R/VW/thx8KxXvjqoGUrE4DrDpDKpymdKkU6TZqGKlG00SuVVM8
-        xHfFucfIq8eUMM3RzHm7xL35MAJyN3xrgfZSgz9VLy8eDxITTURwjB9OvkzxSyaD
-        aGjPQgb9b4BZ3vavlhZ/aeyaqkB8aCS06ONUCfMGhlBNzc25OD7wGhvC2+XDnBp1
-        FEIqnw+4d+5JY3oO09EXHCb3R+BoemeXp4rQZtjkTYcsi3I5qNfL95EgYoUXlhm+
-        mKHFTnfPeRZWf65tJU94YKUZEv+hXTcDZ6ZhJPThxULA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7n7hiJWEp4TyIgvBs
-        6OOKhwxBcf2hgKRHro7PFOOqSY=; b=EGd0lhVMxTLUno3kE8OshF3/Q1n3a3G+f
-        zUU3gyCY6UTIwUs//lMV8LAnOcrcFZmMe9KSM3sIG4QfIvV74+zvDq3QlmoAsffY
-        ZHxaXUlS11CRSk3V/X4EfXhIHgvj6HHhFVhgp58w+h4MzYSTFUJ//pZraMDGsxrY
-        1EQxOTCmLVlfhRm395AvxzNbiHVqIZWj33iXXgPNxsy9QPqd+BcWG4PtUX4O+WDq
-        KDwQ9FQnhxfmDdSp3SdGFiWAz8i9dyEkjixalcbpdmSvkhbSdpy+5Sn5Mu4SfN0f
-        DP9l7aRu3x+UExGpj1ciokuFOx2+NtCZmNEMx0sH6UaOaVe3PRZXQ==
-X-ME-Sender: <xms:JZy9XXYkN7ppLVWK0EUapWGDjf6Zgb1_iJqQQcjku7M4YkvtPvLqAw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddtledgjedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
-    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
-    ihesshgrkhgrmhhotggthhhirdhjpheqnecukfhppedugedrfedrjeehrddukedunecurf
-    grrhgrmhepmhgrihhlfhhrohhmpehoqdhtrghkrghshhhisehsrghkrghmohgttghhihdr
-    jhhpnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:JZy9XZna4cJTW_e0iHDa0DfRUDj6U_XZlbzddYTPP0qFUo3-_JSQDw>
-    <xmx:JZy9XWGl9ZLU3Nc6VC8Ix2mKbZ4cRLCdwdzMqDqDmpdF8sTAB8VGCw>
-    <xmx:JZy9XYGUYFu3qv35AJKvTSi1biqfuGMQ1cndy2ZeKsgQpYtKZWUWeQ>
-    <xmx:J5y9XcGXdPelxvCHQxNqJyH8rNlEacthj-BUmIJ1x6LJF9qPrkw-GA>
-Received: from workstation.flets-east.jp (ae075181.dynamic.ppp.asahi-net.or.jp [14.3.75.181])
-        by mail.messagingengine.com (Postfix) with ESMTPA id F072180059;
-        Sat,  2 Nov 2019 11:09:23 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     clemens@ladisch.de, tiwai@suse.de
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: [PATCH] ALSA: bebob: fix to detect configured source of sampling clock for Focusrite Saffire Pro i/o series
-Date:   Sun,  3 Nov 2019 00:09:20 +0900
-Message-Id: <20191102150920.20367-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.20.1
+        id S1726554AbfKBRwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Nov 2019 13:52:51 -0400
+Received: from mga09.intel.com ([134.134.136.24]:30955 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726523AbfKBRwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 2 Nov 2019 13:52:51 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 02 Nov 2019 10:52:50 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,260,1569308400"; 
+   d="scan'208";a="195020575"
+Received: from nsalant-vm.ger.corp.intel.com ([10.252.27.128])
+  by orsmga008.jf.intel.com with ESMTP; 02 Nov 2019 10:52:49 -0700
+Message-ID: <c93083f278d810e1bebab40dcb1990e9285ee1f4.camel@intel.com>
+Subject: Re: Please backport 12e36d98d3e for 5.1+: iwlwifi: exclude GEO SAR
+ support for 3168
+From:   Luciano Coelho <luciano.coelho@intel.com>
+To:     Thomas Deutschmann <whissi@gentoo.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Date:   Sat, 02 Nov 2019 19:52:48 +0200
+In-Reply-To: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
+References: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.34.1-2+b1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For Focusrite Saffire Pro i/o, the lowest 8 bits of register represents
-configured source of sampling clock. The next lowest 8 bits represents
-whether the configured source is actually detected or not just after
-the register is changed for the source.
+Hi Thomas,
 
-Current implementation evaluates whole the register to detect configured
-source. This results in failure due to the next lowest 8 bits when the
-source is connected in advance.
+On Sat, 2019-11-02 at 15:36 +0100, Thomas Deutschmann wrote:
+> Hi,
+> 
+> please backport
+> 
+> <<<<snip
+> From 12e36d98d3e5acf5fc57774e0a15906d55f30cb9 Mon Sep 17 00:00:00 2001
+> From: Luca Coelho <luciano.coelho@intel.com>
+> Date: Tue, 8 Oct 2019 13:10:53 +0300
+> Subject: iwlwifi: exclude GEO SAR support for 3168
+> 
+> We currently support two NICs in FW version 29, namely 7265D and 3168.
+> Out of these, only 7265D supports GEO SAR, so adjust the function that
+> checks for it accordingly.
+> 
+> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+> Fixes: f5a47fae6aa3 ("iwlwifi: mvm: fix version check for
+> GEO_TX_POWER_LIMIT support")
+> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+> snap>>>
+> 
+> This was the first patch of a 2 patch patch series. The second patch,
+> aa0cc7dde17 ("iwlwifi: pcie: change qu with jf devices to use qu
+> configuration") had "Cc: stable@vger.kernel.org # 5.1+" and was added.
+> The first one was missed.
 
-This commit fixes the bug.
+I sent this earlier for stable v5.1, but it's EOL already, so it won't
+be merged there anymore.
 
-Fixes: 25784ec2d034 ("ALSA: bebob: Add support for Focusrite Saffire/SaffirePro series")
-Cc: <stable@vger.kernel.org> # v3.16+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/bebob/bebob_focusrite.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/sound/firewire/bebob/bebob_focusrite.c b/sound/firewire/bebob/bebob_focusrite.c
-index 32b864bee25f..06d6a37cd853 100644
---- a/sound/firewire/bebob/bebob_focusrite.c
-+++ b/sound/firewire/bebob/bebob_focusrite.c
-@@ -27,6 +27,8 @@
- #define SAFFIRE_CLOCK_SOURCE_SPDIF		1
- 
- /* clock sources as returned from register of Saffire Pro 10 and 26 */
-+#define SAFFIREPRO_CLOCK_SOURCE_SELECT_MASK	0x000000ff
-+#define SAFFIREPRO_CLOCK_SOURCE_DETECT_MASK	0x0000ff00
- #define SAFFIREPRO_CLOCK_SOURCE_INTERNAL	0
- #define SAFFIREPRO_CLOCK_SOURCE_SKIP		1 /* never used on hardware */
- #define SAFFIREPRO_CLOCK_SOURCE_SPDIF		2
-@@ -189,6 +191,7 @@ saffirepro_both_clk_src_get(struct snd_bebob *bebob, unsigned int *id)
- 		map = saffirepro_clk_maps[1];
- 
- 	/* In a case that this driver cannot handle the value of register. */
-+	value &= SAFFIREPRO_CLOCK_SOURCE_SELECT_MASK;
- 	if (value >= SAFFIREPRO_CLOCK_SOURCE_COUNT || map[value] < 0) {
- 		err = -EIO;
- 		goto end;
--- 
-2.20.1
+--
+Cheers,
+Luca.
 
