@@ -2,183 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7048ECCBB
-	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 02:17:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B23FECDAA
+	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 08:39:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726932AbfKBBRs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 1 Nov 2019 21:17:48 -0400
-Received: from kvm5.telegraphics.com.au ([98.124.60.144]:51712 "EHLO
-        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726947AbfKBBRs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 1 Nov 2019 21:17:48 -0400
-Received: by kvm5.telegraphics.com.au (Postfix, from userid 502)
-        id BEE062A25D; Fri,  1 Nov 2019 21:12:15 -0400 (EDT)
-To:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     "Michael Schmitz" <schmitzmic@gmail.com>,
-        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Message-Id: <4567bcae94523b47d6f3b77450ba305823bca479.1572656814.git.fthain@telegraphics.com.au>
-In-Reply-To: <cover.1572656814.git.fthain@telegraphics.com.au>
-References: <cover.1572656814.git.fthain@telegraphics.com.au>
-From:   Finn Thain <fthain@telegraphics.com.au>
-Subject: [PATCH 1/2] atari_scsi, sun3_scsi: Set sg_tablesize to 1 instead of
- SG_NONE
-Date:   Sat, 02 Nov 2019 12:06:54 +1100
+        id S1726999AbfKBHjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Nov 2019 03:39:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48946 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726014AbfKBHjd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 2 Nov 2019 03:39:33 -0400
+Received: from localhost (smb-adpcdg1-02.hotspot.hub-one.net [213.174.99.130])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2844B2085B;
+        Sat,  2 Nov 2019 07:39:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572680372;
+        bh=YEAQqDGj7v6sYWQ1kt+iZ4QoTk0LxJxXBQzcvHiakUg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wTwraJcZhlgLkIKU0xVKzoIGr3OTqmQx+Sooqe0c1+rspsrVG2ES4pZih8I87f3s9
+         dFBPufPHU8T24popkM3cGEZQ8AqtHhEBw57rBVWAR/ygXyOg3knxX6P+2SGve0kICT
+         ILmciY53u/rmf1HUQvDKyzKaNOSvXWOdV8zgqnrc=
+Date:   Sat, 2 Nov 2019 03:39:30 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Joe Perches <joe@perches.com>
+Cc:     Ben Hutchings <ben@decadent.org.uk>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
+        akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
+        Like Xu <like.xu@linux.intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 3.16 47/47] KVM: x86/vPMU: refine kvm_pmu err msg when
+ event creation failed
+Message-ID: <20191102073930.GZ1554@sasha-vm>
+References: <lsq.1572026582.631294584@decadent.org.uk>
+ <220d8f2c1b299d2e71fdcf50b98286aae5b0c6f2.camel@perches.com>
+ <05be6a70382f1990a2ba6aba9ac75dac0c55f7fb.camel@decadent.org.uk>
+ <3078d0a186cca2dfae741908ffff41f1bdb30eae.camel@perches.com>
+ <20191101080745.GT1554@sasha-vm>
+ <bb87f5753b949dee813f226c8317148f6cf5644f.camel@perches.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <bb87f5753b949dee813f226c8317148f6cf5644f.camel@perches.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the scsi subsystem adopted the blk-mq API, a host with zero
-sg_tablesize crashes with a NULL pointer dereference.
+On Fri, Nov 01, 2019 at 08:40:23AM -0700, Joe Perches wrote:
+>On Fri, 2019-11-01 at 04:07 -0400, Sasha Levin wrote:
+>> On Thu, Oct 31, 2019 at 03:53:23PM -0700, Joe Perches wrote:
+>> > On Thu, 2019-10-31 at 22:14 +0000, Ben Hutchings wrote:
+>> > > On Fri, 2019-10-25 at 12:05 -0700, Joe Perches wrote:
+>> > > > On Fri, 2019-10-25 at 19:03 +0100, Ben Hutchings wrote:
+>> > > > > 3.16.76-rc1 review patch.  If anyone has any objections, please let me know.
+>> > > >
+>> > > > This seems more like an enhancement than a bug fix.
+>> > > >
+>> > > > Is this really the type of patch that is appropriate
+>> > > > for stable?
+>> > >
+>> > > Apparently so:
+>> > >
+>> > > v4.14.135: eba797dbf352 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> > > v4.19.61: ba27a25df6df KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> > > v4.4.187: 505c011f9f53 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> > > v4.9.187: 3984eae04473 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> > > v5.1.20: edadec197fbf KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> > > v5.2.3: 9f062aef7356 KVM: x86/vPMU: refine kvm_pmu err msg when event creation failed
+>> >
+>> > I think not, but hey, maybe you and Greg do.
+>> >
+>> > Porting enhancements, even trivial ones, imo is
+>> > not a great thing for stable branches.
+>> >
+>> > My perspective is that only bug fixes should be
+>> > applied to stable branches.
+>>
+>> Usability issues are just as bad as code bugs. Our human interface is at
+>> least as important as the functionality of our code.
+>
+>Umm.
+>
+>#define DEBUG is not set here.
+>
+>Changing from printk_once to pr_debug_ratelimited completely
+>eliminates the output from non CONFIG_DYNAMIC_DEBUG configs,
+>and this output message is not enabled by default either.
 
-blk_queue_max_segments: set to minimum 1
-scsi 0:0:0:0: Direct-Access     QEMU     QEMU HARDDISK    2.5+ PQ: 0 ANSI: 5
-scsi target0:0:0: Beginning Domain Validation
-scsi target0:0:0: Domain Validation skipping write tests
-scsi target0:0:0: Ending Domain Validation
-blk_queue_max_segments: set to minimum 1
-scsi 0:0:1:0: Direct-Access     QEMU     QEMU HARDDISK    2.5+ PQ: 0 ANSI: 5
-scsi target0:0:1: Beginning Domain Validation
-scsi target0:0:1: Domain Validation skipping write tests
-scsi target0:0:1: Ending Domain Validation
-blk_queue_max_segments: set to minimum 1
-scsi 0:0:2:0: CD-ROM            QEMU     QEMU CD-ROM      2.5+ PQ: 0 ANSI: 5
-scsi target0:0:2: Beginning Domain Validation
-scsi target0:0:2: Domain Validation skipping write tests
-scsi target0:0:2: Ending Domain Validation
-blk_queue_max_segments: set to minimum 1
-blk_queue_max_segments: set to minimum 1
-blk_queue_max_segments: set to minimum 1
-blk_queue_max_segments: set to minimum 1
-sr 0:0:2:0: Power-on or device reset occurred
-sd 0:0:0:0: Power-on or device reset occurred
-sd 0:0:1:0: Power-on or device reset occurred
-sd 0:0:0:0: [sda] 10485762 512-byte logical blocks: (5.37 GB/5.00 GiB)
-sd 0:0:0:0: [sda] Write Protect is off
-sd 0:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
-Unable to handle kernel NULL pointer dereference at virtual address (ptrval)
-Oops: 00000000
-Modules linked in:
-PC: [<001cd874>] blk_mq_free_request+0x66/0xe2
-SR: 2004  SP: (ptrval)  a2: 00874520
-d0: 00000000    d1: 00000000    d2: 009ba800    d3: 00000000
-d4: 00000000    d5: 08000002    a0: 0087be68    a1: 009a81e0
-Process kworker/u2:2 (pid: 15, task=(ptrval))
-Frame format=7 eff addr=0000007a ssw=0505 faddr=0000007a
-wb 1 stat/addr/data: 0000 00000000 00000000
-wb 2 stat/addr/data: 0000 00000000 00000000
-wb 3 stat/addr/data: 0000 0000007a 00000000
-push data: 00000000 00000000 00000000 00000000
-Stack from 0087bd98:
-        00000002 00000000 0087be72 009a7820 0087bdb4 001c4f6c 009a7820 0087bdd4
-        0024d200 009a7820 0024d0dc 0087be72 009baa00 0087be68 009a5000 0087be7c
-        00265d10 009a5000 0087be72 00000003 00000000 00000000 00000000 0087be68
-        00000bb8 00000005 00000000 00000000 00000000 00000000 00265c56 00000000
-        009ba60c 0036ddf4 00000002 ffffffff 009baa00 009ba600 009a50d6 0087be74
-        00227ba0 009baa08 00000001 009baa08 009ba60c 0036ddf4 00000000 00000000
-Call Trace: [<001c4f6c>] blk_put_request+0xe/0x14
- [<0024d200>] __scsi_execute+0x124/0x174
- [<0024d0dc>] __scsi_execute+0x0/0x174
- [<00265d10>] sd_revalidate_disk+0xba/0x1f02
- [<00265c56>] sd_revalidate_disk+0x0/0x1f02
- [<0036ddf4>] strlen+0x0/0x22
- [<00227ba0>] device_add+0x3da/0x604
- [<0036ddf4>] strlen+0x0/0x22
- [<00267e64>] sd_probe+0x30c/0x4b4
- [<0002da44>] process_one_work+0x0/0x402
- [<0022b978>] really_probe+0x226/0x354
- [<0022bc34>] driver_probe_device+0xa4/0xf0
- [<0002da44>] process_one_work+0x0/0x402
- [<0022bcd0>] __driver_attach_async_helper+0x50/0x70
- [<00035dae>] async_run_entry_fn+0x36/0x130
- [<0002db88>] process_one_work+0x144/0x402
- [<0002e1aa>] worker_thread+0x0/0x570
- [<0002e29a>] worker_thread+0xf0/0x570
- [<0002e1aa>] worker_thread+0x0/0x570
- [<003768d8>] schedule+0x0/0xb8
- [<0003f58c>] __init_waitqueue_head+0x0/0x12
- [<00033e92>] kthread+0xc2/0xf6
- [<000331e8>] kthread_parkme+0x0/0x4e
- [<003768d8>] schedule+0x0/0xb8
- [<00033dd0>] kthread+0x0/0xf6
- [<00002c10>] ret_from_kernel_thread+0xc/0x14
-Code: 0280 0006 0800 56c0 4400 0280 0000 00ff <52b4> 0c3a 082b 0006 0013 6706 2042 53a8 00c4 4ab9 0047 3374 6640 202d 000c 670c
-Disabling lock debugging due to kernel taint
+Maybe I'm missing something, but Paolo explained why: it was a useless
+debug feature because it used to print once early on but not when it's
+actually needed. Now it's actually useful for users who want to debug
+but it won't flood regular users who are not inteterested in it.
 
-Avoid this by setting sg_tablesize = 1.
-
-Cc: stable@vger.kernel.org # 4.19+
-Reported-and-tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Michael Schmitz <schmitzmic@gmail.com>
-References: commit 68ab2d76e4be ("scsi: cxlflash: Set sg_tablesize to 1 instead of SG_NONE")
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
----
- drivers/scsi/atari_scsi.c | 6 +++---
- drivers/scsi/mac_scsi.c   | 2 +-
- drivers/scsi/sun3_scsi.c  | 4 ++--
- 3 files changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/scsi/atari_scsi.c b/drivers/scsi/atari_scsi.c
-index e809493d0d06..a82b63a66635 100644
---- a/drivers/scsi/atari_scsi.c
-+++ b/drivers/scsi/atari_scsi.c
-@@ -742,7 +742,7 @@ static int __init atari_scsi_probe(struct platform_device *pdev)
- 		atari_scsi_template.sg_tablesize = SG_ALL;
- 	} else {
- 		atari_scsi_template.can_queue    = 1;
--		atari_scsi_template.sg_tablesize = SG_NONE;
-+		atari_scsi_template.sg_tablesize = 1;
- 	}
- 
- 	if (setup_can_queue > 0)
-@@ -751,8 +751,8 @@ static int __init atari_scsi_probe(struct platform_device *pdev)
- 	if (setup_cmd_per_lun > 0)
- 		atari_scsi_template.cmd_per_lun = setup_cmd_per_lun;
- 
--	/* Leave sg_tablesize at 0 on a Falcon! */
--	if (ATARIHW_PRESENT(TT_SCSI) && setup_sg_tablesize >= 0)
-+	/* Don't increase sg_tablesize on Falcon! */
-+	if (ATARIHW_PRESENT(TT_SCSI) && setup_sg_tablesize > 0)
- 		atari_scsi_template.sg_tablesize = setup_sg_tablesize;
- 
- 	if (setup_hostid >= 0) {
-diff --git a/drivers/scsi/mac_scsi.c b/drivers/scsi/mac_scsi.c
-index 9c5566217ef6..b5dde9d0d054 100644
---- a/drivers/scsi/mac_scsi.c
-+++ b/drivers/scsi/mac_scsi.c
-@@ -464,7 +464,7 @@ static int __init mac_scsi_probe(struct platform_device *pdev)
- 		mac_scsi_template.can_queue = setup_can_queue;
- 	if (setup_cmd_per_lun > 0)
- 		mac_scsi_template.cmd_per_lun = setup_cmd_per_lun;
--	if (setup_sg_tablesize >= 0)
-+	if (setup_sg_tablesize > 0)
- 		mac_scsi_template.sg_tablesize = setup_sg_tablesize;
- 	if (setup_hostid >= 0)
- 		mac_scsi_template.this_id = setup_hostid & 7;
-diff --git a/drivers/scsi/sun3_scsi.c b/drivers/scsi/sun3_scsi.c
-index 955e4c938d49..701b842296f0 100644
---- a/drivers/scsi/sun3_scsi.c
-+++ b/drivers/scsi/sun3_scsi.c
-@@ -501,7 +501,7 @@ static struct scsi_host_template sun3_scsi_template = {
- 	.eh_host_reset_handler	= sun3scsi_host_reset,
- 	.can_queue		= 16,
- 	.this_id		= 7,
--	.sg_tablesize		= SG_NONE,
-+	.sg_tablesize		= 1,
- 	.cmd_per_lun		= 2,
- 	.dma_boundary		= PAGE_SIZE - 1,
- 	.cmd_size		= NCR5380_CMD_SIZE,
-@@ -523,7 +523,7 @@ static int __init sun3_scsi_probe(struct platform_device *pdev)
- 		sun3_scsi_template.can_queue = setup_can_queue;
- 	if (setup_cmd_per_lun > 0)
- 		sun3_scsi_template.cmd_per_lun = setup_cmd_per_lun;
--	if (setup_sg_tablesize >= 0)
-+	if (setup_sg_tablesize > 0)
- 		sun3_scsi_template.sg_tablesize = setup_sg_tablesize;
- 	if (setup_hostid >= 0)
- 		sun3_scsi_template.this_id = setup_hostid & 7;
 -- 
-2.23.0
-
+Thanks,
+Sasha
