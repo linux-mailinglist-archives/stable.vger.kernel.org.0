@@ -2,61 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A077ECF11
-	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 15:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 851FFECF2B
+	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 15:36:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726554AbfKBOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Nov 2019 10:03:59 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:46703 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726454AbfKBOD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Nov 2019 10:03:59 -0400
-Received: by mail-pg1-f193.google.com with SMTP id f19so8214472pgn.13
-        for <stable@vger.kernel.org>; Sat, 02 Nov 2019 07:03:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=cIqRCDelQ2QzV3ADiNrggvNsE7uK4SPsRu91QQliWOM=;
-        b=m6LW3TEsSigobj/S/Uuy6wHLViVXGdoGFXMWyLaGj0NH+ujv0Ybt+rbgh51DMpHi6y
-         lD1z1FRy7fXhTLx7dN225D0z0pUV3tdr9z36Yqfu/81U2zEhFRDzYWhapjzrp5TnZgm0
-         7azXh9RhlCHlD4Q5VrNNB0cCiSrFYeKInvIdyIlze5/1RTWbavObzMnbLFj2lE8EmdQh
-         Hr20d3llTHHbAttzTasScpYQTxOLVKVtI3A0Hb6R+yHhpQGQ4a3vGXj3lio0qV6E8wMB
-         BXjgV/cPuKDjBC86VFPV1nYyoHprUEmWAlssZOr9FWNkzGH0IjL80Zw8Efn5vX/Qh++y
-         npFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=cIqRCDelQ2QzV3ADiNrggvNsE7uK4SPsRu91QQliWOM=;
-        b=Dgg5Zs0oZtdW8JBUM5WdhPCJGwkgvfDsoAxX1pJNJ/U3J1nwBR3yGJVj+tbmfsw/IP
-         B6Kuy+pWXPYXmAS74OTy6ds6mRXoHbjuYXvRSYE4H5ycjGTYg5bkNV3WOSkadm/f+rVI
-         gPItE6X4xJHJSOMWiYzK7XXi2cesAfdnjZTiZ5Au5wYdVCt8cKBGtHkkwqYXir+xZ9Kn
-         Nw9n0CDEN/xDxsncMujF/SiBsOJajlOUxfaYZtcw5MxHBViZOQahIIxdto2NI3HSVPpk
-         hOsiIy2IVmGJ6LXG3zhl7xlC0aVjgRHfZ79nLCDqZLPHX+tVQhsUt1/pcPJ/qLd3x69h
-         UtXg==
-X-Gm-Message-State: APjAAAVMkwPpyl3/lvfUT44m8xrAt2fqBmQQQVsT4P/t3vFokqIwLhHX
-        AjXf1O/r7R3P2Ko0976RKN3P2hkgE503cA==
-X-Google-Smtp-Source: APXvYqxFCfGRNK8kJt+Um+HkJ7nPNPJhWf7yglDrAdKMcBLPmJavyuWIE7Ywg6m99GLm5NcuYv83Cg==
-X-Received: by 2002:a62:e214:: with SMTP id a20mr4798191pfi.193.1572703436397;
-        Sat, 02 Nov 2019 07:03:56 -0700 (PDT)
-Received: from [192.168.1.188] ([66.219.217.79])
-        by smtp.gmail.com with ESMTPSA id 18sm10302057pfp.100.2019.11.02.07.03.55
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 02 Nov 2019 07:03:55 -0700 (PDT)
-Subject: Re: [PATCH] blk-mq: avoid sysfs buffer overflow by too many CPU cores
-To:     Ming Lei <ming.lei@redhat.com>
-Cc:     linux-block@vger.kernel.org, stable@vger.kernel.org
-References: <20191102080215.20223-1-ming.lei@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <e9438176-1dbf-ca2c-62f2-b0c37f8c9bab@kernel.dk>
-Date:   Sat, 2 Nov 2019 08:03:54 -0600
+        id S1726437AbfKBOgK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Nov 2019 10:36:10 -0400
+Received: from smtp.gentoo.org ([140.211.166.183]:60888 "EHLO smtp.gentoo.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726430AbfKBOgK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 2 Nov 2019 10:36:10 -0400
+Received: from [IPv6:2001:4dd6:fcbc:0:458:8bb2:1939:dc7b] (2001-4dd6-fcbc-0-458-8bb2-1939-dc7b.ipv6dyn.netcologne.de [IPv6:2001:4dd6:fcbc:0:458:8bb2:1939:dc7b])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: whissi)
+        by smtp.gentoo.org (Postfix) with ESMTPSA id DB73834C6ED;
+        Sat,  2 Nov 2019 14:36:08 +0000 (UTC)
+To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     luciano.coelho@intel.com
+From:   Thomas Deutschmann <whissi@gentoo.org>
+Subject: Please backport 12e36d98d3e for 5.1+: iwlwifi: exclude GEO SAR
+ support for 3168
+Organization: Gentoo Foundation, Inc
+Message-ID: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
+Date:   Sat, 2 Nov 2019 15:36:03 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+ Thunderbird/68.2.0
 MIME-Version: 1.0
-In-Reply-To: <20191102080215.20223-1-ming.lei@redhat.com>
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
@@ -64,18 +36,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/2/19 2:02 AM, Ming Lei wrote:
-> It is reported that sysfs buffer overflow can be triggered in case
-> of too many CPU cores(>841 on 4K PAGE_SIZE) when showing CPUs of
-> hctx via /sys/block/$DEV/mq/$N/cpu_list.
-> 
-> So use snprintf for avoiding the potential buffer overflow.
-> 
-> This version doesn't change the attribute format, and simply stop
-> to show CPU number if the buffer is to be overflow.
+Hi,
 
-Applied, thanks.
+please backport
+
+<<<<snip
+From 12e36d98d3e5acf5fc57774e0a15906d55f30cb9 Mon Sep 17 00:00:00 2001
+From: Luca Coelho <luciano.coelho@intel.com>
+Date: Tue, 8 Oct 2019 13:10:53 +0300
+Subject: iwlwifi: exclude GEO SAR support for 3168
+
+We currently support two NICs in FW version 29, namely 7265D and 3168.
+Out of these, only 7265D supports GEO SAR, so adjust the function that
+checks for it accordingly.
+
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: f5a47fae6aa3 ("iwlwifi: mvm: fix version check for
+GEO_TX_POWER_LIMIT support")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+snap>>>
+
+This was the first patch of a 2 patch patch series. The second patch,
+aa0cc7dde17 ("iwlwifi: pcie: change qu with jf devices to use qu
+configuration") had "Cc: stable@vger.kernel.org # 5.1+" and was added.
+The first one was missed.
+
 
 -- 
-Jens Axboe
-
+Regards,
+Thomas Deutschmann / Gentoo Linux Developer
+C4DD 695F A713 8F24 2AA1 5638 5849 7EE5 1D5D 74A5
