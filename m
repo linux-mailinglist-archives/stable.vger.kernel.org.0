@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF89CED408
-	for <lists+stable@lfdr.de>; Sun,  3 Nov 2019 18:41:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2C3DED413
+	for <lists+stable@lfdr.de>; Sun,  3 Nov 2019 19:00:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727603AbfKCRll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Nov 2019 12:41:41 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59773 "EHLO
+        id S1726719AbfKCSAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Nov 2019 13:00:36 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:47779 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727488AbfKCRlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 12:41:40 -0500
+        by vger.kernel.org with ESMTP id S1726502AbfKCSAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 13:00:36 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D0495212BF;
-        Sun,  3 Nov 2019 12:41:39 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 03 Nov 2019 12:41:39 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id D05B321B2B;
+        Sun,  3 Nov 2019 13:00:35 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 03 Nov 2019 13:00:35 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=X4qSCM
-        UmeIV0jlp0CZLBIv+CLB/UigzksNHFjRM7Fuc=; b=apz2eFL9JusanhPzIeYuUh
-        8+VOB4gCLO09xu48/0oK1V7g+vnI39QNCPPi3tXE4Q7fD/zKG0t+clsleWrDhI6g
-        bjmpBgjQAgJ/FcehjXIQUWe4E1HxpHd5dD0SJ0IKk5js5wc6lqXVrNvQ654AtGm0
-        Tywu3tTjo6l0usP39DXF+WWwQum7L11nHkzW1feN6ZL2RVXxxH8FqX8T6VaWsSLg
-        EFQBReNK6VgaIUigF0WkkM7sjqs/LH5xIguHwEk0jrXZZRZtAD2zkF9eVO6xUsfW
-        a0TaAjAKtoUYdFN28lMYZbcKPichR1lqJCgT8AUalvpR3XQRYdZLKn41LrkOoRuw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=o+NfkE
+        Q/mnU8PRXIwoCPTaoX1YVSPPSJzTuW6jwyYTI=; b=dQF4KDyXg8cbUudrz2eSuf
+        oVOPy0m6XawO9oMcz7baq5coyFtjqUW1dKmxVmMZ0HNEfYM4y7laBARpx4oue+v1
+        0vqitk2B93kBJtVAJLeYOQp1ocDnM9yWmbQK8TP9c4i7fWQ/UGmIYOVA5x/eQlCk
+        LmeF80YXWcxI1p/TAchgWvT7tcanqPjpq4MOkf33AGWHcTrrqabEvVHgvlHt11Pg
+        McEV+rkw/XXiAow5eMmtlkab/mYQFadc7umtkvXCjfl2qRVdo7UEQY2mXr6ah8/z
+        CnfeiDNr61G7Y1M964NXdMyEvvf2zB3TFOJTR9OHp2aaxPgpyNdwAnSqd41oD7lg
         ==
-X-ME-Sender: <xms:UxG_Xb-aSf5nMq3qwhIGaBCSjgiZfLR1gTgbWhfiALKLMx0ZOeM-oA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudduuddguddtjecutefuodetggdotefrod
+X-ME-Sender: <xms:wxW_XWgxPyuSBygKzVSLQ8guBFBsiY0749tY2cJNFHnxx_IJzUaT8g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudduuddguddutdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
     necuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:UxG_XUBqHXKzKo8beWb-THAgIAbEzgEIfABU3w79jB417ZVcveupYQ>
-    <xmx:UxG_XbzG-oXiqJ0ImwZf1soeJBIdrVnFJT0e4ezmNwtG2NUTxdizeA>
-    <xmx:UxG_XZQlN3B4TaVyHriGtpfk-ZhZNLwhf9n7Nv4pbdi6si3BOc7OUQ>
-    <xmx:UxG_XfujsJ0ebK5FKgokiLHvSfKQ3L5Omceot_r3qZ7FVv6O3dM0dQ>
+X-ME-Proxy: <xmx:wxW_XQXpGND7BIggLRA1EE7OZJBwzHx6gOI5_vGXMt91mOYdn8A89w>
+    <xmx:wxW_XVWEB4maBjhmFfJpIcgBOiH-Mge8P8JKNEgaFoVV-F7Nd-XbSw>
+    <xmx:wxW_XQjVo1wC0JJoChseCnULHtq6PBRmdgg74gPbxZVo9Y2daV99Rg>
+    <xmx:wxW_XeS7q18qj5Bjl5INmblypW7ikd8ZQBBCtC_6d7jax1RQZxMJww>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6F00C306005B;
-        Sun,  3 Nov 2019 12:41:39 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Add DSD support for Gustard U16/X26 USB" failed to apply to 5.3-stable tree
-To:     flyingecar@gmail.com, stable@vger.kernel.org, tiwai@suse.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id 12B8280059;
+        Sun,  3 Nov 2019 13:00:34 -0500 (EST)
+Subject: FAILED: patch "[PATCH] nl80211: fix validation of mesh path nexthop" failed to apply to 4.19-stable tree
+To:     markus.theil@tu-ilmenau.de, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Nov 2019 18:41:38 +0100
-Message-ID: <1572802898108163@kroah.com>
+Date:   Sun, 03 Nov 2019 19:00:32 +0100
+Message-ID: <1572804032120223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,30 +68,31 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e2995b95a914bbc6b5352be27d5d5f33ec802d2c Mon Sep 17 00:00:00 2001
-From: Justin Song <flyingecar@gmail.com>
-Date: Thu, 24 Oct 2019 12:27:14 +0200
-Subject: [PATCH] ALSA: usb-audio: Add DSD support for Gustard U16/X26 USB
- Interface
+From 1fab1b89e2e8f01204a9c05a39fd0b6411a48593 Mon Sep 17 00:00:00 2001
+From: Markus Theil <markus.theil@tu-ilmenau.de>
+Date: Tue, 29 Oct 2019 10:30:03 +0100
+Subject: [PATCH] nl80211: fix validation of mesh path nexthop
 
-This patch adds native DSD support for Gustard U16/X26 USB Interface.
-Tested using VID and fp->dsd_raw method.
+Mesh path nexthop should be a ethernet address, but current validation
+checks against 4 byte integers.
 
-Signed-off-by: Justin Song <flyingecar@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/CA+9XP1ipsFn+r3bCBKRinQv-JrJ+EHOGBdZWZoMwxFv0R8Y1MQ@mail.gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: stable@vger.kernel.org
+Fixes: 2ec600d672e74 ("nl80211/cfg80211: support for mesh, sta dumping")
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191029093003.10355-1-markus.theil@tu-ilmenau.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index fbfde996fee7..0bbe1201a6ac 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1657,6 +1657,7 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
- 	case 0x23ba:  /* Playback Designs */
- 	case 0x25ce:  /* Mytek devices */
- 	case 0x278b:  /* Rotel? */
-+	case 0x292b:  /* Gustard/Ess based devices */
- 	case 0x2ab6:  /* T+A devices */
- 	case 0x3842:  /* EVGA */
- 	case 0xc502:  /* HiBy devices */
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 4453dd375de9..7b72286922f7 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -393,7 +393,7 @@ const struct nla_policy nl80211_policy[NUM_NL80211_ATTR] = {
+ 	[NL80211_ATTR_MNTR_FLAGS] = { /* NLA_NESTED can't be empty */ },
+ 	[NL80211_ATTR_MESH_ID] = { .type = NLA_BINARY,
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+-	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_U32 },
++	[NL80211_ATTR_MPATH_NEXT_HOP] = NLA_POLICY_ETH_ADDR_COMPAT,
+ 
+ 	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
 
