@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B98ED407
-	for <lists+stable@lfdr.de>; Sun,  3 Nov 2019 18:41:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF89CED408
+	for <lists+stable@lfdr.de>; Sun,  3 Nov 2019 18:41:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727520AbfKCRlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Nov 2019 12:41:04 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:32957 "EHLO
+        id S1727603AbfKCRll (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Nov 2019 12:41:41 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59773 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727488AbfKCRlE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 12:41:04 -0500
+        by vger.kernel.org with ESMTP id S1727488AbfKCRlk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 12:41:40 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 4E21721391;
-        Sun,  3 Nov 2019 12:41:02 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id D0495212BF;
+        Sun,  3 Nov 2019 12:41:39 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 03 Nov 2019 12:41:02 -0500
+  by compute6.internal (MEProxy); Sun, 03 Nov 2019 12:41:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=wjdcTZ
-        HWPiKLXblHPm1KXL0zi/X4MWp1IPfVo7G0SV8=; b=ie4pNUrYEPYZMNQVjbapFt
-        tKOBDdkyYj5J5xfYRKYzagG+RVZInlecUMoMI24dDIqwgZQOtMgv4J3BqzOnt6KH
-        Mv7qYsHQIGQI2bntP9cBar1OijOnKrqenjhh+d61BfuOoAqji2Lqpou/UJwZQKtp
-        91Q+jvf3zDO6P1CyDYK0Ctc/I/4eElmteMPqW8Z/v8z46hQgPZW7ZSBKAj9OwtDp
-        w6JZ62TOVuonUC7PcuAxYiqAuF0sXhXbUAkMrW+esW61wLZCCyYpGAmJXXAeo0cd
-        c/9kVO3KJg748fHDRztmQvb81DRO4adcbqdX685mreUbV/NrFjkH39S7y+p/tSSg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=X4qSCM
+        UmeIV0jlp0CZLBIv+CLB/UigzksNHFjRM7Fuc=; b=apz2eFL9JusanhPzIeYuUh
+        8+VOB4gCLO09xu48/0oK1V7g+vnI39QNCPPi3tXE4Q7fD/zKG0t+clsleWrDhI6g
+        bjmpBgjQAgJ/FcehjXIQUWe4E1HxpHd5dD0SJ0IKk5js5wc6lqXVrNvQ654AtGm0
+        Tywu3tTjo6l0usP39DXF+WWwQum7L11nHkzW1feN6ZL2RVXxxH8FqX8T6VaWsSLg
+        EFQBReNK6VgaIUigF0WkkM7sjqs/LH5xIguHwEk0jrXZZRZtAD2zkF9eVO6xUsfW
+        a0TaAjAKtoUYdFN28lMYZbcKPichR1lqJCgT8AUalvpR3XQRYdZLKn41LrkOoRuw
         ==
-X-ME-Sender: <xms:LRG_XTpUXYMmBFHzibeZD_1Fx_dtb5tlGGtgYmDQTJdJupvdgvB6NQ>
+X-ME-Sender: <xms:UxG_Xb-aSf5nMq3qwhIGaBCSjgiZfLR1gTgbWhfiALKLMx0ZOeM-oA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudduuddguddtjecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
     dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:LRG_XRLeoiDJxT4qEC4WunvHdmN9lA71okTAmhGF4mnjD31cniL9qg>
-    <xmx:LRG_XYtghlOaB7xmFbgH6DMzT_wWa_kvcD_KuHDI8KV1iPXPgasTfg>
-    <xmx:LRG_XZuZEqPQYtggrf_JWPsgJWVmpF1QvSwzWPANOQGlQ8yA3ZcU4A>
-    <xmx:LhG_XTrGyH5HCPEmER7jAU8Tp1yBJHTgZtPsHhHee6lXaD81zWR1Ag>
+    rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
+    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:UxG_XUBqHXKzKo8beWb-THAgIAbEzgEIfABU3w79jB417ZVcveupYQ>
+    <xmx:UxG_XbzG-oXiqJ0ImwZf1soeJBIdrVnFJT0e4ezmNwtG2NUTxdizeA>
+    <xmx:UxG_XZQlN3B4TaVyHriGtpfk-ZhZNLwhf9n7Nv4pbdi6si3BOc7OUQ>
+    <xmx:UxG_XfujsJ0ebK5FKgokiLHvSfKQ3L5Omceot_r3qZ7FVv6O3dM0dQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 69AC0306005C;
-        Sun,  3 Nov 2019 12:41:01 -0500 (EST)
-Subject: FAILED: patch "[PATCH] ALSA: timer: Fix mutex deadlock at releasing card" failed to apply to 4.19-stable tree
-To:     tiwai@suse.de, kirill.shutemov@linux.intel.com,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6F00C306005B;
+        Sun,  3 Nov 2019 12:41:39 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ALSA: usb-audio: Add DSD support for Gustard U16/X26 USB" failed to apply to 5.3-stable tree
+To:     flyingecar@gmail.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 03 Nov 2019 18:40:59 +0100
-Message-ID: <1572802859163107@kroah.com>
+Date:   Sun, 03 Nov 2019 18:41:38 +0100
+Message-ID: <1572802898108163@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,126 +68,30 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a39331867335d4a94b6165e306265c9e24aca073 Mon Sep 17 00:00:00 2001
-From: Takashi Iwai <tiwai@suse.de>
-Date: Wed, 30 Oct 2019 22:42:57 +0100
-Subject: [PATCH] ALSA: timer: Fix mutex deadlock at releasing card
+From e2995b95a914bbc6b5352be27d5d5f33ec802d2c Mon Sep 17 00:00:00 2001
+From: Justin Song <flyingecar@gmail.com>
+Date: Thu, 24 Oct 2019 12:27:14 +0200
+Subject: [PATCH] ALSA: usb-audio: Add DSD support for Gustard U16/X26 USB
+ Interface
 
-When a card is disconnected while in use, the system waits until all
-opened files are closed then releases the card.  This is done via
-put_device() of the card device in each device release code.
+This patch adds native DSD support for Gustard U16/X26 USB Interface.
+Tested using VID and fp->dsd_raw method.
 
-The recently reported mutex deadlock bug happens in this code path;
-snd_timer_close() for the timer device deals with the global
-register_mutex and it calls put_device() there.  When this timer
-device is the last one, the card gets freed and it eventually calls
-snd_timer_free(), which has again the protection with the global
-register_mutex -- boom.
-
-Basically put_device() call itself is race-free, so a relative simple
-workaround is to move this put_device() call out of the mutex.  For
-achieving that, in this patch, snd_timer_close_locked() got a new
-argument to store the card device pointer in return, and each caller
-invokes put_device() with the returned object after the mutex unlock.
-
-Reported-and-tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Signed-off-by: Justin Song <flyingecar@gmail.com>
 Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/CA+9XP1ipsFn+r3bCBKRinQv-JrJ+EHOGBdZWZoMwxFv0R8Y1MQ@mail.gmail.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
-diff --git a/sound/core/timer.c b/sound/core/timer.c
-index 5c9fbf3f4340..6b724d2ee2de 100644
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -226,7 +226,8 @@ static int snd_timer_check_master(struct snd_timer_instance *master)
- 	return 0;
- }
- 
--static int snd_timer_close_locked(struct snd_timer_instance *timeri);
-+static int snd_timer_close_locked(struct snd_timer_instance *timeri,
-+				  struct device **card_devp_to_put);
- 
- /*
-  * open a timer instance
-@@ -238,6 +239,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
- {
- 	struct snd_timer *timer;
- 	struct snd_timer_instance *timeri = NULL;
-+	struct device *card_dev_to_put = NULL;
- 	int err;
- 
- 	mutex_lock(&register_mutex);
-@@ -261,7 +263,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 		list_add_tail(&timeri->open_list, &snd_timer_slave_list);
- 		err = snd_timer_check_slave(timeri);
- 		if (err < 0) {
--			snd_timer_close_locked(timeri);
-+			snd_timer_close_locked(timeri, &card_dev_to_put);
- 			timeri = NULL;
- 		}
- 		goto unlock;
-@@ -313,7 +315,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 			timeri = NULL;
- 
- 			if (timer->card)
--				put_device(&timer->card->card_dev);
-+				card_dev_to_put = &timer->card->card_dev;
- 			module_put(timer->module);
- 			goto unlock;
- 		}
-@@ -323,12 +325,15 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 	timer->num_instances++;
- 	err = snd_timer_check_master(timeri);
- 	if (err < 0) {
--		snd_timer_close_locked(timeri);
-+		snd_timer_close_locked(timeri, &card_dev_to_put);
- 		timeri = NULL;
- 	}
- 
-  unlock:
- 	mutex_unlock(&register_mutex);
-+	/* put_device() is called after unlock for avoiding deadlock */
-+	if (card_dev_to_put)
-+		put_device(card_dev_to_put);
- 	*ti = timeri;
- 	return err;
- }
-@@ -338,7 +343,8 @@ EXPORT_SYMBOL(snd_timer_open);
-  * close a timer instance
-  * call this with register_mutex down.
-  */
--static int snd_timer_close_locked(struct snd_timer_instance *timeri)
-+static int snd_timer_close_locked(struct snd_timer_instance *timeri,
-+				  struct device **card_devp_to_put)
- {
- 	struct snd_timer *timer = timeri->timer;
- 	struct snd_timer_instance *slave, *tmp;
-@@ -395,7 +401,7 @@ static int snd_timer_close_locked(struct snd_timer_instance *timeri)
- 			timer->hw.close(timer);
- 		/* release a card refcount for safe disconnection */
- 		if (timer->card)
--			put_device(&timer->card->card_dev);
-+			*card_devp_to_put = &timer->card->card_dev;
- 		module_put(timer->module);
- 	}
- 
-@@ -407,14 +413,18 @@ static int snd_timer_close_locked(struct snd_timer_instance *timeri)
-  */
- int snd_timer_close(struct snd_timer_instance *timeri)
- {
-+	struct device *card_dev_to_put = NULL;
- 	int err;
- 
- 	if (snd_BUG_ON(!timeri))
- 		return -ENXIO;
- 
- 	mutex_lock(&register_mutex);
--	err = snd_timer_close_locked(timeri);
-+	err = snd_timer_close_locked(timeri, &card_dev_to_put);
- 	mutex_unlock(&register_mutex);
-+	/* put_device() is called after unlock for avoiding deadlock */
-+	if (card_dev_to_put)
-+		put_device(card_dev_to_put);
- 	return err;
- }
- EXPORT_SYMBOL(snd_timer_close);
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index fbfde996fee7..0bbe1201a6ac 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1657,6 +1657,7 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
+ 	case 0x23ba:  /* Playback Designs */
+ 	case 0x25ce:  /* Mytek devices */
+ 	case 0x278b:  /* Rotel? */
++	case 0x292b:  /* Gustard/Ess based devices */
+ 	case 0x2ab6:  /* T+A devices */
+ 	case 0x3842:  /* EVGA */
+ 	case 0xc502:  /* HiBy devices */
 
