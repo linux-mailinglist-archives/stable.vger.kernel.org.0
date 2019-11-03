@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0B9ED415
-	for <lists+stable@lfdr.de>; Sun,  3 Nov 2019 19:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 747FAED416
+	for <lists+stable@lfdr.de>; Sun,  3 Nov 2019 19:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727320AbfKCSAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Nov 2019 13:00:45 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:59083 "EHLO
+        id S1727322AbfKCSAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Nov 2019 13:00:46 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:45195 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726502AbfKCSAp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 13:00:45 -0500
+        by vger.kernel.org with ESMTP id S1726502AbfKCSAq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 13:00:46 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 6FBFA21B2A;
-        Sun,  3 Nov 2019 13:00:44 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id E055C21B8C;
+        Sun,  3 Nov 2019 13:00:45 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 03 Nov 2019 13:00:44 -0500
+  by compute6.internal (MEProxy); Sun, 03 Nov 2019 13:00:45 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=XX32Et
-        cwOj9CM9WYMVqADW7GVo1a/2ORHBfa0PZhLh8=; b=XtV8yyQBbRT41VF53n9dDp
-        jBiR0Cz45hIevNp+r4KRVo2t3ezjjHx9mZGIlTZ2O8AXEuai/ZSegptc6FdT/fAZ
-        LU8CEDfE+BRaNqb0rJSYpdnciKbVMC7RDS8O7k25qhE5a2eEHUh5CUlGCA9F3xdm
-        kgJU4n2YbS/FXk3WwyGRwDfa0SFNSMZ3bYUJtYyVyP1LZlAFN6b59l0s3/OzxB6w
-        fh/7o8p8bOkpkOfLlm2SHVHr618MNgFK6I7jD46KEyBbN0WMUDYzdocQ1/kov9nG
-        uy1WCLYPvdXxhR9CgTzsUX8IqUuF3OQv2M0+FrSNr+kq++1aQN5tWlPONk3CDDuQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gce6e5
+        JFEVJmPIR+1LWY2d9OGxJGb8eiogZNmDnaur4=; b=rL/IQrLfglAlU7jo63PlzJ
+        1cijtQR48Httfjyjh+Yv/+yEOxUSzcdKO1HzghRmY5pyExxCFA6ig5+XRZo3jVBL
+        jk6SX6OhE6hB/ROCv4aHs4ji4Ylh7KGJKAFmo9kEHcptuhwsw4mGVvxVtO1JBLUa
+        dIwkYdFYuqDz1Mi1HRUYBvEytga6SEI6z2Iq3VRJWd8ebVCWCFltsg5Cr7ZiJ0zS
+        ezz46v9seef573b1QpeWIX5q7JSlhTJTPB4ua3CsskP9OuR7YMWZGtiTeD/mnO/3
+        U41J0AdefTXnPRyMOT/ZsgjPa8d9QKp2el1e/Km3ZnUCqJ1uAjpKsq5XLabqWpdQ
         ==
-X-ME-Sender: <xms:zBW_Xf31svpQPgNshRww6TnLTcIvzG1pGIGzYk_4ocufYCate78n4A>
+X-ME-Sender: <xms:zRW_XWGqZM2haNCY2OU1I4DeTZlaoLqfUH65fBJe0dTgFv0GaH3JeQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudduuddguddutdcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -35,19 +35,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudduuddguddutdcutefuodetgg
     rhhgqeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeekfedrkeeirdekle
     druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
     necuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:zBW_XSUAlVMt11TV7Im1EEfM8mFoMYXCHP5anW0vCcB-fvwcxiguWw>
-    <xmx:zBW_Xa46WW4k9I9DriuXtghvp9-9q8YIY_vtTGxjtGluT3sLxlOgeg>
-    <xmx:zBW_XZJZHTLV62CdCI-W2GZxBiO-vUqBzhafF5WngPfufVk1V9MUbA>
-    <xmx:zBW_XXJACcvAKyWk_vc0j8BcuYza966WZxe3U5PaxlkwfEqqspy_uQ>
+X-ME-Proxy: <xmx:zRW_XZpHvsBWGrOmFaVMjyFL8t0D9AQjOMTLykPW9C6BTKAtAjXuBw>
+    <xmx:zRW_Xe7_-7_Uolz0kldV67t04B-xbkTAXahuvF6zK4kpgg4mzZpCqQ>
+    <xmx:zRW_XaQ4M4MhlsvvF7yEZWbPQmuToa4jR7MzRTtEzCIfmL41WIJLPg>
+    <xmx:zRW_XUWLGQRM2ob5xpNJ_IUewAd02Wak3aG18ATLjgzE19JqrcY6uw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EAA538005A;
-        Sun,  3 Nov 2019 13:00:43 -0500 (EST)
-Subject: FAILED: patch "[PATCH] nl80211: fix validation of mesh path nexthop" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 649958005A;
+        Sun,  3 Nov 2019 13:00:45 -0500 (EST)
+Subject: FAILED: patch "[PATCH] nl80211: fix validation of mesh path nexthop" failed to apply to 4.14-stable tree
 To:     markus.theil@tu-ilmenau.de, johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 03 Nov 2019 19:00:33 +0100
-Message-ID: <1572804033198106@kroah.com>
+Message-ID: <157280403380@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
