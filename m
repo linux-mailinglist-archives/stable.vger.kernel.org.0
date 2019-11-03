@@ -2,76 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CEEDED059
-	for <lists+stable@lfdr.de>; Sat,  2 Nov 2019 20:20:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D36D2ED181
+	for <lists+stable@lfdr.de>; Sun,  3 Nov 2019 03:06:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726687AbfKBTU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 2 Nov 2019 15:20:28 -0400
-Received: from mx2.yrkesakademin.fi ([85.134.45.195]:45908 "EHLO
-        mx2.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726685AbfKBTU2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 2 Nov 2019 15:20:28 -0400
-X-Greylist: delayed 906 seconds by postgrey-1.27 at vger.kernel.org; Sat, 02 Nov 2019 15:20:27 EDT
-Subject: Re: Please backport 12e36d98d3e for 5.1+: iwlwifi: exclude GEO SAR
- support for 3168
-To:     Luciano Coelho <luciano.coelho@intel.com>,
-        Thomas Deutschmann <whissi@gentoo.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-References: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
- <c93083f278d810e1bebab40dcb1990e9285ee1f4.camel@intel.com>
-From:   Thomas Backlund <tmb@mageia.org>
-Message-ID: <dce53d5b-eb19-cee0-5f0f-936c2199e929@mageia.org>
-Date:   Sat, 2 Nov 2019 21:05:18 +0200
+        id S1727360AbfKCCGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 2 Nov 2019 22:06:44 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:35175 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727335AbfKCCGo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 2 Nov 2019 22:06:44 -0400
+Received: by mail-io1-f68.google.com with SMTP id h9so14869582ioh.2;
+        Sat, 02 Nov 2019 19:06:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UY8j4si9feJ8WDRaEe/6ZeNtYTRSD0yc1AA2grJU06M=;
+        b=ed8cy6TZCntAaIXa9HjCoriEZie2hsrNv8yozwVnkZnwEdwLYW7OVeLIeE+LACx0N7
+         n71MeZA0goX2R+e06ELyG7HZq9eY5vnjkdCeKTDE7bT6U7qANDoaKBaFoIp2biakZ81x
+         QVky9cJWuduxgnY5eLgpr/32VVZNLSiDq7tldKCm3DbptamWxuwEgyoMmeFBsA+w0z0a
+         jJnSoN6kigQsSMvSnEFnYumERNPliHq0Mn7zCZ7gBoGzfag+GI2/TuasCq5DrAA0M4V7
+         Rveg4LG8X53wMQI8jjnkqnQ8+vvu463soA3WRaOOorwjwnEZwWceN8TyJDmM6ErJdoCZ
+         NKkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UY8j4si9feJ8WDRaEe/6ZeNtYTRSD0yc1AA2grJU06M=;
+        b=Sv5X0ijJoG7F1TFoku2xE1OVu1HEoDvVAvL8xniBGCHMp2n3fu7fapVI/acUclbQR9
+         ooqumOttGqzzOqCjzmcjcoQJ97E2B8CK34vJ9K6nxssxjK0ND++UVwXBNaIzrvJ2H7LW
+         9gBKcj4+trgKtiPz4vsJnP5IKMHENUwnrbP/LUbJCO9AJXItXvbGVtjnrgIRxD7BUWD2
+         Ls7JFFUFvI4J3OzoMcRFZaXyk5JONHzyXjkb38x4QadCr+GxcP0NPMYDMS6yOu6KBJ+e
+         bKdXUh5+naPaJxJGWTQH9WEPJAWog1Z5lf3Oq6cmXTJULyhmtIgRjffytna/SmieAiFx
+         //Hw==
+X-Gm-Message-State: APjAAAXlfaeJAf7oqZTNDgTgjbgqESu9zwr5xxDAb7b4eNQAsMNQKRfz
+        2kYZIn3c6hAA5+LIHH165f2tZiw7f/ssJcf3Gq0=
+X-Google-Smtp-Source: APXvYqxy61rfqcWgEejBSiT+tDMBwJY76JI0Ra+oEViBdYXXxtKWB32bS68f0a+tDS7vMwe6K7HhOB6Lm5LglRPA50Y=
+X-Received: by 2002:a5e:9b13:: with SMTP id j19mr5768649iok.169.1572746802098;
+ Sat, 02 Nov 2019 19:06:42 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <c93083f278d810e1bebab40dcb1990e9285ee1f4.camel@intel.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-WatchGuard-Spam-ID: str=0001.0A0C020A.5DBDD6FB.007A,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
-X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
-X-WatchGuard-Mail-Client-IP: 85.134.45.195
-X-WatchGuard-Mail-From: tmb@mageia.org
+References: <20191031211857.18989-1-pshilov@microsoft.com>
+In-Reply-To: <20191031211857.18989-1-pshilov@microsoft.com>
+From:   Steve French <smfrench@gmail.com>
+Date:   Sat, 2 Nov 2019 21:06:31 -0500
+Message-ID: <CAH2r5mu_0JMYfeLcfvj2ZOxXc+euTL_P+F-nmnjUvpN1=eeLcg@mail.gmail.com>
+Subject: Re: [PATCH] CIFS: Fix SMB2 oplock break processing
+To:     Pavel Shilovsky <piastryyy@gmail.com>
+Cc:     CIFS <linux-cifs@vger.kernel.org>, Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Den 02-11-2019 kl. 19:52, skrev Luciano Coelho:
-> Hi Thomas,
-> 
-> On Sat, 2019-11-02 at 15:36 +0100, Thomas Deutschmann wrote:
->> Hi,
->>
->> please backport
->>
->> <<<<snip
->>  From 12e36d98d3e5acf5fc57774e0a15906d55f30cb9 Mon Sep 17 00:00:00 2001
->> From: Luca Coelho <luciano.coelho@intel.com>
->> Date: Tue, 8 Oct 2019 13:10:53 +0300
->> Subject: iwlwifi: exclude GEO SAR support for 3168
->>
->> We currently support two NICs in FW version 29, namely 7265D and 3168.
->> Out of these, only 7265D supports GEO SAR, so adjust the function that
->> checks for it accordingly.
->>
->> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
->> Fixes: f5a47fae6aa3 ("iwlwifi: mvm: fix version check for
->> GEO_TX_POWER_LIMIT support")
->> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
->> snap>>>
->>
->> This was the first patch of a 2 patch patch series. The second patch,
->> aa0cc7dde17 ("iwlwifi: pcie: change qu with jf devices to use qu
->> configuration") had "Cc: stable@vger.kernel.org # 5.1+" and was added.
->> The first one was missed.
-> 
-> I sent this earlier for stable v5.1, but it's EOL already, so it won't
-> be merged there anymore.
-> 
+tentatively merged into cifs-2.6.git for-next pending review and
+buildbot regression test runs
+
+On Thu, Oct 31, 2019 at 5:50 PM Pavel Shilovsky <piastryyy@gmail.com> wrote:
+>
+> Even when mounting modern protocol version the server may be
+> configured without supporting SMB2.1 leases and the client
+> uses SMB2 oplock to optimize IO performance through local caching.
+>
+> However there is a problem in oplock break handling that leads
+> to missing a break notification on the client who has a file
+> opened. It latter causes big latencies to other clients that
+> are trying to open the same file.
+>
+> The problem reproduces when there are multiple shares from the
+> same server mounted on the client. The processing code tries to
+> match persistent and volatile file ids from the break notification
+> with an open file but it skips all share besides the first one.
+> Fix this by looking up in all shares belonging to the server that
+> issued the oplock break.
+>
+> Cc: Stable <stable@vger.kernel.org>
+> Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
+> ---
+>  fs/cifs/smb2misc.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+>
+> diff --git a/fs/cifs/smb2misc.c b/fs/cifs/smb2misc.c
+> index 8db6201b18ba..527c9efd3de0 100644
+> --- a/fs/cifs/smb2misc.c
+> +++ b/fs/cifs/smb2misc.c
+> @@ -664,10 +664,10 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+>         spin_lock(&cifs_tcp_ses_lock);
+>         list_for_each(tmp, &server->smb_ses_list) {
+>                 ses = list_entry(tmp, struct cifs_ses, smb_ses_list);
+> +
+>                 list_for_each(tmp1, &ses->tcon_list) {
+>                         tcon = list_entry(tmp1, struct cifs_tcon, tcon_list);
+>
+> -                       cifs_stats_inc(&tcon->stats.cifs_stats.num_oplock_brks);
+>                         spin_lock(&tcon->open_file_lock);
+>                         list_for_each(tmp2, &tcon->openFileList) {
+>                                 cfile = list_entry(tmp2, struct cifsFileInfo,
+> @@ -679,6 +679,8 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+>                                         continue;
+>
+>                                 cifs_dbg(FYI, "file id match, oplock break\n");
+> +                               cifs_stats_inc(
+> +                                   &tcon->stats.cifs_stats.num_oplock_brks);
+>                                 cinode = CIFS_I(d_inode(cfile->dentry));
+>                                 spin_lock(&cfile->file_info_lock);
+>                                 if (!CIFS_CACHE_WRITE(cinode) &&
+> @@ -702,9 +704,6 @@ smb2_is_valid_oplock_break(char *buffer, struct TCP_Server_Info *server)
+>                                 return true;
+>                         }
+>                         spin_unlock(&tcon->open_file_lock);
+> -                       spin_unlock(&cifs_tcp_ses_lock);
+> -                       cifs_dbg(FYI, "No matching file for oplock break\n");
+> -                       return true;
+>                 }
+>         }
+>         spin_unlock(&cifs_tcp_ses_lock);
+> --
+> 2.17.1
+>
 
 
-But it's still needed in the active 5.3 tree, and is already queued for 
-4.19, and since 4.14 also loads api 29, it also needs it...
+-- 
+Thanks,
 
---
-Thomas
+Steve
