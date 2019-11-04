@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BA31EEE6B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A61DEEF5D
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388002AbfKDWOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:14:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39732 "EHLO mail.kernel.org"
+        id S1730656AbfKDV6l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:58:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389164AbfKDWHS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:07:18 -0500
+        id S1730642AbfKDV6j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:58:39 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 992212190F;
-        Mon,  4 Nov 2019 22:07:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 587AE214E0;
+        Mon,  4 Nov 2019 21:58:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905238;
-        bh=OPQh/w0HN7ptn6tENX2+5V6kRqT+2oS1MekYamXmnGo=;
+        s=default; t=1572904719;
+        bh=ZJYf2k6zhyTX1xXuLoy2aCZTsKNBjuiBVrsoQEYs18M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tIfj/tHu0GmvdSMe86ucVbWpFlSAh5peYxJfHWze3ZxGfJTsRyEH53a+Sy70v1vwW
-         lFZJ+Hwyej+Y7/NndhPuD1mL/6UBisf1S77JFS17yYT4q64OeVmYq6TMUklglm5hQS
-         rEb+bgbrKIvtanVLKNhQsleV51YySt36apvRFu3c=
+        b=eiyRW02FRHW4xRYpVLl7XqDh3tnlefucwS3HHxfziwvc4c/QlcSTOX9XWumkOx56P
+         8qCu8badH15Y4iRnmcCWCvGVd6hYtIVAiLCUOrFU65aeA20RZiOckqwsIBcl/TPzz0
+         GuRHhWBHqfXmcbcfD67DJ/cJDdr/7CJKrYNUnnzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 049/163] arm64: Default to building compat vDSO with clang when CONFIG_CC_IS_CLANG
+        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Joao Pinto <jpinto@synopsys.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 046/149] net: stmmac: Fix NAPI poll in TX path when in multi-queue
 Date:   Mon,  4 Nov 2019 22:43:59 +0100
-Message-Id: <20191104212143.742987092@linuxfoundation.org>
+Message-Id: <20191104212139.335872248@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +48,253 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Jose Abreu <jose.abreu@synopsys.com>
 
-[ Upstream commit 24ee01a927bfe56c66429ec4b1df6955a814adc8 ]
+[ Upstream commit 4ccb45857c2c0776d0f72e39768295062c1a0de1 ]
 
-Rather than force the use of GCC for the compat cross-compiler, instead
-extract the target from CROSS_COMPILE_COMPAT and pass it to clang if the
-main compiler is clang.
+Commit 8fce33317023 introduced the concept of NAPI per-channel and
+independent cleaning of TX path.
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+This is currently breaking performance in some cases. The scenario
+happens when all packets are being received in Queue 0 but the TX is
+performed in Queue != 0.
+
+Fix this by using different NAPI instances per each TX and RX queue, as
+suggested by Florian.
+
+Changes from v2:
+	- Only force restart transmission if there are pending packets
+Changes from v1:
+	- Pass entire ring size to TX clean path (Florian)
+
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Joao Pinto <jpinto@synopsys.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
+Cc: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   5 +-
+ .../net/ethernet/stmicro/stmmac/stmmac_main.c | 115 ++++++++++--------
+ 2 files changed, 68 insertions(+), 52 deletions(-)
 
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index 9743b50bdee7d..5858d6e449268 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -47,7 +47,11 @@ $(warning Detected assembler with broken .inst; disassembly will be unreliable)
-   endif
- endif
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+index 63e1064b27a24..e697ecd9b0a64 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
+@@ -78,11 +78,10 @@ struct stmmac_rx_queue {
+ };
  
-+ifeq ($(CONFIG_CC_IS_CLANG), y)
-+COMPATCC ?= $(CC) --target=$(notdir $(CROSS_COMPILE_COMPAT:%-=%))
-+else
- COMPATCC ?= $(CROSS_COMPILE_COMPAT)gcc
-+endif
- export COMPATCC
+ struct stmmac_channel {
+-	struct napi_struct napi ____cacheline_aligned_in_smp;
++	struct napi_struct rx_napi ____cacheline_aligned_in_smp;
++	struct napi_struct tx_napi ____cacheline_aligned_in_smp;
+ 	struct stmmac_priv *priv_data;
+ 	u32 index;
+-	int has_rx;
+-	int has_tx;
+ };
  
- ifeq ($(CONFIG_GENERIC_COMPAT_VDSO), y)
+ struct stmmac_tc_entry {
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 014fe93ed2d82..f4542ac0852d2 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -155,7 +155,10 @@ static void stmmac_disable_all_queues(struct stmmac_priv *priv)
+ 	for (queue = 0; queue < maxq; queue++) {
+ 		struct stmmac_channel *ch = &priv->channel[queue];
+ 
+-		napi_disable(&ch->napi);
++		if (queue < rx_queues_cnt)
++			napi_disable(&ch->rx_napi);
++		if (queue < tx_queues_cnt)
++			napi_disable(&ch->tx_napi);
+ 	}
+ }
+ 
+@@ -173,7 +176,10 @@ static void stmmac_enable_all_queues(struct stmmac_priv *priv)
+ 	for (queue = 0; queue < maxq; queue++) {
+ 		struct stmmac_channel *ch = &priv->channel[queue];
+ 
+-		napi_enable(&ch->napi);
++		if (queue < rx_queues_cnt)
++			napi_enable(&ch->rx_napi);
++		if (queue < tx_queues_cnt)
++			napi_enable(&ch->tx_napi);
+ 	}
+ }
+ 
+@@ -1946,6 +1952,10 @@ static int stmmac_tx_clean(struct stmmac_priv *priv, int budget, u32 queue)
+ 		mod_timer(&priv->eee_ctrl_timer, STMMAC_LPI_T(eee_timer));
+ 	}
+ 
++	/* We still have pending packets, let's call for a new scheduling */
++	if (tx_q->dirty_tx != tx_q->cur_tx)
++		mod_timer(&tx_q->txtimer, STMMAC_COAL_TIMER(10));
++
+ 	__netif_tx_unlock_bh(netdev_get_tx_queue(priv->dev, queue));
+ 
+ 	return count;
+@@ -2036,23 +2046,15 @@ static int stmmac_napi_check(struct stmmac_priv *priv, u32 chan)
+ 	int status = stmmac_dma_interrupt_status(priv, priv->ioaddr,
+ 						 &priv->xstats, chan);
+ 	struct stmmac_channel *ch = &priv->channel[chan];
+-	bool needs_work = false;
+-
+-	if ((status & handle_rx) && ch->has_rx) {
+-		needs_work = true;
+-	} else {
+-		status &= ~handle_rx;
+-	}
+ 
+-	if ((status & handle_tx) && ch->has_tx) {
+-		needs_work = true;
+-	} else {
+-		status &= ~handle_tx;
++	if ((status & handle_rx) && (chan < priv->plat->rx_queues_to_use)) {
++		stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
++		napi_schedule_irqoff(&ch->rx_napi);
+ 	}
+ 
+-	if (needs_work && napi_schedule_prep(&ch->napi)) {
++	if ((status & handle_tx) && (chan < priv->plat->tx_queues_to_use)) {
+ 		stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
+-		__napi_schedule(&ch->napi);
++		napi_schedule_irqoff(&ch->tx_napi);
+ 	}
+ 
+ 	return status;
+@@ -2248,8 +2250,14 @@ static void stmmac_tx_timer(struct timer_list *t)
+ 
+ 	ch = &priv->channel[tx_q->queue_index];
+ 
+-	if (likely(napi_schedule_prep(&ch->napi)))
+-		__napi_schedule(&ch->napi);
++	/*
++	 * If NAPI is already running we can miss some events. Let's rearm
++	 * the timer and try again.
++	 */
++	if (likely(napi_schedule_prep(&ch->tx_napi)))
++		__napi_schedule(&ch->tx_napi);
++	else
++		mod_timer(&tx_q->txtimer, STMMAC_COAL_TIMER(10));
+ }
+ 
+ /**
+@@ -3506,7 +3514,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
+ 			else
+ 				skb->ip_summed = CHECKSUM_UNNECESSARY;
+ 
+-			napi_gro_receive(&ch->napi, skb);
++			napi_gro_receive(&ch->rx_napi, skb);
+ 
+ 			priv->dev->stats.rx_packets++;
+ 			priv->dev->stats.rx_bytes += frame_len;
+@@ -3520,40 +3528,45 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
+ 	return count;
+ }
+ 
+-/**
+- *  stmmac_poll - stmmac poll method (NAPI)
+- *  @napi : pointer to the napi structure.
+- *  @budget : maximum number of packets that the current CPU can receive from
+- *	      all interfaces.
+- *  Description :
+- *  To look at the incoming frames and clear the tx resources.
+- */
+-static int stmmac_napi_poll(struct napi_struct *napi, int budget)
++static int stmmac_napi_poll_rx(struct napi_struct *napi, int budget)
+ {
+ 	struct stmmac_channel *ch =
+-		container_of(napi, struct stmmac_channel, napi);
++		container_of(napi, struct stmmac_channel, rx_napi);
+ 	struct stmmac_priv *priv = ch->priv_data;
+-	int work_done, rx_done = 0, tx_done = 0;
+ 	u32 chan = ch->index;
++	int work_done;
+ 
+ 	priv->xstats.napi_poll++;
+ 
+-	if (ch->has_tx)
+-		tx_done = stmmac_tx_clean(priv, budget, chan);
+-	if (ch->has_rx)
+-		rx_done = stmmac_rx(priv, budget, chan);
++	work_done = stmmac_rx(priv, budget, chan);
++	if (work_done < budget && napi_complete_done(napi, work_done))
++		stmmac_enable_dma_irq(priv, priv->ioaddr, chan);
++	return work_done;
++}
+ 
+-	work_done = max(rx_done, tx_done);
+-	work_done = min(work_done, budget);
++static int stmmac_napi_poll_tx(struct napi_struct *napi, int budget)
++{
++	struct stmmac_channel *ch =
++		container_of(napi, struct stmmac_channel, tx_napi);
++	struct stmmac_priv *priv = ch->priv_data;
++	struct stmmac_tx_queue *tx_q;
++	u32 chan = ch->index;
++	int work_done;
+ 
+-	if (work_done < budget && napi_complete_done(napi, work_done)) {
+-		int stat;
++	priv->xstats.napi_poll++;
++
++	work_done = stmmac_tx_clean(priv, DMA_TX_SIZE, chan);
++	work_done = min(work_done, budget);
+ 
++	if (work_done < budget && napi_complete_done(napi, work_done))
+ 		stmmac_enable_dma_irq(priv, priv->ioaddr, chan);
+-		stat = stmmac_dma_interrupt_status(priv, priv->ioaddr,
+-						   &priv->xstats, chan);
+-		if (stat && napi_reschedule(napi))
+-			stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
++
++	/* Force transmission restart */
++	tx_q = &priv->tx_queue[chan];
++	if (tx_q->cur_tx != tx_q->dirty_tx) {
++		stmmac_enable_dma_transmission(priv, priv->ioaddr);
++		stmmac_set_tx_tail_ptr(priv, priv->ioaddr, tx_q->tx_tail_addr,
++				       chan);
+ 	}
+ 
+ 	return work_done;
+@@ -4376,13 +4389,14 @@ int stmmac_dvr_probe(struct device *device,
+ 		ch->priv_data = priv;
+ 		ch->index = queue;
+ 
+-		if (queue < priv->plat->rx_queues_to_use)
+-			ch->has_rx = true;
+-		if (queue < priv->plat->tx_queues_to_use)
+-			ch->has_tx = true;
+-
+-		netif_napi_add(ndev, &ch->napi, stmmac_napi_poll,
+-			       NAPI_POLL_WEIGHT);
++		if (queue < priv->plat->rx_queues_to_use) {
++			netif_napi_add(ndev, &ch->rx_napi, stmmac_napi_poll_rx,
++				       NAPI_POLL_WEIGHT);
++		}
++		if (queue < priv->plat->tx_queues_to_use) {
++			netif_napi_add(ndev, &ch->tx_napi, stmmac_napi_poll_tx,
++				       NAPI_POLL_WEIGHT);
++		}
+ 	}
+ 
+ 	mutex_init(&priv->lock);
+@@ -4438,7 +4452,10 @@ error_mdio_register:
+ 	for (queue = 0; queue < maxq; queue++) {
+ 		struct stmmac_channel *ch = &priv->channel[queue];
+ 
+-		netif_napi_del(&ch->napi);
++		if (queue < priv->plat->rx_queues_to_use)
++			netif_napi_del(&ch->rx_napi);
++		if (queue < priv->plat->tx_queues_to_use)
++			netif_napi_del(&ch->tx_napi);
+ 	}
+ error_hw_init:
+ 	destroy_workqueue(priv->wq);
 -- 
 2.20.1
 
