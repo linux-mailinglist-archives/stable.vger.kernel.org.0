@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D42EEEA8
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1951EEF82
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:22:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388924AbfKDWEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:04:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34730 "EHLO mail.kernel.org"
+        id S2388488AbfKDV44 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:56:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389598AbfKDWEJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:04:09 -0500
+        id S2388477AbfKDV4w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:56:52 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 196812084D;
-        Mon,  4 Nov 2019 22:04:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF74C20650;
+        Mon,  4 Nov 2019 21:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905047;
-        bh=MxVHPi961RM74AF3kVqZmksisIdQNCiktn3arfbAJBU=;
+        s=default; t=1572904611;
+        bh=0XaNi99y3doEYG2GicGwzZb0mPdixaYTtVNcuoy/0kQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+Ou87IBQFoA/KbExLubSuu3X/3N9Kbn8xxiFTYzopUjWYEvowW4lKWcfHJ1GeCHy
-         HENry95DF8Mf8/pPqicyYPdIikzCfdUo4o6rX5Q7gds0hRGaYonfPChjOVB7A95LpT
-         G6QZ2eslUV2J/MRtBKS/jCXz9pIps/f1FmrWOLxA=
+        b=LA95n5hVLFfkuKISbb5iAdozVM+qa0zBtMLoI8nHjdcsOP/p0hM5y0gwcGeRayV4O
+         7X0n43JwpkXCNbqSkkpQHskwjwgWmZtU5aPJesQT3NMeCxvkj0vhKKJIORXJ8r9Tsz
+         8xCJ4aDS46u4S98Sd/zOR4zPXqbkp6BAUlGhynqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guruswamy Basavaiah <guru2018@gmail.com>,
-        Nikos Tsironis <ntsironis@arrikto.com>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Chenwandun <chenwandun@huawei.com>,
+        Minchan Kim <minchan@kernel.org>,
+        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 003/163] dm snapshot: rework COW throttling to fix deadlock
-Date:   Mon,  4 Nov 2019 22:43:13 +0100
-Message-Id: <20191104212140.332258430@linuxfoundation.org>
+Subject: [PATCH 4.19 001/149] zram: fix race between backing_dev_show and backing_dev_store
+Date:   Mon,  4 Nov 2019 22:43:14 +0100
+Message-Id: <20191104212126.523252383@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,242 +50,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+[ Upstream commit f7daefe4231e57381d92c2e2ad905a899c28e402 ]
 
-[ Upstream commit b21555786f18cd77f2311ad89074533109ae3ffa ]
+CPU0:				       CPU1:
+backing_dev_show		       backing_dev_store
+    ......				   ......
+    file = zram->backing_dev;
+    down_read(&zram->init_lock);	   down_read(&zram->init_init_lock)
+    file_path(file, ...);		   zram->backing_dev = backing_dev;
+    up_read(&zram->init_lock);		   up_read(&zram->init_lock);
 
-Commit 721b1d98fb517a ("dm snapshot: Fix excessive memory usage and
-workqueue stalls") introduced a semaphore to limit the maximum number of
-in-flight kcopyd (COW) jobs.
+gets the value of zram->backing_dev too early in backing_dev_show, which
+resultin the value being NULL at the beginning, and not NULL later.
 
-The implementation of this throttling mechanism is prone to a deadlock:
+backtrace:
+  d_path+0xcc/0x174
+  file_path+0x10/0x18
+  backing_dev_show+0x40/0xb4
+  dev_attr_show+0x20/0x54
+  sysfs_kf_seq_show+0x9c/0x10c
+  kernfs_seq_show+0x28/0x30
+  seq_read+0x184/0x488
+  kernfs_fop_read+0x5c/0x1a4
+  __vfs_read+0x44/0x128
+  vfs_read+0xa0/0x138
+  SyS_read+0x54/0xb4
 
-1. One or more threads write to the origin device causing COW, which is
-   performed by kcopyd.
-
-2. At some point some of these threads might reach the s->cow_count
-   semaphore limit and block in down(&s->cow_count), holding a read lock
-   on _origins_lock.
-
-3. Someone tries to acquire a write lock on _origins_lock, e.g.,
-   snapshot_ctr(), which blocks because the threads at step (2) already
-   hold a read lock on it.
-
-4. A COW operation completes and kcopyd runs dm-snapshot's completion
-   callback, which ends up calling pending_complete().
-   pending_complete() tries to resubmit any deferred origin bios. This
-   requires acquiring a read lock on _origins_lock, which blocks.
-
-   This happens because the read-write semaphore implementation gives
-   priority to writers, meaning that as soon as a writer tries to enter
-   the critical section, no readers will be allowed in, until all
-   writers have completed their work.
-
-   So, pending_complete() waits for the writer at step (3) to acquire
-   and release the lock. This writer waits for the readers at step (2)
-   to release the read lock and those readers wait for
-   pending_complete() (the kcopyd thread) to signal the s->cow_count
-   semaphore: DEADLOCK.
-
-The above was thoroughly analyzed and documented by Nikos Tsironis as
-part of his initial proposal for fixing this deadlock, see:
-https://www.redhat.com/archives/dm-devel/2019-October/msg00001.html
-
-Fix this deadlock by reworking COW throttling so that it waits without
-holding any locks. Add a variable 'in_progress' that counts how many
-kcopyd jobs are running. A function wait_for_in_progress() will sleep if
-'in_progress' is over the limit. It drops _origins_lock in order to
-avoid the deadlock.
-
-Reported-by: Guruswamy Basavaiah <guru2018@gmail.com>
-Reported-by: Nikos Tsironis <ntsironis@arrikto.com>
-Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
-Tested-by: Nikos Tsironis <ntsironis@arrikto.com>
-Fixes: 721b1d98fb51 ("dm snapshot: Fix excessive memory usage and workqueue stalls")
-Cc: stable@vger.kernel.org # v5.0+
-Depends-on: 4a3f111a73a8c ("dm snapshot: introduce account_start_copy() and account_end_copy()")
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Link: http://lkml.kernel.org/r/1571046839-16814-1-git-send-email-chenwandun@huawei.com
+Signed-off-by: Chenwandun <chenwandun@huawei.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: <stable@vger.kernel.org>	[4.14+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-snap.c | 78 ++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 64 insertions(+), 14 deletions(-)
+ drivers/block/zram/zram_drv.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
-index da3bd1794ee05..4fb1a40e68a08 100644
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -18,7 +18,6 @@
- #include <linux/vmalloc.h>
- #include <linux/log2.h>
- #include <linux/dm-kcopyd.h>
--#include <linux/semaphore.h>
- 
- #include "dm.h"
- 
-@@ -107,8 +106,8 @@ struct dm_snapshot {
- 	/* The on disk metadata handler */
- 	struct dm_exception_store *store;
- 
--	/* Maximum number of in-flight COW jobs. */
--	struct semaphore cow_count;
-+	unsigned in_progress;
-+	struct wait_queue_head in_progress_wait;
- 
- 	struct dm_kcopyd_client *kcopyd_client;
- 
-@@ -162,8 +161,8 @@ struct dm_snapshot {
-  */
- #define DEFAULT_COW_THRESHOLD 2048
- 
--static int cow_threshold = DEFAULT_COW_THRESHOLD;
--module_param_named(snapshot_cow_threshold, cow_threshold, int, 0644);
-+static unsigned cow_threshold = DEFAULT_COW_THRESHOLD;
-+module_param_named(snapshot_cow_threshold, cow_threshold, uint, 0644);
- MODULE_PARM_DESC(snapshot_cow_threshold, "Maximum number of chunks being copied on write");
- 
- DECLARE_DM_KCOPYD_THROTTLE_WITH_MODULE_PARM(snapshot_copy_throttle,
-@@ -1327,7 +1326,7 @@ static int snapshot_ctr(struct dm_target *ti, unsigned int argc, char **argv)
- 		goto bad_hash_tables;
- 	}
- 
--	sema_init(&s->cow_count, (cow_threshold > 0) ? cow_threshold : INT_MAX);
-+	init_waitqueue_head(&s->in_progress_wait);
- 
- 	s->kcopyd_client = dm_kcopyd_client_create(&dm_kcopyd_throttle);
- 	if (IS_ERR(s->kcopyd_client)) {
-@@ -1509,17 +1508,54 @@ static void snapshot_dtr(struct dm_target *ti)
- 
- 	dm_put_device(ti, s->origin);
- 
-+	WARN_ON(s->in_progress);
-+
- 	kfree(s);
- }
- 
- static void account_start_copy(struct dm_snapshot *s)
+diff --git a/drivers/block/zram/zram_drv.c b/drivers/block/zram/zram_drv.c
+index 70cbd0ee1b076..76abe40bfa83b 100644
+--- a/drivers/block/zram/zram_drv.c
++++ b/drivers/block/zram/zram_drv.c
+@@ -312,13 +312,14 @@ static void reset_bdev(struct zram *zram)
+ static ssize_t backing_dev_show(struct device *dev,
+ 		struct device_attribute *attr, char *buf)
  {
--	down(&s->cow_count);
-+	spin_lock(&s->in_progress_wait.lock);
-+	s->in_progress++;
-+	spin_unlock(&s->in_progress_wait.lock);
- }
++	struct file *file;
+ 	struct zram *zram = dev_to_zram(dev);
+-	struct file *file = zram->backing_dev;
+ 	char *p;
+ 	ssize_t ret;
  
- static void account_end_copy(struct dm_snapshot *s)
- {
--	up(&s->cow_count);
-+	spin_lock(&s->in_progress_wait.lock);
-+	BUG_ON(!s->in_progress);
-+	s->in_progress--;
-+	if (likely(s->in_progress <= cow_threshold) &&
-+	    unlikely(waitqueue_active(&s->in_progress_wait)))
-+		wake_up_locked(&s->in_progress_wait);
-+	spin_unlock(&s->in_progress_wait.lock);
-+}
-+
-+static bool wait_for_in_progress(struct dm_snapshot *s, bool unlock_origins)
-+{
-+	if (unlikely(s->in_progress > cow_threshold)) {
-+		spin_lock(&s->in_progress_wait.lock);
-+		if (likely(s->in_progress > cow_threshold)) {
-+			/*
-+			 * NOTE: this throttle doesn't account for whether
-+			 * the caller is servicing an IO that will trigger a COW
-+			 * so excess throttling may result for chunks not required
-+			 * to be COW'd.  But if cow_threshold was reached, extra
-+			 * throttling is unlikely to negatively impact performance.
-+			 */
-+			DECLARE_WAITQUEUE(wait, current);
-+			__add_wait_queue(&s->in_progress_wait, &wait);
-+			__set_current_state(TASK_UNINTERRUPTIBLE);
-+			spin_unlock(&s->in_progress_wait.lock);
-+			if (unlock_origins)
-+				up_read(&_origins_lock);
-+			io_schedule();
-+			remove_wait_queue(&s->in_progress_wait, &wait);
-+			return false;
-+		}
-+		spin_unlock(&s->in_progress_wait.lock);
-+	}
-+	return true;
- }
- 
- /*
-@@ -1537,7 +1573,7 @@ static void flush_bios(struct bio *bio)
- 	}
- }
- 
--static int do_origin(struct dm_dev *origin, struct bio *bio);
-+static int do_origin(struct dm_dev *origin, struct bio *bio, bool limit);
- 
- /*
-  * Flush a list of buffers.
-@@ -1550,7 +1586,7 @@ static void retry_origin_bios(struct dm_snapshot *s, struct bio *bio)
- 	while (bio) {
- 		n = bio->bi_next;
- 		bio->bi_next = NULL;
--		r = do_origin(s->origin, bio);
-+		r = do_origin(s->origin, bio, false);
- 		if (r == DM_MAPIO_REMAPPED)
- 			generic_make_request(bio);
- 		bio = n;
-@@ -1926,6 +1962,11 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
- 	if (!s->valid)
- 		return DM_MAPIO_KILL;
- 
-+	if (bio_data_dir(bio) == WRITE) {
-+		while (unlikely(!wait_for_in_progress(s, false)))
-+			; /* wait_for_in_progress() has slept */
-+	}
-+
- 	down_read(&s->lock);
- 	dm_exception_table_lock(&lock);
- 
-@@ -2122,7 +2163,7 @@ redirect_to_origin:
- 
- 	if (bio_data_dir(bio) == WRITE) {
- 		up_write(&s->lock);
--		return do_origin(s->origin, bio);
-+		return do_origin(s->origin, bio, false);
- 	}
- 
- out_unlock:
-@@ -2497,15 +2538,24 @@ next_snapshot:
- /*
-  * Called on a write from the origin driver.
-  */
--static int do_origin(struct dm_dev *origin, struct bio *bio)
-+static int do_origin(struct dm_dev *origin, struct bio *bio, bool limit)
- {
- 	struct origin *o;
- 	int r = DM_MAPIO_REMAPPED;
- 
-+again:
- 	down_read(&_origins_lock);
- 	o = __lookup_origin(origin->bdev);
--	if (o)
-+	if (o) {
-+		if (limit) {
-+			struct dm_snapshot *s;
-+			list_for_each_entry(s, &o->snapshots, list)
-+				if (unlikely(!wait_for_in_progress(s, true)))
-+					goto again;
-+		}
-+
- 		r = __origin_write(&o->snapshots, bio->bi_iter.bi_sector, bio);
-+	}
- 	up_read(&_origins_lock);
- 
- 	return r;
-@@ -2618,7 +2668,7 @@ static int origin_map(struct dm_target *ti, struct bio *bio)
- 		dm_accept_partial_bio(bio, available_sectors);
- 
- 	/* Only tell snapshots if this is a write */
--	return do_origin(o->dev, bio);
-+	return do_origin(o->dev, bio, true);
- }
- 
- /*
+ 	down_read(&zram->init_lock);
+-	if (!zram_wb_enabled(zram)) {
++	file = zram->backing_dev;
++	if (!file) {
+ 		memcpy(buf, "none\n", 5);
+ 		up_read(&zram->init_lock);
+ 		return 5;
 -- 
 2.20.1
 
