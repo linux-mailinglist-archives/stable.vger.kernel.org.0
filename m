@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C605EED74
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6F9BEEF42
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390006AbfKDWGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:06:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39040 "EHLO mail.kernel.org"
+        id S2388258AbfKDV7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390004AbfKDWGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:06:52 -0500
+        id S2388236AbfKDV7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:33 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EAA2214D8;
-        Mon,  4 Nov 2019 22:06:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A9E520650;
+        Mon,  4 Nov 2019 21:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905212;
-        bh=chGnoAshHGqqo+wladlxJN3tEO3v9wGjv9U7ySwG4kM=;
+        s=default; t=1572904772;
+        bh=rckOy+noUaIRbbw85JVOz4Xrjqu1JqPoLzR+uruJCPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=klTUdEesm5qQqKfQMuZxY9tjFAIZMDpJsJsle+Or/bPQzpIqWeuG8ae2TYzj3IXlZ
-         NvafV1V1D65MOy05kxip8yULl+O0Z9Oz+DgHG1tN68QdAqvKiTs3OMzzWpTOLU17Tw
-         VAuyaFvXAKwFcG3mDAJZJy13Zsn4UEAOFAh8GhSE=
+        b=l39nW4QIDMrlc3duINPmWWEBceS21hKq3E3mu5Kqz9JMSFlXGRWYrADvGLGSnkk0e
+         JBlPDXhP/NmlHTgIrMOlTDfAVF0hzDUyZ7fEKINdoNNtmBsny33cGDQBrnWOpiUDAK
+         lPMVOnsdZ7CO1ydiKDrGp195G6++oEeg0TfOHNnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hechao Li <hechaol@fb.com>,
-        Song Liu <songliubraving@fb.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        kernel-team@fb.com, Jie Meng <jmeng@fb.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 067/163] perf/core: Rework memory accounting in perf_mmap()
-Date:   Mon,  4 Nov 2019 22:44:17 +0100
-Message-Id: <20191104212144.819859713@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 065/149] perf tools: Propagate get_cpuid() error
+Date:   Mon,  4 Nov 2019 22:44:18 +0100
+Message-Id: <20191104212141.295860501@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,77 +46,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit d44248a41337731a111374822d7d4451b64e73e4 ]
+[ Upstream commit f67001a4a08eb124197ed4376941e1da9cf94b42 ]
 
-perf_mmap() always increases user->locked_vm. As a result, "extra" could
-grow bigger than "user_extra", which doesn't make sense. Here is an
-example case:
+For consistency, propagate the exact cause for get_cpuid() to have
+failed.
 
-(Note: Assume "user_lock_limit" is very small.)
-
-  | # of perf_mmap calls |vma->vm_mm->pinned_vm|user->locked_vm|
-  | 0                    | 0                   | 0             |
-  | 1                    | user_extra          | user_extra    |
-  | 2                    | 3 * user_extra      | 2 * user_extra|
-  | 3                    | 6 * user_extra      | 3 * user_extra|
-  | 4                    | 10 * user_extra     | 4 * user_extra|
-
-Fix this by maintaining proper user_extra and extra.
-
-Reviewed-By: Hechao Li <hechaol@fb.com>
-Reported-by: Hechao Li <hechaol@fb.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <kernel-team@fb.com>
-Cc: Jie Meng <jmeng@fb.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190904214618.3795672-1-songliubraving@fb.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Link: https://lkml.kernel.org/n/tip-9ig269f7ktnhh99g4l15vpu2@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/core.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ tools/perf/arch/powerpc/util/header.c | 3 ++-
+ tools/perf/arch/s390/util/header.c    | 9 +++++----
+ tools/perf/arch/x86/util/header.c     | 3 ++-
+ tools/perf/builtin-kvm.c              | 7 ++++---
+ 4 files changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index a2a50b668ef32..c0a6a50e01af6 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -5585,7 +5585,8 @@ again:
- 	 * undo the VM accounting.
- 	 */
+diff --git a/tools/perf/arch/powerpc/util/header.c b/tools/perf/arch/powerpc/util/header.c
+index 0b242664f5ea7..e46be9ef5a688 100644
+--- a/tools/perf/arch/powerpc/util/header.c
++++ b/tools/perf/arch/powerpc/util/header.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <sys/types.h>
++#include <errno.h>
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -31,7 +32,7 @@ get_cpuid(char *buffer, size_t sz)
+ 		buffer[nb-1] = '\0';
+ 		return 0;
+ 	}
+-	return -1;
++	return ENOBUFS;
+ }
  
--	atomic_long_sub((size >> PAGE_SHIFT) + 1, &mmap_user->locked_vm);
-+	atomic_long_sub((size >> PAGE_SHIFT) + 1 - mmap_locked,
-+			&mmap_user->locked_vm);
- 	atomic64_sub(mmap_locked, &vma->vm_mm->pinned_vm);
- 	free_uid(mmap_user);
+ char *
+diff --git a/tools/perf/arch/s390/util/header.c b/tools/perf/arch/s390/util/header.c
+index 163b92f339980..cc72554c362a1 100644
+--- a/tools/perf/arch/s390/util/header.c
++++ b/tools/perf/arch/s390/util/header.c
+@@ -11,6 +11,7 @@
+  */
  
-@@ -5729,8 +5730,20 @@ accounting:
+ #include <sys/types.h>
++#include <errno.h>
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <string.h>
+@@ -56,7 +57,7 @@ int get_cpuid(char *buffer, size_t sz)
  
- 	user_locked = atomic_long_read(&user->locked_vm) + user_extra;
+ 	sysinfo = fopen(SYSINFO, "r");
+ 	if (sysinfo == NULL)
+-		return -1;
++		return errno;
  
--	if (user_locked > user_lock_limit)
-+	if (user_locked <= user_lock_limit) {
-+		/* charge all to locked_vm */
-+	} else if (atomic_long_read(&user->locked_vm) >= user_lock_limit) {
-+		/* charge all to pinned_vm */
-+		extra = user_extra;
-+		user_extra = 0;
-+	} else {
-+		/*
-+		 * charge locked_vm until it hits user_lock_limit;
-+		 * charge the rest from pinned_vm
-+		 */
- 		extra = user_locked - user_lock_limit;
-+		user_extra -= extra;
-+	}
+ 	while ((read = getline(&line, &line_sz, sysinfo)) != -1) {
+ 		if (!strncmp(line, SYSINFO_MANU, strlen(SYSINFO_MANU))) {
+@@ -91,7 +92,7 @@ int get_cpuid(char *buffer, size_t sz)
  
- 	lock_limit = rlimit(RLIMIT_MEMLOCK);
- 	lock_limit >>= PAGE_SHIFT;
+ 	/* Missing manufacturer, type or model information should not happen */
+ 	if (!manufacturer[0] || !type[0] || !model[0])
+-		return -1;
++		return EINVAL;
+ 
+ 	/*
+ 	 * Scan /proc/service_levels and return the CPU-MF counter facility
+@@ -135,14 +136,14 @@ skip_sysinfo:
+ 	else
+ 		nbytes = snprintf(buffer, sz, "%s,%s,%s", manufacturer, type,
+ 				  model);
+-	return (nbytes >= sz) ? -1 : 0;
++	return (nbytes >= sz) ? ENOBUFS : 0;
+ }
+ 
+ char *get_cpuid_str(struct perf_pmu *pmu __maybe_unused)
+ {
+ 	char *buf = malloc(128);
+ 
+-	if (buf && get_cpuid(buf, 128) < 0)
++	if (buf && get_cpuid(buf, 128))
+ 		zfree(&buf);
+ 	return buf;
+ }
+diff --git a/tools/perf/arch/x86/util/header.c b/tools/perf/arch/x86/util/header.c
+index fb0d71afee8bb..2a5daec6fb8b0 100644
+--- a/tools/perf/arch/x86/util/header.c
++++ b/tools/perf/arch/x86/util/header.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <sys/types.h>
++#include <errno.h>
+ #include <unistd.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+@@ -56,7 +57,7 @@ __get_cpuid(char *buffer, size_t sz, const char *fmt)
+ 		buffer[nb-1] = '\0';
+ 		return 0;
+ 	}
+-	return -1;
++	return ENOBUFS;
+ }
+ 
+ int
+diff --git a/tools/perf/builtin-kvm.c b/tools/perf/builtin-kvm.c
+index 2b1ef704169f2..952e2228f6c60 100644
+--- a/tools/perf/builtin-kvm.c
++++ b/tools/perf/builtin-kvm.c
+@@ -699,14 +699,15 @@ static int process_sample_event(struct perf_tool *tool,
+ 
+ static int cpu_isa_config(struct perf_kvm_stat *kvm)
+ {
+-	char buf[64], *cpuid;
++	char buf[128], *cpuid;
+ 	int err;
+ 
+ 	if (kvm->live) {
+ 		err = get_cpuid(buf, sizeof(buf));
+ 		if (err != 0) {
+-			pr_err("Failed to look up CPU type\n");
+-			return err;
++			pr_err("Failed to look up CPU type: %s\n",
++			       str_error_r(err, buf, sizeof(buf)));
++			return -err;
+ 		}
+ 		cpuid = buf;
+ 	} else
 -- 
 2.20.1
 
