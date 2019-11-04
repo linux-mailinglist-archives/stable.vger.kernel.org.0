@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3513EEBAA
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:50:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56694EEC04
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:53:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387561AbfKDVuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:50:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41766 "EHLO mail.kernel.org"
+        id S1730891AbfKDVxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:53:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387579AbfKDVuA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:50:00 -0500
+        id S1730881AbfKDVxC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:53:02 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4675920B7C;
-        Mon,  4 Nov 2019 21:49:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C485D218BA;
+        Mon,  4 Nov 2019 21:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904199;
-        bh=Rn0/Mi5LHX/GqRyJtr5QLbTHjuFr7bTB1sLx5GUORZU=;
+        s=default; t=1572904381;
+        bh=sn9PuHWrsSWJy+qnRz1rl2QGZbrjTOyXUksthEqa3vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RpZQSG5kTHUnurEAbb9jXOQE/gAalxzmODFx09uwj1ymRfCqgiqZnKBNmMRZjA3I4
-         BNjcuCVDedkfBq2spTLeNDfidGAYOJ6oM0ps5W6uuLlrS2nY/G7dK0ypVcRVSW2WTq
-         wdtYVKxzbBZizE6ZUz636Up0ANoM5nDXqg9TBAyA=
+        b=bUmAfNwOhxvENFDwFiV/6i12j8zRk6ZIQwUNz5PVqaGeNHSyknegcdAq7Wk7Q1Bit
+         j/VNltIpjYoq/SG+2MtHFjNvstdlj6XMAu1+WaRceRHCLmj344IwKdNF6PulT1GfSM
+         fhs3KvfVJEAtypX+jr7SuX8FNDMUtPafEZnp0GmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 02/62] dm snapshot: introduce account_start_copy() and account_end_copy()
-Date:   Mon,  4 Nov 2019 22:44:24 +0100
-Message-Id: <20191104211902.785967140@linuxfoundation.org>
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 27/95] perf tests: Avoid raising SEGV using an obvious NULL dereference
+Date:   Mon,  4 Nov 2019 22:44:25 +0100
+Message-Id: <20191104212056.389615802@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +49,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit a2f83e8b0c82c9500421a26c49eb198b25fcdea3 ]
+[ Upstream commit e3e2cf3d5b1fe800b032e14c0fdcd9a6fb20cf3b ]
 
-This simple refactoring moves code for modifying the semaphore cow_count
-into separate functions to prepare for changes that will extend these
-methods to provide for a more sophisticated mechanism for COW
-throttling.
+An optimized build such as:
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+  make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-O3
+
+will turn the dereference operation into a ud2 instruction, raising a
+SIGILL rather than a SIGSEGV. Use raise(..) for correctness and clarity.
+
+Similar issues were addressed in Numfor Mbiziwo-Tiapo's patch:
+
+  https://lkml.org/lkml/2019/7/8/1234
+
+Committer testing:
+
+Before:
+
+  [root@quaco ~]# perf test hooks
+  55: perf hooks                                            : Ok
+  [root@quaco ~]# perf test -v hooks
+  55: perf hooks                                            :
+  --- start ---
+  test child forked, pid 17092
+  SIGSEGV is observed as expected, try to recover.
+  Fatal error (SEGFAULT) in perf hook 'test'
+  test child finished with 0
+  ---- end ----
+  perf hooks: Ok
+  [root@quaco ~]#
+
+After:
+
+  [root@quaco ~]# perf test hooks
+  55: perf hooks                                            : Ok
+  [root@quaco ~]# perf test -v hooks
+  55: perf hooks                                            :
+  --- start ---
+  test child forked, pid 17909
+  SIGSEGV is observed as expected, try to recover.
+  Fatal error (SEGFAULT) in perf hook 'test'
+  test child finished with 0
+  ---- end ----
+  perf hooks: Ok
+  [root@quaco ~]#
+
+Fixes: a074865e60ed ("perf tools: Introduce perf hooks")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: http://lore.kernel.org/lkml/20190925195924.152834-2-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-snap.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ tools/perf/tests/perf-hooks.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
-index e5b0e13f5c92d..ef51ab8a5dcb2 100644
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -1399,6 +1399,16 @@ static void snapshot_dtr(struct dm_target *ti)
- 	kfree(s);
+diff --git a/tools/perf/tests/perf-hooks.c b/tools/perf/tests/perf-hooks.c
+index a693bcf017ea2..44c16fd11bf6e 100644
+--- a/tools/perf/tests/perf-hooks.c
++++ b/tools/perf/tests/perf-hooks.c
+@@ -20,12 +20,11 @@ static void sigsegv_handler(int sig __maybe_unused)
+ static void the_hook(void *_hook_flags)
+ {
+ 	int *hook_flags = _hook_flags;
+-	int *p = NULL;
+ 
+ 	*hook_flags = 1234;
+ 
+ 	/* Generate a segfault, test perf_hooks__recover */
+-	*p = 0;
++	raise(SIGSEGV);
  }
  
-+static void account_start_copy(struct dm_snapshot *s)
-+{
-+	down(&s->cow_count);
-+}
-+
-+static void account_end_copy(struct dm_snapshot *s)
-+{
-+	up(&s->cow_count);
-+}
-+
- /*
-  * Flush a list of buffers.
-  */
-@@ -1581,7 +1591,7 @@ static void copy_callback(int read_err, unsigned long write_err, void *context)
- 		}
- 		list_add(&pe->out_of_order_entry, lh);
- 	}
--	up(&s->cow_count);
-+	account_end_copy(s);
- }
- 
- /*
-@@ -1605,7 +1615,7 @@ static void start_copy(struct dm_snap_pending_exception *pe)
- 	dest.count = src.count;
- 
- 	/* Hand over to kcopyd */
--	down(&s->cow_count);
-+	account_start_copy(s);
- 	dm_kcopyd_copy(s->kcopyd_client, &src, 1, &dest, 0, copy_callback, pe);
- }
- 
-@@ -1625,7 +1635,7 @@ static void start_full_bio(struct dm_snap_pending_exception *pe,
- 	pe->full_bio = bio;
- 	pe->full_bio_end_io = bio->bi_end_io;
- 
--	down(&s->cow_count);
-+	account_start_copy(s);
- 	callback_data = dm_kcopyd_prepare_callback(s->kcopyd_client,
- 						   copy_callback, pe);
- 
+ int test__perf_hooks(struct test *test __maybe_unused, int subtest __maybe_unused)
 -- 
 2.20.1
 
