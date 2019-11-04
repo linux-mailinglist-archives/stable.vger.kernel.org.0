@@ -2,105 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7D35ED761
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 02:58:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A72DED7B8
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 03:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728432AbfKDB6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Nov 2019 20:58:31 -0500
-Received: from mail-wm1-f51.google.com ([209.85.128.51]:39733 "EHLO
-        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728427AbfKDB6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 20:58:30 -0500
-Received: by mail-wm1-f51.google.com with SMTP id t26so10284234wmi.4
-        for <stable@vger.kernel.org>; Sun, 03 Nov 2019 17:58:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=y+u0FRu7jfuih55FbrlKhvnNcFOb1ujsWRbxajQ+B/8=;
-        b=sLvREL7RqMAdH9MPcyj+5/90Xcx8bhU+gIUPO3+sX0IflEXgGseusVCLoxpmO1u/0i
-         TOEb7XnqN31yZtRL0WnpyY+fVrM5uiEAattbY6YMgTLbTxRCm9dMpxpOFkkQ6wPmmptF
-         MNPyKf4K7UXAhygWYKFidQdqKgsU2tvaSsjXqX3GcoKvAWN9E0OZTKHyuDyGEkDn+87r
-         dClbBa0VDCacYFnHg05aq2I2uSHRCp1RwTwOrQdWSdC1jfq8BE8RrNf0pL6fGziQy/sX
-         EwrTK75GVcwTgVylg870uL6SizPuKETBJ+gRKU+e4UcWFhgVY2y39vakMO6YdevcPGRo
-         eAlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=y+u0FRu7jfuih55FbrlKhvnNcFOb1ujsWRbxajQ+B/8=;
-        b=aTY9fhdOjf83cflw5zRp0NYWz2RCe9z9+CsqJyYTZmV9HuuM5it/DLLVDEEcPeQwbe
-         NgBzXh1VXFG15tLuWafqyeFHqm0QQROP/7Aa0ZO2vEnd6dovj7q61kSEDQjTI1z4ajSK
-         M7LnYQDyR1n/LV+/dP0LF4iuBKK4gnMwMDvo4PK7RlYSuUDnjBRB/qzTMibuFFL4JTvH
-         z2wYdjHKyWXVmITqMq4vhJ5HFrlYs7Ph9gKO4U2jsuvuECyHVsJhmbusRCXBRq+AklmM
-         uQsOLWzWpiCj0HQknMwWANsCUOof3JbFyJ8cYHoSl5V0VUX3YTgiF7QU4+pRwo4Qbyut
-         XOJA==
-X-Gm-Message-State: APjAAAUzJXgoZ/0Z32SmIXVjLEuWQa37i4dP4KyPgzFoQVNQnW1qQWvs
-        kAMXeY85P2WD+IDv3wOg1OeMBcasfnc99w==
-X-Google-Smtp-Source: APXvYqw+N5YF0CscZvDJ8TlrTJROU+2XkWkNIckWCpWslvyegvijkQWytg0q14hsuMrjfVxDhPZ4xQ==
-X-Received: by 2002:a1c:e08a:: with SMTP id x132mr21192404wmg.146.1572832708704;
-        Sun, 03 Nov 2019 17:58:28 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a16sm22752044wmd.11.2019.11.03.17.58.28
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Nov 2019 17:58:28 -0800 (PST)
-Message-ID: <5dbf85c4.1c69fb81.53545.a9d4@mx.google.com>
-Date:   Sun, 03 Nov 2019 17:58:28 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1728896AbfKDCeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Nov 2019 21:34:14 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:49272 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728807AbfKDCeN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 21:34:13 -0500
+Received: from pps.filterd (m0098416.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA42WUpX053825
+        for <stable@vger.kernel.org>; Sun, 3 Nov 2019 21:34:11 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w2380c3g8-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Sun, 03 Nov 2019 21:34:10 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <alastair@au1.ibm.com>;
+        Mon, 4 Nov 2019 02:34:08 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Mon, 4 Nov 2019 02:34:04 -0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id xA42Y3gw53149784
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 4 Nov 2019 02:34:03 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id ADA0A11C050;
+        Mon,  4 Nov 2019 02:34:03 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5ADE911C04A;
+        Mon,  4 Nov 2019 02:34:03 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon,  4 Nov 2019 02:34:03 +0000 (GMT)
+Received: from adsilva.ozlabs.ibm.com (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher DHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id 99386A01D6;
+        Mon,  4 Nov 2019 13:34:01 +1100 (AEDT)
+From:   "Alastair D'Silva" <alastair@au1.ibm.com>
+To:     alastair@d-silva.org
+Cc:     stable@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Allison Randal <allison@lohutok.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Qian Cai <cai@lca.pw>, Thomas Gleixner <tglx@linutronix.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v5 1/6] powerpc: Allow flush_icache_range to work across ranges >4GB
+Date:   Mon,  4 Nov 2019 13:32:53 +1100
+X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20191104023305.9581-1-alastair@au1.ibm.com>
+References: <20191104023305.9581-1-alastair@au1.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.151-68-g6315e63eb529
-Subject: stable-rc/linux-4.14.y boot: 110 boots: 0 failed,
- 103 passed with 7 offline (v4.14.151-68-g6315e63eb529)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19110402-0008-0000-0000-0000032A5D3D
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19110402-0009-0000-0000-00004A49B0C3
+Message-Id: <20191104023305.9581-2-alastair@au1.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-11-04_02:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=651 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1908290000 definitions=main-1911040026
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 110 boots: 0 failed, 103 passed with 7 offline=
- (v4.14.151-68-g6315e63eb529)
+From: Alastair D'Silva <alastair@d-silva.org>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.151-68-g6315e63eb529/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.151-68-g6315e63eb529/
+When calling flush_icache_range with a size >4GB, we were masking
+off the upper 32 bits, so we would incorrectly flush a range smaller
+than intended.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.151-68-g6315e63eb529
-Git Commit: 6315e63eb529c3e0813988aa6cc049b925f5d9bf
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 62 unique boards, 22 SoC families, 13 builds out of 201
+This patch replaces the 32 bit shifts with 64 bit ones, so that
+the full size is accounted for.
 
-Offline Platforms:
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
+Signed-off-by: Alastair D'Silva <alastair@d-silva.org>
+Cc: stable@vger.kernel.org
 ---
-For more info write to <info@kernelci.org>
+ arch/powerpc/kernel/misc_64.S | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/powerpc/kernel/misc_64.S b/arch/powerpc/kernel/misc_64.S
+index b55a7b4cb543..9bc0aa9aeb65 100644
+--- a/arch/powerpc/kernel/misc_64.S
++++ b/arch/powerpc/kernel/misc_64.S
+@@ -82,7 +82,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5		/* ensure we get enough */
+ 	lwz	r9,DCACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of cache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 1:	dcbst	0,r6
+@@ -98,7 +98,7 @@ END_FTR_SECTION_IFSET(CPU_FTR_COHERENT_ICACHE)
+ 	subf	r8,r6,r4		/* compute length */
+ 	add	r8,r8,r5
+ 	lwz	r9,ICACHEL1LOGBLOCKSIZE(r10)	/* Get log-2 of Icache block size */
+-	srw.	r8,r8,r9		/* compute line count */
++	srd.	r8,r8,r9		/* compute line count */
+ 	beqlr				/* nothing to do? */
+ 	mtctr	r8
+ 2:	icbi	0,r6
+-- 
+2.21.0
+
