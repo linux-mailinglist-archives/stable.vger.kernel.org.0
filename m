@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66118EEECC
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:17:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 981ACEEDF1
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389446AbfKDWDE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:03:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33352 "EHLO mail.kernel.org"
+        id S2390151AbfKDWLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:11:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389439AbfKDWDD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:03:03 -0500
+        id S2389690AbfKDWLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:11:38 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38148205C9;
-        Mon,  4 Nov 2019 22:03:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D524C214D8;
+        Mon,  4 Nov 2019 22:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904982;
-        bh=skkmoGjXYekJxF+wqutkZl3ezwVHqan+selz2Uno7hs=;
+        s=default; t=1572905497;
+        bh=T+LjWKOQ8tdarN2nS0pC/yJIt6hkP6gQJLvHeZuI8gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gAUCf6Nso0w+X7moUj0T1/AOKKAxle/TEgVGvPypqWzO0Xv1NM1tO6Xxi4vlkpCWm
-         Vkz94uMqbPJ8JTd3cREisYhwNH4N8wqbwXoQ6EtUXDu4+w8SnGxTkngwzQ+5EkdZ2R
-         Z94PUHIuz+IgA92D0L5wYvAGLRIO6yt3NdGvzwL4=
+        b=cfiiVU+rulsvydgdKpGt945IaeV2QFi0GJiglZz/sXAgeLy1IBJ5fVxQriCCcpbin
+         bwV217xmqQmMARxvTvc6OG+l3UC0fxwVTXUaYLU3fUwvrQwCHortMhhHbgdI37CoC9
+         6B1e0YEpTHsqhZgK1g8EgtXuOFUWkFHm4bCd8br0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>
-Subject: [PATCH 4.19 139/149] rxrpc: rxrpc_peer needs to hold a ref on the rxrpc_local record
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.3 142/163] NFS: Fix an RCU lock leak in nfs4_refresh_delegation_stateid()
 Date:   Mon,  4 Nov 2019 22:45:32 +0100
-Message-Id: <20191104212146.484170363@linuxfoundation.org>
+Message-Id: <20191104212150.614033643@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit 9ebeddef58c41bd700419cdcece24cf64ce32276 upstream.
+commit 79cc55422ce99be5964bde208ba8557174720893 upstream.
 
-The rxrpc_peer record needs to hold a reference on the rxrpc_local record
-it points as the peer is used as a base to access information in the
-rxrpc_local record.
+A typo in nfs4_refresh_delegation_stateid() means we're leaking an
+RCU lock, and always returning a value of 'false'. As the function
+description states, we were always supposed to return 'true' if a
+matching delegation was found.
 
-This can cause problems in __rxrpc_put_peer(), where we need the network
-namespace pointer, and in rxrpc_send_keepalive(), where we need to access
-the UDP socket, leading to symptoms like:
-
-    BUG: KASAN: use-after-free in __rxrpc_put_peer net/rxrpc/peer_object.c:411
-    [inline]
-    BUG: KASAN: use-after-free in rxrpc_put_peer+0x685/0x6a0
-    net/rxrpc/peer_object.c:435
-    Read of size 8 at addr ffff888097ec0058 by task syz-executor823/24216
-
-Fix this by taking a ref on the local record for the peer record.
-
-Fixes: ace45bec6d77 ("rxrpc: Fix firewall route keepalive")
-Fixes: 2baec2c3f854 ("rxrpc: Support network namespacing")
-Reported-by: syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
+Fixes: 12f275cdd163 ("NFSv4: Retry CLOSE and DELEGRETURN on NFS4ERR_OLD_STATEID.")
+Cc: stable@vger.kernel.org # v4.15+
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/rxrpc/peer_object.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/nfs/delegation.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -220,7 +220,7 @@ struct rxrpc_peer *rxrpc_alloc_peer(stru
- 	peer = kzalloc(sizeof(struct rxrpc_peer), gfp);
- 	if (peer) {
- 		atomic_set(&peer->usage, 1);
--		peer->local = local;
-+		peer->local = rxrpc_get_local(local);
- 		INIT_HLIST_HEAD(&peer->error_targets);
- 		peer->service_conns = RB_ROOT;
- 		seqlock_init(&peer->service_conn_lock);
-@@ -311,7 +311,6 @@ void rxrpc_new_incoming_peer(struct rxrp
- 	unsigned long hash_key;
- 
- 	hash_key = rxrpc_peer_hash_key(local, &peer->srx);
--	peer->local = local;
- 	rxrpc_init_peer(rx, peer, hash_key);
- 
- 	spin_lock(&rxnet->peer_hash_lock);
-@@ -421,6 +420,7 @@ static void __rxrpc_put_peer(struct rxrp
- 	list_del_init(&peer->keepalive_link);
- 	spin_unlock_bh(&rxnet->peer_hash_lock);
- 
-+	rxrpc_put_local(peer->local);
- 	kfree_rcu(peer, rcu);
- }
- 
-@@ -454,6 +454,7 @@ void rxrpc_put_peer_locked(struct rxrpc_
- 	if (n == 0) {
- 		hash_del_rcu(&peer->hash_link);
- 		list_del_init(&peer->keepalive_link);
-+		rxrpc_put_local(peer->local);
- 		kfree_rcu(peer, rcu);
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -1181,7 +1181,7 @@ bool nfs4_refresh_delegation_stateid(nfs
+ 	if (delegation != NULL &&
+ 	    nfs4_stateid_match_other(dst, &delegation->stateid)) {
+ 		dst->seqid = delegation->stateid.seqid;
+-		return ret;
++		ret = true;
  	}
- }
+ 	rcu_read_unlock();
+ out:
 
 
