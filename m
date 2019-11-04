@@ -2,136 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDE80EEE16
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31265EEDD2
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389987AbfKDWLa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:11:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389550AbfKDWLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:11:30 -0500
-Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44027214D9;
-        Mon,  4 Nov 2019 22:11:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905488;
-        bh=3QAZop3R1QovG2h91P6pO+vj40enEfMY+gb0f6zrkTg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJCo2woOhU75kwY6YlNNRwBytcklrEoXZKtMM8yMAk2ldpJrLtXQiuHqJJl3V5ouL
-         2enp/5gfcSMYCW7PN3OYZvCSCxb7PQVDM6gB793jDf0ZwvKUUEcIHZw9qVFWbr5ypL
-         IL0+r7Q2Si1wDpRSvRP71/hEXQyi4yNOAujtdDQU=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>,
-        Dave Chiluk <chiluk+linux@indeed.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, pauld@redhat.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 163/163] sched/fair: Fix -Wunused-but-set-variable warnings
-Date:   Mon,  4 Nov 2019 22:45:53 +0100
-Message-Id: <20191104212152.121299339@linuxfoundation.org>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2387536AbfKDWKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:10:21 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:39015 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390504AbfKDWKU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 17:10:20 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iRkY0-0007oR-Jh; Mon, 04 Nov 2019 23:10:04 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id DEDDE1C0017;
+        Mon,  4 Nov 2019 23:10:03 +0100 (CET)
+Date:   Mon, 04 Nov 2019 22:10:03 -0000
+From:   "tip-bot2 for Huacai Chen" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: timers/urgent] timekeeping/vsyscall: Update VDSO data unconditionally
+Cc:     Huacai Chen <chenhc@lemote.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1571887709-11447-1-git-send-email-chenhc@lemote.com>
+References: <1571887709-11447-1-git-send-email-chenhc@lemote.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <157290540350.29376.5969235863179895531.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+The following commit has been merged into the timers/urgent branch of tip:
 
-[ Upstream commit 763a9ec06c409dcde2a761aac4bb83ff3938e0b3 ]
+Commit-ID:     52338415cf4d4064ae6b8dd972dadbda841da4fa
+Gitweb:        https://git.kernel.org/tip/52338415cf4d4064ae6b8dd972dadbda841da4fa
+Author:        Huacai Chen <chenhc@lemote.com>
+AuthorDate:    Thu, 24 Oct 2019 11:28:29 +08:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Mon, 04 Nov 2019 23:02:53 +01:00
 
-Commit:
+timekeeping/vsyscall: Update VDSO data unconditionally
 
-   de53fd7aedb1 ("sched/fair: Fix low cpu usage with high throttling by removing expiration of cpu-local slices")
+The update of the VDSO data is depending on __arch_use_vsyscall() returning
+True. This is a leftover from the attempt to map the features of various
+architectures 1:1 into generic code.
 
-introduced a few compilation warnings:
+The usage of __arch_use_vsyscall() in the actual vsyscall implementations
+got dropped and replaced by the requirement for the architecture code to
+return U64_MAX if the global clocksource is not usable in the VDSO.
 
-  kernel/sched/fair.c: In function '__refill_cfs_bandwidth_runtime':
-  kernel/sched/fair.c:4365:6: warning: variable 'now' set but not used [-Wunused-but-set-variable]
-  kernel/sched/fair.c: In function 'start_cfs_bandwidth':
-  kernel/sched/fair.c:4992:6: warning: variable 'overrun' set but not used [-Wunused-but-set-variable]
+But the __arch_use_vsyscall() check in the update code stayed which causes
+the VDSO data to be stale or invalid when an architecture actually
+implements that function and returns False when the current clocksource is
+not usable in the VDSO.
 
-Also, __refill_cfs_bandwidth_runtime() does no longer update the
-expiration time, so fix the comments accordingly.
+As a consequence the VDSO implementations of clock_getres(), time(),
+clock_gettime(CLOCK_.*_COARSE) operate on invalid data and return bogus
+information.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Reviewed-by: Dave Chiluk <chiluk+linux@indeed.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: pauld@redhat.com
-Fixes: de53fd7aedb1 ("sched/fair: Fix low cpu usage with high throttling by removing expiration of cpu-local slices")
-Link: https://lkml.kernel.org/r/1566326455-8038-1-git-send-email-cai@lca.pw
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Remove the __arch_use_vsyscall() check from the VDSO update function and
+update the VDSO data unconditionally.
+
+[ tglx: Massaged changelog and removed the now useless implementations in
+  	asm-generic/ARM64/MIPS ]
+
+Fixes: 44f57d788e7deecb50 ("timekeeping: Provide a generic update_vsyscall() implementation")
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/1571887709-11447-1-git-send-email-chenhc@lemote.com
 ---
- kernel/sched/fair.c | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ arch/arm64/include/asm/vdso/vsyscall.h |  7 -------
+ arch/mips/include/asm/vdso/vsyscall.h  |  7 -------
+ include/asm-generic/vdso/vsyscall.h    |  7 -------
+ kernel/time/vsyscall.c                 |  9 +++------
+ 4 files changed, 3 insertions(+), 27 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index a11a9c2d7793e..649c6b60929e2 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4355,21 +4355,16 @@ static inline u64 sched_cfs_bandwidth_slice(void)
- }
+diff --git a/arch/arm64/include/asm/vdso/vsyscall.h b/arch/arm64/include/asm/vdso/vsyscall.h
+index 0c731bf..0c20a7c 100644
+--- a/arch/arm64/include/asm/vdso/vsyscall.h
++++ b/arch/arm64/include/asm/vdso/vsyscall.h
+@@ -31,13 +31,6 @@ int __arm64_get_clock_mode(struct timekeeper *tk)
+ #define __arch_get_clock_mode __arm64_get_clock_mode
  
- /*
-- * Replenish runtime according to assigned quota and update expiration time.
-- * We use sched_clock_cpu directly instead of rq->clock to avoid adding
-- * additional synchronization around rq->lock.
-+ * Replenish runtime according to assigned quota. We use sched_clock_cpu
-+ * directly instead of rq->clock to avoid adding additional synchronization
-+ * around rq->lock.
-  *
-  * requires cfs_b->lock
-  */
- void __refill_cfs_bandwidth_runtime(struct cfs_bandwidth *cfs_b)
+ static __always_inline
+-int __arm64_use_vsyscall(struct vdso_data *vdata)
+-{
+-	return !vdata[CS_HRES_COARSE].clock_mode;
+-}
+-#define __arch_use_vsyscall __arm64_use_vsyscall
+-
+-static __always_inline
+ void __arm64_update_vsyscall(struct vdso_data *vdata, struct timekeeper *tk)
  {
--	u64 now;
--
--	if (cfs_b->quota == RUNTIME_INF)
--		return;
--
--	now = sched_clock_cpu(smp_processor_id());
--	cfs_b->runtime = cfs_b->quota;
-+	if (cfs_b->quota != RUNTIME_INF)
-+		cfs_b->runtime = cfs_b->quota;
+ 	vdata[CS_HRES_COARSE].mask	= VDSO_PRECISION_MASK;
+diff --git a/arch/mips/include/asm/vdso/vsyscall.h b/arch/mips/include/asm/vdso/vsyscall.h
+index 1953147..00d41b9 100644
+--- a/arch/mips/include/asm/vdso/vsyscall.h
++++ b/arch/mips/include/asm/vdso/vsyscall.h
+@@ -28,13 +28,6 @@ int __mips_get_clock_mode(struct timekeeper *tk)
  }
+ #define __arch_get_clock_mode __mips_get_clock_mode
  
- static inline struct cfs_bandwidth *tg_cfs_bandwidth(struct task_group *tg)
-@@ -4999,15 +4994,13 @@ static void init_cfs_rq_runtime(struct cfs_rq *cfs_rq)
+-static __always_inline
+-int __mips_use_vsyscall(struct vdso_data *vdata)
+-{
+-	return (vdata[CS_HRES_COARSE].clock_mode != VDSO_CLOCK_NONE);
+-}
+-#define __arch_use_vsyscall __mips_use_vsyscall
+-
+ /* The asm-generic header needs to be included after the definitions above */
+ #include <asm-generic/vdso/vsyscall.h>
  
- void start_cfs_bandwidth(struct cfs_bandwidth *cfs_b)
+diff --git a/include/asm-generic/vdso/vsyscall.h b/include/asm-generic/vdso/vsyscall.h
+index e94b197..ce41032 100644
+--- a/include/asm-generic/vdso/vsyscall.h
++++ b/include/asm-generic/vdso/vsyscall.h
+@@ -25,13 +25,6 @@ static __always_inline int __arch_get_clock_mode(struct timekeeper *tk)
+ }
+ #endif /* __arch_get_clock_mode */
+ 
+-#ifndef __arch_use_vsyscall
+-static __always_inline int __arch_use_vsyscall(struct vdso_data *vdata)
+-{
+-	return 1;
+-}
+-#endif /* __arch_use_vsyscall */
+-
+ #ifndef __arch_update_vsyscall
+ static __always_inline void __arch_update_vsyscall(struct vdso_data *vdata,
+ 						   struct timekeeper *tk)
+diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
+index 4bc37ac..5ee0f77 100644
+--- a/kernel/time/vsyscall.c
++++ b/kernel/time/vsyscall.c
+@@ -110,8 +110,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 	nsec		= nsec + tk->wall_to_monotonic.tv_nsec;
+ 	vdso_ts->sec	+= __iter_div_u64_rem(nsec, NSEC_PER_SEC, &vdso_ts->nsec);
+ 
+-	if (__arch_use_vsyscall(vdata))
+-		update_vdso_data(vdata, tk);
++	update_vdso_data(vdata, tk);
+ 
+ 	__arch_update_vsyscall(vdata, tk);
+ 
+@@ -124,10 +123,8 @@ void update_vsyscall_tz(void)
  {
--	u64 overrun;
--
- 	lockdep_assert_held(&cfs_b->lock);
+ 	struct vdso_data *vdata = __arch_get_k_vdso_data();
  
- 	if (cfs_b->period_active)
- 		return;
+-	if (__arch_use_vsyscall(vdata)) {
+-		vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
+-		vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
+-	}
++	vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
++	vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
  
- 	cfs_b->period_active = 1;
--	overrun = hrtimer_forward_now(&cfs_b->period_timer, cfs_b->period);
-+	hrtimer_forward_now(&cfs_b->period_timer, cfs_b->period);
- 	hrtimer_start_expires(&cfs_b->period_timer, HRTIMER_MODE_ABS_PINNED);
+ 	__arch_sync_vdso_data(vdata);
  }
- 
--- 
-2.20.1
-
-
-
