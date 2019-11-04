@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F00EED79
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98430EEF46
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390092AbfKDWHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:07:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39502 "EHLO mail.kernel.org"
+        id S2388752AbfKDV7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390086AbfKDWHJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:07:09 -0500
+        id S2387947AbfKDV7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:50 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88EDE214D8;
-        Mon,  4 Nov 2019 22:07:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E83DC20650;
+        Mon,  4 Nov 2019 21:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905229;
-        bh=Z1qQ8+UxlcQJijWJfUxbC1ce0XHXMOMUHXD/QovTDxA=;
+        s=default; t=1572904789;
+        bh=fMBUQEOmoxly6xWm/iIwvO3nP3iN5L5jNyhwQBwg8xI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sKjbKmcqjNShjIyvH9NRNDok8LLHViPH2TQur5Xin/RAPKqCPSCONEjSS3HwZ0sxV
-         d6XJSzbgcAkFOGqxcMF7Q1Vd/kk20OLBfKW9GcVzRl/FuYSeKpj7xUWK+G8Rrod2m3
-         LTQDX9ejNN3PM6WWnbR0USI2mHhAd5pFlgumngFE=
+        b=nEe6doKy8hPdBTAMNJqs6V9FVO5gq4ehKKcJF9LkRLvreJS8vAYRE/GWbzCZRpKf/
+         EB/rmhV2wtXHiH34e+2JAcsgTIJzsosPJif6vbENzzJySxRnyz9nsBvJcatoIkEBYV
+         TpEUupM5T+P2m64yJaxedcDvYS53OU17nfJfDjUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Connor Kuehl <connor.kuehl@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 073/163] iio: imu: st_lsm6dsx: fix waitime for st_lsm6dsx i2c controller
+Subject: [PATCH 4.19 070/149] staging: rtl8188eu: fix null dereference when kzalloc fails
 Date:   Mon,  4 Nov 2019 22:44:23 +0100
-Message-Id: <20191104212145.161217765@linuxfoundation.org>
+Message-Id: <20191104212141.615664544@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Connor Kuehl <connor.kuehl@canonical.com>
 
-[ Upstream commit fdb828e2c71a09bb9e865f41b015597c5f671705 ]
+[ Upstream commit 955c1532a34305f2f780b47f0c40cc7c65500810 ]
 
-i2c controller available in st_lsm6dsx series performs i2c slave
-configuration using accel clock as trigger.
-st_lsm6dsx_shub_wait_complete routine is used to wait the controller has
-carried out the requested configuration. However if the accel sensor is not
-enabled we should not use its configured odr to estimate a proper timeout
+If kzalloc() returns NULL, the error path doesn't stop the flow of
+control from entering rtw_hal_read_chip_version() which dereferences the
+null pointer. Fix this by adding a 'goto' to the error path to more
+gracefully handle the issue and avoid proceeding with initialization
+steps that we're no longer prepared to handle.
 
-Fixes: c91c1c844ebd ("iio: imu: st_lsm6dsx: add i2c embedded controller support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Also update the debug message to be more consistent with the other debug
+messages in this function.
+
+Addresses-Coverity: ("Dereference after null check")
+
+Signed-off-by: Connor Kuehl <connor.kuehl@canonical.com>
+Link: https://lore.kernel.org/r/20190927214415.899-1-connor.kuehl@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
-index 66fbcd94642d4..4c754a02717b3 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_shub.c
-@@ -92,9 +92,11 @@ static const struct st_lsm6dsx_ext_dev_settings st_lsm6dsx_ext_dev_table[] = {
- static void st_lsm6dsx_shub_wait_complete(struct st_lsm6dsx_hw *hw)
- {
- 	struct st_lsm6dsx_sensor *sensor;
-+	u16 odr;
+diff --git a/drivers/staging/rtl8188eu/os_dep/usb_intf.c b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+index dfee6985efa61..8ef7b44b6abc1 100644
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -348,8 +348,10 @@ static struct adapter *rtw_usb_if1_init(struct dvobj_priv *dvobj,
+ 	}
  
- 	sensor = iio_priv(hw->iio_devs[ST_LSM6DSX_ID_ACC]);
--	msleep((2000U / sensor->odr) + 1);
-+	odr = (hw->enable_mask & BIT(ST_LSM6DSX_ID_ACC)) ? sensor->odr : 13;
-+	msleep((2000U / odr) + 1);
- }
+ 	padapter->HalData = kzalloc(sizeof(struct hal_data_8188e), GFP_KERNEL);
+-	if (!padapter->HalData)
+-		DBG_88E("cant not alloc memory for HAL DATA\n");
++	if (!padapter->HalData) {
++		DBG_88E("Failed to allocate memory for HAL data\n");
++		goto free_adapter;
++	}
  
- /**
+ 	/* step read_chip_version */
+ 	rtw_hal_read_chip_version(padapter);
 -- 
 2.20.1
 
