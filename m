@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A224AEEF3B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B49BEED6D
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731047AbfKDV7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:59:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56304 "EHLO mail.kernel.org"
+        id S2389547AbfKDWGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:06:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731038AbfKDV7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:59:09 -0500
+        id S2389965AbfKDWG1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:06:27 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C438520659;
-        Mon,  4 Nov 2019 21:59:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4205020650;
+        Mon,  4 Nov 2019 22:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904749;
-        bh=sP7BL7tqYErBOvL8W0EM0ifrxBAL2ZwmaMUBXDKCsdQ=;
+        s=default; t=1572905186;
+        bh=jQsDchaHHk7q+hECoo6OxNL9DQD/CglCbpxAufwSRk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x8tYiGklybRxgLqrTEvTdZewwLO7TvHBKBfXAsSTmO5EOOLW2Y8iTtiPV3sHD0MWR
-         RLQakrmRTFmvFWGu3i3wtTkmTHyO9qu7uJObopbnOrfty2YOE5Sg0pjF55qP9VbfV1
-         /qM3ucEOsAGPCYd/jfXG9HzRpCLuz7RR+xvSU/Xc=
+        b=X+qMSEBbG0b8HVhuOST1WsYpD2tML3Fyj6bG5Mwn+q3rAsZscbC27+ys1O9cAUZLI
+         dH7/Lv/9iRV1KtGsdhx9zAFue9FblZZWaqmE7cQyUcukh5Hfvx62++++9damTOZAjJ
+         cqy+uXZYe/yUWteXCIjYwATsPgRZDUk2ZHwUFCMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 056/149] drm/amd/display: fix odm combine pipe reset
+Subject: [PATCH 5.3 059/163] fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()
 Date:   Mon,  4 Nov 2019 22:44:09 +0100
-Message-Id: <20191104212140.255532616@linuxfoundation.org>
+Message-Id: <20191104212144.352654938@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +52,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit f25f06b67ba237b76092a6fc522b1a94e84bfa85 ]
+[ Upstream commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d ]
 
-We fail to reset the second odm combine pipe. This change fixes
-odm pointer management.
+In ocfs2_xa_prepare_entry(), there is an if statement on line 2136 to
+check whether loc->xl_entry is NULL:
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+    if (loc->xl_entry)
+
+When loc->xl_entry is NULL, it is used on line 2158:
+
+    ocfs2_xa_add_entry(loc, name_hash);
+        loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
+        loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
+
+and line 2164:
+
+    ocfs2_xa_add_namevalue(loc, xi);
+        loc->xl_entry->xe_value_size = cpu_to_le64(xi->xi_value_len);
+        loc->xl_entry->xe_name_len = xi->xi_name_len;
+
+Thus, possible null-pointer dereferences may occur.
+
+To fix these bugs, if loc-xl_entry is NULL, ocfs2_xa_prepare_entry()
+abnormally returns with -EINVAL.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+[akpm@linux-foundation.org: remove now-unused ocfs2_xa_add_entry()]
+Link: http://lkml.kernel.org/r/20190726101447.9153-1-baijiaju1990@gmail.com
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/ocfs2/xattr.c | 56 ++++++++++++++++++++----------------------------
+ 1 file changed, 23 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index d440b28ee43fb..6896d69b8c240 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1399,9 +1399,9 @@ bool dc_remove_plane_from_context(
- 			 * For head pipe detach surfaces from pipe for tail
- 			 * pipe just zero it out
- 			 */
--			if (!pipe_ctx->top_pipe ||
--				(!pipe_ctx->top_pipe->top_pipe &&
-+			if (!pipe_ctx->top_pipe || (!pipe_ctx->top_pipe->top_pipe &&
- 					pipe_ctx->top_pipe->stream_res.opp != pipe_ctx->stream_res.opp)) {
-+				pipe_ctx->top_pipe = NULL;
- 				pipe_ctx->plane_state = NULL;
- 				pipe_ctx->bottom_pipe = NULL;
- 			} else {
-@@ -1803,8 +1803,6 @@ enum dc_status dc_remove_stream_from_ctx(
- 				dc->res_pool->funcs->remove_stream_from_ctx(dc, new_ctx, stream);
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index 90c830e3758e2..d8507972ee135 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -1490,18 +1490,6 @@ static int ocfs2_xa_check_space(struct ocfs2_xa_loc *loc,
+ 	return loc->xl_ops->xlo_check_space(loc, xi);
+ }
  
- 			memset(del_pipe, 0, sizeof(*del_pipe));
+-static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
+-{
+-	loc->xl_ops->xlo_add_entry(loc, name_hash);
+-	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
+-	/*
+-	 * We can't leave the new entry's xe_name_offset at zero or
+-	 * add_namevalue() will go nuts.  We set it to the size of our
+-	 * storage so that it can never be less than any other entry.
+-	 */
+-	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
+-}
 -
--			break;
- 		}
- 	}
+ static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
+ 				   struct ocfs2_xattr_info *xi)
+ {
+@@ -2133,29 +2121,31 @@ static int ocfs2_xa_prepare_entry(struct ocfs2_xa_loc *loc,
+ 	if (rc)
+ 		goto out;
  
+-	if (loc->xl_entry) {
+-		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
+-			orig_value_size = loc->xl_entry->xe_value_size;
+-			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
+-			if (rc)
+-				goto out;
+-			goto alloc_value;
+-		}
++	if (!loc->xl_entry) {
++		rc = -EINVAL;
++		goto out;
++	}
+ 
+-		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
+-			orig_clusters = ocfs2_xa_value_clusters(loc);
+-			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
+-			if (rc) {
+-				mlog_errno(rc);
+-				ocfs2_xa_cleanup_value_truncate(loc,
+-								"overwriting",
+-								orig_clusters);
+-				goto out;
+-			}
++	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
++		orig_value_size = loc->xl_entry->xe_value_size;
++		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
++		if (rc)
++			goto out;
++		goto alloc_value;
++	}
++
++	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
++		orig_clusters = ocfs2_xa_value_clusters(loc);
++		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
++		if (rc) {
++			mlog_errno(rc);
++			ocfs2_xa_cleanup_value_truncate(loc,
++							"overwriting",
++							orig_clusters);
++			goto out;
+ 		}
+-		ocfs2_xa_wipe_namevalue(loc);
+-	} else
+-		ocfs2_xa_add_entry(loc, name_hash);
++	}
++	ocfs2_xa_wipe_namevalue(loc);
+ 
+ 	/*
+ 	 * If we get here, we have a blank entry.  Fill it.  We grow our
 -- 
 2.20.1
 
