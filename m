@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E87B6EEC0D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 589E4EEBA3
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:49:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730993AbfKDVx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:53:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47448 "EHLO mail.kernel.org"
+        id S2387476AbfKDVtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:49:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730987AbfKDVx3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:53:29 -0500
+        id S2387501AbfKDVtq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:49:46 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0409621850;
-        Mon,  4 Nov 2019 21:53:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1396620B7C;
+        Mon,  4 Nov 2019 21:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904408;
-        bh=XT+45AHELqelbvkdANKgn/zccoTA/gMFB6V49Z8j63s=;
+        s=default; t=1572904185;
+        bh=Z4Vr1KaooQILrkTf+O1jZFGQD7EZq+zGisiVEVxIL2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyhmQf5eKwBgSOqOigg+ICvuudyPnsXmdnDm8sgu4r3rIr8csXIznunRxUOmAegz1
-         mLSy1YitOVhnu2HlOhDOfbBf6GxSQDiNj5aJSmzSNlMFwApPy/oxX0EDN/q+/RiCnv
-         b5GAZPJfm2tVNE9zjevbrd+Bu0tTmLOIwxkeXdDY=
+        b=M2nIpggo6lE0vj0bGiiIoN2KJJGdGIRe0pnqfYxAj9N86x1zMyfI1ZTAbhD2X7Tdt
+         12TAmE73DzMFyAEVxKI1V/5SK99aHyOUeYO7bw0chX5BekMIw7njhm+KWUdwwmcbD8
+         VLAwDXR1+O1aeEHY3dUA7QAXHVilYIsdmT6nC69s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/95] arm64: ftrace: Ensure synchronisation in PLT setup for Neoverse-N1 #1542419
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 11/62] rtc: pcf8523: set xtal load capacitance from DT
 Date:   Mon,  4 Nov 2019 22:44:33 +0100
-Message-Id: <20191104212100.174262863@linuxfoundation.org>
+Message-Id: <20191104211913.192314204@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Sam Ravnborg <sam@ravnborg.org>
 
-[ Upstream commit dd8a1f13488438c6c220b7cafa500baaf21a6e53 ]
+[ Upstream commit 189927e719e36ceefbb8037f23d3849e47833aef ]
 
-CPUs affected by Neoverse-N1 #1542419 may execute a stale instruction if
-it was recently modified. The affected sequence requires freshly written
-instructions to be executable before a branch to them is updated.
+Add support for specifying the xtal load capacitance in the DT node.
+The pcf8523 supports xtal load capacitance of 7pF or 12.5pF.
+If the rtc has the wrong configuration the time will
+drift several hours/week.
 
-There are very few places in the kernel that modify executable text,
-all but one come with sufficient synchronisation:
- * The module loader's flush_module_icache() calls flush_icache_range(),
-   which does a kick_all_cpus_sync()
- * bpf_int_jit_compile() calls flush_icache_range().
- * Kprobes calls aarch64_insn_patch_text(), which does its work in
-   stop_machine().
- * static keys and ftrace both patch between nops and branches to
-   existing kernel code (not generated code).
+The driver use the default value 12.5pF.
 
-The affected sequence is the interaction between ftrace and modules.
-The module PLT is cleaned using __flush_icache_range() as the trampoline
-shouldn't be executable until we update the branch to it.
+The DT may specify either 7000fF or 12500fF.
+(The DT uses femto Farad to avoid decimal numbers).
+Other values are warned and the driver uses the default value.
 
-Drop the double-underscore so that this path runs kick_all_cpus_sync()
-too.
-
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/ftrace.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-pcf8523.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/kernel/ftrace.c b/arch/arm64/kernel/ftrace.c
-index fac79d75d1d9d..6eefd5873aef4 100644
---- a/arch/arm64/kernel/ftrace.c
-+++ b/arch/arm64/kernel/ftrace.c
-@@ -119,7 +119,13 @@ int ftrace_make_call(struct dyn_ftrace *rec, unsigned long addr)
+diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
+index 3c8c6f942e67f..a06792966ea90 100644
+--- a/drivers/rtc/rtc-pcf8523.c
++++ b/drivers/rtc/rtc-pcf8523.c
+@@ -94,8 +94,9 @@ static int pcf8523_voltage_low(struct i2c_client *client)
+ 	return !!(value & REG_CONTROL3_BLF);
+ }
  
- 			/*
- 			 * Ensure updated trampoline is visible to instruction
--			 * fetch before we patch in the branch.
-+			 * fetch before we patch in the branch. Although the
-+			 * architecture doesn't require an IPI in this case,
-+			 * Neoverse-N1 erratum #1542419 does require one
-+			 * if the TLB maintenance in module_enable_ro() is
-+			 * skipped due to rodata_enabled. It doesn't seem worth
-+			 * it to make it conditional given that this is
-+			 * certainly not a fast-path.
- 			 */
- 			flush_icache_range((unsigned long)&dst[0],
- 					   (unsigned long)&dst[1]);
+-static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
++static int pcf8523_load_capacitance(struct i2c_client *client)
+ {
++	u32 load;
+ 	u8 value;
+ 	int err;
+ 
+@@ -103,14 +104,24 @@ static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (!high)
+-		value &= ~REG_CONTROL1_CAP_SEL;
+-	else
++	load = 12500;
++	of_property_read_u32(client->dev.of_node, "quartz-load-femtofarads",
++			     &load);
++
++	switch (load) {
++	default:
++		dev_warn(&client->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 12500",
++			 load);
++		/* fall through */
++	case 12500:
+ 		value |= REG_CONTROL1_CAP_SEL;
++		break;
++	case 7000:
++		value &= ~REG_CONTROL1_CAP_SEL;
++		break;
++	}
+ 
+ 	err = pcf8523_write(client, REG_CONTROL1, value);
+-	if (err < 0)
+-		return err;
+ 
+ 	return err;
+ }
+@@ -307,9 +318,10 @@ static int pcf8523_probe(struct i2c_client *client,
+ 	if (!pcf)
+ 		return -ENOMEM;
+ 
+-	err = pcf8523_select_capacitance(client, true);
++	err = pcf8523_load_capacitance(client);
+ 	if (err < 0)
+-		return err;
++		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
++			 err);
+ 
+ 	err = pcf8523_set_pm(client, 0);
+ 	if (err < 0)
 -- 
 2.20.1
 
