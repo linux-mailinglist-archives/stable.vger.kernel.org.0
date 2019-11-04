@@ -2,44 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1BF5EEB76
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:48:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7E70EEB7A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:48:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729925AbfKDVsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:48:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38044 "EHLO mail.kernel.org"
+        id S1729978AbfKDVsT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:48:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729660AbfKDVsI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:08 -0500
+        id S1729968AbfKDVsQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:48:16 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78033214E0;
-        Mon,  4 Nov 2019 21:48:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2BC121D81;
+        Mon,  4 Nov 2019 21:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904086;
-        bh=fry4oSyHeunB2T5myi7abXI9AvaNsGHVM56HfHU+S0s=;
+        s=default; t=1572904096;
+        bh=AW8JRg+49P+wsK0+18mdLzxYSUk1aFhVRS5tmh8A+Fw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pq3/YJQuoz2tDcSwrgOojDYTlmlfGiGomMFLzT48pSfvtJlZu4OsUTCUgjw35G4hV
-         MMVPnfcgBI9wlOWn+R83Kmn8mkFhNjLDruk8+dN54SanEEh44xKdpjePSMSlN2gZn3
-         HGhntaLl1GMEKzQqHrtHmH6oQ6x7Eqi7hYLevhik=
+        b=atsjtR3JU5vElkB03GF0qkbS2FNCO6qZZS0hgDbTRoEu2KfrM4EyFhO2lMRFkiKKI
+         1Vh83QAy/MpG2XKl/XR47ozzZUjQ7ggKM33DOkLgW6vlvl9vOoDYm7Jg9s0vul3FBh
+         hYle5UiSViAhzbgyhPmMshxE3T+JTr4Khz0DyUVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 17/46] fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()
-Date:   Mon,  4 Nov 2019 22:44:48 +0100
-Message-Id: <20191104211846.757302625@linuxfoundation.org>
+Subject: [PATCH 4.4 20/46] NFSv4: Fix leak of clp->cl_acceptor string
+Date:   Mon,  4 Nov 2019 22:44:51 +0100
+Message-Id: <20191104211850.806653505@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
 References: <20191104211830.912265604@linuxfoundation.org>
@@ -52,128 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-[ Upstream commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d ]
+[ Upstream commit 1047ec868332034d1fbcb2fae19fe6d4cb869ff2 ]
 
-In ocfs2_xa_prepare_entry(), there is an if statement on line 2136 to
-check whether loc->xl_entry is NULL:
+Our client can issue multiple SETCLIENTID operations to the same
+server in some circumstances. Ensure that calls to
+nfs4_proc_setclientid() after the first one do not overwrite the
+previously allocated cl_acceptor string.
 
-    if (loc->xl_entry)
+unreferenced object 0xffff888461031800 (size 32):
+  comm "mount.nfs", pid 2227, jiffies 4294822467 (age 1407.749s)
+  hex dump (first 32 bytes):
+    6e 66 73 40 6b 6c 69 6d 74 2e 69 62 2e 31 30 31  nfs@klimt.ib.101
+    35 67 72 61 6e 67 65 72 2e 6e 65 74 00 00 00 00  5granger.net....
+  backtrace:
+    [<00000000ab820188>] __kmalloc+0x128/0x176
+    [<00000000eeaf4ec8>] gss_stringify_acceptor+0xbd/0x1a7 [auth_rpcgss]
+    [<00000000e85e3382>] nfs4_proc_setclientid+0x34e/0x46c [nfsv4]
+    [<000000003d9cf1fa>] nfs40_discover_server_trunking+0x7a/0xed [nfsv4]
+    [<00000000b81c3787>] nfs4_discover_server_trunking+0x81/0x244 [nfsv4]
+    [<000000000801b55f>] nfs4_init_client+0x1b0/0x238 [nfsv4]
+    [<00000000977daf7f>] nfs4_set_client+0xfe/0x14d [nfsv4]
+    [<0000000053a68a2a>] nfs4_create_server+0x107/0x1db [nfsv4]
+    [<0000000088262019>] nfs4_remote_mount+0x2c/0x59 [nfsv4]
+    [<00000000e84a2fd0>] legacy_get_tree+0x2d/0x4c
+    [<00000000797e947c>] vfs_get_tree+0x20/0xc7
+    [<00000000ecabaaa8>] fc_mount+0xe/0x36
+    [<00000000f15fafc2>] vfs_kern_mount+0x74/0x8d
+    [<00000000a3ff4e26>] nfs_do_root_mount+0x8a/0xa3 [nfsv4]
+    [<00000000d1c2b337>] nfs4_try_mount+0x58/0xad [nfsv4]
+    [<000000004c9bddee>] nfs_fs_mount+0x820/0x869 [nfs]
 
-When loc->xl_entry is NULL, it is used on line 2158:
-
-    ocfs2_xa_add_entry(loc, name_hash);
-        loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
-        loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
-
-and line 2164:
-
-    ocfs2_xa_add_namevalue(loc, xi);
-        loc->xl_entry->xe_value_size = cpu_to_le64(xi->xi_value_len);
-        loc->xl_entry->xe_name_len = xi->xi_name_len;
-
-Thus, possible null-pointer dereferences may occur.
-
-To fix these bugs, if loc-xl_entry is NULL, ocfs2_xa_prepare_entry()
-abnormally returns with -EINVAL.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-[akpm@linux-foundation.org: remove now-unused ocfs2_xa_add_entry()]
-Link: http://lkml.kernel.org/r/20190726101447.9153-1-baijiaju1990@gmail.com
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: f11b2a1cfbf5 ("nfs4: copy acceptor name from context ... ")
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/xattr.c | 56 ++++++++++++++++++++----------------------------
- 1 file changed, 23 insertions(+), 33 deletions(-)
+ fs/nfs/nfs4proc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-index 06faa608e5622..dfa6d45dc4dc4 100644
---- a/fs/ocfs2/xattr.c
-+++ b/fs/ocfs2/xattr.c
-@@ -1475,18 +1475,6 @@ static int ocfs2_xa_check_space(struct ocfs2_xa_loc *loc,
- 	return loc->xl_ops->xlo_check_space(loc, xi);
- }
- 
--static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
--{
--	loc->xl_ops->xlo_add_entry(loc, name_hash);
--	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
--	/*
--	 * We can't leave the new entry's xe_name_offset at zero or
--	 * add_namevalue() will go nuts.  We set it to the size of our
--	 * storage so that it can never be less than any other entry.
--	 */
--	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
--}
--
- static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
- 				   struct ocfs2_xattr_info *xi)
- {
-@@ -2118,29 +2106,31 @@ static int ocfs2_xa_prepare_entry(struct ocfs2_xa_loc *loc,
- 	if (rc)
- 		goto out;
- 
--	if (loc->xl_entry) {
--		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
--			orig_value_size = loc->xl_entry->xe_value_size;
--			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
--			if (rc)
--				goto out;
--			goto alloc_value;
--		}
-+	if (!loc->xl_entry) {
-+		rc = -EINVAL;
-+		goto out;
-+	}
- 
--		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
--			orig_clusters = ocfs2_xa_value_clusters(loc);
--			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
--			if (rc) {
--				mlog_errno(rc);
--				ocfs2_xa_cleanup_value_truncate(loc,
--								"overwriting",
--								orig_clusters);
--				goto out;
--			}
-+	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
-+		orig_value_size = loc->xl_entry->xe_value_size;
-+		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
-+		if (rc)
-+			goto out;
-+		goto alloc_value;
-+	}
-+
-+	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
-+		orig_clusters = ocfs2_xa_value_clusters(loc);
-+		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
-+		if (rc) {
-+			mlog_errno(rc);
-+			ocfs2_xa_cleanup_value_truncate(loc,
-+							"overwriting",
-+							orig_clusters);
-+			goto out;
- 		}
--		ocfs2_xa_wipe_namevalue(loc);
--	} else
--		ocfs2_xa_add_entry(loc, name_hash);
-+	}
-+	ocfs2_xa_wipe_namevalue(loc);
- 
- 	/*
- 	 * If we get here, we have a blank entry.  Fill it.  We grow our
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index d1816ee0c11be..900a62a9ad4e5 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -5255,6 +5255,7 @@ int nfs4_proc_setclientid(struct nfs_client *clp, u32 program,
+ 	}
+ 	status = task->tk_status;
+ 	if (setclientid.sc_cred) {
++		kfree(clp->cl_acceptor);
+ 		clp->cl_acceptor = rpcauth_stringify_acceptor(setclientid.sc_cred);
+ 		put_rpccred(setclientid.sc_cred);
+ 	}
 -- 
 2.20.1
 
