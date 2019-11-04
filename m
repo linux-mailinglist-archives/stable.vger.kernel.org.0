@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 311D1EED1A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:03:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24715EEFB4
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388805AbfKDWD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:03:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33762 "EHLO mail.kernel.org"
+        id S2388215AbfKDVzx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:55:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389511AbfKDWD2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:03:28 -0500
+        id S2388234AbfKDVzv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:55:51 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9BA0205C9;
-        Mon,  4 Nov 2019 22:03:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44BDD217F4;
+        Mon,  4 Nov 2019 21:55:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905006;
-        bh=pG2vMRhsaY+rH69cxVWgYtlBkYGvGvaP7/cIEoxToqU=;
+        s=default; t=1572904550;
+        bh=3bV3DEaz/uJkFBictvzAfD7nh/T5TXDGZpPRx0Nw44g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1qM2RKeyYhZL+Wym+wy/cDiNY9wlszPBsVg5Gcq1YIVkRGSCWFSIy9kMTjVOdxci
-         XSARb0dwbXen/KdpPrL6OsC75TgLQUL0qY/NSm9bAQrxdAO/nejmMb5nVz8CyADym2
-         3iElrxZk1/7qYnLsjL0hZBLA4XJPv6HFvLybjtk4=
+        b=TLP0X6jpRQB8JSyx2a7PRMENp2P1wNJws+niyR60gNo+6wWzB8WixEP7gGd2gfsIv
+         ++qEeINNZJGCAjl3MD3Y9IEfX5V1/6Eyi6ohSMDZy79n2UNVvaHJ1v/Namfcrp2Lm0
+         iN9vHkXTsBW+C4mMVjpzldfCCpChI0rjym/+ABBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.19 129/149] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by default
+        stable@vger.kernel.org,
+        syzbot+6bf095f9becf5efef645@syzkaller.appspotmail.com,
+        syzbot+31c16aa4202dace3812e@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.14 84/95] llc: fix sk_buff leak in llc_sap_state_process()
 Date:   Mon,  4 Nov 2019 22:45:22 +0100
-Message-Id: <20191104212145.579321102@linuxfoundation.org>
+Message-Id: <20191104212122.927653214@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,71 +46,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit aa57157be69fb599bd4c38a4b75c5aad74a60ec0 upstream.
+commit c6ee11c39fcc1fb55130748990a8f199e76263b4 upstream.
 
-Shared and writable mappings (__S.1.) should be clean (!dirty) initially
-and made dirty on a subsequent write either through the hardware DBM
-(dirty bit management) mechanism or through a write page fault. A clean
-pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
-clear.
+syzbot reported:
 
-The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
-PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
-bit handling out of set_pte_at()"), it was the responsibility of
-set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
-software PTE_DIRTY bit was not set. However, the above commit removed
-the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
-set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
-unchanged. The result is that shared+writable mappings are now dirty by
-default
+    BUG: memory leak
+    unreferenced object 0xffff888116270800 (size 224):
+       comm "syz-executor641", pid 7047, jiffies 4294947360 (age 13.860s)
+       hex dump (first 32 bytes):
+         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+         00 20 e1 2a 81 88 ff ff 00 40 3d 2a 81 88 ff ff  . .*.....@=*....
+       backtrace:
+         [<000000004d41b4cc>] kmemleak_alloc_recursive  include/linux/kmemleak.h:55 [inline]
+         [<000000004d41b4cc>] slab_post_alloc_hook mm/slab.h:439 [inline]
+         [<000000004d41b4cc>] slab_alloc_node mm/slab.c:3269 [inline]
+         [<000000004d41b4cc>] kmem_cache_alloc_node+0x153/0x2a0 mm/slab.c:3579
+         [<00000000506a5965>] __alloc_skb+0x6e/0x210 net/core/skbuff.c:198
+         [<000000001ba5a161>] alloc_skb include/linux/skbuff.h:1058 [inline]
+         [<000000001ba5a161>] alloc_skb_with_frags+0x5f/0x250  net/core/skbuff.c:5327
+         [<0000000047d9c78b>] sock_alloc_send_pskb+0x269/0x2a0  net/core/sock.c:2225
+         [<000000003828fe54>] sock_alloc_send_skb+0x32/0x40 net/core/sock.c:2242
+         [<00000000e34d94f9>] llc_ui_sendmsg+0x10a/0x540 net/llc/af_llc.c:933
+         [<00000000de2de3fb>] sock_sendmsg_nosec net/socket.c:652 [inline]
+         [<00000000de2de3fb>] sock_sendmsg+0x54/0x70 net/socket.c:671
+         [<000000008fe16e7a>] __sys_sendto+0x148/0x1f0 net/socket.c:1964
+	 [...]
 
-Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
-In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
-attributes.
+The bug is that llc_sap_state_process() always takes an extra reference
+to the skb, but sometimes neither llc_sap_next_state() nor
+llc_sap_state_process() itself drops this reference.
 
-Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
-Cc: <stable@vger.kernel.org> # 4.14.x-
-Cc: Will Deacon <will@kernel.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fix it by changing llc_sap_next_state() to never consume a reference to
+the skb, rather than sometimes do so and sometimes not.  Then remove the
+extra skb_get() and kfree_skb() from llc_sap_state_process().
+
+Reported-by: syzbot+6bf095f9becf5efef645@syzkaller.appspotmail.com
+Reported-by: syzbot+31c16aa4202dace3812e@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/pgtable-prot.h |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ net/llc/llc_s_ac.c |   12 +++++++++---
+ net/llc/llc_sap.c  |   23 ++++++++---------------
+ 2 files changed, 17 insertions(+), 18 deletions(-)
 
---- a/arch/arm64/include/asm/pgtable-prot.h
-+++ b/arch/arm64/include/asm/pgtable-prot.h
-@@ -43,11 +43,11 @@
- #define PROT_DEFAULT		(_PROT_DEFAULT | PTE_MAYBE_NG)
- #define PROT_SECT_DEFAULT	(_PROT_SECT_DEFAULT | PMD_MAYBE_NG)
+--- a/net/llc/llc_s_ac.c
++++ b/net/llc/llc_s_ac.c
+@@ -58,8 +58,10 @@ int llc_sap_action_send_ui(struct llc_sa
+ 			    ev->daddr.lsap, LLC_PDU_CMD);
+ 	llc_pdu_init_as_ui_cmd(skb);
+ 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
+-	if (likely(!rc))
++	if (likely(!rc)) {
++		skb_get(skb);
+ 		rc = dev_queue_xmit(skb);
++	}
+ 	return rc;
+ }
  
--#define PROT_DEVICE_nGnRnE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRnE))
--#define PROT_DEVICE_nGnRE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRE))
--#define PROT_NORMAL_NC		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_NC))
--#define PROT_NORMAL_WT		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_WT))
--#define PROT_NORMAL		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL))
-+#define PROT_DEVICE_nGnRnE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRnE))
-+#define PROT_DEVICE_nGnRE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRE))
-+#define PROT_NORMAL_NC		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_NC))
-+#define PROT_NORMAL_WT		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_WT))
-+#define PROT_NORMAL		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL))
+@@ -81,8 +83,10 @@ int llc_sap_action_send_xid_c(struct llc
+ 			    ev->daddr.lsap, LLC_PDU_CMD);
+ 	llc_pdu_init_as_xid_cmd(skb, LLC_XID_NULL_CLASS_2, 0);
+ 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
+-	if (likely(!rc))
++	if (likely(!rc)) {
++		skb_get(skb);
+ 		rc = dev_queue_xmit(skb);
++	}
+ 	return rc;
+ }
  
- #define PROT_SECT_DEVICE_nGnRE	(PROT_SECT_DEFAULT | PMD_SECT_PXN | PMD_SECT_UXN | PMD_ATTRINDX(MT_DEVICE_nGnRE))
- #define PROT_SECT_NORMAL	(PROT_SECT_DEFAULT | PMD_SECT_PXN | PMD_SECT_UXN | PMD_ATTRINDX(MT_NORMAL))
-@@ -91,8 +91,9 @@
- #define PAGE_S2_DEVICE		__pgprot(_PROT_DEFAULT | PAGE_S2_MEMATTR(DEVICE_nGnRE) | PTE_S2_RDONLY | PAGE_S2_XN)
+@@ -135,8 +139,10 @@ int llc_sap_action_send_test_c(struct ll
+ 			    ev->daddr.lsap, LLC_PDU_CMD);
+ 	llc_pdu_init_as_test_cmd(skb);
+ 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
+-	if (likely(!rc))
++	if (likely(!rc)) {
++		skb_get(skb);
+ 		rc = dev_queue_xmit(skb);
++	}
+ 	return rc;
+ }
  
- #define PAGE_NONE		__pgprot(((_PAGE_DEFAULT) & ~PTE_VALID) | PTE_PROT_NONE | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN)
--#define PAGE_SHARED		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN | PTE_UXN | PTE_WRITE)
--#define PAGE_SHARED_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_NG | PTE_PXN | PTE_WRITE)
-+/* shared+writable pages are clean by default, hence PTE_RDONLY|PTE_WRITE */
-+#define PAGE_SHARED		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN | PTE_WRITE)
-+#define PAGE_SHARED_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_WRITE)
- #define PAGE_READONLY		__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN | PTE_UXN)
- #define PAGE_READONLY_EXEC	__pgprot(_PAGE_DEFAULT | PTE_USER | PTE_RDONLY | PTE_NG | PTE_PXN)
- #define PAGE_EXECONLY		__pgprot(_PAGE_DEFAULT | PTE_RDONLY | PTE_NG | PTE_PXN)
+--- a/net/llc/llc_sap.c
++++ b/net/llc/llc_sap.c
+@@ -197,29 +197,22 @@ out:
+  *	After executing actions of the event, upper layer will be indicated
+  *	if needed(on receiving an UI frame). sk can be null for the
+  *	datalink_proto case.
++ *
++ *	This function always consumes a reference to the skb.
+  */
+ static void llc_sap_state_process(struct llc_sap *sap, struct sk_buff *skb)
+ {
+ 	struct llc_sap_state_ev *ev = llc_sap_ev(skb);
+ 
+-	/*
+-	 * We have to hold the skb, because llc_sap_next_state
+-	 * will kfree it in the sending path and we need to
+-	 * look at the skb->cb, where we encode llc_sap_state_ev.
+-	 */
+-	skb_get(skb);
+ 	ev->ind_cfm_flag = 0;
+ 	llc_sap_next_state(sap, skb);
+-	if (ev->ind_cfm_flag == LLC_IND) {
+-		if (skb->sk->sk_state == TCP_LISTEN)
+-			kfree_skb(skb);
+-		else {
+-			llc_save_primitive(skb->sk, skb, ev->prim);
+ 
+-			/* queue skb to the user. */
+-			if (sock_queue_rcv_skb(skb->sk, skb))
+-				kfree_skb(skb);
+-		}
++	if (ev->ind_cfm_flag == LLC_IND && skb->sk->sk_state != TCP_LISTEN) {
++		llc_save_primitive(skb->sk, skb, ev->prim);
++
++		/* queue skb to the user. */
++		if (sock_queue_rcv_skb(skb->sk, skb) == 0)
++			return;
+ 	}
+ 	kfree_skb(skb);
+ }
 
 
