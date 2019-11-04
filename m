@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D88CEEF7A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C82CEEE8F
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388576AbfKDV5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:57:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53816 "EHLO mail.kernel.org"
+        id S2388309AbfKDWEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:04:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387861AbfKDV5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:57:31 -0500
+        id S2388145AbfKDWEq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:04:46 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 178FF21D7F;
-        Mon,  4 Nov 2019 21:57:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D0EE2084D;
+        Mon,  4 Nov 2019 22:04:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904650;
-        bh=0gUaHbmUNWSuBhVlbrDOsK+zcamryfNCf/wCRKeD/t8=;
+        s=default; t=1572905084;
+        bh=Z8kNSpZKICsj64i1BK953BmpbaZEYmjCSvxuGKfVnTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfPtsc5FtH18WqV9MyCBPYwZx0fxdQpt163yLTL/YugTEnqhvVRNgi/Y6SR5jFvm3
-         rovQBqkpVjZBYAj9EIsTxmMa71UPCi3XESI9186TXjqOhb0rZAi9CWUqvFSZZXt8GI
-         k3MlfwMMFCdKure84QDYmAQANeecXFhVD1X+AyvM=
+        b=0YdradfUxygHo1KbUa5/GZkgBbMm2jFpLqExPBEy/2ZjZKwDsSx97cHclN8lA8Vyj
+         yl+RwzLpr7Hb49NCfjC7vQT1r2Mp5A0xSBt8hR472sO8DKXXOH55nLyO90mouqk/3s
+         vVZjW6wy5HH+2gtHggCkBdhjRZu0JgbqTgOGuwwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Bates <sbates@raithlin.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Doug Meyer <dmeyer@gigaio.com>,
-        Kurt Schwemmer <kurt.schwemmer@microsemi.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 021/149] PCI: Fix Switchtec DMA aliasing quirk dmesg noise
+Subject: [PATCH 5.3 024/163] RDMA/iwcm: Fix a lock inversion issue
 Date:   Mon,  4 Nov 2019 22:43:34 +0100
-Message-Id: <20191104212136.775198702@linuxfoundation.org>
+Message-Id: <20191104212142.110758784@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Logan Gunthorpe <logang@deltatee.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 742bbe1ee35b5699c092541f97c7cec326556bb1 ]
+[ Upstream commit b66f31efbdad95ec274345721d99d1d835e6de01 ]
 
-Currently the Switchtec quirk runs on all endpoints in the switch,
-including all the upstream and downstream ports.  These other functions do
-not contain BARs, so the quirk fails when trying to map the BAR and prints
-the error "Cannot iomap Switchtec device".  The user will see a few of
-these useless and scary errors, one for each port in the switch.
+This patch fixes the lock inversion complaint:
 
-At most, the quirk should only run on either a management endpoint
-(PCI_CLASS_MEMORY_OTHER) or an NTB endpoint (PCI_CLASS_BRIDGE_OTHER).
-However, the quirk is useless except in NTB applications, so we will
-only run it when the class is PCI_CLASS_BRIDGE_OTHER.
+============================================
+WARNING: possible recursive locking detected
+5.3.0-rc7-dbg+ #1 Not tainted
+--------------------------------------------
+kworker/u16:6/171 is trying to acquire lock:
+00000000035c6e6c (&id_priv->handler_mutex){+.+.}, at: rdma_destroy_id+0x78/0x4a0 [rdma_cm]
 
-Switch to using DECLARE_PCI_FIXUP_CLASS_FINAL and only match
-PCI_CLASS_BRIDGE_OTHER.
+but task is already holding lock:
+00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
 
-Reported-by: Stephen Bates <sbates@raithlin.com>
-Fixes: ad281ecf1c7d ("PCI: Add DMA alias quirk for Microsemi Switchtec NTB")
-Signed-off-by: Logan Gunthorpe <logang@deltatee.com>
-[bhelgaas: split SWITCHTEC_QUIRK() introduction to separate patch]
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Doug Meyer <dmeyer@gigaio.com>
-Cc: Kurt Schwemmer <kurt.schwemmer@microsemi.com>
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&id_priv->handler_mutex);
+  lock(&id_priv->handler_mutex);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+3 locks held by kworker/u16:6/171:
+ #0: 00000000e2eaa773 ((wq_completion)iw_cm_wq){+.+.}, at: process_one_work+0x472/0xac0
+ #1: 000000001efd357b ((work_completion)(&work->work)#3){+.+.}, at: process_one_work+0x476/0xac0
+ #2: 00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+
+stack backtrace:
+CPU: 3 PID: 171 Comm: kworker/u16:6 Not tainted 5.3.0-rc7-dbg+ #1
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+Call Trace:
+ dump_stack+0x8a/0xd6
+ __lock_acquire.cold+0xe1/0x24d
+ lock_acquire+0x106/0x240
+ __mutex_lock+0x12e/0xcb0
+ mutex_lock_nested+0x1f/0x30
+ rdma_destroy_id+0x78/0x4a0 [rdma_cm]
+ iw_conn_req_handler+0x5c9/0x680 [rdma_cm]
+ cm_work_handler+0xe62/0x1100 [iw_cm]
+ process_one_work+0x56d/0xac0
+ worker_thread+0x7a/0x5d0
+ kthread+0x1bc/0x210
+ ret_from_fork+0x24/0x30
+
+This is not a bug as there are actually two lock classes here.
+
+Link: https://lore.kernel.org/r/20190930231707.48259-3-bvanassche@acm.org
+Fixes: de910bd92137 ("RDMA/cma: Simplify locking needed for serialization of callbacks")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/quirks.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/cma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/quirks.c b/drivers/pci/quirks.c
-index 06be52912dcdb..64933994f7722 100644
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -5083,8 +5083,8 @@ static void quirk_switchtec_ntb_dma_alias(struct pci_dev *pdev)
- 	pci_disable_device(pdev);
- }
- #define SWITCHTEC_QUIRK(vid) \
--	DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_MICROSEMI, vid, \
--				quirk_switchtec_ntb_dma_alias)
-+	DECLARE_PCI_FIXUP_CLASS_FINAL(PCI_VENDOR_ID_MICROSEMI, vid, \
-+		PCI_CLASS_BRIDGE_OTHER, 8, quirk_switchtec_ntb_dma_alias)
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index a68d0ccf67a43..2e48b59926c19 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -2396,9 +2396,10 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
+ 		conn_id->cm_id.iw = NULL;
+ 		cma_exch(conn_id, RDMA_CM_DESTROYING);
+ 		mutex_unlock(&conn_id->handler_mutex);
++		mutex_unlock(&listen_id->handler_mutex);
+ 		cma_deref_id(conn_id);
+ 		rdma_destroy_id(&conn_id->id);
+-		goto out;
++		return ret;
+ 	}
  
- SWITCHTEC_QUIRK(0x8531);  /* PFX 24xG3 */
- SWITCHTEC_QUIRK(0x8532);  /* PFX 32xG3 */
+ 	mutex_unlock(&conn_id->handler_mutex);
 -- 
 2.20.1
 
