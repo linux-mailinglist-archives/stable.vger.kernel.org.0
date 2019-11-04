@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66493EED72
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CFB7EEFEE
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389589AbfKDWGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:06:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38960 "EHLO mail.kernel.org"
+        id S1729632AbfKDWYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:24:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389069AbfKDWGu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:06:50 -0500
+        id S1730779AbfKDVwd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:52:33 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2E3D21D71;
-        Mon,  4 Nov 2019 22:06:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB4AE217F4;
+        Mon,  4 Nov 2019 21:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905209;
-        bh=NynUHA4qevW95zKm+h3K9YX279or91FM4C/MRJ+5jkI=;
+        s=default; t=1572904353;
+        bh=a4hWbx/OJTFq6/zncSC4Cw+aLZpikdZTGHzDZjdvTL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zuz8B4qJhICFmXIc51xB7+GtOlnxMVTwlS06rLk+msKIB5LmV7R3YSkj2wUdEZzJk
-         atFGiINUQRBQP7sEnCxpIMT6KgjPkPxb9WOR04hPSnEvyiX53eAngUarwjo84+8TwH
-         vdEPcG/FElaWQrczpKFdmAIbg9fe21APu4zZQKVw=
+        b=ZV0XzJGWV5tl+UVi6+VzksyEN2/fedzVvHrGIcQ3lK7bkcdYk+u/0HMlJIHBGHAK1
+         nGISLiMJ6Sa3XhbpHP384G1Jxt1Mb7lJXopECReD9mXA2QaSqoU0Iz67Q/uj48vF59
+         ivAyWgVpQLACo3VW9emw6zI4R9az/X2IhDj4Yf2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rik van Riel <riel@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 066/163] sched/vtime: Fix guest/system mis-accounting on task switch
+        stable@vger.kernel.org, Nir Dotan <nird@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 18/95] mlxsw: spectrum: Set LAG port collector only when active
 Date:   Mon,  4 Nov 2019 22:44:16 +0100
-Message-Id: <20191104212144.767062618@linuxfoundation.org>
+Message-Id: <20191104212046.988526116@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,77 +46,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Nir Dotan <nird@mellanox.com>
 
-[ Upstream commit 68e7a4d66b0ce04bf18ff2ffded5596ab3618585 ]
+[ Upstream commit 48ebab31d424fbdb8ede8914923bec671a933246 ]
 
-vtime_account_system() assumes that the target task to account cputime
-to is always the current task. This is most often true indeed except on
-task switch where we call:
+The LAG port collecting (receive) function was mistakenly set when the
+port was registered as a LAG member, while it should be set only when
+the port collection state is set to true. Set LAG port to collecting
+when it is set to distributing, as described in the IEEE link
+aggregation standard coupled control mux machine state diagram.
 
-	vtime_common_task_switch(prev)
-		vtime_account_system(prev)
-
-Here prev is the scheduling-out task where we account the cputime to. It
-doesn't match current that is already the scheduling-in task at this
-stage of the context switch.
-
-So we end up checking the wrong task flags to determine if we are
-accounting guest or system time to the previous task.
-
-As a result the wrong task is used to check if the target is running in
-guest mode. We may then spuriously account or leak either system or
-guest time on task switch.
-
-Fix this assumption and also turn vtime_guest_enter/exit() to use the
-task passed in parameter as well to avoid future similar issues.
-
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wanpeng Li <wanpengli@tencent.com>
-Fixes: 2a42eb9594a1 ("sched/cputime: Accumulate vtime on top of nsec clocksource")
-Link: https://lkml.kernel.org/r/20190925214242.21873-1-frederic@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Nir Dotan <nird@mellanox.com>
+Acked-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cputime.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ .../net/ethernet/mellanox/mlxsw/spectrum.c    | 62 ++++++++++++++-----
+ 1 file changed, 45 insertions(+), 17 deletions(-)
 
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index 2305ce89a26cf..46ed4e1383e21 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -740,7 +740,7 @@ void vtime_account_system(struct task_struct *tsk)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+index 5c74787f903b7..a909aa315a92a 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -4077,9 +4077,6 @@ static int mlxsw_sp_port_lag_join(struct mlxsw_sp_port *mlxsw_sp_port,
+ 	err = mlxsw_sp_lag_col_port_add(mlxsw_sp_port, lag_id, port_index);
+ 	if (err)
+ 		goto err_col_port_add;
+-	err = mlxsw_sp_lag_col_port_enable(mlxsw_sp_port, lag_id);
+-	if (err)
+-		goto err_col_port_enable;
  
- 	write_seqcount_begin(&vtime->seqcount);
- 	/* We might have scheduled out from guest path */
--	if (current->flags & PF_VCPU)
-+	if (tsk->flags & PF_VCPU)
- 		vtime_account_guest(tsk, vtime);
- 	else
- 		__vtime_account_system(tsk, vtime);
-@@ -783,7 +783,7 @@ void vtime_guest_enter(struct task_struct *tsk)
- 	 */
- 	write_seqcount_begin(&vtime->seqcount);
- 	__vtime_account_system(tsk, vtime);
--	current->flags |= PF_VCPU;
-+	tsk->flags |= PF_VCPU;
- 	write_seqcount_end(&vtime->seqcount);
- }
- EXPORT_SYMBOL_GPL(vtime_guest_enter);
-@@ -794,7 +794,7 @@ void vtime_guest_exit(struct task_struct *tsk)
+ 	mlxsw_core_lag_mapping_set(mlxsw_sp->core, lag_id, port_index,
+ 				   mlxsw_sp_port->local_port);
+@@ -4094,8 +4091,6 @@ static int mlxsw_sp_port_lag_join(struct mlxsw_sp_port *mlxsw_sp_port,
  
- 	write_seqcount_begin(&vtime->seqcount);
- 	vtime_account_guest(tsk, vtime);
--	current->flags &= ~PF_VCPU;
-+	tsk->flags &= ~PF_VCPU;
- 	write_seqcount_end(&vtime->seqcount);
+ 	return 0;
+ 
+-err_col_port_enable:
+-	mlxsw_sp_lag_col_port_remove(mlxsw_sp_port, lag_id);
+ err_col_port_add:
+ 	if (!lag->ref_count)
+ 		mlxsw_sp_lag_destroy(mlxsw_sp, lag_id);
+@@ -4114,7 +4109,6 @@ static void mlxsw_sp_port_lag_leave(struct mlxsw_sp_port *mlxsw_sp_port,
+ 	lag = mlxsw_sp_lag_get(mlxsw_sp, lag_id);
+ 	WARN_ON(lag->ref_count == 0);
+ 
+-	mlxsw_sp_lag_col_port_disable(mlxsw_sp_port, lag_id);
+ 	mlxsw_sp_lag_col_port_remove(mlxsw_sp_port, lag_id);
+ 
+ 	/* Any VLANs configured on the port are no longer valid */
+@@ -4159,21 +4153,56 @@ static int mlxsw_sp_lag_dist_port_remove(struct mlxsw_sp_port *mlxsw_sp_port,
+ 	return mlxsw_reg_write(mlxsw_sp->core, MLXSW_REG(sldr), sldr_pl);
  }
- EXPORT_SYMBOL_GPL(vtime_guest_exit);
+ 
+-static int mlxsw_sp_port_lag_tx_en_set(struct mlxsw_sp_port *mlxsw_sp_port,
+-				       bool lag_tx_enabled)
++static int
++mlxsw_sp_port_lag_col_dist_enable(struct mlxsw_sp_port *mlxsw_sp_port)
+ {
+-	if (lag_tx_enabled)
+-		return mlxsw_sp_lag_dist_port_add(mlxsw_sp_port,
+-						  mlxsw_sp_port->lag_id);
+-	else
+-		return mlxsw_sp_lag_dist_port_remove(mlxsw_sp_port,
+-						     mlxsw_sp_port->lag_id);
++	int err;
++
++	err = mlxsw_sp_lag_col_port_enable(mlxsw_sp_port,
++					   mlxsw_sp_port->lag_id);
++	if (err)
++		return err;
++
++	err = mlxsw_sp_lag_dist_port_add(mlxsw_sp_port, mlxsw_sp_port->lag_id);
++	if (err)
++		goto err_dist_port_add;
++
++	return 0;
++
++err_dist_port_add:
++	mlxsw_sp_lag_col_port_disable(mlxsw_sp_port, mlxsw_sp_port->lag_id);
++	return err;
++}
++
++static int
++mlxsw_sp_port_lag_col_dist_disable(struct mlxsw_sp_port *mlxsw_sp_port)
++{
++	int err;
++
++	err = mlxsw_sp_lag_dist_port_remove(mlxsw_sp_port,
++					    mlxsw_sp_port->lag_id);
++	if (err)
++		return err;
++
++	err = mlxsw_sp_lag_col_port_disable(mlxsw_sp_port,
++					    mlxsw_sp_port->lag_id);
++	if (err)
++		goto err_col_port_disable;
++
++	return 0;
++
++err_col_port_disable:
++	mlxsw_sp_lag_dist_port_add(mlxsw_sp_port, mlxsw_sp_port->lag_id);
++	return err;
+ }
+ 
+ static int mlxsw_sp_port_lag_changed(struct mlxsw_sp_port *mlxsw_sp_port,
+ 				     struct netdev_lag_lower_state_info *info)
+ {
+-	return mlxsw_sp_port_lag_tx_en_set(mlxsw_sp_port, info->tx_enabled);
++	if (info->tx_enabled)
++		return mlxsw_sp_port_lag_col_dist_enable(mlxsw_sp_port);
++	else
++		return mlxsw_sp_port_lag_col_dist_disable(mlxsw_sp_port);
+ }
+ 
+ static int mlxsw_sp_port_stp_set(struct mlxsw_sp_port *mlxsw_sp_port,
+@@ -4309,8 +4338,7 @@ static int mlxsw_sp_netdevice_port_upper_event(struct net_device *lower_dev,
+ 				err = mlxsw_sp_port_lag_join(mlxsw_sp_port,
+ 							     upper_dev);
+ 			} else {
+-				mlxsw_sp_port_lag_tx_en_set(mlxsw_sp_port,
+-							    false);
++				mlxsw_sp_port_lag_col_dist_disable(mlxsw_sp_port);
+ 				mlxsw_sp_port_lag_leave(mlxsw_sp_port,
+ 							upper_dev);
+ 			}
 -- 
 2.20.1
 
