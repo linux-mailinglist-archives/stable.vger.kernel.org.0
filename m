@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 147FDEF07D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB437EF022
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:26:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387436AbfKDW20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:28:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40122 "EHLO mail.kernel.org"
+        id S1729976AbfKDW0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:26:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730228AbfKDVtF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:49:05 -0500
+        id S1730503AbfKDVvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:24 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5547214D8;
-        Mon,  4 Nov 2019 21:49:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D4EE21850;
+        Mon,  4 Nov 2019 21:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904144;
-        bh=agAkvTWZFFdKdfVy16eemcEMCQ6nl36Yj2C8OA2MB8A=;
+        s=default; t=1572904284;
+        bh=a/CrEaRPI9p2L9QvfTnm1Yau+XWCrkMuGwhTOPbUtpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foQfdHAXA8PandPfvwMAUPIaB14+KGV+R3YyGoM5iRgKh5S8p+jI30SwJTPpGQvv7
-         c5Lgn4AB6Vp8ZDvogVmX+V0QspwhHxn5u0eDIIwItO7FFp9ZIgM2fBOwHeTNnVjaSS
-         4Px1or8WFnvUBVrttGuoXMWpg/3mH+sHrFqYeIxs=
+        b=UrQaLgC//uQ7xqhXEdBQYjjZHlTwCkNTtWjftk2N4yb41Fwsi5Qf/Z9RdjjxSaI5C
+         6tCHU533UbL6zz5PkK5ryVPKdmokAs7P3QdEyC8HnmFutxJrz5J0oJQHf6ge/Qhv+H
+         azACpNwo4JMW1IMqnPc4fQlkNhsTX4H4KOLJbmZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Mahesh Bandewar <maheshb@google.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.4 41/46] bonding: fix potential NULL deref in bond_update_slave_arr
+        stable@vger.kernel.org,
+        Yegor Yefremov <yegorslists@googlemail.com>,
+        Tony Lindgren <tony@atomide.com>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.9 50/62] dmaengine: cppi41: Fix cppi41_dma_prep_slave_sg() when idle
 Date:   Mon,  4 Nov 2019 22:45:12 +0100
-Message-Id: <20191104211913.609425740@linuxfoundation.org>
+Message-Id: <20191104211953.108084720@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit a7137534b597b7c303203e6bc3ed87e87a273bb8 upstream.
+commit bacdcb6675e170bb2e8d3824da220e10274f42a7 upstream.
 
-syzbot got a NULL dereference in bond_update_slave_arr() [1],
-happening after a failure to allocate bond->slave_arr
+Yegor Yefremov <yegorslists@googlemail.com> reported that musb and ftdi
+uart can fail for the first open of the uart unless connected using
+a hub.
 
-A workqueue (bond_slave_arr_handler) is supposed to retry
-the allocation later, but if the slave is removed before
-the workqueue had a chance to complete, bond->slave_arr
-can still be NULL.
+This is because the first dma call done by musb_ep_program() must wait
+if cppi41 is PM runtime suspended. Otherwise musb_ep_program() continues
+with other non-dma packets before the DMA transfer is started causing at
+least ftdi uarts to fail to receive data.
 
-[1]
+Let's fix the issue by waking up cppi41 with PM runtime calls added to
+cppi41_dma_prep_slave_sg() and return NULL if still idled. This way we
+have musb_ep_program() continue with PIO until cppi41 is awake.
 
-Failed to build slave-array.
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN PTI
-Modules linked in:
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:bond_update_slave_arr.cold+0xc6/0x198 drivers/net/bonding/bond_main.c:4039
-RSP: 0018:ffff88018fe33678 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffc9000290b000
-RDX: 0000000000000000 RSI: ffffffff82b63037 RDI: ffff88019745ea20
-RBP: ffff88018fe33760 R08: ffff880170754280 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff88019745ea00 R14: 0000000000000000 R15: ffff88018fe338b0
-FS:  00007febd837d700(0000) GS:ffff8801dad00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000004540a0 CR3: 00000001c242e005 CR4: 00000000001626f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- [<ffffffff82b5b45e>] __bond_release_one+0x43e/0x500 drivers/net/bonding/bond_main.c:1923
- [<ffffffff82b5b966>] bond_release drivers/net/bonding/bond_main.c:2039 [inline]
- [<ffffffff82b5b966>] bond_do_ioctl+0x416/0x870 drivers/net/bonding/bond_main.c:3562
- [<ffffffff83ae25f4>] dev_ifsioc+0x6f4/0x940 net/core/dev_ioctl.c:328
- [<ffffffff83ae2e58>] dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:495
- [<ffffffff83995ffd>] sock_do_ioctl+0x1bd/0x300 net/socket.c:1088
- [<ffffffff83996a80>] sock_ioctl+0x300/0x5d0 net/socket.c:1196
- [<ffffffff81b124db>] vfs_ioctl fs/ioctl.c:47 [inline]
- [<ffffffff81b124db>] file_ioctl fs/ioctl.c:501 [inline]
- [<ffffffff81b124db>] do_vfs_ioctl+0xacb/0x1300 fs/ioctl.c:688
- [<ffffffff81b12dc6>] SYSC_ioctl fs/ioctl.c:705 [inline]
- [<ffffffff81b12dc6>] SyS_ioctl+0xb6/0xe0 fs/ioctl.c:696
- [<ffffffff8101ccc8>] do_syscall_64+0x528/0x770 arch/x86/entry/common.c:305
- [<ffffffff84400091>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
-
-Fixes: ee6377147409 ("bonding: Simplify the xmit function for modes that use xmit_hash")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Mahesh Bandewar <maheshb@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Fixes: fdea2d09b997 ("dmaengine: cppi41: Add basic PM runtime support")
+Reported-by: Yegor Yefremov <yegorslists@googlemail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Cc: stable@vger.kernel.org # v4.9+
+Link: https://lore.kernel.org/r/20191023153138.23442-1-tony@atomide.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/bonding/bond_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/cppi41.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3889,7 +3889,7 @@ out:
- 		 * this to-be-skipped slave to send a packet out.
- 		 */
- 		old_arr = rtnl_dereference(bond->slave_arr);
--		for (idx = 0; idx < old_arr->count; idx++) {
-+		for (idx = 0; old_arr != NULL && idx < old_arr->count; idx++) {
- 			if (skipslave == old_arr->arr[idx]) {
- 				old_arr->arr[idx] =
- 				    old_arr->arr[old_arr->count-1];
+--- a/drivers/dma/cppi41.c
++++ b/drivers/dma/cppi41.c
+@@ -586,9 +586,22 @@ static struct dma_async_tx_descriptor *c
+ 	enum dma_transfer_direction dir, unsigned long tx_flags, void *context)
+ {
+ 	struct cppi41_channel *c = to_cpp41_chan(chan);
++	struct dma_async_tx_descriptor *txd = NULL;
++	struct cppi41_dd *cdd = c->cdd;
+ 	struct cppi41_desc *d;
+ 	struct scatterlist *sg;
+ 	unsigned int i;
++	int error;
++
++	error = pm_runtime_get(cdd->ddev.dev);
++	if (error < 0) {
++		pm_runtime_put_noidle(cdd->ddev.dev);
++
++		return NULL;
++	}
++
++	if (cdd->is_suspended)
++		goto err_out_not_ready;
+ 
+ 	d = c->desc;
+ 	for_each_sg(sgl, sg, sg_len, i) {
+@@ -611,7 +624,13 @@ static struct dma_async_tx_descriptor *c
+ 		d++;
+ 	}
+ 
+-	return &c->txd;
++	txd = &c->txd;
++
++err_out_not_ready:
++	pm_runtime_mark_last_busy(cdd->ddev.dev);
++	pm_runtime_put_autosuspend(cdd->ddev.dev);
++
++	return txd;
+ }
+ 
+ static void cppi41_compute_td_desc(struct cppi41_desc *d)
 
 
