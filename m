@@ -2,118 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B35EF177
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 00:56:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0C7FEF17D
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 01:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729867AbfKDX4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 18:56:24 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:39263 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729862AbfKDX4X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 18:56:23 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iRmCk-0001NK-1x; Tue, 05 Nov 2019 00:56:14 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id A2A191C0105;
-        Tue,  5 Nov 2019 00:56:13 +0100 (CET)
-Date:   Mon, 04 Nov 2019 23:56:13 -0000
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/dumpstack/64: Don't evaluate exception stacks
- before setup
-Cc:     Cyrill Gorcunov <gorcunov@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>, stable@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <alpine.DEB.2.21.1910231950590.1852@nanos.tec.linutronix.de>
-References: <alpine.DEB.2.21.1910231950590.1852@nanos.tec.linutronix.de>
-MIME-Version: 1.0
-Message-ID: <157291177324.29376.14563915167890708264.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+        id S1728602AbfKDX7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 18:59:53 -0500
+Received: from mail-qt1-f196.google.com ([209.85.160.196]:39396 "EHLO
+        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729714AbfKDX7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 18:59:52 -0500
+Received: by mail-qt1-f196.google.com with SMTP id t8so26772668qtc.6;
+        Mon, 04 Nov 2019 15:59:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=LMhymltIw4we4fZsZLdmQ/16XCXhEvoGcZblYC0fAkI=;
+        b=sqhJlONVSwk7PR1KsI0/z7ceSN3Yxbham9y89DftqEQCIhYyFExXMklDI1poiTc5dc
+         478Ypm29RblYnPiZVNQ/XltUCHE0b4AUQw8BE5b0ruvd1hV77jxiJ98p0h5Y+UADNkEM
+         FkCZDZmIqbJm4SB3A/N8NVQ3E181FsliQa+otNX3bFuaD+2Qe/dZWwNZgMDc87g8tkrK
+         HdQE7gADZBjojBd6+XivqHB+Rslbe6gHaZvlKn8RKGUX6I0gjxjRfsa9M+tKZuqOCGxD
+         DGYOLQvqs4xvmSOX4IODQlJizmEyMM1TCCCR6Ysx9hitXpLg1VS8chyK/IPaKBJ+zQYB
+         UwHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :in-reply-to:references;
+        bh=LMhymltIw4we4fZsZLdmQ/16XCXhEvoGcZblYC0fAkI=;
+        b=PA5OMpAR6UHQMb3RAsVITQVAILSB5pSOmJD9xBK4XOLQhyuO2IezPMJjoS+q5VC7cv
+         CcAIuQam9g/i6HDJWNvb+6sWHzGSRsdvg9jEon156RIwyoU0Tk+bsXqLAbVqRHGdhRDz
+         Bpth3Oeuwuw9XwCSltHBlVTkOnaqYXrs0DDCxKx2lGja8kscn19DAlOQmMTcUn4W3nYJ
+         BKPvmDgr/5GjjBAq6+NN+w4ZEQRe3NyLhDI7rm94SFgBkJrtUp5YVlisTdJ9GVBMN5WK
+         kSQTNTBDRl+m4QJFux9wfvW3nkIq6zSa5STqycGaot7KYgBDiP2veplbZc6zYZkB/bYA
+         rJNA==
+X-Gm-Message-State: APjAAAXIahP/gcv1lKoACIRsxWVbq8QElIxQMAZDabdqMoY94guiAv5c
+        6bwzlakvdi/yoLCd0WfohqI=
+X-Google-Smtp-Source: APXvYqw63LOmaG1YBScyx6JNA9MBRDMgAuDKk/mM6juvIH+XKkMPhOyzTt59GeD8vuAdPu058m52dw==
+X-Received: by 2002:a0c:b918:: with SMTP id u24mr24982185qvf.212.1572911991031;
+        Mon, 04 Nov 2019 15:59:51 -0800 (PST)
+Received: from localhost ([2620:10d:c091:500::3:51f8])
+        by smtp.gmail.com with ESMTPSA id x203sm9292720qkb.11.2019.11.04.15.59.50
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 04 Nov 2019 15:59:50 -0800 (PST)
+From:   Tejun Heo <tj@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     kernel-team@fb.com, linux-kernel@vger.kernel.org,
+        cgroups@vger.kernel.org, lizefan@huawei.com, hannes@cmpxchg.org,
+        namhyung@kernel.org, ast@kernel.org, daniel@iogearbox.net,
+        Tejun Heo <tj@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH 01/10] kernfs: fix ino wrap-around detection
+Date:   Mon,  4 Nov 2019 15:59:35 -0800
+Message-Id: <20191104235944.3470866-2-tj@kernel.org>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20191104235944.3470866-1-tj@kernel.org>
+References: <20191104235944.3470866-1-tj@kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+When the 32bit ino wraps around, kernfs increments the generation
+number to distinguish reused ino instances.  The wrap-around detection
+tests whether the allocated ino is lower than what the cursor but the
+cursor is pointing to the next ino to allocate so the condition never
+triggers.
 
-Commit-ID:     e361362b08cab1098b64b0e5fd8c879f086b3f46
-Gitweb:        https://git.kernel.org/tip/e361362b08cab1098b64b0e5fd8c879f086b3f46
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Wed, 23 Oct 2019 20:05:49 +02:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Tue, 05 Nov 2019 00:51:35 +01:00
+Fix it by remembering the last ino and comparing against that.
 
-x86/dumpstack/64: Don't evaluate exception stacks before setup
-
-Cyrill reported the following crash:
-
-  BUG: unable to handle page fault for address: 0000000000001ff0
-  #PF: supervisor read access in kernel mode
-  RIP: 0010:get_stack_info+0xb3/0x148
-
-It turns out that if the stack tracer is invoked before the exception stack
-mappings are initialized in_exception_stack() can erroneously classify an
-invalid address as an address inside of an exception stack:
-
-    begin = this_cpu_read(cea_exception_stacks);  <- 0
-    end = begin + sizeof(exception stacks);
-
-i.e. any address between 0 and end will be considered as exception stack
-address and the subsequent code will then try to derefence the resulting
-stack frame at a non mapped address.
-
- end = begin + (unsigned long)ep->size;
-     ==> end = 0x2000
-
- regs = (struct pt_regs *)end - 1;
-     ==> regs = 0x2000 - sizeof(struct pt_regs *) = 0x1ff0
-
- info->next_sp   = (unsigned long *)regs->sp;
-     ==> Crashes due to accessing 0x1ff0
-
-Prevent this by checking the validity of the cea_exception_stack base
-address and bailing out if it is zero.
-
-Fixes: afcd21dad88b ("x86/dumpstack/64: Use cpu_entry_area instead of orig_ist")
-Reported-by: Cyrill Gorcunov <gorcunov@gmail.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Cyrill Gorcunov <gorcunov@gmail.com>
-Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1910231950590.1852@nanos.tec.linutronix.de
-
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 4a3ef68acacf ("kernfs: implement i_generation")
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: stable@vger.kernel.org # v4.14+
 ---
- arch/x86/kernel/dumpstack_64.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/kernfs/dir.c        | 5 ++---
+ include/linux/kernfs.h | 1 +
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
-index 753b8cf..87b9789 100644
---- a/arch/x86/kernel/dumpstack_64.c
-+++ b/arch/x86/kernel/dumpstack_64.c
-@@ -94,6 +94,13 @@ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
- 	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
+diff --git a/fs/kernfs/dir.c b/fs/kernfs/dir.c
+index 6ebae6bbe6a5..7d4af6cea2a6 100644
+--- a/fs/kernfs/dir.c
++++ b/fs/kernfs/dir.c
+@@ -622,7 +622,6 @@ static struct kernfs_node *__kernfs_new_node(struct kernfs_root *root,
+ {
+ 	struct kernfs_node *kn;
+ 	u32 gen;
+-	int cursor;
+ 	int ret;
  
- 	begin = (unsigned long)__this_cpu_read(cea_exception_stacks);
-+	/*
-+	 * Handle the case where stack trace is collected _before_
-+	 * cea_exception_stacks had been initialized.
-+	 */
-+	if (!begin)
-+		return false;
-+
- 	end = begin + sizeof(struct cea_exception_stacks);
- 	/* Bail if @stack is outside the exception stack area. */
- 	if (stk < begin || stk >= end)
+ 	name = kstrdup_const(name, GFP_KERNEL);
+@@ -635,11 +634,11 @@ static struct kernfs_node *__kernfs_new_node(struct kernfs_root *root,
+ 
+ 	idr_preload(GFP_KERNEL);
+ 	spin_lock(&kernfs_idr_lock);
+-	cursor = idr_get_cursor(&root->ino_idr);
+ 	ret = idr_alloc_cyclic(&root->ino_idr, kn, 1, 0, GFP_ATOMIC);
+-	if (ret >= 0 && ret < cursor)
++	if (ret >= 0 && ret < root->last_ino)
+ 		root->next_generation++;
+ 	gen = root->next_generation;
++	root->last_ino = ret;
+ 	spin_unlock(&kernfs_idr_lock);
+ 	idr_preload_end();
+ 	if (ret < 0)
+diff --git a/include/linux/kernfs.h b/include/linux/kernfs.h
+index 936b61bd504e..f797ccc650e7 100644
+--- a/include/linux/kernfs.h
++++ b/include/linux/kernfs.h
+@@ -187,6 +187,7 @@ struct kernfs_root {
+ 
+ 	/* private fields, do not use outside kernfs proper */
+ 	struct idr		ino_idr;
++	u32			last_ino;
+ 	u32			next_generation;
+ 	struct kernfs_syscall_ops *syscall_ops;
+ 
+-- 
+2.17.1
+
