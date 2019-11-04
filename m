@@ -2,46 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC369EEC78
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:57:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 598DFEEC79
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:57:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388530AbfKDV5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:57:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53484 "EHLO mail.kernel.org"
+        id S2388574AbfKDV5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:57:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387818AbfKDV5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:57:19 -0500
+        id S2388568AbfKDV5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:57:23 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6719D2184C;
-        Mon,  4 Nov 2019 21:57:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46990214D8;
+        Mon,  4 Nov 2019 21:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904639;
-        bh=8h+FkDc3xXvETtsrZrbsTH8LmB+VdeBjN9RyUmQkvEs=;
+        s=default; t=1572904641;
+        bh=2K3Nhn17oyQlttcoEwq3Au9rsNdUXZ/WhlXS/lb70BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=imenMDP9BHo9/Tg+KjECk4+XhNY6Fp3iqmyBGShcm27zUwIVvgkH7pDq14qtBAMj8
-         TMZC33MP6HxdvffAbZ/UdzEaq0CZE7m9YypEUjw2Wo+ERlE6fqAFfBlfR05DEKGJk5
-         SeapVj99j+r8DjdgkygLfFIrDDM3pNa/WK7xVwxU=
+        b=JmEiOEMR4EPmST5Pnylvv3fW6hzK2XJ30TADNB7n0MR7pSVOyxZXeSbTa0OW3djKA
+         QZiEYENmtN8T0Q23KeyssihVVnq6Ez6shDNdPLFor5tGTt0I72Y11pfmqecx+I6CbF
+         KoAZK0wMcMhwGSrXReUQT7kV7MtpuTrTFT6eaA64=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Aristeu Rozanski <aris@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Megha Dey <megha.dey@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Jeykumar Sankaran <jsanka@codeaurora.org>,
+        Sean Paul <seanpaul@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 018/149] x86/cpu: Add Atom Tremont (Jacobsville)
-Date:   Mon,  4 Nov 2019 22:43:31 +0100
-Message-Id: <20191104212136.034136452@linuxfoundation.org>
+Subject: [PATCH 4.19 019/149] drm/msm/dpu: handle failures while initializing displays
+Date:   Mon,  4 Nov 2019 22:43:32 +0100
+Message-Id: <20191104212136.271271541@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
 References: <20191104212126.090054740@linuxfoundation.org>
@@ -54,57 +44,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Jeykumar Sankaran <jsanka@codeaurora.org>
 
-[ Upstream commit 00ae831dfe4474ef6029558f5eb3ef0332d80043 ]
+[ Upstream commit a802ee99c448ca0496fa307f3e46b834ae2a46a3 ]
 
-Add the Atom Tremont model number to the Intel family list.
+Bail out KMS hw init on display initialization failures with
+proper error logging.
 
-[ Tony: Also update comment at head of file to say "_X" suffix is
-  also used for microserver parts. ]
+changes in v3:
+    - introduced in the series
+changes in v4:
+    - avoid duplicate return on errors (Sean Paul)
+    - avoid spamming errors on failures (Jordon Crouse)
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Aristeu Rozanski <aris@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Megha Dey <megha.dey@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Cc: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190125195902.17109-4-tony.luck@intel.com
+Signed-off-by: Jeykumar Sankaran <jsanka@codeaurora.org>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c | 31 ++++++++++++++-----------
+ 1 file changed, 18 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 5d0b72f281402..82a57d344b9bc 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -6,7 +6,7 @@
-  * "Big Core" Processors (Branded as Core, Xeon, etc...)
-  *
-  * The "_X" parts are generally the EP and EX Xeons, or the
-- * "Extreme" ones, like Broadwell-E.
-+ * "Extreme" ones, like Broadwell-E, or Atom microserver.
-  *
-  * While adding a new CPUID for a new microarchitecture, add a new
-  * group to keep logically sorted out in chronological order. Within
-@@ -80,6 +80,7 @@
- #define INTEL_FAM6_ATOM_GOLDMONT	0x5C /* Apollo Lake */
- #define INTEL_FAM6_ATOM_GOLDMONT_X	0x5F /* Denverton */
- #define INTEL_FAM6_ATOM_GOLDMONT_PLUS	0x7A /* Gemini Lake */
-+#define INTEL_FAM6_ATOM_TREMONT_X	0x86 /* Jacobsville */
+diff --git a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+index 74cc204b07e80..2d9b7b5fb49c8 100644
+--- a/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
++++ b/drivers/gpu/drm/msm/disp/dpu1/dpu_kms.c
+@@ -442,35 +442,38 @@ static void dpu_kms_wait_for_commit_done(struct msm_kms *kms,
+ 	}
+ }
  
- /* Xeon Phi */
+-static void _dpu_kms_initialize_dsi(struct drm_device *dev,
++static int _dpu_kms_initialize_dsi(struct drm_device *dev,
+ 				    struct msm_drm_private *priv,
+ 				    struct dpu_kms *dpu_kms)
+ {
+ 	struct drm_encoder *encoder = NULL;
+-	int i, rc;
++	int i, rc = 0;
++
++	if (!(priv->dsi[0] || priv->dsi[1]))
++		return rc;
+ 
+ 	/*TODO: Support two independent DSI connectors */
+ 	encoder = dpu_encoder_init(dev, DRM_MODE_ENCODER_DSI);
+-	if (IS_ERR_OR_NULL(encoder)) {
++	if (IS_ERR(encoder)) {
+ 		DPU_ERROR("encoder init failed for dsi display\n");
+-		return;
++		return PTR_ERR(encoder);
+ 	}
+ 
+ 	priv->encoders[priv->num_encoders++] = encoder;
+ 
+ 	for (i = 0; i < ARRAY_SIZE(priv->dsi); i++) {
+-		if (!priv->dsi[i]) {
+-			DPU_DEBUG("invalid msm_dsi for ctrl %d\n", i);
+-			return;
+-		}
++		if (!priv->dsi[i])
++			continue;
+ 
+ 		rc = msm_dsi_modeset_init(priv->dsi[i], dev, encoder);
+ 		if (rc) {
+ 			DPU_ERROR("modeset_init failed for dsi[%d], rc = %d\n",
+ 				i, rc);
+-			continue;
++			break;
+ 		}
+ 	}
++
++	return rc;
+ }
+ 
+ /**
+@@ -481,16 +484,16 @@ static void _dpu_kms_initialize_dsi(struct drm_device *dev,
+  * @dpu_kms:    Pointer to dpu kms structure
+  * Returns:     Zero on success
+  */
+-static void _dpu_kms_setup_displays(struct drm_device *dev,
++static int _dpu_kms_setup_displays(struct drm_device *dev,
+ 				    struct msm_drm_private *priv,
+ 				    struct dpu_kms *dpu_kms)
+ {
+-	_dpu_kms_initialize_dsi(dev, priv, dpu_kms);
+-
+ 	/**
+ 	 * Extend this function to initialize other
+ 	 * types of displays
+ 	 */
++
++	return _dpu_kms_initialize_dsi(dev, priv, dpu_kms);
+ }
+ 
+ static void _dpu_kms_drm_obj_destroy(struct dpu_kms *dpu_kms)
+@@ -552,7 +555,9 @@ static int _dpu_kms_drm_obj_init(struct dpu_kms *dpu_kms)
+ 	 * Create encoder and query display drivers to create
+ 	 * bridges and connectors
+ 	 */
+-	_dpu_kms_setup_displays(dev, priv, dpu_kms);
++	ret = _dpu_kms_setup_displays(dev, priv, dpu_kms);
++	if (ret)
++		goto fail;
+ 
+ 	max_crtc_count = min(catalog->mixer_count, priv->num_encoders);
  
 -- 
 2.20.1
