@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B49BEED6D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2184CEEF3C
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389547AbfKDWGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:06:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38246 "EHLO mail.kernel.org"
+        id S1731061AbfKDV7M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389965AbfKDWG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:06:27 -0500
+        id S1731058AbfKDV7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:12 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4205020650;
-        Mon,  4 Nov 2019 22:06:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66C1D20650;
+        Mon,  4 Nov 2019 21:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905186;
-        bh=jQsDchaHHk7q+hECoo6OxNL9DQD/CglCbpxAufwSRk4=;
+        s=default; t=1572904751;
+        bh=XYF7y0BM07GfP9nY7zrjKzNbEKYrD2mjyfQAzvcSNZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X+qMSEBbG0b8HVhuOST1WsYpD2tML3Fyj6bG5Mwn+q3rAsZscbC27+ys1O9cAUZLI
-         dH7/Lv/9iRV1KtGsdhx9zAFue9FblZZWaqmE7cQyUcukh5Hfvx62++++9damTOZAjJ
-         cqy+uXZYe/yUWteXCIjYwATsPgRZDUk2ZHwUFCMs=
+        b=pB4geZxWm38YoYQSfjrGmomzVb7ml2HroDnldWNif6WhdIcVtpJg9UUzldVOBRu0W
+         rQE7JvXp+9bKqW2Ns4TSjhg8f0e8wcIXknn55TIb3+2Fmobsye6qvNGmnj/L7rbFxl
+         uaVv2m9tQeNtoAKjlgo7knB0eDvaJuSdq7ICzDWA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Alexander Kurz <akurz@blala.de>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 059/163] fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()
-Date:   Mon,  4 Nov 2019 22:44:09 +0100
-Message-Id: <20191104212144.352654938@linuxfoundation.org>
+Subject: [PATCH 4.19 057/149] power: supply: max14656: fix potential use-after-free
+Date:   Mon,  4 Nov 2019 22:44:10 +0100
+Message-Id: <20191104212140.394613573@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,128 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d ]
+[ Upstream commit 252fbeb86ceffa549af9842cefca2412d53a7653 ]
 
-In ocfs2_xa_prepare_entry(), there is an if statement on line 2136 to
-check whether loc->xl_entry is NULL:
+Explicitly cancel/sync the irq_work delayed work, otherwise
+there's a chance that it will run after the device is removed,
+which would result in a use-after-free.
 
-    if (loc->xl_entry)
+Note that cancel/sync should happen:
+- after irq's have been disabled, as the isr re-schedules the work
+- before the power supply is unregistered, because the work func
+    uses the power supply handle.
 
-When loc->xl_entry is NULL, it is used on line 2158:
-
-    ocfs2_xa_add_entry(loc, name_hash);
-        loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
-        loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
-
-and line 2164:
-
-    ocfs2_xa_add_namevalue(loc, xi);
-        loc->xl_entry->xe_value_size = cpu_to_le64(xi->xi_value_len);
-        loc->xl_entry->xe_name_len = xi->xi_name_len;
-
-Thus, possible null-pointer dereferences may occur.
-
-To fix these bugs, if loc-xl_entry is NULL, ocfs2_xa_prepare_entry()
-abnormally returns with -EINVAL.
-
-These bugs are found by a static analysis tool STCheck written by us.
-
-[akpm@linux-foundation.org: remove now-unused ocfs2_xa_add_entry()]
-Link: http://lkml.kernel.org/r/20190726101447.9153-1-baijiaju1990@gmail.com
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Alexander Kurz <akurz@blala.de>
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/xattr.c | 56 ++++++++++++++++++++----------------------------
- 1 file changed, 23 insertions(+), 33 deletions(-)
+ .../power/supply/max14656_charger_detector.c    | 17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
-index 90c830e3758e2..d8507972ee135 100644
---- a/fs/ocfs2/xattr.c
-+++ b/fs/ocfs2/xattr.c
-@@ -1490,18 +1490,6 @@ static int ocfs2_xa_check_space(struct ocfs2_xa_loc *loc,
- 	return loc->xl_ops->xlo_check_space(loc, xi);
- }
+diff --git a/drivers/power/supply/max14656_charger_detector.c b/drivers/power/supply/max14656_charger_detector.c
+index d19307f791c68..9e6472834e373 100644
+--- a/drivers/power/supply/max14656_charger_detector.c
++++ b/drivers/power/supply/max14656_charger_detector.c
+@@ -240,6 +240,14 @@ static enum power_supply_property max14656_battery_props[] = {
+ 	POWER_SUPPLY_PROP_MANUFACTURER,
+ };
  
--static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
--{
--	loc->xl_ops->xlo_add_entry(loc, name_hash);
--	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
--	/*
--	 * We can't leave the new entry's xe_name_offset at zero or
--	 * add_namevalue() will go nuts.  We set it to the size of our
--	 * storage so that it can never be less than any other entry.
--	 */
--	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
--}
--
- static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
- 				   struct ocfs2_xattr_info *xi)
++static void stop_irq_work(void *data)
++{
++	struct max14656_chip *chip = data;
++
++	cancel_delayed_work_sync(&chip->irq_work);
++}
++
++
+ static int max14656_probe(struct i2c_client *client,
+ 			  const struct i2c_device_id *id)
  {
-@@ -2133,29 +2121,31 @@ static int ocfs2_xa_prepare_entry(struct ocfs2_xa_loc *loc,
- 	if (rc)
- 		goto out;
+@@ -278,8 +286,6 @@ static int max14656_probe(struct i2c_client *client,
+ 	if (ret)
+ 		return -ENODEV;
  
--	if (loc->xl_entry) {
--		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
--			orig_value_size = loc->xl_entry->xe_value_size;
--			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
--			if (rc)
--				goto out;
--			goto alloc_value;
--		}
-+	if (!loc->xl_entry) {
-+		rc = -EINVAL;
-+		goto out;
-+	}
+-	INIT_DELAYED_WORK(&chip->irq_work, max14656_irq_worker);
+-
+ 	chip->detect_psy = devm_power_supply_register(dev,
+ 		       &chip->psy_desc, &psy_cfg);
+ 	if (IS_ERR(chip->detect_psy)) {
+@@ -287,6 +293,13 @@ static int max14656_probe(struct i2c_client *client,
+ 		return -EINVAL;
+ 	}
  
--		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
--			orig_clusters = ocfs2_xa_value_clusters(loc);
--			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
--			if (rc) {
--				mlog_errno(rc);
--				ocfs2_xa_cleanup_value_truncate(loc,
--								"overwriting",
--								orig_clusters);
--				goto out;
--			}
-+	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
-+		orig_value_size = loc->xl_entry->xe_value_size;
-+		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
-+		if (rc)
-+			goto out;
-+		goto alloc_value;
++	INIT_DELAYED_WORK(&chip->irq_work, max14656_irq_worker);
++	ret = devm_add_action(dev, stop_irq_work, chip);
++	if (ret) {
++		dev_err(dev, "devm_add_action %d failed\n", ret);
++		return ret;
 +	}
 +
-+	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
-+		orig_clusters = ocfs2_xa_value_clusters(loc);
-+		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
-+		if (rc) {
-+			mlog_errno(rc);
-+			ocfs2_xa_cleanup_value_truncate(loc,
-+							"overwriting",
-+							orig_clusters);
-+			goto out;
- 		}
--		ocfs2_xa_wipe_namevalue(loc);
--	} else
--		ocfs2_xa_add_entry(loc, name_hash);
-+	}
-+	ocfs2_xa_wipe_namevalue(loc);
- 
- 	/*
- 	 * If we get here, we have a blank entry.  Fill it.  We grow our
+ 	ret = devm_request_irq(dev, chip->irq, max14656_irq,
+ 			       IRQF_TRIGGER_FALLING,
+ 			       MAX14656_NAME, chip);
 -- 
 2.20.1
 
