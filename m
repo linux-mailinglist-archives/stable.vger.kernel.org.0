@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E554CEF06F
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65370EEEF6
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730369AbfKDVt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:49:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40752 "EHLO mail.kernel.org"
+        id S2389078AbfKDWBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:01:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730365AbfKDVt0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:49:26 -0500
+        id S2389190AbfKDWBx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:01:53 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A79E220B7C;
-        Mon,  4 Nov 2019 21:49:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E45492084D;
+        Mon,  4 Nov 2019 22:01:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904166;
-        bh=mOzjGy2Q9cTEq/lLvfPWhDSPbJebbl1LtvQpkbyCVFM=;
+        s=default; t=1572904912;
+        bh=Yfuc9zmR5UHiuZid6NBVEbbUTxnhxljsHJBvKXfvKNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7HmCIXd9RcsfrWmLV6mJQhsF+EpkBjKeOnSEGQhZyTbwnPWThsPAGd7kA8Se6h3V
-         SspKVqe0VHOlOnilAMF2Fgtc3Rn9etT8jmw8HEfZXZgnQsyDhlefNflrcJkPUA0Iej
-         BPPHin2POhigsNEnjNTRWnLvhFhOM++vKAp17cSY=
+        b=VhjL1X4tA8tw5OCZod9PFxlpTUHNuyawFXleTaeAmQSRx5gasW7RIofIX+71AzlQu
+         rUJ1gksu1pTfzMVqCXIQmgKniwCsht3AO0dzw0hMMmHi0zvAfwGOxjtCdaBb8EXyeB
+         wJIr3147BIvKXqC+eQ5N8dialzfBvvrobXpOTMNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.4 35/46] HID: fix error message in hid_open_report()
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 113/149] ALSA: hda/realtek - Add support for ALC623
 Date:   Mon,  4 Nov 2019 22:45:06 +0100
-Message-Id: <20191104211908.747212493@linuxfoundation.org>
+Message-Id: <20191104212144.286401061@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+From: Kailang Yang <kailang@realtek.com>
 
-commit b3a81c777dcb093020680490ab970d85e2f6f04f upstream.
+commit f0778871a13889b86a65d4ad34bef8340af9d082 upstream.
 
-On HID report descriptor parsing error the code displays bogus
-pointer instead of error offset (subtracts start=NULL from end).
-Make the message more useful by displaying correct error offset
-and include total buffer size for reference.
+Support new codec ALC623.
 
-This was carried over from ancient times - "Fixed" commit just
-promoted the message from DEBUG to ERROR.
-
-Cc: stable@vger.kernel.org
-Fixes: 8c3d52fc393b ("HID: make parser more verbose about parsing errors by default")
-Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/ed97b6a8bd9445ecb48bc763d9aaba7a@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-core.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -959,6 +959,7 @@ int hid_open_report(struct hid_device *d
- 	__u8 *start;
- 	__u8 *buf;
- 	__u8 *end;
-+	__u8 *next;
- 	int ret;
- 	static int (*dispatch_type[])(struct hid_parser *parser,
- 				      struct hid_item *item) = {
-@@ -1012,7 +1013,8 @@ int hid_open_report(struct hid_device *d
- 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -421,6 +421,9 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0672:
+ 		alc_update_coef_idx(codec, 0xd, 0, 1<<14); /* EAPD Ctrl */
+ 		break;
++	case 0x10ec0623:
++		alc_update_coef_idx(codec, 0x19, 1<<13, 0);
++		break;
+ 	case 0x10ec0668:
+ 		alc_update_coef_idx(codec, 0x7, 3<<13, 0);
+ 		break;
+@@ -2908,6 +2911,7 @@ enum {
+ 	ALC269_TYPE_ALC225,
+ 	ALC269_TYPE_ALC294,
+ 	ALC269_TYPE_ALC300,
++	ALC269_TYPE_ALC623,
+ 	ALC269_TYPE_ALC700,
+ };
  
- 	ret = -EINVAL;
--	while ((start = fetch_item(start, end, &item)) != NULL) {
-+	while ((next = fetch_item(start, end, &item)) != NULL) {
-+		start = next;
- 
- 		if (item.format != HID_ITEM_FORMAT_SHORT) {
- 			hid_err(device, "unexpected long global item\n");
-@@ -1041,7 +1043,8 @@ int hid_open_report(struct hid_device *d
- 		}
- 	}
- 
--	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
-+	hid_err(device, "item fetching failed at offset %u/%u\n",
-+		size - (unsigned int)(end - start), size);
- err:
- 	vfree(parser);
- 	hid_close_report(device);
+@@ -2943,6 +2947,7 @@ static int alc269_parse_auto_config(stru
+ 	case ALC269_TYPE_ALC225:
+ 	case ALC269_TYPE_ALC294:
+ 	case ALC269_TYPE_ALC300:
++	case ALC269_TYPE_ALC623:
+ 	case ALC269_TYPE_ALC700:
+ 		ssids = alc269_ssids;
+ 		break;
+@@ -7783,6 +7788,9 @@ static int patch_alc269(struct hda_codec
+ 		spec->codec_variant = ALC269_TYPE_ALC300;
+ 		spec->gen.mixer_nid = 0; /* no loopback on ALC300 */
+ 		break;
++	case 0x10ec0623:
++		spec->codec_variant = ALC269_TYPE_ALC623;
++		break;
+ 	case 0x10ec0700:
+ 	case 0x10ec0701:
+ 	case 0x10ec0703:
+@@ -8901,6 +8909,7 @@ static const struct hda_device_id snd_hd
+ 	HDA_CODEC_ENTRY(0x10ec0298, "ALC298", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0299, "ALC299", patch_alc269),
+ 	HDA_CODEC_ENTRY(0x10ec0300, "ALC300", patch_alc269),
++	HDA_CODEC_ENTRY(0x10ec0623, "ALC623", patch_alc269),
+ 	HDA_CODEC_REV_ENTRY(0x10ec0861, 0x100340, "ALC660", patch_alc861),
+ 	HDA_CODEC_ENTRY(0x10ec0660, "ALC660-VD", patch_alc861vd),
+ 	HDA_CODEC_ENTRY(0x10ec0861, "ALC861", patch_alc861),
 
 
