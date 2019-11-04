@@ -2,435 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13547EF13D
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 00:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B35EF177
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 00:56:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729442AbfKDXiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 18:38:51 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:44542 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728987AbfKDXiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 18:38:51 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572910728;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=M+lmg3VnkIWZ3R8tmcB06xoDEx3+9tETPnXj9qSVrEY=;
-        b=HvuQNmA3SKccmZLPT8fliqAoM2wVmzu1Qsh6JZBzEYSQ5BeLUMcu/hb5cEzPkL4DcmPw4x
-        4NDejprC6624yLnKAZWEFEN3IsyOFVEYZXwyMth8GlfquqEgkaAQL2aj45GEbFPyRKKI9g
-        Et3P6a3OmI0iamgAgZumnxX0tNNhlF0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-96-R9uqnPlOPDWF4mpznZv17A-1; Mon, 04 Nov 2019 18:38:46 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0651D800C73
-        for <stable@vger.kernel.org>; Mon,  4 Nov 2019 23:38:46 +0000 (UTC)
-Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 07DBA1001B32;
-        Mon,  4 Nov 2019 23:38:42 +0000 (UTC)
+        id S1729867AbfKDX4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 18:56:24 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:39263 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729862AbfKDX4X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 18:56:23 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iRmCk-0001NK-1x; Tue, 05 Nov 2019 00:56:14 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id A2A191C0105;
+        Tue,  5 Nov 2019 00:56:13 +0100 (CET)
+Date:   Mon, 04 Nov 2019 23:56:13 -0000
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/dumpstack/64: Don't evaluate exception stacks
+ before setup
+Cc:     Cyrill Gorcunov <gorcunov@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>, stable@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <alpine.DEB.2.21.1910231950590.1852@nanos.tec.linutronix.de>
+References: <alpine.DEB.2.21.1910231950590.1852@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
-Date:   Mon, 04 Nov 2019 23:38:42 -0000
-Message-ID: <cki.C96E0D5F67.RSDANKE9M5@redhat.com>
-X-Gitlab-Pipeline-ID: 263637
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/263637
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: R9uqnPlOPDWF4mpznZv17A-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <157291177324.29376.14563915167890708264.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+The following commit has been merged into the x86/urgent branch of tip:
 
-Hello,
+Commit-ID:     e361362b08cab1098b64b0e5fd8c879f086b3f46
+Gitweb:        https://git.kernel.org/tip/e361362b08cab1098b64b0e5fd8c879f086b3f46
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Wed, 23 Oct 2019 20:05:49 +02:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Tue, 05 Nov 2019 00:51:35 +01:00
 
-We ran automated tests on a patchset that was proposed for merging into thi=
-s
-kernel tree. The patches were applied to:
+x86/dumpstack/64: Don't evaluate exception stacks before setup
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux.git
-            Commit: 95180e47e77a - Linux 5.3.8
+Cyrill reported the following crash:
 
-The results of these automated tests are provided below.
+  BUG: unable to handle page fault for address: 0000000000001ff0
+  #PF: supervisor read access in kernel mode
+  RIP: 0010:get_stack_info+0xb3/0x148
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+It turns out that if the stack tracer is invoked before the exception stack
+mappings are initialized in_exception_stack() can erroneously classify an
+invalid address as an address inside of an exception stack:
 
-All kernel binaries, config files, and logs are available for download here=
-:
+    begin = this_cpu_read(cea_exception_stacks);  <- 0
+    end = begin + sizeof(exception stacks);
 
-  https://artifacts.cki-project.org/pipelines/263637
+i.e. any address between 0 and end will be considered as exception stack
+address and the subsequent code will then try to derefence the resulting
+stack frame at a non mapped address.
 
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
+ end = begin + (unsigned long)ep->size;
+     ==> end = 0x2000
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
+ regs = (struct pt_regs *)end - 1;
+     ==> regs = 0x2000 - sizeof(struct pt_regs *) = 0x1ff0
 
-Merge testing
--------------
+ info->next_sp   = (unsigned long *)regs->sp;
+     ==> Crashes due to accessing 0x1ff0
 
-We cloned this repository and checked out the following commit:
+Prevent this by checking the validity of the cea_exception_stack base
+address and bailing out if it is zero.
 
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 95180e47e77a - Linux 5.3.8
+Fixes: afcd21dad88b ("x86/dumpstack/64: Use cpu_entry_area instead of orig_ist")
+Reported-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Acked-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/alpine.DEB.2.21.1910231950590.1852@nanos.tec.linutronix.de
 
+---
+ arch/x86/kernel/dumpstack_64.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-We grabbed the e2bf0eb6cdbe commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  io_uring-fix-up-o_nonblock-handling-for-sockets.patch
-  dm-snapshot-introduce-account_start_copy-and-account.patch
-  dm-snapshot-rework-cow-throttling-to-fix-deadlock.patch
-  btrfs-fix-inode-cache-block-reserve-leak-on-failure-.patch
-  btrfs-qgroup-always-free-prealloc-meta-reserve-in-bt.patch
-  iio-adc-meson_saradc-fix-memory-allocation-order.patch
-  iio-fix-center-temperature-of-bmc150-accel-core.patch
-  libsubcmd-make-_fortify_source-defines-dependent-on-.patch
-  perf-tests-avoid-raising-segv-using-an-obvious-null-.patch
-  perf-map-fix-overlapped-map-handling.patch
-  perf-script-brstackinsn-fix-recovery-from-lbr-binary.patch
-  perf-jevents-fix-period-for-intel-fixed-counters.patch
-  perf-tools-propagate-get_cpuid-error.patch
-  perf-annotate-propagate-perf_env__arch-error.patch
-  perf-annotate-fix-the-signedness-of-failure-returns.patch
-  perf-annotate-propagate-the-symbol__annotate-error-r.patch
-  perf-annotate-fix-arch-specific-init-failure-errors.patch
-  perf-annotate-return-appropriate-error-code-for-allo.patch
-  perf-annotate-don-t-return-1-for-error-when-doing-bp.patch
-  staging-rtl8188eu-fix-null-dereference-when-kzalloc-.patch
-  rdma-siw-fix-serialization-issue-in-write_space.patch
-  rdma-hfi1-prevent-memory-leak-in-sdma_init.patch
-  rdma-iw_cxgb4-fix-srq-access-from-dump_qp.patch
-  rdma-iwcm-fix-a-lock-inversion-issue.patch
-  hid-hyperv-use-in-place-iterator-api-in-the-channel-.patch
-  kselftest-exclude-failed-targets-from-runlist.patch
-  selftests-kselftest-runner.sh-add-45-second-timeout-.patch
-  nfs-fix-nfsi-nrequests-count-error-on-nfs_inode_remo.patch
-  arm64-cpufeature-effectively-expose-frint-capability.patch
-  arm64-fix-incorrect-irqflag-restore-for-priority-mas.patch
-  arm64-ftrace-ensure-synchronisation-in-plt-setup-for.patch
-  tty-serial-owl-fix-the-link-time-qualifier-of-owl_ua.patch
-  tty-serial-rda-fix-the-link-time-qualifier-of-rda_ua.patch
-  serial-sifive-select-serial_earlycon.patch
-  tty-n_hdlc-fix-build-on-sparc.patch
-  misc-fastrpc-prevent-memory-leak-in-fastrpc_dma_buf_.patch
-  rdma-core-fix-an-error-handling-path-in-res_get_comm.patch
-  rdma-cm-fix-memory-leak-in-cm_add-remove_one.patch
-  rdma-nldev-reshuffle-the-code-to-avoid-need-to-rebin.patch
-  rdma-mlx5-do-not-allow-rereg-of-a-odp-mr.patch
-  rdma-mlx5-order-num_pending_prefetch-properly-with-s.patch
-  rdma-mlx5-add-missing-synchronize_srcu-for-mw-cases.patch
-  gpio-max77620-use-correct-unit-for-debounce-times.patch
-  fs-cifs-mute-wunused-const-variable-message.patch
-  arm64-vdso32-fix-broken-compat-vdso-build-warnings.patch
-  arm64-vdso32-detect-binutils-support-for-dmb-ishld.patch
-  serial-mctrl_gpio-check-for-null-pointer.patch
-  serial-8250_omap-fix-gpio-check-for-auto-rts-cts.patch
-  arm64-default-to-building-compat-vdso-with-clang-whe.patch
-  arm64-vdso32-don-t-use-kbuild_cppflags-unconditional.patch
-  efi-cper-fix-endianness-of-pcie-class-code.patch
-  efi-x86-do-not-clean-dummy-variable-in-kexec-path.patch
-  mips-include-mark-__cmpxchg-as-__always_inline.patch
-  riscv-avoid-kernel-hangs-when-trapped-in-bug.patch
-  riscv-avoid-sending-a-sigtrap-to-a-user-thread-trapp.patch
-  riscv-correct-the-handling-of-unexpected-ebreak-in-d.patch
-  x86-xen-return-from-panic-notifier.patch
-  ocfs2-clear-zero-in-unaligned-direct-io.patch
-  fs-ocfs2-fix-possible-null-pointer-dereferences-in-o.patch
-  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
-  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
-  btrfs-silence-maybe-uninitialized-warning-in-clone_r.patch
-  arm64-armv8_deprecated-checking-return-value-for-mem.patch
-  x86-cpu-add-comet-lake-to-the-intel-cpu-models-heade.patch
-  sched-fair-scale-bandwidth-quota-and-period-without-.patch
-  sched-vtime-fix-guest-system-mis-accounting-on-task-.patch
-  perf-core-rework-memory-accounting-in-perf_mmap.patch
-  perf-core-fix-corner-case-in-perf_rotate_context.patch
-  perf-x86-amd-change-fix-nmi-latency-mitigation-to-us.patch
-  drm-amdgpu-fix-memory-leak.patch
-  iio-imu-adis16400-release-allocated-memory-on-failur.patch
-  iio-imu-adis16400-fix-memory-leak.patch
-  iio-imu-st_lsm6dsx-fix-waitime-for-st_lsm6dsx-i2c-co.patch
-  mips-include-mark-__xchg-as-__always_inline.patch
-  mips-fw-sni-fix-out-of-bounds-init-of-o32-stack.patch
-  s390-cio-fix-virtio-ccw-dma-without-pv.patch
-  virt-vbox-fix-memory-leak-in-hgcm_call_preprocess_li.patch
-  nbd-fix-possible-sysfs-duplicate-warning.patch
-  nfsv4-fix-leak-of-clp-cl_acceptor-string.patch
-  sunrpc-fix-race-to-sk_err-after-xs_error_report.patch
-  s390-uaccess-avoid-false-positive-compiler-warnings.patch
-  tracing-initialize-iter-seq-after-zeroing-in-tracing.patch
-  perf-annotate-fix-multiple-memory-and-file-descripto.patch
-  perf-aux-fix-tracking-of-auxiliary-trace-buffer-allo.patch
-  usb-legousbtower-fix-a-signedness-bug-in-tower_probe.patch
-  nbd-verify-socket-is-supported-during-setup.patch
-  arm64-dts-qcom-add-lenovo-miix-630.patch
-  arm64-dts-qcom-add-hp-envy-x2.patch
-  arm64-dts-qcom-add-asus-novago-tp370ql.patch
-  rtw88-fix-misuse-of-genmask-macro.patch
-  s390-pci-fix-msi-message-data.patch
-  thunderbolt-correct-path-indices-for-pcie-tunnel.patch
-  thunderbolt-use-32-bit-writes-when-writing-ring-prod.patch
-  ath6kl-fix-a-null-ptr-deref-bug-in-ath6kl_usb_alloc_.patch
-  fuse-flush-dirty-data-metadata-before-non-truncate-setattr.patch
-  fuse-truncate-pending-writes-on-o_trunc.patch
-  alsa-bebob-fix-prototype-of-helper-function-to-return-negative-value.patc=
-h
-  alsa-timer-fix-mutex-deadlock-at-releasing-card.patch
-  alsa-hda-realtek-fix-2-front-mics-of-codec-0x623.patch
-  alsa-hda-realtek-add-support-for-alc623.patch
-  ath10k-fix-latency-issue-for-qca988x.patch
-  uas-revert-commit-3ae62a42090f-uas-fix-alignment-of-scatter-gather-segmen=
-ts.patch
-  nl80211-fix-validation-of-mesh-path-nexthop.patch
-  usb-gadget-reject-endpoints-with-0-maxpacket-value.patch
-  usb-storage-revert-commit-747668dbc061-usb-storage-set-virt_boundary_mask=
--to-avoid-sg-overflows.patch
-  usb-ldusb-fix-ring-buffer-locking.patch
-  usb-ldusb-fix-control-message-timeout.patch
-  usb-xhci-fix-immediate-data-transfer-endianness.patch
-  usb-xhci-fix-__le32-__le64-accessors-in-debugfs-code.patch
-  usb-serial-whiteheat-fix-potential-slab-corruption.patch
-  usb-serial-whiteheat-fix-line-speed-endianness.patch
-  xhci-fix-use-after-free-regression-in-xhci-clear-hub-tt-implementation.pa=
-tch
-  scsi-qla2xxx-fix-partial-flash-write-of-mbi.patch
-  scsi-target-cxgbit-fix-cxgbit_fw4_ack.patch
-  hid-i2c-hid-add-trekstor-primebook-c11b-to-descriptor-override.patch
-  hid-fix-assumption-that-devices-have-inputs.patch
-  hid-fix-error-message-in-hid_open_report.patch
-  hid-logitech-hidpp-split-g920_get_config.patch
-  hid-logitech-hidpp-rework-device-validation.patch
-  hid-logitech-hidpp-do-all-ff-cleanup-in-hidpp_ff_destroy.patch
-  um-ubd-entrust-re-queue-to-the-upper-layers.patch
-  s390-unwind-fix-mixing-regs-and-sp.patch
-  s390-cmm-fix-information-leak-in-cmm_timeout_handler.patch
-  s390-idle-fix-cpu-idle-time-calculation.patch
-  arc-perf-accommodate-big-endian-cpu.patch
-  ib-hfi1-avoid-excessive-retry-for-tid-rdma-read-request.patch
-  arm64-ensure-vm_write-vm_shared-ptes-are-clean-by-default.patch
-  arm64-cpufeature-enable-qualcomm-falkor-kryo-errata-1003.patch
-  virtio_ring-fix-stalls-for-packed-rings.patch
-  rtlwifi-rtl_pci-fix-problem-of-too-small-skb-len.patch
-  rtlwifi-fix-potential-overflow-on-p2p-code.patch
-  kvm-vmx-svm-always-run-with-efer.nxe-1-when-shadow-paging-is-active.patch
-  dmaengine-qcom-bam_dma-fix-resource-leak.patch
-  dmaengine-tegra210-adma-fix-transfer-failure.patch
-  dmaengine-imx-sdma-fix-size-check-for-sdma-script_number.patch
-  dmaengine-cppi41-fix-cppi41_dma_prep_slave_sg-when-idle.patch
-  drm-amdgpu-gmc10-properly-set-bank_select-and-fragment_size.patch
-  drm-i915-fix-pch-reference-clock-for-fdi-on-hsw-bdw.patch
-  drm-amdgpu-gfx10-update-gfx-golden-settings.patch
-  drm-amdgpu-powerplay-vega10-allow-undervolting-in-p7.patch
-  drm-amdgpu-fix-sdma-hang-when-performing-vkexample-test.patch
-  nfs-fix-an-rcu-lock-leak-in-nfs4_refresh_delegation_stateid.patch
-  io_uring-ensure-we-clear-io_kiocb-result-before-each-issue.patch
-  iommu-vt-d-fix-panic-after-kexec-p-for-kdump.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 xfstests: xfs
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 3:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 4:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 5:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 6:
-
-       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
- (marked
-       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-       This is not the fault of the kernel that was tested.
-
-       =E2=9C=85 Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
+index 753b8cf..87b9789 100644
+--- a/arch/x86/kernel/dumpstack_64.c
++++ b/arch/x86/kernel/dumpstack_64.c
+@@ -94,6 +94,13 @@ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
+ 	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
+ 
+ 	begin = (unsigned long)__this_cpu_read(cea_exception_stacks);
++	/*
++	 * Handle the case where stack trace is collected _before_
++	 * cea_exception_stacks had been initialized.
++	 */
++	if (!begin)
++		return false;
++
+ 	end = begin + sizeof(struct cea_exception_stacks);
+ 	/* Bail if @stack is outside the exception stack area. */
+ 	if (stk < begin || stk >= end)
