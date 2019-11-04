@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F05FEEE15
+	by mail.lfdr.de (Postfix) with ESMTP id DDE80EEE16
 	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390111AbfKDWL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:11:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44826 "EHLO mail.kernel.org"
+        id S2389987AbfKDWLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:11:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390355AbfKDWL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:11:27 -0500
+        id S2389550AbfKDWLa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:11:30 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D6A320650;
-        Mon,  4 Nov 2019 22:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44027214D9;
+        Mon,  4 Nov 2019 22:11:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905485;
-        bh=/fnF9QQKMvloVp+hOX+a33YssCR2+tqJVk7XpgMm03o=;
+        s=default; t=1572905488;
+        bh=3QAZop3R1QovG2h91P6pO+vj40enEfMY+gb0f6zrkTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClKwDdETHDdeTNiGpIv3v74HiMjbWVr73C5yrf+HfXNGZk0e++9HC5xkgam8QoZUg
-         N7/DO7F3BQCe+csxm3gMTqinZCyFu1sY+PBlg3nAwStpivUUrTk6/YwyfEiy2+oZeB
-         PfiBkbPQLjJMKxccltj6DCqxUUlnYi25lHOC8hQk=
+        b=UJCo2woOhU75kwY6YlNNRwBytcklrEoXZKtMM8yMAk2ldpJrLtXQiuHqJJl3V5ouL
+         2enp/5gfcSMYCW7PN3OYZvCSCxb7PQVDM6gB793jDf0ZwvKUUEcIHZw9qVFWbr5ypL
+         IL0+r7Q2Si1wDpRSvRP71/hEXQyi4yNOAujtdDQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 162/163] RDMA/mlx5: Use irq xarray locking for mkey_table
-Date:   Mon,  4 Nov 2019 22:45:52 +0100
-Message-Id: <20191104212152.049781479@linuxfoundation.org>
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ben Segall <bsegall@google.com>,
+        Dave Chiluk <chiluk+linux@indeed.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, pauld@redhat.com,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 163/163] sched/fair: Fix -Wunused-but-set-variable warnings
+Date:   Mon,  4 Nov 2019 22:45:53 +0100
+Message-Id: <20191104212152.121299339@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
@@ -44,91 +48,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit 1524b12a6e02a85264af4ed208b034a2239ef374 ]
+[ Upstream commit 763a9ec06c409dcde2a761aac4bb83ff3938e0b3 ]
 
-The mkey_table xarray is touched by the reg_mr_callback() function which
-is called from a hard irq. Thus all other uses of xa_lock must use the
-_irq variants.
+Commit:
 
-  WARNING: inconsistent lock state
-  5.4.0-rc1 #12 Not tainted
-  --------------------------------
-  inconsistent {IN-HARDIRQ-W} -> {HARDIRQ-ON-W} usage.
-  python3/343 [HC0[0]:SC0[0]:HE1:SE1] takes:
-  ffff888182be1d40 (&(&xa->xa_lock)->rlock#3){?.-.}, at: xa_erase+0x12/0x30
-  {IN-HARDIRQ-W} state was registered at:
-    lock_acquire+0xe1/0x200
-    _raw_spin_lock_irqsave+0x35/0x50
-    reg_mr_callback+0x2dd/0x450 [mlx5_ib]
-    mlx5_cmd_exec_cb_handler+0x2c/0x70 [mlx5_core]
-    mlx5_cmd_comp_handler+0x355/0x840 [mlx5_core]
-   [..]
+   de53fd7aedb1 ("sched/fair: Fix low cpu usage with high throttling by removing expiration of cpu-local slices")
 
-   Possible unsafe locking scenario:
+introduced a few compilation warnings:
 
-         CPU0
-         ----
-    lock(&(&xa->xa_lock)->rlock#3);
-    <Interrupt>
-      lock(&(&xa->xa_lock)->rlock#3);
+  kernel/sched/fair.c: In function '__refill_cfs_bandwidth_runtime':
+  kernel/sched/fair.c:4365:6: warning: variable 'now' set but not used [-Wunused-but-set-variable]
+  kernel/sched/fair.c: In function 'start_cfs_bandwidth':
+  kernel/sched/fair.c:4992:6: warning: variable 'overrun' set but not used [-Wunused-but-set-variable]
 
-   *** DEADLOCK ***
+Also, __refill_cfs_bandwidth_runtime() does no longer update the
+expiration time, so fix the comments accordingly.
 
-  2 locks held by python3/343:
-   #0: ffff88818eb4bd38 (&uverbs_dev->disassociate_srcu){....}, at: ib_uverbs_ioctl+0xe5/0x1e0 [ib_uverbs]
-   #1: ffff888176c76d38 (&file->hw_destroy_rwsem){++++}, at: uobj_destroy+0x2d/0x90 [ib_uverbs]
-
-  stack backtrace:
-  CPU: 3 PID: 343 Comm: python3 Not tainted 5.4.0-rc1 #12
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
-  Call Trace:
-   dump_stack+0x86/0xca
-   print_usage_bug.cold.50+0x2e5/0x355
-   mark_lock+0x871/0xb50
-   ? match_held_lock+0x20/0x250
-   ? check_usage_forwards+0x240/0x240
-   __lock_acquire+0x7de/0x23a0
-   ? __kasan_check_read+0x11/0x20
-   ? mark_lock+0xae/0xb50
-   ? mark_held_locks+0xb0/0xb0
-   ? find_held_lock+0xca/0xf0
-   lock_acquire+0xe1/0x200
-   ? xa_erase+0x12/0x30
-   _raw_spin_lock+0x2a/0x40
-   ? xa_erase+0x12/0x30
-   xa_erase+0x12/0x30
-   mlx5_ib_dealloc_mw+0x55/0xa0 [mlx5_ib]
-   uverbs_dealloc_mw+0x3c/0x70 [ib_uverbs]
-   uverbs_free_mw+0x1a/0x20 [ib_uverbs]
-   destroy_hw_idr_uobject+0x49/0xa0 [ib_uverbs]
-   [..]
-
-Fixes: 0417791536ae ("RDMA/mlx5: Add missing synchronize_srcu() for MW cases")
-Link: https://lore.kernel.org/r/20191024234910.GA9038@ziepe.ca
-Acked-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Qian Cai <cai@lca.pw>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Ben Segall <bsegall@google.com>
+Reviewed-by: Dave Chiluk <chiluk+linux@indeed.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: pauld@redhat.com
+Fixes: de53fd7aedb1 ("sched/fair: Fix low cpu usage with high throttling by removing expiration of cpu-local slices")
+Link: https://lkml.kernel.org/r/1566326455-8038-1-git-send-email-cai@lca.pw
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/sched/fair.c | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index c15d05f61cc7b..a6198fe7f3768 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -1975,8 +1975,8 @@ int mlx5_ib_dealloc_mw(struct ib_mw *mw)
- 	int err;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index a11a9c2d7793e..649c6b60929e2 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4355,21 +4355,16 @@ static inline u64 sched_cfs_bandwidth_slice(void)
+ }
  
- 	if (IS_ENABLED(CONFIG_INFINIBAND_ON_DEMAND_PAGING)) {
--		xa_erase(&dev->mdev->priv.mkey_table,
--			 mlx5_base_mkey(mmw->mmkey.key));
-+		xa_erase_irq(&dev->mdev->priv.mkey_table,
-+			     mlx5_base_mkey(mmw->mmkey.key));
- 		/*
- 		 * pagefault_single_data_segment() may be accessing mmw under
- 		 * SRCU if the user bound an ODP MR to this MW.
+ /*
+- * Replenish runtime according to assigned quota and update expiration time.
+- * We use sched_clock_cpu directly instead of rq->clock to avoid adding
+- * additional synchronization around rq->lock.
++ * Replenish runtime according to assigned quota. We use sched_clock_cpu
++ * directly instead of rq->clock to avoid adding additional synchronization
++ * around rq->lock.
+  *
+  * requires cfs_b->lock
+  */
+ void __refill_cfs_bandwidth_runtime(struct cfs_bandwidth *cfs_b)
+ {
+-	u64 now;
+-
+-	if (cfs_b->quota == RUNTIME_INF)
+-		return;
+-
+-	now = sched_clock_cpu(smp_processor_id());
+-	cfs_b->runtime = cfs_b->quota;
++	if (cfs_b->quota != RUNTIME_INF)
++		cfs_b->runtime = cfs_b->quota;
+ }
+ 
+ static inline struct cfs_bandwidth *tg_cfs_bandwidth(struct task_group *tg)
+@@ -4999,15 +4994,13 @@ static void init_cfs_rq_runtime(struct cfs_rq *cfs_rq)
+ 
+ void start_cfs_bandwidth(struct cfs_bandwidth *cfs_b)
+ {
+-	u64 overrun;
+-
+ 	lockdep_assert_held(&cfs_b->lock);
+ 
+ 	if (cfs_b->period_active)
+ 		return;
+ 
+ 	cfs_b->period_active = 1;
+-	overrun = hrtimer_forward_now(&cfs_b->period_timer, cfs_b->period);
++	hrtimer_forward_now(&cfs_b->period_timer, cfs_b->period);
+ 	hrtimer_start_expires(&cfs_b->period_timer, HRTIMER_MODE_ABS_PINNED);
+ }
+ 
 -- 
 2.20.1
 
