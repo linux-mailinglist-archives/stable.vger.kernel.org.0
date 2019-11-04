@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA615EED58
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0A21EED5A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389374AbfKDWFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:05:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37302 "EHLO mail.kernel.org"
+        id S2389430AbfKDWFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:05:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388286AbfKDWFq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:46 -0500
+        id S2388887AbfKDWFt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:05:49 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96DCF205C9;
-        Mon,  4 Nov 2019 22:05:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EBFE20650;
+        Mon,  4 Nov 2019 22:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905146;
-        bh=/TiINZmJsoedbiu+tJ48La03mc4J9pQ/MseuO/2nh5w=;
+        s=default; t=1572905149;
+        bh=pvimibEjAyXqsfHKR7k5YuuvTWdfplcgN9pW/WPSVwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hjSjrtvCExkIGII6glN6AX8sMr+MNmwF8Rvu2/gp6WemaaGHWmXPA2PwE1hPLDDTY
-         OFasr45yqpyvD9OdUVyk8T3WIh7q4vjXqH5FnBDFBz+cOX4YqOFwmsA3WgV4FMVaxw
-         geCmNNy89fhgUBaJcg/vi/hhTKnflCK1hodRzxzE=
+        b=xqg/t9PI2wo27kvEA9XNh6C6F266w9U3FDZRBQT18+pipLvJqkaG6dd9PwNNd0PR7
+         x6u0+C283dBTKMYwVIsxiE9W9RFYEerudAZWTm9p72BiZk+V3Ruusml9kaHFu4Xwhv
+         1P95voIpliRw599PVkgx6aOk6jab4APF81l96/xI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Austin Kim <austindh.kim@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 043/163] gpio: max77620: Use correct unit for debounce times
-Date:   Mon,  4 Nov 2019 22:43:53 +0100
-Message-Id: <20191104212143.370815953@linuxfoundation.org>
+Subject: [PATCH 5.3 044/163] fs: cifs: mute -Wunused-const-variable message
+Date:   Mon,  4 Nov 2019 22:43:54 +0100
+Message-Id: <20191104212143.434057464@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
@@ -44,43 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Austin Kim <austindh.kim@gmail.com>
 
-[ Upstream commit fffa6af94894126994a7600c6f6f09b892e89fa9 ]
+[ Upstream commit dd19c106a36690b47bb1acc68372f2b472b495b8 ]
 
-The gpiod_set_debounce() function takes the debounce time in
-microseconds. Adjust the switch/case values in the MAX77620 GPIO to use
-the correct unit.
+After 'Initial git repository build' commit,
+'mapping_table_ERRHRD' variable has not been used.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20191002122825.3948322-1-thierry.reding@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+So 'mapping_table_ERRHRD' const variable could be removed
+to mute below warning message:
+
+   fs/cifs/netmisc.c:120:40: warning: unused variable 'mapping_table_ERRHRD' [-Wunused-const-variable]
+   static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
+                                           ^
+Signed-off-by: Austin Kim <austindh.kim@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-max77620.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/cifs/netmisc.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/gpio/gpio-max77620.c b/drivers/gpio/gpio-max77620.c
-index b7d89e30131e2..06e8caaafa811 100644
---- a/drivers/gpio/gpio-max77620.c
-+++ b/drivers/gpio/gpio-max77620.c
-@@ -192,13 +192,13 @@ static int max77620_gpio_set_debounce(struct max77620_gpio *mgpio,
- 	case 0:
- 		val = MAX77620_CNFG_GPIO_DBNC_None;
- 		break;
--	case 1 ... 8:
-+	case 1000 ... 8000:
- 		val = MAX77620_CNFG_GPIO_DBNC_8ms;
- 		break;
--	case 9 ... 16:
-+	case 9000 ... 16000:
- 		val = MAX77620_CNFG_GPIO_DBNC_16ms;
- 		break;
--	case 17 ... 32:
-+	case 17000 ... 32000:
- 		val = MAX77620_CNFG_GPIO_DBNC_32ms;
- 		break;
- 	default:
+diff --git a/fs/cifs/netmisc.c b/fs/cifs/netmisc.c
+index ed92958e842d3..657f409d4de06 100644
+--- a/fs/cifs/netmisc.c
++++ b/fs/cifs/netmisc.c
+@@ -117,10 +117,6 @@ static const struct smb_to_posix_error mapping_table_ERRSRV[] = {
+ 	{0, 0}
+ };
+ 
+-static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
+-	{0, 0}
+-};
+-
+ /*
+  * Convert a string containing text IPv4 or IPv6 address to binary form.
+  *
 -- 
 2.20.1
 
