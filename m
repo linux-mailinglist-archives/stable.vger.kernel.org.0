@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A08CEEC12
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:53:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD79EEEB8B
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:48:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731049AbfKDVxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:53:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47822 "EHLO mail.kernel.org"
+        id S1730175AbfKDVsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:48:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731046AbfKDVxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:53:44 -0500
+        id S1730158AbfKDVsx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:48:53 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29E9B217F5;
-        Mon,  4 Nov 2019 21:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 195AF2184C;
+        Mon,  4 Nov 2019 21:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904423;
-        bh=7Hz5cFinExP0sQs8VQ/Osxg5CIeMdGKkH2cwpUXVmLU=;
+        s=default; t=1572904132;
+        bh=gm02P0hdLtAPE3ZcCkhPqB2TsKDDYjKvo/7pGrzTdRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCULffi1IewXUEQ6DHcLA272IrA6E1RNsuqTPHe4ag5LfnvUuTUdi9SSLOkl3N4sr
-         S79FQAxNi0JNNTPlIQa19nZD6L0kOIdjnCfQdYMlVY3chcJl2xRXjBAV7YpWsAIyWX
-         P+bGRA29RgeCYf/+iz+wDDd6mRnTGnY4ulXqu9x0=
+        b=Dxo3UScfMIlABBNaR6Cl13KeacVcU1DJcIWtNQIl/1ygwp3tx3gJ+Mm3qCKXerYkj
+         aYDImtbVbMDn0qxfxdfEHURFstvuiXW8J6gSDQD6cSz0jrqeFy4JAD3xlsML6wT9IA
+         7/gV7JnEucL4omzVm5sg4Wci4ZlDcpjyzw8+Nzho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Yegor Yefremov <yegorslists@googlemail.com>,
+        stable@vger.kernel.org, Jan-Marek Glogowski <glogow@fbihome.de>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 40/95] serial: mctrl_gpio: Check for NULL pointer
-Date:   Mon,  4 Nov 2019 22:44:38 +0100
-Message-Id: <20191104212101.712737282@linuxfoundation.org>
+Subject: [PATCH 4.4 08/46] usb: handle warm-reset port requests on hub resume
+Date:   Mon,  4 Nov 2019 22:44:39 +0100
+Message-Id: <20191104211839.545438587@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Jan-Marek Glogowski <glogow@fbihome.de>
 
-[ Upstream commit 37e3ab00e4734acc15d96b2926aab55c894f4d9c ]
+[ Upstream commit 4fdc1790e6a9ef22399c6bc6e63b80f4609f3b7e ]
 
-When using mctrl_gpio_to_gpiod, it dereferences gpios into a single
-requested GPIO.  This dereferencing can break if gpios is NULL,
-so this patch adds a NULL check before dereferencing it.  If
-gpios is NULL, this function will also return NULL.
+On plug-in of my USB-C device, its USB_SS_PORT_LS_SS_INACTIVE
+link state bit is set. Greping all the kernel for this bit shows
+that the port status requests a warm-reset this way.
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Reviewed-by: Yegor Yefremov <yegorslists@googlemail.com>
-Link: https://lore.kernel.org/r/20191006163314.23191-1-aford173@gmail.com
+This just happens, if its the only device on the root hub, the hub
+therefore resumes and the HCDs status_urb isn't yet available.
+If a warm-reset request is detected, this sets the hubs event_bits,
+which will prevent any auto-suspend and allows the hubs workqueue
+to warm-reset the port later in port_event.
+
+Signed-off-by: Jan-Marek Glogowski <glogow@fbihome.de>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_mctrl_gpio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/core/hub.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/tty/serial/serial_mctrl_gpio.c b/drivers/tty/serial/serial_mctrl_gpio.c
-index 42e42e3e7a6e6..388f710468490 100644
---- a/drivers/tty/serial/serial_mctrl_gpio.c
-+++ b/drivers/tty/serial/serial_mctrl_gpio.c
-@@ -69,6 +69,9 @@ EXPORT_SYMBOL_GPL(mctrl_gpio_set);
- struct gpio_desc *mctrl_gpio_to_gpiod(struct mctrl_gpios *gpios,
- 				      enum mctrl_gpio_idx gidx)
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 5c274c5440da4..11881c5a1fb0c 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -102,6 +102,8 @@ EXPORT_SYMBOL_GPL(ehci_cf_port_reset_rwsem);
+ static void hub_release(struct kref *kref);
+ static int usb_reset_and_verify_device(struct usb_device *udev);
+ static int hub_port_disable(struct usb_hub *hub, int port1, int set_state);
++static bool hub_port_warm_reset_required(struct usb_hub *hub, int port1,
++		u16 portstatus);
+ 
+ static inline char *portspeed(struct usb_hub *hub, int portstatus)
  {
-+	if (gpios == NULL)
-+		return NULL;
+@@ -1092,6 +1094,11 @@ static void hub_activate(struct usb_hub *hub, enum hub_activation_type type)
+ 						   USB_PORT_FEAT_ENABLE);
+ 		}
+ 
++		/* Make sure a warm-reset request is handled by port_event */
++		if (type == HUB_RESUME &&
++		    hub_port_warm_reset_required(hub, port1, portstatus))
++			set_bit(port1, hub->event_bits);
 +
- 	return gpios->gpio[gidx];
- }
- EXPORT_SYMBOL_GPL(mctrl_gpio_to_gpiod);
+ 		/*
+ 		 * Add debounce if USB3 link is in polling/link training state.
+ 		 * Link will automatically transition to Enabled state after
 -- 
 2.20.1
 
