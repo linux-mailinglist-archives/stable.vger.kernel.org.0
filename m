@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56694EEC04
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:53:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52F86EEC06
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:53:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730891AbfKDVxC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:53:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46802 "EHLO mail.kernel.org"
+        id S1730904AbfKDVxI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:53:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730881AbfKDVxC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:53:02 -0500
+        id S1730881AbfKDVxH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:53:07 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C485D218BA;
-        Mon,  4 Nov 2019 21:53:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 962B621D7D;
+        Mon,  4 Nov 2019 21:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904381;
-        bh=sn9PuHWrsSWJy+qnRz1rl2QGZbrjTOyXUksthEqa3vc=;
+        s=default; t=1572904387;
+        bh=Kov+8kMB59hOV7LwB2j8HIHtBltTnISJ1UT9ZfpCrrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUmAfNwOhxvENFDwFiV/6i12j8zRk6ZIQwUNz5PVqaGeNHSyknegcdAq7Wk7Q1Bit
-         j/VNltIpjYoq/SG+2MtHFjNvstdlj6XMAu1+WaRceRHCLmj344IwKdNF6PulT1GfSM
-         fhs3KvfVJEAtypX+jr7SuX8FNDMUtPafEZnp0GmQ=
+        b=yv8HGX1vHy6sAK/2bifY9yBoOn/OC5q3SkDbaT0l+3YJEdJpYZYFEaNlXNHOIEtD7
+         6Qezrd7Rn7H/MYtP4VJcwYn6HBdO5nppCcY2WmgriT1fdSsZOw9+ERyTurFASVe8jJ
+         8nk4Dlzx6eQsXLKk4mHCVEYXdLj5/TUaIh07nzDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 27/95] perf tests: Avoid raising SEGV using an obvious NULL dereference
-Date:   Mon,  4 Nov 2019 22:44:25 +0100
-Message-Id: <20191104212056.389615802@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 29/95] perf jevents: Fix period for Intel fixed counters
+Date:   Mon,  4 Nov 2019 22:44:27 +0100
+Message-Id: <20191104212056.647068717@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
 References: <20191104212038.056365853@linuxfoundation.org>
@@ -49,88 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Andi Kleen <ak@linux.intel.com>
 
-[ Upstream commit e3e2cf3d5b1fe800b032e14c0fdcd9a6fb20cf3b ]
+[ Upstream commit 6bdfd9f118bd59cf0f85d3bf4b72b586adea17c1 ]
 
-An optimized build such as:
+The Intel fixed counters use a special table to override the JSON
+information.
 
-  make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-O3
+During this override the period information from the JSON file got
+dropped, which results in inst_retired.any and similar running with
+frequency mode instead of a period.
 
-will turn the dereference operation into a ud2 instruction, raising a
-SIGILL rather than a SIGSEGV. Use raise(..) for correctness and clarity.
+Just specify the expected period in the table.
 
-Similar issues were addressed in Numfor Mbiziwo-Tiapo's patch:
-
-  https://lkml.org/lkml/2019/7/8/1234
-
-Committer testing:
-
-Before:
-
-  [root@quaco ~]# perf test hooks
-  55: perf hooks                                            : Ok
-  [root@quaco ~]# perf test -v hooks
-  55: perf hooks                                            :
-  --- start ---
-  test child forked, pid 17092
-  SIGSEGV is observed as expected, try to recover.
-  Fatal error (SEGFAULT) in perf hook 'test'
-  test child finished with 0
-  ---- end ----
-  perf hooks: Ok
-  [root@quaco ~]#
-
-After:
-
-  [root@quaco ~]# perf test hooks
-  55: perf hooks                                            : Ok
-  [root@quaco ~]# perf test -v hooks
-  55: perf hooks                                            :
-  --- start ---
-  test child forked, pid 17909
-  SIGSEGV is observed as expected, try to recover.
-  Fatal error (SEGFAULT) in perf hook 'test'
-  test child finished with 0
-  ---- end ----
-  perf hooks: Ok
-  [root@quaco ~]#
-
-Fixes: a074865e60ed ("perf tools: Introduce perf hooks")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: http://lore.kernel.org/lkml/20190925195924.152834-2-irogers@google.com
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Link: http://lore.kernel.org/lkml/20190927233546.11533-2-andi@firstfloor.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/perf-hooks.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ tools/perf/pmu-events/jevents.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/tests/perf-hooks.c b/tools/perf/tests/perf-hooks.c
-index a693bcf017ea2..44c16fd11bf6e 100644
---- a/tools/perf/tests/perf-hooks.c
-+++ b/tools/perf/tests/perf-hooks.c
-@@ -20,12 +20,11 @@ static void sigsegv_handler(int sig __maybe_unused)
- static void the_hook(void *_hook_flags)
- {
- 	int *hook_flags = _hook_flags;
--	int *p = NULL;
+diff --git a/tools/perf/pmu-events/jevents.c b/tools/perf/pmu-events/jevents.c
+index 94a7cabe9b824..6f9f247b45162 100644
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -342,12 +342,12 @@ static struct fixed {
+ 	const char *name;
+ 	const char *event;
+ } fixed[] = {
+-	{ "inst_retired.any", "event=0xc0" },
+-	{ "inst_retired.any_p", "event=0xc0" },
+-	{ "cpu_clk_unhalted.ref", "event=0x0,umask=0x03" },
+-	{ "cpu_clk_unhalted.thread", "event=0x3c" },
+-	{ "cpu_clk_unhalted.core", "event=0x3c" },
+-	{ "cpu_clk_unhalted.thread_any", "event=0x3c,any=1" },
++	{ "inst_retired.any", "event=0xc0,period=2000003" },
++	{ "inst_retired.any_p", "event=0xc0,period=2000003" },
++	{ "cpu_clk_unhalted.ref", "event=0x0,umask=0x03,period=2000003" },
++	{ "cpu_clk_unhalted.thread", "event=0x3c,period=2000003" },
++	{ "cpu_clk_unhalted.core", "event=0x3c,period=2000003" },
++	{ "cpu_clk_unhalted.thread_any", "event=0x3c,any=1,period=2000003" },
+ 	{ NULL, NULL},
+ };
  
- 	*hook_flags = 1234;
- 
- 	/* Generate a segfault, test perf_hooks__recover */
--	*p = 0;
-+	raise(SIGSEGV);
- }
- 
- int test__perf_hooks(struct test *test __maybe_unused, int subtest __maybe_unused)
 -- 
 2.20.1
 
