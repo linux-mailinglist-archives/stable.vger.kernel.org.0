@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14B35EECD1
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D80EEDBB
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:09:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388571AbfKDWAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:00:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58512 "EHLO mail.kernel.org"
+        id S2388867AbfKDWJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:09:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388906AbfKDWAo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:00:44 -0500
+        id S2389648AbfKDWJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:09:26 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5853E20650;
-        Mon,  4 Nov 2019 22:00:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 732AC20650;
+        Mon,  4 Nov 2019 22:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904842;
-        bh=vftKeGfZD1oTHtGExan21UU6YoxR31kKt1v/Sey+J10=;
+        s=default; t=1572905366;
+        bh=pfsObuW+C2EvHwuzLuq6BbLA7QNXiNdMae4pEfSAyCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CON++YFbVscXG9JX77TQnJp9vtODTOC3XJU5sI3qftRdWMfUeTg7wdoSZDvmD0wjJ
-         C1xkg0C/Uj6VacJj7qRbvMwqNf7V341/J1QAdT9GQbKXJ0Qhf5yi3MP2Vy1pcAIfJ9
-         gh3D+nwg7TtNG8/W8/hmVfne+KJ5vbP/viRVUwBk=
+        b=VBfbdr4YxDnPRj8SRrjprInKBut0E5bWg7gxgHND/cJmeEk2UJ9Na/Tsn1jH1uSo9
+         EK1F8o8hOVbFIWFTGVGAJCthaGMwPda4PO0yr+bCQ1MR0QLFfddOOz8IIc9/K8HpKV
+         Ze4y7nhX4DnPda8tUebedDJpERUHhRueEvmfC9Sk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rik van Riel <riel@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/149] sched/vtime: Fix guest/system mis-accounting on task switch
+        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
+        Mathias Payer <mathias.payer@nebelwelt.net>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 094/163] ath6kl: fix a NULL-ptr-deref bug in ath6kl_usb_alloc_urb_from_pipe()
 Date:   Mon,  4 Nov 2019 22:44:44 +0100
-Message-Id: <20191104212142.854834719@linuxfoundation.org>
+Message-Id: <20191104212146.960880995@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,77 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Hui Peng <benquike@gmail.com>
 
-[ Upstream commit 68e7a4d66b0ce04bf18ff2ffded5596ab3618585 ]
+[ Upstream commit 39d170b3cb62ba98567f5c4f40c27b5864b304e5 ]
 
-vtime_account_system() assumes that the target task to account cputime
-to is always the current task. This is most often true indeed except on
-task switch where we call:
+The `ar_usb` field of `ath6kl_usb_pipe_usb_pipe` objects
+are initialized to point to the containing `ath6kl_usb` object
+according to endpoint descriptors read from the device side, as shown
+below in `ath6kl_usb_setup_pipe_resources`:
 
-	vtime_common_task_switch(prev)
-		vtime_account_system(prev)
+for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
+	endpoint = &iface_desc->endpoint[i].desc;
 
-Here prev is the scheduling-out task where we account the cputime to. It
-doesn't match current that is already the scheduling-in task at this
-stage of the context switch.
+	// get the address from endpoint descriptor
+	pipe_num = ath6kl_usb_get_logical_pipe_num(ar_usb,
+						endpoint->bEndpointAddress,
+						&urbcount);
+	......
+	// select the pipe object
+	pipe = &ar_usb->pipes[pipe_num];
 
-So we end up checking the wrong task flags to determine if we are
-accounting guest or system time to the previous task.
+	// initialize the ar_usb field
+	pipe->ar_usb = ar_usb;
+}
 
-As a result the wrong task is used to check if the target is running in
-guest mode. We may then spuriously account or leak either system or
-guest time on task switch.
+The driver assumes that the addresses reported in endpoint
+descriptors from device side  to be complete. If a device is
+malicious and does not report complete addresses, it may trigger
+NULL-ptr-deref `ath6kl_usb_alloc_urb_from_pipe` and
+`ath6kl_usb_free_urb_to_pipe`.
 
-Fix this assumption and also turn vtime_guest_enter/exit() to use the
-task passed in parameter as well to avoid future similar issues.
+This patch fixes the bug by preventing potential NULL-ptr-deref
+(CVE-2019-15098).
 
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Rik van Riel <riel@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Wanpeng Li <wanpengli@tencent.com>
-Fixes: 2a42eb9594a1 ("sched/cputime: Accumulate vtime on top of nsec clocksource")
-Link: https://lkml.kernel.org/r/20190925214242.21873-1-frederic@kernel.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Hui Peng <benquike@gmail.com>
+Reported-by: Hui Peng <benquike@gmail.com>
+Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/cputime.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath6kl/usb.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
-index 0796f938c4f0d..54eb9457b21d3 100644
---- a/kernel/sched/cputime.c
-+++ b/kernel/sched/cputime.c
-@@ -739,7 +739,7 @@ void vtime_account_system(struct task_struct *tsk)
+diff --git a/drivers/net/wireless/ath/ath6kl/usb.c b/drivers/net/wireless/ath/ath6kl/usb.c
+index 4defb7a0330f4..53b66e9434c99 100644
+--- a/drivers/net/wireless/ath/ath6kl/usb.c
++++ b/drivers/net/wireless/ath/ath6kl/usb.c
+@@ -132,6 +132,10 @@ ath6kl_usb_alloc_urb_from_pipe(struct ath6kl_usb_pipe *pipe)
+ 	struct ath6kl_urb_context *urb_context = NULL;
+ 	unsigned long flags;
  
- 	write_seqcount_begin(&vtime->seqcount);
- 	/* We might have scheduled out from guest path */
--	if (current->flags & PF_VCPU)
-+	if (tsk->flags & PF_VCPU)
- 		vtime_account_guest(tsk, vtime);
- 	else
- 		__vtime_account_system(tsk, vtime);
-@@ -782,7 +782,7 @@ void vtime_guest_enter(struct task_struct *tsk)
- 	 */
- 	write_seqcount_begin(&vtime->seqcount);
- 	__vtime_account_system(tsk, vtime);
--	current->flags |= PF_VCPU;
-+	tsk->flags |= PF_VCPU;
- 	write_seqcount_end(&vtime->seqcount);
- }
- EXPORT_SYMBOL_GPL(vtime_guest_enter);
-@@ -793,7 +793,7 @@ void vtime_guest_exit(struct task_struct *tsk)
++	/* bail if this pipe is not initialized */
++	if (!pipe->ar_usb)
++		return NULL;
++
+ 	spin_lock_irqsave(&pipe->ar_usb->cs_lock, flags);
+ 	if (!list_empty(&pipe->urb_list_head)) {
+ 		urb_context =
+@@ -150,6 +154,10 @@ static void ath6kl_usb_free_urb_to_pipe(struct ath6kl_usb_pipe *pipe,
+ {
+ 	unsigned long flags;
  
- 	write_seqcount_begin(&vtime->seqcount);
- 	vtime_account_guest(tsk, vtime);
--	current->flags &= ~PF_VCPU;
-+	tsk->flags &= ~PF_VCPU;
- 	write_seqcount_end(&vtime->seqcount);
- }
- EXPORT_SYMBOL_GPL(vtime_guest_exit);
++	/* bail if this pipe is not initialized */
++	if (!pipe->ar_usb)
++		return;
++
+ 	spin_lock_irqsave(&pipe->ar_usb->cs_lock, flags);
+ 	pipe->urb_cnt++;
+ 
 -- 
 2.20.1
 
