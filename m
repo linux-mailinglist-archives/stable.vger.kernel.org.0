@@ -2,88 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83F1DED6C8
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 02:10:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58CA0ED6E0
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 02:22:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728556AbfKDBKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Nov 2019 20:10:37 -0500
-Received: from szxga05-in.huawei.com ([45.249.212.191]:5252 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726310AbfKDBKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 3 Nov 2019 20:10:36 -0500
-Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.59])
-        by Forcepoint Email with ESMTP id 78599A16181B0DF53067;
-        Mon,  4 Nov 2019 09:10:32 +0800 (CST)
-Received: from [127.0.0.1] (10.177.223.23) by DGGEMS409-HUB.china.huawei.com
- (10.3.19.209) with Microsoft SMTP Server id 14.3.439.0; Mon, 4 Nov 2019
- 09:10:22 +0800
-Subject: Re: stable-rc-4.19: cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
- undeclared
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-CC:     Mark Rutland <mark.rutland@arm.com>, <suzuki.poulose@arm.com>,
-        <catalin.marinas@arm.com>, <john.garry@huawei.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        <zhangshaokun@hisilicon.com>, <lkft-triage@lists.linaro.org>,
-        <andrew.murray@arm.com>, <will@kernel.org>,
-        Dave P Martin <Dave.Martin@arm.com>,
-        <linux-arm-kernel@lists.infradead.org>
-References: <CA+G9fYtoODTuayzXdsv=bFuRPvw1-+dmZxHqQePy6LX8ixOG5A@mail.gmail.com>
-From:   Hanjun Guo <guohanjun@huawei.com>
-Message-ID: <98f10e13-8ec8-1690-a867-f212bcea969f@huawei.com>
-Date:   Mon, 4 Nov 2019 09:10:06 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.5.0
-MIME-Version: 1.0
-In-Reply-To: <CA+G9fYtoODTuayzXdsv=bFuRPvw1-+dmZxHqQePy6LX8ixOG5A@mail.gmail.com>
+        id S1728723AbfKDBWz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Nov 2019 20:22:55 -0500
+Received: from mail-wr1-f41.google.com ([209.85.221.41]:44753 "EHLO
+        mail-wr1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728290AbfKDBWz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 20:22:55 -0500
+Received: by mail-wr1-f41.google.com with SMTP id f2so6264186wrs.11
+        for <stable@vger.kernel.org>; Sun, 03 Nov 2019 17:22:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=SgE+xA8VS98DLNQCkQUn71PZAenzS+KyTShIaRMacRc=;
+        b=0uFWBcEYXeGpDPzG+hWGzTV94aJDFSTBnwO+dU8Q4hJSqKRq6jGO7WIyL7nQ8KLEXa
+         DJqi7Grdg3w9c/XiHxdyWkihKax83w3L4dI/IcKnUufH0HB/QbET6KkK9cEgei4lCLgW
+         K4BdYH9EZ+brJjJZu7cXiaHGyBlfcq/UvjZe0YZRp3OILxWKt094SR3p4ZQrMZPBs0Pr
+         1GcIw+n4iWMGn+UVfinl3G5IT6ktf3WogObj9RdyV2pGF7v+oMI/cbkRgrLMpaBMmZKJ
+         tNkk3psx0oM83pW73SGDXhoT4QW8+wt/NqYpQSEfwn5Z0BernOjcnVQBFAGG2KV7Uehn
+         kFrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=SgE+xA8VS98DLNQCkQUn71PZAenzS+KyTShIaRMacRc=;
+        b=U/ZxVNrN9inb6FXDcOLijEzCrp8gLa32rCg2M7PCTLbdLOWyQL6OopZ3cRY0YVrl7f
+         bdrBxpDBZDGvS6Qs7uDVCIGWJqHPFW9nIgp9zsm2hyIV++sQVSRvorUhJoWSa27LXqtZ
+         qy3HJYcfdxhM8++3ckdvn5l908Gj6Qgoq2AEmROMG1hyTocCn+X5UGVxzctGrBmNr/qW
+         TglOKzk2Au/6w0xwRHo1hOFXEw5tcBnEDxocG+4PXIdprtPSb5WDX7kdAc9nYKiYaeEz
+         tuGfYE5DikqvY8icGzn5fE8UZBU/Jnu95Bwy6/RyWo2Yt1xl0+mIjfv3bkgaygY3XRA7
+         emXA==
+X-Gm-Message-State: APjAAAXKcjAQUhpXNBR3znR8EPtwRACrxF2zmCtWo4KgOuA07qPCYrj7
+        o5T3Vv04Ry6IRkQ6bRDTUXW5J2INmBlhag==
+X-Google-Smtp-Source: APXvYqx8Mc/qRRea0KFN36Fgq6I3szJ99rMPpf0UjBz2iNtTO0ppDJP9hcD9eM5Ncr3emHWoLN52bA==
+X-Received: by 2002:adf:f70f:: with SMTP id r15mr21832359wrp.262.1572830573255;
+        Sun, 03 Nov 2019 17:22:53 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p12sm16818140wrm.62.2019.11.03.17.22.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Nov 2019 17:22:52 -0800 (PST)
+Message-ID: <5dbf7d6c.1c69fb81.1ad1a.c7c6@mx.google.com>
+Date:   Sun, 03 Nov 2019 17:22:52 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.177.223.23]
-X-CFilter-Loop: Reflected
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.8-104-gdfe283e9fdac
+Subject: stable-rc/linux-5.3.y boot: 128 boots: 0 failed,
+ 121 passed with 7 offline (v5.3.8-104-gdfe283e9fdac)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha, Greg,
+stable-rc/linux-5.3.y boot: 128 boots: 0 failed, 121 passed with 7 offline =
+(v5.3.8-104-gdfe283e9fdac)
 
-On 2019/11/4 7:22, Naresh Kamboju wrote:
-> stable rc 4.19  branch build broken for arm64 with the below error log,
-> 
-> Build error log,
-> arch/arm64/kernel/cpufeature.c: In function 'unmap_kernel_at_el0':
-> arch/arm64/kernel/cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
-> undeclared (first use in this function); did you mean
-> 'GICR_ISACTIVER0'?
->   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
->                     ^
-> arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
-> 'MIDR_RANGE'
->   .model = m,     \
->            ^
-> arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
-> 'MIDR_ALL_VERSIONS'
->   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
->   ^~~~~~~~~~~~~~~~~
-> arch/arm64/kernel/cpufeature.c:909:21: note: each undeclared
-> identifier is reported only once for each function it appears in
->   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
->                     ^
-> arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
-> 'MIDR_RANGE'
->   .model = m,     \
->            ^
-> arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
-> 'MIDR_ALL_VERSIONS'
->   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.8-104-gdfe283e9fdac/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.8-104-gdfe283e9fdac/
 
-Patch "efd00c7 arm64: Add MIDR encoding for HiSilicon Taishan CPUs" needs to
-be bacported as well, would you like me to do that, or just cherry-pick by yourself?
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.8-104-gdfe283e9fdac
+Git Commit: dfe283e9fdac0fe672e93b085801daea94d65fc1
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 78 unique boards, 25 SoC families, 16 builds out of 208
 
-Thanks
-Hanjun
+Offline Platforms:
 
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
