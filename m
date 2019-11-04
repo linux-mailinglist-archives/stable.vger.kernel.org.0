@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 823CDEEC56
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:56:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA44EEC58
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729929AbfKDV4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:56:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51580 "EHLO mail.kernel.org"
+        id S2388323AbfKDV4S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:56:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388289AbfKDV4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:56:06 -0500
+        id S2388314AbfKDV4O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:56:14 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E93A21929;
-        Mon,  4 Nov 2019 21:56:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D14021929;
+        Mon,  4 Nov 2019 21:56:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904565;
-        bh=zNgvHkjkPpdoW9YQnqtufN6jgYMMwz+ZHqic7ef+HrE=;
+        s=default; t=1572904573;
+        bh=OSUzIAW0/dIJFOF1CgTyUcqMFJt/tQ6Bp6tC791/BnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljqXueobu/aguqVLN51SAcrDP+YnFSQqylujbSydbZnMsBwr+9wPBuVVlrxiBwU2p
-         ztolwe15tDoWFztlkI3wpaKuIXoiMxsxsOR9El71hL2b4rFX8oTCHSIuhNwY+CPAzc
-         snYzVUFKFzbmUU2Vh9RW2LIrRwsc609Xp49yozCM=
+        b=MmPl9+wBW+VyxrGdWv1e39hGcwsT3x2MbX1cHxh78p2RuRKaYHceNcnKvCnb47zZS
+         khN9OxhJilzfglO5gPKFAnO+AlQvll8TUJn9LhMrYZZS10Qcc70fQduDkTcPmWmn38
+         uTnBoFmLhy5BLza/jgI1e0Lu3qVpDi8s3Uib8cAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
-        Mahesh Bandewar <maheshb@google.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.14 88/95] bonding: fix potential NULL deref in bond_update_slave_arr
-Date:   Mon,  4 Nov 2019 22:45:26 +0100
-Message-Id: <20191104212123.620848226@linuxfoundation.org>
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 90/95] sch_netem: fix rcu splat in netem_enqueue()
+Date:   Mon,  4 Nov 2019 22:45:28 +0100
+Message-Id: <20191104212123.978082079@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
 References: <20191104212038.056365853@linuxfoundation.org>
@@ -47,73 +46,100 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-commit a7137534b597b7c303203e6bc3ed87e87a273bb8 upstream.
+commit 159d2c7d8106177bd9a986fd005a311fe0d11285 upstream.
 
-syzbot got a NULL dereference in bond_update_slave_arr() [1],
-happening after a failure to allocate bond->slave_arr
+qdisc_root() use from netem_enqueue() triggers a lockdep warning.
 
-A workqueue (bond_slave_arr_handler) is supposed to retry
-the allocation later, but if the slave is removed before
-the workqueue had a chance to complete, bond->slave_arr
-can still be NULL.
+__dev_queue_xmit() uses rcu_read_lock_bh() which is
+not equivalent to rcu_read_lock() + local_bh_disable_bh as far
+as lockdep is concerned.
 
-[1]
+WARNING: suspicious RCU usage
+5.3.0-rc7+ #0 Not tainted
+-----------------------------
+include/net/sch_generic.h:492 suspicious rcu_dereference_check() usage!
 
-Failed to build slave-array.
-kasan: CONFIG_KASAN_INLINE enabled
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN PTI
-Modules linked in:
+other info that might help us debug this:
+
+rcu_scheduler_active = 2, debug_locks = 1
+3 locks held by syz-executor427/8855:
+ #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: lwtunnel_xmit_redirect include/net/lwtunnel.h:92 [inline]
+ #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: ip_finish_output2+0x2dc/0x2570 net/ipv4/ip_output.c:214
+ #1: 00000000b5525c01 (rcu_read_lock_bh){....}, at: __dev_queue_xmit+0x20a/0x3650 net/core/dev.c:3804
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_xmit_skb net/core/dev.c:3502 [inline]
+ #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_queue_xmit+0x14b8/0x3650 net/core/dev.c:3838
+
+stack backtrace:
+CPU: 0 PID: 8855 Comm: syz-executor427 Not tainted 5.3.0-rc7+ #0
 Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:bond_update_slave_arr.cold+0xc6/0x198 drivers/net/bonding/bond_main.c:4039
-RSP: 0018:ffff88018fe33678 EFLAGS: 00010246
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffc9000290b000
-RDX: 0000000000000000 RSI: ffffffff82b63037 RDI: ffff88019745ea20
-RBP: ffff88018fe33760 R08: ffff880170754280 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: ffff88019745ea00 R14: 0000000000000000 R15: ffff88018fe338b0
-FS:  00007febd837d700(0000) GS:ffff8801dad00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00000000004540a0 CR3: 00000001c242e005 CR4: 00000000001626f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 Call Trace:
- [<ffffffff82b5b45e>] __bond_release_one+0x43e/0x500 drivers/net/bonding/bond_main.c:1923
- [<ffffffff82b5b966>] bond_release drivers/net/bonding/bond_main.c:2039 [inline]
- [<ffffffff82b5b966>] bond_do_ioctl+0x416/0x870 drivers/net/bonding/bond_main.c:3562
- [<ffffffff83ae25f4>] dev_ifsioc+0x6f4/0x940 net/core/dev_ioctl.c:328
- [<ffffffff83ae2e58>] dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:495
- [<ffffffff83995ffd>] sock_do_ioctl+0x1bd/0x300 net/socket.c:1088
- [<ffffffff83996a80>] sock_ioctl+0x300/0x5d0 net/socket.c:1196
- [<ffffffff81b124db>] vfs_ioctl fs/ioctl.c:47 [inline]
- [<ffffffff81b124db>] file_ioctl fs/ioctl.c:501 [inline]
- [<ffffffff81b124db>] do_vfs_ioctl+0xacb/0x1300 fs/ioctl.c:688
- [<ffffffff81b12dc6>] SYSC_ioctl fs/ioctl.c:705 [inline]
- [<ffffffff81b12dc6>] SyS_ioctl+0xb6/0xe0 fs/ioctl.c:696
- [<ffffffff8101ccc8>] do_syscall_64+0x528/0x770 arch/x86/entry/common.c:305
- [<ffffffff84400091>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x172/0x1f0 lib/dump_stack.c:113
+ lockdep_rcu_suspicious+0x153/0x15d kernel/locking/lockdep.c:5357
+ qdisc_root include/net/sch_generic.h:492 [inline]
+ netem_enqueue+0x1cfb/0x2d80 net/sched/sch_netem.c:479
+ __dev_xmit_skb net/core/dev.c:3527 [inline]
+ __dev_queue_xmit+0x15d2/0x3650 net/core/dev.c:3838
+ dev_queue_xmit+0x18/0x20 net/core/dev.c:3902
+ neigh_hh_output include/net/neighbour.h:500 [inline]
+ neigh_output include/net/neighbour.h:509 [inline]
+ ip_finish_output2+0x1726/0x2570 net/ipv4/ip_output.c:228
+ __ip_finish_output net/ipv4/ip_output.c:308 [inline]
+ __ip_finish_output+0x5fc/0xb90 net/ipv4/ip_output.c:290
+ ip_finish_output+0x38/0x1f0 net/ipv4/ip_output.c:318
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip_mc_output+0x292/0xf40 net/ipv4/ip_output.c:417
+ dst_output include/net/dst.h:436 [inline]
+ ip_local_out+0xbb/0x190 net/ipv4/ip_output.c:125
+ ip_send_skb+0x42/0xf0 net/ipv4/ip_output.c:1555
+ udp_send_skb.isra.0+0x6b2/0x1160 net/ipv4/udp.c:887
+ udp_sendmsg+0x1e96/0x2820 net/ipv4/udp.c:1174
+ inet_sendmsg+0x9e/0xe0 net/ipv4/af_inet.c:807
+ sock_sendmsg_nosec net/socket.c:637 [inline]
+ sock_sendmsg+0xd7/0x130 net/socket.c:657
+ ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
+ __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
+ __do_sys_sendmmsg net/socket.c:2442 [inline]
+ __se_sys_sendmmsg net/socket.c:2439 [inline]
+ __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
+ do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Fixes: ee6377147409 ("bonding: Simplify the xmit function for modes that use xmit_hash")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: Mahesh Bandewar <maheshb@google.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/bonding/bond_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/sch_generic.h |    5 +++++
+ net/sched/sch_netem.c     |    2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3992,7 +3992,7 @@ out:
- 		 * this to-be-skipped slave to send a packet out.
- 		 */
- 		old_arr = rtnl_dereference(bond->slave_arr);
--		for (idx = 0; idx < old_arr->count; idx++) {
-+		for (idx = 0; old_arr != NULL && idx < old_arr->count; idx++) {
- 			if (skipslave == old_arr->arr[idx]) {
- 				old_arr->arr[idx] =
- 				    old_arr->arr[old_arr->count-1];
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -305,6 +305,11 @@ static inline struct Qdisc *qdisc_root(c
+ 	return q;
+ }
+ 
++static inline struct Qdisc *qdisc_root_bh(const struct Qdisc *qdisc)
++{
++	return rcu_dereference_bh(qdisc->dev_queue->qdisc);
++}
++
+ static inline struct Qdisc *qdisc_root_sleeping(const struct Qdisc *qdisc)
+ {
+ 	return qdisc->dev_queue->qdisc_sleeping;
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -469,7 +469,7 @@ static int netem_enqueue(struct sk_buff
+ 	 * skb will be queued.
+ 	 */
+ 	if (count > 1 && (skb2 = skb_clone(skb, GFP_ATOMIC)) != NULL) {
+-		struct Qdisc *rootq = qdisc_root(sch);
++		struct Qdisc *rootq = qdisc_root_bh(sch);
+ 		u32 dupsave = q->duplicate; /* prevent duplicating a dup... */
+ 
+ 		q->duplicate = 0;
 
 
