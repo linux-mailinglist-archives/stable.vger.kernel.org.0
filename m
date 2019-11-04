@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF539EEC45
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:56:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1BF5EEB76
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:48:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387701AbfKDVzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:55:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50726 "EHLO mail.kernel.org"
+        id S1729925AbfKDVsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:48:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388143AbfKDVz3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:55:29 -0500
+        id S1729660AbfKDVsI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:48:08 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80CE52053B;
-        Mon,  4 Nov 2019 21:55:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78033214E0;
+        Mon,  4 Nov 2019 21:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904528;
-        bh=hPBs8wEL15WhpBtdpduXLOmv9HsrP8W5sGpi4Xp2Jtc=;
+        s=default; t=1572904086;
+        bh=fry4oSyHeunB2T5myi7abXI9AvaNsGHVM56HfHU+S0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GcwJaLAHWut4GLt02KwYVF4tyz9B8XovRgOcMOxngibP4m2S1Cq5YeOst09EgbLDl
-         EsOd7ZxRcmjnawf01TqmsKynh49yRjenGGeeQ4Y75U2NOEBzObLdEc4qz1B8lYfSqC
-         Cwlq6JtK4PGgjXM6sx3Tz5h8BvXJRKGjYsJDs4/I=
+        b=Pq3/YJQuoz2tDcSwrgOojDYTlmlfGiGomMFLzT48pSfvtJlZu4OsUTCUgjw35G4hV
+         MMVPnfcgBI9wlOWn+R83Kmn8mkFhNjLDruk8+dN54SanEEh44xKdpjePSMSlN2gZn3
+         HGhntaLl1GMEKzQqHrtHmH6oQ6x7Eqi7hYLevhik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Jerry Hoemann <jerry.hoemann@hpe.com>,
-        Jiri Olsa <jolsa@redhat.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/95] perf/x86/amd: Change/fix NMI latency mitigation to use a timestamp
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 17/46] fs: ocfs2: fix possible null-pointer dereferences in ocfs2_xa_prepare_entry()
 Date:   Mon,  4 Nov 2019 22:44:48 +0100
-Message-Id: <20191104212104.021638843@linuxfoundation.org>
+Message-Id: <20191104211846.757302625@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,129 +52,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit df4d29732fdad43a51284f826bec3e6ded177540 ]
+[ Upstream commit 56e94ea132bb5c2c1d0b60a6aeb34dcb7d71a53d ]
 
-It turns out that the NMI latency workaround from commit:
+In ocfs2_xa_prepare_entry(), there is an if statement on line 2136 to
+check whether loc->xl_entry is NULL:
 
-  6d3edaae16c6 ("x86/perf/amd: Resolve NMI latency issues for active PMCs")
+    if (loc->xl_entry)
 
-ends up being too conservative and results in the perf NMI handler claiming
-NMIs too easily on AMD hardware when the NMI watchdog is active.
+When loc->xl_entry is NULL, it is used on line 2158:
 
-This has an impact, for example, on the hpwdt (HPE watchdog timer) module.
-This module can produce an NMI that is used to reset the system. It
-registers an NMI handler for the NMI_UNKNOWN type and relies on the fact
-that nothing has claimed an NMI so that its handler will be invoked when
-the watchdog device produces an NMI. After the referenced commit, the
-hpwdt module is unable to process its generated NMI if the NMI watchdog is
-active, because the current NMI latency mitigation results in the NMI
-being claimed by the perf NMI handler.
+    ocfs2_xa_add_entry(loc, name_hash);
+        loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
+        loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
 
-Update the AMD perf NMI latency mitigation workaround to, instead, use a
-window of time. Whenever a PMC is handled in the perf NMI handler, set a
-timestamp which will act as a perf NMI window. Any NMIs arriving within
-that window will be claimed by perf. Anything outside that window will
-not be claimed by perf. The value for the NMI window is set to 100 msecs.
-This is a conservative value that easily covers any NMI latency in the
-hardware. While this still results in a window in which the hpwdt module
-will not receive its NMI, the window is now much, much smaller.
+and line 2164:
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Jerry Hoemann <jerry.hoemann@hpe.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 6d3edaae16c6 ("x86/perf/amd: Resolve NMI latency issues for active PMCs")
-Link: https://lkml.kernel.org/r/Message-ID:
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+    ocfs2_xa_add_namevalue(loc, xi);
+        loc->xl_entry->xe_value_size = cpu_to_le64(xi->xi_value_len);
+        loc->xl_entry->xe_name_len = xi->xi_name_len;
+
+Thus, possible null-pointer dereferences may occur.
+
+To fix these bugs, if loc-xl_entry is NULL, ocfs2_xa_prepare_entry()
+abnormally returns with -EINVAL.
+
+These bugs are found by a static analysis tool STCheck written by us.
+
+[akpm@linux-foundation.org: remove now-unused ocfs2_xa_add_entry()]
+Link: http://lkml.kernel.org/r/20190726101447.9153-1-baijiaju1990@gmail.com
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/core.c | 30 +++++++++++++++++-------------
- 1 file changed, 17 insertions(+), 13 deletions(-)
+ fs/ocfs2/xattr.c | 56 ++++++++++++++++++++----------------------------
+ 1 file changed, 23 insertions(+), 33 deletions(-)
 
-diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
-index 27ade3cb6482c..defb536aebce2 100644
---- a/arch/x86/events/amd/core.c
-+++ b/arch/x86/events/amd/core.c
-@@ -4,12 +4,14 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/delay.h>
-+#include <linux/jiffies.h>
- #include <asm/apicdef.h>
- #include <asm/nmi.h>
- 
- #include "../perf_event.h"
- 
--static DEFINE_PER_CPU(unsigned int, perf_nmi_counter);
-+static DEFINE_PER_CPU(unsigned long, perf_nmi_tstamp);
-+static unsigned long perf_nmi_window;
- 
- static __initconst const u64 amd_hw_cache_event_ids
- 				[PERF_COUNT_HW_CACHE_MAX]
-@@ -640,11 +642,12 @@ static void amd_pmu_disable_event(struct perf_event *event)
-  * handler when multiple PMCs are active or PMC overflow while handling some
-  * other source of an NMI.
-  *
-- * Attempt to mitigate this by using the number of active PMCs to determine
-- * whether to return NMI_HANDLED if the perf NMI handler did not handle/reset
-- * any PMCs. The per-CPU perf_nmi_counter variable is set to a minimum of the
-- * number of active PMCs or 2. The value of 2 is used in case an NMI does not
-- * arrive at the LAPIC in time to be collapsed into an already pending NMI.
-+ * Attempt to mitigate this by creating an NMI window in which un-handled NMIs
-+ * received during this window will be claimed. This prevents extending the
-+ * window past when it is possible that latent NMIs should be received. The
-+ * per-CPU perf_nmi_tstamp will be set to the window end time whenever perf has
-+ * handled a counter. When an un-handled NMI is received, it will be claimed
-+ * only if arriving within that window.
-  */
- static int amd_pmu_handle_irq(struct pt_regs *regs)
- {
-@@ -662,21 +665,19 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
- 	handled = x86_pmu_handle_irq(regs);
- 
- 	/*
--	 * If a counter was handled, record the number of possible remaining
--	 * NMIs that can occur.
-+	 * If a counter was handled, record a timestamp such that un-handled
-+	 * NMIs will be claimed if arriving within that window.
- 	 */
- 	if (handled) {
--		this_cpu_write(perf_nmi_counter,
--			       min_t(unsigned int, 2, active));
-+		this_cpu_write(perf_nmi_tstamp,
-+			       jiffies + perf_nmi_window);
- 
- 		return handled;
- 	}
- 
--	if (!this_cpu_read(perf_nmi_counter))
-+	if (time_after(jiffies, this_cpu_read(perf_nmi_tstamp)))
- 		return NMI_DONE;
- 
--	this_cpu_dec(perf_nmi_counter);
--
- 	return NMI_HANDLED;
+diff --git a/fs/ocfs2/xattr.c b/fs/ocfs2/xattr.c
+index 06faa608e5622..dfa6d45dc4dc4 100644
+--- a/fs/ocfs2/xattr.c
++++ b/fs/ocfs2/xattr.c
+@@ -1475,18 +1475,6 @@ static int ocfs2_xa_check_space(struct ocfs2_xa_loc *loc,
+ 	return loc->xl_ops->xlo_check_space(loc, xi);
  }
  
-@@ -908,6 +909,9 @@ static int __init amd_core_pmu_init(void)
- 	if (!boot_cpu_has(X86_FEATURE_PERFCTR_CORE))
- 		return 0;
+-static void ocfs2_xa_add_entry(struct ocfs2_xa_loc *loc, u32 name_hash)
+-{
+-	loc->xl_ops->xlo_add_entry(loc, name_hash);
+-	loc->xl_entry->xe_name_hash = cpu_to_le32(name_hash);
+-	/*
+-	 * We can't leave the new entry's xe_name_offset at zero or
+-	 * add_namevalue() will go nuts.  We set it to the size of our
+-	 * storage so that it can never be less than any other entry.
+-	 */
+-	loc->xl_entry->xe_name_offset = cpu_to_le16(loc->xl_size);
+-}
+-
+ static void ocfs2_xa_add_namevalue(struct ocfs2_xa_loc *loc,
+ 				   struct ocfs2_xattr_info *xi)
+ {
+@@ -2118,29 +2106,31 @@ static int ocfs2_xa_prepare_entry(struct ocfs2_xa_loc *loc,
+ 	if (rc)
+ 		goto out;
  
-+	/* Avoid calulating the value each time in the NMI handler */
-+	perf_nmi_window = msecs_to_jiffies(100);
+-	if (loc->xl_entry) {
+-		if (ocfs2_xa_can_reuse_entry(loc, xi)) {
+-			orig_value_size = loc->xl_entry->xe_value_size;
+-			rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
+-			if (rc)
+-				goto out;
+-			goto alloc_value;
+-		}
++	if (!loc->xl_entry) {
++		rc = -EINVAL;
++		goto out;
++	}
+ 
+-		if (!ocfs2_xattr_is_local(loc->xl_entry)) {
+-			orig_clusters = ocfs2_xa_value_clusters(loc);
+-			rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
+-			if (rc) {
+-				mlog_errno(rc);
+-				ocfs2_xa_cleanup_value_truncate(loc,
+-								"overwriting",
+-								orig_clusters);
+-				goto out;
+-			}
++	if (ocfs2_xa_can_reuse_entry(loc, xi)) {
++		orig_value_size = loc->xl_entry->xe_value_size;
++		rc = ocfs2_xa_reuse_entry(loc, xi, ctxt);
++		if (rc)
++			goto out;
++		goto alloc_value;
++	}
 +
- 	switch (boot_cpu_data.x86) {
- 	case 0x15:
- 		pr_cont("Fam15h ");
++	if (!ocfs2_xattr_is_local(loc->xl_entry)) {
++		orig_clusters = ocfs2_xa_value_clusters(loc);
++		rc = ocfs2_xa_value_truncate(loc, 0, ctxt);
++		if (rc) {
++			mlog_errno(rc);
++			ocfs2_xa_cleanup_value_truncate(loc,
++							"overwriting",
++							orig_clusters);
++			goto out;
+ 		}
+-		ocfs2_xa_wipe_namevalue(loc);
+-	} else
+-		ocfs2_xa_add_entry(loc, name_hash);
++	}
++	ocfs2_xa_wipe_namevalue(loc);
+ 
+ 	/*
+ 	 * If we get here, we have a blank entry.  Fill it.  We grow our
 -- 
 2.20.1
 
