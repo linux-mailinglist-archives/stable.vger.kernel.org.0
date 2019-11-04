@@ -2,40 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 373F6EEE83
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90EA7EEFCB
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389498AbfKDWGU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:06:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
+        id S2387840AbfKDVyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:54:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389924AbfKDWGS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:06:18 -0500
+        id S2387872AbfKDVyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:54:11 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC23620650;
-        Mon,  4 Nov 2019 22:06:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAD4A2053B;
+        Mon,  4 Nov 2019 21:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905178;
-        bh=rRwePNsI59KK4BLYIYjRoGLaieBH2kehmZF/8DC2UNM=;
+        s=default; t=1572904450;
+        bh=fnbbc7uR40pu9gEMufBDqXBhxqlq0xybhEADZGmXZlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwxgJ9TYiEUwjCkkmNMcCSnUkGX9BMs0WZbsvkD23qvkZAzaos4PNd+t/KsGG2BIV
-         NsgJLboC0G5AdxufLBzXXH4XpBvUm2cWXNs3/2RRhOZ7+9MF1QjzvDI87ncwQRMMPL
-         mLmsAVGZU45vLgXONiT/DsaIvRgbtFYGgQ2BxSUQ=
+        b=1MsILKfCnJE2uKL3rn5w4AE5MNqFAXKYACrbUGriZO7fO+3DIUT2z4WKVrKfJQbla
+         xrvMGGlPhJou0m429xe+nDnopjzVPdIT6j4G2bBeAdz0iYY5yfquBCqzTin3yZy2AN
+         v4qLNRN/zRs74MkbHwhtPMQKSI/3WmuYP287KUXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Pavel Tatashin <pavel.tatashin@microsoft.com>,
+        Rashmica Gupta <rashmica.g@gmail.com>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Michael Neuling <mikey@neuling.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        John Allen <jallen@linux.vnet.ibm.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Juergen Gross <jgross@suse.com>,
+        Kate Stewart <kstewart@linuxfoundation.org>,
+        "K. Y. Srinivasan" <kys@microsoft.com>,
+        Len Brown <lenb@kernel.org>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Mathieu Malaterre <malat@debian.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Nathan Fontenot <nfont@linux.vnet.ibm.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 056/163] riscv: Correct the handling of unexpected ebreak in do_trap_break()
-Date:   Mon,  4 Nov 2019 22:44:06 +0100
-Message-Id: <20191104212144.176069663@linuxfoundation.org>
+Subject: [PATCH 4.14 09/95] powerpc/powernv: hold device_hotplug_lock when calling memtrace_offline_pages()
+Date:   Mon,  4 Nov 2019 22:44:07 +0100
+Message-Id: <20191104212042.619253522@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +75,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincent.chen@sifive.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 8bb0daef64e5a92db63ad1d3bbf9e280a7b3612a ]
+[ Upstream commit 5666848774ef43d3db5151ec518f1deb63515c20 ]
 
-For the kernel space, all ebreak instructions are determined at compile
-time because the kernel space debugging module is currently unsupported.
-Hence, it should be treated as a bug if an ebreak instruction which does
-not belong to BUG_TRAP_TYPE_WARN or BUG_TRAP_TYPE_BUG is executed in
-kernel space. For the userspace, debugging module or user problem may
-intentionally insert an ebreak instruction to trigger a SIGTRAP signal.
-To approach the above two situations, the do_trap_break() will direct
-the BUG_TRAP_TYPE_NONE ebreak exception issued in kernel space to die()
-and will send a SIGTRAP to the trapped process only when the ebreak is
-in userspace.
+Let's perform all checking + offlining + removing under
+device_hotplug_lock, so nobody can mess with these devices via sysfs
+concurrently.
 
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-[paul.walmsley@sifive.com: fixed checkpatch issue]
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+[david@redhat.com: take device_hotplug_lock outside of loop]
+  Link: http://lkml.kernel.org/r/20180927092554.13567-6-david@redhat.com
+Link: http://lkml.kernel.org/r/20180925091457.28651-6-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Reviewed-by: Rashmica Gupta <rashmica.g@gmail.com>
+Acked-by: Balbir Singh <bsingharora@gmail.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Rashmica Gupta <rashmica.g@gmail.com>
+Cc: Michael Neuling <mikey@neuling.org>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: John Allen <jallen@linux.vnet.ibm.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Kate Stewart <kstewart@linuxfoundation.org>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Nathan Fontenot <nfont@linux.vnet.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: YASUAKI ISHIMATSU <yasu.isimatu@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/platforms/powernv/memtrace.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 82f42a55451eb..93742df9067fb 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -130,8 +130,6 @@ asmlinkage void do_trap_break(struct pt_regs *regs)
- 		type = report_bug(regs->sepc, regs);
- 		switch (type) {
- #ifdef CONFIG_GENERIC_BUG
--		case BUG_TRAP_TYPE_NONE:
--			break;
- 		case BUG_TRAP_TYPE_WARN:
- 			regs->sepc += get_break_insn_length(regs->sepc);
- 			return;
-@@ -140,8 +138,10 @@ asmlinkage void do_trap_break(struct pt_regs *regs)
- 		default:
- 			die(regs, "Kernel BUG");
- 		}
-+	} else {
-+		force_sig_fault(SIGTRAP, TRAP_BRKPT,
-+				(void __user *)(regs->sepc));
- 	}
--	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)(regs->sepc));
+diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/platforms/powernv/memtrace.c
+index c9a6d4f3403ce..cfbd242c3e011 100644
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -99,6 +99,7 @@ static int change_memblock_state(struct memory_block *mem, void *arg)
+ 	return 0;
  }
  
- #ifdef CONFIG_GENERIC_BUG
++/* called with device_hotplug_lock held */
+ static bool memtrace_offline_pages(u32 nid, u64 start_pfn, u64 nr_pages)
+ {
+ 	u64 end_pfn = start_pfn + nr_pages - 1;
+@@ -139,6 +140,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
+ 	/* Trace memory needs to be aligned to the size */
+ 	end_pfn = round_down(end_pfn - nr_pages, nr_pages);
+ 
++	lock_device_hotplug();
+ 	for (base_pfn = end_pfn; base_pfn > start_pfn; base_pfn -= nr_pages) {
+ 		if (memtrace_offline_pages(nid, base_pfn, nr_pages) == true) {
+ 			/*
+@@ -147,7 +149,6 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
+ 			 * we never try to remove memory that spans two iomem
+ 			 * resources.
+ 			 */
+-			lock_device_hotplug();
+ 			end_pfn = base_pfn + nr_pages;
+ 			for (pfn = base_pfn; pfn < end_pfn; pfn += bytes>> PAGE_SHIFT) {
+ 				remove_memory(nid, pfn << PAGE_SHIFT, bytes);
+@@ -156,6 +157,7 @@ static u64 memtrace_alloc_node(u32 nid, u64 size)
+ 			return base_pfn << PAGE_SHIFT;
+ 		}
+ 	}
++	unlock_device_hotplug();
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
