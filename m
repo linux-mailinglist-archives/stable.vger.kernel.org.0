@@ -2,49 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 671A4EEB88
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:48:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C19BEEBA9
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:50:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730127AbfKDVsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:48:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39526 "EHLO mail.kernel.org"
+        id S2387568AbfKDVt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:49:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730141AbfKDVss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:48 -0500
+        id S2387561AbfKDVt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:49:58 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D7BA21655;
-        Mon,  4 Nov 2019 21:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFF4F20B7C;
+        Mon,  4 Nov 2019 21:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904127;
-        bh=WjvZDnRLShYKiiRSM0euLyfqBON8RcUSVSgPwVQF2xM=;
+        s=default; t=1572904197;
+        bh=oRp6FLuQ2dT5U3OHIfhPQWl85hmIQQJT7IQ+xrwJ9uo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bTvCnQIKH5ILR05kam8LUEmFqjqIIh287ELFxED7F2SESD0k3tB9juejDwUn59l0X
-         nCFz8UKT/HF4iMqOFhsKYvxSTU7VeRyLBgyKbWzq0YnZkU76bmBN6KJZ5YccIOnod5
-         AE97OEkFM6j3p/FZTWD9q91RFwVun505ZkO2W4fM=
+        b=Us0dd2358sgwNfbX29hgdPoV8kYhREL7GApfFtuE5gTd2kJHBE/aDtdgTDCHJdaHY
+         EqI+1oZZay8kOCZ2CxeYylGGhfPYRx/ep3U/bBOmHwEHjFeDJphIFFYA0h6SuKRC7G
+         +e0HXUg8FA39M3StuMTG9sGuvZYyegj73zKigBAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        Qiuxu Zhuo <qiuxu.zhuo@intel.com>,
-        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Aristeu Rozanski <aris@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        linux-edac <linux-edac@vger.kernel.org>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Megha Dey <megha.dey@linux.intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>,
-        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org, Connor Kuehl <connor.kuehl@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 06/46] x86/cpu: Add Atom Tremont (Jacobsville)
-Date:   Mon,  4 Nov 2019 22:44:37 +0100
-Message-Id: <20191104211837.155072104@linuxfoundation.org>
+Subject: [PATCH 4.9 16/62] staging: rtl8188eu: fix null dereference when kzalloc fails
+Date:   Mon,  4 Nov 2019 22:44:38 +0100
+Message-Id: <20191104211917.339403959@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Connor Kuehl <connor.kuehl@canonical.com>
 
-[ Upstream commit 00ae831dfe4474ef6029558f5eb3ef0332d80043 ]
+[ Upstream commit 955c1532a34305f2f780b47f0c40cc7c65500810 ]
 
-Add the Atom Tremont model number to the Intel family list.
+If kzalloc() returns NULL, the error path doesn't stop the flow of
+control from entering rtw_hal_read_chip_version() which dereferences the
+null pointer. Fix this by adding a 'goto' to the error path to more
+gracefully handle the issue and avoid proceeding with initialization
+steps that we're no longer prepared to handle.
 
-[ Tony: Also update comment at head of file to say "_X" suffix is
-  also used for microserver parts. ]
+Also update the debug message to be more consistent with the other debug
+messages in this function.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Aristeu Rozanski <aris@redhat.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: Mauro Carvalho Chehab <mchehab@s-opensource.com>
-Cc: Megha Dey <megha.dey@linux.intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Qiuxu Zhuo <qiuxu.zhuo@intel.com>
-Cc: Rajneesh Bhardwaj <rajneesh.bhardwaj@intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190125195902.17109-4-tony.luck@intel.com
+Addresses-Coverity: ("Dereference after null check")
+
+Signed-off-by: Connor Kuehl <connor.kuehl@canonical.com>
+Link: https://lore.kernel.org/r/20190927214415.899-1-connor.kuehl@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/intel-family.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/rtl8188eu/os_dep/usb_intf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 6801f958e2542..aaa0bd820cf4d 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -5,7 +5,7 @@
-  * "Big Core" Processors (Branded as Core, Xeon, etc...)
-  *
-  * The "_X" parts are generally the EP and EX Xeons, or the
-- * "Extreme" ones, like Broadwell-E.
-+ * "Extreme" ones, like Broadwell-E, or Atom microserver.
-  *
-  * Things ending in "2" are usually because we have no better
-  * name for them.  There's no processor called "WESTMERE2".
-@@ -67,6 +67,7 @@
- #define INTEL_FAM6_ATOM_GOLDMONT	0x5C /* Apollo Lake */
- #define INTEL_FAM6_ATOM_GOLDMONT_X	0x5F /* Denverton */
- #define INTEL_FAM6_ATOM_GOLDMONT_PLUS	0x7A /* Gemini Lake */
-+#define INTEL_FAM6_ATOM_TREMONT_X	0x86 /* Jacobsville */
+diff --git a/drivers/staging/rtl8188eu/os_dep/usb_intf.c b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+index d22360849b883..d4a7d740fc620 100644
+--- a/drivers/staging/rtl8188eu/os_dep/usb_intf.c
++++ b/drivers/staging/rtl8188eu/os_dep/usb_intf.c
+@@ -366,8 +366,10 @@ static struct adapter *rtw_usb_if1_init(struct dvobj_priv *dvobj,
+ 	}
  
- /* Xeon Phi */
+ 	padapter->HalData = kzalloc(sizeof(struct hal_data_8188e), GFP_KERNEL);
+-	if (!padapter->HalData)
+-		DBG_88E("cant not alloc memory for HAL DATA\n");
++	if (!padapter->HalData) {
++		DBG_88E("Failed to allocate memory for HAL data\n");
++		goto free_adapter;
++	}
  
+ 	padapter->intf_start = &usb_intf_start;
+ 	padapter->intf_stop = &usb_intf_stop;
 -- 
 2.20.1
 
