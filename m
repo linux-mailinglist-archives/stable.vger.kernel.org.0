@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D21E5EEE8D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D52DAEEF52
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389865AbfKDWPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:15:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
+        id S2388513AbfKDWU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:20:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389861AbfKDWFl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:41 -0500
+        id S2388271AbfKDV7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:36 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06D5E20650;
-        Mon,  4 Nov 2019 22:05:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09E3620650;
+        Mon,  4 Nov 2019 21:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905140;
-        bh=ZN/G0DCHvmoMD9ezTpP+BUSAzatO5A2Gky/EnJq3BiM=;
+        s=default; t=1572904775;
+        bh=uhPeJNd+u49dcc0yqvWhoBEO7i98kn3a/Loq3BHxCWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxnxZ83xgubDV/4D5rhhFjRdUoS7VnPZ0yvmEZ/ybuzEBsSiSqgxUeGZh8LPm8JUk
-         033jhslRSXAbdOc+kFPP8dc/q0oVQY+g5RR9C2yKwsqKlXqRKKy7vVbSErHIBr9cWN
-         S0sQkEE7KZ6u2PE9EG18ORdbhBFUHKSnEEvNBACI=
+        b=0WhniwCqQYvJ1cq3XS/0KzL1RoYDtLZcC2aZrEJgW9D/HsrzL3/SDdg3USGqeFPWN
+         f5YD97z5v+hvhM+TS72zCW9YLdWC/bguToUjvzxhiSs4aHCEkAlTE5BC5YbSGq12bs
+         iovA2oU2mrZbhniQ3pq4BpUX0kcUlfTbkFsGaGAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artemy Kovalyov <artemyko@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 041/163] RDMA/mlx5: Order num_pending_prefetch properly with synchronize_srcu
-Date:   Mon,  4 Nov 2019 22:43:51 +0100
-Message-Id: <20191104212143.254999850@linuxfoundation.org>
+Subject: [PATCH 4.19 039/149] usb: dwc3: gadget: clear DWC3_EP_TRANSFER_STARTED on cmd complete
+Date:   Mon,  4 Nov 2019 22:43:52 +0100
+Message-Id: <20191104212138.540612440@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Felipe Balbi <felipe.balbi@linux.intel.com>
 
-[ Upstream commit aa116b810ac9077a263ed8679fb4d595f180e0eb ]
+[ Upstream commit acbfa6c26f21a18830ee064b588c92334305b6af ]
 
-During destroy setting live = 0 and then synchronize_srcu() prevents
-num_pending_prefetch from incrementing, and also, ensures that all work
-holding that count is queued on the WQ. Testing before causes races of the
-form:
+We must wait until End Transfer completes in order to clear
+DWC3_EP_TRANSFER_STARTED, otherwise we may confuse the driver.
 
-    CPU0                                         CPU1
-  dereg_mr()
-                                          mlx5_ib_advise_mr_prefetch()
-            				   srcu_read_lock()
-                                            num_pending_prefetch_inc()
-					      if (!live)
-   live = 0
-   atomic_read() == 0
-     // skip flush_workqueue()
-                                              atomic_inc()
- 					      queue_work();
-            				   srcu_read_unlock()
-   WARN_ON(atomic_read())  // Fails
+This patch is in preparation to fix a rare race condition that happens
+upon Disconnect Interrupt.
 
-Swap the order so that the synchronize_srcu() prevents this.
-
-Fixes: a6bc3875f176 ("IB/mlx5: Protect against prefetch of invalid MR")
-Link: https://lore.kernel.org/r/20191001153821.23621-5-jgg@ziepe.ca
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Tested-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/gadget.c | 19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index c4ba8838d2c46..96c8a6835592d 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -1591,13 +1591,14 @@ static void dereg_mr(struct mlx5_ib_dev *dev, struct mlx5_ib_mr *mr)
- 		 */
- 		mr->live = 0;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 7b0957c530485..54de732550648 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -375,19 +375,9 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
  
-+		/* Wait for all running page-fault handlers to finish. */
-+		synchronize_srcu(&dev->mr_srcu);
-+
- 		/* dequeue pending prefetch requests for the mr */
- 		if (atomic_read(&mr->num_pending_prefetch))
- 			flush_workqueue(system_unbound_wq);
- 		WARN_ON(atomic_read(&mr->num_pending_prefetch));
+ 	trace_dwc3_gadget_ep_cmd(dep, cmd, params, cmd_status);
  
--		/* Wait for all running page-fault handlers to finish. */
--		synchronize_srcu(&dev->mr_srcu);
- 		/* Destroy all page mappings */
- 		if (umem_odp->page_list)
- 			mlx5_ib_invalidate_range(umem_odp,
+-	if (ret == 0) {
+-		switch (DWC3_DEPCMD_CMD(cmd)) {
+-		case DWC3_DEPCMD_STARTTRANSFER:
+-			dep->flags |= DWC3_EP_TRANSFER_STARTED;
+-			dwc3_gadget_ep_get_transfer_index(dep);
+-			break;
+-		case DWC3_DEPCMD_ENDTRANSFER:
+-			dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
+-			break;
+-		default:
+-			/* nothing */
+-			break;
+-		}
++	if (ret == 0 && DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
++		dep->flags |= DWC3_EP_TRANSFER_STARTED;
++		dwc3_gadget_ep_get_transfer_index(dep);
+ 	}
+ 
+ 	if (unlikely(susphy)) {
+@@ -2417,7 +2407,8 @@ static void dwc3_endpoint_interrupt(struct dwc3 *dwc,
+ 		cmd = DEPEVT_PARAMETER_CMD(event->parameters);
+ 
+ 		if (cmd == DWC3_DEPCMD_ENDTRANSFER) {
+-			dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
++			dep->flags &= ~(DWC3_EP_END_TRANSFER_PENDING |
++					DWC3_EP_TRANSFER_STARTED);
+ 			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
+ 		}
+ 		break;
 -- 
 2.20.1
 
