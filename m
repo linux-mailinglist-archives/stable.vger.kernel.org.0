@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AAADEEEA6
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BA5CEED28
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388056AbfKDWED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:04:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34586 "EHLO mail.kernel.org"
+        id S2388560AbfKDWEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:04:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389160AbfKDWED (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:04:03 -0500
+        id S2389598AbfKDWEF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:04:05 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41E212084D;
-        Mon,  4 Nov 2019 22:04:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D7E42084D;
+        Mon,  4 Nov 2019 22:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905041;
-        bh=F7lxjdgHNmqKQvRAMhqCeeOLuyDz2AM61iEAzcXRGc0=;
+        s=default; t=1572905044;
+        bh=2ClVHOIAbdKNuF68XuAEorz5HrkQpIM9Eg5qR3r4f8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MryXNlEMSOZuBDj4xaTH+d8BNetup0GLtnIrjNsP1XvOTCM8KxrQ/L+3+mgiL2a8D
-         /qvD+qCRpyrETG/4v817kdiYgwmHN6UA840cS6DlCTS2YD8OEvs171QGUnyQhIIM8u
-         Dp/lOwVeikziHOWuxvC0WEu2B0Ehv9Vlaz3aHTWU=
+        b=hb2FFLwoNYFY76qgVxGFUX5SjISHLJMhxknA4Zra7DnEbevkOx1j/XLEaa5MqSOwW
+         HjW8W2j/+v8WKmQU4pCzxD3sqi02Kw8YvI58JQlvJCjcxx3m2HlfXOhUTPt1HkC8DS
+         ZuiflQl9hvyVOMAKfGT1mKBYLBpqD2JQCkau/Eeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hrvoje Zeba <zeba.hrvoje@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 001/163] io_uring: fix up O_NONBLOCK handling for sockets
-Date:   Mon,  4 Nov 2019 22:43:11 +0100
-Message-Id: <20191104212140.177676730@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 002/163] dm snapshot: introduce account_start_copy() and account_end_copy()
+Date:   Mon,  4 Nov 2019 22:43:12 +0100
+Message-Id: <20191104212140.260491623@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,158 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 491381ce07ca57f68c49c79a8a43da5b60749e32 ]
+[ Upstream commit a2f83e8b0c82c9500421a26c49eb198b25fcdea3 ]
 
-We've got two issues with the non-regular file handling for non-blocking
-IO:
+This simple refactoring moves code for modifying the semaphore cow_count
+into separate functions to prepare for changes that will extend these
+methods to provide for a more sophisticated mechanism for COW
+throttling.
 
-1) We don't want to re-do a short read in full for a non-regular file,
-   as we can't just read the data again.
-2) For non-regular files that don't support non-blocking IO attempts,
-   we need to punt to async context even if the file is opened as
-   non-blocking. Otherwise the caller always gets -EAGAIN.
-
-Add two new request flags to handle these cases. One is just a cache
-of the inode S_ISREG() status, the other tells io_uring that we always
-need to punt this request to async context, even if REQ_F_NOWAIT is set.
-
-Cc: stable@vger.kernel.org
-Reported-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Tested-by: Hrvoje Zeba <zeba.hrvoje@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 57 +++++++++++++++++++++++++++++++++++----------------
- 1 file changed, 39 insertions(+), 18 deletions(-)
+ drivers/md/dm-snap.c | 20 +++++++++++++++-----
+ 1 file changed, 15 insertions(+), 5 deletions(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index ed223c33dd898..59925b6583ba0 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -338,6 +338,8 @@ struct io_kiocb {
- #define REQ_F_LINK		64	/* linked sqes */
- #define REQ_F_LINK_DONE		128	/* linked sqes done */
- #define REQ_F_FAIL_LINK		256	/* fail rest of links */
-+#define REQ_F_ISREG		2048	/* regular file */
-+#define REQ_F_MUST_PUNT		4096	/* must be punted even for NONBLOCK */
- 	u64			user_data;
- 	u32			result;
- 	u32			sequence;
-@@ -885,26 +887,26 @@ static int io_iopoll_check(struct io_ring_ctx *ctx, unsigned *nr_events,
- 	return ret;
+diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
+index f150f5c5492b9..da3bd1794ee05 100644
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -1512,6 +1512,16 @@ static void snapshot_dtr(struct dm_target *ti)
+ 	kfree(s);
  }
  
--static void kiocb_end_write(struct kiocb *kiocb)
-+static void kiocb_end_write(struct io_kiocb *req)
- {
--	if (kiocb->ki_flags & IOCB_WRITE) {
--		struct inode *inode = file_inode(kiocb->ki_filp);
-+	/*
-+	 * Tell lockdep we inherited freeze protection from submission
-+	 * thread.
-+	 */
-+	if (req->flags & REQ_F_ISREG) {
-+		struct inode *inode = file_inode(req->file);
- 
--		/*
--		 * Tell lockdep we inherited freeze protection from submission
--		 * thread.
--		 */
--		if (S_ISREG(inode->i_mode))
--			__sb_writers_acquired(inode->i_sb, SB_FREEZE_WRITE);
--		file_end_write(kiocb->ki_filp);
-+		__sb_writers_acquired(inode->i_sb, SB_FREEZE_WRITE);
++static void account_start_copy(struct dm_snapshot *s)
++{
++	down(&s->cow_count);
++}
++
++static void account_end_copy(struct dm_snapshot *s)
++{
++	up(&s->cow_count);
++}
++
+ /*
+  * Flush a list of buffers.
+  */
+@@ -1732,7 +1742,7 @@ static void copy_callback(int read_err, unsigned long write_err, void *context)
+ 		rb_link_node(&pe->out_of_order_node, parent, p);
+ 		rb_insert_color(&pe->out_of_order_node, &s->out_of_order_tree);
  	}
-+	file_end_write(req->file);
+-	up(&s->cow_count);
++	account_end_copy(s);
  }
  
- static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
- {
- 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw);
+ /*
+@@ -1756,7 +1766,7 @@ static void start_copy(struct dm_snap_pending_exception *pe)
+ 	dest.count = src.count;
  
--	kiocb_end_write(kiocb);
-+	if (kiocb->ki_flags & IOCB_WRITE)
-+		kiocb_end_write(req);
+ 	/* Hand over to kcopyd */
+-	down(&s->cow_count);
++	account_start_copy(s);
+ 	dm_kcopyd_copy(s->kcopyd_client, &src, 1, &dest, 0, copy_callback, pe);
+ }
  
- 	if ((req->flags & REQ_F_LINK) && res != req->result)
- 		req->flags |= REQ_F_FAIL_LINK;
-@@ -916,7 +918,8 @@ static void io_complete_rw_iopoll(struct kiocb *kiocb, long res, long res2)
- {
- 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw);
+@@ -1776,7 +1786,7 @@ static void start_full_bio(struct dm_snap_pending_exception *pe,
+ 	pe->full_bio = bio;
+ 	pe->full_bio_end_io = bio->bi_end_io;
  
--	kiocb_end_write(kiocb);
-+	if (kiocb->ki_flags & IOCB_WRITE)
-+		kiocb_end_write(req);
+-	down(&s->cow_count);
++	account_start_copy(s);
+ 	callback_data = dm_kcopyd_prepare_callback(s->kcopyd_client,
+ 						   copy_callback, pe);
  
- 	if ((req->flags & REQ_F_LINK) && res != req->result)
- 		req->flags |= REQ_F_FAIL_LINK;
-@@ -1030,8 +1033,17 @@ static int io_prep_rw(struct io_kiocb *req, const struct sqe_submit *s,
- 	if (!req->file)
- 		return -EBADF;
+@@ -1866,7 +1876,7 @@ static void zero_callback(int read_err, unsigned long write_err, void *context)
+ 	struct bio *bio = context;
+ 	struct dm_snapshot *s = bio->bi_private;
  
--	if (force_nonblock && !io_file_supports_async(req->file))
--		force_nonblock = false;
-+	if (S_ISREG(file_inode(req->file)->i_mode))
-+		req->flags |= REQ_F_ISREG;
-+
-+	/*
-+	 * If the file doesn't support async, mark it as REQ_F_MUST_PUNT so
-+	 * we know to async punt it even if it was opened O_NONBLOCK
-+	 */
-+	if (force_nonblock && !io_file_supports_async(req->file)) {
-+		req->flags |= REQ_F_MUST_PUNT;
-+		return -EAGAIN;
-+	}
+-	up(&s->cow_count);
++	account_end_copy(s);
+ 	bio->bi_status = write_err ? BLK_STS_IOERR : 0;
+ 	bio_endio(bio);
+ }
+@@ -1880,7 +1890,7 @@ static void zero_exception(struct dm_snapshot *s, struct dm_exception *e,
+ 	dest.sector = bio->bi_iter.bi_sector;
+ 	dest.count = s->store->chunk_size;
  
- 	kiocb->ki_pos = READ_ONCE(sqe->off);
- 	kiocb->ki_flags = iocb_flags(kiocb->ki_filp);
-@@ -1052,7 +1064,8 @@ static int io_prep_rw(struct io_kiocb *req, const struct sqe_submit *s,
- 		return ret;
- 
- 	/* don't allow async punt if RWF_NOWAIT was requested */
--	if (kiocb->ki_flags & IOCB_NOWAIT)
-+	if ((kiocb->ki_flags & IOCB_NOWAIT) ||
-+	    (req->file->f_flags & O_NONBLOCK))
- 		req->flags |= REQ_F_NOWAIT;
- 
- 	if (force_nonblock)
-@@ -1286,7 +1299,9 @@ static int io_read(struct io_kiocb *req, const struct sqe_submit *s,
- 		 * need async punt anyway, so it's more efficient to do it
- 		 * here.
- 		 */
--		if (force_nonblock && ret2 > 0 && ret2 < read_size)
-+		if (force_nonblock && !(req->flags & REQ_F_NOWAIT) &&
-+		    (req->flags & REQ_F_ISREG) &&
-+		    ret2 > 0 && ret2 < read_size)
- 			ret2 = -EAGAIN;
- 		/* Catch -EAGAIN return for forced non-blocking submission */
- 		if (!force_nonblock || ret2 != -EAGAIN) {
-@@ -1353,7 +1368,7 @@ static int io_write(struct io_kiocb *req, const struct sqe_submit *s,
- 		 * released so that it doesn't complain about the held lock when
- 		 * we return to userspace.
- 		 */
--		if (S_ISREG(file_inode(file)->i_mode)) {
-+		if (req->flags & REQ_F_ISREG) {
- 			__sb_start_write(file_inode(file)->i_sb,
- 						SB_FREEZE_WRITE, true);
- 			__sb_writers_release(file_inode(file)->i_sb,
-@@ -2096,7 +2111,13 @@ static int io_queue_sqe(struct io_ring_ctx *ctx, struct io_kiocb *req,
- 	}
- 
- 	ret = __io_submit_sqe(ctx, req, s, true);
--	if (ret == -EAGAIN && !(req->flags & REQ_F_NOWAIT)) {
-+
-+	/*
-+	 * We async punt it if the file wasn't marked NOWAIT, or if the file
-+	 * doesn't support non-blocking read/write attempts
-+	 */
-+	if (ret == -EAGAIN && (!(req->flags & REQ_F_NOWAIT) ||
-+	    (req->flags & REQ_F_MUST_PUNT))) {
- 		struct io_uring_sqe *sqe_copy;
- 
- 		sqe_copy = kmalloc(sizeof(*sqe_copy), GFP_KERNEL);
+-	down(&s->cow_count);
++	account_start_copy(s);
+ 	WARN_ON_ONCE(bio->bi_private);
+ 	bio->bi_private = s;
+ 	dm_kcopyd_zero(s->kcopyd_client, 1, &dest, 0, zero_callback, bio);
 -- 
 2.20.1
 
