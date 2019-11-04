@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B65EEEB1
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E5BEF006
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389576AbfKDWDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:03:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34030 "EHLO mail.kernel.org"
+        id S2388632AbfKDWZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:25:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387972AbfKDWDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:03:40 -0500
+        id S1730624AbfKDVv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:56 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1D8E205C9;
-        Mon,  4 Nov 2019 22:03:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A8A82053B;
+        Mon,  4 Nov 2019 21:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905018;
-        bh=hXh3Eq5I81mqQAHVTeD/K1pcz2p9HTdgos6iBg4pz9E=;
+        s=default; t=1572904315;
+        bh=nk4O2gxrkdy69/8sNMd0ZPESLXqQN5sMW0ezN6AV+RQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xYKrY4v9vRR0wx2cJfWZHJyI5RSZc80y/XXyPky/v5C6ia3S7TFzripwhiII/q9cS
-         UuPWjkETYjBgYwU/x9oyHV2H5lqMkQ+FE1Jp5rpm+CEwpUlZrOg1lJSghvg/UVRglf
-         cXSIEl2K3jOX2tKQeBLsDVxiRbR7hpSS4v86z2RU=
+        b=WCu6LgkYmQTIJlAJDy0sASikxb5YKr33No+tZ9Lz6UThcnp9kgeW8af7S+D9OvZZc
+         o5qe4WAXPbhCGumoYM5GHDjKKZ+ATCWRUKwpmcZbgGqgniqTyYLuHeBhawjQ5cMZYi
+         09nhhUFpZvpikatrDkbhU6JOB+eAjy56O+c3nVH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.19 130/149] rtlwifi: Fix potential overflow on P2P code
-Date:   Mon,  4 Nov 2019 22:45:23 +0100
-Message-Id: <20191104212145.811534184@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: [PATCH 4.9 62/62] ALSA: timer: Fix mutex deadlock at releasing card
+Date:   Mon,  4 Nov 2019 22:45:24 +0100
+Message-Id: <20191104212001.419204692@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 8c55dedb795be8ec0cf488f98c03a1c2176f7fb1 upstream.
+[ Upstream commit a39331867335d4a94b6165e306265c9e24aca073 ]
 
-Nicolas Waisman noticed that even though noa_len is checked for
-a compatible length it's still possible to overrun the buffers
-of p2pinfo since there's no check on the upper bound of noa_num.
-Bound noa_num against P2P_MAX_NOA_NUM.
+When a card is disconnected while in use, the system waits until all
+opened files are closed then releases the card.  This is done via
+put_device() of the card device in each device release code.
 
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The recently reported mutex deadlock bug happens in this code path;
+snd_timer_close() for the timer device deals with the global
+register_mutex and it calls put_device() there.  When this timer
+device is the last one, the card gets freed and it eventually calls
+snd_timer_free(), which has again the protection with the global
+register_mutex -- boom.
 
+Basically put_device() call itself is race-free, so a relative simple
+workaround is to move this put_device() call out of the mutex.  For
+achieving that, in this patch, snd_timer_close_locked() got a new
+argument to store the card device pointer in return, and each caller
+invokes put_device() with the returned object after the mutex unlock.
+
+Reported-and-tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/ps.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ sound/core/timer.c | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/ps.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/ps.c
-@@ -775,6 +775,9 @@ static void rtl_p2p_noa_ie(struct ieee80
- 				return;
- 			} else {
- 				noa_num = (noa_len - 2) / 13;
-+				if (noa_num > P2P_MAX_NOA_NUM)
-+					noa_num = P2P_MAX_NOA_NUM;
-+
- 			}
- 			noa_index = ie[3];
- 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
-@@ -869,6 +872,9 @@ static void rtl_p2p_action_ie(struct iee
- 				return;
- 			} else {
- 				noa_num = (noa_len - 2) / 13;
-+				if (noa_num > P2P_MAX_NOA_NUM)
-+					noa_num = P2P_MAX_NOA_NUM;
-+
- 			}
- 			noa_index = ie[3];
- 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
+diff --git a/sound/core/timer.c b/sound/core/timer.c
+index 6eb4e97662d9c..19d90aa082184 100644
+--- a/sound/core/timer.c
++++ b/sound/core/timer.c
+@@ -239,7 +239,8 @@ static int snd_timer_check_master(struct snd_timer_instance *master)
+ 	return 0;
+ }
+ 
+-static int snd_timer_close_locked(struct snd_timer_instance *timeri);
++static int snd_timer_close_locked(struct snd_timer_instance *timeri,
++				  struct device **card_devp_to_put);
+ 
+ /*
+  * open a timer instance
+@@ -251,6 +252,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ {
+ 	struct snd_timer *timer;
+ 	struct snd_timer_instance *timeri = NULL;
++	struct device *card_dev_to_put = NULL;
+ 	int err;
+ 
+ 	mutex_lock(&register_mutex);
+@@ -274,7 +276,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 		list_add_tail(&timeri->open_list, &snd_timer_slave_list);
+ 		err = snd_timer_check_slave(timeri);
+ 		if (err < 0) {
+-			snd_timer_close_locked(timeri);
++			snd_timer_close_locked(timeri, &card_dev_to_put);
+ 			timeri = NULL;
+ 		}
+ 		goto unlock;
+@@ -326,7 +328,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 			timeri = NULL;
+ 
+ 			if (timer->card)
+-				put_device(&timer->card->card_dev);
++				card_dev_to_put = &timer->card->card_dev;
+ 			module_put(timer->module);
+ 			goto unlock;
+ 		}
+@@ -336,12 +338,15 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 	timer->num_instances++;
+ 	err = snd_timer_check_master(timeri);
+ 	if (err < 0) {
+-		snd_timer_close_locked(timeri);
++		snd_timer_close_locked(timeri, &card_dev_to_put);
+ 		timeri = NULL;
+ 	}
+ 
+  unlock:
+ 	mutex_unlock(&register_mutex);
++	/* put_device() is called after unlock for avoiding deadlock */
++	if (card_dev_to_put)
++		put_device(card_dev_to_put);
+ 	*ti = timeri;
+ 	return err;
+ }
+@@ -351,7 +356,8 @@ EXPORT_SYMBOL(snd_timer_open);
+  * close a timer instance
+  * call this with register_mutex down.
+  */
+-static int snd_timer_close_locked(struct snd_timer_instance *timeri)
++static int snd_timer_close_locked(struct snd_timer_instance *timeri,
++				  struct device **card_devp_to_put)
+ {
+ 	struct snd_timer *timer = NULL;
+ 	struct snd_timer_instance *slave, *tmp;
+@@ -403,7 +409,7 @@ static int snd_timer_close_locked(struct snd_timer_instance *timeri)
+ 			timer->hw.close(timer);
+ 		/* release a card refcount for safe disconnection */
+ 		if (timer->card)
+-			put_device(&timer->card->card_dev);
++			*card_devp_to_put = &timer->card->card_dev;
+ 		module_put(timer->module);
+ 	}
+ 
+@@ -415,14 +421,18 @@ static int snd_timer_close_locked(struct snd_timer_instance *timeri)
+  */
+ int snd_timer_close(struct snd_timer_instance *timeri)
+ {
++	struct device *card_dev_to_put = NULL;
+ 	int err;
+ 
+ 	if (snd_BUG_ON(!timeri))
+ 		return -ENXIO;
+ 
+ 	mutex_lock(&register_mutex);
+-	err = snd_timer_close_locked(timeri);
++	err = snd_timer_close_locked(timeri, &card_dev_to_put);
+ 	mutex_unlock(&register_mutex);
++	/* put_device() is called after unlock for avoiding deadlock */
++	if (card_dev_to_put)
++		put_device(card_dev_to_put);
+ 	return err;
+ }
+ EXPORT_SYMBOL(snd_timer_close);
+-- 
+2.20.1
+
 
 
