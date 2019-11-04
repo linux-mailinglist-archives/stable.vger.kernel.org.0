@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4461CEEE45
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 282FCEF052
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390370AbfKDWJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:09:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42394 "EHLO mail.kernel.org"
+        id S2387464AbfKDVti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:49:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390047AbfKDWJV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:09:21 -0500
+        id S2387458AbfKDVth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:49:37 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F38FD217F5;
-        Mon,  4 Nov 2019 22:09:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A1A9214D8;
+        Mon,  4 Nov 2019 21:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905360;
-        bh=F11OIyybmXWTD+0HmLsrSH+TXw7EJfZ/N53pkdzMMPM=;
+        s=default; t=1572904175;
+        bh=3bV3DEaz/uJkFBictvzAfD7nh/T5TXDGZpPRx0Nw44g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sX7j5M2N9+i8laADpYSeqVnipO/ZKe8Tzev8bS08kkm/mLtpGJCfOfz1blJo5wMWk
-         uElWEBwXSvC1+QyzwtnNDjKSZjUIltTGx21hkAOlqJilTEBR4P9BFElETSwBvlF8ig
-         16z3/BbMnMuUYYtSEYfPniu6N8E6E1p3rmNDIhcQ=
+        b=oW6Jb7qJsJtDby2kFara3cZe57gaV3CngGxiLaA7Ck1Vi5at4lATUOZaynESSHX2P
+         q6YKUny/0geAybuM6PENYiHO5Reum8aQKDEEmSjO3p/zQckzXXKH/mDDj4fCUQJ10/
+         PoVSpFPKvvIClA5uKCwm9GB84eWaE+dz/0D8o6g8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Bazely <sambazley@fastmail.com>,
-        Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-        Austin Palmer <austinp@valvesoftware.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 5.3 119/163] HID: logitech-hidpp: rework device validation
-Date:   Mon,  4 Nov 2019 22:45:09 +0100
-Message-Id: <20191104212148.837477552@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+6bf095f9becf5efef645@syzkaller.appspotmail.com,
+        syzbot+31c16aa4202dace3812e@syzkaller.appspotmail.com,
+        Eric Biggers <ebiggers@google.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.4 39/46] llc: fix sk_buff leak in llc_sap_state_process()
+Date:   Mon,  4 Nov 2019 22:45:10 +0100
+Message-Id: <20191104211911.807239258@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,134 +46,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 905d754c53a522aacf806ea1d3e7c929148c1910 upstream.
+commit c6ee11c39fcc1fb55130748990a8f199e76263b4 upstream.
 
-G920 device only advertises REPORT_ID_HIDPP_LONG and
-REPORT_ID_HIDPP_VERY_LONG in its HID report descriptor, so querying
-for REPORT_ID_HIDPP_SHORT with optional=false will always fail and
-prevent G920 to be recognized as a valid HID++ device.
+syzbot reported:
 
-To fix this and improve some other aspects, modify
-hidpp_validate_device() as follows:
+    BUG: memory leak
+    unreferenced object 0xffff888116270800 (size 224):
+       comm "syz-executor641", pid 7047, jiffies 4294947360 (age 13.860s)
+       hex dump (first 32 bytes):
+         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+         00 20 e1 2a 81 88 ff ff 00 40 3d 2a 81 88 ff ff  . .*.....@=*....
+       backtrace:
+         [<000000004d41b4cc>] kmemleak_alloc_recursive  include/linux/kmemleak.h:55 [inline]
+         [<000000004d41b4cc>] slab_post_alloc_hook mm/slab.h:439 [inline]
+         [<000000004d41b4cc>] slab_alloc_node mm/slab.c:3269 [inline]
+         [<000000004d41b4cc>] kmem_cache_alloc_node+0x153/0x2a0 mm/slab.c:3579
+         [<00000000506a5965>] __alloc_skb+0x6e/0x210 net/core/skbuff.c:198
+         [<000000001ba5a161>] alloc_skb include/linux/skbuff.h:1058 [inline]
+         [<000000001ba5a161>] alloc_skb_with_frags+0x5f/0x250  net/core/skbuff.c:5327
+         [<0000000047d9c78b>] sock_alloc_send_pskb+0x269/0x2a0  net/core/sock.c:2225
+         [<000000003828fe54>] sock_alloc_send_skb+0x32/0x40 net/core/sock.c:2242
+         [<00000000e34d94f9>] llc_ui_sendmsg+0x10a/0x540 net/llc/af_llc.c:933
+         [<00000000de2de3fb>] sock_sendmsg_nosec net/socket.c:652 [inline]
+         [<00000000de2de3fb>] sock_sendmsg+0x54/0x70 net/socket.c:671
+         [<000000008fe16e7a>] __sys_sendto+0x148/0x1f0 net/socket.c:1964
+	 [...]
 
-  - Inline the code of hidpp_validate_report() to simplify
-    distingushing between non-present and invalid report descriptors
+The bug is that llc_sap_state_process() always takes an extra reference
+to the skb, but sometimes neither llc_sap_next_state() nor
+llc_sap_state_process() itself drops this reference.
 
-  - Drop the check for id >= HID_MAX_IDS || id < 0 since all of our
-    IDs are static and known to satisfy that at compile time
+Fix it by changing llc_sap_next_state() to never consume a reference to
+the skb, rather than sometimes do so and sometimes not.  Then remove the
+extra skb_get() and kfree_skb() from llc_sap_state_process().
 
-  - Change the algorithms to check all possible report
-    types (including very long report) and deem the device as a valid
-    HID++ device if it supports at least one
-
-  - Treat invalid report length as a hard stop for the validation
-    algorithm, meaning that if any of the supported reports has
-    invalid length we assume the worst and treat the device as a
-    generic HID device.
-
-  - Fold initialization of hidpp->very_long_report_length into
-    hidpp_validate_device() since it already fetches very long report
-    length and validates its value
-
-Fixes: fe3ee1ec007b ("HID: logitech-hidpp: allow non HID++ devices to be handled by this module")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204191
-Reported-by: Sam Bazely <sambazley@fastmail.com>
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Henrik Rydberg <rydberg@bitmath.org>
-Cc: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Cc: Austin Palmer <austinp@valvesoftware.com>
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 5.2+
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Reported-by: syzbot+6bf095f9becf5efef645@syzkaller.appspotmail.com
+Reported-by: syzbot+31c16aa4202dace3812e@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/hid-logitech-hidpp.c |   54 +++++++++++++++++++++------------------
- 1 file changed, 30 insertions(+), 24 deletions(-)
+ net/llc/llc_s_ac.c |   12 +++++++++---
+ net/llc/llc_sap.c  |   23 ++++++++---------------
+ 2 files changed, 17 insertions(+), 18 deletions(-)
 
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3498,34 +3498,45 @@ static int hidpp_get_report_length(struc
- 	return report->field[0]->report_count + 1;
- }
- 
--static bool hidpp_validate_report(struct hid_device *hdev, int id,
--				  int expected_length, bool optional)
-+static bool hidpp_validate_device(struct hid_device *hdev)
- {
--	int report_length;
-+	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
-+	int id, report_length, supported_reports = 0;
-+
-+	id = REPORT_ID_HIDPP_SHORT;
-+	report_length = hidpp_get_report_length(hdev, id);
-+	if (report_length) {
-+		if (report_length < HIDPP_REPORT_SHORT_LENGTH)
-+			goto bad_device;
- 
--	if (id >= HID_MAX_IDS || id < 0) {
--		hid_err(hdev, "invalid HID report id %u\n", id);
--		return false;
-+		supported_reports++;
- 	}
- 
-+	id = REPORT_ID_HIDPP_LONG;
- 	report_length = hidpp_get_report_length(hdev, id);
--	if (!report_length)
--		return optional;
-+	if (report_length) {
-+		if (report_length < HIDPP_REPORT_LONG_LENGTH)
-+			goto bad_device;
- 
--	if (report_length < expected_length) {
--		hid_warn(hdev, "not enough values in hidpp report %d\n", id);
--		return false;
-+		supported_reports++;
- 	}
- 
--	return true;
--}
-+	id = REPORT_ID_HIDPP_VERY_LONG;
-+	report_length = hidpp_get_report_length(hdev, id);
-+	if (report_length) {
-+		if (report_length < HIDPP_REPORT_LONG_LENGTH ||
-+		    report_length > HIDPP_REPORT_VERY_LONG_MAX_LENGTH)
-+			goto bad_device;
- 
--static bool hidpp_validate_device(struct hid_device *hdev)
--{
--	return hidpp_validate_report(hdev, REPORT_ID_HIDPP_SHORT,
--				     HIDPP_REPORT_SHORT_LENGTH, false) &&
--	       hidpp_validate_report(hdev, REPORT_ID_HIDPP_LONG,
--				     HIDPP_REPORT_LONG_LENGTH, true);
-+		supported_reports++;
-+		hidpp->very_long_report_length = report_length;
+--- a/net/llc/llc_s_ac.c
++++ b/net/llc/llc_s_ac.c
+@@ -58,8 +58,10 @@ int llc_sap_action_send_ui(struct llc_sa
+ 			    ev->daddr.lsap, LLC_PDU_CMD);
+ 	llc_pdu_init_as_ui_cmd(skb);
+ 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
+-	if (likely(!rc))
++	if (likely(!rc)) {
++		skb_get(skb);
+ 		rc = dev_queue_xmit(skb);
 +	}
-+
-+	return supported_reports;
-+
-+bad_device:
-+	hid_warn(hdev, "not enough values in hidpp report %d\n", id);
-+	return false;
+ 	return rc;
  }
  
- static bool hidpp_application_equals(struct hid_device *hdev,
-@@ -3572,11 +3583,6 @@ static int hidpp_probe(struct hid_device
- 		return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
+@@ -81,8 +83,10 @@ int llc_sap_action_send_xid_c(struct llc
+ 			    ev->daddr.lsap, LLC_PDU_CMD);
+ 	llc_pdu_init_as_xid_cmd(skb, LLC_XID_NULL_CLASS_2, 0);
+ 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
+-	if (likely(!rc))
++	if (likely(!rc)) {
++		skb_get(skb);
+ 		rc = dev_queue_xmit(skb);
++	}
+ 	return rc;
+ }
+ 
+@@ -135,8 +139,10 @@ int llc_sap_action_send_test_c(struct ll
+ 			    ev->daddr.lsap, LLC_PDU_CMD);
+ 	llc_pdu_init_as_test_cmd(skb);
+ 	rc = llc_mac_hdr_init(skb, ev->saddr.mac, ev->daddr.mac);
+-	if (likely(!rc))
++	if (likely(!rc)) {
++		skb_get(skb);
+ 		rc = dev_queue_xmit(skb);
++	}
+ 	return rc;
+ }
+ 
+--- a/net/llc/llc_sap.c
++++ b/net/llc/llc_sap.c
+@@ -197,29 +197,22 @@ out:
+  *	After executing actions of the event, upper layer will be indicated
+  *	if needed(on receiving an UI frame). sk can be null for the
+  *	datalink_proto case.
++ *
++ *	This function always consumes a reference to the skb.
+  */
+ static void llc_sap_state_process(struct llc_sap *sap, struct sk_buff *skb)
+ {
+ 	struct llc_sap_state_ev *ev = llc_sap_ev(skb);
+ 
+-	/*
+-	 * We have to hold the skb, because llc_sap_next_state
+-	 * will kfree it in the sending path and we need to
+-	 * look at the skb->cb, where we encode llc_sap_state_ev.
+-	 */
+-	skb_get(skb);
+ 	ev->ind_cfm_flag = 0;
+ 	llc_sap_next_state(sap, skb);
+-	if (ev->ind_cfm_flag == LLC_IND) {
+-		if (skb->sk->sk_state == TCP_LISTEN)
+-			kfree_skb(skb);
+-		else {
+-			llc_save_primitive(skb->sk, skb, ev->prim);
+ 
+-			/* queue skb to the user. */
+-			if (sock_queue_rcv_skb(skb->sk, skb))
+-				kfree_skb(skb);
+-		}
++	if (ev->ind_cfm_flag == LLC_IND && skb->sk->sk_state != TCP_LISTEN) {
++		llc_save_primitive(skb->sk, skb, ev->prim);
++
++		/* queue skb to the user. */
++		if (sock_queue_rcv_skb(skb->sk, skb) == 0)
++			return;
  	}
- 
--	hidpp->very_long_report_length =
--		hidpp_get_report_length(hdev, REPORT_ID_HIDPP_VERY_LONG);
--	if (hidpp->very_long_report_length > HIDPP_REPORT_VERY_LONG_MAX_LENGTH)
--		hidpp->very_long_report_length = HIDPP_REPORT_VERY_LONG_MAX_LENGTH;
--
- 	if (id->group == HID_GROUP_LOGITECH_DJ_DEVICE)
- 		hidpp->quirks |= HIDPP_QUIRK_UNIFYING;
- 
+ 	kfree_skb(skb);
+ }
 
 
