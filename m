@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC1FEEDF4
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:11:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E242EEED15
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390716AbfKDWLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:11:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45144 "EHLO mail.kernel.org"
+        id S2389467AbfKDWDN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:03:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390419AbfKDWLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:11:45 -0500
+        id S2387970AbfKDWDM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:03:12 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAB03205C9;
-        Mon,  4 Nov 2019 22:11:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D93FC20650;
+        Mon,  4 Nov 2019 22:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905503;
-        bh=56KTKN1K9qcjQ5ztu0oRebv1++BP4QTyGSHQ943xbmc=;
+        s=default; t=1572904991;
+        bh=5OUj+QuqErTOEhAKlafSVLVLPLYZY2IQPv6CAeujRU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mymTkfnRPEstnroLPMws/T2MNK/TPmzly8MvUqbe17fM3jWFYD4TTBHcjF/M96+6y
-         Jl6na4LtAyNIK9Z1/eIzBSjhHy7ZPhdaSdPAPbf2D4XIXb8i2Gwl2es4BQ9KbS0oFv
-         6zla6DP4JBzEWJa4ZkF0BZZWXC86b9EdgG8xCnpQ=
+        b=Y4NNgWtYy/OTo+JlKp4DOVkiaAx5pAnBrhHX/O9yyXgf/OHhuLQC2dp9bx9b+BPE0
+         4xkaV62chXvhO46s4oGbqLiiWQmGwTCRL9lE1RT6PFSo7NkC5rFLVWF245r2cN5Cvh
+         fqebCgSgvnRfhZyNGjxH53IrMXZo07kyH5cLi6Ig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Donnelly <john.p.donnelly@oracle.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>
-Subject: [PATCH 5.3 144/163] iommu/vt-d: Fix panic after kexec -p for kdump
-Date:   Mon,  4 Nov 2019 22:45:34 +0100
-Message-Id: <20191104212150.752050215@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.19 142/149] bonding: fix potential NULL deref in bond_update_slave_arr
+Date:   Mon,  4 Nov 2019 22:45:35 +0100
+Message-Id: <20191104212146.666721949@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Donnelly <John.P.Donnelly@Oracle.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 160c63f909ffbc797c0bbe23310ac1eaf2349d2f upstream.
+commit a7137534b597b7c303203e6bc3ed87e87a273bb8 upstream.
 
-This cures a panic on restart after a kexec operation on 5.3 and 5.4
-kernels.
+syzbot got a NULL dereference in bond_update_slave_arr() [1],
+happening after a failure to allocate bond->slave_arr
 
-The underlying state of the iommu registers (iommu->flags &
-VTD_FLAG_TRANS_PRE_ENABLED) on a restart results in a domain being marked as
-"DEFER_DEVICE_DOMAIN_INFO" that produces an Oops in identity_mapping().
+A workqueue (bond_slave_arr_handler) is supposed to retry
+the allocation later, but if the slave is removed before
+the workqueue had a chance to complete, bond->slave_arr
+can still be NULL.
 
-[   43.654737] BUG: kernel NULL pointer dereference, address:
-0000000000000056
-[   43.655720] #PF: supervisor read access in kernel mode
-[   43.655720] #PF: error_code(0x0000) - not-present page
-[   43.655720] PGD 0 P4D 0
-[   43.655720] Oops: 0000 [#1] SMP PTI
-[   43.655720] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
-5.3.2-1940.el8uek.x86_64 #1
-[   43.655720] Hardware name: Oracle Corporation ORACLE SERVER
-X5-2/ASM,MOTHERBOARD,1U, BIOS 30140300 09/20/2018
-[   43.655720] RIP: 0010:iommu_need_mapping+0x29/0xd0
-[   43.655720] Code: 00 0f 1f 44 00 00 48 8b 97 70 02 00 00 48 83 fa ff
-74 53 48 8d 4a ff b8 01 00 00 00 48 83 f9 fd 76 01 c3 48 8b 35 7f 58 e0
-01 <48> 39 72 58 75 f2 55 48 89 e5 41 54 53 48 8b 87 28 02 00 00 4c 8b
-[   43.655720] RSP: 0018:ffffc9000001b9b0 EFLAGS: 00010246
-[   43.655720] RAX: 0000000000000001 RBX: 0000000000001000 RCX:
-fffffffffffffffd
-[   43.655720] RDX: fffffffffffffffe RSI: ffff8880719b8000 RDI:
-ffff8880477460b0
-[   43.655720] RBP: ffffc9000001b9e8 R08: 0000000000000000 R09:
-ffff888047c01700
-[   43.655720] R10: 00002194036fc692 R11: 0000000000000000 R12:
-0000000000000000
-[   43.655720] R13: ffff8880477460b0 R14: 0000000000000cc0 R15:
-ffff888072d2b558
-[   43.655720] FS:  0000000000000000(0000) GS:ffff888071c00000(0000)
-knlGS:0000000000000000
-[   43.655720] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   43.655720] CR2: 0000000000000056 CR3: 000000007440a002 CR4:
-00000000001606b0
-[   43.655720] Call Trace:
-[   43.655720]  ? intel_alloc_coherent+0x2a/0x180
-[   43.655720]  ? __schedule+0x2c2/0x650
-[   43.655720]  dma_alloc_attrs+0x8c/0xd0
-[   43.655720]  dma_pool_alloc+0xdf/0x200
-[   43.655720]  ehci_qh_alloc+0x58/0x130
-[   43.655720]  ehci_setup+0x287/0x7ba
-[   43.655720]  ? _dev_info+0x6c/0x83
-[   43.655720]  ehci_pci_setup+0x91/0x436
-[   43.655720]  usb_add_hcd.cold.48+0x1d4/0x754
-[   43.655720]  usb_hcd_pci_probe+0x2bc/0x3f0
-[   43.655720]  ehci_pci_probe+0x39/0x40
-[   43.655720]  local_pci_probe+0x47/0x80
-[   43.655720]  pci_device_probe+0xff/0x1b0
-[   43.655720]  really_probe+0xf5/0x3a0
-[   43.655720]  driver_probe_device+0xbb/0x100
-[   43.655720]  device_driver_attach+0x58/0x60
-[   43.655720]  __driver_attach+0x8f/0x150
-[   43.655720]  ? device_driver_attach+0x60/0x60
-[   43.655720]  bus_for_each_dev+0x74/0xb0
-[   43.655720]  driver_attach+0x1e/0x20
-[   43.655720]  bus_add_driver+0x151/0x1f0
-[   43.655720]  ? ehci_hcd_init+0xb2/0xb2
-[   43.655720]  ? do_early_param+0x95/0x95
-[   43.655720]  driver_register+0x70/0xc0
-[   43.655720]  ? ehci_hcd_init+0xb2/0xb2
-[   43.655720]  __pci_register_driver+0x57/0x60
-[   43.655720]  ehci_pci_init+0x6a/0x6c
-[   43.655720]  do_one_initcall+0x4a/0x1fa
-[   43.655720]  ? do_early_param+0x95/0x95
-[   43.655720]  kernel_init_freeable+0x1bd/0x262
-[   43.655720]  ? rest_init+0xb0/0xb0
-[   43.655720]  kernel_init+0xe/0x110
-[   43.655720]  ret_from_fork+0x24/0x50
+[1]
 
-Fixes: 8af46c784ecfe ("iommu/vt-d: Implement is_attach_deferred iommu ops entry")
-Cc: stable@vger.kernel.org # v5.3+
+Failed to build slave-array.
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN PTI
+Modules linked in:
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:bond_update_slave_arr.cold+0xc6/0x198 drivers/net/bonding/bond_main.c:4039
+RSP: 0018:ffff88018fe33678 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffc9000290b000
+RDX: 0000000000000000 RSI: ffffffff82b63037 RDI: ffff88019745ea20
+RBP: ffff88018fe33760 R08: ffff880170754280 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff88019745ea00 R14: 0000000000000000 R15: ffff88018fe338b0
+FS:  00007febd837d700(0000) GS:ffff8801dad00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000004540a0 CR3: 00000001c242e005 CR4: 00000000001626f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ [<ffffffff82b5b45e>] __bond_release_one+0x43e/0x500 drivers/net/bonding/bond_main.c:1923
+ [<ffffffff82b5b966>] bond_release drivers/net/bonding/bond_main.c:2039 [inline]
+ [<ffffffff82b5b966>] bond_do_ioctl+0x416/0x870 drivers/net/bonding/bond_main.c:3562
+ [<ffffffff83ae25f4>] dev_ifsioc+0x6f4/0x940 net/core/dev_ioctl.c:328
+ [<ffffffff83ae2e58>] dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:495
+ [<ffffffff83995ffd>] sock_do_ioctl+0x1bd/0x300 net/socket.c:1088
+ [<ffffffff83996a80>] sock_ioctl+0x300/0x5d0 net/socket.c:1196
+ [<ffffffff81b124db>] vfs_ioctl fs/ioctl.c:47 [inline]
+ [<ffffffff81b124db>] file_ioctl fs/ioctl.c:501 [inline]
+ [<ffffffff81b124db>] do_vfs_ioctl+0xacb/0x1300 fs/ioctl.c:688
+ [<ffffffff81b12dc6>] SYSC_ioctl fs/ioctl.c:705 [inline]
+ [<ffffffff81b12dc6>] SyS_ioctl+0xb6/0xe0 fs/ioctl.c:696
+ [<ffffffff8101ccc8>] do_syscall_64+0x528/0x770 arch/x86/entry/common.c:305
+ [<ffffffff84400091>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
 
-Signed-off-by: John Donnelly <john.p.donnelly@oracle.com>
-Reviewed-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: ee6377147409 ("bonding: Simplify the xmit function for modes that use xmit_hash")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Mahesh Bandewar <maheshb@google.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iommu/intel-iommu.c |    2 +-
+ drivers/net/bonding/bond_main.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -2783,7 +2783,7 @@ static int identity_mapping(struct devic
- 	struct device_domain_info *info;
- 
- 	info = dev->archdata.iommu;
--	if (info && info != DUMMY_DEVICE_DOMAIN_INFO)
-+	if (info && info != DUMMY_DEVICE_DOMAIN_INFO && info != DEFER_DEVICE_DOMAIN_INFO)
- 		return (info->domain == si_domain);
- 
- 	return 0;
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -4033,7 +4033,7 @@ out:
+ 		 * this to-be-skipped slave to send a packet out.
+ 		 */
+ 		old_arr = rtnl_dereference(bond->slave_arr);
+-		for (idx = 0; idx < old_arr->count; idx++) {
++		for (idx = 0; old_arr != NULL && idx < old_arr->count; idx++) {
+ 			if (skipslave == old_arr->arr[idx]) {
+ 				old_arr->arr[idx] =
+ 				    old_arr->arr[old_arr->count-1];
 
 
