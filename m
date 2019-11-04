@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E1C9EEF85
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:22:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 469B8EEEA0
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387782AbfKDV5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:57:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53272 "EHLO mail.kernel.org"
+        id S2389688AbfKDWEb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:04:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388530AbfKDV5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:57:14 -0500
+        id S2389683AbfKDWEb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:04:31 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4672A2184C;
-        Mon,  4 Nov 2019 21:57:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD1DF214D8;
+        Mon,  4 Nov 2019 22:04:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904632;
-        bh=0K1mygL3oJRRaNMfeI7bjrL+a8KoQGX3ZDU9u0jJ3dg=;
+        s=default; t=1572905070;
+        bh=oVOeKJXMi/4L8ddaH2Ou/ffyVHk8XoU2AZ/+BO6rhXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/CK2bNCA5ibsNwtJHhqPzW7PnwK6VP2iM5FrgVsU4M2AdFFIXUZlOc/5s/erJrlo
-         J0xPc2JurvRE56rgOFT+JKC6EBG0G7SMEE4Mzwmq/dej7kJpT+u5dR/nfyHzUbhK7p
-         6KhLi/mBJsFC+L6HIWPIu27g8PlMcWkbes+wm/go=
+        b=AbonSPmIrERasShx0EE7Cebx9QMLEVTpa3c2XuaGzOPWTxLiho4lA8koNswGZfK/d
+         ZZqZQ6ONTVCHV2h4E07P8b3iCsi0vI4Jiw80Pg9tKtrUshU/dcWmhd1vTebdaGBtGQ
+         EK1Iv484fdfOXwma9+tlucwd6SCmuGjv9Ekppz58=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artur Petrosyan <arturp@synopsys.com>,
-        Minas Harutyunyan <hminas@synopsys.com>,
-        Fabrice Gasnier <fabrice.gasnier@st.com>,
-        Amelie Delaunay <amelie.delaunay@st.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 016/149] usb: dwc2: fix unbalanced use of external vbus-supply
+        stable@vger.kernel.org,
+        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
+        Song Liu <songliubraving@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Will Deacon <will@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>
+Subject: [PATCH 5.3 019/163] perf annotate: Dont return -1 for error when doing BPF disassembly
 Date:   Mon,  4 Nov 2019 22:43:29 +0100
-Message-Id: <20191104212135.455154039@linuxfoundation.org>
+Message-Id: <20191104212141.810505019@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,139 +54,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit cd7cd0e6cedfda8da6668a4af6748f96bbb6fed4 ]
+[ Upstream commit 11aad897f6d1a28eae3b7e5b293647c522d65819 ]
 
-When using external vbus supply regulator, it should be enabled
-synchronously with PWR bit in HPRT register. This also fixes
-unbalanced use of this optional regulator (This can be reproduced
-easily when unbinding the driver).
+Return errno when open_memstream() fails and add two new speciall error
+codes for when an invalid, non BPF file or one without BTF is passed to
+symbol__disassemble_bpf(), so that its callers can rely on
+symbol__strerror_disassemble() to convert that to a human readable error
+message that can help figure out what is wrong, with hints even.
 
-Fixes: 531ef5ebea96 ("usb: dwc2: add support for host mode external
-vbus supply")
-
-Tested-by: Artur Petrosyan <arturp@synopsys.com>
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Signed-off-by: Amelie Delaunay <amelie.delaunay@st.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc: Russell King - ARM Linux admin <linux@armlinux.org.uk>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Alexei Starovoitov <ast@kernel.org>
+Cc: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>,
+Cc: Will Deacon <will@kernel.org>
+Link: https://lkml.kernel.org/n/tip-usevw9r2gcipfcrbpaueurw0@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/hcd.c | 33 ++++++++++++++++++++++++++-------
- 1 file changed, 26 insertions(+), 7 deletions(-)
+ tools/perf/util/annotate.c | 19 +++++++++++++++----
+ tools/perf/util/annotate.h |  2 ++
+ 2 files changed, 17 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
-index aad7edc29bddd..a5c8329fd4625 100644
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -3568,6 +3568,7 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
- 	u32 port_status;
- 	u32 speed;
- 	u32 pcgctl;
-+	u32 pwr;
+diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
+index ab7851ec0ce53..fb8756026a805 100644
+--- a/tools/perf/util/annotate.c
++++ b/tools/perf/util/annotate.c
+@@ -1631,6 +1631,13 @@ int symbol__strerror_disassemble(struct symbol *sym __maybe_unused, struct map *
+ 	case SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING:
+ 		scnprintf(buf, buflen, "Problems while parsing the CPUID in the arch specific initialization.");
+ 		break;
++	case SYMBOL_ANNOTATE_ERRNO__BPF_INVALID_FILE:
++		scnprintf(buf, buflen, "Invalid BPF file: %s.", dso->long_name);
++		break;
++	case SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF:
++		scnprintf(buf, buflen, "The %s BPF file has no BTF section, compile with -g or use pahole -J.",
++			  dso->long_name);
++		break;
+ 	default:
+ 		scnprintf(buf, buflen, "Internal error: Invalid %d error code\n", errnum);
+ 		break;
+@@ -1713,13 +1720,13 @@ static int symbol__disassemble_bpf(struct symbol *sym,
+ 	char tpath[PATH_MAX];
+ 	size_t buf_size;
+ 	int nr_skip = 0;
+-	int ret = -1;
+ 	char *buf;
+ 	bfd *bfdf;
++	int ret;
+ 	FILE *s;
  
- 	switch (typereq) {
- 	case ClearHubFeature:
-@@ -3616,8 +3617,11 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
- 			dev_dbg(hsotg->dev,
- 				"ClearPortFeature USB_PORT_FEAT_POWER\n");
- 			hprt0 = dwc2_read_hprt0(hsotg);
-+			pwr = hprt0 & HPRT0_PWR;
- 			hprt0 &= ~HPRT0_PWR;
- 			dwc2_writel(hsotg, hprt0, HPRT0);
-+			if (pwr)
-+				dwc2_vbus_supply_exit(hsotg);
- 			break;
+ 	if (dso->binary_type != DSO_BINARY_TYPE__BPF_PROG_INFO)
+-		return -1;
++		return SYMBOL_ANNOTATE_ERRNO__BPF_INVALID_FILE;
  
- 		case USB_PORT_FEAT_INDICATOR:
-@@ -3827,8 +3831,11 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
- 			dev_dbg(hsotg->dev,
- 				"SetPortFeature - USB_PORT_FEAT_POWER\n");
- 			hprt0 = dwc2_read_hprt0(hsotg);
-+			pwr = hprt0 & HPRT0_PWR;
- 			hprt0 |= HPRT0_PWR;
- 			dwc2_writel(hsotg, hprt0, HPRT0);
-+			if (!pwr)
-+				dwc2_vbus_supply_init(hsotg);
- 			break;
+ 	pr_debug("%s: handling sym %s addr %" PRIx64 " len %" PRIx64 "\n", __func__,
+ 		  sym->name, sym->start, sym->end - sym->start);
+@@ -1732,8 +1739,10 @@ static int symbol__disassemble_bpf(struct symbol *sym,
+ 	assert(bfd_check_format(bfdf, bfd_object));
  
- 		case USB_PORT_FEAT_RESET:
-@@ -3845,6 +3852,7 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
- 			dwc2_writel(hsotg, 0, PCGCTL);
- 
- 			hprt0 = dwc2_read_hprt0(hsotg);
-+			pwr = hprt0 & HPRT0_PWR;
- 			/* Clear suspend bit if resetting from suspend state */
- 			hprt0 &= ~HPRT0_SUSP;
- 
-@@ -3858,6 +3866,8 @@ static int dwc2_hcd_hub_control(struct dwc2_hsotg *hsotg, u16 typereq,
- 				dev_dbg(hsotg->dev,
- 					"In host mode, hprt0=%08x\n", hprt0);
- 				dwc2_writel(hsotg, hprt0, HPRT0);
-+				if (!pwr)
-+					dwc2_vbus_supply_init(hsotg);
- 			}
- 
- 			/* Clear reset bit in 10ms (FS/LS) or 50ms (HS) */
-@@ -4400,6 +4410,7 @@ static int _dwc2_hcd_start(struct usb_hcd *hcd)
- 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
- 	struct usb_bus *bus = hcd_to_bus(hcd);
- 	unsigned long flags;
-+	u32 hprt0;
- 	int ret;
- 
- 	dev_dbg(hsotg->dev, "DWC OTG HCD START\n");
-@@ -4416,12 +4427,16 @@ static int _dwc2_hcd_start(struct usb_hcd *hcd)
- 
- 	dwc2_hcd_reinit(hsotg);
- 
--	/* enable external vbus supply before resuming root hub */
--	spin_unlock_irqrestore(&hsotg->lock, flags);
--	ret = dwc2_vbus_supply_init(hsotg);
--	if (ret)
--		return ret;
--	spin_lock_irqsave(&hsotg->lock, flags);
-+	hprt0 = dwc2_read_hprt0(hsotg);
-+	/* Has vbus power been turned on in dwc2_core_host_init ? */
-+	if (hprt0 & HPRT0_PWR) {
-+		/* Enable external vbus supply before resuming root hub */
-+		spin_unlock_irqrestore(&hsotg->lock, flags);
-+		ret = dwc2_vbus_supply_init(hsotg);
-+		if (ret)
-+			return ret;
-+		spin_lock_irqsave(&hsotg->lock, flags);
+ 	s = open_memstream(&buf, &buf_size);
+-	if (!s)
++	if (!s) {
++		ret = errno;
+ 		goto out;
 +	}
+ 	init_disassemble_info(&info, s,
+ 			      (fprintf_ftype) fprintf);
  
- 	/* Initialize and connect root hub if one is not already attached */
- 	if (bus->root_hub) {
-@@ -4443,6 +4458,7 @@ static void _dwc2_hcd_stop(struct usb_hcd *hcd)
- {
- 	struct dwc2_hsotg *hsotg = dwc2_hcd_to_hsotg(hcd);
- 	unsigned long flags;
-+	u32 hprt0;
+@@ -1742,8 +1751,10 @@ static int symbol__disassemble_bpf(struct symbol *sym,
  
- 	/* Turn off all host-specific interrupts */
- 	dwc2_disable_host_interrupts(hsotg);
-@@ -4451,6 +4467,7 @@ static void _dwc2_hcd_stop(struct usb_hcd *hcd)
- 	synchronize_irq(hcd->irq);
+ 	info_node = perf_env__find_bpf_prog_info(dso->bpf_prog.env,
+ 						 dso->bpf_prog.id);
+-	if (!info_node)
++	if (!info_node) {
++		return SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF;
+ 		goto out;
++	}
+ 	info_linear = info_node->info_linear;
+ 	sub_id = dso->bpf_prog.sub_id;
  
- 	spin_lock_irqsave(&hsotg->lock, flags);
-+	hprt0 = dwc2_read_hprt0(hsotg);
- 	/* Ensure hcd is disconnected */
- 	dwc2_hcd_disconnect(hsotg, true);
- 	dwc2_hcd_stop(hsotg);
-@@ -4459,7 +4476,9 @@ static void _dwc2_hcd_stop(struct usb_hcd *hcd)
- 	clear_bit(HCD_FLAG_HW_ACCESSIBLE, &hcd->flags);
- 	spin_unlock_irqrestore(&hsotg->lock, flags);
+diff --git a/tools/perf/util/annotate.h b/tools/perf/util/annotate.h
+index a1191995fe77e..2004e2cf0211b 100644
+--- a/tools/perf/util/annotate.h
++++ b/tools/perf/util/annotate.h
+@@ -372,6 +372,8 @@ enum symbol_disassemble_errno {
+ 	SYMBOL_ANNOTATE_ERRNO__NO_LIBOPCODES_FOR_BPF,
+ 	SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_CPUID_PARSING,
+ 	SYMBOL_ANNOTATE_ERRNO__ARCH_INIT_REGEXP,
++	SYMBOL_ANNOTATE_ERRNO__BPF_INVALID_FILE,
++	SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF,
  
--	dwc2_vbus_supply_exit(hsotg);
-+	/* keep balanced supply init/exit by checking HPRT0_PWR */
-+	if (hprt0 & HPRT0_PWR)
-+		dwc2_vbus_supply_exit(hsotg);
- 
- 	usleep_range(1000, 3000);
- }
+ 	__SYMBOL_ANNOTATE_ERRNO__END,
+ };
 -- 
 2.20.1
 
