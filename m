@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4325FEED59
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC10EEF4D
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389867AbfKDWFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:05:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37234 "EHLO mail.kernel.org"
+        id S2388803AbfKDWAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:00:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388846AbfKDWFo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:44 -0500
+        id S2388794AbfKDWAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:00:07 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 887B82084D;
-        Mon,  4 Nov 2019 22:05:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26740217F4;
+        Mon,  4 Nov 2019 22:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905143;
-        bh=rILOjpaj2kL3DGWF/fdbZPBgZtSODrqfT0YUIoUAW/Y=;
+        s=default; t=1572904806;
+        bh=3RwQde0ZzNB68eHexpuzGLHkQGp/ERq16XNQj1ekhA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sl1xed2ptq7P8t8Q2JGnX/sNpjuhppLleIOSjjjAzU0XrEJ6SfqBB0boIY7yl+dkL
-         LaZPpEas/FRMvNjLj8fzBwnNOlbpChs7FcYxvjw/ZL5iciIBpABRTkz10+6A6LR01I
-         Y0vrVSMdL+chAx4ih0xQ22H75D0jHFpBSrQUStK8=
+        b=aobAEGSOsxAs+q+ziWyVnaDBPO5vQ2BisajyYdAAixmkJhFOxv0dWrrEdB7m7fTXo
+         raPhMbmDJShzLV3ssAJKHheB30lprEdZbT2h54nLNwJGQtQ5r8xIfv/OZYHwV9OS9f
+         +KodnX43sUIK2GvCK0D2KkaOXBcqEGsl5DXFXJLo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Artemy Kovalyov <artemyko@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 042/163] RDMA/mlx5: Add missing synchronize_srcu() for MW cases
-Date:   Mon,  4 Nov 2019 22:43:52 +0100
-Message-Id: <20191104212143.315607617@linuxfoundation.org>
+        stable@vger.kernel.org, Jussi Laako <jussi@sonarnerd.net>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 040/149] ALSA: usb-audio: Cleanup DSD whitelist
+Date:   Mon,  4 Nov 2019 22:43:53 +0100
+Message-Id: <20191104212138.618410374@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,205 +43,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Jussi Laako <jussi@sonarnerd.net>
 
-[ Upstream commit 0417791536ae1e28d7f0418f1d20048ec4d3c6cf ]
+[ Upstream commit 202e69e645545e8dcec5e239658125276a7a315a ]
 
-While MR uses live as the SRCU 'update', the MW case uses the xarray
-directly, xa_erase() causes the MW to become inaccessible to the pagefault
-thread.
+XMOS/Thesycon family of USB Audio Class firmware flags DSD altsetting
+separate from the PCM ones. Thus the DSD altsetting can be auto-detected
+based on the flag and doesn't need maintaining specific altsetting
+whitelist.
 
-Thus whenever a MW is removed from the xarray we must synchronize_srcu()
-before freeing it.
+In addition, static VID:PID-to-altsetting whitelisting causes problems
+when firmware update changes the altsetting, or same VID:PID is reused
+for another device that has different kind of firmware.
 
-This must be done before freeing the mkey as re-use of the mkey while the
-pagefault thread is using the stale mkey is undesirable.
+This patch removes existing explicit whitelist mappings for XMOS VID
+(0x20b1) and Thesycon VID (0x152a).
 
-Add the missing synchronizes to MW and DEVX indirect mkey and delete the
-bogus protection against double destroy in mlx5_core_destroy_mkey()
+Also corrects placement of Hegel HD12 and NuPrime DAC-10 to keep list
+sorted based on VID.
 
-Fixes: 534fd7aac56a ("IB/mlx5: Manage indirection mkey upon DEVX flow for ODP")
-Fixes: 6aec21f6a832 ("IB/mlx5: Page faults handling infrastructure")
-Link: https://lore.kernel.org/r/20191001153821.23621-7-jgg@ziepe.ca
-Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jussi Laako <jussi@sonarnerd.net>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mlx5/devx.c            | 58 ++++++--------------
- drivers/infiniband/hw/mlx5/mlx5_ib.h         |  1 -
- drivers/infiniband/hw/mlx5/mr.c              | 21 +++++--
- drivers/net/ethernet/mellanox/mlx5/core/mr.c |  8 +--
- 4 files changed, 33 insertions(+), 55 deletions(-)
+ sound/usb/quirks.c | 18 ++----------------
+ 1 file changed, 2 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
-index af5bbb35c0589..ef7ba0133d28a 100644
---- a/drivers/infiniband/hw/mlx5/devx.c
-+++ b/drivers/infiniband/hw/mlx5/devx.c
-@@ -1275,29 +1275,6 @@ static int devx_handle_mkey_create(struct mlx5_ib_dev *dev,
- 	return 0;
- }
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 60d00091f64b2..e5dde06c31a6f 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1360,10 +1360,6 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
+ 	/* XMOS based USB DACs */
+ 	switch (chip->usb_id) {
+ 	case USB_ID(0x1511, 0x0037): /* AURALiC VEGA */
+-	case USB_ID(0x20b1, 0x0002): /* Wyred 4 Sound DAC-2 DSD */
+-	case USB_ID(0x20b1, 0x2004): /* Matrix Audio X-SPDIF 2 */
+-	case USB_ID(0x20b1, 0x2008): /* Matrix Audio X-Sabre */
+-	case USB_ID(0x20b1, 0x300a): /* Matrix Audio Mini-i Pro */
+ 	case USB_ID(0x22d9, 0x0416): /* OPPO HA-1 */
+ 	case USB_ID(0x22d9, 0x0436): /* OPPO Sonica */
+ 	case USB_ID(0x22d9, 0x0461): /* OPPO UDP-205 */
+@@ -1373,23 +1369,13 @@ u64 snd_usb_interface_dsd_format_quirks(struct snd_usb_audio *chip,
+ 			return SNDRV_PCM_FMTBIT_DSD_U32_BE;
+ 		break;
  
--static void devx_free_indirect_mkey(struct rcu_head *rcu)
--{
--	kfree(container_of(rcu, struct devx_obj, devx_mr.rcu));
--}
--
--/* This function to delete from the radix tree needs to be called before
-- * destroying the underlying mkey. Otherwise a race might occur in case that
-- * other thread will get the same mkey before this one will be deleted,
-- * in that case it will fail via inserting to the tree its own data.
-- *
-- * Note:
-- * An error in the destroy is not expected unless there is some other indirect
-- * mkey which points to this one. In a kernel cleanup flow it will be just
-- * destroyed in the iterative destruction call. In a user flow, in case
-- * the application didn't close in the expected order it's its own problem,
-- * the mkey won't be part of the tree, in both cases the kernel is safe.
-- */
--static void devx_cleanup_mkey(struct devx_obj *obj)
--{
--	xa_erase(&obj->ib_dev->mdev->priv.mkey_table,
--		 mlx5_base_mkey(obj->devx_mr.mmkey.key));
--}
--
- static void devx_cleanup_subscription(struct mlx5_ib_dev *dev,
- 				      struct devx_event_subscription *sub)
- {
-@@ -1339,8 +1316,16 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
- 	int ret;
- 
- 	dev = mlx5_udata_to_mdev(&attrs->driver_udata);
--	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY)
--		devx_cleanup_mkey(obj);
-+	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
-+		/*
-+		 * The pagefault_single_data_segment() does commands against
-+		 * the mmkey, we must wait for that to stop before freeing the
-+		 * mkey, as another allocation could get the same mkey #.
-+		 */
-+		xa_erase(&obj->ib_dev->mdev->priv.mkey_table,
-+			 mlx5_base_mkey(obj->devx_mr.mmkey.key));
-+		synchronize_srcu(&dev->mr_srcu);
-+	}
- 
- 	if (obj->flags & DEVX_OBJ_FLAGS_DCT)
- 		ret = mlx5_core_destroy_dct(obj->ib_dev->mdev, &obj->core_dct);
-@@ -1359,12 +1344,6 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
- 		devx_cleanup_subscription(dev, sub_entry);
- 	mutex_unlock(&devx_event_table->event_xa_lock);
- 
--	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
--		call_srcu(&dev->mr_srcu, &obj->devx_mr.rcu,
--			  devx_free_indirect_mkey);
--		return ret;
--	}
--
- 	kfree(obj);
- 	return ret;
- }
-@@ -1468,26 +1447,21 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_OBJ_CREATE)(
- 				   &obj_id);
- 	WARN_ON(obj->dinlen > MLX5_MAX_DESTROY_INBOX_SIZE_DW * sizeof(u32));
- 
--	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
--		err = devx_handle_mkey_indirect(obj, dev, cmd_in, cmd_out);
--		if (err)
--			goto obj_destroy;
--	}
--
- 	err = uverbs_copy_to(attrs, MLX5_IB_ATTR_DEVX_OBJ_CREATE_CMD_OUT, cmd_out, cmd_out_len);
- 	if (err)
--		goto err_copy;
-+		goto obj_destroy;
- 
- 	if (opcode == MLX5_CMD_OP_CREATE_GENERAL_OBJECT)
- 		obj_type = MLX5_GET(general_obj_in_cmd_hdr, cmd_in, obj_type);
--
- 	obj->obj_id = get_enc_obj_id(opcode | obj_type << 16, obj_id);
- 
-+	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
-+		err = devx_handle_mkey_indirect(obj, dev, cmd_in, cmd_out);
-+		if (err)
-+			goto obj_destroy;
-+	}
- 	return 0;
- 
--err_copy:
--	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY)
--		devx_cleanup_mkey(obj);
- obj_destroy:
- 	if (obj->flags & DEVX_OBJ_FLAGS_DCT)
- 		mlx5_core_destroy_dct(obj->ib_dev->mdev, &obj->core_dct);
-diff --git a/drivers/infiniband/hw/mlx5/mlx5_ib.h b/drivers/infiniband/hw/mlx5/mlx5_ib.h
-index 9ae587b74b121..43c7353b98123 100644
---- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
-+++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
-@@ -638,7 +638,6 @@ struct mlx5_ib_mw {
- struct mlx5_ib_devx_mr {
- 	struct mlx5_core_mkey	mmkey;
- 	int			ndescs;
--	struct rcu_head		rcu;
- };
- 
- struct mlx5_ib_umr_context {
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index 96c8a6835592d..c15d05f61cc7b 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -1970,14 +1970,25 @@ free:
- 
- int mlx5_ib_dealloc_mw(struct ib_mw *mw)
- {
-+	struct mlx5_ib_dev *dev = to_mdev(mw->device);
- 	struct mlx5_ib_mw *mmw = to_mmw(mw);
- 	int err;
- 
--	err =  mlx5_core_destroy_mkey((to_mdev(mw->device))->mdev,
--				      &mmw->mmkey);
--	if (!err)
--		kfree(mmw);
--	return err;
-+	if (IS_ENABLED(CONFIG_INFINIBAND_ON_DEMAND_PAGING)) {
-+		xa_erase(&dev->mdev->priv.mkey_table,
-+			 mlx5_base_mkey(mmw->mmkey.key));
-+		/*
-+		 * pagefault_single_data_segment() may be accessing mmw under
-+		 * SRCU if the user bound an ODP MR to this MW.
-+		 */
-+		synchronize_srcu(&dev->mr_srcu);
-+	}
-+
-+	err = mlx5_core_destroy_mkey(dev->mdev, &mmw->mmkey);
-+	if (err)
-+		return err;
-+	kfree(mmw);
-+	return 0;
- }
- 
- int mlx5_ib_check_mr_status(struct ib_mr *ibmr, u32 check_mask,
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mr.c b/drivers/net/ethernet/mellanox/mlx5/core/mr.c
-index 9231b39d18b21..c501bf2a02521 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/mr.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/mr.c
-@@ -112,17 +112,11 @@ int mlx5_core_destroy_mkey(struct mlx5_core_dev *dev,
- 	u32 out[MLX5_ST_SZ_DW(destroy_mkey_out)] = {0};
- 	u32 in[MLX5_ST_SZ_DW(destroy_mkey_in)]   = {0};
- 	struct xarray *mkeys = &dev->priv.mkey_table;
--	struct mlx5_core_mkey *deleted_mkey;
- 	unsigned long flags;
- 
- 	xa_lock_irqsave(mkeys, flags);
--	deleted_mkey = __xa_erase(mkeys, mlx5_base_mkey(mkey->key));
-+	__xa_erase(mkeys, mlx5_base_mkey(mkey->key));
- 	xa_unlock_irqrestore(mkeys, flags);
--	if (!deleted_mkey) {
--		mlx5_core_dbg(dev, "failed xarray delete of mkey 0x%x\n",
--			      mlx5_base_mkey(mkey->key));
--		return -ENOENT;
--	}
- 
- 	MLX5_SET(destroy_mkey_in, in, opcode, MLX5_CMD_OP_DESTROY_MKEY);
- 	MLX5_SET(destroy_mkey_in, in, mkey_index, mlx5_mkey_to_idx(mkey->key));
+-	case USB_ID(0x10cb, 0x0103): /* The Bit Opus #3; with fp->dsd_raw */
+-	case USB_ID(0x152a, 0x85de): /* SMSL D1 DAC */
+-	case USB_ID(0x16d0, 0x09dd): /* Encore mDSD */
+ 	case USB_ID(0x0d8c, 0x0316): /* Hegel HD12 DSD */
++	case USB_ID(0x10cb, 0x0103): /* The Bit Opus #3; with fp->dsd_raw */
+ 	case USB_ID(0x16b0, 0x06b2): /* NuPrime DAC-10 */
++	case USB_ID(0x16d0, 0x09dd): /* Encore mDSD */
+ 	case USB_ID(0x16d0, 0x0733): /* Furutech ADL Stratos */
+ 	case USB_ID(0x16d0, 0x09db): /* NuPrime Audio DAC-9 */
+ 	case USB_ID(0x1db5, 0x0003): /* Bryston BDA3 */
+-	case USB_ID(0x20b1, 0x000a): /* Gustard DAC-X20U */
+-	case USB_ID(0x20b1, 0x2005): /* Denafrips Ares DAC */
+-	case USB_ID(0x20b1, 0x2009): /* DIYINHK DSD DXD 384kHz USB to I2S/DSD */
+-	case USB_ID(0x20b1, 0x2023): /* JLsounds I2SoverUSB */
+-	case USB_ID(0x20b1, 0x3021): /* Eastern El. MiniMax Tube DAC Supreme */
+-	case USB_ID(0x20b1, 0x3023): /* Aune X1S 32BIT/384 DSD DAC */
+-	case USB_ID(0x20b1, 0x302d): /* Unison Research Unico CD Due */
+-	case USB_ID(0x20b1, 0x307b): /* CH Precision C1 DAC */
+-	case USB_ID(0x20b1, 0x3086): /* Singxer F-1 converter board */
+ 	case USB_ID(0x22d9, 0x0426): /* OPPO HA-2 */
+ 	case USB_ID(0x22e1, 0xca01): /* HDTA Serenade DSD */
+ 	case USB_ID(0x249c, 0x9326): /* M2Tech Young MkIII */
 -- 
 2.20.1
 
