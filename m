@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A541BEEC5B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:56:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BFB0EEC66
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:57:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388347AbfKDV4V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:56:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51878 "EHLO mail.kernel.org"
+        id S2388456AbfKDV4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:56:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388330AbfKDV4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:56:20 -0500
+        id S2388449AbfKDV4q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:56:46 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 017B92184C;
-        Mon,  4 Nov 2019 21:56:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2048222CA;
+        Mon,  4 Nov 2019 21:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904578;
-        bh=L0ho6bf5l8Xbz1j6S+ejSKfLn7v+U53NaIoYXmrjc+M=;
+        s=default; t=1572904605;
+        bh=X63pEls0sUo9cIXbMKA8PknIK0snnrnluo5piu3JE88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yMb+ZRgnqwtS+waTJ40uhP0rPQXvDgmW4BgKqOzM49u7Krfr0rjuor0UgtnfPe/SF
-         T2XW4eAPTVGrecu0JbQ5nWH8Q8HXNkIaN+UOunvf/EGiqp20g89ulo46ceK25AYPUK
-         VWt8bNq+D74budsDzbvYsnQ/oEbyoUSaU9sN5/sQ=
+        b=YjvvOChCIgJtmo4s+UcwHDNdlcVhVtUey/SumX1rQC1/3YSsW8WAB8c2URdJgvSQn
+         yw010ervMXMdNp398K7WWFz1Xot0W20H22hIro1a5deFFMNiIMdFpEWmFjw2Ksg4MO
+         YM6T1IDA9XUgjva6CnnvTEK3osXPEsaMiiQIXJ2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Neil Horman <nhorman@tuxdriver.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 91/95] sctp: fix the issue that flags are ignored when using kernel_connect
-Date:   Mon,  4 Nov 2019 22:45:29 +0100
-Message-Id: <20191104212124.113952695@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Subject: [PATCH 4.14 95/95] ALSA: timer: Fix mutex deadlock at releasing card
+Date:   Mon,  4 Nov 2019 22:45:33 +0100
+Message-Id: <20191104212125.418534980@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
 References: <20191104212038.056365853@linuxfoundation.org>
@@ -47,214 +44,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 644fbdeacf1d3edd366e44b8ba214de9d1dd66a9 upstream.
+[ Upstream commit a39331867335d4a94b6165e306265c9e24aca073 ]
 
-Now sctp uses inet_dgram_connect as its proto_ops .connect, and the flags
-param can't be passed into its proto .connect where this flags is really
-needed.
+When a card is disconnected while in use, the system waits until all
+opened files are closed then releases the card.  This is done via
+put_device() of the card device in each device release code.
 
-sctp works around it by getting flags from socket file in __sctp_connect.
-It works for connecting from userspace, as inherently the user sock has
-socket file and it passes f_flags as the flags param into the proto_ops
-.connect.
+The recently reported mutex deadlock bug happens in this code path;
+snd_timer_close() for the timer device deals with the global
+register_mutex and it calls put_device() there.  When this timer
+device is the last one, the card gets freed and it eventually calls
+snd_timer_free(), which has again the protection with the global
+register_mutex -- boom.
 
-However, the sock created by sock_create_kern doesn't have a socket file,
-and it passes the flags (like O_NONBLOCK) by using the flags param in
-kernel_connect, which calls proto_ops .connect later.
+Basically put_device() call itself is race-free, so a relative simple
+workaround is to move this put_device() call out of the mutex.  For
+achieving that, in this patch, snd_timer_close_locked() got a new
+argument to store the card device pointer in return, and each caller
+invokes put_device() with the returned object after the mutex unlock.
 
-So to fix it, this patch defines a new proto_ops .connect for sctp,
-sctp_inet_connect, which calls __sctp_connect() directly with this
-flags param. After this, the sctp's proto .connect can be removed.
-
-Note that sctp_inet_connect doesn't need to do some checks that are not
-needed for sctp, which makes thing better than with inet_dgram_connect.
-
-Suggested-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Neil Horman <nhorman@tuxdriver.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-and-tested-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sctp/sctp.h |    2 +
- net/sctp/ipv6.c         |    2 -
- net/sctp/protocol.c     |    2 -
- net/sctp/socket.c       |   56 ++++++++++++++++++++++++++++++++----------------
- 4 files changed, 42 insertions(+), 20 deletions(-)
+ sound/core/timer.c | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
---- a/include/net/sctp/sctp.h
-+++ b/include/net/sctp/sctp.h
-@@ -103,6 +103,8 @@ void sctp_addr_wq_mgmt(struct net *, str
- /*
-  * sctp/socket.c
-  */
-+int sctp_inet_connect(struct socket *sock, struct sockaddr *uaddr,
-+		      int addr_len, int flags);
- int sctp_backlog_rcv(struct sock *sk, struct sk_buff *skb);
- int sctp_inet_listen(struct socket *sock, int backlog);
- void sctp_write_space(struct sock *sk);
---- a/net/sctp/ipv6.c
-+++ b/net/sctp/ipv6.c
-@@ -974,7 +974,7 @@ static const struct proto_ops inet6_seqp
- 	.owner		   = THIS_MODULE,
- 	.release	   = inet6_release,
- 	.bind		   = inet6_bind,
--	.connect	   = inet_dgram_connect,
-+	.connect	   = sctp_inet_connect,
- 	.socketpair	   = sock_no_socketpair,
- 	.accept		   = inet_accept,
- 	.getname	   = sctp_getname,
---- a/net/sctp/protocol.c
-+++ b/net/sctp/protocol.c
-@@ -1019,7 +1019,7 @@ static const struct proto_ops inet_seqpa
- 	.owner		   = THIS_MODULE,
- 	.release	   = inet_release,	/* Needs to be wrapped... */
- 	.bind		   = inet_bind,
--	.connect	   = inet_dgram_connect,
-+	.connect	   = sctp_inet_connect,
- 	.socketpair	   = sock_no_socketpair,
- 	.accept		   = inet_accept,
- 	.getname	   = inet_getname,	/* Semantics are different.  */
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1076,7 +1076,7 @@ out:
-  */
- static int __sctp_connect(struct sock *sk,
- 			  struct sockaddr *kaddrs,
--			  int addrs_size,
-+			  int addrs_size, int flags,
- 			  sctp_assoc_t *assoc_id)
- {
- 	struct net *net = sock_net(sk);
-@@ -1094,7 +1094,6 @@ static int __sctp_connect(struct sock *s
- 	union sctp_addr *sa_addr = NULL;
- 	void *addr_buf;
- 	unsigned short port;
--	unsigned int f_flags = 0;
- 
- 	sp = sctp_sk(sk);
- 	ep = sp->ep;
-@@ -1244,13 +1243,7 @@ static int __sctp_connect(struct sock *s
- 	sp->pf->to_sk_daddr(sa_addr, sk);
- 	sk->sk_err = 0;
- 
--	/* in-kernel sockets don't generally have a file allocated to them
--	 * if all they do is call sock_create_kern().
--	 */
--	if (sk->sk_socket->file)
--		f_flags = sk->sk_socket->file->f_flags;
--
--	timeo = sock_sndtimeo(sk, f_flags & O_NONBLOCK);
-+	timeo = sock_sndtimeo(sk, flags & O_NONBLOCK);
- 
- 	if (assoc_id)
- 		*assoc_id = asoc->assoc_id;
-@@ -1345,7 +1338,7 @@ static int __sctp_setsockopt_connectx(st
- {
- 	struct sockaddr *kaddrs;
- 	gfp_t gfp = GFP_KERNEL;
--	int err = 0;
-+	int err = 0, flags = 0;
- 
- 	pr_debug("%s: sk:%p addrs:%p addrs_size:%d\n",
- 		 __func__, sk, addrs, addrs_size);
-@@ -1365,11 +1358,18 @@ static int __sctp_setsockopt_connectx(st
- 		return -ENOMEM;
- 
- 	if (__copy_from_user(kaddrs, addrs, addrs_size)) {
--		err = -EFAULT;
--	} else {
--		err = __sctp_connect(sk, kaddrs, addrs_size, assoc_id);
-+		kfree(kaddrs);
-+		return -EFAULT;
- 	}
- 
-+	/* in-kernel sockets don't generally have a file allocated to them
-+	 * if all they do is call sock_create_kern().
-+	 */
-+	if (sk->sk_socket->file)
-+		flags = sk->sk_socket->file->f_flags;
-+
-+	err = __sctp_connect(sk, kaddrs, addrs_size, flags, assoc_id);
-+
- 	kfree(kaddrs);
- 
- 	return err;
-@@ -4166,16 +4166,26 @@ out_nounlock:
-  * len: the size of the address.
-  */
- static int sctp_connect(struct sock *sk, struct sockaddr *addr,
--			int addr_len)
-+			int addr_len, int flags)
- {
--	int err = 0;
-+	struct inet_sock *inet = inet_sk(sk);
- 	struct sctp_af *af;
-+	int err = 0;
- 
- 	lock_sock(sk);
- 
- 	pr_debug("%s: sk:%p, sockaddr:%p, addr_len:%d\n", __func__, sk,
- 		 addr, addr_len);
- 
-+	/* We may need to bind the socket. */
-+	if (!inet->inet_num) {
-+		if (sk->sk_prot->get_port(sk, 0)) {
-+			release_sock(sk);
-+			return -EAGAIN;
-+		}
-+		inet->inet_sport = htons(inet->inet_num);
-+	}
-+
- 	/* Validate addr_len before calling common connect/connectx routine. */
- 	af = sctp_get_af_specific(addr->sa_family);
- 	if (!af || addr_len < af->sockaddr_len) {
-@@ -4184,13 +4194,25 @@ static int sctp_connect(struct sock *sk,
- 		/* Pass correct addr len to common routine (so it knows there
- 		 * is only one address being passed.
- 		 */
--		err = __sctp_connect(sk, addr, af->sockaddr_len, NULL);
-+		err = __sctp_connect(sk, addr, af->sockaddr_len, flags, NULL);
- 	}
- 
- 	release_sock(sk);
- 	return err;
+diff --git a/sound/core/timer.c b/sound/core/timer.c
+index b50f7601cc2b0..161ab19cb7220 100644
+--- a/sound/core/timer.c
++++ b/sound/core/timer.c
+@@ -240,7 +240,8 @@ static int snd_timer_check_master(struct snd_timer_instance *master)
+ 	return 0;
  }
  
-+int sctp_inet_connect(struct socket *sock, struct sockaddr *uaddr,
-+		      int addr_len, int flags)
-+{
-+	if (addr_len < sizeof(uaddr->sa_family))
-+		return -EINVAL;
-+
-+	if (uaddr->sa_family == AF_UNSPEC)
-+		return -EOPNOTSUPP;
-+
-+	return sctp_connect(sock->sk, uaddr, addr_len, flags);
-+}
-+
- /* FIXME: Write comments. */
- static int sctp_disconnect(struct sock *sk, int flags)
+-static int snd_timer_close_locked(struct snd_timer_instance *timeri);
++static int snd_timer_close_locked(struct snd_timer_instance *timeri,
++				  struct device **card_devp_to_put);
+ 
+ /*
+  * open a timer instance
+@@ -252,6 +253,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
  {
-@@ -8298,7 +8320,6 @@ struct proto sctp_prot = {
- 	.name        =	"SCTP",
- 	.owner       =	THIS_MODULE,
- 	.close       =	sctp_close,
--	.connect     =	sctp_connect,
- 	.disconnect  =	sctp_disconnect,
- 	.accept      =	sctp_accept,
- 	.ioctl       =	sctp_ioctl,
-@@ -8337,7 +8358,6 @@ struct proto sctpv6_prot = {
- 	.name		= "SCTPv6",
- 	.owner		= THIS_MODULE,
- 	.close		= sctp_close,
--	.connect	= sctp_connect,
- 	.disconnect	= sctp_disconnect,
- 	.accept		= sctp_accept,
- 	.ioctl		= sctp_ioctl,
+ 	struct snd_timer *timer;
+ 	struct snd_timer_instance *timeri = NULL;
++	struct device *card_dev_to_put = NULL;
+ 	int err;
+ 
+ 	mutex_lock(&register_mutex);
+@@ -275,7 +277,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 		list_add_tail(&timeri->open_list, &snd_timer_slave_list);
+ 		err = snd_timer_check_slave(timeri);
+ 		if (err < 0) {
+-			snd_timer_close_locked(timeri);
++			snd_timer_close_locked(timeri, &card_dev_to_put);
+ 			timeri = NULL;
+ 		}
+ 		goto unlock;
+@@ -327,7 +329,7 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 			timeri = NULL;
+ 
+ 			if (timer->card)
+-				put_device(&timer->card->card_dev);
++				card_dev_to_put = &timer->card->card_dev;
+ 			module_put(timer->module);
+ 			goto unlock;
+ 		}
+@@ -337,12 +339,15 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 	timer->num_instances++;
+ 	err = snd_timer_check_master(timeri);
+ 	if (err < 0) {
+-		snd_timer_close_locked(timeri);
++		snd_timer_close_locked(timeri, &card_dev_to_put);
+ 		timeri = NULL;
+ 	}
+ 
+  unlock:
+ 	mutex_unlock(&register_mutex);
++	/* put_device() is called after unlock for avoiding deadlock */
++	if (card_dev_to_put)
++		put_device(card_dev_to_put);
+ 	*ti = timeri;
+ 	return err;
+ }
+@@ -352,7 +357,8 @@ EXPORT_SYMBOL(snd_timer_open);
+  * close a timer instance
+  * call this with register_mutex down.
+  */
+-static int snd_timer_close_locked(struct snd_timer_instance *timeri)
++static int snd_timer_close_locked(struct snd_timer_instance *timeri,
++				  struct device **card_devp_to_put)
+ {
+ 	struct snd_timer *timer = NULL;
+ 	struct snd_timer_instance *slave, *tmp;
+@@ -404,7 +410,7 @@ static int snd_timer_close_locked(struct snd_timer_instance *timeri)
+ 			timer->hw.close(timer);
+ 		/* release a card refcount for safe disconnection */
+ 		if (timer->card)
+-			put_device(&timer->card->card_dev);
++			*card_devp_to_put = &timer->card->card_dev;
+ 		module_put(timer->module);
+ 	}
+ 
+@@ -416,14 +422,18 @@ static int snd_timer_close_locked(struct snd_timer_instance *timeri)
+  */
+ int snd_timer_close(struct snd_timer_instance *timeri)
+ {
++	struct device *card_dev_to_put = NULL;
+ 	int err;
+ 
+ 	if (snd_BUG_ON(!timeri))
+ 		return -ENXIO;
+ 
+ 	mutex_lock(&register_mutex);
+-	err = snd_timer_close_locked(timeri);
++	err = snd_timer_close_locked(timeri, &card_dev_to_put);
+ 	mutex_unlock(&register_mutex);
++	/* put_device() is called after unlock for avoiding deadlock */
++	if (card_dev_to_put)
++		put_device(card_dev_to_put);
+ 	return err;
+ }
+ EXPORT_SYMBOL(snd_timer_close);
+-- 
+2.20.1
+
 
 
