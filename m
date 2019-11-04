@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45467EEEC3
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:17:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5B9EEEC5
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:17:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388806AbfKDWDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:03:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33626 "EHLO mail.kernel.org"
+        id S2389484AbfKDWDW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:03:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387970AbfKDWDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:03:19 -0500
+        id S2388642AbfKDWDV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:03:21 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 978162084D;
-        Mon,  4 Nov 2019 22:03:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A938E205C9;
+        Mon,  4 Nov 2019 22:03:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904997;
-        bh=UUWyLzojf/Zc9gwtlPTyBsk6pLDJ7tKQg7iqzvGhiO0=;
+        s=default; t=1572905000;
+        bh=SCz0+aVLOMLFT1rkoSyqH/2iP8sVq0FfewMa5fdSFeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9VB28x1qeah9FjNE19rZUOKIISuka37uhX5HNnZCSDwkpRiVMC92FAp2Q5XdPh/2
-         ORsWfiWzpcmO9+PNCSRXt5vnc2p9rW0rXF9x3fc23f7S9wlmiweAamYQSek/i5xHdF
-         09R/8j0FTDEpbCmmy3bjSceh6/L9/rkPbknq7aLI=
+        b=qPX3M2esQXqXXFZpbOQUPOGiV5O870oBv2vq5bmW83XwDujKZvBl1pXMC8i0taY2R
+         EwSSnV3LZ9XbtDfnHnAqhMYIU4WE/wcyhbYGhFUR11EYnIe9LY36RPlF7ZOGa015g9
+         YSeo/kjQf8ChsRmm67+z8o0ARDGB7gUiSgCPivko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 144/149] sch_netem: fix rcu splat in netem_enqueue()
-Date:   Mon,  4 Nov 2019 22:45:37 +0100
-Message-Id: <20191104212146.800662268@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 145/149] ALSA: timer: Simplify error path in snd_timer_open()
+Date:   Mon,  4 Nov 2019 22:45:38 +0100
+Message-Id: <20191104212146.866718521@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
 References: <20191104212126.090054740@linuxfoundation.org>
@@ -44,102 +43,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 159d2c7d8106177bd9a986fd005a311fe0d11285 upstream.
+[ Upstream commit 41672c0c24a62699d20aab53b98d843b16483053 ]
 
-qdisc_root() use from netem_enqueue() triggers a lockdep warning.
+Just a minor refactoring to use the standard goto for error paths in
+snd_timer_open() instead of open code.  The first mutex_lock() is
+moved to the beginning of the function to make the code clearer.
 
-__dev_queue_xmit() uses rcu_read_lock_bh() which is
-not equivalent to rcu_read_lock() + local_bh_disable_bh as far
-as lockdep is concerned.
-
-WARNING: suspicious RCU usage
-5.3.0-rc7+ #0 Not tainted
------------------------------
-include/net/sch_generic.h:492 suspicious rcu_dereference_check() usage!
-
-other info that might help us debug this:
-
-rcu_scheduler_active = 2, debug_locks = 1
-3 locks held by syz-executor427/8855:
- #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: lwtunnel_xmit_redirect include/net/lwtunnel.h:92 [inline]
- #0: 00000000b5525c01 (rcu_read_lock_bh){....}, at: ip_finish_output2+0x2dc/0x2570 net/ipv4/ip_output.c:214
- #1: 00000000b5525c01 (rcu_read_lock_bh){....}, at: __dev_queue_xmit+0x20a/0x3650 net/core/dev.c:3804
- #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: spin_lock include/linux/spinlock.h:338 [inline]
- #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_xmit_skb net/core/dev.c:3502 [inline]
- #2: 00000000364bae92 (&(&sch->q.lock)->rlock){+.-.}, at: __dev_queue_xmit+0x14b8/0x3650 net/core/dev.c:3838
-
-stack backtrace:
-CPU: 0 PID: 8855 Comm: syz-executor427 Not tainted 5.3.0-rc7+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- lockdep_rcu_suspicious+0x153/0x15d kernel/locking/lockdep.c:5357
- qdisc_root include/net/sch_generic.h:492 [inline]
- netem_enqueue+0x1cfb/0x2d80 net/sched/sch_netem.c:479
- __dev_xmit_skb net/core/dev.c:3527 [inline]
- __dev_queue_xmit+0x15d2/0x3650 net/core/dev.c:3838
- dev_queue_xmit+0x18/0x20 net/core/dev.c:3902
- neigh_hh_output include/net/neighbour.h:500 [inline]
- neigh_output include/net/neighbour.h:509 [inline]
- ip_finish_output2+0x1726/0x2570 net/ipv4/ip_output.c:228
- __ip_finish_output net/ipv4/ip_output.c:308 [inline]
- __ip_finish_output+0x5fc/0xb90 net/ipv4/ip_output.c:290
- ip_finish_output+0x38/0x1f0 net/ipv4/ip_output.c:318
- NF_HOOK_COND include/linux/netfilter.h:294 [inline]
- ip_mc_output+0x292/0xf40 net/ipv4/ip_output.c:417
- dst_output include/net/dst.h:436 [inline]
- ip_local_out+0xbb/0x190 net/ipv4/ip_output.c:125
- ip_send_skb+0x42/0xf0 net/ipv4/ip_output.c:1555
- udp_send_skb.isra.0+0x6b2/0x1160 net/ipv4/udp.c:887
- udp_sendmsg+0x1e96/0x2820 net/ipv4/udp.c:1174
- inet_sendmsg+0x9e/0xe0 net/ipv4/af_inet.c:807
- sock_sendmsg_nosec net/socket.c:637 [inline]
- sock_sendmsg+0xd7/0x130 net/socket.c:657
- ___sys_sendmsg+0x3e2/0x920 net/socket.c:2311
- __sys_sendmmsg+0x1bf/0x4d0 net/socket.c:2413
- __do_sys_sendmmsg net/socket.c:2442 [inline]
- __se_sys_sendmmsg net/socket.c:2439 [inline]
- __x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2439
- do_syscall_64+0xfd/0x6a0 arch/x86/entry/common.c:296
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h |    5 +++++
- net/sched/sch_netem.c     |    2 +-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ sound/core/timer.c | 39 ++++++++++++++++++++-------------------
+ 1 file changed, 20 insertions(+), 19 deletions(-)
 
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -421,6 +421,11 @@ static inline struct Qdisc *qdisc_root(c
- 	return q;
- }
+diff --git a/sound/core/timer.c b/sound/core/timer.c
+index 61a0cec6e1f66..316794eb44017 100644
+--- a/sound/core/timer.c
++++ b/sound/core/timer.c
+@@ -254,19 +254,20 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 	struct snd_timer_instance *timeri = NULL;
+ 	int err;
  
-+static inline struct Qdisc *qdisc_root_bh(const struct Qdisc *qdisc)
-+{
-+	return rcu_dereference_bh(qdisc->dev_queue->qdisc);
-+}
++	mutex_lock(&register_mutex);
+ 	if (tid->dev_class == SNDRV_TIMER_CLASS_SLAVE) {
+ 		/* open a slave instance */
+ 		if (tid->dev_sclass <= SNDRV_TIMER_SCLASS_NONE ||
+ 		    tid->dev_sclass > SNDRV_TIMER_SCLASS_OSS_SEQUENCER) {
+ 			pr_debug("ALSA: timer: invalid slave class %i\n",
+ 				 tid->dev_sclass);
+-			return -EINVAL;
++			err = -EINVAL;
++			goto unlock;
+ 		}
+-		mutex_lock(&register_mutex);
+ 		timeri = snd_timer_instance_new(owner, NULL);
+ 		if (!timeri) {
+-			mutex_unlock(&register_mutex);
+-			return -ENOMEM;
++			err = -ENOMEM;
++			goto unlock;
+ 		}
+ 		timeri->slave_class = tid->dev_sclass;
+ 		timeri->slave_id = tid->device;
+@@ -277,13 +278,10 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 			snd_timer_close_locked(timeri);
+ 			timeri = NULL;
+ 		}
+-		mutex_unlock(&register_mutex);
+-		*ti = timeri;
+-		return err;
++		goto unlock;
+ 	}
+ 
+ 	/* open a master instance */
+-	mutex_lock(&register_mutex);
+ 	timer = snd_timer_find(tid);
+ #ifdef CONFIG_MODULES
+ 	if (!timer) {
+@@ -294,25 +292,26 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 	}
+ #endif
+ 	if (!timer) {
+-		mutex_unlock(&register_mutex);
+-		return -ENODEV;
++		err = -ENODEV;
++		goto unlock;
+ 	}
+ 	if (!list_empty(&timer->open_list_head)) {
+ 		timeri = list_entry(timer->open_list_head.next,
+ 				    struct snd_timer_instance, open_list);
+ 		if (timeri->flags & SNDRV_TIMER_IFLG_EXCLUSIVE) {
+-			mutex_unlock(&register_mutex);
+-			return -EBUSY;
++			err = -EBUSY;
++			timeri = NULL;
++			goto unlock;
+ 		}
+ 	}
+ 	if (timer->num_instances >= timer->max_instances) {
+-		mutex_unlock(&register_mutex);
+-		return -EBUSY;
++		err = -EBUSY;
++		goto unlock;
+ 	}
+ 	timeri = snd_timer_instance_new(owner, timer);
+ 	if (!timeri) {
+-		mutex_unlock(&register_mutex);
+-		return -ENOMEM;
++		err = -ENOMEM;
++		goto unlock;
+ 	}
+ 	/* take a card refcount for safe disconnection */
+ 	if (timer->card)
+@@ -321,16 +320,16 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 	timeri->slave_id = slave_id;
+ 
+ 	if (list_empty(&timer->open_list_head) && timer->hw.open) {
+-		int err = timer->hw.open(timer);
++		err = timer->hw.open(timer);
+ 		if (err) {
+ 			kfree(timeri->owner);
+ 			kfree(timeri);
++			timeri = NULL;
+ 
+ 			if (timer->card)
+ 				put_device(&timer->card->card_dev);
+ 			module_put(timer->module);
+-			mutex_unlock(&register_mutex);
+-			return err;
++			goto unlock;
+ 		}
+ 	}
+ 
+@@ -341,6 +340,8 @@ int snd_timer_open(struct snd_timer_instance **ti,
+ 		snd_timer_close_locked(timeri);
+ 		timeri = NULL;
+ 	}
 +
- static inline struct Qdisc *qdisc_root_sleeping(const struct Qdisc *qdisc)
- {
- 	return qdisc->dev_queue->qdisc_sleeping;
---- a/net/sched/sch_netem.c
-+++ b/net/sched/sch_netem.c
-@@ -474,7 +474,7 @@ static int netem_enqueue(struct sk_buff
- 	 * skb will be queued.
- 	 */
- 	if (count > 1 && (skb2 = skb_clone(skb, GFP_ATOMIC)) != NULL) {
--		struct Qdisc *rootq = qdisc_root(sch);
-+		struct Qdisc *rootq = qdisc_root_bh(sch);
- 		u32 dupsave = q->duplicate; /* prevent duplicating a dup... */
- 
- 		q->duplicate = 0;
++ unlock:
+ 	mutex_unlock(&register_mutex);
+ 	*ti = timeri;
+ 	return err;
+-- 
+2.20.1
+
 
 
