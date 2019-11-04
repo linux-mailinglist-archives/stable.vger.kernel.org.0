@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A73FFEEEB6
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A0DEEEE2D
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388454AbfKDWQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:16:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34262 "EHLO mail.kernel.org"
+        id S2388431AbfKDWNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:13:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388847AbfKDWDr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:03:47 -0500
+        id S2389737AbfKDWKQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:10:16 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 986FC214D8;
-        Mon,  4 Nov 2019 22:03:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C96C20650;
+        Mon,  4 Nov 2019 22:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905027;
-        bh=b3/mqkS/ti/J3enHFmNvliOAXF3T37A5pGUcpZ2Tf6o=;
+        s=default; t=1572905415;
+        bh=pn2srYfvy9VzBDlTEG8iipOq6A4GH+NorzMhe9cGsPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Of3dmJ7LGmGluFhc4/RjNxLr5LTtLGU75su1Jimbst/XENaSiq3EIk2Ds2CNrK4Bs
-         c/G1E1s/4tkPalVfZWXvpXGfNA62eRd9kwIDt/OnLKTeV8FO52LkZO31nvmsKhyDvE
-         3sZr1VTDWndeqloeRWE1QxyhxCu6k99cOGBYcAVI=
+        b=03leRyNnfV7HZYgm8cyYHAiZR9zZjQfTvVxswxmWNL9WPBNxebbq+hbN9Brssz+aH
+         tAUTZKFAL5XALrUNm9MyXiZk/WYImyeSnBo0zgIuhUW+g1WsFS7wcD+JnPX6knR4FL
+         sxygT0NAfhxu/KkLKZzXGb4s1sNgyRw5aG8laKkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pelle van Gils <pelle@vangils.xyz>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.19 133/149] drm/amdgpu/powerplay/vega10: allow undervolting in p7
+        stable@vger.kernel.org,
+        Yegor Yefremov <yegorslists@googlemail.com>,
+        Tony Lindgren <tony@atomide.com>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.3 136/163] dmaengine: cppi41: Fix cppi41_dma_prep_slave_sg() when idle
 Date:   Mon,  4 Nov 2019 22:45:26 +0100
-Message-Id: <20191104212146.104726694@linuxfoundation.org>
+Message-Id: <20191104212150.203506300@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pelle van Gils <pelle@vangils.xyz>
+From: Tony Lindgren <tony@atomide.com>
 
-commit e6f4e274c1e52d1f0bfe293fb44ddf59de6c0374 upstream.
+commit bacdcb6675e170bb2e8d3824da220e10274f42a7 upstream.
 
-The vega10_odn_update_soc_table() function does not allow the SCLK
-dependent voltage to be set for power-state 7 to a value below the default
-in pptable. Change the for-loop condition to allow undervolting in the
-highest state.
+Yegor Yefremov <yegorslists@googlemail.com> reported that musb and ftdi
+uart can fail for the first open of the uart unless connected using
+a hub.
 
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=205277
-Signed-off-by: Pelle van Gils <pelle@vangils.xyz>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+This is because the first dma call done by musb_ep_program() must wait
+if cppi41 is PM runtime suspended. Otherwise musb_ep_program() continues
+with other non-dma packets before the DMA transfer is started causing at
+least ftdi uarts to fail to receive data.
+
+Let's fix the issue by waking up cppi41 with PM runtime calls added to
+cppi41_dma_prep_slave_sg() and return NULL if still idled. This way we
+have musb_ep_program() continue with PIO until cppi41 is awake.
+
+Fixes: fdea2d09b997 ("dmaengine: cppi41: Add basic PM runtime support")
+Reported-by: Yegor Yefremov <yegorslists@googlemail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Cc: stable@vger.kernel.org # v4.9+
+Link: https://lore.kernel.org/r/20191023153138.23442-1-tony@atomide.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/dma/ti/cppi41.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
-+++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
-@@ -4751,9 +4751,7 @@ static void vega10_odn_update_soc_table(
+--- a/drivers/dma/ti/cppi41.c
++++ b/drivers/dma/ti/cppi41.c
+@@ -586,9 +586,22 @@ static struct dma_async_tx_descriptor *c
+ 	enum dma_transfer_direction dir, unsigned long tx_flags, void *context)
+ {
+ 	struct cppi41_channel *c = to_cpp41_chan(chan);
++	struct dma_async_tx_descriptor *txd = NULL;
++	struct cppi41_dd *cdd = c->cdd;
+ 	struct cppi41_desc *d;
+ 	struct scatterlist *sg;
+ 	unsigned int i;
++	int error;
++
++	error = pm_runtime_get(cdd->ddev.dev);
++	if (error < 0) {
++		pm_runtime_put_noidle(cdd->ddev.dev);
++
++		return NULL;
++	}
++
++	if (cdd->is_suspended)
++		goto err_out_not_ready;
  
- 	if (type == PP_OD_EDIT_SCLK_VDDC_TABLE) {
- 		podn_vdd_dep = &data->odn_dpm_table.vdd_dep_on_sclk;
--		for (i = 0; i < podn_vdd_dep->count - 1; i++)
--			od_vddc_lookup_table->entries[i].us_vdd = podn_vdd_dep->entries[i].vddc;
--		if (od_vddc_lookup_table->entries[i].us_vdd < podn_vdd_dep->entries[i].vddc)
-+		for (i = 0; i < podn_vdd_dep->count; i++)
- 			od_vddc_lookup_table->entries[i].us_vdd = podn_vdd_dep->entries[i].vddc;
- 	} else if (type == PP_OD_EDIT_MCLK_VDDC_TABLE) {
- 		podn_vdd_dep = &data->odn_dpm_table.vdd_dep_on_mclk;
+ 	d = c->desc;
+ 	for_each_sg(sgl, sg, sg_len, i) {
+@@ -611,7 +624,13 @@ static struct dma_async_tx_descriptor *c
+ 		d++;
+ 	}
+ 
+-	return &c->txd;
++	txd = &c->txd;
++
++err_out_not_ready:
++	pm_runtime_mark_last_busy(cdd->ddev.dev);
++	pm_runtime_put_autosuspend(cdd->ddev.dev);
++
++	return txd;
+ }
+ 
+ static void cppi41_compute_td_desc(struct cppi41_desc *d)
 
 
