@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1CFEEC1F
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:54:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8037FEECA1
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387867AbfKDVyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:54:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48586 "EHLO mail.kernel.org"
+        id S1730948AbfKDV7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387840AbfKDVyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:54:08 -0500
+        id S1730912AbfKDV7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:01 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2097321D7D;
-        Mon,  4 Nov 2019 21:54:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 943FC20650;
+        Mon,  4 Nov 2019 21:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904447;
-        bh=uVUEaIgtXkaktg71hvaC0xNXR8j2WaCarC4cO9SaM/Y=;
+        s=default; t=1572904741;
+        bh=S+UP34fBgco5qEy2lVaj8NvPWE1I+JMG2cDvjgizkSY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w6q7xat92oqbX9DFLJGIkrMZ/Ue9bvgsRvod0IVk5JQFItLKJODJhdbcdMsqUOCLB
-         4UO49bVFhIwIFdq6AE/3ZWH9KYhe2orY6NeYWm1vabRB5eVqfrXnuzBJ/rDR/iJ9Bw
-         Bsx8+8z3VHN+CWARdVw+z+0epN1uL55kQhs8PPTM=
+        b=YBFq4uj4CHJAWB4oiJFrzo7wBpcA5xGBS/hx1G8EG/eO4poIsQlRz4xPj6cVWwip1
+         BXTGkG4R2RYBBOOlbGOxEIlMyoYxretsiD/Az3OU4jpSK/kw+SJauNflZIsICABux8
+         Zl9LxXSIHc3un36hb1Cl1wQt9BmgnF6WeHbYMWps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Elwell <phil@raspberrypi.org>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/95] sc16is7xx: Fix for "Unexpected interrupt: 8"
-Date:   Mon,  4 Nov 2019 22:44:06 +0100
-Message-Id: <20191104212042.457694965@linuxfoundation.org>
+Subject: [PATCH 4.19 054/149] net: dsa: mv88e6xxx: Release lock while requesting IRQ
+Date:   Mon,  4 Nov 2019 22:44:07 +0100
+Message-Id: <20191104212140.069744322@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,119 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.org>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit 30ec514d440cf2c472c8e4b0079af2c731f71a3e ]
+[ Upstream commit 342a0ee70acbee97fdeb91349420f8744eb291fb ]
 
-The SC16IS752 has an Enhanced Feature Register which is aliased at the
-same address as the Interrupt Identification Register; accessing it
-requires that a magic value is written to the Line Configuration
-Register. If an interrupt is raised while the EFR is mapped in then
-the ISR won't be able to access the IIR, leading to the "Unexpected
-interrupt" error messages.
+There is no need to hold the register lock while requesting the GPIO
+interrupt. By not holding it we can also avoid a false positive
+lockdep splat.
 
-Avoid the problem by claiming a mutex around accesses to the EFR
-register, also claiming the mutex in the interrupt handler work
-item (this is equivalent to disabling interrupts to interlock against
-a non-threaded interrupt handler).
-
-See: https://github.com/raspberrypi/linux/issues/2529
-
-Signed-off-by: Phil Elwell <phil@raspberrypi.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sc16is7xx.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ drivers/net/dsa/mv88e6xxx/chip.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/sc16is7xx.c b/drivers/tty/serial/sc16is7xx.c
-index e48523da47ac9..c1655aba131f6 100644
---- a/drivers/tty/serial/sc16is7xx.c
-+++ b/drivers/tty/serial/sc16is7xx.c
-@@ -333,6 +333,7 @@ struct sc16is7xx_port {
- 	struct kthread_worker		kworker;
- 	struct task_struct		*kworker_task;
- 	struct kthread_work		irq_work;
-+	struct mutex			efr_lock;
- 	struct sc16is7xx_one		p[0];
- };
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index 703e6bdaf0e1f..d075f0f7a3de8 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -456,10 +456,12 @@ static int mv88e6xxx_g1_irq_setup(struct mv88e6xxx_chip *chip)
+ 	 */
+ 	irq_set_lockdep_class(chip->irq, &lock_key, &request_key);
  
-@@ -504,6 +505,21 @@ static int sc16is7xx_set_baud(struct uart_port *port, int baud)
- 		div /= 4;
- 	}
++	mutex_unlock(&chip->reg_lock);
+ 	err = request_threaded_irq(chip->irq, NULL,
+ 				   mv88e6xxx_g1_irq_thread_fn,
+ 				   IRQF_ONESHOT,
+ 				   dev_name(chip->dev), chip);
++	mutex_lock(&chip->reg_lock);
+ 	if (err)
+ 		mv88e6xxx_g1_irq_free_common(chip);
  
-+	/* In an amazing feat of design, the Enhanced Features Register shares
-+	 * the address of the Interrupt Identification Register, and is
-+	 * switched in by writing a magic value (0xbf) to the Line Control
-+	 * Register. Any interrupt firing during this time will see the EFR
-+	 * where it expects the IIR to be, leading to "Unexpected interrupt"
-+	 * messages.
-+	 *
-+	 * Prevent this possibility by claiming a mutex while accessing the
-+	 * EFR, and claiming the same mutex from within the interrupt handler.
-+	 * This is similar to disabling the interrupt, but that doesn't work
-+	 * because the bulk of the interrupt processing is run as a workqueue
-+	 * job in thread context.
-+	 */
-+	mutex_lock(&s->efr_lock);
-+
- 	lcr = sc16is7xx_port_read(port, SC16IS7XX_LCR_REG);
- 
- 	/* Open the LCR divisors for configuration */
-@@ -519,6 +535,8 @@ static int sc16is7xx_set_baud(struct uart_port *port, int baud)
- 	/* Put LCR back to the normal mode */
- 	sc16is7xx_port_write(port, SC16IS7XX_LCR_REG, lcr);
- 
-+	mutex_unlock(&s->efr_lock);
-+
- 	sc16is7xx_port_update(port, SC16IS7XX_MCR_REG,
- 			      SC16IS7XX_MCR_CLKSEL_BIT,
- 			      prescaler);
-@@ -701,6 +719,8 @@ static void sc16is7xx_ist(struct kthread_work *ws)
- {
- 	struct sc16is7xx_port *s = to_sc16is7xx_port(ws, irq_work);
- 
-+	mutex_lock(&s->efr_lock);
-+
- 	while (1) {
- 		bool keep_polling = false;
- 		int i;
-@@ -710,6 +730,8 @@ static void sc16is7xx_ist(struct kthread_work *ws)
- 		if (!keep_polling)
- 			break;
- 	}
-+
-+	mutex_unlock(&s->efr_lock);
- }
- 
- static irqreturn_t sc16is7xx_irq(int irq, void *dev_id)
-@@ -904,6 +926,9 @@ static void sc16is7xx_set_termios(struct uart_port *port,
- 	if (!(termios->c_cflag & CREAD))
- 		port->ignore_status_mask |= SC16IS7XX_LSR_BRK_ERROR_MASK;
- 
-+	/* As above, claim the mutex while accessing the EFR. */
-+	mutex_lock(&s->efr_lock);
-+
- 	sc16is7xx_port_write(port, SC16IS7XX_LCR_REG,
- 			     SC16IS7XX_LCR_CONF_MODE_B);
- 
-@@ -925,6 +950,8 @@ static void sc16is7xx_set_termios(struct uart_port *port,
- 	/* Update LCR register */
- 	sc16is7xx_port_write(port, SC16IS7XX_LCR_REG, lcr);
- 
-+	mutex_unlock(&s->efr_lock);
-+
- 	/* Get baud rate generator configuration */
- 	baud = uart_get_baud_rate(port, termios, old,
- 				  port->uartclk / 16 / 4 / 0xffff,
-@@ -1187,6 +1214,7 @@ static int sc16is7xx_probe(struct device *dev,
- 	s->regmap = regmap;
- 	s->devtype = devtype;
- 	dev_set_drvdata(dev, s);
-+	mutex_init(&s->efr_lock);
- 
- 	kthread_init_worker(&s->kworker);
- 	kthread_init_work(&s->irq_work, sc16is7xx_ist);
 -- 
 2.20.1
 
