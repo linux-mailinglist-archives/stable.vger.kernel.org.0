@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3935CEED9A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:08:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0307EEFD2
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390202AbfKDWIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:08:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41104 "EHLO mail.kernel.org"
+        id S1730958AbfKDVxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:53:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389799AbfKDWIP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:08:15 -0500
+        id S1730951AbfKDVxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:53:20 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C03C2084D;
-        Mon,  4 Nov 2019 22:08:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 06E0A2053B;
+        Mon,  4 Nov 2019 21:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905295;
-        bh=d/6zc+tZJQ0l59lFjH5IKUXNkBz2OQ9GKqznhzOEnoA=;
+        s=default; t=1572904399;
+        bh=g+wi91HW9+cZs9M5/NkuPzE5YUQtA1qquDKeM0/R1KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IQKQH2l+S5EDi9t+QnEQh4khUtUuLH8aPn6yUqEZRPP1VOPefiq4NIZKgmYh4hFqb
-         MCvCsUQSIc7Kf68JNQhIVZFIApEyajy0nyNq4T+R59SFZFygDY0ILHyyDshmsYjgii
-         L9AEkZ7L0QQuPMntDO0VUVwxvRMh1aZ58oudHzcI=
+        b=kyJCpkgtACcte+yUHHQSWJkI7giNr5GvNGiDU7ErAYzNUA9LQdNnLFqP4zWO8C4gP
+         6q8YjpKkSLw3uHxbjOcfRX14ofx8bRd6xFF0YGR/W7N6jNDDzduhtDCcksL5TM1IBh
+         01IZUox1GKuKZzvzA75LIN/ZR982mOsUXN6ojgw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 054/163] riscv: avoid kernel hangs when trapped in BUG()
+Subject: [PATCH 4.14 06/95] f2fs: flush quota blocks after turnning it off
 Date:   Mon,  4 Nov 2019 22:44:04 +0100
-Message-Id: <20191104212144.063503330@linuxfoundation.org>
+Message-Id: <20191104212040.828524358@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincent.chen@sifive.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 8b04825ed205da38754f86f4c07ea8600d8c2a65 ]
+[ Upstream commit 0e0667b625cf64243df83171bff61f9d350b9ca5 ]
 
-When the CONFIG_GENERIC_BUG is disabled by disabling CONFIG_BUG, if a
-kernel thread is trapped by BUG(), the whole system will be in the
-loop that infinitely handles the ebreak exception instead of entering the
-die function. To fix this problem, the do_trap_break() will always call
-the die() to deal with the break exception as the type of break is
-BUG_TRAP_TYPE_BUG.
+After quota_off, we'll get some dirty blocks. If put_super don't have a chance
+to flush them by checkpoint, it causes NULL pointer exception in end_io after
+iput(node_inode). (e.g., by checkpoint=disable)
 
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/f2fs/super.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 424eb72d56b10..055a937aca70a 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -124,23 +124,23 @@ static inline unsigned long get_break_insn_length(unsigned long pc)
- 
- asmlinkage void do_trap_break(struct pt_regs *regs)
- {
--#ifdef CONFIG_GENERIC_BUG
- 	if (!user_mode(regs)) {
- 		enum bug_trap_type type;
- 
- 		type = report_bug(regs->sepc, regs);
- 		switch (type) {
-+#ifdef CONFIG_GENERIC_BUG
- 		case BUG_TRAP_TYPE_NONE:
- 			break;
- 		case BUG_TRAP_TYPE_WARN:
- 			regs->sepc += get_break_insn_length(regs->sepc);
- 			break;
- 		case BUG_TRAP_TYPE_BUG:
-+#endif /* CONFIG_GENERIC_BUG */
-+		default:
- 			die(regs, "Kernel BUG");
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index e70975ca723b7..0f3209b23c940 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1523,6 +1523,12 @@ void f2fs_quota_off_umount(struct super_block *sb)
+ 			set_sbi_flag(F2FS_SB(sb), SBI_NEED_FSCK);
  		}
  	}
--#endif /* CONFIG_GENERIC_BUG */
--
- 	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)(regs->sepc));
++	/*
++	 * In case of checkpoint=disable, we must flush quota blocks.
++	 * This can cause NULL exception for node_inode in end_io, since
++	 * put_super already dropped it.
++	 */
++	sync_filesystem(sb);
  }
  
+ int f2fs_get_projid(struct inode *inode, kprojid_t *projid)
 -- 
 2.20.1
 
