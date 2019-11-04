@@ -2,95 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D28BCEE0BE
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 14:12:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFB9EE0CF
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 14:14:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728138AbfKDNMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 08:12:02 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:37378 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727236AbfKDNMB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 08:12:01 -0500
-Received: from DGGEMS407-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 8F5C42910DE0A13ECD44;
-        Mon,  4 Nov 2019 21:11:59 +0800 (CST)
-Received: from [127.0.0.1] (10.177.223.23) by DGGEMS407-HUB.china.huawei.com
- (10.3.19.207) with Microsoft SMTP Server id 14.3.439.0; Mon, 4 Nov 2019
- 21:11:49 +0800
-Subject: Re: stable-rc-4.19: cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
- undeclared
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, <suzuki.poulose@arm.com>,
-        <catalin.marinas@arm.com>, <john.garry@huawei.com>,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        <zhangshaokun@hisilicon.com>, <lkft-triage@lists.linaro.org>,
-        <andrew.murray@arm.com>, <will@kernel.org>,
-        Dave P Martin <Dave.Martin@arm.com>,
-        <linux-arm-kernel@lists.infradead.org>
-References: <CA+G9fYtoODTuayzXdsv=bFuRPvw1-+dmZxHqQePy6LX8ixOG5A@mail.gmail.com>
- <98f10e13-8ec8-1690-a867-f212bcea969f@huawei.com>
- <20191104105910.GB1945210@kroah.com>
-From:   Hanjun Guo <guohanjun@huawei.com>
-Message-ID: <b4249354-a84e-73c8-ae76-81306301b1c1@huawei.com>
-Date:   Mon, 4 Nov 2019 21:11:12 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.5.0
+        id S1727444AbfKDNOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 08:14:53 -0500
+Received: from mail-lf1-f53.google.com ([209.85.167.53]:38248 "EHLO
+        mail-lf1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727499AbfKDNOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 08:14:53 -0500
+Received: by mail-lf1-f53.google.com with SMTP id q28so12231291lfa.5
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 05:14:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=WMEf75w9oTagZRQTZzN7l66ng3i5+ieYjRbW8mGQvLE=;
+        b=lagxcqO9BFG+5tBBWGjO/MIu8tH/fFE9Gxtrjq2WCr7OSpNkq9wThHjLZtIaP/Z3/d
+         llCbpUKdJhZWEogUhme8/naioG5rI2AAMpsqphTfKmtvPvLF71r5wTq53R8Jm6SJagjn
+         ZV3+KfhiQOeWSz5zXnjT1qzsUg8Y+bcyc6BiMXJrdaa+i0Ws2VtGKLUu3u4y9Ldgf4mR
+         rPgBcWVJ2SszHsiFx26VFlwiecPFrb8b5yn3G8FPMl+PMrgHu2WIL9slyliZGjMnxeSX
+         TRGmRmfPZTIvNLyLOIb0N/2PIZLCBYpo2WHhrXi3hqrwBXKYvspCj/n0pKn844SCh3Be
+         NBEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=WMEf75w9oTagZRQTZzN7l66ng3i5+ieYjRbW8mGQvLE=;
+        b=SopOOWmHYIOmzTK/ZC/5Int1o31hJ/9GmMqwrKeuvBu4BGdP0nHppqIQQ/V4dE9+a1
+         7kY8lKg8yR6CFxWq4tNS9m3+XXkFrHkxfOsiAyZLW0QlM2KWUlGZ3D9n0pwLMQ5eQzje
+         iA4AwegM9ds/K4cfAI3OxniWHvC7IOe37uqBlntzCB4nMQWAZyZfXtvEwlfI2IA3jWM2
+         gqFC9eKisRJcq2c8hjYfFwWxLht8KBf98fnuzKZ2M/4+oloHlMDBnljS4ygENH4CRhFl
+         y7m7kgMppKa0L7GUXSoxvrJfVpJCsQiVKPjDfwZDOX1m04NWhVvq3ZZgsdlJctfP6yfs
+         Mgxw==
+X-Gm-Message-State: APjAAAXwqS/ZPHditAhiJn8ogwmBWomlNqeiFmMMj37rC36nTwD2/33J
+        V8GthvlDNJEVw9fOFWlS+xhx/ha6LAmZDx6kvWfakg==
+X-Google-Smtp-Source: APXvYqyXlHJrIntltQv8i8RV7fF+BbSZCuGIhS2LO0/Un8NILT1G3+ClWfvxx+fQbF2wluVplwQyGzi4uJCkpuEw9Jw=
+X-Received: by 2002:a19:f811:: with SMTP id a17mr16390181lff.132.1572873290596;
+ Mon, 04 Nov 2019 05:14:50 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191104105910.GB1945210@kroah.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.177.223.23]
-X-CFilter-Loop: Reflected
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 4 Nov 2019 18:44:39 +0530
+Message-ID: <CA+G9fYsnRVisD=ZvuoM2FViRkXDcm_n0hZ1cceUSM=XtqJRHgQ@mail.gmail.com>
+Subject: stable-rc 4.14 : net/ipv6/addrconf.c:6593:22: error:
+ 'blackhole_netdev' undeclared
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux- stable <stable@vger.kernel.org>
+Cc:     kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org,
+        lkft-triage@lists.linaro.org,
+        "David S. Miller" <davem@davemloft.net>,
+        open list <linux-kernel@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019/11/4 18:59, Greg Kroah-Hartman wrote:
-> On Mon, Nov 04, 2019 at 09:10:06AM +0800, Hanjun Guo wrote:
->> Hi Sasha, Greg,
->>
->> On 2019/11/4 7:22, Naresh Kamboju wrote:
->>> stable rc 4.19  branch build broken for arm64 with the below error log,
->>>
->>> Build error log,
->>> arch/arm64/kernel/cpufeature.c: In function 'unmap_kernel_at_el0':
->>> arch/arm64/kernel/cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
->>> undeclared (first use in this function); did you mean
->>> 'GICR_ISACTIVER0'?
->>>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
->>>                     ^
->>> arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
->>> 'MIDR_RANGE'
->>>   .model = m,     \
->>>            ^
->>> arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
->>> 'MIDR_ALL_VERSIONS'
->>>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
->>>   ^~~~~~~~~~~~~~~~~
->>> arch/arm64/kernel/cpufeature.c:909:21: note: each undeclared
->>> identifier is reported only once for each function it appears in
->>>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
->>>                     ^
->>> arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
->>> 'MIDR_RANGE'
->>>   .model = m,     \
->>>            ^
->>> arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
->>> 'MIDR_ALL_VERSIONS'
->>>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
->>
->> Patch "efd00c7 arm64: Add MIDR encoding for HiSilicon Taishan CPUs" needs to
->> be bacported as well, would you like me to do that, or just cherry-pick by yourself?
-> 
-> I need the backport please, cherry-pick fails :(
+stable-rc 4.14 for architectures arm64, arm, x86_64 and i386 builds
+failed due to below error,
 
-I will send it out later.
+net/ipv6/addrconf.c: In function 'addrconf_init':
+net/ipv6/addrconf.c:6593:22: error: 'blackhole_netdev' undeclared
+(first use in this function); did you mean 'alloc_netdev'?
+  bdev = ipv6_add_dev(blackhole_netdev);
+                      ^~~~~~~~~~~~~~~~
+                      alloc_netdev
+net/ipv6/addrconf.c:6593:22: note: each undeclared identifier is
+reported only once for each function it appears in
+net/ipv6/addrconf.c: In function 'addrconf_cleanup':
+net/ipv6/addrconf.c:6667:18: error: 'blackhole_netdev' undeclared
+(first use in this function); did you mean 'alloc_netdev'?
+  addrconf_ifdown(blackhole_netdev, 2);
+                  ^~~~~~~~~~~~~~~~
+                  alloc_netdev
 
-Thanks
-Hanjun
+Build link,
+https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.14/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/632/consoleText
 
+- Naresh
