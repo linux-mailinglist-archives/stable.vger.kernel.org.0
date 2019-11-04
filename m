@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FDDDEF05B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A33F8EEE65
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387607AbfKDVuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:50:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41928 "EHLO mail.kernel.org"
+        id S2389650AbfKDWHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:07:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387599AbfKDVuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:50:06 -0500
+        id S2389454AbfKDWHV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:07:21 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24ED320B7C;
-        Mon,  4 Nov 2019 21:50:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 265392084D;
+        Mon,  4 Nov 2019 22:07:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904204;
-        bh=5p8OVfnFcBszbZl/65GzMwIS2WYbazKg8XcG7P8B1gs=;
+        s=default; t=1572905240;
+        bh=ILWaVFAbM7pu+olaK2zDZOwCaPUffqfJMirgEEEL1/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUN3IOKpBpmWPUleVibSZ/jzMGYLnWaA3q5tBwIsY1g/69/Jrd3WUyADCxoBqSFoD
-         /xjI/umbansKBin+ffBk/hY0kXAhhjcS9mJIq3LV8lS5EaJ62UjsfsQMG2EH+/0ibu
-         vPb/MD4lDWPfU8oo+QPSONXFRDyNbjGEvRWg36EY=
+        b=ckM8W2+7SteDDjgBu4QH6CYTPEpSxknOcrRZDv3Xe6IXIrkyfjbWwwmLHtUx+IWRc
+         AdtGm9ENiZZyhccS98DjLAGTfVqFj/RrOY+2mGPPBMpkuM0G3QmRyVWooNVt0uwR1h
+         89Jk8UN8/YSw90r33pDeyjgq1CNRDEJE5P9GgoUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/62] dm: Use kzalloc for all structs with embedded biosets/mempools
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Marc Hartmayer <mhartmay@linux.ibm.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 076/163] s390/cio: fix virtio-ccw DMA without PV
 Date:   Mon,  4 Nov 2019 22:44:26 +0100
-Message-Id: <20191104211906.868583856@linuxfoundation.org>
+Message-Id: <20191104212145.658884661@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +49,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kent Overstreet <kent.overstreet@gmail.com>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit d377535405686f735b90a8ad4ba269484cd7c96e ]
+[ Upstream commit 05668e1d74b84c53fbe0f28565e4c9502a6b8a67 ]
 
-mempool_init()/bioset_init() require that the mempools/biosets be zeroed
-first; they probably should not _require_ this, but not allocating those
-structs with kzalloc is a fairly nonsensical thing to do (calling
-mempool_exit()/bioset_exit() on an uninitialized mempool/bioset is legal
-and safe, but only works if said memory was zeroed.)
+Commit 37db8985b211 ("s390/cio: add basic protected virtualization
+support") breaks virtio-ccw devices with VIRTIO_F_IOMMU_PLATFORM for non
+Protected Virtualization (PV) guests. The problem is that the dma_mask
+of the ccw device, which is used by virtio core, gets changed from 64 to
+31 bit, because some of the DMA allocations do require 31 bit
+addressable memory. For PV the only drawback is that some of the virtio
+structures must end up in ZONE_DMA because we have the bounce the
+buffers mapped via DMA API anyway.
 
-Acked-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+But for non PV guests we have a problem: because of the 31 bit mask
+guests bigger than 2G are likely to try bouncing buffers. The swiotlb
+however is only initialized for PV guests, because we don't want to
+bounce anything for non PV guests. The first such map kills the guest.
+
+Since the DMA API won't allow us to specify for each allocation whether
+we need memory from ZONE_DMA (31 bit addressable) or any DMA capable
+memory will do, let us use coherent_dma_mask (which is used for
+allocations) to force allocating form ZONE_DMA while changing dma_mask
+to DMA_BIT_MASK(64) so that at least the streaming API will regard
+the whole memory DMA capable.
+
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Marc Hartmayer <mhartmay@linux.ibm.com>
+Suggested-by: Robin Murphy <robin.murphy@arm.com>
+Fixes: 37db8985b211 ("s390/cio: add basic protected virtualization support")
+Link: https://lore.kernel.org/lkml/20190930153803.7958-1-pasic@linux.ibm.com
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-bio-prison.c  | 2 +-
- drivers/md/dm-io.c          | 2 +-
- drivers/md/dm-kcopyd.c      | 2 +-
- drivers/md/dm-region-hash.c | 2 +-
- drivers/md/dm-snap.c        | 2 +-
- drivers/md/dm-thin.c        | 2 +-
- 6 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/s390/cio/cio.h    | 1 +
+ drivers/s390/cio/css.c    | 7 ++++++-
+ drivers/s390/cio/device.c | 2 +-
+ 3 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/dm-bio-prison.c b/drivers/md/dm-bio-prison.c
-index 03af174485d30..fa2432a89bace 100644
---- a/drivers/md/dm-bio-prison.c
-+++ b/drivers/md/dm-bio-prison.c
-@@ -32,7 +32,7 @@ static struct kmem_cache *_cell_cache;
-  */
- struct dm_bio_prison *dm_bio_prison_create(void)
- {
--	struct dm_bio_prison *prison = kmalloc(sizeof(*prison), GFP_KERNEL);
-+	struct dm_bio_prison *prison = kzalloc(sizeof(*prison), GFP_KERNEL);
+diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
+index ba7d2480613b9..dcdaba689b20c 100644
+--- a/drivers/s390/cio/cio.h
++++ b/drivers/s390/cio/cio.h
+@@ -113,6 +113,7 @@ struct subchannel {
+ 	enum sch_todo todo;
+ 	struct work_struct todo_work;
+ 	struct schib_config config;
++	u64 dma_mask;
+ 	char *driver_override; /* Driver name to force a match */
+ } __attribute__ ((aligned(8)));
  
- 	if (!prison)
- 		return NULL;
-diff --git a/drivers/md/dm-io.c b/drivers/md/dm-io.c
-index ee6045d6c0bb3..201d90f5d1b3b 100644
---- a/drivers/md/dm-io.c
-+++ b/drivers/md/dm-io.c
-@@ -50,7 +50,7 @@ struct dm_io_client *dm_io_client_create(void)
- 	struct dm_io_client *client;
- 	unsigned min_ios = dm_get_reserved_bio_based_ios();
+diff --git a/drivers/s390/cio/css.c b/drivers/s390/cio/css.c
+index 1fbfb0a93f5f1..831850435c23b 100644
+--- a/drivers/s390/cio/css.c
++++ b/drivers/s390/cio/css.c
+@@ -232,7 +232,12 @@ struct subchannel *css_alloc_subchannel(struct subchannel_id schid,
+ 	 * belong to a subchannel need to fit 31 bit width (e.g. ccw).
+ 	 */
+ 	sch->dev.coherent_dma_mask = DMA_BIT_MASK(31);
+-	sch->dev.dma_mask = &sch->dev.coherent_dma_mask;
++	/*
++	 * But we don't have such restrictions imposed on the stuff that
++	 * is handled by the streaming API.
++	 */
++	sch->dma_mask = DMA_BIT_MASK(64);
++	sch->dev.dma_mask = &sch->dma_mask;
+ 	return sch;
  
--	client = kmalloc(sizeof(*client), GFP_KERNEL);
-+	client = kzalloc(sizeof(*client), GFP_KERNEL);
- 	if (!client)
- 		return ERR_PTR(-ENOMEM);
- 
-diff --git a/drivers/md/dm-kcopyd.c b/drivers/md/dm-kcopyd.c
-index e0cfde3501e0d..4609c5b481e23 100644
---- a/drivers/md/dm-kcopyd.c
-+++ b/drivers/md/dm-kcopyd.c
-@@ -828,7 +828,7 @@ struct dm_kcopyd_client *dm_kcopyd_client_create(struct dm_kcopyd_throttle *thro
- 	int r = -ENOMEM;
- 	struct dm_kcopyd_client *kc;
- 
--	kc = kmalloc(sizeof(*kc), GFP_KERNEL);
-+	kc = kzalloc(sizeof(*kc), GFP_KERNEL);
- 	if (!kc)
- 		return ERR_PTR(-ENOMEM);
- 
-diff --git a/drivers/md/dm-region-hash.c b/drivers/md/dm-region-hash.c
-index 85c32b22a420a..91c6f6d72eeec 100644
---- a/drivers/md/dm-region-hash.c
-+++ b/drivers/md/dm-region-hash.c
-@@ -179,7 +179,7 @@ struct dm_region_hash *dm_region_hash_create(
- 		;
- 	nr_buckets >>= 1;
- 
--	rh = kmalloc(sizeof(*rh), GFP_KERNEL);
-+	rh = kzalloc(sizeof(*rh), GFP_KERNEL);
- 	if (!rh) {
- 		DMERR("unable to allocate region hash memory");
- 		return ERR_PTR(-ENOMEM);
-diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
-index cf2f44e500e24..c04d9f22d1607 100644
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -1136,7 +1136,7 @@ static int snapshot_ctr(struct dm_target *ti, unsigned int argc, char **argv)
- 		origin_mode = FMODE_WRITE;
- 	}
- 
--	s = kmalloc(sizeof(*s), GFP_KERNEL);
-+	s = kzalloc(sizeof(*s), GFP_KERNEL);
- 	if (!s) {
- 		ti->error = "Cannot allocate private snapshot structure";
- 		r = -ENOMEM;
-diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
-index 23a7e108352aa..dcb753dbf86e2 100644
---- a/drivers/md/dm-thin.c
-+++ b/drivers/md/dm-thin.c
-@@ -2965,7 +2965,7 @@ static struct pool *pool_create(struct mapped_device *pool_md,
- 		return (struct pool *)pmd;
- 	}
- 
--	pool = kmalloc(sizeof(*pool), GFP_KERNEL);
-+	pool = kzalloc(sizeof(*pool), GFP_KERNEL);
- 	if (!pool) {
- 		*error = "Error allocating memory for pool";
- 		err_p = ERR_PTR(-ENOMEM);
+ err:
+diff --git a/drivers/s390/cio/device.c b/drivers/s390/cio/device.c
+index c421899be20f2..027ef1dde5a7a 100644
+--- a/drivers/s390/cio/device.c
++++ b/drivers/s390/cio/device.c
+@@ -710,7 +710,7 @@ static struct ccw_device * io_subchannel_allocate_dev(struct subchannel *sch)
+ 	if (!cdev->private)
+ 		goto err_priv;
+ 	cdev->dev.coherent_dma_mask = sch->dev.coherent_dma_mask;
+-	cdev->dev.dma_mask = &cdev->dev.coherent_dma_mask;
++	cdev->dev.dma_mask = sch->dev.dma_mask;
+ 	dma_pool = cio_gp_dma_create(&cdev->dev, 1);
+ 	if (!dma_pool)
+ 		goto err_dma_pool;
 -- 
 2.20.1
 
