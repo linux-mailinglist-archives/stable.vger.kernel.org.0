@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9489EF05C
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10C0AEEE68
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387622AbfKDVuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:50:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42092 "EHLO mail.kernel.org"
+        id S2389699AbfKDWH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:07:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387617AbfKDVuJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:50:09 -0500
+        id S2389476AbfKDWH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:07:27 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F32432184C;
-        Mon,  4 Nov 2019 21:50:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A0072084D;
+        Mon,  4 Nov 2019 22:07:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904209;
-        bh=NwcaHzqZ1lU4FzfoWU8IZZNT9FuebeODGEm+5dugqd8=;
+        s=default; t=1572905246;
+        bh=o8P20wrNaZNXOqJF+YTebFW1ptiMmPp0UsImFpua9LQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WEbbrvoQ67Y8bTuT5P5vK3y7jsFJKo3hEPAqEtxuFyLuDOeWoTnSa+se6cQqZCtoB
-         q3jisuOzFAwEXoTffw4aC8/mmY6LzeRzjxweSArgEaFkywNGDc19uLNQrWHD2I82sV
-         zQ5dHdPm6wpOmk0Jz4XFcp7VcgQPyWizG39rafq0=
+        b=uvQKfs9vczTwIDyAmhZmVkzvKI6wRw76+FWsT2WfeXlTtqm+c3sTkjoow47HbhrkL
+         wusXtAYNHLghAAmZwSAFtKWwrKNnHhC6oXLKiuFRD8oPHVeqNbZ8oQSCkOl6E4OaGH
+         bJlz5WXC+Fdgnzbk0STyq5MZ5maskytgjc3K7fkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Aldridge <taldridge@mac.com>,
-        Julian Sax <jsbc@gmx.de>, Jiri Kosina <jkosina@suse.cz>,
+        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Xiubo Li <xiubli@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 06/62] HID: i2c-hid: add Direkt-Tek DTLAPY133-1 to descriptor override
+Subject: [PATCH 5.3 078/163] nbd: fix possible sysfs duplicate warning
 Date:   Mon,  4 Nov 2019 22:44:28 +0100
-Message-Id: <20191104211908.226542840@linuxfoundation.org>
+Message-Id: <20191104212145.976797456@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sax <jsbc@gmx.de>
+From: Xiubo Li <xiubli@redhat.com>
 
-[ Upstream commit 399474e4c1100bca264ed14fa3ad0d68fab484d8 ]
+[ Upstream commit 862488105b84ca744b3d8ff131e0fcfe10644be1 ]
 
-This device uses the SIPODEV SP1064 touchpad, which does not
-supply descriptors, so it has to be added to the override list.
+1. nbd_put takes the mutex and drops nbd->ref to 0. It then does
+idr_remove and drops the mutex.
 
-Reported-by: Tim Aldridge <taldridge@mac.com>
-Signed-off-by: Julian Sax <jsbc@gmx.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+2. nbd_genl_connect takes the mutex. idr_find/idr_for_each fails
+to find an existing device, so it does nbd_dev_add.
+
+3. just before the nbd_put could call nbd_dev_remove or not finished
+totally, but if nbd_dev_add try to add_disk, we can hit:
+
+debugfs: Directory 'nbd1' with parent 'block' already present!
+
+This patch will make sure all the disk add/remove stuff are done
+by holding the nbd_index_mutex lock.
+
+Reported-by: Mike Christie <mchristi@redhat.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/block/nbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index cac262a912c12..89f2976f9c534 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -330,6 +330,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Direkt-Tek DTLAPY133-1",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Direkt-Tek"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "DTLAPY133-1"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{
- 		.ident = "Mediacom Flexbook Edge 11",
- 		.matches = {
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 0b727f7432f9e..bd164192045b0 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -230,8 +230,8 @@ static void nbd_put(struct nbd_device *nbd)
+ 	if (refcount_dec_and_mutex_lock(&nbd->refs,
+ 					&nbd_index_mutex)) {
+ 		idr_remove(&nbd_index_idr, nbd->index);
+-		mutex_unlock(&nbd_index_mutex);
+ 		nbd_dev_remove(nbd);
++		mutex_unlock(&nbd_index_mutex);
+ 	}
+ }
+ 
 -- 
 2.20.1
 
