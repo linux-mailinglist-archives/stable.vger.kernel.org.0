@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAABCEF08B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:29:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74EE1EEED1
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:17:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729800AbfKDVrv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:47:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37470 "EHLO mail.kernel.org"
+        id S2388099AbfKDWCr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:02:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729775AbfKDVrv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:47:51 -0500
+        id S2388532AbfKDWCp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:02:45 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A8CB20869;
-        Mon,  4 Nov 2019 21:47:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BCF520650;
+        Mon,  4 Nov 2019 22:02:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904070;
-        bh=NbW4pyrujrDlr8pQUBXCEo4GhfvTIkKR090Vqwr3XBc=;
+        s=default; t=1572904965;
+        bh=2wCmBqoCUtQczstuSu+E79NktzrLM54hbOybIdGj5sM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mv6Sh8p27K5xfvGCtpXK0WHWWHIQMIUnpae6eVvtg1IwAy65gKWL8zKWlqTO2WwcF
-         WbrU2cE7j1b+I1nEwVASBif1jtpo2U5YYcNAeEhds/oZn35kyozyUXCgdpdZIq0s4s
-         28PHTvne7NZH5r5Scmv9auzFfZn1rMHFPKvZOeaw=
+        b=DrH/liCp+pYwYsY0inVkZspEPCgEEBXIbOy0FjtzT+Z6qAToJ4adq5xBuunp5zQYc
+         Gkqp7BmeBU6nRDIHXfvuAf2nMeo3AxU68lfwZQPktvqmqZdUVDtGjegWPSfycALleM
+         x93W+ZRc/XXJ2g9hke8wGU42VYWPoSh/dLZyTQUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pascal Bouwmann <bouwmann@tau-tec.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 10/46] iio: fix center temperature of bmc150-accel-core
-Date:   Mon,  4 Nov 2019 22:44:41 +0100
-Message-Id: <20191104211840.937685272@linuxfoundation.org>
+        stable@vger.kernel.org, Yunfeng Ye <yeyunfeng@huawei.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 089/149] arm64: armv8_deprecated: Checking return value for memory allocation
+Date:   Mon,  4 Nov 2019 22:44:42 +0100
+Message-Id: <20191104212142.735331194@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pascal Bouwmann <bouwmann@tau-tec.de>
+From: Yunfeng Ye <yeyunfeng@huawei.com>
 
-[ Upstream commit 6c59a962e081df6d8fe43325bbfabec57e0d4751 ]
+[ Upstream commit 3e7c93bd04edfb0cae7dad1215544c9350254b8f ]
 
-The center temperature of the supported devices stored in the constant
-BMC150_ACCEL_TEMP_CENTER_VAL is not 24 degrees but 23 degrees.
+There are no return value checking when using kzalloc() and kcalloc() for
+memory allocation. so add it.
 
-It seems that some datasheets were inconsistent on this value leading
-to the error.  For most usecases will only make minor difference so
-not queued for stable.
-
-Signed-off-by: Pascal Bouwmann <bouwmann@tau-tec.de>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Yunfeng Ye <yeyunfeng@huawei.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/bmc150-accel-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/kernel/armv8_deprecated.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/iio/accel/bmc150-accel-core.c b/drivers/iio/accel/bmc150-accel-core.c
-index c7122919a8c0e..ec7ddf8673497 100644
---- a/drivers/iio/accel/bmc150-accel-core.c
-+++ b/drivers/iio/accel/bmc150-accel-core.c
-@@ -126,7 +126,7 @@
- #define BMC150_ACCEL_SLEEP_1_SEC		0x0F
+diff --git a/arch/arm64/kernel/armv8_deprecated.c b/arch/arm64/kernel/armv8_deprecated.c
+index 92be1d12d5908..39dc98dd78ebf 100644
+--- a/arch/arm64/kernel/armv8_deprecated.c
++++ b/arch/arm64/kernel/armv8_deprecated.c
+@@ -177,6 +177,9 @@ static void __init register_insn_emulation(struct insn_emulation_ops *ops)
+ 	struct insn_emulation *insn;
  
- #define BMC150_ACCEL_REG_TEMP			0x08
--#define BMC150_ACCEL_TEMP_CENTER_VAL		24
-+#define BMC150_ACCEL_TEMP_CENTER_VAL		23
+ 	insn = kzalloc(sizeof(*insn), GFP_KERNEL);
++	if (!insn)
++		return;
++
+ 	insn->ops = ops;
+ 	insn->min = INSN_UNDEF;
  
- #define BMC150_ACCEL_AXIS_TO_REG(axis)	(BMC150_ACCEL_REG_XOUT_L + (axis * 2))
- #define BMC150_AUTO_SUSPEND_DELAY_MS		2000
+@@ -236,6 +239,8 @@ static void __init register_insn_emulation_sysctl(void)
+ 
+ 	insns_sysctl = kcalloc(nr_insn_emulated + 1, sizeof(*sysctl),
+ 			       GFP_KERNEL);
++	if (!insns_sysctl)
++		return;
+ 
+ 	raw_spin_lock_irqsave(&insn_emulation_lock, flags);
+ 	list_for_each_entry(insn, &insn_emulation, node) {
 -- 
 2.20.1
 
