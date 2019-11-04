@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C495EEFFF
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 174A3EEE28
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730669AbfKDVwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:52:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45316 "EHLO mail.kernel.org"
+        id S2389413AbfKDWNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:13:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730221AbfKDVwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:52:05 -0500
+        id S2388431AbfKDWKW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:10:22 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4413C21D7F;
-        Mon,  4 Nov 2019 21:52:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D6EA20650;
+        Mon,  4 Nov 2019 22:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904324;
-        bh=mYd5k0bcAslfQXtqRzDxbAAlG4fVKFpnhVJcJBQUoz0=;
+        s=default; t=1572905421;
+        bh=kiqSDfakghTbJOA43TAye7jS9c+JcWR0lr5s80yto1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNsaJ2CixmvmkaflWuOF60LoD7peX22r/IbTpX/6vCuvi5zQvhSnM92W8F4/DbH4m
-         3tNk7VcgdRgf00uo5DaDbqJ+E9DpohWWtIHZDGiEkEuBV8DsYUgdwqjn0wfueCm+of
-         JRadf+iZLpM3dEcZ32pnYUuYIysiuMAwDlF7tj+Y=
+        b=dVh8mZlyXtZgNPzygQ+Qn/Dxx05cqad2JdOCq3ZdrpDpGzhGtsKLmiQRR68GwDmx5
+         CdsoX414MGZTj43idQbuW61cKXxso63yV+QinwbSploneYiboeuF0VyFQULta0atVr
+         mveDUO2rCVh0soibbTiOpI41OMjQmlvyI7v0rH3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 25/62] fs: ocfs2: fix a possible null-pointer dereference in ocfs2_write_end_nolock()
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.3 097/163] ALSA: bebob: Fix prototype of helper function to return negative value
 Date:   Mon,  4 Nov 2019 22:44:47 +0100
-Message-Id: <20191104211924.179336931@linuxfoundation.org>
+Message-Id: <20191104212147.127226477@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,59 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 583fee3e12df0e6f1f66f063b989d8e7fed0e65a ]
+commit f2bbdbcb075f3977a53da3bdcb7cd460bc8ae5f2 upstream.
 
-In ocfs2_write_end_nolock(), there are an if statement on lines 1976,
-2047 and 2058, to check whether handle is NULL:
+A helper function of ALSA bebob driver returns negative value in a
+function which has a prototype to return unsigned value.
 
-    if (handle)
+This commit fixes it by changing the prototype.
 
-When handle is NULL, it is used on line 2045:
+Fixes: eb7b3a056cd8 ("ALSA: bebob: Add commands and connections/streams management")
+Cc: <stable@vger.kernel.org> # v3.16+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191026030620.12077-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-	ocfs2_update_inode_fsync_trans(handle, inode, 1);
-        oi->i_sync_tid = handle->h_transaction->t_tid;
-
-Thus, a possible null-pointer dereference may occur.
-
-To fix this bug, handle is checked before calling
-ocfs2_update_inode_fsync_trans().
-
-This bug is found by a static analysis tool STCheck written by us.
-
-Link: http://lkml.kernel.org/r/20190726033705.32307-1-baijiaju1990@gmail.com
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/aops.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/firewire/bebob/bebob_stream.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index 7c20a23c0ed7d..6ad76397b31de 100644
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -2046,7 +2046,8 @@ out_write_size:
- 		inode->i_mtime = inode->i_ctime = current_time(inode);
- 		di->i_mtime = di->i_ctime = cpu_to_le64(inode->i_mtime.tv_sec);
- 		di->i_mtime_nsec = di->i_ctime_nsec = cpu_to_le32(inode->i_mtime.tv_nsec);
--		ocfs2_update_inode_fsync_trans(handle, inode, 1);
-+		if (handle)
-+			ocfs2_update_inode_fsync_trans(handle, inode, 1);
- 	}
- 	if (handle)
- 		ocfs2_journal_dirty(handle, wc->w_di_bh);
--- 
-2.20.1
-
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -252,8 +252,7 @@ end:
+ 	return err;
+ }
+ 
+-static unsigned int
+-map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
++static int map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
+ {
+ 	unsigned int sec, sections, ch, channels;
+ 	unsigned int pcm, midi, location;
 
 
