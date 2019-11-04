@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B2FEEBD3
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:51:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48EC9EEBD6
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:51:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730470AbfKDVvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:51:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
+        id S1730496AbfKDVvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:51:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730046AbfKDVvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:51:17 -0500
+        id S1730480AbfKDVvW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:22 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56415217F4;
-        Mon,  4 Nov 2019 21:51:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36BE0217F4;
+        Mon,  4 Nov 2019 21:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904276;
-        bh=QMUjP7/xk8cI4iGd54vDyzBBl3zgStXVnzmzUoipMP4=;
+        s=default; t=1572904281;
+        bh=GlhZ2HzOLMzQhFoybuhn7NpPMhBIK64mRol5aXbkL/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hy0bT+9IrrJgzT2RXhTNI0gp+DyekdObsfk9/ZR5OSj0bBw62ZI73lvGzJX/PiLFg
-         SIeqCEtiCvav9inPdcMaZbMFrK6ZEr/iqR0I+A7wyzYbpAvGIAIkNKqsY/VAURf7J3
-         m3jGIgUIbQ9UQcaC017KddA8a0GbgFjDzR43rALA=
+        b=b/KVFWXAS58Gxq3oTynLLMsFr/7SbAPpmoOdrlgJAZojuvBUMBAJ1yL3p4gN44kjm
+         jP2j2BshAqKoXz8r8VIyHWOFoQqSH8ooY9eDBwvrE3LDiHg9Y81k/zQZ/Wonlpyc2/
+         X+CURBS3VDHD7d/8rNFt2Vbmm4aU4pioglWQnX2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.9 47/62] nl80211: fix validation of mesh path nexthop
-Date:   Mon,  4 Nov 2019 22:45:09 +0100
-Message-Id: <20191104211949.807075592@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
+        Laura Abbott <labbott@redhat.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.9 49/62] rtlwifi: Fix potential overflow on P2P code
+Date:   Mon,  4 Nov 2019 22:45:11 +0100
+Message-Id: <20191104211951.566497653@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
 References: <20191104211901.387893698@linuxfoundation.org>
@@ -43,35 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markus Theil <markus.theil@tu-ilmenau.de>
+From: Laura Abbott <labbott@redhat.com>
 
-commit 1fab1b89e2e8f01204a9c05a39fd0b6411a48593 upstream.
+commit 8c55dedb795be8ec0cf488f98c03a1c2176f7fb1 upstream.
 
-Mesh path nexthop should be a ethernet address, but current validation
-checks against 4 byte integers.
+Nicolas Waisman noticed that even though noa_len is checked for
+a compatible length it's still possible to overrun the buffers
+of p2pinfo since there's no check on the upper bound of noa_num.
+Bound noa_num against P2P_MAX_NOA_NUM.
 
-Cc: stable@vger.kernel.org
-Fixes: 2ec600d672e74 ("nl80211/cfg80211: support for mesh, sta dumping")
-Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
-Link: https://lore.kernel.org/r/20191029093003.10355-1-markus.theil@tu-ilmenau.de
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+Acked-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/wireless/nl80211.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/ps.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -295,7 +295,8 @@ static const struct nla_policy nl80211_p
- 	[NL80211_ATTR_MNTR_FLAGS] = { /* NLA_NESTED can't be empty */ },
- 	[NL80211_ATTR_MESH_ID] = { .type = NLA_BINARY,
- 				   .len = IEEE80211_MAX_MESH_ID_LEN },
--	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_U32 },
-+	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_BINARY,
-+					  .len = ETH_ALEN },
- 
- 	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
- 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
+--- a/drivers/net/wireless/realtek/rtlwifi/ps.c
++++ b/drivers/net/wireless/realtek/rtlwifi/ps.c
+@@ -770,6 +770,9 @@ static void rtl_p2p_noa_ie(struct ieee80
+ 				return;
+ 			} else {
+ 				noa_num = (noa_len - 2) / 13;
++				if (noa_num > P2P_MAX_NOA_NUM)
++					noa_num = P2P_MAX_NOA_NUM;
++
+ 			}
+ 			noa_index = ie[3];
+ 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
+@@ -864,6 +867,9 @@ static void rtl_p2p_action_ie(struct iee
+ 				return;
+ 			} else {
+ 				noa_num = (noa_len - 2) / 13;
++				if (noa_num > P2P_MAX_NOA_NUM)
++					noa_num = P2P_MAX_NOA_NUM;
++
+ 			}
+ 			noa_index = ie[3];
+ 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
 
 
