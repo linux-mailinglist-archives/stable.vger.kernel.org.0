@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5A8EEFFA
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A7C7EEF3E
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388285AbfKDWYs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:24:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45904 "EHLO mail.kernel.org"
+        id S2387679AbfKDV7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56484 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730727AbfKDVw0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:52:26 -0500
+        id S1731089AbfKDV7U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:20 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8963A218BA;
-        Mon,  4 Nov 2019 21:52:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BB2520659;
+        Mon,  4 Nov 2019 21:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904346;
-        bh=pmfg6LHYW/5retXYbGcvyYYHCQHShynOoxt3PYSYyg8=;
+        s=default; t=1572904759;
+        bh=zR7PEpWo1SHxfPoogzU2Cy0kOuipPdgvp9JuFhSZZqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wqdsb7fFlEUefPTDZln27eI8Z1tiCmxQT5eF5ZufymvOKoPHHdqpk+rb14qkj+bcg
-         Wv4a8QG+UhFWD57MzjFS1UZriHVIzTLCEPhMHY0UOOoHQ+ozwXVC1MVqROT1s12OyN
-         +3B5xpbR7xT2fTBA+Ir7cJqi1zp25dlKMJo+RAfc=
+        b=Jy9uumJgMAbiQfa7pafR54nnsFJUaOM9LJ6jMGuxxMbCzqco4hpAJ4tGDNP0vUVBU
+         /UiV/Vmm74NI6mNXqR2owEEPh7F3Nmfq5mi+jX/l/m2NYjk8jfhlufVu8ALlGUO3Pq
+         OmE8+htznrs/z2dzl7GQJXYLAQQKO866t7H2WrRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, NOGUCHI Hiroshi <drvlabo@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/95] HID: Add ASUS T100CHI keyboard dock battery quirks
+        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 060/149] libsubcmd: Make _FORTIFY_SOURCE defines dependent on the feature
 Date:   Mon,  4 Nov 2019 22:44:13 +0100
-Message-Id: <20191104212045.008895309@linuxfoundation.org>
+Message-Id: <20191104212140.899265038@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +50,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NOGUCHI Hiroshi <drvlabo@gmail.com>
+From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit a767ffea05d2737f6542cd78458a84a157fa216d ]
+[ Upstream commit 4b0b2b096da9d296e0e5668cdfba8613bd6f5bc8 ]
 
-Add ASUS Transbook T100CHI/T90CHI keyboard dock into battery quirk list, in
-order to add specific implementation in hid-asus.
+Unconditionally defining _FORTIFY_SOURCE can break tools that don't work
+with it, such as memory sanitizers:
 
-Signed-off-by: NOGUCHI Hiroshi <drvlabo@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+  https://github.com/google/sanitizers/wiki/AddressSanitizer#faq
+
+Fixes: 4b6ab94eabe4 ("perf subcmd: Create subcmd library")
+Signed-off-by: Ian Rogers <irogers@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Link: http://lore.kernel.org/lkml/20190925195924.152834-1-irogers@google.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/lib/subcmd/Makefile | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index d723185de3ba2..9d24fb0715ba3 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -328,6 +328,9 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SYMBOL,
- 		USB_DEVICE_ID_SYMBOL_SCANNER_3),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_ASUSTEK,
-+		USB_DEVICE_ID_ASUSTEK_T100CHI_KEYBOARD),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{}
- };
+diff --git a/tools/lib/subcmd/Makefile b/tools/lib/subcmd/Makefile
+index ed61fb3a46c08..5b2cd5e58df09 100644
+--- a/tools/lib/subcmd/Makefile
++++ b/tools/lib/subcmd/Makefile
+@@ -20,7 +20,13 @@ MAKEFLAGS += --no-print-directory
+ LIBFILE = $(OUTPUT)libsubcmd.a
  
+ CFLAGS := $(EXTRA_WARNINGS) $(EXTRA_CFLAGS)
+-CFLAGS += -ggdb3 -Wall -Wextra -std=gnu99 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fPIC
++CFLAGS += -ggdb3 -Wall -Wextra -std=gnu99 -fPIC
++
++ifeq ($(DEBUG),0)
++  ifeq ($(feature-fortify-source), 1)
++    CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
++  endif
++endif
+ 
+ ifeq ($(CC_NO_CLANG), 0)
+   CFLAGS += -O3
 -- 
 2.20.1
 
