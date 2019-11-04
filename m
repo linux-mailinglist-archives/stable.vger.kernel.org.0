@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63ED3EEC75
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:57:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F5F4EEC73
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:57:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388533AbfKDV5I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:57:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53088 "EHLO mail.kernel.org"
+        id S2388545AbfKDV5O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:57:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388530AbfKDV5H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:57:07 -0500
+        id S2388538AbfKDV5K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:57:10 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85739217F4;
-        Mon,  4 Nov 2019 21:57:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 963D0217F4;
+        Mon,  4 Nov 2019 21:57:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904627;
-        bh=iSuchusAehub8/OSSTazSzsq4ZRiyFsHmrWUsdoSclw=;
+        s=default; t=1572904630;
+        bh=NwcaHzqZ1lU4FzfoWU8IZZNT9FuebeODGEm+5dugqd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xV/GsrQcLXPNOmZUOtLOj4io+851Q6b1wQjSOSjvQ2FKKJ6yugUm5Z1CfgLZubB4u
-         LpSEXA+zUHCbPk/YWyUvxAQlW20ipXagnpIf5NyZeDgHfJfYOSneoiXtD3pdqETEmz
-         arPtUuQ9FAZkPzj/pHCbvEPo9AN/R89ieAqt87zY=
+        b=rZ8cRv09M9//W8ASuaKn/GT5QOtAdp/t440iIWmWXUSBnyjNiJ/U46rEdEXvxsM75
+         prqy8YaPIC33Kcf4Zdbj9VGnmTjzS8eMUOHleBHolJriFTxO25RAVAt3v+TIRWTK+L
+         nPRJ2YuIcqLa2Z8wdJYaocVR9ZPQ91uU8iYgFOng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Tim Aldridge <taldridge@mac.com>,
+        Julian Sax <jsbc@gmx.de>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 014/149] f2fs: fix to recover inode->i_flags of inode block during POR
-Date:   Mon,  4 Nov 2019 22:43:27 +0100
-Message-Id: <20191104212133.874700194@linuxfoundation.org>
+Subject: [PATCH 4.19 015/149] HID: i2c-hid: add Direkt-Tek DTLAPY133-1 to descriptor override
+Date:   Mon,  4 Nov 2019 22:43:28 +0100
+Message-Id: <20191104212134.305946124@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
 References: <20191104212126.090054740@linuxfoundation.org>
@@ -44,49 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Julian Sax <jsbc@gmx.de>
 
-[ Upstream commit 0c093b590efb5c1ccdc835868dc2ae94bd2e14dc ]
+[ Upstream commit 399474e4c1100bca264ed14fa3ad0d68fab484d8 ]
 
-Testcase to reproduce this bug:
-1. mkfs.f2fs /dev/sdd
-2. mount -t f2fs /dev/sdd /mnt/f2fs
-3. touch /mnt/f2fs/file
-4. sync
-5. chattr +a /mnt/f2fs/file
-6. xfs_io -a /mnt/f2fs/file -c "fsync"
-7. godown /mnt/f2fs
-8. umount /mnt/f2fs
-9. mount -t f2fs /dev/sdd /mnt/f2fs
-10. xfs_io /mnt/f2fs/file
+This device uses the SIPODEV SP1064 touchpad, which does not
+supply descriptors, so it has to be added to the override list.
 
-There is no error when opening this file w/o O_APPEND, but actually,
-we expect the correct result should be:
-
-/mnt/f2fs/file: Operation not permitted
-
-The root cause is, in recover_inode(), we recover inode->i_flags more
-than F2FS_I(inode)->i_flags, so fix it.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Tim Aldridge <taldridge@mac.com>
+Signed-off-by: Julian Sax <jsbc@gmx.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/recovery.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
-index 281ba46b5b359..2c3be4c3c626f 100644
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -226,6 +226,7 @@ static void recover_inode(struct inode *inode, struct page *page)
- 
- 	F2FS_I(inode)->i_advise = raw->i_advise;
- 	F2FS_I(inode)->i_flags = le32_to_cpu(raw->i_flags);
-+	f2fs_set_inode_flags(inode);
- 	F2FS_I(inode)->i_gc_failures[GC_FAILURE_PIN] =
- 				le16_to_cpu(raw->i_gc_failures);
- 
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index cac262a912c12..89f2976f9c534 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -330,6 +330,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Direkt-Tek DTLAPY133-1",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Direkt-Tek"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "DTLAPY133-1"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{
+ 		.ident = "Mediacom Flexbook Edge 11",
+ 		.matches = {
 -- 
 2.20.1
 
