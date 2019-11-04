@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56F0FEF084
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 97629EEF09
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730033AbfKDVsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:48:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39050 "EHLO mail.kernel.org"
+        id S2389089AbfKDWSl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:18:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730050AbfKDVsb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:31 -0500
+        id S2389040AbfKDWBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:01:24 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91A6A20B7C;
-        Mon,  4 Nov 2019 21:48:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B779E20650;
+        Mon,  4 Nov 2019 22:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904111;
-        bh=AyFqGUoXh6s5I7sdo/tb/0ayBl0NfBQWuYu8UjpaQ80=;
+        s=default; t=1572904883;
+        bh=+RXZgY1pNTGvQ+1526ck6j6FRsdHz9lJ0dRvajUZKyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgfhaczboml1arNycT4S4rBbqx5g0sn9XFnQZNnOXatrrPqv4fHd4Am6rZkXWUufG
-         GUCFULmOFNvELe+zRZqopqupRZARZQQnoYwNRazi7eRk/GtNJPdNk6bjF8P9cSwgzC
-         qUKiaZS/DdgBHBfh4z54Ok7lGFYQgFiYN4orovH8=
+        b=1JGx/ZJh2uRWpTWn8xoRchMQ1jJnQ7l40mhwUCRgtjMyk7In55fTGBYzadBk9hsLe
+         fUrz0rYVTci9RlrDYzaN0YQ1W1odfKoQ7j35PY5WIEzTGxMHJX+vqKWjlXetZXCr2L
+         3VXPvQOp3mU3CoDnDUNMGCnKKjH7rLEYkvCH17DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.4 26/46] fuse: truncate pending writes on O_TRUNC
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 104/149] iwlwifi: exclude GEO SAR support for 3168
 Date:   Mon,  4 Nov 2019 22:44:57 +0100
-Message-Id: <20191104211859.052628308@linuxfoundation.org>
+Message-Id: <20191104212143.753643439@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-commit e4648309b85a78f8c787457832269a8712a8673e upstream.
+[ Upstream commit 12e36d98d3e5acf5fc57774e0a15906d55f30cb9 ]
 
-Make sure cached writes are not reordered around open(..., O_TRUNC), with
-the obvious wrong results.
+We currently support two NICs in FW version 29, namely 7265D and 3168.
+Out of these, only 7265D supports GEO SAR, so adjust the function that
+checks for it accordingly.
 
-Fixes: 4d99ff8f12eb ("fuse: Turn writeback cache on")
-Cc: <stable@vger.kernel.org> # v3.15+
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: f5a47fae6aa3 ("iwlwifi: mvm: fix version check for GEO_TX_POWER_LIMIT support")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/file.c |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -201,7 +201,7 @@ int fuse_open_common(struct inode *inode
- {
- 	struct fuse_conn *fc = get_fuse_conn(inode);
- 	int err;
--	bool lock_inode = (file->f_flags & O_TRUNC) &&
-+	bool is_wb_truncate = (file->f_flags & O_TRUNC) &&
- 			  fc->atomic_o_trunc &&
- 			  fc->writeback_cache;
- 
-@@ -209,16 +209,20 @@ int fuse_open_common(struct inode *inode
- 	if (err)
- 		return err;
- 
--	if (lock_inode)
-+	if (is_wb_truncate) {
- 		mutex_lock(&inode->i_mutex);
-+		fuse_set_nowrite(inode);
-+	}
- 
- 	err = fuse_do_open(fc, get_node_id(inode), file, isdir);
- 
- 	if (!err)
- 		fuse_finish_open(inode, file);
- 
--	if (lock_inode)
-+	if (is_wb_truncate) {
-+		fuse_release_nowrite(inode);
- 		mutex_unlock(&inode->i_mutex);
-+	}
- 
- 	return err;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 9cb9f0544c9b1..2eba6d6f367f8 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -843,15 +843,17 @@ static bool iwl_mvm_sar_geo_support(struct iwl_mvm *mvm)
+ 	 * firmware versions.  Unfortunately, we don't have a TLV API
+ 	 * flag to rely on, so rely on the major version which is in
+ 	 * the first byte of ucode_ver.  This was implemented
+-	 * initially on version 38 and then backported to29 and 17.
+-	 * The intention was to have it in 36 as well, but not all
+-	 * 8000 family got this feature enabled.  The 8000 family is
+-	 * the only one using version 36, so skip this version
+-	 * entirely.
++	 * initially on version 38 and then backported to 17.  It was
++	 * also backported to 29, but only for 7265D devices.  The
++	 * intention was to have it in 36 as well, but not all 8000
++	 * family got this feature enabled.  The 8000 family is the
++	 * only one using version 36, so skip this version entirely.
+ 	 */
+ 	return IWL_UCODE_SERIAL(mvm->fw->ucode_ver) >= 38 ||
+-	       IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 29 ||
+-	       IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 17;
++	       IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 17 ||
++	       (IWL_UCODE_SERIAL(mvm->fw->ucode_ver) == 29 &&
++		((mvm->trans->hw_rev & CSR_HW_REV_TYPE_MSK) ==
++		 CSR_HW_REV_TYPE_7265D));
  }
+ 
+ int iwl_mvm_get_sar_geo_profile(struct iwl_mvm *mvm)
+-- 
+2.20.1
+
 
 
