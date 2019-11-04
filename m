@@ -2,55 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E77D0EEF40
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66493EED72
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388124AbfKDV70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:59:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56584 "EHLO mail.kernel.org"
+        id S2389589AbfKDWGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:06:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388044AbfKDV7Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:59:25 -0500
+        id S2389069AbfKDWGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:06:50 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4492217F5;
-        Mon,  4 Nov 2019 21:59:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2E3D21D71;
+        Mon,  4 Nov 2019 22:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904764;
-        bh=CijPseug8WjvqSM9u163BFI5BKbNbejSayzarGviZq0=;
+        s=default; t=1572905209;
+        bh=NynUHA4qevW95zKm+h3K9YX279or91FM4C/MRJ+5jkI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EnwW2OdxQZP3bATwVc2JUnLuzgzZ1jFPjGqGK4hXOrH7gVtkdkTNpJZSacGlnAI+c
-         mPwX711fBTDdQ4o/uTO41lhyIF5+OFZvrKnnOlvW2yByE4N4avgUKMmrcdIP8vowL1
-         3Iqm6ErmuYrmSbOknmeHP5ELJ79glUiFMPSeaJtA=
+        b=zuz8B4qJhICFmXIc51xB7+GtOlnxMVTwlS06rLk+msKIB5LmV7R3YSkj2wUdEZzJk
+         atFGiINUQRBQP7sEnCxpIMT6KgjPkPxb9WOR04hPSnEvyiX53eAngUarwjo84+8TwH
+         vdEPcG/FElaWQrczpKFdmAIbg9fe21APu4zZQKVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steve MacLean <Steve.MacLean@Microsoft.com>,
-        Brian Robbins <brianrob@microsoft.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        John Keeping <john@metanate.com>,
-        John Salem <josalem@microsoft.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tom McDonald <thomas.mcdonald@microsoft.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 062/149] perf map: Fix overlapped map handling
-Date:   Mon,  4 Nov 2019 22:44:15 +0100
-Message-Id: <20191104212141.108569610@linuxfoundation.org>
+        stable@vger.kernel.org, Frederic Weisbecker <frederic@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Rik van Riel <riel@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 066/163] sched/vtime: Fix guest/system mis-accounting on task switch
+Date:   Mon,  4 Nov 2019 22:44:16 +0100
+Message-Id: <20191104212144.767062618@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,118 +48,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve MacLean <Steve.MacLean@microsoft.com>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit ee212d6ea20887c0ef352be8563ca13dbf965906 ]
+[ Upstream commit 68e7a4d66b0ce04bf18ff2ffded5596ab3618585 ]
 
-Whenever an mmap/mmap2 event occurs, the map tree must be updated to add a new
-entry. If a new map overlaps a previous map, the overlapped section of the
-previous map is effectively unmapped, but the non-overlapping sections are
-still valid.
+vtime_account_system() assumes that the target task to account cputime
+to is always the current task. This is most often true indeed except on
+task switch where we call:
 
-maps__fixup_overlappings() is responsible for creating any new map entries from
-the previously overlapped map. It optionally creates a before and an after map.
+	vtime_common_task_switch(prev)
+		vtime_account_system(prev)
 
-When creating the after map the existing code failed to adjust the map.pgoff.
-This meant the new after map would incorrectly calculate the file offset
-for the ip. This results in incorrect symbol name resolution for any ip in the
-after region.
+Here prev is the scheduling-out task where we account the cputime to. It
+doesn't match current that is already the scheduling-in task at this
+stage of the context switch.
 
-Make maps__fixup_overlappings() correctly populate map.pgoff.
+So we end up checking the wrong task flags to determine if we are
+accounting guest or system time to the previous task.
 
-Add an assert that new mapping matches old mapping at the beginning of
-the after map.
+As a result the wrong task is used to check if the target is running in
+guest mode. We may then spuriously account or leak either system or
+guest time on task switch.
 
-Committer-testing:
+Fix this assumption and also turn vtime_guest_enter/exit() to use the
+task passed in parameter as well to avoid future similar issues.
 
-Validated correct parsing of libcoreclr.so symbols from .NET Core 3.0 preview9
-(which didn't strip symbols).
-
-Preparation:
-
-  ~/dotnet3.0-preview9/dotnet new webapi -o perfSymbol
-  cd perfSymbol
-  ~/dotnet3.0-preview9/dotnet publish
-  perf record ~/dotnet3.0-preview9/dotnet \
-      bin/Debug/netcoreapp3.0/publish/perfSymbol.dll
-  ^C
-
-Before:
-
-  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
-     grep libcoreclr.so | head -n 4
-        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
-            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.705249:     250000 cpu-clock: \
-             7fe6159a1f99 [unknown] \
-             (.../3.0.0-preview9-19423-09/libcoreclr.so)
-
-After:
-
-  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
-     grep libcoreclr.so | head -n 4
-        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
-            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-
-All the [unknown] symbols were resolved.
-
-Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
-Tested-by: Brian Robbins <brianrob@microsoft.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: John Keeping <john@metanate.com>
-Cc: John Salem <josalem@microsoft.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
-Link: http://lore.kernel.org/lkml/BN8PR21MB136270949F22A6A02335C238F7800@BN8PR21MB1362.namprd21.prod.outlook.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Rik van Riel <riel@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Wanpeng Li <wanpengli@tencent.com>
+Fixes: 2a42eb9594a1 ("sched/cputime: Accumulate vtime on top of nsec clocksource")
+Link: https://lkml.kernel.org/r/20190925214242.21873-1-frederic@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/map.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/sched/cputime.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
-index 6a6929f208b4d..1117ab86ebd34 100644
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- #include "symbol.h"
-+#include <assert.h>
- #include <errno.h>
- #include <inttypes.h>
- #include <limits.h>
-@@ -751,6 +752,8 @@ static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp
- 			}
+diff --git a/kernel/sched/cputime.c b/kernel/sched/cputime.c
+index 2305ce89a26cf..46ed4e1383e21 100644
+--- a/kernel/sched/cputime.c
++++ b/kernel/sched/cputime.c
+@@ -740,7 +740,7 @@ void vtime_account_system(struct task_struct *tsk)
  
- 			after->start = map->end;
-+			after->pgoff += map->end - pos->start;
-+			assert(pos->map_ip(pos, map->end) == after->map_ip(after, map->end));
- 			__map_groups__insert(pos->groups, after);
- 			if (verbose >= 2 && !use_browser)
- 				map__fprintf(after, fp);
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	/* We might have scheduled out from guest path */
+-	if (current->flags & PF_VCPU)
++	if (tsk->flags & PF_VCPU)
+ 		vtime_account_guest(tsk, vtime);
+ 	else
+ 		__vtime_account_system(tsk, vtime);
+@@ -783,7 +783,7 @@ void vtime_guest_enter(struct task_struct *tsk)
+ 	 */
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	__vtime_account_system(tsk, vtime);
+-	current->flags |= PF_VCPU;
++	tsk->flags |= PF_VCPU;
+ 	write_seqcount_end(&vtime->seqcount);
+ }
+ EXPORT_SYMBOL_GPL(vtime_guest_enter);
+@@ -794,7 +794,7 @@ void vtime_guest_exit(struct task_struct *tsk)
+ 
+ 	write_seqcount_begin(&vtime->seqcount);
+ 	vtime_account_guest(tsk, vtime);
+-	current->flags &= ~PF_VCPU;
++	tsk->flags &= ~PF_VCPU;
+ 	write_seqcount_end(&vtime->seqcount);
+ }
+ EXPORT_SYMBOL_GPL(vtime_guest_exit);
 -- 
 2.20.1
 
