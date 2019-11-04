@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE9CCEEFAD
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4111EEEFE
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728987AbfKDVzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:55:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50552 "EHLO mail.kernel.org"
+        id S2388739AbfKDWSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:18:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388141AbfKDVzU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:55:20 -0500
+        id S2389212AbfKDWCL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:02:11 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E31052053B;
-        Mon,  4 Nov 2019 21:55:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7326920650;
+        Mon,  4 Nov 2019 22:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904519;
-        bh=c/23/zO5M8qYOwM1lKec8fGLum3bc5+xWnSsny0sJZs=;
+        s=default; t=1572904930;
+        bh=o/Ex+1vv7SaDW4yyZ1WvsYR1s5YLNJ0IQxV7tuCOcYM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEc1Ygz25k33wiTAnlDMsEAJ6u+2Bmvzscd7feQ0Y27ef+89paWLWOSZF0LwFIG3N
-         rnDX38Vk7uShTa9/ROycuB/9tHmLQOrBQt+G33JWFZtnXFVpGnaf8KE15Lz0ivPaey
-         lQbmew/KDS3eBuLfZqCYEEjg2r6iVqFDSAH0siPg=
+        b=G0uUfCJS9Wa0z0/tmpg16O+XbK3IAw1+EwwN2A7nCrQ2se898xel49dDfEntWcnzX
+         glavUFd7ZJmOj/20rig0gwaWB7roT1LzQekuqNS9PVRy+lGbJMmU6DvbpuWXUW9Am2
+         0dRrC8YB7LTXbjLRN+MPGikDAV2R750FEOVtuRQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Varun Prakash <varun@chelsio.com>,
-        Nicholas Bellinger <nab@linux-iscsi.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 74/95] scsi: target: cxgbit: Fix cxgbit_fw4_ack()
+        stable@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.19 119/149] usb: xhci: fix __le32/__le64 accessors in debugfs code
 Date:   Mon,  4 Nov 2019 22:45:12 +0100
-Message-Id: <20191104212116.495220657@linuxfoundation.org>
+Message-Id: <20191104212144.661697720@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Ben Dooks (Codethink) <ben.dooks@codethink.co.uk>
 
-commit fc5b220b2dcf8b512d9bd46fd17f82257e49bf89 upstream.
+commit d5501d5c29a2e684640507cfee428178d6fd82ca upstream.
 
-Use the pointer 'p' after having tested that pointer instead of before.
+It looks like some of the xhci debug code is passing u32 to functions
+directly from __le32/__le64 fields.
+Fix this by using le{32,64}_to_cpu() on these to fix the following
+sparse warnings;
 
-Fixes: 5cadafb236df ("target/cxgbit: Fix endianness annotations")
-Cc: Varun Prakash <varun@chelsio.com>
-Cc: Nicholas Bellinger <nab@linux-iscsi.org>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191023202150.22173-1-bvanassche@acm.org
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+xhci-debugfs.c:205:62: warning: incorrect type in argument 1 (different base types)
+xhci-debugfs.c:205:62:    expected unsigned int [usertype] field0
+xhci-debugfs.c:205:62:    got restricted __le32
+xhci-debugfs.c:206:62: warning: incorrect type in argument 2 (different base types)
+xhci-debugfs.c:206:62:    expected unsigned int [usertype] field1
+xhci-debugfs.c:206:62:    got restricted __le32
+...
+
+[Trim down commit message, sparse warnings were similar -Mathias]
+Cc: <stable@vger.kernel.org> # 4.15+
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/1572013829-14044-4-git-send-email-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/target/iscsi/cxgbit/cxgbit_cm.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-debugfs.c |   24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/target/iscsi/cxgbit/cxgbit_cm.c
-+++ b/drivers/target/iscsi/cxgbit/cxgbit_cm.c
-@@ -1767,7 +1767,7 @@ static void cxgbit_fw4_ack(struct cxgbit
+--- a/drivers/usb/host/xhci-debugfs.c
++++ b/drivers/usb/host/xhci-debugfs.c
+@@ -202,10 +202,10 @@ static void xhci_ring_dump_segment(struc
+ 		trb = &seg->trbs[i];
+ 		dma = seg->dma + i * sizeof(*trb);
+ 		seq_printf(s, "%pad: %s\n", &dma,
+-			   xhci_decode_trb(trb->generic.field[0],
+-					   trb->generic.field[1],
+-					   trb->generic.field[2],
+-					   trb->generic.field[3]));
++			   xhci_decode_trb(le32_to_cpu(trb->generic.field[0]),
++					   le32_to_cpu(trb->generic.field[1]),
++					   le32_to_cpu(trb->generic.field[2]),
++					   le32_to_cpu(trb->generic.field[3])));
+ 	}
+ }
  
- 	while (credits) {
- 		struct sk_buff *p = cxgbit_sock_peek_wr(csk);
--		const u32 csum = (__force u32)p->csum;
-+		u32 csum;
+@@ -263,10 +263,10 @@ static int xhci_slot_context_show(struct
+ 	xhci = hcd_to_xhci(bus_to_hcd(dev->udev->bus));
+ 	slot_ctx = xhci_get_slot_ctx(xhci, dev->out_ctx);
+ 	seq_printf(s, "%pad: %s\n", &dev->out_ctx->dma,
+-		   xhci_decode_slot_context(slot_ctx->dev_info,
+-					    slot_ctx->dev_info2,
+-					    slot_ctx->tt_info,
+-					    slot_ctx->dev_state));
++		   xhci_decode_slot_context(le32_to_cpu(slot_ctx->dev_info),
++					    le32_to_cpu(slot_ctx->dev_info2),
++					    le32_to_cpu(slot_ctx->tt_info),
++					    le32_to_cpu(slot_ctx->dev_state)));
  
- 		if (unlikely(!p)) {
- 			pr_err("csk 0x%p,%u, cr %u,%u+%u, empty.\n",
-@@ -1776,6 +1776,7 @@ static void cxgbit_fw4_ack(struct cxgbit
- 			break;
- 		}
+ 	return 0;
+ }
+@@ -286,10 +286,10 @@ static int xhci_endpoint_context_show(st
+ 		ep_ctx = xhci_get_ep_ctx(xhci, dev->out_ctx, dci);
+ 		dma = dev->out_ctx->dma + dci * CTX_SIZE(xhci->hcc_params);
+ 		seq_printf(s, "%pad: %s\n", &dma,
+-			   xhci_decode_ep_context(ep_ctx->ep_info,
+-						  ep_ctx->ep_info2,
+-						  ep_ctx->deq,
+-						  ep_ctx->tx_info));
++			   xhci_decode_ep_context(le32_to_cpu(ep_ctx->ep_info),
++						  le32_to_cpu(ep_ctx->ep_info2),
++						  le64_to_cpu(ep_ctx->deq),
++						  le32_to_cpu(ep_ctx->tx_info)));
+ 	}
  
-+		csum = (__force u32)p->csum;
- 		if (unlikely(credits < csum)) {
- 			pr_warn("csk 0x%p,%u, cr %u,%u+%u, < %u.\n",
- 				csk,  csk->tid,
+ 	return 0;
 
 
