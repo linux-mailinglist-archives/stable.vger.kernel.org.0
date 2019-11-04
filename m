@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBAF5EEF5B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A35EEEE5F
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730803AbfKDV6v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:58:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55900 "EHLO mail.kernel.org"
+        id S2389604AbfKDWOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:14:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730782AbfKDV6u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:58:50 -0500
+        id S2387430AbfKDWIN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:08:13 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63ABD217F4;
-        Mon,  4 Nov 2019 21:58:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6CD520650;
+        Mon,  4 Nov 2019 22:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904730;
-        bh=AKGm0nPhIlqGk5+Y7MJ/YsmIrdeaeAkVQKPf85OVNhk=;
+        s=default; t=1572905292;
+        bh=aegePsCGy2VO/H5hhQQ8jO5KqxsWMEzetylC96FYYSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C6th9/jIubeij5c5QxaJOWeyeCcO0fwqcONj+n2aP7NZ4HKTmj9MRilUvU1cXoIwm
-         hBPNDEMyCmLjD6bgGAb4u7twWKZYXYD3apbY54AdT7lf5yE4Vn8k6iC5RlDrLBS1Xn
-         oBhV0KlmdxKCjVog4kvybkJfk09OX0Ru01ymJcS8=
+        b=ArQrpdp9HJN0IeDHmYXYiz3Oue0g+tdyGrlvqqNJDWUrGsx2o7wfjGrlhTrmcJVNb
+         r/GjYWo371R5egQP8E6gxlyD23Us9EMvd3u3NIiXjour5NdqH/w0nFt8e0kIdskkeR
+         CViUveDHZ7whO7hj67XZ5mbCp80DgBpnKwGfWNRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/149] ALSA: hda/realtek - Apply ALC294 hp init also for S4 resume
+Subject: [PATCH 5.3 053/163] MIPS: include: Mark __cmpxchg as __always_inline
 Date:   Mon,  4 Nov 2019 22:44:03 +0100
-Message-Id: <20191104212139.627500139@linuxfoundation.org>
+Message-Id: <20191104212144.000469754@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-[ Upstream commit f6ef4e0e284251ff795c541db1129c84515ed044 ]
+[ Upstream commit 88356d09904bc606182c625575237269aeece22e ]
 
-The init sequence for ALC294 headphone stuff is needed not only for
-the boot up time but also for the resume from hibernation, where the
-device is switched from the boot kernel without sound driver to the
-suspended image.  Since we record the PM event in the device
-power_state field, we can now recognize the call pattern and apply the
-sequence conditionally.
+Commit ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING
+forcibly") allows compiler to uninline functions marked as 'inline'.
+In cace of cmpxchg this would cause to reference function
+__cmpxchg_called_with_bad_pointer, which is a error case
+for catching bugs and will not happen for correct code, if
+__cmpxchg is inlined.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+[paul.burton@mips.com: s/__cmpxchd/__cmpxchg in subject]
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/mips/include/asm/cmpxchg.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index dd46354270d0d..7480218f32ba7 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3458,7 +3458,9 @@ static void alc294_init(struct hda_codec *codec)
- {
- 	struct alc_spec *spec = codec->spec;
+diff --git a/arch/mips/include/asm/cmpxchg.h b/arch/mips/include/asm/cmpxchg.h
+index c8a47d18f6288..319522fa3a45e 100644
+--- a/arch/mips/include/asm/cmpxchg.h
++++ b/arch/mips/include/asm/cmpxchg.h
+@@ -153,8 +153,9 @@ static inline unsigned long __xchg(volatile void *ptr, unsigned long x,
+ extern unsigned long __cmpxchg_small(volatile void *ptr, unsigned long old,
+ 				     unsigned long new, unsigned int size);
  
--	if (!spec->done_hp_init) {
-+	/* required only at boot or S4 resume time */
-+	if (!spec->done_hp_init ||
-+	    codec->core.dev.power.power_state.event == PM_EVENT_RESTORE) {
- 		alc294_hp_init(codec);
- 		spec->done_hp_init = true;
- 	}
+-static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
+-				      unsigned long new, unsigned int size)
++static __always_inline
++unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
++			unsigned long new, unsigned int size)
+ {
+ 	switch (size) {
+ 	case 1:
 -- 
 2.20.1
 
