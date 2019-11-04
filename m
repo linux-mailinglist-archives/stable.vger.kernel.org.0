@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A61DEEF5D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA66EEFFB
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730656AbfKDV6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:58:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55716 "EHLO mail.kernel.org"
+        id S2387589AbfKDWYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:24:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730642AbfKDV6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:58:39 -0500
+        id S1730704AbfKDVwP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:52:15 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 587AE214E0;
-        Mon,  4 Nov 2019 21:58:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A4DE217F4;
+        Mon,  4 Nov 2019 21:52:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904719;
-        bh=ZJYf2k6zhyTX1xXuLoy2aCZTsKNBjuiBVrsoQEYs18M=;
+        s=default; t=1572904334;
+        bh=Qb20PWFtHziH8qqDSckT3gUyvn2VoHFkxCSyL3f6XpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eiyRW02FRHW4xRYpVLl7XqDh3tnlefucwS3HHxfziwvc4c/QlcSTOX9XWumkOx56P
-         8qCu8badH15Y4iRnmcCWCvGVd6hYtIVAiLCUOrFU65aeA20RZiOckqwsIBcl/TPzz0
-         GuRHhWBHqfXmcbcfD67DJ/cJDdr/7CJKrYNUnnzg=
+        b=ehMU4HjgSvGDNLefFli/XPbQhzLao7JwPBUjWkXDeb3T3rqgXTz+2TykvAyMI+KEO
+         jY6vukn3jIDw/5DPhh/K3MjLtCC62E7Rxf+rvUn/hsiGc/7KdpgKLECmXezaTi+o9T
+         4xz11Z8dyMCm+7B4G/3iqMRuXIBnVdAX1OlkrLKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jose Abreu <joabreu@synopsys.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Joao Pinto <jpinto@synopsys.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Giuseppe Cavallaro <peppe.cavallaro@st.com>,
-        Alexandre Torgue <alexandre.torgue@st.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 046/149] net: stmmac: Fix NAPI poll in TX path when in multi-queue
-Date:   Mon,  4 Nov 2019 22:43:59 +0100
-Message-Id: <20191104212139.335872248@linuxfoundation.org>
+Subject: [PATCH 4.14 02/95] dm snapshot: use mutex instead of rw_semaphore
+Date:   Mon,  4 Nov 2019 22:44:00 +0100
+Message-Id: <20191104212038.983003159@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,253 +44,333 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <jose.abreu@synopsys.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 4ccb45857c2c0776d0f72e39768295062c1a0de1 ]
+[ Upstream commit ae1093be5a0ef997833e200a0dafb9ed0b1ff4fe ]
 
-Commit 8fce33317023 introduced the concept of NAPI per-channel and
-independent cleaning of TX path.
+The rw_semaphore is acquired for read only in two places, neither is
+performance-critical.  So replace it with a mutex -- which is more
+efficient.
 
-This is currently breaking performance in some cases. The scenario
-happens when all packets are being received in Queue 0 but the TX is
-performed in Queue != 0.
-
-Fix this by using different NAPI instances per each TX and RX queue, as
-suggested by Florian.
-
-Changes from v2:
-	- Only force restart transmission if there are pending packets
-Changes from v1:
-	- Pass entire ring size to TX clean path (Florian)
-
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Joao Pinto <jpinto@synopsys.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Giuseppe Cavallaro <peppe.cavallaro@st.com>
-Cc: Alexandre Torgue <alexandre.torgue@st.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac.h  |   5 +-
- .../net/ethernet/stmicro/stmmac/stmmac_main.c | 115 ++++++++++--------
- 2 files changed, 68 insertions(+), 52 deletions(-)
+ drivers/md/dm-snap.c | 84 +++++++++++++++++++++++---------------------
+ 1 file changed, 43 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac.h b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-index 63e1064b27a24..e697ecd9b0a64 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac.h
-@@ -78,11 +78,10 @@ struct stmmac_rx_queue {
+diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
+index b502debc6df3f..8b1556e77a0a0 100644
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -48,7 +48,7 @@ struct dm_exception_table {
  };
  
- struct stmmac_channel {
--	struct napi_struct napi ____cacheline_aligned_in_smp;
-+	struct napi_struct rx_napi ____cacheline_aligned_in_smp;
-+	struct napi_struct tx_napi ____cacheline_aligned_in_smp;
- 	struct stmmac_priv *priv_data;
- 	u32 index;
--	int has_rx;
--	int has_tx;
- };
+ struct dm_snapshot {
+-	struct rw_semaphore lock;
++	struct mutex lock;
  
- struct stmmac_tc_entry {
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 014fe93ed2d82..f4542ac0852d2 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -155,7 +155,10 @@ static void stmmac_disable_all_queues(struct stmmac_priv *priv)
- 	for (queue = 0; queue < maxq; queue++) {
- 		struct stmmac_channel *ch = &priv->channel[queue];
+ 	struct dm_dev *origin;
+ 	struct dm_dev *cow;
+@@ -456,9 +456,9 @@ static int __find_snapshots_sharing_cow(struct dm_snapshot *snap,
+ 		if (!bdev_equal(s->cow->bdev, snap->cow->bdev))
+ 			continue;
  
--		napi_disable(&ch->napi);
-+		if (queue < rx_queues_cnt)
-+			napi_disable(&ch->rx_napi);
-+		if (queue < tx_queues_cnt)
-+			napi_disable(&ch->tx_napi);
+-		down_read(&s->lock);
++		mutex_lock(&s->lock);
+ 		active = s->active;
+-		up_read(&s->lock);
++		mutex_unlock(&s->lock);
+ 
+ 		if (active) {
+ 			if (snap_src)
+@@ -926,7 +926,7 @@ static int remove_single_exception_chunk(struct dm_snapshot *s)
+ 	int r;
+ 	chunk_t old_chunk = s->first_merging_chunk + s->num_merging_chunks - 1;
+ 
+-	down_write(&s->lock);
++	mutex_lock(&s->lock);
+ 
+ 	/*
+ 	 * Process chunks (and associated exceptions) in reverse order
+@@ -941,7 +941,7 @@ static int remove_single_exception_chunk(struct dm_snapshot *s)
+ 	b = __release_queued_bios_after_merge(s);
+ 
+ out:
+-	up_write(&s->lock);
++	mutex_unlock(&s->lock);
+ 	if (b)
+ 		flush_bios(b);
+ 
+@@ -1000,9 +1000,9 @@ static void snapshot_merge_next_chunks(struct dm_snapshot *s)
+ 		if (linear_chunks < 0) {
+ 			DMERR("Read error in exception store: "
+ 			      "shutting down merge");
+-			down_write(&s->lock);
++			mutex_lock(&s->lock);
+ 			s->merge_failed = 1;
+-			up_write(&s->lock);
++			mutex_unlock(&s->lock);
+ 		}
+ 		goto shut;
  	}
- }
- 
-@@ -173,7 +176,10 @@ static void stmmac_enable_all_queues(struct stmmac_priv *priv)
- 	for (queue = 0; queue < maxq; queue++) {
- 		struct stmmac_channel *ch = &priv->channel[queue];
- 
--		napi_enable(&ch->napi);
-+		if (queue < rx_queues_cnt)
-+			napi_enable(&ch->rx_napi);
-+		if (queue < tx_queues_cnt)
-+			napi_enable(&ch->tx_napi);
- 	}
- }
- 
-@@ -1946,6 +1952,10 @@ static int stmmac_tx_clean(struct stmmac_priv *priv, int budget, u32 queue)
- 		mod_timer(&priv->eee_ctrl_timer, STMMAC_LPI_T(eee_timer));
+@@ -1043,10 +1043,10 @@ static void snapshot_merge_next_chunks(struct dm_snapshot *s)
+ 		previous_count = read_pending_exceptions_done_count();
  	}
  
-+	/* We still have pending packets, let's call for a new scheduling */
-+	if (tx_q->dirty_tx != tx_q->cur_tx)
-+		mod_timer(&tx_q->txtimer, STMMAC_COAL_TIMER(10));
+-	down_write(&s->lock);
++	mutex_lock(&s->lock);
+ 	s->first_merging_chunk = old_chunk;
+ 	s->num_merging_chunks = linear_chunks;
+-	up_write(&s->lock);
++	mutex_unlock(&s->lock);
+ 
+ 	/* Wait until writes to all 'linear_chunks' drain */
+ 	for (i = 0; i < linear_chunks; i++)
+@@ -1088,10 +1088,10 @@ static void merge_callback(int read_err, unsigned long write_err, void *context)
+ 	return;
+ 
+ shut:
+-	down_write(&s->lock);
++	mutex_lock(&s->lock);
+ 	s->merge_failed = 1;
+ 	b = __release_queued_bios_after_merge(s);
+-	up_write(&s->lock);
++	mutex_unlock(&s->lock);
+ 	error_bios(b);
+ 
+ 	merge_shutdown(s);
+@@ -1190,7 +1190,7 @@ static int snapshot_ctr(struct dm_target *ti, unsigned int argc, char **argv)
+ 	s->exception_start_sequence = 0;
+ 	s->exception_complete_sequence = 0;
+ 	INIT_LIST_HEAD(&s->out_of_order_list);
+-	init_rwsem(&s->lock);
++	mutex_init(&s->lock);
+ 	INIT_LIST_HEAD(&s->list);
+ 	spin_lock_init(&s->pe_lock);
+ 	s->state_bits = 0;
+@@ -1357,9 +1357,9 @@ static void snapshot_dtr(struct dm_target *ti)
+ 	/* Check whether exception handover must be cancelled */
+ 	(void) __find_snapshots_sharing_cow(s, &snap_src, &snap_dest, NULL);
+ 	if (snap_src && snap_dest && (s == snap_src)) {
+-		down_write(&snap_dest->lock);
++		mutex_lock(&snap_dest->lock);
+ 		snap_dest->valid = 0;
+-		up_write(&snap_dest->lock);
++		mutex_unlock(&snap_dest->lock);
+ 		DMERR("Cancelling snapshot handover.");
+ 	}
+ 	up_read(&_origins_lock);
+@@ -1390,6 +1390,8 @@ static void snapshot_dtr(struct dm_target *ti)
+ 
+ 	dm_exception_store_destroy(s->store);
+ 
++	mutex_destroy(&s->lock);
 +
- 	__netif_tx_unlock_bh(netdev_get_tx_queue(priv->dev, queue));
+ 	dm_put_device(ti, s->cow);
  
- 	return count;
-@@ -2036,23 +2046,15 @@ static int stmmac_napi_check(struct stmmac_priv *priv, u32 chan)
- 	int status = stmmac_dma_interrupt_status(priv, priv->ioaddr,
- 						 &priv->xstats, chan);
- 	struct stmmac_channel *ch = &priv->channel[chan];
--	bool needs_work = false;
--
--	if ((status & handle_rx) && ch->has_rx) {
--		needs_work = true;
--	} else {
--		status &= ~handle_rx;
--	}
+ 	dm_put_device(ti, s->origin);
+@@ -1477,7 +1479,7 @@ static void pending_complete(void *context, int success)
  
--	if ((status & handle_tx) && ch->has_tx) {
--		needs_work = true;
--	} else {
--		status &= ~handle_tx;
-+	if ((status & handle_rx) && (chan < priv->plat->rx_queues_to_use)) {
-+		stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
-+		napi_schedule_irqoff(&ch->rx_napi);
+ 	if (!success) {
+ 		/* Read/write error - snapshot is unusable */
+-		down_write(&s->lock);
++		mutex_lock(&s->lock);
+ 		__invalidate_snapshot(s, -EIO);
+ 		error = 1;
+ 		goto out;
+@@ -1485,14 +1487,14 @@ static void pending_complete(void *context, int success)
+ 
+ 	e = alloc_completed_exception(GFP_NOIO);
+ 	if (!e) {
+-		down_write(&s->lock);
++		mutex_lock(&s->lock);
+ 		__invalidate_snapshot(s, -ENOMEM);
+ 		error = 1;
+ 		goto out;
+ 	}
+ 	*e = pe->e;
+ 
+-	down_write(&s->lock);
++	mutex_lock(&s->lock);
+ 	if (!s->valid) {
+ 		free_completed_exception(e);
+ 		error = 1;
+@@ -1517,7 +1519,7 @@ out:
+ 		full_bio->bi_end_io = pe->full_bio_end_io;
+ 	increment_pending_exceptions_done_count();
+ 
+-	up_write(&s->lock);
++	mutex_unlock(&s->lock);
+ 
+ 	/* Submit any pending write bios */
+ 	if (error) {
+@@ -1716,7 +1718,7 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
+ 
+ 	/* FIXME: should only take write lock if we need
+ 	 * to copy an exception */
+-	down_write(&s->lock);
++	mutex_lock(&s->lock);
+ 
+ 	if (!s->valid || (unlikely(s->snapshot_overflowed) &&
+ 	    bio_data_dir(bio) == WRITE)) {
+@@ -1739,9 +1741,9 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
+ 	if (bio_data_dir(bio) == WRITE) {
+ 		pe = __lookup_pending_exception(s, chunk);
+ 		if (!pe) {
+-			up_write(&s->lock);
++			mutex_unlock(&s->lock);
+ 			pe = alloc_pending_exception(s);
+-			down_write(&s->lock);
++			mutex_lock(&s->lock);
+ 
+ 			if (!s->valid || s->snapshot_overflowed) {
+ 				free_pending_exception(pe);
+@@ -1776,7 +1778,7 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
+ 		    bio->bi_iter.bi_size ==
+ 		    (s->store->chunk_size << SECTOR_SHIFT)) {
+ 			pe->started = 1;
+-			up_write(&s->lock);
++			mutex_unlock(&s->lock);
+ 			start_full_bio(pe, bio);
+ 			goto out;
+ 		}
+@@ -1786,7 +1788,7 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
+ 		if (!pe->started) {
+ 			/* this is protected by snap->lock */
+ 			pe->started = 1;
+-			up_write(&s->lock);
++			mutex_unlock(&s->lock);
+ 			start_copy(pe);
+ 			goto out;
+ 		}
+@@ -1796,7 +1798,7 @@ static int snapshot_map(struct dm_target *ti, struct bio *bio)
  	}
  
--	if (needs_work && napi_schedule_prep(&ch->napi)) {
-+	if ((status & handle_tx) && (chan < priv->plat->tx_queues_to_use)) {
- 		stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
--		__napi_schedule(&ch->napi);
-+		napi_schedule_irqoff(&ch->tx_napi);
+ out_unlock:
+-	up_write(&s->lock);
++	mutex_unlock(&s->lock);
+ out:
+ 	return r;
+ }
+@@ -1832,7 +1834,7 @@ static int snapshot_merge_map(struct dm_target *ti, struct bio *bio)
+ 
+ 	chunk = sector_to_chunk(s->store, bio->bi_iter.bi_sector);
+ 
+-	down_write(&s->lock);
++	mutex_lock(&s->lock);
+ 
+ 	/* Full merging snapshots are redirected to the origin */
+ 	if (!s->valid)
+@@ -1863,12 +1865,12 @@ redirect_to_origin:
+ 	bio_set_dev(bio, s->origin->bdev);
+ 
+ 	if (bio_data_dir(bio) == WRITE) {
+-		up_write(&s->lock);
++		mutex_unlock(&s->lock);
+ 		return do_origin(s->origin, bio);
  	}
  
- 	return status;
-@@ -2248,8 +2250,14 @@ static void stmmac_tx_timer(struct timer_list *t)
+ out_unlock:
+-	up_write(&s->lock);
++	mutex_unlock(&s->lock);
  
- 	ch = &priv->channel[tx_q->queue_index];
+ 	return r;
+ }
+@@ -1900,7 +1902,7 @@ static int snapshot_preresume(struct dm_target *ti)
+ 	down_read(&_origins_lock);
+ 	(void) __find_snapshots_sharing_cow(s, &snap_src, &snap_dest, NULL);
+ 	if (snap_src && snap_dest) {
+-		down_read(&snap_src->lock);
++		mutex_lock(&snap_src->lock);
+ 		if (s == snap_src) {
+ 			DMERR("Unable to resume snapshot source until "
+ 			      "handover completes.");
+@@ -1910,7 +1912,7 @@ static int snapshot_preresume(struct dm_target *ti)
+ 			      "source is suspended.");
+ 			r = -EINVAL;
+ 		}
+-		up_read(&snap_src->lock);
++		mutex_unlock(&snap_src->lock);
+ 	}
+ 	up_read(&_origins_lock);
  
--	if (likely(napi_schedule_prep(&ch->napi)))
--		__napi_schedule(&ch->napi);
-+	/*
-+	 * If NAPI is already running we can miss some events. Let's rearm
-+	 * the timer and try again.
-+	 */
-+	if (likely(napi_schedule_prep(&ch->tx_napi)))
-+		__napi_schedule(&ch->tx_napi);
-+	else
-+		mod_timer(&tx_q->txtimer, STMMAC_COAL_TIMER(10));
+@@ -1956,11 +1958,11 @@ static void snapshot_resume(struct dm_target *ti)
+ 
+ 	(void) __find_snapshots_sharing_cow(s, &snap_src, &snap_dest, NULL);
+ 	if (snap_src && snap_dest) {
+-		down_write(&snap_src->lock);
+-		down_write_nested(&snap_dest->lock, SINGLE_DEPTH_NESTING);
++		mutex_lock(&snap_src->lock);
++		mutex_lock_nested(&snap_dest->lock, SINGLE_DEPTH_NESTING);
+ 		__handover_exceptions(snap_src, snap_dest);
+-		up_write(&snap_dest->lock);
+-		up_write(&snap_src->lock);
++		mutex_unlock(&snap_dest->lock);
++		mutex_unlock(&snap_src->lock);
+ 	}
+ 
+ 	up_read(&_origins_lock);
+@@ -1975,9 +1977,9 @@ static void snapshot_resume(struct dm_target *ti)
+ 	/* Now we have correct chunk size, reregister */
+ 	reregister_snapshot(s);
+ 
+-	down_write(&s->lock);
++	mutex_lock(&s->lock);
+ 	s->active = 1;
+-	up_write(&s->lock);
++	mutex_unlock(&s->lock);
  }
  
- /**
-@@ -3506,7 +3514,7 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 			else
- 				skb->ip_summed = CHECKSUM_UNNECESSARY;
+ static uint32_t get_origin_minimum_chunksize(struct block_device *bdev)
+@@ -2017,7 +2019,7 @@ static void snapshot_status(struct dm_target *ti, status_type_t type,
+ 	switch (type) {
+ 	case STATUSTYPE_INFO:
  
--			napi_gro_receive(&ch->napi, skb);
-+			napi_gro_receive(&ch->rx_napi, skb);
+-		down_write(&snap->lock);
++		mutex_lock(&snap->lock);
  
- 			priv->dev->stats.rx_packets++;
- 			priv->dev->stats.rx_bytes += frame_len;
-@@ -3520,40 +3528,45 @@ static int stmmac_rx(struct stmmac_priv *priv, int limit, u32 queue)
- 	return count;
- }
+ 		if (!snap->valid)
+ 			DMEMIT("Invalid");
+@@ -2042,7 +2044,7 @@ static void snapshot_status(struct dm_target *ti, status_type_t type,
+ 				DMEMIT("Unknown");
+ 		}
  
--/**
-- *  stmmac_poll - stmmac poll method (NAPI)
-- *  @napi : pointer to the napi structure.
-- *  @budget : maximum number of packets that the current CPU can receive from
-- *	      all interfaces.
-- *  Description :
-- *  To look at the incoming frames and clear the tx resources.
-- */
--static int stmmac_napi_poll(struct napi_struct *napi, int budget)
-+static int stmmac_napi_poll_rx(struct napi_struct *napi, int budget)
- {
- 	struct stmmac_channel *ch =
--		container_of(napi, struct stmmac_channel, napi);
-+		container_of(napi, struct stmmac_channel, rx_napi);
- 	struct stmmac_priv *priv = ch->priv_data;
--	int work_done, rx_done = 0, tx_done = 0;
- 	u32 chan = ch->index;
-+	int work_done;
+-		up_write(&snap->lock);
++		mutex_unlock(&snap->lock);
  
- 	priv->xstats.napi_poll++;
+ 		break;
  
--	if (ch->has_tx)
--		tx_done = stmmac_tx_clean(priv, budget, chan);
--	if (ch->has_rx)
--		rx_done = stmmac_rx(priv, budget, chan);
-+	work_done = stmmac_rx(priv, budget, chan);
-+	if (work_done < budget && napi_complete_done(napi, work_done))
-+		stmmac_enable_dma_irq(priv, priv->ioaddr, chan);
-+	return work_done;
-+}
+@@ -2108,7 +2110,7 @@ static int __origin_write(struct list_head *snapshots, sector_t sector,
+ 		if (dm_target_is_snapshot_merge(snap->ti))
+ 			continue;
  
--	work_done = max(rx_done, tx_done);
--	work_done = min(work_done, budget);
-+static int stmmac_napi_poll_tx(struct napi_struct *napi, int budget)
-+{
-+	struct stmmac_channel *ch =
-+		container_of(napi, struct stmmac_channel, tx_napi);
-+	struct stmmac_priv *priv = ch->priv_data;
-+	struct stmmac_tx_queue *tx_q;
-+	u32 chan = ch->index;
-+	int work_done;
+-		down_write(&snap->lock);
++		mutex_lock(&snap->lock);
  
--	if (work_done < budget && napi_complete_done(napi, work_done)) {
--		int stat;
-+	priv->xstats.napi_poll++;
-+
-+	work_done = stmmac_tx_clean(priv, DMA_TX_SIZE, chan);
-+	work_done = min(work_done, budget);
+ 		/* Only deal with valid and active snapshots */
+ 		if (!snap->valid || !snap->active)
+@@ -2135,9 +2137,9 @@ static int __origin_write(struct list_head *snapshots, sector_t sector,
  
-+	if (work_done < budget && napi_complete_done(napi, work_done))
- 		stmmac_enable_dma_irq(priv, priv->ioaddr, chan);
--		stat = stmmac_dma_interrupt_status(priv, priv->ioaddr,
--						   &priv->xstats, chan);
--		if (stat && napi_reschedule(napi))
--			stmmac_disable_dma_irq(priv, priv->ioaddr, chan);
-+
-+	/* Force transmission restart */
-+	tx_q = &priv->tx_queue[chan];
-+	if (tx_q->cur_tx != tx_q->dirty_tx) {
-+		stmmac_enable_dma_transmission(priv, priv->ioaddr);
-+		stmmac_set_tx_tail_ptr(priv, priv->ioaddr, tx_q->tx_tail_addr,
-+				       chan);
- 	}
+ 		pe = __lookup_pending_exception(snap, chunk);
+ 		if (!pe) {
+-			up_write(&snap->lock);
++			mutex_unlock(&snap->lock);
+ 			pe = alloc_pending_exception(snap);
+-			down_write(&snap->lock);
++			mutex_lock(&snap->lock);
  
- 	return work_done;
-@@ -4376,13 +4389,14 @@ int stmmac_dvr_probe(struct device *device,
- 		ch->priv_data = priv;
- 		ch->index = queue;
+ 			if (!snap->valid) {
+ 				free_pending_exception(pe);
+@@ -2180,7 +2182,7 @@ static int __origin_write(struct list_head *snapshots, sector_t sector,
+ 		}
  
--		if (queue < priv->plat->rx_queues_to_use)
--			ch->has_rx = true;
--		if (queue < priv->plat->tx_queues_to_use)
--			ch->has_tx = true;
--
--		netif_napi_add(ndev, &ch->napi, stmmac_napi_poll,
--			       NAPI_POLL_WEIGHT);
-+		if (queue < priv->plat->rx_queues_to_use) {
-+			netif_napi_add(ndev, &ch->rx_napi, stmmac_napi_poll_rx,
-+				       NAPI_POLL_WEIGHT);
-+		}
-+		if (queue < priv->plat->tx_queues_to_use) {
-+			netif_napi_add(ndev, &ch->tx_napi, stmmac_napi_poll_tx,
-+				       NAPI_POLL_WEIGHT);
-+		}
- 	}
+ next_snapshot:
+-		up_write(&snap->lock);
++		mutex_unlock(&snap->lock);
  
- 	mutex_init(&priv->lock);
-@@ -4438,7 +4452,10 @@ error_mdio_register:
- 	for (queue = 0; queue < maxq; queue++) {
- 		struct stmmac_channel *ch = &priv->channel[queue];
- 
--		netif_napi_del(&ch->napi);
-+		if (queue < priv->plat->rx_queues_to_use)
-+			netif_napi_del(&ch->rx_napi);
-+		if (queue < priv->plat->tx_queues_to_use)
-+			netif_napi_del(&ch->tx_napi);
- 	}
- error_hw_init:
- 	destroy_workqueue(priv->wq);
+ 		if (pe_to_start_now) {
+ 			start_copy(pe_to_start_now);
 -- 
 2.20.1
 
