@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0914BEEE5A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34F86EF04C
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390247AbfKDWIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:08:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41520 "EHLO mail.kernel.org"
+        id S2387408AbfKDW1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:27:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390244AbfKDWIf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:08:35 -0500
+        id S2387747AbfKDVug (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:50:36 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97CE2214D8;
-        Mon,  4 Nov 2019 22:08:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D33F21744;
+        Mon,  4 Nov 2019 21:50:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905315;
-        bh=vWTVDALXfSb8OlxqgO4QbpSm+6M4srS+UggdwZfZEgc=;
+        s=default; t=1572904235;
+        bh=SXcSjgXnzq2qZEbZ8jHOMYmVNKMe1iY72MSH9XLcWpQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qr9pUkFh25B2TrnYxWhSd/YMTkhk/h50vX36iUVWHGyQaGgzJluZ2jQ05fUsz8Ksl
-         RTe/SbMnhu/8AoMtKCeGyfzKlc76ts9jA2Yx0/7OSjxOQ9XfM03kME9Vmxk290fe3P
-         sii7/jI/AabyP6Vjo2tTe2Su3EFMdoWA+cmXkPIc=
+        b=NIfHfRUx/Yl20OEZd+/NYonGHBw+cJ0+JNAOMTRv21/W88SjkP8LhPfHovYF84V4a
+         A1rc72XqB04Ca8WWicWVK06zR7A1tN2k8abS5D+/bvBy4++fWw8ji5hWSv3HiCk79e
+         duyCCn2rRalqYMv3l3lFskNwuP3x5XSqtmBCodSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Felipe Balbi <balbi@kernel.org>,
-        syzbot+8ab8bf161038a8768553@syzkaller.appspotmail.com
-Subject: [PATCH 5.3 104/163] USB: gadget: Reject endpoints with 0 maxpacket value
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 32/62] thunderbolt: Use 32-bit writes when writing ring producer/consumer
 Date:   Mon,  4 Nov 2019 22:44:54 +0100
-Message-Id: <20191104212147.614146677@linuxfoundation.org>
+Message-Id: <20191104211931.746648300@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 54f83b8c8ea9b22082a496deadf90447a326954e upstream.
+[ Upstream commit 943795219d3cb9f8ce6ce51cad3ffe1f61e95c6b ]
 
-Endpoints with a maxpacket length of 0 are probably useless.  They
-can't transfer any data, and it's not at all unlikely that a UDC will
-crash or hang when trying to handle a non-zero-length usb_request for
-such an endpoint.  Indeed, dummy-hcd gets a divide error when trying
-to calculate the remainder of a transfer length by the maxpacket
-value, as discovered by the syzbot fuzzer.
+The register access should be using 32-bit reads/writes according to the
+datasheet. With the previous generation hardware 16-bit writes have been
+working but starting with ICL this is not the case anymore so fix
+producer/consumer register update to use correct width register address.
 
-Currently the gadget core does not check for endpoints having a
-maxpacket value of 0.  This patch adds a check to usb_ep_enable(),
-preventing such endpoints from being used.
-
-As far as I know, none of the gadget drivers in the kernel tries to
-create an endpoint with maxpacket = 0, but until now there has been
-nothing to prevent userspace programs under gadgetfs or configfs from
-doing it.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+8ab8bf161038a8768553@syzkaller.appspotmail.com
-CC: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910281052370.1485-100000@iolanthe.rowland.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Yehezkel Bernat <YehezkelShB@gmail.com>
+Tested-by: Mario Limonciello <mario.limonciello@dell.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/core.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/thunderbolt/nhi.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -98,6 +98,17 @@ int usb_ep_enable(struct usb_ep *ep)
- 	if (ep->enabled)
- 		goto out;
+diff --git a/drivers/thunderbolt/nhi.c b/drivers/thunderbolt/nhi.c
+index cba6bc6ab9ed7..c963593eedbe7 100644
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -95,9 +95,20 @@ static void __iomem *ring_options_base(struct tb_ring *ring)
+ 	return io;
+ }
  
-+	/* UDC drivers can't handle endpoints with maxpacket size 0 */
-+	if (usb_endpoint_maxp(ep->desc) == 0) {
-+		/*
-+		 * We should log an error message here, but we can't call
-+		 * dev_err() because there's no way to find the gadget
-+		 * given only ep.
-+		 */
-+		ret = -EINVAL;
-+		goto out;
-+	}
+-static void ring_iowrite16desc(struct tb_ring *ring, u32 value, u32 offset)
++static void ring_iowrite_cons(struct tb_ring *ring, u16 cons)
+ {
+-	iowrite16(value, ring_desc_base(ring) + offset);
++	/*
++	 * The other 16-bits in the register is read-only and writes to it
++	 * are ignored by the hardware so we can save one ioread32() by
++	 * filling the read-only bits with zeroes.
++	 */
++	iowrite32(cons, ring_desc_base(ring) + 8);
++}
 +
- 	ret = ep->ops->enable(ep, ep->desc);
- 	if (ret)
- 		goto out;
++static void ring_iowrite_prod(struct tb_ring *ring, u16 prod)
++{
++	/* See ring_iowrite_cons() above for explanation */
++	iowrite32(prod << 16, ring_desc_base(ring) + 8);
+ }
+ 
+ static void ring_iowrite32desc(struct tb_ring *ring, u32 value, u32 offset)
+@@ -149,7 +160,10 @@ static void ring_write_descriptors(struct tb_ring *ring)
+ 			descriptor->sof = frame->sof;
+ 		}
+ 		ring->head = (ring->head + 1) % ring->size;
+-		ring_iowrite16desc(ring, ring->head, ring->is_tx ? 10 : 8);
++		if (ring->is_tx)
++			ring_iowrite_prod(ring, ring->head);
++		else
++			ring_iowrite_cons(ring, ring->head);
+ 	}
+ }
+ 
+@@ -369,7 +383,7 @@ void ring_stop(struct tb_ring *ring)
+ 
+ 	ring_iowrite32options(ring, 0, 0);
+ 	ring_iowrite64desc(ring, 0, 0);
+-	ring_iowrite16desc(ring, 0, ring->is_tx ? 10 : 8);
++	ring_iowrite32desc(ring, 0, 8);
+ 	ring_iowrite32desc(ring, 0, 12);
+ 	ring->head = 0;
+ 	ring->tail = 0;
+-- 
+2.20.1
+
 
 
