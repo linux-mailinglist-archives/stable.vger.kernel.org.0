@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FD5EECA9
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:59:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27447EEBF5
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388032AbfKDV7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:59:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56516 "EHLO mail.kernel.org"
+        id S1730774AbfKDVwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:52:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387847AbfKDV7W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:59:22 -0500
+        id S1730771AbfKDVwb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:52:31 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8742920650;
-        Mon,  4 Nov 2019 21:59:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73F4E218BA;
+        Mon,  4 Nov 2019 21:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904762;
-        bh=sn9PuHWrsSWJy+qnRz1rl2QGZbrjTOyXUksthEqa3vc=;
+        s=default; t=1572904350;
+        bh=Z4Vr1KaooQILrkTf+O1jZFGQD7EZq+zGisiVEVxIL2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OmNmHspbpceKtlJniIKP2k/9wHh7JkcVnft+t09rRysK6u1fGzQWZuefAQ1X0UCYw
-         7lpl5QECHeNAUi+RGPgDMYZa0e3enbURdHWHQsvCDNGgK41pbFlrNyvclefbsxpXbb
-         t/cpGmwjGdGbImgIrQo3ZiWcd4ZbfBEGVb0ESA5Q=
+        b=nfB1vDcsopMcnSEDP3TNy0wgJDepEBY51QVs8qvj1S4cd4jS+1l/HfpxC2UFuCnzd
+         Afc21Hs2MzSq5Sy/fzmSBtEE25ZeEooJyjbIzm/7pPbtGX0dAyTQayq0t04/aalDMV
+         e8oYMEH3aJ8QXc6kQ46cUZpU5lDKS/XZ++wRN56c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 061/149] perf tests: Avoid raising SEGV using an obvious NULL dereference
-Date:   Mon,  4 Nov 2019 22:44:14 +0100
-Message-Id: <20191104212141.041151631@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 17/95] rtc: pcf8523: set xtal load capacitance from DT
+Date:   Mon,  4 Nov 2019 22:44:15 +0100
+Message-Id: <20191104212046.218667777@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,88 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Sam Ravnborg <sam@ravnborg.org>
 
-[ Upstream commit e3e2cf3d5b1fe800b032e14c0fdcd9a6fb20cf3b ]
+[ Upstream commit 189927e719e36ceefbb8037f23d3849e47833aef ]
 
-An optimized build such as:
+Add support for specifying the xtal load capacitance in the DT node.
+The pcf8523 supports xtal load capacitance of 7pF or 12.5pF.
+If the rtc has the wrong configuration the time will
+drift several hours/week.
 
-  make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-O3
+The driver use the default value 12.5pF.
 
-will turn the dereference operation into a ud2 instruction, raising a
-SIGILL rather than a SIGSEGV. Use raise(..) for correctness and clarity.
+The DT may specify either 7000fF or 12500fF.
+(The DT uses femto Farad to avoid decimal numbers).
+Other values are warned and the driver uses the default value.
 
-Similar issues were addressed in Numfor Mbiziwo-Tiapo's patch:
-
-  https://lkml.org/lkml/2019/7/8/1234
-
-Committer testing:
-
-Before:
-
-  [root@quaco ~]# perf test hooks
-  55: perf hooks                                            : Ok
-  [root@quaco ~]# perf test -v hooks
-  55: perf hooks                                            :
-  --- start ---
-  test child forked, pid 17092
-  SIGSEGV is observed as expected, try to recover.
-  Fatal error (SEGFAULT) in perf hook 'test'
-  test child finished with 0
-  ---- end ----
-  perf hooks: Ok
-  [root@quaco ~]#
-
-After:
-
-  [root@quaco ~]# perf test hooks
-  55: perf hooks                                            : Ok
-  [root@quaco ~]# perf test -v hooks
-  55: perf hooks                                            :
-  --- start ---
-  test child forked, pid 17909
-  SIGSEGV is observed as expected, try to recover.
-  Fatal error (SEGFAULT) in perf hook 'test'
-  test child finished with 0
-  ---- end ----
-  perf hooks: Ok
-  [root@quaco ~]#
-
-Fixes: a074865e60ed ("perf tools: Introduce perf hooks")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: http://lore.kernel.org/lkml/20190925195924.152834-2-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/perf-hooks.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/rtc/rtc-pcf8523.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/tools/perf/tests/perf-hooks.c b/tools/perf/tests/perf-hooks.c
-index a693bcf017ea2..44c16fd11bf6e 100644
---- a/tools/perf/tests/perf-hooks.c
-+++ b/tools/perf/tests/perf-hooks.c
-@@ -20,12 +20,11 @@ static void sigsegv_handler(int sig __maybe_unused)
- static void the_hook(void *_hook_flags)
- {
- 	int *hook_flags = _hook_flags;
--	int *p = NULL;
- 
- 	*hook_flags = 1234;
- 
- 	/* Generate a segfault, test perf_hooks__recover */
--	*p = 0;
-+	raise(SIGSEGV);
+diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
+index 3c8c6f942e67f..a06792966ea90 100644
+--- a/drivers/rtc/rtc-pcf8523.c
++++ b/drivers/rtc/rtc-pcf8523.c
+@@ -94,8 +94,9 @@ static int pcf8523_voltage_low(struct i2c_client *client)
+ 	return !!(value & REG_CONTROL3_BLF);
  }
  
- int test__perf_hooks(struct test *test __maybe_unused, int subtest __maybe_unused)
+-static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
++static int pcf8523_load_capacitance(struct i2c_client *client)
+ {
++	u32 load;
+ 	u8 value;
+ 	int err;
+ 
+@@ -103,14 +104,24 @@ static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (!high)
+-		value &= ~REG_CONTROL1_CAP_SEL;
+-	else
++	load = 12500;
++	of_property_read_u32(client->dev.of_node, "quartz-load-femtofarads",
++			     &load);
++
++	switch (load) {
++	default:
++		dev_warn(&client->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 12500",
++			 load);
++		/* fall through */
++	case 12500:
+ 		value |= REG_CONTROL1_CAP_SEL;
++		break;
++	case 7000:
++		value &= ~REG_CONTROL1_CAP_SEL;
++		break;
++	}
+ 
+ 	err = pcf8523_write(client, REG_CONTROL1, value);
+-	if (err < 0)
+-		return err;
+ 
+ 	return err;
+ }
+@@ -307,9 +318,10 @@ static int pcf8523_probe(struct i2c_client *client,
+ 	if (!pcf)
+ 		return -ENOMEM;
+ 
+-	err = pcf8523_select_capacitance(client, true);
++	err = pcf8523_load_capacitance(client);
+ 	if (err < 0)
+-		return err;
++		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
++			 err);
+ 
+ 	err = pcf8523_set_pm(client, 0);
+ 	if (err < 0)
 -- 
 2.20.1
 
