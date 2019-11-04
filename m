@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBE39EEBA0
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:49:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1048EEC33
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387458AbfKDVtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:49:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41094 "EHLO mail.kernel.org"
+        id S2388030AbfKDVyu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:54:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387466AbfKDVtj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:49:39 -0500
+        id S2388026AbfKDVyt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:54:49 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC65C20B7C;
-        Mon,  4 Nov 2019 21:49:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BD462184C;
+        Mon,  4 Nov 2019 21:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904178;
-        bh=/Ys8JP9U4GHYI+d6hD1pxpt4rHg0+OqteyS7APFzBx8=;
+        s=default; t=1572904489;
+        bh=v0IrQyRi9n+bfhh9+5Fe2BJGlZxsDr2cCWzbbt2oXfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2PZ1Ea33lQv/c+XZw654KIwdTMKeHaQiodguyN+y29zTdUcuFvOltC2MTuWwxw9Be
-         4Ig9b34FvAEAd0MLCIrIOy0Fl8CuajQOLyasI1DaF/xBYDnN3n4sRthk6ORdY4Wwb7
-         V7KrJ4x7mNmaDozsJXnKl7d08aWTYhv8BfTpsb2I=
+        b=AuUt1LGnDJZt0F4I7bcdKWtDrLXI4ZVpV11OC/98kmbwst7vuNVpFtgM2Qw3CP0Wo
+         +l+bCgn/TjQA2ImJffvnKxo2I0OWn/qIvUiiJrbDmYfa7xYTeYjEGGqT6p5h/3zcRm
+         K1f3SYl21MMygn5HHBz4E0YCO1ItEowR834ObxCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 30/46] USB: ldusb: fix ring-buffer locking
-Date:   Mon,  4 Nov 2019 22:45:01 +0100
-Message-Id: <20191104211902.812567843@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 64/95] ALSA: bebob: Fix prototype of helper function to return negative value
+Date:   Mon,  4 Nov 2019 22:45:02 +0100
+Message-Id: <20191104212109.174776583@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit d98ee2a19c3334e9343df3ce254b496f1fc428eb upstream.
+commit f2bbdbcb075f3977a53da3bdcb7cd460bc8ae5f2 upstream.
 
-The custom ring-buffer implementation was merged without any locking or
-explicit memory barriers, but a spinlock was later added by commit
-9d33efd9a791 ("USB: ldusb bugfix").
+A helper function of ALSA bebob driver returns negative value in a
+function which has a prototype to return unsigned value.
 
-The lock did not cover the update of the tail index once the entry had
-been processed, something which could lead to memory corruption on
-weakly ordered architectures or due to compiler optimisations.
+This commit fixes it by changing the prototype.
 
-Specifically, a completion handler running on another CPU might observe
-the incremented tail index and update the entry before ld_usb_read() is
-done with it.
-
-Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
-Fixes: 9d33efd9a791 ("USB: ldusb bugfix")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191022143203.5260-2-johan@kernel.org
+Fixes: eb7b3a056cd8 ("ALSA: bebob: Add commands and connections/streams management")
+Cc: <stable@vger.kernel.org> # v3.16+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191026030620.12077-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/ldusb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/firewire/bebob/bebob_stream.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/misc/ldusb.c
-+++ b/drivers/usb/misc/ldusb.c
-@@ -499,11 +499,11 @@ static ssize_t ld_usb_read(struct file *
- 		retval = -EFAULT;
- 		goto unlock_exit;
- 	}
--	dev->ring_tail = (dev->ring_tail+1) % ring_buffer_size;
--
- 	retval = bytes_to_read;
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -253,8 +253,7 @@ end:
+ 	return err;
+ }
  
- 	spin_lock_irq(&dev->rbsl);
-+	dev->ring_tail = (dev->ring_tail + 1) % ring_buffer_size;
-+
- 	if (dev->buffer_overflow) {
- 		dev->buffer_overflow = 0;
- 		spin_unlock_irq(&dev->rbsl);
+-static unsigned int
+-map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
++static int map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
+ {
+ 	unsigned int sec, sections, ch, channels;
+ 	unsigned int pcm, midi, location;
 
 
