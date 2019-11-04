@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B648BEEE98
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 796E2EEE8A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389819AbfKDWFV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:05:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36618 "EHLO mail.kernel.org"
+        id S2389921AbfKDWPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:15:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389256AbfKDWFU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:20 -0500
+        id S2387876AbfKDWFw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:05:52 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B821217F4;
-        Mon,  4 Nov 2019 22:05:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C50D2084D;
+        Mon,  4 Nov 2019 22:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905120;
-        bh=zR7PEpWo1SHxfPoogzU2Cy0kOuipPdgvp9JuFhSZZqo=;
+        s=default; t=1572905152;
+        bh=sn9PuHWrsSWJy+qnRz1rl2QGZbrjTOyXUksthEqa3vc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0Y4FLpAC/j2vPgF0dWi4NFegPMfVhoL+Cek/SUzrGBoJyNqQ5UYXw5YG2zYdZqWq
-         0gbIsPI64pMlvMOO6jjtQVOR1mckfzY7pQbehmuEg8MmjKLRWSibAsrj0Os5+JrTgq
-         4WZ0j7HO8xg7RRqkn1DTNuZtWkzddFEufVhdfPco=
+        b=wLW8TSf+uAZEjqvklYSIGKsb/U2KOqvGO4pBcGj6GSgbK9zkySExP0fi52t13mJgC
+         wT5FRoYHLQUiBMGl/qvX7iAeVW+GTeyQ5ABYNneDNsqDDoDLwGtVcoPQorwFMy4Xd3
+         C7TT6zns1U8drKgKYpiiy280MUuh4G3Fcsk5fSb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
         Namhyung Kim <namhyung@kernel.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Stephane Eranian <eranian@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 008/163] libsubcmd: Make _FORTIFY_SOURCE defines dependent on the feature
-Date:   Mon,  4 Nov 2019 22:43:18 +0100
-Message-Id: <20191104212141.113908107@linuxfoundation.org>
+        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 009/163] perf tests: Avoid raising SEGV using an obvious NULL dereference
+Date:   Mon,  4 Nov 2019 22:43:19 +0100
+Message-Id: <20191104212141.185441579@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
@@ -52,48 +51,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ian Rogers <irogers@google.com>
 
-[ Upstream commit 4b0b2b096da9d296e0e5668cdfba8613bd6f5bc8 ]
+[ Upstream commit e3e2cf3d5b1fe800b032e14c0fdcd9a6fb20cf3b ]
 
-Unconditionally defining _FORTIFY_SOURCE can break tools that don't work
-with it, such as memory sanitizers:
+An optimized build such as:
 
-  https://github.com/google/sanitizers/wiki/AddressSanitizer#faq
+  make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-O3
 
-Fixes: 4b6ab94eabe4 ("perf subcmd: Create subcmd library")
+will turn the dereference operation into a ud2 instruction, raising a
+SIGILL rather than a SIGSEGV. Use raise(..) for correctness and clarity.
+
+Similar issues were addressed in Numfor Mbiziwo-Tiapo's patch:
+
+  https://lkml.org/lkml/2019/7/8/1234
+
+Committer testing:
+
+Before:
+
+  [root@quaco ~]# perf test hooks
+  55: perf hooks                                            : Ok
+  [root@quaco ~]# perf test -v hooks
+  55: perf hooks                                            :
+  --- start ---
+  test child forked, pid 17092
+  SIGSEGV is observed as expected, try to recover.
+  Fatal error (SEGFAULT) in perf hook 'test'
+  test child finished with 0
+  ---- end ----
+  perf hooks: Ok
+  [root@quaco ~]#
+
+After:
+
+  [root@quaco ~]# perf test hooks
+  55: perf hooks                                            : Ok
+  [root@quaco ~]# perf test -v hooks
+  55: perf hooks                                            :
+  --- start ---
+  test child forked, pid 17909
+  SIGSEGV is observed as expected, try to recover.
+  Fatal error (SEGFAULT) in perf hook 'test'
+  test child finished with 0
+  ---- end ----
+  perf hooks: Ok
+  [root@quaco ~]#
+
+Fixes: a074865e60ed ("perf tools: Introduce perf hooks")
 Signed-off-by: Ian Rogers <irogers@google.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
 Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Stephane Eranian <eranian@google.com>
-Link: http://lore.kernel.org/lkml/20190925195924.152834-1-irogers@google.com
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: http://lore.kernel.org/lkml/20190925195924.152834-2-irogers@google.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/subcmd/Makefile | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ tools/perf/tests/perf-hooks.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/tools/lib/subcmd/Makefile b/tools/lib/subcmd/Makefile
-index ed61fb3a46c08..5b2cd5e58df09 100644
---- a/tools/lib/subcmd/Makefile
-+++ b/tools/lib/subcmd/Makefile
-@@ -20,7 +20,13 @@ MAKEFLAGS += --no-print-directory
- LIBFILE = $(OUTPUT)libsubcmd.a
+diff --git a/tools/perf/tests/perf-hooks.c b/tools/perf/tests/perf-hooks.c
+index a693bcf017ea2..44c16fd11bf6e 100644
+--- a/tools/perf/tests/perf-hooks.c
++++ b/tools/perf/tests/perf-hooks.c
+@@ -20,12 +20,11 @@ static void sigsegv_handler(int sig __maybe_unused)
+ static void the_hook(void *_hook_flags)
+ {
+ 	int *hook_flags = _hook_flags;
+-	int *p = NULL;
  
- CFLAGS := $(EXTRA_WARNINGS) $(EXTRA_CFLAGS)
--CFLAGS += -ggdb3 -Wall -Wextra -std=gnu99 -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2 -fPIC
-+CFLAGS += -ggdb3 -Wall -Wextra -std=gnu99 -fPIC
-+
-+ifeq ($(DEBUG),0)
-+  ifeq ($(feature-fortify-source), 1)
-+    CFLAGS += -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=2
-+  endif
-+endif
+ 	*hook_flags = 1234;
  
- ifeq ($(CC_NO_CLANG), 0)
-   CFLAGS += -O3
+ 	/* Generate a segfault, test perf_hooks__recover */
+-	*p = 0;
++	raise(SIGSEGV);
+ }
+ 
+ int test__perf_hooks(struct test *test __maybe_unused, int subtest __maybe_unused)
 -- 
 2.20.1
 
