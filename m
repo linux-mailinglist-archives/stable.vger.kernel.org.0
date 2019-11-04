@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DFB2EEDC3
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:09:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 436A1EF018
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390448AbfKDWJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:09:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42826 "EHLO mail.kernel.org"
+        id S2388022AbfKDWZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:25:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390055AbfKDWJl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:09:41 -0500
+        id S1730547AbfKDVvb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:31 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C565205C9;
-        Mon,  4 Nov 2019 22:09:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFEEF217F4;
+        Mon,  4 Nov 2019 21:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905380;
-        bh=+hrQ8CO5V7hymOZF9ycnpXtaRIUVruIS3X+KEKu2Znw=;
+        s=default; t=1572904291;
+        bh=amwiZazbFCzmGdcy7wJmN5hK9XOXC1IYu73p5ph2XXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DgdabKVQcdKZntvmmgr1kTiBbTgK72mVATDfKjCnR1seu4OWsFDVMdJ9xp7d9HTHV
-         hMDWiRuL27weGqVAjPNyy6vKmGMTdR9+H9KOYo51G+VRsCsmaMZnI0/arYQux1IWMD
-         7x56mNcvPd2LI18N77qzD7YTc06O1aQypUtFxvHA=
+        b=dWZA8DGk4ZSr8LMNZqYRclFKAiaq6VFjghRxd23CaSbWUR4/S0Trzjw/qWYr2XhW0
+         8qvAAn/5ihHiN05/TF0uCOCsjpckhkfm9nXRAjSkZyn+9m+QYLeWgrjQy6GH/Hk6Gv
+         s0LPE+7UQ7QkGPn4TnWBibayZ5vqyvFjPC1tgi+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.3 125/163] ARC: perf: Accommodate big-endian CPU
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 4.9 53/62] bonding: fix potential NULL deref in bond_update_slave_arr
 Date:   Mon,  4 Nov 2019 22:45:15 +0100
-Message-Id: <20191104212149.283501179@linuxfoundation.org>
+Message-Id: <20191104211954.599976834@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,78 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 5effc09c4907901f0e71e68e5f2e14211d9a203f upstream.
+commit a7137534b597b7c303203e6bc3ed87e87a273bb8 upstream.
 
-8-letter strings representing ARC perf events are stores in two
-32-bit registers as ASCII characters like that: "IJMP", "IALL", "IJMPTAK" etc.
+syzbot got a NULL dereference in bond_update_slave_arr() [1],
+happening after a failure to allocate bond->slave_arr
 
-And the same order of bytes in the word is used regardless CPU endianness.
+A workqueue (bond_slave_arr_handler) is supposed to retry
+the allocation later, but if the slave is removed before
+the workqueue had a chance to complete, bond->slave_arr
+can still be NULL.
 
-Which means in case of big-endian CPU core we need to swap bytes to get
-the same order as if it was on little-endian CPU.
+[1]
 
-Otherwise we're seeing the following error message on boot:
-------------------------->8----------------------
-ARC perf        : 8 counters (32 bits), 40 conditions, [overflow IRQ support]
-sysfs: cannot create duplicate filename '/devices/arc_pct/events/pmji'
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  sysfs_warn_dup+0x46/0x58
-  sysfs_add_file_mode_ns+0xb2/0x168
-  create_files+0x70/0x2a0
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1 at kernel/events/core.c:12144 perf_event_sysfs_init+0x70/0xa0
-Failed to register pmu: arc_pct, reason -17
+Failed to build slave-array.
+kasan: CONFIG_KASAN_INLINE enabled
+kasan: GPF could be caused by NULL-ptr deref or user memory access
+general protection fault: 0000 [#1] SMP KASAN PTI
 Modules linked in:
-CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.2.18 #3
-Stack Trace:
-  arc_unwind_core+0xd4/0xfc
-  dump_stack+0x64/0x80
-  __warn+0x9c/0xd4
-  warn_slowpath_fmt+0x22/0x2c
-  perf_event_sysfs_init+0x70/0xa0
----[ end trace a75fb9a9837bd1ec ]---
-------------------------->8----------------------
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:bond_update_slave_arr.cold+0xc6/0x198 drivers/net/bonding/bond_main.c:4039
+RSP: 0018:ffff88018fe33678 EFLAGS: 00010246
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: ffffc9000290b000
+RDX: 0000000000000000 RSI: ffffffff82b63037 RDI: ffff88019745ea20
+RBP: ffff88018fe33760 R08: ffff880170754280 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+R13: ffff88019745ea00 R14: 0000000000000000 R15: ffff88018fe338b0
+FS:  00007febd837d700(0000) GS:ffff8801dad00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00000000004540a0 CR3: 00000001c242e005 CR4: 00000000001626f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ [<ffffffff82b5b45e>] __bond_release_one+0x43e/0x500 drivers/net/bonding/bond_main.c:1923
+ [<ffffffff82b5b966>] bond_release drivers/net/bonding/bond_main.c:2039 [inline]
+ [<ffffffff82b5b966>] bond_do_ioctl+0x416/0x870 drivers/net/bonding/bond_main.c:3562
+ [<ffffffff83ae25f4>] dev_ifsioc+0x6f4/0x940 net/core/dev_ioctl.c:328
+ [<ffffffff83ae2e58>] dev_ioctl+0x1b8/0xc70 net/core/dev_ioctl.c:495
+ [<ffffffff83995ffd>] sock_do_ioctl+0x1bd/0x300 net/socket.c:1088
+ [<ffffffff83996a80>] sock_ioctl+0x300/0x5d0 net/socket.c:1196
+ [<ffffffff81b124db>] vfs_ioctl fs/ioctl.c:47 [inline]
+ [<ffffffff81b124db>] file_ioctl fs/ioctl.c:501 [inline]
+ [<ffffffff81b124db>] do_vfs_ioctl+0xacb/0x1300 fs/ioctl.c:688
+ [<ffffffff81b12dc6>] SYSC_ioctl fs/ioctl.c:705 [inline]
+ [<ffffffff81b12dc6>] SyS_ioctl+0xb6/0xe0 fs/ioctl.c:696
+ [<ffffffff8101ccc8>] do_syscall_64+0x528/0x770 arch/x86/entry/common.c:305
+ [<ffffffff84400091>] entry_SYSCALL_64_after_hwframe+0x42/0xb7
 
-What happens here we're trying to register more than one raw perf event
-with the same name "PMJI". Why? Because ARC perf events are 4 to 8 letters
-and encoded into two 32-bit words. In this particular case we deal with 2
-events:
- * "IJMP____" which counts all jump & branch instructions
- * "IJMPC___" which counts only conditional jumps & branches
-
-Those strings are split in two 32-bit words this way "IJMP" + "____" &
-"IJMP" + "C___" correspondingly. Now if we read them swapped due to CPU core
-being big-endian then we read "PMJI" + "____" & "PMJI" + "___C".
-
-And since we interpret read array of ASCII letters as a null-terminated string
-on big-endian CPU we end up with 2 events of the same name "PMJI".
-
-Signed-off-by: Alexey Brodkin <abrodkin@synopsys.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Fixes: ee6377147409 ("bonding: Simplify the xmit function for modes that use xmit_hash")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Mahesh Bandewar <maheshb@google.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arc/kernel/perf_event.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/arc/kernel/perf_event.c
-+++ b/arch/arc/kernel/perf_event.c
-@@ -614,8 +614,8 @@ static int arc_pmu_device_probe(struct p
- 	/* loop thru all available h/w condition indexes */
- 	for (i = 0; i < cc_bcr.c; i++) {
- 		write_aux_reg(ARC_REG_CC_INDEX, i);
--		cc_name.indiv.word0 = read_aux_reg(ARC_REG_CC_NAME0);
--		cc_name.indiv.word1 = read_aux_reg(ARC_REG_CC_NAME1);
-+		cc_name.indiv.word0 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME0));
-+		cc_name.indiv.word1 = le32_to_cpu(read_aux_reg(ARC_REG_CC_NAME1));
- 
- 		arc_pmu_map_hw_event(i, cc_name.str);
- 		arc_pmu_add_raw_event_attr(i, cc_name.str);
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3963,7 +3963,7 @@ out:
+ 		 * this to-be-skipped slave to send a packet out.
+ 		 */
+ 		old_arr = rtnl_dereference(bond->slave_arr);
+-		for (idx = 0; idx < old_arr->count; idx++) {
++		for (idx = 0; old_arr != NULL && idx < old_arr->count; idx++) {
+ 			if (skipslave == old_arr->arr[idx]) {
+ 				old_arr->arr[idx] =
+ 				    old_arr->arr[old_arr->count-1];
 
 
