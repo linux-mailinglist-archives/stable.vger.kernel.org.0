@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ACD1EEEA4
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5879FEEF9C
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:22:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388839AbfKDWDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:03:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34334 "EHLO mail.kernel.org"
+        id S2387555AbfKDWWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:22:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389133AbfKDWDu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:03:50 -0500
+        id S2388296AbfKDV4J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:56:09 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 926AD222D4;
-        Mon,  4 Nov 2019 22:03:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD56221929;
+        Mon,  4 Nov 2019 21:56:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905030;
-        bh=3COlhzhvPOBrpE/6ph6hpqEDpr+0arf86B8sdJA0n2A=;
+        s=default; t=1572904569;
+        bh=AEX36XsO5lXsy2UodCcGI6ADsqU81+EXoRM9bAA0rL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jOetgHGrDPKLRsXKhWbekaP9EvjlOIC9l/19EEZ1EcqaUqVLZLiaG4fuK3YSDQGR
-         syGTmQzhB0iAyzOiDa+WkUPkGyhsRG6/Vbfr0LhjqOqsqlghh5+Cl2WPiTvl85wahr
-         2X9oy+IE6SAKYbxpq2pyNjQG8hWdJibfLeCMqr9s=
+        b=0Zj5JGlxsVrRz7bZ9vA2ySbutcsi3r3rQKqn0w1z3qjYBx920ZciiJswKu5ui9KwL
+         cQNRlGB8+LpT9ErkIDGkqcuNEPlFVkb1MHK/jS68po76RBi4253d2YA2NKNTk7QAKi
+         x+V10rsKNdaCeenaKx33Kp0GikaB8gkStBHWOaLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.19 134/149] NFS: Fix an RCU lock leak in nfs4_refresh_delegation_stateid()
+        syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com,
+        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 89/95] net: usb: sr9800: fix uninitialized local variable
 Date:   Mon,  4 Nov 2019 22:45:27 +0100
-Message-Id: <20191104212146.168377819@linuxfoundation.org>
+Message-Id: <20191104212123.803874685@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
 
-commit 79cc55422ce99be5964bde208ba8557174720893 upstream.
+commit 77b6d09f4ae66d42cd63b121af67780ae3d1a5e9 upstream.
 
-A typo in nfs4_refresh_delegation_stateid() means we're leaking an
-RCU lock, and always returning a value of 'false'. As the function
-description states, we were always supposed to return 'true' if a
-matching delegation was found.
+Make sure res does not contain random value if the call to
+sr_read_cmd fails for some reason.
 
-Fixes: 12f275cdd163 ("NFSv4: Retry CLOSE and DELEGRETURN on NFS4ERR_OLD_STATEID.")
-Cc: stable@vger.kernel.org # v4.15+
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Reported-by: syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com
+Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/delegation.c |    2 +-
+ drivers/net/usb/sr9800.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -1154,7 +1154,7 @@ bool nfs4_refresh_delegation_stateid(nfs
- 	if (delegation != NULL &&
- 	    nfs4_stateid_match_other(dst, &delegation->stateid)) {
- 		dst->seqid = delegation->stateid.seqid;
--		return ret;
-+		ret = true;
- 	}
- 	rcu_read_unlock();
- out:
+--- a/drivers/net/usb/sr9800.c
++++ b/drivers/net/usb/sr9800.c
+@@ -336,7 +336,7 @@ static void sr_set_multicast(struct net_
+ static int sr_mdio_read(struct net_device *net, int phy_id, int loc)
+ {
+ 	struct usbnet *dev = netdev_priv(net);
+-	__le16 res;
++	__le16 res = 0;
+ 
+ 	mutex_lock(&dev->phy_mutex);
+ 	sr_set_sw_mii(dev);
 
 
