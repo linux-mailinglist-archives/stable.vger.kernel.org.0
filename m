@@ -2,35 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7DA8EED8B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5BEEEE54
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389757AbfKDWHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:07:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40554 "EHLO mail.kernel.org"
+        id S2389373AbfKDWIM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:08:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390036AbfKDWHt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:07:49 -0500
+        id S2388489AbfKDWIJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:08:09 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DE4921929;
-        Mon,  4 Nov 2019 22:07:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCDBE205C9;
+        Mon,  4 Nov 2019 22:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905268;
-        bh=BlP8IYozOevQrxXlH5TJfSbvPd0H39Pymk/5eaQJdRo=;
+        s=default; t=1572905286;
+        bh=FrzwZv6FVNvvAr07Vc1/1PA+4MPp/UssWIY/WONUOQo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HT1HHbKHjAeC2pj7qU71OhokKDPEZcrr3qnTZyxMuIZFbtfi35UqaZuwD79HS8H5v
-         6KUwDPsIFIwBh6Y1iDkdfxFqG80vFmTxtG451AECGuErrYphzcrdz++jD72ZG7+JdQ
-         rUzcjU8xySYCffLBC+pdy2GRwBlVOhvcT/cnUpRY=
+        b=Lkl57Kl/3efiw8Rc3IKSlgdJQp4Dlv7Ag+KsByN21eHf+03HhZz3gE1TXCR65ZpQR
+         WTcsLEs32Py/PB5LUpFGaRRtO5e98rwNXSGyc/xJKMjoOai2mfqcILGNs55tcrlO3d
+         /WtDnkogd+4uEPzx29/KDUAyBXSDqHVTSVoMvIv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 050/163] arm64: vdso32: Dont use KBUILD_CPPFLAGS unconditionally
-Date:   Mon,  4 Nov 2019 22:44:00 +0100
-Message-Id: <20191104212143.810507927@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Dave Young <dyoung@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Lyude Paul <lyude@redhat.com>,
+        Matthew Garrett <mjg59@google.com>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        Peter Jones <pjones@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Scott Talbert <swt@techie.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 051/163] efi/cper: Fix endianness of PCIe class code
+Date:   Mon,  4 Nov 2019 22:44:01 +0100
+Message-Id: <20191104212143.869392738@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
@@ -43,46 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit c71e88c437962c1ec43d4d23a0ebf4c9cf9bee0d ]
+[ Upstream commit 6fb9367a15d1a126d222d738b2702c7958594a5f ]
 
-KBUILD_CPPFLAGS is defined differently depending on whether the main
-compiler is clang or not. This means that it is not possible to build
-the compat vDSO with GCC if the rest of the kernel is built with clang.
+The CPER parser assumes that the class code is big endian, but at least
+on this edk2-derived Intel Purley platform it's little endian:
 
-Define VDSO_CPPFLAGS directly to break this dependency and allow a clang
-kernel to build a compat vDSO with GCC:
+    efi: EFI v2.50 by EDK II BIOS ID:PLYDCRB1.86B.0119.R05.1701181843
+    DMI: Intel Corporation PURLEY/PURLEY, BIOS PLYDCRB1.86B.0119.R05.1701181843 01/18/2017
 
-  $ make ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- \
-    CROSS_COMPILE_COMPAT=arm-linux-gnueabihf- CC=clang \
-    COMPATCC=arm-linux-gnueabihf-gcc
+    {1}[Hardware Error]:   device_id: 0000:5d:00.0
+    {1}[Hardware Error]:   slot: 0
+    {1}[Hardware Error]:   secondary_bus: 0x5e
+    {1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2030
+    {1}[Hardware Error]:   class_code: 000406
+                                       ^^^^^^ (should be 060400)
 
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: Jerry Snitselaar <jsnitsel@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Peter Jones <pjones@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Scott Talbert <swt@techie.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Cc: linux-integrity@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191002165904.8819-2-ard.biesheuvel@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/vdso32/Makefile | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/firmware/efi/cper.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
-index 77aa613403747..aa171b043287b 100644
---- a/arch/arm64/kernel/vdso32/Makefile
-+++ b/arch/arm64/kernel/vdso32/Makefile
-@@ -25,11 +25,9 @@ cc32-as-instr = $(call try-run,\
- # arm64 one.
- # As a result we set our own flags here.
- 
--# From top-level Makefile
--# NOSTDINC_FLAGS
--VDSO_CPPFLAGS := -nostdinc -isystem $(shell $(COMPATCC) -print-file-name=include)
-+# KBUILD_CPPFLAGS and NOSTDINC_FLAGS from top-level Makefile
-+VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc -isystem $(shell $(COMPATCC) -print-file-name=include)
- VDSO_CPPFLAGS += $(LINUXINCLUDE)
--VDSO_CPPFLAGS += $(KBUILD_CPPFLAGS)
- 
- # Common C and assembly flags
- # From top-level Makefile
+diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
+index addf0749dd8b6..b1af0de2e1008 100644
+--- a/drivers/firmware/efi/cper.c
++++ b/drivers/firmware/efi/cper.c
+@@ -381,7 +381,7 @@ static void cper_print_pcie(const char *pfx, const struct cper_sec_pcie *pcie,
+ 		printk("%s""vendor_id: 0x%04x, device_id: 0x%04x\n", pfx,
+ 		       pcie->device_id.vendor_id, pcie->device_id.device_id);
+ 		p = pcie->device_id.class_code;
+-		printk("%s""class_code: %02x%02x%02x\n", pfx, p[0], p[1], p[2]);
++		printk("%s""class_code: %02x%02x%02x\n", pfx, p[2], p[1], p[0]);
+ 	}
+ 	if (pcie->validation_bits & CPER_PCIE_VALID_SERIAL_NUMBER)
+ 		printk("%s""serial number: 0x%04x, 0x%04x\n", pfx,
 -- 
 2.20.1
 
