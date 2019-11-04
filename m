@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 094AAEEF1C
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0914BEEE5A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388972AbfKDWBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:01:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59190 "EHLO mail.kernel.org"
+        id S2390247AbfKDWIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:08:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388970AbfKDWBJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:01:09 -0500
+        id S2390244AbfKDWIf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:08:35 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B10721E6F;
-        Mon,  4 Nov 2019 22:01:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97CE2214D8;
+        Mon,  4 Nov 2019 22:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904868;
-        bh=xXS8p/EblncHJQHEhAPsiIeE9RiB5ZxpflNfzXPTfaQ=;
+        s=default; t=1572905315;
+        bh=vWTVDALXfSb8OlxqgO4QbpSm+6M4srS+UggdwZfZEgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YhQlsayf6IGYgZS6odCac4z41YUjKJ2N4VuTxNfh9AX2uU/QfCZC9qXowRXoVw/Vu
-         TkSfWyt93JIlrFdJ+DWbPE4LD5lKvCwesbIKTTW7Xik8mCiNQDMWa+6p/G1DHd/vFf
-         Iz6z5DLrp1K7ZFvs+dzoF34soL7g9WYnvHnpeU2M=
+        b=Qr9pUkFh25B2TrnYxWhSd/YMTkhk/h50vX36iUVWHGyQaGgzJluZ2jQ05fUsz8Ksl
+         RTe/SbMnhu/8AoMtKCeGyfzKlc76ts9jA2Yx0/7OSjxOQ9XfM03kME9Vmxk290fe3P
+         sii7/jI/AabyP6Vjo2tTe2Su3EFMdoWA+cmXkPIc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 100/149] s390/uaccess: avoid (false positive) compiler warnings
-Date:   Mon,  4 Nov 2019 22:44:53 +0100
-Message-Id: <20191104212143.510652272@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Felipe Balbi <balbi@kernel.org>,
+        syzbot+8ab8bf161038a8768553@syzkaller.appspotmail.com
+Subject: [PATCH 5.3 104/163] USB: gadget: Reject endpoints with 0 maxpacket value
+Date:   Mon,  4 Nov 2019 22:44:54 +0100
+Message-Id: <20191104212147.614146677@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 062795fcdcb2d22822fb42644b1d76a8ad8439b3 ]
+commit 54f83b8c8ea9b22082a496deadf90447a326954e upstream.
 
-Depending on inlining decisions by the compiler, __get/put_user_fn
-might become out of line. Then the compiler is no longer able to tell
-that size can only be 1,2,4 or 8 due to the check in __get/put_user
-resulting in false positives like
+Endpoints with a maxpacket length of 0 are probably useless.  They
+can't transfer any data, and it's not at all unlikely that a UDC will
+crash or hang when trying to handle a non-zero-length usb_request for
+such an endpoint.  Indeed, dummy-hcd gets a divide error when trying
+to calculate the remainder of a transfer length by the maxpacket
+value, as discovered by the syzbot fuzzer.
 
-./arch/s390/include/asm/uaccess.h: In function ‘__put_user_fn’:
-./arch/s390/include/asm/uaccess.h:113:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-  113 |  return rc;
-      |         ^~
-./arch/s390/include/asm/uaccess.h: In function ‘__get_user_fn’:
-./arch/s390/include/asm/uaccess.h:143:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
-  143 |  return rc;
-      |         ^~
+Currently the gadget core does not check for endpoints having a
+maxpacket value of 0.  This patch adds a check to usb_ep_enable(),
+preventing such endpoints from being used.
 
-These functions are supposed to be always inlined. Mark it as such.
+As far as I know, none of the gadget drivers in the kernel tries to
+create an endpoint with maxpacket = 0, but until now there has been
+nothing to prevent userspace programs under gadgetfs or configfs from
+doing it.
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+8ab8bf161038a8768553@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910281052370.1485-100000@iolanthe.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/s390/include/asm/uaccess.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/core.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
-index 5332f628c1edc..40194f8c772a0 100644
---- a/arch/s390/include/asm/uaccess.h
-+++ b/arch/s390/include/asm/uaccess.h
-@@ -84,7 +84,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
- 	__rc;							\
- })
+--- a/drivers/usb/gadget/udc/core.c
++++ b/drivers/usb/gadget/udc/core.c
+@@ -98,6 +98,17 @@ int usb_ep_enable(struct usb_ep *ep)
+ 	if (ep->enabled)
+ 		goto out;
  
--static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
-+static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
- {
- 	unsigned long spec = 0x010000UL;
- 	int rc;
-@@ -114,7 +114,7 @@ static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
- 	return rc;
- }
- 
--static inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
-+static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
- {
- 	unsigned long spec = 0x01UL;
- 	int rc;
--- 
-2.20.1
-
++	/* UDC drivers can't handle endpoints with maxpacket size 0 */
++	if (usb_endpoint_maxp(ep->desc) == 0) {
++		/*
++		 * We should log an error message here, but we can't call
++		 * dev_err() because there's no way to find the gadget
++		 * given only ep.
++		 */
++		ret = -EINVAL;
++		goto out;
++	}
++
+ 	ret = ep->ops->enable(ep, ep->desc);
+ 	if (ret)
+ 		goto out;
 
 
