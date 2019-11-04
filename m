@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD55BEF013
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47117EEFB2
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730567AbfKDVvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:51:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44572 "EHLO mail.kernel.org"
+        id S2388181AbfKDVzf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:55:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730560AbfKDVve (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:51:34 -0500
+        id S2388176AbfKDVzd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:55:33 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5073621850;
-        Mon,  4 Nov 2019 21:51:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BB9A217F5;
+        Mon,  4 Nov 2019 21:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904293;
-        bh=AEX36XsO5lXsy2UodCcGI6ADsqU81+EXoRM9bAA0rL0=;
+        s=default; t=1572904533;
+        bh=sixlxQmbtc+VH6C8zjt/cyWafLSmc213MJobxLYDBlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atrVfdblVx18+RIXCecZXaedGN6k/FCObjDK64HeS59IjrPuS+kpJuDNFE1l20uN8
-         YHd2//7Fmyu2Lw/NFiNFoEvVCViV+Pgr9WY7Rz/r+QOtufNEHLMGdmP9xygzJcqQXP
-         N3I1/Ktr4EkvfNUMnnYLVC1b66X1Y+rkaXNrnwdU=
+        b=Rq5+B7re9YgB+xxxFT/hq0wl9YBA2mBnHq2RW9wJobtJBEhA01ZdH+2oxdzmpPrCQ
+         OoDVOzQxZsEl3m7rjQHD0ee1Q+/ue4GRYGlLb9WQZx9G/nZt6UoyAWL1n4C1kHI/he
+         lvCxDIGZAESSEq5BMjKM46vnEyPLTrZudbVtjsIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 54/62] net: usb: sr9800: fix uninitialized local variable
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 78/95] nl80211: fix validation of mesh path nexthop
 Date:   Mon,  4 Nov 2019 22:45:16 +0100
-Message-Id: <20191104211955.323387139@linuxfoundation.org>
+Message-Id: <20191104212119.796531665@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-commit 77b6d09f4ae66d42cd63b121af67780ae3d1a5e9 upstream.
+commit 1fab1b89e2e8f01204a9c05a39fd0b6411a48593 upstream.
 
-Make sure res does not contain random value if the call to
-sr_read_cmd fails for some reason.
+Mesh path nexthop should be a ethernet address, but current validation
+checks against 4 byte integers.
 
-Reported-by: syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 2ec600d672e74 ("nl80211/cfg80211: support for mesh, sta dumping")
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191029093003.10355-1-markus.theil@tu-ilmenau.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/usb/sr9800.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/nl80211.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/usb/sr9800.c
-+++ b/drivers/net/usb/sr9800.c
-@@ -336,7 +336,7 @@ static void sr_set_multicast(struct net_
- static int sr_mdio_read(struct net_device *net, int phy_id, int loc)
- {
- 	struct usbnet *dev = netdev_priv(net);
--	__le16 res;
-+	__le16 res = 0;
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -283,7 +283,8 @@ static const struct nla_policy nl80211_p
+ 	[NL80211_ATTR_MNTR_FLAGS] = { /* NLA_NESTED can't be empty */ },
+ 	[NL80211_ATTR_MESH_ID] = { .type = NLA_BINARY,
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+-	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_U32 },
++	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_BINARY,
++					  .len = ETH_ALEN },
  
- 	mutex_lock(&dev->phy_mutex);
- 	sr_set_sw_mii(dev);
+ 	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
 
 
