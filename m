@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2CB3EEC9D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9679FEEC9F
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:59:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730842AbfKDV6y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:58:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55974 "EHLO mail.kernel.org"
+        id S1730448AbfKDV66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:58:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729804AbfKDV6x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:58:53 -0500
+        id S1730858AbfKDV65 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:58:57 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1EE4D214E0;
-        Mon,  4 Nov 2019 21:58:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0B5E21744;
+        Mon,  4 Nov 2019 21:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904732;
-        bh=5lwm5aHSV+vFhzsKNzTGTuGddmHkxCu6wDISBI82sz4=;
+        s=default; t=1572904735;
+        bh=uub7qoWJO07kCGY9mnSTpLi4SKi0+yvY+LER2AED5r4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RaLjA9LgM17A9MDJ7alr52p3Q0AtU0LMWZWv6w98r9RKGvvtVGvs7UDakH4WE5Qs6
-         nR9l/8QvPqSDVhWBf7U9DSCf2klq9Vvj+lPpV5cQjI+wGshJnp4+sej6DYGWYpQluT
-         74mUsi1fnmPSmpc2+J+B6hCmMUIJm/HRChVinGHo=
+        b=dHMh3Fqzv2CHqgMj8AEMjp+t6zK64VKBu6AOKvkYepMpjdfhm50U4OSD4o8Yg1lZd
+         hFCAgc3Yy5E/mA7MCxi6UtZqKFlTTCij1SEq15qQAm+8hYnA7F3jy2odPSmpmEoepC
+         d6aTJadOFx+/eqbaHgVOt57N7GQVuaSUVDGBGIrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "=?UTF-8?q?Lucas=20A . =20M . =20Magalh=C3=A3es?=" 
-        <lucmaga@gmail.com>, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/149] media: vimc: Remove unused but set variables
-Date:   Mon,  4 Nov 2019 22:44:04 +0100
-Message-Id: <20191104212139.695013724@linuxfoundation.org>
+Subject: [PATCH 4.19 052/149] ext4: disallow files with EXT4_JOURNAL_DATA_FL from EXT4_IOC_SWAP_BOOT
+Date:   Mon,  4 Nov 2019 22:44:05 +0100
+Message-Id: <20191104212139.867962840@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
 References: <20191104212126.090054740@linuxfoundation.org>
@@ -46,39 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas A. M. Magalhães <lucmaga@gmail.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-[ Upstream commit 5515e414f42bf2769caae15b634004d456658284 ]
+[ Upstream commit 6e589291f4b1b700ca12baec5930592a0d51e63c ]
 
-Remove unused but set variables to clean up the code and avoid
-warning.
+A malicious/clueless root user can use EXT4_IOC_SWAP_BOOT to force a
+corner casew which can lead to the file system getting corrupted.
+There's no usefulness to allowing this, so just prohibit this case.
 
-Signed-off-by: Lucas A. M. Magalhães <lucmaga@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vimc/vimc-sensor.c | 7 -------
- 1 file changed, 7 deletions(-)
+ fs/ext4/ioctl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/vimc/vimc-sensor.c b/drivers/media/platform/vimc/vimc-sensor.c
-index 9e0d70e9f119c..3f0ffd4915cd2 100644
---- a/drivers/media/platform/vimc/vimc-sensor.c
-+++ b/drivers/media/platform/vimc/vimc-sensor.c
-@@ -204,13 +204,6 @@ static void *vimc_sen_process_frame(struct vimc_ent_device *ved,
- {
- 	struct vimc_sen_device *vsen = container_of(ved, struct vimc_sen_device,
- 						    ved);
--	const struct vimc_pix_map *vpix;
--	unsigned int frame_size;
--
--	/* Calculate the frame size */
--	vpix = vimc_pix_map_by_code(vsen->mbus_format.code);
--	frame_size = vsen->mbus_format.width * vpix->bpp *
--		     vsen->mbus_format.height;
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index abb6fcff0a1d3..783c54bb2ce75 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -132,6 +132,7 @@ static long swap_inode_boot_loader(struct super_block *sb,
  
- 	tpg_fill_plane_buffer(&vsen->tpg, 0, 0, vsen->frame);
- 	return vsen->frame;
+ 	if (inode->i_nlink != 1 || !S_ISREG(inode->i_mode) ||
+ 	    IS_SWAPFILE(inode) || IS_ENCRYPTED(inode) ||
++	    (EXT4_I(inode)->i_flags & EXT4_JOURNAL_DATA_FL) ||
+ 	    ext4_has_inline_data(inode)) {
+ 		err = -EINVAL;
+ 		goto journal_err_out;
 -- 
 2.20.1
 
