@@ -2,55 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D744EEFD0
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FDDDEF05B
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730333AbfKDVxR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:53:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46886 "EHLO mail.kernel.org"
+        id S2387607AbfKDVuH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:50:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730894AbfKDVxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:53:05 -0500
+        id S2387599AbfKDVuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:50:06 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84EBD21D71;
-        Mon,  4 Nov 2019 21:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 24ED320B7C;
+        Mon,  4 Nov 2019 21:50:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904384;
-        bh=fjQiodUtUnL7E1QsrnGW+Yr+9a3iGa0tjDl/Uey1G/o=;
+        s=default; t=1572904204;
+        bh=5p8OVfnFcBszbZl/65GzMwIS2WYbazKg8XcG7P8B1gs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ReUHcutN+PmOC2S222YjGU6Qntk6URMFJlrRS/4h+I5C+K7jmS8X/N+/WUQdEs4iq
-         Tj+lvAnV7skHog+L+jFJFCE8vTrjJt0yrCa2+UT2J3bLO0eXGUGx6BA+uGGC26s/mp
-         /rqFbQuUY+taciv9P3XzjUuLjZRh5y/lUxUuupAM=
+        b=VUN3IOKpBpmWPUleVibSZ/jzMGYLnWaA3q5tBwIsY1g/69/Jrd3WUyADCxoBqSFoD
+         /xjI/umbansKBin+ffBk/hY0kXAhhjcS9mJIq3LV8lS5EaJ62UjsfsQMG2EH+/0ibu
+         vPb/MD4lDWPfU8oo+QPSONXFRDyNbjGEvRWg36EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steve MacLean <Steve.MacLean@Microsoft.com>,
-        Brian Robbins <brianrob@microsoft.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        John Keeping <john@metanate.com>,
-        John Salem <josalem@microsoft.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tom McDonald <thomas.mcdonald@microsoft.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/95] perf map: Fix overlapped map handling
+        stable@vger.kernel.org, Mike Snitzer <snitzer@redhat.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 04/62] dm: Use kzalloc for all structs with embedded biosets/mempools
 Date:   Mon,  4 Nov 2019 22:44:26 +0100
-Message-Id: <20191104212056.591490118@linuxfoundation.org>
+Message-Id: <20191104211906.868583856@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,118 +44,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve MacLean <Steve.MacLean@microsoft.com>
+From: Kent Overstreet <kent.overstreet@gmail.com>
 
-[ Upstream commit ee212d6ea20887c0ef352be8563ca13dbf965906 ]
+[ Upstream commit d377535405686f735b90a8ad4ba269484cd7c96e ]
 
-Whenever an mmap/mmap2 event occurs, the map tree must be updated to add a new
-entry. If a new map overlaps a previous map, the overlapped section of the
-previous map is effectively unmapped, but the non-overlapping sections are
-still valid.
+mempool_init()/bioset_init() require that the mempools/biosets be zeroed
+first; they probably should not _require_ this, but not allocating those
+structs with kzalloc is a fairly nonsensical thing to do (calling
+mempool_exit()/bioset_exit() on an uninitialized mempool/bioset is legal
+and safe, but only works if said memory was zeroed.)
 
-maps__fixup_overlappings() is responsible for creating any new map entries from
-the previously overlapped map. It optionally creates a before and an after map.
-
-When creating the after map the existing code failed to adjust the map.pgoff.
-This meant the new after map would incorrectly calculate the file offset
-for the ip. This results in incorrect symbol name resolution for any ip in the
-after region.
-
-Make maps__fixup_overlappings() correctly populate map.pgoff.
-
-Add an assert that new mapping matches old mapping at the beginning of
-the after map.
-
-Committer-testing:
-
-Validated correct parsing of libcoreclr.so symbols from .NET Core 3.0 preview9
-(which didn't strip symbols).
-
-Preparation:
-
-  ~/dotnet3.0-preview9/dotnet new webapi -o perfSymbol
-  cd perfSymbol
-  ~/dotnet3.0-preview9/dotnet publish
-  perf record ~/dotnet3.0-preview9/dotnet \
-      bin/Debug/netcoreapp3.0/publish/perfSymbol.dll
-  ^C
-
-Before:
-
-  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
-     grep libcoreclr.so | head -n 4
-        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
-            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.705249:     250000 cpu-clock: \
-             7fe6159a1f99 [unknown] \
-             (.../3.0.0-preview9-19423-09/libcoreclr.so)
-
-After:
-
-  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
-     grep libcoreclr.so | head -n 4
-        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
-            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-
-All the [unknown] symbols were resolved.
-
-Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
-Tested-by: Brian Robbins <brianrob@microsoft.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: John Keeping <john@metanate.com>
-Cc: John Salem <josalem@microsoft.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
-Link: http://lore.kernel.org/lkml/BN8PR21MB136270949F22A6A02335C238F7800@BN8PR21MB1362.namprd21.prod.outlook.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Acked-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/map.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/dm-bio-prison.c  | 2 +-
+ drivers/md/dm-io.c          | 2 +-
+ drivers/md/dm-kcopyd.c      | 2 +-
+ drivers/md/dm-region-hash.c | 2 +-
+ drivers/md/dm-snap.c        | 2 +-
+ drivers/md/dm-thin.c        | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
-index 4e7bd27501224..63db9872c8808 100644
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- #include "symbol.h"
-+#include <assert.h>
- #include <errno.h>
- #include <inttypes.h>
- #include <limits.h>
-@@ -737,6 +738,8 @@ static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp
- 			}
+diff --git a/drivers/md/dm-bio-prison.c b/drivers/md/dm-bio-prison.c
+index 03af174485d30..fa2432a89bace 100644
+--- a/drivers/md/dm-bio-prison.c
++++ b/drivers/md/dm-bio-prison.c
+@@ -32,7 +32,7 @@ static struct kmem_cache *_cell_cache;
+  */
+ struct dm_bio_prison *dm_bio_prison_create(void)
+ {
+-	struct dm_bio_prison *prison = kmalloc(sizeof(*prison), GFP_KERNEL);
++	struct dm_bio_prison *prison = kzalloc(sizeof(*prison), GFP_KERNEL);
  
- 			after->start = map->end;
-+			after->pgoff += map->end - pos->start;
-+			assert(pos->map_ip(pos, map->end) == after->map_ip(after, map->end));
- 			__map_groups__insert(pos->groups, after);
- 			if (verbose >= 2 && !use_browser)
- 				map__fprintf(after, fp);
+ 	if (!prison)
+ 		return NULL;
+diff --git a/drivers/md/dm-io.c b/drivers/md/dm-io.c
+index ee6045d6c0bb3..201d90f5d1b3b 100644
+--- a/drivers/md/dm-io.c
++++ b/drivers/md/dm-io.c
+@@ -50,7 +50,7 @@ struct dm_io_client *dm_io_client_create(void)
+ 	struct dm_io_client *client;
+ 	unsigned min_ios = dm_get_reserved_bio_based_ios();
+ 
+-	client = kmalloc(sizeof(*client), GFP_KERNEL);
++	client = kzalloc(sizeof(*client), GFP_KERNEL);
+ 	if (!client)
+ 		return ERR_PTR(-ENOMEM);
+ 
+diff --git a/drivers/md/dm-kcopyd.c b/drivers/md/dm-kcopyd.c
+index e0cfde3501e0d..4609c5b481e23 100644
+--- a/drivers/md/dm-kcopyd.c
++++ b/drivers/md/dm-kcopyd.c
+@@ -828,7 +828,7 @@ struct dm_kcopyd_client *dm_kcopyd_client_create(struct dm_kcopyd_throttle *thro
+ 	int r = -ENOMEM;
+ 	struct dm_kcopyd_client *kc;
+ 
+-	kc = kmalloc(sizeof(*kc), GFP_KERNEL);
++	kc = kzalloc(sizeof(*kc), GFP_KERNEL);
+ 	if (!kc)
+ 		return ERR_PTR(-ENOMEM);
+ 
+diff --git a/drivers/md/dm-region-hash.c b/drivers/md/dm-region-hash.c
+index 85c32b22a420a..91c6f6d72eeec 100644
+--- a/drivers/md/dm-region-hash.c
++++ b/drivers/md/dm-region-hash.c
+@@ -179,7 +179,7 @@ struct dm_region_hash *dm_region_hash_create(
+ 		;
+ 	nr_buckets >>= 1;
+ 
+-	rh = kmalloc(sizeof(*rh), GFP_KERNEL);
++	rh = kzalloc(sizeof(*rh), GFP_KERNEL);
+ 	if (!rh) {
+ 		DMERR("unable to allocate region hash memory");
+ 		return ERR_PTR(-ENOMEM);
+diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
+index cf2f44e500e24..c04d9f22d1607 100644
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -1136,7 +1136,7 @@ static int snapshot_ctr(struct dm_target *ti, unsigned int argc, char **argv)
+ 		origin_mode = FMODE_WRITE;
+ 	}
+ 
+-	s = kmalloc(sizeof(*s), GFP_KERNEL);
++	s = kzalloc(sizeof(*s), GFP_KERNEL);
+ 	if (!s) {
+ 		ti->error = "Cannot allocate private snapshot structure";
+ 		r = -ENOMEM;
+diff --git a/drivers/md/dm-thin.c b/drivers/md/dm-thin.c
+index 23a7e108352aa..dcb753dbf86e2 100644
+--- a/drivers/md/dm-thin.c
++++ b/drivers/md/dm-thin.c
+@@ -2965,7 +2965,7 @@ static struct pool *pool_create(struct mapped_device *pool_md,
+ 		return (struct pool *)pmd;
+ 	}
+ 
+-	pool = kmalloc(sizeof(*pool), GFP_KERNEL);
++	pool = kzalloc(sizeof(*pool), GFP_KERNEL);
+ 	if (!pool) {
+ 		*error = "Error allocating memory for pool";
+ 		err_p = ERR_PTR(-ENOMEM);
 -- 
 2.20.1
 
