@@ -2,91 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 865EBED687
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 01:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83F1DED6C8
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 02:10:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728372AbfKDAL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 3 Nov 2019 19:11:57 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:32835 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728276AbfKDAL5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 3 Nov 2019 19:11:57 -0500
-Received: by mail-wr1-f68.google.com with SMTP id s1so15125018wro.0
-        for <stable@vger.kernel.org>; Sun, 03 Nov 2019 16:11:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KfqwqEjcKL8mf246UlvwfplrPDLfA2FqP+X/kDvtpIE=;
-        b=Y4jHfX7PgChlJi2hk6vQIrFva5D7wDCdMUuqMK5X2CxsDisair2PxMKHDDBrp4zTYA
-         B3LFqjCjmyc3Ew8zjmuspjcojWzRZxrV66c68L2JkbMRlcZfa3kOk1pgtMOSTtwkduJE
-         25DTIKXY42GpC/URJ3+dEqtM8v3lhSmf0eC2Otf1RRgB3aOq7AjZn6QXf6nNQM8C56wh
-         5SZhX6vKyZd+SeRe6fsaq5UI5N0CVFBR3kD/eulESqua97SMM/afeJ3dnpLr67B2KkH9
-         lpUtUc5Q/Xmdf2rBJehqvGI78g0zT07XwpE4wexnqW39xLvHsg1DqHHvHaIzBHNccDFW
-         E92Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KfqwqEjcKL8mf246UlvwfplrPDLfA2FqP+X/kDvtpIE=;
-        b=dx0CaXNWabpE0B2yQY9/VMQDPzaZH0YpiwlOvOPbc7/qHoJ01NtZVHOKaA3fXbofO3
-         x0BX3L8Se/8yE2AJOQ8pVMAYQ3eApSoqatHk3+oVTwc4TxgwZRyGSQyu9Ss5wlu7ka1W
-         6egcaiTh1uS2KNO5bqSbrplX7+RA4Ttc1jyKsMqCtCt+Z52cHBmddAlvFwqrg9EudjFO
-         1VGNt0dFw5yw+7g1srMX+kvObLxtERDAwdsL39IQFKDYU3RFaW7TaZK4WdDXv12MdoH0
-         eOjF77o4Um3QPv8CNWNFYB8TlralQ99PR45KwLZGLibUSwi6LoDu3EtwCVkFgips9IIt
-         geHw==
-X-Gm-Message-State: APjAAAXbGczd/eOJmX25TMnJw+vepX1hbifwEd/IaMdMgJ4o4hKNYeCt
-        sel/JUZx1uTXqRkbZeKWoXRMp7OK28YH7g==
-X-Google-Smtp-Source: APXvYqxXKEeIg2yKi4/SIZGazyACtikBiDE5x2V/4vYEHXzuyN6O8gPp9ZvK77x+WiVwnSNDZMt2xw==
-X-Received: by 2002:a5d:4649:: with SMTP id j9mr9328129wrs.248.1572826315276;
-        Sun, 03 Nov 2019 16:11:55 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id v6sm8194118wrt.13.2019.11.03.16.11.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 Nov 2019 16:11:54 -0800 (PST)
-Message-ID: <5dbf6cca.1c69fb81.4a9d.fb40@mx.google.com>
-Date:   Sun, 03 Nov 2019 16:11:54 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1728556AbfKDBKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 3 Nov 2019 20:10:37 -0500
+Received: from szxga05-in.huawei.com ([45.249.212.191]:5252 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726310AbfKDBKg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 3 Nov 2019 20:10:36 -0500
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 78599A16181B0DF53067;
+        Mon,  4 Nov 2019 09:10:32 +0800 (CST)
+Received: from [127.0.0.1] (10.177.223.23) by DGGEMS409-HUB.china.huawei.com
+ (10.3.19.209) with Microsoft SMTP Server id 14.3.439.0; Mon, 4 Nov 2019
+ 09:10:22 +0800
+Subject: Re: stable-rc-4.19: cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
+ undeclared
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Hanjun Guo <hanjun.guo@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+CC:     Mark Rutland <mark.rutland@arm.com>, <suzuki.poulose@arm.com>,
+        <catalin.marinas@arm.com>, <john.garry@huawei.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>,
+        <zhangshaokun@hisilicon.com>, <lkft-triage@lists.linaro.org>,
+        <andrew.murray@arm.com>, <will@kernel.org>,
+        Dave P Martin <Dave.Martin@arm.com>,
+        <linux-arm-kernel@lists.infradead.org>
+References: <CA+G9fYtoODTuayzXdsv=bFuRPvw1-+dmZxHqQePy6LX8ixOG5A@mail.gmail.com>
+From:   Hanjun Guo <guohanjun@huawei.com>
+Message-ID: <98f10e13-8ec8-1690-a867-f212bcea969f@huawei.com>
+Date:   Mon, 4 Nov 2019 09:10:06 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
+ Thunderbird/52.5.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.198-38-g0ec3474509ec
-Subject: stable-rc/linux-4.9.y boot: 46 boots: 0 failed,
- 45 passed with 1 untried/unknown (v4.9.198-38-g0ec3474509ec)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <CA+G9fYtoODTuayzXdsv=bFuRPvw1-+dmZxHqQePy6LX8ixOG5A@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.177.223.23]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 46 boots: 0 failed, 45 passed with 1 untried/un=
-known (v4.9.198-38-g0ec3474509ec)
+Hi Sasha, Greg,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.198-38-g0ec3474509ec/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.198-38-g0ec3474509ec/
+On 2019/11/4 7:22, Naresh Kamboju wrote:
+> stable rc 4.19  branch build broken for arm64 with the below error log,
+> 
+> Build error log,
+> arch/arm64/kernel/cpufeature.c: In function 'unmap_kernel_at_el0':
+> arch/arm64/kernel/cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
+> undeclared (first use in this function); did you mean
+> 'GICR_ISACTIVER0'?
+>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
+>                     ^
+> arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
+> 'MIDR_RANGE'
+>   .model = m,     \
+>            ^
+> arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
+> 'MIDR_ALL_VERSIONS'
+>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
+>   ^~~~~~~~~~~~~~~~~
+> arch/arm64/kernel/cpufeature.c:909:21: note: each undeclared
+> identifier is reported only once for each function it appears in
+>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
+>                     ^
+> arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
+> 'MIDR_RANGE'
+>   .model = m,     \
+>            ^
+> arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
+> 'MIDR_ALL_VERSIONS'
+>   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.198-38-g0ec3474509ec
-Git Commit: 0ec3474509ec1efc2bc793f65ffdd3ecbbbe1166
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 24 unique boards, 12 SoC families, 9 builds out of 197
+Patch "efd00c7 arm64: Add MIDR encoding for HiSilicon Taishan CPUs" needs to
+be bacported as well, would you like me to do that, or just cherry-pick by yourself?
 
-Boot Regressions Detected:
+Thanks
+Hanjun
 
-arm64:
-
-    defconfig:
-        gcc-8:
-          r8a7795-salvator-x:
-              lab-baylibre: new failure (last pass: v4.9.196)
-
----
-For more info write to <info@kernelci.org>
