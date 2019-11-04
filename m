@@ -2,75 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C1BEE761
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 19:27:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF885EE760
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 19:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729422AbfKDS14 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 13:27:56 -0500
-Received: from alln-iport-2.cisco.com ([173.37.142.89]:56290 "EHLO
-        alln-iport-2.cisco.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727998AbfKDS14 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 13:27:56 -0500
-X-Greylist: delayed 425 seconds by postgrey-1.27 at vger.kernel.org; Mon, 04 Nov 2019 13:27:55 EST
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=cisco.com; i=@cisco.com; l=664; q=dns/txt; s=iport;
-  t=1572892075; x=1574101675;
-  h=date:from:to:cc:subject:message-id:mime-version;
-  bh=6eYi3wjyJDjYDvEnI2nl2Du9wgudJvIY7ANx7M1zMok=;
-  b=lZlF6RzDCbzmPeeiW+OAN/NYSEtmr/XTNFZrOiLfEMgPaI3L+WH/V8e0
-   lXuSPPk/rNUNv129pbjFRKPfZ4dpUKOPxdAMBExbAeiTi07aA69YnXjbS
-   foZfYxG7N5KMD9KxsRPXIW4rgbcYXdIaYIIcJyfS/HAJrziARtTNz86//
-   Y=;
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: =?us-ascii?q?A0C2AAB7asBd/4sNJK1mDgsBAQEBAQE?=
- =?us-ascii?q?BAQEBAQEBAQEBAREBAQEBAQEBAQEBAYF9giBsVTIqkzaRFYR+hTyBZwkBAQE?=
- =?us-ascii?q?MAQElCgEBhECEECQ4EwIDCwEBBAEBAQIBBQRthTcMhhI/GyE0BSghARKDI4J?=
- =?us-ascii?q?3D7FdgieJBoFCBhQOgRSMExiBQD+BEYMSPoQtBINWgiwEjHBEiUqHcI8Egi5?=
- =?us-ascii?q?thiSOGScMmVktjhWILpEpAgQGBQIVgWkiKoEuMxoIGxWDKBI9ERSMDYUEXCA?=
- =?us-ascii?q?DMQEBAYwrgj4BAQ?=
-X-IronPort-AV: E=Sophos;i="5.68,267,1569283200"; 
-   d="scan'208";a="365533773"
-Received: from alln-core-6.cisco.com ([173.36.13.139])
-  by alln-iport-2.cisco.com with ESMTP/TLS/DHE-RSA-SEED-SHA; 04 Nov 2019 18:20:48 +0000
-Received: from zorba ([10.154.200.29])
-        by alln-core-6.cisco.com (8.15.2/8.15.2) with ESMTPS id xA4IKkpK001680
-        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Mon, 4 Nov 2019 18:20:47 GMT
-Date:   Mon, 4 Nov 2019 10:20:44 -0800
-From:   Daniel Walker <danielwa@cisco.com>
-To:     Jens Axboe <axboe@kernel.dk>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, stable@vger.kernel.org,
-        xe-linux-external@cisco.com
-Subject: Re: usb-storage: Set virt_boundary_mask to avoid SG overflows
-Message-ID: <20191104182044.GF18744@zorba>
+        id S1728876AbfKDS1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 13:27:51 -0500
+Received: from mail-wm1-f45.google.com ([209.85.128.45]:51303 "EHLO
+        mail-wm1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727998AbfKDS1u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 13:27:50 -0500
+Received: by mail-wm1-f45.google.com with SMTP id q70so17802394wme.1
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 10:27:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=MrOlDfxhgdKSRKUgYFb9Fy5L5HVsLkB9rhBm7iOv9Tc=;
+        b=Ypa/nkXrbzKhsXOgvyofdabJOQec5Kn0rABKXoDj3KwDfxti3wGlqo8emplH9TIy/k
+         ZOmNWDMtr6qMJhAln6ZOMqBW1JP8byH2qQsNW72ZO+/k3lbWYenNHdqhzxumuf2G1OCH
+         XyNe6+GzZ/FyylBH5YOigJ/ChHE71FkPNaJF3Gv4CwvT7m2u7FTsOgvSr2zW6ySD67N0
+         3u1PHI+WirJqpk7aNnAMsZhTuksmv2j/Zt2YgTkQDrjLhi8+YKpT+2h4nkpyQgHQXc/9
+         QSG6fl2fOewyCGkl34uAz+4Z0w0z9lQ2QPWXtgxeRkqHSBxyxESCWvZbsBhfivTO4SPV
+         u0lQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=MrOlDfxhgdKSRKUgYFb9Fy5L5HVsLkB9rhBm7iOv9Tc=;
+        b=Ra9LP4J1vW7vYOuzsjKMMhaCRPXcR+x6/d2wQYB7Ri2GjqqCSniQlchMmw0O5dUBRb
+         Y1l1DPotjdAhkznIYzuI1a4T1yC7zH9VKS+AeVdGAoTWE7YzzTlDWhjh4aZxQ+nQvMyl
+         zevsbqt9/egPxANnqpIj7wiv7exb3w/Vwz9zAU3g39AUpZbSU8zd2y2T3HdKclkhbhQj
+         mRx1fhve7GNy+NwVZ2u09cAop/EsfU5BYIdOqgL8UKgYDkXe8hVewP6IHB/LUXRCnFfl
+         MsHuRj8VTz1KT0gCEEfqv1ehlRG3ar4kTuTsu9isBQMDDMFwtmFIHxaQaADczoahTVN4
+         0QPg==
+X-Gm-Message-State: APjAAAXDuOYRxPmdghX6bOiTFptD4XxSZbjLVuLXqQa4TlrqsyrbuA4G
+        hjZquyFgIqFg6LFYYwOmRApdqvHhDy0R6Q==
+X-Google-Smtp-Source: APXvYqz/5cOO00v41I18RBYf8g/QU8+ETYYUNRAkEaPsv34jg3Df/A0Tm3DwTmlG26PUsvvNAJbnww==
+X-Received: by 2002:a7b:c38c:: with SMTP id s12mr450285wmj.84.1572892068322;
+        Mon, 04 Nov 2019 10:27:48 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id u1sm25554317wru.90.2019.11.04.10.27.47
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Nov 2019 10:27:47 -0800 (PST)
+Message-ID: <5dc06da3.1c69fb81.68371.0569@mx.google.com>
+Date:   Mon, 04 Nov 2019 10:27:47 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.9.4 (2018-02-28)
-X-Auto-Response-Suppress: DR, OOF, AutoReply
-X-Outbound-SMTP-Client: 10.154.200.29, [10.154.200.29]
-X-Outbound-Node: alln-core-6.cisco.com
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.198-47-g3849b8fee3c3
+Subject: stable-rc/linux-4.4.y boot: 80 boots: 0 failed,
+ 72 passed with 7 offline, 1 conflict (v4.4.198-47-g3849b8fee3c3)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/linux-4.4.y boot: 80 boots: 0 failed, 72 passed with 7 offline, 1=
+ conflict (v4.4.198-47-g3849b8fee3c3)
 
-This is a stable defect report.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.198-47-g3849b8fee3c3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.198-47-g3849b8fee3c3/
 
-We're tracking v4.9 stable for some of our products (i.e. Cisco Systems, Inc.)
-We noticed a speed degradation of roughly %30 on writes to a /dev/sdaX device
-over USB (no file system). We bisected the issue to this commit from Alan Stern.
-We also found a prior report of speed degradation on NTFS,
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.198-47-g3849b8fee3c3
+Git Commit: 3849b8fee3c31ec2cfef806e0e369ccbd50d0f1e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 41 unique boards, 17 SoC families, 13 builds out of 190
 
-https://lore.kernel.org/linux-usb/Pine.LNX.4.44L0.1908291030400.1306-100000@iolanthe.rowland.org/T/
+Offline Platforms:
 
-We have the patch reverted in our v4.9 tree on top of stable. It seems Alan was
-planning to remove these lines. If the lines are planned to be removed is there
-an reason why they haven't been ?
+arm:
 
-Thanks,
-Daniel
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
