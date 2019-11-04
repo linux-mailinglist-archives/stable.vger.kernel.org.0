@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1336EEF07F
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 243E7EF064
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388011AbfKDW2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:28:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39832 "EHLO mail.kernel.org"
+        id S2387685AbfKDVuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:50:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730182AbfKDVs4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:56 -0500
+        id S2387659AbfKDVuV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:50:21 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5758221929;
-        Mon,  4 Nov 2019 21:48:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D80972190F;
+        Mon,  4 Nov 2019 21:50:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904134;
-        bh=3fIb/XpE5v/FmqlNuybYCPwnbwJAl3gVKkv+KO2OZGw=;
+        s=default; t=1572904221;
+        bh=/tDzpcVlYPUykGvZzZFMA0ytYIsAYipqOHOn2ds+2O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPRqKzo7yk8v2QgW61CclCOyM28xzgLJ7UXl2ndddFEopIWx5dt2ykdOg2kuUSDCE
-         DpcZuVQ77zfTxpBjHXXu+kQzj5T67wzo1+bZxgX4LsVjO/IchhyR0LtgrJW/L8JlsO
-         bAT/atPL9mwL/XOTfRn73inUtN/Mx+QuGbggEmos=
+        b=NmChmMhgeqBivVG0un8lHn2aRH7csQKxx27HBWLGX/nN1RZAH9UezREHwn3ZbKLo2
+         /0+9/RUkd8V/fNAFv7kKCWZFISR1TJjjzdeU6+u8yvLz5qwv71xNHIbsGhRG93TPXE
+         CWOS8efdnGPlcC15slpDSAbuKyWgdA4AWqxN/FL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Samuel Dionne-Riel <samuel@dionne-riel.com>,
-        Richard Weinberger <richard.weinberger@gmail.com>,
-        Graham Christensen <graham@grahamc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 09/46] exec: load_script: Do not exec truncated interpreter path
+Subject: [PATCH 4.9 18/62] gpio: max77620: Use correct unit for debounce times
 Date:   Mon,  4 Nov 2019 22:44:40 +0100
-Message-Id: <20191104211839.848088730@linuxfoundation.org>
+Message-Id: <20191104211918.560035886@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,118 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
+[ Upstream commit fffa6af94894126994a7600c6f6f09b892e89fa9 ]
 
-Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
-shebang string") was trying to protect against a confused exec of a
-truncated interpreter path. However, it was overeager and also refused
-to truncate arguments as well, which broke userspace, and it was
-reverted. This attempts the protection again, but allows arguments to
-remain truncated. In an effort to improve readability, helper functions
-and comments have been added.
+The gpiod_set_debounce() function takes the debounce time in
+microseconds. Adjust the switch/case values in the MAX77620 GPIO to use
+the correct unit.
 
-Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>
-Cc: Graham Christensen <graham@grahamc.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://lore.kernel.org/r/20191002122825.3948322-1-thierry.reding@gmail.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 48 insertions(+), 9 deletions(-)
+ drivers/gpio/gpio-max77620.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
-index afdf4e3cafc2a..37c2093a24d3c 100644
---- a/fs/binfmt_script.c
-+++ b/fs/binfmt_script.c
-@@ -14,14 +14,31 @@
- #include <linux/err.h>
- #include <linux/fs.h>
- 
-+static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
-+static inline char *next_non_spacetab(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (!spacetab(*first))
-+			return first;
-+	return NULL;
-+}
-+static inline char *next_terminator(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (spacetab(*first) || !*first)
-+			return first;
-+	return NULL;
-+}
-+
- static int load_script(struct linux_binprm *bprm)
- {
- 	const char *i_arg, *i_name;
--	char *cp;
-+	char *cp, *buf_end;
- 	struct file *file;
- 	char interp[BINPRM_BUF_SIZE];
- 	int retval;
- 
-+	/* Not ours to exec if we don't start with "#!". */
- 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
- 		return -ENOEXEC;
- 
-@@ -34,18 +51,40 @@ static int load_script(struct linux_binprm *bprm)
- 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
- 		return -ENOENT;
- 
--	/*
--	 * This section does the #! interpretation.
--	 * Sorta complicated, but hopefully it will work.  -TYT
--	 */
--
-+	/* Release since we are not mapping a binary into memory. */
- 	allow_write_access(bprm->file);
- 	fput(bprm->file);
- 	bprm->file = NULL;
- 
--	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
--	if ((cp = strchr(bprm->buf, '\n')) == NULL)
--		cp = bprm->buf+BINPRM_BUF_SIZE-1;
-+	/*
-+	 * This section handles parsing the #! line into separate
-+	 * interpreter path and argument strings. We must be careful
-+	 * because bprm->buf is not yet guaranteed to be NUL-terminated
-+	 * (though the buffer will have trailing NUL padding when the
-+	 * file size was smaller than the buffer size).
-+	 *
-+	 * We do not want to exec a truncated interpreter path, so either
-+	 * we find a newline (which indicates nothing is truncated), or
-+	 * we find a space/tab/NUL after the interpreter path (which
-+	 * itself may be preceded by spaces/tabs). Truncating the
-+	 * arguments is fine: the interpreter can re-read the script to
-+	 * parse them on its own.
-+	 */
-+	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
-+	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
-+	if (!cp) {
-+		cp = next_non_spacetab(bprm->buf + 2, buf_end);
-+		if (!cp)
-+			return -ENOEXEC; /* Entire buf is spaces/tabs */
-+		/*
-+		 * If there is no later space/tab/NUL we must assume the
-+		 * interpreter path is truncated.
-+		 */
-+		if (!next_terminator(cp, buf_end))
-+			return -ENOEXEC;
-+		cp = buf_end;
-+	}
-+	/* NUL-terminate the buffer and any trailing spaces/tabs. */
- 	*cp = '\0';
- 	while (cp > bprm->buf) {
- 		cp--;
+diff --git a/drivers/gpio/gpio-max77620.c b/drivers/gpio/gpio-max77620.c
+index b46b436cb97fe..4fe0be5aa2945 100644
+--- a/drivers/gpio/gpio-max77620.c
++++ b/drivers/gpio/gpio-max77620.c
+@@ -167,13 +167,13 @@ static int max77620_gpio_set_debounce(struct gpio_chip *gc,
+ 	case 0:
+ 		val = MAX77620_CNFG_GPIO_DBNC_None;
+ 		break;
+-	case 1 ... 8:
++	case 1000 ... 8000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_8ms;
+ 		break;
+-	case 9 ... 16:
++	case 9000 ... 16000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_16ms;
+ 		break;
+-	case 17 ... 32:
++	case 17000 ... 32000:
+ 		val = MAX77620_CNFG_GPIO_DBNC_32ms;
+ 		break;
+ 	default:
 -- 
 2.20.1
 
