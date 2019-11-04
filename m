@@ -2,45 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 035DFEEE6A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 463C6EEECE
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:17:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389064AbfKDWHm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:07:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40298 "EHLO mail.kernel.org"
+        id S2389412AbfKDWCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:02:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388225AbfKDWHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:07:41 -0500
+        id S2389403AbfKDWCw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:02:52 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CBA7214D9;
-        Mon,  4 Nov 2019 22:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3143120650;
+        Mon,  4 Nov 2019 22:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905260;
-        bh=7sswNqk+vSRcaPxXaAyNYYTr8uidR7ZgpcGDrKXJKns=;
+        s=default; t=1572904971;
+        bh=bhZyzt5jNJv5rZYKFKakbsYlNulrMGxOM/5JzLduPEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0k4s4jkTEEy86MabToV+PKNkS47fleUgaSz9ZxYv8vL4RA32SnEIV3LX/qODjVn7j
-         MV9J9gh76YX5vnMWcj3VUpnMj+RF8PPWWaRNnejfibzHSn2lmnADR4hNR6RVhbhaqj
-         TYht4P4h1myny3lN55hN3VbaR1ywOyFOr8W4POfE=
+        b=wlKpWtXUHbFCqVjWTPfF3fyGMkd9jnkHIaNsiR2GCTUeC/xPU60Wy+jsCAsZ51KQm
+         55ip79Dcpt21JqqV7Z+ydfXSwhjyU97G+Jby3pBvkU+agHkZJhK/ZP54VqaYwiB12Y
+         c6sb6LmqEvXY2Aqnn1xvouOsEsTzPM0SnxGfgfE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Ben Dooks <ben.dooks@codethink.co.uk>,
+        Dave Young <dyoung@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Jerry Snitselaar <jsnitsel@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Lyude Paul <lyude@redhat.com>,
+        Matthew Garrett <mjg59@google.com>,
+        Octavian Purdila <octavian.purdila@intel.com>,
+        Peter Jones <pjones@redhat.com>,
         Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 083/163] perf annotate: Fix multiple memory and file descriptor leaks
-Date:   Mon,  4 Nov 2019 22:44:33 +0100
-Message-Id: <20191104212146.297059666@linuxfoundation.org>
+        Scott Talbert <swt@techie.net>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 081/149] efi/cper: Fix endianness of PCIe class code
+Date:   Mon,  4 Nov 2019 22:44:34 +0100
+Message-Id: <20191104212142.274068642@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,42 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavo@embeddedor.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit f948eb45e3af9fb18a0487d0797a773897ef6929 ]
+[ Upstream commit 6fb9367a15d1a126d222d738b2702c7958594a5f ]
 
-Store SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF in variable *ret*, instead
-of returning in the middle of the function and leaking multiple
-resources: prog_linfo, btf, s and bfdf.
+The CPER parser assumes that the class code is big endian, but at least
+on this edk2-derived Intel Purley platform it's little endian:
 
-Addresses-Coverity-ID: 1454832 ("Structurally dead code")
-Fixes: 11aad897f6d1 ("perf annotate: Don't return -1 for error when doing BPF disassembly")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
+    efi: EFI v2.50 by EDK II BIOS ID:PLYDCRB1.86B.0119.R05.1701181843
+    DMI: Intel Corporation PURLEY/PURLEY, BIOS PLYDCRB1.86B.0119.R05.1701181843 01/18/2017
+
+    {1}[Hardware Error]:   device_id: 0000:5d:00.0
+    {1}[Hardware Error]:   slot: 0
+    {1}[Hardware Error]:   secondary_bus: 0x5e
+    {1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2030
+    {1}[Hardware Error]:   class_code: 000406
+                                       ^^^^^^ (should be 060400)
+
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: Jerry Snitselaar <jsnitsel@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Lyude Paul <lyude@redhat.com>
+Cc: Matthew Garrett <mjg59@google.com>
+Cc: Octavian Purdila <octavian.purdila@intel.com>
+Cc: Peter Jones <pjones@redhat.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20191014171047.GA30850@embeddedor
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Scott Talbert <swt@techie.net>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Cc: linux-integrity@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191002165904.8819-2-ard.biesheuvel@linaro.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/annotate.c | 2 +-
+ drivers/firmware/efi/cper.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index fb8756026a805..2e02d2a0176a8 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -1752,7 +1752,7 @@ static int symbol__disassemble_bpf(struct symbol *sym,
- 	info_node = perf_env__find_bpf_prog_info(dso->bpf_prog.env,
- 						 dso->bpf_prog.id);
- 	if (!info_node) {
--		return SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF;
-+		ret = SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF;
- 		goto out;
+diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
+index 4045098ddb860..116989cf3d457 100644
+--- a/drivers/firmware/efi/cper.c
++++ b/drivers/firmware/efi/cper.c
+@@ -393,7 +393,7 @@ static void cper_print_pcie(const char *pfx, const struct cper_sec_pcie *pcie,
+ 		printk("%s""vendor_id: 0x%04x, device_id: 0x%04x\n", pfx,
+ 		       pcie->device_id.vendor_id, pcie->device_id.device_id);
+ 		p = pcie->device_id.class_code;
+-		printk("%s""class_code: %02x%02x%02x\n", pfx, p[0], p[1], p[2]);
++		printk("%s""class_code: %02x%02x%02x\n", pfx, p[2], p[1], p[0]);
  	}
- 	info_linear = info_node->info_linear;
+ 	if (pcie->validation_bits & CPER_PCIE_VALID_SERIAL_NUMBER)
+ 		printk("%s""serial number: 0x%04x, 0x%04x\n", pfx,
 -- 
 2.20.1
 
