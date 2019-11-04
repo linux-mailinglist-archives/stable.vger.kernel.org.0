@@ -2,88 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C0CEE146
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 14:33:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56183EE144
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 14:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727663AbfKDNdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 08:33:05 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:58044 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727430AbfKDNdF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 08:33:05 -0500
-Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id F120362AD44B81AB9603;
-        Mon,  4 Nov 2019 21:33:02 +0800 (CST)
-Received: from linux-ibm.site (10.175.102.37) by
- DGGEMS408-HUB.china.huawei.com (10.3.19.208) with Microsoft SMTP Server id
- 14.3.439.0; Mon, 4 Nov 2019 21:32:53 +0800
-From:   Hanjun Guo <guohanjun@huawei.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, <stable@vger.kernel.org>
-CC:     Will Deacon <will@kernel.org>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Hanjun Guo <guohanjun@huawei.com>
-Subject: [PATCH 4.19.82-rc1] arm64: Add MIDR encoding for HiSilicon Taishan CPUs
-Date:   Mon, 4 Nov 2019 21:28:36 +0800
-Message-ID: <1572874116-10831-1-git-send-email-guohanjun@huawei.com>
-X-Mailer: git-send-email 1.7.12.4
+        id S1727998AbfKDNdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 08:33:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52562 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727663AbfKDNdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 08:33:04 -0500
+Received: from localhost (unknown [62.119.166.9])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB3D620B7C;
+        Mon,  4 Nov 2019 13:33:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572874383;
+        bh=/TUvH7WxdRqK1Hx+G/N8sjyhZKgnOcbOcjnSABQLZ48=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=nNL4JsMh3/13d1kVojFuK8PITKHicXPSZepCYJIov3yDNR0t6/l89VDK6LDc83vlE
+         Bq70otCffMI3EYgo/PHMfNm0eZMYz/IHlRdDKQ+IYBdqyYCOqyTGy+xtkwn5B2OAhY
+         iKMuiqQ3PM4Kxna5rsGyxji4xCzGLZY5KCI/jDS4=
+Date:   Mon, 4 Nov 2019 14:32:58 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        linux- stable <stable@vger.kernel.org>, kuznet@ms2.inr.ac.ru,
+        yoshfuji@linux-ipv6.org, lkft-triage@lists.linaro.org,
+        "David S. Miller" <davem@davemloft.net>,
+        open list <linux-kernel@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>
+Subject: Re: stable-rc 4.14 : net/ipv6/addrconf.c:6593:22: error:
+ 'blackhole_netdev' undeclared
+Message-ID: <20191104133258.GA2130866@kroah.com>
+References: <CA+G9fYsnRVisD=ZvuoM2FViRkXDcm_n0hZ1cceUSM=XtqJRHgQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.102.37]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYsnRVisD=ZvuoM2FViRkXDcm_n0hZ1cceUSM=XtqJRHgQ@mail.gmail.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hanjun Guo <hanjun.guo@linaro.org>
+On Mon, Nov 04, 2019 at 06:44:39PM +0530, Naresh Kamboju wrote:
+> stable-rc 4.14 for architectures arm64, arm, x86_64 and i386 builds
+> failed due to below error,
+> 
+> net/ipv6/addrconf.c: In function 'addrconf_init':
+> net/ipv6/addrconf.c:6593:22: error: 'blackhole_netdev' undeclared
+> (first use in this function); did you mean 'alloc_netdev'?
+>   bdev = ipv6_add_dev(blackhole_netdev);
+>                       ^~~~~~~~~~~~~~~~
+>                       alloc_netdev
+> net/ipv6/addrconf.c:6593:22: note: each undeclared identifier is
+> reported only once for each function it appears in
+> net/ipv6/addrconf.c: In function 'addrconf_cleanup':
+> net/ipv6/addrconf.c:6667:18: error: 'blackhole_netdev' undeclared
+> (first use in this function); did you mean 'alloc_netdev'?
+>   addrconf_ifdown(blackhole_netdev, 2);
+>                   ^~~~~~~~~~~~~~~~
+>                   alloc_netdev
+> 
+> Build link,
+> https://ci.linaro.org/view/lkft/job/openembedded-lkft-linux-stable-rc-4.14/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/632/consoleText
+> 
 
-[ Upstream commit efd00c722ca855745fcc35a7e6675b5a782a3fc8 ]
-
-Adding the MIDR encodings for HiSilicon Taishan v110 CPUs,
-which is used in Kunpeng ARM64 server SoCs. TSV110 is the
-abbreviation of Taishan v110.
-
-Signed-off-by: Hanjun Guo <hanjun.guo@linaro.org>
-Reviewed-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Zhangshaokun <zhangshaokun@hisilicon.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Hanjun Guo <guohanjun@huawei.com>
----
- arch/arm64/include/asm/cputype.h | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index 9b7d5ab..fa770c0 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -68,6 +68,7 @@
- #define ARM_CPU_IMP_BRCM		0x42
- #define ARM_CPU_IMP_QCOM		0x51
- #define ARM_CPU_IMP_NVIDIA		0x4E
-+#define ARM_CPU_IMP_HISI		0x48
- 
- #define ARM_CPU_PART_AEM_V8		0xD0F
- #define ARM_CPU_PART_FOUNDATION		0xD00
-@@ -96,6 +97,8 @@
- #define NVIDIA_CPU_PART_DENVER		0x003
- #define NVIDIA_CPU_PART_CARMEL		0x004
- 
-+#define HISI_CPU_PART_TSV110		0xD01
-+
- #define MIDR_CORTEX_A53 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A53)
- #define MIDR_CORTEX_A57 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A57)
- #define MIDR_CORTEX_A72 MIDR_CPU_MODEL(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
-@@ -114,6 +117,7 @@
- #define MIDR_QCOM_KRYO MIDR_CPU_MODEL(ARM_CPU_IMP_QCOM, QCOM_CPU_PART_KRYO)
- #define MIDR_NVIDIA_DENVER MIDR_CPU_MODEL(ARM_CPU_IMP_NVIDIA, NVIDIA_CPU_PART_DENVER)
- #define MIDR_NVIDIA_CARMEL MIDR_CPU_MODEL(ARM_CPU_IMP_NVIDIA, NVIDIA_CPU_PART_CARMEL)
-+#define MIDR_HISI_TSV110 MIDR_CPU_MODEL(ARM_CPU_IMP_HISI, HISI_CPU_PART_TSV110)
- 
- #ifndef __ASSEMBLY__
- 
--- 
-1.7.12.4
-
+Ick, my fault, will go fix this, sorry about that.
