@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 304B7EEE3F
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 323A7EF040
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:27:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390334AbfKDWJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:09:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42092 "EHLO mail.kernel.org"
+        id S1730387AbfKDVvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:51:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390341AbfKDWJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:09:05 -0500
+        id S1730382AbfKDVvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:00 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10D652084D;
-        Mon,  4 Nov 2019 22:09:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 760C9217F5;
+        Mon,  4 Nov 2019 21:50:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905344;
-        bh=U+Zx5FXqnEKDqG9cbcGZr0ucvhiaP2b+eeL9ag+Gn0w=;
+        s=default; t=1572904259;
+        bh=GOtZoZsLW0AdOVaZLiOTUGOwZ7jtgIn2nMcrlPlbhEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WDJcA6j+TASaN3ZjXN6CworFpborFs5k8GJxlWhaO5IbUeo2n5DzVgKul0+2ovLQq
-         zGyXLVHJMABibxlZ0QBBXjc8iKSkxtvDnLalmVV1RzWGh1dC26EjJEd+WIGRXA0cgU
-         RR7/tMmkhKUFKOmgLLSXgJksX7BnV8yueJsUNqRw=
+        b=Khr/N7Bwwca8UG1P0WJVDfUrD0GGbjJCVGED3k0tcA/vD7qmd/dbyc85383smC6Sd
+         vxAPv5d9aGMnNyx5DQJQlM3ajJTJRmMWGjfNbOETcVWk+ORG+ga8URAe2A0LYIs37L
+         t2wAR8hMfjgeHRyYoTBlfAxecjDkqJN3TA3dm0uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Girish Basrur <gbasrur@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.3 113/163] scsi: qla2xxx: Fix partial flash write of MBI
+        stable@vger.kernel.org,
+        syzbot+a4fbb3bb76cda0ea4e58@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 41/62] USB: ldusb: fix control-message timeout
 Date:   Mon,  4 Nov 2019 22:45:03 +0100
-Message-Id: <20191104212148.426992883@linuxfoundation.org>
+Message-Id: <20191104211945.563540510@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quinn Tran <qutran@marvell.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 8d8b83f5be2a3bdac3695a94e6cb5e50bd114869 upstream.
+commit 52403cfbc635d28195167618690595013776ebde upstream.
 
-For new adapters with multiple flash regions to write to, current code
-allows FW & Boot regions to be written, while other regions are blocked via
-sysfs. The fix is to block all flash read/write through sysfs interface.
+USB control-message timeouts are specified in milliseconds, not jiffies.
+Waiting 83 minutes for a transfer to complete is a bit excessive.
 
-Fixes: e81d1bcbde06 ("scsi: qla2xxx: Further limit FLASH region write access from SysFS")
-Cc: stable@vger.kernel.org # 5.2
-Link: https://lore.kernel.org/r/20191022193643.7076-3-hmadhani@marvell.com
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Girish Basrur <gbasrur@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
+Cc: stable <stable@vger.kernel.org>     # 2.6.13
+Reported-by: syzbot+a4fbb3bb76cda0ea4e58@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191022153127.22295-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/qla2xxx/qla_attr.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/usb/misc/ldusb.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/qla2xxx/qla_attr.c
-+++ b/drivers/scsi/qla2xxx/qla_attr.c
-@@ -441,9 +441,6 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		valid = 0;
- 		if (ha->optrom_size == OPTROM_SIZE_2300 && start == 0)
- 			valid = 1;
--		else if (start == (ha->flt_region_boot * 4) ||
--		    start == (ha->flt_region_fw * 4))
--			valid = 1;
- 		else if (IS_QLA24XX_TYPE(ha) || IS_QLA25XX(ha))
- 			valid = 1;
- 		if (!valid) {
-@@ -491,8 +488,10 @@ qla2x00_sysfs_write_optrom_ctl(struct fi
- 		    "Writing flash region -- 0x%x/0x%x.\n",
- 		    ha->optrom_region_start, ha->optrom_region_size);
- 
--		ha->isp_ops->write_optrom(vha, ha->optrom_buffer,
-+		rval = ha->isp_ops->write_optrom(vha, ha->optrom_buffer,
- 		    ha->optrom_region_start, ha->optrom_region_size);
-+		if (rval)
-+			rval = -EIO;
- 		break;
- 	default:
- 		rval = -EINVAL;
+--- a/drivers/usb/misc/ldusb.c
++++ b/drivers/usb/misc/ldusb.c
+@@ -584,7 +584,7 @@ static ssize_t ld_usb_write(struct file
+ 					 1 << 8, 0,
+ 					 dev->interrupt_out_buffer,
+ 					 bytes_to_write,
+-					 USB_CTRL_SET_TIMEOUT * HZ);
++					 USB_CTRL_SET_TIMEOUT);
+ 		if (retval < 0)
+ 			dev_err(&dev->intf->dev,
+ 				"Couldn't submit HID_REQ_SET_REPORT %d\n",
 
 
