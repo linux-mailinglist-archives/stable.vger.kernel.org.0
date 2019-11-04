@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B88E6EEF94
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:22:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A33B8EF04D
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:27:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388393AbfKDV4e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:56:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52120 "EHLO mail.kernel.org"
+        id S2387738AbfKDVuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:50:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388330AbfKDV4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:56:31 -0500
+        id S2387722AbfKDVub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:50:31 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2107321D7D;
-        Mon,  4 Nov 2019 21:56:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 63ECB217F5;
+        Mon,  4 Nov 2019 21:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904590;
-        bh=dcVigU6fDMmZoextzHaCniTrTK6eBi3KgAmY8viInsA=;
+        s=default; t=1572904230;
+        bh=WrkoDNef+MIgPngwmgddZ54YoMNzZoaA6iUJr2B/nGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/8iY5E/SV3AR03T5nRgDdOjOeP6+z0GarXJE6I2dXVg1oxWl9lUrDCjos3er6Oo2
-         USzT1kogqjUj+JolvlBRSoO2rvbMCbtw51u8wcXzH6aLKU3kePuBmhPGpReq/BOiVe
-         Nph7c+AnwZOmdccYCTcZoLAVWTtDPGF3GNC2aGWs=
+        b=2pwF228H71vLiDmDhkWNRzoiD0dh/G+LSdwv3RTwzPU1WVda4/yIo6QQ9O7Fgh0Dn
+         RpdMSbBg3kUfBmegBtzPj24Cbi4qWsmAoQuPogC113WgkhO0mCChlfSefHM1tMxGlJ
+         +9/YvrHOsq9czms7kKdDZIomAylPH0zZC/cVEwEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Xiubo Li <xiubli@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 53/95] nbd: fix possible sysfs duplicate warning
-Date:   Mon,  4 Nov 2019 22:44:51 +0100
-Message-Id: <20191104212104.916016633@linuxfoundation.org>
+Subject: [PATCH 4.9 30/62] tracing: Initialize iter->seq after zeroing in tracing_read_pipe()
+Date:   Mon,  4 Nov 2019 22:44:52 +0100
+Message-Id: <20191104211929.681537321@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Petr Mladek <pmladek@suse.com>
 
-[ Upstream commit 862488105b84ca744b3d8ff131e0fcfe10644be1 ]
+[ Upstream commit d303de1fcf344ff7c15ed64c3f48a991c9958775 ]
 
-1. nbd_put takes the mutex and drops nbd->ref to 0. It then does
-idr_remove and drops the mutex.
+A customer reported the following softlockup:
 
-2. nbd_genl_connect takes the mutex. idr_find/idr_for_each fails
-to find an existing device, so it does nbd_dev_add.
+[899688.160002] NMI watchdog: BUG: soft lockup - CPU#0 stuck for 22s! [test.sh:16464]
+[899688.160002] CPU: 0 PID: 16464 Comm: test.sh Not tainted 4.12.14-6.23-azure #1 SLE12-SP4
+[899688.160002] RIP: 0010:up_write+0x1a/0x30
+[899688.160002] Kernel panic - not syncing: softlockup: hung tasks
+[899688.160002] RIP: 0010:up_write+0x1a/0x30
+[899688.160002] RSP: 0018:ffffa86784d4fde8 EFLAGS: 00000257 ORIG_RAX: ffffffffffffff12
+[899688.160002] RAX: ffffffff970fea00 RBX: 0000000000000001 RCX: 0000000000000000
+[899688.160002] RDX: ffffffff00000001 RSI: 0000000000000080 RDI: ffffffff970fea00
+[899688.160002] RBP: ffffffffffffffff R08: ffffffffffffffff R09: 0000000000000000
+[899688.160002] R10: 0000000000000000 R11: 0000000000000000 R12: ffff8b59014720d8
+[899688.160002] R13: ffff8b59014720c0 R14: ffff8b5901471090 R15: ffff8b5901470000
+[899688.160002]  tracing_read_pipe+0x336/0x3c0
+[899688.160002]  __vfs_read+0x26/0x140
+[899688.160002]  vfs_read+0x87/0x130
+[899688.160002]  SyS_read+0x42/0x90
+[899688.160002]  do_syscall_64+0x74/0x160
 
-3. just before the nbd_put could call nbd_dev_remove or not finished
-totally, but if nbd_dev_add try to add_disk, we can hit:
+It caught the process in the middle of trace_access_unlock(). There is
+no loop. So, it must be looping in the caller tracing_read_pipe()
+via the "waitagain" label.
 
-debugfs: Directory 'nbd1' with parent 'block' already present!
+Crashdump analyze uncovered that iter->seq was completely zeroed
+at this point, including iter->seq.seq.size. It means that
+print_trace_line() was never able to print anything and
+there was no forward progress.
 
-This patch will make sure all the disk add/remove stuff are done
-by holding the nbd_index_mutex lock.
+The culprit seems to be in the code:
 
-Reported-by: Mike Christie <mchristi@redhat.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+	/* reset all but tr, trace, and overruns */
+	memset(&iter->seq, 0,
+	       sizeof(struct trace_iterator) -
+	       offsetof(struct trace_iterator, seq));
+
+It was added by the commit 53d0aa773053ab182877 ("ftrace:
+add logic to record overruns"). It was v2.6.27-rc1.
+It was the time when iter->seq looked like:
+
+     struct trace_seq {
+	unsigned char		buffer[PAGE_SIZE];
+	unsigned int		len;
+     };
+
+There was no "size" variable and zeroing was perfectly fine.
+
+The solution is to reinitialize the structure after or without
+zeroing.
+
+Link: http://lkml.kernel.org/r/20191011142134.11997-1-pmladek@suse.com
+
+Signed-off-by: Petr Mladek <pmladek@suse.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index a234600849558..3e45004407963 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -228,8 +228,8 @@ static void nbd_put(struct nbd_device *nbd)
- 	if (refcount_dec_and_mutex_lock(&nbd->refs,
- 					&nbd_index_mutex)) {
- 		idr_remove(&nbd_index_idr, nbd->index);
--		mutex_unlock(&nbd_index_mutex);
- 		nbd_dev_remove(nbd);
-+		mutex_unlock(&nbd_index_mutex);
- 	}
- }
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 827ba2caea097..6a170a78b4535 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -5217,6 +5217,7 @@ waitagain:
+ 	       sizeof(struct trace_iterator) -
+ 	       offsetof(struct trace_iterator, seq));
+ 	cpumask_clear(iter->started);
++	trace_seq_init(&iter->seq);
+ 	iter->pos = -1;
  
+ 	trace_event_read_lock();
 -- 
 2.20.1
 
