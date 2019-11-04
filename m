@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 043B3EEF74
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89712EEE9C
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388654AbfKDV5t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:57:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54344 "EHLO mail.kernel.org"
+        id S2388384AbfKDWQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:16:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388650AbfKDV5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:57:48 -0500
+        id S2389781AbfKDWFF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:05:05 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23DC420659;
-        Mon,  4 Nov 2019 21:57:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB4C6205C9;
+        Mon,  4 Nov 2019 22:05:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904667;
-        bh=Wrj2WyIXcBmoMoV7uSeARcm4AvsIXTFlsWvCPMKuVqQ=;
+        s=default; t=1572905105;
+        bh=dZa1QclI7nmvnRW5lxGZ749Hnz0M0rK1zGRq3RTeM6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQ4FIDGMQAocxX6FBCsqEkYYFSv5TjMRwbaLqmQRObHdEupqgoJCFAbBaZxBY8F3R
-         J20rjVkewpmC95ZSGLdidpXcFvh2n5e9MkF6OSqBu1eoKGNsk8wHwbtFPKefR85QDM
-         28xpcbHefIehCubWpbId+qSiUj/D8Qn4nPFpG+Ws=
+        b=IzUENApHlTGfHAjbOTw8C6JwbqkWqPmo9NYf7PD3xcizxFG3F+5ThewOfuZJVnix8
+         DHteIZqKkjOqGTUonw3z48TdRiIo+EJPPBQWh6KOpb3eFFhnlK0saho5fPqKjJo280
+         jtmCmuf9Ni6cS0Ft1Pa79+TZcuK5Dt/NIbEU9DEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Alan Cox <alan@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Darren Hart <dvhart@infradead.org>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 027/149] platform/x86: Add the VLV ISP PCI ID to atomisp2_pm
+        stable@vger.kernel.org, James Morse <james.morse@arm.com>,
+        Julien Thierry <julien.thierry.kdev@gmail.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 030/163] arm64: Fix incorrect irqflag restore for priority masking for compat
 Date:   Mon,  4 Nov 2019 22:43:40 +0100
-Message-Id: <20191104212137.690358162@linuxfoundation.org>
+Message-Id: <20191104212142.477442421@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: James Morse <james.morse@arm.com>
 
-[ Upstream commit 8a7d7141528ad67e465bc6afacc6a3144d1fe320 ]
+[ Upstream commit f46f27a576cc3b1e3d45ea50bc06287aa46b04b2 ]
 
-If the ISP is exposed as a PCI device VLV machines need the
-same treatment as CHV machines to power gate the ISP. Otherwise
-s0ix will not work.
+Commit bd82d4bd2188 ("arm64: Fix incorrect irqflag restore for priority
+masking") added a macro to the entry.S call paths that leave the
+PSTATE.I bit set. This tells the pPNMI masking logic that interrupts
+are masked by the CPU, not by the PMR. This value is read back by
+local_daif_save().
 
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Alan Cox <alan@linux.intel.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Darren Hart <dvhart@infradead.org>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Commit bd82d4bd2188 added this call to el0_svc, as el0_svc_handler
+is called with interrupts masked. el0_svc_compat was missed, but should
+be covered in the same way as both of these paths end up in
+el0_svc_common(), which expects to unmask interrupts.
+
+Fixes: bd82d4bd2188 ("arm64: Fix incorrect irqflag restore for priority masking")
+Signed-off-by: James Morse <james.morse@arm.com>
+Cc: Julien Thierry <julien.thierry.kdev@gmail.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_atomisp2_pm.c | 1 +
+ arch/arm64/kernel/entry.S | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/intel_atomisp2_pm.c b/drivers/platform/x86/intel_atomisp2_pm.c
-index 9371603a0ac90..4a2ec5eeb6d8a 100644
---- a/drivers/platform/x86/intel_atomisp2_pm.c
-+++ b/drivers/platform/x86/intel_atomisp2_pm.c
-@@ -99,6 +99,7 @@ static UNIVERSAL_DEV_PM_OPS(isp_pm_ops, isp_pci_suspend,
- 			    isp_pci_resume, NULL);
- 
- static const struct pci_device_id isp_id_table[] = {
-+	{ PCI_VDEVICE(INTEL, 0x0f38), },
- 	{ PCI_VDEVICE(INTEL, 0x22b8), },
- 	{ 0, }
- };
+diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
+index 109894bd31948..239f6841a7412 100644
+--- a/arch/arm64/kernel/entry.S
++++ b/arch/arm64/kernel/entry.S
+@@ -775,6 +775,7 @@ el0_sync_compat:
+ 	b.ge	el0_dbg
+ 	b	el0_inv
+ el0_svc_compat:
++	gic_prio_kentry_setup tmp=x1
+ 	mov	x0, sp
+ 	bl	el0_svc_compat_handler
+ 	b	ret_to_user
 -- 
 2.20.1
 
