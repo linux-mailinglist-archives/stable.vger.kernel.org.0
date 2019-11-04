@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02D66EEE3A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C3CEF086
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389082AbfKDWIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:08:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41718 "EHLO mail.kernel.org"
+        id S2388756AbfKDW2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:28:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388158AbfKDWIr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:08:47 -0500
+        id S1729968AbfKDVsd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:48:33 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 561ED214E0;
-        Mon,  4 Nov 2019 22:08:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECDB020B7C;
+        Mon,  4 Nov 2019 21:48:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905326;
-        bh=RF2KtCpXRQbrdWVBcadjdD4hBHy/4SVnpEHOGBeKPEw=;
+        s=default; t=1572904113;
+        bh=v0IrQyRi9n+bfhh9+5Fe2BJGlZxsDr2cCWzbbt2oXfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IN8Pq889BrSRKl+a6IhNf2QGZdRL/NmxpmAdpAnK2RfgSA336LUk65QBP7NO5c2XW
-         tSFYT33m+9MBCB3QZvNAX3n3X27+CfW5rEyGntzZhQqQ0R44nBD6vND/mPpWbJJTQj
-         eTPl79+TKIRYqUaC1LPelnBpweXPWYaKg0DiRcwk=
+        b=Bi5lUsitl4EWPmRj9xYuadr0X1yueiJ8Sje8AH7w96q20cp9/Osrje2gv/aiTpx3M
+         YI9bwEmfI+Ze2ygzTTtLrQa2bveSwOUMPThtnYNzQiwjABmn+kWxEPxxTsS1SIzIFy
+         6d39lRR/JqvdoOHG3yMW9ZkHkqEK2cSX3O3MODnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.3 108/163] usb: xhci: fix Immediate Data Transfer endianness
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 27/46] ALSA: bebob: Fix prototype of helper function to return negative value
 Date:   Mon,  4 Nov 2019 22:44:58 +0100
-Message-Id: <20191104212147.993138919@linuxfoundation.org>
+Message-Id: <20191104211859.776154553@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit bfa3dbb343f664573292afb9e44f9abeb81a19de upstream.
+commit f2bbdbcb075f3977a53da3bdcb7cd460bc8ae5f2 upstream.
 
-The arguments to queue_trb are always byteswapped to LE for placement in
-the ring, but this should not happen in the case of immediate data; the
-bytes copied out of transfer_buffer are already in the correct order.
-Add a complementary byteswap so the bytes end up in the ring correctly.
+A helper function of ALSA bebob driver returns negative value in a
+function which has a prototype to return unsigned value.
 
-This was observed on BE ppc64 with a "Texas Instruments TUSB73x0
-SuperSpeed USB 3.0 xHCI Host Controller [104c:8241]" as a ch341
-usb-serial adapter ("1a86:7523 QinHeng Electronics HL-340 USB-Serial
-adapter") always transmitting the same character (generally NUL) over
-the serial link regardless of the key pressed.
+This commit fixes it by changing the prototype.
 
-Cc: <stable@vger.kernel.org> # 5.2+
-Fixes: 33e39350ebd2 ("usb: xhci: add Immediate Data Transfer support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/1572013829-14044-3-git-send-email-mathias.nyman@linux.intel.com
+Fixes: eb7b3a056cd8 ("ALSA: bebob: Add commands and connections/streams management")
+Cc: <stable@vger.kernel.org> # v3.16+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191026030620.12077-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/firewire/bebob/bebob_stream.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -3330,6 +3330,7 @@ int xhci_queue_bulk_tx(struct xhci_hcd *
- 			if (xhci_urb_suitable_for_idt(urb)) {
- 				memcpy(&send_addr, urb->transfer_buffer,
- 				       trb_buff_len);
-+				le64_to_cpus(&send_addr);
- 				field |= TRB_IDT;
- 			}
- 		}
-@@ -3475,6 +3476,7 @@ int xhci_queue_ctrl_tx(struct xhci_hcd *
- 		if (xhci_urb_suitable_for_idt(urb)) {
- 			memcpy(&addr, urb->transfer_buffer,
- 			       urb->transfer_buffer_length);
-+			le64_to_cpus(&addr);
- 			field |= TRB_IDT;
- 		} else {
- 			addr = (u64) urb->transfer_dma;
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -253,8 +253,7 @@ end:
+ 	return err;
+ }
+ 
+-static unsigned int
+-map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
++static int map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
+ {
+ 	unsigned int sec, sections, ch, channels;
+ 	unsigned int pcm, midi, location;
 
 
