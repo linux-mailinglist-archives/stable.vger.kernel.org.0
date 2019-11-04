@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C2C6EECFC
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:02:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9EC4EF035
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:26:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389122AbfKDWB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:01:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60254 "EHLO mail.kernel.org"
+        id S1730390AbfKDW0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:26:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389119AbfKDWB7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:01:59 -0500
+        id S1730440AbfKDVvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:12 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95B6620659;
-        Mon,  4 Nov 2019 22:01:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B5AC2184C;
+        Mon,  4 Nov 2019 21:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904918;
-        bh=vWTVDALXfSb8OlxqgO4QbpSm+6M4srS+UggdwZfZEgc=;
+        s=default; t=1572904271;
+        bh=mOzjGy2Q9cTEq/lLvfPWhDSPbJebbl1LtvQpkbyCVFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NlpsufixtQNH4NhvuB5voOaBAYl7o5KmHmdKaBH95mOcpakjuVCMZ9rzshDrpW0FO
-         CGA/bV6rl32i8HO1H3i2eTSyWPXeWLKnr7excpux3hr+VvuIMm+SqivyP8E8yM+5xk
-         0fSBDlNu16ZgZzit+AgQZOnk4sB2b352nFNkUSjg=
+        b=tbRaoD5NSlReEzvmf1iulYThryTdMmKh3hJlEtZiyo/EWCahvVfGQ5jG7hwNIA3s+
+         AcOoPeb3kOiL5pq+OPJkILukwjxyKfLCLU7Zt9lJCyt0OzPXB0AgAcKzH3vPxrIID7
+         g4TUh+1gQIb/W/Fc8+JD8RN0ZXJ3qBcH8Qa6Bc4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Felipe Balbi <balbi@kernel.org>,
-        syzbot+8ab8bf161038a8768553@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 115/149] USB: gadget: Reject endpoints with 0 maxpacket value
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.9 46/62] HID: fix error message in hid_open_report()
 Date:   Mon,  4 Nov 2019 22:45:08 +0100
-Message-Id: <20191104212144.404743327@linuxfoundation.org>
+Message-Id: <20191104211948.980134951@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 54f83b8c8ea9b22082a496deadf90447a326954e upstream.
+commit b3a81c777dcb093020680490ab970d85e2f6f04f upstream.
 
-Endpoints with a maxpacket length of 0 are probably useless.  They
-can't transfer any data, and it's not at all unlikely that a UDC will
-crash or hang when trying to handle a non-zero-length usb_request for
-such an endpoint.  Indeed, dummy-hcd gets a divide error when trying
-to calculate the remainder of a transfer length by the maxpacket
-value, as discovered by the syzbot fuzzer.
+On HID report descriptor parsing error the code displays bogus
+pointer instead of error offset (subtracts start=NULL from end).
+Make the message more useful by displaying correct error offset
+and include total buffer size for reference.
 
-Currently the gadget core does not check for endpoints having a
-maxpacket value of 0.  This patch adds a check to usb_ep_enable(),
-preventing such endpoints from being used.
+This was carried over from ancient times - "Fixed" commit just
+promoted the message from DEBUG to ERROR.
 
-As far as I know, none of the gadget drivers in the kernel tries to
-create an endpoint with maxpacket = 0, but until now there has been
-nothing to prevent userspace programs under gadgetfs or configfs from
-doing it.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+8ab8bf161038a8768553@syzkaller.appspotmail.com
-CC: <stable@vger.kernel.org>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910281052370.1485-100000@iolanthe.rowland.org
+Cc: stable@vger.kernel.org
+Fixes: 8c3d52fc393b ("HID: make parser more verbose about parsing errors by default")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/gadget/udc/core.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/hid/hid-core.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/udc/core.c
-+++ b/drivers/usb/gadget/udc/core.c
-@@ -98,6 +98,17 @@ int usb_ep_enable(struct usb_ep *ep)
- 	if (ep->enabled)
- 		goto out;
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -959,6 +959,7 @@ int hid_open_report(struct hid_device *d
+ 	__u8 *start;
+ 	__u8 *buf;
+ 	__u8 *end;
++	__u8 *next;
+ 	int ret;
+ 	static int (*dispatch_type[])(struct hid_parser *parser,
+ 				      struct hid_item *item) = {
+@@ -1012,7 +1013,8 @@ int hid_open_report(struct hid_device *d
+ 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
  
-+	/* UDC drivers can't handle endpoints with maxpacket size 0 */
-+	if (usb_endpoint_maxp(ep->desc) == 0) {
-+		/*
-+		 * We should log an error message here, but we can't call
-+		 * dev_err() because there's no way to find the gadget
-+		 * given only ep.
-+		 */
-+		ret = -EINVAL;
-+		goto out;
-+	}
-+
- 	ret = ep->ops->enable(ep, ep->desc);
- 	if (ret)
- 		goto out;
+ 	ret = -EINVAL;
+-	while ((start = fetch_item(start, end, &item)) != NULL) {
++	while ((next = fetch_item(start, end, &item)) != NULL) {
++		start = next;
+ 
+ 		if (item.format != HID_ITEM_FORMAT_SHORT) {
+ 			hid_err(device, "unexpected long global item\n");
+@@ -1041,7 +1043,8 @@ int hid_open_report(struct hid_device *d
+ 		}
+ 	}
+ 
+-	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
++	hid_err(device, "item fetching failed at offset %u/%u\n",
++		size - (unsigned int)(end - start), size);
+ err:
+ 	vfree(parser);
+ 	hid_close_report(device);
 
 
