@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F84EEEB7E
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF616EEC2E
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:55:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730040AbfKDVs3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:48:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38950 "EHLO mail.kernel.org"
+        id S2387975AbfKDVyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:54:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730033AbfKDVs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:29 -0500
+        id S2387971AbfKDVye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:54:34 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25DF421655;
-        Mon,  4 Nov 2019 21:48:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 878FD217F4;
+        Mon,  4 Nov 2019 21:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904108;
-        bh=SSzynxw9O6haz63D2CYnyk6dDHo2upxF+m8+6hpCyCM=;
+        s=default; t=1572904474;
+        bh=vIY7s/sWc35wae5Q2HDnJ+V/vP5qanCNZjWVkgXUNS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgtzpTSDCTw23b57au8KchOvCCOoOhe5suoavZaxlIm9Cc1u+eZpWNCOA8FjdPxRn
-         rmzGL0xI6pcKYL/zjYYs+IzPOJRdGMfPJkaryoCnzlz1t7eRznHm7InLeQHwBxTUQu
-         MFJLKh+6A8bQDL1gBMqJZxTG3PS4yEJZ58G5mwSY=
+        b=BBSSWHOxCsUtqnt57QZMo6/kS2CBAS/13/VBu6AXWxTfPRY19FyaMZ8tnP0Zz5bPP
+         6kK9fCqgiNyy1TAcV1HzNKLmcuROQw+2IydMD877iGgpWQMhK0UQExFKY30LeAEtqa
+         kRXEgM4uCyfA7phJquWh14Mae8KGi+S5iAdeJv2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giuseppe Scrivano <gscrivan@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.4 25/46] fuse: flush dirty data/metadata before non-truncate setattr
-Date:   Mon,  4 Nov 2019 22:44:56 +0100
-Message-Id: <20191104211857.462527664@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+21b29db13c065852f64b@syzkaller.appspotmail.com,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Zubin Mithra <zsm@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 59/95] net_sched: check cops->tcf_block in tc_bind_tclass()
+Date:   Mon,  4 Nov 2019 22:44:57 +0100
+Message-Id: <20191104212106.949412581@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
 
-commit b24e7598db62386a95a3c8b9c75630c5d56fe077 upstream.
+commit 8b142a00edcf8422ca48b8de88d286efb500cb53 upstream
 
-If writeback cache is enabled, then writes might get reordered with
-chmod/chown/utimes.  The problem with this is that performing the write in
-the fuse daemon might itself change some of these attributes.  In such case
-the following sequence of operations will result in file ending up with the
-wrong mode, for example:
+At least sch_red and sch_tbf don't implement ->tcf_block()
+while still have a non-zero tc "class".
 
-  int fd = open ("suid", O_WRONLY|O_CREAT|O_EXCL);
-  write (fd, "1", 1);
-  fchown (fd, 0, 0);
-  fchmod (fd, 04755);
-  close (fd);
+Instead of adding nop implementations to each of such qdisc's,
+we can just relax the check of cops->tcf_block() in
+tc_bind_tclass(). They don't support TC filter anyway.
 
-This patch fixes this by flushing pending writes before performing
-chown/chmod/utimes.
-
-Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
-Fixes: 4d99ff8f12eb ("fuse: Turn writeback cache on")
-Cc: <stable@vger.kernel.org> # v3.15+
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: syzbot+21b29db13c065852f64b@syzkaller.appspotmail.com
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dir.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ net/sched/sch_api.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -1628,6 +1628,19 @@ int fuse_do_setattr(struct inode *inode,
- 	if (attr->ia_valid & ATTR_SIZE)
- 		is_truncate = true;
- 
-+	/* Flush dirty data/metadata before non-truncate SETATTR */
-+	if (is_wb && S_ISREG(inode->i_mode) &&
-+	    attr->ia_valid &
-+			(ATTR_MODE | ATTR_UID | ATTR_GID | ATTR_MTIME_SET |
-+			 ATTR_TIMES_SET)) {
-+		err = write_inode_now(inode, true);
-+		if (err)
-+			return err;
-+
-+		fuse_set_nowrite(inode);
-+		fuse_release_nowrite(inode);
-+	}
-+
- 	if (is_truncate) {
- 		fuse_set_nowrite(inode);
- 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
+diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
+index 637949b576c63..296e95f72eb15 100644
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1695,6 +1695,8 @@ static void tc_bind_tclass(struct Qdisc *q, u32 portid, u32 clid,
+ 	cl = cops->find(q, portid);
+ 	if (!cl)
+ 		return;
++	if (!cops->tcf_block)
++		return;
+ 	block = cops->tcf_block(q, cl);
+ 	if (!block)
+ 		return;
+-- 
+2.20.1
+
 
 
