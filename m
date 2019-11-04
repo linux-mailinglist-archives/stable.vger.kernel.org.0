@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C00AEEF43
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7ADAEEFED
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388718AbfKDV7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:59:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56882 "EHLO mail.kernel.org"
+        id S1730817AbfKDVwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:52:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388308AbfKDV7j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:59:39 -0500
+        id S1730809AbfKDVwm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:52:42 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA04020650;
-        Mon,  4 Nov 2019 21:59:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7416F21850;
+        Mon,  4 Nov 2019 21:52:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904778;
-        bh=hSjRkGT17dgtKhT8LMQ6TAdF8ewyqXN8GSxpj1Z9EVA=;
+        s=default; t=1572904361;
+        bh=ne9QAjeb1S8nb93Ake9Lq8Wna3eB+iMjKjixdd5/Lj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIejQO1dTtA8vB6EUV4ZiIrnBc3qNXfqIDmZHve8//L4am9PoMJwqxIJdj0jr9tZw
-         cEDOHLlc2JrPKw/BAyuwTB8g0tG3DTnsGYKTlggh8ObTFlzL1ihHwotjEQ/p/79U0M
-         JmXKZo9ae/uj7fpvXaBXeQbJPNHQ7HZTt3LXfIWE=
+        b=oB8NTEzbFvz+XkKmpnNFLXdP1BCO/pPoORNxx+cnqTfl2AtioHGkbDFyBbfpBzeX4
+         tcr6IrxojXM/QAXNmeYwkpjTChe8rt6BHkKSBzSnjuG5G6ZHD3WA175lpiZXJf5//j
+         od+Ij36pFTeIkTV76cV/fiJN91qK1o7XoquLiyBU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Will Deacon <will@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 4.19 066/149] perf annotate: Propagate perf_env__arch() error
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Samuel Dionne-Riel <samuel@dionne-riel.com>,
+        Richard Weinberger <richard.weinberger@gmail.com>,
+        Graham Christensen <graham@grahamc.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 21/95] exec: load_script: Do not exec truncated interpreter path
 Date:   Mon,  4 Nov 2019 22:44:19 +0100
-Message-Id: <20191104212141.372085138@linuxfoundation.org>
+Message-Id: <20191104212049.961020644@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,43 +50,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit a66fa0619a0ae3585ef09e9c33ecfb5c7c6cb72b ]
+[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
 
-The callers of symbol__annotate2() use symbol__strerror_disassemble() to
-convert its failure returns into a human readable string, so
-propagate error values from functions it calls, starting with
-perf_env__arch() that when fails the right thing to do is to look at
-'errno' to see why its possible call to uname() failed.
+Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
+shebang string") was trying to protect against a confused exec of a
+truncated interpreter path. However, it was overeager and also refused
+to truncate arguments as well, which broke userspace, and it was
+reverted. This attempts the protection again, but allows arguments to
+remain truncated. In an effort to improve readability, helper functions
+and comments have been added.
 
-Reported-by: Russell King - ARM Linux admin <linux@armlinux.org.uk>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>,
-Cc: Will Deacon <will@kernel.org>
-Link: https://lkml.kernel.org/n/tip-it5d83kyusfhb1q1b0l4pxzs@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Cc: Richard Weinberger <richard.weinberger@gmail.com>
+Cc: Graham Christensen <graham@grahamc.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/annotate.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 48 insertions(+), 9 deletions(-)
 
-diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
-index daea1fdf73856..4ef62bcdc80f0 100644
---- a/tools/perf/util/annotate.c
-+++ b/tools/perf/util/annotate.c
-@@ -1871,7 +1871,7 @@ int symbol__annotate(struct symbol *sym, struct map *map,
- 	int err;
+diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
+index 7cde3f46ad263..e996174cbfc02 100644
+--- a/fs/binfmt_script.c
++++ b/fs/binfmt_script.c
+@@ -14,13 +14,30 @@
+ #include <linux/err.h>
+ #include <linux/fs.h>
  
- 	if (!arch_name)
--		return -1;
-+		return errno;
++static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
++static inline char *next_non_spacetab(char *first, const char *last)
++{
++	for (; first <= last; first++)
++		if (!spacetab(*first))
++			return first;
++	return NULL;
++}
++static inline char *next_terminator(char *first, const char *last)
++{
++	for (; first <= last; first++)
++		if (spacetab(*first) || !*first)
++			return first;
++	return NULL;
++}
++
+ static int load_script(struct linux_binprm *bprm)
+ {
+ 	const char *i_arg, *i_name;
+-	char *cp;
++	char *cp, *buf_end;
+ 	struct file *file;
+ 	int retval;
  
- 	args.arch = arch = arch__find(arch_name);
- 	if (arch == NULL)
++	/* Not ours to exec if we don't start with "#!". */
+ 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
+ 		return -ENOEXEC;
+ 
+@@ -33,18 +50,40 @@ static int load_script(struct linux_binprm *bprm)
+ 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
+ 		return -ENOENT;
+ 
+-	/*
+-	 * This section does the #! interpretation.
+-	 * Sorta complicated, but hopefully it will work.  -TYT
+-	 */
+-
++	/* Release since we are not mapping a binary into memory. */
+ 	allow_write_access(bprm->file);
+ 	fput(bprm->file);
+ 	bprm->file = NULL;
+ 
+-	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
+-	if ((cp = strchr(bprm->buf, '\n')) == NULL)
+-		cp = bprm->buf+BINPRM_BUF_SIZE-1;
++	/*
++	 * This section handles parsing the #! line into separate
++	 * interpreter path and argument strings. We must be careful
++	 * because bprm->buf is not yet guaranteed to be NUL-terminated
++	 * (though the buffer will have trailing NUL padding when the
++	 * file size was smaller than the buffer size).
++	 *
++	 * We do not want to exec a truncated interpreter path, so either
++	 * we find a newline (which indicates nothing is truncated), or
++	 * we find a space/tab/NUL after the interpreter path (which
++	 * itself may be preceded by spaces/tabs). Truncating the
++	 * arguments is fine: the interpreter can re-read the script to
++	 * parse them on its own.
++	 */
++	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
++	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
++	if (!cp) {
++		cp = next_non_spacetab(bprm->buf + 2, buf_end);
++		if (!cp)
++			return -ENOEXEC; /* Entire buf is spaces/tabs */
++		/*
++		 * If there is no later space/tab/NUL we must assume the
++		 * interpreter path is truncated.
++		 */
++		if (!next_terminator(cp, buf_end))
++			return -ENOEXEC;
++		cp = buf_end;
++	}
++	/* NUL-terminate the buffer and any trailing spaces/tabs. */
+ 	*cp = '\0';
+ 	while (cp > bprm->buf) {
+ 		cp--;
 -- 
 2.20.1
 
