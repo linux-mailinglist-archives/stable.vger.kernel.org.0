@@ -2,104 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1676EE189
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 14:51:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68100EE1BF
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 15:00:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728807AbfKDNvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 08:51:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60654 "EHLO mail.kernel.org"
+        id S1728905AbfKDOAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 09:00:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727663AbfKDNvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 08:51:40 -0500
-Received: from localhost (unknown [62.119.166.9])
+        id S1727891AbfKDOAP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 09:00:15 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F075821744;
-        Mon,  4 Nov 2019 13:51:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D25821655;
+        Mon,  4 Nov 2019 14:00:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572875499;
-        bh=RMjBbcJSX/BFL942aPuRy8u04vdxeLErter4JodBkgs=;
+        s=default; t=1572876014;
+        bh=kVsVomKOKk8T99pfEGc5r5TRfNaApoitx4PrR1+QhFk=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wa5OwO9yWDZ+m4tm147ehFCtVz7pQqLDS8HUpuWjPiRxj5UUWjwSgI5Zh4aPtG1p0
-         fvUXZ6Xvt7EQIBzrtiCcJYqhCdOg8zkaDKYXzdQCZVGt4gen9SegcAhX8f+TPsY5Tf
-         1m3LhVVTmtXL0lOqeuRoL+WQxbqLJ/lSalfZtklg=
-Date:   Mon, 4 Nov 2019 14:51:35 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jan Stancek <jstancek@redhat.com>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Jaroslav Kysela <jkysela@redhat.com>,
-        alsa-devel@alsa-project.org, LTP Mailing List <ltp@lists.linux.it>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
- 5.3.9-rc1-dfe283e.cki (stable)
-Message-ID: <20191104135135.GA2162401@kroah.com>
-References: <cki.1210A7ECB0.BD9Q3APV4K@redhat.com>
- <2029139028.10333037.1572874551626.JavaMail.zimbra@redhat.com>
+        b=x8wpacDIlsxFl6+3v7kYJo506wwEz1cllIx7ga5jyD8s8VpnE2kmnVvnrix6X1OuA
+         h/6gLUZ/QdIpGXZW2eadawkyRk0e3Nu8CwCbszKuXUwOpkXnsVbCqpxnFUntUfK0bl
+         iDXXCdFM7o1Z0N593TWqN68ny6ZMbMLNm/twzqyM=
+Date:   Mon, 4 Nov 2019 09:00:13 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     flyingecar@gmail.com, stable@vger.kernel.org, tiwai@suse.de
+Subject: Re: FAILED: patch "[PATCH] ALSA: usb-audio: Add DSD support for
+ Gustard U16/X26 USB" failed to apply to 5.3-stable tree
+Message-ID: <20191104140013.GD4787@sasha-vm>
+References: <1572802898108163@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2029139028.10333037.1572874551626.JavaMail.zimbra@redhat.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <1572802898108163@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 04, 2019 at 08:35:51AM -0500, Jan Stancek wrote:
-> 
-> 
-> ----- Original Message -----
-> > 
-> > Hello,
-> > 
-> > We ran automated tests on a recent commit from this kernel tree:
-> > 
-> >        Kernel repo:
-> >        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-> >             Commit: dfe283e9fdac - Linux 5.3.9-rc1
-> > 
-> > The results of these automated tests are provided below.
-> > 
-> >     Overall result: FAILED (see details below)
-> >              Merge: OK
-> >            Compile: OK
-> >              Tests: FAILED
-> > 
-> > All kernel binaries, config files, and logs are available for download here:
-> > 
-> >   https://artifacts.cki-project.org/pipelines/262380
-> > 
-> > One or more kernel tests failed:
-> > 
-> >     x86_64:
-> >      ❌ LTP lite
-> >
-> 
-> Not a 5.3 -stable regression.
-> 
-> Failure comes from test that sanity checks all /proc files by doing
-> 1k read from each. There are couple issues it hits wrt. snd_hda_*.
-> 
-> Example reproducer:
->   dd if=/sys/kernel/debug/regmap/hdaudioC0D3-hdaudio/access of=out.txt count=1 bs=1024 iflag=nonblock
+On Sun, Nov 03, 2019 at 06:41:38PM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 5.3-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From e2995b95a914bbc6b5352be27d5d5f33ec802d2c Mon Sep 17 00:00:00 2001
+>From: Justin Song <flyingecar@gmail.com>
+>Date: Thu, 24 Oct 2019 12:27:14 +0200
+>Subject: [PATCH] ALSA: usb-audio: Add DSD support for Gustard U16/X26 USB
+> Interface
+>
+>This patch adds native DSD support for Gustard U16/X26 USB Interface.
+>Tested using VID and fp->dsd_raw method.
+>
+>Signed-off-by: Justin Song <flyingecar@gmail.com>
+>Cc: <stable@vger.kernel.org>
+>Link: https://lore.kernel.org/r/CA+9XP1ipsFn+r3bCBKRinQv-JrJ+EHOGBdZWZoMwxFv0R8Y1MQ@mail.gmail.com
+>Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
-That's not a proc file :)
+For 5.3 and 4.19 I took the following as dependencies:
 
-> It's slow and triggers soft lockups [1]. And it also requires lot
-> of memory, triggering OOMs on smaller VMs:
-> 0x0000000024f0437b-0x000000001a32b1c8 1073745920 seq_read+0x131/0x400 pages=262144 vmalloc vpages N0=262144
-> 
-> I'm leaning towards skipping all regmap entries in this test.
-> Comments are welcomed.
+eb7505d52a2f ("ALSA: usb-audio: DSD auto-detection for Playback Designs")
+0067e154b11e ("ALSA: usb-audio: Update DSD support quirks for Oppo and Rotel")
 
-Randomly poking around in debugfs is a sure way to cause crashes and
-major problems.  Also, debugfs files are NOT stable and only for
-debugging and should never be enabled on "real" systems.
+For older kernels it was becoming too long of a list, and I don't have a
+way to test it so I didn't do anything about it there. Backports are
+more than welcome.
 
-So what exactly is the test trying to do here?
+Note: yes, patching it up to apply on 4.14 is easy, but if this patch is
+needed there then there are quite a few more needed so I didn't want to
+take just this one.
 
-thanks,
-
-greg k-h
+-- 
+Thanks,
+Sasha
