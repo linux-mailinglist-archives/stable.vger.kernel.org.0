@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B07F6EEFDF
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5215AEEF5A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387724AbfKDVxx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:53:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48082 "EHLO mail.kernel.org"
+        id S1730906AbfKDV7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387703AbfKDVxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:53:53 -0500
+        id S1730893AbfKDV7A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:00 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF08021D7D;
-        Mon,  4 Nov 2019 21:53:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 71FFC214E0;
+        Mon,  4 Nov 2019 21:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904432;
-        bh=3csVmTOHNGTB+c9xUv/fHEeweHnvr5OV6v+ydEEUMDo=;
+        s=default; t=1572904738;
+        bh=ne9QAjeb1S8nb93Ake9Lq8Wna3eB+iMjKjixdd5/Lj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFFw9X9TRR7WG3WhWpHH4xN134/26T8ejAbJ/z27+TNWjC8lLtSTHm65m8HWUdH58
-         qhxbPPABeGIf6Sf0qVOwxwioRRwIxGRlf7XhCvq0w1vsh1PQrYJftkvSVyCzyUcrQh
-         Mf4GkpomPVyQHAT/jn1IwWeEgC7MDqBiLvBFgg2I=
+        b=Fm1+L4zo5W+UED7Wg/StclxZscoJwFk2F9GPt4smLml7zbnx4gSfQNmJ9kIIurpja
+         O7CGKgaEctWA2y3s84KC7nquboPe5Vgv0zUPZ7pw8fcyc8C8b1aECrqx1ImkQyN08W
+         S8Olo2hqzmGCubZj/hLCBXXlWrTqvSzQBMBhqDaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Samuel Dionne-Riel <samuel@dionne-riel.com>,
+        Richard Weinberger <richard.weinberger@gmail.com>,
+        Graham Christensen <graham@grahamc.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/95] scsi: lpfc: Fix a duplicate 0711 log message number.
-Date:   Mon,  4 Nov 2019 22:44:05 +0100
-Message-Id: <20191104212041.565874080@linuxfoundation.org>
+Subject: [PATCH 4.19 053/149] exec: load_script: Do not exec truncated interpreter path
+Date:   Mon,  4 Nov 2019 22:44:06 +0100
+Message-Id: <20191104212139.993310316@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +50,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 2c4c91415a05677acc5c8131a5eb472d4aa96ae1 ]
+[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
 
-Renumber one of the 0711 log messages so there isn't a duplication.
+Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
+shebang string") was trying to protect against a confused exec of a
+truncated interpreter path. However, it was overeager and also refused
+to truncate arguments as well, which broke userspace, and it was
+reverted. This attempts the protection again, but allows arguments to
+remain truncated. In an effort to improve readability, helper functions
+and comments have been added.
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Cc: Richard Weinberger <richard.weinberger@gmail.com>
+Cc: Graham Christensen <graham@grahamc.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_scsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 48 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
-index 4ade13d72deb3..07cb671bb8550 100644
---- a/drivers/scsi/lpfc/lpfc_scsi.c
-+++ b/drivers/scsi/lpfc/lpfc_scsi.c
-@@ -4152,7 +4152,7 @@ lpfc_scsi_cmd_iocb_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pIocbIn,
- 	/* If pCmd was set to NULL from abort path, do not call scsi_done */
- 	if (xchg(&lpfc_cmd->pCmd, NULL) == NULL) {
- 		lpfc_printf_vlog(vport, KERN_INFO, LOG_FCP,
--				 "0711 FCP cmd already NULL, sid: 0x%06x, "
-+				 "5688 FCP cmd already NULL, sid: 0x%06x, "
- 				 "did: 0x%06x, oxid: 0x%04x\n",
- 				 vport->fc_myDID,
- 				 (pnode) ? pnode->nlp_DID : 0,
+diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
+index 7cde3f46ad263..e996174cbfc02 100644
+--- a/fs/binfmt_script.c
++++ b/fs/binfmt_script.c
+@@ -14,13 +14,30 @@
+ #include <linux/err.h>
+ #include <linux/fs.h>
+ 
++static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
++static inline char *next_non_spacetab(char *first, const char *last)
++{
++	for (; first <= last; first++)
++		if (!spacetab(*first))
++			return first;
++	return NULL;
++}
++static inline char *next_terminator(char *first, const char *last)
++{
++	for (; first <= last; first++)
++		if (spacetab(*first) || !*first)
++			return first;
++	return NULL;
++}
++
+ static int load_script(struct linux_binprm *bprm)
+ {
+ 	const char *i_arg, *i_name;
+-	char *cp;
++	char *cp, *buf_end;
+ 	struct file *file;
+ 	int retval;
+ 
++	/* Not ours to exec if we don't start with "#!". */
+ 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
+ 		return -ENOEXEC;
+ 
+@@ -33,18 +50,40 @@ static int load_script(struct linux_binprm *bprm)
+ 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
+ 		return -ENOENT;
+ 
+-	/*
+-	 * This section does the #! interpretation.
+-	 * Sorta complicated, but hopefully it will work.  -TYT
+-	 */
+-
++	/* Release since we are not mapping a binary into memory. */
+ 	allow_write_access(bprm->file);
+ 	fput(bprm->file);
+ 	bprm->file = NULL;
+ 
+-	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
+-	if ((cp = strchr(bprm->buf, '\n')) == NULL)
+-		cp = bprm->buf+BINPRM_BUF_SIZE-1;
++	/*
++	 * This section handles parsing the #! line into separate
++	 * interpreter path and argument strings. We must be careful
++	 * because bprm->buf is not yet guaranteed to be NUL-terminated
++	 * (though the buffer will have trailing NUL padding when the
++	 * file size was smaller than the buffer size).
++	 *
++	 * We do not want to exec a truncated interpreter path, so either
++	 * we find a newline (which indicates nothing is truncated), or
++	 * we find a space/tab/NUL after the interpreter path (which
++	 * itself may be preceded by spaces/tabs). Truncating the
++	 * arguments is fine: the interpreter can re-read the script to
++	 * parse them on its own.
++	 */
++	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
++	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
++	if (!cp) {
++		cp = next_non_spacetab(bprm->buf + 2, buf_end);
++		if (!cp)
++			return -ENOEXEC; /* Entire buf is spaces/tabs */
++		/*
++		 * If there is no later space/tab/NUL we must assume the
++		 * interpreter path is truncated.
++		 */
++		if (!next_terminator(cp, buf_end))
++			return -ENOEXEC;
++		cp = buf_end;
++	}
++	/* NUL-terminate the buffer and any trailing spaces/tabs. */
+ 	*cp = '\0';
+ 	while (cp > bprm->buf) {
+ 		cp--;
 -- 
 2.20.1
 
