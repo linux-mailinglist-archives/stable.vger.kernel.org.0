@@ -2,91 +2,175 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78941EE30C
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 16:04:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52759EE3CE
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 16:30:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727989AbfKDPEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 10:04:13 -0500
-Received: from szxga06-in.huawei.com ([45.249.212.32]:57132 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727788AbfKDPEN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 10:04:13 -0500
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id 42FB190FC5702BB56D01;
-        Mon,  4 Nov 2019 23:04:11 +0800 (CST)
-Received: from huawei.com (10.175.124.28) by DGGEMS402-HUB.china.huawei.com
- (10.3.19.202) with Microsoft SMTP Server id 14.3.439.0; Mon, 4 Nov 2019
- 23:04:10 +0800
-From:   "zhangyi (F)" <yi.zhang@huawei.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>, <viro@zeniv.linux.org.uk>
-Subject: [PATCH for stalbe 4.4/3.16] fs/dcache: move security_d_instantiate() behind attaching dentry to inode
-Date:   Mon, 4 Nov 2019 23:25:36 +0800
-Message-ID: <20191104152536.30527-1-yi.zhang@huawei.com>
-X-Mailer: git-send-email 2.17.2
+        id S1729318AbfKDPaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 10:30:12 -0500
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:39127 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728761AbfKDPaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 10:30:12 -0500
+Received: by mail-lj1-f193.google.com with SMTP id y3so18107048ljj.6
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 07:30:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=L4OTsx6tnYmHWpBfCCw4iK88aVxkKO6H7TUh4ieonNw=;
+        b=rNofkVl0Lg909dYZ8wkd6rPoyp89RE8jaEDwEKNO4wqKB+3uUcsQ1GyDvwVFNPN83h
+         OGjOFwQ4/1DkgkuwYJkqFzuOesPhh8RUmTXrczpcO/BxGKh1mt2pWwLUesVC5LxYRbBl
+         f5b5Nd7AYq5WmDljHm1t5yA0ed2jVsO3jbGvmMaEu1Di9TDpy4eHZ95uSxKXZUv+PCNE
+         SZIfxQPe6Vsstb5bu2tide9mA7QrShWsb4BUyDLnawvI67xhcnC4pykJ07NJR2/m97Qb
+         T3YG5EGTRRnPME4rwWNk7hnY5ZeuY8qHbCjdzvua9EkcwdFV7YtsoUQGqQRJuhUQhOgM
+         rdAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=L4OTsx6tnYmHWpBfCCw4iK88aVxkKO6H7TUh4ieonNw=;
+        b=Ly57aco5hPjpQGpRkfl4cDwc/MXU8dq1XPKJYHTjxgAwmfwxdWr9RwLPt9JSfc2AvO
+         cFt2Hravv7hqwCUQg83HVq6Hdgp1P3A1dB83JxLyBcP28higQrDnp6B9mt/dzJaZDSyX
+         0InG/HO0kSYVFqQVNbWDIcXwtv4t/Ywn9UxWa0cX2GDAJzLIvHjf4gSo9NRpEmAfNRhP
+         Lzcg67evNps87uNCMksaNqQJpOfgGXj7OHD+KsI+vDbOac0HSYUsSScFJ4Z8S+D4vaUI
+         uJY7rNM/kSkvCFl1djZcjDIEFRqnpyPcqW/5Jp6TyV9XQC06igyqelzBO8p4YnmFo2NE
+         nRVg==
+X-Gm-Message-State: APjAAAViib6PFMTNEEJPQvIOG9ECiYDbLHGTL0S04FVZ+CVgnsd3Cd+Y
+        4l/DgizFC+3mdXHxrdCq99ErmIvUg0A5qlpUydqMXKyaxR8=
+X-Google-Smtp-Source: APXvYqyEv8vi9hG7WzF1wHMTs8PW3UAq9vOBSFdPj3A6YWe0sq7LExCZ4L4fAzCqbZNJ8iKFjw7dMUHx7UeS0puOrS4=
+X-Received: by 2002:a2e:814b:: with SMTP id t11mr19923634ljg.20.1572881408192;
+ Mon, 04 Nov 2019 07:30:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.175.124.28]
-X-CFilter-Loop: Reflected
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 4 Nov 2019 20:59:56 +0530
+Message-ID: <CA+G9fYsWTFQZTHXUDPToaepnKGBoh61SsA_8SHcYgYZXN_L+mg@mail.gmail.com>
+Subject: stable-rc-5.3.9-rc1: regressions detected - remove_proc_entry:
+ removing non-empty directory 'net/dev_snmp6', leaking at least 'lo'
+To:     linux- stable <stable@vger.kernel.org>,
+        Netdev <netdev@vger.kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
+        Dan Rue <dan.rue@linaro.org>, LTP List <ltp@lists.linux.it>,
+        open list <linux-kernel@vger.kernel.org>,
+        Jan Stancek <jstancek@redhat.com>,
+        Basil Eljuse <Basil.Eljuse@arm.com>, chrubis <chrubis@suse.cz>,
+        mmarhefk@redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During backport 1e2e547a93a "do d_instantiate/unlock_new_inode
-combinations safely", there was a error instantiating sequence of
-attaching dentry to inode and calling security_d_instantiate().
+Linux stable rc 5.3 branch running LTP reported following test failures.
+While investigating these failures I have found this kernel warning
+from boot console.
+Please find detailed LTP output log in the bottom of this email.
 
-Before commit ce23e640133 "->getxattr(): pass dentry and inode as
-separate arguments" and b96809173e9 "security_d_instantiate(): move to
-the point prior to attaching dentry to inode", security_d_instantiate()
-should be called beind __d_instantiate(), otherwise it will trigger
-below problem when CONFIG_SECURITY_SMACK on ext4 was enabled because
-d_inode(dentry) used by ->getxattr() is NULL before __d_instantiate()
-instantiate inode.
+List of regression test cases:
+  ltp-containers-tests:
+    * netns_breakns_ip_ipv6_ioctl
+    * netns_breakns_ip_ipv6_netlink
+    * netns_breakns_ns_exec_ipv6_ioctl
+    * netns_breakns_ns_exec_ipv6_netlink
+    * netns_comm_ip_ipv6_ioctl
+    * netns_comm_ip_ipv6_netlink
+    * netns_comm_ns_exec_ipv6_ioctl
+    * netns_comm_ns_exec_ipv6_netlink
 
-[   31.858026] BUG: unable to handle kernel paging request at ffffffffffffff70
+dmesg log:
+[    0.000000] Linux version 5.3.9-rc1 (oe-user@oe-host) (gcc version
+7.3.0 (GCC)) #1 SMP PREEMPT Mon Nov 4 12:14:24 UTC 2019
+[    0.000000] Machine model: ARM Juno development board (r2)
 ...
-[   31.882024] Call Trace:
-[   31.882378]  [<ffffffffa347f75c>] ext4_xattr_get+0x8c/0x3e0
-[   31.883195]  [<ffffffffa3489454>] ext4_xattr_security_get+0x24/0x40
-[   31.884086]  [<ffffffffa336a56b>] generic_getxattr+0x5b/0x90
-[   31.884907]  [<ffffffffa3700514>] smk_fetch+0xb4/0x150
-[   31.885634]  [<ffffffffa3700772>] smack_d_instantiate+0x1c2/0x550
-[   31.886508]  [<ffffffffa36f9a5a>] security_d_instantiate+0x3a/0x80
-[   31.887389]  [<ffffffffa3353b26>] d_instantiate_new+0x36/0x130
-[   31.888223]  [<ffffffffa342b1ef>] ext4_mkdir+0x4af/0x6a0
-[   31.888928]  [<ffffffffa3343470>] vfs_mkdir+0x100/0x280
-[   31.889536]  [<ffffffffa334b086>] SyS_mkdir+0xb6/0x170
-[   31.890255]  [<ffffffffa307c855>] ? trace_do_page_fault+0x95/0x2b0
-[   31.891134]  [<ffffffffa3c5e078>] entry_SYSCALL_64_fastpath+0x18/0x73
+[    3.670227] ------------[ cut here ]------------
+[    3.674887] remove_proc_entry: removing non-empty directory
+'net/dev_snmp6', leaking at least 'lo'
+[    3.684183] WARNING: CPU: 1 PID: 1 at
+/usr/src/kernel/fs/proc/generic.c:684 remove_proc_entry+0x194/0x1a8
+[    3.693658] Modules linked in:
+[    3.696687] CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.3.9-rc1 #1
+[    3.702806] Hardware name: ARM Juno development board (r2) (DT)
+[    3.708669] pstate: 40000005 (nZcv daif -PAN -UAO)
+[    3.713414] pc : remove_proc_entry+0x194/0x1a8
+[    3.717814] lr : remove_proc_entry+0x194/0x1a8
+[    3.722213] sp : ffff00001003bbe0
+[    3.725494] x29: ffff00001003bbe0 x28: ffff0000119cddc0
+[    3.730757] x27: ffff000012256000 x26: ffff00001220b000
+[    3.736019] x25: ffff00001220a000 x24: ffff000012209000
+[    3.741280] x23: ffff8009754a6b00 x22: ffff800973a536db
+[    3.746541] x21: ffff800973a53600 x20: ffff000011f8f000
+[    3.751803] x19: ffff8009754a6bdb x18: ffffffffffffffff
+[    3.757065] x17: 0000000000000007 x16: 0000000000000000
+[    3.762326] x15: ffff000011f8f848 x14: ffff80097396f108
+[    3.767588] x13: ffff80097396f107 x12: ffff000012268b70
+[    3.772849] x11: ffff000012268000 x10: 0000000000000028
+[    3.778111] x9 : 0000000000000000 x8 : ffff000011f8f848
+[    3.783372] x7 : 00000000b2722639 x6 : ffff000011f93000
+[    3.788634] x5 : 0000000000000000 x4 : ffff800975dd8000
+[    3.793895] x3 : ffff000011f90000 x2 : 0000000000000000
+[    3.799157] x1 : 43129acc141cb700 x0 : 0000000000000000
+[    3.804419] Call trace:
+[    3.806841]  remove_proc_entry+0x194/0x1a8
+[    3.810900]  ipv6_proc_exit_net+0x38/0x58
+[    3.814872]  ops_exit_list.isra.1+0x54/0x88
+[    3.819013]  unregister_pernet_operations+0xec/0x150
+[    3.823929]  unregister_pernet_subsys+0x34/0x48
+[    3.828416]  ipv6_misc_proc_exit+0x1c/0x28
+[    3.832473]  inet6_init+0x2a4/0x33c
+[    3.835929]  do_one_initcall+0x94/0x458
+[    3.839727]  kernel_init_freeable+0x484/0x52c
+[    3.844043]  kernel_init+0x18/0x110
+[    3.847498]  ret_from_fork+0x10/0x1c
+[    3.851037] irq event stamp: 255276
+[    3.854492] hardirqs last  enabled at (255275):
+[<ffff00001104f828>] _raw_spin_unlock_irq+0x38/0x78
+[    3.863453] hardirqs last disabled at (255276):
+[<ffff0000100a5a14>] debug_exception_enter+0xac/0xe8
+[    3.872498] softirqs last  enabled at (255270):
+[<ffff00001008210c>] __do_softirq+0x474/0x580
+[    3.880943] softirqs last disabled at (255259):
+[<ffff0000101018e4>] irq_exit+0x144/0x150
+[    3.889044] ---[ end trace 6cbc85548f1f4bc5 ]---
 
-Cc: <stable@vger.kernel.org> # 3.16, 4.4
-Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
----
- fs/dcache.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+...
+LTP test trimmed output,
 
-diff --git a/fs/dcache.c b/fs/dcache.c
-index 5a1c36dc5d65..baa00718d8d1 100644
---- a/fs/dcache.c
-+++ b/fs/dcache.c
-@@ -1900,7 +1900,6 @@ void d_instantiate_new(struct dentry *entry, struct inode *inode)
- 	BUG_ON(!hlist_unhashed(&entry->d_u.d_alias));
- 	BUG_ON(!inode);
- 	lockdep_annotate_inode_mutex_key(inode);
--	security_d_instantiate(entry, inode);
- 	spin_lock(&inode->i_lock);
- 	__d_instantiate(entry, inode);
- 	WARN_ON(!(inode->i_state & I_NEW));
-@@ -1908,6 +1907,7 @@ void d_instantiate_new(struct dentry *entry, struct inode *inode)
- 	smp_mb();
- 	wake_up_bit(&inode->i_state, __I_NEW);
- 	spin_unlock(&inode->i_lock);
-+	security_d_instantiate(entry, inode);
- }
- EXPORT_SYMBOL(d_instantiate_new);
- 
--- 
-2.17.2
+RTNETLINK answers: Operation not supported
+netns_breakns_ns_exec_ipv6_netlink 1 TBROK: adding address to veth0 failed
+tee: /proc/sys/net/ipv6/conf/veth0/accept_dad: No such file or directory
+tee: /proc/sys/net/ipv6/conf/veth0/accept_ra: No such file or directory
+tee: /proc/sys/net/ipv6/conf/veth1/accept_dad: No such file or directory
+tee: /proc/sys/net/ipv6/conf/veth1/accept_ra: No such file or directory
+No support for INET6 on this system.
+netns_breakns_ns_exec_ipv6_ioctl 1 TBROK: adding address to veth0 failed
+netns_breakns_ip_ipv6_netlink 1 TBROK: adding address to veth0 failed
+netns_breakns_ip_ipv6_ioctl 1 TBROK: adding address to veth0 failed
+netns_comm_ns_exec_ipv6_netlink 1 TBROK: adding address to veth0 failed
+netns_comm_ns_exec_ipv6_ioctl 1 TBROK: adding address to veth0 failed
+netns_comm_ip_ipv6_netlink 1 TBROK: adding address to veth0 failed
+netns_comm_ip_ipv6_ioctl 1 TBROK: adding address to veth0 failed
 
+metadata:
+  git branch: linux-5.3.y
+  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+  git commit: ff21af282725ae2ebc3ac4298513816f760c929e
+  git describe: v5.3.8-160-gff21af282725
+  make_kernelversion: 5.3.9-rc1
+  kernel-config:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/juno/lkft/linux-stable-rc-5.3/35/config
+  kernel-defconfig:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/juno/lkft/linux-stable-rc-5.3/35/defconfig
+  build-url: https://ci.linaro.org/job/openembedded-lkft-linux-stable-rc-5.3/DISTRO=lkft,MACHINE=juno,label=docker-lkft/35/
+  build-location:
+http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/juno/lkft/linux-stable-rc-5.3/35
+
+We are investigating this problem.
+
+Full test logs,
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/build/v5.3.8-160-gff21af282725/testrun/991864/log
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/build/v5.3.8-160-gff21af282725/testrun/991901/log
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/build/v5.3.8-160-gff21af282725/testrun/991922/log
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/build/v5.3.8-160-gff21af282725/testrun/991884/log
+https://qa-reports.linaro.org/lkft/linux-stable-rc-5.3-oe/build/v5.3.8-160-gff21af282725/testrun/991846/log
+
+--
+Linaro LKFT
+https://lkft.linaro.org/
