@@ -2,115 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D5F0EE090
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 14:04:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1061EE09A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 14:07:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727663AbfKDNE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 08:04:27 -0500
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:33669 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727236AbfKDNE1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 08:04:27 -0500
-Received: by mail-lj1-f193.google.com with SMTP id t5so17534880ljk.0
-        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 05:04:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=JhQ7HFlU2UjuPowmnwPGHmD+EdJPReNvJPv4o/73DLw=;
-        b=B5FY1/XbL+HcLM8uSIu6+xWTIFQMhgGR0ZPc+1TqFaYNb1YQ36cPU6LCYvBlUYusqP
-         avFe3K1dEA5OAwuz0iPyfvQUmKLIDhsKl0k4ZLnULf/uordbSoPvhYCHckvMW/hTlUSS
-         yZI/RBp4yvR1rCdMD7t5ddJBuTgMn8WFIijWmaY8qSTlDu2WR+Sd8gkxHDkISxD5UEhj
-         QJl9FclTkuIOpCIAag+MkYWG97kQcyZiHNoweOVHDhYSTSf7PnynXwYEDbUTTXGLXiGN
-         qtP4vYFmNw0OHaTrGlgmMTjFc5DC8u70AsjW1rVABrOR9EUNFL8XRPd7z1Ch00QT6eo9
-         EAnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=JhQ7HFlU2UjuPowmnwPGHmD+EdJPReNvJPv4o/73DLw=;
-        b=UxfRSsy974Wdb88EiCTGEYpa0jeRfinA41ShOWONZHYaavUvE7F9n0D1JtCHyGqmXf
-         dv9geHHjuG6BEIVw5kk573z4Hb0Se0VaI3j634tsI2fzJvvP+8TY6mTCW7OnawWdXWEp
-         5ntJOmk0VxsWLVvcFMhWV1XaJr3uobNQpEVOQhFnK9PqAhL10X1QZBYC2uHAseWQL/S9
-         jO7wvNFWeTIskFq7bZMcOIBmK3ggCwU7/4bq0uvN1ilhojOgfQlWkpU6Rv2AbMP1wW2+
-         2bHWZJddVf2AbzmQnxodIhVMobHcRuw7ipTXRIE3iFDXaG3Eg+KT9PJBEhZ7O6e4MJKf
-         KY1A==
-X-Gm-Message-State: APjAAAVBA9/tF71q5XHldcEA45OuuFIwseFBU5HcvGSonlPe+kd+JCE0
-        jG1ztJQ2kUl7Sjhwy66fFYmdl2BcQwzFcWf3nTeUXg==
-X-Google-Smtp-Source: APXvYqz5yHtYXhLt1jqsbom3DmiNCD/Pl9JJmdKaVL59tf08VLPMTBtZfDVWp2YoogUmAUPkOXxwQTAYiXXb4t82d+U=
-X-Received: by 2002:a2e:9a5a:: with SMTP id k26mr8959112ljj.46.1572872665261;
- Mon, 04 Nov 2019 05:04:25 -0800 (PST)
+        id S1727782AbfKDNHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 08:07:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34278 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727663AbfKDNHc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 08:07:32 -0500
+Received: from localhost (unknown [62.119.166.9])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 986C221D7F;
+        Mon,  4 Nov 2019 13:07:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572872850;
+        bh=FfELiOoQvfUbIWMhJoD/pEAF8GWVFPBUowt1XMR0nKU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=q2jg7uvzRWkHqlyCy2GPut1bfwRpQx2TBwry42+zszcJVIYGKsLZTWpgW10ZMvBAH
+         iYHtBsGrhqXONXzeyQXVXCPaj6wnIYvpWH7QZaNFvoRslfNmklEkKarfq0nu8tbCHC
+         YTYZBsVU9k8WUwaDuDZzwvJmT3lHOihjoJ8wONw8=
+Date:   Mon, 4 Nov 2019 14:07:25 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     DENG Qingfang <dqfext@gmail.com>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 4.19] spi: spi-gpio: fix crash when num-chipselects is 0
+Message-ID: <20191104130725.GA2128343@kroah.com>
+References: <20191104124403.13502-1-dqfext@gmail.com>
 MIME-Version: 1.0
-References: <0100016e3654527a-82a12a13-1ed1-448a-8c6d-58f7e85bc85c-000000@email.amazonses.com>
- <20191104122138.GA2127297@kroah.com>
-In-Reply-To: <20191104122138.GA2127297@kroah.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 4 Nov 2019 18:34:14 +0530
-Message-ID: <CA+G9fYshX87tu3FWjVH3-hga4SdwbwcXeBFTgmBbH_6tHDdpXQ@mail.gmail.com>
-Subject: stable-rc 4.19: net/ipv6/addrconf.c:6747:22: error:
- 'blackhole_netdev' undeclared
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        linux- stable <stable@vger.kernel.org>,
-        Netdev <netdev@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Cc:     lkft-triage@lists.linaro.org,
-        "David S. Miller" <davem@davemloft.net>,
-        "Guohanjun (Hanjun Guo)" <guohanjun@huawei.com>,
-        kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org,
-        Sasha Levin <sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191104124403.13502-1-dqfext@gmail.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There are two reasons for build failure on arm64, arm, x86_64 and i386.
+On Mon, Nov 04, 2019 at 08:44:03PM +0800, DENG Qingfang wrote:
+> Commit 249e2632dcd0509b8f8f296f5aabf4d48dfd6da8 upstream.
+> 
+> If an spi-gpio was specified with num-chipselects = <0> in dts, kernel will crash:
+> 
+> Unable to handle kernel paging request at virtual address 32697073
+> pgd = (ptrval)
+> [32697073] *pgd=00000000
+> Internal error: Oops: 5 [#1] SMP ARM
+> Modules linked in:
+> CPU: 2 PID: 1 Comm: swapper/0 Not tainted 4.19.72 #0
+> Hardware name: Generic DT based system
+> PC is at validate_desc+0x28/0x80
+> LR is at gpiod_direction_output+0x14/0x128
+> ...
+> [<c0544db4>] (validate_desc) from [<c0545228>] (gpiod_direction_output+0x14/0x128)
+> [<c0545228>] (gpiod_direction_output) from [<c05fa714>] (spi_gpio_setup+0x58/0x64)
+> [<c05fa714>] (spi_gpio_setup) from [<c05f7258>] (spi_setup+0x12c/0x148)
+> [<c05f7258>] (spi_setup) from [<c05f7330>] (spi_add_device+0xbc/0x12c)
+> [<c05f7330>] (spi_add_device) from [<c05f7f74>] (spi_register_controller+0x838/0x924)
+> [<c05f7f74>] (spi_register_controller) from [<c05fa494>] (spi_bitbang_start+0x108/0x120)
+> [<c05fa494>] (spi_bitbang_start) from [<c05faa34>] (spi_gpio_probe+0x314/0x338)
+> [<c05faa34>] (spi_gpio_probe) from [<c05a844c>] (platform_drv_probe+0x34/0x70)
+> 
+> The cause is spi_gpio_setup() did not check if the spi-gpio has chipselect pins
+> before setting their direction and results in derefing an invalid pointer.
+> 
+> The bug is spotted in kernel 4.19.72 on OpenWrt, and does not occur in 4.14.
+> 
+> Fixes: 9b00bc7b901ff ("spi: spi-gpio: Rewrite to use GPIO descriptors")
+> 
+> Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+> ---
+>  drivers/spi/spi-gpio.c | 10 ++++++----
+>  1 file changed, 6 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/spi/spi-gpio.c b/drivers/spi/spi-gpio.c
+> index 77838d8fd..3b7f0d077 100644
+> --- a/drivers/spi/spi-gpio.c
+> +++ b/drivers/spi/spi-gpio.c
+> @@ -242,10 +242,12 @@ static int spi_gpio_setup(struct spi_device *spi)
+>  	 * The CS GPIOs have already been
+>  	 * initialized from the descriptor lookup.
+>  	 */
+> -	cs = spi_gpio->cs_gpios[spi->chip_select];
+> -	if (!spi->controller_state && cs)
+> -		status = gpiod_direction_output(cs,
+> -						!(spi->mode & SPI_CS_HIGH));
+> +	if (spi_gpio->has_cs) {
+> +		cs = spi_gpio->cs_gpios[spi->chip_select];
+> +		if (!spi->controller_state && cs)
+> +			status = gpiod_direction_output(cs,
+> +						  !(spi->mode & SPI_CS_HIGH));
+> +	}
+>  
+>  	if (!status)
+>  		status = spi_bitbang_setup(spi);
+> -- 
+> 2.23.0
+> 
 
-For arm64 we have identified missing patch,
-Patch "efd00c7 arm64: Add MIDR encoding for HiSilicon Taishan CPUs" needs to
-be bacported as well,
+This is a very different verison of the commit id that you said this is
+from.  Can you please backport the "whole" thing instead?  What is wrong
+with taking all of it?
 
-for arm, x86_64 and i386 build error log,
-------------------------------------
+thanks,
 
-net/ipv6/addrconf.c: In function 'addrconf_init':
-net/ipv6/addrconf.c:6747:22: error: 'blackhole_netdev' undeclared
-(first use in this function); did you mean 'alloc_netdev'?
-  bdev = ipv6_add_dev(blackhole_netdev);
-                      ^~~~~~~~~~~~~~~~
-                      alloc_netdev
-net/ipv6/addrconf.c:6747:22: note: each undeclared identifier is
-reported only once for each function it appears in
-net/ipv6/addrconf.c: In function 'addrconf_cleanup':
-net/ipv6/addrconf.c:6839:18: error: 'blackhole_netdev' undeclared
-(first use in this function); did you mean 'alloc_netdev'?
-  addrconf_ifdown(blackhole_netdev, 2);
-                  ^~~~~~~~~~~~~~~~
-                  alloc_netdev
-
-
-For arm64 build error log,
----------------------------------------
-arch/arm64/kernel/cpufeature.c: In function 'unmap_kernel_at_el0':
-arch/arm64/kernel/cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
-undeclared (first use in this function); did you mean
-'GICR_ISACTIVER0'?
-   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
-                     ^
-arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
-'MIDR_RANGE'
-   .model = m,     \
-            ^
-
-
-Meta data:
-------------------------------------------------------------------------
-kernel: 4.19.82-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-git branch: linux-4.19.y
-git commit: 7d816e1d91b01911392b7f8f93a4a153b9af60d3
-git describe: v4.19.81-145-g7d816e1d91b0
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.19-oe-sanity/build/v4.19.81-145-g7d816e1d91b0
-
-
-- Naresh
+greg k-h
