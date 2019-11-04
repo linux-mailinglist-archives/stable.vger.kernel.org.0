@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BEE61EED2B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C78AEEF86
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389619AbfKDWEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:04:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
+        id S2388581AbfKDV5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:57:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389598AbfKDWEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:04:11 -0500
+        id S2388576AbfKDV5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:57:25 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E69C205C9;
-        Mon,  4 Nov 2019 22:04:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D378214D8;
+        Mon,  4 Nov 2019 21:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905050;
-        bh=/NNe0d1dtB2UGoklGcdMCHuhx3IqbZIsAn2x79hp29s=;
+        s=default; t=1572904644;
+        bh=Wnu7Z2OKcnzbqlOid24zXeShG/t1Wp8CuboYXR7f6/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJFT/NrlAVgophKxTVro79xljpUrOP8I/eKB0zNZKuuXYRL7nYgS9xMHWBk1m22WX
-         ghh59Zj8m0oQ0NetPVOqxuY9czQRm8CX18NifOGmEY4qEv1j6UflV+UXvm2tDEkpSc
-         KqprSqodH2d1w9BE/aesGSE33/RlVD/VzlGXjEYE=
+        b=QFf6rGZ5k/WAM4crPwFqZYA6fDeoMnNnMSsaTx9AHOuFfe7I4AjGkK5E2w+F2xcCM
+         5uH6bbBlOqY+NzBnoiBK8r9f1n70TKrVZYxwZjDc+iWyzgrbiMDeSLXXIu5RzSXoPO
+         MjtjBgde3USz7NUX0YdeFuuTmhtqjF3Mr7I1plY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 004/163] Btrfs: fix inode cache block reserve leak on failure to allocate data space
-Date:   Mon,  4 Nov 2019 22:43:14 +0100
-Message-Id: <20191104212140.509366474@linuxfoundation.org>
+Subject: [PATCH 4.19 002/149] dm snapshot: introduce account_start_copy() and account_end_copy()
+Date:   Mon,  4 Nov 2019 22:43:15 +0100
+Message-Id: <20191104212126.900348411@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,233 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 29d47d00e0ae61668ee0c5d90bef2893c8abbafa ]
+[ Upstream commit a2f83e8b0c82c9500421a26c49eb198b25fcdea3 ]
 
-If we failed to allocate the data extent(s) for the inode space cache, we
-were bailing out without releasing the previously reserved metadata. This
-was triggering the following warnings when unmounting a filesystem:
+This simple refactoring moves code for modifying the semaphore cow_count
+into separate functions to prepare for changes that will extend these
+methods to provide for a more sophisticated mechanism for COW
+throttling.
 
-  $ cat -n fs/btrfs/inode.c
-  (...)
-  9268  void btrfs_destroy_inode(struct inode *inode)
-  9269  {
-  (...)
-  9276          WARN_ON(BTRFS_I(inode)->block_rsv.reserved);
-  9277          WARN_ON(BTRFS_I(inode)->block_rsv.size);
-  (...)
-  9281          WARN_ON(BTRFS_I(inode)->csum_bytes);
-  9282          WARN_ON(BTRFS_I(inode)->defrag_bytes);
-  (...)
-
-Several fstests test cases triggered this often, such as generic/083,
-generic/102, generic/172, generic/269 and generic/300 at least, producing
-stack traces like the following in dmesg/syslog:
-
-  [82039.079546] WARNING: CPU: 2 PID: 13167 at fs/btrfs/inode.c:9276 btrfs_destroy_inode+0x203/0x270 [btrfs]
-  (...)
-  [82039.081543] CPU: 2 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.081912] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.082673] RIP: 0010:btrfs_destroy_inode+0x203/0x270 [btrfs]
-  (...)
-  [82039.083913] RSP: 0018:ffffac0b426a7d30 EFLAGS: 00010206
-  [82039.084320] RAX: ffff8ddf77691158 RBX: ffff8dde29b34660 RCX: 0000000000000002
-  [82039.084736] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8dde29b34660
-  [82039.085156] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.085578] R10: ffffac0b426a7c90 R11: ffffffffb9aad768 R12: ffffac0b426a7db0
-  [82039.086000] R13: ffff8ddf5fbec0a0 R14: dead000000000100 R15: 0000000000000000
-  [82039.086416] FS:  00007f8db96d12c0(0000) GS:ffff8de036b00000(0000) knlGS:0000000000000000
-  [82039.086837] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.087253] CR2: 0000000001416108 CR3: 00000002315cc001 CR4: 00000000003606e0
-  [82039.087672] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.088089] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.088504] Call Trace:
-  [82039.088918]  destroy_inode+0x3b/0x70
-  [82039.089340]  btrfs_free_fs_root+0x16/0xa0 [btrfs]
-  [82039.089768]  btrfs_free_fs_roots+0xd8/0x160 [btrfs]
-  [82039.090183]  ? wait_for_completion+0x65/0x1a0
-  [82039.090607]  close_ctree+0x172/0x370 [btrfs]
-  [82039.091021]  generic_shutdown_super+0x6c/0x110
-  [82039.091427]  kill_anon_super+0xe/0x30
-  [82039.091832]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.092233]  deactivate_locked_super+0x3a/0x70
-  [82039.092636]  cleanup_mnt+0x3b/0x80
-  [82039.093039]  task_work_run+0x93/0xc0
-  [82039.093457]  exit_to_usermode_loop+0xfa/0x100
-  [82039.093856]  do_syscall_64+0x162/0x1d0
-  [82039.094244]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.094634] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.095876] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.096290] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.096700] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.097110] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.097522] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.097937] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.098350] irq event stamp: 0
-  [82039.098750] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.099150] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.099545] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.099925] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.100292] ---[ end trace f2521afa616ddccc ]---
-  [82039.100707] WARNING: CPU: 2 PID: 13167 at fs/btrfs/inode.c:9277 btrfs_destroy_inode+0x1ac/0x270 [btrfs]
-  (...)
-  [82039.103050] CPU: 2 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.103428] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.104203] RIP: 0010:btrfs_destroy_inode+0x1ac/0x270 [btrfs]
-  (...)
-  [82039.105461] RSP: 0018:ffffac0b426a7d30 EFLAGS: 00010206
-  [82039.105866] RAX: ffff8ddf77691158 RBX: ffff8dde29b34660 RCX: 0000000000000002
-  [82039.106270] RDX: 0000000000000000 RSI: 0000000000000001 RDI: ffff8dde29b34660
-  [82039.106673] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.107078] R10: ffffac0b426a7c90 R11: ffffffffb9aad768 R12: ffffac0b426a7db0
-  [82039.107487] R13: ffff8ddf5fbec0a0 R14: dead000000000100 R15: 0000000000000000
-  [82039.107894] FS:  00007f8db96d12c0(0000) GS:ffff8de036b00000(0000) knlGS:0000000000000000
-  [82039.108309] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.108723] CR2: 0000000001416108 CR3: 00000002315cc001 CR4: 00000000003606e0
-  [82039.109146] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.109567] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.109989] Call Trace:
-  [82039.110405]  destroy_inode+0x3b/0x70
-  [82039.110830]  btrfs_free_fs_root+0x16/0xa0 [btrfs]
-  [82039.111257]  btrfs_free_fs_roots+0xd8/0x160 [btrfs]
-  [82039.111675]  ? wait_for_completion+0x65/0x1a0
-  [82039.112101]  close_ctree+0x172/0x370 [btrfs]
-  [82039.112519]  generic_shutdown_super+0x6c/0x110
-  [82039.112988]  kill_anon_super+0xe/0x30
-  [82039.113439]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.113861]  deactivate_locked_super+0x3a/0x70
-  [82039.114278]  cleanup_mnt+0x3b/0x80
-  [82039.114685]  task_work_run+0x93/0xc0
-  [82039.115083]  exit_to_usermode_loop+0xfa/0x100
-  [82039.115476]  do_syscall_64+0x162/0x1d0
-  [82039.115863]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.116254] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.117463] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.117882] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.118330] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.118743] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.119159] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.119574] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.119987] irq event stamp: 0
-  [82039.120387] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.120787] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.121182] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.121563] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.121933] ---[ end trace f2521afa616ddccd ]---
-  [82039.122353] WARNING: CPU: 2 PID: 13167 at fs/btrfs/inode.c:9278 btrfs_destroy_inode+0x1bc/0x270 [btrfs]
-  (...)
-  [82039.124606] CPU: 2 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.125008] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.125801] RIP: 0010:btrfs_destroy_inode+0x1bc/0x270 [btrfs]
-  (...)
-  [82039.126998] RSP: 0018:ffffac0b426a7d30 EFLAGS: 00010202
-  [82039.127399] RAX: ffff8ddf77691158 RBX: ffff8dde29b34660 RCX: 0000000000000002
-  [82039.127803] RDX: 0000000000000001 RSI: 0000000000000001 RDI: ffff8dde29b34660
-  [82039.128206] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.128611] R10: ffffac0b426a7c90 R11: ffffffffb9aad768 R12: ffffac0b426a7db0
-  [82039.129020] R13: ffff8ddf5fbec0a0 R14: dead000000000100 R15: 0000000000000000
-  [82039.129428] FS:  00007f8db96d12c0(0000) GS:ffff8de036b00000(0000) knlGS:0000000000000000
-  [82039.129846] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.130261] CR2: 0000000001416108 CR3: 00000002315cc001 CR4: 00000000003606e0
-  [82039.130684] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.131142] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.131561] Call Trace:
-  [82039.131990]  destroy_inode+0x3b/0x70
-  [82039.132417]  btrfs_free_fs_root+0x16/0xa0 [btrfs]
-  [82039.132844]  btrfs_free_fs_roots+0xd8/0x160 [btrfs]
-  [82039.133262]  ? wait_for_completion+0x65/0x1a0
-  [82039.133688]  close_ctree+0x172/0x370 [btrfs]
-  [82039.134157]  generic_shutdown_super+0x6c/0x110
-  [82039.134575]  kill_anon_super+0xe/0x30
-  [82039.134997]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.135415]  deactivate_locked_super+0x3a/0x70
-  [82039.135832]  cleanup_mnt+0x3b/0x80
-  [82039.136239]  task_work_run+0x93/0xc0
-  [82039.136637]  exit_to_usermode_loop+0xfa/0x100
-  [82039.137029]  do_syscall_64+0x162/0x1d0
-  [82039.137418]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.137812] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.139059] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.139475] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.139890] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.140302] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.140719] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.141138] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.141597] irq event stamp: 0
-  [82039.142043] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.142443] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.142839] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.143220] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.143588] ---[ end trace f2521afa616ddcce ]---
-  [82039.167472] WARNING: CPU: 3 PID: 13167 at fs/btrfs/extent-tree.c:10120 btrfs_free_block_groups+0x30d/0x460 [btrfs]
-  (...)
-  [82039.173800] CPU: 3 PID: 13167 Comm: umount Tainted: G        W         5.2.0-rc4-btrfs-next-50 #1
-  [82039.174847] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.11.2-0-gf9626ccb91-prebuilt.qemu-project.org 04/01/2014
-  [82039.177031] RIP: 0010:btrfs_free_block_groups+0x30d/0x460 [btrfs]
-  (...)
-  [82039.180397] RSP: 0018:ffffac0b426a7dd8 EFLAGS: 00010206
-  [82039.181574] RAX: ffff8de010a1db40 RBX: ffff8de010a1db40 RCX: 0000000000170014
-  [82039.182711] RDX: ffff8ddff4380040 RSI: ffff8de010a1da58 RDI: 0000000000000246
-  [82039.183817] RBP: ffff8ddf5fbec000 R08: 0000000000000000 R09: 0000000000000000
-  [82039.184925] R10: ffff8de036404380 R11: ffffffffb8a5ea00 R12: ffff8de010a1b2b8
-  [82039.186090] R13: ffff8de010a1b2b8 R14: 0000000000000000 R15: dead000000000100
-  [82039.187208] FS:  00007f8db96d12c0(0000) GS:ffff8de036b80000(0000) knlGS:0000000000000000
-  [82039.188345] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [82039.189481] CR2: 00007fb044005170 CR3: 00000002315cc006 CR4: 00000000003606e0
-  [82039.190674] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [82039.191829] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [82039.192978] Call Trace:
-  [82039.194160]  close_ctree+0x19a/0x370 [btrfs]
-  [82039.195315]  generic_shutdown_super+0x6c/0x110
-  [82039.196486]  kill_anon_super+0xe/0x30
-  [82039.197645]  btrfs_kill_super+0x12/0xa0 [btrfs]
-  [82039.198696]  deactivate_locked_super+0x3a/0x70
-  [82039.199619]  cleanup_mnt+0x3b/0x80
-  [82039.200559]  task_work_run+0x93/0xc0
-  [82039.201505]  exit_to_usermode_loop+0xfa/0x100
-  [82039.202436]  do_syscall_64+0x162/0x1d0
-  [82039.203339]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [82039.204091] RIP: 0033:0x7f8db8fbab37
-  (...)
-  [82039.206360] RSP: 002b:00007ffdce35b468 EFLAGS: 00000246 ORIG_RAX: 00000000000000a6
-  [82039.207132] RAX: 0000000000000000 RBX: 0000560d20b00060 RCX: 00007f8db8fbab37
-  [82039.207906] RDX: 0000000000000001 RSI: 0000000000000000 RDI: 0000560d20b00240
-  [82039.208621] RBP: 0000560d20b00240 R08: 0000560d20b00270 R09: 0000000000000015
-  [82039.209285] R10: 00000000000006b4 R11: 0000000000000246 R12: 00007f8db94bce64
-  [82039.209984] R13: 0000000000000000 R14: 0000000000000000 R15: 00007ffdce35b6f0
-  [82039.210642] irq event stamp: 0
-  [82039.211306] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [82039.211971] hardirqs last disabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.212643] softirqs last  enabled at (0): [<ffffffffb7884ff2>] copy_process.part.33+0x7f2/0x1f00
-  [82039.213304] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [82039.213875] ---[ end trace f2521afa616ddccf ]---
-
-Fix this by releasing the reserved metadata on failure to allocate data
-extent(s) for the inode cache.
-
-Fixes: 69fe2d75dd91d0 ("btrfs: make the delalloc block rsv per inode")
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode-map.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/dm-snap.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/fs/btrfs/inode-map.c b/fs/btrfs/inode-map.c
-index 2e8bb402050b9..10a73c97f8966 100644
---- a/fs/btrfs/inode-map.c
-+++ b/fs/btrfs/inode-map.c
-@@ -485,6 +485,7 @@ again:
- 					      prealloc, prealloc, &alloc_hint);
- 	if (ret) {
- 		btrfs_delalloc_release_extents(BTRFS_I(inode), prealloc, true);
-+		btrfs_delalloc_release_metadata(BTRFS_I(inode), prealloc, true);
- 		goto out_put;
+diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
+index 36805b12661e1..d9216afbd490f 100644
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -1399,6 +1399,16 @@ static void snapshot_dtr(struct dm_target *ti)
+ 	kfree(s);
+ }
+ 
++static void account_start_copy(struct dm_snapshot *s)
++{
++	down(&s->cow_count);
++}
++
++static void account_end_copy(struct dm_snapshot *s)
++{
++	up(&s->cow_count);
++}
++
+ /*
+  * Flush a list of buffers.
+  */
+@@ -1594,7 +1604,7 @@ static void copy_callback(int read_err, unsigned long write_err, void *context)
+ 		rb_link_node(&pe->out_of_order_node, parent, p);
+ 		rb_insert_color(&pe->out_of_order_node, &s->out_of_order_tree);
  	}
+-	up(&s->cow_count);
++	account_end_copy(s);
+ }
+ 
+ /*
+@@ -1618,7 +1628,7 @@ static void start_copy(struct dm_snap_pending_exception *pe)
+ 	dest.count = src.count;
+ 
+ 	/* Hand over to kcopyd */
+-	down(&s->cow_count);
++	account_start_copy(s);
+ 	dm_kcopyd_copy(s->kcopyd_client, &src, 1, &dest, 0, copy_callback, pe);
+ }
+ 
+@@ -1638,7 +1648,7 @@ static void start_full_bio(struct dm_snap_pending_exception *pe,
+ 	pe->full_bio = bio;
+ 	pe->full_bio_end_io = bio->bi_end_io;
+ 
+-	down(&s->cow_count);
++	account_start_copy(s);
+ 	callback_data = dm_kcopyd_prepare_callback(s->kcopyd_client,
+ 						   copy_callback, pe);
  
 -- 
 2.20.1
