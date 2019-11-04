@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA0EFEEBE1
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:51:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0BEEEC64
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:56:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730595AbfKDVvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:51:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44700 "EHLO mail.kernel.org"
+        id S2388438AbfKDV4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:56:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730586AbfKDVvm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:51:42 -0500
+        id S2388407AbfKDV4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:56:43 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83966217F4;
-        Mon,  4 Nov 2019 21:51:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC364217F4;
+        Mon,  4 Nov 2019 21:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904301;
-        bh=7SOk7tiTVGhBb6vH7JX2MPjaoKS77atUxG4Pvnesje8=;
+        s=default; t=1572904602;
+        bh=KDUMVo+0IZL3To9k5xdVpZfXg86dMZ/WEdRlPdtViZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yhsn17oKveR0alrrhaEivNSxqTyjDgd7CkVZs5Q8i2rAT0oKv2LOveBPgel/oGBpU
-         8+nWgG79agc0GhZPFJj34cp6syBol9eX5Vz+gjqlGYXDTrICDBuxcNE1DsceZ6qZSj
-         8lrljci4C2IAvd1OVnoaTaMFJ3JSxte6gaFUePrk=
+        b=EwG0Bu3W1hTVyQIZ0hFgwBV01/1beBNLFg9Vxz/d/4uz6OR4EO0FfRDsKCJc8sOCr
+         fy71e5IwVgO/RCiz97D1f6KakXKBBwByzoB51xz/5PKADCqEuRHcvTUp8SbL2YADP4
+         Be+/rYsBK6bwleWYD8988iObq/j/dH+mXIpfFieM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Dave Young <dyoung@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jerry Snitselaar <jsnitsel@redhat.com>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Lyude Paul <lyude@redhat.com>,
-        Matthew Garrett <mjg59@google.com>,
-        Octavian Purdila <octavian.purdila@intel.com>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Scott Talbert <swt@techie.net>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, linux-integrity@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 21/62] efi/cper: Fix endianness of PCIe class code
-Date:   Mon,  4 Nov 2019 22:44:43 +0100
-Message-Id: <20191104211921.182137135@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 47/95] fs: ocfs2: fix a possible null-pointer dereference in ocfs2_write_end_nolock()
+Date:   Mon,  4 Nov 2019 22:44:45 +0100
+Message-Id: <20191104212103.091065714@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 6fb9367a15d1a126d222d738b2702c7958594a5f ]
+[ Upstream commit 583fee3e12df0e6f1f66f063b989d8e7fed0e65a ]
 
-The CPER parser assumes that the class code is big endian, but at least
-on this edk2-derived Intel Purley platform it's little endian:
+In ocfs2_write_end_nolock(), there are an if statement on lines 1976,
+2047 and 2058, to check whether handle is NULL:
 
-    efi: EFI v2.50 by EDK II BIOS ID:PLYDCRB1.86B.0119.R05.1701181843
-    DMI: Intel Corporation PURLEY/PURLEY, BIOS PLYDCRB1.86B.0119.R05.1701181843 01/18/2017
+    if (handle)
 
-    {1}[Hardware Error]:   device_id: 0000:5d:00.0
-    {1}[Hardware Error]:   slot: 0
-    {1}[Hardware Error]:   secondary_bus: 0x5e
-    {1}[Hardware Error]:   vendor_id: 0x8086, device_id: 0x2030
-    {1}[Hardware Error]:   class_code: 000406
-                                       ^^^^^^ (should be 060400)
+When handle is NULL, it is used on line 2045:
 
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: Jerry Snitselaar <jsnitsel@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: Matthew Garrett <mjg59@google.com>
-Cc: Octavian Purdila <octavian.purdila@intel.com>
-Cc: Peter Jones <pjones@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Scott Talbert <swt@techie.net>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Cc: linux-integrity@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191002165904.8819-2-ard.biesheuvel@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+	ocfs2_update_inode_fsync_trans(handle, inode, 1);
+        oi->i_sync_tid = handle->h_transaction->t_tid;
+
+Thus, a possible null-pointer dereference may occur.
+
+To fix this bug, handle is checked before calling
+ocfs2_update_inode_fsync_trans().
+
+This bug is found by a static analysis tool STCheck written by us.
+
+Link: http://lkml.kernel.org/r/20190726033705.32307-1-baijiaju1990@gmail.com
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/cper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/aops.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
-index f40f7df4b7344..c0e54396f2502 100644
---- a/drivers/firmware/efi/cper.c
-+++ b/drivers/firmware/efi/cper.c
-@@ -375,7 +375,7 @@ static void cper_print_pcie(const char *pfx, const struct cper_sec_pcie *pcie,
- 		printk("%s""vendor_id: 0x%04x, device_id: 0x%04x\n", pfx,
- 		       pcie->device_id.vendor_id, pcie->device_id.device_id);
- 		p = pcie->device_id.class_code;
--		printk("%s""class_code: %02x%02x%02x\n", pfx, p[0], p[1], p[2]);
-+		printk("%s""class_code: %02x%02x%02x\n", pfx, p[2], p[1], p[0]);
+diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
+index ebeec7530cb60..7de0c9562b707 100644
+--- a/fs/ocfs2/aops.c
++++ b/fs/ocfs2/aops.c
+@@ -2054,7 +2054,8 @@ out_write_size:
+ 		inode->i_mtime = inode->i_ctime = current_time(inode);
+ 		di->i_mtime = di->i_ctime = cpu_to_le64(inode->i_mtime.tv_sec);
+ 		di->i_mtime_nsec = di->i_ctime_nsec = cpu_to_le32(inode->i_mtime.tv_nsec);
+-		ocfs2_update_inode_fsync_trans(handle, inode, 1);
++		if (handle)
++			ocfs2_update_inode_fsync_trans(handle, inode, 1);
  	}
- 	if (pcie->validation_bits & CPER_PCIE_VALID_SERIAL_NUMBER)
- 		printk("%s""serial number: 0x%04x, 0x%04x\n", pfx,
+ 	if (handle)
+ 		ocfs2_journal_dirty(handle, wc->w_di_bh);
 -- 
 2.20.1
 
