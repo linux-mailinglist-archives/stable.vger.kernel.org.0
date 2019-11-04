@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC06FEF083
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C13CEEF03D
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:27:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730073AbfKDVsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:48:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39176 "EHLO mail.kernel.org"
+        id S1729871AbfKDVuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:50:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730050AbfKDVsg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:36 -0500
+        id S1729753AbfKDVuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:50:50 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61A1F21744;
-        Mon,  4 Nov 2019 21:48:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A922E2184C;
+        Mon,  4 Nov 2019 21:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904115;
-        bh=gK0apV4xGm2rbDpBWgguKjcnDsIC/t2J8Y9zM7fm0uE=;
+        s=default; t=1572904250;
+        bh=jMAEKlxyC3ermhSxITfVSGgBVe4mb/AT5OiGWW7wYCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jK/anFnjXbxAObjqSWKfP3GUAGxXbP+HXEhXcl2aHVNGFb+GKnM8CVUsI1VJn/r1H
-         22dKpOX2Hrh7vcLUiKrk6hl5ocxqN14OS9RrED3kgruOTrMC/EC6OXZXKpeGnVtQCK
-         Vad9uWmaEmdvs6jQcjzVxxGP3mEMeZIb5Kl8wqjc=
+        b=Pq43ueZq1POdMnwHcggZsjFOwxakEWASY6lch9ju1txMKbE5nGau1YCpAe0vIXSDq
+         vxCdSLEwW/RDwnPlTFy6J9iUH4BhpYaa2YJHh6zCmQOPdoDHbCuOyD5Rx5C0AEWbg7
+         9mRoUHTzD7vlNiy8/ILDciDZB7ivV6YLDcc3YURk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
         Oliver Neukum <oneukum@suse.com>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.4 28/46] UAS: Revert commit 3ae62a42090f ("UAS: fix alignment of scatter/gather segments")
+Subject: [PATCH 4.9 37/62] UAS: Revert commit 3ae62a42090f ("UAS: fix alignment of scatter/gather segments")
 Date:   Mon,  4 Nov 2019 22:44:59 +0100
-Message-Id: <20191104211901.335806642@linuxfoundation.org>
+Message-Id: <20191104211940.713506931@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -100,7 +100,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/storage/uas.c
 +++ b/drivers/usb/storage/uas.c
-@@ -772,30 +772,10 @@ static int uas_slave_alloc(struct scsi_d
+@@ -796,30 +796,10 @@ static int uas_slave_alloc(struct scsi_d
  {
  	struct uas_dev_info *devinfo =
  		(struct uas_dev_info *)sdev->host->hostdata;
@@ -113,7 +113,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 -	 * of the physical HC and the demands of the protocol, as we
 -	 * definitely want no additional memory allocation in this path
 -	 * ruling out using bounce buffers.
-- 	 *
+-	 *
 -	 * For a transmission on USB to continue we must never send
 -	 * a package that is smaller than maxpacket. Hence the length of each
 -         * scatterlist element except the last must be divisible by the
