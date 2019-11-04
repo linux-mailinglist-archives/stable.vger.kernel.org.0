@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C13CEEF03D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:27:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 948E2EECF2
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729871AbfKDVuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:50:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43396 "EHLO mail.kernel.org"
+        id S2388318AbfKDWBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:01:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729753AbfKDVuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:50:50 -0500
+        id S2389061AbfKDWBc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:01:32 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A922E2184C;
-        Mon,  4 Nov 2019 21:50:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E7EF21744;
+        Mon,  4 Nov 2019 22:01:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904250;
-        bh=jMAEKlxyC3ermhSxITfVSGgBVe4mb/AT5OiGWW7wYCw=;
+        s=default; t=1572904891;
+        bh=Wsb1jpNxG9ivDzj5wFIaJ9ACM3AStFRA5b98HAahpBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pq43ueZq1POdMnwHcggZsjFOwxakEWASY6lch9ju1txMKbE5nGau1YCpAe0vIXSDq
-         vxCdSLEwW/RDwnPlTFy6J9iUH4BhpYaa2YJHh6zCmQOPdoDHbCuOyD5Rx5C0AEWbg7
-         9mRoUHTzD7vlNiy8/ILDciDZB7ivV6YLDcc3YURk=
+        b=y85INT4+dxh8YLY+C+k5BWoW0YIMl90pss/V4gtRn4TN3Xvg5zBxDH+GJMuvFr1mE
+         v0QyN7nUuAP2P8YVFuG9lzGgcYuqw//1tM+5zNyvG5rCYyEi/BLhZKFPQKrMJTVZVc
+         llAvKdyuhElr5SZoq9C/+7HDI/KbEkkottK784ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Oliver Neukum <oneukum@suse.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.9 37/62] UAS: Revert commit 3ae62a42090f ("UAS: fix alignment of scatter/gather segments")
-Date:   Mon,  4 Nov 2019 22:44:59 +0100
-Message-Id: <20191104211940.713506931@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Mario Limonciello <mario.limonciello@dell.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 107/149] thunderbolt: Use 32-bit writes when writing ring producer/consumer
+Date:   Mon,  4 Nov 2019 22:45:00 +0100
+Message-Id: <20191104212143.931334324@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-commit 1186f86a71130a7635a20843e355bb880c7349b2 upstream.
+[ Upstream commit 943795219d3cb9f8ce6ce51cad3ffe1f61e95c6b ]
 
-Commit 3ae62a42090f ("UAS: fix alignment of scatter/gather segments"),
-copying a similar commit for usb-storage, attempted to solve a problem
-involving scatter-gather I/O and USB/IP by setting the
-virt_boundary_mask for mass-storage devices.
+The register access should be using 32-bit reads/writes according to the
+datasheet. With the previous generation hardware 16-bit writes have been
+working but starting with ICL this is not the case anymore so fix
+producer/consumer register update to use correct width register address.
 
-However, it now turns out that the analogous change in usb-storage
-interacted badly with commit 09324d32d2a0 ("block: force an unlimited
-segment size on queues with a virt boundary"), which was added later.
-A typical error message is:
-
-	ehci-pci 0000:00:13.2: swiotlb buffer is full (sz: 327680 bytes),
-	total 32768 (slots), used 97 (slots)
-
-There is no longer any reason to keep the virt_boundary_mask setting
-in the uas driver.  It was needed in the first place only for
-handling devices with a block size smaller than the maxpacket size and
-where the host controller was not capable of fully general
-scatter-gather operation (that is, able to merge two SG segments into
-a single USB packet).  But:
-
-	High-speed or slower connections never use a bulk maxpacket
-	value larger than 512;
-
-	The SCSI layer does not handle block devices with a block size
-	smaller than 512 bytes;
-
-	All the host controllers capable of SuperSpeed operation can
-	handle fully general SG;
-
-	Since commit ea44d190764b ("usbip: Implement SG support to
-	vhci-hcd and stub driver") was merged, the USB/IP driver can
-	also handle SG.
-
-Therefore all supported device/controller combinations should be okay
-with no need for any special virt_boundary_mask.  So in order to head
-off potential problems similar to those affecting usb-storage, this
-patch reverts commit 3ae62a42090f.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: Oliver Neukum <oneukum@suse.com>
-CC: <stable@vger.kernel.org>
-Acked-by: Christoph Hellwig <hch@lst.de>
-Fixes: 3ae62a42090f ("UAS: fix alignment of scatter/gather segments")
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910231132470.1878-100000@iolanthe.rowland.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Reviewed-by: Yehezkel Bernat <YehezkelShB@gmail.com>
+Tested-by: Mario Limonciello <mario.limonciello@dell.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/storage/uas.c |   20 --------------------
- 1 file changed, 20 deletions(-)
+ drivers/thunderbolt/nhi.c | 22 ++++++++++++++++++----
+ 1 file changed, 18 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -796,30 +796,10 @@ static int uas_slave_alloc(struct scsi_d
+diff --git a/drivers/thunderbolt/nhi.c b/drivers/thunderbolt/nhi.c
+index 5cd6bdfa068f9..d436a1534fc2b 100644
+--- a/drivers/thunderbolt/nhi.c
++++ b/drivers/thunderbolt/nhi.c
+@@ -142,9 +142,20 @@ static void __iomem *ring_options_base(struct tb_ring *ring)
+ 	return io;
+ }
+ 
+-static void ring_iowrite16desc(struct tb_ring *ring, u32 value, u32 offset)
++static void ring_iowrite_cons(struct tb_ring *ring, u16 cons)
  {
- 	struct uas_dev_info *devinfo =
- 		(struct uas_dev_info *)sdev->host->hostdata;
--	int maxp;
+-	iowrite16(value, ring_desc_base(ring) + offset);
++	/*
++	 * The other 16-bits in the register is read-only and writes to it
++	 * are ignored by the hardware so we can save one ioread32() by
++	 * filling the read-only bits with zeroes.
++	 */
++	iowrite32(cons, ring_desc_base(ring) + 8);
++}
++
++static void ring_iowrite_prod(struct tb_ring *ring, u16 prod)
++{
++	/* See ring_iowrite_cons() above for explanation */
++	iowrite32(prod << 16, ring_desc_base(ring) + 8);
+ }
  
- 	sdev->hostdata = devinfo;
+ static void ring_iowrite32desc(struct tb_ring *ring, u32 value, u32 offset)
+@@ -196,7 +207,10 @@ static void ring_write_descriptors(struct tb_ring *ring)
+ 			descriptor->sof = frame->sof;
+ 		}
+ 		ring->head = (ring->head + 1) % ring->size;
+-		ring_iowrite16desc(ring, ring->head, ring->is_tx ? 10 : 8);
++		if (ring->is_tx)
++			ring_iowrite_prod(ring, ring->head);
++		else
++			ring_iowrite_cons(ring, ring->head);
+ 	}
+ }
  
- 	/*
--	 * We have two requirements here. We must satisfy the requirements
--	 * of the physical HC and the demands of the protocol, as we
--	 * definitely want no additional memory allocation in this path
--	 * ruling out using bounce buffers.
--	 *
--	 * For a transmission on USB to continue we must never send
--	 * a package that is smaller than maxpacket. Hence the length of each
--         * scatterlist element except the last must be divisible by the
--         * Bulk maxpacket value.
--	 * If the HC does not ensure that through SG,
--	 * the upper layer must do that. We must assume nothing
--	 * about the capabilities off the HC, so we use the most
--	 * pessimistic requirement.
--	 */
--
--	maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
--	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
--
--	/*
- 	 * The protocol has no requirements on alignment in the strict sense.
- 	 * Controllers may or may not have alignment restrictions.
- 	 * As this is not exported, we use an extremely conservative guess.
+@@ -660,7 +674,7 @@ void tb_ring_stop(struct tb_ring *ring)
+ 
+ 	ring_iowrite32options(ring, 0, 0);
+ 	ring_iowrite64desc(ring, 0, 0);
+-	ring_iowrite16desc(ring, 0, ring->is_tx ? 10 : 8);
++	ring_iowrite32desc(ring, 0, 8);
+ 	ring_iowrite32desc(ring, 0, 12);
+ 	ring->head = 0;
+ 	ring->tail = 0;
+-- 
+2.20.1
+
 
 
