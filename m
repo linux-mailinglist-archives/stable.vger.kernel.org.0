@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D80EEDBB
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:09:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B13AFEF09A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:29:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388867AbfKDWJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:09:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42542 "EHLO mail.kernel.org"
+        id S2387869AbfKDW3N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:29:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389648AbfKDWJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:09:26 -0500
+        id S1729846AbfKDVr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:47:58 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 732AC20650;
-        Mon,  4 Nov 2019 22:09:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B1AD21655;
+        Mon,  4 Nov 2019 21:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905366;
-        bh=pfsObuW+C2EvHwuzLuq6BbLA7QNXiNdMae4pEfSAyCM=;
+        s=default; t=1572904077;
+        bh=uhc6qrmgYf8tNuiZPGZcsbbrTbtSfMBBHflqUUXRHqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBfbdr4YxDnPRj8SRrjprInKBut0E5bWg7gxgHND/cJmeEk2UJ9Na/Tsn1jH1uSo9
-         EK1F8o8hOVbFIWFTGVGAJCthaGMwPda4PO0yr+bCQ1MR0QLFfddOOz8IIc9/K8HpKV
-         Ze4y7nhX4DnPda8tUebedDJpERUHhRueEvmfC9Sk=
+        b=eCdgP2ft/qDLy4WH5/4x07HmEbskmrqd8c2NGm0tIa5+8haHP2SlqnrHr0ZQZ6CS3
+         ERk3ejQdkb2U7jSHljPRSA4+Zzh8sVTfymik9K3e0Vd+zz8s4BL2mK9Cb6/gjhVYPS
+         xKsLdI/e2IkO4B/04TNKcdAFPy56/QW+mh053+cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Peng <benquike@gmail.com>,
-        Mathias Payer <mathias.payer@nebelwelt.net>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Austin Kim <austindh.kim@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 094/163] ath6kl: fix a NULL-ptr-deref bug in ath6kl_usb_alloc_urb_from_pipe()
+Subject: [PATCH 4.4 13/46] fs: cifs: mute -Wunused-const-variable message
 Date:   Mon,  4 Nov 2019 22:44:44 +0100
-Message-Id: <20191104212146.960880995@linuxfoundation.org>
+Message-Id: <20191104211842.614962923@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,75 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Peng <benquike@gmail.com>
+From: Austin Kim <austindh.kim@gmail.com>
 
-[ Upstream commit 39d170b3cb62ba98567f5c4f40c27b5864b304e5 ]
+[ Upstream commit dd19c106a36690b47bb1acc68372f2b472b495b8 ]
 
-The `ar_usb` field of `ath6kl_usb_pipe_usb_pipe` objects
-are initialized to point to the containing `ath6kl_usb` object
-according to endpoint descriptors read from the device side, as shown
-below in `ath6kl_usb_setup_pipe_resources`:
+After 'Initial git repository build' commit,
+'mapping_table_ERRHRD' variable has not been used.
 
-for (i = 0; i < iface_desc->desc.bNumEndpoints; ++i) {
-	endpoint = &iface_desc->endpoint[i].desc;
+So 'mapping_table_ERRHRD' const variable could be removed
+to mute below warning message:
 
-	// get the address from endpoint descriptor
-	pipe_num = ath6kl_usb_get_logical_pipe_num(ar_usb,
-						endpoint->bEndpointAddress,
-						&urbcount);
-	......
-	// select the pipe object
-	pipe = &ar_usb->pipes[pipe_num];
-
-	// initialize the ar_usb field
-	pipe->ar_usb = ar_usb;
-}
-
-The driver assumes that the addresses reported in endpoint
-descriptors from device side  to be complete. If a device is
-malicious and does not report complete addresses, it may trigger
-NULL-ptr-deref `ath6kl_usb_alloc_urb_from_pipe` and
-`ath6kl_usb_free_urb_to_pipe`.
-
-This patch fixes the bug by preventing potential NULL-ptr-deref
-(CVE-2019-15098).
-
-Signed-off-by: Hui Peng <benquike@gmail.com>
-Reported-by: Hui Peng <benquike@gmail.com>
-Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+   fs/cifs/netmisc.c:120:40: warning: unused variable 'mapping_table_ERRHRD' [-Wunused-const-variable]
+   static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
+                                           ^
+Signed-off-by: Austin Kim <austindh.kim@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath6kl/usb.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/cifs/netmisc.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/usb.c b/drivers/net/wireless/ath/ath6kl/usb.c
-index 4defb7a0330f4..53b66e9434c99 100644
---- a/drivers/net/wireless/ath/ath6kl/usb.c
-+++ b/drivers/net/wireless/ath/ath6kl/usb.c
-@@ -132,6 +132,10 @@ ath6kl_usb_alloc_urb_from_pipe(struct ath6kl_usb_pipe *pipe)
- 	struct ath6kl_urb_context *urb_context = NULL;
- 	unsigned long flags;
+diff --git a/fs/cifs/netmisc.c b/fs/cifs/netmisc.c
+index cc88f4f0325ef..bed9733302279 100644
+--- a/fs/cifs/netmisc.c
++++ b/fs/cifs/netmisc.c
+@@ -130,10 +130,6 @@ static const struct smb_to_posix_error mapping_table_ERRSRV[] = {
+ 	{0, 0}
+ };
  
-+	/* bail if this pipe is not initialized */
-+	if (!pipe->ar_usb)
-+		return NULL;
-+
- 	spin_lock_irqsave(&pipe->ar_usb->cs_lock, flags);
- 	if (!list_empty(&pipe->urb_list_head)) {
- 		urb_context =
-@@ -150,6 +154,10 @@ static void ath6kl_usb_free_urb_to_pipe(struct ath6kl_usb_pipe *pipe,
- {
- 	unsigned long flags;
- 
-+	/* bail if this pipe is not initialized */
-+	if (!pipe->ar_usb)
-+		return;
-+
- 	spin_lock_irqsave(&pipe->ar_usb->cs_lock, flags);
- 	pipe->urb_cnt++;
- 
+-static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
+-	{0, 0}
+-};
+-
+ /*
+  * Convert a string containing text IPv4 or IPv6 address to binary form.
+  *
 -- 
 2.20.1
 
