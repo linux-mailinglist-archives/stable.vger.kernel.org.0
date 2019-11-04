@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C18E3EEFA6
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 706F4EEF04
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388053AbfKDVy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:54:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49952 "EHLO mail.kernel.org"
+        id S2388613AbfKDWSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:18:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388050AbfKDVyz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:54:55 -0500
+        id S2389171AbfKDWBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:01:46 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8583C217F4;
-        Mon,  4 Nov 2019 21:54:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC8CA205C9;
+        Mon,  4 Nov 2019 22:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904495;
-        bh=u9Z6lVC4xy0VgeB2bfaZPJz5Y1PJFKbw+LVpl3t3NfA=;
+        s=default; t=1572904906;
+        bh=v0IrQyRi9n+bfhh9+5Fe2BJGlZxsDr2cCWzbbt2oXfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EoBcEmOwv8K8X5SPRa4QJ1x0qsD497W9dFcKWnL2OrcoU0f4BGDRcDdJG0HAnVFGr
-         f5r5ymVU7tgtjW80V/LD3oYgzIXOciQtFSj6j4htlEocoHCOpXKhT1RRNdRZL4gGgc
-         PQC/GNFAaysfs2GKOKA4WyIGL0+jbdBko/gSrc0M=
+        b=fy/ol/dtOK4uwYyfDjMsplgyO4GUkMLy+Ypym8tCn01tJip9iudQeyAL0B4iGz3D1
+         V+yYd+3ievpfJWm2DGI7fwBQP/sKfX312hswkHj/YJmtuQx0Agwp/AaIE5JT8FX8s4
+         S+SCxTxTDoISeoR5YuPnpBfbfE2A+0ZiWD9L/5nw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 66/95] ALSA: hda/realtek - Add support for ALC623
+Subject: [PATCH 4.19 111/149] ALSA: bebob: Fix prototype of helper function to return negative value
 Date:   Mon,  4 Nov 2019 22:45:04 +0100
-Message-Id: <20191104212110.711021892@linuxfoundation.org>
+Message-Id: <20191104212144.168753005@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kailang Yang <kailang@realtek.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit f0778871a13889b86a65d4ad34bef8340af9d082 upstream.
+commit f2bbdbcb075f3977a53da3bdcb7cd460bc8ae5f2 upstream.
 
-Support new codec ALC623.
+A helper function of ALSA bebob driver returns negative value in a
+function which has a prototype to return unsigned value.
 
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/ed97b6a8bd9445ecb48bc763d9aaba7a@realtek.com
+This commit fixes it by changing the prototype.
+
+Fixes: eb7b3a056cd8 ("ALSA: bebob: Add commands and connections/streams management")
+Cc: <stable@vger.kernel.org> # v3.16+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191026030620.12077-1-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/firewire/bebob/bebob_stream.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -375,6 +375,9 @@ static void alc_fill_eapd_coef(struct hd
- 	case 0x10ec0672:
- 		alc_update_coef_idx(codec, 0xd, 0, 1<<14); /* EAPD Ctrl */
- 		break;
-+	case 0x10ec0623:
-+		alc_update_coef_idx(codec, 0x19, 1<<13, 0);
-+		break;
- 	case 0x10ec0668:
- 		alc_update_coef_idx(codec, 0x7, 3<<13, 0);
- 		break;
-@@ -2757,6 +2760,7 @@ enum {
- 	ALC269_TYPE_ALC225,
- 	ALC269_TYPE_ALC294,
- 	ALC269_TYPE_ALC300,
-+	ALC269_TYPE_ALC623,
- 	ALC269_TYPE_ALC700,
- };
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -253,8 +253,7 @@ end:
+ 	return err;
+ }
  
-@@ -2792,6 +2796,7 @@ static int alc269_parse_auto_config(stru
- 	case ALC269_TYPE_ALC225:
- 	case ALC269_TYPE_ALC294:
- 	case ALC269_TYPE_ALC300:
-+	case ALC269_TYPE_ALC623:
- 	case ALC269_TYPE_ALC700:
- 		ssids = alc269_ssids;
- 		break;
-@@ -7274,6 +7279,9 @@ static int patch_alc269(struct hda_codec
- 		spec->codec_variant = ALC269_TYPE_ALC300;
- 		spec->gen.mixer_nid = 0; /* no loopback on ALC300 */
- 		break;
-+	case 0x10ec0623:
-+		spec->codec_variant = ALC269_TYPE_ALC623;
-+		break;
- 	case 0x10ec0700:
- 	case 0x10ec0701:
- 	case 0x10ec0703:
-@@ -8354,6 +8362,7 @@ static const struct hda_device_id snd_hd
- 	HDA_CODEC_ENTRY(0x10ec0298, "ALC298", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0299, "ALC299", patch_alc269),
- 	HDA_CODEC_ENTRY(0x10ec0300, "ALC300", patch_alc269),
-+	HDA_CODEC_ENTRY(0x10ec0623, "ALC623", patch_alc269),
- 	HDA_CODEC_REV_ENTRY(0x10ec0861, 0x100340, "ALC660", patch_alc861),
- 	HDA_CODEC_ENTRY(0x10ec0660, "ALC660-VD", patch_alc861vd),
- 	HDA_CODEC_ENTRY(0x10ec0861, "ALC861", patch_alc861),
+-static unsigned int
+-map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
++static int map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
+ {
+ 	unsigned int sec, sections, ch, channels;
+ 	unsigned int pcm, midi, location;
 
 
