@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CF0CEEFB5
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A73FFEEEB6
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:16:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388296AbfKDWWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:22:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51522 "EHLO mail.kernel.org"
+        id S2388454AbfKDWQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:16:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388268AbfKDV4C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:56:02 -0500
+        id S2388847AbfKDWDr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:03:47 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A19D021929;
-        Mon,  4 Nov 2019 21:56:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 986FC214D8;
+        Mon,  4 Nov 2019 22:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904562;
-        bh=xxDDr/zM+xU3ky0bYYZKmJYCAwy45XockdaIYNTjliU=;
+        s=default; t=1572905027;
+        bh=b3/mqkS/ti/J3enHFmNvliOAXF3T37A5pGUcpZ2Tf6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZzHWqMkcrmVNp/lUbftWpHG5X16g0XQ2uqe2giXSWbBKIEFHQ2Bc6mqeUT15LGhF
-         IjQbkbdl961pwt2MFrac2jTdhEYYvKktuUB3mTawIODb1ulmXh/eXTiwqjtm4KOD4A
-         1M6tdepD+ZX+sVmUCJCguPmPtXh98WNN9Qd9pSA8=
+        b=Of3dmJ7LGmGluFhc4/RjNxLr5LTtLGU75su1Jimbst/XENaSiq3EIk2Ds2CNrK4Bs
+         c/G1E1s/4tkPalVfZWXvpXGfNA62eRd9kwIDt/OnLKTeV8FO52LkZO31nvmsKhyDvE
+         3sZr1VTDWndeqloeRWE1QxyhxCu6k99cOGBYcAVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>
-Subject: [PATCH 4.14 87/95] NFC: pn533: fix use-after-free and memleaks
-Date:   Mon,  4 Nov 2019 22:45:25 +0100
-Message-Id: <20191104212123.415352543@linuxfoundation.org>
+        stable@vger.kernel.org, Pelle van Gils <pelle@vangils.xyz>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 133/149] drm/amdgpu/powerplay/vega10: allow undervolting in p7
+Date:   Mon,  4 Nov 2019 22:45:26 +0100
+Message-Id: <20191104212146.104726694@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Pelle van Gils <pelle@vangils.xyz>
 
-commit 6af3aa57a0984e061f61308fe181a9a12359fecc upstream.
+commit e6f4e274c1e52d1f0bfe293fb44ddf59de6c0374 upstream.
 
-The driver would fail to deregister and its class device and free
-related resources on late probe errors.
+The vega10_odn_update_soc_table() function does not allow the SCLK
+dependent voltage to be set for power-state 7 to a value below the default
+in pptable. Change the for-loop condition to allow undervolting in the
+highest state.
 
-Reported-by: syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com
-Fixes: 32ecc75ded72 ("NFC: pn533: change order operations in dev registation")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=205277
+Signed-off-by: Pelle van Gils <pelle@vangils.xyz>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nfc/pn533/usb.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/nfc/pn533/usb.c
-+++ b/drivers/nfc/pn533/usb.c
-@@ -559,18 +559,25 @@ static int pn533_usb_probe(struct usb_in
+--- a/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
++++ b/drivers/gpu/drm/amd/powerplay/hwmgr/vega10_hwmgr.c
+@@ -4751,9 +4751,7 @@ static void vega10_odn_update_soc_table(
  
- 	rc = pn533_finalize_setup(priv);
- 	if (rc)
--		goto error;
-+		goto err_deregister;
- 
- 	usb_set_intfdata(interface, phy);
- 
- 	return 0;
- 
-+err_deregister:
-+	pn533_unregister_device(phy->priv);
- error:
-+	usb_kill_urb(phy->in_urb);
-+	usb_kill_urb(phy->out_urb);
-+	usb_kill_urb(phy->ack_urb);
-+
- 	usb_free_urb(phy->in_urb);
- 	usb_free_urb(phy->out_urb);
- 	usb_free_urb(phy->ack_urb);
- 	usb_put_dev(phy->udev);
- 	kfree(in_buf);
-+	kfree(phy->ack_buffer);
- 
- 	return rc;
- }
+ 	if (type == PP_OD_EDIT_SCLK_VDDC_TABLE) {
+ 		podn_vdd_dep = &data->odn_dpm_table.vdd_dep_on_sclk;
+-		for (i = 0; i < podn_vdd_dep->count - 1; i++)
+-			od_vddc_lookup_table->entries[i].us_vdd = podn_vdd_dep->entries[i].vddc;
+-		if (od_vddc_lookup_table->entries[i].us_vdd < podn_vdd_dep->entries[i].vddc)
++		for (i = 0; i < podn_vdd_dep->count; i++)
+ 			od_vddc_lookup_table->entries[i].us_vdd = podn_vdd_dep->entries[i].vddc;
+ 	} else if (type == PP_OD_EDIT_MCLK_VDDC_TABLE) {
+ 		podn_vdd_dep = &data->odn_dpm_table.vdd_dep_on_mclk;
 
 
