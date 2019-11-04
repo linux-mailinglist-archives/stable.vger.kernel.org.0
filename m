@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 796E2EEE8A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DE11EEF61
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389921AbfKDWPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:15:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37450 "EHLO mail.kernel.org"
+        id S1730592AbfKDV61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:58:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55274 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387876AbfKDWFw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:52 -0500
+        id S1730541AbfKDV6Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:58:24 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C50D2084D;
-        Mon,  4 Nov 2019 22:05:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 674FF214D8;
+        Mon,  4 Nov 2019 21:58:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905152;
-        bh=sn9PuHWrsSWJy+qnRz1rl2QGZbrjTOyXUksthEqa3vc=;
+        s=default; t=1572904702;
+        bh=AROn0YCWfbPiCHD2vM+7j+ctwnzsiqI1LfLX4Yiv1qE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wLW8TSf+uAZEjqvklYSIGKsb/U2KOqvGO4pBcGj6GSgbK9zkySExP0fi52t13mJgC
-         wT5FRoYHLQUiBMGl/qvX7iAeVW+GTeyQ5ABYNneDNsqDDoDLwGtVcoPQorwFMy4Xd3
-         C7TT6zns1U8drKgKYpiiy280MUuh4G3Fcsk5fSb4=
+        b=MGarnP7K1XZtc/YQLGhFAVo3F391bxCy3wK2EWdRyla7rMaElXkoC0XO/NvT4odG5
+         +Hsc/NGForWzHTeMGh5w3NM5uEQl7oSijUa20j4NUQrhHw/dWvq9KrLfnGuJg2evSz
+         LAQxHHP7HB2pn+vlQPEan6L2DqV9AI2GceHlbPno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Rogers <irogers@google.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Stephane Eranian <eranian@google.com>,
-        Wang Nan <wangnan0@huawei.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 009/163] perf tests: Avoid raising SEGV using an obvious NULL dereference
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 006/149] btrfs: qgroup: Always free PREALLOC META reserve in btrfs_delalloc_release_extents()
 Date:   Mon,  4 Nov 2019 22:43:19 +0100
-Message-Id: <20191104212141.185441579@linuxfoundation.org>
+Message-Id: <20191104212129.175112288@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,88 +44,321 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ian Rogers <irogers@google.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit e3e2cf3d5b1fe800b032e14c0fdcd9a6fb20cf3b ]
+[ Upstream commit 8702ba9396bf7bbae2ab93c94acd4bd37cfa4f09 ]
 
-An optimized build such as:
+[Background]
+Btrfs qgroup uses two types of reserved space for METADATA space,
+PERTRANS and PREALLOC.
 
-  make -C tools/perf CLANG=1 CC=clang EXTRA_CFLAGS="-O3
+PERTRANS is metadata space reserved for each transaction started by
+btrfs_start_transaction().
+While PREALLOC is for delalloc, where we reserve space before joining a
+transaction, and finally it will be converted to PERTRANS after the
+writeback is done.
 
-will turn the dereference operation into a ud2 instruction, raising a
-SIGILL rather than a SIGSEGV. Use raise(..) for correctness and clarity.
+[Inconsistency]
+However there is inconsistency in how we handle PREALLOC metadata space.
 
-Similar issues were addressed in Numfor Mbiziwo-Tiapo's patch:
+The most obvious one is:
+In btrfs_buffered_write():
+	btrfs_delalloc_release_extents(BTRFS_I(inode), reserve_bytes, true);
 
-  https://lkml.org/lkml/2019/7/8/1234
+We always free qgroup PREALLOC meta space.
 
-Committer testing:
+While in btrfs_truncate_block():
+	btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize, (ret != 0));
 
-Before:
+We only free qgroup PREALLOC meta space when something went wrong.
 
-  [root@quaco ~]# perf test hooks
-  55: perf hooks                                            : Ok
-  [root@quaco ~]# perf test -v hooks
-  55: perf hooks                                            :
-  --- start ---
-  test child forked, pid 17092
-  SIGSEGV is observed as expected, try to recover.
-  Fatal error (SEGFAULT) in perf hook 'test'
-  test child finished with 0
-  ---- end ----
-  perf hooks: Ok
-  [root@quaco ~]#
+[The Correct Behavior]
+The correct behavior should be the one in btrfs_buffered_write(), we
+should always free PREALLOC metadata space.
 
-After:
+The reason is, the btrfs_delalloc_* mechanism works by:
+- Reserve metadata first, even it's not necessary
+  In btrfs_delalloc_reserve_metadata()
 
-  [root@quaco ~]# perf test hooks
-  55: perf hooks                                            : Ok
-  [root@quaco ~]# perf test -v hooks
-  55: perf hooks                                            :
-  --- start ---
-  test child forked, pid 17909
-  SIGSEGV is observed as expected, try to recover.
-  Fatal error (SEGFAULT) in perf hook 'test'
-  test child finished with 0
-  ---- end ----
-  perf hooks: Ok
-  [root@quaco ~]#
+- Free the unused metadata space
+  Normally in:
+  btrfs_delalloc_release_extents()
+  |- btrfs_inode_rsv_release()
+     Here we do calculation on whether we should release or not.
 
-Fixes: a074865e60ed ("perf tools: Introduce perf hooks")
-Signed-off-by: Ian Rogers <irogers@google.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: http://lore.kernel.org/lkml/20190925195924.152834-2-irogers@google.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+E.g. for 64K buffered write, the metadata rsv works like:
+
+/* The first page */
+reserve_meta:	num_bytes=calc_inode_reservations()
+free_meta:	num_bytes=0
+total:		num_bytes=calc_inode_reservations()
+/* The first page caused one outstanding extent, thus needs metadata
+   rsv */
+
+/* The 2nd page */
+reserve_meta:	num_bytes=calc_inode_reservations()
+free_meta:	num_bytes=calc_inode_reservations()
+total:		not changed
+/* The 2nd page doesn't cause new outstanding extent, needs no new meta
+   rsv, so we free what we have reserved */
+
+/* The 3rd~16th pages */
+reserve_meta:	num_bytes=calc_inode_reservations()
+free_meta:	num_bytes=calc_inode_reservations()
+total:		not changed (still space for one outstanding extent)
+
+This means, if btrfs_delalloc_release_extents() determines to free some
+space, then those space should be freed NOW.
+So for qgroup, we should call btrfs_qgroup_free_meta_prealloc() other
+than btrfs_qgroup_convert_reserved_meta().
+
+The good news is:
+- The callers are not that hot
+  The hottest caller is in btrfs_buffered_write(), which is already
+  fixed by commit 336a8bb8e36a ("btrfs: Fix wrong
+  btrfs_delalloc_release_extents parameter"). Thus it's not that
+  easy to cause false EDQUOT.
+
+- The trans commit in advance for qgroup would hide the bug
+  Since commit f5fef4593653 ("btrfs: qgroup: Make qgroup async transaction
+  commit more aggressive"), when btrfs qgroup metadata free space is slow,
+  it will try to commit transaction and free the wrongly converted
+  PERTRANS space, so it's not that easy to hit such bug.
+
+[FIX]
+So to fix the problem, remove the @qgroup_free parameter for
+btrfs_delalloc_release_extents(), and always pass true to
+btrfs_inode_rsv_release().
+
+Reported-by: Filipe Manana <fdmanana@suse.com>
+Fixes: 43b18595d660 ("btrfs: qgroup: Use separate meta reservation type for delalloc")
+CC: stable@vger.kernel.org # 4.19+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/tests/perf-hooks.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/btrfs/ctree.h       |  3 +--
+ fs/btrfs/extent-tree.c |  5 ++---
+ fs/btrfs/file.c        |  7 +++----
+ fs/btrfs/inode-map.c   |  4 ++--
+ fs/btrfs/inode.c       | 12 ++++++------
+ fs/btrfs/ioctl.c       |  6 ++----
+ fs/btrfs/relocation.c  |  9 ++++-----
+ 7 files changed, 20 insertions(+), 26 deletions(-)
 
-diff --git a/tools/perf/tests/perf-hooks.c b/tools/perf/tests/perf-hooks.c
-index a693bcf017ea2..44c16fd11bf6e 100644
---- a/tools/perf/tests/perf-hooks.c
-+++ b/tools/perf/tests/perf-hooks.c
-@@ -20,12 +20,11 @@ static void sigsegv_handler(int sig __maybe_unused)
- static void the_hook(void *_hook_flags)
+diff --git a/fs/btrfs/ctree.h b/fs/btrfs/ctree.h
+index faca485ccd8f4..ef7a352d72ed8 100644
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -2747,8 +2747,7 @@ int btrfs_subvolume_reserve_metadata(struct btrfs_root *root,
+ 				     int nitems, bool use_global_rsv);
+ void btrfs_subvolume_release_metadata(struct btrfs_fs_info *fs_info,
+ 				      struct btrfs_block_rsv *rsv);
+-void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes,
+-				    bool qgroup_free);
++void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes);
+ 
+ int btrfs_delalloc_reserve_metadata(struct btrfs_inode *inode, u64 num_bytes);
+ void btrfs_delalloc_release_metadata(struct btrfs_inode *inode, u64 num_bytes,
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 72c745682996f..024dd336b20ae 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -5980,8 +5980,7 @@ void btrfs_delalloc_release_metadata(struct btrfs_inode *inode, u64 num_bytes,
+  * temporarily tracked outstanding_extents.  This _must_ be used in conjunction
+  * with btrfs_delalloc_reserve_metadata.
+  */
+-void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes,
+-				    bool qgroup_free)
++void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes)
  {
- 	int *hook_flags = _hook_flags;
--	int *p = NULL;
+ 	struct btrfs_fs_info *fs_info = inode->root->fs_info;
+ 	unsigned num_extents;
+@@ -5995,7 +5994,7 @@ void btrfs_delalloc_release_extents(struct btrfs_inode *inode, u64 num_bytes,
+ 	if (btrfs_is_testing(fs_info))
+ 		return;
  
- 	*hook_flags = 1234;
- 
- 	/* Generate a segfault, test perf_hooks__recover */
--	*p = 0;
-+	raise(SIGSEGV);
+-	btrfs_inode_rsv_release(inode, qgroup_free);
++	btrfs_inode_rsv_release(inode, true);
  }
  
- int test__perf_hooks(struct test *test __maybe_unused, int subtest __maybe_unused)
+ /**
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index 5d036b794e4af..a456801e0cd54 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -1692,7 +1692,7 @@ again:
+ 				    force_page_uptodate);
+ 		if (ret) {
+ 			btrfs_delalloc_release_extents(BTRFS_I(inode),
+-						       reserve_bytes, true);
++						       reserve_bytes);
+ 			break;
+ 		}
+ 
+@@ -1704,7 +1704,7 @@ again:
+ 			if (extents_locked == -EAGAIN)
+ 				goto again;
+ 			btrfs_delalloc_release_extents(BTRFS_I(inode),
+-						       reserve_bytes, true);
++						       reserve_bytes);
+ 			ret = extents_locked;
+ 			break;
+ 		}
+@@ -1772,8 +1772,7 @@ again:
+ 		else
+ 			free_extent_state(cached_state);
+ 
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), reserve_bytes,
+-					       true);
++		btrfs_delalloc_release_extents(BTRFS_I(inode), reserve_bytes);
+ 		if (ret) {
+ 			btrfs_drop_pages(pages, num_pages);
+ 			break;
+diff --git a/fs/btrfs/inode-map.c b/fs/btrfs/inode-map.c
+index 0141fc08d317e..e1b50c62ba650 100644
+--- a/fs/btrfs/inode-map.c
++++ b/fs/btrfs/inode-map.c
+@@ -483,13 +483,13 @@ again:
+ 	ret = btrfs_prealloc_file_range_trans(inode, trans, 0, 0, prealloc,
+ 					      prealloc, prealloc, &alloc_hint);
+ 	if (ret) {
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), prealloc, true);
++		btrfs_delalloc_release_extents(BTRFS_I(inode), prealloc);
+ 		btrfs_delalloc_release_metadata(BTRFS_I(inode), prealloc, true);
+ 		goto out_put;
+ 	}
+ 
+ 	ret = btrfs_write_out_ino_cache(root, trans, path, inode);
+-	btrfs_delalloc_release_extents(BTRFS_I(inode), prealloc, false);
++	btrfs_delalloc_release_extents(BTRFS_I(inode), prealloc);
+ out_put:
+ 	iput(inode);
+ out_release:
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 37332f83a3a96..9aea9381ceeb6 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -2166,7 +2166,7 @@ again:
+ 
+ 	ClearPageChecked(page);
+ 	set_page_dirty(page);
+-	btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE, false);
++	btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE);
+ out:
+ 	unlock_extent_cached(&BTRFS_I(inode)->io_tree, page_start, page_end,
+ 			     &cached_state);
+@@ -4918,7 +4918,7 @@ again:
+ 	if (!page) {
+ 		btrfs_delalloc_release_space(inode, data_reserved,
+ 					     block_start, blocksize, true);
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize, true);
++		btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize);
+ 		ret = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -4986,7 +4986,7 @@ out_unlock:
+ 	if (ret)
+ 		btrfs_delalloc_release_space(inode, data_reserved, block_start,
+ 					     blocksize, true);
+-	btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize, (ret != 0));
++	btrfs_delalloc_release_extents(BTRFS_I(inode), blocksize);
+ 	unlock_page(page);
+ 	put_page(page);
+ out:
+@@ -8660,7 +8660,7 @@ static ssize_t btrfs_direct_IO(struct kiocb *iocb, struct iov_iter *iter)
+ 		} else if (ret >= 0 && (size_t)ret < count)
+ 			btrfs_delalloc_release_space(inode, data_reserved,
+ 					offset, count - (size_t)ret, true);
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), count, false);
++		btrfs_delalloc_release_extents(BTRFS_I(inode), count);
+ 	}
+ out:
+ 	if (wakeup)
+@@ -9013,7 +9013,7 @@ again:
+ 	unlock_extent_cached(io_tree, page_start, page_end, &cached_state);
+ 
+ 	if (!ret2) {
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE, true);
++		btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE);
+ 		sb_end_pagefault(inode->i_sb);
+ 		extent_changeset_free(data_reserved);
+ 		return VM_FAULT_LOCKED;
+@@ -9022,7 +9022,7 @@ again:
+ out_unlock:
+ 	unlock_page(page);
+ out:
+-	btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE, (ret != 0));
++	btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE);
+ 	btrfs_delalloc_release_space(inode, data_reserved, page_start,
+ 				     reserved_space, (ret != 0));
+ out_noreserve:
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index 0eb333c62fe46..7592beb53fc4e 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -1359,8 +1359,7 @@ again:
+ 		unlock_page(pages[i]);
+ 		put_page(pages[i]);
+ 	}
+-	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT,
+-				       false);
++	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT);
+ 	extent_changeset_free(data_reserved);
+ 	return i_done;
+ out:
+@@ -1371,8 +1370,7 @@ out:
+ 	btrfs_delalloc_release_space(inode, data_reserved,
+ 			start_index << PAGE_SHIFT,
+ 			page_cnt << PAGE_SHIFT, true);
+-	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT,
+-				       true);
++	btrfs_delalloc_release_extents(BTRFS_I(inode), page_cnt << PAGE_SHIFT);
+ 	extent_changeset_free(data_reserved);
+ 	return ret;
+ 
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index bccd9dede2af4..b4958f724ce5f 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -3188,7 +3188,7 @@ static int relocate_file_extent_cluster(struct inode *inode,
+ 				btrfs_delalloc_release_metadata(BTRFS_I(inode),
+ 							PAGE_SIZE, true);
+ 				btrfs_delalloc_release_extents(BTRFS_I(inode),
+-							PAGE_SIZE, true);
++							PAGE_SIZE);
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
+@@ -3209,7 +3209,7 @@ static int relocate_file_extent_cluster(struct inode *inode,
+ 				btrfs_delalloc_release_metadata(BTRFS_I(inode),
+ 							PAGE_SIZE, true);
+ 				btrfs_delalloc_release_extents(BTRFS_I(inode),
+-							       PAGE_SIZE, true);
++							       PAGE_SIZE);
+ 				ret = -EIO;
+ 				goto out;
+ 			}
+@@ -3238,7 +3238,7 @@ static int relocate_file_extent_cluster(struct inode *inode,
+ 			btrfs_delalloc_release_metadata(BTRFS_I(inode),
+ 							 PAGE_SIZE, true);
+ 			btrfs_delalloc_release_extents(BTRFS_I(inode),
+-			                               PAGE_SIZE, true);
++			                               PAGE_SIZE);
+ 
+ 			clear_extent_bits(&BTRFS_I(inode)->io_tree,
+ 					  page_start, page_end,
+@@ -3254,8 +3254,7 @@ static int relocate_file_extent_cluster(struct inode *inode,
+ 		put_page(page);
+ 
+ 		index++;
+-		btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE,
+-					       false);
++		btrfs_delalloc_release_extents(BTRFS_I(inode), PAGE_SIZE);
+ 		balance_dirty_pages_ratelimited(inode->i_mapping);
+ 		btrfs_throttle(fs_info);
+ 	}
 -- 
 2.20.1
 
