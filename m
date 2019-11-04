@@ -2,52 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ABABEED5F
+	by mail.lfdr.de (Postfix) with ESMTP id 89381EED60
 	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389896AbfKDWGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:06:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37544 "EHLO mail.kernel.org"
+        id S2389901AbfKDWGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:06:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389888AbfKDWF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:58 -0500
+        id S2388887AbfKDWGB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:06:01 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A20C2084D;
-        Mon,  4 Nov 2019 22:05:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 750432190F;
+        Mon,  4 Nov 2019 22:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905157;
-        bh=qvZy1e6ZELCo1IUUHbk2bgjAD4hfRU/4u/aLXq5lOzM=;
+        s=default; t=1572905161;
+        bh=ZZLlPeXBR+EVEvw0FmNfaS2VKB63dks1AB/dmDQjob4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aDuTa01wy/2abMtm6M1H9AhvfbYUVOyUkRq3iLUz69GHaJOP7vteW25RXaHkf4es
-         fgqi9/CWGPMSTSJCaADV2z/n8waEDCE5gOLlZEFJa9cTNhO52b5rtAUhWhu/kycyD5
-         jppKtw1hMtifm0R/crjAmUtWGMvM3CraPodXoaE0=
+        b=Ss3kOJ/hNphNygQwxgFGL6vVlhUw+0xgmd/TdHESim840liKFzSY6A+9Oopxksw+W
+         N7ehAqq8WzWulWxdTJUNEDwn/nF8Jb2yUSMmUeUhCwWJQ9cTWOvKKRDcdWSP4UxM0W
+         QhfWIBB//DpgPdzJ2xoW/Iw7qTGnfaYvXpRrtUkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steve MacLean <Steve.MacLean@Microsoft.com>,
-        Brian Robbins <brianrob@microsoft.com>,
+        stable@vger.kernel.org, Andi Kleen <ak@linux.intel.com>,
         Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
-        John Keeping <john@metanate.com>,
-        John Salem <josalem@microsoft.com>,
-        Leo Yan <leo.yan@linaro.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Tom McDonald <thomas.mcdonald@microsoft.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 010/163] perf map: Fix overlapped map handling
-Date:   Mon,  4 Nov 2019 22:43:20 +0100
-Message-Id: <20191104212141.249329773@linuxfoundation.org>
+Subject: [PATCH 5.3 011/163] perf script brstackinsn: Fix recovery from LBR/binary mismatch
+Date:   Mon,  4 Nov 2019 22:43:21 +0100
+Message-Id: <20191104212141.304255192@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
@@ -60,118 +45,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve MacLean <Steve.MacLean@microsoft.com>
+From: Andi Kleen <ak@linux.intel.com>
 
-[ Upstream commit ee212d6ea20887c0ef352be8563ca13dbf965906 ]
+[ Upstream commit e98df280bc2a499fd41d7f9e2d6733884de69902 ]
 
-Whenever an mmap/mmap2 event occurs, the map tree must be updated to add a new
-entry. If a new map overlaps a previous map, the overlapped section of the
-previous map is effectively unmapped, but the non-overlapping sections are
-still valid.
+When the LBR data and the instructions in a binary do not match the loop
+printing instructions could get confused and print a long stream of
+bogus <bad> instructions.
 
-maps__fixup_overlappings() is responsible for creating any new map entries from
-the previously overlapped map. It optionally creates a before and an after map.
+The problem was that if the instruction decoder cannot decode an
+instruction it ilen wasn't initialized, so the loop going through the
+basic block would continue with the previous value.
 
-When creating the after map the existing code failed to adjust the map.pgoff.
-This meant the new after map would incorrectly calculate the file offset
-for the ip. This results in incorrect symbol name resolution for any ip in the
-after region.
+Harden the code to avoid such problems:
 
-Make maps__fixup_overlappings() correctly populate map.pgoff.
+- Make sure ilen is always freshly initialized and is 0 for bad
+  instructions.
 
-Add an assert that new mapping matches old mapping at the beginning of
-the after map.
+- Do not overrun the code buffer while printing instructions
 
-Committer-testing:
+- Print a warning message if the final jump is not on an instruction
+  boundary.
 
-Validated correct parsing of libcoreclr.so symbols from .NET Core 3.0 preview9
-(which didn't strip symbols).
-
-Preparation:
-
-  ~/dotnet3.0-preview9/dotnet new webapi -o perfSymbol
-  cd perfSymbol
-  ~/dotnet3.0-preview9/dotnet publish
-  perf record ~/dotnet3.0-preview9/dotnet \
-      bin/Debug/netcoreapp3.0/publish/perfSymbol.dll
-  ^C
-
-Before:
-
-  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
-     grep libcoreclr.so | head -n 4
-        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
-            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.705249:     250000 cpu-clock: \
-             7fe6159a1f99 [unknown] \
-             (.../3.0.0-preview9-19423-09/libcoreclr.so)
-
-After:
-
-  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
-     grep libcoreclr.so | head -n 4
-        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
-            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
-            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
-            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
-
-All the [unknown] symbols were resolved.
-
-Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
-Tested-by: Brian Robbins <brianrob@microsoft.com>
-Acked-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
-Cc: John Keeping <john@metanate.com>
-Cc: John Salem <josalem@microsoft.com>
-Cc: Leo Yan <leo.yan@linaro.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
-Link: http://lore.kernel.org/lkml/BN8PR21MB136270949F22A6A02335C238F7800@BN8PR21MB1362.namprd21.prod.outlook.com
+Signed-off-by: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Link: http://lore.kernel.org/lkml/20190927233546.11533-1-andi@firstfloor.org
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/map.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/builtin-script.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
-index 7666206d06fa7..f18113581cf03 100644
---- a/tools/perf/util/map.c
-+++ b/tools/perf/util/map.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- #include "symbol.h"
-+#include <assert.h>
- #include <errno.h>
- #include <inttypes.h>
- #include <limits.h>
-@@ -847,6 +848,8 @@ static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp
- 			}
+diff --git a/tools/perf/builtin-script.c b/tools/perf/builtin-script.c
+index 0140ddb8dd0bd..c14a1cdad80c0 100644
+--- a/tools/perf/builtin-script.c
++++ b/tools/perf/builtin-script.c
+@@ -1054,7 +1054,7 @@ static int perf_sample__fprintf_brstackinsn(struct perf_sample *sample,
+ 			continue;
  
- 			after->start = map->end;
-+			after->pgoff += map->end - pos->start;
-+			assert(pos->map_ip(pos, map->end) == after->map_ip(after, map->end));
- 			__map_groups__insert(pos->groups, after);
- 			if (verbose >= 2 && !use_browser)
- 				map__fprintf(after, fp);
+ 		insn = 0;
+-		for (off = 0;; off += ilen) {
++		for (off = 0; off < (unsigned)len; off += ilen) {
+ 			uint64_t ip = start + off;
+ 
+ 			printed += ip__fprintf_sym(ip, thread, x.cpumode, x.cpu, &lastsym, attr, fp);
+@@ -1065,6 +1065,7 @@ static int perf_sample__fprintf_brstackinsn(struct perf_sample *sample,
+ 					printed += print_srccode(thread, x.cpumode, ip);
+ 				break;
+ 			} else {
++				ilen = 0;
+ 				printed += fprintf(fp, "\t%016" PRIx64 "\t%s\n", ip,
+ 						   dump_insn(&x, ip, buffer + off, len - off, &ilen));
+ 				if (ilen == 0)
+@@ -1074,6 +1075,8 @@ static int perf_sample__fprintf_brstackinsn(struct perf_sample *sample,
+ 				insn++;
+ 			}
+ 		}
++		if (off != (unsigned)len)
++			printed += fprintf(fp, "\tmismatch of LBR data and executable\n");
+ 	}
+ 
+ 	/*
+@@ -1114,6 +1117,7 @@ static int perf_sample__fprintf_brstackinsn(struct perf_sample *sample,
+ 		goto out;
+ 	}
+ 	for (off = 0; off <= end - start; off += ilen) {
++		ilen = 0;
+ 		printed += fprintf(fp, "\t%016" PRIx64 "\t%s\n", start + off,
+ 				   dump_insn(&x, start + off, buffer + off, len - off, &ilen));
+ 		if (ilen == 0)
 -- 
 2.20.1
 
