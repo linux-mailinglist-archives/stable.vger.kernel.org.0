@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 453FCEEDDB
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:10:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA7CEEDDF
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:11:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389725AbfKDWKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:10:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44062 "EHLO mail.kernel.org"
+        id S2388197AbfKDWKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:10:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389445AbfKDWKs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:10:48 -0500
+        id S2390593AbfKDWKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:10:51 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45D9F2084D;
-        Mon,  4 Nov 2019 22:10:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70D72205C9;
+        Mon,  4 Nov 2019 22:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905447;
-        bh=H5yZze1um2DcFh8WKRdM4zHAKbDGFDEHhYWEA6paFsM=;
+        s=default; t=1572905451;
+        bh=lzLOTBPLePvua5O6ZeCJn9Zo/JW0WjJ20iUxvMuAZmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBTcvc3BvD0KDEDPcwJJqIpZiTecGeGNMl+Iuz8XQ9bxyJHcd9TooLuV/LzNl+hJk
-         ZDngru9Dg5cj0Yxi34tqDUXHGvtnJ1emYvqkEK7lSQ/MI29KlfHHGOp7feFWltny2y
-         IQbgYWRh7Ev16ZWWyhr80mK84ZYr0JGpqVxOqgSg=
+        b=Agv7/IB064YBg+30AUjHGU0nHneTSTU8X93amxM2SkzD6UdkqB7Y5yJdadl9w77Kp
+         Q0ggJ5FVS7eQIASbNGd/5q9MXVkQ/gnC4j7TFomEPKTdDjAWetn9rJ313nBdOZ4oIh
+         tWVybj0uhLq0c5DzR50vkzkIW+Iu0NzBvQC7qUII=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com,
-        David Howells <dhowells@redhat.com>
-Subject: [PATCH 5.3 150/163] rxrpc: Fix trace-after-put looking at the put peer record
-Date:   Mon,  4 Nov 2019 22:45:40 +0100
-Message-Id: <20191104212151.170983217@linuxfoundation.org>
+        syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>
+Subject: [PATCH 5.3 151/163] NFC: pn533: fix use-after-free and memleaks
+Date:   Mon,  4 Nov 2019 22:45:41 +0100
+Message-Id: <20191104212151.237748749@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
@@ -44,107 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 55f6c98e3674ce16038a1949c3f9ca5a9a99f289 upstream.
+commit 6af3aa57a0984e061f61308fe181a9a12359fecc upstream.
 
-rxrpc_put_peer() calls trace_rxrpc_peer() after it has done the decrement
-of the refcount - which looks at the debug_id in the peer record.  But
-unless the refcount was reduced to zero, we no longer have the right to
-look in the record and, indeed, it may be deleted by some other thread.
+The driver would fail to deregister and its class device and free
+related resources on late probe errors.
 
-Fix this by getting the debug_id out before decrementing the refcount and
-then passing that into the tracepoint.
-
-This can cause the following symptoms:
-
-    BUG: KASAN: use-after-free in __rxrpc_put_peer net/rxrpc/peer_object.c:411
-    [inline]
-    BUG: KASAN: use-after-free in rxrpc_put_peer+0x685/0x6a0
-    net/rxrpc/peer_object.c:435
-    Read of size 8 at addr ffff888097ec0058 by task syz-executor823/24216
-
-Fixes: 1159d4b496f5 ("rxrpc: Add a tracepoint to track rxrpc_peer refcounting")
-Reported-by: syzbot+b9be979c55f2bea8ed30@syzkaller.appspotmail.com
-Signed-off-by: David Howells <dhowells@redhat.com>
+Reported-by: syzbot+cb035c75c03dbe34b796@syzkaller.appspotmail.com
+Fixes: 32ecc75ded72 ("NFC: pn533: change order operations in dev registation")
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/trace/events/rxrpc.h |    6 +++---
- net/rxrpc/peer_object.c      |   11 +++++++----
- 2 files changed, 10 insertions(+), 7 deletions(-)
+ drivers/nfc/pn533/usb.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/include/trace/events/rxrpc.h
-+++ b/include/trace/events/rxrpc.h
-@@ -519,10 +519,10 @@ TRACE_EVENT(rxrpc_local,
- 	    );
+--- a/drivers/nfc/pn533/usb.c
++++ b/drivers/nfc/pn533/usb.c
+@@ -547,18 +547,25 @@ static int pn533_usb_probe(struct usb_in
  
- TRACE_EVENT(rxrpc_peer,
--	    TP_PROTO(struct rxrpc_peer *peer, enum rxrpc_peer_trace op,
-+	    TP_PROTO(unsigned int peer_debug_id, enum rxrpc_peer_trace op,
- 		     int usage, const void *where),
+ 	rc = pn533_finalize_setup(priv);
+ 	if (rc)
+-		goto error;
++		goto err_deregister;
  
--	    TP_ARGS(peer, op, usage, where),
-+	    TP_ARGS(peer_debug_id, op, usage, where),
+ 	usb_set_intfdata(interface, phy);
  
- 	    TP_STRUCT__entry(
- 		    __field(unsigned int,	peer		)
-@@ -532,7 +532,7 @@ TRACE_EVENT(rxrpc_peer,
- 			     ),
+ 	return 0;
  
- 	    TP_fast_assign(
--		    __entry->peer = peer->debug_id;
-+		    __entry->peer = peer_debug_id;
- 		    __entry->op = op;
- 		    __entry->usage = usage;
- 		    __entry->where = where;
---- a/net/rxrpc/peer_object.c
-+++ b/net/rxrpc/peer_object.c
-@@ -381,7 +381,7 @@ struct rxrpc_peer *rxrpc_get_peer(struct
- 	int n;
++err_deregister:
++	pn533_unregister_device(phy->priv);
+ error:
++	usb_kill_urb(phy->in_urb);
++	usb_kill_urb(phy->out_urb);
++	usb_kill_urb(phy->ack_urb);
++
+ 	usb_free_urb(phy->in_urb);
+ 	usb_free_urb(phy->out_urb);
+ 	usb_free_urb(phy->ack_urb);
+ 	usb_put_dev(phy->udev);
+ 	kfree(in_buf);
++	kfree(phy->ack_buffer);
  
- 	n = atomic_inc_return(&peer->usage);
--	trace_rxrpc_peer(peer, rxrpc_peer_got, n, here);
-+	trace_rxrpc_peer(peer->debug_id, rxrpc_peer_got, n, here);
- 	return peer;
+ 	return rc;
  }
- 
-@@ -395,7 +395,7 @@ struct rxrpc_peer *rxrpc_get_peer_maybe(
- 	if (peer) {
- 		int n = atomic_fetch_add_unless(&peer->usage, 1, 0);
- 		if (n > 0)
--			trace_rxrpc_peer(peer, rxrpc_peer_got, n + 1, here);
-+			trace_rxrpc_peer(peer->debug_id, rxrpc_peer_got, n + 1, here);
- 		else
- 			peer = NULL;
- 	}
-@@ -426,11 +426,13 @@ static void __rxrpc_put_peer(struct rxrp
- void rxrpc_put_peer(struct rxrpc_peer *peer)
- {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id;
- 	int n;
- 
- 	if (peer) {
-+		debug_id = peer->debug_id;
- 		n = atomic_dec_return(&peer->usage);
--		trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
-+		trace_rxrpc_peer(debug_id, rxrpc_peer_put, n, here);
- 		if (n == 0)
- 			__rxrpc_put_peer(peer);
- 	}
-@@ -443,10 +445,11 @@ void rxrpc_put_peer(struct rxrpc_peer *p
- void rxrpc_put_peer_locked(struct rxrpc_peer *peer)
- {
- 	const void *here = __builtin_return_address(0);
-+	unsigned int debug_id = peer->debug_id;
- 	int n;
- 
- 	n = atomic_dec_return(&peer->usage);
--	trace_rxrpc_peer(peer, rxrpc_peer_put, n, here);
-+	trace_rxrpc_peer(debug_id, rxrpc_peer_put, n, here);
- 	if (n == 0) {
- 		hash_del_rcu(&peer->hash_link);
- 		list_del_init(&peer->keepalive_link);
 
 
