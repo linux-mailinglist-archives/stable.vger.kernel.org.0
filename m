@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF616EEC2E
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:55:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21786EEBBE
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:51:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387975AbfKDVyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:54:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49418 "EHLO mail.kernel.org"
+        id S1729651AbfKDVur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:50:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387971AbfKDVye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:54:34 -0500
+        id S2387798AbfKDVup (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:50:45 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 878FD217F4;
-        Mon,  4 Nov 2019 21:54:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE35C214D8;
+        Mon,  4 Nov 2019 21:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904474;
-        bh=vIY7s/sWc35wae5Q2HDnJ+V/vP5qanCNZjWVkgXUNS8=;
+        s=default; t=1572904245;
+        bh=v0IrQyRi9n+bfhh9+5Fe2BJGlZxsDr2cCWzbbt2oXfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBSSWHOxCsUtqnt57QZMo6/kS2CBAS/13/VBu6AXWxTfPRY19FyaMZ8tnP0Zz5bPP
-         6kK9fCqgiNyy1TAcV1HzNKLmcuROQw+2IydMD877iGgpWQMhK0UQExFKY30LeAEtqa
-         kRXEgM4uCyfA7phJquWh14Mae8KGi+S5iAdeJv2s=
+        b=hNji9Ynz4UYUBBVbAZGAOYrdDvnqGUKNL2agvNAaYD+513BQN9Rmc8dzQjeE9KccB
+         awdQnP79oqZF2JgMNrP7zjWNH9oFRV3uZCm/VwK4nZcpFTV+rOKN5+bIQ8V9k5F882
+         HkG6IHGri9RiOZuigkdxl2opZBdNG7YvqvpImkEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+21b29db13c065852f64b@syzkaller.appspotmail.com,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Zubin Mithra <zsm@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 59/95] net_sched: check cops->tcf_block in tc_bind_tclass()
-Date:   Mon,  4 Nov 2019 22:44:57 +0100
-Message-Id: <20191104212106.949412581@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 36/62] ALSA: bebob: Fix prototype of helper function to return negative value
+Date:   Mon,  4 Nov 2019 22:44:58 +0100
+Message-Id: <20191104211939.543031324@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 8b142a00edcf8422ca48b8de88d286efb500cb53 upstream
+commit f2bbdbcb075f3977a53da3bdcb7cd460bc8ae5f2 upstream.
 
-At least sch_red and sch_tbf don't implement ->tcf_block()
-while still have a non-zero tc "class".
+A helper function of ALSA bebob driver returns negative value in a
+function which has a prototype to return unsigned value.
 
-Instead of adding nop implementations to each of such qdisc's,
-we can just relax the check of cops->tcf_block() in
-tc_bind_tclass(). They don't support TC filter anyway.
+This commit fixes it by changing the prototype.
 
-Reported-by: syzbot+21b29db13c065852f64b@syzkaller.appspotmail.com
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: eb7b3a056cd8 ("ALSA: bebob: Add commands and connections/streams management")
+Cc: <stable@vger.kernel.org> # v3.16+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191026030620.12077-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/sched/sch_api.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/firewire/bebob/bebob_stream.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_api.c b/net/sched/sch_api.c
-index 637949b576c63..296e95f72eb15 100644
---- a/net/sched/sch_api.c
-+++ b/net/sched/sch_api.c
-@@ -1695,6 +1695,8 @@ static void tc_bind_tclass(struct Qdisc *q, u32 portid, u32 clid,
- 	cl = cops->find(q, portid);
- 	if (!cl)
- 		return;
-+	if (!cops->tcf_block)
-+		return;
- 	block = cops->tcf_block(q, cl);
- 	if (!block)
- 		return;
--- 
-2.20.1
-
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -253,8 +253,7 @@ end:
+ 	return err;
+ }
+ 
+-static unsigned int
+-map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
++static int map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
+ {
+ 	unsigned int sec, sections, ch, channels;
+ 	unsigned int pcm, midi, location;
 
 
