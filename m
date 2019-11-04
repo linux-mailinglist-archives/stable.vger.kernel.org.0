@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1446EED6A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38C1BEEF3A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:20:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389960AbfKDWGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:06:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38202 "EHLO mail.kernel.org"
+        id S1730979AbfKDV7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388994AbfKDWGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:06:25 -0500
+        id S1730952AbfKDV7E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:04 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93EB6205C9;
-        Mon,  4 Nov 2019 22:06:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6EDB20659;
+        Mon,  4 Nov 2019 21:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905184;
-        bh=n5uNfqPFplx3jfycm2S+aIa/zP6GuyposK3H0PiCmjo=;
+        s=default; t=1572904743;
+        bh=tpAVAnK71TJcLRF8HNao0iOpJMcL5f3JdlcazgJy7vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfNw8kcJyWucV9W4P63MuwJwhYWJZR+RwPgkZDCP0vWES83R9zE31tSyIN8jbxD/M
-         rPFYqNJCnqKp2K1EsqxnrME0CwxrMR5gWiRGO3XVveIAjjqC9BJ7opemTGmJ4G8p/I
-         RJNScuuYYQmCWYTMwqQ7m/nYNwePiZDFzg4kifxg=
+        b=VKmiEGxvwREU6FC6T299COOIabkeo4CFtWQY9bK2Bfy5uTT72OFhzdD3xe7pCd/Bd
+         hIAWZjYVdJsOFScvMD0ANjxOwISxoCWrlO0Pi82VnnvGpoBlXwqCv/ARsBGaqc8ZdU
+         nbK98b9NPgFNWRu2pX9LKJ3m5XNxH6sr8RE1X3vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia Guo <guojia12@huawei.com>,
-        Yiwen Jiang <jiangyiwen@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sinan Kaya <okaya@kernel.org>,
+        Frederick Lawler <fred@fredlawl.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 058/163] ocfs2: clear zero in unaligned direct IO
+Subject: [PATCH 4.19 055/149] PCI/PME: Fix possible use-after-free on remove
 Date:   Mon,  4 Nov 2019 22:44:08 +0100
-Message-Id: <20191104212144.296491898@linuxfoundation.org>
+Message-Id: <20191104212140.134967027@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,91 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Guo <guojia12@huawei.com>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit 7a243c82ea527cd1da47381ad9cd646844f3b693 ]
+[ Upstream commit 7cf58b79b3072029af127ae865ffc6f00f34b1f8 ]
 
-Unused portion of a part-written fs-block-sized block is not set to zero
-in unaligned append direct write.This can lead to serious data
-inconsistencies.
+In remove(), ensure that the PME work cannot run after kfree() is called.
+Otherwise, this could result in a use-after-free.
 
-Ocfs2 manage disk with cluster size(for example, 1M), part-written in
-one cluster will change the cluster state from UN-WRITTEN to WRITTEN,
-VFS(function dio_zero_block) doesn't do the cleaning because bh's state
-is not set to NEW in function ocfs2_dio_wr_get_block when we write a
-WRITTEN cluster.  For example, the cluster size is 1M, file size is 8k
-and we direct write from 14k to 15k, then 12k~14k and 15k~16k will
-contain dirty data.
+This issue was detected with the help of Coccinelle.
 
-We have to deal with two cases:
- 1.The starting position of direct write is outside the file.
- 2.The starting position of direct write is located in the file.
-
-We need set bh's state to NEW in the first case.  In the second case, we
-need mapped twice because bh's state of area out file should be set to
-NEW while area in file not.
-
-[akpm@linux-foundation.org: coding style fixes]
-Link: http://lkml.kernel.org/r/5292e287-8f1a-fd4a-1a14-661e555e0bed@huawei.com
-Signed-off-by: Jia Guo <guojia12@huawei.com>
-Reviewed-by: Yiwen Jiang <jiangyiwen@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Joseph Qi <joseph.qi@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Sinan Kaya <okaya@kernel.org>
+Cc: Frederick Lawler <fred@fredlawl.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/aops.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/pci/pcie/pme.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index a4c905d6b5755..3e0a93e799ea1 100644
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -2139,13 +2139,30 @@ static int ocfs2_dio_wr_get_block(struct inode *inode, sector_t iblock,
- 	struct ocfs2_dio_write_ctxt *dwc = NULL;
- 	struct buffer_head *di_bh = NULL;
- 	u64 p_blkno;
--	loff_t pos = iblock << inode->i_sb->s_blocksize_bits;
-+	unsigned int i_blkbits = inode->i_sb->s_blocksize_bits;
-+	loff_t pos = iblock << i_blkbits;
-+	sector_t endblk = (i_size_read(inode) - 1) >> i_blkbits;
- 	unsigned len, total_len = bh_result->b_size;
- 	int ret = 0, first_get_block = 0;
+diff --git a/drivers/pci/pcie/pme.c b/drivers/pci/pcie/pme.c
+index e85c5a8206c43..6ac17f0c40775 100644
+--- a/drivers/pci/pcie/pme.c
++++ b/drivers/pci/pcie/pme.c
+@@ -437,6 +437,7 @@ static void pcie_pme_remove(struct pcie_device *srv)
  
- 	len = osb->s_clustersize - (pos & (osb->s_clustersize - 1));
- 	len = min(total_len, len);
+ 	pcie_pme_disable_interrupt(srv->port, data);
+ 	free_irq(srv->irq, srv);
++	cancel_work_sync(&data->work);
+ 	kfree(data);
+ }
  
-+	/*
-+	 * bh_result->b_size is count in get_more_blocks according to write
-+	 * "pos" and "end", we need map twice to return different buffer state:
-+	 * 1. area in file size, not set NEW;
-+	 * 2. area out file size, set  NEW.
-+	 *
-+	 *		   iblock    endblk
-+	 * |--------|---------|---------|---------
-+	 * |<-------area in file------->|
-+	 */
-+
-+	if ((iblock <= endblk) &&
-+	    ((iblock + ((len - 1) >> i_blkbits)) > endblk))
-+		len = (endblk - iblock + 1) << i_blkbits;
-+
- 	mlog(0, "get block of %lu at %llu:%u req %u\n",
- 			inode->i_ino, pos, len, total_len);
- 
-@@ -2229,6 +2246,9 @@ static int ocfs2_dio_wr_get_block(struct inode *inode, sector_t iblock,
- 	if (desc->c_needs_zero)
- 		set_buffer_new(bh_result);
- 
-+	if (iblock > endblk)
-+		set_buffer_new(bh_result);
-+
- 	/* May sleep in end_io. It should not happen in a irq context. So defer
- 	 * it to dio work queue. */
- 	set_buffer_defer_completion(bh_result);
 -- 
 2.20.1
 
