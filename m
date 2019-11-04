@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9977FEEFF1
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D2C6EEE7E
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730750AbfKDVw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:52:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45768 "EHLO mail.kernel.org"
+        id S2389557AbfKDWGd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:06:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730364AbfKDVwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:52:21 -0500
+        id S2389044AbfKDWGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:06:33 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA423217F4;
-        Mon,  4 Nov 2019 21:52:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA93221744;
+        Mon,  4 Nov 2019 22:06:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904341;
-        bh=E1aoj9R79rabJbJBVwCZX4iH1w2YJ9tDbCCLe60+T58=;
+        s=default; t=1572905192;
+        bh=l4ufX9DFTWVEsodenjVNjo/1QN5IcvrZe4Qls64Ta0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQpEPQYz+eJ4dBxjqfXmruGAHKah6qPdxYwzeA9r1qcg3DmprMpzoObAgGIr5DAuN
-         RqisivGBCO6sSaqiu8OGzf72XLKqG4tpsnby2DZ8+tPZaNrFXbKPnTQ1tbMP3nPONI
-         9OwqOTytw14JNmIz94hNPbEWye+HsCac47tRQXUU=
+        b=e0tpWy91MziLzKuyO4d2YYC+Et6nug1/3RxGKOGBowt8tL2ZhX1sYbVGvYXNolGvP
+         80trMnp2Ho4NG2GNYiMPiidcUfSkWxww0jvTgrWj4ZvAHrGpBY8RFpgS4BijYxT/Sk
+         DovGPHpVeS0TqlWXJPaVBbDp7jHoAByBtOdfCjkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Wang <wang.yi59@zte.com.cn>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 13/95] clk: boston: unregister clks on failure in clk_boston_setup()
+Subject: [PATCH 5.3 061/163] fs: ocfs2: fix a possible null-pointer dereference in ocfs2_info_scan_inode_alloc()
 Date:   Mon,  4 Nov 2019 22:44:11 +0100
-Message-Id: <20191104212044.207446608@linuxfoundation.org>
+Message-Id: <20191104212144.472508122@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +51,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Wang <wang.yi59@zte.com.cn>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 8b627f616ed63dcaf922369fc14a5daf8ad03038 ]
+[ Upstream commit 2abb7d3b12d007c30193f48bebed781009bebdd2 ]
 
-The registered clks should unregister when something wrong happens
-before going out in function clk_boston_setup().
+In ocfs2_info_scan_inode_alloc(), there is an if statement on line 283
+to check whether inode_alloc is NULL:
 
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+    if (inode_alloc)
+
+When inode_alloc is NULL, it is used on line 287:
+
+    ocfs2_inode_lock(inode_alloc, &bh, 0);
+        ocfs2_inode_lock_full_nested(inode, ...)
+            struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
+
+Thus, a possible null-pointer dereference may occur.
+
+To fix this bug, inode_alloc is checked on line 286.
+
+This bug is found by a static analysis tool STCheck written by us.
+
+Link: http://lkml.kernel.org/r/20190726033717.32359-1-baijiaju1990@gmail.com
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imgtec/clk-boston.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ fs/ocfs2/ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/imgtec/clk-boston.c b/drivers/clk/imgtec/clk-boston.c
-index f5d54a64d33c5..dddda45127a80 100644
---- a/drivers/clk/imgtec/clk-boston.c
-+++ b/drivers/clk/imgtec/clk-boston.c
-@@ -73,31 +73,39 @@ static void __init clk_boston_setup(struct device_node *np)
- 	hw = clk_hw_register_fixed_rate(NULL, "input", NULL, 0, in_freq);
- 	if (IS_ERR(hw)) {
- 		pr_err("failed to register input clock: %ld\n", PTR_ERR(hw));
--		goto error;
-+		goto fail_input;
- 	}
- 	onecell->hws[BOSTON_CLK_INPUT] = hw;
+diff --git a/fs/ocfs2/ioctl.c b/fs/ocfs2/ioctl.c
+index d6f7b299eb236..efeea208fdebd 100644
+--- a/fs/ocfs2/ioctl.c
++++ b/fs/ocfs2/ioctl.c
+@@ -283,7 +283,7 @@ static int ocfs2_info_scan_inode_alloc(struct ocfs2_super *osb,
+ 	if (inode_alloc)
+ 		inode_lock(inode_alloc);
  
- 	hw = clk_hw_register_fixed_rate(NULL, "sys", "input", 0, sys_freq);
- 	if (IS_ERR(hw)) {
- 		pr_err("failed to register sys clock: %ld\n", PTR_ERR(hw));
--		goto error;
-+		goto fail_sys;
- 	}
- 	onecell->hws[BOSTON_CLK_SYS] = hw;
- 
- 	hw = clk_hw_register_fixed_rate(NULL, "cpu", "input", 0, cpu_freq);
- 	if (IS_ERR(hw)) {
- 		pr_err("failed to register cpu clock: %ld\n", PTR_ERR(hw));
--		goto error;
-+		goto fail_cpu;
- 	}
- 	onecell->hws[BOSTON_CLK_CPU] = hw;
- 
- 	err = of_clk_add_hw_provider(np, of_clk_hw_onecell_get, onecell);
--	if (err)
-+	if (err) {
- 		pr_err("failed to add DT provider: %d\n", err);
-+		goto fail_clk_add;
-+	}
- 
- 	return;
- 
--error:
-+fail_clk_add:
-+	clk_hw_unregister_fixed_rate(onecell->hws[BOSTON_CLK_CPU]);
-+fail_cpu:
-+	clk_hw_unregister_fixed_rate(onecell->hws[BOSTON_CLK_SYS]);
-+fail_sys:
-+	clk_hw_unregister_fixed_rate(onecell->hws[BOSTON_CLK_INPUT]);
-+fail_input:
- 	kfree(onecell);
- }
- 
+-	if (o2info_coherent(&fi->ifi_req)) {
++	if (inode_alloc && o2info_coherent(&fi->ifi_req)) {
+ 		status = ocfs2_inode_lock(inode_alloc, &bh, 0);
+ 		if (status < 0) {
+ 			mlog_errno(status);
 -- 
 2.20.1
 
