@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A9A4EEC3D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B2FEEBD3
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:51:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388119AbfKDVzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:55:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50358 "EHLO mail.kernel.org"
+        id S1730470AbfKDVvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:51:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388075AbfKDVzM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:55:12 -0500
+        id S1730046AbfKDVvR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:17 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C9122053B;
-        Mon,  4 Nov 2019 21:55:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56415217F4;
+        Mon,  4 Nov 2019 21:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904511;
-        bh=1nXkhrV8qhMCyUBD4gHgxDRIKio58GQK5O2zyc1rKao=;
+        s=default; t=1572904276;
+        bh=QMUjP7/xk8cI4iGd54vDyzBBl3zgStXVnzmzUoipMP4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnUwtTOav+5XfFIS6OeWyJxWhT4SVb4asRAx82ckkuwBmDq706I32RaTdQegFTkde
-         Sjiqzme6Zq8C/vXN9JZ6Z2QUEKbRAcpF13+wY8Hde0IYyf3OlaaAf3xXvVWLjHzUVX
-         /MRy9hBYTu+1dy5f325t+sHs6Bu8iLRg/o/h4GS0=
+        b=hy0bT+9IrrJgzT2RXhTNI0gp+DyekdObsfk9/ZR5OSj0bBw62ZI73lvGzJX/PiLFg
+         SIeqCEtiCvav9inPdcMaZbMFrK6ZEr/iqR0I+A7wyzYbpAvGIAIkNKqsY/VAURf7J3
+         m3jGIgUIbQ9UQcaC017KddA8a0GbgFjDzR43rALA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a4fbb3bb76cda0ea4e58@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 71/95] USB: ldusb: fix control-message timeout
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 47/62] nl80211: fix validation of mesh path nexthop
 Date:   Mon,  4 Nov 2019 22:45:09 +0100
-Message-Id: <20191104212114.404030579@linuxfoundation.org>
+Message-Id: <20191104211949.807075592@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-commit 52403cfbc635d28195167618690595013776ebde upstream.
+commit 1fab1b89e2e8f01204a9c05a39fd0b6411a48593 upstream.
 
-USB control-message timeouts are specified in milliseconds, not jiffies.
-Waiting 83 minutes for a transfer to complete is a bit excessive.
+Mesh path nexthop should be a ethernet address, but current validation
+checks against 4 byte integers.
 
-Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Reported-by: syzbot+a4fbb3bb76cda0ea4e58@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191022153127.22295-1-johan@kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 2ec600d672e74 ("nl80211/cfg80211: support for mesh, sta dumping")
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191029093003.10355-1-markus.theil@tu-ilmenau.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/ldusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/nl80211.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/ldusb.c
-+++ b/drivers/usb/misc/ldusb.c
-@@ -583,7 +583,7 @@ static ssize_t ld_usb_write(struct file
- 					 1 << 8, 0,
- 					 dev->interrupt_out_buffer,
- 					 bytes_to_write,
--					 USB_CTRL_SET_TIMEOUT * HZ);
-+					 USB_CTRL_SET_TIMEOUT);
- 		if (retval < 0)
- 			dev_err(&dev->intf->dev,
- 				"Couldn't submit HID_REQ_SET_REPORT %d\n",
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -295,7 +295,8 @@ static const struct nla_policy nl80211_p
+ 	[NL80211_ATTR_MNTR_FLAGS] = { /* NLA_NESTED can't be empty */ },
+ 	[NL80211_ATTR_MESH_ID] = { .type = NLA_BINARY,
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+-	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_U32 },
++	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_BINARY,
++					  .len = ETH_ALEN },
+ 
+ 	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
 
 
