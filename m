@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6D5EEEF7
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D91C6EEDB4
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:09:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389116AbfKDWB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:01:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60180 "EHLO mail.kernel.org"
+        id S2389866AbfKDWJQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:09:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389120AbfKDWB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:01:56 -0500
+        id S2390363AbfKDWJQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:09:16 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C469F20650;
-        Mon,  4 Nov 2019 22:01:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E55202084D;
+        Mon,  4 Nov 2019 22:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904915;
-        bh=jMAEKlxyC3ermhSxITfVSGgBVe4mb/AT5OiGWW7wYCw=;
+        s=default; t=1572905355;
+        bh=asVhnAg/bI2hyt9+LNgS+5jw0LDtcyGczWuKJbydNgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTcSu2B324WH+JOpYT12V8xoKwjBIVkT9z+5syfn0FaJkfaKy+K+l7lRh2zxUY3dS
-         rOPHKnjqXMY0mL6shLfpL/xTLdCwwTyFVmnHDgT6FxUJY86mwcyDn/p4eWjK7fcO1i
-         pllWitW/jmRmkZMteJ6Dk8VVpeFkUR6ICh3IygAY=
+        b=YyAlpEjWHGb10N/OueKcATWscXx+PdjmEdUMwYtgCqdAnOLUyJZ5Ff6LUcDH++J4D
+         ukwqf1GWRIaja67zY4g7464Kn+p0lcv63RPbuWO8bon04jHq6imRbaU3zG/vlXLO7y
+         M8iZGzlW9tlK7JrA1cCDRcYPXGYHXmELjQTKQSwI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Oliver Neukum <oneukum@suse.com>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.19 114/149] UAS: Revert commit 3ae62a42090f ("UAS: fix alignment of scatter/gather segments")
+        stable@vger.kernel.org,
+        =?UTF-8?q?Micha=C5=82=20Miros=C5=82aw?= <mirq-linux@rere.qmqm.pl>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.3 117/163] HID: fix error message in hid_open_report()
 Date:   Mon,  4 Nov 2019 22:45:07 +0100
-Message-Id: <20191104212144.343422897@linuxfoundation.org>
+Message-Id: <20191104212148.699755550@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Michał Mirosław <mirq-linux@rere.qmqm.pl>
 
-commit 1186f86a71130a7635a20843e355bb880c7349b2 upstream.
+commit b3a81c777dcb093020680490ab970d85e2f6f04f upstream.
 
-Commit 3ae62a42090f ("UAS: fix alignment of scatter/gather segments"),
-copying a similar commit for usb-storage, attempted to solve a problem
-involving scatter-gather I/O and USB/IP by setting the
-virt_boundary_mask for mass-storage devices.
+On HID report descriptor parsing error the code displays bogus
+pointer instead of error offset (subtracts start=NULL from end).
+Make the message more useful by displaying correct error offset
+and include total buffer size for reference.
 
-However, it now turns out that the analogous change in usb-storage
-interacted badly with commit 09324d32d2a0 ("block: force an unlimited
-segment size on queues with a virt boundary"), which was added later.
-A typical error message is:
+This was carried over from ancient times - "Fixed" commit just
+promoted the message from DEBUG to ERROR.
 
-	ehci-pci 0000:00:13.2: swiotlb buffer is full (sz: 327680 bytes),
-	total 32768 (slots), used 97 (slots)
-
-There is no longer any reason to keep the virt_boundary_mask setting
-in the uas driver.  It was needed in the first place only for
-handling devices with a block size smaller than the maxpacket size and
-where the host controller was not capable of fully general
-scatter-gather operation (that is, able to merge two SG segments into
-a single USB packet).  But:
-
-	High-speed or slower connections never use a bulk maxpacket
-	value larger than 512;
-
-	The SCSI layer does not handle block devices with a block size
-	smaller than 512 bytes;
-
-	All the host controllers capable of SuperSpeed operation can
-	handle fully general SG;
-
-	Since commit ea44d190764b ("usbip: Implement SG support to
-	vhci-hcd and stub driver") was merged, the USB/IP driver can
-	also handle SG.
-
-Therefore all supported device/controller combinations should be okay
-with no need for any special virt_boundary_mask.  So in order to head
-off potential problems similar to those affecting usb-storage, this
-patch reverts commit 3ae62a42090f.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: Oliver Neukum <oneukum@suse.com>
-CC: <stable@vger.kernel.org>
-Acked-by: Christoph Hellwig <hch@lst.de>
-Fixes: 3ae62a42090f ("UAS: fix alignment of scatter/gather segments")
-Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910231132470.1878-100000@iolanthe.rowland.org
+Cc: stable@vger.kernel.org
+Fixes: 8c3d52fc393b ("HID: make parser more verbose about parsing errors by default")
+Signed-off-by: Michał Mirosław <mirq-linux@rere.qmqm.pl>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/storage/uas.c |   20 --------------------
- 1 file changed, 20 deletions(-)
+ drivers/hid/hid-core.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/storage/uas.c
-+++ b/drivers/usb/storage/uas.c
-@@ -796,30 +796,10 @@ static int uas_slave_alloc(struct scsi_d
- {
- 	struct uas_dev_info *devinfo =
- 		(struct uas_dev_info *)sdev->host->hostdata;
--	int maxp;
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1139,6 +1139,7 @@ int hid_open_report(struct hid_device *d
+ 	__u8 *start;
+ 	__u8 *buf;
+ 	__u8 *end;
++	__u8 *next;
+ 	int ret;
+ 	static int (*dispatch_type[])(struct hid_parser *parser,
+ 				      struct hid_item *item) = {
+@@ -1192,7 +1193,8 @@ int hid_open_report(struct hid_device *d
+ 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
  
- 	sdev->hostdata = devinfo;
+ 	ret = -EINVAL;
+-	while ((start = fetch_item(start, end, &item)) != NULL) {
++	while ((next = fetch_item(start, end, &item)) != NULL) {
++		start = next;
  
- 	/*
--	 * We have two requirements here. We must satisfy the requirements
--	 * of the physical HC and the demands of the protocol, as we
--	 * definitely want no additional memory allocation in this path
--	 * ruling out using bounce buffers.
--	 *
--	 * For a transmission on USB to continue we must never send
--	 * a package that is smaller than maxpacket. Hence the length of each
--         * scatterlist element except the last must be divisible by the
--         * Bulk maxpacket value.
--	 * If the HC does not ensure that through SG,
--	 * the upper layer must do that. We must assume nothing
--	 * about the capabilities off the HC, so we use the most
--	 * pessimistic requirement.
--	 */
--
--	maxp = usb_maxpacket(devinfo->udev, devinfo->data_in_pipe, 0);
--	blk_queue_virt_boundary(sdev->request_queue, maxp - 1);
--
--	/*
- 	 * The protocol has no requirements on alignment in the strict sense.
- 	 * Controllers may or may not have alignment restrictions.
- 	 * As this is not exported, we use an extremely conservative guess.
+ 		if (item.format != HID_ITEM_FORMAT_SHORT) {
+ 			hid_err(device, "unexpected long global item\n");
+@@ -1230,7 +1232,8 @@ int hid_open_report(struct hid_device *d
+ 		}
+ 	}
+ 
+-	hid_err(device, "item fetching failed at offset %d\n", (int)(end - start));
++	hid_err(device, "item fetching failed at offset %u/%u\n",
++		size - (unsigned int)(end - start), size);
+ err:
+ 	kfree(parser->collection_stack);
+ alloc_err:
 
 
