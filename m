@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F14AEEFE1
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4125DEEE07
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387799AbfKDVx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:53:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48160 "EHLO mail.kernel.org"
+        id S2390556AbfKDWKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:10:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387688AbfKDVx4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:53:56 -0500
+        id S2390552AbfKDWKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:10:34 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25C3D2190F;
-        Mon,  4 Nov 2019 21:53:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B62AB20650;
+        Mon,  4 Nov 2019 22:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904435;
-        bh=9bqpOQ/HTpFfl9Zq2N2vZhaiabTgyqLrkdRiLClf/oc=;
+        s=default; t=1572905433;
+        bh=XRJhMZLFukaSWSE6KfLdlTZkNQnshra3dKvIQaYoG6s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCvdXX/rdHMoDM0Bdbw7meCx+T6WXknWvyzI1K9G8i5L+I0QYdc4wB6dgf61Vxw+U
-         8h9wKINoDtsNoHtvxFQKDGy0zLZNL88PdWG1xtINyvCjAiPiuwHl1Gy1M7lNXngdSj
-         r1gYJzhy4inGZnbphj4dE28raeEn80nvCk2Q0XmQ=
+        b=Jv4tVeTQ0KO1kVKNeYWt2LUkpzigS3dnDtAqh6j0JfpMvR0XLhLGwRQxFUW1dp8E+
+         OEqxgOPiTH6Zp+ZvNQcBrqcD74rqcRmIpc17T9PgnqafyyMy+1Wm9lGC3GEIrBZD3R
+         iEPB9ofBxBdXnw9d83g9DrGvJzgqj8iilSi/zwzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 43/95] MIPS: include: Mark __cmpxchg as __always_inline
+        stable@vger.kernel.org, Sebastian Ott <sebott@linux.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Alexander Schmidt <alexs@linux.ibm.com>
+Subject: [PATCH 5.3 091/163] s390/pci: fix MSI message data
 Date:   Mon,  4 Nov 2019 22:44:41 +0100
-Message-Id: <20191104212102.161768953@linuxfoundation.org>
+Message-Id: <20191104212146.786936467@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+From: Sebastian Ott <sebott@linux.ibm.com>
 
-[ Upstream commit 88356d09904bc606182c625575237269aeece22e ]
+[ Upstream commit cf2c4a3f35b75d38cebb4afbd578f1594f068d1e ]
 
-Commit ac7c3e4ff401 ("compiler: enable CONFIG_OPTIMIZE_INLINING
-forcibly") allows compiler to uninline functions marked as 'inline'.
-In cace of cmpxchg this would cause to reference function
-__cmpxchg_called_with_bad_pointer, which is a error case
-for catching bugs and will not happen for correct code, if
-__cmpxchg is inlined.
+After recent changes the MSI message data needs to specify the
+function-relative IRQ number.
 
-Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-[paul.burton@mips.com: s/__cmpxchd/__cmpxchg in subject]
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+Reported-and-tested-by: Alexander Schmidt <alexs@linux.ibm.com>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/cmpxchg.h | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/s390/pci/pci_irq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/cmpxchg.h b/arch/mips/include/asm/cmpxchg.h
-index 89e9fb7976fe6..895f91b9e89c3 100644
---- a/arch/mips/include/asm/cmpxchg.h
-+++ b/arch/mips/include/asm/cmpxchg.h
-@@ -146,8 +146,9 @@ static inline unsigned long __xchg(volatile void *ptr, unsigned long x,
- extern unsigned long __cmpxchg_small(volatile void *ptr, unsigned long old,
- 				     unsigned long new, unsigned int size);
- 
--static inline unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
--				      unsigned long new, unsigned int size)
-+static __always_inline
-+unsigned long __cmpxchg(volatile void *ptr, unsigned long old,
-+			unsigned long new, unsigned int size)
- {
- 	switch (size) {
- 	case 1:
+diff --git a/arch/s390/pci/pci_irq.c b/arch/s390/pci/pci_irq.c
+index d80616ae8dd8a..fbe97ab2e2286 100644
+--- a/arch/s390/pci/pci_irq.c
++++ b/arch/s390/pci/pci_irq.c
+@@ -284,7 +284,7 @@ int arch_setup_msi_irqs(struct pci_dev *pdev, int nvec, int type)
+ 			return rc;
+ 		irq_set_chip_and_handler(irq, &zpci_irq_chip,
+ 					 handle_percpu_irq);
+-		msg.data = hwirq;
++		msg.data = hwirq - bit;
+ 		if (irq_delivery == DIRECTED) {
+ 			msg.address_lo = zdev->msi_addr & 0xff0000ff;
+ 			msg.address_lo |= msi->affinity ?
 -- 
 2.20.1
 
