@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0151EED82
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF7B3EF061
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389476AbfKDWHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:07:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40080 "EHLO mail.kernel.org"
+        id S2387643AbfKDVuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:50:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389306AbfKDWHd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:07:33 -0500
+        id S1728778AbfKDVuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:50:14 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0270E2084D;
-        Mon,  4 Nov 2019 22:07:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC274214D9;
+        Mon,  4 Nov 2019 21:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905252;
-        bh=vk8+b7SiuqvG0ZON2WuQ93hgwJbDz+Km6Ck2/nY0Gbk=;
+        s=default; t=1572904214;
+        bh=A+nXIhWOh/hn+hSxK3tP54icEmodpvMjam53PuBkrA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYNd4knRHVwZIaNWgxZSaTXcZ1vZL9XCOcT5zaRCGA08pYE4Km4cti5NB18sy9joX
-         KKUZzg94TolUXGJHbjILkhBLRep0pFsr894IvkpSfdTOYc3bj59RgycEeAg/wjVzxL
-         xwR0I0QI6uo0AMLsJkh6r2B8XEu2CVs7OzSPvVoc=
+        b=GyzeNgKabV/x6MnqUYF4DPPRBCE7+b8MRjl2k+DjyeNCKye8rlRQExF7jRqF3dkf9
+         C6hxMynVcxrP8OF32H2vTRhlBr+0j4CvBxV057ILKsUw8PIDSmw7APcGCgXcmHnAEm
+         cE9f+ivIyPhZSBg6q7utOG5IgUpmGwY3Wc9gIaeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 080/163] SUNRPC: fix race to sk_err after xs_error_report
+        stable@vger.kernel.org, Rene Wagner <redhatbugzilla@callerid.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 08/62] HID: i2c-hid: Add Odys Winbook 13 to descriptor override
 Date:   Mon,  4 Nov 2019 22:44:30 +0100
-Message-Id: <20191104212146.103618988@linuxfoundation.org>
+Message-Id: <20191104211910.567147715@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit af84537dbd1b39505d1f3d8023029b4a59666513 ]
+[ Upstream commit f8f807441eefddc3c6d8a378421f0ede6361d565 ]
 
-Since commit 4f8943f80883 ("SUNRPC: Replace direct task wakeups from
-softirq context") there has been a race to the value of the sk_err if both
-XPRT_SOCK_WAKE_ERROR and XPRT_SOCK_WAKE_DISCONNECT are set.  In that case,
-we may end up losing the sk_err value that existed when xs_error_report was
-called.
+The Odys Winbook 13 uses a SIPODEV SP1064 touchpad, which does not
+supply descriptors, add this to the DMI descriptor override list, fixing
+the touchpad not working.
 
-Fix this by reverting to the previous behavior: instead of using SO_ERROR
-to retrieve the value at a later time (which might also return sk_err_soft),
-copy the sk_err value onto struct sock_xprt, and use that value to wake
-pending tasks.
-
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Fixes: 4f8943f80883 ("SUNRPC: Replace direct task wakeups from softirq context")
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1526312
+Reported-by: Rene Wagner <redhatbugzilla@callerid.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/xprtsock.h |  1 +
- net/sunrpc/xprtsock.c           | 17 ++++++++---------
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/sunrpc/xprtsock.h b/include/linux/sunrpc/xprtsock.h
-index 7638dbe7bc500..a940de03808dd 100644
---- a/include/linux/sunrpc/xprtsock.h
-+++ b/include/linux/sunrpc/xprtsock.h
-@@ -61,6 +61,7 @@ struct sock_xprt {
- 	struct mutex		recv_mutex;
- 	struct sockaddr_storage	srcaddr;
- 	unsigned short		srcport;
-+	int			xprt_err;
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 89f2976f9c534..fd1b6eea6d2fd 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -346,6 +346,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Odys Winbook 13",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AXDIA International GmbH"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "WINBOOK 13"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
  
- 	/*
- 	 * UDP socket buffer size parameters
-diff --git a/net/sunrpc/xprtsock.c b/net/sunrpc/xprtsock.c
-index e2176c167a579..4e0b5bed6c737 100644
---- a/net/sunrpc/xprtsock.c
-+++ b/net/sunrpc/xprtsock.c
-@@ -1243,19 +1243,21 @@ static void xs_error_report(struct sock *sk)
- {
- 	struct sock_xprt *transport;
- 	struct rpc_xprt *xprt;
--	int err;
- 
- 	read_lock_bh(&sk->sk_callback_lock);
- 	if (!(xprt = xprt_from_sock(sk)))
- 		goto out;
- 
- 	transport = container_of(xprt, struct sock_xprt, xprt);
--	err = -sk->sk_err;
--	if (err == 0)
-+	transport->xprt_err = -sk->sk_err;
-+	if (transport->xprt_err == 0)
- 		goto out;
- 	dprintk("RPC:       xs_error_report client %p, error=%d...\n",
--			xprt, -err);
--	trace_rpc_socket_error(xprt, sk->sk_socket, err);
-+			xprt, -transport->xprt_err);
-+	trace_rpc_socket_error(xprt, sk->sk_socket, transport->xprt_err);
-+
-+	/* barrier ensures xprt_err is set before XPRT_SOCK_WAKE_ERROR */
-+	smp_mb__before_atomic();
- 	xs_run_error_worker(transport, XPRT_SOCK_WAKE_ERROR);
-  out:
- 	read_unlock_bh(&sk->sk_callback_lock);
-@@ -2470,7 +2472,6 @@ static void xs_wake_write(struct sock_xprt *transport)
- static void xs_wake_error(struct sock_xprt *transport)
- {
- 	int sockerr;
--	int sockerr_len = sizeof(sockerr);
- 
- 	if (!test_bit(XPRT_SOCK_WAKE_ERROR, &transport->sock_state))
- 		return;
-@@ -2479,9 +2480,7 @@ static void xs_wake_error(struct sock_xprt *transport)
- 		goto out;
- 	if (!test_and_clear_bit(XPRT_SOCK_WAKE_ERROR, &transport->sock_state))
- 		goto out;
--	if (kernel_getsockopt(transport->sock, SOL_SOCKET, SO_ERROR,
--				(char *)&sockerr, &sockerr_len) != 0)
--		goto out;
-+	sockerr = xchg(&transport->xprt_err, 0);
- 	if (sockerr < 0)
- 		xprt_wake_pending_tasks(&transport->xprt, sockerr);
- out:
 -- 
 2.20.1
 
