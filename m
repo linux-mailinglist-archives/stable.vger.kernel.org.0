@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB06EDB8D
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 10:21:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C25EDBB6
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 10:35:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727444AbfKDJVS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 04:21:18 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:51083 "EHLO
+        id S1728014AbfKDJfa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 04:35:30 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:47685 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726364AbfKDJVS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 04:21:18 -0500
+        by vger.kernel.org with ESMTP id S1727236AbfKDJf3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 04:35:29 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id D54982203C;
-        Mon,  4 Nov 2019 04:21:17 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id 90F0621EBC;
+        Mon,  4 Nov 2019 04:35:28 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 04 Nov 2019 04:21:17 -0500
+  by compute6.internal (MEProxy); Mon, 04 Nov 2019 04:35:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=3rm787
-        M0XnqF0plsr/V2SdtLlK3ANeHwxtUO8j6LsJg=; b=vVnNjJQkVG/yN+qCg30XlW
-        zmcfMBcKP965t/0mmxvKoz0roM5ltdiH0aZFZkv9CVKWEOXIjQmaR8fZsnqrB/Ae
-        OAfon+WGGbU5vjg9vWWSmxid7tt1P8J+SDUxGfu/7/zHerzPc6qOqFLMzNr5LWbH
-        XHZyJJH9h8cLtYPLdbe8qF8hsUtCikteIRWuaejE16P+/wtgahQ6y85vauhURSg2
-        zJCxDii1u3Hsp1Fs7i4Y87FDJPpK72JluJ+XZo4pIT1SNf7a5BTzAetDzu1nLLIH
-        jlu1FkDbwhOkAIReHoq10aUf77E7wXdYyiwLV2SwFECRNfNe5NXlMAheF7WgMefw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=gklXwO
+        AB7a+8QTqOsPSz8tX+AiAzhNqifWk4yeaxvc4=; b=de0mvIq/O1mwBEg44EVTSt
+        Ol8InMUaUrBHTdrkPgSqe1L9COfl1/TRdYk5mHFqQkxgJ7xlvOMvJjaiyo3ckLGz
+        sZSMAKMwGzENE2LDgizPqzKXBEnfMGoJZSEb0xb3jbaCKUl/ZSNKpiSGqtjWagAK
+        x0lVAjHb1VhFswUubbDs2cNc/ZmKau44URZA3gixqn4oAlmzdV3EzZ7odTJAv+Z8
+        xXoL2idjbiU79JNPtFQNKeq7HiJ6PEkh4D2AcfOxBGMRCpzt+tnz33+dtcabC8ku
+        Jh9AlpdlFDePGLrnqS8eY4tK/5QNi0KzGgrYxNKKIysJ3IH4FgkGKdILIHxMYRvA
         ==
-X-ME-Sender: <xms:je2_Xb1o9qMbuvywJNBumLRy3wzMZ96ijxhPC7P3Xhnmlj1VzyQdag>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddufedgtddvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:4PC_Xb2dhh-kZWptZ7Cwh3sAqNAEEBOw7rN2_oOUUxTyJmQrDOUSoQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddufedgtdehucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:je2_XeVbZUewSwJFYuOMtm07KgN33BQcDU2EXYnPUWjFAlLiZB4aLQ>
-    <xmx:je2_XW7LfoW6QxY60Rt2ODxaaajxx_DjNZguOqy7wB8n_-mxFUh-RA>
-    <xmx:je2_XVJ7KL7cviL48SHznsI-QsWaD6F1dmxVvK9bgbuKCG5ZXAr4Gw>
-    <xmx:je2_Xem8PzZhUPygFAEya8a7eOEsjX2_VpriYUR-lN03uiaDRYvP3w>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:4PC_XRP-4dvzD0nLU0vW05sXuAt-2wQe-qE4_WgS8PlWaJIltcEsOQ>
+    <xmx:4PC_XeMWmiDwKe3a1jbzia7WrZamvHB3LAJOMJr4Qbs85AKddpPJCw>
+    <xmx:4PC_XZlTsd4UGSlWekwEpYWmRTp85XhEAJtD2CnYR4rvlKkOYJp0RA>
+    <xmx:4PC_XfqzmmX155rCS_OF_gw2p9W4EK8xfypl1pY7-A1ydJ4fASePgQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5815180059;
-        Mon,  4 Nov 2019 04:21:17 -0500 (EST)
-Subject: FAILED: patch "[PATCH] arm64: cpufeature: Enable Qualcomm Falkor/Kryo errata 1003" failed to apply to 4.14-stable tree
-To:     bjorn.andersson@linaro.org, broonie@kernel.org, will@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0CC2B80061;
+        Mon,  4 Nov 2019 04:35:27 -0500 (EST)
+Subject: FAILED: patch "[PATCH] dmaengine: qcom: bam_dma: Fix resource leak" failed to apply to 4.14-stable tree
+To:     jeffrey.l.hugo@gmail.com, vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Nov 2019 10:21:08 +0100
-Message-ID: <1572859268158229@kroah.com>
+Date:   Mon, 04 Nov 2019 10:35:26 +0100
+Message-ID: <15728601263783@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -67,38 +68,54 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d4af3c4b81f4cd5662baa6f1492f998d89783318 Mon Sep 17 00:00:00 2001
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
-Date: Tue, 29 Oct 2019 10:15:39 -0700
-Subject: [PATCH] arm64: cpufeature: Enable Qualcomm Falkor/Kryo errata 1003
+From 7667819385457b4aeb5fac94f67f52ab52cc10d5 Mon Sep 17 00:00:00 2001
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Date: Thu, 17 Oct 2019 08:26:06 -0700
+Subject: [PATCH] dmaengine: qcom: bam_dma: Fix resource leak
 
-With the introduction of 'cce360b54ce6 ("arm64: capabilities: Filter the
-entries based on a given mask")' the Qualcomm Falkor/Kryo errata 1003 is
-no long applied.
+bam_dma_terminate_all() will leak resources if any of the transactions are
+committed to the hardware (present in the desc fifo), and not complete.
+Since bam_dma_terminate_all() does not cause the hardware to be updated,
+the hardware will still operate on any previously committed transactions.
+This can cause memory corruption if the memory for the transaction has been
+reassigned, and will cause a sync issue between the BAM and its client(s).
 
-The result of not applying errata 1003 is that MSM8996 runs into various
-RCU stalls and fails to boot most of the times.
+Fix this by properly updating the hardware in bam_dma_terminate_all().
 
-Give 1003 a "type" to ensure they are not filtered out in
-update_cpu_capabilities().
-
-Fixes: cce360b54ce6 ("arm64: capabilities: Filter the entries based on a given mask")
+Fixes: e7c0fe2a5c84 ("dmaengine: add Qualcomm BAM dma driver")
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 Cc: stable@vger.kernel.org
-Reported-by: Mark Brown <broonie@kernel.org>
-Suggested-by: Will Deacon <will@kernel.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20191017152606.34120-1-jeffrey.l.hugo@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 6c3b10a41bd8..7f9b699969c7 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -816,6 +816,7 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 	{
- 		.desc = "Qualcomm Technologies Falkor/Kryo erratum 1003",
- 		.capability = ARM64_WORKAROUND_QCOM_FALKOR_E1003,
-+		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
- 		.matches = cpucap_multi_entry_cap_matches,
- 		.match_list = qcom_erratum_1003_list,
- 	},
+diff --git a/drivers/dma/qcom/bam_dma.c b/drivers/dma/qcom/bam_dma.c
+index 8e90a405939d..ef73f65224b1 100644
+--- a/drivers/dma/qcom/bam_dma.c
++++ b/drivers/dma/qcom/bam_dma.c
+@@ -694,6 +694,25 @@ static int bam_dma_terminate_all(struct dma_chan *chan)
+ 
+ 	/* remove all transactions, including active transaction */
+ 	spin_lock_irqsave(&bchan->vc.lock, flag);
++	/*
++	 * If we have transactions queued, then some might be committed to the
++	 * hardware in the desc fifo.  The only way to reset the desc fifo is
++	 * to do a hardware reset (either by pipe or the entire block).
++	 * bam_chan_init_hw() will trigger a pipe reset, and also reinit the
++	 * pipe.  If the pipe is left disabled (default state after pipe reset)
++	 * and is accessed by a connected hardware engine, a fatal error in
++	 * the BAM will occur.  There is a small window where this could happen
++	 * with bam_chan_init_hw(), but it is assumed that the caller has
++	 * stopped activity on any attached hardware engine.  Make sure to do
++	 * this first so that the BAM hardware doesn't cause memory corruption
++	 * by accessing freed resources.
++	 */
++	if (!list_empty(&bchan->desc_list)) {
++		async_desc = list_first_entry(&bchan->desc_list,
++					      struct bam_async_desc, desc_node);
++		bam_chan_init_hw(bchan, async_desc->dir);
++	}
++
+ 	list_for_each_entry_safe(async_desc, tmp,
+ 				 &bchan->desc_list, desc_node) {
+ 		list_add(&async_desc->vd.node, &bchan->vc.desc_issued);
 
