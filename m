@@ -2,99 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74EFCEDD36
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 12:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5867EDD39
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 12:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727607AbfKDLAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 06:00:09 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:46577 "EHLO
+        id S1726364AbfKDLCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 06:02:43 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:49257 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726071AbfKDLAJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 06:00:09 -0500
+        by vger.kernel.org with ESMTP id S1726071AbfKDLCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 06:02:43 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 18A8321EAD;
-        Mon,  4 Nov 2019 06:00:08 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 04 Nov 2019 06:00:08 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 5A3AC20A3C;
+        Mon,  4 Nov 2019 06:02:42 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 04 Nov 2019 06:02:42 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=47JFszclw3ivPKlFWCLJo245qfM
-        1Wu/Tc5GwYN7u9D4=; b=H156Z4AYOg08MXCtwbdnAQK4q7YurH5I5jiXU6M7M4F
-        pglsTXQpSazApmQIkXVAfZErxNi0koG73ICzoD7YNIFmlvqz53Y4FxNcgeFqP4FJ
-        RTouA8iu3xH4/gjPPf7LKSRzs73lcG6x+/4A7Ao2GLYRD/BkHSgnBV2b+eBNY0CX
-        HxTCg0OTeSjNUA3UA6JkTIWnXTrksXJmvFCCD+J18FwedL0IhGS8fZi0zeredXlT
-        s0wfVKaqePcrYMszv0+8hE9NjCY0mmX3Ciz+qPR18+lvPqvukmWLwSIHytgpT6H3
-        sUPHs+VWa4sKrbumod6RM45BJINZ1LkS3FCz0CGPDpw==
+        :content-type:in-reply-to; s=fm2; bh=PD/nXFuZxFeP4A6XthDcFbpgf0f
+        KT9V6esc+3nPt8e8=; b=HBaTfVxqXAb5dlc26dyZkkGwHjjxtOxCks3jd+Fnoby
+        bhRQiHe6N4mLAv94PvUfgb+5JdGigghETu6zWKz0QYzXSDA7riUc7AB2Jf0CiWhi
+        y9RYNnEiWSgjJ8eF0N9dskBBYWvbO6y2uUR5gbBUc9o0f1xoWHhX9znYhopMXJSw
+        823elYB2vv2uGrAkQMAcA/lwFQbQFH0YTC4vvza4kCXVINowp38sMVwyAgN7MqsL
+        7Op0Irr/tZnI6+4Yje3bITuG+44lYVTjZdJtM33scsBoWmvcnHyCfZ7ZV3bvxGrc
+        a+aaR5LO43w/IYvmDzGM9eJ66BuP0EApqwwu8Gluu8w==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=47JFsz
-        clw3ivPKlFWCLJo245qfM1Wu/Tc5GwYN7u9D4=; b=e0kbV+JI/sO0tljTMHP1br
-        5hW4K91vyhl9M4aKwyObKWKosx229F+QHd3WphdN3SETvDcIMP6L0H570Mt1xW8p
-        6ua/nmxR4dIA/uGEdVCF8Ec4qV9Q10hpfI+diCreBwRqjqlcBXDxBkCHkrO7geZL
-        IdDrxZCtEBTPjP7W4HKjb75e2kafNrS48Hki0UZqE189ZJ2nb0ACwFz3tItZRuzG
-        ofKbpqsSiJWrpZToOI0ZDt0cnuJKfYpNno8Vv/FwkYBmBTJZ+SbuiieO9xsrQQYK
-        296MjS9Uum8an8bT7zA4lRJ+uT1IdYIeMOjxtmVPq+1PWyV9XGOJMMMOlcuiVrtw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=PD/nXF
+        uZxFeP4A6XthDcFbpgf0fKT9V6esc+3nPt8e8=; b=Hb08SMpDvgXSFS2Z7o89pL
+        wadGLWEIrjY4hU/Jx51fQWXYh7ai3LTnAtNFz4UjBswJsW83O7g3tvz+HCVkKL+f
+        NH6yTncDCmIbi28RiNX+Ot/UZRr8N5G0bzptc4JMFcjPOQGfvlrTQbYHS4EAXFW2
+        Ds4LY6RAMdM6pE8srD3FreTAm1QyplJj2Aw4Jba0ZTUyPCIBLSV8gJ5pWGMkeVKs
+        l+Udtw1UXEQcnXBJgb6+cK6J1bxykTU95rDyKi6bVKID7BVwEaIRUIs0GAgT5EOJ
+        SSfIeF4M3JyeWxXLV4mBqxh1JfFkbEXv08ruair8CIFfy/FA7PVYwEbMIZmWwwBA
         ==
-X-ME-Sender: <xms:twTAXTBoe8QIptRAE2BhQ7suOgqWa-hqaAUt94LJX3_ALaRRY_mTvA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddufedgvddvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:UQXAXXP_JKsoqPfqfgttS2mPUQuafLDmUOlWNPbsRHMQm3cnXH1hsg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddufedgvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujggfsehttd
-    ertddtredvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
-    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:twTAXdoeXO5YAyggB1Dcs96CpHQDryKFtInXiPrYFP8pFp9gxN0J_w>
-    <xmx:twTAXbm9LQcwN-G3WRSR_ullRodu8pxHTuxN9kHDwvDXHMM7jmOFUw>
-    <xmx:twTAXQWaWz5auL_db_7Vd4C0pBYfxeWB4jvv_vcCvjM4zFnq3LQvYQ>
-    <xmx:uATAXUE6B3ZcJSokqf8EeYhqANJOImG4zRzf-uC8DVXy3zJXY1wbnw>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:UQXAXc0fGcLbOyz_yiYPR6jtBsfBzFrKeTdAHLiLzkrRwGEYObP6GQ>
+    <xmx:UQXAXeF4b7GNKku_XvOX4VJhMVa7IW70fvZmpi6Skokh4J4UjeTUNQ>
+    <xmx:UQXAXZ6rZq4a4UO1mJfDaav-OizEv_yoFczrFP7Rv135dftUwOGvUg>
+    <xmx:UgXAXbEynlylKYMtKqnGE__rgKGWw6b9_eux6LeMchsZIlWCf7XnpQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4D280306006D;
-        Mon,  4 Nov 2019 06:00:07 -0500 (EST)
-Date:   Mon, 4 Nov 2019 12:00:02 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id 71C6D80063;
+        Mon,  4 Nov 2019 06:02:41 -0500 (EST)
+Date:   Mon, 4 Nov 2019 12:02:37 +0100
 From:   Greg KH <greg@kroah.com>
-To:     Thomas Deutschmann <whissi@gentoo.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        luciano.coelho@intel.com
-Subject: Re: Please backport 12e36d98d3e for 5.1+: iwlwifi: exclude GEO SAR
- support for 3168
-Message-ID: <20191104110002.GC1945210@kroah.com>
-References: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
+To:     Alex Lyakas <alex@zadara.com>
+Cc:     linux-xfs@vger.kernel.org, stable@vger.kernel.org,
+        vbendel@redhat.com, bfoster@redhat.com, hch@lst.de,
+        darrick.wong@oracle.com
+Subject: Re: [STABLE-PATCH] xfs: Correctly invert xfs_buftarg LRU isolation
+ logic
+Message-ID: <20191104110237.GD1945210@kroah.com>
+References: <1572535975-32634-1-git-send-email-alex@zadara.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
+In-Reply-To: <1572535975-32634-1-git-send-email-alex@zadara.com>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 02, 2019 at 03:36:03PM +0100, Thomas Deutschmann wrote:
-> Hi,
+On Thu, Oct 31, 2019 at 05:32:55PM +0200, Alex Lyakas wrote:
+> From: Vratislav Bendel <vbendel@redhat.com>
 > 
-> please backport
+> [upstream commit 19957a181608d25c8f4136652d0ea00b3738972d]
 > 
-> <<<<snip
-> >From 12e36d98d3e5acf5fc57774e0a15906d55f30cb9 Mon Sep 17 00:00:00 2001
-> From: Luca Coelho <luciano.coelho@intel.com>
-> Date: Tue, 8 Oct 2019 13:10:53 +0300
-> Subject: iwlwifi: exclude GEO SAR support for 3168
+> Due to an inverted logic mistake in xfs_buftarg_isolate()
+> the xfs_buffers with zero b_lru_ref will take another trip
+> around LRU, while isolating buffers with non-zero b_lru_ref.
 > 
-> We currently support two NICs in FW version 29, namely 7265D and 3168.
-> Out of these, only 7265D supports GEO SAR, so adjust the function that
-> checks for it accordingly.
+> Additionally those isolated buffers end up right back on the LRU
+> once they are released, because b_lru_ref remains elevated.
 > 
-> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-> Fixes: f5a47fae6aa3 ("iwlwifi: mvm: fix version check for
-> GEO_TX_POWER_LIMIT support")
-> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-> snap>>>
+> Fix that circuitous route by leaving them on the LRU
+> as originally intended.
 > 
-> This was the first patch of a 2 patch patch series. The second patch,
-> aa0cc7dde17 ("iwlwifi: pcie: change qu with jf devices to use qu
-> configuration") had "Cc: stable@vger.kernel.org # 5.1+" and was added.
-> The first one was missed.
+> [Additional description for the issue]
+> 
+> Due to this issue, buffers will spend one cycle less in
+> the LRU than intended. If we initialize b_lru_ref to X, we intend the
+> buffer to survive X shrinker calls, and on the X+1'th call to be taken
+> off the LRU (and maybe freed). But with this issue, the buffer will be
+> taken off the LRU and immediately re-added back. But this will happen
+> X-1 times, because on the X'th time the b_lru_ref will be 0, and the
+> buffer will not be re-added to the LRU. So the buffer will survive X-1
+> shrinker calls and not X as intended.
+> 
+> Furthermore, if somehow we end up with the buffer sitting on the LRU
+> and having b_lru_ref==0, this buffer will never be taken off the LRU,
+> due to the bug. Not sure that this can happen, because by default
+> b_lru_ref is set to 1.
+> 
+> This issue existed since the introduction of lru in XFS buffer cache
+> in commit
+> "430cbeb86fdcbbdabea7d4aa65307de8de425350 xfs: add a lru to the XFS buffer cache".
+> 
+> However, the integration with the "list_lru" insfrastructure was done in kernel 3.12,
+> in commit
+> "e80dfa19976b884db1ac2bc5d7d6ca0a4027bd1c xfs: convert buftarg LRU to generic code"
+> 
+> Therefore this patch is relevant for all kernels from 3.12 to 4.15
+> (upstream fix was made in 4.16).
+> 
+> Signed-off-by: Alex Lyakas <alex@zadara.com>
+> Signed-off-by: Vratislav Bendel <vbendel@redhat.com>
+> Reviewed-by: Brian Foster <bfoster@redhat.com>
+> Reviewed-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+> (cherry picked from commit 19957a181608d25c8f4136652d0ea00b3738972d)
+> ---
+>  fs/xfs/xfs_buf.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Now queued up,t hanks.
+Now queued up, thanks.
 
 greg k-h
