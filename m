@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EF0EEE5C
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B07F6EEFDF
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387561AbfKDWOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:14:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41160 "EHLO mail.kernel.org"
+        id S2387724AbfKDVxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:53:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390206AbfKDWIS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:08:18 -0500
+        id S2387703AbfKDVxx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:53:53 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7406B214D9;
-        Mon,  4 Nov 2019 22:08:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF08021D7D;
+        Mon,  4 Nov 2019 21:53:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905298;
-        bh=ApFT2yRZPjE5kYFWb07gNAkCn4f1C3IPuAu8B/kloaw=;
+        s=default; t=1572904432;
+        bh=3csVmTOHNGTB+c9xUv/fHEeweHnvr5OV6v+ydEEUMDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WE35N7c0cIFxG876U3NWyZI25S5gydTOVy0Z4TU3M+xDh7pSx9z2lO3HegFDrUggu
-         qhQq+uSgDV36oLlQOP+4eZ6FHoxp7a+xr4PEqcpMBcaVo/dNs8NALBRsdXXdiZJEgt
-         TJpDXOemJyQSdH4VKCcCi+RWvN6n17J1z+Z2V3W8=
+        b=OFFw9X9TRR7WG3WhWpHH4xN134/26T8ejAbJ/z27+TNWjC8lLtSTHm65m8HWUdH58
+         qhxbPPABeGIf6Sf0qVOwxwioRRwIxGRlf7XhCvq0w1vsh1PQrYJftkvSVyCzyUcrQh
+         Mf4GkpomPVyQHAT/jn1IwWeEgC7MDqBiLvBFgg2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 055/163] riscv: avoid sending a SIGTRAP to a user thread trapped in WARN()
+Subject: [PATCH 4.14 07/95] scsi: lpfc: Fix a duplicate 0711 log message number.
 Date:   Mon,  4 Nov 2019 22:44:05 +0100
-Message-Id: <20191104212144.120530569@linuxfoundation.org>
+Message-Id: <20191104212041.565874080@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vincent Chen <vincent.chen@sifive.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit e0c0fc18f10d5080cddde0e81505fd3e952c20c4 ]
+[ Upstream commit 2c4c91415a05677acc5c8131a5eb472d4aa96ae1 ]
 
-On RISC-V, when the kernel runs code on behalf of a user thread, and the
-kernel executes a WARN() or WARN_ON(), the user thread will be sent
-a bogus SIGTRAP.  Fix the RISC-V kernel code to not send a SIGTRAP when
-a WARN()/WARN_ON() is executed.
+Renumber one of the 0711 log messages so there isn't a duplication.
 
-Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-[paul.walmsley@sifive.com: fixed subject]
-Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/traps.c | 2 +-
+ drivers/scsi/lpfc/lpfc_scsi.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 055a937aca70a..82f42a55451eb 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -134,7 +134,7 @@ asmlinkage void do_trap_break(struct pt_regs *regs)
- 			break;
- 		case BUG_TRAP_TYPE_WARN:
- 			regs->sepc += get_break_insn_length(regs->sepc);
--			break;
-+			return;
- 		case BUG_TRAP_TYPE_BUG:
- #endif /* CONFIG_GENERIC_BUG */
- 		default:
+diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
+index 4ade13d72deb3..07cb671bb8550 100644
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -4152,7 +4152,7 @@ lpfc_scsi_cmd_iocb_cmpl(struct lpfc_hba *phba, struct lpfc_iocbq *pIocbIn,
+ 	/* If pCmd was set to NULL from abort path, do not call scsi_done */
+ 	if (xchg(&lpfc_cmd->pCmd, NULL) == NULL) {
+ 		lpfc_printf_vlog(vport, KERN_INFO, LOG_FCP,
+-				 "0711 FCP cmd already NULL, sid: 0x%06x, "
++				 "5688 FCP cmd already NULL, sid: 0x%06x, "
+ 				 "did: 0x%06x, oxid: 0x%04x\n",
+ 				 vport->fc_myDID,
+ 				 (pnode) ? pnode->nlp_DID : 0,
 -- 
 2.20.1
 
