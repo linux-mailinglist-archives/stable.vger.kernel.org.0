@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99600EEBC1
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:51:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B82FFEEB70
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729760AbfKDVuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:50:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43330 "EHLO mail.kernel.org"
+        id S1729775AbfKDVr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:47:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729672AbfKDVus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:50:48 -0500
+        id S1729829AbfKDVr4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:47:56 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D0C8214D9;
-        Mon,  4 Nov 2019 21:50:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8E45214D9;
+        Mon,  4 Nov 2019 21:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904247;
-        bh=uhc6qrmgYf8tNuiZPGZcsbbrTbtSfMBBHflqUUXRHqw=;
+        s=default; t=1572904075;
+        bh=WO055rew6vXiNWAIz24yB6BtLbtJIvjJYo9zKPqhmYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ivotsvRO09tlRs7Kk7hOEM5LIotbQFFYfNl3rXxxV4IJqRg8jJoT9azCVhPIXXgPW
-         KCCVQqAoXJC7nCQidocJlxWQL/Ugh/RnOyuGn5vCnC/tAUtYSKra5EZVP020yn78aZ
-         vZuha/uZwagthCvnf5z9k/uafg+OoDqTSvSRKg8c=
+        b=ERm8bkWN+r/BlV2eYk1ahD9GoQa/yhzp/YJuJTvbsBSjfTzH5qwOonQdDySEHJ0yM
+         cUP8OXWZpt73quxWSjCsaaiJckhQ1I5YWl39CXMU3KVmHREeXN1W486En/RIbc/Fyp
+         gcbPpdUhQkdbnK4GCJRJ/z3TTR+5Ku3ym+4MH7dk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Austin Kim <austindh.kim@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 19/62] fs: cifs: mute -Wunused-const-variable message
-Date:   Mon,  4 Nov 2019 22:44:41 +0100
-Message-Id: <20191104211919.896053353@linuxfoundation.org>
+Subject: [PATCH 4.4 12/46] RDMA/iwcm: Fix a lock inversion issue
+Date:   Mon,  4 Nov 2019 22:44:43 +0100
+Message-Id: <20191104211841.834198931@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit dd19c106a36690b47bb1acc68372f2b472b495b8 ]
+[ Upstream commit b66f31efbdad95ec274345721d99d1d835e6de01 ]
 
-After 'Initial git repository build' commit,
-'mapping_table_ERRHRD' variable has not been used.
+This patch fixes the lock inversion complaint:
 
-So 'mapping_table_ERRHRD' const variable could be removed
-to mute below warning message:
+============================================
+WARNING: possible recursive locking detected
+5.3.0-rc7-dbg+ #1 Not tainted
+--------------------------------------------
+kworker/u16:6/171 is trying to acquire lock:
+00000000035c6e6c (&id_priv->handler_mutex){+.+.}, at: rdma_destroy_id+0x78/0x4a0 [rdma_cm]
 
-   fs/cifs/netmisc.c:120:40: warning: unused variable 'mapping_table_ERRHRD' [-Wunused-const-variable]
-   static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
-                                           ^
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+but task is already holding lock:
+00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&id_priv->handler_mutex);
+  lock(&id_priv->handler_mutex);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+3 locks held by kworker/u16:6/171:
+ #0: 00000000e2eaa773 ((wq_completion)iw_cm_wq){+.+.}, at: process_one_work+0x472/0xac0
+ #1: 000000001efd357b ((work_completion)(&work->work)#3){+.+.}, at: process_one_work+0x476/0xac0
+ #2: 00000000bc7c307d (&id_priv->handler_mutex){+.+.}, at: iw_conn_req_handler+0x151/0x680 [rdma_cm]
+
+stack backtrace:
+CPU: 3 PID: 171 Comm: kworker/u16:6 Not tainted 5.3.0-rc7-dbg+ #1
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Workqueue: iw_cm_wq cm_work_handler [iw_cm]
+Call Trace:
+ dump_stack+0x8a/0xd6
+ __lock_acquire.cold+0xe1/0x24d
+ lock_acquire+0x106/0x240
+ __mutex_lock+0x12e/0xcb0
+ mutex_lock_nested+0x1f/0x30
+ rdma_destroy_id+0x78/0x4a0 [rdma_cm]
+ iw_conn_req_handler+0x5c9/0x680 [rdma_cm]
+ cm_work_handler+0xe62/0x1100 [iw_cm]
+ process_one_work+0x56d/0xac0
+ worker_thread+0x7a/0x5d0
+ kthread+0x1bc/0x210
+ ret_from_fork+0x24/0x30
+
+This is not a bug as there are actually two lock classes here.
+
+Link: https://lore.kernel.org/r/20190930231707.48259-3-bvanassche@acm.org
+Fixes: de910bd92137 ("RDMA/cma: Simplify locking needed for serialization of callbacks")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/netmisc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/infiniband/core/cma.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/netmisc.c b/fs/cifs/netmisc.c
-index cc88f4f0325ef..bed9733302279 100644
---- a/fs/cifs/netmisc.c
-+++ b/fs/cifs/netmisc.c
-@@ -130,10 +130,6 @@ static const struct smb_to_posix_error mapping_table_ERRSRV[] = {
- 	{0, 0}
- };
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 1454290078def..8ad9c6b04769d 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1976,9 +1976,10 @@ static int iw_conn_req_handler(struct iw_cm_id *cm_id,
+ 		conn_id->cm_id.iw = NULL;
+ 		cma_exch(conn_id, RDMA_CM_DESTROYING);
+ 		mutex_unlock(&conn_id->handler_mutex);
++		mutex_unlock(&listen_id->handler_mutex);
+ 		cma_deref_id(conn_id);
+ 		rdma_destroy_id(&conn_id->id);
+-		goto out;
++		return ret;
+ 	}
  
--static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
--	{0, 0}
--};
--
- /*
-  * Convert a string containing text IPv4 or IPv6 address to binary form.
-  *
+ 	mutex_unlock(&conn_id->handler_mutex);
 -- 
 2.20.1
 
