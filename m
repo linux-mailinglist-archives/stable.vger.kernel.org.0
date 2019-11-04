@@ -2,49 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ED88EEE7B
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E77D0EEF40
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390057AbfKDWPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:15:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38776 "EHLO mail.kernel.org"
+        id S2388124AbfKDV70 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:59:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388851AbfKDWGo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:06:44 -0500
+        id S2388044AbfKDV7Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:59:25 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EF71217F4;
-        Mon,  4 Nov 2019 22:06:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4492217F5;
+        Mon,  4 Nov 2019 21:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905203;
-        bh=jn36PS6JD/UCan94jV0PXlMdlJkaCs61c+4OM1G1KZo=;
+        s=default; t=1572904764;
+        bh=CijPseug8WjvqSM9u163BFI5BKbNbejSayzarGviZq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iHORfobpQSOBnICn5WOowlXS6OseSUT38JZv4LxOSNpDYK6tF8KrpDy8JlQUMs2+E
-         hoNSFI01iWz5IYGMQ0W+EqDrBhEZ26QMe5XHKczK7gVFnsKa588Cv01MbSISFJ3ACM
-         9eAEtjzpcbCrOK1gb0OTV00Gpq+ud0XRtTttyc4A=
+        b=EnwW2OdxQZP3bATwVc2JUnLuzgzZ1jFPjGqGK4hXOrH7gVtkdkTNpJZSacGlnAI+c
+         mPwX711fBTDdQ4o/uTO41lhyIF5+OFZvrKnnOlvW2yByE4N4avgUKMmrcdIP8vowL1
+         3Iqm6ErmuYrmSbOknmeHP5ELJ79glUiFMPSeaJtA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phil Auld <pauld@redhat.com>,
-        Xuewei Zhang <xueweiz@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Anton Blanchard <anton@ozlabs.org>,
-        Ben Segall <bsegall@google.com>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mel Gorman <mgorman@suse.de>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 065/163] sched/fair: Scale bandwidth quota and period without losing quota/period ratio precision
+        stable@vger.kernel.org,
+        Steve MacLean <Steve.MacLean@Microsoft.com>,
+        Brian Robbins <brianrob@microsoft.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Eric Saint-Etienne <eric.saint.etienne@oracle.com>,
+        John Keeping <john@metanate.com>,
+        John Salem <josalem@microsoft.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Tom McDonald <thomas.mcdonald@microsoft.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 062/149] perf map: Fix overlapped map handling
 Date:   Mon,  4 Nov 2019 22:44:15 +0100
-Message-Id: <20191104212144.712060978@linuxfoundation.org>
+Message-Id: <20191104212141.108569610@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,109 +60,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuewei Zhang <xueweiz@google.com>
+From: Steve MacLean <Steve.MacLean@microsoft.com>
 
-[ Upstream commit 4929a4e6faa0f13289a67cae98139e727f0d4a97 ]
+[ Upstream commit ee212d6ea20887c0ef352be8563ca13dbf965906 ]
 
-The quota/period ratio is used to ensure a child task group won't get
-more bandwidth than the parent task group, and is calculated as:
+Whenever an mmap/mmap2 event occurs, the map tree must be updated to add a new
+entry. If a new map overlaps a previous map, the overlapped section of the
+previous map is effectively unmapped, but the non-overlapping sections are
+still valid.
 
-  normalized_cfs_quota() = [(quota_us << 20) / period_us]
+maps__fixup_overlappings() is responsible for creating any new map entries from
+the previously overlapped map. It optionally creates a before and an after map.
 
-If the quota/period ratio was changed during this scaling due to
-precision loss, it will cause inconsistency between parent and child
-task groups.
+When creating the after map the existing code failed to adjust the map.pgoff.
+This meant the new after map would incorrectly calculate the file offset
+for the ip. This results in incorrect symbol name resolution for any ip in the
+after region.
 
-See below example:
+Make maps__fixup_overlappings() correctly populate map.pgoff.
 
-A userspace container manager (kubelet) does three operations:
+Add an assert that new mapping matches old mapping at the beginning of
+the after map.
 
- 1) Create a parent cgroup, set quota to 1,000us and period to 10,000us.
- 2) Create a few children cgroups.
- 3) Set quota to 1,000us and period to 10,000us on a child cgroup.
+Committer-testing:
 
-These operations are expected to succeed. However, if the scaling of
-147/128 happens before step 3, quota and period of the parent cgroup
-will be changed:
+Validated correct parsing of libcoreclr.so symbols from .NET Core 3.0 preview9
+(which didn't strip symbols).
 
-  new_quota: 1148437ns,   1148us
- new_period: 11484375ns, 11484us
+Preparation:
 
-And when step 3 comes in, the ratio of the child cgroup will be
-104857, which will be larger than the parent cgroup ratio (104821),
-and will fail.
+  ~/dotnet3.0-preview9/dotnet new webapi -o perfSymbol
+  cd perfSymbol
+  ~/dotnet3.0-preview9/dotnet publish
+  perf record ~/dotnet3.0-preview9/dotnet \
+      bin/Debug/netcoreapp3.0/publish/perfSymbol.dll
+  ^C
 
-Scaling them by a factor of 2 will fix the problem.
+Before:
 
-Tested-by: Phil Auld <pauld@redhat.com>
-Signed-off-by: Xuewei Zhang <xueweiz@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Phil Auld <pauld@redhat.com>
-Cc: Anton Blanchard <anton@ozlabs.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mel Gorman <mgorman@suse.de>
+  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
+     grep libcoreclr.so | head -n 4
+        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
+            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
+            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
+        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
+            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
+            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
+        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
+            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
+            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
+        dotnet  1907 373352.705249:     250000 cpu-clock: \
+             7fe6159a1f99 [unknown] \
+             (.../3.0.0-preview9-19423-09/libcoreclr.so)
+
+After:
+
+  perf script --show-mmap-events 2>&1 | grep -e MMAP -e unknown |\
+     grep libcoreclr.so | head -n 4
+        dotnet  1907 373352.698780: PERF_RECORD_MMAP2 1907/1907: \
+            [0x7fe615726000(0x768000) @ 0 08:02 5510620 765057155]: \
+            r-xp .../3.0.0-preview9-19423-09/libcoreclr.so
+        dotnet  1907 373352.701091: PERF_RECORD_MMAP2 1907/1907: \
+            [0x7fe615974000(0x1000) @ 0x24e000 08:02 5510620 765057155]: \
+            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
+        dotnet  1907 373352.701241: PERF_RECORD_MMAP2 1907/1907: \
+            [0x7fe615c42000(0x1000) @ 0x51c000 08:02 5510620 765057155]: \
+            rwxp .../3.0.0-preview9-19423-09/libcoreclr.so
+
+All the [unknown] symbols were resolved.
+
+Signed-off-by: Steve MacLean <Steve.MacLean@Microsoft.com>
+Tested-by: Brian Robbins <brianrob@microsoft.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Eric Saint-Etienne <eric.saint.etienne@oracle.com>
+Cc: John Keeping <john@metanate.com>
+Cc: John Salem <josalem@microsoft.com>
+Cc: Leo Yan <leo.yan@linaro.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Fixes: 2e8e19226398 ("sched/fair: Limit sched_cfs_period_timer() loop to avoid hard lockup")
-Link: https://lkml.kernel.org/r/20191004001243.140897-1-xueweiz@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Tom McDonald <thomas.mcdonald@microsoft.com>
+Link: http://lore.kernel.org/lkml/BN8PR21MB136270949F22A6A02335C238F7800@BN8PR21MB1362.namprd21.prod.outlook.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 36 ++++++++++++++++++++++--------------
- 1 file changed, 22 insertions(+), 14 deletions(-)
+ tools/perf/util/map.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 86cfc5d5129ce..16b5d29bd7300 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4995,20 +4995,28 @@ static enum hrtimer_restart sched_cfs_period_timer(struct hrtimer *timer)
- 		if (++count > 3) {
- 			u64 new, old = ktime_to_ns(cfs_b->period);
+diff --git a/tools/perf/util/map.c b/tools/perf/util/map.c
+index 6a6929f208b4d..1117ab86ebd34 100644
+--- a/tools/perf/util/map.c
++++ b/tools/perf/util/map.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include "symbol.h"
++#include <assert.h>
+ #include <errno.h>
+ #include <inttypes.h>
+ #include <limits.h>
+@@ -751,6 +752,8 @@ static int maps__fixup_overlappings(struct maps *maps, struct map *map, FILE *fp
+ 			}
  
--			new = (old * 147) / 128; /* ~115% */
--			new = min(new, max_cfs_quota_period);
--
--			cfs_b->period = ns_to_ktime(new);
--
--			/* since max is 1s, this is limited to 1e9^2, which fits in u64 */
--			cfs_b->quota *= new;
--			cfs_b->quota = div64_u64(cfs_b->quota, old);
--
--			pr_warn_ratelimited(
--	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us %lld, cfs_quota_us = %lld)\n",
--				smp_processor_id(),
--				div_u64(new, NSEC_PER_USEC),
--				div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			/*
-+			 * Grow period by a factor of 2 to avoid losing precision.
-+			 * Precision loss in the quota/period ratio can cause __cfs_schedulable
-+			 * to fail.
-+			 */
-+			new = old * 2;
-+			if (new < max_cfs_quota_period) {
-+				cfs_b->period = ns_to_ktime(new);
-+				cfs_b->quota *= 2;
-+
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, scaling up (new cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(new, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			} else {
-+				pr_warn_ratelimited(
-+	"cfs_period_timer[cpu%d]: period too short, but cannot scale up without losing precision (cfs_period_us = %lld, cfs_quota_us = %lld)\n",
-+					smp_processor_id(),
-+					div_u64(old, NSEC_PER_USEC),
-+					div_u64(cfs_b->quota, NSEC_PER_USEC));
-+			}
- 
- 			/* reset count so we don't come right back in here */
- 			count = 0;
+ 			after->start = map->end;
++			after->pgoff += map->end - pos->start;
++			assert(pos->map_ip(pos, map->end) == after->map_ip(after, map->end));
+ 			__map_groups__insert(pos->groups, after);
+ 			if (verbose >= 2 && !use_browser)
+ 				map__fprintf(after, fp);
 -- 
 2.20.1
 
