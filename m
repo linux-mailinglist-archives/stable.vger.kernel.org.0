@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D52DAEEF52
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4325FEED59
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388513AbfKDWU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:20:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56854 "EHLO mail.kernel.org"
+        id S2389867AbfKDWFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:05:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388271AbfKDV7g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:59:36 -0500
+        id S2388846AbfKDWFo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:05:44 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09E3620650;
-        Mon,  4 Nov 2019 21:59:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 887B82084D;
+        Mon,  4 Nov 2019 22:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904775;
-        bh=uhPeJNd+u49dcc0yqvWhoBEO7i98kn3a/Loq3BHxCWo=;
+        s=default; t=1572905143;
+        bh=rILOjpaj2kL3DGWF/fdbZPBgZtSODrqfT0YUIoUAW/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WhniwCqQYvJ1cq3XS/0KzL1RoYDtLZcC2aZrEJgW9D/HsrzL3/SDdg3USGqeFPWN
-         f5YD97z5v+hvhM+TS72zCW9YLdWC/bguToUjvzxhiSs4aHCEkAlTE5BC5YbSGq12bs
-         iovA2oU2mrZbhniQ3pq4BpUX0kcUlfTbkFsGaGAU=
+        b=sl1xed2ptq7P8t8Q2JGnX/sNpjuhppLleIOSjjjAzU0XrEJ6SfqBB0boIY7yl+dkL
+         LaZPpEas/FRMvNjLj8fzBwnNOlbpChs7FcYxvjw/ZL5iciIBpABRTkz10+6A6LR01I
+         Y0vrVSMdL+chAx4ih0xQ22H75D0jHFpBSrQUStK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Artemy Kovalyov <artemyko@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 039/149] usb: dwc3: gadget: clear DWC3_EP_TRANSFER_STARTED on cmd complete
+Subject: [PATCH 5.3 042/163] RDMA/mlx5: Add missing synchronize_srcu() for MW cases
 Date:   Mon,  4 Nov 2019 22:43:52 +0100
-Message-Id: <20191104212138.540612440@linuxfoundation.org>
+Message-Id: <20191104212143.315607617@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,205 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felipe Balbi <felipe.balbi@linux.intel.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit acbfa6c26f21a18830ee064b588c92334305b6af ]
+[ Upstream commit 0417791536ae1e28d7f0418f1d20048ec4d3c6cf ]
 
-We must wait until End Transfer completes in order to clear
-DWC3_EP_TRANSFER_STARTED, otherwise we may confuse the driver.
+While MR uses live as the SRCU 'update', the MW case uses the xarray
+directly, xa_erase() causes the MW to become inaccessible to the pagefault
+thread.
 
-This patch is in preparation to fix a rare race condition that happens
-upon Disconnect Interrupt.
+Thus whenever a MW is removed from the xarray we must synchronize_srcu()
+before freeing it.
 
-Tested-by: Thinh Nguyen <thinhn@synopsys.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+This must be done before freeing the mkey as re-use of the mkey while the
+pagefault thread is using the stale mkey is undesirable.
+
+Add the missing synchronizes to MW and DEVX indirect mkey and delete the
+bogus protection against double destroy in mlx5_core_destroy_mkey()
+
+Fixes: 534fd7aac56a ("IB/mlx5: Manage indirection mkey upon DEVX flow for ODP")
+Fixes: 6aec21f6a832 ("IB/mlx5: Page faults handling infrastructure")
+Link: https://lore.kernel.org/r/20191001153821.23621-7-jgg@ziepe.ca
+Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 19 +++++--------------
- 1 file changed, 5 insertions(+), 14 deletions(-)
+ drivers/infiniband/hw/mlx5/devx.c            | 58 ++++++--------------
+ drivers/infiniband/hw/mlx5/mlx5_ib.h         |  1 -
+ drivers/infiniband/hw/mlx5/mr.c              | 21 +++++--
+ drivers/net/ethernet/mellanox/mlx5/core/mr.c |  8 +--
+ 4 files changed, 33 insertions(+), 55 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 7b0957c530485..54de732550648 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -375,19 +375,9 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index af5bbb35c0589..ef7ba0133d28a 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -1275,29 +1275,6 @@ static int devx_handle_mkey_create(struct mlx5_ib_dev *dev,
+ 	return 0;
+ }
  
- 	trace_dwc3_gadget_ep_cmd(dep, cmd, params, cmd_status);
+-static void devx_free_indirect_mkey(struct rcu_head *rcu)
+-{
+-	kfree(container_of(rcu, struct devx_obj, devx_mr.rcu));
+-}
+-
+-/* This function to delete from the radix tree needs to be called before
+- * destroying the underlying mkey. Otherwise a race might occur in case that
+- * other thread will get the same mkey before this one will be deleted,
+- * in that case it will fail via inserting to the tree its own data.
+- *
+- * Note:
+- * An error in the destroy is not expected unless there is some other indirect
+- * mkey which points to this one. In a kernel cleanup flow it will be just
+- * destroyed in the iterative destruction call. In a user flow, in case
+- * the application didn't close in the expected order it's its own problem,
+- * the mkey won't be part of the tree, in both cases the kernel is safe.
+- */
+-static void devx_cleanup_mkey(struct devx_obj *obj)
+-{
+-	xa_erase(&obj->ib_dev->mdev->priv.mkey_table,
+-		 mlx5_base_mkey(obj->devx_mr.mmkey.key));
+-}
+-
+ static void devx_cleanup_subscription(struct mlx5_ib_dev *dev,
+ 				      struct devx_event_subscription *sub)
+ {
+@@ -1339,8 +1316,16 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
+ 	int ret;
  
--	if (ret == 0) {
--		switch (DWC3_DEPCMD_CMD(cmd)) {
--		case DWC3_DEPCMD_STARTTRANSFER:
--			dep->flags |= DWC3_EP_TRANSFER_STARTED;
--			dwc3_gadget_ep_get_transfer_index(dep);
--			break;
--		case DWC3_DEPCMD_ENDTRANSFER:
--			dep->flags &= ~DWC3_EP_TRANSFER_STARTED;
--			break;
--		default:
--			/* nothing */
--			break;
--		}
-+	if (ret == 0 && DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
-+		dep->flags |= DWC3_EP_TRANSFER_STARTED;
-+		dwc3_gadget_ep_get_transfer_index(dep);
- 	}
+ 	dev = mlx5_udata_to_mdev(&attrs->driver_udata);
+-	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY)
+-		devx_cleanup_mkey(obj);
++	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
++		/*
++		 * The pagefault_single_data_segment() does commands against
++		 * the mmkey, we must wait for that to stop before freeing the
++		 * mkey, as another allocation could get the same mkey #.
++		 */
++		xa_erase(&obj->ib_dev->mdev->priv.mkey_table,
++			 mlx5_base_mkey(obj->devx_mr.mmkey.key));
++		synchronize_srcu(&dev->mr_srcu);
++	}
  
- 	if (unlikely(susphy)) {
-@@ -2417,7 +2407,8 @@ static void dwc3_endpoint_interrupt(struct dwc3 *dwc,
- 		cmd = DEPEVT_PARAMETER_CMD(event->parameters);
+ 	if (obj->flags & DEVX_OBJ_FLAGS_DCT)
+ 		ret = mlx5_core_destroy_dct(obj->ib_dev->mdev, &obj->core_dct);
+@@ -1359,12 +1344,6 @@ static int devx_obj_cleanup(struct ib_uobject *uobject,
+ 		devx_cleanup_subscription(dev, sub_entry);
+ 	mutex_unlock(&devx_event_table->event_xa_lock);
  
- 		if (cmd == DWC3_DEPCMD_ENDTRANSFER) {
--			dep->flags &= ~DWC3_EP_END_TRANSFER_PENDING;
-+			dep->flags &= ~(DWC3_EP_END_TRANSFER_PENDING |
-+					DWC3_EP_TRANSFER_STARTED);
- 			dwc3_gadget_ep_cleanup_cancelled_requests(dep);
- 		}
- 		break;
+-	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
+-		call_srcu(&dev->mr_srcu, &obj->devx_mr.rcu,
+-			  devx_free_indirect_mkey);
+-		return ret;
+-	}
+-
+ 	kfree(obj);
+ 	return ret;
+ }
+@@ -1468,26 +1447,21 @@ static int UVERBS_HANDLER(MLX5_IB_METHOD_DEVX_OBJ_CREATE)(
+ 				   &obj_id);
+ 	WARN_ON(obj->dinlen > MLX5_MAX_DESTROY_INBOX_SIZE_DW * sizeof(u32));
+ 
+-	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
+-		err = devx_handle_mkey_indirect(obj, dev, cmd_in, cmd_out);
+-		if (err)
+-			goto obj_destroy;
+-	}
+-
+ 	err = uverbs_copy_to(attrs, MLX5_IB_ATTR_DEVX_OBJ_CREATE_CMD_OUT, cmd_out, cmd_out_len);
+ 	if (err)
+-		goto err_copy;
++		goto obj_destroy;
+ 
+ 	if (opcode == MLX5_CMD_OP_CREATE_GENERAL_OBJECT)
+ 		obj_type = MLX5_GET(general_obj_in_cmd_hdr, cmd_in, obj_type);
+-
+ 	obj->obj_id = get_enc_obj_id(opcode | obj_type << 16, obj_id);
+ 
++	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY) {
++		err = devx_handle_mkey_indirect(obj, dev, cmd_in, cmd_out);
++		if (err)
++			goto obj_destroy;
++	}
+ 	return 0;
+ 
+-err_copy:
+-	if (obj->flags & DEVX_OBJ_FLAGS_INDIRECT_MKEY)
+-		devx_cleanup_mkey(obj);
+ obj_destroy:
+ 	if (obj->flags & DEVX_OBJ_FLAGS_DCT)
+ 		mlx5_core_destroy_dct(obj->ib_dev->mdev, &obj->core_dct);
+diff --git a/drivers/infiniband/hw/mlx5/mlx5_ib.h b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+index 9ae587b74b121..43c7353b98123 100644
+--- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
++++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+@@ -638,7 +638,6 @@ struct mlx5_ib_mw {
+ struct mlx5_ib_devx_mr {
+ 	struct mlx5_core_mkey	mmkey;
+ 	int			ndescs;
+-	struct rcu_head		rcu;
+ };
+ 
+ struct mlx5_ib_umr_context {
+diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
+index 96c8a6835592d..c15d05f61cc7b 100644
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -1970,14 +1970,25 @@ free:
+ 
+ int mlx5_ib_dealloc_mw(struct ib_mw *mw)
+ {
++	struct mlx5_ib_dev *dev = to_mdev(mw->device);
+ 	struct mlx5_ib_mw *mmw = to_mmw(mw);
+ 	int err;
+ 
+-	err =  mlx5_core_destroy_mkey((to_mdev(mw->device))->mdev,
+-				      &mmw->mmkey);
+-	if (!err)
+-		kfree(mmw);
+-	return err;
++	if (IS_ENABLED(CONFIG_INFINIBAND_ON_DEMAND_PAGING)) {
++		xa_erase(&dev->mdev->priv.mkey_table,
++			 mlx5_base_mkey(mmw->mmkey.key));
++		/*
++		 * pagefault_single_data_segment() may be accessing mmw under
++		 * SRCU if the user bound an ODP MR to this MW.
++		 */
++		synchronize_srcu(&dev->mr_srcu);
++	}
++
++	err = mlx5_core_destroy_mkey(dev->mdev, &mmw->mmkey);
++	if (err)
++		return err;
++	kfree(mmw);
++	return 0;
+ }
+ 
+ int mlx5_ib_check_mr_status(struct ib_mr *ibmr, u32 check_mask,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/mr.c b/drivers/net/ethernet/mellanox/mlx5/core/mr.c
+index 9231b39d18b21..c501bf2a02521 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/mr.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/mr.c
+@@ -112,17 +112,11 @@ int mlx5_core_destroy_mkey(struct mlx5_core_dev *dev,
+ 	u32 out[MLX5_ST_SZ_DW(destroy_mkey_out)] = {0};
+ 	u32 in[MLX5_ST_SZ_DW(destroy_mkey_in)]   = {0};
+ 	struct xarray *mkeys = &dev->priv.mkey_table;
+-	struct mlx5_core_mkey *deleted_mkey;
+ 	unsigned long flags;
+ 
+ 	xa_lock_irqsave(mkeys, flags);
+-	deleted_mkey = __xa_erase(mkeys, mlx5_base_mkey(mkey->key));
++	__xa_erase(mkeys, mlx5_base_mkey(mkey->key));
+ 	xa_unlock_irqrestore(mkeys, flags);
+-	if (!deleted_mkey) {
+-		mlx5_core_dbg(dev, "failed xarray delete of mkey 0x%x\n",
+-			      mlx5_base_mkey(mkey->key));
+-		return -ENOENT;
+-	}
+ 
+ 	MLX5_SET(destroy_mkey_in, in, opcode, MLX5_CMD_OP_DESTROY_MKEY);
+ 	MLX5_SET(destroy_mkey_in, in, mkey_index, mlx5_mkey_to_idx(mkey->key));
 -- 
 2.20.1
 
