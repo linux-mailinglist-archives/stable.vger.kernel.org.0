@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27447EEBF5
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:52:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E488EEBF7
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:52:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730774AbfKDVwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:52:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46028 "EHLO mail.kernel.org"
+        id S1730771AbfKDVwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:52:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730771AbfKDVwb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:52:31 -0500
+        id S1729730AbfKDVwg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:52:36 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73F4E218BA;
-        Mon,  4 Nov 2019 21:52:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FFB121929;
+        Mon,  4 Nov 2019 21:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904350;
-        bh=Z4Vr1KaooQILrkTf+O1jZFGQD7EZq+zGisiVEVxIL2I=;
+        s=default; t=1572904355;
+        bh=jBRD/+1zElxgqwOGIvSiuWSvuOrjlam6KwlDf5mfZdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfB1vDcsopMcnSEDP3TNy0wgJDepEBY51QVs8qvj1S4cd4jS+1l/HfpxC2UFuCnzd
-         Afc21Hs2MzSq5Sy/fzmSBtEE25ZeEooJyjbIzm/7pPbtGX0dAyTQayq0t04/aalDMV
-         e8oYMEH3aJ8QXc6kQ46cUZpU5lDKS/XZ++wRN56c=
+        b=0VVrwPP1Dq4ptGGCP8MuiF4fQ7f8ZEeV0AA6N3NW8og+YSixMjQuwZUJn1ENEzTjp
+         GbTjW3g3Lb+l04fpwCyxBj6aJ1pqx/ovURjEynnoD/c5sf8QXQOIOOQ9PAbnqU4hyS
+         fI2moy56qNiWeim/ug5IH/mIkyVNT+vpnDLPRdHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/95] rtc: pcf8523: set xtal load capacitance from DT
-Date:   Mon,  4 Nov 2019 22:44:15 +0100
-Message-Id: <20191104212046.218667777@linuxfoundation.org>
+Subject: [PATCH 4.14 19/95] ALSA: hda/realtek - Apply ALC294 hp init also for S4 resume
+Date:   Mon,  4 Nov 2019 22:44:17 +0100
+Message-Id: <20191104212047.985825786@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
 References: <20191104212038.056365853@linuxfoundation.org>
@@ -45,88 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Ravnborg <sam@ravnborg.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 189927e719e36ceefbb8037f23d3849e47833aef ]
+[ Upstream commit f6ef4e0e284251ff795c541db1129c84515ed044 ]
 
-Add support for specifying the xtal load capacitance in the DT node.
-The pcf8523 supports xtal load capacitance of 7pF or 12.5pF.
-If the rtc has the wrong configuration the time will
-drift several hours/week.
+The init sequence for ALC294 headphone stuff is needed not only for
+the boot up time but also for the resume from hibernation, where the
+device is switched from the boot kernel without sound driver to the
+suspended image.  Since we record the PM event in the device
+power_state field, we can now recognize the call pattern and apply the
+sequence conditionally.
 
-The driver use the default value 12.5pF.
-
-The DT may specify either 7000fF or 12500fF.
-(The DT uses femto Farad to avoid decimal numbers).
-Other values are warned and the driver uses the default value.
-
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pcf8523.c | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
+ sound/pci/hda/patch_realtek.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pcf8523.c b/drivers/rtc/rtc-pcf8523.c
-index 3c8c6f942e67f..a06792966ea90 100644
---- a/drivers/rtc/rtc-pcf8523.c
-+++ b/drivers/rtc/rtc-pcf8523.c
-@@ -94,8 +94,9 @@ static int pcf8523_voltage_low(struct i2c_client *client)
- 	return !!(value & REG_CONTROL3_BLF);
- }
- 
--static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
-+static int pcf8523_load_capacitance(struct i2c_client *client)
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 5412952557f7a..8d6c5be387362 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -3246,7 +3246,9 @@ static void alc294_init(struct hda_codec *codec)
  {
-+	u32 load;
- 	u8 value;
- 	int err;
+ 	struct alc_spec *spec = codec->spec;
  
-@@ -103,14 +104,24 @@ static int pcf8523_select_capacitance(struct i2c_client *client, bool high)
- 	if (err < 0)
- 		return err;
- 
--	if (!high)
--		value &= ~REG_CONTROL1_CAP_SEL;
--	else
-+	load = 12500;
-+	of_property_read_u32(client->dev.of_node, "quartz-load-femtofarads",
-+			     &load);
-+
-+	switch (load) {
-+	default:
-+		dev_warn(&client->dev, "Unknown quartz-load-femtofarads value: %d. Assuming 12500",
-+			 load);
-+		/* fall through */
-+	case 12500:
- 		value |= REG_CONTROL1_CAP_SEL;
-+		break;
-+	case 7000:
-+		value &= ~REG_CONTROL1_CAP_SEL;
-+		break;
-+	}
- 
- 	err = pcf8523_write(client, REG_CONTROL1, value);
--	if (err < 0)
--		return err;
- 
- 	return err;
- }
-@@ -307,9 +318,10 @@ static int pcf8523_probe(struct i2c_client *client,
- 	if (!pcf)
- 		return -ENOMEM;
- 
--	err = pcf8523_select_capacitance(client, true);
-+	err = pcf8523_load_capacitance(client);
- 	if (err < 0)
--		return err;
-+		dev_warn(&client->dev, "failed to set xtal load capacitance: %d",
-+			 err);
- 
- 	err = pcf8523_set_pm(client, 0);
- 	if (err < 0)
+-	if (!spec->done_hp_init) {
++	/* required only at boot or S4 resume time */
++	if (!spec->done_hp_init ||
++	    codec->core.dev.power.power_state.event == PM_EVENT_RESTORE) {
+ 		alc294_hp_init(codec);
+ 		spec->done_hp_init = true;
+ 	}
 -- 
 2.20.1
 
