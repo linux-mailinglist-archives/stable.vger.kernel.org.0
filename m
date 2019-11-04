@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2360EF081
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 041FEEED93
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388466AbfKDW2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:28:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
+        id S2389388AbfKDWIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:08:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729589AbfKDVsv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:51 -0500
+        id S2390170AbfKDWIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:08:01 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A09F8214D9;
-        Mon,  4 Nov 2019 21:48:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42363205C9;
+        Mon,  4 Nov 2019 22:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904130;
-        bh=NKZrH064zSWHbCkv4ldq9xtQnckfn8tIW6d4IdRtN2M=;
+        s=default; t=1572905280;
+        bh=GzKKrQi05r8rJU/BL3AzUsyM+vQgG8U/4raDE/E8vNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFBiie76ycV2G+1M4q8VqApoykxz4BztrTQuoaKjbI1S5jlOWCIaIBUXwqtWnGxbl
-         oJTg/1tPEvBL5LZmy7sphCw4iZtgSje8nPaSaWN8jYDf2CA3bGHalizytvcXqZ+iMW
-         6xoEXltsyq4r75pcgeg+K9N2dHLHvf6eXShWUQSg=
+        b=f40hKZ/XS6KUHWu8YDZtBFdBT8Z/absn8wrvTZttKkTYOpBFOG86j1wrbGsHrIG44
+         fpxKkAq8j5FUC4YE6GUwLdic3okzcrxmYlbzpWhDauXw3u3xZeNq72YJDqg8OUYJZ/
+         PQVuZN1OZeVyE3+I0nnIl9eNpqZCZxnwBMPd+9Yw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Kujau <lists@nerdbynature.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Alexander Kapshuk <alexander.kapshuk@gmail.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Genki Sky <sky@genki.is>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Jeffrey Hugo <jeffrey.l.hugo@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 07/46] scripts/setlocalversion: Improve -dirty check with git-status --no-optional-locks
-Date:   Mon,  4 Nov 2019 22:44:38 +0100
-Message-Id: <20191104211837.762505177@linuxfoundation.org>
+Subject: [PATCH 5.3 089/163] arm64: dts: qcom: Add Asus NovaGo TP370QL
+Date:   Mon,  4 Nov 2019 22:44:39 +0100
+Message-Id: <20191104212146.656585449@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,66 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
 
-[ Upstream commit ff64dd4857303dd5550faed9fd598ac90f0f2238 ]
+[ Upstream commit 722eb2f65acc4cebeb710fc7cc98f51513e90f1f ]
 
-git-diff-index does not refresh the index for you, so using it for a
-"-dirty" check can give misleading results. Commit 6147b1cf19651
-("scripts/setlocalversion: git: Make -dirty check more robust") tried to
-fix this by switching to git-status, but it overlooked the fact that
-git-status also writes to the .git directory of the source tree, which
-is definitely not kosher for an out-of-tree (O=) build. That is getting
-reverted.
+This adds the initial DT for the Asus NovaGo TP370QL laptop.  Supported
+functionality includes USB (host), microSD-card, keyboard, and trackpad.
 
-Fortunately, git-status now supports avoiding writing to the index via
-the --no-optional-locks flag, as of git 2.14. It still calculates an
-up-to-date index, but it avoids writing it out to the .git directory.
-
-So, let's retry the solution from commit 6147b1cf19651 using this new
-flag first, and if it fails, we assume this is an older version of git
-and just use the old git-diff-index method.
-
-It's hairy to get the 'grep -vq' (inverted matching) correct by stashing
-the output of git-status (you have to be careful about the difference
-betwen "empty stdin" and "blank line on stdin"), so just pipe the output
-directly to grep and use a regex that's good enough for both the
-git-status and git-diff-index version.
-
-Cc: Christian Kujau <lists@nerdbynature.de>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Suggested-by: Alexander Kapshuk <alexander.kapshuk@gmail.com>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Genki Sky <sky@genki.is>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/setlocalversion | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/Makefile             |  1 +
+ .../dts/qcom/msm8998-asus-novago-tp370ql.dts  | 47 +++++++++++++++++++
+ 2 files changed, 48 insertions(+)
+ create mode 100644 arch/arm64/boot/dts/qcom/msm8998-asus-novago-tp370ql.dts
 
-diff --git a/scripts/setlocalversion b/scripts/setlocalversion
-index 966dd3924ea9c..aa28c3f298093 100755
---- a/scripts/setlocalversion
-+++ b/scripts/setlocalversion
-@@ -72,8 +72,16 @@ scm_version()
- 			printf -- '-svn%s' "`git svn find-rev $head`"
- 		fi
- 
--		# Check for uncommitted changes
--		if git diff-index --name-only HEAD | grep -qv "^scripts/package"; then
-+		# Check for uncommitted changes.
-+		# First, with git-status, but --no-optional-locks is only
-+		# supported in git >= 2.14, so fall back to git-diff-index if
-+		# it fails. Note that git-diff-index does not refresh the
-+		# index, so it may give misleading results. See
-+		# git-update-index(1), git-diff-index(1), and git-status(1).
-+		if {
-+			git --no-optional-locks status -uno --porcelain 2>/dev/null ||
-+			git diff-index --name-only HEAD
-+		} | grep -qvE '^(.. )?scripts/package'; then
- 			printf '%s' -dirty
- 		fi
- 
+diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
+index 28695e7c0cc3d..954d75de617ba 100644
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -6,6 +6,7 @@ dtb-$(CONFIG_ARCH_QCOM)	+= msm8916-mtp.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8992-bullhead-rev-101.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8994-angler-rev-101.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8996-mtp.dtb
++dtb-$(CONFIG_ARCH_QCOM)	+= msm8998-asus-novago-tp370ql.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8998-hp-envy-x2.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8998-lenovo-miix-630.dtb
+ dtb-$(CONFIG_ARCH_QCOM)	+= msm8998-mtp.dtb
+diff --git a/arch/arm64/boot/dts/qcom/msm8998-asus-novago-tp370ql.dts b/arch/arm64/boot/dts/qcom/msm8998-asus-novago-tp370ql.dts
+new file mode 100644
+index 0000000000000..db5821be1e2fe
+--- /dev/null
++++ b/arch/arm64/boot/dts/qcom/msm8998-asus-novago-tp370ql.dts
+@@ -0,0 +1,47 @@
++// SPDX-License-Identifier: GPL-2.0
++/* Copyright (c) 2019, Jeffrey Hugo. All rights reserved. */
++
++/dts-v1/;
++
++#include "msm8998-clamshell.dtsi"
++
++/ {
++	model = "Asus NovaGo TP370QL";
++	compatible = "asus,novago-tp370ql", "qcom,msm8998";
++};
++
++&blsp1_i2c6 {
++	status = "okay";
++
++	touchpad@15 {
++		compatible = "hid-over-i2c";
++		interrupt-parent = <&tlmm>;
++		interrupts = <0x7b IRQ_TYPE_LEVEL_LOW>;
++		reg = <0x15>;
++		hid-descr-addr = <0x0001>;
++
++		pinctrl-names = "default";
++		pinctrl-0 = <&touchpad>;
++	};
++
++	keyboard@3a {
++		compatible = "hid-over-i2c";
++		interrupt-parent = <&tlmm>;
++		interrupts = <0x25 IRQ_TYPE_LEVEL_LOW>;
++		reg = <0x3a>;
++		hid-descr-addr = <0x0001>;
++	};
++};
++
++&sdhc2 {
++	cd-gpios = <&tlmm 95 GPIO_ACTIVE_HIGH>;
++};
++
++&tlmm {
++	touchpad: touchpad {
++		config {
++			pins = "gpio123";
++			bias-pull-up;
++		};
++	};
++};
 -- 
 2.20.1
 
