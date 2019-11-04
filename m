@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16FAFEF001
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37B36EECD5
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:01:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730250AbfKDVwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:52:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45158 "EHLO mail.kernel.org"
+        id S2388906AbfKDWAx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:00:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730220AbfKDVwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:52:01 -0500
+        id S2388908AbfKDWAr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:00:47 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF3F82053B;
-        Mon,  4 Nov 2019 21:51:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECFB0214D8;
+        Mon,  4 Nov 2019 22:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904320;
-        bh=6bX3JZ0mNSoPeAZpx5MEgdqiywAKLyT661TKt6eO82w=;
+        s=default; t=1572904845;
+        bh=hPBs8wEL15WhpBtdpduXLOmv9HsrP8W5sGpi4Xp2Jtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qi8cKb0D0ezUspQEsHit3hvrI+aatrdPtFGWxcJLu4CQL07iTfCN1Pe2KG+QiC7dG
-         7WDEA/zoBgwjGOm6wAohSRhBqSev8ucfTmRUspBFYrjdK23lYeFSh+5s2/dvYzABnU
-         tRJtokSxq/WtY+l3COiz+sCR3pseVEjtLhpRvgRk=
+        b=f1U6lODMeQh2GrA/1r+W3ks3kL5BpuZl5ALNlIcOtulGk+oZGxCq9fMecQmfZ7egD
+         PBqIula/Rbtpz5ym+1vp47QcuLT0iEK8U2qGmIJMVgWLCOhSENkisyUYjCllz4VklJ
+         CHHziGCM/8lXa+29vDCdXvlauTwRGUB30EefFTHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia Guo <guojia12@huawei.com>,
-        Yiwen Jiang <jiangyiwen@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Jiri Olsa <jolsa@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 23/62] ocfs2: clear zero in unaligned direct IO
+        Namhyung Kim <namhyung@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 092/149] perf/x86/amd: Change/fix NMI latency mitigation to use a timestamp
 Date:   Mon,  4 Nov 2019 22:44:45 +0100
-Message-Id: <20191104211923.705375566@linuxfoundation.org>
+Message-Id: <20191104212142.909085491@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,91 +52,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Guo <guojia12@huawei.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-[ Upstream commit 7a243c82ea527cd1da47381ad9cd646844f3b693 ]
+[ Upstream commit df4d29732fdad43a51284f826bec3e6ded177540 ]
 
-Unused portion of a part-written fs-block-sized block is not set to zero
-in unaligned append direct write.This can lead to serious data
-inconsistencies.
+It turns out that the NMI latency workaround from commit:
 
-Ocfs2 manage disk with cluster size(for example, 1M), part-written in
-one cluster will change the cluster state from UN-WRITTEN to WRITTEN,
-VFS(function dio_zero_block) doesn't do the cleaning because bh's state
-is not set to NEW in function ocfs2_dio_wr_get_block when we write a
-WRITTEN cluster.  For example, the cluster size is 1M, file size is 8k
-and we direct write from 14k to 15k, then 12k~14k and 15k~16k will
-contain dirty data.
+  6d3edaae16c6 ("x86/perf/amd: Resolve NMI latency issues for active PMCs")
 
-We have to deal with two cases:
- 1.The starting position of direct write is outside the file.
- 2.The starting position of direct write is located in the file.
+ends up being too conservative and results in the perf NMI handler claiming
+NMIs too easily on AMD hardware when the NMI watchdog is active.
 
-We need set bh's state to NEW in the first case.  In the second case, we
-need mapped twice because bh's state of area out file should be set to
-NEW while area in file not.
+This has an impact, for example, on the hpwdt (HPE watchdog timer) module.
+This module can produce an NMI that is used to reset the system. It
+registers an NMI handler for the NMI_UNKNOWN type and relies on the fact
+that nothing has claimed an NMI so that its handler will be invoked when
+the watchdog device produces an NMI. After the referenced commit, the
+hpwdt module is unable to process its generated NMI if the NMI watchdog is
+active, because the current NMI latency mitigation results in the NMI
+being claimed by the perf NMI handler.
 
-[akpm@linux-foundation.org: coding style fixes]
-Link: http://lkml.kernel.org/r/5292e287-8f1a-fd4a-1a14-661e555e0bed@huawei.com
-Signed-off-by: Jia Guo <guojia12@huawei.com>
-Reviewed-by: Yiwen Jiang <jiangyiwen@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Joseph Qi <joseph.qi@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Update the AMD perf NMI latency mitigation workaround to, instead, use a
+window of time. Whenever a PMC is handled in the perf NMI handler, set a
+timestamp which will act as a perf NMI window. Any NMIs arriving within
+that window will be claimed by perf. Anything outside that window will
+not be claimed by perf. The value for the NMI window is set to 100 msecs.
+This is a conservative value that easily covers any NMI latency in the
+hardware. While this still results in a window in which the hpwdt module
+will not receive its NMI, the window is now much, much smaller.
+
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Jerry Hoemann <jerry.hoemann@hpe.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 6d3edaae16c6 ("x86/perf/amd: Resolve NMI latency issues for active PMCs")
+Link: https://lkml.kernel.org/r/Message-ID:
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/aops.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ arch/x86/events/amd/core.c | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
 
-diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index c26d046adaaac..7c20a23c0ed7d 100644
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -2143,13 +2143,30 @@ static int ocfs2_dio_wr_get_block(struct inode *inode, sector_t iblock,
- 	struct ocfs2_dio_write_ctxt *dwc = NULL;
- 	struct buffer_head *di_bh = NULL;
- 	u64 p_blkno;
--	loff_t pos = iblock << inode->i_sb->s_blocksize_bits;
-+	unsigned int i_blkbits = inode->i_sb->s_blocksize_bits;
-+	loff_t pos = iblock << i_blkbits;
-+	sector_t endblk = (i_size_read(inode) - 1) >> i_blkbits;
- 	unsigned len, total_len = bh_result->b_size;
- 	int ret = 0, first_get_block = 0;
+diff --git a/arch/x86/events/amd/core.c b/arch/x86/events/amd/core.c
+index 27ade3cb6482c..defb536aebce2 100644
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -4,12 +4,14 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ #include <linux/delay.h>
++#include <linux/jiffies.h>
+ #include <asm/apicdef.h>
+ #include <asm/nmi.h>
  
- 	len = osb->s_clustersize - (pos & (osb->s_clustersize - 1));
- 	len = min(total_len, len);
+ #include "../perf_event.h"
  
-+	/*
-+	 * bh_result->b_size is count in get_more_blocks according to write
-+	 * "pos" and "end", we need map twice to return different buffer state:
-+	 * 1. area in file size, not set NEW;
-+	 * 2. area out file size, set  NEW.
-+	 *
-+	 *		   iblock    endblk
-+	 * |--------|---------|---------|---------
-+	 * |<-------area in file------->|
-+	 */
+-static DEFINE_PER_CPU(unsigned int, perf_nmi_counter);
++static DEFINE_PER_CPU(unsigned long, perf_nmi_tstamp);
++static unsigned long perf_nmi_window;
+ 
+ static __initconst const u64 amd_hw_cache_event_ids
+ 				[PERF_COUNT_HW_CACHE_MAX]
+@@ -640,11 +642,12 @@ static void amd_pmu_disable_event(struct perf_event *event)
+  * handler when multiple PMCs are active or PMC overflow while handling some
+  * other source of an NMI.
+  *
+- * Attempt to mitigate this by using the number of active PMCs to determine
+- * whether to return NMI_HANDLED if the perf NMI handler did not handle/reset
+- * any PMCs. The per-CPU perf_nmi_counter variable is set to a minimum of the
+- * number of active PMCs or 2. The value of 2 is used in case an NMI does not
+- * arrive at the LAPIC in time to be collapsed into an already pending NMI.
++ * Attempt to mitigate this by creating an NMI window in which un-handled NMIs
++ * received during this window will be claimed. This prevents extending the
++ * window past when it is possible that latent NMIs should be received. The
++ * per-CPU perf_nmi_tstamp will be set to the window end time whenever perf has
++ * handled a counter. When an un-handled NMI is received, it will be claimed
++ * only if arriving within that window.
+  */
+ static int amd_pmu_handle_irq(struct pt_regs *regs)
+ {
+@@ -662,21 +665,19 @@ static int amd_pmu_handle_irq(struct pt_regs *regs)
+ 	handled = x86_pmu_handle_irq(regs);
+ 
+ 	/*
+-	 * If a counter was handled, record the number of possible remaining
+-	 * NMIs that can occur.
++	 * If a counter was handled, record a timestamp such that un-handled
++	 * NMIs will be claimed if arriving within that window.
+ 	 */
+ 	if (handled) {
+-		this_cpu_write(perf_nmi_counter,
+-			       min_t(unsigned int, 2, active));
++		this_cpu_write(perf_nmi_tstamp,
++			       jiffies + perf_nmi_window);
+ 
+ 		return handled;
+ 	}
+ 
+-	if (!this_cpu_read(perf_nmi_counter))
++	if (time_after(jiffies, this_cpu_read(perf_nmi_tstamp)))
+ 		return NMI_DONE;
+ 
+-	this_cpu_dec(perf_nmi_counter);
+-
+ 	return NMI_HANDLED;
+ }
+ 
+@@ -908,6 +909,9 @@ static int __init amd_core_pmu_init(void)
+ 	if (!boot_cpu_has(X86_FEATURE_PERFCTR_CORE))
+ 		return 0;
+ 
++	/* Avoid calulating the value each time in the NMI handler */
++	perf_nmi_window = msecs_to_jiffies(100);
 +
-+	if ((iblock <= endblk) &&
-+	    ((iblock + ((len - 1) >> i_blkbits)) > endblk))
-+		len = (endblk - iblock + 1) << i_blkbits;
-+
- 	mlog(0, "get block of %lu at %llu:%u req %u\n",
- 			inode->i_ino, pos, len, total_len);
- 
-@@ -2233,6 +2250,9 @@ static int ocfs2_dio_wr_get_block(struct inode *inode, sector_t iblock,
- 	if (desc->c_needs_zero)
- 		set_buffer_new(bh_result);
- 
-+	if (iblock > endblk)
-+		set_buffer_new(bh_result);
-+
- 	/* May sleep in end_io. It should not happen in a irq context. So defer
- 	 * it to dio work queue. */
- 	set_buffer_defer_completion(bh_result);
+ 	switch (boot_cpu_data.x86) {
+ 	case 0x15:
+ 		pr_cont("Fam15h ");
 -- 
 2.20.1
 
