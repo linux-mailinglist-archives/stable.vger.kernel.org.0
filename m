@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09BE9EED54
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63178EEE8C
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389850AbfKDWFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:05:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
+        id S2389339AbfKDWFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:05:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389318AbfKDWFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:35 -0500
+        id S2389855AbfKDWFi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:05:38 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D1E321929;
-        Mon,  4 Nov 2019 22:05:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 275202084D;
+        Mon,  4 Nov 2019 22:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905134;
-        bh=rADQ7uRo/1bD2l2NSIcwTk6GrNhK79IgegKRNKf2DhA=;
+        s=default; t=1572905137;
+        bh=ZsYsQjET2eBXHpj8p6+4hCJCBPZ/9D9ILF5vWY4Tb/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJ/biROuY0xDH8RD6tlGMgj1nynrPibCXLFiEly5MuDISIXNWGIdIoiZ2u5nFt6Sn
-         AidvWk9hAAmwPDqZdDv11SB05yZk1imTGZT7Vvu6CS2Ks7zDczK8KsOJoQYdYMX2rl
-         ehqB2LqLte2gp+Lw2Y1bQcpF4nmi1EhbKMQY5ZT0=
+        b=X9OAwlNPp6tIZbR5D+cXiUTUqmdCsic4LPGruLKkLsmSU4aA4nFSJzF+NmHyq3n95
+         dyVvIhztNu6s+/bZOaTr15WYnRq2qxxhf+FQ3khkEhZ9C/wjl+3Qt+iNs2eZ9PS1Ba
+         tifMUKM1xqdQHCRJ0bEUu/hAWcS4ljBA6Z28v48k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Zhang <markz@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
+        stable@vger.kernel.org, Artemy Kovalyov <artemyko@mellanox.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 039/163] RDMA/nldev: Reshuffle the code to avoid need to rebind QP in error path
-Date:   Mon,  4 Nov 2019 22:43:49 +0100
-Message-Id: <20191104212143.134265389@linuxfoundation.org>
+Subject: [PATCH 5.3 040/163] RDMA/mlx5: Do not allow rereg of a ODP MR
+Date:   Mon,  4 Nov 2019 22:43:50 +0100
+Message-Id: <20191104212143.191554020@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
 References: <20191104212140.046021995@linuxfoundation.org>
@@ -45,59 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-[ Upstream commit 594e6c5d41ed2471ab0b90f3f0b66cdf618b7ac9 ]
+[ Upstream commit 880505cfef1d086d18b59d2920eb2160429ffa1f ]
 
-Properly unwind QP counter rebinding in case of failure.
+This code is completely broken, the umem of a ODP MR simply cannot be
+discarded without a lot more locking, nor can an ODP mkey be blithely
+destroyed via destroy_mkey().
 
-Trying to rebind the counter after unbiding it is not going to work
-reliably, move the unbind to the end so it doesn't have to be unwound.
-
-Fixes: b389327df905 ("RDMA/nldev: Allow counter manual mode configration through RDMA netlink")
-Link: https://lore.kernel.org/r/20191002115627.16740-1-leon@kernel.org
-Reviewed-by: Mark Zhang <markz@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 6aec21f6a832 ("IB/mlx5: Page faults handling infrastructure")
+Link: https://lore.kernel.org/r/20191001153821.23621-2-jgg@ziepe.ca
+Reviewed-by: Artemy Kovalyov <artemyko@mellanox.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/nldev.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/mlx5/mr.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
-index 91e2cc9ddb9f8..f42e856f30729 100644
---- a/drivers/infiniband/core/nldev.c
-+++ b/drivers/infiniband/core/nldev.c
-@@ -1787,10 +1787,6 @@ static int nldev_stat_del_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
+diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
+index 3401f5f6792e6..c4ba8838d2c46 100644
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -1423,6 +1423,9 @@ int mlx5_ib_rereg_user_mr(struct ib_mr *ib_mr, int flags, u64 start,
+ 	if (!mr->umem)
+ 		return -EINVAL;
  
- 	cntn = nla_get_u32(tb[RDMA_NLDEV_ATTR_STAT_COUNTER_ID]);
- 	qpn = nla_get_u32(tb[RDMA_NLDEV_ATTR_RES_LQPN]);
--	ret = rdma_counter_unbind_qpn(device, port, qpn, cntn);
--	if (ret)
--		goto err_unbind;
--
- 	if (fill_nldev_handle(msg, device) ||
- 	    nla_put_u32(msg, RDMA_NLDEV_ATTR_PORT_INDEX, port) ||
- 	    nla_put_u32(msg, RDMA_NLDEV_ATTR_STAT_COUNTER_ID, cntn) ||
-@@ -1799,13 +1795,15 @@ static int nldev_stat_del_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
- 		goto err_fill;
- 	}
- 
-+	ret = rdma_counter_unbind_qpn(device, port, qpn, cntn);
-+	if (ret)
-+		goto err_fill;
++	if (is_odp_mr(mr))
++		return -EOPNOTSUPP;
 +
- 	nlmsg_end(msg, nlh);
- 	ib_device_put(device);
- 	return rdma_nl_unicast(msg, NETLINK_CB(skb).portid);
+ 	if (flags & IB_MR_REREG_TRANS) {
+ 		addr = virt_addr;
+ 		len = length;
+@@ -1468,8 +1471,6 @@ int mlx5_ib_rereg_user_mr(struct ib_mr *ib_mr, int flags, u64 start,
+ 		}
  
- err_fill:
--	rdma_counter_bind_qpn(device, port, qpn, cntn);
--err_unbind:
- 	nlmsg_free(msg);
+ 		mr->allocated_from_cache = 0;
+-		if (IS_ENABLED(CONFIG_INFINIBAND_ON_DEMAND_PAGING))
+-			mr->live = 1;
+ 	} else {
+ 		/*
+ 		 * Send a UMR WQE
+@@ -1498,7 +1499,6 @@ int mlx5_ib_rereg_user_mr(struct ib_mr *ib_mr, int flags, u64 start,
+ 
+ 	set_mr_fields(dev, mr, npages, len, access_flags);
+ 
+-	update_odp_mr(mr);
+ 	return 0;
+ 
  err:
- 	ib_device_put(device);
 -- 
 2.20.1
 
