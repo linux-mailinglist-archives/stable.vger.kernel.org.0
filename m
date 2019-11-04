@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B655EEED46
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA5AEEF76
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389771AbfKDWFD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:05:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36096 "EHLO mail.kernel.org"
+        id S2388643AbfKDV5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:57:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389115AbfKDWFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:05:03 -0500
+        id S2388639AbfKDV5p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:57:45 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2AD5205C9;
-        Mon,  4 Nov 2019 22:05:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3767720659;
+        Mon,  4 Nov 2019 21:57:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905102;
-        bh=7mNEQb4odMCK8DC3X0ofHK/HaZhcSp9aEhBH5SILLYY=;
+        s=default; t=1572904664;
+        bh=A+nXIhWOh/hn+hSxK3tP54icEmodpvMjam53PuBkrA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJgTmrPEwJToifcNIBFLXu9vgIcD/wgHjiB4DD/oQzc6mbAghlkF/OeLou3GFRsLT
-         BMTcjLztcncPgaBFjqWpKxY4t32U1rHIlRVWDxjmoY6A6UEfqmi4OLSvbQgcQ95nkO
-         LQ0sQHP6UBgTw7mhcl/p6agILb3/tJrYugoGcGU4=
+        b=wgVu1/Yldh13+mQ7+2F+7mysSOvAUFyoIp4xqy10N/SOmEZwi9xz2mjyeylJMX44J
+         3dkgEboH8I4phKhhD37vVSVsdUJUj7GRpgiBgWd+SANAeAmpw7rQhpHi195cD+YDai
+         BBI4yWCMAklFmBwRZiW+a9wJvt7ZMoj6A2k9JQZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julien Grall <julien.grall@arm.com>,
-        mark.brown@arm.com, Will Deacon <will@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 029/163] arm64: cpufeature: Effectively expose FRINT capability to userspace
+        stable@vger.kernel.org, Rene Wagner <redhatbugzilla@callerid.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 026/149] HID: i2c-hid: Add Odys Winbook 13 to descriptor override
 Date:   Mon,  4 Nov 2019 22:43:39 +0100
-Message-Id: <20191104212142.418176586@linuxfoundation.org>
+Message-Id: <20191104212137.613930080@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Grall <julien.grall@arm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 7230f7e99fecc684180322b056fad3853d1029d3 ]
+[ Upstream commit f8f807441eefddc3c6d8a378421f0ede6361d565 ]
 
-The HWCAP framework will detect a new capability based on the sanitized
-version of the ID registers.
+The Odys Winbook 13 uses a SIPODEV SP1064 touchpad, which does not
+supply descriptors, add this to the DMI descriptor override list, fixing
+the touchpad not working.
 
-Sanitization is based on a whitelist, so any field not described will end
-up to be zeroed.
-
-At the moment, ID_AA64ISAR1_EL1.FRINTTS is not described in
-ftr_id_aa64isar1. This means the field will be zeroed and therefore the
-userspace will not be able to see the HWCAP even if the hardware
-supports the feature.
-
-This can be fixed by describing the field in ftr_id_aa64isar1.
-
-Fixes: ca9503fc9e98 ("arm64: Expose FRINT capabilities to userspace")
-Signed-off-by: Julien Grall <julien.grall@arm.com>
-Cc: mark.brown@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1526312
+Reported-by: Rene Wagner <redhatbugzilla@callerid.de>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpufeature.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index 9323bcc40a58a..cabebf1a79768 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -136,6 +136,7 @@ static const struct arm64_ftr_bits ftr_id_aa64isar0[] = {
+diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+index 89f2976f9c534..fd1b6eea6d2fd 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
++++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
+@@ -346,6 +346,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
+ 		},
+ 		.driver_data = (void *)&sipodev_desc
+ 	},
++	{
++		.ident = "Odys Winbook 13",
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AXDIA International GmbH"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "WINBOOK 13"),
++		},
++		.driver_data = (void *)&sipodev_desc
++	},
+ 	{ }	/* Terminate list */
+ };
  
- static const struct arm64_ftr_bits ftr_id_aa64isar1[] = {
- 	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_SB_SHIFT, 4, 0),
-+	ARM64_FTR_BITS(FTR_VISIBLE, FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_FRINTTS_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE_IF_IS_ENABLED(CONFIG_ARM64_PTR_AUTH),
- 		       FTR_STRICT, FTR_LOWER_SAFE, ID_AA64ISAR1_GPI_SHIFT, 4, 0),
- 	ARM64_FTR_BITS(FTR_VISIBLE_IF_IS_ENABLED(CONFIG_ARM64_PTR_AUTH),
 -- 
 2.20.1
 
