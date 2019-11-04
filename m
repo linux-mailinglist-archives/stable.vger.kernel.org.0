@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 133A4EEF4E
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A807EED84
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388057AbfKDWAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:00:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57866 "EHLO mail.kernel.org"
+        id S2389306AbfKDWHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:07:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388794AbfKDWAQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:00:16 -0500
+        id S2390143AbfKDWHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:07:35 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DA9221744;
-        Mon,  4 Nov 2019 22:00:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EEFCC20650;
+        Mon,  4 Nov 2019 22:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904815;
-        bh=5IFpmLN3JhJf8ksQjkcKwGvyr/g/pPEKDHGq8xP3mCU=;
+        s=default; t=1572905255;
+        bh=PGgvF0Tn5s562vb1roAcOj438Hf3h2TjpqPFiYclW2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BaKqDzIYIxVXWCwzrw1oWt1yOAsIy9XBIGR5K89N+bxuzsQugJYg112uw8VqhOQH
-         7Ndz0hXFW+WMjMliPObZYm0rSm5CD03OjI2VQ3dAExzYN5xzBjniPXQQb44kBwqN8T
-         JBmGjJduq49GLSMf/8/xIljQWlC4MDKdEtBAvj04=
+        b=upvWGSX0dxm2FVYwwMOvgxUa7kLvvTtXPKYbc0YYgyt9nz8mf+WBxXqedln2Gq6tk
+         F6/dY+X4VQ6CD9K+x/KwtstRYwz2dVAz5LvSvM2D31f9mQkjFUCoHtDnK8GYVltbXp
+         kKC4NLv72eo5VjKEj7wM8RSRnzxAw240MA2j0KN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 078/149] gpio: max77620: Use correct unit for debounce times
+Subject: [PATCH 5.3 081/163] s390/uaccess: avoid (false positive) compiler warnings
 Date:   Mon,  4 Nov 2019 22:44:31 +0100
-Message-Id: <20191104212142.090938480@linuxfoundation.org>
+Message-Id: <20191104212146.168181915@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
 
-[ Upstream commit fffa6af94894126994a7600c6f6f09b892e89fa9 ]
+[ Upstream commit 062795fcdcb2d22822fb42644b1d76a8ad8439b3 ]
 
-The gpiod_set_debounce() function takes the debounce time in
-microseconds. Adjust the switch/case values in the MAX77620 GPIO to use
-the correct unit.
+Depending on inlining decisions by the compiler, __get/put_user_fn
+might become out of line. Then the compiler is no longer able to tell
+that size can only be 1,2,4 or 8 due to the check in __get/put_user
+resulting in false positives like
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/20191002122825.3948322-1-thierry.reding@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+./arch/s390/include/asm/uaccess.h: In function ‘__put_user_fn’:
+./arch/s390/include/asm/uaccess.h:113:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  113 |  return rc;
+      |         ^~
+./arch/s390/include/asm/uaccess.h: In function ‘__get_user_fn’:
+./arch/s390/include/asm/uaccess.h:143:9: warning: ‘rc’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  143 |  return rc;
+      |         ^~
+
+These functions are supposed to be always inlined. Mark it as such.
+
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-max77620.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/s390/include/asm/uaccess.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpio-max77620.c b/drivers/gpio/gpio-max77620.c
-index 538bce4b5b427..ac6c1c0548b69 100644
---- a/drivers/gpio/gpio-max77620.c
-+++ b/drivers/gpio/gpio-max77620.c
-@@ -163,13 +163,13 @@ static int max77620_gpio_set_debounce(struct max77620_gpio *mgpio,
- 	case 0:
- 		val = MAX77620_CNFG_GPIO_DBNC_None;
- 		break;
--	case 1 ... 8:
-+	case 1000 ... 8000:
- 		val = MAX77620_CNFG_GPIO_DBNC_8ms;
- 		break;
--	case 9 ... 16:
-+	case 9000 ... 16000:
- 		val = MAX77620_CNFG_GPIO_DBNC_16ms;
- 		break;
--	case 17 ... 32:
-+	case 17000 ... 32000:
- 		val = MAX77620_CNFG_GPIO_DBNC_32ms;
- 		break;
- 	default:
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index bd2fd9a7821da..a470f1fa9f2af 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -83,7 +83,7 @@ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
+ 	__rc;							\
+ })
+ 
+-static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
++static __always_inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x010000UL;
+ 	int rc;
+@@ -113,7 +113,7 @@ static inline int __put_user_fn(void *x, void __user *ptr, unsigned long size)
+ 	return rc;
+ }
+ 
+-static inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
++static __always_inline int __get_user_fn(void *x, const void __user *ptr, unsigned long size)
+ {
+ 	unsigned long spec = 0x01UL;
+ 	int rc;
 -- 
 2.20.1
 
