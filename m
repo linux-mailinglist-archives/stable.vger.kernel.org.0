@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE36EEFF2
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 800ABEED70
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729811AbfKDWYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:24:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45974 "EHLO mail.kernel.org"
+        id S2390051AbfKDWGo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:06:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730762AbfKDVw3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:52:29 -0500
+        id S2389044AbfKDWGl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:06:41 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06839217F4;
-        Mon,  4 Nov 2019 21:52:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7339320650;
+        Mon,  4 Nov 2019 22:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904348;
-        bh=H12XsaAVdOeeHzLMIlQdJrBU963KqbPjLFf+EN77ZTo=;
+        s=default; t=1572905201;
+        bh=1Bp5QXY3r3Fb+fDqXdQe66OxpU2X041hGzALEvclh84=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPB9znlvRjIa7+UoDVOqYJVXzzzKEExF6jVloXglgecnZ2dsPxCQ5XEioB59XxRx3
-         +Rnw62E780PdkpEzKkdErvgUgJc2PA8EG4IuUuVCMrvg+M1sJUuGisdVhv1pVk3R+o
-         iM8hSa/ZUptQBdWNmZm9pLu3r4S9cQky7R+d+tpo=
+        b=jQnDWIH9el/BCYI26n6kSF6uFoDQv+4Pv3D3JDu3oDOaF/nwPhoiKI2Npr+DesqB2
+         dgxORVEWfERbmkxu4wv6MdyKY8Tl0DNEKoMlBb6VCY8yB8xweCZkp+PuhSIiAWm0xi
+         mwHibZluB19wsTnTQOWas4tI5zHrLM1BLF2N+4aw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan-Marek Glogowski <glogow@fbihome.de>,
-        Alan Stern <stern@rowland.harvard.edu>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        ak@linux.intel.com, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 16/95] usb: handle warm-reset port requests on hub resume
+Subject: [PATCH 5.3 064/163] x86/cpu: Add Comet Lake to the Intel CPU models header
 Date:   Mon,  4 Nov 2019 22:44:14 +0100
-Message-Id: <20191104212045.768461327@linuxfoundation.org>
+Message-Id: <20191104212144.657911293@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan-Marek Glogowski <glogow@fbihome.de>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 4fdc1790e6a9ef22399c6bc6e63b80f4609f3b7e ]
+[ Upstream commit 8d7c6ac3b2371eb1cbc9925a88f4d10efff374de ]
 
-On plug-in of my USB-C device, its USB_SS_PORT_LS_SS_INACTIVE
-link state bit is set. Greping all the kernel for this bit shows
-that the port status requests a warm-reset this way.
+Comet Lake is the new 10th Gen Intel processor. Add two new CPU model
+numbers to the Intel family list.
 
-This just happens, if its the only device on the root hub, the hub
-therefore resumes and the HCDs status_urb isn't yet available.
-If a warm-reset request is detected, this sets the hubs event_bits,
-which will prevent any auto-suspend and allows the hubs workqueue
-to warm-reset the port later in port_event.
+The CPU model numbers are not published in the SDM yet but they come
+from an authoritative internal source.
 
-Signed-off-by: Jan-Marek Glogowski <glogow@fbihome.de>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ [ bp: Touch up commit message. ]
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Cc: ak@linux.intel.com
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/1570549810-25049-2-git-send-email-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/include/asm/intel-family.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index b543a4730ef24..bb20aa433e984 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -104,6 +104,8 @@ EXPORT_SYMBOL_GPL(ehci_cf_port_reset_rwsem);
- static void hub_release(struct kref *kref);
- static int usb_reset_and_verify_device(struct usb_device *udev);
- static int hub_port_disable(struct usb_hub *hub, int port1, int set_state);
-+static bool hub_port_warm_reset_required(struct usb_hub *hub, int port1,
-+		u16 portstatus);
+diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
+index 9ae1c0f05fd2d..3525014c71da9 100644
+--- a/arch/x86/include/asm/intel-family.h
++++ b/arch/x86/include/asm/intel-family.h
+@@ -76,6 +76,9 @@
+ #define INTEL_FAM6_TIGERLAKE_L		0x8C
+ #define INTEL_FAM6_TIGERLAKE		0x8D
  
- static inline char *portspeed(struct usb_hub *hub, int portstatus)
- {
-@@ -1110,6 +1112,11 @@ static void hub_activate(struct usb_hub *hub, enum hub_activation_type type)
- 						   USB_PORT_FEAT_ENABLE);
- 		}
- 
-+		/* Make sure a warm-reset request is handled by port_event */
-+		if (type == HUB_RESUME &&
-+		    hub_port_warm_reset_required(hub, port1, portstatus))
-+			set_bit(port1, hub->event_bits);
++#define INTEL_FAM6_COMETLAKE		0xA5
++#define INTEL_FAM6_COMETLAKE_L		0xA6
 +
- 		/*
- 		 * Add debounce if USB3 link is in polling/link training state.
- 		 * Link will automatically transition to Enabled state after
+ /* "Small Core" Processors (Atom) */
+ 
+ #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
 -- 
 2.20.1
 
