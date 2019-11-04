@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0AD1EECC3
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:00:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 665C1EF095
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:29:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388826AbfKDWAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:00:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57916 "EHLO mail.kernel.org"
+        id S1729937AbfKDVsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:48:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388060AbfKDWAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:00:18 -0500
+        id S1729954AbfKDVsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:48:14 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C48420650;
-        Mon,  4 Nov 2019 22:00:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89E28222CF;
+        Mon,  4 Nov 2019 21:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904818;
-        bh=IlBkFwGUgAC2Wa9c3vMk16ObPVRv9tfoUaey65R1+pA=;
+        s=default; t=1572904094;
+        bh=77sS3w03X92A9bu2jxWTB2qmu2JAV6Xtx2HzEp2RtYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JoGZVreAtlr/U8f8Lxl9Ptc6GDarsz1AXDRFXY+saoJoNWMEqSjc8OA13aVu4cDk0
-         NRN3zti2R+9WxTYZ5mlvEOqhCm91y66Kmxh85Rn6U2758TvTBTqCpnkr5Pe/mQ5CfZ
-         rwTU2XdgFvOYljWV0raYwvyxiE5eNzLib8zVOm38=
+        b=G9FhLtyRMUdi/a7uE1UiLNSYML9R6EG0P5lMB5hgP0gIjcistYT2lCcUNWyoW/kfb
+         pjlrTbx2oA3sE9F7AQKJTAU1oczOlotWT4SbJGZNh2yKVWLNu958cbJdjPLwGsB/PK
+         1JrHXDfRDSshTkuRrcqkST1Ck3Nx+sbRkSQG/Y/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Austin Kim <austindh.kim@gmail.com>,
-        Steve French <stfrench@microsoft.com>,
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Nikos Tsironis <ntsironis@arrikto.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 079/149] fs: cifs: mute -Wunused-const-variable message
-Date:   Mon,  4 Nov 2019 22:44:32 +0100
-Message-Id: <20191104212142.146886735@linuxfoundation.org>
+Subject: [PATCH 4.4 02/46] dm snapshot: introduce account_start_copy() and account_end_copy()
+Date:   Mon,  4 Nov 2019 22:44:33 +0100
+Message-Id: <20191104211833.227226439@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Austin Kim <austindh.kim@gmail.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit dd19c106a36690b47bb1acc68372f2b472b495b8 ]
+[ Upstream commit a2f83e8b0c82c9500421a26c49eb198b25fcdea3 ]
 
-After 'Initial git repository build' commit,
-'mapping_table_ERRHRD' variable has not been used.
+This simple refactoring moves code for modifying the semaphore cow_count
+into separate functions to prepare for changes that will extend these
+methods to provide for a more sophisticated mechanism for COW
+throttling.
 
-So 'mapping_table_ERRHRD' const variable could be removed
-to mute below warning message:
-
-   fs/cifs/netmisc.c:120:40: warning: unused variable 'mapping_table_ERRHRD' [-Wunused-const-variable]
-   static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
-                                           ^
-Signed-off-by: Austin Kim <austindh.kim@gmail.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reviewed-by: Nikos Tsironis <ntsironis@arrikto.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/netmisc.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/md/dm-snap.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/fs/cifs/netmisc.c b/fs/cifs/netmisc.c
-index fdd908e4a26b3..66c10121a6eae 100644
---- a/fs/cifs/netmisc.c
-+++ b/fs/cifs/netmisc.c
-@@ -130,10 +130,6 @@ static const struct smb_to_posix_error mapping_table_ERRSRV[] = {
- 	{0, 0}
- };
+diff --git a/drivers/md/dm-snap.c b/drivers/md/dm-snap.c
+index 7c8b5fdf4d4e5..2437ca7e43687 100644
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -1400,6 +1400,16 @@ static void snapshot_dtr(struct dm_target *ti)
+ 	kfree(s);
+ }
  
--static const struct smb_to_posix_error mapping_table_ERRHRD[] = {
--	{0, 0}
--};
--
++static void account_start_copy(struct dm_snapshot *s)
++{
++	down(&s->cow_count);
++}
++
++static void account_end_copy(struct dm_snapshot *s)
++{
++	up(&s->cow_count);
++}
++
  /*
-  * Convert a string containing text IPv4 or IPv6 address to binary form.
-  *
+  * Flush a list of buffers.
+  */
+@@ -1584,7 +1594,7 @@ static void copy_callback(int read_err, unsigned long write_err, void *context)
+ 		}
+ 		list_add(&pe->out_of_order_entry, lh);
+ 	}
+-	up(&s->cow_count);
++	account_end_copy(s);
+ }
+ 
+ /*
+@@ -1608,7 +1618,7 @@ static void start_copy(struct dm_snap_pending_exception *pe)
+ 	dest.count = src.count;
+ 
+ 	/* Hand over to kcopyd */
+-	down(&s->cow_count);
++	account_start_copy(s);
+ 	dm_kcopyd_copy(s->kcopyd_client, &src, 1, &dest, 0, copy_callback, pe);
+ }
+ 
+@@ -1629,7 +1639,7 @@ static void start_full_bio(struct dm_snap_pending_exception *pe,
+ 	pe->full_bio_end_io = bio->bi_end_io;
+ 	pe->full_bio_private = bio->bi_private;
+ 
+-	down(&s->cow_count);
++	account_start_copy(s);
+ 	callback_data = dm_kcopyd_prepare_callback(s->kcopyd_client,
+ 						   copy_callback, pe);
+ 
 -- 
 2.20.1
 
