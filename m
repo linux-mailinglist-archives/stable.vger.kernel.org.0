@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 217E8EF00E
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE88EEEDB
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:17:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388875AbfKDWZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:25:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44784 "EHLO mail.kernel.org"
+        id S2388948AbfKDWRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:17:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730591AbfKDVvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:51:44 -0500
+        id S2389338AbfKDWCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:02:34 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E748A217F5;
-        Mon,  4 Nov 2019 21:51:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CC1E205C9;
+        Mon,  4 Nov 2019 22:02:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904303;
-        bh=ChFRGwLJ3VQnvQ2hdzzcMyib6eDJz9YUYbi7p0EdSSQ=;
+        s=default; t=1572904953;
+        bh=ttgyaWFVfVEATStYum205XZzeJBoj5PLrWqQbiPEsVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SHZbnL4/iZlMLlBRvDGF47KLdHyMKESFCVEebIqsxxhsBzU5bGqRRQLQQF5MGzLX1
-         GKwT1P6f3CsOa2lI8NJqODwDGQCJXn+FmouBdjkJOnWSDOGQYmS4+S/OWWN0WldkNd
-         sev7twEshRvJNyXWeKN++dsZisTev4S4iJue8SkY=
+        b=dKpt1DtnOyb+tasEnxEZA2iOJXEVIS+efY1LDidjiERfJU0Bj4vHURcpsUWdoedtv
+         1ZbjYqsksbdj7uiAoK7h06FILfQGhG7lCKgxH/E0hGDbnsohx1Eaq6KbRvpiAQbLlx
+         GVf33Gxu10SLQdua0/9GkSQwb4P8omU9kRn5vznY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+079bf326b38072f849d9@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 57/62] sctp: not bind the socket in sctp_connect
+        stable@vger.kernel.org, Markus Theil <markus.theil@tu-ilmenau.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 126/149] nl80211: fix validation of mesh path nexthop
 Date:   Mon,  4 Nov 2019 22:45:19 +0100
-Message-Id: <20191104211958.592547035@linuxfoundation.org>
+Message-Id: <20191104212145.069370108@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Markus Theil <markus.theil@tu-ilmenau.de>
 
-commit 9b6c08878e23adb7cc84bdca94d8a944b03f099e upstream.
+commit 1fab1b89e2e8f01204a9c05a39fd0b6411a48593 upstream.
 
-Now when sctp_connect() is called with a wrong sa_family, it binds
-to a port but doesn't set bp->port, then sctp_get_af_specific will
-return NULL and sctp_connect() returns -EINVAL.
+Mesh path nexthop should be a ethernet address, but current validation
+checks against 4 byte integers.
 
-Then if sctp_bind() is called to bind to another port, the last
-port it has bound will leak due to bp->port is NULL by then.
-
-sctp_connect() doesn't need to bind ports, as later __sctp_connect
-will do it if bp->port is NULL. So remove it from sctp_connect().
-While at it, remove the unnecessary sockaddr.sa_family len check
-as it's already done in sctp_inet_connect.
-
-Fixes: 644fbdeacf1d ("sctp: fix the issue that flags are ignored when using kernel_connect")
-Reported-by: syzbot+079bf326b38072f849d9@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 2ec600d672e74 ("nl80211/cfg80211: support for mesh, sta dumping")
+Signed-off-by: Markus Theil <markus.theil@tu-ilmenau.de>
+Link: https://lore.kernel.org/r/20191029093003.10355-1-markus.theil@tu-ilmenau.de
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- net/sctp/socket.c |   21 ++-------------------
- 1 file changed, 2 insertions(+), 19 deletions(-)
+ net/wireless/nl80211.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -3981,34 +3981,17 @@ out_nounlock:
- static int sctp_connect(struct sock *sk, struct sockaddr *addr,
- 			int addr_len, int flags)
- {
--	struct inet_sock *inet = inet_sk(sk);
- 	struct sctp_af *af;
--	int err = 0;
-+	int err = -EINVAL;
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -284,7 +284,8 @@ static const struct nla_policy nl80211_p
+ 	[NL80211_ATTR_MNTR_FLAGS] = { /* NLA_NESTED can't be empty */ },
+ 	[NL80211_ATTR_MESH_ID] = { .type = NLA_BINARY,
+ 				   .len = IEEE80211_MAX_MESH_ID_LEN },
+-	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_U32 },
++	[NL80211_ATTR_MPATH_NEXT_HOP] = { .type = NLA_BINARY,
++					  .len = ETH_ALEN },
  
- 	lock_sock(sk);
--
- 	pr_debug("%s: sk:%p, sockaddr:%p, addr_len:%d\n", __func__, sk,
- 		 addr, addr_len);
- 
--	/* We may need to bind the socket. */
--	if (!inet->inet_num) {
--		if (sk->sk_prot->get_port(sk, 0)) {
--			release_sock(sk);
--			return -EAGAIN;
--		}
--		inet->inet_sport = htons(inet->inet_num);
--	}
--
- 	/* Validate addr_len before calling common connect/connectx routine. */
- 	af = sctp_get_af_specific(addr->sa_family);
--	if (!af || addr_len < af->sockaddr_len) {
--		err = -EINVAL;
--	} else {
--		/* Pass correct addr len to common routine (so it knows there
--		 * is only one address being passed.
--		 */
-+	if (af && addr_len >= af->sockaddr_len)
- 		err = __sctp_connect(sk, addr, af->sockaddr_len, flags, NULL);
--	}
- 
- 	release_sock(sk);
- 	return err;
+ 	[NL80211_ATTR_REG_ALPHA2] = { .type = NLA_STRING, .len = 2 },
+ 	[NL80211_ATTR_REG_RULES] = { .type = NLA_NESTED },
 
 
