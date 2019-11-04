@@ -2,136 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40532EE240
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 15:28:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A2CEE2BC
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 15:40:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728012AbfKDO2R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 09:28:17 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:49014 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727861AbfKDO2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 09:28:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572877695;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=sXs+LDxO88IFopCBCdlf8Wk3p0+58YbIqWF2eEqPtpk=;
-        b=aXqHmeYlAAY6SZkDL3JDP0xkx/X+LqORa1tdu1R1+X4CGU0x5wW0epXCn+MIGpwoYU5/Ga
-        y97rGrPe8MKyPB/19RNaxuSr4ssV7Td8j+oWdgfpu6+Uw1mD4RSLrswwKoD8MaXY4fMgqC
-        rVdXdgDEi9ngE9c+TzzHYc/HX2KBVWU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-258-t_2Xk-g9NVCNSG-XGMKtLA-1; Mon, 04 Nov 2019 09:28:12 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 85AC48017DD;
-        Mon,  4 Nov 2019 14:28:11 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 75D2E5D6C5;
-        Mon,  4 Nov 2019 14:28:11 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 13CBF4BB5B;
-        Mon,  4 Nov 2019 14:28:11 +0000 (UTC)
-Date:   Mon, 4 Nov 2019 09:28:10 -0500 (EST)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Jaroslav Kysela <jkysela@redhat.com>,
-        alsa-devel@alsa-project.org, LTP Mailing List <ltp@lists.linux.it>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>
-Message-ID: <1341418315.10342806.1572877690830.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20191104135135.GA2162401@kroah.com>
-References: <cki.1210A7ECB0.BD9Q3APV4K@redhat.com> <2029139028.10333037.1572874551626.JavaMail.zimbra@redhat.com> <20191104135135.GA2162401@kroah.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kern?=
- =?utf-8?Q?el_5.3.9-rc1-dfe283e.cki_(stable)?=
+        id S1728178AbfKDOkK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 09:40:10 -0500
+Received: from mail-il1-f196.google.com ([209.85.166.196]:37548 "EHLO
+        mail-il1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727838AbfKDOkK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 09:40:10 -0500
+Received: by mail-il1-f196.google.com with SMTP id s5so4740491iln.4
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 06:40:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1maQznnFPCS8MYdM80PT/zKI7lZX/fnbIlpd2FjS0T0=;
+        b=EeyzUmIPrpCMrSLP0ymZMFw1RYmjtC/hh6lgAEyVpOU9HhqSvusOKMyVisIfZKL5ZB
+         hbt0ypkw15CyI9GpuKqUdyzMgsZ/qeZCYTxW+J+uPhTH4A/5qsZB0Huy7P60dxCujZ4L
+         EmXgp9Dckr0Vu8vH3Z4YcjFD8FqAwV61DtHR1p3hE6yrhcnidcfVhXRDSpc34f/NmG0U
+         hOZfbV2sPeiZK6Vwe6w4zYYHfgLd/yE1wHUBft7Ok+U/eElO7cIs+jOKZMRhGMo9M5lo
+         tit8bWW8lNL4X6qjO3DDF/hdWzhosdTKw9DyS95wSWzq0vEKk2EDfpWvc3hU5YnImoY0
+         4+Qw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1maQznnFPCS8MYdM80PT/zKI7lZX/fnbIlpd2FjS0T0=;
+        b=Q2UUVgYGR+tiWl7Kl0qC/la9q/rFWGG6YLPV9uDdrUB6UHqoZtb/xTviLIWmRgZlKi
+         gkwh/PvlXtf7UN8VlCdAjXwfbkT/hYg84PGN7eZF1dQDN+gU7HktWhs3I7kADhk9J8RJ
+         Is1mgF1QwKIxFwqCtDwXcqe7I7xk0Kd5uiCy4npRBnCl7AD8XQR2UtqAJirJc0x5+iLn
+         8NCvORKOxknldO89qMot0jdqI03DgYo5+a2QbTEghiU1Wm/AmAx3ynm7b75yFNWx428z
+         nKCL32vxWWf7Sv2tbmyeggBK5Y+5gs+zIxKmz0g4WYJOlPlQcUYGpiK3dLLgHoA5PRLA
+         lZnA==
+X-Gm-Message-State: APjAAAUw3qRpgji1NOvKCfA+yP8xeKhrVUacGehtPuYtxRafRXsjJOQC
+        4f2xlDiuGYGxP4HOcUDRa/Zz08pptz+yGaWbu8Klpg==
+X-Google-Smtp-Source: APXvYqySkvnoTfvITfdrzI7UrnW9d3Uz/86wobwolcB1+V4bHcaQCvDjt4f9B0SE1EuNSfcKrXA9HuVEbtd17MsrTts=
+X-Received: by 2002:a92:17c8:: with SMTP id 69mr29064331ilx.42.1572878409560;
+ Mon, 04 Nov 2019 06:40:09 -0800 (PST)
 MIME-Version: 1.0
-X-Originating-IP: [10.43.17.163, 10.4.195.10]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.3.9-rc1-dfe283e.cki (stable)
-Thread-Index: Kx4pHL9z3NzPO+lMPvoi41zdd+kemg==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-MC-Unique: t_2Xk-g9NVCNSG-XGMKtLA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+References: <15728601263783@kroah.com> <20191104140713.GE4787@sasha-vm>
+In-Reply-To: <20191104140713.GE4787@sasha-vm>
+From:   Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Date:   Mon, 4 Nov 2019 07:39:58 -0700
+Message-ID: <CAOCk7Nr+-=oFMQp+sHzUbYEE0AP0W+uwTRsezMJiJtt9Fhmifw@mail.gmail.com>
+Subject: Re: FAILED: patch "[PATCH] dmaengine: qcom: bam_dma: Fix resource
+ leak" failed to apply to 4.14-stable tree
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, vkoul@kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Nov 4, 2019 at 7:07 AM Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Mon, Nov 04, 2019 at 10:35:26AM +0100, gregkh@linuxfoundation.org wrote:
+> >
+> >The patch below does not apply to the 4.14-stable tree.
+> >If someone wants it applied there, or to any other stable or longterm
+> >tree, then please email the backport, including the original git commit
+> >id to <stable@vger.kernel.org>.
+> >
+> >thanks,
+> >
+> >greg k-h
+> >
+> >------------------ original commit in Linus's tree ------------------
+> >
+> >From 7667819385457b4aeb5fac94f67f52ab52cc10d5 Mon Sep 17 00:00:00 2001
+> >From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> >Date: Thu, 17 Oct 2019 08:26:06 -0700
+> >Subject: [PATCH] dmaengine: qcom: bam_dma: Fix resource leak
+> >
+> >bam_dma_terminate_all() will leak resources if any of the transactions are
+> >committed to the hardware (present in the desc fifo), and not complete.
+> >Since bam_dma_terminate_all() does not cause the hardware to be updated,
+> >the hardware will still operate on any previously committed transactions.
+> >This can cause memory corruption if the memory for the transaction has been
+> >reassigned, and will cause a sync issue between the BAM and its client(s).
+> >
+> >Fix this by properly updating the hardware in bam_dma_terminate_all().
+> >
+> >Fixes: e7c0fe2a5c84 ("dmaengine: add Qualcomm BAM dma driver")
+> >Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> >Cc: stable@vger.kernel.org
+> >Link: https://lore.kernel.org/r/20191017152606.34120-1-jeffrey.l.hugo@gmail.com
+> >Signed-off-by: Vinod Koul <vkoul@kernel.org>
+>
+> Is the "Fixes:" tag correct here? Is it an issue without 6b4faeac05bc
+> ("dmaengine: qcom-bam: Process multiple pending descriptors")?
 
+Yes.  The issue will occur, even if you submit only one descriptor.
+The uart_dm driver which exposed this issue (msm_serial), only uses
+one descriptor at a time, despite the hardware and some versions of
+the bam driver allowing more than that.
 
------ Original Message -----
-> On Mon, Nov 04, 2019 at 08:35:51AM -0500, Jan Stancek wrote:
-> >=20
-> >=20
-> > ----- Original Message -----
-> > >=20
-> > > Hello,
-> > >=20
-> > > We ran automated tests on a recent commit from this kernel tree:
-> > >=20
-> > >        Kernel repo:
-> > >        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-sta=
-ble-rc.git
-> > >             Commit: dfe283e9fdac - Linux 5.3.9-rc1
-> > >=20
-> > > The results of these automated tests are provided below.
-> > >=20
-> > >     Overall result: FAILED (see details below)
-> > >              Merge: OK
-> > >            Compile: OK
-> > >              Tests: FAILED
-> > >=20
-> > > All kernel binaries, config files, and logs are available for downloa=
-d
-> > > here:
-> > >=20
-> > >   https://artifacts.cki-project.org/pipelines/262380
-> > >=20
-> > > One or more kernel tests failed:
-> > >=20
-> > >     x86_64:
-> > >      =E2=9D=8C LTP lite
-> > >
-> >=20
-> > Not a 5.3 -stable regression.
-> >=20
-> > Failure comes from test that sanity checks all /proc files by doing
-> > 1k read from each. There are couple issues it hits wrt. snd_hda_*.
-> >=20
-> > Example reproducer:
-> >   dd if=3D/sys/kernel/debug/regmap/hdaudioC0D3-hdaudio/access of=3Dout.=
-txt
-> >   count=3D1 bs=3D1024 iflag=3Dnonblock
->=20
-> That's not a proc file :)
-
-Right. It's same test that's used for /proc too.
-
->=20
-> > It's slow and triggers soft lockups [1]. And it also requires lot
-> > of memory, triggering OOMs on smaller VMs:
-> > 0x0000000024f0437b-0x000000001a32b1c8 1073745920 seq_read+0x131/0x400
-> > pages=3D262144 vmalloc vpages N0=3D262144
-> >=20
-> > I'm leaning towards skipping all regmap entries in this test.
-> > Comments are welcomed.
->=20
-> Randomly poking around in debugfs is a sure way to cause crashes and
-> major problems.  Also, debugfs files are NOT stable and only for
-> debugging and should never be enabled on "real" systems.
->=20
-> So what exactly is the test trying to do here?
-
-It's (unprivileged) user trying to open/read anything it can (/proc, /sys)
-to see if that triggers anything bad.
-
-It can run as privileged user too, which was the case above.
-
-[1] https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/=
-fs/read_all/read_all.c
-
+A trivial way to trigger this would be to queue a descriptor to
+receive data from some peripheral that is attached to the BAM dma
+engine, but the peripheral never sends that data - ie if you had a NIC
+and you wanted to prequeue a receive buffer to accept an incoming
+packet.  If you then invoke terminate_all(), perhaps you need to
+renegotiate the link speed of the NIC, you'll hit the same issue -
+with or without "Process multiple pending descriptors".
+>
+> --
+> Thanks,
+> Sasha
