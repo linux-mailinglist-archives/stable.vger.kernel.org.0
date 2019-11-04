@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C5EEDC3F
+	by mail.lfdr.de (Postfix) with ESMTP id 7A55AEDC3E
 	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 11:13:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728481AbfKDKNe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 05:13:34 -0500
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:51945 "EHLO
+        id S1727320AbfKDKNc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 05:13:32 -0500
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:58303 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727499AbfKDKN3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 05:13:29 -0500
+        by vger.kernel.org with ESMTP id S1728481AbfKDKNc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 05:13:32 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id AA74121AEF;
-        Mon,  4 Nov 2019 05:13:28 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 04 Nov 2019 05:13:28 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 8911921BBA;
+        Mon,  4 Nov 2019 05:13:31 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 04 Nov 2019 05:13:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=e+KGL7
-        a7Hhw7W7eUIhatgn/Esvc3jfJEwaZde+vBBFA=; b=hvsnYk3ZmAqchEakuArrFR
-        IDD5IPPShph62+R2O4It3T9ktY9F0fQVfzRp93sVKLfy6XhrgUXCe00ja2EPkiVf
-        9jLAVe9tK/HY2shPqAhy6O9u5KaL3/TDhZuWhYTgpiHz3AHe3UmAsravpyU3TBbI
-        Iy+FLX51RuptY/PA5DUvCErSNCr2oLqEQ+yubR4eGIMKgshlv6iwUjpchxfkyIJe
-        P/IIbNQvzUspiPMoXymHM2Z81GUWVqSNp+bLnck8n0OvBu/cB5bnhLJu9lx+c7jy
-        ASOZCMayTfMsmF8piH44RciXsgxpM+9/D6K/Yt6Y3PqKwETa1lL6IsljG+biDrCg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=YJ+ggp
+        yTUHeafutUjE1geg/vkc1RODRA0by/G6McDtI=; b=ys8Oj4YnZUE8uL6ESgpmk5
+        D5tllRDWSfsAyB7SNTrM4hKEdVHBLV63CSl5Hz1oa29zXLXmOwWVPyg9v7dAK3Pr
+        QPNCRlhId2d1WqR8nJRevVfCcdbv89JaqOXgTq1A7rhpZb/d35dLKoQ7O+LNawQT
+        8GHv44/qOwD1gdd9fC1zW4sdMjeBs1I+7EtFYfrHAacp2PqUAocxaaa9VoIvo6ry
+        2/ycgubbR90bmYPd6koJ84JL/+QR79e7J7BwXPXRxEtZKRCpnoo+gRWN/y22jaun
+        xexoiHyN5lmWb5zkATOT1a7ui662/edAhi6RFtRbriAfbPi32lQrLzJJ/PzXIZvQ
         ==
-X-ME-Sender: <xms:yPm_XZOxBejd3Ymv5BESG0kHatJAolzQLJVwseLRcULap5qzJSHaaA>
+X-ME-Sender: <xms:y_m_XX6AkuHl98ZMrKIgBVLHaHCwL4Cf-XQMobRNHI5jxhOmYy22vQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddufedgudefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:yPm_XfdiUkvHREo7RP5Bsa22AgS6a6LQs-_IqZKVOJFfDL_k0eVj4w>
-    <xmx:yPm_XfDnAdOHIDx6jGtZDHtdVEDBwWH_dRUcCpFzcXVkKHEM_UDiVg>
-    <xmx:yPm_XT9eNFNFwsljreSNva3mWee26993ejEwrCrT_okaVr1h1-BzUg>
-    <xmx:yPm_XVckFXcuyBTGLltFFFnzLWHDnUdFdfyaJt1vyaWhlSiaDL3iog>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepfe
+X-ME-Proxy: <xmx:y_m_XUZB8RoHGpLizHDjbjKsZq28J4mTQ3oXTGwxTihjB0CFWnvVCg>
+    <xmx:y_m_XUjFiaOm-Sec6u5RGdOs69L5Av3QZ-LTKQzuJna_roDQaYKH4g>
+    <xmx:y_m_XWO5-AbVsfg4VTisdqqoPK1_nb59O17Jov0P35syKG5gRM4kSw>
+    <xmx:y_m_XbHDhuJodJlFGory-AjsGchyGANqNPvDJouv03UypU3ZpwoWIQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4368380064;
-        Mon,  4 Nov 2019 05:13:28 -0500 (EST)
-Subject: FAILED: patch "[PATCH] drm/etnaviv: fix dumping of iommuv2" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 29D65306005B;
+        Mon,  4 Nov 2019 05:13:31 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/etnaviv: fix dumping of iommuv2" failed to apply to 4.19-stable tree
 To:     christian.gmeiner@gmail.com, l.stach@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Nov 2019 11:13:18 +0100
-Message-ID: <157286239834168@kroah.com>
+Date:   Mon, 04 Nov 2019 11:13:19 +0100
+Message-ID: <157286239915438@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
