@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B83EEF38
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 035DFEEE6A
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388060AbfKDWAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:00:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57958 "EHLO mail.kernel.org"
+        id S2389064AbfKDWHm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:07:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388834AbfKDWAV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:00:21 -0500
+        id S2388225AbfKDWHl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:07:41 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 210F221744;
-        Mon,  4 Nov 2019 22:00:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CBA7214D9;
+        Mon,  4 Nov 2019 22:07:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904820;
-        bh=PJ5hXRwrgYrYHaEEGmsGB+1AUSpUsi2UyKzb8WBrn5g=;
+        s=default; t=1572905260;
+        bh=7sswNqk+vSRcaPxXaAyNYYTr8uidR7ZgpcGDrKXJKns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MK5Dr4Vx+DGkx6o8GjC1aHt/8JFnMqDcijLZL/e0C3qAQwYm5Q1c6KGzLjGVbj567
-         kaGVyDW1Y1rVlJdkVaeFlqHhKMCO82bGWjCwIOV7RWlYLpFOHHhvUz0te+V5Rg0o/o
-         4XZHyITCWMmh7dW0EnvVdX7WDaGtMgfbXsq0I3Ak=
+        b=0k4s4jkTEEy86MabToV+PKNkS47fleUgaSz9ZxYv8vL4RA32SnEIV3LX/qODjVn7j
+         MV9J9gh76YX5vnMWcj3VUpnMj+RF8PPWWaRNnejfibzHSn2lmnADR4hNR6RVhbhaqj
+         TYht4P4h1myny3lN55hN3VbaR1ywOyFOr8W4POfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Yegor Yefremov <yegorslists@googlemail.com>,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 080/149] serial: mctrl_gpio: Check for NULL pointer
+Subject: [PATCH 5.3 083/163] perf annotate: Fix multiple memory and file descriptor leaks
 Date:   Mon,  4 Nov 2019 22:44:33 +0100
-Message-Id: <20191104212142.216438050@linuxfoundation.org>
+Message-Id: <20191104212146.297059666@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Gustavo A. R. Silva <gustavo@embeddedor.com>
 
-[ Upstream commit 37e3ab00e4734acc15d96b2926aab55c894f4d9c ]
+[ Upstream commit f948eb45e3af9fb18a0487d0797a773897ef6929 ]
 
-When using mctrl_gpio_to_gpiod, it dereferences gpios into a single
-requested GPIO.  This dereferencing can break if gpios is NULL,
-so this patch adds a NULL check before dereferencing it.  If
-gpios is NULL, this function will also return NULL.
+Store SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF in variable *ret*, instead
+of returning in the middle of the function and leaking multiple
+resources: prog_linfo, btf, s and bfdf.
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Reviewed-by: Yegor Yefremov <yegorslists@googlemail.com>
-Link: https://lore.kernel.org/r/20191006163314.23191-1-aford173@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity-ID: 1454832 ("Structurally dead code")
+Fixes: 11aad897f6d1 ("perf annotate: Don't return -1 for error when doing BPF disassembly")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Acked-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20191014171047.GA30850@embeddedor
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_mctrl_gpio.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/util/annotate.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/serial_mctrl_gpio.c b/drivers/tty/serial/serial_mctrl_gpio.c
-index 07f318603e740..af0412a784d27 100644
---- a/drivers/tty/serial/serial_mctrl_gpio.c
-+++ b/drivers/tty/serial/serial_mctrl_gpio.c
-@@ -60,6 +60,9 @@ EXPORT_SYMBOL_GPL(mctrl_gpio_set);
- struct gpio_desc *mctrl_gpio_to_gpiod(struct mctrl_gpios *gpios,
- 				      enum mctrl_gpio_idx gidx)
- {
-+	if (gpios == NULL)
-+		return NULL;
-+
- 	return gpios->gpio[gidx];
- }
- EXPORT_SYMBOL_GPL(mctrl_gpio_to_gpiod);
+diff --git a/tools/perf/util/annotate.c b/tools/perf/util/annotate.c
+index fb8756026a805..2e02d2a0176a8 100644
+--- a/tools/perf/util/annotate.c
++++ b/tools/perf/util/annotate.c
+@@ -1752,7 +1752,7 @@ static int symbol__disassemble_bpf(struct symbol *sym,
+ 	info_node = perf_env__find_bpf_prog_info(dso->bpf_prog.env,
+ 						 dso->bpf_prog.id);
+ 	if (!info_node) {
+-		return SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF;
++		ret = SYMBOL_ANNOTATE_ERRNO__BPF_MISSING_BTF;
+ 		goto out;
+ 	}
+ 	info_linear = info_node->info_linear;
 -- 
 2.20.1
 
