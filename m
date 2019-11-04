@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F86EF04C
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58E30EF097
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:29:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387408AbfKDW1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:27:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
+        id S2387493AbfKDW25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:28:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387747AbfKDVug (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:50:36 -0500
+        id S1730004AbfKDVsY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:48:24 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D33F21744;
-        Mon,  4 Nov 2019 21:50:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4091F21D71;
+        Mon,  4 Nov 2019 21:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904235;
-        bh=SXcSjgXnzq2qZEbZ8jHOMYmVNKMe1iY72MSH9XLcWpQ=;
+        s=default; t=1572904103;
+        bh=J+M9xJlubZ3B9Qk9rJN/x3wpS+yrx7KSHcdDWEk4+lE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NIfHfRUx/Yl20OEZd+/NYonGHBw+cJ0+JNAOMTRv21/W88SjkP8LhPfHovYF84V4a
-         A1rc72XqB04Ca8WWicWVK06zR7A1tN2k8abS5D+/bvBy4++fWw8ji5hWSv3HiCk79e
-         duyCCn2rRalqYMv3l3lFskNwuP3x5XSqtmBCodSY=
+        b=s0VguZKkSrZeFQiI0lwCPVri3K6Smw2HvYEXAvRwvKsGtiQFbVM6zyGELUsgntBc7
+         IRpZvcKvDGPvNdimrbavhjGO7lz1FbITPzavxSuPInd2m2nuHyvtUX9SV8rclOo1Vg
+         R5fVxFr758os+i9XUfQRSC+0XUfzYhapDc99A42M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,12 +31,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Yehezkel Bernat <YehezkelShB@gmail.com>,
         Mario Limonciello <mario.limonciello@dell.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 32/62] thunderbolt: Use 32-bit writes when writing ring producer/consumer
+Subject: [PATCH 4.4 23/46] thunderbolt: Use 32-bit writes when writing ring producer/consumer
 Date:   Mon,  4 Nov 2019 22:44:54 +0100
-Message-Id: <20191104211931.746648300@linuxfoundation.org>
+Message-Id: <20191104211853.908206468@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
-References: <20191104211901.387893698@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,10 +64,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 18 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/thunderbolt/nhi.c b/drivers/thunderbolt/nhi.c
-index cba6bc6ab9ed7..c963593eedbe7 100644
+index 6713fd1958e73..3a39d7d0175ab 100644
 --- a/drivers/thunderbolt/nhi.c
 +++ b/drivers/thunderbolt/nhi.c
-@@ -95,9 +95,20 @@ static void __iomem *ring_options_base(struct tb_ring *ring)
+@@ -94,9 +94,20 @@ static void __iomem *ring_options_base(struct tb_ring *ring)
  	return io;
  }
  
@@ -90,7 +90,7 @@ index cba6bc6ab9ed7..c963593eedbe7 100644
  }
  
  static void ring_iowrite32desc(struct tb_ring *ring, u32 value, u32 offset)
-@@ -149,7 +160,10 @@ static void ring_write_descriptors(struct tb_ring *ring)
+@@ -148,7 +159,10 @@ static void ring_write_descriptors(struct tb_ring *ring)
  			descriptor->sof = frame->sof;
  		}
  		ring->head = (ring->head + 1) % ring->size;
@@ -102,7 +102,7 @@ index cba6bc6ab9ed7..c963593eedbe7 100644
  	}
  }
  
-@@ -369,7 +383,7 @@ void ring_stop(struct tb_ring *ring)
+@@ -368,7 +382,7 @@ void ring_stop(struct tb_ring *ring)
  
  	ring_iowrite32options(ring, 0, 0);
  	ring_iowrite64desc(ring, 0, 0);
