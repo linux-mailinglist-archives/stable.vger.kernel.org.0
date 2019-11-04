@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1D8EF078
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E1AEEEFA5
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730230AbfKDVtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:49:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39996 "EHLO mail.kernel.org"
+        id S2388041AbfKDVyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:54:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730158AbfKDVtA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:49:00 -0500
+        id S2388038AbfKDVyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:54:53 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A7D9214D8;
-        Mon,  4 Nov 2019 21:48:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D51E21929;
+        Mon,  4 Nov 2019 21:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904139;
-        bh=GOtZoZsLW0AdOVaZLiOTUGOwZ7jtgIn2nMcrlPlbhEY=;
+        s=default; t=1572904491;
+        bh=hG0FQxqMYWkHZBisukMRWTSzMTEWZVRtJjdiDts67x8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvVjatjyIDrwxXuL0UWjdcj8dfTWF1/BaT/bepqE5ZdcP9NxtX/byma1dLs2jMoo7
-         bWGT89YgMBmeXKA96z+mDV5fo1haZqTxw2NvLKomN+I/u4eY1c0qsBBxDyYXYX6kr+
-         OBqRHo3Chhn1FuSglEzGI+GSMnGG06Lh0OC+lhbA=
+        b=qNPR7Z/pd+QDxmhxjVjYmHknjK0xRiMZub6vS6HoQ+Pi7Xfj5pAM1diC0XJt0pCGj
+         ijihLSweRAfPYFnnxEQKvUrPqOeguUWL2+Z7i8FDDss3aHzBKpx13UGuorWPD/qM7W
+         AQX20sYgISbfskOw/7JAFkN6FS0ENULTtliWfZ4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a4fbb3bb76cda0ea4e58@syzkaller.appspotmail.com,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 31/46] USB: ldusb: fix control-message timeout
-Date:   Mon,  4 Nov 2019 22:45:02 +0100
-Message-Id: <20191104211904.175898997@linuxfoundation.org>
+        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 65/95] ALSA: hda/realtek - Fix 2 front mics of codec 0x623
+Date:   Mon,  4 Nov 2019 22:45:03 +0100
+Message-Id: <20191104212110.091412764@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-commit 52403cfbc635d28195167618690595013776ebde upstream.
+commit 8a6c55d0f883e9a7e7c91841434f3b6bbf932bb2 upstream.
 
-USB control-message timeouts are specified in milliseconds, not jiffies.
-Waiting 83 minutes for a transfer to complete is a bit excessive.
+These 2 ThinkCentres installed a new realtek codec ID 0x623,
+it has 2 front mics with the same location on pin 0x18 and 0x19.
 
-Fixes: 2824bd250f0b ("[PATCH] USB: add ldusb driver")
-Cc: stable <stable@vger.kernel.org>     # 2.6.13
-Reported-by: syzbot+a4fbb3bb76cda0ea4e58@syzkaller.appspotmail.com
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191022153127.22295-1-johan@kernel.org
+Apply fixup ALC283_FIXUP_HEADSET_MIC to change 1 front mic
+location to right, then pulseaudio can handle them.
+One "Front Mic" and one "Mic" will be shown, and audio output works
+fine.
+
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191024114439.31522-1-aaron.ma@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/misc/ldusb.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/misc/ldusb.c
-+++ b/drivers/usb/misc/ldusb.c
-@@ -584,7 +584,7 @@ static ssize_t ld_usb_write(struct file
- 					 1 << 8, 0,
- 					 dev->interrupt_out_buffer,
- 					 bytes_to_write,
--					 USB_CTRL_SET_TIMEOUT * HZ);
-+					 USB_CTRL_SET_TIMEOUT);
- 		if (retval < 0)
- 			dev_err(&dev->intf->dev,
- 				"Couldn't submit HID_REQ_SET_REPORT %d\n",
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6614,6 +6614,8 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x312f, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
+ 	SND_PCI_QUIRK(0x17aa, 0x313c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
+ 	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
++	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
++	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
 
 
