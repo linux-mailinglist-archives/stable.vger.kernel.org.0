@@ -2,127 +2,1632 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36DD8EE4F1
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 17:43:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04857EE4F0
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 17:43:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729248AbfKDQnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728761AbfKDQnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 4 Nov 2019 11:43:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36086 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727861AbfKDQnJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 11:43:09 -0500
-Received: from localhost (host6-102.lan-isdn.imaginet.fr [195.68.6.102])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7108B20869;
-        Mon,  4 Nov 2019 16:43:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572885788;
-        bh=DKp1hX1uGHfWYj8nNqmLmHKnvnd9J7wr+v+K7kpo8fE=;
-        h=Subject:To:From:Date:From;
-        b=APLEaj9mRj+3rsvwNPNrG+Fzv289iEk0H5RT1O/iyteg/89krI3mYLUBoCJRK0boz
-         SfmZ3DO5PFDXyPCw6fe/F2BLTczzCXlEUL/Lu4VMbXpT8xusfDtK6xWxnatV88ekk9
-         yQToiwtAJbYxYdnFi7cpUt6+olhMHSny9kkgPFKg=
-Subject: patch "tty: serial: msm_serial: Fix flow control" added to tty-testing
-To:     jeffrey.l.hugo@gmail.com, agross@kernel.org,
-        bjorn.andersson@linaro.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 04 Nov 2019 17:42:58 +0100
-Message-ID: <157288577886132@kroah.com>
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:37970 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727861AbfKDQnI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 11:43:08 -0500
+Received: by mail-wr1-f66.google.com with SMTP id v9so17912079wrq.5
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 08:43:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9bI1ZWYNlwRS9uN3ibm4z5Fbh08wYKDnrcrvKlT44EM=;
+        b=S2sfqdY0VaOuGGwBDMjpqkqhQZIxBA4CZRmAu2gOQaF1f7/nagbe1LvFGv4msOB3vo
+         UtxDAvWdYfas8Dp3SptKT85vkrEGkCZQUxjnVldTS0opjVBBMtBpSoHH0Lc7vkIl9RbQ
+         kb405GtHwIMkxtbgAN4PKPlccZ7QjsIouaYd6dG/aiLqrBQ4qlRuCN3DvXh0ostIG5rH
+         3V6l1GS9Cj9DEXUerLO9V4V2tPx6GmAtvxn9M2VGXViHLRo2VISthBeX6sfV+LtXUHQb
+         bJXHhw9h1X0mozC4zbFNKrav4+VQdI2mgLt+1S01e3/2p7Tj/ueUpJNBuuFTmusxG3NO
+         lfqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9bI1ZWYNlwRS9uN3ibm4z5Fbh08wYKDnrcrvKlT44EM=;
+        b=NCcidjiXu4+z0ahg+m+8DNkBb5uoywI76ljDM20YItzGrVX1343Rtn7UQ6QFIR8wOx
+         qTYfeAhJowN4mH8oM07gNOpjbARSLrEP3RuIZ45ppMuoUw4oQKJl8OOdGvg4Trxx+Eyq
+         GGI4YxCnwNp6kbACo9zfYK6O67tzWQvtgihZv3fvmkAHWVcOIPBhgajusrR/J1Jnw5U4
+         fM7/FG95+l5iQ4XdnKMpTvp7sZtSJsSxa2TUK0Vx8DYur9kyDOIq2exlU8YTbpFSsku3
+         McUILxQT4T4Wbhyddjo90jf/ytudhVzIU8ic4UZ5oIkuyfvb+UglKFF5p4gwob/1QCiW
+         +Zhg==
+X-Gm-Message-State: APjAAAWP/Hb7KdRkWKA6QLa+5GrVIRLSD0XtmKeVQ8VNcs/GZ3JdlnaW
+        /uVUg3TxEbpwrnS7ABDay7aqCxvinB9vbw==
+X-Google-Smtp-Source: APXvYqyqNax8nbtZqT0vz21z4wvrV7GGGjyHnXQHc3ZpV0IKYzlS17MhXXy7QZYbko7fnMXpVBpJ4g==
+X-Received: by 2002:a5d:46d2:: with SMTP id g18mr23099346wrs.245.1572885779904;
+        Mon, 04 Nov 2019 08:42:59 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r3sm18606048wmh.9.2019.11.04.08.42.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Nov 2019 08:42:59 -0800 (PST)
+Message-ID: <5dc05513.1c69fb81.fa431.7873@mx.google.com>
+Date:   Mon, 04 Nov 2019 08:42:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.14.151-94-g14ec99d62d85
+Subject: stable-rc/linux-4.14.y build: 201 builds: 0 failed, 201 passed,
+ 104 warnings (v4.14.151-94-g14ec99d62d85)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y build: 201 builds: 0 failed, 201 passed, 104 warning=
+s (v4.14.151-94-g14ec99d62d85)
 
-This is a note to let you know that I've just added the patch titled
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.151-94-g14ec99d62d85/
 
-    tty: serial: msm_serial: Fix flow control
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.151-94-g14ec99d62d85
+Git Commit: 14ec99d62d85e6c04324d05f099d70fbb9995b52
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Built: 6 unique architectures
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+Warnings Detected:
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+arc:
 
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
+arm64:
+    allnoconfig (gcc-8): 2 warnings
+    defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 2 warnings
 
-If you have any questions about this process, please let me know.
+arm:
+    acs5k_defconfig (gcc-8): 1 warning
+    acs5k_tiny_defconfig (gcc-8): 1 warning
+    aspeed_g4_defconfig (gcc-8): 1 warning
+    aspeed_g5_defconfig (gcc-8): 1 warning
+    assabet_defconfig (gcc-8): 1 warning
+    axm55xx_defconfig (gcc-8): 1 warning
+    badge4_defconfig (gcc-8): 1 warning
+    cerfcube_defconfig (gcc-8): 1 warning
+    clps711x_defconfig (gcc-8): 1 warning
+    cm_x300_defconfig (gcc-8): 1 warning
+    cns3420vb_defconfig (gcc-8): 1 warning
+    colibri_pxa270_defconfig (gcc-8): 1 warning
+    colibri_pxa300_defconfig (gcc-8): 1 warning
+    collie_defconfig (gcc-8): 1 warning
+    corgi_defconfig (gcc-8): 1 warning
+    davinci_all_defconfig (gcc-8): 1 warning
+    dove_defconfig (gcc-8): 1 warning
+    ebsa110_defconfig (gcc-8): 1 warning
+    ep93xx_defconfig (gcc-8): 1 warning
+    eseries_pxa_defconfig (gcc-8): 1 warning
+    exynos_defconfig (gcc-8): 1 warning
+    ezx_defconfig (gcc-8): 1 warning
+    footbridge_defconfig (gcc-8): 1 warning
+    gemini_defconfig (gcc-8): 1 warning
+    h3600_defconfig (gcc-8): 1 warning
+    hackkit_defconfig (gcc-8): 1 warning
+    hisi_defconfig (gcc-8): 1 warning
+    imote2_defconfig (gcc-8): 1 warning
+    imx_v6_v7_defconfig (gcc-8): 1 warning
+    integrator_defconfig (gcc-8): 1 warning
+    iop13xx_defconfig (gcc-8): 1 warning
+    iop32x_defconfig (gcc-8): 1 warning
+    iop33x_defconfig (gcc-8): 1 warning
+    ixp4xx_defconfig (gcc-8): 1 warning
+    jornada720_defconfig (gcc-8): 1 warning
+    keystone_defconfig (gcc-8): 1 warning
+    ks8695_defconfig (gcc-8): 1 warning
+    lart_defconfig (gcc-8): 1 warning
+    lpd270_defconfig (gcc-8): 1 warning
+    lubbock_defconfig (gcc-8): 1 warning
+    magician_defconfig (gcc-8): 1 warning
+    mainstone_defconfig (gcc-8): 1 warning
+    mini2440_defconfig (gcc-8): 1 warning
+    mmp2_defconfig (gcc-8): 1 warning
+    moxart_defconfig (gcc-8): 1 warning
+    multi_v4t_defconfig (gcc-8): 1 warning
+    multi_v5_defconfig (gcc-8): 1 warning
+    multi_v7_defconfig (gcc-8): 1 warning
+    mv78xx0_defconfig (gcc-8): 1 warning
+    mvebu_v5_defconfig (gcc-8): 1 warning
+    mvebu_v7_defconfig (gcc-8): 1 warning
+    mxs_defconfig (gcc-8): 1 warning
+    neponset_defconfig (gcc-8): 1 warning
+    netwinder_defconfig (gcc-8): 1 warning
+    netx_defconfig (gcc-8): 1 warning
+    nhk8815_defconfig (gcc-8): 1 warning
+    nuc910_defconfig (gcc-8): 1 warning
+    nuc950_defconfig (gcc-8): 1 warning
+    nuc960_defconfig (gcc-8): 1 warning
+    omap2plus_defconfig (gcc-8): 1 warning
+    orion5x_defconfig (gcc-8): 1 warning
+    palmz72_defconfig (gcc-8): 1 warning
+    pcm027_defconfig (gcc-8): 1 warning
+    prima2_defconfig (gcc-8): 1 warning
+    pxa168_defconfig (gcc-8): 1 warning
+    pxa255-idp_defconfig (gcc-8): 1 warning
+    pxa3xx_defconfig (gcc-8): 1 warning
+    pxa910_defconfig (gcc-8): 1 warning
+    pxa_defconfig (gcc-8): 1 warning
+    qcom_defconfig (gcc-8): 1 warning
+    raumfeld_defconfig (gcc-8): 1 warning
+    realview_defconfig (gcc-8): 1 warning
+    rpc_defconfig (gcc-8): 1 warning
+    s3c2410_defconfig (gcc-8): 1 warning
+    s3c6400_defconfig (gcc-8): 1 warning
+    s5pv210_defconfig (gcc-8): 1 warning
+    sama5_defconfig (gcc-8): 1 warning
+    shannon_defconfig (gcc-8): 1 warning
+    simpad_defconfig (gcc-8): 1 warning
+    socfpga_defconfig (gcc-8): 1 warning
+    spear13xx_defconfig (gcc-8): 1 warning
+    spear3xx_defconfig (gcc-8): 1 warning
+    spear6xx_defconfig (gcc-8): 1 warning
+    spitz_defconfig (gcc-8): 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
+    tango4_defconfig (gcc-8): 1 warning
+    tegra_defconfig (gcc-8): 1 warning
+    trizeps4_defconfig (gcc-8): 1 warning
+    u300_defconfig (gcc-8): 1 warning
+    u8500_defconfig (gcc-8): 1 warning
+    versatile_defconfig (gcc-8): 1 warning
+    vexpress_defconfig (gcc-8): 1 warning
+    vt8500_v6_v7_defconfig (gcc-8): 1 warning
+    zeus_defconfig (gcc-8): 1 warning
+    zx_defconfig (gcc-8): 1 warning
+
+i386:
+    i386_defconfig (gcc-8): 1 warning
+
+mips:
+    malta_qemu_32r6_defconfig (gcc-8): 1 warning
+
+x86_64:
+    tinyconfig (gcc-8): 1 warning
+    x86_64_defconfig (gcc-8): 1 warning
 
 
-From b027ce258369cbfa88401a691c23dad01deb9f9b Mon Sep 17 00:00:00 2001
-From: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Date: Mon, 21 Oct 2019 08:46:16 -0700
-Subject: tty: serial: msm_serial: Fix flow control
+Warnings summary:
 
-hci_qca interfaces to the wcn3990 via a uart_dm on the msm8998 mtp and
-Lenovo Miix 630 laptop.  As part of initializing the wcn3990, hci_qca
-disables flow, configures the uart baudrate, and then reenables flow - at
-which point an event is expected to be received over the uart from the
-wcn3990.  It is observed that this event comes after the baudrate change
-but before hci_qca re-enables flow. This is unexpected, and is a result of
-msm_reset() being broken.
+    98   fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitia=
+lized in this function [-Wmaybe-uninitialized]
+    2    arch/arm64/kernel/cpufeature.c:940:13: warning: 'cpu_copy_el2regs'=
+ defined but not used [-Wunused-function]
+    2    arch/arm64/kernel/cpufeature.c:802:13: warning: 'runs_at_el2' defi=
+ned but not used [-Wunused-function]
+    1    {standard input}:29: Warning: macro instruction expanded into mult=
+iple instructions
+    1    .config:1023:warning: override: UNWINDER_GUESS changes choice state
 
-According to the uart_dm hardware documentation, it is recommended that
-automatic hardware flow control be enabled by setting RX_RDY_CTL.  Auto
-hw flow control will manage RFR based on the configured watermark.  When
-there is space to receive data, the hw will assert RFR.  When the watermark
-is hit, the hw will de-assert RFR.
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
 
-The hardware documentation indicates that RFR can me manually managed via
-CR when RX_RDY_CTL is not set.  SET_RFR asserts RFR, and RESET_RFR
-de-asserts RFR.
+Detailed per-defconfig build reports:
 
-msm_reset() is broken because after resetting the hardware, it
-unconditionally asserts RFR via SET_RFR.  This enables flow regardless of
-the current configuration, and would undo a previous flow disable
-operation.  It should instead de-assert RFR via RESET_RFR to block flow
-until the hardware is reconfigured.  msm_serial should rely on the client
-to specify that flow should be enabled, either via mctrl() or the termios
-structure, and only assert RFR in response to those triggers.
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
 
-Fixes: 04896a77a97b ("msm_serial: serial driver for MSM7K onboard serial peripheral.")
-Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Andy Gross <agross@kernel.org>
-Link: https://lore.kernel.org/r/20191021154616.25457-1-jeffrey.l.hugo@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/arm64/kernel/cpufeature.c:940:13: warning: 'cpu_copy_el2regs' defi=
+ned but not used [-Wunused-function]
+    arch/arm64/kernel/cpufeature.c:802:13: warning: 'runs_at_el2' defined b=
+ut not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
+0 section mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
+ection mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warning=
+s, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
+, 0 section mismatches
+
+Warnings:
+    {standard input}:29: Warning: macro instruction expanded into multiple =
+instructions
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
+, 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
+ction mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
+0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
+on mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
+n mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/arm64/kernel/cpufeature.c:940:13: warning: 'cpu_copy_el2regs' defi=
+ned but not used [-Wunused-function]
+    arch/arm64/kernel/cpufeature.c:802:13: warning: 'runs_at_el2' defined b=
+ut not used [-Wunused-function]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
+ismatches
+
+Warnings:
+    .config:1023:warning: override: UNWINDER_GUESS changes choice state
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
+ion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
+section mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
+mismatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    fs/proc/task_mmu.c:761:7: warning: 'last_vma' may be used uninitialized=
+ in this function [-Wmaybe-uninitialized]
+
 ---
- drivers/tty/serial/msm_serial.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/tty/serial/msm_serial.c b/drivers/tty/serial/msm_serial.c
-index 3657a24913fc..00964b6e4ac1 100644
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -980,6 +980,7 @@ static unsigned int msm_get_mctrl(struct uart_port *port)
- static void msm_reset(struct uart_port *port)
- {
- 	struct msm_port *msm_port = UART_TO_MSM(port);
-+	unsigned int mr;
- 
- 	/* reset everything */
- 	msm_write(port, UART_CR_CMD_RESET_RX, UART_CR);
-@@ -987,7 +988,10 @@ static void msm_reset(struct uart_port *port)
- 	msm_write(port, UART_CR_CMD_RESET_ERR, UART_CR);
- 	msm_write(port, UART_CR_CMD_RESET_BREAK_INT, UART_CR);
- 	msm_write(port, UART_CR_CMD_RESET_CTS, UART_CR);
--	msm_write(port, UART_CR_CMD_SET_RFR, UART_CR);
-+	msm_write(port, UART_CR_CMD_RESET_RFR, UART_CR);
-+	mr = msm_read(port, UART_MR1);
-+	mr &= ~UART_MR1_RX_RDY_CTL;
-+	msm_write(port, mr, UART_MR1);
- 
- 	/* Disable DM modes */
- 	if (msm_port->is_uartdm)
--- 
-2.23.0
-
-
+For more info write to <info@kernelci.org>
