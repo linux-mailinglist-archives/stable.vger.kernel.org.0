@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53938EEF81
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:22:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CEA2EEDF2
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388468AbfKDV4u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:56:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52582 "EHLO mail.kernel.org"
+        id S2389059AbfKDWLl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:11:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388407AbfKDV4t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:56:49 -0500
+        id S2390713AbfKDWLk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:11:40 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0226320650;
-        Mon,  4 Nov 2019 21:56:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E106E214D8;
+        Mon,  4 Nov 2019 22:11:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904608;
-        bh=nHrJQy6IRtduNdoMR+OvKKGPN+3FdGijZZWTnM9090E=;
+        s=default; t=1572905500;
+        bh=guiaCEQRulnqPPe4LKaYat2ZR/CL0oCOT0xWw2Mknns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dwoKBTpW1mJflVVXYO8tjq2aML/qbg7io9X6zc+plkLWQL/RMavz/PdCFv1UwtMHF
-         +4HJ3b8UXaZ5bqiuR3E4BoUYws0N5q5+Hfmf0dZZ/MXKl4nO6EFb4dGCCv5biqQOTm
-         s4IApHk98/UJVMmKalNGDSHKLnwaRVu4/HeFP1Qg=
+        b=p5h0Y2pL3T6ta/CVvdsNVP6KE+hZgwjs6zyxJixxmV/3i9VUTXIbLevIzonEqCGj5
+         FB6H+gDB5N/nHEMyT8Ul3X/mUyzZPcAKKXnuFnywbGkW1Bgsd42/ZTHHzFeYWb4On4
+         XgBI+tNZXFK4rT1Q/t4GYi5BWjaMb2l2xwEfBwQs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 94/95] ALSA: timer: Simplify error path in snd_timer_open()
-Date:   Mon,  4 Nov 2019 22:45:32 +0100
-Message-Id: <20191104212125.226357372@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Bijan Mottahedeh <bijan.mottahedeh@oracle.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.3 143/163] io_uring: ensure we clear io_kiocb->result before each issue
+Date:   Mon,  4 Nov 2019 22:45:33 +0100
+Message-Id: <20191104212150.683214210@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
-References: <20191104212038.056365853@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,130 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit 41672c0c24a62699d20aab53b98d843b16483053 ]
+commit 6873e0bd6a9cb14ecfadd89d9ed9698ff1761902 upstream.
 
-Just a minor refactoring to use the standard goto for error paths in
-snd_timer_open() instead of open code.  The first mutex_lock() is
-moved to the beginning of the function to make the code clearer.
+We use io_kiocb->result == -EAGAIN as a way to know if we need to
+re-submit a polled request, as -EAGAIN reporting happens out-of-line
+for IO submission failures. This field is cleared when we originally
+allocate the request, but it isn't reset when we retry the submission
+from async context. This can cause issues where we think something
+needs a re-issue, but we're really just reading stale data.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reset ->result whenever we re-prep a request for polled submission.
+
+Cc: stable@vger.kernel.org
+Fixes: 9e645e1105ca ("io_uring: add support for sqe links")
+Reported-by: Bijan Mottahedeh <bijan.mottahedeh@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/core/timer.c | 39 ++++++++++++++++++++-------------------
- 1 file changed, 20 insertions(+), 19 deletions(-)
+ fs/io_uring.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/core/timer.c b/sound/core/timer.c
-index 2c0f292226d79..b50f7601cc2b0 100644
---- a/sound/core/timer.c
-+++ b/sound/core/timer.c
-@@ -254,19 +254,20 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 	struct snd_timer_instance *timeri = NULL;
- 	int err;
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1078,6 +1078,7 @@ static int io_prep_rw(struct io_kiocb *r
  
-+	mutex_lock(&register_mutex);
- 	if (tid->dev_class == SNDRV_TIMER_CLASS_SLAVE) {
- 		/* open a slave instance */
- 		if (tid->dev_sclass <= SNDRV_TIMER_SCLASS_NONE ||
- 		    tid->dev_sclass > SNDRV_TIMER_SCLASS_OSS_SEQUENCER) {
- 			pr_debug("ALSA: timer: invalid slave class %i\n",
- 				 tid->dev_sclass);
--			return -EINVAL;
-+			err = -EINVAL;
-+			goto unlock;
- 		}
--		mutex_lock(&register_mutex);
- 		timeri = snd_timer_instance_new(owner, NULL);
- 		if (!timeri) {
--			mutex_unlock(&register_mutex);
--			return -ENOMEM;
-+			err = -ENOMEM;
-+			goto unlock;
- 		}
- 		timeri->slave_class = tid->dev_sclass;
- 		timeri->slave_id = tid->device;
-@@ -277,13 +278,10 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 			snd_timer_close_locked(timeri);
- 			timeri = NULL;
- 		}
--		mutex_unlock(&register_mutex);
--		*ti = timeri;
--		return err;
-+		goto unlock;
- 	}
- 
- 	/* open a master instance */
--	mutex_lock(&register_mutex);
- 	timer = snd_timer_find(tid);
- #ifdef CONFIG_MODULES
- 	if (!timer) {
-@@ -294,25 +292,26 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 	}
- #endif
- 	if (!timer) {
--		mutex_unlock(&register_mutex);
--		return -ENODEV;
-+		err = -ENODEV;
-+		goto unlock;
- 	}
- 	if (!list_empty(&timer->open_list_head)) {
- 		timeri = list_entry(timer->open_list_head.next,
- 				    struct snd_timer_instance, open_list);
- 		if (timeri->flags & SNDRV_TIMER_IFLG_EXCLUSIVE) {
--			mutex_unlock(&register_mutex);
--			return -EBUSY;
-+			err = -EBUSY;
-+			timeri = NULL;
-+			goto unlock;
- 		}
- 	}
- 	if (timer->num_instances >= timer->max_instances) {
--		mutex_unlock(&register_mutex);
--		return -EBUSY;
-+		err = -EBUSY;
-+		goto unlock;
- 	}
- 	timeri = snd_timer_instance_new(owner, timer);
- 	if (!timeri) {
--		mutex_unlock(&register_mutex);
--		return -ENOMEM;
-+		err = -ENOMEM;
-+		goto unlock;
- 	}
- 	/* take a card refcount for safe disconnection */
- 	if (timer->card)
-@@ -321,16 +320,16 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 	timeri->slave_id = slave_id;
- 
- 	if (list_empty(&timer->open_list_head) && timer->hw.open) {
--		int err = timer->hw.open(timer);
-+		err = timer->hw.open(timer);
- 		if (err) {
- 			kfree(timeri->owner);
- 			kfree(timeri);
-+			timeri = NULL;
- 
- 			if (timer->card)
- 				put_device(&timer->card->card_dev);
- 			module_put(timer->module);
--			mutex_unlock(&register_mutex);
--			return err;
-+			goto unlock;
- 		}
- 	}
- 
-@@ -341,6 +340,8 @@ int snd_timer_open(struct snd_timer_instance **ti,
- 		snd_timer_close_locked(timeri);
- 		timeri = NULL;
- 	}
-+
-+ unlock:
- 	mutex_unlock(&register_mutex);
- 	*ti = timeri;
- 	return err;
--- 
-2.20.1
-
+ 		kiocb->ki_flags |= IOCB_HIPRI;
+ 		kiocb->ki_complete = io_complete_rw_iopoll;
++		req->result = 0;
+ 	} else {
+ 		if (kiocb->ki_flags & IOCB_HIPRI)
+ 			return -EINVAL;
 
 
