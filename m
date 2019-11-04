@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D253EECF7
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:02:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7D8EEF043
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389188AbfKDWBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:01:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60022 "EHLO mail.kernel.org"
+        id S1730416AbfKDVvF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:51:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389182AbfKDWBu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:01:50 -0500
+        id S1730411AbfKDVvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:51:05 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC4122084D;
-        Mon,  4 Nov 2019 22:01:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31229217F5;
+        Mon,  4 Nov 2019 21:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904909;
-        bh=3ldRPrwbBUvpX99a/EmyE/E4hfZ7R+ZnJSbfc/kcB8Q=;
+        s=default; t=1572904264;
+        bh=taHtxd+ytwMIQ/xVfUB+ba14QxmtBFsEvaK2BHFPEc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DjnuK5kkNFCdnkSPa8tFSd6WF+XJqby7eYaFPxwUiWYMR9dM8Qb8jRLNNuykCKoXP
-         aizhLhHnF1qZW4u3IPyTO7neYIevglVPlVA4J2CnM3hymbTwyWcZl4nhU934UJq03g
-         O4r21gcR5Bm565eab1mF1NNZvuatsC0Hpx7Mz9XM=
+        b=hCeIyKxruYEw4QZmZXbjOlT09IdgOgvnVn3XFviiSyUzJYTAINo+j+YCCJdPQXly1
+         fPpysH6C6YKx1XZiTPkBL/T+2iGCFYTg30qu5qvgOorYoOkoa4BgYecUupxnWDusq6
+         K4WsDCIXn4uNk3JowNPJsmfuiyKG3fe9/FmKiE1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaron Ma <aaron.ma@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 112/149] ALSA: hda/realtek - Fix 2 front mics of codec 0x623
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 43/62] USB: serial: whiteheat: fix line-speed endianness
 Date:   Mon,  4 Nov 2019 22:45:05 +0100
-Message-Id: <20191104212144.231498741@linuxfoundation.org>
+Message-Id: <20191104211947.080300933@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104211901.387893698@linuxfoundation.org>
+References: <20191104211901.387893698@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Ma <aaron.ma@canonical.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 8a6c55d0f883e9a7e7c91841434f3b6bbf932bb2 upstream.
+commit 84968291d7924261c6a0624b9a72f952398e258b upstream.
 
-These 2 ThinkCentres installed a new realtek codec ID 0x623,
-it has 2 front mics with the same location on pin 0x18 and 0x19.
+Add missing endianness conversion when setting the line speed so that
+this driver might work also on big-endian machines.
 
-Apply fixup ALC283_FIXUP_HEADSET_MIC to change 1 front mic
-location to right, then pulseaudio can handle them.
-One "Front Mic" and one "Mic" will be shown, and audio output works
-fine.
+Also use an unsigned format specifier in the corresponding debug
+message.
 
-Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191024114439.31522-1-aaron.ma@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191029102354.2733-3-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_realtek.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/whiteheat.c |    9 ++++++---
+ drivers/usb/serial/whiteheat.h |    2 +-
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6998,6 +6998,8 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x312f, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
- 	SND_PCI_QUIRK(0x17aa, 0x313c, "ThinkCentre Station", ALC294_FIXUP_LENOVO_MIC_LOCATION),
- 	SND_PCI_QUIRK(0x17aa, 0x3151, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
-+	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
- 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+--- a/drivers/usb/serial/whiteheat.c
++++ b/drivers/usb/serial/whiteheat.c
+@@ -681,6 +681,7 @@ static void firm_setup_port(struct tty_s
+ 	struct device *dev = &port->dev;
+ 	struct whiteheat_port_settings port_settings;
+ 	unsigned int cflag = tty->termios.c_cflag;
++	speed_t baud;
+ 
+ 	port_settings.port = port->port_number + 1;
+ 
+@@ -741,11 +742,13 @@ static void firm_setup_port(struct tty_s
+ 	dev_dbg(dev, "%s - XON = %2x, XOFF = %2x\n", __func__, port_settings.xon, port_settings.xoff);
+ 
+ 	/* get the baud rate wanted */
+-	port_settings.baud = tty_get_baud_rate(tty);
+-	dev_dbg(dev, "%s - baud rate = %d\n", __func__, port_settings.baud);
++	baud = tty_get_baud_rate(tty);
++	port_settings.baud = cpu_to_le32(baud);
++	dev_dbg(dev, "%s - baud rate = %u\n", __func__, baud);
+ 
+ 	/* fixme: should set validated settings */
+-	tty_encode_baud_rate(tty, port_settings.baud, port_settings.baud);
++	tty_encode_baud_rate(tty, baud, baud);
++
+ 	/* handle any settings that aren't specified in the tty structure */
+ 	port_settings.lloop = 0;
+ 
+--- a/drivers/usb/serial/whiteheat.h
++++ b/drivers/usb/serial/whiteheat.h
+@@ -91,7 +91,7 @@ struct whiteheat_simple {
+ 
+ struct whiteheat_port_settings {
+ 	__u8	port;		/* port number (1 to N) */
+-	__u32	baud;		/* any value 7 - 460800, firmware calculates
++	__le32	baud;		/* any value 7 - 460800, firmware calculates
+ 				   best fit; arrives little endian */
+ 	__u8	bits;		/* 5, 6, 7, or 8 */
+ 	__u8	stop;		/* 1 or 2, default 1 (2 = 1.5 if bits = 5) */
 
 
