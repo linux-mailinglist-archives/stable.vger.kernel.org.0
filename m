@@ -2,152 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E94EE3B7
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 16:25:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78941EE30C
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 16:04:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728634AbfKDPZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 10:25:27 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:56388 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728188AbfKDPZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 10:25:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572881126;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3QZRirfuUhsdXG9rrswqF3RwKnBGY5m5ab7OcFpaYpA=;
-        b=G8XcIZEs7d9tFYG6GhGXdMBp7NY+oLlEEEmBasbsrkKoUtC0z9ZjwPRNzP4XL5Jxyd6Zg3
-        ISUOfxRDpjzjK4mkvdbxbGZNy2amDBrPp/hHBZw+9myP+funnkgx08QvXghXTcNRJyq1F7
-        ruXEUsXZNbp6/JBk6hH6NUws2CU4wq0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-91-0Ejf54GUMYmPnVTUBPnmdw-1; Mon, 04 Nov 2019 10:25:23 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 8CA971800D53;
-        Mon,  4 Nov 2019 15:25:22 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 7D27A100164D;
-        Mon,  4 Nov 2019 15:25:21 +0000 (UTC)
-Received: from zmail17.collab.prod.int.phx2.redhat.com (zmail17.collab.prod.int.phx2.redhat.com [10.5.83.19])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 4193C18095FF;
-        Mon,  4 Nov 2019 15:25:21 +0000 (UTC)
-Date:   Mon, 4 Nov 2019 10:25:21 -0500 (EST)
-From:   Jan Stancek <jstancek@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     CKI Project <cki-project@redhat.com>,
-        Jaroslav Kysela <jkysela@redhat.com>,
-        alsa-devel@alsa-project.org, LTP Mailing List <ltp@lists.linux.it>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>
-Message-ID: <251943262.10356408.1572881121044.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20191104145947.GA2211991@kroah.com>
-References: <cki.1210A7ECB0.BD9Q3APV4K@redhat.com> <2029139028.10333037.1572874551626.JavaMail.zimbra@redhat.com> <20191104135135.GA2162401@kroah.com> <1341418315.10342806.1572877690830.JavaMail.zimbra@redhat.com> <20191104145947.GA2211991@kroah.com>
-Subject: =?utf-8?Q?Re:_=E2=9D=8C_FAIL:_Test_report_for_kern?=
- =?utf-8?Q?el_5.3.9-rc1-dfe283e.cki_(stable)?=
+        id S1727989AbfKDPEN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 10:04:13 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:57132 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727788AbfKDPEN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 10:04:13 -0500
+Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id 42FB190FC5702BB56D01;
+        Mon,  4 Nov 2019 23:04:11 +0800 (CST)
+Received: from huawei.com (10.175.124.28) by DGGEMS402-HUB.china.huawei.com
+ (10.3.19.202) with Microsoft SMTP Server id 14.3.439.0; Mon, 4 Nov 2019
+ 23:04:10 +0800
+From:   "zhangyi (F)" <yi.zhang@huawei.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <viro@zeniv.linux.org.uk>
+Subject: [PATCH for stalbe 4.4/3.16] fs/dcache: move security_d_instantiate() behind attaching dentry to inode
+Date:   Mon, 4 Nov 2019 23:25:36 +0800
+Message-ID: <20191104152536.30527-1-yi.zhang@huawei.com>
+X-Mailer: git-send-email 2.17.2
 MIME-Version: 1.0
-X-Originating-IP: [10.43.17.163, 10.4.195.18]
-Thread-Topic: =?utf-8?B?4p2MIEZBSUw6?= Test report for kernel 5.3.9-rc1-dfe283e.cki (stable)
-Thread-Index: h70YfNCWRy5RPDBYtaoKLKwlyBv/kg==
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: 0Ejf54GUMYmPnVTUBPnmdw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-Originating-IP: [10.175.124.28]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+During backport 1e2e547a93a "do d_instantiate/unlock_new_inode
+combinations safely", there was a error instantiating sequence of
+attaching dentry to inode and calling security_d_instantiate().
 
------ Original Message -----
-> On Mon, Nov 04, 2019 at 09:28:10AM -0500, Jan Stancek wrote:
-> >=20
-> >=20
-> > ----- Original Message -----
-> > > On Mon, Nov 04, 2019 at 08:35:51AM -0500, Jan Stancek wrote:
-> > > >=20
-> > > >=20
-> > > > ----- Original Message -----
-> > > > >=20
-> > > > > Hello,
-> > > > >=20
-> > > > > We ran automated tests on a recent commit from this kernel tree:
-> > > > >=20
-> > > > >        Kernel repo:
-> > > > >        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux=
--stable-rc.git
-> > > > >             Commit: dfe283e9fdac - Linux 5.3.9-rc1
-> > > > >=20
-> > > > > The results of these automated tests are provided below.
-> > > > >=20
-> > > > >     Overall result: FAILED (see details below)
-> > > > >              Merge: OK
-> > > > >            Compile: OK
-> > > > >              Tests: FAILED
-> > > > >=20
-> > > > > All kernel binaries, config files, and logs are available for
-> > > > > download
-> > > > > here:
-> > > > >=20
-> > > > >   https://artifacts.cki-project.org/pipelines/262380
-> > > > >=20
-> > > > > One or more kernel tests failed:
-> > > > >=20
-> > > > >     x86_64:
-> > > > >      =E2=9D=8C LTP lite
-> > > > >
-> > > >=20
-> > > > Not a 5.3 -stable regression.
-> > > >=20
-> > > > Failure comes from test that sanity checks all /proc files by doing
-> > > > 1k read from each. There are couple issues it hits wrt. snd_hda_*.
-> > > >=20
-> > > > Example reproducer:
-> > > >   dd if=3D/sys/kernel/debug/regmap/hdaudioC0D3-hdaudio/access of=3D=
-out.txt
-> > > >   count=3D1 bs=3D1024 iflag=3Dnonblock
-> > >=20
-> > > That's not a proc file :)
-> >=20
-> > Right. It's same test that's used for /proc too.
-> >=20
-> > >=20
-> > > > It's slow and triggers soft lockups [1]. And it also requires lot
-> > > > of memory, triggering OOMs on smaller VMs:
-> > > > 0x0000000024f0437b-0x000000001a32b1c8 1073745920 seq_read+0x131/0x4=
-00
-> > > > pages=3D262144 vmalloc vpages N0=3D262144
-> > > >=20
-> > > > I'm leaning towards skipping all regmap entries in this test.
-> > > > Comments are welcomed.
-> > >=20
-> > > Randomly poking around in debugfs is a sure way to cause crashes and
-> > > major problems.  Also, debugfs files are NOT stable and only for
-> > > debugging and should never be enabled on "real" systems.
-> > >=20
-> > > So what exactly is the test trying to do here?
-> >=20
-> > It's (unprivileged) user trying to open/read anything it can (/proc, /s=
-ys)
-> > to see if that triggers anything bad.
-> >=20
-> > It can run as privileged user too, which was the case above.
->=20
-> Sure, you can do tons of bad things as root poking around in sysfs,
-> debugfs, and procfs.  What exactly are you trying to do, break the
-> system?
+Before commit ce23e640133 "->getxattr(): pass dentry and inode as
+separate arguments" and b96809173e9 "security_d_instantiate(): move to
+the point prior to attaching dentry to inode", security_d_instantiate()
+should be called beind __d_instantiate(), otherwise it will trigger
+below problem when CONFIG_SECURITY_SMACK on ext4 was enabled because
+d_inode(dentry) used by ->getxattr() is NULL before __d_instantiate()
+instantiate inode.
 
-We are talking about read-only here. Is it unreasonable to expect
-that root can read all /proc entries without crashing the system?
+[   31.858026] BUG: unable to handle kernel paging request at ffffffffffffff70
+...
+[   31.882024] Call Trace:
+[   31.882378]  [<ffffffffa347f75c>] ext4_xattr_get+0x8c/0x3e0
+[   31.883195]  [<ffffffffa3489454>] ext4_xattr_security_get+0x24/0x40
+[   31.884086]  [<ffffffffa336a56b>] generic_getxattr+0x5b/0x90
+[   31.884907]  [<ffffffffa3700514>] smk_fetch+0xb4/0x150
+[   31.885634]  [<ffffffffa3700772>] smack_d_instantiate+0x1c2/0x550
+[   31.886508]  [<ffffffffa36f9a5a>] security_d_instantiate+0x3a/0x80
+[   31.887389]  [<ffffffffa3353b26>] d_instantiate_new+0x36/0x130
+[   31.888223]  [<ffffffffa342b1ef>] ext4_mkdir+0x4af/0x6a0
+[   31.888928]  [<ffffffffa3343470>] vfs_mkdir+0x100/0x280
+[   31.889536]  [<ffffffffa334b086>] SyS_mkdir+0xb6/0x170
+[   31.890255]  [<ffffffffa307c855>] ? trace_do_page_fault+0x95/0x2b0
+[   31.891134]  [<ffffffffa3c5e078>] entry_SYSCALL_64_fastpath+0x18/0x73
 
-Some entries are readable only by root. So an unprivileged user
-will skip considerable number of entries:
--r--------. 1 root root 0 Nov  4 16:13 /proc/slabinfo
+Cc: <stable@vger.kernel.org> # 3.16, 4.4
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
+---
+ fs/dcache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> That sounds like a horrible test that is just setting itself up to lock
-> the system up, you should revisit it...
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 5a1c36dc5d65..baa00718d8d1 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -1900,7 +1900,6 @@ void d_instantiate_new(struct dentry *entry, struct inode *inode)
+ 	BUG_ON(!hlist_unhashed(&entry->d_u.d_alias));
+ 	BUG_ON(!inode);
+ 	lockdep_annotate_inode_mutex_key(inode);
+-	security_d_instantiate(entry, inode);
+ 	spin_lock(&inode->i_lock);
+ 	__d_instantiate(entry, inode);
+ 	WARN_ON(!(inode->i_state & I_NEW));
+@@ -1908,6 +1907,7 @@ void d_instantiate_new(struct dentry *entry, struct inode *inode)
+ 	smp_mb();
+ 	wake_up_bit(&inode->i_state, __I_NEW);
+ 	spin_unlock(&inode->i_lock);
++	security_d_instantiate(entry, inode);
+ }
+ EXPORT_SYMBOL(d_instantiate_new);
+ 
+-- 
+2.17.2
 
