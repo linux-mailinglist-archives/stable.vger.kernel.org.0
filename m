@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C3CEF086
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C535EECED
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388756AbfKDW2u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:28:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39132 "EHLO mail.kernel.org"
+        id S2389060AbfKDWBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:01:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729968AbfKDVsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:48:33 -0500
+        id S2389055AbfKDWB3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:01:29 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECDB020B7C;
-        Mon,  4 Nov 2019 21:48:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 904ED20650;
+        Mon,  4 Nov 2019 22:01:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904113;
-        bh=v0IrQyRi9n+bfhh9+5Fe2BJGlZxsDr2cCWzbbt2oXfA=;
+        s=default; t=1572904889;
+        bh=5VyfATjDRZ/d61SscXopb+AgGGmd7/YaQZLg5GFAo3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bi5lUsitl4EWPmRj9xYuadr0X1yueiJ8Sje8AH7w96q20cp9/Osrje2gv/aiTpx3M
-         YI9bwEmfI+Ze2ygzTTtLrQa2bveSwOUMPThtnYNzQiwjABmn+kWxEPxxTsS1SIzIFy
-         6d39lRR/JqvdoOHG3yMW9ZkHkqEK2cSX3O3MODnU=
+        b=TuzNLaIhYVIrJLhKPXgySqpeDiMHWuDvgZJp+t6iXh/4JQfO4MGs1Mz2u3AJ3Mwbs
+         li+53gkCJ6wzhktLpUpQegUVEvtSP12OsJiwA3/fbdzK4jIZLo8O6uU7CffjV3Acfi
+         qNPws35eDLDTp52r9yRiRA0FVceTqIp3NPiPu0e0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 27/46] ALSA: bebob: Fix prototype of helper function to return negative value
-Date:   Mon,  4 Nov 2019 22:44:58 +0100
-Message-Id: <20191104211859.776154553@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johan Hovold <johan@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 106/149] USB: legousbtower: fix a signedness bug in tower_probe()
+Date:   Mon,  4 Nov 2019 22:44:59 +0100
+Message-Id: <20191104212143.879043482@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit f2bbdbcb075f3977a53da3bdcb7cd460bc8ae5f2 upstream.
+[ Upstream commit fd47a417e75e2506eb3672ae569b1c87e3774155 ]
 
-A helper function of ALSA bebob driver returns negative value in a
-function which has a prototype to return unsigned value.
+The problem is that sizeof() is unsigned long so negative error codes
+are type promoted to high positive values and the condition becomes
+false.
 
-This commit fixes it by changing the prototype.
-
-Fixes: eb7b3a056cd8 ("ALSA: bebob: Add commands and connections/streams management")
-Cc: <stable@vger.kernel.org> # v3.16+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20191026030620.12077-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 1d427be4a39d ("USB: legousbtower: fix slab info leak at probe")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191011141115.GA4521@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/bebob/bebob_stream.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/misc/legousbtower.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/firewire/bebob/bebob_stream.c
-+++ b/sound/firewire/bebob/bebob_stream.c
-@@ -253,8 +253,7 @@ end:
- 	return err;
- }
- 
--static unsigned int
--map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
-+static int map_data_channels(struct snd_bebob *bebob, struct amdtp_stream *s)
- {
- 	unsigned int sec, sections, ch, channels;
- 	unsigned int pcm, midi, location;
+diff --git a/drivers/usb/misc/legousbtower.c b/drivers/usb/misc/legousbtower.c
+index 62dab2441ec4f..23061f1526b4e 100644
+--- a/drivers/usb/misc/legousbtower.c
++++ b/drivers/usb/misc/legousbtower.c
+@@ -878,7 +878,7 @@ static int tower_probe (struct usb_interface *interface, const struct usb_device
+ 				  get_version_reply,
+ 				  sizeof(*get_version_reply),
+ 				  1000);
+-	if (result < sizeof(*get_version_reply)) {
++	if (result != sizeof(*get_version_reply)) {
+ 		if (result >= 0)
+ 			result = -EIO;
+ 		dev_err(idev, "get version request failed: %d\n", result);
+-- 
+2.20.1
+
 
 
