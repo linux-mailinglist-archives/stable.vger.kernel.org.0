@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5215AEEF5A
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373F6EEE83
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:15:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730906AbfKDV7B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:59:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56072 "EHLO mail.kernel.org"
+        id S2389498AbfKDWGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:06:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730893AbfKDV7A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:59:00 -0500
+        id S2389924AbfKDWGS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:06:18 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71FFC214E0;
-        Mon,  4 Nov 2019 21:58:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC23620650;
+        Mon,  4 Nov 2019 22:06:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904738;
-        bh=ne9QAjeb1S8nb93Ake9Lq8Wna3eB+iMjKjixdd5/Lj0=;
+        s=default; t=1572905178;
+        bh=rRwePNsI59KK4BLYIYjRoGLaieBH2kehmZF/8DC2UNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fm1+L4zo5W+UED7Wg/StclxZscoJwFk2F9GPt4smLml7zbnx4gSfQNmJ9kIIurpja
-         O7CGKgaEctWA2y3s84KC7nquboPe5Vgv0zUPZ7pw8fcyc8C8b1aECrqx1ImkQyN08W
-         S8Olo2hqzmGCubZj/hLCBXXlWrTqvSzQBMBhqDaw=
+        b=RwxgJ9TYiEUwjCkkmNMcCSnUkGX9BMs0WZbsvkD23qvkZAzaos4PNd+t/KsGG2BIV
+         NsgJLboC0G5AdxufLBzXXH4XpBvUm2cWXNs3/2RRhOZ7+9MF1QjzvDI87ncwQRMMPL
+         mLmsAVGZU45vLgXONiT/DsaIvRgbtFYGgQ2BxSUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Samuel Dionne-Riel <samuel@dionne-riel.com>,
-        Richard Weinberger <richard.weinberger@gmail.com>,
-        Graham Christensen <graham@grahamc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Vincent Chen <vincent.chen@sifive.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/149] exec: load_script: Do not exec truncated interpreter path
+Subject: [PATCH 5.3 056/163] riscv: Correct the handling of unexpected ebreak in do_trap_break()
 Date:   Mon,  4 Nov 2019 22:44:06 +0100
-Message-Id: <20191104212139.993310316@linuxfoundation.org>
+Message-Id: <20191104212144.176069663@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,117 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Vincent Chen <vincent.chen@sifive.com>
 
-[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
+[ Upstream commit 8bb0daef64e5a92db63ad1d3bbf9e280a7b3612a ]
 
-Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
-shebang string") was trying to protect against a confused exec of a
-truncated interpreter path. However, it was overeager and also refused
-to truncate arguments as well, which broke userspace, and it was
-reverted. This attempts the protection again, but allows arguments to
-remain truncated. In an effort to improve readability, helper functions
-and comments have been added.
+For the kernel space, all ebreak instructions are determined at compile
+time because the kernel space debugging module is currently unsupported.
+Hence, it should be treated as a bug if an ebreak instruction which does
+not belong to BUG_TRAP_TYPE_WARN or BUG_TRAP_TYPE_BUG is executed in
+kernel space. For the userspace, debugging module or user problem may
+intentionally insert an ebreak instruction to trigger a SIGTRAP signal.
+To approach the above two situations, the do_trap_break() will direct
+the BUG_TRAP_TYPE_NONE ebreak exception issued in kernel space to die()
+and will send a SIGTRAP to the trapped process only when the ebreak is
+in userspace.
 
-Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>
-Cc: Graham Christensen <graham@grahamc.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Vincent Chen <vincent.chen@sifive.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+[paul.walmsley@sifive.com: fixed checkpatch issue]
+Signed-off-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 48 insertions(+), 9 deletions(-)
+ arch/riscv/kernel/traps.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
-index 7cde3f46ad263..e996174cbfc02 100644
---- a/fs/binfmt_script.c
-+++ b/fs/binfmt_script.c
-@@ -14,13 +14,30 @@
- #include <linux/err.h>
- #include <linux/fs.h>
+diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
+index 82f42a55451eb..93742df9067fb 100644
+--- a/arch/riscv/kernel/traps.c
++++ b/arch/riscv/kernel/traps.c
+@@ -130,8 +130,6 @@ asmlinkage void do_trap_break(struct pt_regs *regs)
+ 		type = report_bug(regs->sepc, regs);
+ 		switch (type) {
+ #ifdef CONFIG_GENERIC_BUG
+-		case BUG_TRAP_TYPE_NONE:
+-			break;
+ 		case BUG_TRAP_TYPE_WARN:
+ 			regs->sepc += get_break_insn_length(regs->sepc);
+ 			return;
+@@ -140,8 +138,10 @@ asmlinkage void do_trap_break(struct pt_regs *regs)
+ 		default:
+ 			die(regs, "Kernel BUG");
+ 		}
++	} else {
++		force_sig_fault(SIGTRAP, TRAP_BRKPT,
++				(void __user *)(regs->sepc));
+ 	}
+-	force_sig_fault(SIGTRAP, TRAP_BRKPT, (void __user *)(regs->sepc));
+ }
  
-+static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
-+static inline char *next_non_spacetab(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (!spacetab(*first))
-+			return first;
-+	return NULL;
-+}
-+static inline char *next_terminator(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (spacetab(*first) || !*first)
-+			return first;
-+	return NULL;
-+}
-+
- static int load_script(struct linux_binprm *bprm)
- {
- 	const char *i_arg, *i_name;
--	char *cp;
-+	char *cp, *buf_end;
- 	struct file *file;
- 	int retval;
- 
-+	/* Not ours to exec if we don't start with "#!". */
- 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
- 		return -ENOEXEC;
- 
-@@ -33,18 +50,40 @@ static int load_script(struct linux_binprm *bprm)
- 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
- 		return -ENOENT;
- 
--	/*
--	 * This section does the #! interpretation.
--	 * Sorta complicated, but hopefully it will work.  -TYT
--	 */
--
-+	/* Release since we are not mapping a binary into memory. */
- 	allow_write_access(bprm->file);
- 	fput(bprm->file);
- 	bprm->file = NULL;
- 
--	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
--	if ((cp = strchr(bprm->buf, '\n')) == NULL)
--		cp = bprm->buf+BINPRM_BUF_SIZE-1;
-+	/*
-+	 * This section handles parsing the #! line into separate
-+	 * interpreter path and argument strings. We must be careful
-+	 * because bprm->buf is not yet guaranteed to be NUL-terminated
-+	 * (though the buffer will have trailing NUL padding when the
-+	 * file size was smaller than the buffer size).
-+	 *
-+	 * We do not want to exec a truncated interpreter path, so either
-+	 * we find a newline (which indicates nothing is truncated), or
-+	 * we find a space/tab/NUL after the interpreter path (which
-+	 * itself may be preceded by spaces/tabs). Truncating the
-+	 * arguments is fine: the interpreter can re-read the script to
-+	 * parse them on its own.
-+	 */
-+	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
-+	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
-+	if (!cp) {
-+		cp = next_non_spacetab(bprm->buf + 2, buf_end);
-+		if (!cp)
-+			return -ENOEXEC; /* Entire buf is spaces/tabs */
-+		/*
-+		 * If there is no later space/tab/NUL we must assume the
-+		 * interpreter path is truncated.
-+		 */
-+		if (!next_terminator(cp, buf_end))
-+			return -ENOEXEC;
-+		cp = buf_end;
-+	}
-+	/* NUL-terminate the buffer and any trailing spaces/tabs. */
- 	*cp = '\0';
- 	while (cp > bprm->buf) {
- 		cp--;
+ #ifdef CONFIG_GENERIC_BUG
 -- 
 2.20.1
 
