@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 228D8EF079
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01376EEEFC
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:19:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730192AbfKDVtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:49:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40186 "EHLO mail.kernel.org"
+        id S2388055AbfKDWSA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:18:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730253AbfKDVtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:49:07 -0500
+        id S2389224AbfKDWCO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:02:14 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48E7A214E0;
-        Mon,  4 Nov 2019 21:49:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 391092089C;
+        Mon,  4 Nov 2019 22:02:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904146;
-        bh=AEX36XsO5lXsy2UodCcGI6ADsqU81+EXoRM9bAA0rL0=;
+        s=default; t=1572904933;
+        bh=iOwJt4PH0vF7tQobDg6MlteMOkoS0OlM2wN4cLQY6wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBnT+5a/zBqqoeHD9eI/D0qimdESwT5ExwTr9lHXWimODsiSxPVm1ETbM15y1gjFd
-         ufT02DJfZguxrv3gzygUWOVNVLyTCQeG6GFogRmQhkIRg/n4Ckt3HYgToI5oLqIMR2
-         vqKLLWj/cTwupgB4T4cf7uRqrVyJJTJ8Qa813Syo=
+        b=Mzofvc2Tw965kMI4iB12AHdReN3n0VsvsV8Mwy63fpcZjl83sjzpd+J11fGZR2fgh
+         +D7nvPeQ2wZiCELktB4dbivKQQDppw9F4ALvsqwlQUQ1NOj2OO/ik+QQwXjSl11PE7
+         qczvTeP7+bT/dZ4wam7jS1aE6Na3pWYT7vS7GllA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com,
-        Valentin Vidic <vvidic@valentin-vidic.from.hr>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 42/46] net: usb: sr9800: fix uninitialized local variable
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 120/149] USB: serial: whiteheat: fix potential slab corruption
 Date:   Mon,  4 Nov 2019 22:45:13 +0100
-Message-Id: <20191104211914.396887035@linuxfoundation.org>
+Message-Id: <20191104212144.726422498@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
-References: <20191104211830.912265604@linuxfoundation.org>
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,32 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Vidic <vvidic@valentin-vidic.from.hr>
+From: Johan Hovold <johan@kernel.org>
 
-commit 77b6d09f4ae66d42cd63b121af67780ae3d1a5e9 upstream.
+commit 1251dab9e0a2c4d0d2d48370ba5baa095a5e8774 upstream.
 
-Make sure res does not contain random value if the call to
-sr_read_cmd fails for some reason.
+Fix a user-controlled slab buffer overflow due to a missing sanity check
+on the bulk-out transfer buffer used for control requests.
 
-Reported-by: syzbot+f1842130bbcfb335bac1@syzkaller.appspotmail.com
-Signed-off-by: Valentin Vidic <vvidic@valentin-vidic.from.hr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20191029102354.2733-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/usb/sr9800.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/whiteheat.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/usb/sr9800.c
-+++ b/drivers/net/usb/sr9800.c
-@@ -336,7 +336,7 @@ static void sr_set_multicast(struct net_
- static int sr_mdio_read(struct net_device *net, int phy_id, int loc)
- {
- 	struct usbnet *dev = netdev_priv(net);
--	__le16 res;
-+	__le16 res = 0;
+--- a/drivers/usb/serial/whiteheat.c
++++ b/drivers/usb/serial/whiteheat.c
+@@ -571,6 +571,10 @@ static int firm_send_command(struct usb_
  
- 	mutex_lock(&dev->phy_mutex);
- 	sr_set_sw_mii(dev);
+ 	command_port = port->serial->port[COMMAND_PORT];
+ 	command_info = usb_get_serial_port_data(command_port);
++
++	if (command_port->bulk_out_size < datasize + 1)
++		return -EIO;
++
+ 	mutex_lock(&command_info->mutex);
+ 	command_info->command_finished = false;
+ 
 
 
