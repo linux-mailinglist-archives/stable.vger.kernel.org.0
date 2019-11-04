@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7ADAEEFED
+	by mail.lfdr.de (Postfix) with ESMTP id 5E51DEEFEC
 	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730817AbfKDVwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:52:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46302 "EHLO mail.kernel.org"
+        id S1730824AbfKDVwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:52:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730809AbfKDVwm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:52:42 -0500
+        id S1730796AbfKDVwo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:52:44 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7416F21850;
-        Mon,  4 Nov 2019 21:52:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7350B217F5;
+        Mon,  4 Nov 2019 21:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904361;
-        bh=ne9QAjeb1S8nb93Ake9Lq8Wna3eB+iMjKjixdd5/Lj0=;
+        s=default; t=1572904364;
+        bh=eB8OcREBndT+A5hyfQrTyGkWl3QxuRF+jZflQikaaIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oB8NTEzbFvz+XkKmpnNFLXdP1BCO/pPoORNxx+cnqTfl2AtioHGkbDFyBbfpBzeX4
-         tcr6IrxojXM/QAXNmeYwkpjTChe8rt6BHkKSBzSnjuG5G6ZHD3WA175lpiZXJf5//j
-         od+Ij36pFTeIkTV76cV/fiJN91qK1o7XoquLiyBU=
+        b=v1QRgc2XDSMATgUVC/XwdHbHwMuX1O5BuGUuLA6v0oOhoLYXit7AIZpZCqhccYYWq
+         we6mZaR4GOOAWkLBdXnIz0WGQobQW3ysO83wz69V5igXgLJ9c50lRI1RmurdUIjmuY
+         VZ8EYJa34c46zZf3Bbg5YqIy/PR6TUdLW/BDtFQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Samuel Dionne-Riel <samuel@dionne-riel.com>,
-        Richard Weinberger <richard.weinberger@gmail.com>,
-        Graham Christensen <graham@grahamc.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sinan Kaya <okaya@kernel.org>,
+        Frederick Lawler <fred@fredlawl.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/95] exec: load_script: Do not exec truncated interpreter path
-Date:   Mon,  4 Nov 2019 22:44:19 +0100
-Message-Id: <20191104212049.961020644@linuxfoundation.org>
+Subject: [PATCH 4.14 22/95] PCI/PME: Fix possible use-after-free on remove
+Date:   Mon,  4 Nov 2019 22:44:20 +0100
+Message-Id: <20191104212052.393906364@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
 References: <20191104212038.056365853@linuxfoundation.org>
@@ -50,117 +49,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Sven Van Asbroeck <thesven73@gmail.com>
 
-[ Upstream commit b5372fe5dc84235dbe04998efdede3c4daa866a9 ]
+[ Upstream commit 7cf58b79b3072029af127ae865ffc6f00f34b1f8 ]
 
-Commit 8099b047ecc4 ("exec: load_script: don't blindly truncate
-shebang string") was trying to protect against a confused exec of a
-truncated interpreter path. However, it was overeager and also refused
-to truncate arguments as well, which broke userspace, and it was
-reverted. This attempts the protection again, but allows arguments to
-remain truncated. In an effort to improve readability, helper functions
-and comments have been added.
+In remove(), ensure that the PME work cannot run after kfree() is called.
+Otherwise, this could result in a use-after-free.
 
-Co-developed-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Samuel Dionne-Riel <samuel@dionne-riel.com>
-Cc: Richard Weinberger <richard.weinberger@gmail.com>
-Cc: Graham Christensen <graham@grahamc.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+This issue was detected with the help of Coccinelle.
+
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Sinan Kaya <okaya@kernel.org>
+Cc: Frederick Lawler <fred@fredlawl.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/binfmt_script.c | 57 ++++++++++++++++++++++++++++++++++++++--------
- 1 file changed, 48 insertions(+), 9 deletions(-)
+ drivers/pci/pcie/pme.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/binfmt_script.c b/fs/binfmt_script.c
-index 7cde3f46ad263..e996174cbfc02 100644
---- a/fs/binfmt_script.c
-+++ b/fs/binfmt_script.c
-@@ -14,13 +14,30 @@
- #include <linux/err.h>
- #include <linux/fs.h>
+diff --git a/drivers/pci/pcie/pme.c b/drivers/pci/pcie/pme.c
+index c2e6e3d1073f8..5500660bbb104 100644
+--- a/drivers/pci/pcie/pme.c
++++ b/drivers/pci/pcie/pme.c
+@@ -441,6 +441,7 @@ static void pcie_pme_remove(struct pcie_device *srv)
  
-+static inline bool spacetab(char c) { return c == ' ' || c == '\t'; }
-+static inline char *next_non_spacetab(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (!spacetab(*first))
-+			return first;
-+	return NULL;
-+}
-+static inline char *next_terminator(char *first, const char *last)
-+{
-+	for (; first <= last; first++)
-+		if (spacetab(*first) || !*first)
-+			return first;
-+	return NULL;
-+}
-+
- static int load_script(struct linux_binprm *bprm)
- {
- 	const char *i_arg, *i_name;
--	char *cp;
-+	char *cp, *buf_end;
- 	struct file *file;
- 	int retval;
+ 	pcie_pme_disable_interrupt(srv->port, data);
+ 	free_irq(srv->irq, srv);
++	cancel_work_sync(&data->work);
+ 	kfree(data);
+ }
  
-+	/* Not ours to exec if we don't start with "#!". */
- 	if ((bprm->buf[0] != '#') || (bprm->buf[1] != '!'))
- 		return -ENOEXEC;
- 
-@@ -33,18 +50,40 @@ static int load_script(struct linux_binprm *bprm)
- 	if (bprm->interp_flags & BINPRM_FLAGS_PATH_INACCESSIBLE)
- 		return -ENOENT;
- 
--	/*
--	 * This section does the #! interpretation.
--	 * Sorta complicated, but hopefully it will work.  -TYT
--	 */
--
-+	/* Release since we are not mapping a binary into memory. */
- 	allow_write_access(bprm->file);
- 	fput(bprm->file);
- 	bprm->file = NULL;
- 
--	bprm->buf[BINPRM_BUF_SIZE - 1] = '\0';
--	if ((cp = strchr(bprm->buf, '\n')) == NULL)
--		cp = bprm->buf+BINPRM_BUF_SIZE-1;
-+	/*
-+	 * This section handles parsing the #! line into separate
-+	 * interpreter path and argument strings. We must be careful
-+	 * because bprm->buf is not yet guaranteed to be NUL-terminated
-+	 * (though the buffer will have trailing NUL padding when the
-+	 * file size was smaller than the buffer size).
-+	 *
-+	 * We do not want to exec a truncated interpreter path, so either
-+	 * we find a newline (which indicates nothing is truncated), or
-+	 * we find a space/tab/NUL after the interpreter path (which
-+	 * itself may be preceded by spaces/tabs). Truncating the
-+	 * arguments is fine: the interpreter can re-read the script to
-+	 * parse them on its own.
-+	 */
-+	buf_end = bprm->buf + sizeof(bprm->buf) - 1;
-+	cp = strnchr(bprm->buf, sizeof(bprm->buf), '\n');
-+	if (!cp) {
-+		cp = next_non_spacetab(bprm->buf + 2, buf_end);
-+		if (!cp)
-+			return -ENOEXEC; /* Entire buf is spaces/tabs */
-+		/*
-+		 * If there is no later space/tab/NUL we must assume the
-+		 * interpreter path is truncated.
-+		 */
-+		if (!next_terminator(cp, buf_end))
-+			return -ENOEXEC;
-+		cp = buf_end;
-+	}
-+	/* NUL-terminate the buffer and any trailing spaces/tabs. */
- 	*cp = '\0';
- 	while (cp > bprm->buf) {
- 		cp--;
 -- 
 2.20.1
 
