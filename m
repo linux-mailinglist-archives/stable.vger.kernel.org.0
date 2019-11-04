@@ -2,94 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B47A0EDD2E
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 11:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74EFCEDD36
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 12:00:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728432AbfKDK7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 05:59:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46912 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727663AbfKDK7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 05:59:13 -0500
+        id S1727607AbfKDLAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 06:00:09 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:46577 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726071AbfKDLAJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 06:00:09 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 18A8321EAD;
+        Mon,  4 Nov 2019 06:00:08 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 04 Nov 2019 06:00:08 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=47JFszclw3ivPKlFWCLJo245qfM
+        1Wu/Tc5GwYN7u9D4=; b=H156Z4AYOg08MXCtwbdnAQK4q7YurH5I5jiXU6M7M4F
+        pglsTXQpSazApmQIkXVAfZErxNi0koG73ICzoD7YNIFmlvqz53Y4FxNcgeFqP4FJ
+        RTouA8iu3xH4/gjPPf7LKSRzs73lcG6x+/4A7Ao2GLYRD/BkHSgnBV2b+eBNY0CX
+        HxTCg0OTeSjNUA3UA6JkTIWnXTrksXJmvFCCD+J18FwedL0IhGS8fZi0zeredXlT
+        s0wfVKaqePcrYMszv0+8hE9NjCY0mmX3Ciz+qPR18+lvPqvukmWLwSIHytgpT6H3
+        sUPHs+VWa4sKrbumod6RM45BJINZ1LkS3FCz0CGPDpw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=47JFsz
+        clw3ivPKlFWCLJo245qfM1Wu/Tc5GwYN7u9D4=; b=e0kbV+JI/sO0tljTMHP1br
+        5hW4K91vyhl9M4aKwyObKWKosx229F+QHd3WphdN3SETvDcIMP6L0H570Mt1xW8p
+        6ua/nmxR4dIA/uGEdVCF8Ec4qV9Q10hpfI+diCreBwRqjqlcBXDxBkCHkrO7geZL
+        IdDrxZCtEBTPjP7W4HKjb75e2kafNrS48Hki0UZqE189ZJ2nb0ACwFz3tItZRuzG
+        ofKbpqsSiJWrpZToOI0ZDt0cnuJKfYpNno8Vv/FwkYBmBTJZ+SbuiieO9xsrQQYK
+        296MjS9Uum8an8bT7zA4lRJ+uT1IdYIeMOjxtmVPq+1PWyV9XGOJMMMOlcuiVrtw
+        ==
+X-ME-Sender: <xms:twTAXTBoe8QIptRAE2BhQ7suOgqWa-hqaAUt94LJX3_ALaRRY_mTvA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddufedgvddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggujggfsehttd
+    ertddtredvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
+    qeenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:twTAXdoeXO5YAyggB1Dcs96CpHQDryKFtInXiPrYFP8pFp9gxN0J_w>
+    <xmx:twTAXbm9LQcwN-G3WRSR_ullRodu8pxHTuxN9kHDwvDXHMM7jmOFUw>
+    <xmx:twTAXQWaWz5auL_db_7Vd4C0pBYfxeWB4jvv_vcCvjM4zFnq3LQvYQ>
+    <xmx:uATAXUE6B3ZcJSokqf8EeYhqANJOImG4zRzf-uC8DVXy3zJXY1wbnw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5306221D71;
-        Mon,  4 Nov 2019 10:59:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572865152;
-        bh=HUdxCMu6xBUopH6EcbPDSSLqXUxI0M4SppvWvEPfEqs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kJ5Hj/mtkdgzOR3bdrfZhnnr5sFiwZWuPbBF16OhIo0gKg4uerNuOVtWt8Cj4gLZH
-         ZFSxzpbAoI37D8a5ZCXnZuXjrlNSvw/SA4sjK9XgRsluGY2ZyMFB8JxZo4LD+ZsDyZ
-         5BdL1nCchdXhk772IsIrWEtUDPU+hnGmQHwNaObE=
-Date:   Mon, 4 Nov 2019 11:59:10 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Hanjun Guo <guohanjun@huawei.com>
-Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Hanjun Guo <hanjun.guo@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, suzuki.poulose@arm.com,
-        catalin.marinas@arm.com, john.garry@huawei.com,
-        open list <linux-kernel@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>,
-        zhangshaokun@hisilicon.com, lkft-triage@lists.linaro.org,
-        andrew.murray@arm.com, will@kernel.org,
-        Dave P Martin <Dave.Martin@arm.com>,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: stable-rc-4.19: cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
- undeclared
-Message-ID: <20191104105910.GB1945210@kroah.com>
-References: <CA+G9fYtoODTuayzXdsv=bFuRPvw1-+dmZxHqQePy6LX8ixOG5A@mail.gmail.com>
- <98f10e13-8ec8-1690-a867-f212bcea969f@huawei.com>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4D280306006D;
+        Mon,  4 Nov 2019 06:00:07 -0500 (EST)
+Date:   Mon, 4 Nov 2019 12:00:02 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Thomas Deutschmann <whissi@gentoo.org>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        luciano.coelho@intel.com
+Subject: Re: Please backport 12e36d98d3e for 5.1+: iwlwifi: exclude GEO SAR
+ support for 3168
+Message-ID: <20191104110002.GC1945210@kroah.com>
+References: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <98f10e13-8ec8-1690-a867-f212bcea969f@huawei.com>
+In-Reply-To: <7a5f833a-3183-6a64-cd35-80d131343089@gentoo.org>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 04, 2019 at 09:10:06AM +0800, Hanjun Guo wrote:
-> Hi Sasha, Greg,
+On Sat, Nov 02, 2019 at 03:36:03PM +0100, Thomas Deutschmann wrote:
+> Hi,
 > 
-> On 2019/11/4 7:22, Naresh Kamboju wrote:
-> > stable rc 4.19  branch build broken for arm64 with the below error log,
-> > 
-> > Build error log,
-> > arch/arm64/kernel/cpufeature.c: In function 'unmap_kernel_at_el0':
-> > arch/arm64/kernel/cpufeature.c:909:21: error: 'MIDR_HISI_TSV110'
-> > undeclared (first use in this function); did you mean
-> > 'GICR_ISACTIVER0'?
-> >   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
-> >                     ^
-> > arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
-> > 'MIDR_RANGE'
-> >   .model = m,     \
-> >            ^
-> > arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
-> > 'MIDR_ALL_VERSIONS'
-> >   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
-> >   ^~~~~~~~~~~~~~~~~
-> > arch/arm64/kernel/cpufeature.c:909:21: note: each undeclared
-> > identifier is reported only once for each function it appears in
-> >   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
-> >                     ^
-> > arch/arm64/include/asm/cputype.h:141:12: note: in definition of macro
-> > 'MIDR_RANGE'
-> >   .model = m,     \
-> >            ^
-> > arch/arm64/kernel/cpufeature.c:909:3: note: in expansion of macro
-> > 'MIDR_ALL_VERSIONS'
-> >   MIDR_ALL_VERSIONS(MIDR_HISI_TSV110),
+> please backport
 > 
-> Patch "efd00c7 arm64: Add MIDR encoding for HiSilicon Taishan CPUs" needs to
-> be bacported as well, would you like me to do that, or just cherry-pick by yourself?
+> <<<<snip
+> >From 12e36d98d3e5acf5fc57774e0a15906d55f30cb9 Mon Sep 17 00:00:00 2001
+> From: Luca Coelho <luciano.coelho@intel.com>
+> Date: Tue, 8 Oct 2019 13:10:53 +0300
+> Subject: iwlwifi: exclude GEO SAR support for 3168
+> 
+> We currently support two NICs in FW version 29, namely 7265D and 3168.
+> Out of these, only 7265D supports GEO SAR, so adjust the function that
+> checks for it accordingly.
+> 
+> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+> Fixes: f5a47fae6aa3 ("iwlwifi: mvm: fix version check for
+> GEO_TX_POWER_LIMIT support")
+> Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+> snap>>>
+> 
+> This was the first patch of a 2 patch patch series. The second patch,
+> aa0cc7dde17 ("iwlwifi: pcie: change qu with jf devices to use qu
+> configuration") had "Cc: stable@vger.kernel.org # 5.1+" and was added.
+> The first one was missed.
 
-I need the backport please, cherry-pick fails :(
-
-thanks,
+Now queued up,t hanks.
 
 greg k-h
