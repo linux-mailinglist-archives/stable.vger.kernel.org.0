@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3DC5EEE3C
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:13:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF7B4EEFBA
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389860AbfKDWIx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:08:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41846 "EHLO mail.kernel.org"
+        id S2387615AbfKDWXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:23:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388158AbfKDWIx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:08:53 -0500
+        id S2388005AbfKDVyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:54:44 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 791BD214E0;
-        Mon,  4 Nov 2019 22:08:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5246217F4;
+        Mon,  4 Nov 2019 21:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572905333;
-        bh=HhEdyHXPyQomiK5smnYHE2hSZwsoR1/PnK7r2SFJUMY=;
+        s=default; t=1572904483;
+        bh=otbvzpKXSznWyES7ADq4XyeZ2E1UOjUoRZ6d2UkJ+hU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGSunWCPBbpq0XZnj3tL0oepdu1YaaJuJCVV0iBap0FDdRPL2OthzEJ2lkg2GXTDJ
-         Wts9RsGARsUR1htzyZkFUQga64Z56QfFBfgDL6nDwuaQcsNdCSySewAvxRx6Fwq76l
-         GJ02lL1oZEw4gsaSbxgz+J6dlSip1OgFOxS3qQMw=
+        b=KluvRJ1Jn/PEWVfJThzWX52jbnlNPn5HKAHvmFzwYEbwGIR3HuRrRijGzm70i4WId
+         nwSQfX/X64ToiGIhJpmuWAe4iiNsZJmWLqdBsLv3/groA77S7/oMQbnblDY8eBOjGo
+         dEd9z7MxUMJXq8h2zUHS8gD0xAWONRS7B/h+SEgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.3 110/163] USB: serial: whiteheat: fix potential slab corruption
+        stable@vger.kernel.org, Giuseppe Scrivano <gscrivan@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.14 62/95] fuse: flush dirty data/metadata before non-truncate setattr
 Date:   Mon,  4 Nov 2019 22:45:00 +0100
-Message-Id: <20191104212148.223831241@linuxfoundation.org>
+Message-Id: <20191104212108.324452324@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
-References: <20191104212140.046021995@linuxfoundation.org>
+In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
+References: <20191104212038.056365853@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,35 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 1251dab9e0a2c4d0d2d48370ba5baa095a5e8774 upstream.
+commit b24e7598db62386a95a3c8b9c75630c5d56fe077 upstream.
 
-Fix a user-controlled slab buffer overflow due to a missing sanity check
-on the bulk-out transfer buffer used for control requests.
+If writeback cache is enabled, then writes might get reordered with
+chmod/chown/utimes.  The problem with this is that performing the write in
+the fuse daemon might itself change some of these attributes.  In such case
+the following sequence of operations will result in file ending up with the
+wrong mode, for example:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20191029102354.2733-2-johan@kernel.org
+  int fd = open ("suid", O_WRONLY|O_CREAT|O_EXCL);
+  write (fd, "1", 1);
+  fchown (fd, 0, 0);
+  fchmod (fd, 04755);
+  close (fd);
+
+This patch fixes this by flushing pending writes before performing
+chown/chmod/utimes.
+
+Reported-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Tested-by: Giuseppe Scrivano <gscrivan@redhat.com>
+Fixes: 4d99ff8f12eb ("fuse: Turn writeback cache on")
+Cc: <stable@vger.kernel.org> # v3.15+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/serial/whiteheat.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ fs/fuse/dir.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/usb/serial/whiteheat.c
-+++ b/drivers/usb/serial/whiteheat.c
-@@ -559,6 +559,10 @@ static int firm_send_command(struct usb_
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -1650,6 +1650,19 @@ int fuse_do_setattr(struct dentry *dentr
+ 	if (attr->ia_valid & ATTR_SIZE)
+ 		is_truncate = true;
  
- 	command_port = port->serial->port[COMMAND_PORT];
- 	command_info = usb_get_serial_port_data(command_port);
++	/* Flush dirty data/metadata before non-truncate SETATTR */
++	if (is_wb && S_ISREG(inode->i_mode) &&
++	    attr->ia_valid &
++			(ATTR_MODE | ATTR_UID | ATTR_GID | ATTR_MTIME_SET |
++			 ATTR_TIMES_SET)) {
++		err = write_inode_now(inode, true);
++		if (err)
++			return err;
 +
-+	if (command_port->bulk_out_size < datasize + 1)
-+		return -EIO;
++		fuse_set_nowrite(inode);
++		fuse_release_nowrite(inode);
++	}
 +
- 	mutex_lock(&command_info->mutex);
- 	command_info->command_finished = false;
- 
+ 	if (is_truncate) {
+ 		fuse_set_nowrite(inode);
+ 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
 
 
