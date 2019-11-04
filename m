@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBA5AEEF76
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 043B3EEF74
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:21:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388643AbfKDV5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:57:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54248 "EHLO mail.kernel.org"
+        id S2388654AbfKDV5t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:57:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388639AbfKDV5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:57:45 -0500
+        id S2388650AbfKDV5s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:57:48 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3767720659;
-        Mon,  4 Nov 2019 21:57:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23DC420659;
+        Mon,  4 Nov 2019 21:57:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904664;
-        bh=A+nXIhWOh/hn+hSxK3tP54icEmodpvMjam53PuBkrA4=;
+        s=default; t=1572904667;
+        bh=Wrj2WyIXcBmoMoV7uSeARcm4AvsIXTFlsWvCPMKuVqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wgVu1/Yldh13+mQ7+2F+7mysSOvAUFyoIp4xqy10N/SOmEZwi9xz2mjyeylJMX44J
-         3dkgEboH8I4phKhhD37vVSVsdUJUj7GRpgiBgWd+SANAeAmpw7rQhpHi195cD+YDai
-         BBI4yWCMAklFmBwRZiW+a9wJvt7ZMoj6A2k9JQZs=
+        b=sQ4FIDGMQAocxX6FBCsqEkYYFSv5TjMRwbaLqmQRObHdEupqgoJCFAbBaZxBY8F3R
+         J20rjVkewpmC95ZSGLdidpXcFvh2n5e9MkF6OSqBu1eoKGNsk8wHwbtFPKefR85QDM
+         28xpcbHefIehCubWpbId+qSiUj/D8Qn4nPFpG+Ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rene Wagner <redhatbugzilla@callerid.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 026/149] HID: i2c-hid: Add Odys Winbook 13 to descriptor override
-Date:   Mon,  4 Nov 2019 22:43:39 +0100
-Message-Id: <20191104212137.613930080@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Alan Cox <alan@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Darren Hart <dvhart@infradead.org>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 027/149] platform/x86: Add the VLV ISP PCI ID to atomisp2_pm
+Date:   Mon,  4 Nov 2019 22:43:40 +0100
+Message-Id: <20191104212137.690358162@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
 References: <20191104212126.090054740@linuxfoundation.org>
@@ -44,42 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit f8f807441eefddc3c6d8a378421f0ede6361d565 ]
+[ Upstream commit 8a7d7141528ad67e465bc6afacc6a3144d1fe320 ]
 
-The Odys Winbook 13 uses a SIPODEV SP1064 touchpad, which does not
-supply descriptors, add this to the DMI descriptor override list, fixing
-the touchpad not working.
+If the ISP is exposed as a PCI device VLV machines need the
+same treatment as CHV machines to power gate the ISP. Otherwise
+s0ix will not work.
 
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1526312
-Reported-by: Rene Wagner <redhatbugzilla@callerid.de>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Alan Cox <alan@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Darren Hart <dvhart@infradead.org>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/platform/x86/intel_atomisp2_pm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index 89f2976f9c534..fd1b6eea6d2fd 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -346,6 +346,14 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 		},
- 		.driver_data = (void *)&sipodev_desc
- 	},
-+	{
-+		.ident = "Odys Winbook 13",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "AXDIA International GmbH"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "WINBOOK 13"),
-+		},
-+		.driver_data = (void *)&sipodev_desc
-+	},
- 	{ }	/* Terminate list */
- };
+diff --git a/drivers/platform/x86/intel_atomisp2_pm.c b/drivers/platform/x86/intel_atomisp2_pm.c
+index 9371603a0ac90..4a2ec5eeb6d8a 100644
+--- a/drivers/platform/x86/intel_atomisp2_pm.c
++++ b/drivers/platform/x86/intel_atomisp2_pm.c
+@@ -99,6 +99,7 @@ static UNIVERSAL_DEV_PM_OPS(isp_pm_ops, isp_pci_suspend,
+ 			    isp_pci_resume, NULL);
  
+ static const struct pci_device_id isp_id_table[] = {
++	{ PCI_VDEVICE(INTEL, 0x0f38), },
+ 	{ PCI_VDEVICE(INTEL, 0x22b8), },
+ 	{ 0, }
+ };
 -- 
 2.20.1
 
