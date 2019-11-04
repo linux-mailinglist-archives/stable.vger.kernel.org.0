@@ -2,82 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E85EE943
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 21:12:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A76D3EE98F
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 21:32:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728332AbfKDUMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 15:12:47 -0500
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:38537 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728322AbfKDUMr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 15:12:47 -0500
-Received: by mail-wr1-f54.google.com with SMTP id v9so18626482wrq.5
-        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 12:12:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9krvnIu9OS7GUpa1I8nAf6Vf9a5Plk6qMhFwuJDchko=;
-        b=rIrhsHi2mTgkzKWQTiS/dXvMohL+e9tT+sCjQ8x6LJ4QahTw/JJ3A4OiaAJA2/cpqw
-         cKw+7SZcFO2XOPymgqA95CGEcxtE89Ce5h1owSLvMGKVK8nv7WZvh9BiyBay4ipEDOeD
-         LwEkZtxFxKmYvCbLnrnCRYYWcLlsnhQvwSQTjfzUX/KwN99AvdXfEiw9hbhmSnhoRrcZ
-         8Mgr2sl5JRLh8QqFHaWR0BabV/t1qWlonclnibI4yN37EoJNuXJCOrVb3R8b8rsuAgc4
-         rTkzVzf803mekTFkoINZrii9t82cfhbba0Uqk+3A+7E6glb15UOW4it+gLNFjmG9t67o
-         qcbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9krvnIu9OS7GUpa1I8nAf6Vf9a5Plk6qMhFwuJDchko=;
-        b=qPdHkMfZAs8xYJ0FGeRwYmwp6/I1XTjevEHIfwSFEAuR3PGJB41tf7GsX5iCuqMe6/
-         BL1hRSz3Y+aRM+mnRkfDcGBgX0TLrTt595RIW4MW8x+wTDY6g9oAUG0SgF4EaPEYZI9U
-         O7xSi7kVgZyKh8P1j6VlzdH2MvuoyNqy4PvfHqcjo+GcynSO9kD5GtdRLBcu1e5FOi2v
-         qoVqHt6ImWymRY+e4em0BCmGbtyOuhBG46rIkYZhaH4pbu6RXtKisn2Ti0G80d+UsJWy
-         Z1b2nLpp9O3kZh8jeiKHs3EPEWi6gqWgiT9Uz945/F0E6ScFyV6DRzqJGq0GCOWTjHdS
-         eKEA==
-X-Gm-Message-State: APjAAAUJf8g5e5mjzT6bLiohRWhukMb3hI8gzZyo76XJ54lFFbYX0USi
-        oHzKQGd4Rimf4rtM8BRGBt2J25E/800hIw==
-X-Google-Smtp-Source: APXvYqyg44+cJ9bQUw+QhLWR/iL7hbn3uE47eQuujCWFWkg4wDU2o4tnLSRDtFqozYncfyOblpO8pw==
-X-Received: by 2002:a5d:4684:: with SMTP id u4mr20775015wrq.352.1572898364968;
-        Mon, 04 Nov 2019 12:12:44 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id v16sm19327018wrc.84.2019.11.04.12.12.44
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Nov 2019 12:12:44 -0800 (PST)
-Message-ID: <5dc0863c.1c69fb81.9b244.e9a5@mx.google.com>
-Date:   Mon, 04 Nov 2019 12:12:44 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1729368AbfKDUcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 15:32:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33222 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729216AbfKDUcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 15:32:42 -0500
+Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC8FA2089C;
+        Mon,  4 Nov 2019 20:32:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572899561;
+        bh=gJg9du3gjb3yRrD36ucqOZhq4Hvnau21qbVjEX3W5Rk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IlrlvPyAzNrFN73j7o2mAGRReO5yfNutJF5qTrfHki+BnlxgnUfQRL+szZ3SvByu2
+         u3GJrcrIiA7KZ8AntBYlPovam/zz5CcumWok1G5dS06nYy6UBxsopEst/64+uGvHAE
+         Nx7+EQsUIkGAnwd0DFd1UpDo2sr1r8XarE9XLnuE=
+Date:   Mon, 4 Nov 2019 21:32:39 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jan Stancek <jstancek@redhat.com>
+Cc:     CKI Project <cki-project@redhat.com>,
+        Jaroslav Kysela <jkysela@redhat.com>,
+        alsa-devel@alsa-project.org, LTP Mailing List <ltp@lists.linux.it>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 5.3.9-rc1-dfe283e.cki (stable)
+Message-ID: <20191104203239.GA2293927@kroah.com>
+References: <cki.1210A7ECB0.BD9Q3APV4K@redhat.com>
+ <2029139028.10333037.1572874551626.JavaMail.zimbra@redhat.com>
+ <20191104135135.GA2162401@kroah.com>
+ <1341418315.10342806.1572877690830.JavaMail.zimbra@redhat.com>
+ <20191104145947.GA2211991@kroah.com>
+ <251943262.10356408.1572881121044.JavaMail.zimbra@redhat.com>
+ <20191104163033.GB2253150@kroah.com>
+ <1766459302.10389172.1572886973921.JavaMail.zimbra@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.151-94-g14ec99d62d85
-Subject: stable-rc/linux-4.14.y boot: 60 boots: 0 failed,
- 60 passed (v4.14.151-94-g14ec99d62d85)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1766459302.10389172.1572886973921.JavaMail.zimbra@redhat.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 60 boots: 0 failed, 60 passed (v4.14.151-94-g1=
-4ec99d62d85)
+On Mon, Nov 04, 2019 at 12:02:53PM -0500, Jan Stancek wrote:
+> 
+> ----- Original Message -----
+> > On Mon, Nov 04, 2019 at 10:25:21AM -0500, Jan Stancek wrote:
+> > > 
+> > > ----- Original Message -----
+> > > > On Mon, Nov 04, 2019 at 09:28:10AM -0500, Jan Stancek wrote:
+> > > > > 
+> > > > > 
+> > > > > ----- Original Message -----
+> > > > > > On Mon, Nov 04, 2019 at 08:35:51AM -0500, Jan Stancek wrote:
+> > > > > > > 
+> > > > > > > 
+> > > > > > > ----- Original Message -----
+> > > > > > > > 
+> > > > > > > > Hello,
+> > > > > > > > 
+> > > > > > > > We ran automated tests on a recent commit from this kernel tree:
+> > > > > > > > 
+> > > > > > > >        Kernel repo:
+> > > > > > > >        git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > > > > > > >             Commit: dfe283e9fdac - Linux 5.3.9-rc1
+> > > > > > > > 
+> > > > > > > > The results of these automated tests are provided below.
+> > > > > > > > 
+> > > > > > > >     Overall result: FAILED (see details below)
+> > > > > > > >              Merge: OK
+> > > > > > > >            Compile: OK
+> > > > > > > >              Tests: FAILED
+> > > > > > > > 
+> > > > > > > > All kernel binaries, config files, and logs are available for
+> > > > > > > > download
+> > > > > > > > here:
+> > > > > > > > 
+> > > > > > > >   https://artifacts.cki-project.org/pipelines/262380
+> > > > > > > > 
+> > > > > > > > One or more kernel tests failed:
+> > > > > > > > 
+> > > > > > > >     x86_64:
+> > > > > > > >      ❌ LTP lite
+> > > > > > > >
+> > > > > > > 
+> > > > > > > Not a 5.3 -stable regression.
+> > > > > > > 
+> > > > > > > Failure comes from test that sanity checks all /proc files by doing
+> > > > > > > 1k read from each. There are couple issues it hits wrt. snd_hda_*.
+> > > > > > > 
+> > > > > > > Example reproducer:
+> > > > > > >   dd if=/sys/kernel/debug/regmap/hdaudioC0D3-hdaudio/access
+> > > > > > >   of=out.txt
+> > > > > > >   count=1 bs=1024 iflag=nonblock
+> > > > > > 
+> > > > > > That's not a proc file :)
+> > > > > 
+> > > > > Right. It's same test that's used for /proc too.
+> > > > > 
+> > > > > > 
+> > > > > > > It's slow and triggers soft lockups [1]. And it also requires lot
+> > > > > > > of memory, triggering OOMs on smaller VMs:
+> > > > > > > 0x0000000024f0437b-0x000000001a32b1c8 1073745920
+> > > > > > > seq_read+0x131/0x400
+> > > > > > > pages=262144 vmalloc vpages N0=262144
+> > > > > > > 
+> > > > > > > I'm leaning towards skipping all regmap entries in this test.
+> > > > > > > Comments are welcomed.
+> > > > > > 
+> > > > > > Randomly poking around in debugfs is a sure way to cause crashes and
+> > > > > > major problems.  Also, debugfs files are NOT stable and only for
+> > > > > > debugging and should never be enabled on "real" systems.
+> > > > > > 
+> > > > > > So what exactly is the test trying to do here?
+> > > > > 
+> > > > > It's (unprivileged) user trying to open/read anything it can (/proc,
+> > > > > /sys)
+> > > > > to see if that triggers anything bad.
+> > > > > 
+> > > > > It can run as privileged user too, which was the case above.
+> > > > 
+> > > > Sure, you can do tons of bad things as root poking around in sysfs,
+> > > > debugfs, and procfs.  What exactly are you trying to do, break the
+> > > > system?
+> > > 
+> > > We are talking about read-only here. Is it unreasonable to expect
+> > > that root can read all /proc entries without crashing the system?
+> > 
+> > You are NOT reading /proc/ here.
+> 
+> No. That was a general question to usefulness of privileged read,
+> using /proc as example where it commonly happens.
+> 
+> > You are reading debugfs which you
+> > really have NOT idea what is in there.  As you saw, you are reading from
+> > hardware that is slow and doing odd things when you read from it.
+> 
+> Agreed, I already sent a patch to LTP to blacklist it.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.151-94-g14ec99d62d85/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.151-94-g14ec99d62d85/
+Hopefully you are blacklisting all of debugfs.  and sysfs.  And procfs.
+Adding specific files back is fine, as long as you "know" they are ok
+and you are actually testing something valid there.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.151-94-g14ec99d62d85
-Git Commit: 14ec99d62d85e6c04324d05f099d70fbb9995b52
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 33 unique boards, 13 SoC families, 9 builds out of 201
+thanks,
 
----
-For more info write to <info@kernelci.org>
+greg k-h
