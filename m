@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EDACEEEE2
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:17:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2360EF081
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389254AbfKDWCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:02:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60586 "EHLO mail.kernel.org"
+        id S2388466AbfKDW2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:28:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389239AbfKDWCS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:02:18 -0500
+        id S1729589AbfKDVsv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:48:51 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1906920650;
-        Mon,  4 Nov 2019 22:02:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A09F8214D9;
+        Mon,  4 Nov 2019 21:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904936;
-        bh=J7DWm/MkD3ZkOtimVRVrecFAfLiQAyHECZtzD/l+wNo=;
+        s=default; t=1572904130;
+        bh=NKZrH064zSWHbCkv4ldq9xtQnckfn8tIW6d4IdRtN2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NYTB3t6X7n0Mv6yAxdLNnpX6bxOVKbUcmOVlGiJlCnQL6umhPSDh8MbZNJEXq5XGG
-         Xzepg8JUmvPFEZtnC4ZWcJo+dYti5uhjz49DC2OA6x2by1O6FHcDNKaDFuSvrH4uYm
-         uiubhc5J/d2SlmPQ9YU4Ae7KvaCMsNNJ0T+EES0I=
+        b=UFBiie76ycV2G+1M4q8VqApoykxz4BztrTQuoaKjbI1S5jlOWCIaIBUXwqtWnGxbl
+         oJTg/1tPEvBL5LZmy7sphCw4iZtgSje8nPaSaWN8jYDf2CA3bGHalizytvcXqZ+iMW
+         6xoEXltsyq4r75pcgeg+K9N2dHLHvf6eXShWUQSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia Guo <guojia12@huawei.com>,
-        Yiwen Jiang <jiangyiwen@huawei.com>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Christian Kujau <lists@nerdbynature.de>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Alexander Kapshuk <alexander.kapshuk@gmail.com>,
+        Brian Norris <briannorris@chromium.org>,
+        Genki Sky <sky@genki.is>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/149] ocfs2: clear zero in unaligned direct IO
+Subject: [PATCH 4.4 07/46] scripts/setlocalversion: Improve -dirty check with git-status --no-optional-locks
 Date:   Mon,  4 Nov 2019 22:44:38 +0100
-Message-Id: <20191104212142.519464337@linuxfoundation.org>
+Message-Id: <20191104211837.762505177@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,91 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Guo <guojia12@huawei.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 7a243c82ea527cd1da47381ad9cd646844f3b693 ]
+[ Upstream commit ff64dd4857303dd5550faed9fd598ac90f0f2238 ]
 
-Unused portion of a part-written fs-block-sized block is not set to zero
-in unaligned append direct write.This can lead to serious data
-inconsistencies.
+git-diff-index does not refresh the index for you, so using it for a
+"-dirty" check can give misleading results. Commit 6147b1cf19651
+("scripts/setlocalversion: git: Make -dirty check more robust") tried to
+fix this by switching to git-status, but it overlooked the fact that
+git-status also writes to the .git directory of the source tree, which
+is definitely not kosher for an out-of-tree (O=) build. That is getting
+reverted.
 
-Ocfs2 manage disk with cluster size(for example, 1M), part-written in
-one cluster will change the cluster state from UN-WRITTEN to WRITTEN,
-VFS(function dio_zero_block) doesn't do the cleaning because bh's state
-is not set to NEW in function ocfs2_dio_wr_get_block when we write a
-WRITTEN cluster.  For example, the cluster size is 1M, file size is 8k
-and we direct write from 14k to 15k, then 12k~14k and 15k~16k will
-contain dirty data.
+Fortunately, git-status now supports avoiding writing to the index via
+the --no-optional-locks flag, as of git 2.14. It still calculates an
+up-to-date index, but it avoids writing it out to the .git directory.
 
-We have to deal with two cases:
- 1.The starting position of direct write is outside the file.
- 2.The starting position of direct write is located in the file.
+So, let's retry the solution from commit 6147b1cf19651 using this new
+flag first, and if it fails, we assume this is an older version of git
+and just use the old git-diff-index method.
 
-We need set bh's state to NEW in the first case.  In the second case, we
-need mapped twice because bh's state of area out file should be set to
-NEW while area in file not.
+It's hairy to get the 'grep -vq' (inverted matching) correct by stashing
+the output of git-status (you have to be careful about the difference
+betwen "empty stdin" and "blank line on stdin"), so just pipe the output
+directly to grep and use a regex that's good enough for both the
+git-status and git-diff-index version.
 
-[akpm@linux-foundation.org: coding style fixes]
-Link: http://lkml.kernel.org/r/5292e287-8f1a-fd4a-1a14-661e555e0bed@huawei.com
-Signed-off-by: Jia Guo <guojia12@huawei.com>
-Reviewed-by: Yiwen Jiang <jiangyiwen@huawei.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Joseph Qi <joseph.qi@huawei.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Christian Kujau <lists@nerdbynature.de>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Suggested-by: Alexander Kapshuk <alexander.kapshuk@gmail.com>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Tested-by: Genki Sky <sky@genki.is>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/aops.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ scripts/setlocalversion | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index 7578bd507c70b..dc773e163132c 100644
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -2153,13 +2153,30 @@ static int ocfs2_dio_wr_get_block(struct inode *inode, sector_t iblock,
- 	struct ocfs2_dio_write_ctxt *dwc = NULL;
- 	struct buffer_head *di_bh = NULL;
- 	u64 p_blkno;
--	loff_t pos = iblock << inode->i_sb->s_blocksize_bits;
-+	unsigned int i_blkbits = inode->i_sb->s_blocksize_bits;
-+	loff_t pos = iblock << i_blkbits;
-+	sector_t endblk = (i_size_read(inode) - 1) >> i_blkbits;
- 	unsigned len, total_len = bh_result->b_size;
- 	int ret = 0, first_get_block = 0;
+diff --git a/scripts/setlocalversion b/scripts/setlocalversion
+index 966dd3924ea9c..aa28c3f298093 100755
+--- a/scripts/setlocalversion
++++ b/scripts/setlocalversion
+@@ -72,8 +72,16 @@ scm_version()
+ 			printf -- '-svn%s' "`git svn find-rev $head`"
+ 		fi
  
- 	len = osb->s_clustersize - (pos & (osb->s_clustersize - 1));
- 	len = min(total_len, len);
+-		# Check for uncommitted changes
+-		if git diff-index --name-only HEAD | grep -qv "^scripts/package"; then
++		# Check for uncommitted changes.
++		# First, with git-status, but --no-optional-locks is only
++		# supported in git >= 2.14, so fall back to git-diff-index if
++		# it fails. Note that git-diff-index does not refresh the
++		# index, so it may give misleading results. See
++		# git-update-index(1), git-diff-index(1), and git-status(1).
++		if {
++			git --no-optional-locks status -uno --porcelain 2>/dev/null ||
++			git diff-index --name-only HEAD
++		} | grep -qvE '^(.. )?scripts/package'; then
+ 			printf '%s' -dirty
+ 		fi
  
-+	/*
-+	 * bh_result->b_size is count in get_more_blocks according to write
-+	 * "pos" and "end", we need map twice to return different buffer state:
-+	 * 1. area in file size, not set NEW;
-+	 * 2. area out file size, set  NEW.
-+	 *
-+	 *		   iblock    endblk
-+	 * |--------|---------|---------|---------
-+	 * |<-------area in file------->|
-+	 */
-+
-+	if ((iblock <= endblk) &&
-+	    ((iblock + ((len - 1) >> i_blkbits)) > endblk))
-+		len = (endblk - iblock + 1) << i_blkbits;
-+
- 	mlog(0, "get block of %lu at %llu:%u req %u\n",
- 			inode->i_ino, pos, len, total_len);
- 
-@@ -2243,6 +2260,9 @@ static int ocfs2_dio_wr_get_block(struct inode *inode, sector_t iblock,
- 	if (desc->c_needs_zero)
- 		set_buffer_new(bh_result);
- 
-+	if (iblock > endblk)
-+		set_buffer_new(bh_result);
-+
- 	/* May sleep in end_io. It should not happen in a irq context. So defer
- 	 * it to dio work queue. */
- 	set_buffer_defer_completion(bh_result);
 -- 
 2.20.1
 
