@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2524EEEC4C
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:56:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18838EEC4E
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 22:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388217AbfKDVzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 16:55:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51146 "EHLO mail.kernel.org"
+        id S2388228AbfKDVzu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 16:55:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388215AbfKDVzq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 16:55:46 -0500
+        id S2388215AbfKDVzt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 16:55:49 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97E2D2053B;
-        Mon,  4 Nov 2019 21:55:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B9902053B;
+        Mon,  4 Nov 2019 21:55:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904545;
-        bh=kA6BO1EKfl6dicUBYCpnoQR1aIMmK9MS3U1Mi82EM9s=;
+        s=default; t=1572904548;
+        bh=UB+jO0kUGFhi/BiijCjP0OhH5lnY2+/ZkICHS8zuWLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v/2Vz3nkCxn2IBO6A2beDQzk+g7NPPRoJ4vbJh0U0hFDdTjG60+Syd4R2b43u6SHl
-         b26e1oWmpikVb2F5uRrL9ZK1rJqrR4YfmyF4Eo6Ee6tFVcLGyL6frnAqyZaem19kll
-         us4pz2ErWwMa+ylRpNriQMdKC3YNpEqcrvjf324k=
+        b=I/qXQlQVf/RbvpktYeytJvUNzFzFXTS67XcRLp3vH/8LlyKy1JVLQ5Z2ww8h/SRYo
+         3sZZf5pGG2lk7G75ghWSUDWbjeo0lTtlAM+S9piXJFQFAjaDTm46KmTa6FZdCs+aO8
+         7XafasSY0bBgO855gP4Ohzj36TWDB6z1Rn8RFVqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Waisman <nico@semmle.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.14 82/95] rtlwifi: Fix potential overflow on P2P code
-Date:   Mon,  4 Nov 2019 22:45:20 +0100
-Message-Id: <20191104212121.977131412@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Yegor Yefremov <yegorslists@googlemail.com>,
+        Tony Lindgren <tony@atomide.com>, Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 4.14 83/95] dmaengine: cppi41: Fix cppi41_dma_prep_slave_sg() when idle
+Date:   Mon,  4 Nov 2019 22:45:21 +0100
+Message-Id: <20191104212122.242388361@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
 In-Reply-To: <20191104212038.056365853@linuxfoundation.org>
 References: <20191104212038.056365853@linuxfoundation.org>
@@ -45,46 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 8c55dedb795be8ec0cf488f98c03a1c2176f7fb1 upstream.
+commit bacdcb6675e170bb2e8d3824da220e10274f42a7 upstream.
 
-Nicolas Waisman noticed that even though noa_len is checked for
-a compatible length it's still possible to overrun the buffers
-of p2pinfo since there's no check on the upper bound of noa_num.
-Bound noa_num against P2P_MAX_NOA_NUM.
+Yegor Yefremov <yegorslists@googlemail.com> reported that musb and ftdi
+uart can fail for the first open of the uart unless connected using
+a hub.
 
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+This is because the first dma call done by musb_ep_program() must wait
+if cppi41 is PM runtime suspended. Otherwise musb_ep_program() continues
+with other non-dma packets before the DMA transfer is started causing at
+least ftdi uarts to fail to receive data.
+
+Let's fix the issue by waking up cppi41 with PM runtime calls added to
+cppi41_dma_prep_slave_sg() and return NULL if still idled. This way we
+have musb_ep_program() continue with PIO until cppi41 is awake.
+
+Fixes: fdea2d09b997 ("dmaengine: cppi41: Add basic PM runtime support")
+Reported-by: Yegor Yefremov <yegorslists@googlemail.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Cc: stable@vger.kernel.org # v4.9+
+Link: https://lore.kernel.org/r/20191023153138.23442-1-tony@atomide.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/realtek/rtlwifi/ps.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/dma/cppi41.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/ps.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/ps.c
-@@ -774,6 +774,9 @@ static void rtl_p2p_noa_ie(struct ieee80
- 				return;
- 			} else {
- 				noa_num = (noa_len - 2) / 13;
-+				if (noa_num > P2P_MAX_NOA_NUM)
-+					noa_num = P2P_MAX_NOA_NUM;
+--- a/drivers/dma/cppi41.c
++++ b/drivers/dma/cppi41.c
+@@ -585,9 +585,22 @@ static struct dma_async_tx_descriptor *c
+ 	enum dma_transfer_direction dir, unsigned long tx_flags, void *context)
+ {
+ 	struct cppi41_channel *c = to_cpp41_chan(chan);
++	struct dma_async_tx_descriptor *txd = NULL;
++	struct cppi41_dd *cdd = c->cdd;
+ 	struct cppi41_desc *d;
+ 	struct scatterlist *sg;
+ 	unsigned int i;
++	int error;
 +
- 			}
- 			noa_index = ie[3];
- 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
-@@ -868,6 +871,9 @@ static void rtl_p2p_action_ie(struct iee
- 				return;
- 			} else {
- 				noa_num = (noa_len - 2) / 13;
-+				if (noa_num > P2P_MAX_NOA_NUM)
-+					noa_num = P2P_MAX_NOA_NUM;
++	error = pm_runtime_get(cdd->ddev.dev);
++	if (error < 0) {
++		pm_runtime_put_noidle(cdd->ddev.dev);
 +
- 			}
- 			noa_index = ie[3];
- 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
++		return NULL;
++	}
++
++	if (cdd->is_suspended)
++		goto err_out_not_ready;
+ 
+ 	d = c->desc;
+ 	for_each_sg(sgl, sg, sg_len, i) {
+@@ -610,7 +623,13 @@ static struct dma_async_tx_descriptor *c
+ 		d++;
+ 	}
+ 
+-	return &c->txd;
++	txd = &c->txd;
++
++err_out_not_ready:
++	pm_runtime_mark_last_busy(cdd->ddev.dev);
++	pm_runtime_put_autosuspend(cdd->ddev.dev);
++
++	return txd;
+ }
+ 
+ static void cppi41_compute_td_desc(struct cppi41_desc *d)
 
 
