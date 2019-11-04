@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A37BFEECD6
-	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:01:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BE9EED54
+	for <lists+stable@lfdr.de>; Mon,  4 Nov 2019 23:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388919AbfKDWAy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 17:00:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58332 "EHLO mail.kernel.org"
+        id S2389850AbfKDWFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 17:05:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388890AbfKDWAi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 4 Nov 2019 17:00:38 -0500
+        id S2389318AbfKDWFf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 17:05:35 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5E01222C6;
-        Mon,  4 Nov 2019 22:00:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D1E321929;
+        Mon,  4 Nov 2019 22:05:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572904837;
-        bh=UVWN1IQsnHONNGn6shfGmJKv7yWKE5L+vnchf3/8s1I=;
+        s=default; t=1572905134;
+        bh=rADQ7uRo/1bD2l2NSIcwTk6GrNhK79IgegKRNKf2DhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJxlGlEmVjrDSFV8cysDcqMaGwRTyn8b+WX2P0LSG7fvH0bNDcAKggKfrgMw9fsMT
-         fsmjiAs4JIpQLH7bmy1NcUXWwiZvVrPRSfliTDb3KdNUczzt/csb044Q287bLJNh0E
-         xf+iT2Db17b+NJ1oyBwig03W463/SPZveYWAjzoU=
+        b=dJ/biROuY0xDH8RD6tlGMgj1nynrPibCXLFiEly5MuDISIXNWGIdIoiZ2u5nFt6Sn
+         AidvWk9hAAmwPDqZdDv11SB05yZk1imTGZT7Vvu6CS2Ks7zDczK8KsOJoQYdYMX2rl
+         ehqB2LqLte2gp+Lw2Y1bQcpF4nmi1EhbKMQY5ZT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Simon Gene Gottlieb <simon@gottliebtfreitag.de>,
-        Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 036/149] HID: steam: fix deadlock with input devices.
+        stable@vger.kernel.org, Mark Zhang <markz@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 039/163] RDMA/nldev: Reshuffle the code to avoid need to rebind QP in error path
 Date:   Mon,  4 Nov 2019 22:43:49 +0100
-Message-Id: <20191104212138.296974518@linuxfoundation.org>
+Message-Id: <20191104212143.134265389@linuxfoundation.org>
 X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-References: <20191104212126.090054740@linuxfoundation.org>
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+References: <20191104212140.046021995@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,102 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-[ Upstream commit 6b538cc21334b83f09b25dec4aa2d2726bf07ed0 ]
+[ Upstream commit 594e6c5d41ed2471ab0b90f3f0b66cdf618b7ac9 ]
 
-When using this driver with the wireless dongle and some usermode
-program that monitors every input device (acpid, for example), while
-another usermode client opens and closes the low-level device
-repeadedly, the system eventually deadlocks.
+Properly unwind QP counter rebinding in case of failure.
 
-The reason is that steam_input_register_device() must not be called with
-the mutex held, because the input subsystem has its own synchronization
-that clashes with this one: it is possible that steam_input_open() is
-called before input_register_device() returns, and since
-steam_input_open() needs to lock the mutex, it deadlocks.
+Trying to rebind the counter after unbiding it is not going to work
+reliably, move the unbind to the end so it doesn't have to be unwound.
 
-However we must hold the mutex when calling any function that sends
-commands to the controller. If not, random commands end up falling fail.
-
-Reported-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
-Signed-off-by: Rodrigo Rivas Costa <rodrigorivascosta@gmail.com>
-Tested-by: Simon Gene Gottlieb <simon@gottliebtfreitag.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: b389327df905 ("RDMA/nldev: Allow counter manual mode configration through RDMA netlink")
+Link: https://lore.kernel.org/r/20191002115627.16740-1-leon@kernel.org
+Reviewed-by: Mark Zhang <markz@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-steam.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ drivers/infiniband/core/nldev.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index 8141cadfca0e3..8dae0f9b819e0 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -499,6 +499,7 @@ static void steam_battery_unregister(struct steam_device *steam)
- static int steam_register(struct steam_device *steam)
- {
- 	int ret;
-+	bool client_opened;
+diff --git a/drivers/infiniband/core/nldev.c b/drivers/infiniband/core/nldev.c
+index 91e2cc9ddb9f8..f42e856f30729 100644
+--- a/drivers/infiniband/core/nldev.c
++++ b/drivers/infiniband/core/nldev.c
+@@ -1787,10 +1787,6 @@ static int nldev_stat_del_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
  
- 	/*
- 	 * This function can be called several times in a row with the
-@@ -511,9 +512,11 @@ static int steam_register(struct steam_device *steam)
- 		 * Unlikely, but getting the serial could fail, and it is not so
- 		 * important, so make up a serial number and go on.
- 		 */
-+		mutex_lock(&steam->mutex);
- 		if (steam_get_serial(steam) < 0)
- 			strlcpy(steam->serial_no, "XXXXXXXXXX",
- 					sizeof(steam->serial_no));
-+		mutex_unlock(&steam->mutex);
- 
- 		hid_info(steam->hdev, "Steam Controller '%s' connected",
- 				steam->serial_no);
-@@ -528,13 +531,15 @@ static int steam_register(struct steam_device *steam)
+ 	cntn = nla_get_u32(tb[RDMA_NLDEV_ATTR_STAT_COUNTER_ID]);
+ 	qpn = nla_get_u32(tb[RDMA_NLDEV_ATTR_RES_LQPN]);
+-	ret = rdma_counter_unbind_qpn(device, port, qpn, cntn);
+-	if (ret)
+-		goto err_unbind;
+-
+ 	if (fill_nldev_handle(msg, device) ||
+ 	    nla_put_u32(msg, RDMA_NLDEV_ATTR_PORT_INDEX, port) ||
+ 	    nla_put_u32(msg, RDMA_NLDEV_ATTR_STAT_COUNTER_ID, cntn) ||
+@@ -1799,13 +1795,15 @@ static int nldev_stat_del_doit(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		goto err_fill;
  	}
  
- 	mutex_lock(&steam->mutex);
--	if (!steam->client_opened) {
-+	client_opened = steam->client_opened;
-+	if (!client_opened)
- 		steam_set_lizard_mode(steam, lizard_mode);
-+	mutex_unlock(&steam->mutex);
++	ret = rdma_counter_unbind_qpn(device, port, qpn, cntn);
++	if (ret)
++		goto err_fill;
 +
-+	if (!client_opened)
- 		ret = steam_input_register(steam);
--	} else {
-+	else
- 		ret = 0;
--	}
--	mutex_unlock(&steam->mutex);
+ 	nlmsg_end(msg, nlh);
+ 	ib_device_put(device);
+ 	return rdma_nl_unicast(msg, NETLINK_CB(skb).portid);
  
- 	return ret;
- }
-@@ -630,14 +635,21 @@ static void steam_client_ll_close(struct hid_device *hdev)
- {
- 	struct steam_device *steam = hdev->driver_data;
- 
-+	unsigned long flags;
-+	bool connected;
-+
-+	spin_lock_irqsave(&steam->lock, flags);
-+	connected = steam->connected;
-+	spin_unlock_irqrestore(&steam->lock, flags);
-+
- 	mutex_lock(&steam->mutex);
- 	steam->client_opened = false;
-+	if (connected)
-+		steam_set_lizard_mode(steam, lizard_mode);
- 	mutex_unlock(&steam->mutex);
- 
--	if (steam->connected) {
--		steam_set_lizard_mode(steam, lizard_mode);
-+	if (connected)
- 		steam_input_register(steam);
--	}
- }
- 
- static int steam_client_ll_raw_request(struct hid_device *hdev,
+ err_fill:
+-	rdma_counter_bind_qpn(device, port, qpn, cntn);
+-err_unbind:
+ 	nlmsg_free(msg);
+ err:
+ 	ib_device_put(device);
 -- 
 2.20.1
 
