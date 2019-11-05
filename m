@@ -2,102 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57CADEF27D
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 02:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BE8EF2E2
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 02:36:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729796AbfKEBQy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 20:16:54 -0500
-Received: from mail-oi1-f195.google.com ([209.85.167.195]:38504 "EHLO
-        mail-oi1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728602AbfKEBQy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 20:16:54 -0500
-Received: by mail-oi1-f195.google.com with SMTP id v186so16017186oie.5
-        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 17:16:54 -0800 (PST)
+        id S1728602AbfKEBgo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 20:36:44 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:39560 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729743AbfKEBgn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 20:36:43 -0500
+Received: by mail-wr1-f65.google.com with SMTP id a11so19341207wra.6
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 17:36:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kBeY4f2OvdQA5xTLMkQLC0YdOsAuWNMqH+SmmFAXcgs=;
-        b=bCx9UYoyZMXoeo3o8cc0y22tALdHKfscWqvoj5CIoH+KXchcEQ8N7GY26Iwj1HHWTh
-         5GSaNGSgUqrYUKv7WUsQ7VZ8NG1PbBsppoGug8I4DEIbcfXGqC0bBkIOpIu08X0E09Oa
-         +Q7gxj/Yt6IeVVLtXM9nayAGqADYROl6IGC0yU3xXkXsMETPoxZu8rO7BNigtGQDc6R3
-         wJxxMCtvIsRuLF3Vy68ozP0dHrE9SBhxzydlWOwbK3lh/VlIstUu5NM8wA+MD4UVe3cM
-         8l4JpJApDFg8NUoFqJTvwgdKwbht27ZViljR1/4cz8SPOJYxT8l0J2rQpVm4XlvsUcdl
-         bKaw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=MrOlDfxhgdKSRKUgYFb9Fy5L5HVsLkB9rhBm7iOv9Tc=;
+        b=d7uQ07aiPXuLRnZqRphuYrOgGGwk9be/+lzwXyfAd7r6w3ewE0W8ekRvUKKIUYsUUC
+         k5nFf9F6vkIFhc8CcxkATHfPcDrczisbZvZPTff3leHc8TnQStUfQu5/RwF45aUyUJ/z
+         AWNWxLpGzxb9ojlSvi1Eyo8xAzw2fewniVDExwq6AxGyBVp8dk3nT4s9cQ3vtqPuD7rK
+         ksQ8lLF92FhLvQAmPhwh/c/oX+pNVwrFMIouyZ6qaKZOfGTv+ijRbaPkF/lujzDqFIfR
+         A7VCEfIYtHLsYtE9abtZPkTLqf5NG2L/P5LAu0BzSBXBd4PDKJVl0NPa/USyhAYbZWjk
+         EGCg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kBeY4f2OvdQA5xTLMkQLC0YdOsAuWNMqH+SmmFAXcgs=;
-        b=pf1Ab6a8rB5U2HXrts81SgH85qATgQsp2IUKCAqItJ5suAFHuiAEeBaN87A4HxyCrO
-         AFtq7Ko3BIZTEK9DdgTZ/ymAUKvDzbfpoPYBaL90jlE6TeiUvwRZLoldJI+BhmWg+QyF
-         Lo1x3uUKN5dfkgwStZD047N438pzFc2qidzfYLYU57JqINZMacts2OBw3o+5ZNnBMLql
-         /AUUlWObn+VaREKUIXAogIC8u8/cw9OGFY2N/N/5PjAL0FxUksGs4o9cNb+Osb8G2TmB
-         5SutpiPQpQ8e+YL8dhjn4yCY7dPI0LGAe8M4F8euHIRo9wkZApuvCL/JyC//rrzcPiwS
-         fOJw==
-X-Gm-Message-State: APjAAAWFMblNLcxRHjs2cBSpYRfVTfn+Y7HGhzvq/dplxMbi7+KWXiw4
-        F2e0Bk5xAJek2cyG7pvgjsfxlpmvm3uY5HK8TZztPw==
-X-Google-Smtp-Source: APXvYqyf7IeMKspg6JW7fJbbf2hW11JVdVyOHNLOnfin4tyCvuxMjfE67fC863wVdT3V1oGIhBhfkC4oLJhg/ULtgGA=
-X-Received: by 2002:a05:6808:113:: with SMTP id b19mr1571484oie.169.1572916613450;
- Mon, 04 Nov 2019 17:16:53 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=MrOlDfxhgdKSRKUgYFb9Fy5L5HVsLkB9rhBm7iOv9Tc=;
+        b=DUD7EUfFpTZLciX9HrCLRN5YfDLtus/MUCxBzUGwcsk8L6V1PJ888VSFaS9kozmv9N
+         5w3I3mdQZKELyLSZHkZ2pJWKwoczK3p6uA1cYzbSIyuEU+mHTpGu/jmvKxQZhYNf8LIq
+         s/Pf8LD6+840cyrOKVuVh01LsLPaaQKmflTw5l9O6kL2vDHvjsxfWWAA1GfOp+5l9bos
+         9iQDRyc8PgZlppKNMfxDyrI3ziK1MCRymtQU2/3i4MBPK4aCTXAro+W4PzWobiwy/30K
+         17blF4x/vsUPRDvs32i/iATQ+LyXyndqw/NC/SjRA4OXPy4dXyl4TFsEbnDSdezWa5o5
+         eRYQ==
+X-Gm-Message-State: APjAAAWpNzqwMLjHUWpv4X/2sXZfJsUTTIlMUt0S/FFxNaBqOhaS3oxO
+        k/5+pcr5SuJOcZ6S3PeuH1l36Q==
+X-Google-Smtp-Source: APXvYqyYxfdbh1/9dofrQWkZeO9DSAdg3DoDC7EaKlV4voBui4Gs2YOA9+nsgRIq5eJki5eE+gKJRA==
+X-Received: by 2002:a05:6000:12d1:: with SMTP id l17mr11900054wrx.261.1572917801661;
+        Mon, 04 Nov 2019 17:36:41 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y78sm11611048wmd.32.2019.11.04.17.36.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Nov 2019 17:36:40 -0800 (PST)
+Message-ID: <5dc0d228.1c69fb81.c2076.47a9@mx.google.com>
+Date:   Mon, 04 Nov 2019 17:36:40 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20191029153051.24367-1-catalin.marinas@arm.com>
-In-Reply-To: <20191029153051.24367-1-catalin.marinas@arm.com>
-From:   John Stultz <john.stultz@linaro.org>
-Date:   Mon, 4 Nov 2019 17:16:42 -0800
-Message-ID: <CALAqxLXuxZVg0kqNQXF_dH17NzH9m14-Ci_rzruHzmms0V7pvg@mail.gmail.com>
-Subject: Re: [PATCH] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by default
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        Will Deacon <will@kernel.org>, stable <stable@vger.kernel.org>,
-        Alistair Delva <adelva@google.com>,
-        Sandeep Patil <sspatil@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.198-47-g3849b8fee3c3
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+References: <20191104211830.912265604@linuxfoundation.org>
+Subject: Re: [PATCH 4.4 00/46] 4.4.199-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Oct 29, 2019 at 8:31 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
->
-> Shared and writable mappings (__S.1.) should be clean (!dirty) initially
-> and made dirty on a subsequent write either through the hardware DBM
-> (dirty bit management) mechanism or through a write page fault. A clean
-> pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
-> clear.
->
-> The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
-> PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
-> bit handling out of set_pte_at()"), it was the responsibility of
-> set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
-> software PTE_DIRTY bit was not set. However, the above commit removed
-> the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
-> set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
-> unchanged. The result is that shared+writable mappings are now dirty by
-> default
->
-> Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
-> In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
-> attributes.
->
-> Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
-> Cc: <stable@vger.kernel.org> # 4.14.x-
-> Cc: Will Deacon <will@kernel.org>
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+stable-rc/linux-4.4.y boot: 80 boots: 0 failed, 72 passed with 7 offline, 1=
+ conflict (v4.4.198-47-g3849b8fee3c3)
 
-Hey,
-  So I'm not yet sure why, but I've just validated that this patch is
-causing trouble with booting AOSP on HiKey960 with 5.4-rc6 (-rc5 works
-fine).
-Its odd, because the system does boot and is alive, but seems to stall
-out at the boot animation, and userland never finishes coming up to
-the home screen. It just sits there without a useful error message
-that I can find so far.  Reverting just this patch seems to solve it
-and it boots all the way.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.198-47-g3849b8fee3c3/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.198-47-g3849b8fee3c3/
 
-I'll try to dig further to see what might be going on (the mali driver
-is a prime suspect here), but I wanted to raise the flag since we're
-at the end of the -rc cycle.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.198-47-g3849b8fee3c3
+Git Commit: 3849b8fee3c31ec2cfef806e0e369ccbd50d0f1e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 41 unique boards, 17 SoC families, 13 builds out of 190
 
-thanks
--john
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
