@@ -2,82 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8AD1F0378
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 17:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D78F03C8
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 18:06:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728399AbfKEQyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 11:54:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38404 "EHLO mail.kernel.org"
+        id S1730884AbfKERGp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 12:06:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727830AbfKEQyi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 11:54:38 -0500
-Received: from arrakis.emea.arm.com (unknown [46.69.195.45])
+        id S1728399AbfKERGp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 12:06:45 -0500
+Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B280921928;
-        Tue,  5 Nov 2019 16:54:36 +0000 (UTC)
-Date:   Tue, 5 Nov 2019 16:54:33 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     Will Deacon <will@kernel.org>
-Cc:     John Stultz <john.stultz@linaro.org>,
-        Alistair Delva <adelva@google.com>,
-        Sandeep Patil <sspatil@google.com>,
-        stable <stable@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        Steve Capper <Steve.Capper@arm.com>
-Subject: Re: [PATCH] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by
- default
-Message-ID: <20191105165433.GD22987@arrakis.emea.arm.com>
-References: <20191029153051.24367-1-catalin.marinas@arm.com>
- <CALAqxLXuxZVg0kqNQXF_dH17NzH9m14-Ci_rzruHzmms0V7pvg@mail.gmail.com>
- <20191105102902.GB29852@willie-the-truck>
+        by mail.kernel.org (Postfix) with ESMTPSA id A4B98214D8;
+        Tue,  5 Nov 2019 16:56:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572973013;
+        bh=VhTUa+0BbMH6i9FdN4+JUUW30aEm4vtUoNXpZv3YNQw=;
+        h=Subject:To:From:Date:From;
+        b=hvF4VWCk+VZVHAQP6/4RVZ0RbfZ2gPQ3TIfIdtzcuZutegA1l5VxoRkbgGbTinRWu
+         grnvgHkIc87/6kYeVxIASYkPB0+fWApWM7IhJtu9pNYEyeIpApGN1clujzeOPOAqlK
+         tRCGumxma3cRQ1v2I7ySsDg9PYLSji7BFm1Diwuk=
+Subject: patch "staging: rtl8192e: fix potential use after free" added to staging-testing
+To:     bianpan2016@163.com, dan.carpenter@oracle.com,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 05 Nov 2019 17:56:16 +0100
+Message-ID: <1572972976231129@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191105102902.GB29852@willie-the-truck>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 05, 2019 at 10:29:03AM +0000, Will Deacon wrote:
-> On Mon, Nov 04, 2019 at 05:16:42PM -0800, John Stultz wrote:
-> > On Tue, Oct 29, 2019 at 8:31 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > >
-> > > Shared and writable mappings (__S.1.) should be clean (!dirty) initially
-> > > and made dirty on a subsequent write either through the hardware DBM
-> > > (dirty bit management) mechanism or through a write page fault. A clean
-> > > pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
-> > > clear.
-> > >
-> > > The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
-> > > PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
-> > > bit handling out of set_pte_at()"), it was the responsibility of
-> > > set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
-> > > software PTE_DIRTY bit was not set. However, the above commit removed
-> > > the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
-> > > set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
-> > > unchanged. The result is that shared+writable mappings are now dirty by
-> > > default
-> > >
-> > > Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
-> > > In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
-> > > attributes.
-> > >
-> > > Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
-> > > Cc: <stable@vger.kernel.org> # 4.14.x-
-> > > Cc: Will Deacon <will@kernel.org>
-> > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[...]
-> As an experiment, can you try reverting just the part of the patch that
-> removes PTE_DIRTY from the PROT_* definitions? (see below)
 
-Another thing worth trying is reverting commit 747a70e60b72 ("arm64: Fix
-copy-on-write referencing in HugeTLB") when this patch is applied. That
-commit is not just about hugetlb but changes pte_same() to ignore
-PTE_RDONLY on the assumption that this is set by set_pte_at(). We
-subsequently changed set_pte_at() to drop PTE_RDONLY.
+This is a note to let you know that I've just added the patch titled
 
+    staging: rtl8192e: fix potential use after free
+
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From b7aa39a2ed0112d07fc277ebd24a08a7b2368ab9 Mon Sep 17 00:00:00 2001
+From: Pan Bian <bianpan2016@163.com>
+Date: Tue, 5 Nov 2019 22:49:11 +0800
+Subject: staging: rtl8192e: fix potential use after free
+
+The variable skb is released via kfree_skb() when the return value of
+_rtl92e_tx is not zero. However, after that, skb is accessed again to
+read its length, which may result in a use after free bug. This patch
+fixes the bug by moving the release operation to where skb is never
+used later.
+
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/1572965351-6745-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/rtl8192e/rtl8192e/rtl_core.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
+index b08712a9c029..dace81a7d1ba 100644
+--- a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
++++ b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
+@@ -1616,14 +1616,15 @@ static void _rtl92e_hard_data_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	memcpy((unsigned char *)(skb->cb), &dev, sizeof(dev));
+ 	skb_push(skb, priv->rtllib->tx_headroom);
+ 	ret = _rtl92e_tx(dev, skb);
+-	if (ret != 0)
+-		kfree_skb(skb);
+ 
+ 	if (queue_index != MGNT_QUEUE) {
+ 		priv->rtllib->stats.tx_bytes += (skb->len -
+ 						 priv->rtllib->tx_headroom);
+ 		priv->rtllib->stats.tx_packets++;
+ 	}
++
++	if (ret != 0)
++		kfree_skb(skb);
+ }
+ 
+ static int _rtl92e_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
 -- 
-Catalin
+2.23.0
+
+
