@@ -2,66 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE67EF74A
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 09:29:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02250EF75D
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 09:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387575AbfKEI3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 03:29:49 -0500
-Received: from sonic316-13.consmr.mail.bf2.yahoo.com ([74.6.130.123]:44453
-        "EHLO sonic316-13.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387920AbfKEI3s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 03:29:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1572942587; bh=vdONypa+pmkSCxMpJ481zxWsfmYXdIIKq3bhYsM38cE=; h=Date:From:Reply-To:Subject:From:Subject; b=nGC2QoNHJJMPr8TYqORLp6du3lokbhNu4rziSeG37KQPQ84pt2FJeOSx4J4z75odsmS9oq26B82tvbXjckcy+wLiwsCeqbHrBE4o9tTq81u0GJTD1gJGTMC9WgItp4JExVEL5bt6eDcVQH0Emew+Fzg02Ww9oT06sihN3eFTk/6iBdtIEOavlzAHE9J3YxgEUtmhsrKJasO1wBcwlB4SAUS/dDiNijbOtHUdLTkUEe2owkxpo2zx/yCvyWq9naAdU0wVmy1TXNZQE0AmACAKGVwvPxzJUXH8eYhp2Gd/SI4auyrX05zkZDu6JIpw4SUl3H2Mi7akK9kqPeSPsObYaw==
-X-YMail-OSG: wNHP4CIVM1m4QDt0zNU0czcM6zjrygRyBx2DEZdyKl1QnbJAOLiP2xEiTJBv8wk
- xnI.19tXIeT7ah0_7499jyQU0PT7AIOVqcEQEkLXjm_QrPh0BTtgy6ZlN0noZ2YPXvKL81stPUzt
- ZKEcBjkk9FsYE4O6Jq67yQ85eT7aC_AfeH7NjoGAVr7ug7Tt86ptV8SjkLcm6XfuWMfPy82s8DD4
- J3me5hN3uCcWUo7Ou.WDpVf53PIATadCXJ5n8yiIKsqqK_7dZEBNj6VU.JMUDbOe_wsk8xRXnrqp
- 1GOr8v6WXDd3aJJPmo9gwJjTC4FZwn5NKAG14hh6anAzEl2eA7LYArVFeYOkR4GyrMqOg4Ng6VJg
- CsX.D3TfOjM.QvVXi7rtYkZwv7PjtoPxNCRzNRBoI.dekXizB.4wxsjp_XPqEsyDtxz8ktQ2PTGA
- AwWo4nNpzndTzbBsn_qex77q_KylQKRj8sa.yUZX6T1YOnIxQyr0yRG5bIG1pyJ702r_SY7gldng
- PIR2eluPqbnhvCCK4Y2fpSOrxgnUhv7eWWSQSgbiYfOr2u7944vKHS94rfCdPiQlA3LGRGzXgBC8
- gZNahjSm6RJWsmLw4sXo8YuX_vL4WHhe7gQPYtYVAj7c_RPDCbVAD65q_Yq5zQnk7rLc6cttAPoJ
- 1pv3GXv6rYn3BZRgNMd.6_vuwiglfTWdcfd99UWvymHTzDm7OvJz8jTgJ1oL8IF_nSe.gV2YBdXT
- EtPmsByp37TQPBdbKgGPIWMSI_wny4yzE_nzauqHs9k_fIL9WeyZPoBbPzdYPj.SVedO1WEjoFdZ
- U1AeIgjLoTRNhxORfka9vGBCQ9jhRJdpc..hvkLr0zT.LMMEt_Yf_O23j8DZcBxURSqEJZyC5Oem
- Bw26d2pwd.IPJpDNDjRjjW57eUztzQd2o6CdQbVRr0EifQWCTU3Y1TTdoZrfNlgkTe7Wkww6ngVC
- Vgn4ICRX.4ROPJ5xIZV0Bh_KR9OHLtUn4LNrkGF_beQYvD70Meg_bvm5E2HusndNO0_ymWFCv7Rq
- 48t4NIHoztAUlb0U2184r7hU6jr2itSpa55S3XMA1AXcQekJQBSs3iAmIbr8mG9mNj2IOnGOV4Of
- o9CbClpkppPnPVZUs_htgOzcUFT3Um6XcrOfc4EY.3HWOr55p.gg.yk4KDM0K5OxLAHqPwtvFd8V
- drfwT._WJTbEho70px7S.y0bpc7xP7KUtbAFbszT9mReDf1pmZ0q4Be5pclHRFZ2J5EtpxqZlZ0y
- IsFVyBpKV5JCrXZ3UVDv4cqKIkTgtSF81UlLA0Arc.cao0ONraIUBR4yL27NpTF51Wmz3iWuw2RX
- n_mRPbVf8Tw--
-Received: from sonic.gate.mail.ne1.yahoo.com by sonic316.consmr.mail.bf2.yahoo.com with HTTP; Tue, 5 Nov 2019 08:29:47 +0000
-Date:   Tue, 5 Nov 2019 08:29:46 +0000 (UTC)
-From:   Mrs Elodie Antoine <elodieantoine423@gmail.com>
-Reply-To: elodiem97@yahoo.com
-Message-ID: <1773518564.855615.1572942586578@mail.yahoo.com>
-Subject: Greetings From Mrs Elodie,
+        id S1727925AbfKEIjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 03:39:19 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:33356 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727401AbfKEIjS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 03:39:18 -0500
+Received: by mail-lf1-f67.google.com with SMTP id y127so14433208lfc.0
+        for <stable@vger.kernel.org>; Tue, 05 Nov 2019 00:39:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=gdzE+6c0X0YWGdBkPcVhB+2E6S0ZBzl2+HXJPyALIxo=;
+        b=QoZchN2MlJxPPnfv5ip5jv0Yo/GI7K8lFrh8GppZAg2NoF2W82BYVVKtg8unjTzK05
+         4A0/STOOVg6Egqgg2JuVCqqBEcfeh8NoH3qWwBjLn6uodEGKQjeQYBqWIu2+5LkIRfmT
+         hQxINtSoOnQ/95nXgsgY99s0YJ1IM3csCK0Pu81y1dzf0mVQctc4eBzgUpfzjMK6noVN
+         +kZk15IkAKk8cw48vsn+fnOdniu1sAarADDlbsGSw8dBSugzLiv3uLKCJz0bKszhTKBr
+         0z0vo2oYlJ4OeOLYxptMxI1fv0ziGoDQ6+VwZazbe++mjuPb5pvg2Z1akOSS8oHzTVHr
+         e/ug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=gdzE+6c0X0YWGdBkPcVhB+2E6S0ZBzl2+HXJPyALIxo=;
+        b=H+NdTbB/BHOAOK/FzW2yEzRSue5fXjgahOU9ZuwTOQczU0jlPOYR4ALFA6m7b0Zy+y
+         neIvxgtfJGGjZXFnEm1JxAcLV2IgISBeSAnIxiVZ+56J1p3daHKZtDB88vkYaK/3DN2j
+         6yCJMpflYcbQtwdmzBbUw9Exm9vFBTPXgpiX0TEZW7xb3WpEi7nnOCNe0cwgtzuZk+E1
+         PHHMj9zDiLsVVJzcfZw3rp/en+I0216LM+0RyXTRHY9Y/W8vw4jGK2vpgeTX0FdMcydL
+         F/jRwfra3AtZtq5bKU6ih9+qstwbXefbc0skb34c3z0oHfWdiW0+5A0jkTeq5bFuOS5/
+         JibQ==
+X-Gm-Message-State: APjAAAUo99AQVFeFC07Zx+k9WHV4Kgpq53ucTyPz7QPQl5M2+0WtfjOc
+        065uEP3hpen3Ll2Z7Fn4QSLOArb80TBN7ar1Nh4SNw==
+X-Google-Smtp-Source: APXvYqxqx8NSYnV4wfLrSehgFQT8UMqVuaihF8wIQXecappLCoFsidLTOfL7TBdEsLOE2/tRXfW1vIiqXg3kPMs383U=
+X-Received: by 2002:ac2:5930:: with SMTP id v16mr1088027lfi.67.1572943156625;
+ Tue, 05 Nov 2019 00:39:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+References: <CA+G9fYsWTFQZTHXUDPToaepnKGBoh61SsA_8SHcYgYZXN_L+mg@mail.gmail.com>
+ <CA+G9fYu+6A3pYQGs2rydYtHNSCf1t9+OTRqrZeCbpc2ARLx2zA@mail.gmail.com>
+ <20191105073459.GB2588562@kroah.com> <CA+G9fYvau-CY8eeXM=atzQBjYbmUPg78MXu_GNjCyKDkW_CcVQ@mail.gmail.com>
+ <20191105080614.GB2611856@kroah.com>
+In-Reply-To: <20191105080614.GB2611856@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 5 Nov 2019 14:09:05 +0530
+Message-ID: <CA+G9fYtWc+6XzWZtG76T7+TdF+tAyUqJPQT8-ykZRTy1sCgEPQ@mail.gmail.com>
+Subject: Re: stable-rc-5.3.9-rc1: regressions detected - remove_proc_entry:
+ removing non-empty directory 'net/dev_snmp6', leaking at least 'lo'
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
+        Dan Rue <dan.rue@linaro.org>, LTP List <ltp@lists.linux.it>,
+        open list <linux-kernel@vger.kernel.org>,
+        Jan Stancek <jstancek@redhat.com>,
+        Basil Eljuse <Basil.Eljuse@arm.com>, chrubis <chrubis@suse.cz>,
+        mmarhefk@redhat.com, Netdev <netdev@vger.kernel.org>,
+        linux- stable <stable@vger.kernel.org>, maheshb@google.com,
+        "David S. Miller" <davem@davemloft.net>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 5 Nov 2019 at 13:36, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+> > > > These reported failures got fixed on latest stable-rc 5.3.y after
+> > > > dropping a patch [1].
+> > >
+> > > What is the subject of the patch?
+> >
+> > blackhole_netdev: fix syzkaller reported issue
+> > upstream commit b0818f80c8c1bc215bba276bd61c216014fab23b
+>
+> That commit is not in any stable queue or tree at the moment, are you
+> sure this is still an issue?
 
+Since it has been dropped, the issue is gone now.
 
-Greetings From Mrs Elodie,
+>
+> > > > The kernel warning is also gone now.
+> > > >
+> > > > metadata:
+> > > >   git branch: linux-5.3.y
+> > > >   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+> > > >   git commit: 75c9913bbf6e9e64cb669236571e6af45cddfd68
+> > >
+> > > The -rc tree is rebased all the time, can I get a "real" subject line to
+> > > get a chance to figure out what you are trying to refer to here?
+> >
+> > Linux 5.3.9-rc1 is good candidate on branch linux-5.3.y and
+> > linux-stable-rc tree.
+>
+> I can not parse this, what do you mean?
 
-Calvary Greetings in the name of the LORD Almighty and Our LORD JESUS CHRIST the giver of every good thing. Good day,i know this letter will definitely come to you as a huge surprise, but I implore you to take the time to go through it carefully as the decision you make will go off a long way to determine my future and continued existence. I am Mrs Elodie Antoine
-aging widow of 59 years old suffering from long time illness. I have some funds I inherited from my late husband,
+linux-stable-rc linux-5.3.y branch and make kernel version 5.3.9-rc1
+is been tested and
+no regresion found.
 
-The sum of (US$4.5 Million Dollars) and I needed a very honest and God fearing who can withdraw this money then use the funds for Charity works. I WISH TO GIVE THIS FUNDS TO YOU FOR CHARITY WORKS. I found your email address from the internet after honest prayers to the LORD to bring me a helper and i decided to contact you if you may be willing and interested to handle these trust funds in good faith before anything happens to me.
-I accept this decision because I do not have any child who will inherit this money after I die. I want your urgent reply to me so that I will give you the deposit receipt which the COMPANY issued to me as next of kin for immediate transfer of the money to your account in your country, to start the good work of God, I want you to use the 15/percent of the total amount to help yourself in doing the project.
-
-
-I am desperately in keen need of assistance and I have summoned up courage to contact you for this task, you must not fail me and the millions of the poor people in our todays WORLD. This is no stolen money and there are no dangers involved,100% RISK FREE with full legal proof. Please if you would be able to use the funds for the Charity works kindly let me know immediately.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish. I want you to take 15 percent of the total money for your personal use while 85% of the money will go to charity.I will appreciate your utmost confidentiality and trust in this matter to accomplish my heart desire, as I don't want anything that will jeopardize my last wish.
-
-
-kindly respond for further details.
-
-Thanks and God bless you,
-
-Mrs Elodie Antoine
+- Naresh
