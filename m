@@ -2,80 +2,462 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7EA7EF232
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 01:44:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62563EF278
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 02:14:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729788AbfKEAot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 19:44:49 -0500
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:38807 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729632AbfKEAot (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 19:44:49 -0500
-Received: by mail-ed1-f65.google.com with SMTP id d23so11994374edr.5
-        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 16:44:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=RyOFMhPxWsGfG+Nb3DOKo9PI7GG1DXIkbdGBFl4xhxY=;
-        b=fnaVKZVZp2EDxDlVZB3pzqyKGFFP4U3WR4vANTYQcNGGOQPXOTBOeLlfBKVvUXqiPj
-         y5Wjj/3geWgWxzJBwI5rUjHA93hgrFNDFVEU7in4Z6Q+cRrxNMNkDS/UFUlS9SHUhTvj
-         QNdmUx5LfGpKY6e1Ad3OKQpxJTrvRKNOkgbi8r/ipqbevlN2yCb+SdyUtnCY2hT4C8JJ
-         d0vYKV13U9kdl3QlMm6YSb5zKh74/81sYvqeqPfyOuZNg4PM+f6tsgqVQudBxv0YDAl2
-         8S8IKm4qN6E1OkGGI5GrYCgneul2rTcN6PWi7JFDguOECCIgOq/blRw3elH1fIWrkzTn
-         j1ng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=RyOFMhPxWsGfG+Nb3DOKo9PI7GG1DXIkbdGBFl4xhxY=;
-        b=VFh2OpFh36EtaLW4ZF0nA9mugyQl3WhdPwaTBLgP6jNJCWX1rwot8a078lf8Ak5ky1
-         Dow9o6QnK+hckKByQB03rwUYy9La4ys0X2gb8neY55NpeSA09FwLwwjPZKu5WDq5KyPQ
-         kxCmxk1+9YBZe9FwY/qgEmGmGA6Wu7xKGu0UIxXC/Z8kiSc3hZcOSVL/AqqUXcbyvb65
-         Bt+JF+LXlhqJ1cgVhHzsVDaNHjB+n7+W8bA741w2H1TmOvQ/NIONaGVbjVXrYl0q4bCx
-         a4duy87cY4bp3jWelgQdN3Kd9i7/mdel2jIqAZpssnU7YBA4SXA9hxJs1z9UBA4L1B9P
-         CD6Q==
-X-Gm-Message-State: APjAAAXXLHaGp5HL0GhvLS5/9Vpd041++ZntwKSppEs5Eckx2d+SYlje
-        bxma21vRo88kE3RXiofGBm7IKSgzJC/Bz1QEfgs=
-X-Google-Smtp-Source: APXvYqxT0bh2DZbUXOwTqMJqsRROaeHBTsE781sgRUmixtC5hu1tg0TQYyD3oZhgRcLG2m2c43Muk6gznvCvrhHIRMo=
-X-Received: by 2002:a50:ab10:: with SMTP id s16mr32383888edc.118.1572914687577;
- Mon, 04 Nov 2019 16:44:47 -0800 (PST)
+        id S1729368AbfKEBOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 20:14:42 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:26787 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1728602AbfKEBOm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 20:14:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1572916481;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=UIrM76tYEF2GIGSPRIq6u4yxckZC0SDx0LAyrujo2kw=;
+        b=Fgwmu4cp5vdAN50cq3KfB3G5zfRFzByGup8PE+qzLzaAZ30SuF9fvO4doM/zXP4uo69LiK
+        EQ6vBOfZEeYiFxfTqkDTfqGXhVqjFOJv00+K5+IySdaj7Wn+4ulvWc4P1ezpABhO14hEi+
+        rCjnA1s7wxNRL/2UzxwAr60EJUG3CUY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-29-loPUojfaOP6u-B-M6wDJDQ-1; Mon, 04 Nov 2019 20:14:39 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E8AC2800C73
+        for <stable@vger.kernel.org>; Tue,  5 Nov 2019 01:14:38 +0000 (UTC)
+Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 9D4B0608A5;
+        Tue,  5 Nov 2019 01:14:35 +0000 (UTC)
 MIME-Version: 1.0
-Reply-To: mrahmedmuzashah@gmail.com
-Received: by 2002:a05:6402:44c:0:0:0:0 with HTTP; Mon, 4 Nov 2019 16:44:47
- -0800 (PST)
-From:   "Mr.Ahmed Muzashah" <ahmedmuzashah@gmail.com>
-Date:   Mon, 4 Nov 2019 16:44:47 -0800
-X-Google-Sender-Auth: WBhf0t1oUteLCYfp3zJ9B5rZRD8
-Message-ID: <CAKsK_=zAMG27A+Ck8t7GpgYbhQtaS1k9DZg9XX9MAWOHCyQhkg@mail.gmail.com>
-Subject: From: Mr.Ahmed Muzashah
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
+Date:   Tue, 05 Nov 2019 01:14:35 -0000
+Message-ID: <cki.A892DA5512.ND6HCOM1TZ@redhat.com>
+X-Gitlab-Pipeline-ID: 263687
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/263687
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: loPUojfaOP6u-B-M6wDJDQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Day,
 
-Please accept my apologies for writing you a surprise letter.I am
-Mr.Ahmed Muzashah, account Manager with an investment bank here in
-Burkina Faso.I have a very important business I want to discuss with
-you.There is a draft account opened in my firm by a long-time client
-of our bank.I have the opportunity of transferring the left over fund
-(15.8 Million UsDollars)Fiftheen Million Eight Hundred Thousand United
-States of American Dollars of one of my Bank clients who died at the
-collapsing of the world trade center at the United States on September
-11th 2001.
+Hello,
 
-I want to invest this funds and introduce you to our bank for this
-deal.All I require is your honest co-operation and I guarantee you
-that this will be executed under a legitimate arrangement that will
-protect us from any breach of the law.I agree that 40% of this money
-will be for you as my foreign partner,50% for me while 10% is for
-establishing of foundation for the less privilleges in your country.If
-you are really interested in my proposal further details of the
-Transfer will be forwarded unto you as soon as I receive your
-willingness mail for a successful transfer.
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
 
-Yours Sincerely,
-Mr.Ahmed Muzashah,
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 95180e47e77a - Linux 5.3.8
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here=
+:
+
+  https://artifacts.cki-project.org/pipelines/263687
+
+One or more kernel tests failed:
+
+    ppc64le:
+     =E2=9D=8C Boot test
+     =E2=9D=8C Boot test
+
+    aarch64:
+     =E2=9D=8C Boot test
+     =E2=9D=8C Boot test
+
+    x86_64:
+     =E2=9D=8C Boot test
+     =E2=9D=8C Boot test
+     =E2=9D=8C Boot test
+     =E2=9D=8C Boot test
+     =E2=9D=8C Boot test
+     =E2=9D=8C Boot test
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
+
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 95180e47e77a - Linux 5.3.8
+
+
+We grabbed the 026bccdee83f commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  io_uring-fix-up-o_nonblock-handling-for-sockets.patch
+  dm-snapshot-introduce-account_start_copy-and-account.patch
+  dm-snapshot-rework-cow-throttling-to-fix-deadlock.patch
+  btrfs-fix-inode-cache-block-reserve-leak-on-failure-.patch
+  btrfs-qgroup-always-free-prealloc-meta-reserve-in-bt.patch
+  iio-adc-meson_saradc-fix-memory-allocation-order.patch
+  iio-fix-center-temperature-of-bmc150-accel-core.patch
+  libsubcmd-make-_fortify_source-defines-dependent-on-.patch
+  perf-tests-avoid-raising-segv-using-an-obvious-null-.patch
+  perf-map-fix-overlapped-map-handling.patch
+  perf-script-brstackinsn-fix-recovery-from-lbr-binary.patch
+  perf-jevents-fix-period-for-intel-fixed-counters.patch
+  perf-tools-propagate-get_cpuid-error.patch
+  perf-annotate-propagate-perf_env__arch-error.patch
+  perf-annotate-fix-the-signedness-of-failure-returns.patch
+  perf-annotate-propagate-the-symbol__annotate-error-r.patch
+  perf-annotate-fix-arch-specific-init-failure-errors.patch
+  perf-annotate-return-appropriate-error-code-for-allo.patch
+  perf-annotate-don-t-return-1-for-error-when-doing-bp.patch
+  staging-rtl8188eu-fix-null-dereference-when-kzalloc-.patch
+  rdma-siw-fix-serialization-issue-in-write_space.patch
+  rdma-hfi1-prevent-memory-leak-in-sdma_init.patch
+  rdma-iw_cxgb4-fix-srq-access-from-dump_qp.patch
+  rdma-iwcm-fix-a-lock-inversion-issue.patch
+  hid-hyperv-use-in-place-iterator-api-in-the-channel-.patch
+  kselftest-exclude-failed-targets-from-runlist.patch
+  selftests-kselftest-runner.sh-add-45-second-timeout-.patch
+  nfs-fix-nfsi-nrequests-count-error-on-nfs_inode_remo.patch
+  arm64-cpufeature-effectively-expose-frint-capability.patch
+  arm64-fix-incorrect-irqflag-restore-for-priority-mas.patch
+  arm64-ftrace-ensure-synchronisation-in-plt-setup-for.patch
+  tty-serial-owl-fix-the-link-time-qualifier-of-owl_ua.patch
+  tty-serial-rda-fix-the-link-time-qualifier-of-rda_ua.patch
+  serial-sifive-select-serial_earlycon.patch
+  tty-n_hdlc-fix-build-on-sparc.patch
+  misc-fastrpc-prevent-memory-leak-in-fastrpc_dma_buf_.patch
+  rdma-core-fix-an-error-handling-path-in-res_get_comm.patch
+  rdma-cm-fix-memory-leak-in-cm_add-remove_one.patch
+  rdma-nldev-reshuffle-the-code-to-avoid-need-to-rebin.patch
+  rdma-mlx5-do-not-allow-rereg-of-a-odp-mr.patch
+  rdma-mlx5-order-num_pending_prefetch-properly-with-s.patch
+  rdma-mlx5-add-missing-synchronize_srcu-for-mw-cases.patch
+  gpio-max77620-use-correct-unit-for-debounce-times.patch
+  fs-cifs-mute-wunused-const-variable-message.patch
+  arm64-vdso32-fix-broken-compat-vdso-build-warnings.patch
+  arm64-vdso32-detect-binutils-support-for-dmb-ishld.patch
+  serial-mctrl_gpio-check-for-null-pointer.patch
+  serial-8250_omap-fix-gpio-check-for-auto-rts-cts.patch
+  arm64-default-to-building-compat-vdso-with-clang-whe.patch
+  arm64-vdso32-don-t-use-kbuild_cppflags-unconditional.patch
+  efi-cper-fix-endianness-of-pcie-class-code.patch
+  efi-x86-do-not-clean-dummy-variable-in-kexec-path.patch
+  mips-include-mark-__cmpxchg-as-__always_inline.patch
+  riscv-avoid-kernel-hangs-when-trapped-in-bug.patch
+  riscv-avoid-sending-a-sigtrap-to-a-user-thread-trapp.patch
+  riscv-correct-the-handling-of-unexpected-ebreak-in-d.patch
+  x86-xen-return-from-panic-notifier.patch
+  ocfs2-clear-zero-in-unaligned-direct-io.patch
+  fs-ocfs2-fix-possible-null-pointer-dereferences-in-o.patch
+  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
+  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
+  btrfs-silence-maybe-uninitialized-warning-in-clone_r.patch
+  arm64-armv8_deprecated-checking-return-value-for-mem.patch
+  x86-cpu-add-comet-lake-to-the-intel-cpu-models-heade.patch
+  sched-fair-scale-bandwidth-quota-and-period-without-.patch
+  sched-vtime-fix-guest-system-mis-accounting-on-task-.patch
+  perf-core-rework-memory-accounting-in-perf_mmap.patch
+  perf-core-fix-corner-case-in-perf_rotate_context.patch
+  perf-x86-amd-change-fix-nmi-latency-mitigation-to-us.patch
+  drm-amdgpu-fix-memory-leak.patch
+  iio-imu-adis16400-release-allocated-memory-on-failur.patch
+  iio-imu-adis16400-fix-memory-leak.patch
+  iio-imu-st_lsm6dsx-fix-waitime-for-st_lsm6dsx-i2c-co.patch
+  mips-include-mark-__xchg-as-__always_inline.patch
+  mips-fw-sni-fix-out-of-bounds-init-of-o32-stack.patch
+  s390-cio-fix-virtio-ccw-dma-without-pv.patch
+  virt-vbox-fix-memory-leak-in-hgcm_call_preprocess_li.patch
+  nbd-fix-possible-sysfs-duplicate-warning.patch
+  nfsv4-fix-leak-of-clp-cl_acceptor-string.patch
+  sunrpc-fix-race-to-sk_err-after-xs_error_report.patch
+  s390-uaccess-avoid-false-positive-compiler-warnings.patch
+  tracing-initialize-iter-seq-after-zeroing-in-tracing.patch
+  perf-annotate-fix-multiple-memory-and-file-descripto.patch
+  perf-aux-fix-tracking-of-auxiliary-trace-buffer-allo.patch
+  usb-legousbtower-fix-a-signedness-bug-in-tower_probe.patch
+  nbd-verify-socket-is-supported-during-setup.patch
+  arm64-dts-qcom-add-lenovo-miix-630.patch
+  arm64-dts-qcom-add-hp-envy-x2.patch
+  arm64-dts-qcom-add-asus-novago-tp370ql.patch
+  rtw88-fix-misuse-of-genmask-macro.patch
+  s390-pci-fix-msi-message-data.patch
+  thunderbolt-correct-path-indices-for-pcie-tunnel.patch
+  thunderbolt-use-32-bit-writes-when-writing-ring-prod.patch
+  ath6kl-fix-a-null-ptr-deref-bug-in-ath6kl_usb_alloc_.patch
+  fuse-flush-dirty-data-metadata-before-non-truncate-setattr.patch
+  fuse-truncate-pending-writes-on-o_trunc.patch
+  alsa-bebob-fix-prototype-of-helper-function-to-return-negative-value.patc=
+h
+  alsa-timer-fix-mutex-deadlock-at-releasing-card.patch
+  alsa-hda-realtek-fix-2-front-mics-of-codec-0x623.patch
+  alsa-hda-realtek-add-support-for-alc623.patch
+  ath10k-fix-latency-issue-for-qca988x.patch
+  uas-revert-commit-3ae62a42090f-uas-fix-alignment-of-scatter-gather-segmen=
+ts.patch
+  nl80211-fix-validation-of-mesh-path-nexthop.patch
+  usb-gadget-reject-endpoints-with-0-maxpacket-value.patch
+  usb-storage-revert-commit-747668dbc061-usb-storage-set-virt_boundary_mask=
+-to-avoid-sg-overflows.patch
+  usb-ldusb-fix-ring-buffer-locking.patch
+  usb-ldusb-fix-control-message-timeout.patch
+  usb-xhci-fix-immediate-data-transfer-endianness.patch
+  usb-xhci-fix-__le32-__le64-accessors-in-debugfs-code.patch
+  usb-serial-whiteheat-fix-potential-slab-corruption.patch
+  usb-serial-whiteheat-fix-line-speed-endianness.patch
+  xhci-fix-use-after-free-regression-in-xhci-clear-hub-tt-implementation.pa=
+tch
+  scsi-qla2xxx-fix-partial-flash-write-of-mbi.patch
+  scsi-target-cxgbit-fix-cxgbit_fw4_ack.patch
+  hid-i2c-hid-add-trekstor-primebook-c11b-to-descriptor-override.patch
+  hid-fix-assumption-that-devices-have-inputs.patch
+  hid-fix-error-message-in-hid_open_report.patch
+  hid-logitech-hidpp-split-g920_get_config.patch
+  hid-logitech-hidpp-rework-device-validation.patch
+  hid-logitech-hidpp-do-all-ff-cleanup-in-hidpp_ff_destroy.patch
+  um-ubd-entrust-re-queue-to-the-upper-layers.patch
+  s390-unwind-fix-mixing-regs-and-sp.patch
+  s390-cmm-fix-information-leak-in-cmm_timeout_handler.patch
+  s390-idle-fix-cpu-idle-time-calculation.patch
+  arc-perf-accommodate-big-endian-cpu.patch
+  ib-hfi1-avoid-excessive-retry-for-tid-rdma-read-request.patch
+  arm64-ensure-vm_write-vm_shared-ptes-are-clean-by-default.patch
+  arm64-cpufeature-enable-qualcomm-falkor-kryo-errata-1003.patch
+  virtio_ring-fix-stalls-for-packed-rings.patch
+  rtlwifi-rtl_pci-fix-problem-of-too-small-skb-len.patch
+  rtlwifi-fix-potential-overflow-on-p2p-code.patch
+  kvm-vmx-svm-always-run-with-efer.nxe-1-when-shadow-paging-is-active.patch
+  dmaengine-qcom-bam_dma-fix-resource-leak.patch
+  dmaengine-tegra210-adma-fix-transfer-failure.patch
+  dmaengine-imx-sdma-fix-size-check-for-sdma-script_number.patch
+  dmaengine-cppi41-fix-cppi41_dma_prep_slave_sg-when-idle.patch
+  drm-amdgpu-gmc10-properly-set-bank_select-and-fragment_size.patch
+  drm-i915-fix-pch-reference-clock-for-fdi-on-hsw-bdw.patch
+  drm-amdgpu-gfx10-update-gfx-golden-settings.patch
+  drm-amdgpu-powerplay-vega10-allow-undervolting-in-p7.patch
+  drm-amdgpu-fix-sdma-hang-when-performing-vkexample-test.patch
+  nfs-fix-an-rcu-lock-leak-in-nfs4_refresh_delegation_stateid.patch
+  io_uring-ensure-we-clear-io_kiocb-result-before-each-issue.patch
+  iommu-vt-d-fix-panic-after-kexec-p-for-kdump.patch
+  batman-adv-avoid-free-alloc-race-when-handling-ogm-buffer.patch
+  llc-fix-sk_buff-leak-in-llc_sap_state_process.patch
+  llc-fix-sk_buff-leak-in-llc_conn_service.patch
+  rxrpc-fix-call-ref-leak.patch
+  rxrpc-rxrpc_peer-needs-to-hold-a-ref-on-the-rxrpc_local-record.patch
+  rxrpc-fix-trace-after-put-looking-at-the-put-peer-record.patch
+  nfc-pn533-fix-use-after-free-and-memleaks.patch
+  bonding-fix-potential-null-deref-in-bond_update_slave_arr.patch
+  netfilter-conntrack-avoid-possible-false-sharing.patch
+  blackhole_netdev-fix-syzkaller-reported-issue.patch
+  net-usb-sr9800-fix-uninitialized-local-variable.patch
+  sch_netem-fix-rcu-splat-in-netem_enqueue.patch
+  net-sched-sch_sfb-don-t-call-qdisc_put-while-holding-tree-lock.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9D=8C Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+       =E2=9D=8C Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP lite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
+est
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: loca=
+l
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+  ppc64le:
+    Host 1:
+       =E2=9D=8C Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+       =E2=9D=8C Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP lite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
+est
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: loca=
+l
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9D=8C Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+       =E2=9D=8C Boot test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP lite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
+est
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: loca=
+l
+       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
+
+    Host 3:
+       =E2=9D=8C Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 4:
+       =E2=9D=8C Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 5:
+       =E2=9D=8C Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 6:
+       =E2=9D=8C Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
+
