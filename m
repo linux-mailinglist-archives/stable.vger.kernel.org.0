@@ -2,76 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAF83F0325
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 17:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 941AAF033C
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 17:44:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390156AbfKEQiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 11:38:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36300 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390060AbfKEQiM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 11:38:12 -0500
-Received: from localhost (unknown [62.119.166.9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77D1121882;
-        Tue,  5 Nov 2019 16:38:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572971892;
-        bh=FsuIW2q/xmpl397EpGtrbS7IJKE334NMMAWrozxk8es=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=f8/yvp4hsE3rcUEh5Oj64OJlncnVrOoHSVNmAS0hVnKpojN2W7HLvmebkISFOpF0Y
-         8jlcspFFdwUWoYR8Baer1L8g/PjtzByhZVa3r78E81vXBU6t8Z0lE//k7aUw4d3nRC
-         iAIaCN+qKwkd/rCNDlsSgjciFRgjkzUYDBsDGtU4=
-Date:   Tue, 5 Nov 2019 17:38:05 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Oliver Neukum <oneukum@suse.com>
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 4.19 114/149] UAS: Revert commit 3ae62a42090f ("UAS: fix
- alignment of scatter/gather segments")
-Message-ID: <20191105163805.GB2760793@kroah.com>
-References: <Pine.LNX.4.44L0.1911051007140.1678-100000@iolanthe.rowland.org>
- <1572968467.2921.27.camel@suse.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1572968467.2921.27.camel@suse.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+        id S2390343AbfKEQoj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 11:44:39 -0500
+Received: from mx2.suse.de ([195.135.220.15]:41514 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2390335AbfKEQoj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 11:44:39 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 9C278AF3F;
+        Tue,  5 Nov 2019 16:44:37 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 26B691E420F; Tue,  5 Nov 2019 17:44:37 +0100 (CET)
+From:   Jan Kara <jack@suse.cz>
+To:     Ted Tso <tytso@mit.edu>
+Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH 01/25] jbd2: Fix possible overflow in jbd2_log_space_left()
+Date:   Tue,  5 Nov 2019 17:44:07 +0100
+Message-Id: <20191105164437.32602-1-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20191003215523.7313-1-jack@suse.cz>
+References: <20191003215523.7313-1-jack@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 05, 2019 at 04:41:07PM +0100, Oliver Neukum wrote:
-> Am Dienstag, den 05.11.2019, 10:09 -0500 schrieb Alan Stern:
-> > On Tue, 5 Nov 2019, Oliver Neukum wrote:
-> > 
-> > > Am Montag, den 04.11.2019, 22:45 +0100 schrieb Greg Kroah-Hartman:
-> > > >         Since commit ea44d190764b ("usbip: Implement SG support to
-> > > >         vhci-hcd and stub driver") was merged, the USB/IP driver can
-> > > >         also handle SG.
-> > > 
-> > > Hi,
-> > > 
-> > > same story as 4.4.x
-> > 
-> > I'm not sure about uas, but it was reported just yesterday that the 
-> > corresponding commit for usb-storage caused a 30% speed degradation:
-> > 
-> > 	https://marc.info/?l=linux-usb&m=157293660212040&w=2
-> > 
-> > Given this information, perhaps you will decide that the revert is 
-> > worthwhile.
-> 
-> Damned if I do, damned if I do not.
-> Check for usbip and special case it?
+When number of free space in the journal is very low, the arithmetic in
+jbd2_log_space_left() could underflow resulting in very high number of
+free blocks and thus triggering assertion failure in transaction commit
+code complaining there's not enough space in the journal:
 
-We should be able to do that in the host controller driver for usbip,
-right?  What is the symptom if you use a UAS device with usbip and this
-commit?
+J_ASSERT(journal->j_free > 1);
 
-thanks,
+Properly check for the low number of free blocks.
 
-greg k-h
+CC: stable@vger.kernel.org
+Reviewed-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ include/linux/jbd2.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/include/linux/jbd2.h b/include/linux/jbd2.h
+index 603fbc4e2f70..10e6049c0ba9 100644
+--- a/include/linux/jbd2.h
++++ b/include/linux/jbd2.h
+@@ -1582,7 +1582,7 @@ static inline int jbd2_space_needed(journal_t *journal)
+ static inline unsigned long jbd2_log_space_left(journal_t *journal)
+ {
+ 	/* Allow for rounding errors */
+-	unsigned long free = journal->j_free - 32;
++	long free = journal->j_free - 32;
+ 
+ 	if (journal->j_committing_transaction) {
+ 		unsigned long committing = atomic_read(&journal->
+@@ -1591,7 +1591,7 @@ static inline unsigned long jbd2_log_space_left(journal_t *journal)
+ 		/* Transaction + control blocks */
+ 		free -= committing + (committing >> JBD2_CONTROL_BLOCKS_SHIFT);
+ 	}
+-	return free;
++	return max_t(long, free, 0);
+ }
+ 
+ /*
+-- 
+2.16.4
+
