@@ -2,124 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13BD2EFB0C
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 11:26:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B76EEFB22
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 11:29:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388466AbfKEK0e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 05:26:34 -0500
-Received: from mail-ot1-f66.google.com ([209.85.210.66]:43761 "EHLO
-        mail-ot1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388022AbfKEK0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 05:26:33 -0500
-Received: by mail-ot1-f66.google.com with SMTP id l14so2833024oti.10;
-        Tue, 05 Nov 2019 02:26:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nrM4WH7ocSeoIP0D4IPJEXJdoXpjHvezDNcy0lyrxPI=;
-        b=uHNb91zdVwx1ch67levEKsnIAyvEA49hNNl4uBSsmn/SRglm6oS/D4SbF3H/l3Zlw/
-         Ad9OUCX8WrEfCgRiA+iMuRrNaFto4nJ/gdJrDdDSxUGFLtu4UgbBWGMr2AkWXdTleUyn
-         z+z6kCr+sp3KG/gtIiMdrKstBvfixkOW4oxjQ+tq2cUwMgIYR+FlWEVhfPa84hSgRKTc
-         KD7mt8G5aBa1seu9vF69aYF79fzBy+UCnPwSExc2kDDQ94aqKXUzjnuuyqu5YYDeitkh
-         zy7NFtPyLQpfkDc8SMh1kuDWxLZJfQqVbxafUx4nBhUrdNlhiYXvQs3Jceu6NU16ptfu
-         i1Wg==
-X-Gm-Message-State: APjAAAUrGzWglDfDrM3AHj/Mf/xkHMDBe80JfyiXIv8EttLCDRGrrv/w
-        bn7wM6v5PKzxGgmgeTJ6XogdAA3Ajn+DGM12nimLnQ==
-X-Google-Smtp-Source: APXvYqywAlKULKehwmF0jzj2vvJGTlbdVDUNqYoFvl1X3Ao+ET1o5TY/1F2axWN2/1Or/x8MxulRqbmKke+Rvy8DINU=
-X-Received: by 2002:a9d:422:: with SMTP id 31mr20794682otc.107.1572949592429;
- Tue, 05 Nov 2019 02:26:32 -0800 (PST)
+        id S2388366AbfKEK3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 05:29:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48128 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388353AbfKEK3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 05:29:08 -0500
+Received: from willie-the-truck (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CAE3206BA;
+        Tue,  5 Nov 2019 10:29:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572949747;
+        bh=G/WVsUl21Rq64gmthYTkqwJWzp0DE+l2howkOHhPxEw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=JL+KtQdhjX7JvfqySLQldcTFbDnaDWodNj1cF1E06zcTwVUFsXU9y/1syzIdkunTl
+         iihuftP1aFO1/g6kh0QIh3ufH8MbygWWIjfe1ekhs4LmxAey1FrhLJKnJO0fquUkYv
+         zQdg+oQKpIMcjCn2Hkly/srC9lEC703r+2JqWXaM=
+Date:   Tue, 5 Nov 2019 10:29:03 +0000
+From:   Will Deacon <will@kernel.org>
+To:     John Stultz <john.stultz@linaro.org>
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>,
+        Alistair Delva <adelva@google.com>,
+        Sandeep Patil <sspatil@google.com>
+Subject: Re: [PATCH] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by
+ default
+Message-ID: <20191105102902.GB29852@willie-the-truck>
+References: <20191029153051.24367-1-catalin.marinas@arm.com>
+ <CALAqxLXuxZVg0kqNQXF_dH17NzH9m14-Ci_rzruHzmms0V7pvg@mail.gmail.com>
 MIME-Version: 1.0
-References: <1572922092-12323-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
- <1572922092-12323-3-git-send-email-yoshihiro.shimoda.uh@renesas.com>
- <CAMuHMdWrQs49BFaN49odrG3k91d2rsRLPpCSvDcj5DhKeHPPaA@mail.gmail.com>
- <TYAPR01MB45448947CB09B1A8AC1774A8D87E0@TYAPR01MB4544.jpnprd01.prod.outlook.com>
- <CAMuHMdXvFaPwqo2EHiBMTot05KggRNtL56JOrW_MUrBLL6NHxQ@mail.gmail.com> <TYAPR01MB45440A377DBE627FFFCCC287D87E0@TYAPR01MB4544.jpnprd01.prod.outlook.com>
-In-Reply-To: <TYAPR01MB45440A377DBE627FFFCCC287D87E0@TYAPR01MB4544.jpnprd01.prod.outlook.com>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Tue, 5 Nov 2019 11:26:21 +0100
-Message-ID: <CAMuHMdUW5Zb1FXf8OzOYJjZh=yxi3f_s0D-qy3Xw-HEGQRi54A@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] PCI: rcar: Fix missing MACCTLR register setting in
- initialize sequence
-To:     Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc:     Marek Vasut <marek.vasut+renesas@gmail.com>,
-        linux-pci <linux-pci@vger.kernel.org>,
-        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALAqxLXuxZVg0kqNQXF_dH17NzH9m14-Ci_rzruHzmms0V7pvg@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Shimoda-san,
+Hi John,
 
-On Tue, Nov 5, 2019 at 11:11 AM Yoshihiro Shimoda
-<yoshihiro.shimoda.uh@renesas.com> wrote:
-> > From: Geert Uytterhoeven, Sent: Tuesday, November 5, 2019 6:53 PM
-> > On Tue, Nov 5, 2019 at 10:26 AM Yoshihiro Shimoda
-> > <yoshihiro.shimoda.uh@renesas.com> wrote:
-> > > > From: Geert Uytterhoeven, Sent: Tuesday, November 5, 2019 5:50 PM
-> > > > On Tue, Nov 5, 2019 at 3:48 AM Yoshihiro Shimoda
-> > > > <yoshihiro.shimoda.uh@renesas.com> wrote:
-> > > > > According to the R-Car Gen2/3 manual, "Be sure to write the initial
-> > > > > value (= H'80FF 0000) to MACCTLR before enabling PCIETCTLR.CFINIT".
-> > > > > To avoid unexpected behaviors, this patch fixes it. Note that
-> > > > > the SPCHG bit of MACCTLR register description said "Only writing 1
-> > > > > is valid and writing 0 is invalid" but this "invalid" means
-> > > > > "ignored", not "prohibited". So, any documentation conflict doesn't
-> > > > > exist about writing the MACCTLR register.
-> > > > >
-> > > > > Reported-by: Eugeniu Rosca <erosca@de.adit-jv.com>
-> > > > > Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
-> > > > > Fixes: be20bbcb0a8c ("PCI: rcar: Add the initialization of PCIe link in resume_noirq()")
-> > > > > Cc: <stable@vger.kernel.org> # v5.2+
-> > > > > Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-> > > >
-> > > > Thanks for your patch!
-> > > >
-> > > > > --- a/drivers/pci/controller/pcie-rcar.c
-> > > > > +++ b/drivers/pci/controller/pcie-rcar.c
-> > > > > @@ -91,8 +91,12 @@
-> > > > >  #define  LINK_SPEED_2_5GTS     (1 << 16)
-> > > > >  #define  LINK_SPEED_5_0GTS     (2 << 16)
-> > > > >  #define MACCTLR                        0x011058
-> > > > > +#define  MACCTLR_RESERVED23_16 GENMASK(23, 16)
-> > > >
-> > > > MACCTLR_NFTS_MASK?
-> > >
-> > > I should have said on previous email thread [1] though,
-> > > since SH7786 PCIE HW manual said NFTS (NFTS) but
-> > > any R-Car SoCs' HW manual said just Reserved with H'FF,
-> > > so that I prefer to describe RESERVED instead of NFTS.
-> > > Do you agree?
-> > >
-> > > [1]
-> > > https://marc.info/?l=linux-renesas-soc&m=157242422327368&w=2
+On Mon, Nov 04, 2019 at 05:16:42PM -0800, John Stultz wrote:
+> On Tue, Oct 29, 2019 at 8:31 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
 > >
-> > My personal stance is to make it as easy as possible for the reader of
-> > the code ("optimize for reading, not for writing"), as code is written once,
-> > but read many more times later.
-> > This is not the first time register bits were documented before, and changed
-> > to reserved later.
-> > In this case the resemblance to the SH7786 PCIe block is obvious, and
-> > the SH7786 hardware user's manual is available publicly.
->
-> Thank you for sharing your stance. I understood it. So, I'll fix it as following.
-> Is it acceptable?
->
-> #define  MACCTLR_NFTS_MASK      GENMASK(23, 16) /* The name is from SH7786 */
+> > Shared and writable mappings (__S.1.) should be clean (!dirty) initially
+> > and made dirty on a subsequent write either through the hardware DBM
+> > (dirty bit management) mechanism or through a write page fault. A clean
+> > pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
+> > clear.
+> >
+> > The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
+> > PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
+> > bit handling out of set_pte_at()"), it was the responsibility of
+> > set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
+> > software PTE_DIRTY bit was not set. However, the above commit removed
+> > the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
+> > set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
+> > unchanged. The result is that shared+writable mappings are now dirty by
+> > default
+> >
+> > Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
+> > In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
+> > attributes.
+> >
+> > Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
+> > Cc: <stable@vger.kernel.org> # 4.14.x-
+> > Cc: Will Deacon <will@kernel.org>
+> > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> 
+> Hey,
+>   So I'm not yet sure why, but I've just validated that this patch is
+> causing trouble with booting AOSP on HiKey960 with 5.4-rc6 (-rc5 works
+> fine).
 
-Sounds great to me.
-Thanks!
+Hmm. Annoying this wasn't spotted by CI.
 
-Gr{oetje,eeting}s,
+> Its odd, because the system does boot and is alive, but seems to stall
+> out at the boot animation, and userland never finishes coming up to
+> the home screen. It just sits there without a useful error message
+> that I can find so far.  Reverting just this patch seems to solve it
+> and it boots all the way.
 
-                        Geert
+Given that I don't think the HiKey960 supports h/w DBM, my initial guess
+is that the GPU is stuck on a page fault.
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+> I'll try to dig further to see what might be going on (the mali driver
+> is a prime suspect here), but I wanted to raise the flag since we're
+> at the end of the -rc cycle.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+What exactly are you using for the mali driver?
+
+As an experiment, can you try reverting just the part of the patch that
+removes PTE_DIRTY from the PROT_* definitions? (see below)
+
+Thanks,
+
+Will
+
+--->8
+
+diff --git a/arch/arm64/include/asm/pgtable-prot.h b/arch/arm64/include/asm/pgtable-prot.h
+index 8dc6c5cdabe6..17a8eb13f4ce 100644
+--- a/arch/arm64/include/asm/pgtable-prot.h
++++ b/arch/arm64/include/asm/pgtable-prot.h
+@@ -32,11 +32,11 @@
+ #define PROT_DEFAULT		(_PROT_DEFAULT | PTE_MAYBE_NG)
+ #define PROT_SECT_DEFAULT	(_PROT_SECT_DEFAULT | PMD_MAYBE_NG)
+ 
+-#define PROT_DEVICE_nGnRnE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRnE))
+-#define PROT_DEVICE_nGnRE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRE))
+-#define PROT_NORMAL_NC		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_NC))
+-#define PROT_NORMAL_WT		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_WT))
+-#define PROT_NORMAL		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL))
++#define PROT_DEVICE_nGnRnE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRnE))
++#define PROT_DEVICE_nGnRE	(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_DEVICE_nGnRE))
++#define PROT_NORMAL_NC		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_NC))
++#define PROT_NORMAL_WT		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL_WT))
++#define PROT_NORMAL		(PROT_DEFAULT | PTE_PXN | PTE_UXN | PTE_DIRTY | PTE_WRITE | PTE_ATTRINDX(MT_NORMAL))
+ 
+ #define PROT_SECT_DEVICE_nGnRE	(PROT_SECT_DEFAULT | PMD_SECT_PXN | PMD_SECT_UXN | PMD_ATTRINDX(MT_DEVICE_nGnRE))
+ #define PROT_SECT_NORMAL	(PROT_SECT_DEFAULT | PMD_SECT_PXN | PMD_SECT_UXN | PMD_ATTRINDX(MT_NORMAL))
