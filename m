@@ -2,108 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7ADFF0406
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 18:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 896ADF043A
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 18:42:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388177AbfKERVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 12:21:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50018 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387776AbfKERVo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 12:21:44 -0500
-Received: from localhost (unknown [62.119.166.9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43D97214B2;
-        Tue,  5 Nov 2019 17:21:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572974503;
-        bh=i1UmVlnFy2IiNHaHB/C/T+K0x+8h/bARAhHf2EKV+7k=;
-        h=Subject:To:From:Date:From;
-        b=cFp/JSffxCejIRuOrk/FYefoGDWh/n3JYSpWXE3uScGDjDEbaMrEzkV8yap5gAk/Y
-         PAvRkx4HoO+M8gxY+gEfqzC87W939D2/sD9ah9dIB4DLCdgZl6NEWbCsKH5CBjRSL4
-         gLS/dtUV0JTD1VPHvQcyWC9f1STrCdeEy6Aa0mZM=
-Subject: patch "mei: bus: prefix device names on bus with the bus name" added to char-misc-testing
-To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tomas.winkler@intel.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 Nov 2019 18:21:29 +0100
-Message-ID: <15729744893653@kroah.com>
+        id S2390114AbfKERmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 12:42:17 -0500
+Received: from mail-ua1-f67.google.com ([209.85.222.67]:39424 "EHLO
+        mail-ua1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388969AbfKERmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 12:42:17 -0500
+Received: by mail-ua1-f67.google.com with SMTP id y17so3581099uaq.6
+        for <stable@vger.kernel.org>; Tue, 05 Nov 2019 09:42:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=0K675Rsc+J9W81hCaHwc8zRpNt0D5LrPanFyJgia/e0=;
+        b=LcVrsTcG2lxOoo8EVg+ETTpEXmr7hFIEP5hNYT2AEZkN6QuDYZy2kg30iPM5JAoLRG
+         nmYeIyhTXIxXXoJStg4cRgNZAIXsjTEKmTRZPtMF4lxNeUQpQ1+8k7Wycj2O1SWC/Ivh
+         a17ScwIkF4/w+JoVeWeJvLRfhsiLiHml5y0EfDb4LQxW0tKb+BKVGuMB9LjcExdUY9YS
+         SIod1M6HyfEBJQkZr1dRWBt2fOb6NXQW01tUOwtQhch6/KBrAgiJDzMa+6rfh5KmDSZe
+         PzwPFVqIA8Lgj3j31v+Vq/PKsHs6GAwMAwPAmIiq0u5VMWQF89EH3xHcRiDLMK7cl2Cz
+         B4gQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=0K675Rsc+J9W81hCaHwc8zRpNt0D5LrPanFyJgia/e0=;
+        b=lQ9wshBgCx679kVoU1jJTeO9OjsxOcJkHaN6+KjfzcPuk3p0T+CyrRNO1wYFIuyYfQ
+         cWnOaaR0eU0apaPlFDVstUcdG/xCoWs72Dfzu38HG0vHNQYbniW2b6r5UOS395HxtjBo
+         VYvrRJFyPDF6uT8x50gh2O0mi6E4euIlvysEBj8IgFzS/mcjzkr3gN+LHGg86KzBCLmR
+         VgfCgI9rKMkdGVaPiXOFThwsGXLJbN209OR0VSJ1EIrzL9jflEybYwKv4TE1uiYNiQU+
+         qwATqIi8jtWas5yG7MxOmOVM6NZ5vNXMSf/5SGECgDi1oD1jFHF3yDXtzm+wUg3G7Qo+
+         t3mA==
+X-Gm-Message-State: APjAAAVqpWl9RPJw7qg5SPRuNS3aW7ugOcnNiKjxDPsMUKxj8wiHm6+x
+        dxwwjke6QFd2iGKYYmlGNJdj3bXdWrwuHN2PbKs=
+X-Google-Smtp-Source: APXvYqxAwzCEP4jZE3mw8CFvk3LC4gsfy9xeRinp34r743Tv1cQBOO70Hx7TbQlM7dVIHqLbyKS2Lrpm1SwF8gtxkFo=
+X-Received: by 2002:ab0:2406:: with SMTP id f6mr2153640uan.112.1572975736327;
+ Tue, 05 Nov 2019 09:42:16 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a67:ec07:0:0:0:0:0 with HTTP; Tue, 5 Nov 2019 09:42:15 -0800 (PST)
+Reply-To: michellegoodman45@gmail.com
+From:   Shayma <shaymamarwan04@gmail.com>
+Date:   Tue, 5 Nov 2019 17:42:15 +0000
+Message-ID: <CAFyUfoMdpYy-rOiZBN_pUh6z5Z8X-MZSV9CfwkwZA1t_2n-8oA@mail.gmail.com>
+Subject: From Michelle
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-This is a note to let you know that I've just added the patch titled
-
-    mei: bus: prefix device names on bus with the bus name
-
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the char-misc-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 7a2b9e6ec84588b0be65cc0ae45a65bac431496b Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Tue, 5 Nov 2019 17:05:13 +0200
-Subject: mei: bus: prefix device names on bus with the bus name
-
-Add parent device name to the name of devices on bus to avoid
-device names collisions for same client UUID available
-from different MEI heads. Namely this prevents sysfs collision under
-/sys/bus/mei/device/
-
-In the device part leave just UUID other parameters that are
-required for device matching are not required here and are
-just bloating the name.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191105150514.14010-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/misc/mei/bus.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
-index 985bd4fd3328..53bb394ccba6 100644
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -873,15 +873,16 @@ static const struct device_type mei_cl_device_type = {
- 
- /**
-  * mei_cl_bus_set_name - set device name for me client device
-+ *  <controller>-<client device>
-+ *  Example: 0000:00:16.0-55213584-9a29-4916-badf-0fb7ed682aeb
-  *
-  * @cldev: me client device
-  */
- static inline void mei_cl_bus_set_name(struct mei_cl_device *cldev)
- {
--	dev_set_name(&cldev->dev, "mei:%s:%pUl:%02X",
--		     cldev->name,
--		     mei_me_cl_uuid(cldev->me_cl),
--		     mei_me_cl_ver(cldev->me_cl));
-+	dev_set_name(&cldev->dev, "%s-%pUl",
-+		     dev_name(cldev->bus->dev),
-+		     mei_me_cl_uuid(cldev->me_cl));
- }
- 
- /**
--- 
-2.23.0
-
-
+Merhaba can=C4=B1m l=C3=BCtfen umar=C4=B1m mesaj=C4=B1m vard=C4=B1r
+Acil bir cevaba ihtiyac=C4=B1m var
+Te=C5=9Fekk=C3=BCrler
+michelle
