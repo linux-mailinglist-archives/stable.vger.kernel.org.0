@@ -2,94 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A76EF676
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 08:35:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB730EF68D
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 08:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387707AbfKEHfD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 02:35:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387484AbfKEHfD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 02:35:03 -0500
-Received: from localhost (host6-102.lan-isdn.imaginet.fr [195.68.6.102])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E04EF217F4;
-        Tue,  5 Nov 2019 07:35:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572939302;
-        bh=K1BKpJQLMtnH3+V92uee7SW/Z+pmSQfrcqeTyN7QlB0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eghPibRXlsACFFKrYkascPxzVND7Aiuqaf9uVBhvkHW5YFgjXLIJw1fi5B+JqEn2J
-         9Ap1s3dpd6jwGSXdExj1GfwpDBNlhsNN9V3qwx+NLM+UsQ+aRJnfooJHREyAUXMm3j
-         G39z1/GxCJimZ8wNJuv9uuLJ6rRp5bamdOGU6ExY=
-Date:   Tue, 5 Nov 2019 08:34:59 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
-        Dan Rue <dan.rue@linaro.org>, LTP List <ltp@lists.linux.it>,
-        open list <linux-kernel@vger.kernel.org>,
-        Jan Stancek <jstancek@redhat.com>,
-        Basil Eljuse <Basil.Eljuse@arm.com>, chrubis <chrubis@suse.cz>,
-        mmarhefk@redhat.com, Netdev <netdev@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: stable-rc-5.3.9-rc1: regressions detected - remove_proc_entry:
- removing non-empty directory 'net/dev_snmp6', leaking at least 'lo'
-Message-ID: <20191105073459.GB2588562@kroah.com>
-References: <CA+G9fYsWTFQZTHXUDPToaepnKGBoh61SsA_8SHcYgYZXN_L+mg@mail.gmail.com>
- <CA+G9fYu+6A3pYQGs2rydYtHNSCf1t9+OTRqrZeCbpc2ARLx2zA@mail.gmail.com>
+        id S2387903AbfKEHmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 02:42:46 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:46035 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387678AbfKEHmq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 02:42:46 -0500
+Received: by mail-wr1-f67.google.com with SMTP id q13so20070631wrs.12
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 23:42:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=FywQm0vc8BVrO4PEhiMcRf8eCk2OgV20lI7T1YCiQl0=;
+        b=S+x5H6h7Y0fDjFB5WhNC7TpeLRCkcAC5LsTmGi3J46HzsYvtl8S44aBJM0FZMX1xcj
+         rrQZcIhub/zcYvAByD2bH48PJ+v4Inj9ie53jguSWyyos9EFjnJeC5u0JNxjkeZBE/rw
+         JWU44/tlWUbhb3TwjZ8+UpsyX/6Hs9eI5WnEbb8m2M04sQ8ZAmivdJPQoNkuOkLZn/pO
+         MgBAXwRCOJT3/skAU+ORNG8Xj52AQbhaNB64NxzrYBNbTOueht2Z912T1Nh1TY8+q4pI
+         DPsd2yJH28eDOr19AM1JOOFSPYZy+U0GQApG53sGcn3fXkodVrWn80bpnFQdNNJcnwJR
+         n40Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=FywQm0vc8BVrO4PEhiMcRf8eCk2OgV20lI7T1YCiQl0=;
+        b=aJ7Nt6gxNRWe5i8nFV5C9RyaW89IERNwxC7pyM9ZlEXqkk7trXjPc59gnvr60QXFL/
+         r6WyiOtbE8gsNHx3UYYBLftegryEr2/o2twdkgNHSijWtOU+uhozCFiSOjcQxyXLSguf
+         7bivj7nPVYF3U5PtnAuuMbIeOG4mJFKDImLmct6yyjXjg4agx39QA/uZbSjt3LB2l2OQ
+         GM1C1Z495qwkkO9aFLK+iQr7ea8DOQP0qR4fTi8ohxByv8RqLiC7wJXi62FfSYDaoDQz
+         oJJ0hFBcxiGxNVOtDxO2ORO5P1O0akIjhNzs7YaXzABDCmZ+KOsUK9Wp2wocLIFC548U
+         /ypw==
+X-Gm-Message-State: APjAAAUFgbI3bS/5GPQmuHK5bjyILJ+KH639FHGMC106Q9j2Gpf0+XkN
+        am1qsaWqvBFjnrquNmTvRxBOgbKcoCjB2Q==
+X-Google-Smtp-Source: APXvYqwd+MUUkmFKogyc5XZH7Y3T6A8SIcTGehr2JDjF9uqgQdqKhSi/YVM+QNAKMbm0tC9E8sy9yQ==
+X-Received: by 2002:a5d:570f:: with SMTP id a15mr18086622wrv.316.1572939764428;
+        Mon, 04 Nov 2019 23:42:44 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l13sm6270720wmh.12.2019.11.04.23.42.43
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Nov 2019 23:42:43 -0800 (PST)
+Message-ID: <5dc127f3.1c69fb81.14af2.41ef@mx.google.com>
+Date:   Mon, 04 Nov 2019 23:42:43 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYu+6A3pYQGs2rydYtHNSCf1t9+OTRqrZeCbpc2ARLx2zA@mail.gmail.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.151-96-ga9ad8ad8b3ef
+Subject: stable-rc/linux-4.14.y boot: 108 boots: 2 failed,
+ 99 passed with 7 offline (v4.14.151-96-ga9ad8ad8b3ef)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 05, 2019 at 09:44:39AM +0530, Naresh Kamboju wrote:
-> Hi Sasha and Greg,
-> 
-> On Mon, 4 Nov 2019 at 20:59, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
-> >
-> > Linux stable rc 5.3 branch running LTP reported following test failures.
-> > While investigating these failures I have found this kernel warning
-> > from boot console.
-> > Please find detailed LTP output log in the bottom of this email.
-> >
-> > List of regression test cases:
-> >   ltp-containers-tests:
-> >     * netns_breakns_ip_ipv6_ioctl
-> >     * netns_breakns_ip_ipv6_netlink
-> >     * netns_breakns_ns_exec_ipv6_ioctl
-> >     * netns_breakns_ns_exec_ipv6_netlink
-> >     * netns_comm_ip_ipv6_ioctl
-> >     * netns_comm_ip_ipv6_netlink
-> >     * netns_comm_ns_exec_ipv6_ioctl
-> >     * netns_comm_ns_exec_ipv6_netlink
-> 
-> These reported failures got fixed on latest stable-rc 5.3.y after
-> dropping a patch [1].
+stable-rc/linux-4.14.y boot: 108 boots: 2 failed, 99 passed with 7 offline =
+(v4.14.151-96-ga9ad8ad8b3ef)
 
-What is the subject of the patch?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.151-96-ga9ad8ad8b3ef/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.151-96-ga9ad8ad8b3ef/
 
-> The kernel warning is also gone now.
-> 
-> metadata:
->   git branch: linux-5.3.y
->   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
->   git commit: 75c9913bbf6e9e64cb669236571e6af45cddfd68
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.151-96-ga9ad8ad8b3ef
+Git Commit: a9ad8ad8b3efffde7dfb6853480bb74579a0b973
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 61 unique boards, 21 SoC families, 13 builds out of 200
 
-The -rc tree is rebased all the time, can I get a "real" subject line to
-get a chance to figure out what you are trying to refer to here?
+Boot Failures Detected:
 
-> ref:
-> [PATCH AUTOSEL 5.3 12/33] blackhole_netdev: fix syzkaller reported issue
-> [1] https://lkml.org/lkml/2019/10/25/794
+arm:
+    tegra_defconfig:
+        gcc-8:
+            tegra124-nyan-big: 1 failed lab
 
-lore.kernel.org is much more reliable :)
+    multi_v7_defconfig:
+        gcc-8:
+            rk3288-veyron-jaq: 1 failed lab
 
-thanks,
+Offline Platforms:
 
-greg k-h
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
