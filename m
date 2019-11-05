@@ -2,77 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04462EFF9D
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 15:23:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9EFEFF9E
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 15:23:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389490AbfKEOXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 09:23:39 -0500
-Received: from mout.kundenserver.de ([212.227.17.13]:49583 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389083AbfKEOXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 09:23:38 -0500
-Received: from mail-qk1-f170.google.com ([209.85.222.170]) by
- mrelayeu.kundenserver.de (mreue108 [212.227.15.145]) with ESMTPSA (Nemesis)
- id 1Mj8iJ-1hxtan37R7-00f9Ij; Tue, 05 Nov 2019 15:23:36 +0100
-Received: by mail-qk1-f170.google.com with SMTP id h15so11531680qka.13;
-        Tue, 05 Nov 2019 06:23:36 -0800 (PST)
-X-Gm-Message-State: APjAAAVlMfeuJT7rM+C/sroAovXLCi1GZcDkVuDDZwQUVENLWPutJqCP
-        npS776GVNjjF7+F/LjxKY20czgP5tkbnzrAVDVI=
-X-Google-Smtp-Source: APXvYqxEJlpoNZwMPLpzsXqtyuzA7jOFNpOCO6jYdbmb8Rt9qzUV9PB1GkNKVDNJDtW7nTqNAE7nVJYyIwLqAnfMeaY=
-X-Received: by 2002:a37:4f13:: with SMTP id d19mr7205469qkb.138.1572963815449;
- Tue, 05 Nov 2019 06:23:35 -0800 (PST)
+        id S2389514AbfKEOXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 09:23:45 -0500
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:35474 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389083AbfKEOXo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 09:23:44 -0500
+Received: by mail-pf1-f194.google.com with SMTP id d13so15554881pfq.2;
+        Tue, 05 Nov 2019 06:23:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=PnsfwHVKboT1onOi2MNNIGhlzf5mUggqcgt3KQ0SEBc=;
+        b=jKrnyDMH49Lx6G4ChXLbeRQWHEsYnLVAV4pIr2ZWlFKdkRXOrGTs+Ct2KhE1XifC5S
+         7wAmAxAa0LcObun2U1fb2KCI3/sg7EQGcdKk3xRabpy9DT8G7sVQIUdRp/TO/LQqzMek
+         FxQRFI2XUxNvPoIWrbqSIKQlzY6pFPpKa5zoOqQTlJXRFz/MrKuLmfXVQxduImj9H/Za
+         xV0uUUnJep0DMKwZpPML9d2Lgbf9BUTa+0IFahJsoWLhO4I5IzIg9yTwf64NXdjVIO5z
+         kCxLCfS2P+MBVKxyAEbwFTDku7433+Pw46Nfdw5mBuP2EHj0cHaKXa7D8qRrvRdXC9t8
+         5oxQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PnsfwHVKboT1onOi2MNNIGhlzf5mUggqcgt3KQ0SEBc=;
+        b=OkswZvdIyf/FolJI8YEtMQkdQKd/2nNwBAvI4+J/TaJ9wK7Neq91IG/4ds2fzePhgj
+         HMGDRMAQPrHzKmcC2TS14ktOGF5By4a1V7A99NxeIoyE+QKLKOBI3WtaOYKN+flRduWj
+         cHcn1r+6bCOcBmqPGspU3qAUegLFFoeCczS6gPL7JZSC9hCPGi55BVtCpy9Xx/YzkFmU
+         Dj2D3yMCEsfmSUOMoNm1jZTezSnHucDN27Uwvh+pvoLLYXVrzEGK7x7nraAAr1e+l1q2
+         28ISEihciDPMrOF6gTa8JvaLJEe+DKQhAd2Mk5j4RXLic8Sxif5q4g7MLBjp9iyo/cmk
+         eQZQ==
+X-Gm-Message-State: APjAAAUOfF/1Ik2Ox9tSWgB5cayNvvfHolTqO8JRBDyh0ftw2oFDFSTH
+        5I+0+xm04/P0ckWrsasypLg9RtNS
+X-Google-Smtp-Source: APXvYqwaiI2bbOrAmUESpUejMx1Rk5plpb7AwsbkotwARw0wB9fZy78gK07Yli9LLUnh77c/gTQyzQ==
+X-Received: by 2002:a62:90:: with SMTP id 138mr38788686pfa.209.1572963823840;
+        Tue, 05 Nov 2019 06:23:43 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id x186sm9964687pfx.105.2019.11.05.06.23.42
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 05 Nov 2019 06:23:43 -0800 (PST)
+Subject: Re: [PATCH 4.4 00/46] 4.4.199-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20191104211830.912265604@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <3340ee78-df51-bc98-fcfc-e2ce62880106@roeck-us.net>
+Date:   Tue, 5 Nov 2019 06:23:41 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-References: <20191031113608.20713-1-christian.brauner@ubuntu.com>
-In-Reply-To: <20191031113608.20713-1-christian.brauner@ubuntu.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Tue, 5 Nov 2019 15:23:19 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a2P0djkhfHhQUGdO3YX7QGtLeF2OH1HaJmbmRq5Nuojbg@mail.gmail.com>
-Message-ID: <CAK8P3a2P0djkhfHhQUGdO3YX7QGtLeF2OH1HaJmbmRq5Nuojbg@mail.gmail.com>
-Subject: Re: [PATCH] clone3: validate stack arguments
-To:     Christian Brauner <christian.brauner@ubuntu.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Florian Weimer <fweimer@redhat.com>,
-        GNU C Library <libc-alpha@sourceware.org>,
-        Kees Cook <keescook@chromium.org>,
-        Jann Horn <jannh@google.com>,
-        David Howells <dhowells@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linux API <linux-api@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:g9UvdAFkc5K5I1WUz3TIItfnCw2AoYB7lvNx6PYbY2iTTZkZBuV
- 1T7QX9Skaji8HOzG6B7oI/t8iwBJdguhPv+e44QUBvV9T+P/RTh7gqvoR44j29THV/jswrA
- fpiuKzqM7ga+3+/dQVv3Cx3ADfxY70sJmqgE6Mrc3bLpeZJAS+JxJx+BbQkAhZpd8UvSDyi
- oZ/0oeJrAiKrU5ZTYGhJA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:5JY4BvQQdNI=:MuZI6gc0XPZdqM1HqDwBh1
- u0UgyA7sT+aegKhB7KPWR7ohGn/3nu3xLEG1jaj9XeHSyMjKH4tntDL0YGpwKh+aEn36jjWoQ
- QH3ok9yLl+Z9uzG6DBLbdwXOXKB2i2y9vAtEyiaK3Qm4DR58vPtAO6jdSNcUD+UgEnvLHPrm5
- B+UUtbM6rx/08GFsyMsG03qdnMteLatFdX06hSriygEiN/J6aMlnEGIGErrJr8L4wsNQw1gup
- a8AtGWcxY/Tvu2hQ20n6JrpKwlpC1OU2VGaHezL1BSt+TyChSe6p7+LYMOvSW36ythyBuq+oz
- ABW/P+Wxjw0eiS0vQxJ61IKNL13kzyDAztMQFa6J8EuyosGfeFfpQkw7f4JzG6gHDaVcySuhJ
- o0JpDtJelNviB5raADwGCL+/CfkTCxfq6SfAHd8k2M9gwAUdhbC2a4wZX3Py7bcV1/gTH0QKp
- 3jN0Mr22gAYLDY3nAOVyeVu8e7CYvzVJpX2VghN6kqvt2LhaqMmAXmKOUpRh3Wbn66sK6PGwF
- 1sYQ8lw/3d77PGBwKu+wGtnUlLZ3kEgv8C8DUnpeW8yWWtY+nYXM4KHq23B0dULgBr2wUt4Nw
- urjfHfu2CIRi3XEXaKyebuelQgWIgxLvHqPLKiKHIBhQwzWHM5dnK4ZwT4n0ppV4/sVKnWmFU
- SRnVxlJuPv5JpXXVfVB/tG0M8NRQvoCVqf5W8FqLDSbCuqoQJtKOW1Dqxc4io1Bi2rP+Lz12l
- zcIfq7Jk7fv2MTgWWSumoxR9G7upXwkQlBP1Ei7RGeLirmpyhKnczDvVEN0ALdbwTpBTrQvHK
- HGSrWt5tMxCU+67V3YTynAvQCPcqUCL/8e1jHb21yJrYr7Vymn50VbK1AzuiD4nDNjDovO99P
- B+nb043KbWyQOUxGRw7w==
+In-Reply-To: <20191104211830.912265604@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Oct 31, 2019 at 12:36 PM Christian Brauner
-<christian.brauner@ubuntu.com> wrote:
->
-> Validate the stack arguments and setup the stack depening on whether or not
-> it is growing down or up.
->
-> Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
+On 11/4/19 1:44 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.199 release.
+> There are 46 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 06 Nov 2019 09:14:04 PM UTC.
+> Anything received after that time might be too late.
+> 
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+Build results:
+	total: 170 pass: 170 fail: 0
+Qemu test results:
+	total: 324 pass: 324 fail: 0
+
+Guenter
