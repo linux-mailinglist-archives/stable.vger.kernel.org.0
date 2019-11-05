@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31494F03F2
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 18:18:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B927F0407
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 18:22:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390287AbfKERS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 12:18:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48348 "EHLO mail.kernel.org"
+        id S1730895AbfKERWA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 12:22:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389659AbfKERS3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 12:18:29 -0500
+        id S1728399AbfKERWA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 12:22:00 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4114F214B2;
-        Tue,  5 Nov 2019 17:18:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D21D3214B2;
+        Tue,  5 Nov 2019 17:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572974308;
-        bh=xhBHlpLzKMxWG1uzdjlPGMv5/i3bEaDdEOzBTmgeaQk=;
+        s=default; t=1572974518;
+        bh=JgjlL/oHDItjKCK1eUG4BFdCFpcYYQyc/vcIlLxBVyY=;
         h=Subject:To:From:Date:From;
-        b=wcwn5OIJUorCe5Io+ArChsm+JBPj8fcO6T8HHQzKUWhyiumIYLJTCbVGOdMc2wAFI
-         eR4jBeJTJnsKNIxYGkOT6DlKjuqtrckkXYGajtV5G6CKfkEfcVg6qj2iYXulI/+K1y
-         8LULAwr/CK4qbzBefLFbf8iXYXvumFgl4Jx6OZRY=
-Subject: patch "tty: serial: fsl_lpuart: use the sg count from dma_map_sg" added to tty-testing
-To:     peng.fan@nxp.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=dd9GilEwYqYJIcGY2YuC/o77pYh+eYdceERLsFuWXCeOYKkyK6ereOpKAJIPq8+09
+         MguQrp3n/KXcXnl1U/6ZHWAlVCmFzBrwRk/pMgNv8rbSsa7hShWbviOpTJ6P4v+FIn
+         VE9g8GDb8mkGmccvckAUIYNWaTRHKV9hcaHqJHxw=
+Subject: patch "mei: me: add comet point V device id" added to char-misc-testing
+To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, tomas.winkler@intel.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 Nov 2019 18:18:23 +0100
-Message-ID: <1572974303240239@kroah.com>
+Date:   Tue, 05 Nov 2019 18:21:29 +0100
+Message-ID: <157297448959131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,57 +40,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    tty: serial: fsl_lpuart: use the sg count from dma_map_sg
+    mei: me: add comet point V device id
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-testing branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
 
-The patch will be merged to the tty-next branch sometime soon,
+The patch will be merged to the char-misc-next branch sometime soon,
 after it passes testing, and the merge window is open.
 
 If you have any questions about this process, please let me know.
 
 
-From 487ee861de176090b055eba5b252b56a3b9973d6 Mon Sep 17 00:00:00 2001
-From: Peng Fan <peng.fan@nxp.com>
-Date: Tue, 5 Nov 2019 05:51:10 +0000
-Subject: tty: serial: fsl_lpuart: use the sg count from dma_map_sg
+From 82b29b9f72afdccb40ea5f3c13c6a3cb65a597bc Mon Sep 17 00:00:00 2001
+From: Alexander Usyskin <alexander.usyskin@intel.com>
+Date: Tue, 5 Nov 2019 17:05:14 +0200
+Subject: mei: me: add comet point V device id
 
-The dmaengine_prep_slave_sg needs to use sg count returned
-by dma_map_sg, not use sport->dma_tx_nents, because the return
-value of dma_map_sg is not always same with "nents".
+Comet Point (Comet Lake) V device id.
 
-When enabling iommu for lpuart + edma, iommu framework may concatenate
-two sgs into one.
-
-Fixes: 6250cc30c4c4e ("tty: serial: fsl_lpuart: Use scatter/gather DMA for Tx")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
-Link: https://lore.kernel.org/r/1572932977-17866-1-git-send-email-peng.fan@nxp.com
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20191105150514.14010-2-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/mei/hw-me-regs.h | 1 +
+ drivers/misc/mei/pci-me.c     | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index 22df5f8f48b6..4e128d19e0ad 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -437,8 +437,8 @@ static void lpuart_dma_tx(struct lpuart_port *sport)
- 	}
+diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
+index c09f8bb49495..b359f06f05e7 100644
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -81,6 +81,7 @@
  
- 	sport->dma_tx_desc = dmaengine_prep_slave_sg(sport->dma_tx_chan, sgl,
--					sport->dma_tx_nents,
--					DMA_MEM_TO_DEV, DMA_PREP_INTERRUPT);
-+					ret, DMA_MEM_TO_DEV,
-+					DMA_PREP_INTERRUPT);
- 	if (!sport->dma_tx_desc) {
- 		dma_unmap_sg(dev, sgl, sport->dma_tx_nents, DMA_TO_DEVICE);
- 		dev_err(dev, "Cannot prepare TX slave DMA!\n");
+ #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
+ #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
++#define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
+ 
+ #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
+ 
+diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
+index 3dca63eddaa0..ce43415a536c 100644
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -98,6 +98,7 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
++	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
+ 
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
+ 
 -- 
 2.23.0
 
