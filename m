@@ -2,78 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F25AAEF671
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 08:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A76EF676
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 08:35:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387678AbfKEHdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 02:33:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42764 "EHLO mail.kernel.org"
+        id S2387707AbfKEHfD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 02:35:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387484AbfKEHdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 02:33:20 -0500
+        id S2387484AbfKEHfD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 02:35:03 -0500
 Received: from localhost (host6-102.lan-isdn.imaginet.fr [195.68.6.102])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9C0E20717;
-        Tue,  5 Nov 2019 07:33:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E04EF217F4;
+        Tue,  5 Nov 2019 07:35:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572939198;
-        bh=vaOR5bAXX85TKhkjPMaF9r8/0fUEVqLopa+UPaNPiUg=;
+        s=default; t=1572939302;
+        bh=K1BKpJQLMtnH3+V92uee7SW/Z+pmSQfrcqeTyN7QlB0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0ABO0kAeEIUi6wBxL+39vA2383Ugae/rFpKALrIT2i4rUfX8ZOr2dLtZVIX/tYa1o
-         6TG8C+dmCCSG/gqUMzBQ66sXRWOzBj2kFkzhMYAcIEipmGh7GBe0OhoDW4ynCKQno4
-         CI3C2KezvQ5NojuAU19QpY/WLhmN7wOCDesoILdc=
-Date:   Tue, 5 Nov 2019 08:33:16 +0100
+        b=eghPibRXlsACFFKrYkascPxzVND7Aiuqaf9uVBhvkHW5YFgjXLIJw1fi5B+JqEn2J
+         9Ap1s3dpd6jwGSXdExj1GfwpDBNlhsNN9V3qwx+NLM+UsQ+aRJnfooJHREyAUXMm3j
+         G39z1/GxCJimZ8wNJuv9uuLJ6rRp5bamdOGU6ExY=
+Date:   Tue, 5 Nov 2019 08:34:59 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
+Cc:     Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
+        Dan Rue <dan.rue@linaro.org>, LTP List <ltp@lists.linux.it>,
+        open list <linux-kernel@vger.kernel.org>,
+        Jan Stancek <jstancek@redhat.com>,
+        Basil Eljuse <Basil.Eljuse@arm.com>, chrubis <chrubis@suse.cz>,
+        mmarhefk@redhat.com, Netdev <netdev@vger.kernel.org>,
         linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.3 000/163] 5.3.9-stable review
-Message-ID: <20191105073316.GA2588562@kroah.com>
-References: <20191104212140.046021995@linuxfoundation.org>
- <CA+G9fYsVHLWFEV7Tc+_EAgH1QGDrN8OBUK54rK_48bnZ=JLJNQ@mail.gmail.com>
+Subject: Re: stable-rc-5.3.9-rc1: regressions detected - remove_proc_entry:
+ removing non-empty directory 'net/dev_snmp6', leaking at least 'lo'
+Message-ID: <20191105073459.GB2588562@kroah.com>
+References: <CA+G9fYsWTFQZTHXUDPToaepnKGBoh61SsA_8SHcYgYZXN_L+mg@mail.gmail.com>
+ <CA+G9fYu+6A3pYQGs2rydYtHNSCf1t9+OTRqrZeCbpc2ARLx2zA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYsVHLWFEV7Tc+_EAgH1QGDrN8OBUK54rK_48bnZ=JLJNQ@mail.gmail.com>
+In-Reply-To: <CA+G9fYu+6A3pYQGs2rydYtHNSCf1t9+OTRqrZeCbpc2ARLx2zA@mail.gmail.com>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 05, 2019 at 11:56:57AM +0530, Naresh Kamboju wrote:
-> On Tue, 5 Nov 2019 at 03:34, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.3.9 release.
-> > There are 163 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed 06 Nov 2019 09:14:04 PM UTC.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.9-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Tue, Nov 05, 2019 at 09:44:39AM +0530, Naresh Kamboju wrote:
+> Hi Sasha and Greg,
 > 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> On Mon, 4 Nov 2019 at 20:59, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
+> >
+> > Linux stable rc 5.3 branch running LTP reported following test failures.
+> > While investigating these failures I have found this kernel warning
+> > from boot console.
+> > Please find detailed LTP output log in the bottom of this email.
+> >
+> > List of regression test cases:
+> >   ltp-containers-tests:
+> >     * netns_breakns_ip_ipv6_ioctl
+> >     * netns_breakns_ip_ipv6_netlink
+> >     * netns_breakns_ns_exec_ipv6_ioctl
+> >     * netns_breakns_ns_exec_ipv6_netlink
+> >     * netns_comm_ip_ipv6_ioctl
+> >     * netns_comm_ip_ipv6_netlink
+> >     * netns_comm_ns_exec_ipv6_ioctl
+> >     * netns_comm_ns_exec_ipv6_netlink
+> 
+> These reported failures got fixed on latest stable-rc 5.3.y after
+> dropping a patch [1].
 
-Thanks for testing all of these so quickly and letting me know.
+What is the subject of the patch?
+
+> The kernel warning is also gone now.
+> 
+> metadata:
+>   git branch: linux-5.3.y
+>   git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>   git commit: 75c9913bbf6e9e64cb669236571e6af45cddfd68
+
+The -rc tree is rebased all the time, can I get a "real" subject line to
+get a chance to figure out what you are trying to refer to here?
+
+> ref:
+> [PATCH AUTOSEL 5.3 12/33] blackhole_netdev: fix syzkaller reported issue
+> [1] https://lkml.org/lkml/2019/10/25/794
+
+lore.kernel.org is much more reliable :)
+
+thanks,
 
 greg k-h
