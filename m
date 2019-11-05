@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD21EF58F
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 07:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA1E6EF590
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 07:36:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726988AbfKEGf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 01:35:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
+        id S1728706AbfKEGgW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 01:36:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725806AbfKEGf6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 01:35:58 -0500
+        id S1725806AbfKEGgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 01:36:22 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 40470217F4;
-        Tue,  5 Nov 2019 06:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55DE92084D;
+        Tue,  5 Nov 2019 06:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572935756;
-        bh=ae5uttu0XqpoLFDdQe/WH3cPBCprc7AcGfet98SSG2s=;
+        s=default; t=1572935780;
+        bh=Embf2CZpAblzJhAAQrJsZOZXCCR9pTKT+WrRf+KTiy0=;
         h=Subject:To:From:Date:From;
-        b=KjemmZNiOzZRWXasxS0wBFSMvilVGusJVJ6TBNQngkkJYwLkxHlVtbanzfnPuBmnT
-         GN4EeR8gCIkiys+ZSGFYQYhF6T9xhIhHr9wg/tFrhO37pBbLJjS9uN2XLHAcVJ5WyE
-         CsekUS/64PweTkKaUzMKsSAeki+mdxW8lrKL+Ngs=
-Subject: patch "coresight: etm4x: Fix input validation for sysfs." added to char-misc-next
-To:     mike.leach@linaro.org, gregkh@linuxfoundation.org,
-        leo.yan@linaro.org, mathieu.poirier@linaro.org,
-        stable@vger.kernel.org
+        b=dZHRX4YtHXeGvyf0l/F4/lq+GDTq4e4xbCYguOaUDY0pGDcvcfnLSc1IY2TM/suX+
+         KXuoUs+tMw92xaG59iHbJryFBuyW9BKabUf6D8u245OSCtBHt2SXW7ld31bpmRPg+t
+         23waJNAnSEQc2vFwQ63uOCfZ+42hyn1XQK5tSThk=
+Subject: patch "coresight: Serialize enabling/disabling a link device." added to char-misc-next
+To:     yabinc@google.com, gregkh@linuxfoundation.org,
+        mathieu.poirier@linaro.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 Nov 2019 07:34:45 +0100
-Message-ID: <157293568538106@kroah.com>
+Date:   Tue, 05 Nov 2019 07:34:49 +0100
+Message-ID: <1572935689211147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    coresight: etm4x: Fix input validation for sysfs.
+    coresight: Serialize enabling/disabling a link device.
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -56,93 +55,335 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 2fe6899e36aa174abefd017887f9cfe0cb60c43a Mon Sep 17 00:00:00 2001
-From: Mike Leach <mike.leach@linaro.org>
-Date: Mon, 4 Nov 2019 11:12:42 -0700
-Subject: coresight: etm4x: Fix input validation for sysfs.
+From edda32dabedb01f98b9d7b9a4492c13357834bbe Mon Sep 17 00:00:00 2001
+From: Yabin Cui <yabinc@google.com>
+Date: Mon, 4 Nov 2019 11:12:50 -0700
+Subject: coresight: Serialize enabling/disabling a link device.
 
-A number of issues are fixed relating to sysfs input validation:-
+When tracing etm data of multiple threads on multiple cpus through perf
+interface, some link devices are shared between paths of different cpus.
+It creates race conditions when different cpus wants to enable/disable
+the same link device at the same time.
 
-1) bb_ctrl_store() - incorrect compare of bit select field to absolute
-value. Reworked per ETMv4 specification.
-2) seq_event_store() - incorrect mask value - register has two
-event values.
-3) cyc_threshold_store() - must mask with max before checking min
-otherwise wrapped values can set illegal value below min.
-4) res_ctrl_store() - update to mask off all res0 bits.
+Example 1:
+Two cpus want to enable different ports of a coresight funnel, thus
+calling the funnel enable operation at the same time. But the funnel
+enable operation isn't reentrantable.
 
-Reviewed-by: Leo Yan <leo.yan@linaro.org>
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Mike Leach <mike.leach@linaro.org>
-Fixes: a77de2637c9eb ("coresight: etm4x: moving sysFS entries to a dedicated file")
-Cc: stable <stable@vger.kernel.org> # 4.9+
+Example 2:
+For an enabled coresight dynamic replicator with refcnt=1, one cpu wants
+to disable it, while another cpu wants to enable it. Ideally we still have
+an enabled replicator with refcnt=1 at the end. But in reality the result
+is uncertain.
+
+Since coresight devices claim themselves when enabled for self-hosted
+usage, the race conditions above usually make the link devices not usable
+after many cycles.
+
+To fix the race conditions, this patch uses spinlocks to serialize
+enabling/disabling link devices.
+
+Fixes: a06ae8609b3d ("coresight: add CoreSight core layer framework")
+Signed-off-by: Yabin Cui <yabinc@google.com>
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20191104181251.26732-6-mathieu.poirier@linaro.org
+Cc: stable <stable@vger.kernel.org> # 5.3
+Link: https://lore.kernel.org/r/20191104181251.26732-14-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../coresight/coresight-etm4x-sysfs.c         | 21 ++++++++++++-------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ .../hwtracing/coresight/coresight-funnel.c    | 36 +++++++++++----
+ .../coresight/coresight-replicator.c          | 35 ++++++++++++---
+ .../hwtracing/coresight/coresight-tmc-etf.c   | 26 ++++++++---
+ drivers/hwtracing/coresight/coresight.c       | 45 ++++++-------------
+ 4 files changed, 90 insertions(+), 52 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-index b6984be0c515..cc8156318018 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
-@@ -652,10 +652,13 @@ static ssize_t cyc_threshold_store(struct device *dev,
+diff --git a/drivers/hwtracing/coresight/coresight-funnel.c b/drivers/hwtracing/coresight/coresight-funnel.c
+index 05f7896c3a01..b605889b507a 100644
+--- a/drivers/hwtracing/coresight/coresight-funnel.c
++++ b/drivers/hwtracing/coresight/coresight-funnel.c
+@@ -38,12 +38,14 @@ DEFINE_CORESIGHT_DEVLIST(funnel_devs, "funnel");
+  * @atclk:	optional clock for the core parts of the funnel.
+  * @csdev:	component vitals needed by the framework.
+  * @priority:	port selection order.
++ * @spinlock:	serialize enable/disable operations.
+  */
+ struct funnel_drvdata {
+ 	void __iomem		*base;
+ 	struct clk		*atclk;
+ 	struct coresight_device	*csdev;
+ 	unsigned long		priority;
++	spinlock_t		spinlock;
+ };
  
- 	if (kstrtoul(buf, 16, &val))
- 		return -EINVAL;
+ static int dynamic_funnel_enable_hw(struct funnel_drvdata *drvdata, int port)
+@@ -76,11 +78,21 @@ static int funnel_enable(struct coresight_device *csdev, int inport,
+ {
+ 	int rc = 0;
+ 	struct funnel_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
+-
+-	if (drvdata->base)
+-		rc = dynamic_funnel_enable_hw(drvdata, inport);
+-
++	unsigned long flags;
++	bool first_enable = false;
 +
-+	/* mask off max threshold before checking min value */
-+	val &= ETM_CYC_THRESHOLD_MASK;
- 	if (val < drvdata->ccitmin)
- 		return -EINVAL;
- 
--	config->ccctlr = val & ETM_CYC_THRESHOLD_MASK;
-+	config->ccctlr = val;
- 	return size;
- }
- static DEVICE_ATTR_RW(cyc_threshold);
-@@ -686,14 +689,16 @@ static ssize_t bb_ctrl_store(struct device *dev,
- 		return -EINVAL;
- 	if (!drvdata->nr_addr_cmp)
- 		return -EINVAL;
++	spin_lock_irqsave(&drvdata->spinlock, flags);
++	if (atomic_read(&csdev->refcnt[inport]) == 0) {
++		if (drvdata->base)
++			rc = dynamic_funnel_enable_hw(drvdata, inport);
++		if (!rc)
++			first_enable = true;
++	}
+ 	if (!rc)
++		atomic_inc(&csdev->refcnt[inport]);
++	spin_unlock_irqrestore(&drvdata->spinlock, flags);
 +
- 	/*
--	 * Bit[7:0] selects which address range comparator is used for
--	 * branch broadcast control.
-+	 * Bit[8] controls include(1) / exclude(0), bits[0-7] select
-+	 * individual range comparators. If include then at least 1
-+	 * range must be selected.
- 	 */
--	if (BMVAL(val, 0, 7) > drvdata->nr_addr_cmp)
-+	if ((val & BIT(8)) && (BMVAL(val, 0, 7) == 0))
++	if (first_enable)
+ 		dev_dbg(&csdev->dev, "FUNNEL inport %d enabled\n", inport);
+ 	return rc;
+ }
+@@ -107,11 +119,19 @@ static void funnel_disable(struct coresight_device *csdev, int inport,
+ 			   int outport)
+ {
+ 	struct funnel_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
++	unsigned long flags;
++	bool last_disable = false;
++
++	spin_lock_irqsave(&drvdata->spinlock, flags);
++	if (atomic_dec_return(&csdev->refcnt[inport]) == 0) {
++		if (drvdata->base)
++			dynamic_funnel_disable_hw(drvdata, inport);
++		last_disable = true;
++	}
++	spin_unlock_irqrestore(&drvdata->spinlock, flags);
+ 
+-	if (drvdata->base)
+-		dynamic_funnel_disable_hw(drvdata, inport);
+-
+-	dev_dbg(&csdev->dev, "FUNNEL inport %d disabled\n", inport);
++	if (last_disable)
++		dev_dbg(&csdev->dev, "FUNNEL inport %d disabled\n", inport);
+ }
+ 
+ static const struct coresight_ops_link funnel_link_ops = {
+diff --git a/drivers/hwtracing/coresight/coresight-replicator.c b/drivers/hwtracing/coresight/coresight-replicator.c
+index b29ba640eb25..43304196a1a6 100644
+--- a/drivers/hwtracing/coresight/coresight-replicator.c
++++ b/drivers/hwtracing/coresight/coresight-replicator.c
+@@ -31,11 +31,13 @@ DEFINE_CORESIGHT_DEVLIST(replicator_devs, "replicator");
+  *		whether this one is programmable or not.
+  * @atclk:	optional clock for the core parts of the replicator.
+  * @csdev:	component vitals needed by the framework
++ * @spinlock:	serialize enable/disable operations.
+  */
+ struct replicator_drvdata {
+ 	void __iomem		*base;
+ 	struct clk		*atclk;
+ 	struct coresight_device	*csdev;
++	spinlock_t		spinlock;
+ };
+ 
+ static void dynamic_replicator_reset(struct replicator_drvdata *drvdata)
+@@ -97,10 +99,22 @@ static int replicator_enable(struct coresight_device *csdev, int inport,
+ {
+ 	int rc = 0;
+ 	struct replicator_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
+-
+-	if (drvdata->base)
+-		rc = dynamic_replicator_enable(drvdata, inport, outport);
++	unsigned long flags;
++	bool first_enable = false;
++
++	spin_lock_irqsave(&drvdata->spinlock, flags);
++	if (atomic_read(&csdev->refcnt[outport]) == 0) {
++		if (drvdata->base)
++			rc = dynamic_replicator_enable(drvdata, inport,
++						       outport);
++		if (!rc)
++			first_enable = true;
++	}
+ 	if (!rc)
++		atomic_inc(&csdev->refcnt[outport]);
++	spin_unlock_irqrestore(&drvdata->spinlock, flags);
++
++	if (first_enable)
+ 		dev_dbg(&csdev->dev, "REPLICATOR enabled\n");
+ 	return rc;
+ }
+@@ -137,10 +151,19 @@ static void replicator_disable(struct coresight_device *csdev, int inport,
+ 			       int outport)
+ {
+ 	struct replicator_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
++	unsigned long flags;
++	bool last_disable = false;
++
++	spin_lock_irqsave(&drvdata->spinlock, flags);
++	if (atomic_dec_return(&csdev->refcnt[outport]) == 0) {
++		if (drvdata->base)
++			dynamic_replicator_disable(drvdata, inport, outport);
++		last_disable = true;
++	}
++	spin_unlock_irqrestore(&drvdata->spinlock, flags);
+ 
+-	if (drvdata->base)
+-		dynamic_replicator_disable(drvdata, inport, outport);
+-	dev_dbg(&csdev->dev, "REPLICATOR disabled\n");
++	if (last_disable)
++		dev_dbg(&csdev->dev, "REPLICATOR disabled\n");
+ }
+ 
+ static const struct coresight_ops_link replicator_link_ops = {
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+index 807416b75ecc..d0cc3985b72a 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+@@ -334,9 +334,10 @@ static int tmc_disable_etf_sink(struct coresight_device *csdev)
+ static int tmc_enable_etf_link(struct coresight_device *csdev,
+ 			       int inport, int outport)
+ {
+-	int ret;
++	int ret = 0;
+ 	unsigned long flags;
+ 	struct tmc_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
++	bool first_enable = false;
+ 
+ 	spin_lock_irqsave(&drvdata->spinlock, flags);
+ 	if (drvdata->reading) {
+@@ -344,12 +345,18 @@ static int tmc_enable_etf_link(struct coresight_device *csdev,
+ 		return -EBUSY;
+ 	}
+ 
+-	ret = tmc_etf_enable_hw(drvdata);
++	if (atomic_read(&csdev->refcnt[0]) == 0) {
++		ret = tmc_etf_enable_hw(drvdata);
++		if (!ret) {
++			drvdata->mode = CS_MODE_SYSFS;
++			first_enable = true;
++		}
++	}
+ 	if (!ret)
+-		drvdata->mode = CS_MODE_SYSFS;
++		atomic_inc(&csdev->refcnt[0]);
+ 	spin_unlock_irqrestore(&drvdata->spinlock, flags);
+ 
+-	if (!ret)
++	if (first_enable)
+ 		dev_dbg(&csdev->dev, "TMC-ETF enabled\n");
+ 	return ret;
+ }
+@@ -359,6 +366,7 @@ static void tmc_disable_etf_link(struct coresight_device *csdev,
+ {
+ 	unsigned long flags;
+ 	struct tmc_drvdata *drvdata = dev_get_drvdata(csdev->dev.parent);
++	bool last_disable = false;
+ 
+ 	spin_lock_irqsave(&drvdata->spinlock, flags);
+ 	if (drvdata->reading) {
+@@ -366,11 +374,15 @@ static void tmc_disable_etf_link(struct coresight_device *csdev,
+ 		return;
+ 	}
+ 
+-	tmc_etf_disable_hw(drvdata);
+-	drvdata->mode = CS_MODE_DISABLED;
++	if (atomic_dec_return(&csdev->refcnt[0]) == 0) {
++		tmc_etf_disable_hw(drvdata);
++		drvdata->mode = CS_MODE_DISABLED;
++		last_disable = true;
++	}
+ 	spin_unlock_irqrestore(&drvdata->spinlock, flags);
+ 
+-	dev_dbg(&csdev->dev, "TMC-ETF disabled\n");
++	if (last_disable)
++		dev_dbg(&csdev->dev, "TMC-ETF disabled\n");
+ }
+ 
+ static void *tmc_alloc_etf_buffer(struct coresight_device *csdev,
+diff --git a/drivers/hwtracing/coresight/coresight.c b/drivers/hwtracing/coresight/coresight.c
+index e6ca899fea4e..ef20f74c85fa 100644
+--- a/drivers/hwtracing/coresight/coresight.c
++++ b/drivers/hwtracing/coresight/coresight.c
+@@ -253,9 +253,9 @@ static int coresight_enable_link(struct coresight_device *csdev,
+ 				 struct coresight_device *parent,
+ 				 struct coresight_device *child)
+ {
+-	int ret;
++	int ret = 0;
+ 	int link_subtype;
+-	int refport, inport, outport;
++	int inport, outport;
+ 
+ 	if (!parent || !child)
  		return -EINVAL;
+@@ -264,29 +264,17 @@ static int coresight_enable_link(struct coresight_device *csdev,
+ 	outport = coresight_find_link_outport(csdev, child);
+ 	link_subtype = csdev->subtype.link_subtype;
  
--	config->bb_ctrl = val;
-+	config->bb_ctrl = val & GENMASK(8, 0);
- 	return size;
- }
- static DEVICE_ATTR_RW(bb_ctrl);
-@@ -1324,8 +1329,8 @@ static ssize_t seq_event_store(struct device *dev,
+-	if (link_subtype == CORESIGHT_DEV_SUBTYPE_LINK_MERG)
+-		refport = inport;
+-	else if (link_subtype == CORESIGHT_DEV_SUBTYPE_LINK_SPLIT)
+-		refport = outport;
+-	else
+-		refport = 0;
+-
+-	if (refport < 0)
+-		return refport;
++	if (link_subtype == CORESIGHT_DEV_SUBTYPE_LINK_MERG && inport < 0)
++		return inport;
++	if (link_subtype == CORESIGHT_DEV_SUBTYPE_LINK_SPLIT && outport < 0)
++		return outport;
  
- 	spin_lock(&drvdata->spinlock);
- 	idx = config->seq_idx;
--	/* RST, bits[7:0] */
--	config->seq_ctrl[idx] = val & 0xFF;
-+	/* Seq control has two masks B[15:8] F[7:0] */
-+	config->seq_ctrl[idx] = val & 0xFFFF;
- 	spin_unlock(&drvdata->spinlock);
- 	return size;
+-	if (atomic_inc_return(&csdev->refcnt[refport]) == 1) {
+-		if (link_ops(csdev)->enable) {
+-			ret = link_ops(csdev)->enable(csdev, inport, outport);
+-			if (ret) {
+-				atomic_dec(&csdev->refcnt[refport]);
+-				return ret;
+-			}
+-		}
+-	}
+-
+-	csdev->enable = true;
++	if (link_ops(csdev)->enable)
++		ret = link_ops(csdev)->enable(csdev, inport, outport);
++	if (!ret)
++		csdev->enable = true;
+ 
+-	return 0;
++	return ret;
  }
-@@ -1580,7 +1585,7 @@ static ssize_t res_ctrl_store(struct device *dev,
- 	if (idx % 2 != 0)
- 		/* PAIRINV, bit[21] */
- 		val &= ~BIT(21);
--	config->res_ctrl[idx] = val;
-+	config->res_ctrl[idx] = val & GENMASK(21, 0);
- 	spin_unlock(&drvdata->spinlock);
- 	return size;
- }
+ 
+ static void coresight_disable_link(struct coresight_device *csdev,
+@@ -295,7 +283,7 @@ static void coresight_disable_link(struct coresight_device *csdev,
+ {
+ 	int i, nr_conns;
+ 	int link_subtype;
+-	int refport, inport, outport;
++	int inport, outport;
+ 
+ 	if (!parent || !child)
+ 		return;
+@@ -305,20 +293,15 @@ static void coresight_disable_link(struct coresight_device *csdev,
+ 	link_subtype = csdev->subtype.link_subtype;
+ 
+ 	if (link_subtype == CORESIGHT_DEV_SUBTYPE_LINK_MERG) {
+-		refport = inport;
+ 		nr_conns = csdev->pdata->nr_inport;
+ 	} else if (link_subtype == CORESIGHT_DEV_SUBTYPE_LINK_SPLIT) {
+-		refport = outport;
+ 		nr_conns = csdev->pdata->nr_outport;
+ 	} else {
+-		refport = 0;
+ 		nr_conns = 1;
+ 	}
+ 
+-	if (atomic_dec_return(&csdev->refcnt[refport]) == 0) {
+-		if (link_ops(csdev)->disable)
+-			link_ops(csdev)->disable(csdev, inport, outport);
+-	}
++	if (link_ops(csdev)->disable)
++		link_ops(csdev)->disable(csdev, inport, outport);
+ 
+ 	for (i = 0; i < nr_conns; i++)
+ 		if (atomic_read(&csdev->refcnt[i]) != 0)
 -- 
 2.23.0
 
