@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7369EEF509
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 06:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7535EF50E
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 06:36:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725973AbfKEFde (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 00:33:34 -0500
-Received: from mail-wm1-f46.google.com ([209.85.128.46]:52290 "EHLO
-        mail-wm1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725800AbfKEFde (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 00:33:34 -0500
-Received: by mail-wm1-f46.google.com with SMTP id c17so11963900wmk.2
-        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 21:33:32 -0800 (PST)
+        id S1725800AbfKEFgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 00:36:48 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:35090 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726773AbfKEFgr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 00:36:47 -0500
+Received: by mail-wr1-f67.google.com with SMTP id l10so19786738wrb.2
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 21:36:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
         bh=Rwpy/hz+Y6vHPNiMzwH2wgQ/mze4+tUWqXAlT+MyOKw=;
-        b=bHH0YXnBspbYkS8gY2acfMQ/mSbYhGZgguBImNBCyISUT6GY0Hid1nWoiMaYUtCSNq
-         OZf2nukJ9zXP1Sy/hJOtGwvLC/QXJ01qsjj18nUYplIfWuvGqhMs1L+bvvI30rGp/0y7
-         4jLqPpZmqDmdVHb18vlCECnswms7QuFxgUUz1J85tRZEAL230FaOaJwRlpNr4I98bRoe
-         5V0tTeAlt1wRiIk4MKPP+qfBuEhz2xY7Z7t+X8FvGvL2veTun+41QrpzBNxXCfcNC8LY
-         0bNQUQ2ACxp0iLnKGE9V+TuTpyJTA41AIWyC15ptL8TNRHDuRVmkTseutwE/f65xkfaz
-         dCAQ==
+        b=bBEoRg66YeF5eKw0P1uVJKumoLTohQUCQ519mcJa9j9LS70EGYohaDWnSVvwE1qqsx
+         PEbEvjUZD7VHnSDFzfRJaf1EmpiE7XNjCd7dmDRaHjD7ali8mavIwNI9qxvTBUJkjFmx
+         5aNXirXa1lP8+iS15u9DnCpk4vRwhe55V6ZKz6bVYhTNTAT1iHlyjT4ZsgcekwM9S1LA
+         E3M1MWQt4q6IF8D4uutxisbFJKXjmKTO9nazTlarfqs2NkSDps/bkeBrL1SvGEg61aul
+         K9/P97lS9cP7UDyhtlqMS5WynKHnhwhGIdlwvnMQLRZ+cW/R4khm/mh/rfJMB89p9V0p
+         RfCw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
         bh=Rwpy/hz+Y6vHPNiMzwH2wgQ/mze4+tUWqXAlT+MyOKw=;
-        b=RLzJJkmr2FpH/xMlbQmP1MBs3Cy2bp48BxOIxwVdK5yLc6rLQUQkz5pMY2kAZUOhC+
-         tWocHrbXazdJRsfEhViGxnXyKTJTNqTwjq0Eip7HYzKyBDk5eIeuLGvXtqHLLmDeL07t
-         PgnS53J9ZaKPhGYpN/4AT7ggIfF8pkiDYrSEyzejj+DRtfFebHdEnDrl2IEBlt2qoMt4
-         k2xDaCwMBcMoM/zrRSo5JSyH2oxaTTnhUk2YQARzdHloo+VlqewiWJdEQmuCdPMZJ8bc
-         8C6qGGGuIeHc6z/u4Wc21WxlNvseGwlwzCOuOhf2vcw9g8p9srAdXlDBekY96x4NsiSC
-         2+CA==
-X-Gm-Message-State: APjAAAV0NuGe+lt8sNVfLMvQL8/j2IaOvw33+Mlmukn8ajq1FSun8IF1
-        kbwjN73ZSksYcckJhaj2k2P7+Yry7w0jxQ==
-X-Google-Smtp-Source: APXvYqwRMhWjjeUnY0O5dGHKXQvdE3e6k5B+5NZK0S10rc+sqDUCH8VezPGn1ul+MKqCQlPA6uN/rg==
-X-Received: by 2002:a1c:9601:: with SMTP id y1mr2229161wmd.157.1572932012216;
-        Mon, 04 Nov 2019 21:33:32 -0800 (PST)
+        b=FsJZu8188VHnsvmMA8Q8Nlm5Sg7Fi73SYNW5SysrI/8k4oPRpvhtLxII4Frki57CYD
+         ezYWeeK6xXKXba6ky4NXvEij4mtDNJFoy7Wqy/MgDVKMJiE4iWHjUjZrxO8ymByFGMr6
+         uZXqSEc9bz0eeIfSS1acczRO2B4Fua73Yj2MV5gARhL0mizFHMDmpwETllIPg6JVR9IG
+         0r4ntoIZQjokdsujNz6A9z33u5QK1AwLlSKl+fr0pesNKhhM6VDuX3WS+Or6xglJGvsp
+         ytXScf2M2WVmfNuEZaQQANJGcW656yLjnacPLrIN6PuskQAx2fhFcwwkTtcgloZrSm6/
+         Kekw==
+X-Gm-Message-State: APjAAAX1I33hm/zri+Dj2qtCgdJhN68UTYoCiA0JACwkBaSCUdjSSk7+
+        BmgO84pODNAx42JP+llxao89OWo/PVeFHQ==
+X-Google-Smtp-Source: APXvYqxDmXErNUyk1flr5Hj6eM2YP4Xm3fp+Ce+trMm/2fx0YQ8ESNA8ynxDlubl6F3SyqCOj7dcmA==
+X-Received: by 2002:a5d:678f:: with SMTP id v15mr7738360wru.242.1572932203584;
+        Mon, 04 Nov 2019 21:36:43 -0800 (PST)
 Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s12sm21143186wme.20.2019.11.04.21.33.31
-        for <stable@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id n17sm8711154wrp.40.2019.11.04.21.36.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 Nov 2019 21:33:31 -0800 (PST)
-Message-ID: <5dc109ab.1c69fb81.1e8b.3cfd@mx.google.com>
-Date:   Mon, 04 Nov 2019 21:33:31 -0800 (PST)
+        Mon, 04 Nov 2019 21:36:43 -0800 (PST)
+Message-ID: <5dc10a6b.1c69fb81.398d5.32e5@mx.google.com>
+Date:   Mon, 04 Nov 2019 21:36:43 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
@@ -54,10 +53,17 @@ X-Kernelci-Branch: linux-4.19.y
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Report-Type: boot
 X-Kernelci-Kernel: v4.19.81-150-g3d3728a67bfc
-Subject: stable-rc/linux-4.19.y boot: 118 boots: 0 failed,
- 111 passed with 7 offline (v4.19.81-150-g3d3728a67bfc)
-To:     stable@vger.kernel.org
+In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
+References: <20191104212126.090054740@linuxfoundation.org>
+Subject: Re: [PATCH 4.19 000/149] 4.19.82-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
 From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
