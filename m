@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DAEDEF58D
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 07:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DD21EF58F
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 07:35:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726033AbfKEGe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 01:34:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48394 "EHLO mail.kernel.org"
+        id S1726988AbfKEGf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 01:35:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726988AbfKEGeZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 01:34:25 -0500
+        id S1725806AbfKEGf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 01:35:58 -0500
 Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B07F620869;
-        Tue,  5 Nov 2019 06:34:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40470217F4;
+        Tue,  5 Nov 2019 06:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572935665;
-        bh=j3w1trCcdsVsnyLhwjSJtE+N9+6L9wm25TpW2zUVjhg=;
+        s=default; t=1572935756;
+        bh=ae5uttu0XqpoLFDdQe/WH3cPBCprc7AcGfet98SSG2s=;
         h=Subject:To:From:Date:From;
-        b=OZO9BsgFWEQ3gSiS09D2IvFxd+ik+f61CYvdTog3wcoSrZ+9tAV/GaT4YejytBRGV
-         q61kjZLNearAmK2nD93OQH3amipYb4i3Fy+bckq8K9czdW9839dvZgTJnPMf1EJ5J3
-         glps7sYyo+JP1i8KyVy6YyQOQrduBZJObc/qQVS4=
-Subject: patch "serial: 8250-mtk: Use platform_get_irq_optional() for optional irq" added to tty-next
-To:     frank-w@public-files.de, gregkh@linuxfoundation.org,
+        b=KjemmZNiOzZRWXasxS0wBFSMvilVGusJVJ6TBNQngkkJYwLkxHlVtbanzfnPuBmnT
+         GN4EeR8gCIkiys+ZSGFYQYhF6T9xhIhHr9wg/tFrhO37pBbLJjS9uN2XLHAcVJ5WyE
+         CsekUS/64PweTkKaUzMKsSAeki+mdxW8lrKL+Ngs=
+Subject: patch "coresight: etm4x: Fix input validation for sysfs." added to char-misc-next
+To:     mike.leach@linaro.org, gregkh@linuxfoundation.org,
+        leo.yan@linaro.org, mathieu.poirier@linaro.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 05 Nov 2019 07:34:09 +0100
-Message-ID: <15729356494317@kroah.com>
+Date:   Tue, 05 Nov 2019 07:34:45 +0100
+Message-ID: <157293568538106@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,11 +41,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    serial: 8250-mtk: Use platform_get_irq_optional() for optional irq
+    coresight: etm4x: Fix input validation for sysfs.
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-next branch.
+to my char-misc git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
+in the char-misc-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,47 +56,92 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From eb9c1a41ea1234907615fe47d6e47db8352d744b Mon Sep 17 00:00:00 2001
-From: Frank Wunderlich <frank-w@public-files.de>
-Date: Sun, 27 Oct 2019 07:21:17 +0100
-Subject: serial: 8250-mtk: Use platform_get_irq_optional() for optional irq
+From 2fe6899e36aa174abefd017887f9cfe0cb60c43a Mon Sep 17 00:00:00 2001
+From: Mike Leach <mike.leach@linaro.org>
+Date: Mon, 4 Nov 2019 11:12:42 -0700
+Subject: coresight: etm4x: Fix input validation for sysfs.
 
-As platform_get_irq() now prints an error when the interrupt does not
-exist, this warnings are printed on bananapi-r2:
+A number of issues are fixed relating to sysfs input validation:-
 
-[    4.935780] mt6577-uart 11004000.serial: IRQ index 1 not found
-[    4.962589] 11002000.serial: ttyS1 at MMIO 0x11002000 (irq = 202, base_baud = 1625000) is a ST16650V2
-[    4.972127] mt6577-uart 11002000.serial: IRQ index 1 not found
-[    4.998927] 11003000.serial: ttyS2 at MMIO 0x11003000 (irq = 203, base_baud = 1625000) is a ST16650V2
-[    5.008474] mt6577-uart 11003000.serial: IRQ index 1 not found
+1) bb_ctrl_store() - incorrect compare of bit select field to absolute
+value. Reworked per ETMv4 specification.
+2) seq_event_store() - incorrect mask value - register has two
+event values.
+3) cyc_threshold_store() - must mask with max before checking min
+otherwise wrapped values can set illegal value below min.
+4) res_ctrl_store() - update to mask off all res0 bits.
 
-Fix this by calling platform_get_irq_optional() instead.
-
-now it looks like this:
-
-[    4.872751] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
-
-Fixes: 7723f4c5ecdb8d83 ("driver core: platform: Add an error message to platform_get_irq*()")
-Signed-off-by: Frank Wunderlich <frank-w@public-files.de>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191027062117.20389-1-frank-w@public-files.de
+Reviewed-by: Leo Yan <leo.yan@linaro.org>
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Mike Leach <mike.leach@linaro.org>
+Fixes: a77de2637c9eb ("coresight: etm4x: moving sysFS entries to a dedicated file")
+Cc: stable <stable@vger.kernel.org> # 4.9+
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Link: https://lore.kernel.org/r/20191104181251.26732-6-mathieu.poirier@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_mtk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../coresight/coresight-etm4x-sysfs.c         | 21 ++++++++++++-------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/tty/serial/8250/8250_mtk.c b/drivers/tty/serial/8250/8250_mtk.c
-index b411ba4eb5e9..4d067f515f74 100644
---- a/drivers/tty/serial/8250/8250_mtk.c
-+++ b/drivers/tty/serial/8250/8250_mtk.c
-@@ -544,7 +544,7 @@ static int mtk8250_probe(struct platform_device *pdev)
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
+diff --git a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+index b6984be0c515..cc8156318018 100644
+--- a/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
++++ b/drivers/hwtracing/coresight/coresight-etm4x-sysfs.c
+@@ -652,10 +652,13 @@ static ssize_t cyc_threshold_store(struct device *dev,
  
--	data->rx_wakeup_irq = platform_get_irq(pdev, 1);
-+	data->rx_wakeup_irq = platform_get_irq_optional(pdev, 1);
+ 	if (kstrtoul(buf, 16, &val))
+ 		return -EINVAL;
++
++	/* mask off max threshold before checking min value */
++	val &= ETM_CYC_THRESHOLD_MASK;
+ 	if (val < drvdata->ccitmin)
+ 		return -EINVAL;
  
- 	return 0;
+-	config->ccctlr = val & ETM_CYC_THRESHOLD_MASK;
++	config->ccctlr = val;
+ 	return size;
+ }
+ static DEVICE_ATTR_RW(cyc_threshold);
+@@ -686,14 +689,16 @@ static ssize_t bb_ctrl_store(struct device *dev,
+ 		return -EINVAL;
+ 	if (!drvdata->nr_addr_cmp)
+ 		return -EINVAL;
++
+ 	/*
+-	 * Bit[7:0] selects which address range comparator is used for
+-	 * branch broadcast control.
++	 * Bit[8] controls include(1) / exclude(0), bits[0-7] select
++	 * individual range comparators. If include then at least 1
++	 * range must be selected.
+ 	 */
+-	if (BMVAL(val, 0, 7) > drvdata->nr_addr_cmp)
++	if ((val & BIT(8)) && (BMVAL(val, 0, 7) == 0))
+ 		return -EINVAL;
+ 
+-	config->bb_ctrl = val;
++	config->bb_ctrl = val & GENMASK(8, 0);
+ 	return size;
+ }
+ static DEVICE_ATTR_RW(bb_ctrl);
+@@ -1324,8 +1329,8 @@ static ssize_t seq_event_store(struct device *dev,
+ 
+ 	spin_lock(&drvdata->spinlock);
+ 	idx = config->seq_idx;
+-	/* RST, bits[7:0] */
+-	config->seq_ctrl[idx] = val & 0xFF;
++	/* Seq control has two masks B[15:8] F[7:0] */
++	config->seq_ctrl[idx] = val & 0xFFFF;
+ 	spin_unlock(&drvdata->spinlock);
+ 	return size;
+ }
+@@ -1580,7 +1585,7 @@ static ssize_t res_ctrl_store(struct device *dev,
+ 	if (idx % 2 != 0)
+ 		/* PAIRINV, bit[21] */
+ 		val &= ~BIT(21);
+-	config->res_ctrl[idx] = val;
++	config->res_ctrl[idx] = val & GENMASK(21, 0);
+ 	spin_unlock(&drvdata->spinlock);
+ 	return size;
  }
 -- 
 2.23.0
