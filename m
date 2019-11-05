@@ -2,288 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 55D31EF877
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 10:20:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57AA9EF8A5
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 10:26:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730433AbfKEJUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 04:20:30 -0500
-Received: from mga01.intel.com ([192.55.52.88]:41924 "EHLO mga01.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727093AbfKEJUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 04:20:30 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 05 Nov 2019 01:20:27 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.68,270,1569308400"; 
-   d="scan'208";a="353093772"
-Received: from chenyi-pc.sh.intel.com ([10.239.159.72])
-  by orsmga004.jf.intel.com with ESMTP; 05 Nov 2019 01:20:25 -0800
-From:   Chenyi Qiang <chenyi.qiang@intel.com>
-To:     Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>
-Cc:     Xiaoyao Li <xiaoyao.li@intel.com>, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] KVM: X86: Dynamically allocating MSR number lists(msrs_to_save[], emulated_msrs[], msr_based_features[])
-Date:   Tue,  5 Nov 2019 17:20:31 +0800
-Message-Id: <20191105092031.8064-1-chenyi.qiang@intel.com>
-X-Mailer: git-send-email 2.17.1
+        id S1730667AbfKEJ0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 04:26:42 -0500
+Received: from mail-eopbgr1410100.outbound.protection.outlook.com ([40.107.141.100]:13496
+        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730655AbfKEJ0m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 04:26:42 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=BAS/j3jL56+ywaRqKXAxqTX2QnBLnwIJreXcByl5GO25fza+yQiaUNll6/r9PvILoFOjfQ1IuhGn0/29x/fwr0uKj/jLMvt1zHtBj4gPWNM2xwl+/JlePd6hGJZbmoc/cHG8IvE08hUV3535M3lSGdpnNpSPQRvlOkxxRiPGeu7XwLSMUTDelm3arcBfIYK4XT4cJv/ZEb6tHVdqm1huIdJWlQOptvqZao1lh9K3iKMijZY6roJxFwP1Zu2jN7ddis6vuWE6EraNl2chzN1yDrUShBKNbZwgIUE5MZ2wIWwPva9IU4GMJfzU8VJu3OjjVwHUB0XRR/eRlt5rB/hIvQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=T70YEzhKFRVEohe7CiSuSJ+vsoGB47An0B+2BYeGK6o=;
+ b=NiYXzc37i4RDeQtDe8GbQuc0fpLwi+1sxGdlwNZz2rKRfIBuYKsS0kEUPDyINh+mSDhCsXFZnvBRh/gtJQ093VhAQTMIdSc9yee4JJrczMUMrmlEFvTIXtCxfeM467WPTqTVu4LguOM3GfQlnZM4+giTK9iSM2hB0QatywUjjSDkU45FiPkDk+qOcO+N7Gs+rmeBukSkFKje4+pskwbNs/kxvNTLtTYhptW6lHVap9zNs38oPEVg7kIz4Vewh3Grs93Fq3pC65j4MKkZqCvpg1Fhq+Jg33/AN7Cik1UkUQMtJAxAHvhmWlo2ir0ZeyWLmsjXJfP6LVmxTDzD8LMNSg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=T70YEzhKFRVEohe7CiSuSJ+vsoGB47An0B+2BYeGK6o=;
+ b=Qt2r21zLUwUrTwQD3HPrEIl9ZaTRDe3tJwcy3nV/7B91oEo3b88Jc8rKdArJymK2RYTzO3h8NnQ8eZORXaUb43LEtnmNR2OgT7QAGDtbbUMBwm0bZVD7XZwbiI+3XvjN/s15Sanr1p7Y2yGptif/tIcyS6wJpCP94O5vNt0DH1s=
+Received: from TYAPR01MB4544.jpnprd01.prod.outlook.com (20.179.175.203) by
+ TYAPR01MB2749.jpnprd01.prod.outlook.com (20.177.101.203) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2408.24; Tue, 5 Nov 2019 09:26:39 +0000
+Received: from TYAPR01MB4544.jpnprd01.prod.outlook.com
+ ([fe80::6998:f6cf:8cf1:2528]) by TYAPR01MB4544.jpnprd01.prod.outlook.com
+ ([fe80::6998:f6cf:8cf1:2528%5]) with mapi id 15.20.2408.024; Tue, 5 Nov 2019
+ 09:26:39 +0000
+From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+To:     Geert Uytterhoeven <geert@linux-m68k.org>
+CC:     Marek Vasut <marek.vasut+renesas@gmail.com>,
+        linux-pci <linux-pci@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: RE: [PATCH v3 2/2] PCI: rcar: Fix missing MACCTLR register setting in
+ initialize sequence
+Thread-Topic: [PATCH v3 2/2] PCI: rcar: Fix missing MACCTLR register setting
+ in initialize sequence
+Thread-Index: AQHVk4N42hvhhpMBQEKQIOROE56yvqd8RR0AgAAIBGA=
+Date:   Tue, 5 Nov 2019 09:26:39 +0000
+Message-ID: <TYAPR01MB45448947CB09B1A8AC1774A8D87E0@TYAPR01MB4544.jpnprd01.prod.outlook.com>
+References: <1572922092-12323-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+ <1572922092-12323-3-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+ <CAMuHMdWrQs49BFaN49odrG3k91d2rsRLPpCSvDcj5DhKeHPPaA@mail.gmail.com>
+In-Reply-To: <CAMuHMdWrQs49BFaN49odrG3k91d2rsRLPpCSvDcj5DhKeHPPaA@mail.gmail.com>
+Accept-Language: ja-JP, en-US
+Content-Language: ja-JP
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=yoshihiro.shimoda.uh@renesas.com; 
+x-originating-ip: [150.249.235.54]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: a032612a-2d2c-410f-fd44-08d761d24325
+x-ms-traffictypediagnostic: TYAPR01MB2749:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: <TYAPR01MB2749F69631D7A1CD68668C00D87E0@TYAPR01MB2749.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-forefront-prvs: 0212BDE3BE
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(376002)(366004)(136003)(396003)(39860400002)(346002)(199004)(189003)(66556008)(9686003)(66946007)(64756008)(53546011)(76176011)(6916009)(6306002)(76116006)(966005)(66476007)(229853002)(55016002)(256004)(26005)(54906003)(99286004)(186003)(6506007)(6436002)(66446008)(7696005)(316002)(446003)(486006)(476003)(8936002)(66066001)(6246003)(305945005)(102836004)(3846002)(6116002)(478600001)(14454004)(86362001)(5660300002)(52536014)(4326008)(71200400001)(2906002)(8676002)(74316002)(71190400001)(33656002)(25786009)(7736002)(11346002)(81166006)(81156014)(6606295002);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB2749;H:TYAPR01MB4544.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: renesas.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: NsggHutIQezleF6kewFuCkKSUGsfHrLxQ1DywK/Bq/R76KQdmwBNZfKKijf8Cilx2XCSHCV0l55cVzjufHBRn3f9DtYi78OJU7Q5J/rYz5tyFA/PMU3Im4D3oBF6KvbMoyL8MknhsCc+tD4e8IpHcFpXWexiyVNzQQw5U79MvxfaQpbp+AVjtz+MGCEEOe+4BHdBT6PX4CWA9LTcLY76GHo1F4EGKieljgQDfDhOhEvl/bKSLPxfTuCCdMVSc5zk+tYqhTwMDOun2+9R1ZM+0FHYt3pHWhcIEZ9jOJXOeCS3CqiN6sZCFJ1MIto5hCC5voENmSK/rZ+wVZDunL8m8225e/rhlYDv2mz3UUI8tVCS68kB4TCkZV0aBqy1t73JLJaN5OZ+WHVvulZUIuI+r6ycbbfr8cqL7R8wcoHnfXhHIWUQ3Hk/dlkuH047Em3CXX76J1kuyLjIWMKVXUQNanaTaJdMGvl/peWliQd/sZ8=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a032612a-2d2c-410f-fd44-08d761d24325
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Nov 2019 09:26:39.2564
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: uDfrrdmo9E2Cq3p3scy5LgBbd3G+MhtZ0liRUFGK6PYYM6d47UBixB43/61slQ+NuOddKL51RY4yKFpLjpa+qVMH951JOP9XcK+hl3l7Y5kH6bKXVIyCGXvCvFGw9ucW
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB2749
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The three msr number lists(msrs_to_save[], emulated_msrs[] and
-msr_based_features[]) are global arrays of kvm.ko, which are
-initialized/adjusted (copy supported MSRs forward to override the
-unsupported MSRs) when installing kvm-{intel,amd}.ko, but it doesn't
-reset these three arrays to their initial value when uninstalling
-kvm-{intel,amd}.ko. Thus, at the next installation, kvm-{intel,amd}.ko
-will initialize the modified arrays with some MSRs lost and some MSRs
-duplicated.
-
-So allocate and initialize these three MSR number lists dynamically when
-installing kvm-{intel,amd}.ko and free them when uninstalling.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Xiaoyao Li <xiaoyao.li@intel.com>
-Signed-off-by: Chenyi Qiang <chenyi.qiang@intel.com>
----
- arch/x86/kvm/x86.c | 86 ++++++++++++++++++++++++++++++----------------
- 1 file changed, 57 insertions(+), 29 deletions(-)
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index ff395f812719..08efcf6351cc 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1132,13 +1132,15 @@ EXPORT_SYMBOL_GPL(kvm_rdpmc);
-  * List of msr numbers which we expose to userspace through KVM_GET_MSRS
-  * and KVM_SET_MSRS, and KVM_GET_MSR_INDEX_LIST.
-  *
-- * This list is modified at module load time to reflect the
-+ * The three msr number lists(msrs_to_save, emulated_msrs, msr_based_features)
-+ * are allocated and initialized at module load time and freed at unload time.
-+ * msrs_to_save is selected from the msrs_to_save_all to reflect the
-  * capabilities of the host cpu. This capabilities test skips MSRs that are
-- * kvm-specific. Those are put in emulated_msrs; filtering of emulated_msrs
-+ * kvm-specific. Those are put in emulated_msrs_all; filtering of emulated_msrs
-  * may depend on host virtualization features rather than host cpu features.
-  */
- 
--static u32 msrs_to_save[] = {
-+const u32 msrs_to_save_all[] = {
- 	MSR_IA32_SYSENTER_CS, MSR_IA32_SYSENTER_ESP, MSR_IA32_SYSENTER_EIP,
- 	MSR_STAR,
- #ifdef CONFIG_X86_64
-@@ -1179,9 +1181,10 @@ static u32 msrs_to_save[] = {
- 	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
- };
- 
-+static u32 *msrs_to_save;
- static unsigned num_msrs_to_save;
- 
--static u32 emulated_msrs[] = {
-+const u32 emulated_msrs_all[] = {
- 	MSR_KVM_SYSTEM_TIME, MSR_KVM_WALL_CLOCK,
- 	MSR_KVM_SYSTEM_TIME_NEW, MSR_KVM_WALL_CLOCK_NEW,
- 	HV_X64_MSR_GUEST_OS_ID, HV_X64_MSR_HYPERCALL,
-@@ -1220,7 +1223,7 @@ static u32 emulated_msrs[] = {
- 	 * by arch/x86/kvm/vmx/nested.c based on CPUID or other MSRs.
- 	 * We always support the "true" VMX control MSRs, even if the host
- 	 * processor does not, so I am putting these registers here rather
--	 * than in msrs_to_save.
-+	 * than in msrs_to_save_all.
- 	 */
- 	MSR_IA32_VMX_BASIC,
- 	MSR_IA32_VMX_TRUE_PINBASED_CTLS,
-@@ -1239,13 +1242,14 @@ static u32 emulated_msrs[] = {
- 	MSR_KVM_POLL_CONTROL,
- };
- 
-+static u32 *emulated_msrs;
- static unsigned num_emulated_msrs;
- 
- /*
-  * List of msr numbers which are used to expose MSR-based features that
-  * can be used by a hypervisor to validate requested CPU features.
-  */
--static u32 msr_based_features[] = {
-+const u32 msr_based_features_all[] = {
- 	MSR_IA32_VMX_BASIC,
- 	MSR_IA32_VMX_TRUE_PINBASED_CTLS,
- 	MSR_IA32_VMX_PINBASED_CTLS,
-@@ -1270,6 +1274,7 @@ static u32 msr_based_features[] = {
- 	MSR_IA32_ARCH_CAPABILITIES,
- };
- 
-+static u32 *msr_based_features;
- static unsigned int num_msr_based_features;
- 
- static u64 kvm_get_arch_capabilities(void)
-@@ -3311,11 +3316,11 @@ long kvm_arch_dev_ioctl(struct file *filp,
- 		if (n < msr_list.nmsrs)
- 			goto out;
- 		r = -EFAULT;
--		if (copy_to_user(user_msr_list->indices, &msrs_to_save,
-+		if (copy_to_user(user_msr_list->indices, msrs_to_save,
- 				 num_msrs_to_save * sizeof(u32)))
- 			goto out;
- 		if (copy_to_user(user_msr_list->indices + num_msrs_to_save,
--				 &emulated_msrs,
-+				 emulated_msrs,
- 				 num_emulated_msrs * sizeof(u32)))
- 			goto out;
- 		r = 0;
-@@ -3364,7 +3369,7 @@ long kvm_arch_dev_ioctl(struct file *filp,
- 		if (n < msr_list.nmsrs)
- 			goto out;
- 		r = -EFAULT;
--		if (copy_to_user(user_msr_list->indices, &msr_based_features,
-+		if (copy_to_user(user_msr_list->indices, msr_based_features,
- 				 num_msr_based_features * sizeof(u32)))
- 			goto out;
- 		r = 0;
-@@ -5086,26 +5091,41 @@ long kvm_arch_vm_ioctl(struct file *filp,
- 	return r;
- }
- 
--static void kvm_init_msr_list(void)
-+static int kvm_init_msr_list(void)
- {
- 	struct x86_pmu_capability x86_pmu;
- 	u32 dummy[2];
- 	unsigned i, j;
- 
- 	BUILD_BUG_ON_MSG(INTEL_PMC_MAX_FIXED != 4,
--			 "Please update the fixed PMCs in msrs_to_save[]");
-+			 "Please update the fixed PMCs in msrs_to_saved_all[]");
- 
- 	perf_get_x86_pmu_capability(&x86_pmu);
- 
--	for (i = j = 0; i < ARRAY_SIZE(msrs_to_save); i++) {
--		if (rdmsr_safe(msrs_to_save[i], &dummy[0], &dummy[1]) < 0)
-+	msrs_to_save = kmalloc(sizeof(msrs_to_save_all),
-+							GFP_KERNEL_ACCOUNT);
-+	if (!msrs_to_save)
-+		return -ENOMEM;
-+
-+	emulated_msrs = kmalloc(sizeof(emulated_msrs_all),
-+							GFP_KERNEL_ACCOUNT);
-+	if (!emulated_msrs)
-+		goto free_msrs_to_save;
-+
-+	msr_based_features = kmalloc(sizeof(msr_based_features_all),
-+							GFP_KERNEL_ACCOUNT);
-+	if (!msr_based_features)
-+		goto free_emulated_msrs;
-+
-+	for (i = j = 0; i < ARRAY_SIZE(msrs_to_save_all); i++) {
-+		if (rdmsr_safe(msrs_to_save_all[i], &dummy[0], &dummy[1]) < 0)
- 			continue;
- 
- 		/*
- 		 * Even MSRs that are valid in the host may not be exposed
- 		 * to the guests in some cases.
- 		 */
--		switch (msrs_to_save[i]) {
-+		switch (msrs_to_save_all[i]) {
- 		case MSR_IA32_BNDCFGS:
- 			if (!kvm_mpx_supported())
- 				continue;
-@@ -5133,17 +5153,17 @@ static void kvm_init_msr_list(void)
- 			break;
- 		case MSR_IA32_RTIT_ADDR0_A ... MSR_IA32_RTIT_ADDR3_B: {
- 			if (!kvm_x86_ops->pt_supported() ||
--				msrs_to_save[i] - MSR_IA32_RTIT_ADDR0_A >=
-+				msrs_to_save_all[i] - MSR_IA32_RTIT_ADDR0_A >=
- 				intel_pt_validate_hw_cap(PT_CAP_num_address_ranges) * 2)
- 				continue;
- 			break;
- 		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 17:
--			if (msrs_to_save[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
-+			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
- 			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
- 				continue;
- 			break;
- 		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 17:
--			if (msrs_to_save[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
-+			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
- 			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
- 				continue;
- 		}
-@@ -5151,34 +5171,40 @@ static void kvm_init_msr_list(void)
- 			break;
- 		}
- 
--		if (j < i)
--			msrs_to_save[j] = msrs_to_save[i];
-+		if (j <= i)
-+			msrs_to_save[j] = msrs_to_save_all[i];
- 		j++;
- 	}
- 	num_msrs_to_save = j;
- 
--	for (i = j = 0; i < ARRAY_SIZE(emulated_msrs); i++) {
--		if (!kvm_x86_ops->has_emulated_msr(emulated_msrs[i]))
-+	for (i = j = 0; i < ARRAY_SIZE(emulated_msrs_all); i++) {
-+		if (!kvm_x86_ops->has_emulated_msr(emulated_msrs_all[i]))
- 			continue;
- 
--		if (j < i)
--			emulated_msrs[j] = emulated_msrs[i];
-+		if (j <= i)
-+			emulated_msrs[j] = emulated_msrs_all[i];
- 		j++;
- 	}
- 	num_emulated_msrs = j;
- 
--	for (i = j = 0; i < ARRAY_SIZE(msr_based_features); i++) {
-+	for (i = j = 0; i < ARRAY_SIZE(msr_based_features_all); i++) {
- 		struct kvm_msr_entry msr;
- 
--		msr.index = msr_based_features[i];
-+		msr.index = msr_based_features_all[i];
- 		if (kvm_get_msr_feature(&msr))
- 			continue;
- 
--		if (j < i)
--			msr_based_features[j] = msr_based_features[i];
-+		if (j <= i)
-+			msr_based_features[j] = msr_based_features_all[i];
- 		j++;
- 	}
- 	num_msr_based_features = j;
-+	return 0;
-+free_emulated_msrs:
-+	kfree(emulated_msrs);
-+free_msrs_to_save:
-+	kfree(msrs_to_save);
-+	return -ENOMEM;
- }
- 
- static int vcpu_mmio_write(struct kvm_vcpu *vcpu, gpa_t addr, int len,
-@@ -9294,12 +9320,14 @@ int kvm_arch_hardware_setup(void)
- 		kvm_default_tsc_scaling_ratio = 1ULL << kvm_tsc_scaling_ratio_frac_bits;
- 	}
- 
--	kvm_init_msr_list();
--	return 0;
-+	return kvm_init_msr_list();
- }
- 
- void kvm_arch_hardware_unsetup(void)
- {
-+	kfree(msr_based_features);
-+	kfree(emulated_msrs);
-+	kfree(msrs_to_save);
- 	kvm_x86_ops->hardware_unsetup();
- }
- 
--- 
-2.17.1
-
+SGkgR2VlcnQtc2FuLA0KDQpUaGFuayB5b3UgZm9yIHlvdXIgcmV2aWV3IQ0KDQo+IEZyb206IEdl
+ZXJ0IFV5dHRlcmhvZXZlbiwgU2VudDogVHVlc2RheSwgTm92ZW1iZXIgNSwgMjAxOSA1OjUwIFBN
+DQo+IA0KPiBIaSBTaGltb2RhLXNhbiwNCj4gDQo+IE9uIFR1ZSwgTm92IDUsIDIwMTkgYXQgMzo0
+OCBBTSBZb3NoaWhpcm8gU2hpbW9kYQ0KPiA8eW9zaGloaXJvLnNoaW1vZGEudWhAcmVuZXNhcy5j
+b20+IHdyb3RlOg0KPiA+IEFjY29yZGluZyB0byB0aGUgUi1DYXIgR2VuMi8zIG1hbnVhbCwgIkJl
+IHN1cmUgdG8gd3JpdGUgdGhlIGluaXRpYWwNCj4gPiB2YWx1ZSAoPSBIJzgwRkYgMDAwMCkgdG8g
+TUFDQ1RMUiBiZWZvcmUgZW5hYmxpbmcgUENJRVRDVExSLkNGSU5JVCIuDQo+ID4gVG8gYXZvaWQg
+dW5leHBlY3RlZCBiZWhhdmlvcnMsIHRoaXMgcGF0Y2ggZml4ZXMgaXQuIE5vdGUgdGhhdA0KPiA+
+IHRoZSBTUENIRyBiaXQgb2YgTUFDQ1RMUiByZWdpc3RlciBkZXNjcmlwdGlvbiBzYWlkICJPbmx5
+IHdyaXRpbmcgMQ0KPiA+IGlzIHZhbGlkIGFuZCB3cml0aW5nIDAgaXMgaW52YWxpZCIgYnV0IHRo
+aXMgImludmFsaWQiIG1lYW5zDQo+ID4gImlnbm9yZWQiLCBub3QgInByb2hpYml0ZWQiLiBTbywg
+YW55IGRvY3VtZW50YXRpb24gY29uZmxpY3QgZG9lc24ndA0KPiA+IGV4aXN0IGFib3V0IHdyaXRp
+bmcgdGhlIE1BQ0NUTFIgcmVnaXN0ZXIuDQo+ID4NCj4gPiBSZXBvcnRlZC1ieTogRXVnZW5pdSBS
+b3NjYSA8ZXJvc2NhQGRlLmFkaXQtanYuY29tPg0KPiA+IEZpeGVzOiBjMjVkYTQ3Nzg4MDMgKCJQ
+Q0k6IHJjYXI6IEFkZCBSZW5lc2FzIFItQ2FyIFBDSWUgZHJpdmVyIikNCj4gPiBGaXhlczogYmUy
+MGJiY2IwYThjICgiUENJOiByY2FyOiBBZGQgdGhlIGluaXRpYWxpemF0aW9uIG9mIFBDSWUgbGlu
+ayBpbiByZXN1bWVfbm9pcnEoKSIpDQo+ID4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPiAj
+IHY1LjIrDQo+ID4gU2lnbmVkLW9mZi1ieTogWW9zaGloaXJvIFNoaW1vZGEgPHlvc2hpaGlyby5z
+aGltb2RhLnVoQHJlbmVzYXMuY29tPg0KPiANCj4gVGhhbmtzIGZvciB5b3VyIHBhdGNoIQ0KPiAN
+Cj4gPiAtLS0gYS9kcml2ZXJzL3BjaS9jb250cm9sbGVyL3BjaWUtcmNhci5jDQo+ID4gKysrIGIv
+ZHJpdmVycy9wY2kvY29udHJvbGxlci9wY2llLXJjYXIuYw0KPiA+IEBAIC05MSw4ICs5MSwxMiBA
+QA0KPiA+ICAjZGVmaW5lICBMSU5LX1NQRUVEXzJfNUdUUyAgICAgKDEgPDwgMTYpDQo+ID4gICNk
+ZWZpbmUgIExJTktfU1BFRURfNV8wR1RTICAgICAoMiA8PCAxNikNCj4gPiAgI2RlZmluZSBNQUND
+VExSICAgICAgICAgICAgICAgICAgICAgICAgMHgwMTEwNTgNCj4gPiArI2RlZmluZSAgTUFDQ1RM
+Ul9SRVNFUlZFRDIzXzE2IEdFTk1BU0soMjMsIDE2KQ0KPiANCj4gTUFDQ1RMUl9ORlRTX01BU0s/
+DQoNCkkgc2hvdWxkIGhhdmUgc2FpZCBvbiBwcmV2aW91cyBlbWFpbCB0aHJlYWQgWzFdIHRob3Vn
+aCwNCnNpbmNlIFNINzc4NiBQQ0lFIEhXIG1hbnVhbCBzYWlkIE5GVFMgKE5GVFMpIGJ1dA0KYW55
+IFItQ2FyIFNvQ3MnIEhXIG1hbnVhbCBzYWlkIGp1c3QgUmVzZXJ2ZWQgd2l0aCBIJ0ZGLA0Kc28g
+dGhhdCBJIHByZWZlciB0byBkZXNjcmliZSBSRVNFUlZFRCBpbnN0ZWFkIG9mIE5GVFMuDQpEbyB5
+b3UgYWdyZWU/DQoNClsxXQ0KaHR0cHM6Ly9tYXJjLmluZm8vP2w9bGludXgtcmVuZXNhcy1zb2Mm
+bT0xNTcyNDI0MjIzMjczNjgmdz0yDQoNCj4gPiAgI2RlZmluZSAgU1BFRURfQ0hBTkdFICAgICAg
+ICAgIEJJVCgyNCkNCj4gPiAgI2RlZmluZSAgU0NSQU1CTEVfRElTQUJMRSAgICAgIEJJVCgyNykN
+Cj4gPiArI2RlZmluZSAgTFRTTURJUyAgICAgICAgICAgICAgIEJJVCgzMSkNCj4gPiArICAgICAg
+ICAvKiBCZSBzdXJlIHRvIHdyaXRlIHRoZSBpbml0aWFsIHZhbHVlIChIJzgwRkYgMDAwMCkgdG8g
+TUFDQ1RMUiAqLw0KPiANCj4gRG8gd2UgbmVlZCB0aGlzIGNvbW1lbnQ/DQoNCkl0J3MgYSBsaXR0
+bGUgcmVkdW5kYW50LiBTbywgSSdsbCByZW1vdmUgaXQuDQoNCj4gPiArI2RlZmluZSAgTUFDQ1RM
+Ul9JTklUX1ZBTCAgICAgIChMVFNNRElTIHwgTUFDQ1RMUl9SRVNFUlZFRDIzXzE2KQ0KPiA+ICAj
+ZGVmaW5lIFBNU1IgICAgICAgICAgICAgICAgICAgMHgwMTEwNWMNCj4gPiAgI2RlZmluZSBNQUNT
+MlIgICAgICAgICAgICAgICAgIDB4MDExMDc4DQo+ID4gICNkZWZpbmUgTUFDQ0dTUFNFVFIgICAg
+ICAgICAgICAweDAxMTA4NA0KPiANCj4gV2l0aCB0aGUgYWJvdmUgZml4ZWQ6DQo+IFJldmlld2Vk
+LWJ5OiBHZWVydCBVeXR0ZXJob2V2ZW4gPGdlZXJ0K3JlbmVzYXNAZ2xpZGVyLmJlPg0KDQpUaGFu
+a3MhDQoNCkJlc3QgcmVnYXJkcywNCllvc2hpaGlybyBTaGltb2RhDQoNCg==
