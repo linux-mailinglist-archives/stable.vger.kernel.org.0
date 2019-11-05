@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B927F0407
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 18:22:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7ADFF0406
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 18:21:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730895AbfKERWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 12:22:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50186 "EHLO mail.kernel.org"
+        id S2388177AbfKERVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 12:21:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728399AbfKERWA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 12:22:00 -0500
+        id S2387776AbfKERVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 12:21:44 -0500
 Received: from localhost (unknown [62.119.166.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D21D3214B2;
-        Tue,  5 Nov 2019 17:21:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43D97214B2;
+        Tue,  5 Nov 2019 17:21:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1572974518;
-        bh=JgjlL/oHDItjKCK1eUG4BFdCFpcYYQyc/vcIlLxBVyY=;
+        s=default; t=1572974503;
+        bh=i1UmVlnFy2IiNHaHB/C/T+K0x+8h/bARAhHf2EKV+7k=;
         h=Subject:To:From:Date:From;
-        b=dd9GilEwYqYJIcGY2YuC/o77pYh+eYdceERLsFuWXCeOYKkyK6ereOpKAJIPq8+09
-         MguQrp3n/KXcXnl1U/6ZHWAlVCmFzBrwRk/pMgNv8rbSsa7hShWbviOpTJ6P4v+FIn
-         VE9g8GDb8mkGmccvckAUIYNWaTRHKV9hcaHqJHxw=
-Subject: patch "mei: me: add comet point V device id" added to char-misc-testing
+        b=cFp/JSffxCejIRuOrk/FYefoGDWh/n3JYSpWXE3uScGDjDEbaMrEzkV8yap5gAk/Y
+         PAvRkx4HoO+M8gxY+gEfqzC87W939D2/sD9ah9dIB4DLCdgZl6NEWbCsKH5CBjRSL4
+         gLS/dtUV0JTD1VPHvQcyWC9f1STrCdeEy6Aa0mZM=
+Subject: patch "mei: bus: prefix device names on bus with the bus name" added to char-misc-testing
 To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org, tomas.winkler@intel.com
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 05 Nov 2019 18:21:29 +0100
-Message-ID: <157297448959131@kroah.com>
+Message-ID: <15729744893653@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: me: add comet point V device id
+    mei: bus: prefix device names on bus with the bus name
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -55,47 +55,54 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 82b29b9f72afdccb40ea5f3c13c6a3cb65a597bc Mon Sep 17 00:00:00 2001
+From 7a2b9e6ec84588b0be65cc0ae45a65bac431496b Mon Sep 17 00:00:00 2001
 From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Tue, 5 Nov 2019 17:05:14 +0200
-Subject: mei: me: add comet point V device id
+Date: Tue, 5 Nov 2019 17:05:13 +0200
+Subject: mei: bus: prefix device names on bus with the bus name
 
-Comet Point (Comet Lake) V device id.
+Add parent device name to the name of devices on bus to avoid
+device names collisions for same client UUID available
+from different MEI heads. Namely this prevents sysfs collision under
+/sys/bus/mei/device/
+
+In the device part leave just UUID other parameters that are
+required for device matching are not required here and are
+just bloating the name.
 
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
 Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20191105150514.14010-2-tomas.winkler@intel.com
+Link: https://lore.kernel.org/r/20191105150514.14010-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/hw-me-regs.h | 1 +
- drivers/misc/mei/pci-me.c     | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/misc/mei/bus.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/misc/mei/hw-me-regs.h b/drivers/misc/mei/hw-me-regs.h
-index c09f8bb49495..b359f06f05e7 100644
---- a/drivers/misc/mei/hw-me-regs.h
-+++ b/drivers/misc/mei/hw-me-regs.h
-@@ -81,6 +81,7 @@
+diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
+index 985bd4fd3328..53bb394ccba6 100644
+--- a/drivers/misc/mei/bus.c
++++ b/drivers/misc/mei/bus.c
+@@ -873,15 +873,16 @@ static const struct device_type mei_cl_device_type = {
  
- #define MEI_DEV_ID_CMP_LP     0x02e0  /* Comet Point LP */
- #define MEI_DEV_ID_CMP_LP_3   0x02e4  /* Comet Point LP 3 (iTouch) */
-+#define MEI_DEV_ID_CMP_V      0xA3BA  /* Comet Point Lake V */
+ /**
+  * mei_cl_bus_set_name - set device name for me client device
++ *  <controller>-<client device>
++ *  Example: 0000:00:16.0-55213584-9a29-4916-badf-0fb7ed682aeb
+  *
+  * @cldev: me client device
+  */
+ static inline void mei_cl_bus_set_name(struct mei_cl_device *cldev)
+ {
+-	dev_set_name(&cldev->dev, "mei:%s:%pUl:%02X",
+-		     cldev->name,
+-		     mei_me_cl_uuid(cldev->me_cl),
+-		     mei_me_cl_ver(cldev->me_cl));
++	dev_set_name(&cldev->dev, "%s-%pUl",
++		     dev_name(cldev->bus->dev),
++		     mei_me_cl_uuid(cldev->me_cl));
+ }
  
- #define MEI_DEV_ID_ICP_LP     0x34E0  /* Ice Lake Point LP */
- 
-diff --git a/drivers/misc/mei/pci-me.c b/drivers/misc/mei/pci-me.c
-index 3dca63eddaa0..ce43415a536c 100644
---- a/drivers/misc/mei/pci-me.c
-+++ b/drivers/misc/mei/pci-me.c
-@@ -98,6 +98,7 @@ static const struct pci_device_id mei_me_pci_tbl[] = {
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP, MEI_ME_PCH12_CFG)},
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_LP_3, MEI_ME_PCH8_CFG)},
-+	{MEI_PCI_DEVICE(MEI_DEV_ID_CMP_V, MEI_ME_PCH12_CFG)},
- 
- 	{MEI_PCI_DEVICE(MEI_DEV_ID_ICP_LP, MEI_ME_PCH12_CFG)},
- 
+ /**
 -- 
 2.23.0
 
