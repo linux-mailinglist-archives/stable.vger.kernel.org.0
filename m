@@ -2,462 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62563EF278
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 02:14:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5734EF27C
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 02:16:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729368AbfKEBOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 4 Nov 2019 20:14:42 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:26787 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1728602AbfKEBOm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 4 Nov 2019 20:14:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1572916481;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=UIrM76tYEF2GIGSPRIq6u4yxckZC0SDx0LAyrujo2kw=;
-        b=Fgwmu4cp5vdAN50cq3KfB3G5zfRFzByGup8PE+qzLzaAZ30SuF9fvO4doM/zXP4uo69LiK
-        EQ6vBOfZEeYiFxfTqkDTfqGXhVqjFOJv00+K5+IySdaj7Wn+4ulvWc4P1ezpABhO14hEi+
-        rCjnA1s7wxNRL/2UzxwAr60EJUG3CUY=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-29-loPUojfaOP6u-B-M6wDJDQ-1; Mon, 04 Nov 2019 20:14:39 -0500
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E8AC2800C73
-        for <stable@vger.kernel.org>; Tue,  5 Nov 2019 01:14:38 +0000 (UTC)
-Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9D4B0608A5;
-        Tue,  5 Nov 2019 01:14:35 +0000 (UTC)
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
-Date:   Tue, 05 Nov 2019 01:14:35 -0000
-Message-ID: <cki.A892DA5512.ND6HCOM1TZ@redhat.com>
-X-Gitlab-Pipeline-ID: 263687
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/263687
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: loPUojfaOP6u-B-M6wDJDQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
+        id S1729758AbfKEBQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 4 Nov 2019 20:16:27 -0500
+Received: from mail-eopbgr1400123.outbound.protection.outlook.com ([40.107.140.123]:15582
+        "EHLO JPN01-TY1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728602AbfKEBQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 4 Nov 2019 20:16:27 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gb3ZTldMv0WKKF9gZ0xTMoN5bKBnxm5NVgoOoM0NrP8pJy94iqeI+aW6EHrf+gKywa9Nen14pwuKAIJYLIKiBKVQvEMcUsPXjFNHkpwgQxphOQvZy2lqZoMnCfhCU+ufEwU9mlhlmV+8fpf1XgqG9dACdiAmOtQPsHq34BAj1wZB62zkKSkoSZpeDtSVamBG3m5R3j8UlrkERlOWf0nQfD91ECkquSbGX2RY+/a+JtrND0dYXS+JD+jrCz608xg1sXdhEs3l+SCuzSfaeyuqX1BQB084/0w+YqqZ8cUQIxRqAUGA7w8WqyYT5g44xmR+uJ1QpQg32mKzasxAt99xLw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DRm/sxrs0GunQJJPoxb2Tu4six5XCvLYrcUgzx2qSDM=;
+ b=ANvDxUES0KWg4xaQIiIEo0DsABmthgFIILaDTeOFWVIxoGfQ0pE92cWtb/YIE7/77YnaMOJ8OA2EJnOVaTR2Yn7K0ZFzWAp6x5mlL5Xc8qvtH2xuRncrlTN+BAzCaQU7aq9Ifqj5nQ+t8FE2QSMbYOrRaGPzZXkCy1Za8RhVbcSpeUsPO+TNLOeooM4RAssiIOrdir1bRKDca9W+BkTa/+jtrQBe0k0xxSn9xYnERjAN/y6esFziDEQzsW5TETmUFnWaQ04ZX5OZHDXpE1FyvCWOMr+CMjN2t6mXHCkIyNa4+p0g4iH+X3zKFMu73s+KxP+zTsstUA/hChsQECHdRw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
+ dkim=pass header.d=renesas.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=DRm/sxrs0GunQJJPoxb2Tu4six5XCvLYrcUgzx2qSDM=;
+ b=S1cyk1ba6uO5HujJNUiDihVwIPM4P2W2oYL4lSXLc2j3izNky7fpyunNbKZZUzl9argwGkH8+4tzLMqaJJ7sBTXTZyPFUG73iULfT9xhOs5f9et2PJ4nL5bgLhMDALT2YLm7XRVU3VxR28q2W3MdeQhHoiCHtyw+R5w3bpqrhwY=
+Received: from TYAPR01MB4544.jpnprd01.prod.outlook.com (20.179.175.203) by
+ TYAPR01MB2847.jpnprd01.prod.outlook.com (20.177.105.82) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2408.24; Tue, 5 Nov 2019 01:16:23 +0000
+Received: from TYAPR01MB4544.jpnprd01.prod.outlook.com
+ ([fe80::6998:f6cf:8cf1:2528]) by TYAPR01MB4544.jpnprd01.prod.outlook.com
+ ([fe80::6998:f6cf:8cf1:2528%5]) with mapi id 15.20.2408.024; Tue, 5 Nov 2019
+ 01:16:23 +0000
+From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+To:     Andrew Murray <andrew.murray@arm.com>
+CC:     "horms@verge.net.au" <horms@verge.net.au>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        "linux-renesas-soc@vger.kernel.org" 
+        <linux-renesas-soc@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        "Lorenzo.Pieralisi@arm.com" <Lorenzo.Pieralisi@arm.com>
+Subject: RE: [PATCH 2/2] PCI: rcar: Fix missing MACCTLR register setting in
+ initialize sequence
+Thread-Topic: [PATCH 2/2] PCI: rcar: Fix missing MACCTLR register setting in
+ initialize sequence
+Thread-Index: AQHVjxT2kZdfxah3ZU+EwXO4DqSuW6d2JN2AgAWpo5A=
+Date:   Tue, 5 Nov 2019 01:16:23 +0000
+Message-ID: <TYAPR01MB45446E09055A4E222F6932C8D87E0@TYAPR01MB4544.jpnprd01.prod.outlook.com>
+References: <1572434824-1850-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+ <1572434824-1850-3-git-send-email-yoshihiro.shimoda.uh@renesas.com>
+ <20191101104544.GA9723@e119886-lin.cambridge.arm.com>
+In-Reply-To: <20191101104544.GA9723@e119886-lin.cambridge.arm.com>
+Accept-Language: ja-JP, en-US
+Content-Language: ja-JP
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=yoshihiro.shimoda.uh@renesas.com; 
+x-originating-ip: [150.249.235.54]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 9c67a8db-0124-4cfa-b490-08d7618dc61d
+x-ms-traffictypediagnostic: TYAPR01MB2847:
+x-microsoft-antispam-prvs: <TYAPR01MB284795ECC4467A8258693B0ED87E0@TYAPR01MB2847.jpnprd01.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:983;
+x-forefront-prvs: 0212BDE3BE
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(376002)(346002)(39860400002)(136003)(366004)(396003)(189003)(199004)(99286004)(2906002)(54906003)(6246003)(55016002)(81166006)(6916009)(316002)(6506007)(66556008)(7696005)(7736002)(186003)(102836004)(71200400001)(66446008)(76116006)(25786009)(8936002)(66946007)(64756008)(71190400001)(305945005)(76176011)(6116002)(81156014)(8676002)(4326008)(86362001)(446003)(11346002)(14454004)(256004)(6436002)(14444005)(66476007)(26005)(476003)(486006)(5660300002)(33656002)(52536014)(9686003)(229853002)(478600001)(66066001)(74316002)(3846002);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB2847;H:TYAPR01MB4544.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: renesas.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: pvpJYdCVk14t4rGjY9tKDJONG41i11k4COFQen0KNOqaEsJ4Wn7VGjboy9hROHYRXD7fYPLeLnHLGTdX6zHZUGlm2Xng7TPVcHpMYSjk5HGF6429wyqwO81u1HMvAoCohbIGnPQ0eUUgCiXpVxPv1knHcyHYckbj2+PNjWW+5OrAGSly6bAXVIKxKlhFXBEUV9elDw5dIWQd2c1EpyURe2Wa3rh19KdiOtRjW5eKkLByyqZIH4v2ZzZF9Mg3BvtiE7myzAeGQzsrklRAwqP8HE7OIFk4fdYJI8Ax9MEl1+gd7XsqOofADTyMhblHCKzZGTxSXfOnT9JwsKr2kZcZPq2TJ1AnvI71UE1IYxKf92PuvPenMq6G/eCPMlR8k5MUUr36xINY9fFb2OirBLIetH/JaHvvQo/5a7ONZnxtxs1Fn6YROgVqreKMZa0FsN6c
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: renesas.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9c67a8db-0124-4cfa-b490-08d7618dc61d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 05 Nov 2019 01:16:23.6424
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: EOQcSaOi4mp3KIsU02Rb+oouh6oWoSQlqWzgA7M5uws7yH4Q9WRadPLrFSkTnIpbrL3iQ1NPOZPvFg2fp6aLAXyaIFlp6ssE11y/XQ8nleMMWo7fO5cv5dpjGN/ByaMD
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB2847
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello Andrew-san,
 
-Hello,
+> From: Andrew Murray, Sent: Friday, November 1, 2019 7:46 PM
+>=20
+> On Wed, Oct 30, 2019 at 08:27:04PM +0900, Yoshihiro Shimoda wrote:
+> > According to the R-Car Gen2/3 manual, "Be sure to write the initial
+> > value (=3D H'80FF 0000) to MACCTLR before enabling PCIETCTLR.CFINIT."
+> > To avoid unexpected behaviors, this patch fixes it.
+> >
+> > Fixes: c25da4778803 ("PCI: rcar: Add Renesas R-Car PCIe driver")
+> > Fixes: be20bbcb0a8c ("PCI: rcar: Add the initialization of PCIe link in=
+ resume_noirq()")
+> > Cc: <stable@vger.kernel.org> # v5.2+
+> > Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+> > ---
+> >  drivers/pci/controller/pcie-rcar.c | 4 ++++
+> >  1 file changed, 4 insertions(+)
+> >
+> > diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controlle=
+r/pcie-rcar.c
+> > index 40d8c54..d470ab8 100644
+> > --- a/drivers/pci/controller/pcie-rcar.c
+> > +++ b/drivers/pci/controller/pcie-rcar.c
+> > @@ -91,6 +91,7 @@
+> >  #define  LINK_SPEED_2_5GTS	(1 << 16)
+> >  #define  LINK_SPEED_5_0GTS	(2 << 16)
+> >  #define MACCTLR			0x011058
+> > +#define  MACCTLR_INIT_VAL	0x80ff0000
+>=20
+> Geert's previous feedback was to avoid using magic numbers such as this. =
+Is it
+> possible to define the bits you set instead?
 
-We ran automated tests on a patchset that was proposed for merging into thi=
-s
-kernel tree. The patches were applied to:
+Oops, you're correct. I'll fix it.
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux.git
-            Commit: 95180e47e77a - Linux 5.3.8
+> Also perhaps Lorenzo has some feedback as if he prefers these two patches=
+ to
+> be squashed together or not, rather than a revert commit.
 
-The results of these automated tests are provided below.
+I got it. At the moment, I'll update this series as v3.
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
+Best regards,
+Yoshihiro Shimoda
 
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/263687
-
-One or more kernel tests failed:
-
-    ppc64le:
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-
-    aarch64:
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-
-    x86_64:
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-     =E2=9D=8C Boot test
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 95180e47e77a - Linux 5.3.8
-
-
-We grabbed the 026bccdee83f commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  io_uring-fix-up-o_nonblock-handling-for-sockets.patch
-  dm-snapshot-introduce-account_start_copy-and-account.patch
-  dm-snapshot-rework-cow-throttling-to-fix-deadlock.patch
-  btrfs-fix-inode-cache-block-reserve-leak-on-failure-.patch
-  btrfs-qgroup-always-free-prealloc-meta-reserve-in-bt.patch
-  iio-adc-meson_saradc-fix-memory-allocation-order.patch
-  iio-fix-center-temperature-of-bmc150-accel-core.patch
-  libsubcmd-make-_fortify_source-defines-dependent-on-.patch
-  perf-tests-avoid-raising-segv-using-an-obvious-null-.patch
-  perf-map-fix-overlapped-map-handling.patch
-  perf-script-brstackinsn-fix-recovery-from-lbr-binary.patch
-  perf-jevents-fix-period-for-intel-fixed-counters.patch
-  perf-tools-propagate-get_cpuid-error.patch
-  perf-annotate-propagate-perf_env__arch-error.patch
-  perf-annotate-fix-the-signedness-of-failure-returns.patch
-  perf-annotate-propagate-the-symbol__annotate-error-r.patch
-  perf-annotate-fix-arch-specific-init-failure-errors.patch
-  perf-annotate-return-appropriate-error-code-for-allo.patch
-  perf-annotate-don-t-return-1-for-error-when-doing-bp.patch
-  staging-rtl8188eu-fix-null-dereference-when-kzalloc-.patch
-  rdma-siw-fix-serialization-issue-in-write_space.patch
-  rdma-hfi1-prevent-memory-leak-in-sdma_init.patch
-  rdma-iw_cxgb4-fix-srq-access-from-dump_qp.patch
-  rdma-iwcm-fix-a-lock-inversion-issue.patch
-  hid-hyperv-use-in-place-iterator-api-in-the-channel-.patch
-  kselftest-exclude-failed-targets-from-runlist.patch
-  selftests-kselftest-runner.sh-add-45-second-timeout-.patch
-  nfs-fix-nfsi-nrequests-count-error-on-nfs_inode_remo.patch
-  arm64-cpufeature-effectively-expose-frint-capability.patch
-  arm64-fix-incorrect-irqflag-restore-for-priority-mas.patch
-  arm64-ftrace-ensure-synchronisation-in-plt-setup-for.patch
-  tty-serial-owl-fix-the-link-time-qualifier-of-owl_ua.patch
-  tty-serial-rda-fix-the-link-time-qualifier-of-rda_ua.patch
-  serial-sifive-select-serial_earlycon.patch
-  tty-n_hdlc-fix-build-on-sparc.patch
-  misc-fastrpc-prevent-memory-leak-in-fastrpc_dma_buf_.patch
-  rdma-core-fix-an-error-handling-path-in-res_get_comm.patch
-  rdma-cm-fix-memory-leak-in-cm_add-remove_one.patch
-  rdma-nldev-reshuffle-the-code-to-avoid-need-to-rebin.patch
-  rdma-mlx5-do-not-allow-rereg-of-a-odp-mr.patch
-  rdma-mlx5-order-num_pending_prefetch-properly-with-s.patch
-  rdma-mlx5-add-missing-synchronize_srcu-for-mw-cases.patch
-  gpio-max77620-use-correct-unit-for-debounce-times.patch
-  fs-cifs-mute-wunused-const-variable-message.patch
-  arm64-vdso32-fix-broken-compat-vdso-build-warnings.patch
-  arm64-vdso32-detect-binutils-support-for-dmb-ishld.patch
-  serial-mctrl_gpio-check-for-null-pointer.patch
-  serial-8250_omap-fix-gpio-check-for-auto-rts-cts.patch
-  arm64-default-to-building-compat-vdso-with-clang-whe.patch
-  arm64-vdso32-don-t-use-kbuild_cppflags-unconditional.patch
-  efi-cper-fix-endianness-of-pcie-class-code.patch
-  efi-x86-do-not-clean-dummy-variable-in-kexec-path.patch
-  mips-include-mark-__cmpxchg-as-__always_inline.patch
-  riscv-avoid-kernel-hangs-when-trapped-in-bug.patch
-  riscv-avoid-sending-a-sigtrap-to-a-user-thread-trapp.patch
-  riscv-correct-the-handling-of-unexpected-ebreak-in-d.patch
-  x86-xen-return-from-panic-notifier.patch
-  ocfs2-clear-zero-in-unaligned-direct-io.patch
-  fs-ocfs2-fix-possible-null-pointer-dereferences-in-o.patch
-  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
-  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
-  btrfs-silence-maybe-uninitialized-warning-in-clone_r.patch
-  arm64-armv8_deprecated-checking-return-value-for-mem.patch
-  x86-cpu-add-comet-lake-to-the-intel-cpu-models-heade.patch
-  sched-fair-scale-bandwidth-quota-and-period-without-.patch
-  sched-vtime-fix-guest-system-mis-accounting-on-task-.patch
-  perf-core-rework-memory-accounting-in-perf_mmap.patch
-  perf-core-fix-corner-case-in-perf_rotate_context.patch
-  perf-x86-amd-change-fix-nmi-latency-mitigation-to-us.patch
-  drm-amdgpu-fix-memory-leak.patch
-  iio-imu-adis16400-release-allocated-memory-on-failur.patch
-  iio-imu-adis16400-fix-memory-leak.patch
-  iio-imu-st_lsm6dsx-fix-waitime-for-st_lsm6dsx-i2c-co.patch
-  mips-include-mark-__xchg-as-__always_inline.patch
-  mips-fw-sni-fix-out-of-bounds-init-of-o32-stack.patch
-  s390-cio-fix-virtio-ccw-dma-without-pv.patch
-  virt-vbox-fix-memory-leak-in-hgcm_call_preprocess_li.patch
-  nbd-fix-possible-sysfs-duplicate-warning.patch
-  nfsv4-fix-leak-of-clp-cl_acceptor-string.patch
-  sunrpc-fix-race-to-sk_err-after-xs_error_report.patch
-  s390-uaccess-avoid-false-positive-compiler-warnings.patch
-  tracing-initialize-iter-seq-after-zeroing-in-tracing.patch
-  perf-annotate-fix-multiple-memory-and-file-descripto.patch
-  perf-aux-fix-tracking-of-auxiliary-trace-buffer-allo.patch
-  usb-legousbtower-fix-a-signedness-bug-in-tower_probe.patch
-  nbd-verify-socket-is-supported-during-setup.patch
-  arm64-dts-qcom-add-lenovo-miix-630.patch
-  arm64-dts-qcom-add-hp-envy-x2.patch
-  arm64-dts-qcom-add-asus-novago-tp370ql.patch
-  rtw88-fix-misuse-of-genmask-macro.patch
-  s390-pci-fix-msi-message-data.patch
-  thunderbolt-correct-path-indices-for-pcie-tunnel.patch
-  thunderbolt-use-32-bit-writes-when-writing-ring-prod.patch
-  ath6kl-fix-a-null-ptr-deref-bug-in-ath6kl_usb_alloc_.patch
-  fuse-flush-dirty-data-metadata-before-non-truncate-setattr.patch
-  fuse-truncate-pending-writes-on-o_trunc.patch
-  alsa-bebob-fix-prototype-of-helper-function-to-return-negative-value.patc=
-h
-  alsa-timer-fix-mutex-deadlock-at-releasing-card.patch
-  alsa-hda-realtek-fix-2-front-mics-of-codec-0x623.patch
-  alsa-hda-realtek-add-support-for-alc623.patch
-  ath10k-fix-latency-issue-for-qca988x.patch
-  uas-revert-commit-3ae62a42090f-uas-fix-alignment-of-scatter-gather-segmen=
-ts.patch
-  nl80211-fix-validation-of-mesh-path-nexthop.patch
-  usb-gadget-reject-endpoints-with-0-maxpacket-value.patch
-  usb-storage-revert-commit-747668dbc061-usb-storage-set-virt_boundary_mask=
--to-avoid-sg-overflows.patch
-  usb-ldusb-fix-ring-buffer-locking.patch
-  usb-ldusb-fix-control-message-timeout.patch
-  usb-xhci-fix-immediate-data-transfer-endianness.patch
-  usb-xhci-fix-__le32-__le64-accessors-in-debugfs-code.patch
-  usb-serial-whiteheat-fix-potential-slab-corruption.patch
-  usb-serial-whiteheat-fix-line-speed-endianness.patch
-  xhci-fix-use-after-free-regression-in-xhci-clear-hub-tt-implementation.pa=
-tch
-  scsi-qla2xxx-fix-partial-flash-write-of-mbi.patch
-  scsi-target-cxgbit-fix-cxgbit_fw4_ack.patch
-  hid-i2c-hid-add-trekstor-primebook-c11b-to-descriptor-override.patch
-  hid-fix-assumption-that-devices-have-inputs.patch
-  hid-fix-error-message-in-hid_open_report.patch
-  hid-logitech-hidpp-split-g920_get_config.patch
-  hid-logitech-hidpp-rework-device-validation.patch
-  hid-logitech-hidpp-do-all-ff-cleanup-in-hidpp_ff_destroy.patch
-  um-ubd-entrust-re-queue-to-the-upper-layers.patch
-  s390-unwind-fix-mixing-regs-and-sp.patch
-  s390-cmm-fix-information-leak-in-cmm_timeout_handler.patch
-  s390-idle-fix-cpu-idle-time-calculation.patch
-  arc-perf-accommodate-big-endian-cpu.patch
-  ib-hfi1-avoid-excessive-retry-for-tid-rdma-read-request.patch
-  arm64-ensure-vm_write-vm_shared-ptes-are-clean-by-default.patch
-  arm64-cpufeature-enable-qualcomm-falkor-kryo-errata-1003.patch
-  virtio_ring-fix-stalls-for-packed-rings.patch
-  rtlwifi-rtl_pci-fix-problem-of-too-small-skb-len.patch
-  rtlwifi-fix-potential-overflow-on-p2p-code.patch
-  kvm-vmx-svm-always-run-with-efer.nxe-1-when-shadow-paging-is-active.patch
-  dmaengine-qcom-bam_dma-fix-resource-leak.patch
-  dmaengine-tegra210-adma-fix-transfer-failure.patch
-  dmaengine-imx-sdma-fix-size-check-for-sdma-script_number.patch
-  dmaengine-cppi41-fix-cppi41_dma_prep_slave_sg-when-idle.patch
-  drm-amdgpu-gmc10-properly-set-bank_select-and-fragment_size.patch
-  drm-i915-fix-pch-reference-clock-for-fdi-on-hsw-bdw.patch
-  drm-amdgpu-gfx10-update-gfx-golden-settings.patch
-  drm-amdgpu-powerplay-vega10-allow-undervolting-in-p7.patch
-  drm-amdgpu-fix-sdma-hang-when-performing-vkexample-test.patch
-  nfs-fix-an-rcu-lock-leak-in-nfs4_refresh_delegation_stateid.patch
-  io_uring-ensure-we-clear-io_kiocb-result-before-each-issue.patch
-  iommu-vt-d-fix-panic-after-kexec-p-for-kdump.patch
-  batman-adv-avoid-free-alloc-race-when-handling-ogm-buffer.patch
-  llc-fix-sk_buff-leak-in-llc_sap_state_process.patch
-  llc-fix-sk_buff-leak-in-llc_conn_service.patch
-  rxrpc-fix-call-ref-leak.patch
-  rxrpc-rxrpc_peer-needs-to-hold-a-ref-on-the-rxrpc_local-record.patch
-  rxrpc-fix-trace-after-put-looking-at-the-put-peer-record.patch
-  nfc-pn533-fix-use-after-free-and-memleaks.patch
-  bonding-fix-potential-null-deref-in-bond_update_slave_arr.patch
-  netfilter-conntrack-avoid-possible-false-sharing.patch
-  blackhole_netdev-fix-syzkaller-reported-issue.patch
-  net-usb-sr9800-fix-uninitialized-local-variable.patch
-  sch_netem-fix-rcu-splat-in-netem_enqueue.patch
-  net-sched-sch_sfb-don-t-call-qdisc_put-while-holding-tree-lock.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP lite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
-est
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: loca=
-l
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-  ppc64le:
-    Host 1:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP lite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
-est
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: loca=
-l
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-  x86_64:
-    Host 1:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 xfstests: xfs
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 selinux-policy: serge-testsuite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 IOMMU boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9D=8C Boot test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as root)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Podman system integration test (as user)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP lite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Loopdev Sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 jvm test suite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 AMTU (Abstract Machine Test Utility)
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 LTP: openposix test suite
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Ethernet drivers sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking socket: fuzz
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route: pmtu
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 audit: audit testsuite test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 httpd: mod_ssl smoke sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 iotop: sanity
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 tuned: tune-processes-through-perf
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 pciutils: sanity smoke test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA PCM loopback test
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 ALSA Control (mixer) Userspace Element t=
-est
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Usex - version 1.9-29
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: SCSI VPD
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 stress: stress-ng
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 POSIX pjd-fstest suites
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: loca=
-l
-       =E2=9A=A1=E2=9A=A1=E2=9A=A1 Networking route_func: forward
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 storage: dm/common
-
-    Host 3:
-       =E2=9D=8C Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 4:
-       =E2=9D=8C Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 5:
-       =E2=9D=8C Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-    Host 6:
-       =E2=9D=8C Boot test
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
-p
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+> Thanks,
+>=20
+> Andrew Murray
+>=20
+> >  #define  SPEED_CHANGE		BIT(24)
+> >  #define  SCRAMBLE_DISABLE	BIT(27)
+> >  #define PMSR			0x01105c
+> > @@ -613,6 +614,8 @@ static int rcar_pcie_hw_init(struct rcar_pcie *pcie=
+)
+> >  	if (IS_ENABLED(CONFIG_PCI_MSI))
+> >  		rcar_pci_write_reg(pcie, 0x801f0000, PCIEMSITXR);
+> >
+> > +	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
+> > +
+> >  	/* Finish initialization - establish a PCI Express link */
+> >  	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
+> >
+> > @@ -1235,6 +1238,7 @@ static int rcar_pcie_resume_noirq(struct device *=
+dev)
+> >  		return 0;
+> >
+> >  	/* Re-establish the PCIe link */
+> > +	rcar_pci_write_reg(pcie, MACCTLR_INIT_VAL, MACCTLR);
+> >  	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
+> >  	return rcar_pcie_wait_for_dl(pcie);
+> >  }
+> > --
+> > 2.7.4
+> >
