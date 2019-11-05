@@ -2,113 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4B1EEF5A5
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 07:47:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A83B7EF593
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 07:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387658AbfKEGq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 01:46:59 -0500
-Received: from wnew1-smtp.messagingengine.com ([64.147.123.26]:60489 "EHLO
-        wnew1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2387499AbfKEGq7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 01:46:59 -0500
-X-Greylist: delayed 552 seconds by postgrey-1.27 at vger.kernel.org; Tue, 05 Nov 2019 01:46:59 EST
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 0AEAE510;
-        Tue,  5 Nov 2019 01:37:45 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 05 Nov 2019 01:37:46 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=a
-        mA4OfQY6jIOHWvNo9uopreXYqzH3tUXZCy7dRdBm+U=; b=NNSZVLp5Xqmw/xqTg
-        neikrC7FssOd18JRIG16u23EVlJWVFXLN6UTCBW6Otujx3OLOipfCS4w4vmNh+Tf
-        YoZFHZ64pB8/T81U+mCglgbT6SF+yXFjgh4IesARL8f7Mk5C5G4Ky8quMlul4AwH
-        gPKkcP/GdzwoXRnPn6sVps1hQ8YjLDAlm5C7kfBz9GtFJdcE9rGDTjDQTcpzyp9q
-        Zlac9bx81Q0iwMJc1HZXJhQCthwRcMsbAcXah3pmYqkYeVUGlsuj5q9UlXu/jMUm
-        sW6Qc4+cEndsej5WEtZM1A350I7NZfnDjfEvo3GT470vV0DkqSeAYqUT/NBzd45x
-        yKHzw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=amA4OfQY6jIOHWvNo9uopreXYqzH3tUXZCy7dRdBm
-        +U=; b=ezD93bYKs5xpwBjkQfd/m4bc8ioeNZQJl8NRM09leBe5jz+lntJ7pqIEW
-        PqoDKqY/SkoZNF/3SDOmFRyZobiqknabhy2bjkkwmGH3VyeYKgCPxv4jW9//rLz4
-        YbXxRYU6eZd6ZwwtqGbgwSkLuvlejPLx6P0VjIhwLNXiZG2zCpfqvgAHfRTQjzFB
-        zX3j1+SVoMnwCV0mf484ijfsiNevxJOjpGNNB0AYS0FvGkbO9kSY6pgY6/oOms2i
-        hZfp8++1qfsNe3jFfcnAI4DXImme3h4UjlLU2+QZ9kIDZyMFKDoDtBr8YzIA4CZ3
-        pB927JBAXLX2J18mRk8b07R22mOwQ==
-X-ME-Sender: <xms:uRjBXXBu6PWlU7S8MHkM3GAKse7JrRCIrnxAxhnARaQAQlTzKGonzA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddugedgleekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    goufhprghmkfhpqdhouhhtucdlhedttddmnecujfgurhepfffhvffukfhfgggtugfgjggf
-    sehtkeertddtreejnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrd
-    gtohhmqeenucffohhmrghinheptghkihdqphhrohhjvggtthdrohhrghdpkhgvrhhnvghl
-    rdhorhhgnecukfhppeekgedrudegrddvtdegrdeinecurfgrrhgrmhepmhgrihhlfhhroh
-    hmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:uRjBXbGBs2GDvPVDJiLotLu2agcqRr0fPIpJX5RGpdAm7tzwQaEwdQ>
-    <xmx:uRjBXZCsznswEJNJPj_dyJKrcwUDzdKK8Iqeyyv0Z5Urtc4yWSpHTg>
-    <xmx:uRjBXbWtfaLAIOHv49OEl1muGm1bGilUycta8qC1rdYfyuk4uegVpA>
-    <xmx:uRjBXTjK1MCJXV1XWCclONfsQinEMlxFInZww52d006FBSpTfXkynIZ3E00>
-Received: from localhost (6.204-14-84.ripe.coltfrance.com [84.14.204.6])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EED18306005E;
-        Tue,  5 Nov 2019 01:37:44 -0500 (EST)
-Date:   Tue, 5 Nov 2019 07:37:43 +0100
-From:   Greg KH <greg@kroah.com>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.3
-Message-ID: <20191105063743.GA2581953@kroah.com>
-References: <cki.A892DA5512.ND6HCOM1TZ@redhat.com>
+        id S1726988AbfKEGlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 01:41:47 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:36932 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725806AbfKEGlr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 01:41:47 -0500
+Received: by mail-wr1-f65.google.com with SMTP id t1so13981117wrv.4
+        for <stable@vger.kernel.org>; Mon, 04 Nov 2019 22:41:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ge6l2wugI+HpW3cmm4l4KwSbM//6kk4BzpL/5Zay1uY=;
+        b=esMOZFSbdCoV14bn5xxoFwOCdBj3zNBktNFPiKciWamT8hE+V/ZdeXAJGlnObknFnZ
+         J6XBbVE64LnOr6L0REnAg/R8g3VmgAdoEwInm7ZsZcgjNxBk9mlAKUk0LeUNgweuLyz2
+         ohF5IncoOPTAz42l/967iyRQtjTS/cw950TX7joHGpnEoue+6Tc8V0YnYqLuSoFYGwaT
+         j841WThSiRl/vWiPafLG31EP7qa7lM2q5WXMLo1sJiBEv2vzivLoE8eYfg/ZYHlF50uD
+         o22vxMd4acUSCOmhvmGa1EsIZUNcIONiyzTJGdvy4zLNxsV9h7GPlwL6JFEJLhXlrxJb
+         8zhQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ge6l2wugI+HpW3cmm4l4KwSbM//6kk4BzpL/5Zay1uY=;
+        b=SQOCGKBlK0b2NWmmULWm1Lr156oX6bEkHzg+GUVNT62fOMArnnVnb06Jv+TSw4hEos
+         nYsmsGmjJYP7RPX8opEO8t6r5A6e8VzwT9A7NJeIlTL0/dR81BsppoUUHnBa6Z8lc8lq
+         4iIzq9uQffTBM/5wVIuUsfhlZ8HrGCRaOm3DEpD8WrWg7uCsDiuzc47MPYdPLYVVzgJv
+         LsP87EShmRRhBJ7YRB5sQXpOR/OvVqqdHg5uYHfulPi9i9VvAKBnqRjuuxwlSEisfWiB
+         /TB7jDh1HR52vf5dCamWLz7ygQVtoxMyuEUvBVHiUg/b9lGPsE3iIbvTWDYxEhiaTsK6
+         NM8w==
+X-Gm-Message-State: APjAAAUp98ZeQGykjI3BitawFD8/Bowba8YImELVpWNhiYCNN1Uu+3xC
+        0grEcyTWxLZF45Z7TKuFNRlqDzHSmhWiFg==
+X-Google-Smtp-Source: APXvYqyXsRvTSmLjaTjDJAJX3ieUjHWlvTTvgmd9tXAoFqHpnwVFxixW4Xn8ju0Tg0JRzZY78Hox1g==
+X-Received: by 2002:a05:6000:11d2:: with SMTP id i18mr27760152wrx.109.1572936104842;
+        Mon, 04 Nov 2019 22:41:44 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id 36sm39836173wrj.42.2019.11.04.22.41.43
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 Nov 2019 22:41:44 -0800 (PST)
+Message-ID: <5dc119a8.1c69fb81.eefc7.cf93@mx.google.com>
+Date:   Mon, 04 Nov 2019 22:41:44 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <cki.A892DA5512.ND6HCOM1TZ@redhat.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.198-47-g1e0d280e1f8d
+Subject: stable-rc/linux-4.4.y boot: 80 boots: 0 failed,
+ 70 passed with 7 offline, 1 untried/unknown,
+ 2 conflicts (v4.4.198-47-g1e0d280e1f8d)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 05, 2019 at 01:14:35AM -0000, CKI Project wrote:
-> 
-> Hello,
-> 
-> We ran automated tests on a patchset that was proposed for merging into this
-> kernel tree. The patches were applied to:
-> 
->        Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
->             Commit: 95180e47e77a - Linux 5.3.8
-> 
-> The results of these automated tests are provided below.
-> 
->     Overall result: FAILED (see details below)
->              Merge: OK
->            Compile: OK
->              Tests: FAILED
-> 
-> All kernel binaries, config files, and logs are available for download here:
-> 
->   https://artifacts.cki-project.org/pipelines/263687
-> 
-> One or more kernel tests failed:
-> 
->     ppc64le:
->      ❌ Boot test
->      ❌ Boot test
-> 
->     aarch64:
->      ❌ Boot test
->      ❌ Boot test
-> 
->     x86_64:
->      ❌ Boot test
->      ❌ Boot test
->      ❌ Boot test
->      ❌ Boot test
->      ❌ Boot test
->      ❌ Boot test
+stable-rc/linux-4.4.y boot: 80 boots: 0 failed, 70 passed with 7 offline, 1=
+ untried/unknown, 2 conflicts (v4.4.198-47-g1e0d280e1f8d)
 
-Looks like something wrong on your end?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.198-47-g1e0d280e1f8d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.198-47-g1e0d280e1f8d/
+
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.198-47-g1e0d280e1f8d
+Git Commit: 1e0d280e1f8dbd21a713507c208e2ed524c18257
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 41 unique boards, 17 SoC families, 13 builds out of 190
+
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
