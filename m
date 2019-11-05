@@ -2,80 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58938F0341
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 17:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC6FF036E
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 17:52:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390366AbfKEQon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 11:44:43 -0500
-Received: from mx2.suse.de ([195.135.220.15]:41612 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2390352AbfKEQok (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 11:44:40 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id C629AB1B8;
-        Tue,  5 Nov 2019 16:44:37 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id 3B8651E4AB5; Tue,  5 Nov 2019 17:44:37 +0100 (CET)
-From:   Jan Kara <jack@suse.cz>
-To:     Ted Tso <tytso@mit.edu>
-Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
-        stable@vger.kernel.org
-Subject: [PATCH 06/25] ext4: Fix credit estimate for final inode freeing
-Date:   Tue,  5 Nov 2019 17:44:12 +0100
-Message-Id: <20191105164437.32602-6-jack@suse.cz>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20191003215523.7313-1-jack@suse.cz>
-References: <20191003215523.7313-1-jack@suse.cz>
+        id S2390333AbfKEQv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 11:51:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37910 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2390275AbfKEQv4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 11:51:56 -0500
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6002721928;
+        Tue,  5 Nov 2019 16:51:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572972715;
+        bh=qTZGep5Lv9b0TMShhRGJjX+mlz99RHwlP8ngyhOcgls=;
+        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
+        b=Vz6Lsr1kJTX9OblGJ94GPA+oIR0w/SHADTdf0X8zagRgK7kU7sk/wemWhfoBGqCd5
+         iP3MVrKiCEiRD64wVDhzu9Hw9ni+zp1wgHLQ2NdKDKP3AZ0/3eLWN+J7XlUGjwM6de
+         0v6Tyao8uY01mcWW6kpAdqPjt4s+97dllMdJTAyg=
+Subject: Re: [PATCH 5.3 000/163] 5.3.9-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org, shuah <shuah@kernel.org>
+References: <20191104212140.046021995@linuxfoundation.org>
+From:   shuah <shuah@kernel.org>
+Message-ID: <82ebb88b-6828-2c80-e4ac-891427e90f2a@kernel.org>
+Date:   Tue, 5 Nov 2019 09:51:43 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
+MIME-Version: 1.0
+In-Reply-To: <20191104212140.046021995@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Estimate for the number of credits needed for final freeing of inode in
-ext4_evict_inode() was to small. We may modify 4 blocks (inode & sb for
-orphan deletion, bitmap & group descriptor for inode freeing) and not
-just 3.
+On 11/4/19 2:43 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.3.9 release.
+> There are 163 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed 06 Nov 2019 09:14:04 PM UTC.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.9-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Fixes: e50e5129f384 ("ext4: xattr-in-inode support")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/ext4/inode.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+Compiled and booted on my test system. No dmesg regressions.
 
-diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
-index 516faa280ced..81bc2fb23c40 100644
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -196,7 +196,12 @@ void ext4_evict_inode(struct inode *inode)
- {
- 	handle_t *handle;
- 	int err;
--	int extra_credits = 3;
-+	/*
-+	 * Credits for final inode cleanup and freeing:
-+	 * sb + inode (ext4_orphan_del()), block bitmap, group descriptor
-+	 * (xattr block freeing), bitmap, group descriptor (inode freeing)
-+	 */
-+	int extra_credits = 6;
- 	struct ext4_xattr_inode_array *ea_inode_array = NULL;
- 
- 	trace_ext4_evict_inode(inode);
-@@ -252,8 +257,12 @@ void ext4_evict_inode(struct inode *inode)
- 	if (!IS_NOQUOTA(inode))
- 		extra_credits += EXT4_MAXQUOTAS_DEL_BLOCKS(inode->i_sb);
- 
-+	/*
-+	 * Block bitmap, group descriptor, and inode are accounted in both
-+ 	 * ext4_blocks_for_truncate() and extra_credits. So subtract 3.
-+	 */
- 	handle = ext4_journal_start(inode, EXT4_HT_TRUNCATE,
--				 ext4_blocks_for_truncate(inode)+extra_credits);
-+			 ext4_blocks_for_truncate(inode) + extra_credits - 3);
- 	if (IS_ERR(handle)) {
- 		ext4_std_error(inode->i_sb, PTR_ERR(handle));
- 		/*
--- 
-2.16.4
-
+thanks,
+-- Shuah
