@@ -2,62 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE0FCF01B1
-	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 16:41:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21C1AF02CD
+	for <lists+stable@lfdr.de>; Tue,  5 Nov 2019 17:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389896AbfKEPlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 10:41:10 -0500
-Received: from mx2.suse.de ([195.135.220.15]:36232 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2389507AbfKEPlJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 5 Nov 2019 10:41:09 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id F1178B066;
-        Tue,  5 Nov 2019 15:41:07 +0000 (UTC)
-Message-ID: <1572968467.2921.27.camel@suse.com>
-Subject: Re: [PATCH 4.19 114/149] UAS: Revert commit 3ae62a42090f ("UAS: fix
- alignment of scatter/gather segments")
-From:   Oliver Neukum <oneukum@suse.com>
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>
-Date:   Tue, 05 Nov 2019 16:41:07 +0100
-In-Reply-To: <Pine.LNX.4.44L0.1911051007140.1678-100000@iolanthe.rowland.org>
-References: <Pine.LNX.4.44L0.1911051007140.1678-100000@iolanthe.rowland.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        id S2390342AbfKEQcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 11:32:42 -0500
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:32865 "EHLO
+        metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390347AbfKEQcm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 11:32:42 -0500
+Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
+        by metis.ext.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1iS1kx-0002Hp-Cz; Tue, 05 Nov 2019 17:32:35 +0100
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     netdev@vger.kernel.org
+Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
+        kernel@pengutronix.de, Wen Yang <wenyang@linux.alibaba.com>,
+        Franklin S Cooper Jr <fcooper@ti.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 01/33] can: dev: add missing of_node_put() after calling of_get_child_by_name()
+Date:   Tue,  5 Nov 2019 17:31:43 +0100
+Message-Id: <20191105163215.30194-2-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.24.0.rc1
+In-Reply-To: <20191105163215.30194-1-mkl@pengutronix.de>
+References: <20191105163215.30194-1-mkl@pengutronix.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:205:1d::14
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Am Dienstag, den 05.11.2019, 10:09 -0500 schrieb Alan Stern:
-> On Tue, 5 Nov 2019, Oliver Neukum wrote:
-> 
-> > Am Montag, den 04.11.2019, 22:45 +0100 schrieb Greg Kroah-Hartman:
-> > >         Since commit ea44d190764b ("usbip: Implement SG support to
-> > >         vhci-hcd and stub driver") was merged, the USB/IP driver can
-> > >         also handle SG.
-> > 
-> > Hi,
-> > 
-> > same story as 4.4.x
-> 
-> I'm not sure about uas, but it was reported just yesterday that the 
-> corresponding commit for usb-storage caused a 30% speed degradation:
-> 
-> 	https://marc.info/?l=linux-usb&m=157293660212040&w=2
-> 
-> Given this information, perhaps you will decide that the revert is 
-> worthwhile.
+From: Wen Yang <wenyang@linux.alibaba.com>
 
-Damned if I do, damned if I do not.
-Check for usbip and special case it?
+of_node_put() needs to be called when the device node which is got
+from of_get_child_by_name() finished using.
 
-	Regards
-		Oliver
+Fixes: 2290aefa2e90 ("can: dev: Add support for limiting configured bitrate")
+Cc: Franklin S Cooper Jr <fcooper@ti.com>
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/dev.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/net/can/dev.c b/drivers/net/can/dev.c
+index ac86be52b461..1c88c361938c 100644
+--- a/drivers/net/can/dev.c
++++ b/drivers/net/can/dev.c
+@@ -848,6 +848,7 @@ void of_can_transceiver(struct net_device *dev)
+ 		return;
+ 
+ 	ret = of_property_read_u32(dn, "max-bitrate", &priv->bitrate_max);
++	of_node_put(dn);
+ 	if ((ret && ret != -EINVAL) || (!ret && !priv->bitrate_max))
+ 		netdev_warn(dev, "Invalid value for transceiver max bitrate. Ignoring bitrate limit.\n");
+ }
+-- 
+2.24.0.rc1
 
