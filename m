@@ -2,95 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F122F1B7E
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 17:42:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBFDAF1C3E
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 18:18:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728380AbfKFQmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 11:42:05 -0500
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:33072 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728448AbfKFQmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 11:42:04 -0500
-Received: by mail-lf1-f68.google.com with SMTP id y9so2459773lfy.0
-        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 08:42:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=w3gb3P2HSHZ+uOjDkAzERapZeMR9/2van371GJtAxmA=;
-        b=Yy9LsNBTWfa3r0IWIO+Fb3FHQXiwlJY807p6iV4m1gCt4Q7e53ezbT8kyt3W0H4kC+
-         Qx48sYyNhwmo4smJc82H2aGGon/cUfLuRe93IVoC0PANKlIQX5xloCLEAEbTr9HoS3PV
-         ZKVCKCTJuAfKz1OWVSurkAv7QYRuTGsxdQdMI=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=w3gb3P2HSHZ+uOjDkAzERapZeMR9/2van371GJtAxmA=;
-        b=oWii8QOa7N9nMznB5GHocqla/hHUbnB7MUQ4/aHErR3vyf6U0jAE4UoNCK9EqB4ds4
-         /beGqAg+7745x4Kf+NNwL1dEIfFVY8W7iw2uOmxMAJMvxBdRPe7dC6hImN+v14WcZRVf
-         ++t0tXhkOIIk9yAw87rYOaUwMxgQIacjeYocBrGj/XIs92jj3Qo8gB0JOuUiw9Vet+vX
-         7war39fuYlH6nZy1cQ+5OilBh6H4h66Vrc4YfX35w/L+tydrkdgfPPyc2Giuxa9vc/lP
-         oH58CxBi366vIEPjk7SJCpoEXCAfG4La0G8ipXalNg1ZMT57srGZe3m2wWWh3xFAqCA0
-         rjwA==
-X-Gm-Message-State: APjAAAVx6Z70lnoxn2sO/FWxcVE2PMdri1ouaqLvYZEJ2Hh/0Ur2/D9I
-        TXcMDnZ5vi5F3/xn0d4GCc9QyG7Fj2I=
-X-Google-Smtp-Source: APXvYqxsSS1YXQbIHdGovLoU1d4I+TfITHkp8cauR/ihFPipeVAtaZAtIWVf9xjAYkorWccOclJ8JA==
-X-Received: by 2002:ac2:50d6:: with SMTP id h22mr25687977lfm.155.1573058522509;
-        Wed, 06 Nov 2019 08:42:02 -0800 (PST)
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com. [209.85.167.46])
-        by smtp.gmail.com with ESMTPSA id g5sm9826157ljn.101.2019.11.06.08.42.01
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Nov 2019 08:42:01 -0800 (PST)
-Received: by mail-lf1-f46.google.com with SMTP id m6so2406075lfl.3
-        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 08:42:01 -0800 (PST)
-X-Received: by 2002:a19:fc1c:: with SMTP id a28mr25233519lfi.170.1573058520643;
- Wed, 06 Nov 2019 08:42:00 -0800 (PST)
+        id S1728340AbfKFRS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 12:18:28 -0500
+Received: from mx2.suse.de ([195.135.220.15]:47586 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727894AbfKFRS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Nov 2019 12:18:27 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 39AE2B186;
+        Wed,  6 Nov 2019 17:18:25 +0000 (UTC)
+Subject: Re: [PATCH STABLE 4.9] x86, mm, gup: prevent get_page() race with
+ munmap in paravirt guest
+To:     Ben Hutchings <ben@decadent.org.uk>, stable@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org, x86@kernel.org,
+        Jann Horn <jannh@google.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        xen-devel@lists.xenproject.org, Oscar Salvador <osalvador@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juergen Gross <jgross@suse.com>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Ajay Kaher <akaher@vmware.com>
+References: <20190802160614.8089-1-vbabka@suse.cz>
+ <d3bb280b405d6acf0bc4176d63639201ff62853f.camel@decadent.org.uk>
+From:   Vlastimil Babka <vbabka@suse.cz>
+Message-ID: <9c130fa4-e52d-f8bd-c450-42341c7ab441@suse.cz>
+Date:   Wed, 6 Nov 2019 18:18:23 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.0
 MIME-Version: 1.0
-References: <20191106051634.IwGqLbBvh%akpm@linux-foundation.org>
-In-Reply-To: <20191106051634.IwGqLbBvh%akpm@linux-foundation.org>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Wed, 6 Nov 2019 08:41:44 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wgZvzmijNca0rX+jcZZPPAdD8RSR0=5=vDB+1zUhHYD+w@mail.gmail.com>
-Message-ID: <CAHk-=wgZvzmijNca0rX+jcZZPPAdD8RSR0=5=vDB+1zUhHYD+w@mail.gmail.com>
-Subject: Re: [patch 05/17] ocfs2: protect extent tree in ocfs2_prepare_inode_for_write()
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     gechangwei@live.cn, ghe@suse.com, jiangqi903@gmail.com,
-        jlbec@evilplan.org, junxiao.bi@oracle.com,
-        Linux-MM <linux-mm@kvack.org>, mark@fasheh.com,
-        mm-commits@vger.kernel.org, piaojun@huawei.com,
-        stable <stable@vger.kernel.org>, sunny.s.zhang@oracle.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <d3bb280b405d6acf0bc4176d63639201ff62853f.camel@decadent.org.uk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 5, 2019 at 9:16 PM <akpm@linux-foundation.org> wrote:
->
-> From: Shuning Zhang <sunny.s.zhang@oracle.com>
-> Subject: ocfs2: protect extent tree in ocfs2_prepare_inode_for_write()
->
-> When the extent tree is modified, it should be protected by inode cluster
-> lock and ip_alloc_sem.
->
-> The extent tree is accessed and modified in the
-> ocfs2_prepare_inode_for_write, but isn't protected by ip_alloc_sem.
+On 9/19/19 8:26 PM, Ben Hutchings wrote:
+> On Mon, 2019-08-19 at 18:58 +0100, Vlastimil Babka wrote:
+> [...]
+>> Hi, I'm sending this stable-only patch for consideration because it's probably
+>> unrealistic to backport the 4.13 switch to generic GUP. I can look at 4.4 and
+>> 3.16 if accepted. The RCU page table freeing could be also considered.
+> 
+> I would be interested in backports for 3.16 and 4.4.
+> 
+>> Note the patch also includes page refcount protection. I found out that
+>> 8fde12ca79af ("mm: prevent get_user_pages() from overflowing page refcount")
+>> backport to 4.9 missed the arch-specific gup implementations:
+>> https://lore.kernel.org/lkml/6650323f-dbc9-f069-000b-f6b0f941a065@suse.cz/
+> [...]
+> 
+> I suppose that still needs to be addressed for 4.9, right?
 
-This patch results in a new warning for me:
+Here's what is AFAIK missing for 4.9 for x86 and s390.
 
-  fs/ocfs2/file.c:2101:12: warning: =E2=80=98ocfs2_prepare_inode_for_refcou=
-nt=E2=80=99
-defined but not used [-Wunused-function]
-   2101 | static int ocfs2_prepare_inode_for_refcount(struct inode *inode,
-        |            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----8<----
+From d981bbf770ca41e999115cf3b0f27dde57479df0 Mon Sep 17 00:00:00 2001
+From: Vlastimil Babka <vbabka@suse.cz>
+Date: Wed, 6 Nov 2019 16:32:57 +0100
+Subject: [PATCH STABLE 4.9] mm, gup: add missing refcount overflow checks on x86 and s390
 
-and I'm wondering why nobody seems  to have noticed that or fixed
-things? Because it does look like this removed the only use of that
-function, and everybody who compiled this should have seen this
-warning?
+The mainline commit 8fde12ca79af ("mm: prevent get_user_pages() from
+overflowing page refcount") was backported to 4.9.y stable as commit
+2ed768cfd895. The backport however missed that in 4.9, there are several
+arch-specific gup.c versions with fast gup implementations, so these do not
+prevent refcount overflow.
 
-Was this not tested at all?
+This is partially fixed for x86 in stable-only commit d73af79742e7 ("x86, mm,
+gup: prevent get_page() race with munmap in paravirt guest"). This stable-only
+commit adds missing parts to x86 version, as well as s390 version, both taken
+from the SUSE SLES/openSUSE 4.12-based kernels.
 
-              Linus
+The remaining architectures with own gup.c are sparc, mips, sh. It's unlikely
+the known overflow scenario based on FUSE, which needs 140GB of RAM, is a
+problem for those architectures, and I don't feel confident enough to patch
+them.
+
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+---
+ arch/s390/mm/gup.c |  9 ++++++---
+ arch/x86/mm/gup.c  | 10 ++++++++--
+ 2 files changed, 14 insertions(+), 5 deletions(-)
+
+diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
+index 97fc449a7470..33a940389a6d 100644
+--- a/arch/s390/mm/gup.c
++++ b/arch/s390/mm/gup.c
+@@ -38,7 +38,8 @@ static inline int gup_pte_range(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+ 		head = compound_head(page);
+-		if (!page_cache_get_speculative(head))
++		if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++		    || !page_cache_get_speculative(head)))
+ 			return 0;
+ 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+ 			put_page(head);
+@@ -76,7 +77,8 @@ static inline int gup_huge_pmd(pmd_t *pmdp, pmd_t pmd, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs))) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -150,7 +152,8 @@ static int gup_huge_pud(pud_t *pudp, pud_t pud, unsigned long addr,
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	if (!page_cache_add_speculative(head, refs)) {
++	if (unlikely(WARN_ON_ONCE(page_ref_count(head) < 0)
++	    || !page_cache_add_speculative(head, refs))) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
+index d7db45bdfb3b..551fc7fea046 100644
+--- a/arch/x86/mm/gup.c
++++ b/arch/x86/mm/gup.c
+@@ -202,10 +202,12 @@ static int __gup_device_huge_pmd(pmd_t pmd, unsigned long addr,
+ 			undo_dev_pagemap(nr, nr_start, pages);
+ 			return 0;
+ 		}
++		if (unlikely(!try_get_page(page))) {
++			put_dev_pagemap(pgmap);
++			return 0;
++		}
+ 		SetPageReferenced(page);
+ 		pages[*nr] = page;
+-		get_page(page);
+-		put_dev_pagemap(pgmap);
+ 		(*nr)++;
+ 		pfn++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+@@ -230,6 +232,8 @@ static noinline int gup_huge_pmd(pmd_t pmd, unsigned long addr,
+ 
+ 	refs = 0;
+ 	head = pmd_page(pmd);
++	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
++		return 0;
+ 	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+ 	do {
+ 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+@@ -289,6 +293,8 @@ static noinline int gup_huge_pud(pud_t pud, unsigned long addr,
+ 
+ 	refs = 0;
+ 	head = pud_page(pud);
++	if (WARN_ON_ONCE(page_ref_count(head) <= 0))
++		return 0;
+ 	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+ 	do {
+ 		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+-- 
+2.23.0
+
+
+
