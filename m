@@ -2,465 +2,459 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC6BFF1C71
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 18:26:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF75EF1C98
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 18:38:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729141AbfKFR0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 12:26:13 -0500
-Received: from mail-pf1-f202.google.com ([209.85.210.202]:46829 "EHLO
-        mail-pf1-f202.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727572AbfKFR0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 12:26:13 -0500
-Received: by mail-pf1-f202.google.com with SMTP id 187so15208334pfu.13
-        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 09:26:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=V+W/TS+dW/3aCiZZzwxLm7K8L/4Hjris1CcKPH0o+sY=;
-        b=slRW4WYhBMW8rfA5sruS9+Kit7Sx3Y4D/3TFT/+VVP4eVidtIGcSX/iPUiZRGhdYUO
-         JRbqvwEmgwSemlNsuAHSLr1wUcn3U7AOIx3reBsLVqal4holkudctn36l19MsJP+joG/
-         V6DLutjRGL3p+9CfeRLFFS8KlJ9WCATAig7UFPjy/cGdAAdtRrF3DY+nFotoQshJE97m
-         MOAcFvZzRz6PZ/pq/F0lVAd0yYCw0Kg1yXP38cmZ9hM/tpd4P7tsXgD3x6UbELn6O7m4
-         4JpgAgLlkYMPB0EzqBXLhcLZtt4rOKeB6V6HyZVSkcIYrlltufAZmOhlviUGFOERvi/R
-         xnzQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=V+W/TS+dW/3aCiZZzwxLm7K8L/4Hjris1CcKPH0o+sY=;
-        b=jBDXqWJ+NcMSUdXMYldKmn1eC2vqgdk/iyBEIWYqIccFN/VKkCwiA0yrSZdmpAwYur
-         7Ewb7C0A+L0strljDRk8F5O3Ua3Kug7xstERwdPd1wPghT/8Bi9JHC2qsJX55UoGRUSE
-         AjNp2BjbnPkC27Z+N4/E4wz8u6CzEnGGlsphYYU5z6EGxfDFa6ytE2tjkzbkL5sMGlUL
-         W7c+UqAndd4n3OYd48Jzd02Hv21KkWOeNaAzkJh/0e6G46lnFOsA0ycFUGKRq5tgV2nB
-         htgZG5Cvqk50qkQkx7GIBOsynqeOgFx+0MmI9CCpNHz0GIR/FozWdEy6nn7HB51VY1rf
-         cM2g==
-X-Gm-Message-State: APjAAAUSO+zTiOvBtKb14U+pd7arSBGODFSBfFmS4lX+ctl/Q3FYtdaz
-        mEAmld5Eehe9E8G/0wt0zxXNXaioyPrOAw==
-X-Google-Smtp-Source: APXvYqzM51IO1MSUX6PaIyc1yFNQJi/kfd9cQ4MvxjlLPfQyZ7Qs91XCoXTK0xgrUivys/VfVDyShkaMUqvcYg==
-X-Received: by 2002:a65:57ce:: with SMTP id q14mr4253315pgr.218.1573061170908;
- Wed, 06 Nov 2019 09:26:10 -0800 (PST)
-Date:   Wed,  6 Nov 2019 09:25:58 -0800
-Message-Id: <20191106172558.231622-1-edumazet@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.24.0.rc1.363.gb1bccd3e3d-goog
-Subject: [PATCH v4.14-stable] net/flow_dissector: switch to siphash
-From:   Eric Dumazet <edumazet@google.com>
-To:     "David S . Miller" <davem@davemloft.net>
-Cc:     netdev <netdev@vger.kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Jonathan Berger <jonathann1@walla.com>,
-        Amit Klein <aksecurity@gmail.com>,
-        Benny Pinkas <benny@pinkas.net>,
-        Tom Herbert <tom@herbertland.com>, stable@vger.kernel.org,
-        Mahesh Bandewar <maheshb@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1732326AbfKFRid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 12:38:33 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:22386 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1732291AbfKFRid (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 12:38:33 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573061910;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=00rqQH2QEd9LKrvsmyGPi8M9dZSuqLepgbX93oCji14=;
+        b=MvKXbXH1GiHEi7NlPPGAB4nSC+J/irjAbIXrhzLaXcOG2ATSKMTVkb88eA/xfvH1xnTzp7
+        B77BxPZynClccUwyGW+KKpQAohm5d57FzqNVln0Sx0IA4FFn5Lz3dX4LCx2Cxra7htRmPd
+        SPKG5ZcG2A1RriILMmA/Dqhgabyf/gI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-181-nH9MaaAyO-m5wVESCJ8HFA-1; Wed, 06 Nov 2019 12:38:29 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A7AC28017DD
+        for <stable@vger.kernel.org>; Wed,  6 Nov 2019 17:38:28 +0000 (UTC)
+Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7D9BE5D9E1;
+        Wed,  6 Nov 2019 17:38:25 +0000 (UTC)
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Date:   Wed, 06 Nov 2019 17:38:25 -0000
+Message-ID: <cki.D9D8DE1D70.O7K8J1BYKH@redhat.com>
+X-Gitlab-Pipeline-ID: 267171
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/267171
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: nH9MaaAyO-m5wVESCJ8HFA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 55667441c84fa5e0911a0aac44fb059c15ba6da2 ]
 
-UDP IPv6 packets auto flowlabels are using a 32bit secret
-(static u32 hashrnd in net/core/flow_dissector.c) and
-apply jhash() over fields known by the receivers.
+Hello,
 
-Attackers can easily infer the 32bit secret and use this information
-to identify a device and/or user, since this 32bit secret is only
-set at boot time.
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
 
-Really, using jhash() to generate cookies sent on the wire
-is a serious security concern.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 95180e47e77a - Linux 5.3.8
 
-Trying to change the rol32(hash, 16) in ip6_make_flowlabel() would be
-a dead end. Trying to periodically change the secret (like in sch_sfq.c)
-could change paths taken in the network for long lived flows.
+The results of these automated tests are provided below.
 
-Let's switch to siphash, as we did in commit df453700e8d8
-("inet: switch IP ID generator to siphash")
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Using a cryptographically strong pseudo random function will solve this
-privacy issue and more generally remove other weak points in the stack.
+All kernel binaries, config files, and logs are available for download here=
+:
 
-Packet schedulers using skb_get_hash_perturb() benefit from this change.
+  https://artifacts.cki-project.org/pipelines/267171
 
-Fixes: b56774163f99 ("ipv6: Enable auto flow labels by default")
-Fixes: 42240901f7c4 ("ipv6: Implement different admin modes for automatic flow labels")
-Fixes: 67800f9b1f4e ("ipv6: Call skb_get_hash_flowi6 to get skb->hash in ip6_make_flowlabel")
-Fixes: cb1ce2ef387b ("ipv6: Implement automatic flow label generation on transmit")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Jonathan Berger <jonathann1@walla.com>
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Reported-by: Benny Pinkas <benny@pinkas.net>
-Cc: Tom Herbert <tom@herbertland.com>
-Cc: stable@vger.kernel.org
-Cc: Mahesh Bandewar <maheshb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
----
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
 
-Backport notes : Please take attention to flow_keys_hash_length() that I had to rewrite
-(I might also push this change in net-next in the future)
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
 
- include/linux/skbuff.h       |  3 ++-
- include/net/flow_dissector.h |  3 ++-
- include/net/fq.h             |  2 +-
- include/net/fq_impl.h        |  4 +--
- net/core/flow_dissector.c    | 48 +++++++++++++++---------------------
- net/sched/sch_hhf.c          |  8 +++---
- net/sched/sch_sfb.c          | 13 +++++-----
- net/sched/sch_sfq.c          | 14 ++++++-----
- 8 files changed, 46 insertions(+), 49 deletions(-)
+Merge testing
+-------------
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index fdb0cd0699b685d6d2023c3e0081d431c3926e16..abafaba901469cc4929630a6d503409781b80c65 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1228,7 +1228,8 @@ static inline __u32 skb_get_hash_flowi6(struct sk_buff *skb, const struct flowi6
- 	return skb->hash;
- }
- 
--__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb);
-+__u32 skb_get_hash_perturb(const struct sk_buff *skb,
-+			   const siphash_key_t *perturb);
- 
- static inline __u32 skb_get_hash_raw(const struct sk_buff *skb)
- {
-diff --git a/include/net/flow_dissector.h b/include/net/flow_dissector.h
-index 22aba321282dec4d04b678a2cfea252f1e0f058e..227dc0a841728e3298ca50b2d15b0569817934f3 100644
---- a/include/net/flow_dissector.h
-+++ b/include/net/flow_dissector.h
-@@ -4,6 +4,7 @@
- 
- #include <linux/types.h>
- #include <linux/in6.h>
-+#include <linux/siphash.h>
- #include <uapi/linux/if_ether.h>
- 
- /**
-@@ -229,7 +230,7 @@ struct flow_dissector {
- struct flow_keys {
- 	struct flow_dissector_key_control control;
- #define FLOW_KEYS_HASH_START_FIELD basic
--	struct flow_dissector_key_basic basic;
-+	struct flow_dissector_key_basic basic __aligned(SIPHASH_ALIGNMENT);
- 	struct flow_dissector_key_tags tags;
- 	struct flow_dissector_key_vlan vlan;
- 	struct flow_dissector_key_keyid keyid;
-diff --git a/include/net/fq.h b/include/net/fq.h
-index 6d8521a30c5cf3951a868aea9b7817ffda749de4..2c76879027895f49154ae1a5c2eba3ac6019b184 100644
---- a/include/net/fq.h
-+++ b/include/net/fq.h
-@@ -70,7 +70,7 @@ struct fq {
- 	struct list_head backlogs;
- 	spinlock_t lock;
- 	u32 flows_cnt;
--	u32 perturbation;
-+	siphash_key_t	perturbation;
- 	u32 limit;
- 	u32 memory_limit;
- 	u32 memory_usage;
-diff --git a/include/net/fq_impl.h b/include/net/fq_impl.h
-index ac1a2317941e7186abd01d3df0bf9ebc055be38b..46903e23eab9bad0c83eb781662eb129baf78d48 100644
---- a/include/net/fq_impl.h
-+++ b/include/net/fq_impl.h
-@@ -105,7 +105,7 @@ static struct fq_flow *fq_flow_classify(struct fq *fq,
- 
- 	lockdep_assert_held(&fq->lock);
- 
--	hash = skb_get_hash_perturb(skb, fq->perturbation);
-+	hash = skb_get_hash_perturb(skb, &fq->perturbation);
- 	idx = reciprocal_scale(hash, fq->flows_cnt);
- 	flow = &fq->flows[idx];
- 
-@@ -255,7 +255,7 @@ static int fq_init(struct fq *fq, int flows_cnt)
- 	INIT_LIST_HEAD(&fq->backlogs);
- 	spin_lock_init(&fq->lock);
- 	fq->flows_cnt = max_t(u32, flows_cnt, 1);
--	fq->perturbation = prandom_u32();
-+	get_random_bytes(&fq->perturbation, sizeof(fq->perturbation));
- 	fq->quantum = 300;
- 	fq->limit = 8192;
- 	fq->memory_limit = 16 << 20; /* 16 MBytes */
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index e2e716003ede769e8250571f6ece862c842a649a..7be5c20a93a5bc348caf7f4808cdd21f80cb1307 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -889,45 +889,34 @@ bool __skb_flow_dissect(const struct sk_buff *skb,
- }
- EXPORT_SYMBOL(__skb_flow_dissect);
- 
--static u32 hashrnd __read_mostly;
-+static siphash_key_t hashrnd __read_mostly;
- static __always_inline void __flow_hash_secret_init(void)
- {
- 	net_get_random_once(&hashrnd, sizeof(hashrnd));
- }
- 
--static __always_inline u32 __flow_hash_words(const u32 *words, u32 length,
--					     u32 keyval)
-+static const void *flow_keys_hash_start(const struct flow_keys *flow)
- {
--	return jhash2(words, length, keyval);
--}
--
--static inline const u32 *flow_keys_hash_start(const struct flow_keys *flow)
--{
--	const void *p = flow;
--
--	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % sizeof(u32));
--	return (const u32 *)(p + FLOW_KEYS_HASH_OFFSET);
-+	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % SIPHASH_ALIGNMENT);
-+	return &flow->FLOW_KEYS_HASH_START_FIELD;
- }
- 
- static inline size_t flow_keys_hash_length(const struct flow_keys *flow)
- {
--	size_t diff = FLOW_KEYS_HASH_OFFSET + sizeof(flow->addrs);
--	BUILD_BUG_ON((sizeof(*flow) - FLOW_KEYS_HASH_OFFSET) % sizeof(u32));
--	BUILD_BUG_ON(offsetof(typeof(*flow), addrs) !=
--		     sizeof(*flow) - sizeof(flow->addrs));
-+	size_t len = offsetof(typeof(*flow), addrs) - FLOW_KEYS_HASH_OFFSET;
- 
- 	switch (flow->control.addr_type) {
- 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
--		diff -= sizeof(flow->addrs.v4addrs);
-+		len += sizeof(flow->addrs.v4addrs);
- 		break;
- 	case FLOW_DISSECTOR_KEY_IPV6_ADDRS:
--		diff -= sizeof(flow->addrs.v6addrs);
-+		len += sizeof(flow->addrs.v6addrs);
- 		break;
- 	case FLOW_DISSECTOR_KEY_TIPC_ADDRS:
--		diff -= sizeof(flow->addrs.tipcaddrs);
-+		len += sizeof(flow->addrs.tipcaddrs);
- 		break;
- 	}
--	return (sizeof(*flow) - diff) / sizeof(u32);
-+	return len;
- }
- 
- __be32 flow_get_u32_src(const struct flow_keys *flow)
-@@ -993,14 +982,15 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
- 	}
- }
- 
--static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
-+static inline u32 __flow_hash_from_keys(struct flow_keys *keys,
-+					const siphash_key_t *keyval)
- {
- 	u32 hash;
- 
- 	__flow_hash_consistentify(keys);
- 
--	hash = __flow_hash_words(flow_keys_hash_start(keys),
--				 flow_keys_hash_length(keys), keyval);
-+	hash = siphash(flow_keys_hash_start(keys),
-+		       flow_keys_hash_length(keys), keyval);
- 	if (!hash)
- 		hash = 1;
- 
-@@ -1010,12 +1000,13 @@ static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
- u32 flow_hash_from_keys(struct flow_keys *keys)
- {
- 	__flow_hash_secret_init();
--	return __flow_hash_from_keys(keys, hashrnd);
-+	return __flow_hash_from_keys(keys, &hashrnd);
- }
- EXPORT_SYMBOL(flow_hash_from_keys);
- 
- static inline u32 ___skb_get_hash(const struct sk_buff *skb,
--				  struct flow_keys *keys, u32 keyval)
-+				  struct flow_keys *keys,
-+				  const siphash_key_t *keyval)
- {
- 	skb_flow_dissect_flow_keys(skb, keys,
- 				   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
-@@ -1063,7 +1054,7 @@ u32 __skb_get_hash_symmetric(const struct sk_buff *skb)
- 			   NULL, 0, 0, 0,
- 			   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
- 
--	return __flow_hash_from_keys(&keys, hashrnd);
-+	return __flow_hash_from_keys(&keys, &hashrnd);
- }
- EXPORT_SYMBOL_GPL(__skb_get_hash_symmetric);
- 
-@@ -1083,13 +1074,14 @@ void __skb_get_hash(struct sk_buff *skb)
- 
- 	__flow_hash_secret_init();
- 
--	hash = ___skb_get_hash(skb, &keys, hashrnd);
-+	hash = ___skb_get_hash(skb, &keys, &hashrnd);
- 
- 	__skb_set_sw_hash(skb, hash, flow_keys_have_l4(&keys));
- }
- EXPORT_SYMBOL(__skb_get_hash);
- 
--__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb)
-+__u32 skb_get_hash_perturb(const struct sk_buff *skb,
-+			   const siphash_key_t *perturb)
- {
- 	struct flow_keys keys;
- 
-diff --git a/net/sched/sch_hhf.c b/net/sched/sch_hhf.c
-index fa256f8038afd223d2e3e797ecbc2d7d689965ce..c73475c3a4640d5f3dac30c5e4ca7045b584b910 100644
---- a/net/sched/sch_hhf.c
-+++ b/net/sched/sch_hhf.c
-@@ -4,11 +4,11 @@
-  * Copyright (C) 2013 Nandita Dukkipati <nanditad@google.com>
-  */
- 
--#include <linux/jhash.h>
- #include <linux/jiffies.h>
- #include <linux/module.h>
- #include <linux/skbuff.h>
- #include <linux/vmalloc.h>
-+#include <linux/siphash.h>
- #include <net/pkt_sched.h>
- #include <net/sock.h>
- 
-@@ -125,7 +125,7 @@ struct wdrr_bucket {
- 
- struct hhf_sched_data {
- 	struct wdrr_bucket buckets[WDRR_BUCKET_CNT];
--	u32		   perturbation;   /* hash perturbation */
-+	siphash_key_t	   perturbation;   /* hash perturbation */
- 	u32		   quantum;        /* psched_mtu(qdisc_dev(sch)); */
- 	u32		   drop_overlimit; /* number of times max qdisc packet
- 					    * limit was hit
-@@ -263,7 +263,7 @@ static enum wdrr_bucket_idx hhf_classify(struct sk_buff *skb, struct Qdisc *sch)
- 	}
- 
- 	/* Get hashed flow-id of the skb. */
--	hash = skb_get_hash_perturb(skb, q->perturbation);
-+	hash = skb_get_hash_perturb(skb, &q->perturbation);
- 
- 	/* Check if this packet belongs to an already established HH flow. */
- 	flow_pos = hash & HHF_BIT_MASK;
-@@ -578,7 +578,7 @@ static int hhf_init(struct Qdisc *sch, struct nlattr *opt)
- 
- 	sch->limit = 1000;
- 	q->quantum = psched_mtu(qdisc_dev(sch));
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	INIT_LIST_HEAD(&q->new_buckets);
- 	INIT_LIST_HEAD(&q->old_buckets);
- 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index cc39e170b4aa2593177cd9364465a5bffa49839d..04f15e0aeaa8b8902363d8ed77c3cf26f6e422c9 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -22,7 +22,7 @@
- #include <linux/errno.h>
- #include <linux/skbuff.h>
- #include <linux/random.h>
--#include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <net/ip.h>
- #include <net/pkt_sched.h>
- #include <net/pkt_cls.h>
-@@ -49,7 +49,7 @@ struct sfb_bucket {
-  * (Section 4.4 of SFB reference : moving hash functions)
-  */
- struct sfb_bins {
--	u32		  perturbation; /* jhash perturbation */
-+	siphash_key_t	  perturbation; /* siphash key */
- 	struct sfb_bucket bins[SFB_LEVELS][SFB_NUMBUCKETS];
- };
- 
-@@ -221,7 +221,8 @@ static u32 sfb_compute_qlen(u32 *prob_r, u32 *avgpm_r, const struct sfb_sched_da
- 
- static void sfb_init_perturbation(u32 slot, struct sfb_sched_data *q)
- {
--	q->bins[slot].perturbation = prandom_u32();
-+	get_random_bytes(&q->bins[slot].perturbation,
-+			 sizeof(q->bins[slot].perturbation));
- }
- 
- static void sfb_swap_slot(struct sfb_sched_data *q)
-@@ -317,9 +318,9 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 		/* If using external classifiers, get result and record it. */
- 		if (!sfb_classify(skb, fl, &ret, &salt))
- 			goto other_drop;
--		sfbhash = jhash_1word(salt, q->bins[slot].perturbation);
-+		sfbhash = siphash_1u32(salt, &q->bins[slot].perturbation);
- 	} else {
--		sfbhash = skb_get_hash_perturb(skb, q->bins[slot].perturbation);
-+		sfbhash = skb_get_hash_perturb(skb, &q->bins[slot].perturbation);
- 	}
- 
- 
-@@ -355,7 +356,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
- 		/* Inelastic flow */
- 		if (q->double_buffering) {
- 			sfbhash = skb_get_hash_perturb(skb,
--			    q->bins[slot].perturbation);
-+			    &q->bins[slot].perturbation);
- 			if (!sfbhash)
- 				sfbhash = 1;
- 			sfb_skb_cb(skb)->hashes[slot] = sfbhash;
-diff --git a/net/sched/sch_sfq.c b/net/sched/sch_sfq.c
-index 3fbf20126045197c11c989602dc72a98c829d4b6..cbc54ddfe076a006e7d78fc8569a6e0cd0b8be85 100644
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -18,7 +18,7 @@
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/skbuff.h>
--#include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <net/netlink.h>
-@@ -121,7 +121,7 @@ struct sfq_sched_data {
- 	u8		headdrop;
- 	u8		maxdepth;	/* limit of packets per flow */
- 
--	u32		perturbation;
-+	siphash_key_t 	perturbation;
- 	u8		cur_depth;	/* depth of longest slot */
- 	u8		flags;
- 	unsigned short  scaled_quantum; /* SFQ_ALLOT_SIZE(quantum) */
-@@ -160,7 +160,7 @@ static inline struct sfq_head *sfq_dep_head(struct sfq_sched_data *q, sfq_index
- static unsigned int sfq_hash(const struct sfq_sched_data *q,
- 			     const struct sk_buff *skb)
- {
--	return skb_get_hash_perturb(skb, q->perturbation) & (q->divisor - 1);
-+	return skb_get_hash_perturb(skb, &q->perturbation) & (q->divisor - 1);
- }
- 
- static unsigned int sfq_classify(struct sk_buff *skb, struct Qdisc *sch,
-@@ -609,9 +609,11 @@ static void sfq_perturbation(unsigned long arg)
- 	struct Qdisc *sch = (struct Qdisc *)arg;
- 	struct sfq_sched_data *q = qdisc_priv(sch);
- 	spinlock_t *root_lock = qdisc_lock(qdisc_root_sleeping(sch));
-+	siphash_key_t nkey;
- 
-+	get_random_bytes(&nkey, sizeof(nkey));
- 	spin_lock(root_lock);
--	q->perturbation = prandom_u32();
-+	q->perturbation = nkey;
- 	if (!q->filter_list && q->tail)
- 		sfq_rehash(sch);
- 	spin_unlock(root_lock);
-@@ -690,7 +692,7 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
- 	del_timer(&q->perturb_timer);
- 	if (q->perturb_period) {
- 		mod_timer(&q->perturb_timer, jiffies + q->perturb_period);
--		q->perturbation = prandom_u32();
-+		get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	}
- 	sch_tree_unlock(sch);
- 	kfree(p);
-@@ -746,7 +748,7 @@ static int sfq_init(struct Qdisc *sch, struct nlattr *opt)
- 	q->quantum = psched_mtu(qdisc_dev(sch));
- 	q->scaled_quantum = SFQ_ALLOT_SIZE(q->quantum);
- 	q->perturb_period = 0;
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 
- 	if (opt) {
- 		int err = sfq_change(sch, opt);
--- 
-2.24.0.rc1.363.gb1bccd3e3d-goog
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 95180e47e77a - Linux 5.3.8
+
+
+We grabbed the 5d3fac209a5d commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  io_uring-fix-up-o_nonblock-handling-for-sockets.patch
+  dm-snapshot-introduce-account_start_copy-and-account.patch
+  dm-snapshot-rework-cow-throttling-to-fix-deadlock.patch
+  btrfs-fix-inode-cache-block-reserve-leak-on-failure-.patch
+  btrfs-qgroup-always-free-prealloc-meta-reserve-in-bt.patch
+  iio-adc-meson_saradc-fix-memory-allocation-order.patch
+  iio-fix-center-temperature-of-bmc150-accel-core.patch
+  libsubcmd-make-_fortify_source-defines-dependent-on-.patch
+  perf-tests-avoid-raising-segv-using-an-obvious-null-.patch
+  perf-map-fix-overlapped-map-handling.patch
+  perf-script-brstackinsn-fix-recovery-from-lbr-binary.patch
+  perf-jevents-fix-period-for-intel-fixed-counters.patch
+  perf-tools-propagate-get_cpuid-error.patch
+  perf-annotate-propagate-perf_env__arch-error.patch
+  perf-annotate-fix-the-signedness-of-failure-returns.patch
+  perf-annotate-propagate-the-symbol__annotate-error-r.patch
+  perf-annotate-fix-arch-specific-init-failure-errors.patch
+  perf-annotate-return-appropriate-error-code-for-allo.patch
+  perf-annotate-don-t-return-1-for-error-when-doing-bp.patch
+  staging-rtl8188eu-fix-null-dereference-when-kzalloc-.patch
+  rdma-siw-fix-serialization-issue-in-write_space.patch
+  rdma-hfi1-prevent-memory-leak-in-sdma_init.patch
+  rdma-iw_cxgb4-fix-srq-access-from-dump_qp.patch
+  rdma-iwcm-fix-a-lock-inversion-issue.patch
+  hid-hyperv-use-in-place-iterator-api-in-the-channel-.patch
+  kselftest-exclude-failed-targets-from-runlist.patch
+  selftests-kselftest-runner.sh-add-45-second-timeout-.patch
+  nfs-fix-nfsi-nrequests-count-error-on-nfs_inode_remo.patch
+  arm64-cpufeature-effectively-expose-frint-capability.patch
+  arm64-fix-incorrect-irqflag-restore-for-priority-mas.patch
+  arm64-ftrace-ensure-synchronisation-in-plt-setup-for.patch
+  tty-serial-owl-fix-the-link-time-qualifier-of-owl_ua.patch
+  tty-serial-rda-fix-the-link-time-qualifier-of-rda_ua.patch
+  serial-sifive-select-serial_earlycon.patch
+  tty-n_hdlc-fix-build-on-sparc.patch
+  misc-fastrpc-prevent-memory-leak-in-fastrpc_dma_buf_.patch
+  rdma-core-fix-an-error-handling-path-in-res_get_comm.patch
+  rdma-cm-fix-memory-leak-in-cm_add-remove_one.patch
+  rdma-nldev-reshuffle-the-code-to-avoid-need-to-rebin.patch
+  rdma-mlx5-do-not-allow-rereg-of-a-odp-mr.patch
+  rdma-mlx5-order-num_pending_prefetch-properly-with-s.patch
+  rdma-mlx5-add-missing-synchronize_srcu-for-mw-cases.patch
+  gpio-max77620-use-correct-unit-for-debounce-times.patch
+  fs-cifs-mute-wunused-const-variable-message.patch
+  arm64-vdso32-fix-broken-compat-vdso-build-warnings.patch
+  arm64-vdso32-detect-binutils-support-for-dmb-ishld.patch
+  serial-mctrl_gpio-check-for-null-pointer.patch
+  serial-8250_omap-fix-gpio-check-for-auto-rts-cts.patch
+  arm64-default-to-building-compat-vdso-with-clang-whe.patch
+  arm64-vdso32-don-t-use-kbuild_cppflags-unconditional.patch
+  efi-cper-fix-endianness-of-pcie-class-code.patch
+  efi-x86-do-not-clean-dummy-variable-in-kexec-path.patch
+  mips-include-mark-__cmpxchg-as-__always_inline.patch
+  riscv-avoid-kernel-hangs-when-trapped-in-bug.patch
+  riscv-avoid-sending-a-sigtrap-to-a-user-thread-trapp.patch
+  riscv-correct-the-handling-of-unexpected-ebreak-in-d.patch
+  x86-xen-return-from-panic-notifier.patch
+  ocfs2-clear-zero-in-unaligned-direct-io.patch
+  fs-ocfs2-fix-possible-null-pointer-dereferences-in-o.patch
+  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
+  fs-ocfs2-fix-a-possible-null-pointer-dereference-in-.patch
+  btrfs-silence-maybe-uninitialized-warning-in-clone_r.patch
+  arm64-armv8_deprecated-checking-return-value-for-mem.patch
+  x86-cpu-add-comet-lake-to-the-intel-cpu-models-heade.patch
+  sched-fair-scale-bandwidth-quota-and-period-without-.patch
+  sched-vtime-fix-guest-system-mis-accounting-on-task-.patch
+  perf-core-rework-memory-accounting-in-perf_mmap.patch
+  perf-core-fix-corner-case-in-perf_rotate_context.patch
+  perf-x86-amd-change-fix-nmi-latency-mitigation-to-us.patch
+  drm-amdgpu-fix-memory-leak.patch
+  iio-imu-adis16400-release-allocated-memory-on-failur.patch
+  iio-imu-adis16400-fix-memory-leak.patch
+  iio-imu-st_lsm6dsx-fix-waitime-for-st_lsm6dsx-i2c-co.patch
+  mips-include-mark-__xchg-as-__always_inline.patch
+  mips-fw-sni-fix-out-of-bounds-init-of-o32-stack.patch
+  s390-cio-fix-virtio-ccw-dma-without-pv.patch
+  virt-vbox-fix-memory-leak-in-hgcm_call_preprocess_li.patch
+  nbd-fix-possible-sysfs-duplicate-warning.patch
+  nfsv4-fix-leak-of-clp-cl_acceptor-string.patch
+  sunrpc-fix-race-to-sk_err-after-xs_error_report.patch
+  s390-uaccess-avoid-false-positive-compiler-warnings.patch
+  tracing-initialize-iter-seq-after-zeroing-in-tracing.patch
+  perf-annotate-fix-multiple-memory-and-file-descripto.patch
+  perf-aux-fix-tracking-of-auxiliary-trace-buffer-allo.patch
+  usb-legousbtower-fix-a-signedness-bug-in-tower_probe.patch
+  nbd-verify-socket-is-supported-during-setup.patch
+  arm64-dts-qcom-add-lenovo-miix-630.patch
+  arm64-dts-qcom-add-hp-envy-x2.patch
+  arm64-dts-qcom-add-asus-novago-tp370ql.patch
+  rtw88-fix-misuse-of-genmask-macro.patch
+  s390-pci-fix-msi-message-data.patch
+  thunderbolt-correct-path-indices-for-pcie-tunnel.patch
+  thunderbolt-use-32-bit-writes-when-writing-ring-prod.patch
+  ath6kl-fix-a-null-ptr-deref-bug-in-ath6kl_usb_alloc_.patch
+  fuse-flush-dirty-data-metadata-before-non-truncate-setattr.patch
+  fuse-truncate-pending-writes-on-o_trunc.patch
+  alsa-bebob-fix-prototype-of-helper-function-to-return-negative-value.patc=
+h
+  alsa-timer-fix-mutex-deadlock-at-releasing-card.patch
+  alsa-hda-realtek-fix-2-front-mics-of-codec-0x623.patch
+  alsa-hda-realtek-add-support-for-alc623.patch
+  ath10k-fix-latency-issue-for-qca988x.patch
+  uas-revert-commit-3ae62a42090f-uas-fix-alignment-of-scatter-gather-segmen=
+ts.patch
+  nl80211-fix-validation-of-mesh-path-nexthop.patch
+  usb-gadget-reject-endpoints-with-0-maxpacket-value.patch
+  usb-storage-revert-commit-747668dbc061-usb-storage-set-virt_boundary_mask=
+-to-avoid-sg-overflows.patch
+  usb-ldusb-fix-ring-buffer-locking.patch
+  usb-ldusb-fix-control-message-timeout.patch
+  usb-xhci-fix-immediate-data-transfer-endianness.patch
+  usb-xhci-fix-__le32-__le64-accessors-in-debugfs-code.patch
+  usb-serial-whiteheat-fix-potential-slab-corruption.patch
+  usb-serial-whiteheat-fix-line-speed-endianness.patch
+  xhci-fix-use-after-free-regression-in-xhci-clear-hub-tt-implementation.pa=
+tch
+  scsi-qla2xxx-fix-partial-flash-write-of-mbi.patch
+  scsi-target-cxgbit-fix-cxgbit_fw4_ack.patch
+  hid-i2c-hid-add-trekstor-primebook-c11b-to-descriptor-override.patch
+  hid-fix-assumption-that-devices-have-inputs.patch
+  hid-fix-error-message-in-hid_open_report.patch
+  hid-logitech-hidpp-split-g920_get_config.patch
+  hid-logitech-hidpp-rework-device-validation.patch
+  hid-logitech-hidpp-do-all-ff-cleanup-in-hidpp_ff_destroy.patch
+  um-ubd-entrust-re-queue-to-the-upper-layers.patch
+  s390-unwind-fix-mixing-regs-and-sp.patch
+  s390-cmm-fix-information-leak-in-cmm_timeout_handler.patch
+  s390-idle-fix-cpu-idle-time-calculation.patch
+  arc-perf-accommodate-big-endian-cpu.patch
+  ib-hfi1-avoid-excessive-retry-for-tid-rdma-read-request.patch
+  arm64-ensure-vm_write-vm_shared-ptes-are-clean-by-default.patch
+  arm64-cpufeature-enable-qualcomm-falkor-kryo-errata-1003.patch
+  virtio_ring-fix-stalls-for-packed-rings.patch
+  rtlwifi-rtl_pci-fix-problem-of-too-small-skb-len.patch
+  rtlwifi-fix-potential-overflow-on-p2p-code.patch
+  kvm-vmx-svm-always-run-with-efer.nxe-1-when-shadow-paging-is-active.patch
+  dmaengine-qcom-bam_dma-fix-resource-leak.patch
+  dmaengine-tegra210-adma-fix-transfer-failure.patch
+  dmaengine-imx-sdma-fix-size-check-for-sdma-script_number.patch
+  dmaengine-cppi41-fix-cppi41_dma_prep_slave_sg-when-idle.patch
+  drm-amdgpu-gmc10-properly-set-bank_select-and-fragment_size.patch
+  drm-i915-fix-pch-reference-clock-for-fdi-on-hsw-bdw.patch
+  drm-amdgpu-gfx10-update-gfx-golden-settings.patch
+  drm-amdgpu-powerplay-vega10-allow-undervolting-in-p7.patch
+  drm-amdgpu-fix-sdma-hang-when-performing-vkexample-test.patch
+  nfs-fix-an-rcu-lock-leak-in-nfs4_refresh_delegation_stateid.patch
+  io_uring-ensure-we-clear-io_kiocb-result-before-each-issue.patch
+  iommu-vt-d-fix-panic-after-kexec-p-for-kdump.patch
+  batman-adv-avoid-free-alloc-race-when-handling-ogm-buffer.patch
+  llc-fix-sk_buff-leak-in-llc_sap_state_process.patch
+  llc-fix-sk_buff-leak-in-llc_conn_service.patch
+  rxrpc-fix-call-ref-leak.patch
+  rxrpc-rxrpc_peer-needs-to-hold-a-ref-on-the-rxrpc_local-record.patch
+  rxrpc-fix-trace-after-put-looking-at-the-put-peer-record.patch
+  nfc-pn533-fix-use-after-free-and-memleaks.patch
+  bonding-fix-potential-null-deref-in-bond_update_slave_arr.patch
+  netfilter-conntrack-avoid-possible-false-sharing.patch
+  net-usb-sr9800-fix-uninitialized-local-variable.patch
+  sch_netem-fix-rcu-splat-in-netem_enqueue.patch
+  net-sched-sch_sfb-don-t-call-qdisc_put-while-holding-tree-lock.patch
+  iwlwifi-exclude-geo-sar-support-for-3168.patch
+  sched-fair-fix-low-cpu-usage-with-high-throttling-by-removing-expiration-=
+of-cpu-local-slices.patch
+  alsa-usb-audio-dsd-auto-detection-for-playback-desig.patch
+  alsa-usb-audio-update-dsd-support-quirks-for-oppo-an.patch
+  alsa-usb-audio-add-dsd-support-for-gustard-u16-x26-u.patch
+  rdma-mlx5-use-irq-xarray-locking-for-mkey_table.patch
+  sched-fair-fix-wunused-but-set-variable-warnings.patch
+  powerpc-powernv-fix-cpu-idle-to-be-called-with-irqs-.patch
+  revert-nvme-allow-64-bit-results-in-passthru-command.patch
+  revert-alsa-hda-flush-interrupts-on-disabling.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 selinux-policy: serge-testsuite
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 5:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 6:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/env_setu=
+p
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
