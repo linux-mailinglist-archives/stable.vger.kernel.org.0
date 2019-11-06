@@ -2,113 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF43F1183
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 09:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB7B0F1198
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 09:59:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727257AbfKFIze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 03:55:34 -0500
-Received: from mx2.suse.de ([195.135.220.15]:55186 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726830AbfKFIze (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Nov 2019 03:55:34 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 07C3AABBD;
-        Wed,  6 Nov 2019 08:55:32 +0000 (UTC)
-Subject: Re: [PATCH v2 6/8] mm: prevent get_user_pages() from overflowing page
- refcount
-To:     Ajay Kaher <akaher@vmware.com>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-Cc:     "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "punit.agrawal@arm.com" <punit.agrawal@arm.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
-        "willy@infradead.org" <willy@infradead.org>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        "mszeredi@redhat.com" <mszeredi@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Srivatsa Bhat <srivatsab@vmware.com>,
-        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Srinidhi Rao <srinidhir@vmware.com>,
-        Vikash Bansal <bvikas@vmware.com>,
-        Anish Swaminathan <anishs@vmware.com>,
-        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
-        Steven Rostedt <srostedt@vmware.com>,
-        "stable@kernel.org" <stable@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-References: <1570581863-12090-1-git-send-email-akaher@vmware.com>
- <1570581863-12090-7-git-send-email-akaher@vmware.com>
- <f899be71-4bc0-d07b-f650-d85a335cdebb@suse.cz>
- <BF0587E3-D104-4DB2-B972-9BC4FD4CA014@vmware.com>
- <0E5175FB-7058-4211-9AA4-9D5E2F6A30B9@vmware.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <35d74931-2c18-00ff-7622-522a79be9103@suse.cz>
-Date:   Wed, 6 Nov 2019 09:55:30 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
+        id S1727257AbfKFI7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 03:59:44 -0500
+Received: from foss.arm.com ([217.140.110.172]:36060 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726903AbfKFI7n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Nov 2019 03:59:43 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F38B930E;
+        Wed,  6 Nov 2019 00:59:42 -0800 (PST)
+Received: from arrakis.emea.arm.com (unknown [10.1.197.42])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EE9493F71A;
+        Wed,  6 Nov 2019 00:59:41 -0800 (PST)
+Date:   Wed, 6 Nov 2019 08:59:39 +0000
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     John Stultz <john.stultz@linaro.org>
+Cc:     Will Deacon <will@kernel.org>, Alistair Delva <adelva@google.com>,
+        Sandeep Patil <sspatil@google.com>,
+        stable <stable@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Steve Capper <Steve.Capper@arm.com>
+Subject: Re: [PATCH] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by
+ default
+Message-ID: <20191106085939.GC21133@arrakis.emea.arm.com>
+References: <20191029153051.24367-1-catalin.marinas@arm.com>
+ <CALAqxLXuxZVg0kqNQXF_dH17NzH9m14-Ci_rzruHzmms0V7pvg@mail.gmail.com>
+ <20191105102902.GB29852@willie-the-truck>
+ <20191105165433.GD22987@arrakis.emea.arm.com>
+ <CALAqxLWYJvHO3YYbQHmgg0yThx_kqM7HBFnnxrcWkG1-LXeCQQ@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <0E5175FB-7058-4211-9AA4-9D5E2F6A30B9@vmware.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CALAqxLWYJvHO3YYbQHmgg0yThx_kqM7HBFnnxrcWkG1-LXeCQQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 10/25/19 8:18 AM, Ajay Kaher wrote:
-> ﻿On 17/10/19, 9:58 PM, "Ajay Kaher" <akaher@vmware.com> wrote:
->     
->> > This seems to have the same issue as the 4.9 stable version [1], in not
->> > touching the arch-specific gup.c variants.
->> >    
->> > [1]
->> > https://lore.kernel.org/lkml/6650323f-dbc9-f069-000b-f6b0f941a065@suse.cz/
->>    
->> Thanks Vlastimil for highlighting this here.
->> 
->> Yes, arch-specific gup.c variants also need to handle not only for 4.4.y,
->> however it should be handled till 4.19.y. I believe it's better to start
->> from 4.19.y and then backport those changes till 4.4.y.
->>    
->> Affected areas of gup.c (where page->count have been used) are:
->> #1: get_page() used in these files and this is safe as
->>        it's defined in mm.h (here it's already taken care of)
->> #2: get_head_page_multiple() has following:
->>               VM_BUG_ON_PAGE(page_count(page) == 0, page);
->>          Need to change this to:
->>               VM_BUG_ON_PAGE(page_ref_zero_or_close_to_overflow(page), page);
->> #3: Some of the files have used page_cache_get_speculative(),
->>        page_cache_add_speculative() with combination of compound_head(),
->>        this scenario needs to be handled as it was handled here:
->>            https://lore.kernel.org/stable/1570581863-12090-7-git-send-email-akaher@vmware.com/
->>    
->> Please share with me any suggestions or patches if you have already  
->> worked on this.
->>    
->> Could we handle arch-specific gup.c in different patch sets and 
->> let these patches to merge to 4.4.y?
->   
-> Vlastimil, please suggest if it's fine to merge these patches to 4.4.y
-
-I'm not sure if it makes much sense to merge them without the arch-specific gup
-support, when we're aware that it's missing.
-
-> and handle arch-specific gup.c in different patch sets starts from 4.19.y,
-
-Actually arch-specific gup.c were removed in 4.13, so it's enough to start from
-4.9.y, which I'm going to finally look into.
-
-> then backport all the way to 4.4.y. 
+On Tue, Nov 05, 2019 at 01:17:11PM -0800, John Stultz wrote:
+> On Tue, Nov 5, 2019 at 8:54 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+> > On Tue, Nov 05, 2019 at 10:29:03AM +0000, Will Deacon wrote:
+> > > On Mon, Nov 04, 2019 at 05:16:42PM -0800, John Stultz wrote:
+> > > > On Tue, Oct 29, 2019 at 8:31 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
+> > > > >
+> > > > > Shared and writable mappings (__S.1.) should be clean (!dirty) initially
+> > > > > and made dirty on a subsequent write either through the hardware DBM
+> > > > > (dirty bit management) mechanism or through a write page fault. A clean
+> > > > > pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
+> > > > > clear.
+> > > > >
+> > > > > The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
+> > > > > PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
+> > > > > bit handling out of set_pte_at()"), it was the responsibility of
+> > > > > set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
+> > > > > software PTE_DIRTY bit was not set. However, the above commit removed
+> > > > > the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
+> > > > > set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
+> > > > > unchanged. The result is that shared+writable mappings are now dirty by
+> > > > > default
+> > > > >
+> > > > > Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
+> > > > > In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
+> > > > > attributes.
+> > > > >
+> > > > > Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
+> > > > > Cc: <stable@vger.kernel.org> # 4.14.x-
+> > > > > Cc: Will Deacon <will@kernel.org>
+> > > > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+> > [...]
+> > > As an experiment, can you try reverting just the part of the patch that
+> > > removes PTE_DIRTY from the PROT_* definitions? (see below)
+> >
+> > Another thing worth trying is reverting commit 747a70e60b72 ("arm64: Fix
+> > copy-on-write referencing in HugeTLB") when this patch is applied. That
+> > commit is not just about hugetlb but changes pte_same() to ignore
+> > PTE_RDONLY on the assumption that this is set by set_pte_at(). We
+> > subsequently changed set_pte_at() to drop PTE_RDONLY.
 > 
-> Greg, any suggestion from your side.
-> 
->>    - Ajay
->     
->     
->     
-> 
+> Just to confirm, reverting 747a70e60b72 instead of aa57157be69f also
+> seems to avoid the issue I'm seeing.
 
+Thanks for confirming. I'm not sure about all the interactions in your
+kernel but just looking at commit 747a70e60b72 it likely needs to be
+reverted anyway. I'll send a separate patch and hopefully Steve can
+confirm that it doesn't break the original hugetlb use-case.
+
+-- 
+Catalin
