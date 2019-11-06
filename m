@@ -2,122 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8236BF0E25
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 06:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38AD3F0E26
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 06:16:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725948AbfKFFQu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 00:16:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42870 "EHLO mail.kernel.org"
+        id S1725992AbfKFFQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 00:16:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725379AbfKFFQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Nov 2019 00:16:50 -0500
+        id S1725379AbfKFFQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Nov 2019 00:16:58 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E07521929;
-        Wed,  6 Nov 2019 05:16:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CEB86206A3;
+        Wed,  6 Nov 2019 05:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573017409;
-        bh=2192o0EalrK7xnxZaWr2apSoUfecLosbzkrrzZmsLuo=;
+        s=default; t=1573017418;
+        bh=6SoXQmpFL1pLJ30tuGrZg1GHHjTEWHo92t9q3pvJXso=;
         h=Date:From:To:Subject:From;
-        b=qu4EO8tysU1sVCgnyQobZXDSGbf5Kbhb1WXByJqVNJv99l7UdPAJwkBb0jEQgdOpN
-         WiTiN0nCewepzq3swOOToFuFPikNwEEGyNtIP90wjptko1s3wKwnnsl1qeeHir2RX0
-         pKBwAk/HVz0BKoAXPjWjWBuzobdho0+ekqG/Ja7k=
-Date:   Tue, 05 Nov 2019 21:16:48 -0800
+        b=qFyuIomsckNtmr2V/sFtUsF2WgW8/6DJAnwvA7qMTvar9GKsrLHaXBo1ifEDMnYWa
+         CB16Y8WUsxV3shC3g0JDuhy5ZXb+tA7EmZ/CJvJ/u8Fu9fRzpnq47CZ/ZLJ0KwJPej
+         gmD8/cjcCyY3uZjHAJ3z8jvCbMlemBbM/rlPEL1I=
+Date:   Tue, 05 Nov 2019 21:16:57 -0800
 From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, akpm@linux-foundation.org, bp@alien8.de,
-        daniel.vetter@intel.com, hpa@zytor.com, ira.weiny@intel.com,
-        jgg@mellanox.com, jglisse@redhat.com,
-        kirill.shutemov@linux.intel.com, linux-mm@kvack.org,
-        mingo@redhat.com, mm-commits@vger.kernel.org, rcampbell@nvidia.com,
-        stable@vger.kernel.org, tglx@linutronix.de,
-        torvalds@linux-foundation.org, ville.syrjala@linux.intel.com
-Subject:  [patch 09/17] mm/khugepaged: fix might_sleep() warn with
- CONFIG_HIGHPTE=y
-Message-ID: <20191106051648.GjLXleKr-%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, haokexin@gmail.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 12/17] dump_stack: avoid the livelock of the
+ dump_lock
+Message-ID: <20191106051657.fRGxFzH1B%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=46rom: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
-Subject: mm/khugepaged: fix might_sleep() warn with CONFIG_HIGHPTE=3Dy
+From: Kevin Hao <haokexin@gmail.com>
+Subject: dump_stack: avoid the livelock of the dump_lock
 
-I got some khugepaged spew on a 32bit x86:
+In the current code, we use the atomic_cmpxchg() to serialize the output
+of the dump_stack(), but this implementation suffers the thundering herd
+problem.  We have observed such kind of livelock on a Marvell cn96xx
+board(24 cpus) when heavily using the dump_stack() in a kprobe handler. 
+Actually we can let the competitors to wait for the releasing of the lock
+before jumping to atomic_cmpxchg().  This will definitely mitigate the
+thundering herd problem.  Thanks Linus for the suggestion.
 
-[  217.490026] BUG: sleeping function called from invalid context at includ=
-e/linux/mmu_notifier.h:346
-[  217.492826] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 25, n=
-ame: khugepaged
-[  217.495589] INFO: lockdep is turned off.
-[  217.498371] CPU: 1 PID: 25 Comm: khugepaged Not tainted 5.4.0-rc5-elk+ #=
-206
-[  217.501233] Hardware name: System manufacturer P5Q-EM/P5Q-EM, BIOS 2203 =
-   07/08/2009
-[  217.501697] Call Trace:
-[  217.501697]  dump_stack+0x66/0x8e
-[  217.501697]  ___might_sleep.cold.96+0x95/0xa6
-[  217.501697]  __might_sleep+0x2e/0x80
-[  217.501697]  collapse_huge_page.isra.51+0x5ac/0x1360
-[  217.501697]  ? __alloc_pages_nodemask+0xec/0xf80
-[  217.501697]  ? __alloc_pages_nodemask+0x191/0xf80
-[  217.501697]  ? trace_hardirqs_on+0x4a/0xf0
-[  217.501697]  khugepaged+0x9a9/0x20f0
-[  217.501697]  ? _raw_spin_unlock+0x21/0x30
-[  217.501697]  ? trace_hardirqs_on+0x4a/0xf0
-[  217.501697]  ? wait_woken+0xa0/0xa0
-[  217.501697]  kthread+0xf5/0x110
-[  217.501697]  ? collapse_pte_mapped_thp+0x3b0/0x3b0
-[  217.501697]  ? kthread_create_worker_on_cpu+0x20/0x20
-[  217.501697]  ret_from_fork+0x2e/0x38
-
-Looks like it's due to CONFIG_HIGHPTE=3Dy pte_offset_map()->kmap_atomic()
-vs.  mmu_notifier_invalidate_range_start().  Let's do the naive approach
-and just reorder the two operations.
-
-Link: http://lkml.kernel.org/r/20191029201513.GG1208@intel.com
-Fixes: 810e24e009cf71 ("mm/mmu_notifiers: annotate with might_sleep()")
-Signed-off-by: Ville Syrjl <ville.syrjala@linux.intel.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
+[akpm@linux-foundation.org: fix comment]
+Link: http://lkml.kernel.org/r/20191030031637.6025-1-haokexin@gmail.com
+Fixes: b58d977432c8 ("dump_stack: serialize the output from dump_stack()")
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/khugepaged.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ lib/dump_stack.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/mm/khugepaged.c~khugepaged-might_sleep-warn-due-to-config_highpte=3Dy
-+++ a/mm/khugepaged.c
-@@ -1028,12 +1028,13 @@ static void collapse_huge_page(struct mm
-=20
- 	anon_vma_lock_write(vma->anon_vma);
-=20
--	pte =3D pte_offset_map(pmd, address);
--	pte_ptl =3D pte_lockptr(mm, pmd);
--
- 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm,
- 				address, address + HPAGE_PMD_SIZE);
- 	mmu_notifier_invalidate_range_start(&range);
-+
-+	pte =3D pte_offset_map(pmd, address);
-+	pte_ptl =3D pte_lockptr(mm, pmd);
-+
- 	pmd_ptl =3D pmd_lock(mm, pmd); /* probably unnecessary */
- 	/*
- 	 * After this gup_fast can't run anymore. This also removes
+--- a/lib/dump_stack.c~dump_stack-avoid-the-livelock-of-the-dump_lock
++++ a/lib/dump_stack.c
+@@ -106,7 +106,12 @@ retry:
+ 		was_locked = 1;
+ 	} else {
+ 		local_irq_restore(flags);
+-		cpu_relax();
++		/*
++		 * Wait for the lock to release before jumping to
++		 * atomic_cmpxchg() in order to mitigate the thundering herd
++		 * problem.
++		 */
++		do { cpu_relax(); } while (atomic_read(&dump_lock) != -1);
+ 		goto retry;
+ 	}
+ 
 _
