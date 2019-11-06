@@ -2,102 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D068CF11B9
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 10:07:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 824AEF120F
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 10:22:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727506AbfKFJHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 04:07:49 -0500
-Received: from mout.kundenserver.de ([212.227.126.187]:43043 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726843AbfKFJHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 04:07:49 -0500
-Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
- (mreue009 [212.227.15.129]) with ESMTPA (Nemesis) id
- 1MIdW9-1igtkS0UiL-00EZgr; Wed, 06 Nov 2019 10:07:37 +0100
-From:   Arnd Bergmann <arnd@arndb.de>
-To:     Stanimir Varbanov <stanimir.varbanov@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Andy Gross <agross@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] media: venus: remove invalid compat_ioctl32 handler
-Date:   Wed,  6 Nov 2019 10:06:54 +0100
-Message-Id: <20191106090731.3152446-1-arnd@arndb.de>
-X-Mailer: git-send-email 2.20.0
+        id S1727618AbfKFJWf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 04:22:35 -0500
+Received: from szxga07-in.huawei.com ([45.249.212.35]:56736 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726891AbfKFJWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Nov 2019 04:22:35 -0500
+Received: from DGGEMS408-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id D30E2F0AD12F01B1D662;
+        Wed,  6 Nov 2019 17:22:32 +0800 (CST)
+Received: from huawei.com (10.175.124.28) by DGGEMS408-HUB.china.huawei.com
+ (10.3.19.208) with Microsoft SMTP Server id 14.3.439.0; Wed, 6 Nov 2019
+ 17:22:26 +0800
+From:   "zhangyi (F)" <yi.zhang@huawei.com>
+To:     <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, <viro@zeniv.linux.org.uk>,
+        <linux-fsdevel@vger.kernel.org>, <yi.zhang@huawei.com>
+Subject: [PATCH for linux 4.4.y/3.16.y] fs/dcache: move security_d_instantiate() behind attaching dentry to inode
+Date:   Wed, 6 Nov 2019 17:43:52 +0800
+Message-ID: <20191106094352.9665-1-yi.zhang@huawei.com>
+X-Mailer: git-send-email 2.17.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:8RmDx4hHYVaGCRLB35n3qdiZOzUXcVe0+StcVe0UHvHpojc5T/4
- uzsWV9aOL+uHX72YbQa8qjbMgaBFg4cUcIuX3JwFT33wd+hDOHw0Gxu/AACyXMMPHDpO3qS
- e8SezUBQFDXhSY4USnlbekvkOTc1byAB440qbxJg6rA8EyNETSc1rU5kjdE6LCJiVl742X9
- hLCFCuyKLHCV6f6MIz+NA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:0e6MMvLXfls=:4/MvFiPhzD2v4dq4ei/GqJ
- upkwO1ea9eMllyQ5KzkyyMTYbb60gFwFTEtrz+i1c2gBGOvyvCLOHIHEiLQ4mc7grzJgOnLo5
- cLAI7xO9iOjJ+TLiYYsar95qpgCMbdpilVzPE5D4fAObNbjO6NbZxxKafvpaZebU/5FSGCy1R
- xsL/R0rjvdeRtCL/vRMRkiCr2+sbjYeYyQwtbTdATCP2+ZYLAMNgNux4U8+DbWB53HQHTsOL/
- yvvZx3Ib7IVG5Nl24s1cKtUNMIpPuakHOail8qcrPP4agnnQvtCcOCJLSPxK+75uo1sdlrtMN
- Hiz3h44usxXP9FjoU7DQi5/CgdKCEON9JSrsa/Ngw/rnHk+KARie5v6/I7Lfgtf4lsgiM2QXI
- iP5RScn8nQ+z48MBPpJCBsRqDGUWU04DPfosdtLeQXwoPCigrATip1eSK4DnGDYVC7Z2U2NLK
- MWHX5Auc8oQxCompC2le/breqc7FgdOj/tE9eVK/REyPzUblOwYse1MY2Pujs+ftFwt5JDVXX
- IlRu+bxvfhCaGYLK8S7q7YpBMkf3UA99ulViCXC8ZxVAv0T0+UXQ5JScvXisuCGnT1cUUTyFG
- tAi6dhVwDpJMUQcJZG/4rNfO9v7u1BO3h+w3ajKJ3P8XtpNgfFLwBlkgvT676IdMPntGQj2oy
- ueso2NPqA7MP8javvvaTs5CZg1uxO8z8ej+5qhqLCycAH9FaXkGrkQcbaZYeKcrjPDbRftAHe
- wIEkudc61tT8/Cu7fbETvo5oYwjjPvFMWlOcqzAtjH+ZA1wQFeS+BDTzIZ/219dljJ/3/donI
- HhB0FZo5AKnKawpGrRG/p1broZNesSc/6l466L377Bzj7tUJBkqWFeIPsPjmminibnprfgbbi
- QBpI7ZPdm/tcrJr3FH7w==
+Content-Type: text/plain
+X-Originating-IP: [10.175.124.28]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-v4l2_compat_ioctl32() is the function that calls into
-v4l2_file_operations->compat_ioctl32(), so setting that back to the same
-function leads to a trivial endless loop, followed by a kernel
-stack overrun.
+During backport 1e2e547a93a "do d_instantiate/unlock_new_inode
+combinations safely", there was a error instantiating sequence of
+attaching dentry to inode and calling security_d_instantiate().
 
-Remove the incorrect assignment.
+Before commit ce23e640133 "->getxattr(): pass dentry and inode as
+separate arguments" and b96809173e9 "security_d_instantiate(): move to
+the point prior to attaching dentry to inode", security_d_instantiate()
+should be called beind __d_instantiate(), otherwise it will trigger
+below problem when CONFIG_SECURITY_SMACK on ext4 was enabled because
+d_inode(dentry) used by ->getxattr() is NULL before __d_instantiate()
+instantiate inode.
 
-Cc: stable@vger.kernel.org
-Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
-Fixes: aaaa93eda64b ("[media] media: venus: venc: add video encoder files")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[   31.858026] BUG: unable to handle kernel paging request at ffffffffffffff70
+...
+[   31.882024] Call Trace:
+[   31.882378]  [<ffffffffa347f75c>] ext4_xattr_get+0x8c/0x3e0
+[   31.883195]  [<ffffffffa3489454>] ext4_xattr_security_get+0x24/0x40
+[   31.884086]  [<ffffffffa336a56b>] generic_getxattr+0x5b/0x90
+[   31.884907]  [<ffffffffa3700514>] smk_fetch+0xb4/0x150
+[   31.885634]  [<ffffffffa3700772>] smack_d_instantiate+0x1c2/0x550
+[   31.886508]  [<ffffffffa36f9a5a>] security_d_instantiate+0x3a/0x80
+[   31.887389]  [<ffffffffa3353b26>] d_instantiate_new+0x36/0x130
+[   31.888223]  [<ffffffffa342b1ef>] ext4_mkdir+0x4af/0x6a0
+[   31.888928]  [<ffffffffa3343470>] vfs_mkdir+0x100/0x280
+[   31.889536]  [<ffffffffa334b086>] SyS_mkdir+0xb6/0x170
+[   31.890255]  [<ffffffffa307c855>] ? trace_do_page_fault+0x95/0x2b0
+[   31.891134]  [<ffffffffa3c5e078>] entry_SYSCALL_64_fastpath+0x18/0x73
+
+Cc: <stable@vger.kernel.org> # 3.16, 4.4
+Signed-off-by: zhangyi (F) <yi.zhang@huawei.com>
 ---
- drivers/media/platform/qcom/venus/vdec.c | 3 ---
- drivers/media/platform/qcom/venus/venc.c | 3 ---
- 2 files changed, 6 deletions(-)
+ fs/dcache.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
-index 7f4660555ddb..59ae7a1e63bc 100644
---- a/drivers/media/platform/qcom/venus/vdec.c
-+++ b/drivers/media/platform/qcom/venus/vdec.c
-@@ -1412,9 +1412,6 @@ static const struct v4l2_file_operations vdec_fops = {
- 	.unlocked_ioctl = video_ioctl2,
- 	.poll = v4l2_m2m_fop_poll,
- 	.mmap = v4l2_m2m_fop_mmap,
--#ifdef CONFIG_COMPAT
--	.compat_ioctl32 = v4l2_compat_ioctl32,
--#endif
- };
+diff --git a/fs/dcache.c b/fs/dcache.c
+index 5a1c36dc5d65..baa00718d8d1 100644
+--- a/fs/dcache.c
++++ b/fs/dcache.c
+@@ -1900,7 +1900,6 @@ void d_instantiate_new(struct dentry *entry, struct inode *inode)
+ 	BUG_ON(!hlist_unhashed(&entry->d_u.d_alias));
+ 	BUG_ON(!inode);
+ 	lockdep_annotate_inode_mutex_key(inode);
+-	security_d_instantiate(entry, inode);
+ 	spin_lock(&inode->i_lock);
+ 	__d_instantiate(entry, inode);
+ 	WARN_ON(!(inode->i_state & I_NEW));
+@@ -1908,6 +1907,7 @@ void d_instantiate_new(struct dentry *entry, struct inode *inode)
+ 	smp_mb();
+ 	wake_up_bit(&inode->i_state, __I_NEW);
+ 	spin_unlock(&inode->i_lock);
++	security_d_instantiate(entry, inode);
+ }
+ EXPORT_SYMBOL(d_instantiate_new);
  
- static int vdec_probe(struct platform_device *pdev)
-diff --git a/drivers/media/platform/qcom/venus/venc.c b/drivers/media/platform/qcom/venus/venc.c
-index 1b7fb2d5887c..30028ceb548b 100644
---- a/drivers/media/platform/qcom/venus/venc.c
-+++ b/drivers/media/platform/qcom/venus/venc.c
-@@ -1235,9 +1235,6 @@ static const struct v4l2_file_operations venc_fops = {
- 	.unlocked_ioctl = video_ioctl2,
- 	.poll = v4l2_m2m_fop_poll,
- 	.mmap = v4l2_m2m_fop_mmap,
--#ifdef CONFIG_COMPAT
--	.compat_ioctl32 = v4l2_compat_ioctl32,
--#endif
- };
- 
- static int venc_probe(struct platform_device *pdev)
 -- 
-2.20.0
+2.17.2
 
