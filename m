@@ -2,78 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F25EF1FA3
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 21:19:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D65EF1FAD
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 21:23:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732104AbfKFUTS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 15:19:18 -0500
-Received: from mout.kundenserver.de ([212.227.17.24]:53943 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726934AbfKFUTR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 15:19:17 -0500
-Received: from mail-qk1-f178.google.com ([209.85.222.178]) by
- mrelayeu.kundenserver.de (mreue106 [212.227.15.145]) with ESMTPSA (Nemesis)
- id 1M4rHF-1iSj1H09ah-001vXS; Wed, 06 Nov 2019 21:19:16 +0100
-Received: by mail-qk1-f178.google.com with SMTP id 205so24518838qkk.1;
-        Wed, 06 Nov 2019 12:19:15 -0800 (PST)
-X-Gm-Message-State: APjAAAUnMYsojh2aMFR+f6NI/jYW+cfqoygl/ne7hkfyNHoQ0qRxdEjN
-        0H59YANCknd/+5d5TN1RKDpFNeqVK8kNg8vcPDg=
-X-Google-Smtp-Source: APXvYqwMBzeoLnci1/w4kfeKogyBl0BHz0uvHYM2FQCfg8jFF6mF6fPo8f/AFfZmTyQ2tqpFwySZLrwcZlHSo4TLo9o=
-X-Received: by 2002:a37:9d8c:: with SMTP id g134mr3951247qke.352.1573071554758;
- Wed, 06 Nov 2019 12:19:14 -0800 (PST)
+        id S1727909AbfKFUXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 15:23:55 -0500
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:34448 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727550AbfKFUXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 15:23:55 -0500
+Received: by mail-pf1-f195.google.com with SMTP id n13so8070703pff.1
+        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 12:23:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=y3ErlOr8zz0pSn0wPZ07CUTX0RGvOBpRtPLCuFwaNrU=;
+        b=YC4Z2dHC4F15YVKn4yT41EJQgMIWuL7hjQk/OTXa3g0MxmASCu11F86facfUqg8IVP
+         H74cF+N1vvF5qMKFjmYP/NyKznq/EYetZgGS6zVJbgY1dq/+fq8p9BCFpLgDY21xH6Fb
+         ZF/c657P0QvNsknVIoB/RiiAskAZw8n8Aq8cRFXGQTepkqAifg9k8nR5fdGYuGUgUx6+
+         4XvGXYfoPd0lD6/8+1TpiijrbwEPhh1HVGRAe18sBeWRhwhIdywCsQE6zJIAM+uGLl6o
+         yJo1tYhCreBBrUBwKunybHKS/ir9sY/sAXJ37HcoRlpzhHLnq321EmAL3WxZbE3Pe/n8
+         ENHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=y3ErlOr8zz0pSn0wPZ07CUTX0RGvOBpRtPLCuFwaNrU=;
+        b=WvhaK85v7tZhkEfF5tHm9EjKZKmqXiI4IbOaIgH7H5si+Bj8a1v9iO3sB/nVrBDzNq
+         sZNdOMrptE1W1d9onYhJAHFaiSr7FlMWRBcgD98whNja9FanHwDbQanHAMFXj6uekcRj
+         +CafJJNJZDle4atIyotxdkDrgor7poW/O8VlBVlQD6UxCvyQMG8zBMS2S/et4dNjaICX
+         Z9KQT81H6qthITxgmgiOTjxUI2YjZBA9Dfqr6o0B/StxpDlguD7Uus/IRYjRrwJo6KuY
+         YLwzf2CgjvOoYdZToHiZ20naLLlQ5DfMeD2nI4JjRWyjsa9BKafCN99qk7zD16D4Hd65
+         pZWw==
+X-Gm-Message-State: APjAAAUr6kNTa9YUCtgUZdDYwIEENFTvhpj57MTnFpWDHBQzt7WQKNQc
+        ohPkp3wvVxXlN0zlgGKW3RfKEw==
+X-Google-Smtp-Source: APXvYqyYQ890RT5KorI4LSOMnM/qz6CZ76JmLNXzmgX+AVICrIQOgPg99MRUcCBfttjdwh5qqH78Sw==
+X-Received: by 2002:a65:47cd:: with SMTP id f13mr5023056pgs.356.1573071834146;
+        Wed, 06 Nov 2019 12:23:54 -0800 (PST)
+Received: from minitux (104-188-17-28.lightspeed.sndgca.sbcglobal.net. [104.188.17.28])
+        by smtp.gmail.com with ESMTPSA id p9sm27469818pfq.40.2019.11.06.12.23.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 Nov 2019 12:23:53 -0800 (PST)
+Date:   Wed, 6 Nov 2019 12:23:51 -0800
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Stanimir Varbanov <svarbanov@mm-sol.com>
+Cc:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Andrew Murray <andrew.murray@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        linux-arm-msm@vger.kernel.org, linux-pci@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] PCI: qcom: Fix the fixup of PCI_VENDOR_ID_QCOM
+Message-ID: <20191106202351.GE36595@minitux>
+References: <20191102002420.4091061-1-bjorn.andersson@linaro.org>
+ <f1e89dcc-4d5f-cc1f-8036-dcb062645cb0@mm-sol.com>
 MIME-Version: 1.0
-References: <20191106194715.2238044-1-arnd@arndb.de> <20191106194715.2238044-4-arnd@arndb.de>
-In-Reply-To: <20191106194715.2238044-4-arnd@arndb.de>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 6 Nov 2019 21:18:58 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a1t9kWcSVDyb-a3CWXgukLGVV9orRj58LbsGgCM3Z01JQ@mail.gmail.com>
-Message-ID: <CAK8P3a1t9kWcSVDyb-a3CWXgukLGVV9orRj58LbsGgCM3Z01JQ@mail.gmail.com>
-Subject: Re: [PATCH v3 3/8] media: v4l2-core: ignore native command codes
-To:     Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Linux Media Mailing List <linux-media@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        y2038 Mailman List <y2038@lists.linaro.org>,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Tiffany Lin <tiffany.lin@mediatek.com>,
-        Daniel Mentz <danielmentz@google.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:lDtT+hHflBMaITdOSRRJyP7jzOJ9e7HrjEIPo0EaotFjUOCKkCp
- QNSy3fAFp3pjksNTsik8PNChy+CRxmcBZOihep9+hcLHXGswTEVd4UgotWOW0RIjJa+uXEh
- sR5ZnwJHS0P3vKudOPhPyNLuj7ukXA+2BSYwP/OxsJ/EVi5lUhwIgCWg2FQvptBqKyMuYxl
- oWacEErta7yKqNkFGpqqw==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:JwY9fJHl80o=:GSKdnhSyvIrY2ndpNVoRWP
- bt1yU6O5vMDg28CR5+6DbcFHuB+Fmfv5xvQf3IEnFbSFhJfaLSeZ19AY5Hx2xBrIzYPKBtl9H
- qBDNECfV+WfkiYTYQ8LXZ5Ab7nJwtYlBNNVXT8GCDMGbIWRW5nVr+0pzSjvmBFYds5fFZWqJH
- sM9GVAvFg9rgNc3ipA+zCFC563/Y0qtejY+jDuHY1sp2AbLNIKZMoHdAEu7bVcgFGNzu16fpj
- oQKF/UGT93tuCRCk5zQHud0f1pxBmvqr6s3+zBj9UIMSDNy93ees7mkg0fF8DZE/kWS+5uw/z
- 52OawcCVlt8IcJoIXNXcK/ZBaUJLojXchlhGqqrOLuOSGSa7l8NJuStpoUv7kBgikVTAzdVrt
- /gJABE16dVyUSIidR35hsOSMtrnFgfOgMl3JzQjBEA9OwRlc66c3RwDf7OBVOEaApwfYWrnKT
- dFOvKYSE8WJQgvQKOlv5WjufKGBLUzwFqm6sNd1mfL9xc49U6huun97ETkvtum/Gl6o5vQ1PB
- kCKA/YJXnFrEWw0n/NVkCBq6aC1VJEhJN689LtOv4jbMMBC4oguAHDuBXsgNRoEwTt9/jHcEN
- eQ8UaiNMk5r3aeMRs2oD6bl4i95yyJqmOaMqwbcIeUhewuLrMH+HrU78ZghF9t+MW41yIhWaP
- hbgK5TXcvpo6bOBAUnNREbX+ntrNMXBT+YORdldP2AYjHY2L9ZjAK4HWlCTyIKmFJ54T098Z9
- YsBVTAvY/pqDfGNnWKVHUttVeqovTTrg7p/cE4yPF43PmpndTqUfHYRbJpri8rLgrujiKdXoo
- HMYhGHuDE9sCBiCaXTo1ZSNgWcHA1A4Uz1WsmII9QUZxa4G7x5mDyvlBV7yCWo0KYUOs7SAM8
- Le/IMvvUUy9pdmh1EeHQ==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f1e89dcc-4d5f-cc1f-8036-dcb062645cb0@mm-sol.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 6, 2019 at 8:47 PM Arnd Bergmann <arnd@arndb.de> wrote:
->
-> The do_video_ioctl() compat handler converts the compat command
-> codes into the native ones before processing further, but this
-> causes problems for 32-bit user applications that pass a command
-> code that matches a 64-bit native number, which will then be
-> handled the same way.
+On Mon 04 Nov 05:00 PST 2019, Stanimir Varbanov wrote:
 
-I noticed that a change to the subject line made this one less
-obvious, I've changed it to "media: v4l2-core: compat: ignore native
-command codes" in my tree now.
+> Hi Bjorn,
+> 
+> Thanks for the fix!
+> 
+> On 11/2/19 2:24 AM, Bjorn Andersson wrote:
+> > There exists non-bridge PCIe devices with PCI_VENDOR_ID_QCOM, so limit
+> > the fixup to only affect the PCIe 2.0 (0x106) and PCIe 3.0 (0x107)
+> > bridges.
+> 
+> Are you sure that this will not break ops_1_0_0 (Qcom IP rev.: 1.0.0
+> Synopsys IP rev.: 4.11a) i.e. apq8084 ?
+> 
 
-       Arnd
+I am not, I've only tested this on db820c and db845c. Unfortunately I'm
+unable to find a branch with the necessary dts snippets to test it. Do
+you perhaps have a branch somewhere?
+
+Regards,
+Bjorn
+
+> > 
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> > ---
+> >  drivers/pci/controller/dwc/pcie-qcom.c | 3 ++-
+> >  include/linux/pci_ids.h                | 2 ++
+> >  2 files changed, 4 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
+> > index 35f4980480bb..b91abf4d4905 100644
+> > --- a/drivers/pci/controller/dwc/pcie-qcom.c
+> > +++ b/drivers/pci/controller/dwc/pcie-qcom.c
+> > @@ -1441,7 +1441,8 @@ static void qcom_fixup_class(struct pci_dev *dev)
+> >  {
+> >  	dev->class = PCI_CLASS_BRIDGE_PCI << 8;
+> >  }
+> > -DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, PCI_ANY_ID, qcom_fixup_class);
+> > +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, PCIE_DEVICE_ID_QCOM_PCIE20, qcom_fixup_class);
+> > +DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_QCOM, PCIE_DEVICE_ID_QCOM_PCIE30, qcom_fixup_class);
+> >  
+> >  static struct platform_driver qcom_pcie_driver = {
+> >  	.probe = qcom_pcie_probe,
+> > diff --git a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+> > index 21a572469a4e..3d0724ee4d2f 100644
+> > --- a/include/linux/pci_ids.h
+> > +++ b/include/linux/pci_ids.h
+> > @@ -2413,6 +2413,8 @@
+> >  #define PCI_VENDOR_ID_LENOVO		0x17aa
+> >  
+> >  #define PCI_VENDOR_ID_QCOM		0x17cb
+> > +#define PCIE_DEVICE_ID_QCOM_PCIE20	0x0106
+> > +#define PCIE_DEVICE_ID_QCOM_PCIE30	0x0107
+> >  
+> >  #define PCI_VENDOR_ID_CDNS		0x17cd
+> >  
+> > 
+> 
+> -- 
+> regards,
+> Stan
