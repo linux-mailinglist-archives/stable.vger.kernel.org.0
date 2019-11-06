@@ -2,71 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0FEFF142F
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 11:44:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8840F143B
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 11:46:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728689AbfKFKoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 05:44:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
+        id S1730844AbfKFKqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 05:46:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725890AbfKFKoQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Nov 2019 05:44:16 -0500
+        id S1725890AbfKFKqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Nov 2019 05:46:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23D3920869;
-        Wed,  6 Nov 2019 10:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93C942173E;
+        Wed,  6 Nov 2019 10:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573037054;
-        bh=jG0JttOgmzlQCSx7+bOGT0umZwwN41UEPKfYQFE7IDY=;
+        s=default; t=1573037172;
+        bh=eSHpZGIiVicGJP+7/7raVfKihwjNw/PcaPaMQYJk17g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Qs1lyDlxFOVZXq+UkW903qovOG/laBOg+I0zSVnMMqP9jfNZFbFedbrP8vWQXel4M
-         JamqDdZYwDGZwdnNsAYVMMNiJFKR/2FFeBZiFSTd7Y0R04GaiBquD9O3hTEZ1JKCGg
-         bGN6OsQ2c1OqL1yeUpTgO4CgAeAn8IWETcbLf+oU=
-Date:   Wed, 6 Nov 2019 11:44:12 +0100
+        b=ows1ZmwXHRBv0/gH2ODL+rr5lSFHUc18PvPsVueEGK4qU6Fcn2f/0oYFuREn6xRGB
+         7TTAJIJnUe4mUIng9mS51DjYpJ/y7W7SBwbT5+5ZBFLEOvBovrCVFlvqBhj00GgRRv
+         fMsnnAcE1dOt8x7aQX8XlzMcyC5tDy3nTOWqxM5o=
+Date:   Wed, 6 Nov 2019 11:46:09 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Pavel Machek <pavel@ucw.cz>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Pascal Bouwmann <bouwmann@tau-tec.de>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 059/149] iio: fix center temperature of
- bmc150-accel-core
-Message-ID: <20191106104412.GA2982490@kroah.com>
-References: <20191104212126.090054740@linuxfoundation.org>
- <20191104212140.681522108@linuxfoundation.org>
- <20191106094138.62qkvhfpyf5brits@ucw.cz>
+To:     shuah <shuah@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net,
+        patches@kernelci.org, ben.hutchings@codethink.co.uk,
+        lkft-triage@lists.linaro.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.3 000/163] 5.3.9-stable review
+Message-ID: <20191106104609.GB2982490@kroah.com>
+References: <20191104212140.046021995@linuxfoundation.org>
+ <82ebb88b-6828-2c80-e4ac-891427e90f2a@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191106094138.62qkvhfpyf5brits@ucw.cz>
+In-Reply-To: <82ebb88b-6828-2c80-e4ac-891427e90f2a@kernel.org>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 06, 2019 at 10:41:38AM +0100, Pavel Machek wrote:
-> > From: Pascal Bouwmann <bouwmann@tau-tec.de>
+On Tue, Nov 05, 2019 at 09:51:43AM -0700, shuah wrote:
+> On 11/4/19 2:43 PM, Greg Kroah-Hartman wrote:
+> > This is the start of the stable review cycle for the 5.3.9 release.
+> > There are 163 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
 > > 
-> > [ Upstream commit 6c59a962e081df6d8fe43325bbfabec57e0d4751 ]
+> > Responses should be made by Wed 06 Nov 2019 09:14:04 PM UTC.
+> > Anything received after that time might be too late.
 > > 
-> > The center temperature of the supported devices stored in the constant
-> > BMC150_ACCEL_TEMP_CENTER_VAL is not 24 degrees but 23 degrees.
+> > The whole patch series can be found in one patch at:
+> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.9-rc1.gz
+> > or in the git tree and branch at:
+> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
+> > and the diffstat can be found below.
 > > 
-> > It seems that some datasheets were inconsistent on this value leading
-> > to the error.  For most usecases will only make minor difference so
-> > not queued for stable.
+> > thanks,
 > > 
-> > Signed-off-by: Pascal Bouwmann <bouwmann@tau-tec.de>
-> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > greg k-h
+> > 
 > 
-> Minor miscalibration, and author specifically states it should not be
-> queued for stable. Yet, Sasha goes and queues it for stable. Why?
+> Compiled and booted on my test system. No dmesg regressions.
 
-Because it really does fix an issue.
-
-thanks,
+Thanks for testing all of these and letting me know.
 
 greg k-h
