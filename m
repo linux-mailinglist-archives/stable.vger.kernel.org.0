@@ -2,128 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD29BF1362
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 11:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0FEFF142F
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 11:44:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725856AbfKFKJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 05:09:44 -0500
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:43610 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726811AbfKFKJo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 05:09:44 -0500
-Received: by mail-ed1-f68.google.com with SMTP id w6so1432125edx.10
-        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 02:09:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=zgoCk5GioxlHgORY0p+mSpP1ABgkg+76ItCxty7i0rU=;
-        b=lVCDDiFC7mB1HeXSorW1F0J1BJR+7gloIpo97XnohjxEkXdBWIevIFY48uSfzV39rH
-         BS+GlH1E4U5nFkaJZhlP8XjSbdD+JY4EVMShNzwdroPHn2xtlllexaKs+O9+AfiE3NgV
-         bqZh4C42KDLQE8hkmpPXZ6IwEuOnxmujCtWr1UKfZdgQm0l8AhMno+a71vwOaNIr35kS
-         pDz2xvRsTvH3u/RO/7+54YoUZNdbRqCcx0wtmt/NvLzHcNimZ3+pehs4Y1z67IZZMAYR
-         Vj/De4s/rKn0bUY6/t5BmOTAXirT0M3Bw59efk4w/DVcxcQtRkxPZWWOoo9wcPAx2Jw/
-         I/ZQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=zgoCk5GioxlHgORY0p+mSpP1ABgkg+76ItCxty7i0rU=;
-        b=LV9bs/VI+ItJj/WZmP4JtvsiIwD+hKZdvphAKHErSGJIf7cqv2QDxz0XqngBylcytm
-         Tt0EcS8aIwRdaAvxm/DNnOhOzxQfGJyIh57NpiMWmjUnyz6Ea4Y/1Gj8hbZPAg2ZvJLp
-         sJwISIS26y+O8AUy5UXT8esStFvAnWUPxSvRqqkssfDKhDAe/tRxjcXkcSiDAG7gcdWk
-         9AuhfcCBgQ0MFL6yKYIkDOy6473q6s5LOw3Bj/fwiDAUZ9YwJKKFxsBHyiguM+W4fXaj
-         QCU7JwDXllqdIvih7bizoaXd5i4ewAtz45Bf2vNvy0JHOz1jjsCxx0mq9xrxLwTJ7Sv1
-         WRGQ==
-X-Gm-Message-State: APjAAAUqLH1DYSlZwg3QhgPt7+ttdeR3VB7J3sh+XoVgnLMwHsJruin9
-        ezGKMe1masoVhQqEQFVpRpdi8g==
-X-Google-Smtp-Source: APXvYqwzbGV1+GbZkbMKyaQhnDBzTxqEoRgZNpxwrhzpuynMbLgHk10WYVX44cgvvfB2ZRK1mtMC1A==
-X-Received: by 2002:a05:6402:2042:: with SMTP id bc2mr1642226edb.167.1573034980828;
-        Wed, 06 Nov 2019 02:09:40 -0800 (PST)
-Received: from [192.168.27.209] ([37.157.136.206])
-        by smtp.googlemail.com with ESMTPSA id s8sm1137900edj.6.2019.11.06.02.09.39
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 06 Nov 2019 02:09:39 -0800 (PST)
-Subject: Re: [PATCH] media: venus: remove invalid compat_ioctl32 handler
-To:     Arnd Bergmann <arnd@arndb.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
-        Andy Gross <agross@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20191106090731.3152446-1-arnd@arndb.de>
-From:   Stanimir Varbanov <stanimir.varbanov@linaro.org>
-Message-ID: <09d4d99f-55cf-54a1-b51e-ad883446b75b@linaro.org>
-Date:   Wed, 6 Nov 2019 12:09:37 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1728689AbfKFKoR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 05:44:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725890AbfKFKoQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Nov 2019 05:44:16 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23D3920869;
+        Wed,  6 Nov 2019 10:44:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573037054;
+        bh=jG0JttOgmzlQCSx7+bOGT0umZwwN41UEPKfYQFE7IDY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Qs1lyDlxFOVZXq+UkW903qovOG/laBOg+I0zSVnMMqP9jfNZFbFedbrP8vWQXel4M
+         JamqDdZYwDGZwdnNsAYVMMNiJFKR/2FFeBZiFSTd7Y0R04GaiBquD9O3hTEZ1JKCGg
+         bGN6OsQ2c1OqL1yeUpTgO4CgAeAn8IWETcbLf+oU=
+Date:   Wed, 6 Nov 2019 11:44:12 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Pascal Bouwmann <bouwmann@tau-tec.de>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 059/149] iio: fix center temperature of
+ bmc150-accel-core
+Message-ID: <20191106104412.GA2982490@kroah.com>
+References: <20191104212126.090054740@linuxfoundation.org>
+ <20191104212140.681522108@linuxfoundation.org>
+ <20191106094138.62qkvhfpyf5brits@ucw.cz>
 MIME-Version: 1.0
-In-Reply-To: <20191106090731.3152446-1-arnd@arndb.de>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191106094138.62qkvhfpyf5brits@ucw.cz>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Arnd,
-
-Thanks for the catch!
-
-On 11/6/19 11:06 AM, Arnd Bergmann wrote:
-> v4l2_compat_ioctl32() is the function that calls into
-> v4l2_file_operations->compat_ioctl32(), so setting that back to the same
-> function leads to a trivial endless loop, followed by a kernel
-> stack overrun.
+On Wed, Nov 06, 2019 at 10:41:38AM +0100, Pavel Machek wrote:
+> > From: Pascal Bouwmann <bouwmann@tau-tec.de>
+> > 
+> > [ Upstream commit 6c59a962e081df6d8fe43325bbfabec57e0d4751 ]
+> > 
+> > The center temperature of the supported devices stored in the constant
+> > BMC150_ACCEL_TEMP_CENTER_VAL is not 24 degrees but 23 degrees.
+> > 
+> > It seems that some datasheets were inconsistent on this value leading
+> > to the error.  For most usecases will only make minor difference so
+> > not queued for stable.
+> > 
+> > Signed-off-by: Pascal Bouwmann <bouwmann@tau-tec.de>
+> > Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> Remove the incorrect assignment.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
-> Fixes: aaaa93eda64b ("[media] media: venus: venc: add video encoder files")
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Minor miscalibration, and author specifically states it should not be
+> queued for stable. Yet, Sasha goes and queues it for stable. Why?
 
-Acked-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Because it really does fix an issue.
 
-> ---
->  drivers/media/platform/qcom/venus/vdec.c | 3 ---
->  drivers/media/platform/qcom/venus/venc.c | 3 ---
->  2 files changed, 6 deletions(-)
-> 
-> diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
-> index 7f4660555ddb..59ae7a1e63bc 100644
-> --- a/drivers/media/platform/qcom/venus/vdec.c
-> +++ b/drivers/media/platform/qcom/venus/vdec.c
-> @@ -1412,9 +1412,6 @@ static const struct v4l2_file_operations vdec_fops = {
->  	.unlocked_ioctl = video_ioctl2,
->  	.poll = v4l2_m2m_fop_poll,
->  	.mmap = v4l2_m2m_fop_mmap,
-> -#ifdef CONFIG_COMPAT
-> -	.compat_ioctl32 = v4l2_compat_ioctl32,
-> -#endif
->  };
->  
->  static int vdec_probe(struct platform_device *pdev)
-> diff --git a/drivers/media/platform/qcom/venus/venc.c b/drivers/media/platform/qcom/venus/venc.c
-> index 1b7fb2d5887c..30028ceb548b 100644
-> --- a/drivers/media/platform/qcom/venus/venc.c
-> +++ b/drivers/media/platform/qcom/venus/venc.c
-> @@ -1235,9 +1235,6 @@ static const struct v4l2_file_operations venc_fops = {
->  	.unlocked_ioctl = video_ioctl2,
->  	.poll = v4l2_m2m_fop_poll,
->  	.mmap = v4l2_m2m_fop_mmap,
-> -#ifdef CONFIG_COMPAT
-> -	.compat_ioctl32 = v4l2_compat_ioctl32,
-> -#endif
->  };
->  
->  static int venc_probe(struct platform_device *pdev)
-> 
+thanks,
 
--- 
-regards,
-Stan
+greg k-h
