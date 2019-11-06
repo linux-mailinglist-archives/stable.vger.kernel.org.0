@@ -2,94 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB7B0F1198
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 09:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D068CF11B9
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 10:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727257AbfKFI7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 03:59:44 -0500
-Received: from foss.arm.com ([217.140.110.172]:36060 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726903AbfKFI7n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Nov 2019 03:59:43 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F38B930E;
-        Wed,  6 Nov 2019 00:59:42 -0800 (PST)
-Received: from arrakis.emea.arm.com (unknown [10.1.197.42])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id EE9493F71A;
-        Wed,  6 Nov 2019 00:59:41 -0800 (PST)
-Date:   Wed, 6 Nov 2019 08:59:39 +0000
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     John Stultz <john.stultz@linaro.org>
-Cc:     Will Deacon <will@kernel.org>, Alistair Delva <adelva@google.com>,
-        Sandeep Patil <sspatil@google.com>,
-        stable <stable@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        Steve Capper <Steve.Capper@arm.com>
-Subject: Re: [PATCH] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by
- default
-Message-ID: <20191106085939.GC21133@arrakis.emea.arm.com>
-References: <20191029153051.24367-1-catalin.marinas@arm.com>
- <CALAqxLXuxZVg0kqNQXF_dH17NzH9m14-Ci_rzruHzmms0V7pvg@mail.gmail.com>
- <20191105102902.GB29852@willie-the-truck>
- <20191105165433.GD22987@arrakis.emea.arm.com>
- <CALAqxLWYJvHO3YYbQHmgg0yThx_kqM7HBFnnxrcWkG1-LXeCQQ@mail.gmail.com>
+        id S1727506AbfKFJHt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 04:07:49 -0500
+Received: from mout.kundenserver.de ([212.227.126.187]:43043 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726843AbfKFJHt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 04:07:49 -0500
+Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
+ (mreue009 [212.227.15.129]) with ESMTPA (Nemesis) id
+ 1MIdW9-1igtkS0UiL-00EZgr; Wed, 06 Nov 2019 10:07:37 +0100
+From:   Arnd Bergmann <arnd@arndb.de>
+To:     Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, stable@vger.kernel.org,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab@s-opensource.com>,
+        Andy Gross <agross@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        linux-media@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] media: venus: remove invalid compat_ioctl32 handler
+Date:   Wed,  6 Nov 2019 10:06:54 +0100
+Message-Id: <20191106090731.3152446-1-arnd@arndb.de>
+X-Mailer: git-send-email 2.20.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CALAqxLWYJvHO3YYbQHmgg0yThx_kqM7HBFnnxrcWkG1-LXeCQQ@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:8RmDx4hHYVaGCRLB35n3qdiZOzUXcVe0+StcVe0UHvHpojc5T/4
+ uzsWV9aOL+uHX72YbQa8qjbMgaBFg4cUcIuX3JwFT33wd+hDOHw0Gxu/AACyXMMPHDpO3qS
+ e8SezUBQFDXhSY4USnlbekvkOTc1byAB440qbxJg6rA8EyNETSc1rU5kjdE6LCJiVl742X9
+ hLCFCuyKLHCV6f6MIz+NA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:0e6MMvLXfls=:4/MvFiPhzD2v4dq4ei/GqJ
+ upkwO1ea9eMllyQ5KzkyyMTYbb60gFwFTEtrz+i1c2gBGOvyvCLOHIHEiLQ4mc7grzJgOnLo5
+ cLAI7xO9iOjJ+TLiYYsar95qpgCMbdpilVzPE5D4fAObNbjO6NbZxxKafvpaZebU/5FSGCy1R
+ xsL/R0rjvdeRtCL/vRMRkiCr2+sbjYeYyQwtbTdATCP2+ZYLAMNgNux4U8+DbWB53HQHTsOL/
+ yvvZx3Ib7IVG5Nl24s1cKtUNMIpPuakHOail8qcrPP4agnnQvtCcOCJLSPxK+75uo1sdlrtMN
+ Hiz3h44usxXP9FjoU7DQi5/CgdKCEON9JSrsa/Ngw/rnHk+KARie5v6/I7Lfgtf4lsgiM2QXI
+ iP5RScn8nQ+z48MBPpJCBsRqDGUWU04DPfosdtLeQXwoPCigrATip1eSK4DnGDYVC7Z2U2NLK
+ MWHX5Auc8oQxCompC2le/breqc7FgdOj/tE9eVK/REyPzUblOwYse1MY2Pujs+ftFwt5JDVXX
+ IlRu+bxvfhCaGYLK8S7q7YpBMkf3UA99ulViCXC8ZxVAv0T0+UXQ5JScvXisuCGnT1cUUTyFG
+ tAi6dhVwDpJMUQcJZG/4rNfO9v7u1BO3h+w3ajKJ3P8XtpNgfFLwBlkgvT676IdMPntGQj2oy
+ ueso2NPqA7MP8javvvaTs5CZg1uxO8z8ej+5qhqLCycAH9FaXkGrkQcbaZYeKcrjPDbRftAHe
+ wIEkudc61tT8/Cu7fbETvo5oYwjjPvFMWlOcqzAtjH+ZA1wQFeS+BDTzIZ/219dljJ/3/donI
+ HhB0FZo5AKnKawpGrRG/p1broZNesSc/6l466L377Bzj7tUJBkqWFeIPsPjmminibnprfgbbi
+ QBpI7ZPdm/tcrJr3FH7w==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 05, 2019 at 01:17:11PM -0800, John Stultz wrote:
-> On Tue, Nov 5, 2019 at 8:54 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > On Tue, Nov 05, 2019 at 10:29:03AM +0000, Will Deacon wrote:
-> > > On Mon, Nov 04, 2019 at 05:16:42PM -0800, John Stultz wrote:
-> > > > On Tue, Oct 29, 2019 at 8:31 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > > > >
-> > > > > Shared and writable mappings (__S.1.) should be clean (!dirty) initially
-> > > > > and made dirty on a subsequent write either through the hardware DBM
-> > > > > (dirty bit management) mechanism or through a write page fault. A clean
-> > > > > pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
-> > > > > clear.
-> > > > >
-> > > > > The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
-> > > > > PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
-> > > > > bit handling out of set_pte_at()"), it was the responsibility of
-> > > > > set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
-> > > > > software PTE_DIRTY bit was not set. However, the above commit removed
-> > > > > the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
-> > > > > set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
-> > > > > unchanged. The result is that shared+writable mappings are now dirty by
-> > > > > default
-> > > > >
-> > > > > Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
-> > > > > In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
-> > > > > attributes.
-> > > > >
-> > > > > Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
-> > > > > Cc: <stable@vger.kernel.org> # 4.14.x-
-> > > > > Cc: Will Deacon <will@kernel.org>
-> > > > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > [...]
-> > > As an experiment, can you try reverting just the part of the patch that
-> > > removes PTE_DIRTY from the PROT_* definitions? (see below)
-> >
-> > Another thing worth trying is reverting commit 747a70e60b72 ("arm64: Fix
-> > copy-on-write referencing in HugeTLB") when this patch is applied. That
-> > commit is not just about hugetlb but changes pte_same() to ignore
-> > PTE_RDONLY on the assumption that this is set by set_pte_at(). We
-> > subsequently changed set_pte_at() to drop PTE_RDONLY.
-> 
-> Just to confirm, reverting 747a70e60b72 instead of aa57157be69f also
-> seems to avoid the issue I'm seeing.
+v4l2_compat_ioctl32() is the function that calls into
+v4l2_file_operations->compat_ioctl32(), so setting that back to the same
+function leads to a trivial endless loop, followed by a kernel
+stack overrun.
 
-Thanks for confirming. I'm not sure about all the interactions in your
-kernel but just looking at commit 747a70e60b72 it likely needs to be
-reverted anyway. I'll send a separate patch and hopefully Steve can
-confirm that it doesn't break the original hugetlb use-case.
+Remove the incorrect assignment.
 
+Cc: stable@vger.kernel.org
+Fixes: 7472c1c69138 ("[media] media: venus: vdec: add video decoder files")
+Fixes: aaaa93eda64b ("[media] media: venus: venc: add video encoder files")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/media/platform/qcom/venus/vdec.c | 3 ---
+ drivers/media/platform/qcom/venus/venc.c | 3 ---
+ 2 files changed, 6 deletions(-)
+
+diff --git a/drivers/media/platform/qcom/venus/vdec.c b/drivers/media/platform/qcom/venus/vdec.c
+index 7f4660555ddb..59ae7a1e63bc 100644
+--- a/drivers/media/platform/qcom/venus/vdec.c
++++ b/drivers/media/platform/qcom/venus/vdec.c
+@@ -1412,9 +1412,6 @@ static const struct v4l2_file_operations vdec_fops = {
+ 	.unlocked_ioctl = video_ioctl2,
+ 	.poll = v4l2_m2m_fop_poll,
+ 	.mmap = v4l2_m2m_fop_mmap,
+-#ifdef CONFIG_COMPAT
+-	.compat_ioctl32 = v4l2_compat_ioctl32,
+-#endif
+ };
+ 
+ static int vdec_probe(struct platform_device *pdev)
+diff --git a/drivers/media/platform/qcom/venus/venc.c b/drivers/media/platform/qcom/venus/venc.c
+index 1b7fb2d5887c..30028ceb548b 100644
+--- a/drivers/media/platform/qcom/venus/venc.c
++++ b/drivers/media/platform/qcom/venus/venc.c
+@@ -1235,9 +1235,6 @@ static const struct v4l2_file_operations venc_fops = {
+ 	.unlocked_ioctl = video_ioctl2,
+ 	.poll = v4l2_m2m_fop_poll,
+ 	.mmap = v4l2_m2m_fop_mmap,
+-#ifdef CONFIG_COMPAT
+-	.compat_ioctl32 = v4l2_compat_ioctl32,
+-#endif
+ };
+ 
+ static int venc_probe(struct platform_device *pdev)
 -- 
-Catalin
+2.20.0
+
