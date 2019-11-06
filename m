@@ -2,135 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74020F0E00
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 05:56:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6366BF0E20
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 06:16:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730538AbfKFE4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 23:56:32 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:34819 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730528AbfKFE4c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 23:56:32 -0500
-Received: by mail-ot1-f67.google.com with SMTP id z6so19773414otb.2
-        for <stable@vger.kernel.org>; Tue, 05 Nov 2019 20:56:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=lNl0SHnN7vD9n+DBD3M8lM/x0tJoz22JKGDM/y74qf8=;
-        b=Zom8xELa0Q+363dyeYAqesoajRTgp/nD4/uxdv/iRaS6YU4ddRMvwi26Z8/kT7jtYa
-         xbhpVKoOVQG0VouZni+vX05kxcTjKfgvjBpOfmj3msXSFy9cX5i+/AV8gjeleFse2lOQ
-         ggQlJhRrNtRuiGvXmlL7rlf6rdDBH6qHwd7nu/vltlxO5gDN++uuC7ncRzS3dRp1ab33
-         0rfFA/HrEwq/qoDlwqI3kM2yxnndPX6i9oZQskOOt6klV4DU6d/Mii55ojMlCTNUAPXG
-         l4VgiOVRef26ZK5Gk9EF/z1j1b1O8sXSNtCzDLTmN5PwWIj5cEjDAYWz5AAVW74usoYr
-         pR1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=lNl0SHnN7vD9n+DBD3M8lM/x0tJoz22JKGDM/y74qf8=;
-        b=gTijXBUnELIin6MugbclZOyiHokw0eM0JdhsgW51bMiBv8fu+jTqlQB7DWDTVp3lKp
-         C8zygJy5oEUp4vgoz/6n5jazwf26MMblXVvnVSBblIHpdLqj7ZP4/W7shKOsIil+38wP
-         LEnM0kRznJFoCGZfam5u3Di14l0q0enYGH1mtuo8qmYT32tETJM0fv0CJi5T0EO9vDMJ
-         8CfFIAU+uwLkz8YpciJIy6GcoZKPS4O1nu7WjxqINlr6S0why3BLE+UiSflx8RnT1GLF
-         yzwLITpTnYusCR3AobV65wmGsu+g+NpkwejvwcJTvzZVQrFTUNCRIvxuaNRkhtCOMfOL
-         lnew==
-X-Gm-Message-State: APjAAAWYC2OezFXOMl/c9uH80g/8BTSR25AJ41vOFRVp9H3xcnuf//Yi
-        SdOnhN2I/asg+NREwGPLXnFAuUI7UKsoBwoJq9ja6cxNzyQ=
-X-Google-Smtp-Source: APXvYqyNvGpKKTA/4tLkAPRJ4Kr8XYLx4zybvcrz0y/GfQqYUhXSfClJBJitO+bLoCY4+OvCDQlak++yvDdonPxG9MU=
-X-Received: by 2002:a9d:630c:: with SMTP id q12mr346670otk.332.1573016190908;
- Tue, 05 Nov 2019 20:56:30 -0800 (PST)
-MIME-Version: 1.0
-References: <20191029153051.24367-1-catalin.marinas@arm.com>
- <CALAqxLXuxZVg0kqNQXF_dH17NzH9m14-Ci_rzruHzmms0V7pvg@mail.gmail.com>
- <20191105102902.GB29852@willie-the-truck> <CALAqxLVT-SK0-nNUmbDWa3kkZED2z+pcryzuue9c=n42shu3kA@mail.gmail.com>
-In-Reply-To: <CALAqxLVT-SK0-nNUmbDWa3kkZED2z+pcryzuue9c=n42shu3kA@mail.gmail.com>
-From:   John Stultz <john.stultz@linaro.org>
-Date:   Tue, 5 Nov 2019 20:56:19 -0800
-Message-ID: <CALAqxLVEGwA1bybiu+xfxsZRRTMTDmArCF0Ak1JbR55f-rwRtw@mail.gmail.com>
-Subject: Re: [PATCH] arm64: Ensure VM_WRITE|VM_SHARED ptes are clean by default
-To:     Will Deacon <will@kernel.org>
-Cc:     Catalin Marinas <catalin.marinas@arm.com>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
-        stable <stable@vger.kernel.org>,
-        Alistair Delva <adelva@google.com>,
-        Sandeep Patil <sspatil@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1725876AbfKFFQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 00:16:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42152 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725379AbfKFFQX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 6 Nov 2019 00:16:23 -0500
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 551BF206A3;
+        Wed,  6 Nov 2019 05:16:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573017381;
+        bh=aH/jj0H4fMOvSzV5fvt6swlyJYSWxEBSqHHIoXLKLFM=;
+        h=Date:From:To:Subject:From;
+        b=upSax/QBfbsLXteQ4sH5d5fNopRj7PpMHPYSQdUnaDVhAquYUbMoTfYzrg4qvA+sX
+         Co472BfVNqF+BGfFTQdGVII7xUq5il9up9IUriWDlEA9RLbPottL9FNY2j4wzBvTGF
+         4nxRkBEQam8R9opCKbgPn8QMPnSisbo5JspcjX5w=
+Date:   Tue, 05 Nov 2019 21:16:21 -0800
+From:   akpm@linux-foundation.org
+To:     akpm@linux-foundation.org, guro@fb.com, hannes@cmpxchg.org,
+        linux-mm@kvack.org, mhocko@suse.com, mm-commits@vger.kernel.org,
+        shakeelb@google.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vdavydov.dev@gmail.com
+Subject:  [patch 01/17] mm: memcontrol: fix NULL-ptr deref in
+ percpu stats flush
+Message-ID: <20191106051621.ptBmJsVW2%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 5, 2019 at 9:06 AM John Stultz <john.stultz@linaro.org> wrote:
-> On Tue, Nov 5, 2019 at 2:29 AM Will Deacon <will@kernel.org> wrote:
-> >
-> > Hi John,
-> >
-> > On Mon, Nov 04, 2019 at 05:16:42PM -0800, John Stultz wrote:
-> > > On Tue, Oct 29, 2019 at 8:31 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> > > >
-> > > > Shared and writable mappings (__S.1.) should be clean (!dirty) initially
-> > > > and made dirty on a subsequent write either through the hardware DBM
-> > > > (dirty bit management) mechanism or through a write page fault. A clean
-> > > > pte for the arm64 kernel is one that has PTE_RDONLY set and PTE_DIRTY
-> > > > clear.
-> > > >
-> > > > The PAGE_SHARED{,_EXEC} attributes have PTE_WRITE set (PTE_DBM) and
-> > > > PTE_DIRTY clear. Prior to commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY
-> > > > bit handling out of set_pte_at()"), it was the responsibility of
-> > > > set_pte_at() to set the PTE_RDONLY bit and mark the pte clean if the
-> > > > software PTE_DIRTY bit was not set. However, the above commit removed
-> > > > the pte_sw_dirty() check and the subsequent setting of PTE_RDONLY in
-> > > > set_pte_at() while leaving the PAGE_SHARED{,_EXEC} definitions
-> > > > unchanged. The result is that shared+writable mappings are now dirty by
-> > > > default
-> > > >
-> > > > Fix the above by explicitly setting PTE_RDONLY in PAGE_SHARED{,_EXEC}.
-> > > > In addition, remove the superfluous PTE_DIRTY bit from the kernel PROT_*
-> > > > attributes.
-> > > >
-> > > > Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
-> > > > Cc: <stable@vger.kernel.org> # 4.14.x-
-> > > > Cc: Will Deacon <will@kernel.org>
-> > > > Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> > >
-> > > Hey,
-> > >   So I'm not yet sure why, but I've just validated that this patch is
-> > > causing trouble with booting AOSP on HiKey960 with 5.4-rc6 (-rc5 works
-> > > fine).
-> >
-> > Hmm. Annoying this wasn't spotted by CI.
-> >
-> > > Its odd, because the system does boot and is alive, but seems to stall
-> > > out at the boot animation, and userland never finishes coming up to
-> > > the home screen. It just sits there without a useful error message
-> > > that I can find so far.  Reverting just this patch seems to solve it
-> > > and it boots all the way.
-> >
-> > Given that I don't think the HiKey960 supports h/w DBM, my initial guess
-> > is that the GPU is stuck on a page fault.
-> >
-> > > I'll try to dig further to see what might be going on (the mali driver
-> > > is a prime suspect here), but I wanted to raise the flag since we're
-> > > at the end of the -rc cycle.
-> >
-> > What exactly are you using for the mali driver?
->
-> I've got an old r10p0 bifrost blob we were given and kernel patches
-> I've carried forward since then.
->
-> Again, I don't want to distract you too much for something that may be
-> related to a blob driver. I mostly just wanted to raise a flag in case
-> there was something off that might affect others.
+From: Shakeel Butt <shakeelb@google.com>
+Subject: mm: memcontrol: fix NULL-ptr deref in percpu stats flush
 
-Just as a further detail (about to close up for the day), I'm also
-seeing this issue on the HiKey board as well. Similarly reverting
-747a70e60b72 resolves it.
-Its a mali blob driver too, but a different one (utgard) which makes
-me suspect this might be a real issue w/ something in AOSP.
+__mem_cgroup_free() can be called on the failure path in
+mem_cgroup_alloc().  However memcg_flush_percpu_vmstats() and
+memcg_flush_percpu_vmevents() which are called from __mem_cgroup_free()
+access the fields of memcg which can potentially be null if called from
+failure path from mem_cgroup_alloc().  Indeed syzbot has reported the
+following crash:
 
-I'll be testing on a db845c tomorrow morning to see if I can trigger
-it there as well.
+	R13: 00000000004bf27d R14: 00000000004db028 R15: 0000000000000003
+	kasan: CONFIG_KASAN_INLINE enabled
+	kasan: GPF could be caused by NULL-ptr deref or user memory access
+	general protection fault: 0000 [#1] PREEMPT SMP KASAN
+	CPU: 0 PID: 30393 Comm: syz-executor.1 Not tainted 5.4.0-rc2+ #0
+	Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+	RIP: 0010:memcg_flush_percpu_vmstats+0x4ae/0x930 mm/memcontrol.c:3436
+	Code: 05 41 89 c0 41 0f b6 04 24 41 38 c7 7c 08 84 c0 0f 85 5d 03 00 00 44 3b 05 33 d5 12 08 0f 83 e2 00 00 00 4c 89 f0 48 c1 e8 03 <42> 80 3c 28 00 0f 85 91 03 00 00 48 8b 85 10 fe ff ff 48 8b b0 90
+	RSP: 0018:ffff888095c27980 EFLAGS: 00010206
+	RAX: 0000000000000012 RBX: ffff888095c27b28 RCX: ffffc90008192000
+	RDX: 0000000000040000 RSI: ffffffff8340fae7 RDI: 0000000000000007
+	RBP: ffff888095c27be0 R08: 0000000000000000 R09: ffffed1013f0da33
+	R10: ffffed1013f0da32 R11: ffff88809f86d197 R12: fffffbfff138b760
+	R13: dffffc0000000000 R14: 0000000000000090 R15: 0000000000000007
+	FS:  00007f5027170700(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+	CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	CR2: 0000000000710158 CR3: 00000000a7b18000 CR4: 00000000001406f0
+	DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+	DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+	Call Trace:
+	__mem_cgroup_free+0x1a/0x190 mm/memcontrol.c:5021
+	mem_cgroup_free mm/memcontrol.c:5033 [inline]
+	mem_cgroup_css_alloc+0x3a1/0x1ae0 mm/memcontrol.c:5160
+	css_create kernel/cgroup/cgroup.c:5156 [inline]
+	cgroup_apply_control_enable+0x44d/0xc40 kernel/cgroup/cgroup.c:3119
+	cgroup_mkdir+0x899/0x11b0 kernel/cgroup/cgroup.c:5401
+	kernfs_iop_mkdir+0x14d/0x1d0 fs/kernfs/dir.c:1124
+	vfs_mkdir+0x42e/0x670 fs/namei.c:3807
+	do_mkdirat+0x234/0x2a0 fs/namei.c:3830
+	__do_sys_mkdir fs/namei.c:3846 [inline]
+	__se_sys_mkdir fs/namei.c:3844 [inline]
+	__x64_sys_mkdir+0x5c/0x80 fs/namei.c:3844
+	do_syscall_64+0xfa/0x760 arch/x86/entry/common.c:290
+	entry_SYSCALL_64_after_hwframe+0x49/0xbe
+	RIP: 0033:0x459a59
+	Code: fd b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00 00 66 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 cb b7 fb ff c3 66 2e 0f 1f 84 00 00 00 00
+	RSP: 002b:00007f502716fc78 EFLAGS: 00000246 ORIG_RAX: 0000000000000053
+	RAX: ffffffffffffffda RBX: 00007f502716fc90 RCX: 0000000000459a59
+	RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000180
+	RBP: 000000000075bf20 R08: 0000000000000000 R09: 0000000000000000
+	R10: 0000000000000000 R11: 0000000000000246 R12: 00007f50271706d4
+	R13: 00000000004bf27d R14: 00000000004db028 R15: 0000000000000003
 
-thanks
--john
+Fixing this by moving the flush to mem_cgroup_free as there is no need
+to flush anything if we see failure in mem_cgroup_alloc().
+
+Link: http://lkml.kernel.org/r/20191018165231.249872-1-shakeelb@google.com
+Fixes: bb65f89b7d3d ("mm: memcontrol: flush percpu vmevents before releasing memcg")
+Fixes: c350a99ea2b1 ("mm: memcontrol: flush percpu vmstats before releasing memcg")
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Reported-by: syzbot+515d5bcfe179cdf049b2@syzkaller.appspotmail.com
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Vladimir Davydov <vdavydov.dev@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/memcontrol.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+--- a/mm/memcontrol.c~mm-memcontrol-fix-null-ptr-deref-in-percpu-stats-flush
++++ a/mm/memcontrol.c
+@@ -5014,12 +5014,6 @@ static void __mem_cgroup_free(struct mem
+ {
+ 	int node;
+ 
+-	/*
+-	 * Flush percpu vmstats and vmevents to guarantee the value correctness
+-	 * on parent's and all ancestor levels.
+-	 */
+-	memcg_flush_percpu_vmstats(memcg, false);
+-	memcg_flush_percpu_vmevents(memcg);
+ 	for_each_node(node)
+ 		free_mem_cgroup_per_node_info(memcg, node);
+ 	free_percpu(memcg->vmstats_percpu);
+@@ -5030,6 +5024,12 @@ static void __mem_cgroup_free(struct mem
+ static void mem_cgroup_free(struct mem_cgroup *memcg)
+ {
+ 	memcg_wb_domain_exit(memcg);
++	/*
++	 * Flush percpu vmstats and vmevents to guarantee the value correctness
++	 * on parent's and all ancestor levels.
++	 */
++	memcg_flush_percpu_vmstats(memcg, false);
++	memcg_flush_percpu_vmevents(memcg);
+ 	__mem_cgroup_free(memcg);
+ }
+ 
+_
