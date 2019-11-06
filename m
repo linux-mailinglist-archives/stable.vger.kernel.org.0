@@ -2,93 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E1CF1024
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 08:22:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70809F1056
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 08:32:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730105AbfKFHWc convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 6 Nov 2019 02:22:32 -0500
-Received: from mail.fireflyinternet.com ([109.228.58.192]:62944 "EHLO
+        id S1731150AbfKFHcN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 02:32:13 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:56324 "EHLO
         fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726772AbfKFHWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 02:22:31 -0500
+        with ESMTP id S1730844AbfKFHcN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 02:32:13 -0500
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from localhost (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP (TLS) id 19097373-1500050 
-        for multiple; Wed, 06 Nov 2019 07:22:26 +0000
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-To:     intel-gfx@lists.freedesktop.org
+Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19097435-1500050 
+        for multiple; Wed, 06 Nov 2019 07:32:11 +0000
 From:   Chris Wilson <chris@chris-wilson.co.uk>
-In-Reply-To: <20190716124931.5870-1-chris@chris-wilson.co.uk>
-Cc:     tvrtko.ursulin@intel.com,
+To:     intel-gfx@lists.freedesktop.org
+Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
         Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         stable@vger.kernel.org
-References: <20190716124931.5870-1-chris@chris-wilson.co.uk>
-Message-ID: <157302494441.18566.9645099809866368384@skylake-alporthouse-com>
-User-Agent: alot/0.6
-Subject: Re: [PATCH 1/5] drm/i915/userptr: Beware recursive lock_page()
-Date:   Wed, 06 Nov 2019 07:22:24 +0000
+Subject: [PATCH] drm/i915/userptr: Try to acquire the page lock around set_page_dirty()
+Date:   Wed,  6 Nov 2019 07:32:09 +0000
+Message-Id: <20191106073209.25829-1-chris@chris-wilson.co.uk>
+X-Mailer: git-send-email 2.24.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Chris Wilson (2019-07-16 13:49:27)
-> Following a try_to_unmap() we may want to remove the userptr and so call
-> put_pages(). However, try_to_unmap() acquires the page lock and so we
-> must avoid recursively locking the pages ourselves -- which means that
-> we cannot safely acquire the lock around set_page_dirty(). Since we
-> can't be sure of the lock, we have to risk skip dirtying the page, or
-> else risk calling set_page_dirty() without a lock and so risk fs
-> corruption.
-> 
-> Reported-by: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-> Fixes: cb6d7c7dc7ff ("drm/i915/userptr: Acquire the page lock around set_page_dirty()")
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/gpu/drm/i915/gem/i915_gem_userptr.c | 16 ++++++++++++++--
->  1 file changed, 14 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-> index b9d2bb15e4a6..1ad2047a6dbd 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-> @@ -672,7 +672,7 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
->                 obj->mm.dirty = false;
->  
->         for_each_sgt_page(page, sgt_iter, pages) {
-> -               if (obj->mm.dirty)
-> +               if (obj->mm.dirty && trylock_page(page)) {
->                         /*
->                          * As this may not be anonymous memory (e.g. shmem)
->                          * but exist on a real mapping, we have to lock
-> @@ -680,8 +680,20 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
->                          * the page reference is not sufficient to
->                          * prevent the inode from being truncated.
->                          * Play safe and take the lock.
-> +                        *
-> +                        * However...!
-> +                        *
-> +                        * The mmu-notifier can be invalidated for a
-> +                        * migrate_page, that is alreadying holding the lock
-> +                        * on the page. Such a try_to_unmap() will result
-> +                        * in us calling put_pages() and so recursively try
-> +                        * to lock the page. We avoid that deadlock with
-> +                        * a trylock_page() and in exchange we risk missing
-> +                        * some page dirtying.
->                          */
-> -                       set_page_dirty_lock(page);
-> +                       set_page_dirty(page);
-> +                       unlock_page(page);
-> +               }
+set_page_dirty says:
 
-It really seems like we have no choice but to only call set_page_dirty()
-while under the page lock, and the only way we can guarantee that
-without recursion is with a trylock...
+	For pages with a mapping this should be done under the page lock
+	for the benefit of asynchronous memory errors who prefer a
+	consistent dirty state. This rule can be broken in some special
+	cases, but should be better not to.
 
-https://bugs.freedesktop.org/show_bug.cgi?id=112012
--Chris
+Under those rules, it is only safe for us to use the plain set_page_dirty
+calls for shmemfs/anonymous memory. Userptr may be used with real
+mappings and so needs to use the locked version (set_page_dirty_lock).
+
+However, following a try_to_unmap() we may want to remove the userptr and
+so call put_pages(). However, try_to_unmap() acquires the page lock and
+so we must avoid recursively locking the pages ourselves -- which means
+that we cannot safely acquire the lock around set_page_dirty(). Since we
+can't be sure of the lock, we have to risk skip dirtying the page, or
+else risk calling set_page_dirty() without a lock and so risk fs
+corruption.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112012
+Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video m
+References: cb6d7c7dc7ff ("drm/i915/userptr: Acquire the page lock around set_page_dirty()")
+References: 505a8ec7e11a ("Revert "drm/i915/userptr: Acquire the page lock around set_page_dirty()"")
+References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/i915/gem/i915_gem_userptr.c | 22 ++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+index 1e045c337044..4c72d74d6576 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+@@ -646,8 +646,28 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+ 		obj->mm.dirty = false;
+ 
+ 	for_each_sgt_page(page, sgt_iter, pages) {
+-		if (obj->mm.dirty)
++		if (obj->mm.dirty && trylock_page(page)) {
++			/*
++			 * As this may not be anonymous memory (e.g. shmem)
++			 * but exist on a real mapping, we have to lock
++			 * the page in order to dirty it -- holding
++			 * the page reference is not sufficient to
++			 * prevent the inode from being truncated.
++			 * Play safe and take the lock.
++			 *
++			 * However...!
++			 *
++			 * The mmu-notifier can be invalidated for a
++			 * migrate_page, that is alreadying holding the lock
++			 * on the page. Such a try_to_unmap() will result
++			 * in us calling put_pages() and so recursively try
++			 * to lock the page. We avoid that deadlock with
++			 * a trylock_page() and in exchange we risk missing
++			 * some page dirtying.
++			 */
+ 			set_page_dirty(page);
++			unlock_page(page);
++		}
+ 
+ 		mark_page_accessed(page);
+ 		put_page(page);
+-- 
+2.24.0
+
