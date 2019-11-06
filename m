@@ -2,96 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51DD4F0A61
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 00:46:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 19596F0AE4
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 01:08:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729711AbfKEXqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 5 Nov 2019 18:46:11 -0500
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:10495 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729688AbfKEXqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 5 Nov 2019 18:46:11 -0500
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5dc209c40000>; Tue, 05 Nov 2019 15:46:12 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Tue, 05 Nov 2019 15:46:10 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Tue, 05 Nov 2019 15:46:10 -0800
-Received: from [10.26.11.93] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 5 Nov
- 2019 23:46:07 +0000
-Subject: Re: [PATCH 4.19 000/149] 4.19.82-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191104212126.090054740@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <6e8b6e19-0d66-beb0-8e16-7975aa1d462a@nvidia.com>
-Date:   Tue, 5 Nov 2019 23:46:05 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1730125AbfKFAIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 5 Nov 2019 19:08:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50568 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727252AbfKFAIi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 5 Nov 2019 19:08:38 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FC65214D8;
+        Wed,  6 Nov 2019 00:08:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1572998917;
+        bh=d8eua9epBG5FR3oyfrO8a6KH1Z3GMMnPGdw78PUjkOQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IgO5vzyKQlxiswiCAv0ySsNr5xM1suuJtgO7N2+x28RU45JBffkFf8N1OQ1FM5xwj
+         5iRqXhFjvhJhQoqhcEIHBCXDk/TGpDXiYcaexlLUYr3xOGgo7y+HdR7OdCAAaLAvmg
+         Sz8QqvITUCvfXHe1KPDcbG8ywsRAAk7yZZLnQ94A=
+Date:   Tue, 5 Nov 2019 19:08:36 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     Marta Rybczynska <mrybczyn@kalray.eu>,
+        Charles Machalow <csm10495@gmail.com>,
+        linux-nvme <linux-nvme@lists.infradead.org>,
+        kbusch <kbusch@kernel.org>, axboe <axboe@fb.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] nvme: change nvme_passthru_cmd64 to explicitly mark rsvd
+Message-ID: <20191106000836.GH4787@sasha-vm>
+References: <20191105061510.22233-1-csm10495@gmail.com>
+ <442718702.90376810.1572939552776.JavaMail.zimbra@kalray.eu>
+ <20191105153144.GA12437@lst.de>
 MIME-Version: 1.0
-In-Reply-To: <20191104212126.090054740@linuxfoundation.org>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1572997572; bh=y5momF3FRqvQu3YdtXVfqb2uV8PVwzSANyREhnaeY6Y=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=gb9J721UcvRwiRbQzUuigqTtLITubocaWUK3OgRaVXLjeGirmZV7tvoI361ASUWwY
-         Jkx4pMNnwTX0kOsfv13npNT7P3XpQ4bpoNTOozFpvNbQCEO59kOc7hhG9Q+6yhs2KZ
-         05VV9+wARKvpNCrwKWj52sSrhhy2xI2C0LXJVFgx6NdqgvUkjwFX5eWmJ3R4veS4bL
-         EqeBqXxykS1KiguhoVUnm9WEDaFWmjP6ibqMAwLXbhEiyrfrKzA7zHzDrd8xnDltyE
-         7o7ZL2u8CrbF1CxFXL5/pemOxnkWXDRpd4O3HfCEk2t7SUcWF6DnFETFtMslrA5MpL
-         ddYPPtepXcR+Q==
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20191105153144.GA12437@lst.de>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Nov 05, 2019 at 04:31:44PM +0100, Christoph Hellwig wrote:
+>On Tue, Nov 05, 2019 at 08:39:12AM +0100, Marta Rybczynska wrote:
+>> Looks good to me. However, please note that the new ioctl made it already to 5.3.8.
+>
+>It wasn't in 5.3, but it seems like you are right and it somehow got
+>picked for the stable releases.
+>
+>Sasha, can you please revert 76d609da9ed1cc0dc780e2b539d7b827ce28f182
+>in 5.3-stable ASAP and make sure crap like backporting new ABIs that
+>haven't seen a release yet is never ever going to happen again?
 
-On 04/11/2019 21:43, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.82 release.
-> There are 149 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed 06 Nov 2019 09:14:04 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.82-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
-> -------------
-> Pseudo-Shortlog of commits:
-
-...
-
-> Jose Abreu <jose.abreu@synopsys.com>
->     net: stmmac: Fix NAPI poll in TX path when in multi-queue
-
-The above commit is causing a boot regression on Tegra186. Bisect points
-to this commit and reverting fixes the issue.
-
-Regards,
-Jon
+Sure, I'll revert it. I guess I wasn't expecting to see something like
+this in a -rc release. How did it make it into one if it's not a fix?
 
 -- 
-nvpublic
+Thanks,
+Sasha
