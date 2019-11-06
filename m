@@ -2,232 +2,447 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9799AF1A3B
-	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 16:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0CD4F1A40
+	for <lists+stable@lfdr.de>; Wed,  6 Nov 2019 16:42:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731998AbfKFPma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 10:42:30 -0500
-Received: from mail-eopbgr60117.outbound.protection.outlook.com ([40.107.6.117]:21573
-        "EHLO EUR04-DB3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727028AbfKFPma (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 6 Nov 2019 10:42:30 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=WPXZJgThj7uJcGl2AAmV9wcR7bopU6kzP3BUkjPeowosQyicN+Rc+6z2EMqzWc04zNiMgXkmLsWcYrK1S470eM7lioTnv0amxDG9nWZMSSFoptxS9MgL/Wdckjmdji6JTzty0urnBUuPuLhBA+hbmDjYndbKowVxV2aF7Qwy5Y3eLfSqXaX50d0b3B9T8ptYJ9QMy0KQifalyeU3CjIiJPKxuKdgUoVE+RCsQiPqEidNxTGNJmWYn+FuQ3MkjMk4fZeNKNiGer4Z1n+f88qRfKjnHkhCR82Kh09fLENsM2y/SaznL3OEjV7bkOY6icm9SWgmpFfsdOfXNavL3WEciA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WZvUAGxaLgtGJWb2NDNBjCtddpwg6H2W0+Jv+MklurU=;
- b=Dg8f0JElqSHdlscl20PoOqt7shFcEcU61OsNj/9aaNKlRm/nI32FV+Zh5/H2As0gynduPCeXzhq5f9w4Txonnu2Mcvyi32RqXa5JZBnnDxsHleTIEClJG+55w5vlmeQMzfRGxBxxBoJeir351mZmuOTYM2rxP/c4E89/fdzlHhP5XK2ZUHGmJBiLuy9u3pHG++gx2SkKsDhX8dfAPuOklFdqhKQxMdTouwD+e8p6N4xZC0l8x2KHpI4hfrGfPgTDF13HU99PtVomkWbT/nfrYWpodoDpbfcxVUIJ5ybiaz+GqEugpL38kbDl8zLehEtzIfS/AnHHl5/ZA/6W3vzGVQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia.com; dmarc=pass action=none header.from=nokia.com;
- dkim=pass header.d=nokia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia.onmicrosoft.com;
- s=selector1-nokia-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=WZvUAGxaLgtGJWb2NDNBjCtddpwg6H2W0+Jv+MklurU=;
- b=pJJSThKdZR/mwnLQFHfd+gjRIbbSd+s/fdpRCBLtlLThJvi+nP7OkXHUjzH7e/6FpXGomsgNnlZXIpvMWJYx8oRJ9Z6DxX04JwliFYwlqYhrDmQPUyeF6X5PuNmXKuvRUBTqWTn11FPSP7HFNEOIIwnBDIoOv1E+dmmmtbagjKs=
-Received: from VI1PR07MB5040.eurprd07.prod.outlook.com (20.177.203.20) by
- VI1PR07MB4287.eurprd07.prod.outlook.com (20.176.5.159) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2430.16; Wed, 6 Nov 2019 15:42:25 +0000
-Received: from VI1PR07MB5040.eurprd07.prod.outlook.com
- ([fe80::ec3b:5048:b5f7:2826]) by VI1PR07MB5040.eurprd07.prod.outlook.com
- ([fe80::ec3b:5048:b5f7:2826%5]) with mapi id 15.20.2430.020; Wed, 6 Nov 2019
- 15:42:24 +0000
-From:   "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
-To:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-CC:     "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <Alexander.Levin@microsoft.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH v2] ARM: ftrace/recordmcount: filter relocation types
-Thread-Topic: [PATCH v2] ARM: ftrace/recordmcount: filter relocation types
-Thread-Index: AQHVlLjJ3L9/ljk2bEOhhVB0w3EsXA==
-Date:   Wed, 6 Nov 2019 15:42:24 +0000
-Message-ID: <20191106154209.118919-1-alexander.sverdlin@nokia.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [131.228.32.181]
-x-mailer: git-send-email 2.23.0
-x-clientproxiedby: HE1PR05CA0197.eurprd05.prod.outlook.com
- (2603:10a6:3:f9::21) To VI1PR07MB5040.eurprd07.prod.outlook.com
- (2603:10a6:803:9c::20)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=alexander.sverdlin@nokia.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: d1790361-7bf5-4f1c-3707-08d762cfeb96
-x-ms-traffictypediagnostic: VI1PR07MB4287:
-x-ms-exchange-purlcount: 2
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <VI1PR07MB4287A59693EC5DD22236DF2488790@VI1PR07MB4287.eurprd07.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 02135EB356
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(396003)(376002)(366004)(346002)(39860400002)(136003)(189003)(199004)(54534003)(2351001)(478600001)(5660300002)(6506007)(4326008)(386003)(14454004)(52116002)(966005)(6306002)(2616005)(26005)(486006)(25786009)(36756003)(102836004)(6486002)(316002)(5640700003)(6916009)(6512007)(476003)(54906003)(6436002)(1076003)(99286004)(186003)(81156014)(256004)(14444005)(305945005)(7736002)(2501003)(66476007)(66556008)(64756008)(66446008)(71190400001)(3846002)(71200400001)(6116002)(66946007)(66066001)(8936002)(81166006)(2906002)(86362001)(8676002)(50226002);DIR:OUT;SFP:1102;SCL:1;SRVR:VI1PR07MB4287;H:VI1PR07MB5040.eurprd07.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: nokia.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: l1NQYYq1e5RTtgU/GYjCNFsfcwDmCWXFEO+M3LogAep4WGrYcoqtEznIvT7Me+wOH6dxu0LtX7VRX+KnXJMAWFd6M83gyw10SlHmmVxQRDUU4dmFE1YApdUDqFR4gghkRE1gu0UkrCT5Np248nNHykrKO5Mms5ajU+l1Qlwdf2sr5NQLPU+pdJ4YlHNHq8tEzH4YdIWaJbLrPLfljPJDnlFU1l/Ljaq2azqSDFVqaLEyt1W6VmUs+bIlgqsQ+XHNdNw09V+cde0ZghpMxirooUJAWHRtPay1vAoVClFFffgDR7uac7exfPTcKS1hJg2dl/cSQQjk1UXJXW50p6RV4Qn8EuZXADzLSPj10JHr3MpsunFoMFj0BVIBL23COBN2HJUXgp4P4eHZRZN9eAh+D0trIzSD/oDxCtvfh81rxheMMedZYdIm4Ir82AAHgpfQERR1OpCaUaXn69UVzFgO9i4DkswAzHDCWJFEPkrLqOQ=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S1727028AbfKFPmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 10:42:39 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:35373 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728530AbfKFPmj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 10:42:39 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 870DC3EE;
+        Wed,  6 Nov 2019 10:42:37 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Wed, 06 Nov 2019 10:42:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=MKIE+9
+        HEvT8+r2b4WdmKoGlHZwuPmmMGjz4lXIaAXE4=; b=u5C1CZdr/an224RZp/YbVL
+        YSujQrTdhcTcKLTTBNVXeeb7hNllHwzEK7vnDmOfv19veM2PYKOUe8yxIPlpqlmy
+        pgJzw2Ey72h9gbwzC5wbD/luPYUh1FhWWReO4DdZ3t6j2uCH4//AlJ2lmw/PvtSx
+        je/BWZPBUwD2UuWylFWkb62WF3XFFV14Ocs0PkV44e5edfCvrFFwRBIuY0tTCs7z
+        5XTO+JaT8AimxDuFCL2mn3z4qT7wwPxr6UNPbRG9Id5KhCGOOdwPMhxV3cYFWocP
+        YBoYg8Tt5jVg46hWgyVGnheK6B849sATv2a1zgOFwIXcsaVJa1NCJA0bUZ7ZGa0Q
+        ==
+X-ME-Sender: <xms:7OnCXZIe0FSwfKVKvJ8Y3WUXkxTU97oovW5ILyTQtMUkR1Cz6cn5rg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddujedgkeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:7OnCXdoJ9ys64ClEnRE-6CmPEvtsDr1LdGNKPSGYLvj0Y9twvUGf8Q>
+    <xmx:7OnCXfcI9ABvGAGCokSYIfrx9ORHaWlrXFfUxIN2d6DBFZd0W6xkHQ>
+    <xmx:7OnCXYcQ_deWeMTLMgQfQ6bi4du2V8Syuf3J8XKlMyqrO0U0Sljt7Q>
+    <xmx:7enCXSVl5wki9zzYvbwyZsQw2ZAkO6EkfuG_X1Wa0vLAkX9co4B4LA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CA9DD80062;
+        Wed,  6 Nov 2019 10:42:35 -0500 (EST)
+Subject: FAILED: patch "[PATCH] net/flow_dissector: switch to siphash" failed to apply to 4.14-stable tree
+To:     edumazet@google.com, aksecurity@gmail.com, benny@pinkas.net,
+        davem@davemloft.net, jonathann1@walla.com, tom@herbertland.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 06 Nov 2019 16:42:33 +0100
+Message-ID: <1573054953175134@kroah.com>
 MIME-Version: 1.0
-X-OriginatorOrg: nokia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d1790361-7bf5-4f1c-3707-08d762cfeb96
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Nov 2019 15:42:24.8176
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: DgkQj7kYcwdH6ITA7J1wOda9lYIqXDt3gN3SL3Iki0WBEK8auL4JuYKMPYzYi96/XL/UN5j9kKPJm7XogOoPCRXkXIkHWjk/x89Jnb3fEd8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR07MB4287
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-Scenario 1, ARMv7
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-If code in arch/arm/kernel/ftrace.c would operate on mcount() pointer
-the following may be generated:
+thanks,
 
-00000230 <prealloc_fixed_plts>:
- 230:   b5f8            push    {r3, r4, r5, r6, r7, lr}
- 232:   b500            push    {lr}
- 234:   f7ff fffe       bl      0 <__gnu_mcount_nc>
-                        234: R_ARM_THM_CALL     __gnu_mcount_nc
- 238:   f240 0600       movw    r6, #0
-                        238: R_ARM_THM_MOVW_ABS_NC      __gnu_mcount_nc
- 23c:   f8d0 1180       ldr.w   r1, [r0, #384]  ; 0x180
+greg k-h
 
-FTRACE currently is not able to deal with it:
+------------------ original commit in Linus's tree ------------------
 
-WARNING: CPU: 0 PID: 0 at .../kernel/trace/ftrace.c:1979 ftrace_bug+0x1ad/0=
-x230()
-...
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.4.116-... #1
-...
-[<c0314e3d>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
-[<c03115e9>] (show_stack) from [<c051a7f1>] (dump_stack+0x81/0xa8)
-[<c051a7f1>] (dump_stack) from [<c0321c5d>] (warn_slowpath_common+0x69/0x90=
-)
-[<c0321c5d>] (warn_slowpath_common) from [<c0321cf3>] (warn_slowpath_null+0=
-x17/0x1c)
-[<c0321cf3>] (warn_slowpath_null) from [<c038ee9d>] (ftrace_bug+0x1ad/0x230=
-)
-[<c038ee9d>] (ftrace_bug) from [<c038f1f9>] (ftrace_process_locs+0x27d/0x44=
-4)
-[<c038f1f9>] (ftrace_process_locs) from [<c08915bd>] (ftrace_init+0x91/0xe8=
-)
-[<c08915bd>] (ftrace_init) from [<c0885a67>] (start_kernel+0x34b/0x358)
-[<c0885a67>] (start_kernel) from [<00308095>] (0x308095)
----[ end trace cb88537fdc8fa200 ]---
-ftrace failed to modify [<c031266c>] prealloc_fixed_plts+0x8/0x60
- actual: 44:f2:e1:36
-ftrace record flags: 0
- (0)   expected tramp: c03143e9
+From 55667441c84fa5e0911a0aac44fb059c15ba6da2 Mon Sep 17 00:00:00 2001
+From: Eric Dumazet <edumazet@google.com>
+Date: Tue, 22 Oct 2019 07:57:46 -0700
+Subject: [PATCH] net/flow_dissector: switch to siphash
 
-Scenario 2, ARMv4T
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+UDP IPv6 packets auto flowlabels are using a 32bit secret
+(static u32 hashrnd in net/core/flow_dissector.c) and
+apply jhash() over fields known by the receivers.
 
-ftrace: allocating 14435 entries in 43 pages
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/trace/ftrace.c:2029 ftrace_bug+0x204/0x310
-CPU: 0 PID: 0 Comm: swapper Not tainted 4.19.5 #1
-Hardware name: Cirrus Logic EDB9302 Evaluation Board
-[<c0010a24>] (unwind_backtrace) from [<c000ecb0>] (show_stack+0x20/0x2c)
-[<c000ecb0>] (show_stack) from [<c03c72e8>] (dump_stack+0x20/0x30)
-[<c03c72e8>] (dump_stack) from [<c0021c18>] (__warn+0xdc/0x104)
-[<c0021c18>] (__warn) from [<c0021d7c>] (warn_slowpath_null+0x4c/0x5c)
-[<c0021d7c>] (warn_slowpath_null) from [<c0095360>] (ftrace_bug+0x204/0x310=
-)
-[<c0095360>] (ftrace_bug) from [<c04dabac>] (ftrace_init+0x3b4/0x4d4)
-[<c04dabac>] (ftrace_init) from [<c04cef4c>] (start_kernel+0x20c/0x410)
-[<c04cef4c>] (start_kernel) from [<00000000>] (  (null))
----[ end trace 0506a2f5dae6b341 ]---
-ftrace failed to modify
-[<c000c350>] perf_trace_sys_exit+0x5c/0xe8
- actual:   1e:ff:2f:e1
-Initializing ftrace call sites
-ftrace record flags: 0
- (0)
- expected tramp: c000fb24
+Attackers can easily infer the 32bit secret and use this information
+to identify a device and/or user, since this 32bit secret is only
+set at boot time.
 
-The analysis for this problem has been already performed previously,
-refer to the link below.
+Really, using jhash() to generate cookies sent on the wire
+is a serious security concern.
 
-Fix the above problems by allowing only selected reloc types in
-__mcount_loc. The list itself comes from the legacy recordmcount.pl
-script.
+Trying to change the rol32(hash, 16) in ip6_make_flowlabel() would be
+a dead end. Trying to periodically change the secret (like in sch_sfq.c)
+could change paths taken in the network for long lived flows.
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/56961010.6000806@pengutronix.de/
-Fixes: ed60453fa8 ("ARM: 6511/1: ftrace: add ARM support for C version of r=
-ecordmcount")
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Let's switch to siphash, as we did in commit df453700e8d8
+("inet: switch IP ID generator to siphash")
 
----
-Changelog:
-v2: Rebased
+Using a cryptographically strong pseudo random function will solve this
+privacy issue and more generally remove other weak points in the stack.
 
- scripts/recordmcount.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+Packet schedulers using skb_get_hash_perturb() benefit from this change.
 
-diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
-index 612268e..6872d26 100644
---- a/scripts/recordmcount.c
-+++ b/scripts/recordmcount.c
-@@ -38,6 +38,10 @@
- #define R_AARCH64_ABS64	257
- #endif
-=20
-+#define R_ARM_PC24		1
-+#define R_ARM_THM_CALL		10
-+#define R_ARM_CALL		28
-+
- static int fd_map;	/* File descriptor for file being modified. */
- static int mmap_failed; /* Boolean flag. */
- static char gpfx;	/* prefix for global symbol name (sometimes '_') */
-@@ -418,6 +422,18 @@ static char const *already_has_rel_mcount =3D "success=
-"; /* our work here is done!
- #define RECORD_MCOUNT_64
- #include "recordmcount.h"
-=20
-+static int arm_is_fake_mcount(Elf32_Rel const *rp)
-+{
-+	switch (ELF32_R_TYPE(w(rp->r_info))) {
-+	case R_ARM_THM_CALL:
-+	case R_ARM_CALL:
-+	case R_ARM_PC24:
-+		return 0;
-+	}
-+
-+	return 1;
-+}
-+
- /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
-  * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-=
-001.pdf
-  * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.4=
-0]
-@@ -523,6 +539,7 @@ static int do_file(char const *const fname)
- 		altmcount =3D "__gnu_mcount_nc";
- 		make_nop =3D make_nop_arm;
- 		rel_type_nop =3D R_ARM_NONE;
-+		is_fake_mcount32 =3D arm_is_fake_mcount;
- 		gpfx =3D 0;
+Fixes: b56774163f99 ("ipv6: Enable auto flow labels by default")
+Fixes: 42240901f7c4 ("ipv6: Implement different admin modes for automatic flow labels")
+Fixes: 67800f9b1f4e ("ipv6: Call skb_get_hash_flowi6 to get skb->hash in ip6_make_flowlabel")
+Fixes: cb1ce2ef387b ("ipv6: Implement automatic flow label generation on transmit")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Jonathan Berger <jonathann1@walla.com>
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Reported-by: Benny Pinkas <benny@pinkas.net>
+Cc: Tom Herbert <tom@herbertland.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 7914fdaf4226..a391147c03d4 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1354,7 +1354,8 @@ static inline __u32 skb_get_hash_flowi6(struct sk_buff *skb, const struct flowi6
+ 	return skb->hash;
+ }
+ 
+-__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb);
++__u32 skb_get_hash_perturb(const struct sk_buff *skb,
++			   const siphash_key_t *perturb);
+ 
+ static inline __u32 skb_get_hash_raw(const struct sk_buff *skb)
+ {
+diff --git a/include/net/flow_dissector.h b/include/net/flow_dissector.h
+index 90bd210be060..5cd12276ae21 100644
+--- a/include/net/flow_dissector.h
++++ b/include/net/flow_dissector.h
+@@ -4,6 +4,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/in6.h>
++#include <linux/siphash.h>
+ #include <uapi/linux/if_ether.h>
+ 
+ /**
+@@ -276,7 +277,7 @@ struct flow_keys_basic {
+ struct flow_keys {
+ 	struct flow_dissector_key_control control;
+ #define FLOW_KEYS_HASH_START_FIELD basic
+-	struct flow_dissector_key_basic basic;
++	struct flow_dissector_key_basic basic __aligned(SIPHASH_ALIGNMENT);
+ 	struct flow_dissector_key_tags tags;
+ 	struct flow_dissector_key_vlan vlan;
+ 	struct flow_dissector_key_vlan cvlan;
+diff --git a/include/net/fq.h b/include/net/fq.h
+index d126b5d20261..2ad85e683041 100644
+--- a/include/net/fq.h
++++ b/include/net/fq.h
+@@ -69,7 +69,7 @@ struct fq {
+ 	struct list_head backlogs;
+ 	spinlock_t lock;
+ 	u32 flows_cnt;
+-	u32 perturbation;
++	siphash_key_t	perturbation;
+ 	u32 limit;
+ 	u32 memory_limit;
+ 	u32 memory_usage;
+diff --git a/include/net/fq_impl.h b/include/net/fq_impl.h
+index be40a4b327e3..107c0d700ed6 100644
+--- a/include/net/fq_impl.h
++++ b/include/net/fq_impl.h
+@@ -108,7 +108,7 @@ static struct sk_buff *fq_tin_dequeue(struct fq *fq,
+ 
+ static u32 fq_flow_idx(struct fq *fq, struct sk_buff *skb)
+ {
+-	u32 hash = skb_get_hash_perturb(skb, fq->perturbation);
++	u32 hash = skb_get_hash_perturb(skb, &fq->perturbation);
+ 
+ 	return reciprocal_scale(hash, fq->flows_cnt);
+ }
+@@ -308,7 +308,7 @@ static int fq_init(struct fq *fq, int flows_cnt)
+ 	INIT_LIST_HEAD(&fq->backlogs);
+ 	spin_lock_init(&fq->lock);
+ 	fq->flows_cnt = max_t(u32, flows_cnt, 1);
+-	fq->perturbation = prandom_u32();
++	get_random_bytes(&fq->perturbation, sizeof(fq->perturbation));
+ 	fq->quantum = 300;
+ 	fq->limit = 8192;
+ 	fq->memory_limit = 16 << 20; /* 16 MBytes */
+diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
+index 7c09d87d3269..68eda10d0680 100644
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -1350,30 +1350,21 @@ bool __skb_flow_dissect(const struct net *net,
+ }
+ EXPORT_SYMBOL(__skb_flow_dissect);
+ 
+-static u32 hashrnd __read_mostly;
++static siphash_key_t hashrnd __read_mostly;
+ static __always_inline void __flow_hash_secret_init(void)
+ {
+ 	net_get_random_once(&hashrnd, sizeof(hashrnd));
+ }
+ 
+-static __always_inline u32 __flow_hash_words(const u32 *words, u32 length,
+-					     u32 keyval)
++static const void *flow_keys_hash_start(const struct flow_keys *flow)
+ {
+-	return jhash2(words, length, keyval);
+-}
+-
+-static inline const u32 *flow_keys_hash_start(const struct flow_keys *flow)
+-{
+-	const void *p = flow;
+-
+-	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % sizeof(u32));
+-	return (const u32 *)(p + FLOW_KEYS_HASH_OFFSET);
++	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % SIPHASH_ALIGNMENT);
++	return &flow->FLOW_KEYS_HASH_START_FIELD;
+ }
+ 
+ static inline size_t flow_keys_hash_length(const struct flow_keys *flow)
+ {
+ 	size_t diff = FLOW_KEYS_HASH_OFFSET + sizeof(flow->addrs);
+-	BUILD_BUG_ON((sizeof(*flow) - FLOW_KEYS_HASH_OFFSET) % sizeof(u32));
+ 	BUILD_BUG_ON(offsetof(typeof(*flow), addrs) !=
+ 		     sizeof(*flow) - sizeof(flow->addrs));
+ 
+@@ -1388,7 +1379,7 @@ static inline size_t flow_keys_hash_length(const struct flow_keys *flow)
+ 		diff -= sizeof(flow->addrs.tipckey);
  		break;
- 	case EM_AARCH64:
---=20
-2.4.6
+ 	}
+-	return (sizeof(*flow) - diff) / sizeof(u32);
++	return sizeof(*flow) - diff;
+ }
+ 
+ __be32 flow_get_u32_src(const struct flow_keys *flow)
+@@ -1454,14 +1445,15 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
+ 	}
+ }
+ 
+-static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
++static inline u32 __flow_hash_from_keys(struct flow_keys *keys,
++					const siphash_key_t *keyval)
+ {
+ 	u32 hash;
+ 
+ 	__flow_hash_consistentify(keys);
+ 
+-	hash = __flow_hash_words(flow_keys_hash_start(keys),
+-				 flow_keys_hash_length(keys), keyval);
++	hash = siphash(flow_keys_hash_start(keys),
++		       flow_keys_hash_length(keys), keyval);
+ 	if (!hash)
+ 		hash = 1;
+ 
+@@ -1471,12 +1463,13 @@ static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
+ u32 flow_hash_from_keys(struct flow_keys *keys)
+ {
+ 	__flow_hash_secret_init();
+-	return __flow_hash_from_keys(keys, hashrnd);
++	return __flow_hash_from_keys(keys, &hashrnd);
+ }
+ EXPORT_SYMBOL(flow_hash_from_keys);
+ 
+ static inline u32 ___skb_get_hash(const struct sk_buff *skb,
+-				  struct flow_keys *keys, u32 keyval)
++				  struct flow_keys *keys,
++				  const siphash_key_t *keyval)
+ {
+ 	skb_flow_dissect_flow_keys(skb, keys,
+ 				   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
+@@ -1524,7 +1517,7 @@ u32 __skb_get_hash_symmetric(const struct sk_buff *skb)
+ 			   &keys, NULL, 0, 0, 0,
+ 			   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
+ 
+-	return __flow_hash_from_keys(&keys, hashrnd);
++	return __flow_hash_from_keys(&keys, &hashrnd);
+ }
+ EXPORT_SYMBOL_GPL(__skb_get_hash_symmetric);
+ 
+@@ -1544,13 +1537,14 @@ void __skb_get_hash(struct sk_buff *skb)
+ 
+ 	__flow_hash_secret_init();
+ 
+-	hash = ___skb_get_hash(skb, &keys, hashrnd);
++	hash = ___skb_get_hash(skb, &keys, &hashrnd);
+ 
+ 	__skb_set_sw_hash(skb, hash, flow_keys_have_l4(&keys));
+ }
+ EXPORT_SYMBOL(__skb_get_hash);
+ 
+-__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb)
++__u32 skb_get_hash_perturb(const struct sk_buff *skb,
++			   const siphash_key_t *perturb)
+ {
+ 	struct flow_keys keys;
+ 
+diff --git a/net/sched/sch_hhf.c b/net/sched/sch_hhf.c
+index 23cd1c873a2c..be35f03b657b 100644
+--- a/net/sched/sch_hhf.c
++++ b/net/sched/sch_hhf.c
+@@ -5,11 +5,11 @@
+  * Copyright (C) 2013 Nandita Dukkipati <nanditad@google.com>
+  */
+ 
+-#include <linux/jhash.h>
+ #include <linux/jiffies.h>
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
+ #include <linux/vmalloc.h>
++#include <linux/siphash.h>
+ #include <net/pkt_sched.h>
+ #include <net/sock.h>
+ 
+@@ -126,7 +126,7 @@ struct wdrr_bucket {
+ 
+ struct hhf_sched_data {
+ 	struct wdrr_bucket buckets[WDRR_BUCKET_CNT];
+-	u32		   perturbation;   /* hash perturbation */
++	siphash_key_t	   perturbation;   /* hash perturbation */
+ 	u32		   quantum;        /* psched_mtu(qdisc_dev(sch)); */
+ 	u32		   drop_overlimit; /* number of times max qdisc packet
+ 					    * limit was hit
+@@ -264,7 +264,7 @@ static enum wdrr_bucket_idx hhf_classify(struct sk_buff *skb, struct Qdisc *sch)
+ 	}
+ 
+ 	/* Get hashed flow-id of the skb. */
+-	hash = skb_get_hash_perturb(skb, q->perturbation);
++	hash = skb_get_hash_perturb(skb, &q->perturbation);
+ 
+ 	/* Check if this packet belongs to an already established HH flow. */
+ 	flow_pos = hash & HHF_BIT_MASK;
+@@ -582,7 +582,7 @@ static int hhf_init(struct Qdisc *sch, struct nlattr *opt,
+ 
+ 	sch->limit = 1000;
+ 	q->quantum = psched_mtu(qdisc_dev(sch));
+-	q->perturbation = prandom_u32();
++	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+ 	INIT_LIST_HEAD(&q->new_buckets);
+ 	INIT_LIST_HEAD(&q->old_buckets);
+ 
+diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
+index d448fe3068e5..4074c50ac3d7 100644
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -18,7 +18,7 @@
+ #include <linux/errno.h>
+ #include <linux/skbuff.h>
+ #include <linux/random.h>
+-#include <linux/jhash.h>
++#include <linux/siphash.h>
+ #include <net/ip.h>
+ #include <net/pkt_sched.h>
+ #include <net/pkt_cls.h>
+@@ -45,7 +45,7 @@ struct sfb_bucket {
+  * (Section 4.4 of SFB reference : moving hash functions)
+  */
+ struct sfb_bins {
+-	u32		  perturbation; /* jhash perturbation */
++	siphash_key_t	  perturbation; /* siphash key */
+ 	struct sfb_bucket bins[SFB_LEVELS][SFB_NUMBUCKETS];
+ };
+ 
+@@ -217,7 +217,8 @@ static u32 sfb_compute_qlen(u32 *prob_r, u32 *avgpm_r, const struct sfb_sched_da
+ 
+ static void sfb_init_perturbation(u32 slot, struct sfb_sched_data *q)
+ {
+-	q->bins[slot].perturbation = prandom_u32();
++	get_random_bytes(&q->bins[slot].perturbation,
++			 sizeof(q->bins[slot].perturbation));
+ }
+ 
+ static void sfb_swap_slot(struct sfb_sched_data *q)
+@@ -314,9 +315,9 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 		/* If using external classifiers, get result and record it. */
+ 		if (!sfb_classify(skb, fl, &ret, &salt))
+ 			goto other_drop;
+-		sfbhash = jhash_1word(salt, q->bins[slot].perturbation);
++		sfbhash = siphash_1u32(salt, &q->bins[slot].perturbation);
+ 	} else {
+-		sfbhash = skb_get_hash_perturb(skb, q->bins[slot].perturbation);
++		sfbhash = skb_get_hash_perturb(skb, &q->bins[slot].perturbation);
+ 	}
+ 
+ 
+@@ -352,7 +353,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch,
+ 		/* Inelastic flow */
+ 		if (q->double_buffering) {
+ 			sfbhash = skb_get_hash_perturb(skb,
+-			    q->bins[slot].perturbation);
++			    &q->bins[slot].perturbation);
+ 			if (!sfbhash)
+ 				sfbhash = 1;
+ 			sfb_skb_cb(skb)->hashes[slot] = sfbhash;
+diff --git a/net/sched/sch_sfq.c b/net/sched/sch_sfq.c
+index 68404a9d2ce4..c787d4d46017 100644
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -14,7 +14,7 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/skbuff.h>
+-#include <linux/jhash.h>
++#include <linux/siphash.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <net/netlink.h>
+@@ -117,7 +117,7 @@ struct sfq_sched_data {
+ 	u8		headdrop;
+ 	u8		maxdepth;	/* limit of packets per flow */
+ 
+-	u32		perturbation;
++	siphash_key_t 	perturbation;
+ 	u8		cur_depth;	/* depth of longest slot */
+ 	u8		flags;
+ 	unsigned short  scaled_quantum; /* SFQ_ALLOT_SIZE(quantum) */
+@@ -157,7 +157,7 @@ static inline struct sfq_head *sfq_dep_head(struct sfq_sched_data *q, sfq_index
+ static unsigned int sfq_hash(const struct sfq_sched_data *q,
+ 			     const struct sk_buff *skb)
+ {
+-	return skb_get_hash_perturb(skb, q->perturbation) & (q->divisor - 1);
++	return skb_get_hash_perturb(skb, &q->perturbation) & (q->divisor - 1);
+ }
+ 
+ static unsigned int sfq_classify(struct sk_buff *skb, struct Qdisc *sch,
+@@ -607,9 +607,11 @@ static void sfq_perturbation(struct timer_list *t)
+ 	struct sfq_sched_data *q = from_timer(q, t, perturb_timer);
+ 	struct Qdisc *sch = q->sch;
+ 	spinlock_t *root_lock = qdisc_lock(qdisc_root_sleeping(sch));
++	siphash_key_t nkey;
+ 
++	get_random_bytes(&nkey, sizeof(nkey));
+ 	spin_lock(root_lock);
+-	q->perturbation = prandom_u32();
++	q->perturbation = nkey;
+ 	if (!q->filter_list && q->tail)
+ 		sfq_rehash(sch);
+ 	spin_unlock(root_lock);
+@@ -688,7 +690,7 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
+ 	del_timer(&q->perturb_timer);
+ 	if (q->perturb_period) {
+ 		mod_timer(&q->perturb_timer, jiffies + q->perturb_period);
+-		q->perturbation = prandom_u32();
++		get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+ 	}
+ 	sch_tree_unlock(sch);
+ 	kfree(p);
+@@ -745,7 +747,7 @@ static int sfq_init(struct Qdisc *sch, struct nlattr *opt,
+ 	q->quantum = psched_mtu(qdisc_dev(sch));
+ 	q->scaled_quantum = SFQ_ALLOT_SIZE(q->quantum);
+ 	q->perturb_period = 0;
+-	q->perturbation = prandom_u32();
++	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+ 
+ 	if (opt) {
+ 		int err = sfq_change(sch, opt);
 
