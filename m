@@ -2,108 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA528F2F4F
-	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 14:29:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F10F2F74
+	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 14:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729152AbfKGN2w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Nov 2019 08:28:52 -0500
-Received: from mail-qk1-f194.google.com ([209.85.222.194]:44071 "EHLO
-        mail-qk1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728687AbfKGN2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Nov 2019 08:28:51 -0500
-Received: by mail-qk1-f194.google.com with SMTP id m16so1911734qki.11
-        for <stable@vger.kernel.org>; Thu, 07 Nov 2019 05:28:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=FXMCMHkhLrSvCnCOaEPRlKs0A6H9TMqpO8CEnzsQ38Q=;
-        b=itCt78SzYs1tLCTfEhKQfed8+KaZes1ofyINkEEq0ih3Y1odpu3BobA+14U+EZxL/n
-         EvavqH4/jwuff/Nzp2rUF6OXBG2VkigArk0ZBOfW/vNN35HTOtCK6bcjB18NNszkAsv6
-         oLph116Mr18gZL8xpUx1PoZs6d5SWNczPSDVyMXWMj7QEynJnhqSNdHpQoiYWXC/fCAi
-         dy5Hh4mlY3NeJ1UhMTVAz2vGERv62v1cCw5+2NoKW6NOsgNaKrdWv9Hg3G7ZKUGk0LH5
-         f5fD09pScBAMzOxYRfwbrQ3pXHSngQGWAEJhSniLYPFZvge1W8cmNzZLucwfi4EJaCSr
-         5A8w==
+        id S2388388AbfKGNdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Nov 2019 08:33:43 -0500
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:34273 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388271AbfKGNdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Nov 2019 08:33:43 -0500
+Received: by mail-lf1-f67.google.com with SMTP id f5so1635098lfp.1;
+        Thu, 07 Nov 2019 05:33:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=FXMCMHkhLrSvCnCOaEPRlKs0A6H9TMqpO8CEnzsQ38Q=;
-        b=X1Ek6dZDJ79sm3wuA0t7XXfdQf5B3Prwy1wa+sGIscWqWd0NPh5C2EZwy5MC1YyW37
-         asrv3HNW32l14RVbJuJEkFunWhx4IE5Qr5CBjZXHY4KlgPAB8TIlFQxLo3huKbnMEuGV
-         k3FsblIW7KoXeKnJzISXOBsQAD1CD+xi4Cy+ZzgxIkzz+Sfy+V2gKbzYzJzpEjq/C8Zo
-         ZwAmp9eMKd06mM53wmQ1d78G2GAoyNoTUZm3XdF9xEVs32fePrYXMX1gerG8Q6yMg6Iu
-         9lzwy/6I5+lgCnoRLSuPvqgqyi6NgsI0kruPmEY7xpE/xyJrhHYj7FwE/Zx3Y3vVyPm8
-         Aq3g==
-X-Gm-Message-State: APjAAAXLHiaWMWPaRknsPuxjxKZ28aEp7GDLkzUllnur3SMIe0ZxbOl+
-        BAU+nKdctczT9EqfVo/W755BOuMhVVK0BSJBwHw=
-X-Google-Smtp-Source: APXvYqzX8JbJxpO1l1NrYIvccmhSX33GZTcZPxayzfGw0YyaLWAODj5EehpdhtNcFrUyBPqa+vg/jFichuR7nV49t8g=
-X-Received: by 2002:a05:620a:208a:: with SMTP id e10mr2574484qka.221.1573133330796;
- Thu, 07 Nov 2019 05:28:50 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=DAJAgFyN58cHvYPVd/mVHD5c2xckpaUqCtwazPHzm+U=;
+        b=RFEyCz/Bi3kPXQ3f8TdoKpFr8hOPoYu4RPoyYo6Jg32xkfOMd7QGBeKtC/CyMyqTwm
+         l78I7p5ncvqOc8dqqK8YTAkXn61EK/Ps8KPO8mYBnJV3u1ORfmjfxHI47Yt7xkR3IBBN
+         2PGWr0Ts3U/2RfNp9V1EPlko/GFVWrA+IjPZw1hA3VAJGV7MeOTdVZ4BAOXmY+ZUQiDw
+         PhgGsTpRULTjQtZlO+ApbamXm4Jt3Ija5mI1uUEJIl1ovWoKaGyuYriZHBL6pAJG/O4P
+         dwTVhfhHF+T0cLiA3XkPVIlx/xbPrlj0j2YbMbZdcoqeaEb/JewA9GFHmAlAJK43ckcB
+         le6g==
+X-Gm-Message-State: APjAAAXi0J7EagXLAP/ytqDNZntxQyAe4JgTcW4gonj9u5HhAqwqCfVZ
+        Ef4IvmsEOk5yd06OrEJl0OM=
+X-Google-Smtp-Source: APXvYqw/739omEVr/CNEKy2TMwguM449blxmzi6x5pLpDi3gLStVyMgaNzVBfeSYxhlNbBVGfz/Irg==
+X-Received: by 2002:ac2:5f01:: with SMTP id 1mr2452877lfq.147.1573133621273;
+        Thu, 07 Nov 2019 05:33:41 -0800 (PST)
+Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
+        by smtp.gmail.com with ESMTPSA id u12sm984154lji.50.2019.11.07.05.33.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Nov 2019 05:33:40 -0800 (PST)
+Received: from johan by xi.terra with local (Exim 4.92.3)
+        (envelope-from <johan@kernel.org>)
+        id 1iShuv-0000gu-R8; Thu, 07 Nov 2019 14:33:41 +0100
+Date:   Thu, 7 Nov 2019 14:33:41 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Aleksander Morgado <aleksander@aleksander.es>
+Cc:     johan@kernel.org, gregkh@linuxfoundation.org,
+        linux-usb@vger.kernel.org, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] USB: serial: option: add support for DW5821e with eSIM
+ support
+Message-ID: <20191107133341.GB8732@localhost>
+References: <20191107105508.1010716-1-aleksander@aleksander.es>
 MIME-Version: 1.0
-Received: by 2002:aed:2823:0:0:0:0:0 with HTTP; Thu, 7 Nov 2019 05:28:50 -0800 (PST)
-Reply-To: iincc200@gmail.com
-From:   Mrs Mariam Mohammed <snowbetterz@gmail.com>
-Date:   Thu, 7 Nov 2019 14:28:50 +0100
-Message-ID: <CAHzK=ZYn2Se9TLSux3z7s_18C-JpWdtwNevgTczo4RP93s34hw@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191107105508.1010716-1-aleksander@aleksander.es>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Attention: Beneficiary.
+On Thu, Nov 07, 2019 at 11:55:08AM +0100, Aleksander Morgado wrote:
+> The device exposes AT, NMEA and DIAG ports in both USB configurations.
+> Exactly same layout as the default DW5821e module, just a different
+> vid/pid.
+> 
+> P:  Vendor=413c ProdID=81e0 Rev=03.18
+> S:  Manufacturer=Dell Inc.
+> S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+> S:  SerialNumber=0123456789ABCDEF
+> C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+> I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+> I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+> I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+> I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+> I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+> 
+> P:  Vendor=413c ProdID=81e0 Rev=03.18
+> S:  Manufacturer=Dell Inc.
+> S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+> S:  SerialNumber=0123456789ABCDEF
+> C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
+> I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+> I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+> I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+> I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+> I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+> I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+> 
+> Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+> Cc: stable <stable@vger.kernel.org>
 
+Applied for -next, thanks.
 
-I am Mrs.Mariam Mohammed from Ministry Of Finance Burkina (Head office).
-This is to bring to you notice that after the conference meeting we
-had, The Government of this country realized that you are among those
-that involved in scam victim we have in our list to Compensate by the
-government of this country as instructions from United Nation (UN).The
-Governor of this state ouagadougou Burkina Faso Republic has instructed this
-office to forward your file to WESTERN UNION MONEY TRANSFER DEPARTMENT
-to pay you the sum of US$1.5000.00 through WESTERN UNION.
-
-His Excellence the GOVERNOR has instructed the WESTERN payment
-department Dr. ERIC JOHN. to send the sum of US$1.5000.00 through his
-custody for easy receiver of your funds. You are to contact them now
-to ensure that your fund will be transferring to you once you send
-them the needed information to avoid wrong transaction.According to
-the demands of WESTERN UNION MONEY TRANSFER you are to receive your
-fund at the installment rate of $5,000.00 daily until the US$1.5000.00
-is completely transferred to you accordingly. You are to contact them
-now with the bellow information to avoid wrong transaction.
-
-Reconfirm your address
-
-(1)Your Full name:.......................
-
-(2)Your Phone number:................
-
-(3)Your Contact address:.................
-
-(4)Your Age......................
-
-Listen very carefully, tell Dr. ERIC JOHN that you advise to contact
-him by Mrs.Mariam Mohammed. from Ministry Of Finance here in
-ouagadougou Burkina Faso
-;Bellow is their Contact Information.
-
-Contact with this information below:
-
-CONTACT PERSON: DR. ERIC JOHN
-
-EMAIL: address :(  transferwe@mail2world.com   )
-
-Phone Number: (+226 )  52 57 08 61
-
-Address: 12 Avenue Island streets, ouagadougou Republic
-
-Please, do not forget to update me as soon as you receive your first payment.
-
-Best regards.
-Mrs Mariam Mohammed
-F.A in Ministry of Finance
-Burkina Republic.
+Johan
