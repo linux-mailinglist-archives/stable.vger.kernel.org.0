@@ -2,391 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D47DF33D5
-	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 16:54:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 814BEF33FC
+	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 16:59:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726640AbfKGPye (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Nov 2019 10:54:34 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:42365 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726231AbfKGPyd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Nov 2019 10:54:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573142071;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=CAb25Y5uKNytcNm8QJdwLZJ/q5CNbu+G1poh/z9l2zs=;
-        b=Nq1GziOu3kKmpLGltGg530VU5OnABw+KYkgbOlGFtG6dU+adrafmhl4hXmMURFGMDrh+8n
-        boXW+YLXsmF0opTGctA1VsygxRBi8tAM9JzVk4w29xRzDGWpmiIPakVfqkOXiw/Dfl06cO
-        Xf20nI9r6qlNYi8OjFqsJE0VKMDSfwc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-28-g2-WETQVOPe9Rlmuke1QQQ-1; Thu, 07 Nov 2019 10:54:30 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3E8EC800C61
-        for <stable@vger.kernel.org>; Thu,  7 Nov 2019 15:54:29 +0000 (UTC)
-Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 1039E60BE0;
-        Thu,  7 Nov 2019 15:54:25 +0000 (UTC)
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
-Date:   Thu, 07 Nov 2019 15:54:25 -0000
-Message-ID: <cki.5D0D451ACD.ORTO320EWC@redhat.com>
-X-Gitlab-Pipeline-ID: 269865
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/269865
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-MC-Unique: g2-WETQVOPe9Rlmuke1QQQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
+        id S1727727AbfKGP67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Nov 2019 10:58:59 -0500
+Received: from esa1.microchip.iphmx.com ([68.232.147.91]:54885 "EHLO
+        esa1.microchip.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729871AbfKGP66 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Nov 2019 10:58:58 -0500
+Received-SPF: Pass (esa1.microchip.iphmx.com: domain of
+  Ajay.Kathat@microchip.com designates 198.175.253.82 as
+  permitted sender) identity=mailfrom;
+  client-ip=198.175.253.82; receiver=esa1.microchip.iphmx.com;
+  envelope-from="Ajay.Kathat@microchip.com";
+  x-sender="Ajay.Kathat@microchip.com"; x-conformance=spf_only;
+  x-record-type="v=spf1"; x-record-text="v=spf1 mx
+  a:ushub1.microchip.com a:smtpout.microchip.com
+  a:mx1.microchip.iphmx.com a:mx2.microchip.iphmx.com
+  include:servers.mcsv.net include:mktomail.com
+  include:spf.protection.outlook.com ~all"
+Received-SPF: None (esa1.microchip.iphmx.com: no sender
+  authenticity information available from domain of
+  postmaster@email.microchip.com) identity=helo;
+  client-ip=198.175.253.82; receiver=esa1.microchip.iphmx.com;
+  envelope-from="Ajay.Kathat@microchip.com";
+  x-sender="postmaster@email.microchip.com";
+  x-conformance=spf_only
+Authentication-Results: esa1.microchip.iphmx.com; spf=Pass smtp.mailfrom=Ajay.Kathat@microchip.com; spf=None smtp.helo=postmaster@email.microchip.com; dkim=pass (signature verified) header.i=@microchiptechnology.onmicrosoft.com; dmarc=pass (p=none dis=none) d=microchip.com
+IronPort-SDR: iDqErHCYxDgVjGsSHKGOVcXMBuZZMkufeqIKkI3AuEl2xBsEZbR/yd0zaXjsmakQNAApSV6Ne9
+ /iqg5OYUHdly/5p/aLTb6peyf+fMOcorKN4wlv3IyT+DX6NQapt9VfG1dHcwlIi82KcXD6INiI
+ jPH+Ku8jqCdLoLsZyaQCrnNUGBYKzLbAxWQpBdD7R3XeMhoKmhaxrLPaMMLgDzzuYp9/oWh0GT
+ JlV4f0ML5KF4jiD2prVHspTrq1XqJ+hYKm+tFDlWseM3hJGf98lvDKdTdR0SWMif9aQxe5xr03
+ Pj0=
+X-IronPort-AV: E=Sophos;i="5.68,278,1569308400"; 
+   d="scan'208";a="57421992"
+Received: from smtpout.microchip.com (HELO email.microchip.com) ([198.175.253.82])
+  by esa1.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 07 Nov 2019 08:58:57 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.1713.5; Thu, 7 Nov 2019 08:58:57 -0700
+Received: from NAM05-CO1-obe.outbound.protection.outlook.com (10.10.215.89) by
+ email.microchip.com (10.10.87.71) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id 15.1.1713.5 via Frontend
+ Transport; Thu, 7 Nov 2019 08:58:57 -0700
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Z62EsLjQQwWmyHCIQWQbHn+YS8mVcfmkWu3w+jF9NhIxFADdh0yMFx7P02iNbQc77uFyTlDr0GmHIsHHXLIl/ZbEMqy+BPo8msrW6vTahRetwmQuhXWNmeWLh42VNyBWRL1OWVHbjyTy4C1V+tL0+pyH8CUYNAfPqHZhhPZYzvPO3M49Ec6lwwnROeaINDUfsFw1FUPZ4YEOa2ceUC1Nd18NIUbCM+0Pu3iMHzu17HaTFaaTxU3IkJNpXEb9+0Pn5B082ZSq6fMnH8oGGjI9GblLl46BBHITubK27h4cdSZ5ck4Dz7NPqTj3RkyqSR1buNCNKZ23Ato2EFGXkr/r1w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=I83/5dTDtpC7K2/pL9W4A67isONxm8Y4Le/jrKOiwvY=;
+ b=i7ExFuXwocBMlMlQqHEH+A3E2Gm85db4dM6dh6m6VX8kYBbY29Axx8R+G1kt49lUl47/NIyp5rUjeWCqH2Ka8M+yymPZ2EFQWApXESXxOCI+492FAnrQPm4wxVkBpI/JRbG5/84lUaznRU2pdafLEBdPozXjZubDjKn+p1VpmTnpfo9GbKlVM2z72X4ySsKrhSQ8Kx7gmwbnPFzl3JQBYG+dPlbIcjv+kp3jMvRdGU62tBEnfPyCTcHvyM46MXnzZa7LHNi3xTNC0Uv7UfskCA5HtWcqNKvtPOksTG4NdjUUrfm8UymwqoWKZhn/fAZxmSPiE0O3fW+Bo53o+WBjiw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microchip.com; dmarc=pass action=none
+ header.from=microchip.com; dkim=pass header.d=microchip.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=microchiptechnology.onmicrosoft.com;
+ s=selector2-microchiptechnology-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=I83/5dTDtpC7K2/pL9W4A67isONxm8Y4Le/jrKOiwvY=;
+ b=jAk8wKJ0jEoy5e6SLL8stKl8lRIyBr2Mhk+hGyCZXRJilEO99ghuLr2OodSYX0p3/kEg3pn955Rzx/jBP2gQGlXXtfFHy67T1DEmfVa91temWQULt9mX03yM2heUUFHQd2n9MUZavdQZ6HLBOvEsj+bWejnhgjJI4sjXRiNSlbc=
+Received: from BN6PR11MB3985.namprd11.prod.outlook.com (10.255.129.78) by
+ BN6PR11MB1633.namprd11.prod.outlook.com (10.172.23.22) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2430.20; Thu, 7 Nov 2019 15:58:54 +0000
+Received: from BN6PR11MB3985.namprd11.prod.outlook.com
+ ([fe80::b4df:e09b:f8cc:c433]) by BN6PR11MB3985.namprd11.prod.outlook.com
+ ([fe80::b4df:e09b:f8cc:c433%7]) with mapi id 15.20.2430.023; Thu, 7 Nov 2019
+ 15:58:54 +0000
+From:   <Ajay.Kathat@microchip.com>
+To:     <linux-wireless@vger.kernel.org>
+CC:     <devel@driverdev.osuosl.org>, <gregkh@linuxfoundation.org>,
+        <Adham.Abozaeid@microchip.com>, <johannes@sipsolutions.net>,
+        <Ajay.Kathat@microchip.com>, <keescook+coverity-bot@chromium.org>,
+        <stable@vger.kernel.org>
+Subject: [PATCH] staging: wilc1000: fix illegal memory access in
+ wilc_parse_join_bss_param()
+Thread-Topic: [PATCH] staging: wilc1000: fix illegal memory access in
+ wilc_parse_join_bss_param()
+Thread-Index: AQHVlYRBZn0zvrMBv0qGwCKphmJx7g==
+Date:   Thu, 7 Nov 2019 15:58:54 +0000
+Message-ID: <20191106062127.3165-1-ajay.kathat@microchip.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: MAXPR0101CA0043.INDPRD01.PROD.OUTLOOK.COM
+ (2603:1096:a00:d::29) To BN6PR11MB3985.namprd11.prod.outlook.com
+ (2603:10b6:405:7b::14)
+x-mailer: git-send-email 2.22.0
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [121.244.27.38]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: b6c5303e-2c6e-4f68-f842-08d7639b63f8
+x-ms-traffictypediagnostic: BN6PR11MB1633:
+x-ms-exchange-purlcount: 1
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <BN6PR11MB1633979F4FC7CAAD6C36FA62E3780@BN6PR11MB1633.namprd11.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6430;
+x-forefront-prvs: 0214EB3F68
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(396003)(136003)(366004)(376002)(346002)(39850400004)(199004)(189003)(476003)(7736002)(102836004)(99286004)(64756008)(66476007)(66556008)(26005)(71200400001)(71190400001)(186003)(66946007)(2616005)(3846002)(6116002)(2351001)(6916009)(66446008)(81166006)(2906002)(6506007)(486006)(14444005)(6512007)(386003)(256004)(50226002)(5640700003)(6436002)(1076003)(8936002)(316002)(81156014)(25786009)(478600001)(6306002)(54906003)(966005)(66066001)(6486002)(36756003)(52116002)(86362001)(4326008)(5660300002)(2501003)(14454004)(8676002)(305945005)(6606295002);DIR:OUT;SFP:1101;SCL:1;SRVR:BN6PR11MB1633;H:BN6PR11MB3985.namprd11.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: microchip.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: EgkkMYDoga+0HkiSJBdVD9Gq4eHrwIXD3GAcTmoWDAHeYq8hfZzTD9nKQBV3D5T0vBROxDHg5j66nOvHE74EcO1ayFlrgHb6QtAZAR0z4+PbDHY2hxgPx50xn0KjssI/SqOALQ5HgjSTWu8gFKUg/WDdcI5WkdNLKQcMWiS6jfiq/k4sAhjzWs4Xmq/VRbN/Z0oM6muL2xkRFV09aeDvNm7SescbbOUkSaY0tu4xMIDMGQZT5q8XMyfDz+DbeBgrG+aL2ACbJrn7Ia7J8/N7Hse9ufleoyteRtGEFQ6Rwt65V3GALu4Z25ox75nf3amBxdzUOT3gXAq6vOa1TOoa5VH330QvqEGPWDR+zKLOv1rb0wGXxPeaaaYu3LUFV1L+DABB5ZDeb8eCCQTUrTwR3/XlrrVerkVGs5HLG9czr6wh3UDtrrGfzgGDUJ1b2TQWW10wTCxS8DP55OTtI70VZYlqlbtGPPN9tBKHZgZHKSI=
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-MS-Exchange-CrossTenant-Network-Message-Id: b6c5303e-2c6e-4f68-f842-08d7639b63f8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Nov 2019 15:58:54.6584
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 3f4057f3-b418-4d4e-ba84-d55b4e897d88
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: FCLW25wbHpJi8HZdiqzwIsuWSK8zcM8ZGyO0TJ+z4iahUG8ZZ+uZP8vBbms52ZBgBotYmxwx6mI7oaazLWzEw6mOeRyppsf3kXuV9XPz2Ck=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR11MB1633
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Ajay Singh <ajay.kathat@microchip.com>
 
-Hello,
+Do not copy the extended supported rates in 'param->supp_rates' if the
+array is already full with basic rates values. The array size check
+helped to avoid possible illegal memory access [1] while copying to
+'param->supp_rates' array.
 
-We ran automated tests on a patchset that was proposed for merging into thi=
-s
-kernel tree. The patches were applied to:
+1. https://marc.info/?l=3Dlinux-next&m=3D157301720517456&w=3D2
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux.git
-            Commit: 37b4d0c37c0b - Linux 5.3.9
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Addresses-Coverity-ID: 1487400 ("Memory - illegal accesses")
+Fixes: 4e0b0f42c9c7 ("staging: wilc1000: use struct to pack join parameters=
+ for FW")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ajay Singh <ajay.kathat@microchip.com>
+---
+ drivers/staging/wilc1000/hif.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/269865
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 37b4d0c37c0b - Linux 5.3.9
-
-
-We grabbed the 53b52b123f7b commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  regulator-of-fix-suspend-min-max-voltage-parsing.patch
-  asoc-samsung-arndale-add-missing-of-node-dereferenci.patch
-  asoc-wm8994-do-not-register-inapplicable-controls-fo.patch
-  regulator-da9062-fix-suspend_enable-disable-preparat.patch
-  asoc-topology-fix-a-signedness-bug-in-soc_tplg_dapm_.patch
-  arm64-dts-allwinner-a64-pine64-plus-add-phy-regulato.patch
-  arm64-dts-allwinner-a64-drop-pmu-node.patch
-  arm64-dts-allwinner-a64-sopine-baseboard-add-phy-reg.patch
-  arm64-dts-fix-gpio-to-pinmux-mapping.patch
-  regulator-ti-abb-fix-timeout-in-ti_abb_wait_txdone-t.patch
-  pinctrl-intel-allocate-irq-chip-dynamic.patch
-  asoc-sof-loader-fix-kernel-oops-on-firmware-boot-fai.patch
-  asoc-sof-topology-fix-parse-fail-issue-for-byte-bool.patch
-  asoc-sof-intel-hda-fix-warnings-during-fw-load.patch
-  asoc-sof-intel-initialise-and-verify-fw-crash-dump-d.patch
-  asoc-sof-intel-hda-disable-dmi-l1-entry-during-captu.patch
-  asoc-rt5682-add-null-handler-to-set_jack-function.patch
-  asoc-intel-sof_rt5682-add-remove-function-to-disable.patch
-  asoc-intel-bytcr_rt5651-add-null-check-to-support_bu.patch
-  regulator-pfuze100-regulator-variable-val-in-pfuze10.patch
-  asoc-wm_adsp-don-t-generate-kcontrols-without-read-f.patch
-  asoc-rockchip-i2s-fix-rpm-imbalance.patch
-  arm64-dts-rockchip-fix-rockpro64-rk808-interrupt-lin.patch
-  arm-dts-logicpd-torpedo-som-remove-twl_keypad.patch
-  arm64-dts-rockchip-fix-rockpro64-vdd-log-regulator-s.patch
-  arm64-dts-rockchip-fix-rockpro64-sdhci-settings.patch
-  pinctrl-ns2-fix-off-by-one-bugs-in-ns2_pinmux_enable.patch
-  pinctrl-stmfx-fix-null-pointer-on-remove.patch
-  arm64-dts-zii-ultra-fix-arm-regulator-states.patch
-  arm-dts-am3874-iceboard-fix-i2c-mux-idle-disconnect-.patch
-  asoc-msm8916-wcd-digital-add-missing-mix2-path-for-r.patch
-  asoc-simple_card_utils.h-fix-potential-multiple-rede.patch
-  arm-dts-use-level-interrupt-for-omap4-5-wlcore.patch
-  arm-mm-fix-alignment-handler-faults-under-memory-pre.patch
-  scsi-qla2xxx-fix-a-potential-null-pointer-dereferenc.patch
-  scsi-scsi_dh_alua-handle-rtpg-sense-code-correctly-d.patch
-  scsi-sni_53c710-fix-compilation-error.patch
-  scsi-fix-kconfig-dependency-warning-related-to-53c70.patch
-  arm-8908-1-add-__always_inline-to-functions-called-f.patch
-  arm-8914-1-nommu-fix-exc_ret-for-xip.patch
-  arm64-dts-rockchip-fix-rockpro64-sdmmc-settings.patch
-  arm64-dts-rockchip-fix-usb-c-on-hugsun-x99-tv-box.patch
-  arm64-dts-lx2160a-correct-cpu-core-idle-state-name.patch
-  arm-dts-imx6q-logicpd-re-enable-snvs-power-key.patch
-  arm-dts-vf610-zii-scu4-aib-specify-i2c-mux-idle-disc.patch
-  arm-dts-imx7s-correct-gpt-s-ipg-clock-source.patch
-  arm64-dts-imx8mq-use-correct-clock-for-usdhc-s-ipg-c.patch
-  arm64-dts-imx8mm-use-correct-clock-for-usdhc-s-ipg-c.patch
-  perf-tools-fix-resource-leak-of-closedir-on-the-erro.patch
-  perf-c2c-fix-memory-leak-in-build_cl_output.patch
-  8250-men-mcb-fix-error-checking-when-get_num_ports-r.patch
-  perf-kmem-fix-memory-leak-in-compact_gfp_flags.patch
-  arm-davinci-dm365-fix-mcbsp-dma_slave_map-entry.patch
-  drm-amdgpu-fix-potential-vm-faults.patch
-  drm-amdgpu-fix-error-handling-in-amdgpu_bo_list_crea.patch
-  scsi-target-core-do-not-overwrite-cdb-byte-1.patch
-  scsi-hpsa-add-missing-hunks-in-reset-patch.patch
-  asoc-intel-sof-rt5682-add-a-check-for-devm_clk_get.patch
-  asoc-sof-control-return-true-when-kcontrol-values-ch.patch
-  tracing-fix-gfp_t-format-for-synthetic-events.patch
-  arm-dts-bcm2837-rpi-cm3-avoid-leds-gpio-probing-issu.patch
-  i2c-aspeed-fix-master-pending-state-handling.patch
-  drm-komeda-don-t-flush-inactive-pipes.patch
-  arm-8926-1-v7m-remove-register-save-to-stack-before-.patch
-  selftests-kvm-vmx_set_nested_state_test-don-t-check-.patch
-  selftests-kvm-fix-sync_regs_test-with-newer-gccs.patch
-  alsa-hda-add-tigerlake-jasperlake-pci-id.patch
-  of-unittest-fix-memory-leak-in-unittest_data_add.patch
-  mips-bmips-mark-exception-vectors-as-char-arrays.patch
-  irqchip-gic-v3-its-use-the-exact-itslist-for-vmovp.patch
-  i2c-mt65xx-fix-null-ptr-dereference.patch
-  i2c-stm32f7-fix-first-byte-to-send-in-slave-mode.patch
-  i2c-stm32f7-fix-a-race-in-slave-mode-with-arbitratio.patch
-  i2c-stm32f7-remove-warning-when-compiling-with-w-1.patch
-  cifs-fix-cifsinodeinfo-lock_sem-deadlock-when-reconn.patch
-  irqchip-sifive-plic-skip-contexts-except-supervisor-.patch
-  nbd-protect-cmd-status-with-cmd-lock.patch
-  nbd-handle-racing-with-error-ed-out-commands.patch
-  ata-libahci_platform-fix-regulator_get_optional-misu.patch
-  cxgb4-fix-panic-when-attaching-to-uld-fail.patch
-  cxgb4-request-the-tx-cidx-updates-to-status-page.patch
-  dccp-do-not-leak-jiffies-on-the-wire.patch
-  erspan-fix-the-tun_info-options_len-check-for-erspan.patch
-  inet-stop-leaking-jiffies-on-the-wire.patch
-  net-annotate-accesses-to-sk-sk_incoming_cpu.patch
-  net-annotate-lockless-accesses-to-sk-sk_napi_id.patch
-  net-dsa-bcm_sf2-fix-imp-setup-for-port-different-than-8.patch
-  net-ethernet-ftgmac100-fix-dma-coherency-issue-with-sw-checksum.patch
-  net-fix-sk_page_frag-recursion-from-memory-reclaim.patch
-  net-hisilicon-fix-ping-latency-when-deal-with-high-throughput.patch
-  net-mlx4_core-dynamically-set-guaranteed-amount-of-counters-per-vf.patch
-  netns-fix-gfp-flags-in-rtnl_net_notifyid.patch
-  net-rtnetlink-fix-a-typo-fbd-fdb.patch
-  net-usb-lan78xx-disable-interrupts-before-calling-generic_handle_irq.patc=
-h
-  net-zeroing-the-structure-ethtool_wolinfo-in-ethtool_get_wol.patch
-  selftests-net-reuseport_dualstack-fix-uninitalized-parameter.patch
-  udp-fix-data-race-in-udp_set_dev_scratch.patch
-  vxlan-check-tun_info-options_len-properly.patch
-  net-add-skb_queue_empty_lockless.patch
-  udp-use-skb_queue_empty_lockless.patch
-  net-use-skb_queue_empty_lockless-in-poll-handlers.patch
-  net-use-skb_queue_empty_lockless-in-busy-poll-contexts.patch
-  net-add-read_once-annotation-in-__skb_wait_for_more_packets.patch
-  ipv4-fix-route-update-on-metric-change.patch
-  selftests-fib_tests-add-more-tests-for-metric-update.patch
-  net-smc-fix-closing-of-fallback-smc-sockets.patch
-  net-smc-keep-vlan_id-for-smc-r-in-smc_listen_work.patch
-  keys-fix-memory-leak-in-copy_net_ns.patch
-  net-phylink-fix-phylink_dbg-macro.patch
-  rxrpc-fix-handling-of-last-subpacket-of-jumbo-packet.patch
-  net-mlx5e-determine-source-port-properly-for-vlan-push-action.patch
-  net-mlx5e-remove-incorrect-match-criteria-assignment-line.patch
-  net-mlx5e-initialize-on-stack-link-modes-bitmap.patch
-  net-mlx5-fix-flow-counter-list-auto-bits-struct.patch
-  net-smc-fix-refcounting-for-non-blocking-connect.patch
-  net-mlx5-fix-rtable-reference-leak.patch
-  mlxsw-core-unpublish-devlink-parameters-during-reload.patch
-  r8169-fix-wrong-phy-id-issue-with-rtl8168dp.patch
-  net-mlx5e-fix-ethtool-self-test-link-speed.patch
-  net-mlx5e-fix-handling-of-compressed-cqes-in-case-of-low-napi-budget.patc=
-h
-  ipv4-fix-ipskb_frag_pmtu-handling-with-fragmentation.patch
-  net-bcmgenet-don-t-set-phydev-link-from-mac.patch
-  net-dsa-b53-do-not-clear-existing-mirrored-port-mask.patch
-  net-dsa-fix-switch-tree-list.patch
-  net-ensure-correct-skb-tstamp-in-various-fragmenters.patch
-  net-hns3-fix-mis-counting-irq-vector-numbers-issue.patch
-  net-netem-fix-error-path-for-corrupted-gso-frames.patch
-  net-reorder-struct-net-fields-to-avoid-false-sharing.patch
-  net-usb-lan78xx-connect-phy-before-registering-mac.patch
-  r8152-add-device-id-for-lenovo-thinkpad-usb-c-dock-gen-2.patch
-  net-netem-correct-the-parent-s-backlog-when-corrupted-packet-was-dropped.=
-patch
-  net-phy-bcm7xxx-define-soft_reset-for-40nm-ephy.patch
-  net-bcmgenet-reset-40nm-ephy-on-energy-detect.patch
-  net-flow_dissector-switch-to-siphash.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
+diff --git a/drivers/staging/wilc1000/hif.c b/drivers/staging/wilc1000/hif.=
+c
+index 5f6706bcedf6..349e45d58ec9 100644
+--- a/drivers/staging/wilc1000/hif.c
++++ b/drivers/staging/wilc1000/hif.c
+@@ -485,16 +485,21 @@ void *wilc_parse_join_bss_param(struct cfg80211_bss *=
+bss,
+ 		memcpy(&param->supp_rates[1], rates_ie + 2, rates_len);
+ 	}
+=20
+-	supp_rates_ie =3D cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES, ies->data,
+-					 ies->len);
+-	if (supp_rates_ie) {
+-		if (supp_rates_ie[1] > (WILC_MAX_RATES_SUPPORTED - rates_len))
+-			param->supp_rates[0] =3D WILC_MAX_RATES_SUPPORTED;
+-		else
+-			param->supp_rates[0] +=3D supp_rates_ie[1];
+-
+-		memcpy(&param->supp_rates[rates_len + 1], supp_rates_ie + 2,
+-		       (param->supp_rates[0] - rates_len));
++	if (rates_len < WILC_MAX_RATES_SUPPORTED) {
++		supp_rates_ie =3D cfg80211_find_ie(WLAN_EID_EXT_SUPP_RATES,
++						 ies->data, ies->len);
++		if (supp_rates_ie) {
++			u8 ext_rates =3D supp_rates_ie[1];
++
++			if (ext_rates > (WILC_MAX_RATES_SUPPORTED - rates_len))
++				param->supp_rates[0] =3D WILC_MAX_RATES_SUPPORTED;
++			else
++				param->supp_rates[0] +=3D ext_rates;
++
++			memcpy(&param->supp_rates[rates_len + 1],
++			       supp_rates_ie + 2,
++			       (param->supp_rates[0] - rates_len));
++		}
+ 	}
+=20
+ 	ht_ie =3D cfg80211_find_ie(WLAN_EID_HT_CAPABILITY, ies->data, ies->len);
+--=20
+2.22.0
 
