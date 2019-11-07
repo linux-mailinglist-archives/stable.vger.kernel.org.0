@@ -2,457 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D1D1F2642
-	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 05:10:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43AD6F27B1
+	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 07:36:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733177AbfKGEKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 23:10:14 -0500
-Received: from mail-qk1-f201.google.com ([209.85.222.201]:34113 "EHLO
-        mail-qk1-f201.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1733170AbfKGEKO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 23:10:14 -0500
-Received: by mail-qk1-f201.google.com with SMTP id q125so799805qka.1
-        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 20:10:12 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=cN/4lcAijvIZQQfWNZaiaf90DQFWhQ0mYjQsU5zLhmY=;
-        b=ArgFFJ47wmvISeAr7P8lavQZGDm2s5hVeK1GFZ3Q2FYBV916Pk34VWtz8SxMt8MBo3
-         dq8WtUXJ4qNrDiMPS4oH1sRK+SG1+YRyuXMD9kyjBVSfaGPu2Q6Wfa2oMJKE/6H9DIjL
-         XkEfqyiUt0jOtLX0zCG7I6jaZH9MfsCBfmWJ+qQqSxcu2dhUWkahK/DFo9cidXSZ7Tum
-         PKjgFz1/4beu4nw2/12zj+a75VAPZKYS8VYdMcj9LJNAt9zLuON2qr3/TytaZRYToYp5
-         kgWZc3ygy7D2ggaEmkFmSpnHd+zSQl0mAAnuE6wjK3SGdP6gkxQHTM3JjQNa5g4ACr2U
-         G0Eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=cN/4lcAijvIZQQfWNZaiaf90DQFWhQ0mYjQsU5zLhmY=;
-        b=aShXLVvhh3AzFWg8R1qudHqKyJ8hTOEtWsFAdQEF7jXn1T10hnX0V2R4RKYcczw7/3
-         /IB6wvcLExuXmPcb1nO3xgRi61F1WdGTnbIrwxqTfgAdlU3HdnSLWeo/+YrJ20XkHkvi
-         EU/ncama6PxEkLGgTY2kmFeQ4TfcAiDxtAqNdRwKwhgwCPN0Zn3JrAPuf4LnwdcpYgQf
-         y95GL31r5lbT+WOGsAl6/3idsUWspJlHxO8rECBslU1ZO14jxR2GuCeuSloxy9hwbhfF
-         QH90ZhHxSGLWp3ehAyqWz6wComkXneOHWAFSLxErUbRQjTm4iG+Kx2j1ocg9QvLk0+f9
-         8/Ig==
-X-Gm-Message-State: APjAAAVKJSK4RpBMVCMLxJRqmwMmsIiSQF+XakB0xL1Vk3fKx0XBIWN/
-        uUdGnqeqPKsI0gjGo5hTvwlGIKONbiy5
-X-Google-Smtp-Source: APXvYqwu5oj2vUt85S8pQLdk8HeQYPStKWHIo9+Fb1RBf4IQeEU5DKmCOuyHuIstNKIMySV59jMdgGEJ33Oe
-X-Received: by 2002:ac8:605a:: with SMTP id k26mr1578967qtm.212.1573099811546;
- Wed, 06 Nov 2019 20:10:11 -0800 (PST)
-Date:   Wed,  6 Nov 2019 20:10:06 -0800
-Message-Id: <20191107041006.33145-1-maheshb@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.24.0.rc1.363.gb1bccd3e3d-goog
-Subject: [PATCH v4.4-stable] net/flow_dissector: switch to siphash
-From:   Mahesh Bandewar <maheshb@google.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        David Miller <davem@davemloft.net>
-Cc:     Netdev <netdev@vger.kernel.org>,
-        Eric Dumazet <edumazet@google.com>,
-        Mahesh Bandewar <mahesh@bandewar.net>,
-        Jonathan Berger <jonathann1@walla.com>,
-        Amit Klein <aksecurity@gmail.com>,
-        Benny Pinkas <benny@pinkas.net>,
-        Tom Herbert <tom@herbertland.com>, stable@vger.kernel.org,
-        Mahesh Bandewar <maheshb@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726094AbfKGGg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Nov 2019 01:36:57 -0500
+Received: from mail-eopbgr30073.outbound.protection.outlook.com ([40.107.3.73]:49474
+        "EHLO EUR03-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725763AbfKGGg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Nov 2019 01:36:57 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=LAuI5Bu0tvj3jgkq6Q5oqwk5nKxm3jaVGi6euptC5Xm1JGPvhwPz5vJvTK4Q0AUNkAWrYTQbbd64yqo6OzxeEU8TePj/NiOeU4wLxbT/BBs5Joa7xPeL5az9Y8imBjAykk1e9gHzRTAG5EFlf2QCNHMdd3zc1jWdFS79j2tgIgBJ+zoV1IfFif/ROw+JZ2Bgomy7OCy4VDqKGTYK3rYGEDVbltF3Sd4bUP0C1lOjgbPI4ls68xpaO1GsZjaif1UczlYRX9EOSDXyy4i8V7I74DqKa18WSBOxTWA4zBUYZ1qZcwWAUCPiyexP0TOqwLArIbx7FSkvNt6OPPR08daWnQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bSnGdMNHEUvKj6lC+s8Aqsw2IbOhrzb8BJg5V2UqlOc=;
+ b=eRH0x3X2HwnaMLWb+mz0pVHWnO3nf2il232e2suOzVxOIPpmTGEptgoOtspmXGRhunH36QA9z0WsSZCs9RrU/LXqp7bsjNNzFhzEj1f0YiXke0uvi5G5uOsw894iBF1mnDqIzSBtP5Yxe+hZ8AC1prg0zAhJj9St3cQJYoABCrGGX9BmTQH2DYIF6yeX05YzkLonnoXKtxG1QtnYGe2zxylC18pRG/j/bzyodx23cpwiVa5PoCTUp8cUREPGh/7ESh/5JnQXmzfNfTMf0iDtHgMb1mgkxk5ZYMHm466dQ9RAh73ASXFCR5wmRjsbXaPShrEQQh77ewgALD+JZ5C6zQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bSnGdMNHEUvKj6lC+s8Aqsw2IbOhrzb8BJg5V2UqlOc=;
+ b=Rrv3XhZ6tzPHvSO3jWOZp2aegRFo7PEk5o9aoOjjBjr+sDoYA+tYfPKo9p2+Hun2QSPaKSCxA+0M1dso67JQT/spTjVf00jq6DK4T2+YdffMviYgONFeAJVFYG/jth4xypFlov+5lfi0eMz1z+OKmkwYVr7+HMtehEtcfd3rGZ0=
+Received: from DB7PR04MB4490.eurprd04.prod.outlook.com (52.135.138.150) by
+ DB7PR04MB4108.eurprd04.prod.outlook.com (52.135.128.12) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2408.24; Thu, 7 Nov 2019 06:36:52 +0000
+Received: from DB7PR04MB4490.eurprd04.prod.outlook.com
+ ([fe80::115f:1e4f:9ceb:2a2c]) by DB7PR04MB4490.eurprd04.prod.outlook.com
+ ([fe80::115f:1e4f:9ceb:2a2c%7]) with mapi id 15.20.2430.020; Thu, 7 Nov 2019
+ 06:36:52 +0000
+From:   Peng Fan <peng.fan@nxp.com>
+To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "jslaby@suse.com" <jslaby@suse.com>,
+        "shawnguo@kernel.org" <shawnguo@kernel.org>,
+        "festevam@gmail.com" <festevam@gmail.com>
+CC:     dl-linux-imx <linux-imx@nxp.com>,
+        "linux-serial@vger.kernel.org" <linux-serial@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Andy Duan <fugang.duan@nxp.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH V2] tty: serial: fsl_lpuart: use the sg count from
+ dma_map_sg
+Thread-Topic: [PATCH V2] tty: serial: fsl_lpuart: use the sg count from
+ dma_map_sg
+Thread-Index: AQHVlRYSjb10LGdSBU+AJ5B7rW7xA6d/QS9A
+Date:   Thu, 7 Nov 2019 06:36:52 +0000
+Message-ID: <DB7PR04MB4490FC1A30F476F876D99D2788780@DB7PR04MB4490.eurprd04.prod.outlook.com>
+References: <1573094911-448-1-git-send-email-peng.fan@nxp.com>
+In-Reply-To: <1573094911-448-1-git-send-email-peng.fan@nxp.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=peng.fan@nxp.com; 
+x-originating-ip: [119.31.174.71]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 85afdbe5-0f06-476b-560f-08d7634ce02d
+x-ms-traffictypediagnostic: DB7PR04MB4108:|DB7PR04MB4108:
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <DB7PR04MB41081E73706CCFADCB05812B88780@DB7PR04MB4108.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-forefront-prvs: 0214EB3F68
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(376002)(39860400002)(396003)(136003)(366004)(346002)(189003)(199004)(102836004)(110136005)(2201001)(66066001)(8676002)(64756008)(229853002)(99286004)(6246003)(86362001)(26005)(71200400001)(76176011)(66476007)(7696005)(66446008)(9686003)(256004)(55016002)(6436002)(6506007)(66946007)(76116006)(66556008)(44832011)(8936002)(25786009)(486006)(11346002)(3846002)(446003)(476003)(81156014)(81166006)(4326008)(52536014)(71190400001)(2906002)(54906003)(186003)(7736002)(6116002)(478600001)(14454004)(5660300002)(74316002)(316002)(305945005)(33656002)(2501003);DIR:OUT;SFP:1101;SCL:1;SRVR:DB7PR04MB4108;H:DB7PR04MB4490.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: nxp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: b+RJrLOQT0li735avcV5C7/J3RYMVRLkhjR97KdMiegG9nHx7rxvUgThlANDEq7ebAgDGwh0GQVKR3+o0WaiAX5vkXCno1ncrx8s4KlvFiVM4kgTN4z+BW+OKPtPtIU6r761spAhmZqYeYUzkI36F6TwfPBk8KV/33ZAvbxhEGTnysT/aAIJHkISc88jVFs/5iQH1zDHR/nlqwwD2rAqtHGMYcrwtrVoz9d2/ingQ8YP0j78o20rpqC0XqzxAKvahEwcV2Nhio4WV8YWD1FKeG53W9T10nAvxKGNHQ7P0qHkJbhailnZxrvL7cZM/ecsK9za43P+jveDP5UZhIrLXs8pNQ3lbhVd2A3BfavCIrMuOIgCm7ZoGvAYMgTGToxYgxTGszvmgHcIiBzDuJ45HCbH3SYgs4Hm9Sl83hbCkNdZKJ4a3+W7+2xGuIWdEAPf
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 85afdbe5-0f06-476b-560f-08d7634ce02d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Nov 2019 06:36:52.5586
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 7dne+H+3uBUiLaR5lBza/fQUfQtf9xq0WrQ89gpGhyJ4hB4LkrmrJgVIEuP41ytJBhpwOJnlWLriqkFr4REM6A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB7PR04MB4108
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+> Subject: [PATCH V2] tty: serial: fsl_lpuart: use the sg count from dma_ma=
+p_sg
 
-[ Upstream commit 55667441c84fa5e0911a0aac44fb059c15ba6da2 ]
+Ignore this patch. Keep v1.
 
-UDP IPv6 packets auto flowlabels are using a 32bit secret
-(static u32 hashrnd in net/core/flow_dissector.c) and
-apply jhash() over fields known by the receivers.
+Thanks,
+Peng.
 
-Attackers can easily infer the 32bit secret and use this information
-to identify a device and/or user, since this 32bit secret is only
-set at boot time.
-
-Really, using jhash() to generate cookies sent on the wire
-is a serious security concern.
-
-Trying to change the rol32(hash, 16) in ip6_make_flowlabel() would be
-a dead end. Trying to periodically change the secret (like in sch_sfq.c)
-could change paths taken in the network for long lived flows.
-
-Let's switch to siphash, as we did in commit df453700e8d8
-("inet: switch IP ID generator to siphash")
-
-Using a cryptographically strong pseudo random function will solve this
-privacy issue and more generally remove other weak points in the stack.
-
-Packet schedulers using skb_get_hash_perturb() benefit from this change.
-
-Fixes: b56774163f99 ("ipv6: Enable auto flow labels by default")
-Fixes: 42240901f7c4 ("ipv6: Implement different admin modes for automatic flow labels")
-Fixes: 67800f9b1f4e ("ipv6: Call skb_get_hash_flowi6 to get skb->hash in ip6_make_flowlabel")
-Fixes: cb1ce2ef387b ("ipv6: Implement automatic flow label generation on transmit")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Jonathan Berger <jonathann1@walla.com>
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Reported-by: Benny Pinkas <benny@pinkas.net>
-Cc: Tom Herbert <tom@herbertland.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Mahesh Bandewar <maheshb@google.com>
----
- include/linux/skbuff.h       |  3 ++-
- include/net/flow_dissector.h |  3 ++-
- net/core/flow_dissector.c    | 48 +++++++++++++++---------------------
- net/sched/sch_fq_codel.c     |  6 ++---
- net/sched/sch_hhf.c          |  8 +++---
- net/sched/sch_sfb.c          | 13 +++++-----
- net/sched/sch_sfq.c          | 14 ++++++-----
- 7 files changed, 46 insertions(+), 49 deletions(-)
-
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index a2f12d377d23..735ff1525f48 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1073,7 +1073,8 @@ static inline __u32 skb_get_hash_flowi4(struct sk_buff *skb, const struct flowi4
- 	return skb->hash;
- }
- 
--__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb);
-+__u32 skb_get_hash_perturb(const struct sk_buff *skb,
-+			   const siphash_key_t *perturb);
- 
- static inline __u32 skb_get_hash_raw(const struct sk_buff *skb)
- {
-diff --git a/include/net/flow_dissector.h b/include/net/flow_dissector.h
-index 8c8548cf5888..62a462413081 100644
---- a/include/net/flow_dissector.h
-+++ b/include/net/flow_dissector.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/types.h>
- #include <linux/in6.h>
-+#include <linux/siphash.h>
- #include <uapi/linux/if_ether.h>
- 
- /**
-@@ -146,7 +147,7 @@ struct flow_dissector {
- struct flow_keys {
- 	struct flow_dissector_key_control control;
- #define FLOW_KEYS_HASH_START_FIELD basic
--	struct flow_dissector_key_basic basic;
-+	struct flow_dissector_key_basic basic __aligned(SIPHASH_ALIGNMENT);
- 	struct flow_dissector_key_tags tags;
- 	struct flow_dissector_key_keyid keyid;
- 	struct flow_dissector_key_ports ports;
-diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
-index 697c4212129a..496bfcb787e7 100644
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -505,45 +505,34 @@ out_bad:
- }
- EXPORT_SYMBOL(__skb_flow_dissect);
- 
--static u32 hashrnd __read_mostly;
-+static siphash_key_t hashrnd __read_mostly;
- static __always_inline void __flow_hash_secret_init(void)
- {
- 	net_get_random_once(&hashrnd, sizeof(hashrnd));
- }
- 
--static __always_inline u32 __flow_hash_words(const u32 *words, u32 length,
--					     u32 keyval)
-+static const void *flow_keys_hash_start(const struct flow_keys *flow)
- {
--	return jhash2(words, length, keyval);
--}
--
--static inline const u32 *flow_keys_hash_start(const struct flow_keys *flow)
--{
--	const void *p = flow;
--
--	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % sizeof(u32));
--	return (const u32 *)(p + FLOW_KEYS_HASH_OFFSET);
-+	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % SIPHASH_ALIGNMENT);
-+	return &flow->FLOW_KEYS_HASH_START_FIELD;
- }
- 
- static inline size_t flow_keys_hash_length(const struct flow_keys *flow)
- {
--	size_t diff = FLOW_KEYS_HASH_OFFSET + sizeof(flow->addrs);
--	BUILD_BUG_ON((sizeof(*flow) - FLOW_KEYS_HASH_OFFSET) % sizeof(u32));
--	BUILD_BUG_ON(offsetof(typeof(*flow), addrs) !=
--		     sizeof(*flow) - sizeof(flow->addrs));
-+	size_t len = offsetof(typeof(*flow), addrs) - FLOW_KEYS_HASH_OFFSET;
- 
- 	switch (flow->control.addr_type) {
- 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
--		diff -= sizeof(flow->addrs.v4addrs);
-+		len += sizeof(flow->addrs.v4addrs);
- 		break;
- 	case FLOW_DISSECTOR_KEY_IPV6_ADDRS:
--		diff -= sizeof(flow->addrs.v6addrs);
-+		len += sizeof(flow->addrs.v6addrs);
- 		break;
- 	case FLOW_DISSECTOR_KEY_TIPC_ADDRS:
--		diff -= sizeof(flow->addrs.tipcaddrs);
-+		len += sizeof(flow->addrs.tipcaddrs);
- 		break;
- 	}
--	return (sizeof(*flow) - diff) / sizeof(u32);
-+	return len;
- }
- 
- __be32 flow_get_u32_src(const struct flow_keys *flow)
-@@ -609,14 +598,15 @@ static inline void __flow_hash_consistentify(struct flow_keys *keys)
- 	}
- }
- 
--static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
-+static inline u32 __flow_hash_from_keys(struct flow_keys *keys,
-+					const siphash_key_t *keyval)
- {
- 	u32 hash;
- 
- 	__flow_hash_consistentify(keys);
- 
--	hash = __flow_hash_words(flow_keys_hash_start(keys),
--				 flow_keys_hash_length(keys), keyval);
-+	hash = siphash(flow_keys_hash_start(keys),
-+		       flow_keys_hash_length(keys), keyval);
- 	if (!hash)
- 		hash = 1;
- 
-@@ -626,12 +616,13 @@ static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
- u32 flow_hash_from_keys(struct flow_keys *keys)
- {
- 	__flow_hash_secret_init();
--	return __flow_hash_from_keys(keys, hashrnd);
-+	return __flow_hash_from_keys(keys, &hashrnd);
- }
- EXPORT_SYMBOL(flow_hash_from_keys);
- 
- static inline u32 ___skb_get_hash(const struct sk_buff *skb,
--				  struct flow_keys *keys, u32 keyval)
-+				  struct flow_keys *keys,
-+				  const siphash_key_t *keyval)
- {
- 	skb_flow_dissect_flow_keys(skb, keys,
- 				   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
-@@ -679,7 +670,7 @@ u32 __skb_get_hash_symmetric(struct sk_buff *skb)
- 			   NULL, 0, 0, 0,
- 			   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
- 
--	return __flow_hash_from_keys(&keys, hashrnd);
-+	return __flow_hash_from_keys(&keys, &hashrnd);
- }
- EXPORT_SYMBOL_GPL(__skb_get_hash_symmetric);
- 
-@@ -698,12 +689,13 @@ void __skb_get_hash(struct sk_buff *skb)
- 
- 	__flow_hash_secret_init();
- 
--	__skb_set_sw_hash(skb, ___skb_get_hash(skb, &keys, hashrnd),
-+	__skb_set_sw_hash(skb, ___skb_get_hash(skb, &keys, &hashrnd),
- 			  flow_keys_have_l4(&keys));
- }
- EXPORT_SYMBOL(__skb_get_hash);
- 
--__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb)
-+__u32 skb_get_hash_perturb(const struct sk_buff *skb,
-+			   const siphash_key_t *perturb)
- {
- 	struct flow_keys keys;
- 
-diff --git a/net/sched/sch_fq_codel.c b/net/sched/sch_fq_codel.c
-index d3fc8f9dd3d4..1800f7977595 100644
---- a/net/sched/sch_fq_codel.c
-+++ b/net/sched/sch_fq_codel.c
-@@ -55,7 +55,7 @@ struct fq_codel_sched_data {
- 	struct fq_codel_flow *flows;	/* Flows table [flows_cnt] */
- 	u32		*backlogs;	/* backlog table [flows_cnt] */
- 	u32		flows_cnt;	/* number of flows */
--	u32		perturbation;	/* hash perturbation */
-+	siphash_key_t	perturbation;	/* hash perturbation */
- 	u32		quantum;	/* psched_mtu(qdisc_dev(sch)); */
- 	struct codel_params cparams;
- 	struct codel_stats cstats;
-@@ -69,7 +69,7 @@ struct fq_codel_sched_data {
- static unsigned int fq_codel_hash(const struct fq_codel_sched_data *q,
- 				  struct sk_buff *skb)
- {
--	u32 hash = skb_get_hash_perturb(skb, q->perturbation);
-+	u32 hash = skb_get_hash_perturb(skb, &q->perturbation);
- 
- 	return reciprocal_scale(hash, q->flows_cnt);
- }
-@@ -420,7 +420,7 @@ static int fq_codel_init(struct Qdisc *sch, struct nlattr *opt)
- 	sch->limit = 10*1024;
- 	q->flows_cnt = 1024;
- 	q->quantum = psched_mtu(qdisc_dev(sch));
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	INIT_LIST_HEAD(&q->new_flows);
- 	INIT_LIST_HEAD(&q->old_flows);
- 	codel_params_init(&q->cparams, sch);
-diff --git a/net/sched/sch_hhf.c b/net/sched/sch_hhf.c
-index dc68dccc6b0c..40ec5b280eb6 100644
---- a/net/sched/sch_hhf.c
-+++ b/net/sched/sch_hhf.c
-@@ -4,11 +4,11 @@
-  * Copyright (C) 2013 Nandita Dukkipati <nanditad@google.com>
-  */
- 
--#include <linux/jhash.h>
- #include <linux/jiffies.h>
- #include <linux/module.h>
- #include <linux/skbuff.h>
- #include <linux/vmalloc.h>
-+#include <linux/siphash.h>
- #include <net/pkt_sched.h>
- #include <net/sock.h>
- 
-@@ -125,7 +125,7 @@ struct wdrr_bucket {
- 
- struct hhf_sched_data {
- 	struct wdrr_bucket buckets[WDRR_BUCKET_CNT];
--	u32		   perturbation;   /* hash perturbation */
-+	siphash_key_t	   perturbation;   /* hash perturbation */
- 	u32		   quantum;        /* psched_mtu(qdisc_dev(sch)); */
- 	u32		   drop_overlimit; /* number of times max qdisc packet
- 					    * limit was hit
-@@ -263,7 +263,7 @@ static enum wdrr_bucket_idx hhf_classify(struct sk_buff *skb, struct Qdisc *sch)
- 	}
- 
- 	/* Get hashed flow-id of the skb. */
--	hash = skb_get_hash_perturb(skb, q->perturbation);
-+	hash = skb_get_hash_perturb(skb, &q->perturbation);
- 
- 	/* Check if this packet belongs to an already established HH flow. */
- 	flow_pos = hash & HHF_BIT_MASK;
-@@ -602,7 +602,7 @@ static int hhf_init(struct Qdisc *sch, struct nlattr *opt)
- 
- 	sch->limit = 1000;
- 	q->quantum = psched_mtu(qdisc_dev(sch));
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	INIT_LIST_HEAD(&q->new_buckets);
- 	INIT_LIST_HEAD(&q->old_buckets);
- 
-diff --git a/net/sched/sch_sfb.c b/net/sched/sch_sfb.c
-index c69611640fa5..10c0b184cdbe 100644
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -22,7 +22,7 @@
- #include <linux/errno.h>
- #include <linux/skbuff.h>
- #include <linux/random.h>
--#include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <net/ip.h>
- #include <net/pkt_sched.h>
- #include <net/inet_ecn.h>
-@@ -48,7 +48,7 @@ struct sfb_bucket {
-  * (Section 4.4 of SFB reference : moving hash functions)
-  */
- struct sfb_bins {
--	u32		  perturbation; /* jhash perturbation */
-+	siphash_key_t	  perturbation; /* siphash key */
- 	struct sfb_bucket bins[SFB_LEVELS][SFB_NUMBUCKETS];
- };
- 
-@@ -219,7 +219,8 @@ static u32 sfb_compute_qlen(u32 *prob_r, u32 *avgpm_r, const struct sfb_sched_da
- 
- static void sfb_init_perturbation(u32 slot, struct sfb_sched_data *q)
- {
--	q->bins[slot].perturbation = prandom_u32();
-+	get_random_bytes(&q->bins[slot].perturbation,
-+			 sizeof(q->bins[slot].perturbation));
- }
- 
- static void sfb_swap_slot(struct sfb_sched_data *q)
-@@ -313,9 +314,9 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch)
- 		/* If using external classifiers, get result and record it. */
- 		if (!sfb_classify(skb, fl, &ret, &salt))
- 			goto other_drop;
--		sfbhash = jhash_1word(salt, q->bins[slot].perturbation);
-+		sfbhash = siphash_1u32(salt, &q->bins[slot].perturbation);
- 	} else {
--		sfbhash = skb_get_hash_perturb(skb, q->bins[slot].perturbation);
-+		sfbhash = skb_get_hash_perturb(skb, &q->bins[slot].perturbation);
- 	}
- 
- 
-@@ -351,7 +352,7 @@ static int sfb_enqueue(struct sk_buff *skb, struct Qdisc *sch)
- 		/* Inelastic flow */
- 		if (q->double_buffering) {
- 			sfbhash = skb_get_hash_perturb(skb,
--			    q->bins[slot].perturbation);
-+			    &q->bins[slot].perturbation);
- 			if (!sfbhash)
- 				sfbhash = 1;
- 			sfb_skb_cb(skb)->hashes[slot] = sfbhash;
-diff --git a/net/sched/sch_sfq.c b/net/sched/sch_sfq.c
-index 8b8c084b32cd..e2e4ebc0c4c3 100644
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -18,7 +18,7 @@
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/skbuff.h>
--#include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <net/netlink.h>
-@@ -120,7 +120,7 @@ struct sfq_sched_data {
- 	u8		headdrop;
- 	u8		maxdepth;	/* limit of packets per flow */
- 
--	u32		perturbation;
-+	siphash_key_t 	perturbation;
- 	u8		cur_depth;	/* depth of longest slot */
- 	u8		flags;
- 	unsigned short  scaled_quantum; /* SFQ_ALLOT_SIZE(quantum) */
-@@ -158,7 +158,7 @@ static inline struct sfq_head *sfq_dep_head(struct sfq_sched_data *q, sfq_index
- static unsigned int sfq_hash(const struct sfq_sched_data *q,
- 			     const struct sk_buff *skb)
- {
--	return skb_get_hash_perturb(skb, q->perturbation) & (q->divisor - 1);
-+	return skb_get_hash_perturb(skb, &q->perturbation) & (q->divisor - 1);
- }
- 
- static unsigned int sfq_classify(struct sk_buff *skb, struct Qdisc *sch,
-@@ -607,9 +607,11 @@ static void sfq_perturbation(unsigned long arg)
- 	struct Qdisc *sch = (struct Qdisc *)arg;
- 	struct sfq_sched_data *q = qdisc_priv(sch);
- 	spinlock_t *root_lock = qdisc_lock(qdisc_root_sleeping(sch));
-+	siphash_key_t nkey;
- 
-+	get_random_bytes(&nkey, sizeof(nkey));
- 	spin_lock(root_lock);
--	q->perturbation = prandom_u32();
-+	q->perturbation = nkey;
- 	if (!q->filter_list && q->tail)
- 		sfq_rehash(sch);
- 	spin_unlock(root_lock);
-@@ -681,7 +683,7 @@ static int sfq_change(struct Qdisc *sch, struct nlattr *opt)
- 	del_timer(&q->perturb_timer);
- 	if (q->perturb_period) {
- 		mod_timer(&q->perturb_timer, jiffies + q->perturb_period);
--		q->perturbation = prandom_u32();
-+		get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	}
- 	sch_tree_unlock(sch);
- 	kfree(p);
-@@ -737,7 +739,7 @@ static int sfq_init(struct Qdisc *sch, struct nlattr *opt)
- 	q->quantum = psched_mtu(qdisc_dev(sch));
- 	q->scaled_quantum = SFQ_ALLOT_SIZE(q->quantum);
- 	q->perturb_period = 0;
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 
- 	if (opt) {
- 		int err = sfq_change(sch, opt);
--- 
-2.24.0.rc1.363.gb1bccd3e3d-goog
+>=20
+> From: Peng Fan <peng.fan@nxp.com>
+>=20
+> The dmaengine_prep_slave_sg needs to use sg count returned by
+> dma_map_sg, not use sport->dma_tx_nents, because the return value of
+> dma_map_sg is not always same with "nents".
+>=20
+> When enabling iommu for lpuart + edma, iommu framework may concatenate
+> two sgs into one.
+>=20
+> Fixes: 6250cc30c4c4e ("tty: serial: fsl_lpuart: Use scatter/gather DMA fo=
+r Tx")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> ---
+>=20
+> V2:
+>  Assign ret to sport->dma_tx_nents, then we no need to fix dma_unmap_sg
+> Hi Greg,
+>   I saw v1 patch merged to tty-next, please help to replace with V2 if th=
+is
+>   is ok for you, or you need I have a follow up fix for v1.
+>=20
+>  drivers/tty/serial/fsl_lpuart.c | 1 +
+>  1 file changed, 1 insertion(+)
+>=20
+> diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpu=
+art.c index
+> 3e17bb8a0b16..ec5ea098669e 100644
+> --- a/drivers/tty/serial/fsl_lpuart.c
+> +++ b/drivers/tty/serial/fsl_lpuart.c
+> @@ -436,6 +436,7 @@ static void lpuart_dma_tx(struct lpuart_port *sport)
+>  		return;
+>  	}
+>=20
+> +	sport->dma_tx_nents =3D ret;
+>  	sport->dma_tx_desc =3D dmaengine_prep_slave_sg(sport->dma_tx_chan,
+> sgl,
+>  					sport->dma_tx_nents,
+>  					DMA_MEM_TO_DEV, DMA_PREP_INTERRUPT);
+> --
+> 2.16.4
 
