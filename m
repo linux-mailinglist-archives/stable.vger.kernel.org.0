@@ -2,158 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6AEF2CC9
-	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 11:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B525AF2CE3
+	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 11:55:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387934AbfKGKuA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Nov 2019 05:50:00 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:55981 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727707AbfKGKuA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Nov 2019 05:50:00 -0500
-Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <colin.king@canonical.com>)
-        id 1iSfMT-0007Gf-UD; Thu, 07 Nov 2019 10:49:57 +0000
-From:   Colin King <colin.king@canonical.com>
-To:     Miklos Szeredi <mszeredi@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        linux-unionfs@vger.kernel.org, stable@vger.kernel.org
-Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH][V2] ovl: fix lookup failure on multi lower squashfs
-Date:   Thu,  7 Nov 2019 10:49:57 +0000
-Message-Id: <20191107104957.306383-1-colin.king@canonical.com>
-X-Mailer: git-send-email 2.20.1
+        id S1727732AbfKGKzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Nov 2019 05:55:19 -0500
+Received: from mail-lf1-f65.google.com ([209.85.167.65]:33594 "EHLO
+        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727528AbfKGKzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 7 Nov 2019 05:55:19 -0500
+Received: by mail-lf1-f65.google.com with SMTP id d6so857101lfc.0
+        for <stable@vger.kernel.org>; Thu, 07 Nov 2019 02:55:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=aleksander-es.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TPK50GPjrQoXQ8hD0+RbkmFtGxi2/e2ftn5FMSSFPF4=;
+        b=Wtsk0xn2xgXOzagZqoSEmpZnVaZEg5IExadkuK8+HDd0v+4R5t/CuNMGuqBgYPHYJS
+         aEBhShPEtMrQgMoLzq4DKH39AfjjRNFzJu6lhVS4QWxLIPiT+Ug/glUW6b7S1rBgIThi
+         /ogs8XLfJe5jFUZD/JLYicSccj7jYn533/EO3b597LpZgcNz6z6ZWBK1XeJzXMVixfkd
+         kTkQlyFkaonP6HWXaD+xIa0cQLpLwuSA72nIPRizCFlVdkZs0cvTsP2vmE1j+ERUMsm+
+         Z2J85G6iAPbWL9GP8wfJTgMZ7GzQ3C2Om8h3Zq6/tx/YgKqWPw6JQZMo4V/DCE/CFbBo
+         Fj6g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=TPK50GPjrQoXQ8hD0+RbkmFtGxi2/e2ftn5FMSSFPF4=;
+        b=ro/b326hFPWUpHVOMh/E7zQBBqZd1SJwacaMw2H09gS2hFJOT+qW4Jo7mWG3HJdKX3
+         oAImgdCnemMMRjETJ9+Xh9WV1qkB5C+eIg++3SsrJUaJ5hzRKifYo69+HGAuPz10Jmaw
+         fYMW1SRkuls9Pn0zQw01bxF+PCzmdZBRts+lrw249pTBxgx4L/im/EpnS90utK4vbU2d
+         AOiB5sLP6gE3TgtSnKluSmuhvrTUGQT0/+ZOSDWCClsOju6qx73g8pjrRfDe7e5G9ZR2
+         oTSgo2xdB6vsyg8S6WX+zUphVsMW5Mjuekb6pdcnGicz6Xk9ePDWJyEwxgqI12kqR6rK
+         h3hg==
+X-Gm-Message-State: APjAAAVh1wL4Kn/mO6jw6xAuEV03F+koXHGin+Mnyng9lfWcb+Z0fYE5
+        3gyJ/fa4y5fEge9tKcDtvVMnkA==
+X-Google-Smtp-Source: APXvYqwqxxuBDu1x4vmJeaTVQv1FJjdGVZBPz2iwz+kHyblfJ1Xq1+yLRg0w9FP51km/b0Wa2GzQEQ==
+X-Received: by 2002:ac2:5f0a:: with SMTP id 10mr1928775lfq.57.1573124116279;
+        Thu, 07 Nov 2019 02:55:16 -0800 (PST)
+Received: from localhost.localdomain ([37.46.115.8])
+        by smtp.gmail.com with ESMTPSA id s28sm904756lfp.92.2019.11.07.02.55.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Nov 2019 02:55:15 -0800 (PST)
+From:   Aleksander Morgado <aleksander@aleksander.es>
+To:     johan@kernel.org
+Cc:     gregkh@linuxfoundation.org, linux-usb@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        stable <stable@vger.kernel.org>
+Subject: [PATCH] USB: serial: option: add support for DW5821e with eSIM support
+Date:   Thu,  7 Nov 2019 11:55:08 +0100
+Message-Id: <20191107105508.1010716-1-aleksander@aleksander.es>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+The device exposes AT, NMEA and DIAG ports in both USB configurations.
+Exactly same layout as the default DW5821e module, just a different
+vid/pid.
 
-In the past, overlayfs required that lower fs have non null uuid in
-order to support nfs export and decode copy up origin file handles.
+P:  Vendor=413c ProdID=81e0 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
 
-Commit 9df085f3c9a2 ("ovl: relax requirement for non null uuid of
-lower fs") relaxed this requirement for nfs export support, as long
-as uuid (even if null) is unique among all lower fs.
+P:  Vendor=413c ProdID=81e0 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
+I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
 
-However, said commit unintentionally also relaxed the non null uuid
-requirement for decoding copy up origin file handles, regardless of
-the unique uuid requirement.
-
-Amend this mistake by disabling decoding of copy up origin file handle
-from lower fs with a conflicting uuid.
-
-We still encode copy up origin file handles from those fs, because
-file handles like those already exist in the wild and because they
-might provide useful information in the future.
-
-Reported-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/lkml/20191106234301.283006-1-colin.king@canonical.com/
-Fixes: 9df085f3c9a2 ("ovl: relax requirement for non null uuid ...")
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Cc: stable <stable@vger.kernel.org>
 ---
- fs/overlayfs/namei.c     |  8 ++++++++
- fs/overlayfs/ovl_entry.h |  2 ++
- fs/overlayfs/super.c     | 16 ++++++++++------
- 3 files changed, 20 insertions(+), 6 deletions(-)
+ drivers/usb/serial/option.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/overlayfs/namei.c b/fs/overlayfs/namei.c
-index e9717c2f7d45..f47c591402d7 100644
---- a/fs/overlayfs/namei.c
-+++ b/fs/overlayfs/namei.c
-@@ -325,6 +325,14 @@ int ovl_check_origin_fh(struct ovl_fs *ofs, struct ovl_fh *fh, bool connected,
- 	int i;
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 06ab016be0b6..2023f1f4edaf 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -197,6 +197,7 @@ static void option_instat_callback(struct urb *urb);
+ #define DELL_PRODUCT_5804_MINICARD_ATT		0x819b  /* Novatel E371 */
  
- 	for (i = 0; i < ofs->numlower; i++) {
-+		/*
-+		 * If lower fs uuid is not unique among lower fs we cannot match
-+		 * fh->uuid to layer.
-+		 */
-+		if (ofs->lower_layers[i].fsid &&
-+		    ofs->lower_layers[i].fs->bad_uuid)
-+			continue;
-+
- 		origin = ovl_decode_real_fh(fh, ofs->lower_layers[i].mnt,
- 					    connected);
- 		if (origin)
-diff --git a/fs/overlayfs/ovl_entry.h b/fs/overlayfs/ovl_entry.h
-index a8279280e88d..28348c44ea5b 100644
---- a/fs/overlayfs/ovl_entry.h
-+++ b/fs/overlayfs/ovl_entry.h
-@@ -22,6 +22,8 @@ struct ovl_config {
- struct ovl_sb {
- 	struct super_block *sb;
- 	dev_t pseudo_dev;
-+	/* Unusable (conflicting) uuid */
-+	bool bad_uuid;
- };
+ #define DELL_PRODUCT_5821E			0x81d7
++#define DELL_PRODUCT_5821E_ESIM			0x81e0
  
- struct ovl_layer {
-diff --git a/fs/overlayfs/super.c b/fs/overlayfs/super.c
-index afbcb116a7f1..5d4faab57ba0 100644
---- a/fs/overlayfs/super.c
-+++ b/fs/overlayfs/super.c
-@@ -1255,17 +1255,18 @@ static bool ovl_lower_uuid_ok(struct ovl_fs *ofs, const uuid_t *uuid)
- {
- 	unsigned int i;
- 
--	if (!ofs->config.nfs_export && !(ofs->config.index && ofs->upper_mnt))
--		return true;
--
- 	for (i = 0; i < ofs->numlowerfs; i++) {
- 		/*
- 		 * We use uuid to associate an overlay lower file handle with a
- 		 * lower layer, so we can accept lower fs with null uuid as long
- 		 * as all lower layers with null uuid are on the same fs.
-+		 * if we detect multiple lower fs with the same uuid, we
-+		 * disable lower file handle decoding on all of them.
- 		 */
--		if (uuid_equal(&ofs->lower_fs[i].sb->s_uuid, uuid))
-+		if (uuid_equal(&ofs->lower_fs[i].sb->s_uuid, uuid)) {
-+			ofs->lower_fs[i].bad_uuid = true;
- 			return false;
-+		}
- 	}
- 	return true;
- }
-@@ -1277,6 +1278,7 @@ static int ovl_get_fsid(struct ovl_fs *ofs, const struct path *path)
- 	unsigned int i;
- 	dev_t dev;
- 	int err;
-+	bool bad_uuid = false;
- 
- 	/* fsid 0 is reserved for upper fs even with non upper overlay */
- 	if (ofs->upper_mnt && ofs->upper_mnt->mnt_sb == sb)
-@@ -1287,10 +1289,11 @@ static int ovl_get_fsid(struct ovl_fs *ofs, const struct path *path)
- 			return i + 1;
- 	}
- 
--	if (!ovl_lower_uuid_ok(ofs, &sb->s_uuid)) {
-+	if (ofs->upper_mnt && !ovl_lower_uuid_ok(ofs, &sb->s_uuid)) {
-+		bad_uuid = true;
- 		ofs->config.index = false;
- 		ofs->config.nfs_export = false;
--		pr_warn("overlayfs: %s uuid detected in lower fs '%pd2', falling back to index=off,nfs_export=off.\n",
-+		pr_warn("overlayfs: %s uuid detected in lower fs '%pd2', enforcing index=off,nfs_export=off.\n",
- 			uuid_is_null(&sb->s_uuid) ? "null" : "conflicting",
- 			path->dentry);
- 	}
-@@ -1303,6 +1306,7 @@ static int ovl_get_fsid(struct ovl_fs *ofs, const struct path *path)
- 
- 	ofs->lower_fs[ofs->numlowerfs].sb = sb;
- 	ofs->lower_fs[ofs->numlowerfs].pseudo_dev = dev;
-+	ofs->lower_fs[ofs->numlowerfs].bad_uuid = bad_uuid;
- 	ofs->numlowerfs++;
- 
- 	return ofs->numlowerfs;
+ #define KYOCERA_VENDOR_ID			0x0c88
+ #define KYOCERA_PRODUCT_KPC650			0x17da
+@@ -1044,6 +1045,8 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(DELL_VENDOR_ID, DELL_PRODUCT_5804_MINICARD_ATT, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E),
+ 	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
++	{ USB_DEVICE(DELL_VENDOR_ID, DELL_PRODUCT_5821E_ESIM),
++	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_E100A) },	/* ADU-E100, ADU-310 */
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_500A) },
+ 	{ USB_DEVICE(ANYDATA_VENDOR_ID, ANYDATA_PRODUCT_ADU_620UW) },
 -- 
-2.20.1
+2.24.0
 
