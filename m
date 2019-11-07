@@ -2,85 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6DDF2357
-	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 01:26:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B4CF2413
+	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 02:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727597AbfKGA0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 6 Nov 2019 19:26:47 -0500
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:32789 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725989AbfKGA0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 19:26:46 -0500
-Received: by mail-pl1-f194.google.com with SMTP id ay6so137097plb.0
-        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 16:26:46 -0800 (PST)
+        id S1728080AbfKGBM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 6 Nov 2019 20:12:59 -0500
+Received: from mail-wm1-f67.google.com ([209.85.128.67]:55021 "EHLO
+        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727393AbfKGBM7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 6 Nov 2019 20:12:59 -0500
+Received: by mail-wm1-f67.google.com with SMTP id z26so484169wmi.4
+        for <stable@vger.kernel.org>; Wed, 06 Nov 2019 17:12:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cmpxchg-org.20150623.gappssmtp.com; s=20150623;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=KEOopLJ5iB8RmpEZTW4jEm10x8g53h0m9wq9YjVBDLY=;
-        b=lFJWdmZXI9+2+oMrIJP43CTG56fV3KIfPp/Qh8xHL8cg35kS1x4Dp/SxrZkjsSECvk
-         KJmBS+bONNbKXnrVc6mASGrPB7I+usQ0ttu+yCrsvvJF+Zc/64T9RuJWm4e4HJQ3LQI0
-         S0ClECVzkELJiWf/U675WfVrtD4a4MaUM3tKXceQuKbqOxVAcPEKLaIjojA8q7RyvF9x
-         TgjKMAtx+UWfzcbO+ICuL/CXdUpPbrjlktWidyLEk6HT/XVA6R/m+Te9n4lSFOybVZMy
-         u0Yx8eJBr2sz/L5GfPpGaXnsb0G1tcE0FLjYAo8nEzCYzF0FN9eqicVMSY6W4Jl91EQ3
-         0R1Q==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=nSo2jWRQe1ZMXCfTJ8t1Q1vEIr3Wm9pgHoL6MDvcpVE=;
+        b=Ay1XfdB2Ht5d89Xrf6mmqEefeiUBvrwCqCJXTwrtswNDyTWvPkEgLl2GO+zXZqDslr
+         zvyT1yxQB2ROFbIRPkllkl4wmC6lfkG34fMGflCmRYLGz6znPSg/8c6rLZkCE5XIePEO
+         8OVjuG2Qn1XkurlrGIajjqUuU9kxvDohM1RrLvFf6qRvp4VbQgSJR+t029hn6xt6L3Ww
+         S5OxV+cM6d7mfOzlsAqyPTi699FgONZ8cepmHeZkS/eF5UdXYKvFdHm35fASJxaAaICT
+         I/WSKQ6sluGxZZLfghxrQPGAVv6FX3rG9qBlcUTNoEHxLgNG9szis9jC38o7gVx3cblw
+         5ccA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=KEOopLJ5iB8RmpEZTW4jEm10x8g53h0m9wq9YjVBDLY=;
-        b=dIQDnuSE92MUKTohw8p9UubfBBnjoviKUyUQMbVPehor4NC0mf0ayECr4FT05OznKW
-         OkRkG3q1HcUKTvaOcaU1nxE9Y+N8zlELiL5vhBJ/uVWPSmlKAN70kHNC/fGQ13OU0yTR
-         ZfzrLEZK8/Bzoumo9sI4xd+FKpGvh3b1dBOLI/oQ0xa61dtlGl65wZ29MaayK3Ha+3+2
-         N3zmuZTFBWb2B4jw62THAUmf4jGUae8hf3JcUiOtPDkUjYKaH/dFgYX0VsyyyKjbeK4W
-         KV6/+QXBoN2ym8AM/CYO8vd7tKkDyzZD88kQrQtn4znB7on5iLMy8lucycUqRPGZetP1
-         vKbg==
-X-Gm-Message-State: APjAAAV3mp7IE6o25hsc17Wbc8KJhwH3Qv8nBsegl5ZFFfV7k1zkXynM
-        WoV6vt8lEhq8Wbv/xDOxSXLmzQ==
-X-Google-Smtp-Source: APXvYqzNhi4Z4rqSd1SYZHPd68UCauRrDczwT9rsRKj8pjv7pVf3AFuzhiJThxTX5L2Fg9OfLaicyA==
-X-Received: by 2002:a17:902:7d90:: with SMTP id a16mr481361plm.149.1573086406181;
-        Wed, 06 Nov 2019 16:26:46 -0800 (PST)
-Received: from localhost ([2620:10d:c090:200::2:deb0])
-        by smtp.gmail.com with ESMTPSA id l3sm169756pff.9.2019.11.06.16.26.45
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=nSo2jWRQe1ZMXCfTJ8t1Q1vEIr3Wm9pgHoL6MDvcpVE=;
+        b=Jv5W6RIGBi7bUNf14ZT440Ow4CYhHjjp8KzHkXokldy2eH+su2E14R3yT8lXc+zZRq
+         nKrvPG4oOLfGwHaWmlTyfxwVHiFP3fM0/2BJmV/zlhxZhXcQ/qOBjivh98a3wPQEjcuB
+         l9EW/94slIeXQK8IygFwGjt2T9IvIZHf3TRtMduUXxeZBYBDDEY6oiGyMBGIC6/zO0vf
+         cgFUo8EofObHdbuhzo+ordzh7uze7H+NIdqb374tfW876EJU8WyhXg7b6E3hQ7o+h3we
+         4KrfaRp3fMJH8agZ8rx0bSMsIQn+dQW3xpQXHOHcB8q7rl5LHTkUApLdkVkElY1N5Bym
+         eW8Q==
+X-Gm-Message-State: APjAAAX0HrSJFy9siFKnjOLcKRk2GUWh6v8oew8FUjMPuuCa3TvhvNC9
+        1MK3+ifA1zlof3ib3Gri8rtOnQlbP3k7lw==
+X-Google-Smtp-Source: APXvYqwUmk8p6Y66Ybxo/bbX5PyepEzfDXFP6LIGVaWcDBRfDDRSwnDgiuGUzHksh/K0/fNv2pdkGg==
+X-Received: by 2002:a7b:cf27:: with SMTP id m7mr371626wmg.45.1573089176674;
+        Wed, 06 Nov 2019 17:12:56 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g5sm307002wma.43.2019.11.06.17.12.56
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 Nov 2019 16:26:45 -0800 (PST)
-Date:   Wed, 6 Nov 2019 16:26:44 -0800
-From:   Johannes Weiner <hannes@cmpxchg.org>
-To:     Roman Gushchin <guro@fb.com>
-Cc:     linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@kernel.org>, linux-kernel@vger.kernel.org,
-        kernel-team@fb.com, stable@vger.kernel.org,
-        Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH 2/2] mm: hugetlb: switch to css_tryget() in
- hugetlb_cgroup_charge_cgroup()
-Message-ID: <20191107002644.GB96548@cmpxchg.org>
-References: <20191106225131.3543616-1-guro@fb.com>
- <20191106225131.3543616-2-guro@fb.com>
+        Wed, 06 Nov 2019 17:12:56 -0800 (PST)
+Message-ID: <5dc36f98.1c69fb81.a150c.1611@mx.google.com>
+Date:   Wed, 06 Nov 2019 17:12:56 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191106225131.3543616-2-guro@fb.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.152
+Subject: stable-rc/linux-4.14.y boot: 111 boots: 0 failed,
+ 104 passed with 7 offline (v4.14.152)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 06, 2019 at 02:51:31PM -0800, Roman Gushchin wrote:
-> An exiting task might belong to an offline cgroup. In this case
-> an attempt to grab a cgroup reference from the task can end up
-> with an infinite loop in hugetlb_cgroup_charge_cgroup(), because
-> neither the cgroup will become online, neither the task will
-> be migrated to a live cgroup.
-> 
-> Fix this by switching over to css_tryget(). As css_tryget_online()
-> can't guarantee that the cgroup won't go offline, in most cases
-> the check doesn't make sense. In this particular case users of
-> hugetlb_cgroup_charge_cgroup() are not affected by this change.
-> 
-> A similar problem is described by commit 18fa84a2db0e ("cgroup: Use
-> css_tryget() instead of css_tryget_online() in task_get_css()").
-> 
-> Signed-off-by: Roman Gushchin <guro@fb.com>
+stable-rc/linux-4.14.y boot: 111 boots: 0 failed, 104 passed with 7 offline=
+ (v4.14.152)
 
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.152/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.152/
+
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.152
+Git Commit: c9fda4f22428e09728b611ec9100157199039bfe
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 62 unique boards, 22 SoC families, 13 builds out of 201
+
+Boot Regressions Detected:
+
+arm:
+
+    davinci_all_defconfig:
+        gcc-8:
+          dm365evm,legacy:
+              lab-baylibre-seattle: new failure (last pass: v4.14.151-96-ga=
+9ad8ad8b3ef)
+
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
