@@ -2,68 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 033AEF34D9
-	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 17:43:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5FCBF351D
+	for <lists+stable@lfdr.de>; Thu,  7 Nov 2019 17:54:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389552AbfKGQnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 7 Nov 2019 11:43:21 -0500
-Received: from imap1.codethink.co.uk ([176.9.8.82]:56281 "EHLO
-        imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728965AbfKGQnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 7 Nov 2019 11:43:21 -0500
-Received: from [167.98.27.226] (helo=xylophone)
-        by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
-        id 1iSksQ-0004rW-9m; Thu, 07 Nov 2019 16:43:18 +0000
-Message-ID: <c065df06c9e5d351b4a33c473fd397f27680489f.camel@codethink.co.uk>
-Subject: Re: [PATCH 4.19 00/93] 4.19.81-stable review
-From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Pavel Machek <pavel@denx.de>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Date:   Thu, 07 Nov 2019 16:43:17 +0000
-In-Reply-To: <20191106201818.GA105063@kroah.com>
-References: <20191027203251.029297948@linuxfoundation.org>
-         <20191029162419.cumhku6smn2x2bq4@ucw.cz>
-         <20191029180233.GA587491@kroah.com> <20191106185932.GA2183@amd>
-         <20191106201818.GA105063@kroah.com>
-Organization: Codethink Ltd.
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1730525AbfKGQyb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 7 Nov 2019 11:54:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50504 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729656AbfKGQyb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 7 Nov 2019 11:54:31 -0500
+Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F0152077C;
+        Thu,  7 Nov 2019 16:54:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573145670;
+        bh=NrSOsZi6jOLY0S57+WA9Ehj9OOtiUIdgVBK+A6ZRj3o=;
+        h=Subject:To:References:From:Date:In-Reply-To:From;
+        b=hEaP66T1mEMsezjd0r96IK5fJi75C6B9dAaG3QoHBGcUpcikelUP+gNZ0a/ebtezC
+         pXWhKJGx0w7dCtlJKbGf7h0iS47Ta8tZwZKvXWr/9GpltnxQdT4Ch7TZyy1WXiXot/
+         8YS2SFlvkOOF4o8RfFAVuf07+NXVNIxo1pEfwt8A=
+Subject: Re: KASAN: use-after-free Read in vhci_hub_control
+To:     syzbot <syzbot+600b03e0cf1b73bb23c4@syzkaller.appspotmail.com>,
+        gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org,
+        sudipm.mukherjee@gmail.com, syzkaller-bugs@googlegroups.com,
+        valentina.manea.m@gmail.com, shuah <shuah@kernel.org>
+References: <000000000000c460630596c1d40d@google.com>
+From:   shuah <shuah@kernel.org>
+Message-ID: <e312222f-d24e-ad18-1801-e266d6497a6a@kernel.org>
+Date:   Thu, 7 Nov 2019 09:54:12 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <000000000000c460630596c1d40d@google.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 2019-11-06 at 21:18 +0100, Greg Kroah-Hartman wrote:
-> On Wed, Nov 06, 2019 at 07:59:32PM +0100, Pavel Machek wrote:
-[...]
-> > I'm confused. You said "by Tue ... 08:27:02 PM UTC". That 8 PM is 20h,
-> > but did the release on 10h GMT+1, or 9h UTC -- 9 AM.... so like 11
-> > hours early, if I got the timezones right.
-> > 
-> > Does PM mean something else in the above context?
+On 11/7/19 6:42 AM, syzbot wrote:
+> syzbot suspects this bug was fixed by commit:
 > 
-> Ugh, no, you are right, I was ignoring the PM thing, I thought the -u
-> option to date would give me a 24 hour date string, and so I thought
-> that was 8:27 in the morning.
+> commit 81f7567c51ad97668d1c3a48e8ecc482e64d4161
+> Author: Shuah Khan (Samsung OSG) <shuah@kernel.org>
+> Date:   Fri Oct 5 22:17:44 2018 +0000
 > 
-> Let me mess around with 'date' to see if I can come up with a better
-> string to use here.  I guess:
-> 	date --rfc-3339=seconds -u
-> would probably be best?
+>      usb: usbip: Fix BUG: KASAN: slab-out-of-bounds in vhci_hub_control()
+> 
+> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=14046c2c600000
+> start commit:   420f51f4 Merge tag 'arm64-fixes' of 
+> git://git.kernel.org/p..
+> git tree:       upstream
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=531a917630d2a492
+> dashboard link: 
+> https://syzkaller.appspot.com/bug?extid=600b03e0cf1b73bb23c4
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1116710a400000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=119be4ea400000
+> 
+> If the result looks correct, please mark the bug fixed by replying with:
+> 
+> #syz fix: usb: usbip: Fix BUG: KASAN: slab-out-of-bounds in 
+> vhci_hub_control()
+> 
+> For information about bisection process see: 
+> https://goo.gl/tpsmEJ#bisection
+> 
 
-The --rfc-822 option should give you something close to the current
-format, but with 24-hour numbering.
-
-Ben.
-
--- 
-Ben Hutchings, Software Developer                         Codethink Ltd
-https://www.codethink.co.uk/                 Dale House, 35 Dale Street
-                                     Manchester, M1 2HF, United Kingdom
-
+#syz fix: usb: usbip: Fix BUG: KASAN: slab-out-of-bounds in 
+vhci_hub_control()
