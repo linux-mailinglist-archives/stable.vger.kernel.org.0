@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A49CF5741
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB53EF54C9
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:00:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387858AbfKHTTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:19:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57252 "EHLO mail.kernel.org"
+        id S1732867AbfKHSyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:54:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389441AbfKHTAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:09 -0500
+        id S1732849AbfKHSyQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:54:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1541222473;
-        Fri,  8 Nov 2019 18:58:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98834222C4;
+        Fri,  8 Nov 2019 18:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239484;
-        bh=sJExn/v6rfVY73vDlOBZHLw/udTUWt5BimvLvJe254w=;
+        s=default; t=1573239255;
+        bh=cQ6O9i2OVnda+kKcgWGPsFTPLXKs5+7r3Jbs5SVGFxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqpslFTB8QZ7Vhq+TiLaootj9rIzrS1mYpSn8yZsGMTBsZeCcDHfQkOA3xnYuEvB3
-         AEAacQadb+dzxEReaaJtHSBCYb5qmNtmRHM8SLO539tX0hqGN1COOxVMCE5El9FBGl
-         G9QSqrPn9hj4E433XDKWdHDjLrrkvh1MpLazT0vw=
+        b=g2ROwaqocmQdGpXJSAHBknbLXKYQ0JCclCvUZsqah2cKCPgtvY0wEKPOsYAr3Onvp
+         jUad2iqYg/fPHRKd1p9MlGxBL3eaBT8XQKq+IKxUcuoQ9OO6WM+SXwET6z+/zjrBhm
+         SE5jI7yXelCKigHh7WenEFxQvToA+iu+I5Wu2mGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Wysochanski <dwysocha@redhat.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 21/62] cifs: Fix cifsInodeInfo lock_sem deadlock when reconnect occurs
-Date:   Fri,  8 Nov 2019 19:50:09 +0100
-Message-Id: <20191108174736.760350624@linuxfoundation.org>
+        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
+        <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        "David A. Long" <dave.long@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.4 53/75] ARM: signal: copy registers using __copy_from_user()
+Date:   Fri,  8 Nov 2019 19:50:10 +0100
+Message-Id: <20191108174755.756286220@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
+References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,180 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Wysochanski <dwysocha@redhat.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit d46b0da7a33dd8c99d969834f682267a45444ab3 ]
+Commit c32cd419d6650e42b9cdebb83c672ec945e6bd7e upstream.
 
-There's a deadlock that is possible and can easily be seen with
-a test where multiple readers open/read/close of the same file
-and a disruption occurs causing reconnect.  The deadlock is due
-a reader thread inside cifs_strict_readv calling down_read and
-obtaining lock_sem, and then after reconnect inside
-cifs_reopen_file calling down_read a second time.  If in
-between the two down_read calls, a down_write comes from
-another process, deadlock occurs.
+__get_user_error() is used as a fast accessor to make copying structure
+members in the signal handling path as efficient as possible.  However,
+with software PAN and the recent Spectre variant 1, the efficiency is
+reduced as these are no longer fast accessors.
 
-        CPU0                    CPU1
-        ----                    ----
-cifs_strict_readv()
- down_read(&cifsi->lock_sem);
-                               _cifsFileInfo_put
-                                  OR
-                               cifs_new_fileinfo
-                                down_write(&cifsi->lock_sem);
-cifs_reopen_file()
- down_read(&cifsi->lock_sem);
+In the case of software PAN, it has to switch the domain register around
+each access, and with Spectre variant 1, it would have to repeat the
+access_ok() check for each access.
 
-Fix the above by changing all down_write(lock_sem) calls to
-down_write_trylock(lock_sem)/msleep() loop, which in turn
-makes the second down_read call benign since it will never
-block behind the writer while holding lock_sem.
+It becomes much more efficient to use __copy_from_user() instead, so
+let's use this for the ARM integer registers.
 
-Signed-off-by: Dave Wysochanski <dwysocha@redhat.com>
-Suggested-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed--by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David A. Long <dave.long@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/cifsglob.h  |  5 +++++
- fs/cifs/cifsproto.h |  1 +
- fs/cifs/file.c      | 23 +++++++++++++++--------
- fs/cifs/smb2file.c  |  2 +-
- 4 files changed, 22 insertions(+), 9 deletions(-)
+ arch/arm/kernel/signal.c |   38 +++++++++++++++++++++-----------------
+ 1 file changed, 21 insertions(+), 17 deletions(-)
 
-diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
-index 7b7ab10a9db18..600bb838c15b8 100644
---- a/fs/cifs/cifsglob.h
-+++ b/fs/cifs/cifsglob.h
-@@ -1210,6 +1210,11 @@ void cifsFileInfo_put(struct cifsFileInfo *cifs_file);
- struct cifsInodeInfo {
- 	bool can_cache_brlcks;
- 	struct list_head llist;	/* locks helb by this inode */
-+	/*
-+	 * NOTE: Some code paths call down_read(lock_sem) twice, so
-+	 * we must always use use cifs_down_write() instead of down_write()
-+	 * for this semaphore to avoid deadlocks.
-+	 */
- 	struct rw_semaphore lock_sem;	/* protect the fields above */
- 	/* BB add in lists for dirty pages i.e. write caching info for oplock */
- 	struct list_head openFileList;
-diff --git a/fs/cifs/cifsproto.h b/fs/cifs/cifsproto.h
-index ccdb42f71b2e8..3a7fb8e750e97 100644
---- a/fs/cifs/cifsproto.h
-+++ b/fs/cifs/cifsproto.h
-@@ -149,6 +149,7 @@ extern int cifs_unlock_range(struct cifsFileInfo *cfile,
- 			     struct file_lock *flock, const unsigned int xid);
- extern int cifs_push_mandatory_locks(struct cifsFileInfo *cfile);
+--- a/arch/arm/kernel/signal.c
++++ b/arch/arm/kernel/signal.c
+@@ -141,6 +141,7 @@ struct rt_sigframe {
  
-+extern void cifs_down_write(struct rw_semaphore *sem);
- extern struct cifsFileInfo *cifs_new_fileinfo(struct cifs_fid *fid,
- 					      struct file *file,
- 					      struct tcon_link *tlink,
-diff --git a/fs/cifs/file.c b/fs/cifs/file.c
-index 71a960da7cce1..40f22932343c6 100644
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -280,6 +280,13 @@ cifs_has_mand_locks(struct cifsInodeInfo *cinode)
- 	return has_locks;
- }
- 
-+void
-+cifs_down_write(struct rw_semaphore *sem)
-+{
-+	while (!down_write_trylock(sem))
-+		msleep(10);
-+}
-+
- struct cifsFileInfo *
- cifs_new_fileinfo(struct cifs_fid *fid, struct file *file,
- 		  struct tcon_link *tlink, __u32 oplock)
-@@ -305,7 +312,7 @@ cifs_new_fileinfo(struct cifs_fid *fid, struct file *file,
- 	INIT_LIST_HEAD(&fdlocks->locks);
- 	fdlocks->cfile = cfile;
- 	cfile->llist = fdlocks;
--	down_write(&cinode->lock_sem);
-+	cifs_down_write(&cinode->lock_sem);
- 	list_add(&fdlocks->llist, &cinode->llist);
- 	up_write(&cinode->lock_sem);
- 
-@@ -457,7 +464,7 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file, bool wait_oplock_handler)
- 	 * Delete any outstanding lock records. We'll lose them when the file
- 	 * is closed anyway.
- 	 */
--	down_write(&cifsi->lock_sem);
-+	cifs_down_write(&cifsi->lock_sem);
- 	list_for_each_entry_safe(li, tmp, &cifs_file->llist->locks, llist) {
- 		list_del(&li->llist);
- 		cifs_del_lock_waiters(li);
-@@ -1011,7 +1018,7 @@ static void
- cifs_lock_add(struct cifsFileInfo *cfile, struct cifsLockInfo *lock)
+ static int restore_sigframe(struct pt_regs *regs, struct sigframe __user *sf)
  {
- 	struct cifsInodeInfo *cinode = CIFS_I(d_inode(cfile->dentry));
--	down_write(&cinode->lock_sem);
-+	cifs_down_write(&cinode->lock_sem);
- 	list_add_tail(&lock->llist, &cfile->llist->locks);
- 	up_write(&cinode->lock_sem);
- }
-@@ -1033,7 +1040,7 @@ cifs_lock_add_if(struct cifsFileInfo *cfile, struct cifsLockInfo *lock,
++	struct sigcontext context;
+ 	struct aux_sigframe __user *aux;
+ 	sigset_t set;
+ 	int err;
+@@ -149,23 +150,26 @@ static int restore_sigframe(struct pt_re
+ 	if (err == 0)
+ 		set_current_blocked(&set);
  
- try_again:
- 	exist = false;
--	down_write(&cinode->lock_sem);
-+	cifs_down_write(&cinode->lock_sem);
+-	__get_user_error(regs->ARM_r0, &sf->uc.uc_mcontext.arm_r0, err);
+-	__get_user_error(regs->ARM_r1, &sf->uc.uc_mcontext.arm_r1, err);
+-	__get_user_error(regs->ARM_r2, &sf->uc.uc_mcontext.arm_r2, err);
+-	__get_user_error(regs->ARM_r3, &sf->uc.uc_mcontext.arm_r3, err);
+-	__get_user_error(regs->ARM_r4, &sf->uc.uc_mcontext.arm_r4, err);
+-	__get_user_error(regs->ARM_r5, &sf->uc.uc_mcontext.arm_r5, err);
+-	__get_user_error(regs->ARM_r6, &sf->uc.uc_mcontext.arm_r6, err);
+-	__get_user_error(regs->ARM_r7, &sf->uc.uc_mcontext.arm_r7, err);
+-	__get_user_error(regs->ARM_r8, &sf->uc.uc_mcontext.arm_r8, err);
+-	__get_user_error(regs->ARM_r9, &sf->uc.uc_mcontext.arm_r9, err);
+-	__get_user_error(regs->ARM_r10, &sf->uc.uc_mcontext.arm_r10, err);
+-	__get_user_error(regs->ARM_fp, &sf->uc.uc_mcontext.arm_fp, err);
+-	__get_user_error(regs->ARM_ip, &sf->uc.uc_mcontext.arm_ip, err);
+-	__get_user_error(regs->ARM_sp, &sf->uc.uc_mcontext.arm_sp, err);
+-	__get_user_error(regs->ARM_lr, &sf->uc.uc_mcontext.arm_lr, err);
+-	__get_user_error(regs->ARM_pc, &sf->uc.uc_mcontext.arm_pc, err);
+-	__get_user_error(regs->ARM_cpsr, &sf->uc.uc_mcontext.arm_cpsr, err);
++	err |= __copy_from_user(&context, &sf->uc.uc_mcontext, sizeof(context));
++	if (err == 0) {
++		regs->ARM_r0 = context.arm_r0;
++		regs->ARM_r1 = context.arm_r1;
++		regs->ARM_r2 = context.arm_r2;
++		regs->ARM_r3 = context.arm_r3;
++		regs->ARM_r4 = context.arm_r4;
++		regs->ARM_r5 = context.arm_r5;
++		regs->ARM_r6 = context.arm_r6;
++		regs->ARM_r7 = context.arm_r7;
++		regs->ARM_r8 = context.arm_r8;
++		regs->ARM_r9 = context.arm_r9;
++		regs->ARM_r10 = context.arm_r10;
++		regs->ARM_fp = context.arm_fp;
++		regs->ARM_ip = context.arm_ip;
++		regs->ARM_sp = context.arm_sp;
++		regs->ARM_lr = context.arm_lr;
++		regs->ARM_pc = context.arm_pc;
++		regs->ARM_cpsr = context.arm_cpsr;
++	}
  
- 	exist = cifs_find_lock_conflict(cfile, lock->offset, lock->length,
- 					lock->type, &conf_lock, CIFS_LOCK_OP);
-@@ -1055,7 +1062,7 @@ cifs_lock_add_if(struct cifsFileInfo *cfile, struct cifsLockInfo *lock,
- 					(lock->blist.next == &lock->blist));
- 		if (!rc)
- 			goto try_again;
--		down_write(&cinode->lock_sem);
-+		cifs_down_write(&cinode->lock_sem);
- 		list_del_init(&lock->blist);
- 	}
+ 	err |= !valid_user_regs(regs);
  
-@@ -1108,7 +1115,7 @@ cifs_posix_lock_set(struct file *file, struct file_lock *flock)
- 		return rc;
- 
- try_again:
--	down_write(&cinode->lock_sem);
-+	cifs_down_write(&cinode->lock_sem);
- 	if (!cinode->can_cache_brlcks) {
- 		up_write(&cinode->lock_sem);
- 		return rc;
-@@ -1314,7 +1321,7 @@ cifs_push_locks(struct cifsFileInfo *cfile)
- 	int rc = 0;
- 
- 	/* we are going to update can_cache_brlcks here - need a write access */
--	down_write(&cinode->lock_sem);
-+	cifs_down_write(&cinode->lock_sem);
- 	if (!cinode->can_cache_brlcks) {
- 		up_write(&cinode->lock_sem);
- 		return rc;
-@@ -1505,7 +1512,7 @@ cifs_unlock_range(struct cifsFileInfo *cfile, struct file_lock *flock,
- 	if (!buf)
- 		return -ENOMEM;
- 
--	down_write(&cinode->lock_sem);
-+	cifs_down_write(&cinode->lock_sem);
- 	for (i = 0; i < 2; i++) {
- 		cur = buf;
- 		num = 0;
-diff --git a/fs/cifs/smb2file.c b/fs/cifs/smb2file.c
-index 1add404618f06..2c809233084bb 100644
---- a/fs/cifs/smb2file.c
-+++ b/fs/cifs/smb2file.c
-@@ -139,7 +139,7 @@ smb2_unlock_range(struct cifsFileInfo *cfile, struct file_lock *flock,
- 
- 	cur = buf;
- 
--	down_write(&cinode->lock_sem);
-+	cifs_down_write(&cinode->lock_sem);
- 	list_for_each_entry_safe(li, tmp, &cfile->llist->locks, llist) {
- 		if (flock->fl_start > li->offset ||
- 		    (flock->fl_start + length) <
--- 
-2.20.1
-
 
 
