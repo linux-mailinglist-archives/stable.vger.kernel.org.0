@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD913F47CC
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:53:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3347F47CE
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:53:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390064AbfKHLww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:52:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35102 "EHLO mail.kernel.org"
+        id S1733145AbfKHLwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:52:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403799AbfKHLq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:46:59 -0500
+        id S2391404AbfKHLrA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:47:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9FE9218AE;
-        Fri,  8 Nov 2019 11:46:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1003321D82;
+        Fri,  8 Nov 2019 11:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213618;
-        bh=ON1L6FHRZCSgyfc+YX7cNsYgDakQmYbouwjMn0KnQBE=;
+        s=default; t=1573213619;
+        bh=MS9vzgBV7doMrucn8+8vEnLYd4jnbrbZQAPY4YZ0r2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CRnwpEht6byJvfdDH/NiC9BbKN16tUy042TS5yiR+BjCWeoIY8XZ/rRjrGzupZ2ip
-         QDEkkxLF79+y6IVUWL5UToJWG8MH1rXbI6Vsuvrvz3lUah8GbedU+UbC0wDi4qMK9b
-         GPSlAzp7fAXcEYnQbxN4VKCiDEePsKw6S3oqV3GA=
+        b=UUiMUjZiwg7OFz03tuMI/2X8cN9HqV0Ao9s4lnghHgTy3OcgfQTMjl/367K+Mb0jX
+         6unN37uCDAVNyWzGbTAxtUcbLAY4ZOtBpY8sGTvgH9VUfOTKapP6hT6v/eMwPYKoWc
+         SZUJPOmH5RgKJEfOBRXbofR80uPq+tOqKKAYQlIE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 51/64] llc: avoid blocking in llc_sap_close()
-Date:   Fri,  8 Nov 2019 06:45:32 -0500
-Message-Id: <20191108114545.15351-51-sashal@kernel.org>
+Cc:     Christian Lamparter <chunkeey@gmail.com>,
+        John Crispin <john@phrozen.org>,
+        Andy Gross <andy.gross@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 52/64] ARM: dts: qcom: ipq4019: fix cpu0's qcom,saw2 reg value
+Date:   Fri,  8 Nov 2019 06:45:33 -0500
+Message-Id: <20191108114545.15351-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114545.15351-1-sashal@kernel.org>
 References: <20191108114545.15351-1-sashal@kernel.org>
@@ -43,52 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 9708d2b5b7c648e8e0a40d11e8cea12f6277f33c ]
+[ Upstream commit bd73a3dd257fb838bd456a18eeee0ef0224b7a40 ]
 
-llc_sap_close() is called by llc_sap_put() which
-could be called in BH context in llc_rcv(). We can't
-block in BH.
+while compiling an ipq4019 target, dtc will complain:
+regulator@b089000 unit address format error, expected "2089000"
 
-There is no reason to block it here, kfree_rcu() should
-be sufficient.
+The saw0 regulator reg value seems to be
+copied and pasted from qcom-ipq8064.dtsi.
 
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch fixes the reg value to match that of the
+unit address which in turn silences the warning.
+(There is no driver for qcom,saw2 right now.
+So this went unnoticed)
+
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: John Crispin <john@phrozen.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/llc.h  | 1 +
- net/llc/llc_core.c | 4 +---
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/qcom-ipq4019.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/llc.h b/include/net/llc.h
-index 82d989995d18a..95e5ced4c1339 100644
---- a/include/net/llc.h
-+++ b/include/net/llc.h
-@@ -66,6 +66,7 @@ struct llc_sap {
- 	int sk_count;
- 	struct hlist_nulls_head sk_laddr_hash[LLC_SK_LADDR_HASH_ENTRIES];
- 	struct hlist_head sk_dev_hash[LLC_SK_DEV_HASH_ENTRIES];
-+	struct rcu_head rcu;
- };
+diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+index 4b7d97275c621..5ee84e3cb3e97 100644
+--- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
++++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
+@@ -211,7 +211,7 @@
  
- static inline
-diff --git a/net/llc/llc_core.c b/net/llc/llc_core.c
-index e896a2c53b120..f1e442a39db8d 100644
---- a/net/llc/llc_core.c
-+++ b/net/llc/llc_core.c
-@@ -127,9 +127,7 @@ void llc_sap_close(struct llc_sap *sap)
- 	list_del_rcu(&sap->node);
- 	spin_unlock_bh(&llc_sap_list_lock);
+                 saw0: regulator@b089000 {
+                         compatible = "qcom,saw2";
+-                        reg = <0x02089000 0x1000>, <0x0b009000 0x1000>;
++			reg = <0x0b089000 0x1000>, <0x0b009000 0x1000>;
+                         regulator;
+                 };
  
--	synchronize_rcu();
--
--	kfree(sap);
-+	kfree_rcu(sap, rcu);
- }
- 
- static struct packet_type llc_packet_type __read_mostly = {
 -- 
 2.20.1
 
