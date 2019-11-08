@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F97F4BBF
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:36:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08E1CF4BC0
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:36:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726251AbfKHMgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:36:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43876 "EHLO mail.kernel.org"
+        id S1726949AbfKHMgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:36:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726121AbfKHMgV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 07:36:21 -0500
+        id S1726121AbfKHMgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 07:36:23 -0500
 Received: from localhost.localdomain (lfbn-mar-1-550-151.w90-118.abo.wanadoo.fr [90.118.131.151])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3300B22466;
-        Fri,  8 Nov 2019 12:36:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D86A3222C6;
+        Fri,  8 Nov 2019 12:36:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573216580;
-        bh=ZGlooRu68ALzwcRr49X3h4MeIPaVrWziQxRIRV/+AUE=;
+        s=default; t=1573216582;
+        bh=bEbQfEbeGQufzwlK/+h6/9yM9nOpfHy/zsKcaRqNtAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqhpvi2tklL5WdCKsvHk0ElP1/lXcmNjARiW0M6LUZGRVQIoJts/4Mw55SHWB+QJx
-         3h8Y8Ga3zV+FPhrw7z6mLU0AQcXdV+hooKuCLl3t7UOlJOK54feiwsEADd61wXIitn
-         pOhXQXoXhGCtY7J8Y5sV+KP2vw73Xa270A/UM9rA=
+        b=Z74PEyqYXSduKkSrwITEy380ucpGeFvgFbBAqEF4KO+ItkMBTbyMOo9jyg+DBluyH
+         ITPZOGZzYftuT0trsgX0tlAAEsm2SEvyNB+7bIupgvVkrRS1+AEbyUpPaGPzMvU5ve
+         Ab/wzhjHXdur/1EyzNmVIIk5cPxWtZgbZ+dHj4fI=
 From:   Ard Biesheuvel <ardb@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk,
-        Jens Wiklander <jens.wiklander@linaro.org>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
         Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH for-stable-4.4 05/50] ARM: 8481/2: drivers: psci: replace psci firmware calls
-Date:   Fri,  8 Nov 2019 13:35:09 +0100
-Message-Id: <20191108123554.29004-6-ardb@kernel.org>
+Subject: [PATCH for-stable-4.4 06/50] ARM: uaccess: remove put_user() code duplication
+Date:   Fri,  8 Nov 2019 13:35:10 +0100
+Message-Id: <20191108123554.29004-7-ardb@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108123554.29004-1-ardb@kernel.org>
 References: <20191108123554.29004-1-ardb@kernel.org>
@@ -41,187 +41,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Russell King <rmk+kernel@arm.linux.org.uk>
 
-Commit e679660dbb8347f275fe5d83a5dd59c1fb6c8e63 upstream.
+Commit 9f73bd8bb445e0cbe4bcef6d4cfc788f1e184007 upstream.
 
-Switch to use a generic interface for issuing SMC/HVC based on ARM SMC
-Calling Convention. Removes now the now unused psci-call.S.
+Remove the code duplication between put_user() and __put_user().  The
+code which selected the implementation based upon the pointer size, and
+declared the local variable to hold the value to be put are common to
+both implementations.
 
-Acked-by: Will Deacon <will.deacon@arm.com>
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Tested-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 ---
- arch/arm/Kconfig              |  2 +-
- arch/arm/kernel/Makefile      |  1 -
- arch/arm/kernel/psci-call.S   | 31 --------------------
- arch/arm64/kernel/Makefile    |  2 +-
- arch/arm64/kernel/psci-call.S | 28 ------------------
- drivers/firmware/psci.c       | 23 +++++++++++++--
- 6 files changed, 23 insertions(+), 64 deletions(-)
+ arch/arm/include/asm/uaccess.h | 106 +++++++++-----------
+ 1 file changed, 49 insertions(+), 57 deletions(-)
 
-diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
-index ef742bacd568..2ba69df49cf8 100644
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -1482,7 +1482,7 @@ config HOTPLUG_CPU
+diff --git a/arch/arm/include/asm/uaccess.h b/arch/arm/include/asm/uaccess.h
+index 35c9db857ebe..b0f9269bef1c 100644
+--- a/arch/arm/include/asm/uaccess.h
++++ b/arch/arm/include/asm/uaccess.h
+@@ -238,49 +238,23 @@ extern int __put_user_2(void *, unsigned int);
+ extern int __put_user_4(void *, unsigned int);
+ extern int __put_user_8(void *, unsigned long long);
  
- config ARM_PSCI
- 	bool "Support for the ARM Power State Coordination Interface (PSCI)"
--	depends on CPU_V7
-+	depends on HAVE_ARM_SMCCC
- 	select ARM_PSCI_FW
- 	help
- 	  Say Y here if you want Linux to communicate with system firmware
-diff --git a/arch/arm/kernel/Makefile b/arch/arm/kernel/Makefile
-index 599c950468fc..82bdac0f2804 100644
---- a/arch/arm/kernel/Makefile
-+++ b/arch/arm/kernel/Makefile
-@@ -87,7 +87,6 @@ obj-$(CONFIG_EARLY_PRINTK)	+= early_printk.o
+-#define __put_user_x(__r2, __p, __e, __l, __s)				\
+-	   __asm__ __volatile__ (					\
+-		__asmeq("%0", "r0") __asmeq("%2", "r2")			\
+-		__asmeq("%3", "r1")					\
+-		"bl	__put_user_" #__s				\
+-		: "=&r" (__e)						\
+-		: "0" (__p), "r" (__r2), "r" (__l)			\
+-		: "ip", "lr", "cc")
+-
+-#define __put_user_check(x, p)						\
++#define __put_user_check(__pu_val, __ptr, __err, __s)			\
+ 	({								\
+ 		unsigned long __limit = current_thread_info()->addr_limit - 1; \
+-		const typeof(*(p)) __user *__tmp_p = (p);		\
+-		register const typeof(*(p)) __r2 asm("r2") = (x);	\
+-		register const typeof(*(p)) __user *__p asm("r0") = __tmp_p; \
++		register typeof(__pu_val) __r2 asm("r2") = __pu_val;	\
++		register const void __user *__p asm("r0") = __ptr;	\
+ 		register unsigned long __l asm("r1") = __limit;		\
+ 		register int __e asm("r0");				\
+-		unsigned int __ua_flags = uaccess_save_and_enable();	\
+-		switch (sizeof(*(__p))) {				\
+-		case 1:							\
+-			__put_user_x(__r2, __p, __e, __l, 1);		\
+-			break;						\
+-		case 2:							\
+-			__put_user_x(__r2, __p, __e, __l, 2);		\
+-			break;						\
+-		case 4:							\
+-			__put_user_x(__r2, __p, __e, __l, 4);		\
+-			break;						\
+-		case 8:							\
+-			__put_user_x(__r2, __p, __e, __l, 8);		\
+-			break;						\
+-		default: __e = __put_user_bad(); break;			\
+-		}							\
+-		uaccess_restore(__ua_flags);				\
+-		__e;							\
++		__asm__ __volatile__ (					\
++			__asmeq("%0", "r0") __asmeq("%2", "r2")		\
++			__asmeq("%3", "r1")				\
++			"bl	__put_user_" #__s			\
++			: "=&r" (__e)					\
++			: "0" (__p), "r" (__r2), "r" (__l)		\
++			: "ip", "lr", "cc");				\
++		__err = __e;						\
+ 	})
  
- obj-$(CONFIG_ARM_VIRT_EXT)	+= hyp-stub.o
- ifeq ($(CONFIG_ARM_PSCI),y)
--obj-y				+= psci-call.o
- obj-$(CONFIG_SMP)		+= psci_smp.o
- endif
+-#define put_user(x, p)							\
+-	({								\
+-		might_fault();						\
+-		__put_user_check(x, p);					\
+-	 })
+-
+ #else /* CONFIG_MMU */
  
-diff --git a/arch/arm/kernel/psci-call.S b/arch/arm/kernel/psci-call.S
-deleted file mode 100644
-index a78e9e1e206d..000000000000
---- a/arch/arm/kernel/psci-call.S
-+++ /dev/null
-@@ -1,31 +0,0 @@
--/*
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * Copyright (C) 2015 ARM Limited
-- *
-- * Author: Mark Rutland <mark.rutland@arm.com>
-- */
--
--#include <linux/linkage.h>
--
--#include <asm/opcodes-sec.h>
--#include <asm/opcodes-virt.h>
--
--/* int __invoke_psci_fn_hvc(u32 function_id, u32 arg0, u32 arg1, u32 arg2) */
--ENTRY(__invoke_psci_fn_hvc)
--	__HVC(0)
--	bx	lr
--ENDPROC(__invoke_psci_fn_hvc)
--
--/* int __invoke_psci_fn_smc(u32 function_id, u32 arg0, u32 arg1, u32 arg2) */
--ENTRY(__invoke_psci_fn_smc)
--	__SMC(0)
--	bx	lr
--ENDPROC(__invoke_psci_fn_smc)
-diff --git a/arch/arm64/kernel/Makefile b/arch/arm64/kernel/Makefile
-index 0170bea3d4ae..27bf1e5180a1 100644
---- a/arch/arm64/kernel/Makefile
-+++ b/arch/arm64/kernel/Makefile
-@@ -14,7 +14,7 @@ CFLAGS_REMOVE_return_address.o = -pg
- arm64-obj-y		:= debug-monitors.o entry.o irq.o fpsimd.o		\
- 			   entry-fpsimd.o process.o ptrace.o setup.o signal.o	\
- 			   sys.o stacktrace.o time.o traps.o io.o vdso.o	\
--			   hyp-stub.o psci.o psci-call.o cpu_ops.o insn.o	\
-+			   hyp-stub.o psci.o cpu_ops.o insn.o	\
- 			   return_address.o cpuinfo.o cpu_errata.o		\
- 			   cpufeature.o alternative.o cacheinfo.o		\
- 			   smp.o smp_spin_table.o topology.o smccc-call.o
-diff --git a/arch/arm64/kernel/psci-call.S b/arch/arm64/kernel/psci-call.S
-deleted file mode 100644
-index cf83e61cd3b5..000000000000
---- a/arch/arm64/kernel/psci-call.S
-+++ /dev/null
-@@ -1,28 +0,0 @@
--/*
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * Copyright (C) 2015 ARM Limited
-- *
-- * Author: Will Deacon <will.deacon@arm.com>
-- */
--
--#include <linux/linkage.h>
--
--/* int __invoke_psci_fn_hvc(u64 function_id, u64 arg0, u64 arg1, u64 arg2) */
--ENTRY(__invoke_psci_fn_hvc)
--	hvc	#0
--	ret
--ENDPROC(__invoke_psci_fn_hvc)
--
--/* int __invoke_psci_fn_smc(u64 function_id, u64 arg0, u64 arg1, u64 arg2) */
--ENTRY(__invoke_psci_fn_smc)
--	smc	#0
--	ret
--ENDPROC(__invoke_psci_fn_smc)
-diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index ae70d2485ca1..b38305ba0965 100644
---- a/drivers/firmware/psci.c
-+++ b/drivers/firmware/psci.c
-@@ -13,6 +13,7 @@
- 
- #define pr_fmt(fmt) "psci: " fmt
- 
-+#include <linux/arm-smccc.h>
- #include <linux/errno.h>
- #include <linux/linkage.h>
- #include <linux/of.h>
-@@ -58,8 +59,6 @@ struct psci_operations psci_ops;
- 
- typedef unsigned long (psci_fn)(unsigned long, unsigned long,
- 				unsigned long, unsigned long);
--asmlinkage psci_fn __invoke_psci_fn_hvc;
--asmlinkage psci_fn __invoke_psci_fn_smc;
- static psci_fn *invoke_psci_fn;
- 
- enum psci_function {
-@@ -107,6 +106,26 @@ bool psci_power_state_is_valid(u32 state)
- 	return !(state & ~valid_mask);
+ /*
+@@ -298,7 +272,7 @@ static inline void set_fs(mm_segment_t fs)
  }
  
-+static unsigned long __invoke_psci_fn_hvc(unsigned long function_id,
-+			unsigned long arg0, unsigned long arg1,
-+			unsigned long arg2)
-+{
-+	struct arm_smccc_res res;
+ #define get_user(x, p)	__get_user(x, p)
+-#define put_user(x, p)	__put_user(x, p)
++#define __put_user_check __put_user_nocheck
+ 
+ #endif /* CONFIG_MMU */
+ 
+@@ -389,36 +363,54 @@ do {									\
+ #define __get_user_asm_word(x, addr, err)			\
+ 	__get_user_asm(x, addr, err, ldr)
+ 
 +
-+	arm_smccc_hvc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
-+	return res.a0;
-+}
++#define __put_user_switch(x, ptr, __err, __fn)				\
++	do {								\
++		const __typeof__(*(ptr)) __user *__pu_ptr = (ptr);	\
++		__typeof__(*(ptr)) __pu_val = (x);			\
++		unsigned int __ua_flags;				\
++		might_fault();						\
++		__ua_flags = uaccess_save_and_enable();			\
++		switch (sizeof(*(ptr))) {				\
++		case 1: __fn(__pu_val, __pu_ptr, __err, 1); break;	\
++		case 2:	__fn(__pu_val, __pu_ptr, __err, 2); break;	\
++		case 4:	__fn(__pu_val, __pu_ptr, __err, 4); break;	\
++		case 8:	__fn(__pu_val, __pu_ptr, __err, 8); break;	\
++		default: __err = __put_user_bad(); break;		\
++		}							\
++		uaccess_restore(__ua_flags);				\
++	} while (0)
 +
-+static unsigned long __invoke_psci_fn_smc(unsigned long function_id,
-+			unsigned long arg0, unsigned long arg1,
-+			unsigned long arg2)
-+{
-+	struct arm_smccc_res res;
++#define put_user(x, ptr)						\
++({									\
++	int __pu_err = 0;						\
++	__put_user_switch((x), (ptr), __pu_err, __put_user_check);	\
++	__pu_err;							\
++})
 +
-+	arm_smccc_smc(function_id, arg0, arg1, arg2, 0, 0, 0, 0, &res);
-+	return res.a0;
-+}
+ #define __put_user(x, ptr)						\
+ ({									\
+ 	long __pu_err = 0;						\
+-	__put_user_err((x), (ptr), __pu_err);				\
++	__put_user_switch((x), (ptr), __pu_err, __put_user_nocheck);	\
+ 	__pu_err;							\
+ })
+ 
+ #define __put_user_error(x, ptr, err)					\
+ ({									\
+-	__put_user_err((x), (ptr), err);				\
++	__put_user_switch((x), (ptr), (err), __put_user_nocheck);	\
+ 	(void) 0;							\
+ })
+ 
+-#define __put_user_err(x, ptr, err)					\
+-do {									\
+-	unsigned long __pu_addr = (unsigned long)(ptr);			\
+-	unsigned int __ua_flags;					\
+-	__typeof__(*(ptr)) __pu_val = (x);				\
+-	__chk_user_ptr(ptr);						\
+-	might_fault();							\
+-	__ua_flags = uaccess_save_and_enable();				\
+-	switch (sizeof(*(ptr))) {					\
+-	case 1: __put_user_asm_byte(__pu_val, __pu_addr, err);	break;	\
+-	case 2: __put_user_asm_half(__pu_val, __pu_addr, err);	break;	\
+-	case 4: __put_user_asm_word(__pu_val, __pu_addr, err);	break;	\
+-	case 8:	__put_user_asm_dword(__pu_val, __pu_addr, err);	break;	\
+-	default: __put_user_bad();					\
+-	}								\
+-	uaccess_restore(__ua_flags);					\
+-} while (0)
++#define __put_user_nocheck(x, __pu_ptr, __err, __size)			\
++	do {								\
++		unsigned long __pu_addr = (unsigned long)__pu_ptr;	\
++		__put_user_nocheck_##__size(x, __pu_addr, __err);	\
++	} while (0)
 +
- static int psci_to_linux_errno(int errno)
- {
- 	switch (errno) {
++#define __put_user_nocheck_1 __put_user_asm_byte
++#define __put_user_nocheck_2 __put_user_asm_half
++#define __put_user_nocheck_4 __put_user_asm_word
++#define __put_user_nocheck_8 __put_user_asm_dword
+ 
+ #define __put_user_asm(x, __pu_addr, err, instr)		\
+ 	__asm__ __volatile__(					\
 -- 
 2.20.1
 
