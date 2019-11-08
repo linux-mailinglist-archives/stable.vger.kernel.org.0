@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D8D9F4AAD
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 458D3F4AAF
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733122AbfKHLj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2387443AbfKHLj3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 8 Nov 2019 06:39:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52384 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387396AbfKHLj0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:39:26 -0500
+        id S2387416AbfKHLj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:39:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A599D21D7E;
-        Fri,  8 Nov 2019 11:39:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5701720869;
+        Fri,  8 Nov 2019 11:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213165;
-        bh=ZPSKGSZEulSokc6OQ6g3QxfBYvIV5a0XHwF8ROZCzws=;
+        s=default; t=1573213168;
+        bh=ebQIMzzwp7S1oC4ON3K8TO3u8DuQh6RB9yjA/WfUMZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G76pBEJH3zlNtGtfwcBqJRch4iVm00H2UX5TxEHvmswglGUXVMItC00zT+Qfslf7k
-         XPwJcXHS5Yqou9YeKtzZasfUa0IBR+oKd3/8UzMZ5OoJWWHx9GJuhcGw6K3+tlyk0n
-         uwt2QOQp8XafnZ7gxHa1rLZX+qqYPcs4Lq0RMbM0=
+        b=jrFnPZsocyUn8NAEVVOOpvrrGxuhOLmAiuPV0NlHRtsc+d9kZTdxx1i+n0KoT+Uez
+         aRcF563PYcFUuSSnFLQTUy3m20gXlo6oD3IbTwl2x2xuMgpaaYFlJQUMA8AHaXvQhi
+         k/clEoOPQ5Tze5YhAJTgABY6XH/p9JwQPxKXRAjU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 068/205] mt76: Fix comparisons with invalid hardware key index
-Date:   Fri,  8 Nov 2019 06:35:35 -0500
-Message-Id: <20191108113752.12502-68-sashal@kernel.org>
+Cc:     Sven Schmitt <Sven.Schmitt@mixed-mode.de>,
+        Sven Schmitt <sven.schmitt@mixed-mode.de>,
+        Leonard Crestez <leonard.crestez@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 069/205] soc: imx: gpc: fix PDN delay
+Date:   Fri,  8 Nov 2019 06:35:36 -0500
+Message-Id: <20191108113752.12502-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,56 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Sven Schmitt <Sven.Schmitt@mixed-mode.de>
 
-[ Upstream commit 81c8eccc2404d06082025b773f1d90e8c861bc6a ]
+[ Upstream commit 9f4d61d531e0efc9c3283963ae5ef7e314579191 ]
 
-With gcc 4.1.2:
+imx6_pm_domain_power_off() reads iso and iso2sw from GPC_PGC_PUPSCR_OFFS
+which stores the power up delays.
+So use GPC_PGC_PDNSCR_OFFS for the correct delays.
 
-    drivers/net/wireless/mediatek/mt76/mt76x0/tx.c: In function ‘mt76x0_tx’:
-    drivers/net/wireless/mediatek/mt76/mt76x0/tx.c:169: warning: comparison is always true due to limited range of data type
-    drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c: In function ‘mt76x2_tx’:
-    drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c:35: warning: comparison is always true due to limited range of data type
-
-While assigning -1 to a u8 works fine, comparing with -1 does not work
-as expected.
-
-Fix this by comparing with 0xff, like is already done in some other
-places.
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sven Schmitt <sven.schmitt@mixed-mode.de>
+Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76x0/tx.c        | 2 +-
- drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/soc/imx/gpc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c b/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c
-index 751b49c28ae53..c45d05d5aab1d 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c
-@@ -166,7 +166,7 @@ void mt76x0_tx(struct ieee80211_hw *hw, struct ieee80211_tx_control *control,
- 	if (sta) {
- 		msta = (struct mt76_sta *) sta->drv_priv;
- 		wcid = &msta->wcid;
--	} else if (vif && (!info->control.hw_key && wcid->hw_key_idx != -1)) {
-+	} else if (vif && (!info->control.hw_key && wcid->hw_key_idx != 0xff)) {
- 		struct mt76_vif *mvif = (struct mt76_vif *)vif->drv_priv;
+diff --git a/drivers/soc/imx/gpc.c b/drivers/soc/imx/gpc.c
+index b3da635970ea7..d160fc2a7b7a2 100644
+--- a/drivers/soc/imx/gpc.c
++++ b/drivers/soc/imx/gpc.c
+@@ -69,7 +69,7 @@ static int imx6_pm_domain_power_off(struct generic_pm_domain *genpd)
+ 	u32 val;
  
- 		wcid = &mvif->group_wcid;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c b/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c
-index 36afb166fa3ff..c0ca0df84ed8b 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c
-@@ -32,7 +32,7 @@ void mt76x2_tx(struct ieee80211_hw *hw, struct ieee80211_tx_control *control,
- 		msta = (struct mt76x2_sta *)control->sta->drv_priv;
- 		wcid = &msta->wcid;
- 		/* sw encrypted frames */
--		if (!info->control.hw_key && wcid->hw_key_idx != -1)
-+		if (!info->control.hw_key && wcid->hw_key_idx != 0xff)
- 			control->sta = NULL;
- 	}
+ 	/* Read ISO and ISO2SW power down delays */
+-	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PUPSCR_OFFS, &val);
++	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PDNSCR_OFFS, &val);
+ 	iso = val & 0x3f;
+ 	iso2sw = (val >> 8) & 0x3f;
  
 -- 
 2.20.1
