@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91C8BF55C5
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E53F55C7
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391016AbfKHTEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:04:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34570 "EHLO mail.kernel.org"
+        id S1732748AbfKHTEj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:04:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732170AbfKHTEf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:04:35 -0500
+        id S1732170AbfKHTEi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:04:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1BA22087E;
-        Fri,  8 Nov 2019 19:04:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42285214DB;
+        Fri,  8 Nov 2019 19:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239874;
-        bh=1Y+xRVtxzd2fp4h43+XE1wF9wYKRdu6H+a18mpLMYN0=;
+        s=default; t=1573239877;
+        bh=AesfdGlm8YQjMxu4s+FElDE3//jeAMGU3vcsCdV64L0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ip17j1OlXTI7rZznUUqozf9Okp0wT72TtDVr1jn3dzB4gCNxQA69IlTKQfoLJazNy
-         MWA6mdoPdmo5aml+Ki8OPJu7wGf0jM7CPDa0e2F2JIlvS+jgXV+Ksy8PRD+bmjUSQY
-         nqWJ+0QVK0N02LTq1xbTN+O2IqyO+bMDoeLf2cFU=
+        b=B5WUNBy8+IwF3/GBqvk3wI5Qoph2VeVQFVdRAcSSznw152ynvT0bwDH3uAR4sXCAS
+         KKzC1rP7iGtPUbStKjK1dEZuuexhpnWIsm5HavCr93UGg5HVU15gfZUOObNB2YCMW3
+         Wa50U9wPjVPhRQoWMnkqzaOmmca1mcoCU1ADHK6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Keyon Jie <yang.jie@linux.intel.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 012/140] ASoC: SOF: loader: fix kernel oops on firmware boot failure
-Date:   Fri,  8 Nov 2019 19:49:00 +0100
-Message-Id: <20191108174902.262089688@linuxfoundation.org>
+Subject: [PATCH 5.3 013/140] ASoC: SOF: topology: fix parse fail issue for byte/bool tuple types
+Date:   Fri,  8 Nov 2019 19:49:01 +0100
+Message-Id: <20191108174902.528253660@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
 References: <20191108174900.189064908@linuxfoundation.org>
@@ -45,42 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Keyon Jie <yang.jie@linux.intel.com>
 
-[ Upstream commit 798614885a0e1b867ceb0197c30c2d82575c73b0 ]
+[ Upstream commit 2e305a074061121220a2828f97a57d315cf8efba ]
 
-When we fail to boot the firmware, we encounter a kernel oops in
-hda_dsp_get_registers(), which is called conditionally in
-hda_dsp_dump() when the sdev_>boot_complete flag is set.
+We are using sof_parse_word_tokens() to parse tokens with
+bool/byte/short/word tuple types, here add the missing check, to fix the
+parsing failure at byte/bool tuple types.
 
-Setting this flag _after_ dumping the data fixes the issue and does
-not change the programming flow.
-
+Signed-off-by: Keyon Jie <yang.jie@linux.intel.com>
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190927200538.660-2-pierre-louis.bossart@linux.intel.com
+Link: https://lore.kernel.org/r/20190927200538.660-3-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/loader.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/sof/topology.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/loader.c b/sound/soc/sof/loader.c
-index 952a19091c582..01775231f2b8d 100644
---- a/sound/soc/sof/loader.c
-+++ b/sound/soc/sof/loader.c
-@@ -370,10 +370,10 @@ int snd_sof_run_firmware(struct snd_sof_dev *sdev)
- 				 msecs_to_jiffies(sdev->boot_timeout));
- 	if (ret == 0) {
- 		dev_err(sdev->dev, "error: firmware boot failure\n");
--		/* after this point FW_READY msg should be ignored */
--		sdev->boot_complete = true;
- 		snd_sof_dsp_dbg_dump(sdev, SOF_DBG_REGS | SOF_DBG_MBOX |
- 			SOF_DBG_TEXT | SOF_DBG_PCI);
-+		/* after this point FW_READY msg should be ignored */
-+		sdev->boot_complete = true;
- 		return -EIO;
- 	}
+diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
+index 432ae343f9602..96230329e678f 100644
+--- a/sound/soc/sof/topology.c
++++ b/sound/soc/sof/topology.c
+@@ -907,7 +907,9 @@ static void sof_parse_word_tokens(struct snd_soc_component *scomp,
+ 		for (j = 0; j < count; j++) {
+ 			/* match token type */
+ 			if (!(tokens[j].type == SND_SOC_TPLG_TUPLE_TYPE_WORD ||
+-			      tokens[j].type == SND_SOC_TPLG_TUPLE_TYPE_SHORT))
++			      tokens[j].type == SND_SOC_TPLG_TUPLE_TYPE_SHORT ||
++			      tokens[j].type == SND_SOC_TPLG_TUPLE_TYPE_BYTE ||
++			      tokens[j].type == SND_SOC_TPLG_TUPLE_TYPE_BOOL))
+ 				continue;
  
+ 			/* match token id */
 -- 
 2.20.1
 
