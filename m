@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C568F53E1
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF5EF53E8
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730598AbfKHSwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:52:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48466 "EHLO mail.kernel.org"
+        id S1731335AbfKHSwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:52:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726394AbfKHSwR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:52:17 -0500
+        id S1731195AbfKHSwa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:52:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AF232178F;
-        Fri,  8 Nov 2019 18:52:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E14ED21D7E;
+        Fri,  8 Nov 2019 18:52:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239135;
-        bh=WAau6IR/aThQUlLyDIXnoKCOCQz2hrk3FioonFNx534=;
+        s=default; t=1573239150;
+        bh=RlodDkjESUM8Slmuk9dH1BmilljgeGRbTugX96zDFV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMjrBEyey2AtChKSKQIfpAzy9a0cIV73aPH8dJfwDosy6FqnG+7QgxTUh4BWX4L8y
-         A85G9yUgc6NvDEaj6hL5HcDR2M82d7Ll/RFczkIXTLlPas1h5hzL9wjNtvGMnQ8vCS
-         jG5XbVjJdtT0VaRktw6A+UMt8yOMqT3ZMsihhvIw=
+        b=Gmkwr7wb0skcYEx/CWx20hCXWRQqiDMvoIx6Z3u4bcHgi5NgPT93UgfIkMuMBf4Ps
+         JQJPEEeWGSUOKBrCC1LZoT9j1qq8/sGJ+geUABWR+9arACl+Skun5Qz1xSC2uvOGeC
+         P6cLEskVja80zqBLTk37Z75Ex1J0trC5bAyubUpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonas Gorski <jonas.gorski@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Paul Burton <paulburton@kernel.org>,
-        linux-mips@vger.kernel.org, Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 12/75] MIPS: bmips: mark exception vectors as char arrays
-Date:   Fri,  8 Nov 2019 19:49:29 +0100
-Message-Id: <20191108174719.472838702@linuxfoundation.org>
+        stable@vger.kernel.org, zhanglin <zhang.lin16@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 17/75] net: Zeroing the structure ethtool_wolinfo in ethtool_get_wol()
+Date:   Fri,  8 Nov 2019 19:49:34 +0100
+Message-Id: <20191108174723.977583735@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
 References: <20191108174708.135680837@linuxfoundation.org>
@@ -47,107 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Gorski <jonas.gorski@gmail.com>
+From: zhanglin <zhang.lin16@zte.com.cn>
 
-[ Upstream commit e4f5cb1a9b27c0f94ef4f5a0178a3fde2d3d0e9e ]
+[ Upstream commit 5ff223e86f5addbfae26419cbb5d61d98f6fbf7d ]
 
-The vectors span more than one byte, so mark them as arrays.
+memset() the structure ethtool_wolinfo that has padded bytes
+but the padded bytes have not been zeroed out.
 
-Fixes the following build error when building when using GCC 8.3:
-
-In file included from ./include/linux/string.h:19,
-                 from ./include/linux/bitmap.h:9,
-                 from ./include/linux/cpumask.h:12,
-                 from ./arch/mips/include/asm/processor.h:15,
-                 from ./arch/mips/include/asm/thread_info.h:16,
-                 from ./include/linux/thread_info.h:38,
-                 from ./include/asm-generic/preempt.h:5,
-                 from ./arch/mips/include/generated/asm/preempt.h:1,
-                 from ./include/linux/preempt.h:81,
-                 from ./include/linux/spinlock.h:51,
-                 from ./include/linux/mmzone.h:8,
-                 from ./include/linux/bootmem.h:8,
-                 from arch/mips/bcm63xx/prom.c:10:
-arch/mips/bcm63xx/prom.c: In function 'prom_init':
-./arch/mips/include/asm/string.h:162:11: error: '__builtin_memcpy' forming offset [2, 32] is out of the bounds [0, 1] of object 'bmips_smp_movevec' with type 'char' [-Werror=array-bounds]
-   __ret = __builtin_memcpy((dst), (src), __len); \
-           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-arch/mips/bcm63xx/prom.c:97:3: note: in expansion of macro 'memcpy'
-   memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
-   ^~~~~~
-In file included from arch/mips/bcm63xx/prom.c:14:
-./arch/mips/include/asm/bmips.h:80:13: note: 'bmips_smp_movevec' declared here
- extern char bmips_smp_movevec;
-
-Fixes: 18a1eef92dcd ("MIPS: BMIPS: Introduce bmips.h")
-Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Paul Burton <paulburton@kernel.org>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: zhanglin <zhang.lin16@zte.com.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/bcm63xx/prom.c      |  2 +-
- arch/mips/include/asm/bmips.h | 10 +++++-----
- arch/mips/kernel/smp-bmips.c  |  8 ++++----
- 3 files changed, 10 insertions(+), 10 deletions(-)
+ net/core/ethtool.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/bcm63xx/prom.c b/arch/mips/bcm63xx/prom.c
-index 7019e2967009e..bbbf8057565b2 100644
---- a/arch/mips/bcm63xx/prom.c
-+++ b/arch/mips/bcm63xx/prom.c
-@@ -84,7 +84,7 @@ void __init prom_init(void)
- 		 * Here we will start up CPU1 in the background and ask it to
- 		 * reconfigure itself then go back to sleep.
- 		 */
--		memcpy((void *)0xa0000200, &bmips_smp_movevec, 0x20);
-+		memcpy((void *)0xa0000200, bmips_smp_movevec, 0x20);
- 		__sync();
- 		set_c0_cause(C_SW0);
- 		cpumask_set_cpu(1, &bmips_booted_mask);
-diff --git a/arch/mips/include/asm/bmips.h b/arch/mips/include/asm/bmips.h
-index 6d25ad33ec78f..860e4cef61be7 100644
---- a/arch/mips/include/asm/bmips.h
-+++ b/arch/mips/include/asm/bmips.h
-@@ -75,11 +75,11 @@ static inline int register_bmips_smp_ops(void)
- #endif
- }
+--- a/net/core/ethtool.c
++++ b/net/core/ethtool.c
+@@ -941,11 +941,13 @@ static int ethtool_reset(struct net_devi
  
--extern char bmips_reset_nmi_vec;
--extern char bmips_reset_nmi_vec_end;
--extern char bmips_smp_movevec;
--extern char bmips_smp_int_vec;
--extern char bmips_smp_int_vec_end;
-+extern char bmips_reset_nmi_vec[];
-+extern char bmips_reset_nmi_vec_end[];
-+extern char bmips_smp_movevec[];
-+extern char bmips_smp_int_vec[];
-+extern char bmips_smp_int_vec_end[];
- 
- extern int bmips_smp_enabled;
- extern int bmips_cpu_offset;
-diff --git a/arch/mips/kernel/smp-bmips.c b/arch/mips/kernel/smp-bmips.c
-index 4874712b475e5..a62d24169d75c 100644
---- a/arch/mips/kernel/smp-bmips.c
-+++ b/arch/mips/kernel/smp-bmips.c
-@@ -451,10 +451,10 @@ static void bmips_wr_vec(unsigned long dst, char *start, char *end)
- 
- static inline void bmips_nmi_handler_setup(void)
+ static int ethtool_get_wol(struct net_device *dev, char __user *useraddr)
  {
--	bmips_wr_vec(BMIPS_NMI_RESET_VEC, &bmips_reset_nmi_vec,
--		&bmips_reset_nmi_vec_end);
--	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, &bmips_smp_int_vec,
--		&bmips_smp_int_vec_end);
-+	bmips_wr_vec(BMIPS_NMI_RESET_VEC, bmips_reset_nmi_vec,
-+		bmips_reset_nmi_vec_end);
-+	bmips_wr_vec(BMIPS_WARM_RESTART_VEC, bmips_smp_int_vec,
-+		bmips_smp_int_vec_end);
- }
+-	struct ethtool_wolinfo wol = { .cmd = ETHTOOL_GWOL };
++	struct ethtool_wolinfo wol;
  
- struct reset_vec_info {
--- 
-2.20.1
-
+ 	if (!dev->ethtool_ops->get_wol)
+ 		return -EOPNOTSUPP;
+ 
++	memset(&wol, 0, sizeof(struct ethtool_wolinfo));
++	wol.cmd = ETHTOOL_GWOL;
+ 	dev->ethtool_ops->get_wol(dev, &wol);
+ 
+ 	if (copy_to_user(useraddr, &wol, sizeof(wol)))
 
 
