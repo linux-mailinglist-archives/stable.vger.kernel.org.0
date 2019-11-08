@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04C77F4A57
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:08:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 924F4F4A52
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:08:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390099AbfKHMIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:08:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53448 "EHLO mail.kernel.org"
+        id S2388802AbfKHMIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:08:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388659AbfKHLkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:40:31 -0500
+        id S2388712AbfKHLkd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:40:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EF2E21D7B;
-        Fri,  8 Nov 2019 11:40:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 865E021D7E;
+        Fri,  8 Nov 2019 11:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213230;
-        bh=MoWnjBMIgcXTr4l6Fg4FmwAOxh2SjxrlgINqMqRU38o=;
+        s=default; t=1573213233;
+        bh=ZQk8HUJVVWdkb6PKw7UQGNwXF9TB19ZXHOw1EDZu7as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WJf8uBtTt3qxK693UVH3hFdj9Sikg9krw0+aXmuF4qnflFV0yIZ9yNptN3ghvx9gx
-         K6gFXLKday/gSJ/xPsnvQRWK5K0wzaBgBJwmTnkLHmKpMfva3ZK8/hGo/G0R2wTchd
-         3+M4vkafnfvop5JyR9/eLD44pwter6iX5ZubSfLQ=
+        b=K+57rJxBPYuSY5pplj8VlUPB2IcBScUdppmgJz3uB52Fsn/YPMsJq3l3HAI0DGScI
+         n5Dkl+MXnlZfbpfs4L+BUbkYGRJecUfYFjGhvYyOl2npzuw85lM+1feqUZ/n3oQWD6
+         eb8axDipyZx8OUJKG5V2WwwNW9OsxM5LZyYNI+R0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+Cc:     Yong Zhi <yong.zhi@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 102/205] ASoC: dapm: Avoid uninitialised variable warning
-Date:   Fri,  8 Nov 2019 06:36:09 -0500
-Message-Id: <20191108113752.12502-102-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 103/205] ASoC: Intel: hdac_hdmi: Limit sampling rates at dai creation
+Date:   Fri,  8 Nov 2019 06:36:10 -0500
+Message-Id: <20191108113752.12502-103-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,39 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Yong Zhi <yong.zhi@intel.com>
 
-[ Upstream commit fc269c0396448cabe1afd648c0b335669aa347b7 ]
+[ Upstream commit 3b857472f34faa7d11001afa5e158833812c98d7 ]
 
-Commit 4a75aae17b2a ("ASoC: dapm: Add support for multi-CODEC
-CODEC to CODEC links") adds loops that iterate over multiple
-CODECs in snd_soc_dai_link_event. This also introduced a compiler
-warning for a potentially uninitialised variable in the case
-no CODECs are present. This should never be the case as the
-DAI link must by definition contain at least 1 CODEC however
-probably best to avoid the compiler warning by initialising ret
-to zero.
+Playback of 44.1Khz contents with HDMI plugged returns
+"Invalid pipe config" because HDMI paths in the FW
+topology are configured to operate at 48Khz.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+This patch filters out sampling rates not supported
+at hdac_hdmi_create_dais() to let user space SRC
+to do the converting.
+
+Signed-off-by: Yong Zhi <yong.zhi@intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-dapm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/hdac_hdmi.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index ff31d9f9ecd64..7f0b48b363809 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -3684,7 +3684,7 @@ static int snd_soc_dai_link_event(struct snd_soc_dapm_widget *w,
- 	struct snd_pcm_hw_params *params = NULL;
- 	struct snd_pcm_runtime *runtime = NULL;
- 	unsigned int fmt;
--	int ret;
-+	int ret = 0;
+diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
+index 098196610542a..be2473166bfaf 100644
+--- a/sound/soc/codecs/hdac_hdmi.c
++++ b/sound/soc/codecs/hdac_hdmi.c
+@@ -1410,6 +1410,12 @@ static int hdac_hdmi_create_dais(struct hdac_device *hdev,
+ 		if (ret)
+ 			return ret;
  
- 	if (WARN_ON(!config) ||
- 	    WARN_ON(list_empty(&w->edges[SND_SOC_DAPM_DIR_OUT]) ||
++		/* Filter out 44.1, 88.2 and 176.4Khz */
++		rates &= ~(SNDRV_PCM_RATE_44100 | SNDRV_PCM_RATE_88200 |
++			   SNDRV_PCM_RATE_176400);
++		if (!rates)
++			return -EINVAL;
++
+ 		sprintf(dai_name, "intel-hdmi-hifi%d", i+1);
+ 		hdmi_dais[i].name = devm_kstrdup(&hdev->dev,
+ 					dai_name, GFP_KERNEL);
 -- 
 2.20.1
 
