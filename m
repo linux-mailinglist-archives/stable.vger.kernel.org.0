@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73190F4A78
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:09:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67FBBF4A6D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732715AbfKHMJT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:09:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53134 "EHLO mail.kernel.org"
+        id S2388513AbfKHLkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:40:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388436AbfKHLkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:40:09 -0500
+        id S2388499AbfKHLkK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:40:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98F99222C6;
-        Fri,  8 Nov 2019 11:40:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A312720869;
+        Fri,  8 Nov 2019 11:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213209;
-        bh=1trDmOUYVi/h8TeA1Jy2TYemlFI7NDFW1aOIVk9jWwk=;
+        s=default; t=1573213210;
+        bh=UNQs/91dK9j+/CpReb4++waTjXoKNuAIztVw5SJpU20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjpKEg3Vyw1y9ZsRn9sou3pmHUi595QPkjEd/YXlTg7OwXNQ+YjdXm8m7gt6F489A
-         Tpr5Pj3KM7aWB0s1s7FKqQ3YlokGX1ZpLpHyVrAKEHN0ZyAVFujdnoN2mZqmTNawIA
-         8pgKxjtNOF2E3Y5qZ+6AYhTUSWn+6cGf/l7rTBfQ=
+        b=oaG33f26paDniZ6uYNG11JaV/qEswcFo1nwo2/lCgurjUZnuNlUHY9qJ0pGrJ9vd5
+         fXkF/RFuyRd2hHA8nkcn3HijSrYwdFsJWOl3jaok49qicMRpm9wddoSRozMgXgBMIN
+         7YJqYakRiHdoy7znPCTySUumxxza7K2FGevU0qu0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Brauner <christian@brauner.io>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 090/205] rtnetlink: move type calculation out of loop
-Date:   Fri,  8 Nov 2019 06:35:57 -0500
-Message-Id: <20191108113752.12502-90-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 091/205] ASoC: sgtl5000: avoid division by zero if lo_vag is zero
+Date:   Fri,  8 Nov 2019 06:35:58 -0500
+Message-Id: <20191108113752.12502-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,40 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian@brauner.io>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 87ccbb1f943625884b824c5560f635dcea8e4510 ]
+[ Upstream commit 9ab708aef61f5620113269a9d1bdb1543d1207d0 ]
 
-I don't see how the type - which is one of
-RTM_{GETADDR,GETROUTE,GETNETCONF} - can change. So do the message type
-calculation once before entering the for loop.
+In the case where lo_vag <= SGTL5000_LINE_OUT_GND_BASE, lo_vag
+is set to zero and later vol_quot is computed by dividing by
+lo_vag causing a division by zero error.  Fix this by avoiding
+a zero division and set vol_quot to zero in this specific case
+so that the lowest setting for i is correctly set.
 
-Signed-off-by: Christian Brauner <christian@brauner.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/rtnetlink.c | 2 +-
+ sound/soc/codecs/sgtl5000.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
-index 3932eed379a40..a199bd85085da 100644
---- a/net/core/rtnetlink.c
-+++ b/net/core/rtnetlink.c
-@@ -3268,13 +3268,13 @@ static int rtnl_dump_all(struct sk_buff *skb, struct netlink_callback *cb)
- {
- 	int idx;
- 	int s_idx = cb->family;
-+	int type = cb->nlh->nlmsg_type - RTM_BASE;
- 
- 	if (s_idx == 0)
- 		s_idx = 1;
- 
- 	for (idx = 1; idx <= RTNL_FAMILY_MAX; idx++) {
- 		struct rtnl_link **tab;
--		int type = cb->nlh->nlmsg_type-RTM_BASE;
- 		struct rtnl_link *link;
- 		rtnl_dumpit_func dumpit;
- 
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 64a52d495b1f5..896412d11a31c 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1387,7 +1387,7 @@ static int sgtl5000_set_power_regs(struct snd_soc_component *component)
+ 	 * Searching for a suitable index solving this formula:
+ 	 * idx = 40 * log10(vag_val / lo_cagcntrl) + 15
+ 	 */
+-	vol_quot = (vag * 100) / lo_vag;
++	vol_quot = lo_vag ? (vag * 100) / lo_vag : 0;
+ 	lo_vol = 0;
+ 	for (i = 0; i < ARRAY_SIZE(vol_quot_table); i++) {
+ 		if (vol_quot >= vol_quot_table[i])
 -- 
 2.20.1
 
