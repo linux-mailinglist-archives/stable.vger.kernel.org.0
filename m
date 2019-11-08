@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4EDF4786
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E26A1F471D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:48:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391622AbfKHLrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2391614AbfKHLrn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 8 Nov 2019 06:47:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36276 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403851AbfKHLrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:47:37 -0500
+        id S2403855AbfKHLrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:47:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB5D2222CE;
-        Fri,  8 Nov 2019 11:47:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2B712245B;
+        Fri,  8 Nov 2019 11:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213657;
-        bh=qDKjb23qMwMmQedUVQV3sCSnLpgnmjDuN8SzcUJWMbc=;
+        s=default; t=1573213658;
+        bh=HImH6DBQCdYDbrYV5nm8VU8wabB9MtuWvxvVxo2aZSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A0TOmDkKi3beJA6f7Z90MnsEWhf8DhxGBwxiz74oFQlCUpAM2gh3VAzfs6mzM0A76
-         CmE6AUZh3g4yJXcCPGzHhNQ817N8Fi9KDitAKry7eyaKF9JXh0od57YjwpIKMbI+1I
-         o1Jj4Lr8WZ4ZteISHgdjDfBIt58vvdZhsi7piyEM=
+        b=Hnbi4LlsyAcVxk7Y5HCZ/CNV5ZorHXIMfrl2Ng2vj7z1vsqzE8xy5AuGcZWUAqPJg
+         qm8nCgY/O9do3M02C2cjDWAF4bS9S6SWark6zppvrneIr3V+gFTm/2c5R5IMPARwVN
+         T5Cza+W+BfpzsYT+rc2iu2OdPOlYkwDADzKk6160=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcel Ziswiler <marcel@ziswiler.com>,
-        Robert Jarzmik <robert.jarzmik@free.fr>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 12/44] ARM: dts: pxa: fix power i2c base address
-Date:   Fri,  8 Nov 2019 06:46:48 -0500
-Message-Id: <20191108114721.15944-12-sashal@kernel.org>
+Cc:     Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 13/44] rtl8187: Fix warning generated when strncpy() destination length matches the sixe argument
+Date:   Fri,  8 Nov 2019 06:46:49 -0500
+Message-Id: <20191108114721.15944-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114721.15944-1-sashal@kernel.org>
 References: <20191108114721.15944-1-sashal@kernel.org>
@@ -43,32 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel@ziswiler.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-[ Upstream commit 8a1ecc01a473b75ab97be9b36f623e4551a6e9ae ]
+[ Upstream commit 199ba9faca909e77ac533449ecd1248123ce89e7 ]
 
-There is one too many zeroes in the Power I2C base address. Fix this.
+In gcc8, when the 3rd argument (size) of a call to strncpy() matches the
+length of the first argument, the compiler warns of the possibility of an
+unterminated string. Using strlcpy() forces a null at the end.
 
-Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
-Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/pxa27x.dtsi | 2 +-
+ drivers/net/wireless/realtek/rtl818x/rtl8187/leds.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/pxa27x.dtsi b/arch/arm/boot/dts/pxa27x.dtsi
-index 210192c38df3c..4448505e34d3b 100644
---- a/arch/arm/boot/dts/pxa27x.dtsi
-+++ b/arch/arm/boot/dts/pxa27x.dtsi
-@@ -63,7 +63,7 @@
- 			clocks = <&clks CLK_PWM1>;
- 		};
+diff --git a/drivers/net/wireless/realtek/rtl818x/rtl8187/leds.c b/drivers/net/wireless/realtek/rtl818x/rtl8187/leds.c
+index c2d5b495c179a..c089540116fa7 100644
+--- a/drivers/net/wireless/realtek/rtl818x/rtl8187/leds.c
++++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/leds.c
+@@ -146,7 +146,7 @@ static int rtl8187_register_led(struct ieee80211_hw *dev,
+ 	led->dev = dev;
+ 	led->ledpin = ledpin;
+ 	led->is_radio = is_radio;
+-	strncpy(led->name, name, sizeof(led->name));
++	strlcpy(led->name, name, sizeof(led->name));
  
--		pwri2c: i2c@40f000180 {
-+		pwri2c: i2c@40f00180 {
- 			compatible = "mrvl,pxa-i2c";
- 			reg = <0x40f00180 0x24>;
- 			interrupts = <6>;
+ 	led->led_dev.name = led->name;
+ 	led->led_dev.default_trigger = default_trigger;
 -- 
 2.20.1
 
