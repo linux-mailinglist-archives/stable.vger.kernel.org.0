@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42DE2F555D
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1536F5629
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390369AbfKHTB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:01:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59484 "EHLO mail.kernel.org"
+        id S1731291AbfKHTHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:07:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390384AbfKHTB6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:01:58 -0500
+        id S2391386AbfKHTHE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:07:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 024602087E;
-        Fri,  8 Nov 2019 19:01:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B68422087E;
+        Fri,  8 Nov 2019 19:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239717;
-        bh=k/o8s5hjllQkz92e/He/Ehay8Se6ofgwmK05UD4sSKY=;
+        s=default; t=1573240023;
+        bh=E3vOxg8kySeuRFePBSSnqG+X2RodkIAx0DqkS8qfbuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XcHaiQ82DzLFJMme8UcfKgKENqm+/uTaHu9323QIUavICiDfPxxUZet37aqzOArAT
-         APFVWzuraeFARhCkqBEUHht0b5aBTa+cwowJqpkYphYftSMRNa0l3cLzA6aEU+oF9f
-         uKrdL5EaLauUwNnUeCSTxcafdCgY2WVOGO5oB+vI=
+        b=qiZJUYVZt3IqE3DbiWbE1dLwHB6P42A6eLKFsb8gA9uYgqysLH6IH/V4Ezdw14vY8
+         FNE2AdU2HNV5tif8NvF06EHmdAUYmRlKjv9l3cmUKQtvz1iD44EbX3mOK2t3GU3kPX
+         NVo6wsgRRLWQZ77dgi06/7cHagXWu8+TpVfKQ3Ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yizhuo <yzhai003@ucr.edu>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Fredrik Yhlen <fredrik.yhlen@endian.se>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/79] regulator: pfuze100-regulator: Variable "val" in pfuze100_regulator_probe() could be uninitialized
+Subject: [PATCH 5.3 061/140] ARM: dts: bcm2837-rpi-cm3: Avoid leds-gpio probing issue
 Date:   Fri,  8 Nov 2019 19:49:49 +0100
-Message-Id: <20191108174749.701964705@linuxfoundation.org>
+Message-Id: <20191108174909.098848717@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yizhuo <yzhai003@ucr.edu>
+From: Stefan Wahren <wahrenst@gmx.net>
 
-[ Upstream commit 1252b283141f03c3dffd139292c862cae10e174d ]
+[ Upstream commit 626c45d223e22090511acbfb481e0ece1de1356d ]
 
-In function pfuze100_regulator_probe(), variable "val" could be
-initialized if regmap_read() fails. However, "val" is used to
-decide the control flow later in the if statement, which is
-potentially unsafe.
+bcm2835-rpi.dtsi defines the behavior of the ACT LED, which is available
+on all Raspberry Pi boards. But there is no driver for this particual
+GPIO on CM3 in mainline yet, so this node was left incomplete without
+the actual GPIO definition. Since commit 025bf37725f1 ("gpio: Fix return
+value mismatch of function gpiod_get_from_of_node()") this causing probe
+issues of the leds-gpio driver for users of the CM3 dtsi file.
 
-Signed-off-by: Yizhuo <yzhai003@ucr.edu>
-Link: https://lore.kernel.org/r/20190929170957.14775-1-yzhai003@ucr.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+  leds-gpio: probe of leds failed with error -2
+
+Until we have the necessary GPIO driver hide the ACT node for CM3
+to avoid this.
+
+Reported-by: Fredrik Yhlen <fredrik.yhlen@endian.se>
+Signed-off-by: Stefan Wahren <wahrenst@gmx.net>
+Fixes: a54fe8a6cf66 ("ARM: dts: add Raspberry Pi Compute Module 3 and IO board")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/pfuze100-regulator.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/regulator/pfuze100-regulator.c b/drivers/regulator/pfuze100-regulator.c
-index 31c3a236120a8..69a377ab26041 100644
---- a/drivers/regulator/pfuze100-regulator.c
-+++ b/drivers/regulator/pfuze100-regulator.c
-@@ -710,7 +710,13 @@ static int pfuze100_regulator_probe(struct i2c_client *client,
+diff --git a/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi b/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
+index 81399b2c5af9e..d4f0e455612d4 100644
+--- a/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
++++ b/arch/arm/boot/dts/bcm2837-rpi-cm3.dtsi
+@@ -8,6 +8,14 @@
+ 		reg = <0 0x40000000>;
+ 	};
  
- 		/* SW2~SW4 high bit check and modify the voltage value table */
- 		if (i >= sw_check_start && i <= sw_check_end) {
--			regmap_read(pfuze_chip->regmap, desc->vsel_reg, &val);
-+			ret = regmap_read(pfuze_chip->regmap,
-+						desc->vsel_reg, &val);
-+			if (ret) {
-+				dev_err(&client->dev, "Fails to read from the register.\n");
-+				return ret;
-+			}
++	leds {
++		/*
++		 * Since there is no upstream GPIO driver yet,
++		 * remove the incomplete node.
++		 */
++		/delete-node/ act;
++	};
 +
- 			if (val & sw_hi) {
- 				if (pfuze_chip->chip_id == PFUZE3000 ||
- 					pfuze_chip->chip_id == PFUZE3001) {
+ 	reg_3v3: fixed-regulator {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "3V3";
 -- 
 2.20.1
 
