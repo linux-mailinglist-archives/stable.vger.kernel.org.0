@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2236EF4884
+	by mail.lfdr.de (Postfix) with ESMTP id A2575F4885
 	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:57:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391045AbfKHLpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:45:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60350 "EHLO mail.kernel.org"
+        id S1732122AbfKHL5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:57:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388365AbfKHLpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:45:11 -0500
+        id S2391050AbfKHLpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:45:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 187A620656;
+        by mail.kernel.org (Postfix) with ESMTPSA id EC776222CB;
         Fri,  8 Nov 2019 11:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213510;
-        bh=rsIFastpJJlICg4cAEuQV+rAu0HcIDPMReFk86IgpQY=;
+        s=default; t=1573213511;
+        bh=V5q51qTV4EPWi9bzbS+1ha7/AM4Bm5f4B4JOaQOZcQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rR/RHiWFWM6xFOV2jX+PiRgfb3tXEmaYWRniEuNZaZ79IEm/K/qHKcKUWM209Tt+v
-         1VCuNQSrUxb7LK3jFzXn7eW+7GiKISXqXhJji5LVB57A5zjM5okNm258SpCaEm6Uvh
-         vAdBc0YzmpOZ84h/KFp8STM/DdiHzySPWsddWGm8=
+        b=JkNe3Wctg5I7NDJ0Z6k1nnpf1zqhCu/Kr7varyPTmR2juc+kTIOcIgPYQvuUtow3+
+         +yYn2RHcmhd6r3/H+q+uwoTf1vKTTcD45Dn2nCP9OyzJY9R1erk9H4+hXda8MAB09b
+         Q0i3/VFtIwhty4b+A27AlQ724jp4l5SdrhHiaMso=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 083/103] ALSA: intel8x0m: Register irq handler after register initializations
-Date:   Fri,  8 Nov 2019 06:42:48 -0500
-Message-Id: <20191108114310.14363-83-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 084/103] pinctrl: at91-pio4: fix has_config check in atmel_pctl_dt_subnode_to_map()
+Date:   Fri,  8 Nov 2019 06:42:49 -0500
+Message-Id: <20191108114310.14363-84-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -41,64 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 7064f376d4a10686f51c879401a569bb4babf9c6 ]
+[ Upstream commit b97760ae8e3dc8bb91881c13425a0bff55f2bd85 ]
 
-The interrupt handler has to be acquired after the other resource
-initialization when allocated with IRQF_SHARED.  Otherwise it's
-triggered before the resource gets ready, and may lead to unpleasant
-behavior.
+Smatch complains about this condition:
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+	if (has_config && num_pins >= 1)
+
+The "has_config" variable is either uninitialized or true.  The
+"num_pins" variable is unsigned and we verified that it is non-zero on
+the lines before so we know "num_pines >= 1" is true.  Really, we could
+just check "num_configs" directly and remove the "has_config" variable.
+
+Fixes: 776180848b57 ("pinctrl: introduce driver for Atmel PIO4 controller")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/intel8x0m.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/pinctrl/pinctrl-at91-pio4.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/sound/pci/intel8x0m.c b/sound/pci/intel8x0m.c
-index 3a4769a97d290..a626ee18628ea 100644
---- a/sound/pci/intel8x0m.c
-+++ b/sound/pci/intel8x0m.c
-@@ -1171,16 +1171,6 @@ static int snd_intel8x0m_create(struct snd_card *card,
+diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
+index e61e2f8c91ce8..e9d7977072553 100644
+--- a/drivers/pinctrl/pinctrl-at91-pio4.c
++++ b/drivers/pinctrl/pinctrl-at91-pio4.c
+@@ -483,7 +483,6 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
+ 	unsigned num_pins, num_configs, reserve;
+ 	unsigned long *configs;
+ 	struct property	*pins;
+-	bool has_config;
+ 	u32 pinfunc;
+ 	int ret, i;
+ 
+@@ -499,9 +498,6 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
+ 		return ret;
  	}
  
-  port_inited:
--	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
--			KBUILD_MODNAME, chip)) {
--		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
--		snd_intel8x0m_free(chip);
--		return -EBUSY;
--	}
--	chip->irq = pci->irq;
--	pci_set_master(pci);
--	synchronize_irq(chip->irq);
+-	if (num_configs)
+-		has_config = true;
 -
- 	/* initialize offsets */
- 	chip->bdbars_count = 2;
- 	tbl = intel_regs;
-@@ -1224,11 +1214,21 @@ static int snd_intel8x0m_create(struct snd_card *card,
- 	chip->int_sta_reg = ICH_REG_GLOB_STA;
- 	chip->int_sta_mask = int_sta_masks;
+ 	num_pins = pins->length / sizeof(u32);
+ 	if (!num_pins) {
+ 		dev_err(pctldev->dev, "no pins found in node %pOF\n", np);
+@@ -514,7 +510,7 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
+ 	 * map for each pin.
+ 	 */
+ 	reserve = 1;
+-	if (has_config && num_pins >= 1)
++	if (num_configs)
+ 		reserve++;
+ 	reserve *= num_pins;
+ 	ret = pinctrl_utils_reserve_map(pctldev, map, reserved_maps, num_maps,
+@@ -537,7 +533,7 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
+ 		pinctrl_utils_add_map_mux(pctldev, map, reserved_maps, num_maps,
+ 					  group, func);
  
-+	pci_set_master(pci);
-+
- 	if ((err = snd_intel8x0m_chip_init(chip, 1)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
- 	}
- 
-+	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
-+			KBUILD_MODNAME, chip)) {
-+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
-+		snd_intel8x0m_free(chip);
-+		return -EBUSY;
-+	}
-+	chip->irq = pci->irq;
-+
- 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
+-		if (has_config) {
++		if (num_configs) {
+ 			ret = pinctrl_utils_add_map_configs(pctldev, map,
+ 					reserved_maps, num_maps, group,
+ 					configs, num_configs,
 -- 
 2.20.1
 
