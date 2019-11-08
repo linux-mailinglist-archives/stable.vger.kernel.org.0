@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0F86F46C9
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:45:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2236EF4884
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:57:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391039AbfKHLpJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:45:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60320 "EHLO mail.kernel.org"
+        id S2391045AbfKHLpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:45:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391036AbfKHLpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:45:09 -0500
+        id S2388365AbfKHLpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:45:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C027822459;
-        Fri,  8 Nov 2019 11:45:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 187A620656;
+        Fri,  8 Nov 2019 11:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213508;
-        bh=dkRw0NLgbZfCKxHUgfLgac8iE4OQLyV4NXNb7ARPpdg=;
+        s=default; t=1573213510;
+        bh=rsIFastpJJlICg4cAEuQV+rAu0HcIDPMReFk86IgpQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDvqE5xyLWGylC4bxHy1qSRHksMQVuZAoV5xjHE03ur+0UoquFJb6eLk7XBv72j2L
-         22gQGdmtBTk5uWLWIV6opCtfJsyiXFS5c4ecfmYCOy7sgTLPsTOa6vji8YqFfKk7Xw
-         JR9vBVKKiD0uouklvmUUyDJirafsAt0yVil7btnQ=
+        b=rR/RHiWFWM6xFOV2jX+PiRgfb3tXEmaYWRniEuNZaZ79IEm/K/qHKcKUWM209Tt+v
+         1VCuNQSrUxb7LK3jFzXn7eW+7GiKISXqXhJji5LVB57A5zjM5okNm258SpCaEm6Uvh
+         vAdBc0YzmpOZ84h/KFp8STM/DdiHzySPWsddWGm8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jerome Brunet <jbrunet@baylibre.com>, Da Xue <da@lessconfused.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 082/103] arm64: dts: meson: libretech: update board model
-Date:   Fri,  8 Nov 2019 06:42:47 -0500
-Message-Id: <20191108114310.14363-82-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 083/103] ALSA: intel8x0m: Register irq handler after register initializations
+Date:   Fri,  8 Nov 2019 06:42:48 -0500
+Message-Id: <20191108114310.14363-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -44,35 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b7eb0e26cc4a212fde09144cd49d4103170d2b9e ]
+[ Upstream commit 7064f376d4a10686f51c879401a569bb4babf9c6 ]
 
-There is actually several different libretech board with the CC suffix
-so the model name is not appropriate here. Update to something more
-specific
+The interrupt handler has to be acquired after the other resource
+initialization when allocated with IRQF_SHARED.  Otherwise it's
+triggered before the resource gets ready, and may lead to unpleasant
+behavior.
 
-Reported-by: Da Xue <da@lessconfused.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/intel8x0m.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dts b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dts
-index d71cbf596d1f7..0814b6b29b86a 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dts
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxl-s905x-libretech-cc.dts
-@@ -14,7 +14,7 @@
+diff --git a/sound/pci/intel8x0m.c b/sound/pci/intel8x0m.c
+index 3a4769a97d290..a626ee18628ea 100644
+--- a/sound/pci/intel8x0m.c
++++ b/sound/pci/intel8x0m.c
+@@ -1171,16 +1171,6 @@ static int snd_intel8x0m_create(struct snd_card *card,
+ 	}
  
- / {
- 	compatible = "libretech,cc", "amlogic,s905x", "amlogic,meson-gxl";
--	model = "Libre Technology CC";
-+	model = "Libre Computer Board AML-S905X-CC";
+  port_inited:
+-	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
+-			KBUILD_MODNAME, chip)) {
+-		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+-		snd_intel8x0m_free(chip);
+-		return -EBUSY;
+-	}
+-	chip->irq = pci->irq;
+-	pci_set_master(pci);
+-	synchronize_irq(chip->irq);
+-
+ 	/* initialize offsets */
+ 	chip->bdbars_count = 2;
+ 	tbl = intel_regs;
+@@ -1224,11 +1214,21 @@ static int snd_intel8x0m_create(struct snd_card *card,
+ 	chip->int_sta_reg = ICH_REG_GLOB_STA;
+ 	chip->int_sta_mask = int_sta_masks;
  
- 	aliases {
- 		serial0 = &uart_AO;
++	pci_set_master(pci);
++
+ 	if ((err = snd_intel8x0m_chip_init(chip, 1)) < 0) {
+ 		snd_intel8x0m_free(chip);
+ 		return err;
+ 	}
+ 
++	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
++			KBUILD_MODNAME, chip)) {
++		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
++		snd_intel8x0m_free(chip);
++		return -EBUSY;
++	}
++	chip->irq = pci->irq;
++
+ 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0) {
+ 		snd_intel8x0m_free(chip);
+ 		return err;
 -- 
 2.20.1
 
