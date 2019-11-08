@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A40C4F5780
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5746DF5574
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390861AbfKHTXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:23:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52494 "EHLO mail.kernel.org"
+        id S2390571AbfKHTCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:02:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731608AbfKHSzO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:55:14 -0500
+        id S2390560AbfKHTCf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:02:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3ADF21D82;
-        Fri,  8 Nov 2019 18:55:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E367214DB;
+        Fri,  8 Nov 2019 19:02:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239313;
-        bh=awx7wz/KoRhgKQtKCnfVr0cgeX8koSNPdNZI/Y+qaBk=;
+        s=default; t=1573239749;
+        bh=ClFl1bjwFwY7jDZXlMvcnF6vqjjsjmtWtSQysHigy0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qC/w+z1WNNHZ+Uh4HQYLq+11yGzsxHMS3cddg1yObvciXHZAPYpgbR2xFlrqonzVR
-         4akPCxKbT0HOJ61NQC4CCu8Pq/uwgwYHUAs/yKlO2Sc7HAgOzvsJnEZ379ivYpgwzO
-         Vkb4+dzprC45TuSrcnHwD0e3TtH8srNeUBAet9Pk=
+        b=wg2duxo6gYzZ7rDLN+1LLKShw2T+WbQ4++SI/0Q6ogihdM/f2BOGyt5a3ITVFtrgo
+         UbaeVt4uFUpMzo0o2LltkQfOCqzLbu/R041eUlbHjU3mCDL2hgx9BEo669RPxYEYxM
+         ufqP7CZQr4eICDTOTPiP3TTjuMs/nohm8xXyGNkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
-        <ardb@kernel.org>, Julien Thierry <julien.thierry@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David A. Long" <dave.long@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.4 71/75] ARM: spectre-v2: per-CPU vtables to work around big.Little systems
-Date:   Fri,  8 Nov 2019 19:50:28 +0100
-Message-Id: <20191108174811.499447790@linuxfoundation.org>
+        stable@vger.kernel.org, Woojung Huh <woojung.huh@microchip.com>,
+        Marc Zyngier <maz@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        David Miller <davem@davemloft.net>,
+        Daniel Wagner <dwagner@suse.de>
+Subject: [PATCH 4.19 49/79] net: usb: lan78xx: Disable interrupts before calling generic_handle_irq()
+Date:   Fri,  8 Nov 2019 19:50:29 +0100
+Message-Id: <20191108174813.863074739@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,215 +49,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Daniel Wagner <dwagner@suse.de>
 
-Commit 383fb3ee8024d596f488d2dbaf45e572897acbdb upstream.
+[ Upstream commit 0a29ac5bd3a988dc151c8d26910dec2557421f64 ]
 
-In big.Little systems, some CPUs require the Spectre workarounds in
-paths such as the context switch, but other CPUs do not.  In order
-to handle these differences, we need per-CPU vtables.
+lan78xx_status() will run with interrupts enabled due to the change in
+ed194d136769 ("usb: core: remove local_irq_save() around ->complete()
+handler"). generic_handle_irq() expects to be run with IRQs disabled.
 
-We are unable to use the kernel's per-CPU variables to support this
-as per-CPU is not initialised at times when we need access to the
-vtables, so we have to use an array indexed by logical CPU number.
+[    4.886203] 000: irq 79 handler irq_default_primary_handler+0x0/0x8 enabled interrupts
+[    4.886243] 000: WARNING: CPU: 0 PID: 0 at kernel/irq/handle.c:152 __handle_irq_event_percpu+0x154/0x168
+[    4.896294] 000: Modules linked in:
+[    4.896301] 000: CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.6 #39
+[    4.896310] 000: Hardware name: Raspberry Pi 3 Model B+ (DT)
+[    4.896315] 000: pstate: 60000005 (nZCv daif -PAN -UAO)
+[    4.896321] 000: pc : __handle_irq_event_percpu+0x154/0x168
+[    4.896331] 000: lr : __handle_irq_event_percpu+0x154/0x168
+[    4.896339] 000: sp : ffff000010003cc0
+[    4.896346] 000: x29: ffff000010003cc0 x28: 0000000000000060
+[    4.896355] 000: x27: ffff000011021980 x26: ffff00001189c72b
+[    4.896364] 000: x25: ffff000011702bc0 x24: ffff800036d6e400
+[    4.896373] 000: x23: 000000000000004f x22: ffff000010003d64
+[    4.896381] 000: x21: 0000000000000000 x20: 0000000000000002
+[    4.896390] 000: x19: ffff8000371c8480 x18: 0000000000000060
+[    4.896398] 000: x17: 0000000000000000 x16: 00000000000000eb
+[    4.896406] 000: x15: ffff000011712d18 x14: 7265746e69206465
+[    4.896414] 000: x13: ffff000010003ba0 x12: ffff000011712df0
+[    4.896422] 000: x11: 0000000000000001 x10: ffff000011712e08
+[    4.896430] 000: x9 : 0000000000000001 x8 : 000000000003c920
+[    4.896437] 000: x7 : ffff0000118cc410 x6 : ffff0000118c7f00
+[    4.896445] 000: x5 : 000000000003c920 x4 : 0000000000004510
+[    4.896453] 000: x3 : ffff000011712dc8 x2 : 0000000000000000
+[    4.896461] 000: x1 : 73a3f67df94c1500 x0 : 0000000000000000
+[    4.896466] 000: Call trace:
+[    4.896471] 000:  __handle_irq_event_percpu+0x154/0x168
+[    4.896481] 000:  handle_irq_event_percpu+0x50/0xb0
+[    4.896489] 000:  handle_irq_event+0x40/0x98
+[    4.896497] 000:  handle_simple_irq+0xa4/0xf0
+[    4.896505] 000:  generic_handle_irq+0x24/0x38
+[    4.896513] 000:  intr_complete+0xb0/0xe0
+[    4.896525] 000:  __usb_hcd_giveback_urb+0x58/0xd8
+[    4.896533] 000:  usb_giveback_urb_bh+0xd0/0x170
+[    4.896539] 000:  tasklet_action_common.isra.0+0x9c/0x128
+[    4.896549] 000:  tasklet_hi_action+0x24/0x30
+[    4.896556] 000:  __do_softirq+0x120/0x23c
+[    4.896564] 000:  irq_exit+0xb8/0xd8
+[    4.896571] 000:  __handle_domain_irq+0x64/0xb8
+[    4.896579] 000:  bcm2836_arm_irqchip_handle_irq+0x60/0xc0
+[    4.896586] 000:  el1_irq+0xb8/0x140
+[    4.896592] 000:  arch_cpu_idle+0x10/0x18
+[    4.896601] 000:  do_idle+0x200/0x280
+[    4.896608] 000:  cpu_startup_entry+0x20/0x28
+[    4.896615] 000:  rest_init+0xb4/0xc0
+[    4.896623] 000:  arch_call_rest_init+0xc/0x14
+[    4.896632] 000:  start_kernel+0x454/0x480
 
-We use an array-of-pointers to avoid having function pointers in
-the kernel's read/write .data section.
-
-Note: Added include of linux/slab.h in arch/arm/smp.c.
-
-Reviewed-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David A. Long <dave.long@linaro.org>
-Reviewed-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: ed194d136769 ("usb: core: remove local_irq_save() around ->complete() handler")
+Cc: Woojung Huh <woojung.huh@microchip.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Stefan Wahren <wahrenst@gmx.net>
+Cc: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Tested-by: Stefan Wahren <wahrenst@gmx.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/proc-fns.h |   23 +++++++++++++++++++++++
- arch/arm/kernel/setup.c         |    5 +++++
- arch/arm/kernel/smp.c           |   32 ++++++++++++++++++++++++++++++++
- arch/arm/mm/proc-v7-bugs.c      |   17 ++---------------
- 4 files changed, 62 insertions(+), 15 deletions(-)
+ drivers/net/usb/lan78xx.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/arm/include/asm/proc-fns.h
-+++ b/arch/arm/include/asm/proc-fns.h
-@@ -104,12 +104,35 @@ extern void cpu_do_resume(void *);
- #else
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -1278,8 +1278,11 @@ static void lan78xx_status(struct lan78x
+ 		netif_dbg(dev, link, dev->net, "PHY INTR: 0x%08x\n", intdata);
+ 		lan78xx_defer_kevent(dev, EVENT_LINK_RESET);
  
- extern struct processor processor;
-+#if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
-+#include <linux/smp.h>
-+/*
-+ * This can't be a per-cpu variable because we need to access it before
-+ * per-cpu has been initialised.  We have a couple of functions that are
-+ * called in a pre-emptible context, and so can't use smp_processor_id()
-+ * there, hence PROC_TABLE().  We insist in init_proc_vtable() that the
-+ * function pointers for these are identical across all CPUs.
-+ */
-+extern struct processor *cpu_vtable[];
-+#define PROC_VTABLE(f)			cpu_vtable[smp_processor_id()]->f
-+#define PROC_TABLE(f)			cpu_vtable[0]->f
-+static inline void init_proc_vtable(const struct processor *p)
-+{
-+	unsigned int cpu = smp_processor_id();
-+	*cpu_vtable[cpu] = *p;
-+	WARN_ON_ONCE(cpu_vtable[cpu]->dcache_clean_area !=
-+		     cpu_vtable[0]->dcache_clean_area);
-+	WARN_ON_ONCE(cpu_vtable[cpu]->set_pte_ext !=
-+		     cpu_vtable[0]->set_pte_ext);
-+}
-+#else
- #define PROC_VTABLE(f)			processor.f
- #define PROC_TABLE(f)			processor.f
- static inline void init_proc_vtable(const struct processor *p)
- {
- 	processor = *p;
- }
-+#endif
- 
- #define cpu_proc_init			PROC_VTABLE(_proc_init)
- #define cpu_check_bugs			PROC_VTABLE(check_bugs)
---- a/arch/arm/kernel/setup.c
-+++ b/arch/arm/kernel/setup.c
-@@ -113,6 +113,11 @@ EXPORT_SYMBOL(elf_hwcap2);
- 
- #ifdef MULTI_CPU
- struct processor processor __read_mostly;
-+#if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
-+struct processor *cpu_vtable[NR_CPUS] = {
-+	[0] = &processor,
-+};
-+#endif
- #endif
- #ifdef MULTI_TLB
- struct cpu_tlb_fns cpu_tlb __read_mostly;
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -27,6 +27,7 @@
- #include <linux/completion.h>
- #include <linux/cpufreq.h>
- #include <linux/irq_work.h>
-+#include <linux/slab.h>
- 
- #include <linux/atomic.h>
- #include <asm/bugs.h>
-@@ -40,6 +41,7 @@
- #include <asm/mmu_context.h>
- #include <asm/pgtable.h>
- #include <asm/pgalloc.h>
-+#include <asm/procinfo.h>
- #include <asm/processor.h>
- #include <asm/sections.h>
- #include <asm/tlbflush.h>
-@@ -96,6 +98,30 @@ static unsigned long get_arch_pgd(pgd_t
- #endif
- }
- 
-+#if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
-+static int secondary_biglittle_prepare(unsigned int cpu)
-+{
-+	if (!cpu_vtable[cpu])
-+		cpu_vtable[cpu] = kzalloc(sizeof(*cpu_vtable[cpu]), GFP_KERNEL);
-+
-+	return cpu_vtable[cpu] ? 0 : -ENOMEM;
-+}
-+
-+static void secondary_biglittle_init(void)
-+{
-+	init_proc_vtable(lookup_processor(read_cpuid_id())->proc);
-+}
-+#else
-+static int secondary_biglittle_prepare(unsigned int cpu)
-+{
-+	return 0;
-+}
-+
-+static void secondary_biglittle_init(void)
-+{
-+}
-+#endif
-+
- int __cpu_up(unsigned int cpu, struct task_struct *idle)
- {
- 	int ret;
-@@ -103,6 +129,10 @@ int __cpu_up(unsigned int cpu, struct ta
- 	if (!smp_ops.smp_boot_secondary)
- 		return -ENOSYS;
- 
-+	ret = secondary_biglittle_prepare(cpu);
-+	if (ret)
-+		return ret;
-+
- 	/*
- 	 * We need to tell the secondary core where to find
- 	 * its stack and the page tables.
-@@ -354,6 +384,8 @@ asmlinkage void secondary_start_kernel(v
- 	struct mm_struct *mm = &init_mm;
- 	unsigned int cpu;
- 
-+	secondary_biglittle_init();
-+
- 	/*
- 	 * The identity mapping is uncached (strongly ordered), so
- 	 * switch away from it before attempting any exclusive accesses.
---- a/arch/arm/mm/proc-v7-bugs.c
-+++ b/arch/arm/mm/proc-v7-bugs.c
-@@ -52,8 +52,6 @@ static void cpu_v7_spectre_init(void)
- 	case ARM_CPU_PART_CORTEX_A17:
- 	case ARM_CPU_PART_CORTEX_A73:
- 	case ARM_CPU_PART_CORTEX_A75:
--		if (processor.switch_mm != cpu_v7_bpiall_switch_mm)
--			goto bl_error;
- 		per_cpu(harden_branch_predictor_fn, cpu) =
- 			harden_branch_predictor_bpiall;
- 		spectre_v2_method = "BPIALL";
-@@ -61,8 +59,6 @@ static void cpu_v7_spectre_init(void)
- 
- 	case ARM_CPU_PART_CORTEX_A15:
- 	case ARM_CPU_PART_BRAHMA_B15:
--		if (processor.switch_mm != cpu_v7_iciallu_switch_mm)
--			goto bl_error;
- 		per_cpu(harden_branch_predictor_fn, cpu) =
- 			harden_branch_predictor_iciallu;
- 		spectre_v2_method = "ICIALLU";
-@@ -88,11 +84,9 @@ static void cpu_v7_spectre_init(void)
- 					  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
- 			if ((int)res.a0 != 0)
- 				break;
--			if (processor.switch_mm != cpu_v7_hvc_switch_mm && cpu)
--				goto bl_error;
- 			per_cpu(harden_branch_predictor_fn, cpu) =
- 				call_hvc_arch_workaround_1;
--			processor.switch_mm = cpu_v7_hvc_switch_mm;
-+			cpu_do_switch_mm = cpu_v7_hvc_switch_mm;
- 			spectre_v2_method = "hypervisor";
- 			break;
- 
-@@ -101,11 +95,9 @@ static void cpu_v7_spectre_init(void)
- 					  ARM_SMCCC_ARCH_WORKAROUND_1, &res);
- 			if ((int)res.a0 != 0)
- 				break;
--			if (processor.switch_mm != cpu_v7_smc_switch_mm && cpu)
--				goto bl_error;
- 			per_cpu(harden_branch_predictor_fn, cpu) =
- 				call_smc_arch_workaround_1;
--			processor.switch_mm = cpu_v7_smc_switch_mm;
-+			cpu_do_switch_mm = cpu_v7_smc_switch_mm;
- 			spectre_v2_method = "firmware";
- 			break;
- 
-@@ -119,11 +111,6 @@ static void cpu_v7_spectre_init(void)
- 	if (spectre_v2_method)
- 		pr_info("CPU%u: Spectre v2: using %s workaround\n",
- 			smp_processor_id(), spectre_v2_method);
--	return;
--
--bl_error:
--	pr_err("CPU%u: Spectre v2: incorrect context switching function, system vulnerable\n",
--		cpu);
- }
- #else
- static void cpu_v7_spectre_init(void)
+-		if (dev->domain_data.phyirq > 0)
++		if (dev->domain_data.phyirq > 0) {
++			local_irq_disable();
+ 			generic_handle_irq(dev->domain_data.phyirq);
++			local_irq_enable();
++		}
+ 	} else
+ 		netdev_warn(dev->net,
+ 			    "unexpected interrupt: 0x%08x\n", intdata);
 
 
