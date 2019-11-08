@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAC0F5725
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1590DF5578
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732582AbfKHTSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:18:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57264 "EHLO mail.kernel.org"
+        id S2390598AbfKHTCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:02:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389552AbfKHTAN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:13 -0500
+        id S2390588AbfKHTCk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:02:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9E08224F1;
-        Fri,  8 Nov 2019 18:59:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFCBC214DB;
+        Fri,  8 Nov 2019 19:02:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239554;
-        bh=yCTLQ+ZC2SvobOQCBJNs/UQyWJgi5EYXd6Tcb+AiVy8=;
+        s=default; t=1573239758;
+        bh=6elECeKqNAc5dMrEOCSnn8CogZkyVM4opF6iM+8jqVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IP5sVWUpAdiKj3eQAj2UxlamhPCauhzYfPeoDnruSYshBvTu3azCNUoiea2+vERhz
-         bCuZwvAcIZfjR0uvYMLfmPHWAx3Eh9ixverJhcwTVw7UCZFLcVvNmqyYHgDy54CPzz
-         xK5QladzuhK7JtP0JcQIHamfFxGghn+xBGsHgFcY=
+        b=nTxQkmmbo0J427vR3f7fJIXp936ooeE51qEKGJxhLQO2PG1j5x9aLpZR9iU9GKOnf
+         HTss4H9OGHi726mLfylfySZRmGd2xVegA/J81YKmW4uv8TtOCJD88Job2UMkJyJcuW
+         kX2RQra5CDrFjBdB79jgT34h0T/XJBO+cQKiCack=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Wei Wang <weiwan@google.com>,
+        Craig Gallek <cgallek@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 43/62] udp: use skb_queue_empty_lockless()
+Subject: [PATCH 4.19 51/79] selftests: net: reuseport_dualstack: fix uninitalized parameter
 Date:   Fri,  8 Nov 2019 19:50:31 +0100
-Message-Id: <20191108174749.702632688@linuxfoundation.org>
+Message-Id: <20191108174815.058257840@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Wei Wang <weiwan@google.com>
 
-[ Upstream commit 137a0dbe3426fd7bcfe3f8117b36a87b3590e4eb ]
+[ Upstream commit d64479a3e3f9924074ca7b50bd72fa5211dca9c1 ]
 
-syzbot reported a data-race [1].
+This test reports EINVAL for getsockopt(SOL_SOCKET, SO_DOMAIN)
+occasionally due to the uninitialized length parameter.
+Initialize it to fix this, and also use int for "test_family" to comply
+with the API standard.
 
-We should use skb_queue_empty_lockless() to document that we are
-not ensuring a mutual exclusion and silence KCSAN.
-
-[1]
-BUG: KCSAN: data-race in __skb_recv_udp / __udp_enqueue_schedule_skb
-
-write to 0xffff888122474b50 of 8 bytes by interrupt on cpu 0:
- __skb_insert include/linux/skbuff.h:1852 [inline]
- __skb_queue_before include/linux/skbuff.h:1958 [inline]
- __skb_queue_tail include/linux/skbuff.h:1991 [inline]
- __udp_enqueue_schedule_skb+0x2c1/0x410 net/ipv4/udp.c:1470
- __udp_queue_rcv_skb net/ipv4/udp.c:1940 [inline]
- udp_queue_rcv_one_skb+0x7bd/0xc70 net/ipv4/udp.c:2057
- udp_queue_rcv_skb+0xb5/0x400 net/ipv4/udp.c:2074
- udp_unicast_rcv_skb.isra.0+0x7e/0x1c0 net/ipv4/udp.c:2233
- __udp4_lib_rcv+0xa44/0x17c0 net/ipv4/udp.c:2300
- udp_rcv+0x2b/0x40 net/ipv4/udp.c:2470
- ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
- ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
- dst_input include/net/dst.h:442 [inline]
- ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
- __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
- __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
- process_backlog+0x1d3/0x420 net/core/dev.c:5955
-
-read to 0xffff888122474b50 of 8 bytes by task 8921 on cpu 1:
- skb_queue_empty include/linux/skbuff.h:1494 [inline]
- __skb_recv_udp+0x18d/0x500 net/ipv4/udp.c:1653
- udp_recvmsg+0xe1/0xb10 net/ipv4/udp.c:1712
- inet_recvmsg+0xbb/0x250 net/ipv4/af_inet.c:838
- sock_recvmsg_nosec+0x5c/0x70 net/socket.c:871
- ___sys_recvmsg+0x1a0/0x3e0 net/socket.c:2480
- do_recvmmsg+0x19a/0x5c0 net/socket.c:2601
- __sys_recvmmsg+0x1ef/0x200 net/socket.c:2680
- __do_sys_recvmmsg net/socket.c:2703 [inline]
- __se_sys_recvmmsg net/socket.c:2696 [inline]
- __x64_sys_recvmmsg+0x89/0xb0 net/socket.c:2696
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 8921 Comm: syz-executor.4 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
+Fixes: d6a61f80b871 ("soreuseport: test mixed v4/v6 sockets")
+Reported-by: Maciej Żenczykowski <maze@google.com>
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Wei Wang <weiwan@google.com>
+Cc: Craig Gallek <cgallek@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/udp.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/net/reuseport_dualstack.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -1468,7 +1468,7 @@ static int first_packet_length(struct so
+--- a/tools/testing/selftests/net/reuseport_dualstack.c
++++ b/tools/testing/selftests/net/reuseport_dualstack.c
+@@ -129,7 +129,7 @@ static void test(int *rcv_fds, int count
+ {
+ 	struct epoll_event ev;
+ 	int epfd, i, test_fd;
+-	uint16_t test_family;
++	int test_family;
+ 	socklen_t len;
  
- 	spin_lock_bh(&rcvq->lock);
- 	skb = __first_packet_length(sk, rcvq, &total);
--	if (!skb && !skb_queue_empty(sk_queue)) {
-+	if (!skb && !skb_queue_empty_lockless(sk_queue)) {
- 		spin_lock(&sk_queue->lock);
- 		skb_queue_splice_tail_init(sk_queue, rcvq);
- 		spin_unlock(&sk_queue->lock);
-@@ -1543,7 +1543,7 @@ struct sk_buff *__skb_recv_udp(struct so
- 				return skb;
- 			}
+ 	epfd = epoll_create(1);
+@@ -146,6 +146,7 @@ static void test(int *rcv_fds, int count
+ 	send_from_v4(proto);
  
--			if (skb_queue_empty(sk_queue)) {
-+			if (skb_queue_empty_lockless(sk_queue)) {
- 				spin_unlock_bh(&queue->lock);
- 				goto busy_check;
- 			}
-@@ -1570,7 +1570,7 @@ busy_check:
- 				break;
- 
- 			sk_busy_loop(sk, flags & MSG_DONTWAIT);
--		} while (!skb_queue_empty(sk_queue));
-+		} while (!skb_queue_empty_lockless(sk_queue));
- 
- 		/* sk_queue is empty, reader_queue may contain peeked packets */
- 	} while (timeo &&
+ 	test_fd = receive_once(epfd, proto);
++	len = sizeof(test_family);
+ 	if (getsockopt(test_fd, SOL_SOCKET, SO_DOMAIN, &test_family, &len))
+ 		error(1, errno, "failed to read socket domain");
+ 	if (test_family != AF_INET)
 
 
