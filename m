@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B8DF5639
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8C6F563C
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389019AbfKHTHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:07:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38202 "EHLO mail.kernel.org"
+        id S2391465AbfKHTHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:07:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390878AbfKHTHa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:07:30 -0500
+        id S2391459AbfKHTHd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:07:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A39EE206A3;
-        Fri,  8 Nov 2019 19:07:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA364206A3;
+        Fri,  8 Nov 2019 19:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240049;
-        bh=4m9W6+lCWhClJDg8hqJlF4rraD1V7K6uCv5L3Br1eR0=;
+        s=default; t=1573240052;
+        bh=FRfSfBQVULDXdAO520uMvwwd2i4lO+PEwK/kcFWv+wc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSJCuUvzWiwilXh/YnSe949I61tj5wv4CQ6pgxkX05qXGOwLcO157maA8IlMdL8I8
-         cFktGx4UV+7zEXGb3HF5KhFp4FBBxqnG/f0wNr7/R96wGxFaXCKK8DT67AYooGAEv0
-         bGz4h3Alo1K2DciqxPF9DYwiZO7X4bGjoURdhhtY=
+        b=mC2WNHRA19d3FDINKq6tq7iitlyJET7UcTStlJF5vbgcv9ZrwO9he97MmC38egpt0
+         wEfu/2So4tOvOJZfhhupuJOsVchJFtGEOa2bLsFVa8rWPilnF1fFwAZHYSAVTH+pX0
+         LjMNJmnVd459r/IRsrEv8s4gK00kZY2vGCnCixRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Graeme Smecher <gsmecher@threespeedlogic.com>,
+        linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 029/140] arm64: dts: zii-ultra: fix ARM regulator states
-Date:   Fri,  8 Nov 2019 19:49:17 +0100
-Message-Id: <20191108174905.506865955@linuxfoundation.org>
+Subject: [PATCH 5.3 030/140] ARM: dts: am3874-iceboard: Fix i2c-mux-idle-disconnect usage
+Date:   Fri,  8 Nov 2019 19:49:18 +0100
+Message-Id: <20191108174905.818458961@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
 References: <20191108174900.189064908@linuxfoundation.org>
@@ -44,39 +47,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-[ Upstream commit 21094ba5c1f4b15df096e8f6247a50b6ab57c869 ]
+[ Upstream commit 647c8977e111c0a62c93a489ebc4b045c833fdb4 ]
 
-The GPIO controlled regulator for the ARM power supply is supplying
-the higher voltage when the GPIO is driven high. This is opposite to
-the similar regulator setup on the EVK board and is impacting stability
-of the board as the ARM domain has been supplied with a too low voltage
-when to faster OPPs are in use.
+According to
+Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.txt,
+i2c-mux-idle-disconnect is a property of a parent node since it
+pertains to the mux/switch as a whole, so move it there and drop all
+of the concurrences in child nodes.
 
-Fixes: 4a13b3bec3b4 (arm64: dts: imx: add Zii Ultra board support)
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: d031773169df ("ARM: dts: Adds device tree file for McGill's IceBoard, based on TI AM3874")
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Benoît Cousson <bcousson@baylibre.com>
+Cc: Tony Lindgren <tony@atomide.com>
+Cc: Graeme Smecher <gsmecher@threespeedlogic.com>
+Cc: linux-omap@vger.kernel.org
+Cc: devicetree@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Tested-by: Graeme Smecher <gsmecher@threespeedlogic.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/am3874-iceboard.dts | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
-index 7a1706f969f09..3faa652fdf20d 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
-@@ -101,8 +101,8 @@
- 		regulator-min-microvolt = <900000>;
- 		regulator-max-microvolt = <1000000>;
- 		gpios = <&gpio3 19 GPIO_ACTIVE_HIGH>;
--		states = <1000000 0x0
--		           900000 0x1>;
-+		states = <1000000 0x1
-+		           900000 0x0>;
- 		regulator-always-on;
- 	};
- };
+diff --git a/arch/arm/boot/dts/am3874-iceboard.dts b/arch/arm/boot/dts/am3874-iceboard.dts
+index 883fb85135d46..1b4b2b0500e4c 100644
+--- a/arch/arm/boot/dts/am3874-iceboard.dts
++++ b/arch/arm/boot/dts/am3874-iceboard.dts
+@@ -111,13 +111,13 @@
+ 		reg = <0x70>;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
++		i2c-mux-idle-disconnect;
+ 
+ 		i2c@0 {
+ 			/* FMC A */
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <0>;
+-			i2c-mux-idle-disconnect;
+ 		};
+ 
+ 		i2c@1 {
+@@ -125,7 +125,6 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <1>;
+-			i2c-mux-idle-disconnect;
+ 		};
+ 
+ 		i2c@2 {
+@@ -133,7 +132,6 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <2>;
+-			i2c-mux-idle-disconnect;
+ 		};
+ 
+ 		i2c@3 {
+@@ -141,7 +139,6 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <3>;
+-			i2c-mux-idle-disconnect;
+ 		};
+ 
+ 		i2c@4 {
+@@ -149,14 +146,12 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <4>;
+-			i2c-mux-idle-disconnect;
+ 		};
+ 
+ 		i2c@5 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <5>;
+-			i2c-mux-idle-disconnect;
+ 
+ 			ina230@40 { compatible = "ti,ina230"; reg = <0x40>; shunt-resistor = <5000>; };
+ 			ina230@41 { compatible = "ti,ina230"; reg = <0x41>; shunt-resistor = <5000>; };
+@@ -182,14 +177,12 @@
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <6>;
+-			i2c-mux-idle-disconnect;
+ 		};
+ 
+ 		i2c@7 {
+ 			#address-cells = <1>;
+ 			#size-cells = <0>;
+ 			reg = <7>;
+-			i2c-mux-idle-disconnect;
+ 
+ 			u41: pca9575@20 {
+ 				compatible = "nxp,pca9575";
 -- 
 2.20.1
 
