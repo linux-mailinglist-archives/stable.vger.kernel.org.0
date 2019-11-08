@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 331F4F552A
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 806A8F562F
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389874AbfKHTAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:00:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57952 "EHLO mail.kernel.org"
+        id S2390338AbfKHTHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:07:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389859AbfKHTAm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:42 -0500
+        id S2387807AbfKHTHP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:07:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 229212087E;
-        Fri,  8 Nov 2019 19:00:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5976621D7B;
+        Fri,  8 Nov 2019 19:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239641;
-        bh=jIjy0pB0p7Mv25iAq0q5YJ2x7nS1PNOfOREH0GhCQdo=;
+        s=default; t=1573240034;
+        bh=K32ZWAUHZYwZ6ldFuJYFcJMs3ik48+4h5AWGsB4QZsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4vnWZiy4l6QWVkw9m2bxqeFIQPQwBAHWzRrjCH5ye1/K7zpjJmrTML8Cv0yp3s/8
-         W2Xmvwg73QeW1Fky7nQU0CGRMvFxHyXbo5voCUTMkDfwVYMn7oEmtm60Q8k3lafqgB
-         cZPm1xnJVNSlvUnOSQIuQGMTCPuPSedwE1Vv4VjA=
+        b=icuVCbF1NC1W1S6kWMokXtH6kKxRMkBl4RFbZe9t3MeO9fxJKVLvzwJO6XuKL4NNq
+         4wGC/z/StAIlm60zmiOTfFBk68Hp0bHAsLgU6KyPZbhQWgm3iIgkLvW5p9SgHSapEK
+         HogkzX3m6zVl0kydpo17BpjtoXzJ/W4pHszaXWOI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, afzal mohammed <afzal.mohd.ma@gmail.com>,
+        Vladimir Murzin <vladimir.murzin@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/79] ARM: dts: logicpd-torpedo-som: Remove twl_keypad
+Subject: [PATCH 5.3 064/140] ARM: 8926/1: v7m: remove register save to stack before svc
 Date:   Fri,  8 Nov 2019 19:49:52 +0100
-Message-Id: <20191108174751.326199478@linuxfoundation.org>
+Message-Id: <20191108174909.263966482@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: afzal mohammed <afzal.mohd.ma@gmail.com>
 
-[ Upstream commit 6b512b0ee091edcb8e46218894e4c917d919d3dc ]
+[ Upstream commit 2ecb287998a47cc0a766f6071f63bc185f338540 ]
 
-The TWL4030 used on the Logit PD Torpedo SOM does not have the
-keypad pins routed.  This patch disables the twl_keypad driver
-to remove some splat during boot:
+r0-r3 & r12 registers are saved & restored, before & after svc
+respectively. Intention was to preserve those registers across thread to
+handler mode switch.
 
-twl4030_keypad 48070000.i2c:twl@48:keypad: missing or malformed property linux,keymap: -22
-twl4030_keypad 48070000.i2c:twl@48:keypad: Failed to build keymap
-twl4030_keypad: probe of 48070000.i2c:twl@48:keypad failed with error -22
+On v7-M, hardware saves the register context upon exception in AAPCS
+complaint way. Restoring r0-r3 & r12 is done from stack location where
+hardware saves it, not from the location on stack where these registers
+were saved.
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-[tony@atomide.com: removed error time stamps]
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+To clarify, on stm32f429 discovery board:
+
+1. before svc, sp - 0x90009ff8
+2. r0-r3,r12 saved to 0x90009ff8 - 0x9000a00b
+3. upon svc, h/w decrements sp by 32 & pushes registers onto stack
+4. after svc,  sp - 0x90009fd8
+5. r0-r3,r12 restored from 0x90009fd8 - 0x90009feb
+
+Above means r0-r3,r12 is not restored from the location where they are
+saved, but since hardware pushes the registers onto stack, the registers
+are restored correctly.
+
+Note that during register saving to stack (step 2), it goes past
+0x9000a000. And it seems, based on objdump, there are global symbols
+residing there, and it perhaps can cause issues on a non-XIP Kernel
+(on XIP, data section is setup later).
+
+Based on the analysis above, manually saving registers onto stack is at
+best no-op and at worst can cause data section corruption. Hence remove
+storing of registers onto stack before svc.
+
+Fixes: b70cd406d7fe ("ARM: 8671/1: V7M: Preserve registers across switch from Thread to Handler mode")
+Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
+Acked-by: Vladimir Murzin <vladimir.murzin@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/logicpd-torpedo-som.dtsi | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/arm/mm/proc-v7m.S | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/logicpd-torpedo-som.dtsi b/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
-index 7d2302e8706c9..9354da4efe093 100644
---- a/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
-+++ b/arch/arm/boot/dts/logicpd-torpedo-som.dtsi
-@@ -196,3 +196,7 @@
- &twl_gpio {
- 	ti,use-leds;
- };
-+
-+&twl_keypad {
-+	status = "disabled";
-+};
+diff --git a/arch/arm/mm/proc-v7m.S b/arch/arm/mm/proc-v7m.S
+index efebf4120a0c4..1a49d503eafc8 100644
+--- a/arch/arm/mm/proc-v7m.S
++++ b/arch/arm/mm/proc-v7m.S
+@@ -132,7 +132,6 @@ __v7m_setup_cont:
+ 	dsb
+ 	mov	r6, lr			@ save LR
+ 	ldr	sp, =init_thread_union + THREAD_START_SP
+-	stmia	sp, {r0-r3, r12}
+ 	cpsie	i
+ 	svc	#0
+ 1:	cpsid	i
 -- 
 2.20.1
 
