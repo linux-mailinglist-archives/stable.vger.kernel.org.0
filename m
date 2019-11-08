@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48476F545E
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:59:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF52EF546A
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:59:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732658AbfKHS4x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:56:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54472 "EHLO mail.kernel.org"
+        id S2389023AbfKHS7a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:59:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388399AbfKHS4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:56:47 -0500
+        id S2388926AbfKHS73 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:59:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5B412067B;
-        Fri,  8 Nov 2019 18:56:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3DA02255C;
+        Fri,  8 Nov 2019 18:59:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239406;
-        bh=XrldGzU/vehg9sYXQT4wwRSAys/T6+j97R70Fz5Jux4=;
+        s=default; t=1573239569;
+        bh=v9PPuIRY93R4lGfaNyPfFvpC2mtDl2BYQVLPH+Ij+Yo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2aEUaOdi95wJsfN5a0AzYmoxXWZ9EOIWE9nmnYK0TMkQrZvv8vK0q2/XgQ2Q+oNV
-         Zv8GlKuC550CrviBKqh67RzlrDkfov0DnlVsIMIXndli/nctvzVmRgd1k/8HGN/jYZ
-         0JMa2/yNfGD0iCxH6NmRbB3hDTFV/LVs+W1f6HRw=
+        b=NRfG0CdDlHDoGXJ8AqdeJ2FTvu+H/l/R3+yxNxoM296xCqcf5HVWFRmcr55tds4mR
+         RoFprwi0KIMaS+UToGZgBTTwP0/j/hXh5+ySmyOLoaA5v32HQoj9gtugjF9SW2fqhS
+         Xm5YAyuRPOTF8nW2xfPLnciFmpdwJnsuetIaNg04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Thiemo Nagel <tnagel@google.com>,
+        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 28/34] inet: stop leaking jiffies on the wire
+Subject: [PATCH 4.14 47/62] erspan: fix the tun_info options_len check for erspan
 Date:   Fri,  8 Nov 2019 19:50:35 +0100
-Message-Id: <20191108174651.026609810@linuxfoundation.org>
+Message-Id: <20191108174752.161636977@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
-References: <20191108174618.266472504@linuxfoundation.org>
+In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
+References: <20191108174719.228826381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,94 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit a904a0693c189691eeee64f6c6b188bd7dc244e9 ]
+[ Upstream commit 2eb8d6d2910cfe3dc67dc056f26f3dd9c63d47cd ]
 
-Historically linux tried to stick to RFC 791, 1122, 2003
-for IPv4 ID field generation.
+The check for !md doens't really work for ip_tunnel_info_opts(info) which
+only does info + 1. Also to avoid out-of-bounds access on info, it should
+ensure options_len is not less than erspan_metadata in both erspan_xmit()
+and ip6erspan_tunnel_xmit().
 
-RFC 6864 made clear that no matter how hard we try,
-we can not ensure unicity of IP ID within maximum
-lifetime for all datagrams with a given source
-address/destination address/protocol tuple.
-
-Linux uses a per socket inet generator (inet_id), initialized
-at connection startup with a XOR of 'jiffies' and other
-fields that appear clear on the wire.
-
-Thiemo Nagel pointed that this strategy is a privacy
-concern as this provides 16 bits of entropy to fingerprint
-devices.
-
-Let's switch to a random starting point, this is just as
-good as far as RFC 6864 is concerned and does not leak
-anything critical.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Thiemo Nagel <tnagel@google.com>
+Fixes: 1a66a836da ("gre: add collect_md mode to ERSPAN tunnel")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dccp/ipv4.c     |    2 +-
- net/ipv4/datagram.c |    2 +-
- net/ipv4/tcp_ipv4.c |    4 ++--
- net/sctp/socket.c   |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ net/ipv4/ip_gre.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/dccp/ipv4.c
-+++ b/net/dccp/ipv4.c
-@@ -121,7 +121,7 @@ int dccp_v4_connect(struct sock *sk, str
- 						    inet->inet_daddr,
- 						    inet->inet_sport,
- 						    inet->inet_dport);
--	inet->inet_id = dp->dccps_iss ^ jiffies;
-+	inet->inet_id = prandom_u32();
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -592,6 +592,9 @@ static void erspan_fb_xmit(struct sk_buf
+ 		truncate = true;
+ 	}
  
- 	err = dccp_connect(sk);
- 	rt = NULL;
---- a/net/ipv4/datagram.c
-+++ b/net/ipv4/datagram.c
-@@ -75,7 +75,7 @@ int __ip4_datagram_connect(struct sock *
- 	inet->inet_dport = usin->sin_port;
- 	sk->sk_state = TCP_ESTABLISHED;
- 	sk_set_txhash(sk);
--	inet->inet_id = jiffies;
-+	inet->inet_id = prandom_u32();
- 
- 	sk_dst_set(sk, &rt->dst);
- 	err = 0;
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -239,7 +239,7 @@ int tcp_v4_connect(struct sock *sk, stru
- 							   inet->inet_sport,
- 							   usin->sin_port);
- 
--	inet->inet_id = tp->write_seq ^ jiffies;
-+	inet->inet_id = prandom_u32();
- 
- 	err = tcp_connect(sk);
- 
-@@ -1307,7 +1307,7 @@ struct sock *tcp_v4_syn_recv_sock(const
- 	inet_csk(newsk)->icsk_ext_hdr_len = 0;
- 	if (inet_opt)
- 		inet_csk(newsk)->icsk_ext_hdr_len = inet_opt->opt.optlen;
--	newinet->inet_id = newtp->write_seq ^ jiffies;
-+	newinet->inet_id = prandom_u32();
- 
- 	if (!dst) {
- 		dst = inet_csk_route_child_sock(sk, newsk, req);
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -7734,7 +7734,7 @@ void sctp_copy_sock(struct sock *newsk,
- 	newinet->inet_rcv_saddr = inet->inet_rcv_saddr;
- 	newinet->inet_dport = htons(asoc->peer.port);
- 	newinet->pmtudisc = inet->pmtudisc;
--	newinet->inet_id = asoc->next_tsn ^ jiffies;
-+	newinet->inet_id = prandom_u32();
- 
- 	newinet->uc_ttl = inet->uc_ttl;
- 	newinet->mc_loop = 1;
++	if (tun_info->options_len < sizeof(*md))
++		goto err_free_rt;
++
+ 	md = ip_tunnel_info_opts(tun_info);
+ 	if (!md)
+ 		goto err_free_rt;
 
 
