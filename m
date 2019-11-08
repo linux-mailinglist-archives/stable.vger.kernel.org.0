@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED38AF497F
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:03:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5087F497D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:03:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727429AbfKHMDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:03:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56632 "EHLO mail.kernel.org"
+        id S2390082AbfKHLmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:42:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390057AbfKHLmg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:42:36 -0500
+        id S2390074AbfKHLmi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:42:38 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E18E222C4;
-        Fri,  8 Nov 2019 11:42:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90526222C6;
+        Fri,  8 Nov 2019 11:42:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213355;
-        bh=ITiLQa7PhFYebKtxc6Fl3GvTzg0Y6H8CyAE5H5v51fg=;
+        s=default; t=1573213358;
+        bh=iqogOG83UqGQrex91E6FXlk3qi2tYosf4jEpV0kVbUk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lwm2Rqkn5RfLXYUu7Zv9+THrcc6xfEhiSaobpBIVyW3aw0MFnB7rv3j9hPqmwdGAc
-         vL9vpSJhkaQmo3pS+IUdID6XljiHFLEleFdaaL0G2ii3cvUCp86k/xuvIeMxhRGxHl
-         bnzDisgbYqjJ/kw3WZpHp+8Ynqk+rrrcyMTo8KsI=
+        b=S/FYyXYmzYZvK4H0GH1Z+jQZ9dQCfMeSlaMLfcUCcVqeD9og2WSAj+J2/bYcUqzfi
+         VprdgGrp5RAJoUYNGb9EAwO8OcYR9CwGqIvWAGoaZJnDltX9N8QStHdD6JErqmlS2O
+         6b1AemCPIoZ0GzbGU6xz4/E1QLeprGMCPrv/357g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 186/205] ARM: dts: sun9i: Fix I2C bus warnings
-Date:   Fri,  8 Nov 2019 06:37:33 -0500
-Message-Id: <20191108113752.12502-186-sashal@kernel.org>
+Cc:     Ganesh Goudar <ganeshgr@chelsio.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 188/205] cxgb4: Fix endianness issue in t4_fwcache()
+Date:   Fri,  8 Nov 2019 06:37:35 -0500
+Message-Id: <20191108113752.12502-188-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -44,41 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Ganesh Goudar <ganeshgr@chelsio.com>
 
-[ Upstream commit 57a83c5222c1b5e7b3acc72c6e60fce00a38991a ]
+[ Upstream commit 0dc235afc59a226d951352b0adf4a89b532a9d13 ]
 
-dtc has new checks for I2C buses. The sun9i-a80 dts file has a node named
-'i2c' which causes a false positive warning. As the node is a RSB bus,
-correct the node name to be 'rsb' to fix the warnings.
+Do not put host-endian 0 or 1 into big endian feild.
 
-arch/arm/boot/dts/sun9i-a80-cubieboard4.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/codec@e89:reg: I2C address must be less than 10-bits, got "0xe89"
-arch/arm/boot/dts/sun9i-a80-cubieboard4.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/pmic@745:reg: I2C address must be less than 10-bits, got "0x745"
-arch/arm/boot/dts/sun9i-a80-optimus.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/codec@e89:reg: I2C address must be less than 10-bits, got "0xe89"
-arch/arm/boot/dts/sun9i-a80-optimus.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/pmic@745:reg: I2C address must be less than 10-bits, got "0x745"
-
-Cc: Maxime Ripard <maxime.ripard@bootlin.com>
-Cc: Chen-Yu Tsai <wens@csie.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Reported-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Ganesh Goudar <ganeshgr@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sun9i-a80.dtsi | 2 +-
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
-index 25591d6883ef2..d9532fb1ef650 100644
---- a/arch/arm/boot/dts/sun9i-a80.dtsi
-+++ b/arch/arm/boot/dts/sun9i-a80.dtsi
-@@ -1196,7 +1196,7 @@
- 			};
- 		};
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+index 5fe5d16dee724..8350c0c9b89d1 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
+@@ -3889,7 +3889,7 @@ int t4_fwcache(struct adapter *adap, enum fw_params_param_dev_fwcache op)
+ 	c.param[0].mnem =
+ 		cpu_to_be32(FW_PARAMS_MNEM_V(FW_PARAMS_MNEM_DEV) |
+ 			    FW_PARAMS_PARAM_X_V(FW_PARAMS_PARAM_DEV_FWCACHE));
+-	c.param[0].val = (__force __be32)op;
++	c.param[0].val = cpu_to_be32(op);
  
--		r_rsb: i2c@8003400 {
-+		r_rsb: rsb@8003400 {
- 			compatible = "allwinner,sun8i-a23-rsb";
- 			reg = <0x08003400 0x400>;
- 			interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
+ 	return t4_wr_mbox(adap, adap->mbox, &c, sizeof(c), NULL);
+ }
 -- 
 2.20.1
 
