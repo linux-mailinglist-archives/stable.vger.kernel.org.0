@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29A63F5568
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA1C0F5669
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731278AbfKHTCP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:02:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59812 "EHLO mail.kernel.org"
+        id S2388647AbfKHTIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:08:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390459AbfKHTCN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:02:13 -0500
+        id S2403767AbfKHTIj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:08:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CBB3F214DB;
-        Fri,  8 Nov 2019 19:02:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B8622196F;
+        Fri,  8 Nov 2019 19:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239732;
-        bh=Qy1e6bHbGD5GJr0rNieFEhlpz/5r6eNcWem9U+clMBo=;
+        s=default; t=1573240119;
+        bh=6elECeKqNAc5dMrEOCSnn8CogZkyVM4opF6iM+8jqVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jO48OFK28ShDmS0GfjR84H3Obvw0kUsyNr1u2g6p71MyKSL+JjF5WvwP/R17WA6C2
-         +5F6DPX2AdObOS0NmFYg4P4m5mM9iyyEON+fifN14huM/p3EzTrp978CiwqNQkcCcL
-         vwf9ymdiS7g46TWL9IKGUaM1PhMlFfVvJUsdXzak=
+        b=po71lJQPQUQBD+acYpMxRtkLh1HBK6wWhdpRLI1Jt08vMZzsTtuil3DQI0/bk77G3
+         S2y4bNl4wM8ZUmFtH4ctAgFnUisAdkFEby8mrSKJSnf4l0eNDV3lYtHF5mvTUudk7p
+         gnnLELmnMovdqX/cXoaBtbXzTJcydMBlMk/nF6bc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Wei Wang <weiwan@google.com>,
+        Craig Gallek <cgallek@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 43/79] net: dsa: bcm_sf2: Fix IMP setup for port different than 8
+Subject: [PATCH 5.3 095/140] selftests: net: reuseport_dualstack: fix uninitalized parameter
 Date:   Fri,  8 Nov 2019 19:50:23 +0100
-Message-Id: <20191108174811.037430942@linuxfoundation.org>
+Message-Id: <20191108174911.028548334@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Wei Wang <weiwan@google.com>
 
-[ Upstream commit 5fc0f21246e50afdf318b5a3a941f7f4f57b8947 ]
+[ Upstream commit d64479a3e3f9924074ca7b50bd72fa5211dca9c1 ]
 
-Since it became possible for the DSA core to use a CPU port different
-than 8, our bcm_sf2_imp_setup() function was broken because it assumes
-that registers are applicable to port 8. In particular, the port's MAC
-is going to stay disabled, so make sure we clear the RX_DIS and TX_DIS
-bits if we are not configured for port 8.
+This test reports EINVAL for getsockopt(SOL_SOCKET, SO_DOMAIN)
+occasionally due to the uninitialized length parameter.
+Initialize it to fix this, and also use int for "test_family" to comply
+with the API standard.
 
-Fixes: 9f91484f6fcc ("net: dsa: make "label" property optional for dsa2")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: d6a61f80b871 ("soreuseport: test mixed v4/v6 sockets")
+Reported-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Wei Wang <weiwan@google.com>
+Cc: Craig Gallek <cgallek@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/bcm_sf2.c |   36 +++++++++++++++++++++---------------
- 1 file changed, 21 insertions(+), 15 deletions(-)
+ tools/testing/selftests/net/reuseport_dualstack.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -41,22 +41,11 @@ static void bcm_sf2_imp_setup(struct dsa
- 	unsigned int i;
- 	u32 reg, offset;
+--- a/tools/testing/selftests/net/reuseport_dualstack.c
++++ b/tools/testing/selftests/net/reuseport_dualstack.c
+@@ -129,7 +129,7 @@ static void test(int *rcv_fds, int count
+ {
+ 	struct epoll_event ev;
+ 	int epfd, i, test_fd;
+-	uint16_t test_family;
++	int test_family;
+ 	socklen_t len;
  
--	if (priv->type == BCM7445_DEVICE_ID)
--		offset = CORE_STS_OVERRIDE_IMP;
--	else
--		offset = CORE_STS_OVERRIDE_IMP2;
--
- 	/* Enable the port memories */
- 	reg = core_readl(priv, CORE_MEM_PSM_VDD_CTRL);
- 	reg &= ~P_TXQ_PSM_VDD(port);
- 	core_writel(priv, reg, CORE_MEM_PSM_VDD_CTRL);
+ 	epfd = epoll_create(1);
+@@ -146,6 +146,7 @@ static void test(int *rcv_fds, int count
+ 	send_from_v4(proto);
  
--	/* Enable Broadcast, Multicast, Unicast forwarding to IMP port */
--	reg = core_readl(priv, CORE_IMP_CTL);
--	reg |= (RX_BCST_EN | RX_MCST_EN | RX_UCST_EN);
--	reg &= ~(RX_DIS | TX_DIS);
--	core_writel(priv, reg, CORE_IMP_CTL);
--
- 	/* Enable forwarding */
- 	core_writel(priv, SW_FWDG_EN, CORE_SWMODE);
- 
-@@ -75,10 +64,27 @@ static void bcm_sf2_imp_setup(struct dsa
- 
- 	b53_brcm_hdr_setup(ds, port);
- 
--	/* Force link status for IMP port */
--	reg = core_readl(priv, offset);
--	reg |= (MII_SW_OR | LINK_STS);
--	core_writel(priv, reg, offset);
-+	if (port == 8) {
-+		if (priv->type == BCM7445_DEVICE_ID)
-+			offset = CORE_STS_OVERRIDE_IMP;
-+		else
-+			offset = CORE_STS_OVERRIDE_IMP2;
-+
-+		/* Force link status for IMP port */
-+		reg = core_readl(priv, offset);
-+		reg |= (MII_SW_OR | LINK_STS);
-+		core_writel(priv, reg, offset);
-+
-+		/* Enable Broadcast, Multicast, Unicast forwarding to IMP port */
-+		reg = core_readl(priv, CORE_IMP_CTL);
-+		reg |= (RX_BCST_EN | RX_MCST_EN | RX_UCST_EN);
-+		reg &= ~(RX_DIS | TX_DIS);
-+		core_writel(priv, reg, CORE_IMP_CTL);
-+	} else {
-+		reg = core_readl(priv, CORE_G_PCTL_PORT(port));
-+		reg &= ~(RX_DIS | TX_DIS);
-+		core_writel(priv, reg, CORE_G_PCTL_PORT(port));
-+	}
- }
- 
- static void bcm_sf2_gphy_enable_set(struct dsa_switch *ds, bool enable)
+ 	test_fd = receive_once(epfd, proto);
++	len = sizeof(test_family);
+ 	if (getsockopt(test_fd, SOL_SOCKET, SO_DOMAIN, &test_family, &len))
+ 		error(1, errno, "failed to read socket domain");
+ 	if (test_family != AF_INET)
 
 
