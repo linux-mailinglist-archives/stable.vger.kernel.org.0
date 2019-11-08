@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A39D4F572C
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 677C0F564F
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733061AbfKHTS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:18:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57272 "EHLO mail.kernel.org"
+        id S2390067AbfKHTID (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:08:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389521AbfKHTAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:12 -0500
+        id S1733173AbfKHTIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:08:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB0F42247A;
-        Fri,  8 Nov 2019 18:58:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E95FC2196F;
+        Fri,  8 Nov 2019 19:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239490;
-        bh=ALXLVrMT++fTiNRn7HeIjfwjcrLRnK0M8YRl47E6Qnk=;
+        s=default; t=1573240081;
+        bh=TiYeicv7l4CuzfSl5b3+VRbhNejXlZPRy0xTOy+UU6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wm9WXtmQvfJTl7NmhQz/Vmerr/O6u+miWuMAxRfcwnbB2tEPv/wdQamFRJ/o68RXZ
-         Rjms+aVDdN2rnRv88yT4YXwc+e5u9T7R/HIiQfYkkVmZpDx+QQsSXw9LzW+fr4kEbL
-         /ZjXpxyIP5rTSnkiBLa0dtpXg0VUvBpDPaGYLenw=
+        b=YJFlsKLB0OtvdiHjXNLxWRiXHxANi7ASlWKLCahRzgpCSIvIYX3h57KdXAZJN7vsg
+         Sxyobi5Fhc+pQj6rtS1h9HcLPne9+x/qpHGVmdZHAWweOknafP5TjGExA9n/3ef5SJ
+         4HBNOn6b526RVIzZuN3u82os+B2ntt1WgF6asVNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shahjada Abul Husain <shahjada@chelsio.com>,
-        Vishal Kulkarni <vishal@chelsio.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Thiemo Nagel <tnagel@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 23/62] cxgb4: fix panic when attaching to ULD fail
+Subject: [PATCH 5.3 083/140] inet: stop leaking jiffies on the wire
 Date:   Fri,  8 Nov 2019 19:50:11 +0100
-Message-Id: <20191108174739.009216039@linuxfoundation.org>
+Message-Id: <20191108174910.331746977@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Kulkarni <vishal@chelsio.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit fc89cc358fb64e2429aeae0f37906126636507ec ]
+[ Upstream commit a904a0693c189691eeee64f6c6b188bd7dc244e9 ]
 
-Release resources when attaching to ULD fail. Otherwise, data
-mismatch is seen between LLD and ULD later on, which lead to
-kernel panic when accessing resources that should not even
-exist in the first place.
+Historically linux tried to stick to RFC 791, 1122, 2003
+for IPv4 ID field generation.
 
-Fixes: 94cdb8bb993a ("cxgb4: Add support for dynamic allocation of resources for ULD")
-Signed-off-by: Shahjada Abul Husain <shahjada@chelsio.com>
-Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>
+RFC 6864 made clear that no matter how hard we try,
+we can not ensure unicity of IP ID within maximum
+lifetime for all datagrams with a given source
+address/destination address/protocol tuple.
+
+Linux uses a per socket inet generator (inet_id), initialized
+at connection startup with a XOR of 'jiffies' and other
+fields that appear clear on the wire.
+
+Thiemo Nagel pointed that this strategy is a privacy
+concern as this provides 16 bits of entropy to fingerprint
+devices.
+
+Let's switch to a random starting point, this is just as
+good as far as RFC 6864 is concerned and does not leak
+anything critical.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Thiemo Nagel <tnagel@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c |   29 ++++++++++++++-----------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ drivers/crypto/chelsio/chtls/chtls_cm.c |    2 +-
+ net/dccp/ipv4.c                         |    2 +-
+ net/ipv4/datagram.c                     |    2 +-
+ net/ipv4/tcp_ipv4.c                     |    4 ++--
+ net/sctp/socket.c                       |    2 +-
+ 5 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-@@ -670,10 +670,10 @@ static void uld_init(struct adapter *ada
- 	lld->fr_nsmr_tpte_wr_support = adap->params.fr_nsmr_tpte_wr_support;
- }
+--- a/drivers/crypto/chelsio/chtls/chtls_cm.c
++++ b/drivers/crypto/chelsio/chtls/chtls_cm.c
+@@ -1297,7 +1297,7 @@ static void make_established(struct sock
+ 	tp->write_seq = snd_isn;
+ 	tp->snd_nxt = snd_isn;
+ 	tp->snd_una = snd_isn;
+-	inet_sk(sk)->inet_id = tp->write_seq ^ jiffies;
++	inet_sk(sk)->inet_id = prandom_u32();
+ 	assign_rxopt(sk, opt);
  
--static void uld_attach(struct adapter *adap, unsigned int uld)
-+static int uld_attach(struct adapter *adap, unsigned int uld)
- {
--	void *handle;
- 	struct cxgb4_lld_info lli;
-+	void *handle;
+ 	if (tp->rcv_wnd > (RCV_BUFSIZ_M << 10))
+--- a/net/dccp/ipv4.c
++++ b/net/dccp/ipv4.c
+@@ -117,7 +117,7 @@ int dccp_v4_connect(struct sock *sk, str
+ 						    inet->inet_daddr,
+ 						    inet->inet_sport,
+ 						    inet->inet_dport);
+-	inet->inet_id = dp->dccps_iss ^ jiffies;
++	inet->inet_id = prandom_u32();
  
- 	uld_init(adap, &lli);
- 	uld_queue_init(adap, uld, &lli);
-@@ -683,7 +683,7 @@ static void uld_attach(struct adapter *a
- 		dev_warn(adap->pdev_dev,
- 			 "could not attach to the %s driver, error %ld\n",
- 			 adap->uld[uld].name, PTR_ERR(handle));
--		return;
-+		return PTR_ERR(handle);
+ 	err = dccp_connect(sk);
+ 	rt = NULL;
+--- a/net/ipv4/datagram.c
++++ b/net/ipv4/datagram.c
+@@ -73,7 +73,7 @@ int __ip4_datagram_connect(struct sock *
+ 	reuseport_has_conns(sk, true);
+ 	sk->sk_state = TCP_ESTABLISHED;
+ 	sk_set_txhash(sk);
+-	inet->inet_id = jiffies;
++	inet->inet_id = prandom_u32();
+ 
+ 	sk_dst_set(sk, &rt->dst);
+ 	err = 0;
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -300,7 +300,7 @@ int tcp_v4_connect(struct sock *sk, stru
+ 						 inet->inet_daddr);
  	}
  
- 	adap->uld[uld].handle = handle;
-@@ -691,23 +691,24 @@ static void uld_attach(struct adapter *a
+-	inet->inet_id = tp->write_seq ^ jiffies;
++	inet->inet_id = prandom_u32();
  
- 	if (adap->flags & FULL_INIT_DONE)
- 		adap->uld[uld].state_change(handle, CXGB4_STATE_UP);
-+
-+	return 0;
- }
+ 	if (tcp_fastopen_defer_connect(sk, &err))
+ 		return err;
+@@ -1443,7 +1443,7 @@ struct sock *tcp_v4_syn_recv_sock(const
+ 	inet_csk(newsk)->icsk_ext_hdr_len = 0;
+ 	if (inet_opt)
+ 		inet_csk(newsk)->icsk_ext_hdr_len = inet_opt->opt.optlen;
+-	newinet->inet_id = newtp->write_seq ^ jiffies;
++	newinet->inet_id = prandom_u32();
  
--/**
-- *	cxgb4_register_uld - register an upper-layer driver
-- *	@type: the ULD type
-- *	@p: the ULD methods
-+/* cxgb4_register_uld - register an upper-layer driver
-+ * @type: the ULD type
-+ * @p: the ULD methods
-  *
-- *	Registers an upper-layer driver with this driver and notifies the ULD
-- *	about any presently available devices that support its type.  Returns
-- *	%-EBUSY if a ULD of the same type is already registered.
-+ * Registers an upper-layer driver with this driver and notifies the ULD
-+ * about any presently available devices that support its type.  Returns
-+ * %-EBUSY if a ULD of the same type is already registered.
-  */
- int cxgb4_register_uld(enum cxgb4_uld type,
- 		       const struct cxgb4_uld_info *p)
- {
--	int ret = 0;
- 	unsigned int adap_idx = 0;
- 	struct adapter *adap;
-+	int ret = 0;
+ 	if (!dst) {
+ 		dst = inet_csk_route_child_sock(sk, newsk, req);
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -9159,7 +9159,7 @@ void sctp_copy_sock(struct sock *newsk,
+ 	newinet->inet_rcv_saddr = inet->inet_rcv_saddr;
+ 	newinet->inet_dport = htons(asoc->peer.port);
+ 	newinet->pmtudisc = inet->pmtudisc;
+-	newinet->inet_id = asoc->next_tsn ^ jiffies;
++	newinet->inet_id = prandom_u32();
  
- 	if (type >= CXGB4_ULD_MAX)
- 		return -EINVAL;
-@@ -741,12 +742,16 @@ int cxgb4_register_uld(enum cxgb4_uld ty
- 		if (ret)
- 			goto free_irq;
- 		adap->uld[type] = *p;
--		uld_attach(adap, type);
-+		ret = uld_attach(adap, type);
-+		if (ret)
-+			goto free_txq;
- 		adap_idx++;
- 	}
- 	mutex_unlock(&uld_mutex);
- 	return 0;
- 
-+free_txq:
-+	release_sge_txq_uld(adap, type);
- free_irq:
- 	if (adap->flags & FULL_INIT_DONE)
- 		quiesce_rx_uld(adap, type);
+ 	newinet->uc_ttl = inet->uc_ttl;
+ 	newinet->mc_loop = 1;
 
 
