@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2EFF5721
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6719EF5712
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388553AbfKHTS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:18:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57250 "EHLO mail.kernel.org"
+        id S1730114AbfKHTRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:17:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389661AbfKHTAT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:19 -0500
+        id S2390432AbfKHTCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:02:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4501C2249E;
-        Fri,  8 Nov 2019 18:58:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BFFE2067B;
+        Fri,  8 Nov 2019 19:02:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239522;
-        bh=6elECeKqNAc5dMrEOCSnn8CogZkyVM4opF6iM+8jqVU=;
+        s=default; t=1573239726;
+        bh=XUup1KMSh6hlnB0o4MhW1bPWWPX6n1O67UYpNXbfpK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brVdx65ta34UdAItiunlDJzBmcW9PfflIBn7qtpcquDeOcL935n0WeIYBZGDaFyX3
-         gQ9Gg7AeUiOk9+S/0oTmQfDXcjWzuAfMjv5AxjtgfEqrEh/ljSXarRH8VwAEdzoosl
-         d5ejq7UcSI29wC/xe1MFiq35Vb87C5+rc9vstjIA=
+        b=Xgq7fNKGZJ5tyDmlY9qIMM4S+arPey9gUTeuX2W1pd6JXKgXHfFh3SdFejLpgx8rO
+         C9S0HSmjZ2j5yqKzihL0WWGvnFx9WjFeFQ2pdNKltiT3klFZ/y/KlbQCjlSHSF9QsR
+         aBV5pAj4lLRUIhPF7hi0n6t4v2ccUBgWHMM5RrP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Wei Wang <weiwan@google.com>,
-        Craig Gallek <cgallek@google.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 33/62] selftests: net: reuseport_dualstack: fix uninitalized parameter
+Subject: [PATCH 4.19 41/79] net: annotate accesses to sk->sk_incoming_cpu
 Date:   Fri,  8 Nov 2019 19:50:21 +0100
-Message-Id: <20191108174744.651770471@linuxfoundation.org>
+Message-Id: <20191108174810.096350757@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +44,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d64479a3e3f9924074ca7b50bd72fa5211dca9c1 ]
+[ Upstream commit 7170a977743b72cf3eb46ef6ef89885dc7ad3621 ]
 
-This test reports EINVAL for getsockopt(SOL_SOCKET, SO_DOMAIN)
-occasionally due to the uninitialized length parameter.
-Initialize it to fix this, and also use int for "test_family" to comply
-with the API standard.
+This socket field can be read and written by concurrent cpus.
 
-Fixes: d6a61f80b871 ("soreuseport: test mixed v4/v6 sockets")
-Reported-by: Maciej Żenczykowski <maze@google.com>
+Use READ_ONCE() and WRITE_ONCE() annotations to document this,
+and avoid some compiler 'optimizations'.
+
+KCSAN reported :
+
+BUG: KCSAN: data-race in tcp_v4_rcv / tcp_v4_rcv
+
+write to 0xffff88812220763c of 4 bytes by interrupt on cpu 0:
+ sk_incoming_cpu_update include/net/sock.h:953 [inline]
+ tcp_v4_rcv+0x1b3c/0x1bb0 net/ipv4/tcp_ipv4.c:1934
+ ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
+ ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
+ dst_input include/net/dst.h:442 [inline]
+ ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
+ process_backlog+0x1d3/0x420 net/core/dev.c:5955
+ napi_poll net/core/dev.c:6392 [inline]
+ net_rx_action+0x3ae/0xa90 net/core/dev.c:6460
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ do_softirq_own_stack+0x2a/0x40 arch/x86/entry/entry_64.S:1082
+ do_softirq.part.0+0x6b/0x80 kernel/softirq.c:337
+ do_softirq kernel/softirq.c:329 [inline]
+ __local_bh_enable_ip+0x76/0x80 kernel/softirq.c:189
+
+read to 0xffff88812220763c of 4 bytes by interrupt on cpu 1:
+ sk_incoming_cpu_update include/net/sock.h:952 [inline]
+ tcp_v4_rcv+0x181a/0x1bb0 net/ipv4/tcp_ipv4.c:1934
+ ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
+ ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
+ dst_input include/net/dst.h:442 [inline]
+ ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
+ process_backlog+0x1d3/0x420 net/core/dev.c:5955
+ napi_poll net/core/dev.c:6392 [inline]
+ net_rx_action+0x3ae/0xa90 net/core/dev.c:6460
+ __do_softirq+0x115/0x33f kernel/softirq.c:292
+ run_ksoftirqd+0x46/0x60 kernel/softirq.c:603
+ smpboot_thread_fn+0x37d/0x4a0 kernel/smpboot.c:165
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 16 Comm: ksoftirqd/1 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Cc: Craig Gallek <cgallek@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/reuseport_dualstack.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/net/sock.h          |    4 ++--
+ net/core/sock.c             |    4 ++--
+ net/ipv4/inet_hashtables.c  |    2 +-
+ net/ipv4/udp.c              |    2 +-
+ net/ipv6/inet6_hashtables.c |    2 +-
+ net/ipv6/udp.c              |    2 +-
+ 6 files changed, 8 insertions(+), 8 deletions(-)
 
---- a/tools/testing/selftests/net/reuseport_dualstack.c
-+++ b/tools/testing/selftests/net/reuseport_dualstack.c
-@@ -129,7 +129,7 @@ static void test(int *rcv_fds, int count
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -945,8 +945,8 @@ static inline void sk_incoming_cpu_updat
  {
- 	struct epoll_event ev;
- 	int epfd, i, test_fd;
--	uint16_t test_family;
-+	int test_family;
- 	socklen_t len;
+ 	int cpu = raw_smp_processor_id();
  
- 	epfd = epoll_create(1);
-@@ -146,6 +146,7 @@ static void test(int *rcv_fds, int count
- 	send_from_v4(proto);
+-	if (unlikely(sk->sk_incoming_cpu != cpu))
+-		sk->sk_incoming_cpu = cpu;
++	if (unlikely(READ_ONCE(sk->sk_incoming_cpu) != cpu))
++		WRITE_ONCE(sk->sk_incoming_cpu, cpu);
+ }
  
- 	test_fd = receive_once(epfd, proto);
-+	len = sizeof(test_family);
- 	if (getsockopt(test_fd, SOL_SOCKET, SO_DOMAIN, &test_family, &len))
- 		error(1, errno, "failed to read socket domain");
- 	if (test_family != AF_INET)
+ static inline void sock_rps_record_flow_hash(__u32 hash)
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -1005,7 +1005,7 @@ set_rcvbuf:
+ 		break;
+ 
+ 	case SO_INCOMING_CPU:
+-		sk->sk_incoming_cpu = val;
++		WRITE_ONCE(sk->sk_incoming_cpu, val);
+ 		break;
+ 
+ 	case SO_CNX_ADVICE:
+@@ -1341,7 +1341,7 @@ int sock_getsockopt(struct socket *sock,
+ 		break;
+ 
+ 	case SO_INCOMING_CPU:
+-		v.val = sk->sk_incoming_cpu;
++		v.val = READ_ONCE(sk->sk_incoming_cpu);
+ 		break;
+ 
+ 	case SO_MEMINFO:
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -248,7 +248,7 @@ static inline int compute_score(struct s
+ 			if (sk->sk_bound_dev_if)
+ 				score += 4;
+ 		}
+-		if (sk->sk_incoming_cpu == raw_smp_processor_id())
++		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
+ 			score++;
+ 	}
+ 	return score;
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -408,7 +408,7 @@ static int compute_score(struct sock *sk
+ 			score += 4;
+ 	}
+ 
+-	if (sk->sk_incoming_cpu == raw_smp_processor_id())
++	if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
+ 		score++;
+ 	return score;
+ }
+--- a/net/ipv6/inet6_hashtables.c
++++ b/net/ipv6/inet6_hashtables.c
+@@ -118,7 +118,7 @@ static inline int compute_score(struct s
+ 			if (sk->sk_bound_dev_if)
+ 				score++;
+ 		}
+-		if (sk->sk_incoming_cpu == raw_smp_processor_id())
++		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
+ 			score++;
+ 	}
+ 	return score;
+--- a/net/ipv6/udp.c
++++ b/net/ipv6/udp.c
+@@ -154,7 +154,7 @@ static int compute_score(struct sock *sk
+ 			score++;
+ 	}
+ 
+-	if (sk->sk_incoming_cpu == raw_smp_processor_id())
++	if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
+ 		score++;
+ 
+ 	return score;
 
 
