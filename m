@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0161F5595
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 354FCF56C2
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732842AbfKHTDX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:03:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33046 "EHLO mail.kernel.org"
+        id S2391942AbfKHTKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:10:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388338AbfKHTDX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:03:23 -0500
+        id S2389656AbfKHTKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:10:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A77DE2067B;
-        Fri,  8 Nov 2019 19:03:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59AF721D82;
+        Fri,  8 Nov 2019 19:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239802;
-        bh=OLx9Vi9JjlRltzTIwfiJ5OeN9fc4fgj5NJrc/CXMSwE=;
+        s=default; t=1573240252;
+        bh=BLtrOtnub7LSTPsUgTcVqvc3DdOlGwM06VlUWBIztuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qRowG7UhteBS+eaZ7NgHZdcS8vNYWR/+MSCPKv3zv9XYBTDRLGeTLLZ60bKfTrzzF
-         cG8Ook/I8rwqgOAabvdewPK94Zjs+9wLWgNmOWsTi6CdsGAwrjb1t/+SGFqe/Nl6X6
-         InrBTxhQcltrG8zEARHHStREsOB95JvBMsqF4dq8=
+        b=DHARY4Ne1c1s0QnE//qWOEqAH//ie2GCuqcHzlet9TOFKcY01puieHnDnU0Yhq6a3
+         /Docxbac8EkZqmHVu2GSISoK6adusfuShUFMj1QHR1M4OnePQWzou/TPX5ZuVnbynP
+         K+6fq0qmt+JYI8OgyB5bEveN/PQkX+XVJZZzo27A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 65/79] net: bcmgenet: dont set phydev->link from MAC
+Subject: [PATCH 5.3 117/140] r8169: fix wrong PHY ID issue with RTL8168dp
 Date:   Fri,  8 Nov 2019 19:50:45 +0100
-Message-Id: <20191108174822.160399490@linuxfoundation.org>
+Message-Id: <20191108174912.169385668@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 7de48402faa32298c3551ea32c76ccb4f9d3025d ]
+[ Upstream commit 62bdc8fd1c21d4263ebd18bec57f82532d09249f ]
 
-When commit 28b2e0d2cd13 ("net: phy: remove parameter new_link from
-phy_mac_interrupt()") removed the new_link parameter it set the
-phydev->link state from the MAC before invoking phy_mac_interrupt().
+As reported in [0] at least one RTL8168dp version has problems
+establishing a link. This chip version has an integrated RTL8211b PHY,
+however the chip seems to report a wrong PHY ID, resulting in a wrong
+PHY driver (for Generic Realtek PHY) being loaded.
+Work around this issue by adding a hook to r8168dp_2_mdio_read()
+for returning the correct PHY ID.
 
-However, once commit 88d6272acaaa ("net: phy: avoid unneeded MDIO
-reads in genphy_read_status") was added this initialization prevents
-the proper determination of the connection parameters by the function
-genphy_read_status().
+[0] https://bbs.archlinux.org/viewtopic.php?id=246508
 
-This commit removes that initialization to restore the proper
-functionality.
-
-Fixes: 88d6272acaaa ("net: phy: avoid unneeded MDIO reads in genphy_read_status")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: 242cd9b5866a ("r8169: use phy_resume/phy_suspend")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/realtek/r8169_main.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -2619,10 +2619,8 @@ static void bcmgenet_irq_task(struct wor
- 	spin_unlock_irq(&priv->lock);
+--- a/drivers/net/ethernet/realtek/r8169_main.c
++++ b/drivers/net/ethernet/realtek/r8169_main.c
+@@ -976,6 +976,10 @@ static int r8168dp_2_mdio_read(struct rt
+ {
+ 	int value;
  
- 	/* Link UP/DOWN event */
--	if (status & UMAC_IRQ_LINK_EVENT) {
--		priv->dev->phydev->link = !!(status & UMAC_IRQ_LINK_UP);
-+	if (status & UMAC_IRQ_LINK_EVENT)
- 		phy_mac_interrupt(priv->dev->phydev);
--	}
- }
++	/* Work around issue with chip reporting wrong PHY ID */
++	if (reg == MII_PHYSID2)
++		return 0xc912;
++
+ 	r8168dp_2_mdio_start(tp);
  
- /* bcmgenet_isr1: handle Rx and Tx priority queues */
+ 	value = r8169_mdio_read(tp, reg);
 
 
