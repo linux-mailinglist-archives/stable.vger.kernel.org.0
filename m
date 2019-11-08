@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF523F49D6
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:06:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C50F49B0
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:04:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390572AbfKHMEx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:04:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55578 "EHLO mail.kernel.org"
+        id S2390936AbfKHMEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:04:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389723AbfKHLl7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:41:59 -0500
+        id S1733104AbfKHLmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:42:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D9B1222C4;
-        Fri,  8 Nov 2019 11:41:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF7BB21D82;
+        Fri,  8 Nov 2019 11:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213318;
-        bh=0tFSaKQyGEqGezkRj4bPM4JS9i+QDuEA8486jI4EfWk=;
+        s=default; t=1573213320;
+        bh=O+hpQNM8vSWD7A1+s0aJwWD0EvD+GBBQijCDJuTiYxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XGe9tFSJ0LVyj5tfjMsXXMWdK2jpL+t+zy56ijqnfzwv65caZwm0IEQqT+lu1K0Vb
-         hVbI12t3afhhsnJD71PCJVWd7Cba70Nbgdh8LVHlkKujpXAxhcFp4Z/0q5dS+8GBPR
-         F+ZugGTcsDnlzkGIXESMdIBERwx8OC+v+Dd4Qz+g=
+        b=uRx+gVqzzuoazu4GYljMpM/ortNfG/NbCefMYhm33XWKUWyLZrq0R+fSv/9e7XqAa
+         jAA84ymRkoiBt3heJJQGGOxihzJgQh+g1WxgfZ2ufM8JcUm7ljKPrLpHFSb4v2dQCw
+         xgRANwWWIOHk+SYja8LITBLE+sBeRPUKZmMPK288=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 162/205] net: bcmgenet: Fix speed selection for reverse MII
-Date:   Fri,  8 Nov 2019 06:37:09 -0500
-Message-Id: <20191108113752.12502-162-sashal@kernel.org>
+Cc:     Neil Armstrong <narmstrong@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-amlogic@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 164/205] arm64: dts: meson-axg: use the proper compatible for ethmac
+Date:   Fri,  8 Nov 2019 06:37:11 -0500
+Message-Id: <20191108113752.12502-164-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -45,41 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Lunn <andrew@lunn.ch>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 00eb2243b933a496958f4ce1bcf59840fea8be16 ]
+[ Upstream commit eaf8f57c0bf5451132932616ab62f9481adefb55 ]
 
-The phy supported speed is being used to determine if the MAC should
-be configured to 100 or 1G. The masking logic is broken. Instead, look
-at 1G supported speeds to enable 1G MAC support.
+Use the correct compatible for the AXG ethernet mac node.
 
-Signed-off-by: Andrew Lunn <andrew@lunn.ch>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmmii.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/amlogic/meson-axg.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmmii.c b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-index 0d527fa5de610..b0592fd4135b3 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -226,11 +226,10 @@ int bcmgenet_mii_config(struct net_device *dev, bool init)
- 		 * capabilities, use that knowledge to also configure the
- 		 * Reverse MII interface correctly.
- 		 */
--		if ((dev->phydev->supported & PHY_BASIC_FEATURES) ==
--				PHY_BASIC_FEATURES)
--			port_ctrl = PORT_MODE_EXT_RVMII_25;
--		else
-+		if (dev->phydev->supported & PHY_1000BT_FEATURES)
- 			port_ctrl = PORT_MODE_EXT_RVMII_50;
-+		else
-+			port_ctrl = PORT_MODE_EXT_RVMII_25;
- 		bcmgenet_sys_writel(priv, port_ctrl, SYS_PORT_CTRL);
- 		break;
+diff --git a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+index c518130e5ce73..3c34f14fa5086 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-axg.dtsi
+@@ -458,7 +458,7 @@
+ 		};
  
+ 		ethmac: ethernet@ff3f0000 {
+-			compatible = "amlogic,meson-gxbb-dwmac", "snps,dwmac";
++			compatible = "amlogic,meson-axg-dwmac", "snps,dwmac";
+ 			reg = <0x0 0xff3f0000 0x0 0x10000
+ 				0x0 0xff634540 0x0 0x8>;
+ 			interrupts = <GIC_SPI 8 IRQ_TYPE_EDGE_RISING>;
 -- 
 2.20.1
 
