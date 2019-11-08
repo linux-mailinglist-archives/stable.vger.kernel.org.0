@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08454F556A
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 897F0F566B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390493AbfKHTCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:02:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59858 "EHLO mail.kernel.org"
+        id S2391676AbfKHTIn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:08:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732905AbfKHTCQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:02:16 -0500
+        id S2391167AbfKHTIn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:08:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8366120650;
-        Fri,  8 Nov 2019 19:02:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0946206A3;
+        Fri,  8 Nov 2019 19:08:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239735;
-        bh=j+MyTQC93gaRHL2LgewniO9lqgw9dkID6sNY6VVF/Q4=;
+        s=default; t=1573240122;
+        bh=FpFbVomZCovbpRvXwJCpXLz9MvCarkSRUlBibpRzgH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FSaQakA0KJ24jpTDWYVB/XEAvBjoSFkDWposbo/0NXQDBga8GPRxMh/0AOS8l/FMv
-         4r9+RfsmQdhS9kAg9xcFGX1wyHlxu6KlGynFo0mezjgay0DFaZ7xit9H25zjAEzHFI
-         g6DzB4E88BDUZ7b604PZJG528++R4nJC31sprtpU=
+        b=vECszgWg9sBL6IgWFFwun5QZBpyJm4pMJKzk+jZM1mew7zW34JSNPjcmZvJE0lUjD
+         VSDsl0npdw+dO1TC24bubtoftocXO7W6Y/TmnTAPPTnWESWa4IIwXxHBXdoAs/PPR+
+         r6IoBiPRx0lyUJgiOfQca0/lWA3b76YWDAHT2Ncw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Vijay Khemka <vijaykhemka@fb.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 44/79] net: ethernet: ftgmac100: Fix DMA coherency issue with SW checksum
+Subject: [PATCH 5.3 096/140] udp: fix data-race in udp_set_dev_scratch()
 Date:   Fri,  8 Nov 2019 19:50:24 +0100
-Message-Id: <20191108174811.488423255@linuxfoundation.org>
+Message-Id: <20191108174911.082386093@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 88824e3bf29a2fcacfd9ebbfe03063649f0f3254 ]
+[ Upstream commit a793183caa9afae907a0d7ddd2ffd57329369bf5 ]
 
-We are calling the checksum helper after the dma_map_single()
-call to map the packet. This is incorrect as the checksumming
-code will touch the packet from the CPU. This means the cache
-won't be properly flushes (or the bounce buffering will leave
-us with the unmodified packet to DMA).
+KCSAN reported a data-race in udp_set_dev_scratch() [1]
 
-This moves the calculation of the checksum & vlan tags to
-before the DMA mapping.
+The issue here is that we must not write over skb fields
+if skb is shared. A similar issue has been fixed in commit
+89c22d8c3b27 ("net: Fix skb csum races when peeking")
 
-This also has the side effect of fixing another bug: If the
-checksum helper fails, we goto "drop" to drop the packet, which
-will not unmap the DMA mapping.
+While we are at it, use a helper only dealing with
+udp_skb_scratch(skb)->csum_unnecessary, as this allows
+udp_set_dev_scratch() to be called once and thus inlined.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Fixes: 05690d633f30 ("ftgmac100: Upgrade to NETIF_F_HW_CSUM")
-Reviewed-by: Vijay Khemka <vijaykhemka@fb.com>
-Tested-by: Vijay Khemka <vijaykhemka@fb.com>
+[1]
+BUG: KCSAN: data-race in udp_set_dev_scratch / udpv6_recvmsg
+
+write to 0xffff888120278317 of 1 bytes by task 10411 on cpu 1:
+ udp_set_dev_scratch+0xea/0x200 net/ipv4/udp.c:1308
+ __first_packet_length+0x147/0x420 net/ipv4/udp.c:1556
+ first_packet_length+0x68/0x2a0 net/ipv4/udp.c:1579
+ udp_poll+0xea/0x110 net/ipv4/udp.c:2720
+ sock_poll+0xed/0x250 net/socket.c:1256
+ vfs_poll include/linux/poll.h:90 [inline]
+ do_select+0x7d0/0x1020 fs/select.c:534
+ core_sys_select+0x381/0x550 fs/select.c:677
+ do_pselect.constprop.0+0x11d/0x160 fs/select.c:759
+ __do_sys_pselect6 fs/select.c:784 [inline]
+ __se_sys_pselect6 fs/select.c:769 [inline]
+ __x64_sys_pselect6+0x12e/0x170 fs/select.c:769
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+read to 0xffff888120278317 of 1 bytes by task 10413 on cpu 0:
+ udp_skb_csum_unnecessary include/net/udp.h:358 [inline]
+ udpv6_recvmsg+0x43e/0xe90 net/ipv6/udp.c:310
+ inet6_recvmsg+0xbb/0x240 net/ipv6/af_inet6.c:592
+ sock_recvmsg_nosec+0x5c/0x70 net/socket.c:871
+ ___sys_recvmsg+0x1a0/0x3e0 net/socket.c:2480
+ do_recvmmsg+0x19a/0x5c0 net/socket.c:2601
+ __sys_recvmmsg+0x1ef/0x200 net/socket.c:2680
+ __do_sys_recvmmsg net/socket.c:2703 [inline]
+ __se_sys_recvmmsg net/socket.c:2696 [inline]
+ __x64_sys_recvmmsg+0x89/0xb0 net/socket.c:2696
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 10413 Comm: syz-executor.0 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: 2276f58ac589 ("udp: use a separate rx queue for packet reception")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/faraday/ftgmac100.c |   25 ++++++++++++-------------
- 1 file changed, 12 insertions(+), 13 deletions(-)
+ net/ipv4/udp.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/faraday/ftgmac100.c
-+++ b/drivers/net/ethernet/faraday/ftgmac100.c
-@@ -739,6 +739,18 @@ static int ftgmac100_hard_start_xmit(str
- 	 */
- 	nfrags = skb_shinfo(skb)->nr_frags;
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -1316,6 +1316,20 @@ static void udp_set_dev_scratch(struct s
+ 		scratch->_tsize_state |= UDP_SKB_IS_STATELESS;
+ }
  
-+	/* Setup HW checksumming */
-+	csum_vlan = 0;
-+	if (skb->ip_summed == CHECKSUM_PARTIAL &&
-+	    !ftgmac100_prep_tx_csum(skb, &csum_vlan))
-+		goto drop;
++static void udp_skb_csum_unnecessary_set(struct sk_buff *skb)
++{
++	/* We come here after udp_lib_checksum_complete() returned 0.
++	 * This means that __skb_checksum_complete() might have
++	 * set skb->csum_valid to 1.
++	 * On 64bit platforms, we can set csum_unnecessary
++	 * to true, but only if the skb is not shared.
++	 */
++#if BITS_PER_LONG == 64
++	if (!skb_shared(skb))
++		udp_skb_scratch(skb)->csum_unnecessary = true;
++#endif
++}
 +
-+	/* Add VLAN tag */
-+	if (skb_vlan_tag_present(skb)) {
-+		csum_vlan |= FTGMAC100_TXDES1_INS_VLANTAG;
-+		csum_vlan |= skb_vlan_tag_get(skb) & 0xffff;
-+	}
-+
- 	/* Get header len */
- 	len = skb_headlen(skb);
- 
-@@ -765,19 +777,6 @@ static int ftgmac100_hard_start_xmit(str
- 	if (nfrags == 0)
- 		f_ctl_stat |= FTGMAC100_TXDES0_LTS;
- 	txdes->txdes3 = cpu_to_le32(map);
--
--	/* Setup HW checksumming */
--	csum_vlan = 0;
--	if (skb->ip_summed == CHECKSUM_PARTIAL &&
--	    !ftgmac100_prep_tx_csum(skb, &csum_vlan))
--		goto drop;
--
--	/* Add VLAN tag */
--	if (skb_vlan_tag_present(skb)) {
--		csum_vlan |= FTGMAC100_TXDES1_INS_VLANTAG;
--		csum_vlan |= skb_vlan_tag_get(skb) & 0xffff;
--	}
--
- 	txdes->txdes1 = cpu_to_le32(csum_vlan);
- 
- 	/* Next descriptor */
+ static int udp_skb_truesize(struct sk_buff *skb)
+ {
+ 	return udp_skb_scratch(skb)->_tsize_state & ~UDP_SKB_IS_STATELESS;
+@@ -1550,10 +1564,7 @@ static struct sk_buff *__first_packet_le
+ 			*total += skb->truesize;
+ 			kfree_skb(skb);
+ 		} else {
+-			/* the csum related bits could be changed, refresh
+-			 * the scratch area
+-			 */
+-			udp_set_dev_scratch(skb);
++			udp_skb_csum_unnecessary_set(skb);
+ 			break;
+ 		}
+ 	}
 
 
