@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AFECF4A10
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:07:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF585F4A09
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:07:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388911AbfKHMGu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:06:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54176 "EHLO mail.kernel.org"
+        id S2391850AbfKHMGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:06:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389130AbfKHLlE (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2389140AbfKHLlE (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 8 Nov 2019 06:41:04 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E314222CF;
-        Fri,  8 Nov 2019 11:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F69721D7F;
+        Fri,  8 Nov 2019 11:41:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213263;
-        bh=jcdjDlMMFADdICBMD4s0I1aeRQNEcKQDEw2Nqhkdgco=;
+        s=default; t=1573213264;
+        bh=V7Y1dJQO8mOAP60zX3u5fffB0gbGPVIIu4AGNz9dDsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pddRRyvDLlCVvXlVgHayefJ5G5EEI1E2zX8Ln5h3nWiKBJ+e3cROVY3oGwrEdWsI3
-         9841CdSU/TZWcj5PtX9uB6ab4SWOpIz7WFjz1mZStoFxrZzlfKOT+9bJdF82Giyuw3
-         qEfoQ3WDgskFZkB+rOEyiwedMhjIvM+VxviGo+vM=
+        b=aEjY9uqpXOQ3PG/YiNqBhuDM7gWuOKBWjnvzE4sbT+NBi6FO6FRUTAmEV13tNCRsI
+         d1vAZJNzadTAURT8eufNSBz8uoga5LyI8CZdUnBH77mmPYopSICTlmaAmTKDu6bZgt
+         IqWjvDw1TTfM9OqgiW2Yw8/kCIVQXOum7XGxaJaU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 127/205] ath9k: add back support for using active monitor interfaces for tx99
-Date:   Fri,  8 Nov 2019 06:36:34 -0500
-Message-Id: <20191108113752.12502-127-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 128/205] dmaengine: at_xdmac: remove a stray bottom half unlock
+Date:   Fri,  8 Nov 2019 06:36:35 -0500
+Message-Id: <20191108113752.12502-128-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,116 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 6df0580be8bc30803c4d8b2ed9c2230a2740c795 ]
+[ Upstream commit 0b515abb6b7eb08e90bdfc01fc8fbdd112c15d81 ]
 
-Various documented examples on how to set up tx99 with ath9k rely
-on setting up a regular monitor interface for setting the channel.
-My previous patch "ath9k: fix tx99 with monitor mode interface" made
-it possible to set it up this way again. However, it was removing support
-for using an active monitor interface, which is required for controlling
-the bitrate as well, since the bitrate is not passed down with a regular
-monitor interface.
+We switched this code from spin_lock_bh() to vanilla spin_lock() but
+there was one stray spin_unlock_bh() that was overlooked.  This
+patch converts it to spin_unlock() as well.
 
-This patch partially reverts the previous one, but keeps support for using
-a regular monitor interface to keep documented steps working in cases
-where the bitrate does not matter
-
-Fixes: d9c52fd17cb48 ("ath9k: fix tx99 with monitor mode interface")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: d8570d018f69 ("dmaengine: at_xdmac: move spin_lock_bh to spin_lock in tasklet")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/ath9k.h |  1 +
- drivers/net/wireless/ath/ath9k/main.c  | 10 ++++++++--
- drivers/net/wireless/ath/ath9k/tx99.c  |  7 +++++++
- drivers/net/wireless/ath/ath9k/xmit.c  |  2 +-
- 4 files changed, 17 insertions(+), 3 deletions(-)
+ drivers/dma/at_xdmac.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/ath9k.h b/drivers/net/wireless/ath/ath9k/ath9k.h
-index 50206a6d8a850..0fca44e91a712 100644
---- a/drivers/net/wireless/ath/ath9k/ath9k.h
-+++ b/drivers/net/wireless/ath/ath9k/ath9k.h
-@@ -1074,6 +1074,7 @@ struct ath_softc {
+diff --git a/drivers/dma/at_xdmac.c b/drivers/dma/at_xdmac.c
+index db5b8fe1dd4ab..7db66f974041e 100644
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1608,7 +1608,7 @@ static void at_xdmac_tasklet(unsigned long data)
+ 		dev_vdbg(chan2dev(&atchan->chan), "%s: desc 0x%p\n", __func__, desc);
+ 		if (!desc->active_xfer) {
+ 			dev_err(chan2dev(&atchan->chan), "Xfer not active: exiting");
+-			spin_unlock_bh(&atchan->lock);
++			spin_unlock(&atchan->lock);
+ 			return;
+ 		}
  
- 	struct ath_spec_scan_priv spec_priv;
- 
-+	struct ieee80211_vif *tx99_vif;
- 	struct sk_buff *tx99_skb;
- 	bool tx99_state;
- 	s16 tx99_power;
-diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
-index 6ce4b9f1dcb44..c85f613e8ceb5 100644
---- a/drivers/net/wireless/ath/ath9k/main.c
-+++ b/drivers/net/wireless/ath/ath9k/main.c
-@@ -1251,8 +1251,13 @@ static int ath9k_add_interface(struct ieee80211_hw *hw,
- 	struct ath_vif *avp = (void *)vif->drv_priv;
- 	struct ath_node *an = &avp->mcast_node;
- 
--	if (IS_ENABLED(CONFIG_ATH9K_TX99))
--		return -EOPNOTSUPP;
-+	if (IS_ENABLED(CONFIG_ATH9K_TX99)) {
-+		if (sc->cur_chan->nvifs >= 1) {
-+			mutex_unlock(&sc->mutex);
-+			return -EOPNOTSUPP;
-+		}
-+		sc->tx99_vif = vif;
-+	}
- 
- 	mutex_lock(&sc->mutex);
- 
-@@ -1337,6 +1342,7 @@ static void ath9k_remove_interface(struct ieee80211_hw *hw,
- 	ath9k_p2p_remove_vif(sc, vif);
- 
- 	sc->cur_chan->nvifs--;
-+	sc->tx99_vif = NULL;
- 	if (!ath9k_is_chanctx_enabled())
- 		list_del(&avp->list);
- 
-diff --git a/drivers/net/wireless/ath/ath9k/tx99.c b/drivers/net/wireless/ath/ath9k/tx99.c
-index 9b05ffb68c34a..95544ce05acf9 100644
---- a/drivers/net/wireless/ath/ath9k/tx99.c
-+++ b/drivers/net/wireless/ath/ath9k/tx99.c
-@@ -54,6 +54,7 @@ static struct sk_buff *ath9k_build_tx99_skb(struct ath_softc *sc)
- 	struct ieee80211_hdr *hdr;
- 	struct ieee80211_tx_info *tx_info;
- 	struct sk_buff *skb;
-+	struct ath_vif *avp;
- 
- 	skb = alloc_skb(len, GFP_KERNEL);
- 	if (!skb)
-@@ -71,11 +72,17 @@ static struct sk_buff *ath9k_build_tx99_skb(struct ath_softc *sc)
- 	memcpy(hdr->addr2, hw->wiphy->perm_addr, ETH_ALEN);
- 	memcpy(hdr->addr3, hw->wiphy->perm_addr, ETH_ALEN);
- 
-+	if (sc->tx99_vif) {
-+		avp = (struct ath_vif *) sc->tx99_vif->drv_priv;
-+		hdr->seq_ctrl |= cpu_to_le16(avp->seq_no);
-+	}
-+
- 	tx_info = IEEE80211_SKB_CB(skb);
- 	memset(tx_info, 0, sizeof(*tx_info));
- 	rate = &tx_info->control.rates[0];
- 	tx_info->band = sc->cur_chan->chandef.chan->band;
- 	tx_info->flags = IEEE80211_TX_CTL_NO_ACK;
-+	tx_info->control.vif = sc->tx99_vif;
- 	rate->count = 1;
- 	if (ah->curchan && IS_CHAN_HT(ah->curchan)) {
- 		rate->flags |= IEEE80211_TX_RC_MCS;
-diff --git a/drivers/net/wireless/ath/ath9k/xmit.c b/drivers/net/wireless/ath/ath9k/xmit.c
-index 3ae8d0585b6f3..4b7a7fc2a0fe0 100644
---- a/drivers/net/wireless/ath/ath9k/xmit.c
-+++ b/drivers/net/wireless/ath/ath9k/xmit.c
-@@ -2974,7 +2974,7 @@ int ath9k_tx99_send(struct ath_softc *sc, struct sk_buff *skb,
- 		return -EINVAL;
- 	}
- 
--	ath_set_rates(NULL, NULL, bf);
-+	ath_set_rates(sc->tx99_vif, NULL, bf);
- 
- 	ath9k_hw_set_desc_link(sc->sc_ah, bf->bf_desc, bf->bf_daddr);
- 	ath9k_hw_tx99_start(sc->sc_ah, txctl->txq->axq_qnum);
 -- 
 2.20.1
 
