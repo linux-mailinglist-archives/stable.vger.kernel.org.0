@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC21AF55E2
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C0A0F55E4
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731528AbfKHTF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:05:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35536 "EHLO mail.kernel.org"
+        id S1731555AbfKHTF2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:05:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388576AbfKHTFZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:05:25 -0500
+        id S2390462AbfKHTF1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:05:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C57F620650;
-        Fri,  8 Nov 2019 19:05:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DFD02067B;
+        Fri,  8 Nov 2019 19:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239924;
-        bh=SnSrBVejywLMeyE9C0F/6AVkXlcUCkdN+mdYWqUZVu8=;
+        s=default; t=1573239926;
+        bh=QkelrQeDpMB5g0UJzJENR2b4+5kFAu4fE4coBk7cjFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y5JyML/dwbG4UOZLhHNM5oFZ3aDNWguArjCZHrTQ4Zp7fjzQiKlFuKEiSKcHfkVXi
-         I+Ng5YL6R1xTqmkE8BlYweMwpVZosU3s4anadyI8Ucao9ur778okwO0x8a4PvR1j3K
-         h+OsQZKADgKsCz+6SzLl3KmO5BOexocv8Hnqzku0=
+        b=0cAtIfKNF59FsVyTBcG6ZNDUqgCB+3DALgi7MWg5tu6RPoMGUoRjiFLB7qhO+SZOM
+         qO/K/h1HcG596NgwZJtFHRLi/97S65GKVACpJUHRCaXme7lwUQecHFaa9WocGoWj3f
+         0a4mQgKZ6cPDm73GYOgopNsQoZRgt/NlkFp6h9LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harald Geyer <harald@ccbib.org>,
-        "Jared D. McNeill" <jmcneill@NetBSD.org>,
-        Vasily Khoruzhick <anarsoul@gmail.com>,
-        Emmanuel Vadot <manu@FreeBSD.org>,
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
         Maxime Ripard <mripard@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 007/140] arm64: dts: allwinner: a64: Drop PMU node
-Date:   Fri,  8 Nov 2019 19:48:55 +0100
-Message-Id: <20191108174901.368958757@linuxfoundation.org>
+Subject: [PATCH 5.3 008/140] arm64: dts: allwinner: a64: sopine-baseboard: Add PHY regulator delay
+Date:   Fri,  8 Nov 2019 19:48:56 +0100
+Message-Id: <20191108174901.478751742@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
 References: <20191108174900.189064908@linuxfoundation.org>
@@ -47,46 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Khoruzhick <anarsoul@gmail.com>
+From: Jernej Skrabec <jernej.skrabec@siol.net>
 
-[ Upstream commit ed3e9406bcbc32f84dc4aa4cb4767852e5ab086c ]
+[ Upstream commit ccdf3aaa27ded6db9a93eed3ca7468bb2353b8fe ]
 
-Looks like PMU in A64 is broken, it generates no interrupts at all and
-as result 'perf top' shows no events.
+It turns out that sopine-baseboard needs same fix as pine64-plus
+for ethernet PHY. Here too Realtek ethernet PHY chip needs additional
+power on delay to properly initialize. Datasheet mentions that chip
+needs 30 ms to be properly powered on and that it needs some more time
+to be initialized.
 
-Tested on Pine64-LTS.
+Fix that by adding 100ms ramp delay to regulator responsible for
+powering PHY.
 
-Fixes: 34a97fcc71c2 ("arm64: dts: allwinner: a64: Add PMU node")
-Cc: Harald Geyer <harald@ccbib.org>
-Cc: Jared D. McNeill <jmcneill@NetBSD.org>
-Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Reviewed-by: Emmanuel Vadot <manu@FreeBSD.org>
+Note that issue was found out and fix tested on pine64-lts, but it's
+basically the same as sopine-baseboard, only layout and connectors
+differ.
+
+Fixes: bdfe4cebea11 ("arm64: allwinner: a64: add Ethernet PHY regulator for several boards")
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
 Signed-off-by: Maxime Ripard <mripard@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi | 9 ---------
- 1 file changed, 9 deletions(-)
+ .../boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts      | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-index 9cc9bdde81ac2..cd92f546c4838 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64.dtsi
-@@ -142,15 +142,6 @@
- 		clock-output-names = "ext-osc32k";
- 	};
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
+index e6fb9683f2135..25099202c52c9 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-sopine-baseboard.dts
+@@ -159,6 +159,12 @@
+ };
  
--	pmu {
--		compatible = "arm,cortex-a53-pmu";
--		interrupts = <GIC_SPI 152 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 153 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 154 IRQ_TYPE_LEVEL_HIGH>,
--			     <GIC_SPI 155 IRQ_TYPE_LEVEL_HIGH>;
--		interrupt-affinity = <&cpu0>, <&cpu1>, <&cpu2>, <&cpu3>;
--	};
--
- 	psci {
- 		compatible = "arm,psci-0.2";
- 		method = "smc";
+ &reg_dc1sw {
++	/*
++	 * Ethernet PHY needs 30ms to properly power up and some more
++	 * to initialize. 100ms should be plenty of time to finish
++	 * whole process.
++	 */
++	regulator-enable-ramp-delay = <100000>;
+ 	regulator-name = "vcc-phy";
+ };
+ 
 -- 
 2.20.1
 
