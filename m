@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0C9F4696
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:43:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC63BF469B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:43:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390456AbfKHLn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:43:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57886 "EHLO mail.kernel.org"
+        id S2390499AbfKHLng (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:43:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390443AbfKHLn0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:43:26 -0500
+        id S2390498AbfKHLnf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:43:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AE3521D82;
-        Fri,  8 Nov 2019 11:43:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E58B7222D1;
+        Fri,  8 Nov 2019 11:43:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213405;
-        bh=bQI38G0uBLoRUHG1bRD67xPvAwdXeHP+L7g8f44DKqI=;
+        s=default; t=1573213414;
+        bh=66ajkt9iM6MDmOPzzY+y7AnWo/Vg7+hhgie9nPB1eoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YNgNNCs1+QseJn0New/+fTmRHCAQUudt/09UPrueUjdgzKXz6ItLeJbpXxIT7yY2U
-         swSvZVU/CU2Qrv3JEDzVZhCuELXtvuV62RZrKb5I2XDN0pifjLNv3GQEoOPFqUgBRh
-         stoYTTCu1dWqolUhf99J/2LdMdgBx1ut15CHjEDU=
+        b=Hmj5zx5bGZKPJ7L4vczycPv80RtVsL+drE8g5srLX6HGeCq0BaYsriuSqmNao3L7Y
+         M0GZjmw8Bp5X6g8/FLFEXz7qA1wjYOG1S9+aET2PgUP1B2DgZXdwRa7By0gDvrEqPY
+         5c+MUOPT/i1R2kZ+u0tKBMvd49KeUTxhIcNVDrUQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 010/103] rtc: rv8803: fix the rv8803 id in the OF table
-Date:   Fri,  8 Nov 2019 06:41:35 -0500
-Message-Id: <20191108114310.14363-10-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.14 017/103] gfs2: Don't set GFS2_RDF_UPTODATE when the lvb is updated
+Date:   Fri,  8 Nov 2019 06:41:42 -0500
+Message-Id: <20191108114310.14363-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -42,31 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit c856618d20662695fcdb47bf4d560dc457662aec ]
+[ Upstream commit 4f36cb36c9d14340bb200d2ad9117b03ce992cfe ]
 
-The ID for RV8803 must be rv_8803
+The GFS2_RDF_UPTODATE flag in the rgrp is used to determine when
+a rgrp buffer is valid. It's cleared when the glock is invalidated,
+signifying that the buffer data is now invalid. But before this
+patch, function update_rgrp_lvb was setting the flag when it
+determined it had a valid lvb. But that's an invalid assumption:
+just because you have a valid lvb doesn't mean you have valid
+buffers. After all, another node may have made the lvb valid,
+and this node just fetched it from the glock via dlm.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Consider this scenario:
+1. The file system is mounted with RGRPLVB option.
+2. In gfs2_inplace_reserve it locks the rgrp glock EX, but thanks
+   to GL_SKIP, it skips the gfs2_rgrp_bh_get.
+3. Since loops == 0 and the allocation target (ap->target) is
+   bigger than the largest known chunk of blocks in the rgrp
+   (rs->rs_rbm.rgd->rd_extfail_pt) it skips that rgrp and bypasses
+   the call to gfs2_rgrp_bh_get there as well.
+4. update_rgrp_lvb sees the lvb MAGIC number is valid, so bypasses
+   gfs2_rgrp_bh_get, but it still sets sets GFS2_RDF_UPTODATE due
+   to this invalid assumption.
+5. The next time update_rgrp_lvb is called, it sees the bit is set
+   and just returns 0, assuming both the lvb and rgrp are both
+   uptodate. But since this is a smaller allocation, or space has
+   been freed by another node, thus adjusting the lvb values,
+   it decides to use the rgrp for allocations, with invalid rd_free
+   due to the fact it was never updated.
+
+This patch changes update_rgrp_lvb so it doesn't set the UPTODATE
+flag anymore. That way, it has no choice but to fetch the latest
+values.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-rv8803.c | 2 +-
+ fs/gfs2/rgrp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-rv8803.c b/drivers/rtc/rtc-rv8803.c
-index aae2576741a61..6e06fb3b0b928 100644
---- a/drivers/rtc/rtc-rv8803.c
-+++ b/drivers/rtc/rtc-rv8803.c
-@@ -622,7 +622,7 @@ MODULE_DEVICE_TABLE(i2c, rv8803_id);
- static const struct of_device_id rv8803_of_match[] = {
- 	{
- 		.compatible = "microcrystal,rv8803",
--		.data = (void *)rx_8900
-+		.data = (void *)rv_8803
- 	},
- 	{
- 		.compatible = "epson,rx8900",
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index b0eee90738ff4..0d72baae51509 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1201,7 +1201,7 @@ static int update_rgrp_lvb(struct gfs2_rgrpd *rgd)
+ 	rl_flags = be32_to_cpu(rgd->rd_rgl->rl_flags);
+ 	rl_flags &= ~GFS2_RDF_MASK;
+ 	rgd->rd_flags &= GFS2_RDF_MASK;
+-	rgd->rd_flags |= (rl_flags | GFS2_RDF_UPTODATE | GFS2_RDF_CHECK);
++	rgd->rd_flags |= (rl_flags | GFS2_RDF_CHECK);
+ 	if (rgd->rd_rgl->rl_unlinked == 0)
+ 		rgd->rd_flags &= ~GFS2_RDF_CHECK;
+ 	rgd->rd_free = be32_to_cpu(rgd->rd_rgl->rl_free);
 -- 
 2.20.1
 
