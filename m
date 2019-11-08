@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74C89F53DC
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57E4AF53ED
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726804AbfKHSwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:52:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48282 "EHLO mail.kernel.org"
+        id S1731610AbfKHSwk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:52:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726394AbfKHSwH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:52:07 -0500
+        id S1731605AbfKHSwj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:52:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC65D2087E;
-        Fri,  8 Nov 2019 18:52:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AE63214DB;
+        Fri,  8 Nov 2019 18:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239127;
-        bh=USMjmXUw22LlFO1YGkbIfAKSOwExD4n4ycItUQoQCHs=;
+        s=default; t=1573239158;
+        bh=owHE3ZeIOv3rXmhivjkG2BGzQ+rYjTJYyoFrtT9JlVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHKxqwHkS8MET/ZAfk+D1qzwWuR6iQ06bo8151j5TNCak0FflwcnbXBtGNogTLPo2
-         AB/C45mn1hP2L6bxohgu3o1tcZDRDowikYg5LUr+XY9eDh9pI4wF3RKR3A/LNzkjDd
-         9JPCg3hx9yTVE+WIyoSG7i8+jYNBSwbeDsxTSsaA=
+        b=MOr730Svp1dqJerTrM/GbvBthL/jzPFMLyHwVLJVuUJCx9wBG9uB/gobknYOqKf/m
+         ZDVmGt+2urcne9MCrGCMpRfaxsNKhaNZHStOnKuWNmb5MSzqBu22j6iX6ldbhkugxG
+         7VASS3uoRl7tHqUnBcG0U7iFKRzW1y7cFzoUqA8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seth Forshee <seth.forshee@canonical.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
+        Nishanth Menon <nm@ti.com>, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 01/75] kbuild: add -fcf-protection=none when using retpoline flags
-Date:   Fri,  8 Nov 2019 19:49:18 +0100
-Message-Id: <20191108174708.947436520@linuxfoundation.org>
+Subject: [PATCH 4.4 02/75] regulator: ti-abb: Fix timeout in ti_abb_wait_txdone/ti_abb_clear_all_txdone
+Date:   Fri,  8 Nov 2019 19:49:19 +0100
+Message-Id: <20191108174709.534712459@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
 References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,41 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Forshee <seth.forshee@canonical.com>
+From: Axel Lin <axel.lin@ingics.com>
 
-[ Upstream commit 29be86d7f9cb18df4123f309ac7857570513e8bc ]
+[ Upstream commit f64db548799e0330897c3203680c2ee795ade518 ]
 
-The gcc -fcf-protection=branch option is not compatible with
--mindirect-branch=thunk-extern. The latter is used when
-CONFIG_RETPOLINE is selected, and this will fail to build with
-a gcc which has -fcf-protection=branch enabled by default. Adding
--fcf-protection=none when building with retpoline enabled
-prevents such build failures.
+ti_abb_wait_txdone() may return -ETIMEDOUT when ti_abb_check_txdone()
+returns true in the latest iteration of the while loop because the timeout
+value is abb->settling_time + 1. Similarly, ti_abb_clear_all_txdone() may
+return -ETIMEDOUT when ti_abb_check_txdone() returns false in the latest
+iteration of the while loop. Fix it.
 
-Signed-off-by: Seth Forshee <seth.forshee@canonical.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Axel Lin <axel.lin@ingics.com>
+Acked-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/20190929095848.21960-1-axel.lin@ingics.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Makefile | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/regulator/ti-abb-regulator.c | 26 ++++++++------------------
+ 1 file changed, 8 insertions(+), 18 deletions(-)
 
-diff --git a/Makefile b/Makefile
-index 6b09890b170cd..43d0a98a9fe60 100644
---- a/Makefile
-+++ b/Makefile
-@@ -823,6 +823,12 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=strict-prototypes)
- # Prohibit date/time macros, which would make the build non-deterministic
- KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
+diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
+index d2f9942987535..6d17357b3a248 100644
+--- a/drivers/regulator/ti-abb-regulator.c
++++ b/drivers/regulator/ti-abb-regulator.c
+@@ -173,19 +173,14 @@ static int ti_abb_wait_txdone(struct device *dev, struct ti_abb *abb)
+ 	while (timeout++ <= abb->settling_time) {
+ 		status = ti_abb_check_txdone(abb);
+ 		if (status)
+-			break;
++			return 0;
  
-+# ensure -fcf-protection is disabled when using retpoline as it is
-+# incompatible with -mindirect-branch=thunk-extern
-+ifdef CONFIG_RETPOLINE
-+KBUILD_CFLAGS += $(call cc-option,-fcf-protection=none)
-+endif
-+
- # use the deterministic mode of AR if available
- KBUILD_ARFLAGS := $(call ar-option,D)
+ 		udelay(1);
+ 	}
  
+-	if (timeout > abb->settling_time) {
+-		dev_warn_ratelimited(dev,
+-				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
+-				     __func__, timeout, readl(abb->int_base));
+-		return -ETIMEDOUT;
+-	}
+-
+-	return 0;
++	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
++			     __func__, timeout, readl(abb->int_base));
++	return -ETIMEDOUT;
+ }
+ 
+ /**
+@@ -205,19 +200,14 @@ static int ti_abb_clear_all_txdone(struct device *dev, const struct ti_abb *abb)
+ 
+ 		status = ti_abb_check_txdone(abb);
+ 		if (!status)
+-			break;
++			return 0;
+ 
+ 		udelay(1);
+ 	}
+ 
+-	if (timeout > abb->settling_time) {
+-		dev_warn_ratelimited(dev,
+-				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
+-				     __func__, timeout, readl(abb->int_base));
+-		return -ETIMEDOUT;
+-	}
+-
+-	return 0;
++	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
++			     __func__, timeout, readl(abb->int_base));
++	return -ETIMEDOUT;
+ }
+ 
+ /**
 -- 
 2.20.1
 
