@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7709F5403
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC8CF5446
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732304AbfKHSxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:53:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49990 "EHLO mail.kernel.org"
+        id S2387827AbfKHSzw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:55:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732293AbfKHSxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:53:23 -0500
+        id S1730810AbfKHSzv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:55:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BE5E21924;
-        Fri,  8 Nov 2019 18:53:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 966FA21D7F;
+        Fri,  8 Nov 2019 18:55:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239202;
-        bh=uzsmDvzuczXlA0AHuxY816KKdpnievb3gfSuNS9tpm8=;
+        s=default; t=1573239345;
+        bh=VEGzoeTLT8lvGWnWPd25boqWXP9L00aDYn7nZXOnfPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QFpJYXS9OzobqDbti3T9sPaW3iuKT1/kRG3gXv27CR1uHd5YVq2xZIYvgyrjUqDk3
-         B1HjTewpBfKPcFnhYsPRuC3KNp3/mXVUkzEo+DkWkAr8/9sJLSYiqp0/hvN4b8d5DL
-         NlqyrCc7p20PXXsyb/MGKcGCKFbf+vxE1tMYqUb0=
+        b=ONptGQM18LRqrTZyrDbioTJ+F2Q76jNihm3hFNMw1ZtGh/bRQ4+s7uYsUq19j7FG1
+         fODF9CJKovevWhmIH53hyABquHKmQO/XJZ2VL5sJgBqtrsoUh+1yzWd3b8EnraAVGh
+         rjlpKKH0uOxlx2/93t2kGc6NWUo4YjAvZ0BXixKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Robin Murphy <robin.murphy@arm.com>,
         Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Marc Zyngier <marc.zyngier@arm.com>,
@@ -34,9 +33,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Greg Hackmann <ghackmann@google.com>,
         Ard Biesheuvel <ardb@kernel.org>,
         Mark Rutland <mark.rutland@arm.com>
-Subject: [PATCH 4.4 33/75] firmware/psci: Expose PSCI conduit
-Date:   Fri,  8 Nov 2019 19:49:50 +0100
-Message-Id: <20191108174742.289495161@linuxfoundation.org>
+Subject: [PATCH 4.4 36/75] arm/arm64: smccc: Implement SMCCC v1.1 inline primitive
+Date:   Fri,  8 Nov 2019 19:49:53 +0100
+Message-Id: <20191108174745.026583460@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
 References: <20191108174708.135680837@linuxfoundation.org>
@@ -51,13 +50,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit 09a8d6d48499f93e2abde691f5800081cd858726 upstream.
+commit f2d3b2e8759a5833df6f022e42df2d581e6d843c upstream.
 
-In order to call into the firmware to apply workarounds, it is
-useful to find out whether we're using HVC or SMC. Let's expose
-this through the psci_ops.
+One of the major improvement of SMCCC v1.1 is that it only clobbers
+the first 4 registers, both on 32 and 64bit. This means that it
+becomes very easy to provide an inline version of the SMC call
+primitive, and avoid performing a function call to stash the
+registers that would otherwise be clobbered by SMCCC v1.0.
 
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Reviewed-by: Robin Murphy <robin.murphy@arm.com>
 Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
@@ -68,92 +68,157 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/psci.c |   28 +++++++++++++++++++++++-----
- include/linux/psci.h    |    7 +++++++
- 2 files changed, 30 insertions(+), 5 deletions(-)
+ include/linux/arm-smccc.h |  141 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 141 insertions(+)
 
---- a/drivers/firmware/psci.c
-+++ b/drivers/firmware/psci.c
-@@ -55,7 +55,9 @@ bool psci_tos_resident_on(int cpu)
- 	return cpu == resident_cpu;
- }
+--- a/include/linux/arm-smccc.h
++++ b/include/linux/arm-smccc.h
+@@ -123,5 +123,146 @@ asmlinkage void arm_smccc_hvc(unsigned l
+ 			unsigned long a5, unsigned long a6, unsigned long a7,
+ 			struct arm_smccc_res *res);
  
--struct psci_operations psci_ops;
-+struct psci_operations psci_ops = {
-+	.conduit = PSCI_CONDUIT_NONE,
-+};
- 
- typedef unsigned long (psci_fn)(unsigned long, unsigned long,
- 				unsigned long, unsigned long);
-@@ -206,6 +208,22 @@ static unsigned long psci_migrate_info_u
- 			      0, 0, 0);
- }
- 
-+static void set_conduit(enum psci_conduit conduit)
-+{
-+	switch (conduit) {
-+	case PSCI_CONDUIT_HVC:
-+		invoke_psci_fn = __invoke_psci_fn_hvc;
-+		break;
-+	case PSCI_CONDUIT_SMC:
-+		invoke_psci_fn = __invoke_psci_fn_smc;
-+		break;
-+	default:
-+		WARN(1, "Unexpected PSCI conduit %d\n", conduit);
-+	}
++/* SMCCC v1.1 implementation madness follows */
++#ifdef CONFIG_ARM64
 +
-+	psci_ops.conduit = conduit;
-+}
++#define SMCCC_SMC_INST	"smc	#0"
++#define SMCCC_HVC_INST	"hvc	#0"
 +
- static int get_set_conduit_method(struct device_node *np)
- {
- 	const char *method;
-@@ -218,9 +236,9 @@ static int get_set_conduit_method(struct
- 	}
- 
- 	if (!strcmp("hvc", method)) {
--		invoke_psci_fn = __invoke_psci_fn_hvc;
-+		set_conduit(PSCI_CONDUIT_HVC);
- 	} else if (!strcmp("smc", method)) {
--		invoke_psci_fn = __invoke_psci_fn_smc;
-+		set_conduit(PSCI_CONDUIT_SMC);
- 	} else {
- 		pr_warn("invalid \"method\" property: %s\n", method);
- 		return -EINVAL;
-@@ -480,9 +498,9 @@ int __init psci_acpi_init(void)
- 	pr_info("probing for conduit method from ACPI.\n");
- 
- 	if (acpi_psci_use_hvc())
--		invoke_psci_fn = __invoke_psci_fn_hvc;
-+		set_conduit(PSCI_CONDUIT_HVC);
- 	else
--		invoke_psci_fn = __invoke_psci_fn_smc;
-+		set_conduit(PSCI_CONDUIT_SMC);
- 
- 	return psci_probe();
- }
---- a/include/linux/psci.h
-+++ b/include/linux/psci.h
-@@ -24,6 +24,12 @@ bool psci_tos_resident_on(int cpu);
- bool psci_power_state_loses_context(u32 state);
- bool psci_power_state_is_valid(u32 state);
- 
-+enum psci_conduit {
-+	PSCI_CONDUIT_NONE,
-+	PSCI_CONDUIT_SMC,
-+	PSCI_CONDUIT_HVC,
-+};
++#elif defined(CONFIG_ARM)
++#include <asm/opcodes-sec.h>
++#include <asm/opcodes-virt.h>
 +
- struct psci_operations {
- 	int (*cpu_suspend)(u32 state, unsigned long entry_point);
- 	int (*cpu_off)(u32 state);
-@@ -32,6 +38,7 @@ struct psci_operations {
- 	int (*affinity_info)(unsigned long target_affinity,
- 			unsigned long lowest_affinity_level);
- 	int (*migrate_info_type)(void);
-+	enum psci_conduit conduit;
- };
- 
- extern struct psci_operations psci_ops;
++#define SMCCC_SMC_INST	__SMC(0)
++#define SMCCC_HVC_INST	__HVC(0)
++
++#endif
++
++#define ___count_args(_0, _1, _2, _3, _4, _5, _6, _7, _8, x, ...) x
++
++#define __count_args(...)						\
++	___count_args(__VA_ARGS__, 7, 6, 5, 4, 3, 2, 1, 0)
++
++#define __constraint_write_0						\
++	"+r" (r0), "=&r" (r1), "=&r" (r2), "=&r" (r3)
++#define __constraint_write_1						\
++	"+r" (r0), "+r" (r1), "=&r" (r2), "=&r" (r3)
++#define __constraint_write_2						\
++	"+r" (r0), "+r" (r1), "+r" (r2), "=&r" (r3)
++#define __constraint_write_3						\
++	"+r" (r0), "+r" (r1), "+r" (r2), "+r" (r3)
++#define __constraint_write_4	__constraint_write_3
++#define __constraint_write_5	__constraint_write_4
++#define __constraint_write_6	__constraint_write_5
++#define __constraint_write_7	__constraint_write_6
++
++#define __constraint_read_0
++#define __constraint_read_1
++#define __constraint_read_2
++#define __constraint_read_3
++#define __constraint_read_4	"r" (r4)
++#define __constraint_read_5	__constraint_read_4, "r" (r5)
++#define __constraint_read_6	__constraint_read_5, "r" (r6)
++#define __constraint_read_7	__constraint_read_6, "r" (r7)
++
++#define __declare_arg_0(a0, res)					\
++	struct arm_smccc_res   *___res = res;				\
++	register u32           r0 asm("r0") = a0;			\
++	register unsigned long r1 asm("r1");				\
++	register unsigned long r2 asm("r2");				\
++	register unsigned long r3 asm("r3")
++
++#define __declare_arg_1(a0, a1, res)					\
++	struct arm_smccc_res   *___res = res;				\
++	register u32           r0 asm("r0") = a0;			\
++	register typeof(a1)    r1 asm("r1") = a1;			\
++	register unsigned long r2 asm("r2");				\
++	register unsigned long r3 asm("r3")
++
++#define __declare_arg_2(a0, a1, a2, res)				\
++	struct arm_smccc_res   *___res = res;				\
++	register u32           r0 asm("r0") = a0;			\
++	register typeof(a1)    r1 asm("r1") = a1;			\
++	register typeof(a2)    r2 asm("r2") = a2;			\
++	register unsigned long r3 asm("r3")
++
++#define __declare_arg_3(a0, a1, a2, a3, res)				\
++	struct arm_smccc_res   *___res = res;				\
++	register u32           r0 asm("r0") = a0;			\
++	register typeof(a1)    r1 asm("r1") = a1;			\
++	register typeof(a2)    r2 asm("r2") = a2;			\
++	register typeof(a3)    r3 asm("r3") = a3
++
++#define __declare_arg_4(a0, a1, a2, a3, a4, res)			\
++	__declare_arg_3(a0, a1, a2, a3, res);				\
++	register typeof(a4) r4 asm("r4") = a4
++
++#define __declare_arg_5(a0, a1, a2, a3, a4, a5, res)			\
++	__declare_arg_4(a0, a1, a2, a3, a4, res);			\
++	register typeof(a5) r5 asm("r5") = a5
++
++#define __declare_arg_6(a0, a1, a2, a3, a4, a5, a6, res)		\
++	__declare_arg_5(a0, a1, a2, a3, a4, a5, res);			\
++	register typeof(a6) r6 asm("r6") = a6
++
++#define __declare_arg_7(a0, a1, a2, a3, a4, a5, a6, a7, res)		\
++	__declare_arg_6(a0, a1, a2, a3, a4, a5, a6, res);		\
++	register typeof(a7) r7 asm("r7") = a7
++
++#define ___declare_args(count, ...) __declare_arg_ ## count(__VA_ARGS__)
++#define __declare_args(count, ...)  ___declare_args(count, __VA_ARGS__)
++
++#define ___constraints(count)						\
++	: __constraint_write_ ## count					\
++	: __constraint_read_ ## count					\
++	: "memory"
++#define __constraints(count)	___constraints(count)
++
++/*
++ * We have an output list that is not necessarily used, and GCC feels
++ * entitled to optimise the whole sequence away. "volatile" is what
++ * makes it stick.
++ */
++#define __arm_smccc_1_1(inst, ...)					\
++	do {								\
++		__declare_args(__count_args(__VA_ARGS__), __VA_ARGS__);	\
++		asm volatile(inst "\n"					\
++			     __constraints(__count_args(__VA_ARGS__)));	\
++		if (___res)						\
++			*___res = (typeof(*___res)){r0, r1, r2, r3};	\
++	} while (0)
++
++/*
++ * arm_smccc_1_1_smc() - make an SMCCC v1.1 compliant SMC call
++ *
++ * This is a variadic macro taking one to eight source arguments, and
++ * an optional return structure.
++ *
++ * @a0-a7: arguments passed in registers 0 to 7
++ * @res: result values from registers 0 to 3
++ *
++ * This macro is used to make SMC calls following SMC Calling Convention v1.1.
++ * The content of the supplied param are copied to registers 0 to 7 prior
++ * to the SMC instruction. The return values are updated with the content
++ * from register 0 to 3 on return from the SMC instruction if not NULL.
++ */
++#define arm_smccc_1_1_smc(...)	__arm_smccc_1_1(SMCCC_SMC_INST, __VA_ARGS__)
++
++/*
++ * arm_smccc_1_1_hvc() - make an SMCCC v1.1 compliant HVC call
++ *
++ * This is a variadic macro taking one to eight source arguments, and
++ * an optional return structure.
++ *
++ * @a0-a7: arguments passed in registers 0 to 7
++ * @res: result values from registers 0 to 3
++ *
++ * This macro is used to make HVC calls following SMC Calling Convention v1.1.
++ * The content of the supplied param are copied to registers 0 to 7 prior
++ * to the HVC instruction. The return values are updated with the content
++ * from register 0 to 3 on return from the HVC instruction if not NULL.
++ */
++#define arm_smccc_1_1_hvc(...)	__arm_smccc_1_1(SMCCC_HVC_INST, __VA_ARGS__)
++
+ #endif /*__ASSEMBLY__*/
+ #endif /*__LINUX_ARM_SMCCC_H*/
 
 
