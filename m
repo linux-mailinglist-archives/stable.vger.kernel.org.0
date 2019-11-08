@@ -2,124 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF997F58A5
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB20F58A7
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729683AbfKHUh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 15:37:29 -0500
-Received: from mout.kundenserver.de ([212.227.17.10]:43475 "EHLO
+        id S1729617AbfKHUh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 15:37:59 -0500
+Received: from mout.kundenserver.de ([212.227.17.24]:60679 "EHLO
         mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729617AbfKHUh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 15:37:29 -0500
+        with ESMTP id S1726349AbfKHUh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 15:37:59 -0500
 Received: from threadripper.lan ([149.172.19.189]) by mrelayeu.kundenserver.de
  (mreue107 [212.227.15.145]) with ESMTPA (Nemesis) id
- 1MJW5G-1iDiWE2fua-00Jr4T; Fri, 08 Nov 2019 21:37:18 +0100
+ 1M9Evp-1iWjmN29CR-006RBe; Fri, 08 Nov 2019 21:37:48 +0100
 From:   Arnd Bergmann <arnd@arndb.de>
-To:     y2038@lists.linaro.org,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     y2038@lists.linaro.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        stable@vger.kernel.org,
-        Bamvor Jian Zhang <bamvor.zhangjian@linaro.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 7/8] ppdev: fix PPGETTIME/PPSETTIME ioctls
-Date:   Fri,  8 Nov 2019 21:34:30 +0100
-Message-Id: <20191108203435.112759-8-arnd@arndb.de>
+        sparclinux@vger.kernel.org,
+        "David S. Miller" <davem@davemloft.net>, stable@vger.kernel.org,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-input@vger.kernel.org
+Subject: [PATCH 8/8] Input: input_event: fix struct padding on sparc64
+Date:   Fri,  8 Nov 2019 21:34:31 +0100
+Message-Id: <20191108203435.112759-9-arnd@arndb.de>
 X-Mailer: git-send-email 2.20.0
 In-Reply-To: <20191108203435.112759-1-arnd@arndb.de>
 References: <20191108203435.112759-1-arnd@arndb.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:qYLl7Lv1RPZHuaMmx5Y4HTBUG3IUIT6OHrwxfxk1rYIY9q0J5mB
- ID3W+2I3bIRJN9pb9/4We7gDyPXbqHtuj1j4jbHZqPHOQssbaXzIS5oG4kS2fmZvcPatud4
- 28UbJl9c5SgBe7fdAKp7oJ+CbG/oBp2vCDyjiOe+T82VoBh+JiGWqcuzcRbpDWbUGG9ilIT
- oXkl6SZaCeu/b9K9+rWgA==
+X-Provags-ID: V03:K1:u6kVp9UKD+j5V6nf6JiBnsKaa0LcdKVi2XG79PhwgluwxaPn537
+ JqX1+w4EzLmlGXpLjxX9AvVL+FsYlf7H6657Eapb17jd5kmqUqyaJHFBxnMPnUd4juxe6KT
+ gRpRzLHS22sv0vGG9873r88aFqFY8GB1dGUaJUbh67CrdY3MMA9TlE3CGVC1wvOspK+YRBE
+ tWERzIcvD8mD0C9zkhlRQ==
 X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:27jegMmATLs=:NTdMdmiXmyy5b2BfGtixk+
- QSkp4BY2cue8C4JNNeidfsutKRhw3wMg3l/slepabQusaphf9a2XzM/Xib4pCK19c/jh6uVYw
- qgoqRcope7ZcvaczaCTqwuVEOQ19cb1yCth63skQddVaME5+3q0OiGk14MCUEu+SyPOElob9b
- Qn/YeUBZAR3oXA2iHAYPA7mROXI3Bn7dgaIShyHnylMLGP2uqmZMOllngsqQHKIWE89EWnRug
- 18W44axbZpxj22LSrEmOeVvaa4iJIkOdHDnXjF6hx8fT24K5b1x9XnNBqnzPwuOG0bYWl8D3+
- tDSlHep+MWILVxEz0z2VBYIFRb/gqAtqd0edvpKxcnv4Q6auK3yIGRJayQS962j4gNgOndn77
- 0fXWlAP0cS3hrK6+4LrfRAdwDWQEM2OYpI5pP7j/hi8Wm+jrmvLn9PYgU68KOKoPMCa1q2Yhj
- h9nfnueEp5sP8Y6GnRXHD51s4wdw6vjhs9M6W5j4NodYDU1pyZiWYbKIAlPNRF6eH7l5AQjsS
- ogCgJxDmRvlDQ1MdM2xC0EnxSzjPcLA7GGrAWgVfNevSn0DIwiUxCtGZIiFgo/HG/2reHnWw2
- 2cMlV1d4OLUq6tEx14Z8gWn5FdQBJpS3h1RQDXv5keY2Lbz/EBwscpvG+QqeHjF2SXoz/OBpH
- T4vEyyqnuyq1z4hRmUI0mYY+hNztZI18aZDDo+/iy9qlGDbIc0PCwp1/RHEdM5Xjfoy9+7Jmm
- MTgQ64hTlGXkXWvKrIp/7yenLu4c9AKDQqLC42HchjLAPJ6crLFiylBhIItSCnYqCWe8Tyle3
- mNAzDqk5r3RJ1GgTpL4QW8DP8nhhYfuSFLqdmsNXGmvrPVtcClQZK5bb+XFwFrqMAehuhAUZN
- BhhYhfG6EkYlzncjY87g==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:QoQHUljkwik=:jlY4L3FT8f0wD8u1XiFw7Z
+ h3+AyZXRuq5c8ebfbAH/dp8y2Q5jMb+GbbhsPaEA2a7MPF1PF/N8JuK+q2AFFRuQJcHecE6M2
+ wyIrgZ4fyGSpTREXcdY8PDWuk/NtBKzZuKkXyHreMWKYQub8/FI5mePtE7aORk/e14hj/mB2O
+ ERwQFQyraRgE7aYwcH5d4B5CZX+k89/xrvFv2kNZc5Z5PmRNkIN/dfMDxpD9aNji++3uKGg5K
+ AgkohYYZmv9XNXkwL4dC3iSCaEca5btoxk2/9tcBUUVMJRhDwgL0bAJpyaGLxrp9+H3ktoABj
+ aUtYxzpSgzDnIhxNLyYgM00SIurLlTKQ2fzkQaOvqxXIi4CAcyLH1rfiJPGo+GCK3zdNV0Qbk
+ 1tWSII8WsC8sUNoRFhra6Om83Cthg66/7Lsnsvg7fKe3SlHkJpiJBzCxl3eSI/6XAkKG9OWWc
+ owcuBuy3UuodiSTwazfxz3NQMGzvnKY+wGFVxuEYPPkJ6JHrVYCd+5k4SnScsgSHJmg3p/yzv
+ mApihJBs6/Xj8PCPN688hICGCI4M/ldYU4qdniL17PGVFqVE6QB7E1cu1mOVvvgYUsudeZtcg
+ b9b0JX0eKZAb1NfjT445ZS3XzyifaRdVy4gi/coV2v9AHQP8DkYepKymu7sYuKjOSP7D/Z9/v
+ f5+XK1Qa4rLaE+NmzvrJxEItcA6IKiB814x53Xq2UjTXCL767wY+LuxXdNdewEwAcjaf+9AqF
+ 4iTvqs2QG0ugID76PJtSFqafr2c+sFqAflhL5Rc1RDkBWSQEUKPY3LJtUvVXP/CWSb0K3R14B
+ Z3HQVxs+9OTO5jfMMLic3qWm8pn596v8xSot4nX0YnaO5nZSRxY4d0rIjcHMmLjGXxEqFG4m9
+ uUXYlF7efhWsZ7UEubSA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Going through the uses of timeval in the user space API,
-I noticed two bugs in ppdev that were introduced in the y2038
-conversion:
+Going through all uses of timeval, I noticed that we screwed up
+input_event in the previous attempts to fix it:
 
-* The range check was accidentally moved from ppsettime to
-  ppgettime
+The time fields now match between kernel and user space, but
+all following fields are in the wrong place.
 
-* On sparc64, the microseconds are in the other half of the
-  64-bit word.
+Add the required padding that is implied by the glibc timeval
+definition to fix the layout, and add explicit initialization
+to avoid leaking kernel stack data.
 
-Fix both, and mark the fix for stable backports.
-
+Cc: sparclinux@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>
 Cc: stable@vger.kernel.org
-Fixes: 3b9ab374a1e6 ("ppdev: convert to y2038 safe")
+Fixes: 141e5dcaa735 ("Input: input_event - fix the CONFIG_SPARC64 mixup")
+Fixes: 2e746942ebac ("Input: input_event - provide override for sparc64")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/char/ppdev.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/input/evdev.c       | 3 +++
+ drivers/input/misc/uinput.c | 3 +++
+ include/uapi/linux/input.h  | 1 +
+ 3 files changed, 7 insertions(+)
 
-diff --git a/drivers/char/ppdev.c b/drivers/char/ppdev.c
-index c86f18aa8985..34bb88fe0b0a 100644
---- a/drivers/char/ppdev.c
-+++ b/drivers/char/ppdev.c
-@@ -619,20 +619,27 @@ static int pp_do_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		if (copy_from_user(time32, argp, sizeof(time32)))
- 			return -EFAULT;
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index d7dd6fcf2db0..24a90793caf0 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -228,6 +228,9 @@ static void __pass_event(struct evdev_client *client,
+ 						event->input_event_sec;
+ 		client->buffer[client->tail].input_event_usec =
+ 						event->input_event_usec;
++#ifdef CONFIG_SPARC64
++		client->buffer[client->tail].__pad = 0;
++#endif
+ 		client->buffer[client->tail].type = EV_SYN;
+ 		client->buffer[client->tail].code = SYN_DROPPED;
+ 		client->buffer[client->tail].value = 0;
+diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+index 84051f20b18a..1d8c09e9fd47 100644
+--- a/drivers/input/misc/uinput.c
++++ b/drivers/input/misc/uinput.c
+@@ -80,6 +80,9 @@ static int uinput_dev_event(struct input_dev *dev,
+ 	ktime_get_ts64(&ts);
+ 	udev->buff[udev->head].input_event_sec = ts.tv_sec;
+ 	udev->buff[udev->head].input_event_usec = ts.tv_nsec / NSEC_PER_USEC;
++#ifdef CONFIG_SPARC64
++	udev->buff[udev->head].__pad = 0;
++#endif
+ 	udev->head = (udev->head + 1) % UINPUT_BUFFER_SIZE;
  
-+		if ((time32[0] < 0) || (time32[1] < 0))
-+			return -EINVAL;
-+
- 		return pp_set_timeout(pp->pdev, time32[0], time32[1]);
- 
- 	case PPSETTIME64:
- 		if (copy_from_user(time64, argp, sizeof(time64)))
- 			return -EFAULT;
- 
-+		if ((time64[0] < 0) || (time64[1] < 0))
-+			return -EINVAL;
-+
-+		if (IS_ENABLED(CONFIG_SPARC64) && !in_compat_syscall())
-+			time64[1] >>= 32;
-+
- 		return pp_set_timeout(pp->pdev, time64[0], time64[1]);
- 
- 	case PPGETTIME32:
- 		jiffies_to_timespec64(pp->pdev->timeout, &ts);
- 		time32[0] = ts.tv_sec;
- 		time32[1] = ts.tv_nsec / NSEC_PER_USEC;
--		if ((time32[0] < 0) || (time32[1] < 0))
--			return -EINVAL;
- 
- 		if (copy_to_user(argp, time32, sizeof(time32)))
- 			return -EFAULT;
-@@ -643,8 +650,9 @@ static int pp_do_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		jiffies_to_timespec64(pp->pdev->timeout, &ts);
- 		time64[0] = ts.tv_sec;
- 		time64[1] = ts.tv_nsec / NSEC_PER_USEC;
--		if ((time64[0] < 0) || (time64[1] < 0))
--			return -EINVAL;
-+
-+		if (IS_ENABLED(CONFIG_SPARC64) && !in_compat_syscall())
-+			time64[1] <<= 32;
- 
- 		if (copy_to_user(argp, time64, sizeof(time64)))
- 			return -EFAULT;
+ 	wake_up_interruptible(&udev->waitq);
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index f056b2a00d5c..9a61c28ed3ae 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -34,6 +34,7 @@ struct input_event {
+ 	__kernel_ulong_t __sec;
+ #if defined(__sparc__) && defined(__arch64__)
+ 	unsigned int __usec;
++	unsigned int __pad;
+ #else
+ 	__kernel_ulong_t __usec;
+ #endif
 -- 
 2.20.0
 
