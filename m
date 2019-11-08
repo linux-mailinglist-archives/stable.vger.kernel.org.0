@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A2C79F5510
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3398CF5746
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389563AbfKHTAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:00:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57254 "EHLO mail.kernel.org"
+        id S2389174AbfKHTTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:19:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389528AbfKHTAM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:12 -0500
+        id S2389455AbfKHTAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:00:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5914F20865;
-        Fri,  8 Nov 2019 18:57:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79EBE2249A;
+        Fri,  8 Nov 2019 18:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239437;
-        bh=NhFgaETRNIdu3H6KVQg/gsjF9aOflfa/TtuGfDhAfsU=;
+        s=default; t=1573239520;
+        bh=ibnqHHkk4twvcCo4esDFArvVEjPCwfMW+JZc9ZVkvJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BINZZl72TS5AT2wtw9Qae0KuYtlu0supKa4csgYFNTEM1VMqyZpbI1O7laTqBz4dF
-         J0pNyp8VMcooCp/7C8/YtHgclGEj3xAsRHmO2RcHYkvF4JddTq1ano0m8ItZVQGBi1
-         UhLk+Z9/zXI59JGAq5dNwh5Y7CjFo+Ah4rPHRbgU=
+        b=cREx3mau0C9cxEf5Vj+cWLvL0ADDoUE5URSMOdAyZ1+8JgzvqyYHgn07ugsqPNGTp
+         KN7tIFsvM3ZtBxkxuzZHkWCeClmYC1EZKvIOqrbSNg+P2qjFxJUSmeQGIHbjuoZN7i
+         LtmFkXvgral//7gSWdGSTDuoJVA9dgFHoRgs8vfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Sekhar Nori <nsekhar@ti.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 13/34] ARM: davinci: dm365: Fix McBSP dma_slave_map entry
+        stable@vger.kernel.org, zhanglin <zhang.lin16@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 32/62] net: Zeroing the structure ethtool_wolinfo in ethtool_get_wol()
 Date:   Fri,  8 Nov 2019 19:50:20 +0100
-Message-Id: <20191108174633.284473354@linuxfoundation.org>
+Message-Id: <20191108174744.445261116@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
-References: <20191108174618.266472504@linuxfoundation.org>
+In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
+References: <20191108174719.228826381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@ti.com>
+From: zhanglin <zhang.lin16@zte.com.cn>
 
-[ Upstream commit 564b6bb9d42d31fc80c006658cf38940a9b99616 ]
+[ Upstream commit 5ff223e86f5addbfae26419cbb5d61d98f6fbf7d ]
 
-dm365 have only single McBSP, so the device name is without .0
+memset() the structure ethtool_wolinfo that has padded bytes
+but the padded bytes have not been zeroed out.
 
-Fixes: 0c750e1fe481d ("ARM: davinci: dm365: Add dma_slave_map to edma")
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Sekhar Nori <nsekhar@ti.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: zhanglin <zhang.lin16@zte.com.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-davinci/dm365.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/ethtool.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-davinci/dm365.c b/arch/arm/mach-davinci/dm365.c
-index ef3add9992631..8db549c56914d 100644
---- a/arch/arm/mach-davinci/dm365.c
-+++ b/arch/arm/mach-davinci/dm365.c
-@@ -864,8 +864,8 @@ static s8 dm365_queue_priority_mapping[][2] = {
- };
+--- a/net/core/ethtool.c
++++ b/net/core/ethtool.c
+@@ -1450,11 +1450,13 @@ static int ethtool_reset(struct net_devi
  
- static const struct dma_slave_map dm365_edma_map[] = {
--	{ "davinci-mcbsp.0", "tx", EDMA_FILTER_PARAM(0, 2) },
--	{ "davinci-mcbsp.0", "rx", EDMA_FILTER_PARAM(0, 3) },
-+	{ "davinci-mcbsp", "tx", EDMA_FILTER_PARAM(0, 2) },
-+	{ "davinci-mcbsp", "rx", EDMA_FILTER_PARAM(0, 3) },
- 	{ "davinci_voicecodec", "tx", EDMA_FILTER_PARAM(0, 2) },
- 	{ "davinci_voicecodec", "rx", EDMA_FILTER_PARAM(0, 3) },
- 	{ "spi_davinci.2", "tx", EDMA_FILTER_PARAM(0, 10) },
--- 
-2.20.1
-
+ static int ethtool_get_wol(struct net_device *dev, char __user *useraddr)
+ {
+-	struct ethtool_wolinfo wol = { .cmd = ETHTOOL_GWOL };
++	struct ethtool_wolinfo wol;
+ 
+ 	if (!dev->ethtool_ops->get_wol)
+ 		return -EOPNOTSUPP;
+ 
++	memset(&wol, 0, sizeof(struct ethtool_wolinfo));
++	wol.cmd = ETHTOOL_GWOL;
+ 	dev->ethtool_ops->get_wol(dev, &wol);
+ 
+ 	if (copy_to_user(useraddr, &wol, sizeof(wol)))
 
 
