@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D38C3F5775
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7FAEF5677
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388802AbfKHTW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:22:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
+        id S2391727AbfKHTJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:09:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732317AbfKHS40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:56:26 -0500
+        id S2390974AbfKHTJA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:09:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A79F214DB;
-        Fri,  8 Nov 2019 18:56:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E9312087E;
+        Fri,  8 Nov 2019 19:08:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239385;
-        bh=L8xFWu/+/7/Nkr5p+5Zx106+m2sJDDPUmMD7Cw6e4JQ=;
+        s=default; t=1573240139;
+        bh=sKHY9Dd94AFbprDlS8ebwtCQSa7E7TSTpXFGfINHDFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7z3BhGw43Nsvi1dD0UOQkAT3Zd/kmT/wYUM8w//5bJorj7XcyWEHFiMQ3b37QD/b
-         3a8rq4j3jx5YVBA1MM8Jd0MUEBZxb39yZ/QQTS+Cs7brpIee0up/T3nHG7dX7F+Fr0
-         PG8oDr7fp0jPHJ5GCH9htQew8MCrMocITQ7+OW9E=
+        b=WxVHc8JlgYh6akklhVwi0zSKVGvyup0Z1HbsV8p1AUWOxbseSxf+r+HTjUES8gLss
+         csowlyYXJvFhq0riT75dT8S67SwyVjklcXMBExN6f44tXk0h6/3ik5M7QoSf8OTwXq
+         Lf297L6Zj357ISN5ereVgi5p295p4u0IPd1Z4k24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Wei Wang <weiwan@google.com>,
-        Craig Gallek <cgallek@google.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 22/34] selftests: net: reuseport_dualstack: fix uninitalized parameter
+Subject: [PATCH 5.3 101/140] net: use skb_queue_empty_lockless() in busy poll contexts
 Date:   Fri,  8 Nov 2019 19:50:29 +0100
-Message-Id: <20191108174643.100159854@linuxfoundation.org>
+Message-Id: <20191108174911.338812481@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
-References: <20191108174618.266472504@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +43,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d64479a3e3f9924074ca7b50bd72fa5211dca9c1 ]
+[ Upstream commit 3f926af3f4d688e2e11e7f8ed04e277a14d4d4a4 ]
 
-This test reports EINVAL for getsockopt(SOL_SOCKET, SO_DOMAIN)
-occasionally due to the uninitialized length parameter.
-Initialize it to fix this, and also use int for "test_family" to comply
-with the API standard.
+Busy polling usually runs without locks.
+Let's use skb_queue_empty_lockless() instead of skb_queue_empty()
 
-Fixes: d6a61f80b871 ("soreuseport: test mixed v4/v6 sockets")
-Reported-by: Maciej Żenczykowski <maze@google.com>
+Also uses READ_ONCE() in __skb_try_recv_datagram() to address
+a similar potential problem.
+
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Cc: Craig Gallek <cgallek@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/reuseport_dualstack.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/crypto/chelsio/chtls/chtls_io.c |    2 +-
+ net/core/datagram.c                     |    2 +-
+ net/core/sock.c                         |    2 +-
+ net/ipv4/tcp.c                          |    2 +-
+ net/sctp/socket.c                       |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/tools/testing/selftests/net/reuseport_dualstack.c
-+++ b/tools/testing/selftests/net/reuseport_dualstack.c
-@@ -128,7 +128,7 @@ static void test(int *rcv_fds, int count
+--- a/drivers/crypto/chelsio/chtls/chtls_io.c
++++ b/drivers/crypto/chelsio/chtls/chtls_io.c
+@@ -1701,7 +1701,7 @@ int chtls_recvmsg(struct sock *sk, struc
+ 		return peekmsg(sk, msg, len, nonblock, flags);
+ 
+ 	if (sk_can_busy_loop(sk) &&
+-	    skb_queue_empty(&sk->sk_receive_queue) &&
++	    skb_queue_empty_lockless(&sk->sk_receive_queue) &&
+ 	    sk->sk_state == TCP_ESTABLISHED)
+ 		sk_busy_loop(sk, nonblock);
+ 
+--- a/net/core/datagram.c
++++ b/net/core/datagram.c
+@@ -278,7 +278,7 @@ struct sk_buff *__skb_try_recv_datagram(
+ 			break;
+ 
+ 		sk_busy_loop(sk, flags & MSG_DONTWAIT);
+-	} while (sk->sk_receive_queue.prev != *last);
++	} while (READ_ONCE(sk->sk_receive_queue.prev) != *last);
+ 
+ 	error = -EAGAIN;
+ 
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -3593,7 +3593,7 @@ bool sk_busy_loop_end(void *p, unsigned
  {
- 	struct epoll_event ev;
- 	int epfd, i, test_fd;
--	uint16_t test_family;
-+	int test_family;
- 	socklen_t len;
+ 	struct sock *sk = p;
  
- 	epfd = epoll_create(1);
-@@ -145,6 +145,7 @@ static void test(int *rcv_fds, int count
- 	send_from_v4(proto);
+-	return !skb_queue_empty(&sk->sk_receive_queue) ||
++	return !skb_queue_empty_lockless(&sk->sk_receive_queue) ||
+ 	       sk_busy_loop_timeout(sk, start_time);
+ }
+ EXPORT_SYMBOL(sk_busy_loop_end);
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -1961,7 +1961,7 @@ int tcp_recvmsg(struct sock *sk, struct
+ 	if (unlikely(flags & MSG_ERRQUEUE))
+ 		return inet_recv_error(sk, msg, len, addr_len);
  
- 	test_fd = receive_once(epfd, proto);
-+	len = sizeof(test_family);
- 	if (getsockopt(test_fd, SOL_SOCKET, SO_DOMAIN, &test_family, &len))
- 		error(1, errno, "failed to read socket domain");
- 	if (test_family != AF_INET)
+-	if (sk_can_busy_loop(sk) && skb_queue_empty(&sk->sk_receive_queue) &&
++	if (sk_can_busy_loop(sk) && skb_queue_empty_lockless(&sk->sk_receive_queue) &&
+ 	    (sk->sk_state == TCP_ESTABLISHED))
+ 		sk_busy_loop(sk, nonblock);
+ 
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -8724,7 +8724,7 @@ struct sk_buff *sctp_skb_recv_datagram(s
+ 		if (sk_can_busy_loop(sk)) {
+ 			sk_busy_loop(sk, noblock);
+ 
+-			if (!skb_queue_empty(&sk->sk_receive_queue))
++			if (!skb_queue_empty_lockless(&sk->sk_receive_queue))
+ 				continue;
+ 		}
+ 
 
 
