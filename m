@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAEE2F5667
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B46C9F5567
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391657AbfKHTIh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:08:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39672 "EHLO mail.kernel.org"
+        id S1731430AbfKHTCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:02:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391653AbfKHTIh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:08:37 -0500
+        id S2390448AbfKHTCK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:02:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E83AE21D7B;
-        Fri,  8 Nov 2019 19:08:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC0B8222C9;
+        Fri,  8 Nov 2019 19:02:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240116;
-        bh=q+racp7Mz0gV5r1vHVmNXLTrn3k8gMza3q2qAFEI0aw=;
+        s=default; t=1573239729;
+        bh=yu+rq+SA466Xn7ml/q+o8rWhDnka4/eh7uZ3ek7ak78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CenRFLhwo597sS4PuJZSSJ26KbSJubFJ/Tsld/n3Ag8sa9fQywQALzwf2V8XyIDj0
-         Q33GABuvGnbkaJIn8enWK23NJq5YOMldHrD+uUoIoORMvmsYqSOOn8M2aJKZlJNXhY
-         vW2gKcFhqvCtZw2mEUvKVJRkXeHNmmGfvrFKr1sg=
+        b=bok2G+NHZCjmNvpHOlhFE8lyJg30O7K8Bwb2BKb4H+7xHhEia7+7VpqoAyR0+jFAH
+         Ikfo2epy+NQ2KxY31BBfzJnqNxweN6y7niK2baMf7IrnljcQiTqkhj0TlaNrkRwFhK
+         iO6Kb7J0PJFs6G77VenDHPCqpWk/ktQHP7iZy/Lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhanglin <zhang.lin16@zte.com.cn>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 094/140] net: Zeroing the structure ethtool_wolinfo in ethtool_get_wol()
+Subject: [PATCH 4.19 42/79] net: annotate lockless accesses to sk->sk_napi_id
 Date:   Fri,  8 Nov 2019 19:50:22 +0100
-Message-Id: <20191108174910.977017478@linuxfoundation.org>
+Message-Id: <20191108174810.358804365@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhanglin <zhang.lin16@zte.com.cn>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5ff223e86f5addbfae26419cbb5d61d98f6fbf7d ]
+[ Upstream commit ee8d153d46a3b98c064ee15c0c0a3bbf1450e5a1 ]
 
-memset() the structure ethtool_wolinfo that has padded bytes
-but the padded bytes have not been zeroed out.
+We already annotated most accesses to sk->sk_napi_id
 
-Signed-off-by: zhanglin <zhang.lin16@zte.com.cn>
+We missed sk_mark_napi_id() and sk_mark_napi_id_once()
+which might be called without socket lock held in UDP stack.
+
+KCSAN reported :
+BUG: KCSAN: data-race in udpv6_queue_rcv_one_skb / udpv6_queue_rcv_one_skb
+
+write to 0xffff888121c6d108 of 4 bytes by interrupt on cpu 0:
+ sk_mark_napi_id include/net/busy_poll.h:125 [inline]
+ __udpv6_queue_rcv_skb net/ipv6/udp.c:571 [inline]
+ udpv6_queue_rcv_one_skb+0x70c/0xb40 net/ipv6/udp.c:672
+ udpv6_queue_rcv_skb+0xb5/0x400 net/ipv6/udp.c:689
+ udp6_unicast_rcv_skb.isra.0+0xd7/0x180 net/ipv6/udp.c:832
+ __udp6_lib_rcv+0x69c/0x1770 net/ipv6/udp.c:913
+ udpv6_rcv+0x2b/0x40 net/ipv6/udp.c:1015
+ ip6_protocol_deliver_rcu+0x22a/0xbe0 net/ipv6/ip6_input.c:409
+ ip6_input_finish+0x30/0x50 net/ipv6/ip6_input.c:450
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip6_input+0x177/0x190 net/ipv6/ip6_input.c:459
+ dst_input include/net/dst.h:442 [inline]
+ ip6_rcv_finish+0x110/0x140 net/ipv6/ip6_input.c:76
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ipv6_rcv+0x1a1/0x1b0 net/ipv6/ip6_input.c:284
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
+ process_backlog+0x1d3/0x420 net/core/dev.c:5955
+ napi_poll net/core/dev.c:6392 [inline]
+ net_rx_action+0x3ae/0xa90 net/core/dev.c:6460
+
+write to 0xffff888121c6d108 of 4 bytes by interrupt on cpu 1:
+ sk_mark_napi_id include/net/busy_poll.h:125 [inline]
+ __udpv6_queue_rcv_skb net/ipv6/udp.c:571 [inline]
+ udpv6_queue_rcv_one_skb+0x70c/0xb40 net/ipv6/udp.c:672
+ udpv6_queue_rcv_skb+0xb5/0x400 net/ipv6/udp.c:689
+ udp6_unicast_rcv_skb.isra.0+0xd7/0x180 net/ipv6/udp.c:832
+ __udp6_lib_rcv+0x69c/0x1770 net/ipv6/udp.c:913
+ udpv6_rcv+0x2b/0x40 net/ipv6/udp.c:1015
+ ip6_protocol_deliver_rcu+0x22a/0xbe0 net/ipv6/ip6_input.c:409
+ ip6_input_finish+0x30/0x50 net/ipv6/ip6_input.c:450
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip6_input+0x177/0x190 net/ipv6/ip6_input.c:459
+ dst_input include/net/dst.h:442 [inline]
+ ip6_rcv_finish+0x110/0x140 net/ipv6/ip6_input.c:76
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ipv6_rcv+0x1a1/0x1b0 net/ipv6/ip6_input.c:284
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
+ process_backlog+0x1d3/0x420 net/core/dev.c:5955
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 10890 Comm: syz-executor.0 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: e68b6e50fa35 ("udp: enable busy polling for all sockets")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/ethtool.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/net/busy_poll.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -1395,11 +1395,13 @@ static int ethtool_reset(struct net_devi
- 
- static int ethtool_get_wol(struct net_device *dev, char __user *useraddr)
+--- a/include/net/busy_poll.h
++++ b/include/net/busy_poll.h
+@@ -134,7 +134,7 @@ static inline void skb_mark_napi_id(stru
+ static inline void sk_mark_napi_id(struct sock *sk, const struct sk_buff *skb)
  {
--	struct ethtool_wolinfo wol = { .cmd = ETHTOOL_GWOL };
-+	struct ethtool_wolinfo wol;
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+-	sk->sk_napi_id = skb->napi_id;
++	WRITE_ONCE(sk->sk_napi_id, skb->napi_id);
+ #endif
+ 	sk_rx_queue_set(sk, skb);
+ }
+@@ -144,8 +144,8 @@ static inline void sk_mark_napi_id_once(
+ 					const struct sk_buff *skb)
+ {
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+-	if (!sk->sk_napi_id)
+-		sk->sk_napi_id = skb->napi_id;
++	if (!READ_ONCE(sk->sk_napi_id))
++		WRITE_ONCE(sk->sk_napi_id, skb->napi_id);
+ #endif
+ }
  
- 	if (!dev->ethtool_ops->get_wol)
- 		return -EOPNOTSUPP;
- 
-+	memset(&wol, 0, sizeof(struct ethtool_wolinfo));
-+	wol.cmd = ETHTOOL_GWOL;
- 	dev->ethtool_ops->get_wol(dev, &wol);
- 
- 	if (copy_to_user(useraddr, &wol, sizeof(wol)))
 
 
