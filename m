@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC63BF469B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C6BF46A5
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:44:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390499AbfKHLng (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:43:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58098 "EHLO mail.kernel.org"
+        id S2390638AbfKHLoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:44:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390498AbfKHLnf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:43:35 -0500
+        id S2387894AbfKHLoC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:44:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E58B7222D1;
-        Fri,  8 Nov 2019 11:43:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 811702245A;
+        Fri,  8 Nov 2019 11:44:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213414;
-        bh=66ajkt9iM6MDmOPzzY+y7AnWo/Vg7+hhgie9nPB1eoI=;
+        s=default; t=1573213441;
+        bh=vBOqu7GzsbHaGf7lKcTUOnA8+j2QHZ/DVsBHpJURgDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hmj5zx5bGZKPJ7L4vczycPv80RtVsL+drE8g5srLX6HGeCq0BaYsriuSqmNao3L7Y
-         M0GZjmw8Bp5X6g8/FLFEXz7qA1wjYOG1S9+aET2PgUP1B2DgZXdwRa7By0gDvrEqPY
-         5c+MUOPT/i1R2kZ+u0tKBMvd49KeUTxhIcNVDrUQ=
+        b=QZKF5jHYfPpCtBOUDE/0MkPYOTU3XdNXIDzy2Llro5VUgBkKVSuMZnQ450sx8id/H
+         +Pzrvp+iWj2WhTeVNjSGUzHxXeE5p7omx2nbLCfM1CXy4j5/Si5woK+YS0C0M4GvJj
+         uh0S3yw+WNLkOpI4Mea6RZTtpwsrIveR2qMRaF10=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bob Peterson <rpeterso@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 017/103] gfs2: Don't set GFS2_RDF_UPTODATE when the lvb is updated
-Date:   Fri,  8 Nov 2019 06:41:42 -0500
-Message-Id: <20191108114310.14363-17-sashal@kernel.org>
+Cc:     Quentin Schulz <quentin.schulz@bootlin.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 035/103] net: phy: mscc: read 'vsc8531,vddmac' as an u32
+Date:   Fri,  8 Nov 2019 06:42:00 -0500
+Message-Id: <20191108114310.14363-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -42,60 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Quentin Schulz <quentin.schulz@bootlin.com>
 
-[ Upstream commit 4f36cb36c9d14340bb200d2ad9117b03ce992cfe ]
+[ Upstream commit a993e0f583c7925adaa7721226ccd7a41e7e63d1 ]
 
-The GFS2_RDF_UPTODATE flag in the rgrp is used to determine when
-a rgrp buffer is valid. It's cleared when the glock is invalidated,
-signifying that the buffer data is now invalid. But before this
-patch, function update_rgrp_lvb was setting the flag when it
-determined it had a valid lvb. But that's an invalid assumption:
-just because you have a valid lvb doesn't mean you have valid
-buffers. After all, another node may have made the lvb valid,
-and this node just fetched it from the glock via dlm.
+In the DT binding, it is specified nowhere that 'vsc8531,vddmac' is an
+u16, even though it's read as an u16 in the driver.
 
-Consider this scenario:
-1. The file system is mounted with RGRPLVB option.
-2. In gfs2_inplace_reserve it locks the rgrp glock EX, but thanks
-   to GL_SKIP, it skips the gfs2_rgrp_bh_get.
-3. Since loops == 0 and the allocation target (ap->target) is
-   bigger than the largest known chunk of blocks in the rgrp
-   (rs->rs_rbm.rgd->rd_extfail_pt) it skips that rgrp and bypasses
-   the call to gfs2_rgrp_bh_get there as well.
-4. update_rgrp_lvb sees the lvb MAGIC number is valid, so bypasses
-   gfs2_rgrp_bh_get, but it still sets sets GFS2_RDF_UPTODATE due
-   to this invalid assumption.
-5. The next time update_rgrp_lvb is called, it sees the bit is set
-   and just returns 0, assuming both the lvb and rgrp are both
-   uptodate. But since this is a smaller allocation, or space has
-   been freed by another node, thus adjusting the lvb values,
-   it decides to use the rgrp for allocations, with invalid rd_free
-   due to the fact it was never updated.
+Let's update the driver to take into consideration that the
+'vsc8531,vddmac' property is of the default type u32.
 
-This patch changes update_rgrp_lvb so it doesn't set the UPTODATE
-flag anymore. That way, it has no choice but to fetch the latest
-values.
-
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Quentin Schulz <quentin.schulz@bootlin.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/mscc.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index b0eee90738ff4..0d72baae51509 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1201,7 +1201,7 @@ static int update_rgrp_lvb(struct gfs2_rgrpd *rgd)
- 	rl_flags = be32_to_cpu(rgd->rd_rgl->rl_flags);
- 	rl_flags &= ~GFS2_RDF_MASK;
- 	rgd->rd_flags &= GFS2_RDF_MASK;
--	rgd->rd_flags |= (rl_flags | GFS2_RDF_UPTODATE | GFS2_RDF_CHECK);
-+	rgd->rd_flags |= (rl_flags | GFS2_RDF_CHECK);
- 	if (rgd->rd_rgl->rl_unlinked == 0)
- 		rgd->rd_flags &= ~GFS2_RDF_CHECK;
- 	rgd->rd_free = be32_to_cpu(rgd->rd_rgl->rl_free);
+diff --git a/drivers/net/phy/mscc.c b/drivers/net/phy/mscc.c
+index 650c2667d523d..88bcdbcb432cc 100644
+--- a/drivers/net/phy/mscc.c
++++ b/drivers/net/phy/mscc.c
+@@ -111,7 +111,7 @@ struct vsc8531_private {
+ 
+ #ifdef CONFIG_OF_MDIO
+ struct vsc8531_edge_rate_table {
+-	u16 vddmac;
++	u32 vddmac;
+ 	u8 slowdown[8];
+ };
+ 
+@@ -376,7 +376,7 @@ static void vsc85xx_wol_get(struct phy_device *phydev,
+ static int vsc85xx_edge_rate_magic_get(struct phy_device *phydev)
+ {
+ 	u8 sd;
+-	u16 vdd;
++	u32 vdd;
+ 	int rc, i, j;
+ 	struct device *dev = &phydev->mdio.dev;
+ 	struct device_node *of_node = dev->of_node;
+@@ -385,7 +385,7 @@ static int vsc85xx_edge_rate_magic_get(struct phy_device *phydev)
+ 	if (!of_node)
+ 		return -ENODEV;
+ 
+-	rc = of_property_read_u16(of_node, "vsc8531,vddmac", &vdd);
++	rc = of_property_read_u32(of_node, "vsc8531,vddmac", &vdd);
+ 	if (rc != 0)
+ 		vdd = MSCC_VDDMAC_3300;
+ 
 -- 
 2.20.1
 
