@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79070F53EB
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 353A8F53EF
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731507AbfKHSwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:52:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48944 "EHLO mail.kernel.org"
+        id S1731684AbfKHSwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:52:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731483AbfKHSwg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:52:36 -0500
+        id S1731605AbfKHSwm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:52:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B258321D7E;
-        Fri,  8 Nov 2019 18:52:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69D16214DB;
+        Fri,  8 Nov 2019 18:52:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239156;
-        bh=Nltidl9nOoh1f2F+7murHOmp8tnBH76sMED4nsQk5mY=;
+        s=default; t=1573239161;
+        bh=81n0pooKY1Xkc0ogZGHwYM9jhBtueGj6wMJOZ08ZO5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BFX3hSQ905Zo/lHe3JnUut2FMR19pWD3fHasQLrvIjfF7ixBTeB8Lg7hGA4PkhAP
-         gRoD4BldfZIFfeHs2ngtT62UCKFEQvFdFfPHAd3yhGfjLTSEieI0p+UE4jiy62MCfX
-         rzruDTgmqz8rBT3+D7iCUJrrhF3oYc7hG8ikUy2E=
+        b=iJVe7qMCEscVnZHGb3vHqNtY0iUyBfKUfnrrzRWgFZrihgmPLb9QGIXtm3qBrnv25
+         p9eSb5QKlyoaQf66cn15Va6AUkn3irq1GcgJW12SSj3VohBS8hv40IJ+PqwYGGcYhz
+         fXCj4UDyvoZmT7HYAaIgdOTbu3Ow8uicSrnVH5hE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Tariq Toukan <tariqt@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 19/75] vxlan: check tun_info options_len properly
-Date:   Fri,  8 Nov 2019 19:49:36 +0100
-Message-Id: <20191108174726.087323143@linuxfoundation.org>
+Subject: [PATCH 4.4 20/75] net/mlx4_core: Dynamically set guaranteed amount of counters per VF
+Date:   Fri,  8 Nov 2019 19:49:37 +0100
+Message-Id: <20191108174726.898574485@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
 References: <20191108174708.135680837@linuxfoundation.org>
@@ -43,37 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit eadf52cf1852196a1363044dcda22fa5d7f296f7 ]
+[ Upstream commit e19868efea0c103f23b4b7e986fd0a703822111f ]
 
-This patch is to improve the tun_info options_len by dropping
-the skb when TUNNEL_VXLAN_OPT is set but options_len is less
-than vxlan_metadata. This can void a potential out-of-bounds
-access on ip_tun_info.
+Prior to this patch, the amount of counters guaranteed per VF in the
+resource tracker was MLX4_VF_COUNTERS_PER_PORT * MLX4_MAX_PORTS. It was
+set regardless if the VF was single or dual port.
+This caused several VFs to have no guaranteed counters although the
+system could satisfy their request.
 
-Fixes: ee122c79d422 ("vxlan: Flow based tunneling")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+The fix is to dynamically guarantee counters, based on each VF
+specification.
+
+Fixes: 9de92c60beaa ("net/mlx4_core: Adjust counter grant policy in the resource tracker")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/vxlan.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx4/resource_tracker.c |   42 +++++++++++-------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
 
---- a/drivers/net/vxlan.c
-+++ b/drivers/net/vxlan.c
-@@ -2006,8 +2006,11 @@ static void vxlan_xmit_one(struct sk_buf
- 		ttl = info->key.ttl;
- 		tos = info->key.tos;
+--- a/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
++++ b/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
+@@ -463,12 +463,31 @@ void mlx4_init_quotas(struct mlx4_dev *d
+ 		priv->mfunc.master.res_tracker.res_alloc[RES_MPT].quota[pf];
+ }
  
--		if (info->options_len)
-+		if (info->options_len) {
-+			if (info->options_len < sizeof(*md))
-+				goto drop;
- 			md = ip_tunnel_info_opts(info);
-+		}
- 	} else {
- 		md->gbp = skb->mark;
- 	}
+-static int get_max_gauranteed_vfs_counter(struct mlx4_dev *dev)
++static int
++mlx4_calc_res_counter_guaranteed(struct mlx4_dev *dev,
++				 struct resource_allocator *res_alloc,
++				 int vf)
+ {
+-	/* reduce the sink counter */
+-	return (dev->caps.max_counters - 1 -
+-		(MLX4_PF_COUNTERS_PER_PORT * MLX4_MAX_PORTS))
+-		/ MLX4_MAX_PORTS;
++	struct mlx4_active_ports actv_ports;
++	int ports, counters_guaranteed;
++
++	/* For master, only allocate according to the number of phys ports */
++	if (vf == mlx4_master_func_num(dev))
++		return MLX4_PF_COUNTERS_PER_PORT * dev->caps.num_ports;
++
++	/* calculate real number of ports for the VF */
++	actv_ports = mlx4_get_active_ports(dev, vf);
++	ports = bitmap_weight(actv_ports.ports, dev->caps.num_ports);
++	counters_guaranteed = ports * MLX4_VF_COUNTERS_PER_PORT;
++
++	/* If we do not have enough counters for this VF, do not
++	 * allocate any for it. '-1' to reduce the sink counter.
++	 */
++	if ((res_alloc->res_reserved + counters_guaranteed) >
++	    (dev->caps.max_counters - 1))
++		return 0;
++
++	return counters_guaranteed;
+ }
+ 
+ int mlx4_init_resource_tracker(struct mlx4_dev *dev)
+@@ -476,7 +495,6 @@ int mlx4_init_resource_tracker(struct ml
+ 	struct mlx4_priv *priv = mlx4_priv(dev);
+ 	int i, j;
+ 	int t;
+-	int max_vfs_guarantee_counter = get_max_gauranteed_vfs_counter(dev);
+ 
+ 	priv->mfunc.master.res_tracker.slave_list =
+ 		kzalloc(dev->num_slaves * sizeof(struct slave_list),
+@@ -593,16 +611,8 @@ int mlx4_init_resource_tracker(struct ml
+ 				break;
+ 			case RES_COUNTER:
+ 				res_alloc->quota[t] = dev->caps.max_counters;
+-				if (t == mlx4_master_func_num(dev))
+-					res_alloc->guaranteed[t] =
+-						MLX4_PF_COUNTERS_PER_PORT *
+-						MLX4_MAX_PORTS;
+-				else if (t <= max_vfs_guarantee_counter)
+-					res_alloc->guaranteed[t] =
+-						MLX4_VF_COUNTERS_PER_PORT *
+-						MLX4_MAX_PORTS;
+-				else
+-					res_alloc->guaranteed[t] = 0;
++				res_alloc->guaranteed[t] =
++					mlx4_calc_res_counter_guaranteed(dev, res_alloc, t);
+ 				res_alloc->res_free -= res_alloc->guaranteed[t];
+ 				break;
+ 			default:
 
 
