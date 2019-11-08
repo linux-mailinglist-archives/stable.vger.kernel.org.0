@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1590DF5578
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DACEBF54D7
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390598AbfKHTCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:02:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60362 "EHLO mail.kernel.org"
+        id S2387531AbfKHSza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:55:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390588AbfKHTCk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:02:40 -0500
+        id S2387504AbfKHSz3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:55:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFCBC214DB;
-        Fri,  8 Nov 2019 19:02:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B91120865;
+        Fri,  8 Nov 2019 18:55:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239758;
-        bh=6elECeKqNAc5dMrEOCSnn8CogZkyVM4opF6iM+8jqVU=;
+        s=default; t=1573239321;
+        bh=+3VcyUp/A4wUfZUTyKpsRPmiL8cfFBaBUdLzuwzK3r0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTxQkmmbo0J427vR3f7fJIXp936ooeE51qEKGJxhLQO2PG1j5x9aLpZR9iU9GKOnf
-         HTss4H9OGHi726mLfylfySZRmGd2xVegA/J81YKmW4uv8TtOCJD88Job2UMkJyJcuW
-         kX2RQra5CDrFjBdB79jgT34h0T/XJBO+cQKiCack=
+        b=hLwWwbLYp6Sr/3M/NwfJ+0f01aa785aMArt7q0NC7n8GcSrYasKQzLKPWnC5h2yd1
+         66pPxyNJ65N8Xs+zBF7oYyUzm3eX2K5p83h5zKQO/sipuyUPeDjn++NfD/TbALU+5I
+         M1cO/Hrysj+2dogTj1/V3iCnHUHp919xsFFvDzeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Wei Wang <weiwan@google.com>,
-        Craig Gallek <cgallek@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 51/79] selftests: net: reuseport_dualstack: fix uninitalized parameter
+        Petr Vorel <pvorel@suse.cz>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Subject: [PATCH 4.4 74/75] alarmtimer: Change remaining ENOTSUPP to EOPNOTSUPP
 Date:   Fri,  8 Nov 2019 19:50:31 +0100
-Message-Id: <20191108174815.058257840@linuxfoundation.org>
+Message-Id: <20191108174813.354911623@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
+References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,44 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Petr Vorel <pvorel@suse.cz>
 
-[ Upstream commit d64479a3e3f9924074ca7b50bd72fa5211dca9c1 ]
+Fix backport of commit f18ddc13af981ce3c7b7f26925f099e7c6929aba upstream.
 
-This test reports EINVAL for getsockopt(SOL_SOCKET, SO_DOMAIN)
-occasionally due to the uninitialized length parameter.
-Initialize it to fix this, and also use int for "test_family" to comply
-with the API standard.
+Update backport to change ENOTSUPP to EOPNOTSUPP in
+alarm_timer_{del,set}(), which were removed in
+f2c45807d3992fe0f173f34af9c347d907c31686 in v4.13-rc1.
 
-Fixes: d6a61f80b871 ("soreuseport: test mixed v4/v6 sockets")
-Reported-by: Maciej Żenczykowski <maze@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Cc: Craig Gallek <cgallek@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c22df8ea7c5831d6fdca2f6f136f0d32d7064ff9
+
+Signed-off-by: Petr Vorel <pvorel@suse.cz>
+Acked-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/reuseport_dualstack.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/time/alarmtimer.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/testing/selftests/net/reuseport_dualstack.c
-+++ b/tools/testing/selftests/net/reuseport_dualstack.c
-@@ -129,7 +129,7 @@ static void test(int *rcv_fds, int count
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -573,7 +573,7 @@ static void alarm_timer_get(struct k_iti
+ static int alarm_timer_del(struct k_itimer *timr)
  {
- 	struct epoll_event ev;
- 	int epfd, i, test_fd;
--	uint16_t test_family;
-+	int test_family;
- 	socklen_t len;
+ 	if (!rtcdev)
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
  
- 	epfd = epoll_create(1);
-@@ -146,6 +146,7 @@ static void test(int *rcv_fds, int count
- 	send_from_v4(proto);
+ 	if (alarm_try_to_cancel(&timr->it.alarm.alarmtimer) < 0)
+ 		return TIMER_RETRY;
+@@ -597,7 +597,7 @@ static int alarm_timer_set(struct k_itim
+ 	ktime_t exp;
  
- 	test_fd = receive_once(epfd, proto);
-+	len = sizeof(test_family);
- 	if (getsockopt(test_fd, SOL_SOCKET, SO_DOMAIN, &test_family, &len))
- 		error(1, errno, "failed to read socket domain");
- 	if (test_family != AF_INET)
+ 	if (!rtcdev)
+-		return -ENOTSUPP;
++		return -EOPNOTSUPP;
+ 
+ 	if (flags & ~TIMER_ABSTIME)
+ 		return -EINVAL;
 
 
