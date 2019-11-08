@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4B99F47DE
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:53:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6045FF47DF
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:53:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391449AbfKHLqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:46:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34864 "EHLO mail.kernel.org"
+        id S2391064AbfKHLxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:53:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391445AbfKHLqt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:46:49 -0500
+        id S2390515AbfKHLqw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:46:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D163D2245A;
-        Fri,  8 Nov 2019 11:46:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FA5F218AE;
+        Fri,  8 Nov 2019 11:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213609;
-        bh=v1prjkhELBhwKJpCCsadHkv68GhTa67gCjrparn07S0=;
+        s=default; t=1573213612;
+        bh=7t+zd6ApZDLHyDBXxaHnsvqdU5V0/DfKsl898ThufDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLu3RjxR0l7uVAG7HO6imnDe3EdpaUGP2ljlXR4eLNi9fllKHjR55bNQkUJVgyzOq
-         JUoqDQ70bcPmYQlUCsJKz1FBtX3noD27OF4K99xQL5yoKUnZsEytcOlBhhAf6PWilB
-         HM/6GyNfx5Oeu53v/ShChiSXTtZ7GWBYyidXqrZE=
+        b=M46XlYmndMDZSK6sl1pRCC5UR0lUxcvk5+hoI/DscbEK9aPjTtIpSTlwGDIBMvevO
+         15L58qs9EX74DBAgY7dh0tZdMcwJaDO9yzDGhIteF3UK7+GMGDLu/Nz0/oWhjyNa72
+         rf7MaVqv7pL/u9D/J5P9U6mQ7+bUZWL+PyS07ck8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Niklas Cassel <niklas.cassel@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 46/64] nvmem: core: return error code instead of NULL from nvmem_device_get
-Date:   Fri,  8 Nov 2019 06:45:27 -0500
-Message-Id: <20191108114545.15351-46-sashal@kernel.org>
+Cc:     Lao Wei <zrlw@qq.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 47/64] media: fix: media: pci: meye: validate offset to avoid arbitrary access
+Date:   Fri,  8 Nov 2019 06:45:28 -0500
+Message-Id: <20191108114545.15351-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114545.15351-1-sashal@kernel.org>
 References: <20191108114545.15351-1-sashal@kernel.org>
@@ -44,34 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Lao Wei <zrlw@qq.com>
 
-[ Upstream commit ca6ac25cecf0e740d7cc8e03e0ebbf8acbeca3df ]
+[ Upstream commit eac7230fdb4672c2cb56f6a01a1744f562c01f80 ]
 
-nvmem_device_get() should return ERR_PTR() on error or valid pointer
-on success, but one of the code path seems to return NULL, so fix it.
+Motion eye video4linux driver for Sony Vaio PictureBook desn't validate user-controlled parameter
+'vma->vm_pgoff', a malicious process might access all of kernel memory from user space by trying
+pass different arbitrary address.
+Discussion: http://www.openwall.com/lists/oss-security/2018/07/06/1
 
-Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lao Wei <zrlw@qq.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 2 +-
+ drivers/media/pci/meye/meye.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 9ca24e4d5d49c..2a0c5f3b0e509 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -609,7 +609,7 @@ static struct nvmem_device *nvmem_find(const char *name)
- 	d = bus_find_device(&nvmem_bus_type, NULL, (void *)name, nvmem_match);
+diff --git a/drivers/media/pci/meye/meye.c b/drivers/media/pci/meye/meye.c
+index ba887e8e1b171..a85c5199ccd30 100644
+--- a/drivers/media/pci/meye/meye.c
++++ b/drivers/media/pci/meye/meye.c
+@@ -1469,7 +1469,7 @@ static int meye_mmap(struct file *file, struct vm_area_struct *vma)
+ 	unsigned long page, pos;
  
- 	if (!d)
--		return NULL;
-+		return ERR_PTR(-ENOENT);
- 
- 	return to_nvmem_device(d);
- }
+ 	mutex_lock(&meye.lock);
+-	if (size > gbuffers * gbufsize) {
++	if (size > gbuffers * gbufsize || offset > gbuffers * gbufsize - size) {
+ 		mutex_unlock(&meye.lock);
+ 		return -EINVAL;
+ 	}
 -- 
 2.20.1
 
