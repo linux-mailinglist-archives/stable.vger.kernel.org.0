@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7FAEF5677
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7362F574E
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391727AbfKHTJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:09:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40362 "EHLO mail.kernel.org"
+        id S2390560AbfKHTUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:20:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390974AbfKHTJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:09:00 -0500
+        id S1731773AbfKHTAI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:00:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E9312087E;
-        Fri,  8 Nov 2019 19:08:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18ECA224F0;
+        Fri,  8 Nov 2019 18:59:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240139;
-        bh=sKHY9Dd94AFbprDlS8ebwtCQSa7E7TSTpXFGfINHDFo=;
+        s=default; t=1573239551;
+        bh=g2BON5a5jLpDiYBnmSleR8ildfbDV/YBltGJeWLKpHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WxVHc8JlgYh6akklhVwi0zSKVGvyup0Z1HbsV8p1AUWOxbseSxf+r+HTjUES8gLss
-         csowlyYXJvFhq0riT75dT8S67SwyVjklcXMBExN6f44tXk0h6/3ik5M7QoSf8OTwXq
-         Lf297L6Zj357ISN5ereVgi5p295p4u0IPd1Z4k24=
+        b=yjk3+/V1o5ZD/pC3rfeSk5B0N6dUmZsQ/6LbhvfqLg2UL5JOoWyQU3fbAIqXLcUE9
+         yt+LdtZ29ntuf6LcMajBKWpHNb48hKie8YnsG9P7+TwVTG9v9ME5YNk4ksAOm+iojF
+         tpWxUvYpGmdzeiz1FiOE3gi0GOh+QNmH/nHLwT7A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 101/140] net: use skb_queue_empty_lockless() in busy poll contexts
-Date:   Fri,  8 Nov 2019 19:50:29 +0100
-Message-Id: <20191108174911.338812481@linuxfoundation.org>
+Subject: [PATCH 4.14 42/62] net: add skb_queue_empty_lockless()
+Date:   Fri,  8 Nov 2019 19:50:30 +0100
+Message-Id: <20191108174749.326432373@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
+References: <20191108174719.228826381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,79 +45,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 3f926af3f4d688e2e11e7f8ed04e277a14d4d4a4 ]
+[ Upstream commit d7d16a89350ab263484c0aa2b523dd3a234e4a80 ]
 
-Busy polling usually runs without locks.
-Let's use skb_queue_empty_lockless() instead of skb_queue_empty()
+Some paths call skb_queue_empty() without holding
+the queue lock. We must use a barrier in order
+to not let the compiler do strange things, and avoid
+KCSAN splats.
 
-Also uses READ_ONCE() in __skb_try_recv_datagram() to address
-a similar potential problem.
+Adding a barrier in skb_queue_empty() might be overkill,
+I prefer adding a new helper to clearly identify
+points where the callers might be lockless. This might
+help us finding real bugs.
+
+The corresponding WRITE_ONCE() should add zero cost
+for current compilers.
 
 Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/chelsio/chtls/chtls_io.c |    2 +-
- net/core/datagram.c                     |    2 +-
- net/core/sock.c                         |    2 +-
- net/ipv4/tcp.c                          |    2 +-
- net/sctp/socket.c                       |    2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ include/linux/skbuff.h |   33 ++++++++++++++++++++++++---------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
---- a/drivers/crypto/chelsio/chtls/chtls_io.c
-+++ b/drivers/crypto/chelsio/chtls/chtls_io.c
-@@ -1701,7 +1701,7 @@ int chtls_recvmsg(struct sock *sk, struc
- 		return peekmsg(sk, msg, len, nonblock, flags);
- 
- 	if (sk_can_busy_loop(sk) &&
--	    skb_queue_empty(&sk->sk_receive_queue) &&
-+	    skb_queue_empty_lockless(&sk->sk_receive_queue) &&
- 	    sk->sk_state == TCP_ESTABLISHED)
- 		sk_busy_loop(sk, nonblock);
- 
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -278,7 +278,7 @@ struct sk_buff *__skb_try_recv_datagram(
- 			break;
- 
- 		sk_busy_loop(sk, flags & MSG_DONTWAIT);
--	} while (sk->sk_receive_queue.prev != *last);
-+	} while (READ_ONCE(sk->sk_receive_queue.prev) != *last);
- 
- 	error = -EAGAIN;
- 
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3593,7 +3593,7 @@ bool sk_busy_loop_end(void *p, unsigned
- {
- 	struct sock *sk = p;
- 
--	return !skb_queue_empty(&sk->sk_receive_queue) ||
-+	return !skb_queue_empty_lockless(&sk->sk_receive_queue) ||
- 	       sk_busy_loop_timeout(sk, start_time);
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1346,6 +1346,19 @@ static inline int skb_queue_empty(const
  }
- EXPORT_SYMBOL(sk_busy_loop_end);
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -1961,7 +1961,7 @@ int tcp_recvmsg(struct sock *sk, struct
- 	if (unlikely(flags & MSG_ERRQUEUE))
- 		return inet_recv_error(sk, msg, len, addr_len);
  
--	if (sk_can_busy_loop(sk) && skb_queue_empty(&sk->sk_receive_queue) &&
-+	if (sk_can_busy_loop(sk) && skb_queue_empty_lockless(&sk->sk_receive_queue) &&
- 	    (sk->sk_state == TCP_ESTABLISHED))
- 		sk_busy_loop(sk, nonblock);
+ /**
++ *	skb_queue_empty_lockless - check if a queue is empty
++ *	@list: queue head
++ *
++ *	Returns true if the queue is empty, false otherwise.
++ *	This variant can be used in lockless contexts.
++ */
++static inline bool skb_queue_empty_lockless(const struct sk_buff_head *list)
++{
++	return READ_ONCE(list->next) == (const struct sk_buff *) list;
++}
++
++
++/**
+  *	skb_queue_is_last - check if skb is the last entry in the queue
+  *	@list: queue head
+  *	@skb: buffer
+@@ -1709,9 +1722,11 @@ static inline void __skb_insert(struct s
+ 				struct sk_buff *prev, struct sk_buff *next,
+ 				struct sk_buff_head *list)
+ {
+-	newsk->next = next;
+-	newsk->prev = prev;
+-	next->prev  = prev->next = newsk;
++	/* see skb_queue_empty_lockless() for the opposite READ_ONCE() */
++	WRITE_ONCE(newsk->next, next);
++	WRITE_ONCE(newsk->prev, prev);
++	WRITE_ONCE(next->prev, newsk);
++	WRITE_ONCE(prev->next, newsk);
+ 	list->qlen++;
+ }
  
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -8724,7 +8724,7 @@ struct sk_buff *sctp_skb_recv_datagram(s
- 		if (sk_can_busy_loop(sk)) {
- 			sk_busy_loop(sk, noblock);
+@@ -1722,11 +1737,11 @@ static inline void __skb_queue_splice(co
+ 	struct sk_buff *first = list->next;
+ 	struct sk_buff *last = list->prev;
  
--			if (!skb_queue_empty(&sk->sk_receive_queue))
-+			if (!skb_queue_empty_lockless(&sk->sk_receive_queue))
- 				continue;
- 		}
+-	first->prev = prev;
+-	prev->next = first;
++	WRITE_ONCE(first->prev, prev);
++	WRITE_ONCE(prev->next, first);
  
+-	last->next = next;
+-	next->prev = last;
++	WRITE_ONCE(last->next, next);
++	WRITE_ONCE(next->prev, last);
+ }
+ 
+ /**
+@@ -1867,8 +1882,8 @@ static inline void __skb_unlink(struct s
+ 	next	   = skb->next;
+ 	prev	   = skb->prev;
+ 	skb->next  = skb->prev = NULL;
+-	next->prev = prev;
+-	prev->next = next;
++	WRITE_ONCE(next->prev, prev);
++	WRITE_ONCE(prev->next, next);
+ }
+ 
+ /**
 
 
