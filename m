@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8076AF4B1F
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EEC1F4B23
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:15:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731956AbfKHLh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:37:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50682 "EHLO mail.kernel.org"
+        id S1732031AbfKHLh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:37:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731463AbfKHLhz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:37:55 -0500
+        id S1731981AbfKHLh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:37:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D48121D6C;
-        Fri,  8 Nov 2019 11:37:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79FAC21D7E;
+        Fri,  8 Nov 2019 11:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213075;
-        bh=3pZtjJxg82RJ4bLROtW2plxaPpzpKc7U4x+pscgL8z4=;
+        s=default; t=1573213076;
+        bh=Fg5pM85VZ8gc9IacEwwS48xCug5JBY0OJ95DuXzajTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnQiv5nfxu7+ZF4kftqjg4OmVCLgGvlMhvLf+Vdu1augql35S6KSkAblA0gTkNFp7
-         eqLi+2FFhLf3iF2cz0sbWsazrNNESUKvR+pXqVLbviwObnJHhODlQNtTkGJ07zdi32
-         KaVqrnaFdhkzSzuYAm5ThMLo8R7iksPSxvmGLt18=
+        b=x5O88K7Pd2bwa14FpvcXui/gGDcwavr8FSr5g3pfkRbqKXUqV2hkX1DVfKHURot0g
+         RrktS9RR0edwgsUYe/kAfTau6O5+7deSBpgTQlN/xwK72brfvDy155+u6LHuC3JQak
+         dM4w5zPo0h4/pSFlpOnkfxjtxvnmM2ashd3uDfmE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 002/205] tee: optee: take DT status property into account
-Date:   Fri,  8 Nov 2019 06:34:29 -0500
-Message-Id: <20191108113752.12502-2-sashal@kernel.org>
+Cc:     Tamizh chelvam <tamizhr@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 003/205] ath10k: fix kernel panic by moving pci flush after napi_disable
+Date:   Fri,  8 Nov 2019 06:34:30 -0500
+Message-Id: <20191108113752.12502-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,35 +44,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+From: Tamizh chelvam <tamizhr@codeaurora.org>
 
-[ Upstream commit db878f76b9ff7487da9bb0f686153f81829f1230 ]
+[ Upstream commit bd1d395070cca4f42a93e520b0597274789274a4 ]
 
-DT nodes may have a 'status' property which, if set to anything other
-than 'ok' or 'okay', indicates to the OS that the DT node should be
-treated as if it was not present. So add that missing logic to the
-OP-TEE driver.
+When continuously running wifi up/down sequence, the napi poll
+can be scheduled after the CE buffers being freed by ath10k_pci_flush
 
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Steps:
+  In a certain condition, during wifi down below scenario might occur.
+
+ath10k_stop->ath10k_hif_stop->napi_schedule->ath10k_pci_flush->napi_poll(napi_synchronize).
+
+In the above scenario, CE buffer entries will be freed up and become NULL in
+ath10k_pci_flush. And the napi_poll has been invoked after the flush process
+and it will try to get the skb from the CE buffer entry and perform some action on that.
+Since the CE buffer already cleaned by pci flush this action will create NULL
+pointer dereference and trigger below kernel panic.
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000005c
+PC is at ath10k_pci_htt_rx_cb+0x64/0x3ec [ath10k_pci]
+ath10k_pci_htt_rx_cb [ath10k_pci]
+ath10k_ce_per_engine_service+0x74/0xc4 [ath10k_pci]
+ath10k_ce_per_engine_service [ath10k_pci]
+ath10k_ce_per_engine_service_any+0x74/0x80 [ath10k_pci]
+ath10k_ce_per_engine_service_any [ath10k_pci]
+ath10k_pci_napi_poll+0x48/0xec [ath10k_pci]
+ath10k_pci_napi_poll [ath10k_pci]
+net_rx_action+0xac/0x160
+net_rx_action
+__do_softirq+0xdc/0x208
+__do_softirq
+irq_exit+0x84/0xe0
+irq_exit
+__handle_domain_irq+0x80/0xa0
+__handle_domain_irq
+gic_handle_irq+0x38/0x5c
+gic_handle_irq
+__irq_usr+0x44/0x60
+
+Tested on QCA4019 and firmware version 10.4.3.2.1.1-00010
+
+Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tee/optee/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/ahb.c | 4 ++--
+ drivers/net/wireless/ath/ath10k/pci.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tee/optee/core.c b/drivers/tee/optee/core.c
-index e1aafe842d660..34dce850067b9 100644
---- a/drivers/tee/optee/core.c
-+++ b/drivers/tee/optee/core.c
-@@ -696,7 +696,7 @@ static int __init optee_driver_init(void)
- 		return -ENODEV;
+diff --git a/drivers/net/wireless/ath/ath10k/ahb.c b/drivers/net/wireless/ath/ath10k/ahb.c
+index c9bd0e2b5db7e..be90c9e9e5bc1 100644
+--- a/drivers/net/wireless/ath/ath10k/ahb.c
++++ b/drivers/net/wireless/ath/ath10k/ahb.c
+@@ -655,10 +655,10 @@ static void ath10k_ahb_hif_stop(struct ath10k *ar)
+ 	ath10k_ahb_irq_disable(ar);
+ 	synchronize_irq(ar_ahb->irq);
  
- 	np = of_find_matching_node(fw_np, optee_match);
--	if (!np)
-+	if (!np || !of_device_is_available(np))
- 		return -ENODEV;
+-	ath10k_pci_flush(ar);
+-
+ 	napi_synchronize(&ar->napi);
+ 	napi_disable(&ar->napi);
++
++	ath10k_pci_flush(ar);
+ }
  
- 	optee = optee_probe(np);
+ static int ath10k_ahb_hif_power_up(struct ath10k *ar)
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index af2cf55c4c1e6..97fa5c74f2fe7 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -2068,9 +2068,9 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
+ 
+ 	ath10k_pci_irq_disable(ar);
+ 	ath10k_pci_irq_sync(ar);
+-	ath10k_pci_flush(ar);
+ 	napi_synchronize(&ar->napi);
+ 	napi_disable(&ar->napi);
++	ath10k_pci_flush(ar);
+ 
+ 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
+ 	WARN_ON(ar_pci->ps_wake_refcount > 0);
 -- 
 2.20.1
 
