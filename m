@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3DB6F496F
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:03:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7D2BF4962
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389221AbfKHMDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:03:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56928 "EHLO mail.kernel.org"
+        id S2390188AbfKHLmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:42:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390151AbfKHLmq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:42:46 -0500
+        id S2390178AbfKHLmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:42:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F3F4222C4;
-        Fri,  8 Nov 2019 11:42:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72726222C4;
+        Fri,  8 Nov 2019 11:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213365;
-        bh=rCJCWlVVGLmwt2uICL+fQP9cUjdE8EIa3YhyInu72zs=;
+        s=default; t=1573213369;
+        bh=djqdZXlQ3iLn+R5cPJY6lBtwWI+0PBuh+RGdpxjWQW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nuTVWafa/dI6tg5yXPlDEgJtQ60KY13rOubD1tPTAOYjo00mbhpxCexk8V0nhKI0M
-         5DKW1XoiA/Kck+Gm5RzppFqydpj4EeCwW77WJsmeEiC3jF9xBP2OZDSdaL5ZWhhn1R
-         TV0N/OOx6Dx6dio8w2yfbahEn/+SgmB5NC769e+k=
+        b=NZIOEDyC6AJAwK3W543q3K597i97S+BES0FeHyC/ckl9wjEWW+KRKATtfBYQSLxZo
+         rUU1gh7p3bb8KrpQyp/W9mvOH3bOGXNLrYSXYhtjFs7EmaQIhDqlSjWJl7eGiIKpQG
+         JGMjPLlwhw+lFcl5S1lVwvl/I91rLdrserTGUKbg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 193/205] power: supply: ab8500_fg: silence uninitialized variable warnings
-Date:   Fri,  8 Nov 2019 06:37:40 -0500
-Message-Id: <20191108113752.12502-193-sashal@kernel.org>
+Cc:     Banajit Goswami <bgoswami@codeaurora.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 196/205] component: fix loop condition to call unbind() if bind() fails
+Date:   Fri,  8 Nov 2019 06:37:43 -0500
+Message-Id: <20191108113752.12502-196-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,76 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Banajit Goswami <bgoswami@codeaurora.org>
 
-[ Upstream commit 54baff8d4e5dce2cef61953b1dc22079cda1ddb1 ]
+[ Upstream commit bdae566d5d9733b6e32b378668b84eadf28a94d4 ]
 
-If kstrtoul() fails then we print "charge_full" when it's uninitialized.
-The debug printk doesn't add anything so I deleted it and cleaned these
-two functions up a bit.
+During component_bind_all(), if bind() fails for any
+particular component associated with a master, unbind()
+should be called for all previous components in that
+master's match array, whose bind() might have completed
+successfully. As per the current logic, if bind() fails
+for the component at position 'n' in the master's match
+array, it would start calling unbind() from component in
+'n'th position itself and work backwards, and will always
+skip calling unbind() for component in 0th position in the
+master's match array.
+Fix this by updating the loop condition, and the logic to
+refer to the components in master's match array, so that
+unbind() is called for all components starting from 'n-1'st
+position in the array, until (and including) component in
+0th position.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Banajit Goswami <bgoswami@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_fg.c | 31 ++++++++++++-------------------
- 1 file changed, 12 insertions(+), 19 deletions(-)
+ drivers/base/component.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
-index 02356f9b5f22a..8bb89c697c1eb 100644
---- a/drivers/power/supply/ab8500_fg.c
-+++ b/drivers/power/supply/ab8500_fg.c
-@@ -2433,17 +2433,14 @@ static ssize_t charge_full_store(struct ab8500_fg *di, const char *buf,
- 				 size_t count)
- {
- 	unsigned long charge_full;
--	ssize_t ret;
-+	int ret;
+diff --git a/drivers/base/component.c b/drivers/base/component.c
+index 8946dfee4768e..e8d676fad0c95 100644
+--- a/drivers/base/component.c
++++ b/drivers/base/component.c
+@@ -536,9 +536,9 @@ int component_bind_all(struct device *master_dev, void *data)
+ 		}
  
- 	ret = kstrtoul(buf, 10, &charge_full);
-+	if (ret)
-+		return ret;
- 
--	dev_dbg(di->dev, "Ret %zd charge_full %lu", ret, charge_full);
--
--	if (!ret) {
--		di->bat_cap.max_mah = (int) charge_full;
--		ret = count;
--	}
--	return ret;
-+	di->bat_cap.max_mah = (int) charge_full;
-+	return count;
- }
- 
- static ssize_t charge_now_show(struct ab8500_fg *di, char *buf)
-@@ -2455,20 +2452,16 @@ static ssize_t charge_now_store(struct ab8500_fg *di, const char *buf,
- 				 size_t count)
- {
- 	unsigned long charge_now;
--	ssize_t ret;
-+	int ret;
- 
- 	ret = kstrtoul(buf, 10, &charge_now);
-+	if (ret)
-+		return ret;
- 
--	dev_dbg(di->dev, "Ret %zd charge_now %lu was %d",
--		ret, charge_now, di->bat_cap.prev_mah);
--
--	if (!ret) {
--		di->bat_cap.user_mah = (int) charge_now;
--		di->flags.user_cap = true;
--		ret = count;
--		queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
--	}
--	return ret;
-+	di->bat_cap.user_mah = (int) charge_now;
-+	di->flags.user_cap = true;
-+	queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
-+	return count;
- }
- 
- static struct ab8500_fg_sysfs_entry charge_full_attr =
+ 	if (ret != 0) {
+-		for (; i--; )
+-			if (!master->match->compare[i].duplicate) {
+-				c = master->match->compare[i].component;
++		for (; i > 0; i--)
++			if (!master->match->compare[i - 1].duplicate) {
++				c = master->match->compare[i - 1].component;
+ 				component_unbind(c, master, data);
+ 			}
+ 	}
 -- 
 2.20.1
 
