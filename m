@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25F5BF5586
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 049C5F5588
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732193AbfKHTDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:03:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60794 "EHLO mail.kernel.org"
+        id S2388036AbfKHTDD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:03:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387457AbfKHTDA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:03:00 -0500
+        id S2388022AbfKHTDC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:03:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6300420650;
-        Fri,  8 Nov 2019 19:02:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05BD82067B;
+        Fri,  8 Nov 2019 19:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239778;
-        bh=hzW88UZxpAFQvgK9U1evcPbDX2209EJy7ym2DLKfcm8=;
+        s=default; t=1573239781;
+        bh=TUrUciSb5fnOaR4RAMaZK/FODS3qYZt8EiWHPQ01NMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tifkYwiHZ247UKSsiwbH0Z2hJMUsLVoK8WrnPh5eM4xdRzZlJ7LgvZHMIlp31B7vw
-         px/i+8wsZtmSPVAuKi1vxH+ogli//44008DS+s0JHS2uMvRoraIXNhNPrlFddfq5iq
-         tPlonmfGquj/8ddUwtlB7uVw2/WVz936kFiHy4uc=
+        b=fSMO8DPuqZCC79N0pcFvXLw9uv5J8jB1Hj10GilDTccAFb/SS7fv4l2h6kKpwMF3h
+         sKayUitMocJVv/wJ/AKEbnQ2UlS+l32k7qWuYep9mjn48h7FCdo2rLkrzG/cKJ95CW
+         9KWMqQuS7hZiqMn45c5K6M7Z2JkFsq8aq0TaWwMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 58/79] net: add READ_ONCE() annotation in __skb_wait_for_more_packets()
-Date:   Fri,  8 Nov 2019 19:50:38 +0100
-Message-Id: <20191108174819.605659189@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Beniamino Galvani <bgalvani@redhat.com>
+Subject: [PATCH 4.19 59/79] ipv4: fix route update on metric change.
+Date:   Fri,  8 Nov 2019 19:50:39 +0100
+Message-Id: <20191108174819.973196720@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
 References: <20191108174745.495640141@linuxfoundation.org>
@@ -44,79 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 7c422d0ce97552dde4a97e6290de70ec6efb0fc6 ]
+[ Upstream commit 0b834ba00ab5337e938c727e216e1f5249794717 ]
 
-__skb_wait_for_more_packets() can be called while other cpus
-can feed packets to the socket receive queue.
+Since commit af4d768ad28c ("net/ipv4: Add support for specifying metric
+of connected routes"), when updating an IP address with a different metric,
+the associated connected route is updated, too.
 
-KCSAN reported :
+Still, the mentioned commit doesn't handle properly some corner cases:
 
-BUG: KCSAN: data-race in __skb_wait_for_more_packets / __udp_enqueue_schedule_skb
+$ ip addr add dev eth0 192.168.1.0/24
+$ ip addr add dev eth0 192.168.2.1/32 peer 192.168.2.2
+$ ip addr add dev eth0 192.168.3.1/24
+$ ip addr change dev eth0 192.168.1.0/24 metric 10
+$ ip addr change dev eth0 192.168.2.1/32 peer 192.168.2.2 metric 10
+$ ip addr change dev eth0 192.168.3.1/24 metric 10
+$ ip -4 route
+192.168.1.0/24 dev eth0 proto kernel scope link src 192.168.1.0
+192.168.2.2 dev eth0 proto kernel scope link src 192.168.2.1
+192.168.3.0/24 dev eth0 proto kernel scope link src 192.168.2.1 metric 10
 
-write to 0xffff888102e40b58 of 8 bytes by interrupt on cpu 0:
- __skb_insert include/linux/skbuff.h:1852 [inline]
- __skb_queue_before include/linux/skbuff.h:1958 [inline]
- __skb_queue_tail include/linux/skbuff.h:1991 [inline]
- __udp_enqueue_schedule_skb+0x2d7/0x410 net/ipv4/udp.c:1470
- __udp_queue_rcv_skb net/ipv4/udp.c:1940 [inline]
- udp_queue_rcv_one_skb+0x7bd/0xc70 net/ipv4/udp.c:2057
- udp_queue_rcv_skb+0xb5/0x400 net/ipv4/udp.c:2074
- udp_unicast_rcv_skb.isra.0+0x7e/0x1c0 net/ipv4/udp.c:2233
- __udp4_lib_rcv+0xa44/0x17c0 net/ipv4/udp.c:2300
- udp_rcv+0x2b/0x40 net/ipv4/udp.c:2470
- ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
- ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
- dst_input include/net/dst.h:442 [inline]
- ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
- __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
- __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
- process_backlog+0x1d3/0x420 net/core/dev.c:5955
+Only the last route is correctly updated.
 
-read to 0xffff888102e40b58 of 8 bytes by task 13035 on cpu 1:
- __skb_wait_for_more_packets+0xfa/0x320 net/core/datagram.c:100
- __skb_recv_udp+0x374/0x500 net/ipv4/udp.c:1683
- udp_recvmsg+0xe1/0xb10 net/ipv4/udp.c:1712
- inet_recvmsg+0xbb/0x250 net/ipv4/af_inet.c:838
- sock_recvmsg_nosec+0x5c/0x70 net/socket.c:871
- ___sys_recvmsg+0x1a0/0x3e0 net/socket.c:2480
- do_recvmmsg+0x19a/0x5c0 net/socket.c:2601
- __sys_recvmmsg+0x1ef/0x200 net/socket.c:2680
- __do_sys_recvmmsg net/socket.c:2703 [inline]
- __se_sys_recvmmsg net/socket.c:2696 [inline]
- __x64_sys_recvmmsg+0x89/0xb0 net/socket.c:2696
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
+The problem is the current test in fib_modify_prefix_metric():
 
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 13035 Comm: syz-executor.3 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+	if (!(dev->flags & IFF_UP) ||
+	    ifa->ifa_flags & (IFA_F_SECONDARY | IFA_F_NOPREFIXROUTE) ||
+	    ipv4_is_zeronet(prefix) ||
+	    prefix == ifa->ifa_local || ifa->ifa_prefixlen == 32)
 
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Which should be the logical 'not' of the pre-existing test in
+fib_add_ifaddr():
+
+	if (!ipv4_is_zeronet(prefix) && !(ifa->ifa_flags & IFA_F_SECONDARY) &&
+	    (prefix != addr || ifa->ifa_prefixlen < 32))
+
+To properly negate the original expression, we need to change the last
+logical 'or' to a logical 'and'.
+
+Fixes: af4d768ad28c ("net/ipv4: Add support for specifying metric of connected routes")
+Reported-and-suggested-by: Beniamino Galvani <bgalvani@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/datagram.c |    2 +-
+ net/ipv4/fib_frontend.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -95,7 +95,7 @@ int __skb_wait_for_more_packets(struct s
- 	if (error)
- 		goto out_err;
+--- a/net/ipv4/fib_frontend.c
++++ b/net/ipv4/fib_frontend.c
+@@ -946,7 +946,7 @@ void fib_modify_prefix_metric(struct in_
+ 	if (!(dev->flags & IFF_UP) ||
+ 	    ifa->ifa_flags & (IFA_F_SECONDARY | IFA_F_NOPREFIXROUTE) ||
+ 	    ipv4_is_zeronet(prefix) ||
+-	    prefix == ifa->ifa_local || ifa->ifa_prefixlen == 32)
++	    (prefix == ifa->ifa_local && ifa->ifa_prefixlen == 32))
+ 		return;
  
--	if (sk->sk_receive_queue.prev != skb)
-+	if (READ_ONCE(sk->sk_receive_queue.prev) != skb)
- 		goto out;
- 
- 	/* Socket shut down? */
+ 	/* add the new */
 
 
