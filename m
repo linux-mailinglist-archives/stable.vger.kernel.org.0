@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB873F4725
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC9ABF475A
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:49:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391696AbfKHLr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:47:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36766 "EHLO mail.kernel.org"
+        id S2390240AbfKHLtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:49:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391643AbfKHLr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:47:58 -0500
+        id S2387417AbfKHLr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:47:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5BB6206A3;
-        Fri,  8 Nov 2019 11:47:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8FC422459;
+        Fri,  8 Nov 2019 11:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213677;
-        bh=uvCdUrjrWSnYFMWKZGFTPKzZZAEZI014z2XOl7Z2dv4=;
+        s=default; t=1573213678;
+        bh=YWaFJwHRcxWDbhkR+hZxM1T/r643o/UQYp0ATZ5LpZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CDypVvue3PmajijrA7JWgWR+3BmETcF7IjURqlYdTtxbKAFRXzxyhQE0FgeUfKNnK
-         g9N1a/amnfXH1Ua11ENlrdZk2U9GOM758FXQ/krd+GweytzBy/fTZQB0NKxxG6aaX8
-         ksaydGO5l6o7N7cEDeoWWPzwrs5jq08xtVTYjHGk=
+        b=xKPCLvRAg5Wnkfe0+eEsLHruh+n1jR+kdPBiNyaq4iICIacjJvoPVE0xoK4f6zzz+
+         W1yp7YuejDOJ0wpo0urt4uVcuaLHPxzD9Kuu6ibPaIoNVwtyjdF/wlyWi5gAX39ok+
+         DDLz1eutQyIRVIB26OzIpvh1r7an8Tf5Yue0paf4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 27/44] signal: Properly deliver SIGSEGV from x86 uprobes
-Date:   Fri,  8 Nov 2019 06:47:03 -0500
-Message-Id: <20191108114721.15944-27-sashal@kernel.org>
+Cc:     George Kennedy <george.kennedy@oracle.com>,
+        Matthew Wilcox <matthew.wilcox@oracle.com>,
+        Mark Kanda <mark.kanda@oracle.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 28/44] scsi: sym53c8xx: fix NULL pointer dereference panic in sym_int_sir()
+Date:   Fri,  8 Nov 2019 06:47:04 -0500
+Message-Id: <20191108114721.15944-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114721.15944-1-sashal@kernel.org>
 References: <20191108114721.15944-1-sashal@kernel.org>
@@ -43,43 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 4a63c1ffd384ebdce40aac9c997dab68379137be ]
+[ Upstream commit 288315e95264b6355e26609e9dec5dc4563d4ab0 ]
 
-For userspace to tell the difference between an random signal
-and an exception, the exception must include siginfo information.
+sym_int_sir() in sym_hipd.c does not check the command pointer for NULL before
+using it in debug message prints.
 
-Using SEND_SIG_FORCED for SIGSEGV is thus wrong, and it will result in
-userspace seeing si_code == SI_USER (like a random signal) instead of
-si_code == SI_KERNEL or a more specific si_code as all exceptions
-deliver.
-
-Therefore replace force_sig_info(SIGSEGV, SEND_SIG_FORCE, current)
-with force_sig(SIG_SEGV, current) which gets this right and is shorter
-and easier to type.
-
-Fixes: 791eca10107f ("uretprobes/x86: Hijack return address")
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Suggested-by: Matthew Wilcox <matthew.wilcox@oracle.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
+Acked-by: Matthew Wilcox <matthew.wilcox@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/uprobes.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/sym53c8xx_2/sym_hipd.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
-index 178d63cac321b..60b12c14cf6fb 100644
---- a/arch/x86/kernel/uprobes.c
-+++ b/arch/x86/kernel/uprobes.c
-@@ -983,7 +983,7 @@ arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs
- 		pr_err("uprobe: return address clobbered: pid=%d, %%sp=%#lx, "
- 			"%%ip=%#lx\n", current->pid, regs->sp, regs->ip);
+diff --git a/drivers/scsi/sym53c8xx_2/sym_hipd.c b/drivers/scsi/sym53c8xx_2/sym_hipd.c
+index c6425e3df5a04..f1c7714377524 100644
+--- a/drivers/scsi/sym53c8xx_2/sym_hipd.c
++++ b/drivers/scsi/sym53c8xx_2/sym_hipd.c
+@@ -4371,6 +4371,13 @@ static void sym_nego_rejected(struct sym_hcb *np, struct sym_tcb *tp, struct sym
+ 	OUTB(np, HS_PRT, HS_BUSY);
+ }
  
--		force_sig_info(SIGSEGV, SEND_SIG_FORCED, current);
-+		force_sig(SIGSEGV, current);
- 	}
- 
- 	return -1;
++#define sym_printk(lvl, tp, cp, fmt, v...) do { \
++	if (cp)							\
++		scmd_printk(lvl, cp->cmd, fmt, ##v);		\
++	else							\
++		starget_printk(lvl, tp->starget, fmt, ##v);	\
++} while (0)
++
+ /*
+  *  chip exception handler for programmed interrupts.
+  */
+@@ -4416,7 +4423,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	 *  been selected with ATN.  We do not want to handle that.
+ 	 */
+ 	case SIR_SEL_ATN_NO_MSG_OUT:
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 				"No MSG OUT phase after selection with ATN\n");
+ 		goto out_stuck;
+ 	/*
+@@ -4424,7 +4431,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	 *  having reselected the initiator.
+ 	 */
+ 	case SIR_RESEL_NO_MSG_IN:
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 				"No MSG IN phase after reselection\n");
+ 		goto out_stuck;
+ 	/*
+@@ -4432,7 +4439,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	 *  an IDENTIFY.
+ 	 */
+ 	case SIR_RESEL_NO_IDENTIFY:
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 				"No IDENTIFY after reselection\n");
+ 		goto out_stuck;
+ 	/*
+@@ -4461,7 +4468,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	case SIR_RESEL_ABORTED:
+ 		np->lastmsg = np->msgout[0];
+ 		np->msgout[0] = M_NOOP;
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 			"message %x sent on bad reselection\n", np->lastmsg);
+ 		goto out;
+ 	/*
 -- 
 2.20.1
 
