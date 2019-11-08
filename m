@@ -2,60 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40A24F6033
-	for <lists+stable@lfdr.de>; Sat,  9 Nov 2019 17:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06FDBF6170
+	for <lists+stable@lfdr.de>; Sat,  9 Nov 2019 21:30:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726565AbfKIQC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 11:02:59 -0500
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:33820 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726026AbfKIQC7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 9 Nov 2019 11:02:59 -0500
-Received: by mail-qk1-f196.google.com with SMTP id 205so7771856qkk.1
-        for <stable@vger.kernel.org>; Sat, 09 Nov 2019 08:02:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=3zz9XPDRCM3XQQurontwBHDjjQKaqZgA91BRVLoCqNc=;
-        b=dJjKYaGPKJKXvN5Q9TPZU0A1fdiFst6XuewWYesi2KUo0hVacoQFJKg6czjL6Vr5nq
-         zBq9Tw9UHCApePwuAfOKmkLjG3UiwlEWPJ4ntJOIloYqRv2N/TrY2987RxrL/M6bJ1T4
-         dQhVMg639KHr72ZP1x80v4RxQGwSh7b037B+Kyh13k/FxUynR4TWmYjiRX7dJDP6eQIb
-         luzX3Bvb0tyuDHI3EkiMqYnpRuAKmXn17lztI6ywrhSTVdwatyS5ZlYclLourqTa+xDZ
-         oPChyWlWjBsvcSsjQhwSlVUFHr6lzC9BKN+bGqjp/JRmHVa0Z322zh5mS27CMixXVgvd
-         u+9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=3zz9XPDRCM3XQQurontwBHDjjQKaqZgA91BRVLoCqNc=;
-        b=Q5zujp6xvFTia746rNuI6hTsUYLpdEx1dE7Gt4c7hycUuaGQ9ydgsyPrFxZvg9LTpB
-         O3i+Wclb7qb34OyL6Hg2IfA2kCbX0LTgZq3RY7yMBPTVzFCI8vjG0eYz8oxF4t3TXru+
-         xmjw09FME33rgHZrPI3ocVbdvptP2cybU1xsZC/msz1Pe3+e6320MpLFo/9jRZy35oYQ
-         n6O+P+Fb+Dxom9wDZrrCu05rY9zp0TUckz2ugEpt9FD/MB0/SZjAU178npLR8yom1H2D
-         OCwNJJKxM34rVe2xBc1nmTPz0kGkbEXlNJq4X/7ASlNhTkpUn1VM8obyYSL+9zYz4WTR
-         iFQg==
-X-Gm-Message-State: APjAAAXTP4ad5ExzETM8KlL+pJf20x0pCjZpCUE4oQ9eQ4+venbLLoxw
-        nsdA8hvE+Bb65HHPu3z6+4IjHf45TG7l5w6Oe9o=
-X-Google-Smtp-Source: APXvYqzU/eQIE3Llji/tX2W+PqvdlrVEsOaY5zP18iXfCrsIDd4SRy6vXyhGmNJ7wKYZtfKMxQIsB94e/K+vnw9iPo4=
-X-Received: by 2002:a05:620a:64d:: with SMTP id a13mr2512500qka.481.1573315378323;
- Sat, 09 Nov 2019 08:02:58 -0800 (PST)
-MIME-Version: 1.0
-Received: by 2002:a0c:e7c8:0:0:0:0:0 with HTTP; Sat, 9 Nov 2019 08:02:57 -0800 (PST)
-Reply-To: mgeorgeaustin@gmail.com
-From:   "Austin M.George" <sashaguo5@gmail.com>
-Date:   Sat, 9 Nov 2019 16:02:57 +0000
-Message-ID: <CAJmSNEOokHVhO1hpfA50s7qarOpqqapRE2azZDeuO0g4Prp+Og@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S1726805AbfKIU3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 15:29:54 -0500
+Received: from shards.monkeyblade.net ([23.128.96.9]:53666 "EHLO
+        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726467AbfKIU3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 9 Nov 2019 15:29:34 -0500
+Received: from localhost (unknown [IPv6:2601:601:9f00:1e2::d71])
+        (using TLSv1 with cipher AES256-SHA (256/256 bits))
+        (Client did not present a certificate)
+        (Authenticated sender: davem-davemloft)
+        by shards.monkeyblade.net (Postfix) with ESMTPSA id DA8B114742051;
+        Sat,  9 Nov 2019 12:29:33 -0800 (PST)
+Date:   Fri, 08 Nov 2019 11:35:27 -0800 (PST)
+Message-Id: <20191108.113527.2242883926552730503.davem@davemloft.net>
+To:     gregkh@linuxfoundation.org
+Cc:     jwi@linux.ibm.com, sashal@kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, linux-s390@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.19 204/205] s390/qeth: limit csum offload
+ erratum to L3 devices
+From:   David Miller <davem@davemloft.net>
+In-Reply-To: <20191108123416.GA732985@kroah.com>
+References: <20191108120025.GM4787@sasha-vm>
+        <4d8f1938-af6e-7e0e-4085-2f7c53390b2d@linux.ibm.com>
+        <20191108123416.GA732985@kroah.com>
+X-Mailer: Mew version 6.8 on Emacs 26.1
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Sat, 09 Nov 2019 12:29:34 -0800 (PST)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hello
-Kindly be informed that this email that came to your mailbox is not an
-error but was specifically addressed to you.
-I've an important information for you and it needs your urgent attention.
-Regards
+From: Greg KH <gregkh@linuxfoundation.org>
+Date: Fri, 8 Nov 2019 13:34:16 +0100
+
+> On Fri, Nov 08, 2019 at 01:16:26PM +0100, Julian Wiedmann wrote:
+>> On 08.11.19 13:00, Sasha Levin wrote:
+>> > On Fri, Nov 08, 2019 at 12:50:24PM +0100, Julian Wiedmann wrote:
+>> >> On 08.11.19 12:37, Sasha Levin wrote:
+>> >>> From: Julian Wiedmann <jwi@linux.ibm.com>
+>> >>>
+>> >>> [ Upstream commit f231dc9dbd789b0f98a15941e3cebedb4ad72ad5 ]
+>> >>>
+>> >>> Combined L3+L4 csum offload is only required for some L3 HW. So for
+>> >>> L2 devices, don't offload the IP header csum calculation.
+>> >>>
+>> >>
+>> >> NACK, this has no relevance for stable.
+>> > 
+>> > Sure, I'll drop it.
+>> > 
+>> > Do you have an idea why the centos and ubuntu folks might have
+>> > backported this commit into their kernels?
+>> > 
+>> 
+>> No clue, I trust they have their own reasons.
+>> 
+> 
+> I cant see centos backporting anything unless they were asked to do so.
+> And this really looks like a "bugfix" to me, why isn't this relevant for
+> any older kernel versions?
+
+Yeah seriously, this looks entirely legit.
