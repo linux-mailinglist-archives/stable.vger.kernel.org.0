@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E16EF55AE
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92021F54F3
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389264AbfKHTEC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:04:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33824 "EHLO mail.kernel.org"
+        id S2388742AbfKHS5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:57:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389401AbfKHTEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:04:00 -0500
+        id S1732877AbfKHS5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:57:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A03820650;
-        Fri,  8 Nov 2019 19:03:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE19A2067B;
+        Fri,  8 Nov 2019 18:57:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239839;
-        bh=tNf64DL/4DtEM2E0M34hHHFkgT7A8t4mmajD3IE6c3k=;
+        s=default; t=1573239429;
+        bh=/Pa8HVoB323cD1W289vFzgL2XMK+OOY6vI6FZEtgRXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lYro4NtsOYdS2ewth7SyowpQkLYyE3QEQPtW2LT25VRput8sY0hd1Bdb2EMPs4jlt
-         knRBeskcf2Q2zMS1crp9jD70SW/zWWuFbzdg5XOsuK5zExAIC7NykbGVHC0QiBj74o
-         DOKKFOHPvUcGO4sL1rYnZZzVG9gjMw8on76APRIQ=
+        b=Ty6vn4oJCuJ00SkN/NuQhMqotRVXHJPqQSSfUQTy7yzaOy+2aFZRy8KddrDmUZWsk
+         LKSCSc2k/trAHGL8qdNd0p6r0INNNv94aCPUuIwLyF3OPwCkeNy7PEqeWAmeq91cCt
+         +O/h0NNiD6kFoZYUd/ZzZfvB2STxn+Iqjq6oehbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Shahjada Abul Husain <shahjada@chelsio.com>,
-        Vishal Kulkarni <vishal@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 37/79] cxgb4: fix panic when attaching to ULD fail
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 10/34] scsi: fix kconfig dependency warning related to 53C700_LE_ON_BE
 Date:   Fri,  8 Nov 2019 19:50:17 +0100
-Message-Id: <20191108174807.577466159@linuxfoundation.org>
+Message-Id: <20191108174631.033756496@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
+References: <20191108174618.266472504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Kulkarni <vishal@chelsio.com>
+From: Thomas Bogendoerfer <tbogendoerfer@suse.de>
 
-[ Upstream commit fc89cc358fb64e2429aeae0f37906126636507ec ]
+[ Upstream commit 8cbf0c173aa096dda526d1ccd66fc751c31da346 ]
 
-Release resources when attaching to ULD fail. Otherwise, data
-mismatch is seen between LLD and ULD later on, which lead to
-kernel panic when accessing resources that should not even
-exist in the first place.
+When building a kernel with SCSI_SNI_53C710 enabled, Kconfig warns:
 
-Fixes: 94cdb8bb993a ("cxgb4: Add support for dynamic allocation of resources for ULD")
-Signed-off-by: Shahjada Abul Husain <shahjada@chelsio.com>
-Signed-off-by: Vishal Kulkarni <vishal@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+WARNING: unmet direct dependencies detected for 53C700_LE_ON_BE
+  Depends on [n]: SCSI_LOWLEVEL [=y] && SCSI [=y] && SCSI_LASI700 [=n]
+  Selected by [y]:
+  - SCSI_SNI_53C710 [=y] && SCSI_LOWLEVEL [=y] && SNI_RM [=y] && SCSI [=y]
+
+Add the missing depends SCSI_SNI_53C710 to 53C700_LE_ON_BE to fix it.
+
+Link: https://lore.kernel.org/r/20191009151128.32411-1-tbogendoerfer@suse.de
+Signed-off-by: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c |   29 ++++++++++++++-----------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ drivers/scsi/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_uld.c
-@@ -673,10 +673,10 @@ static void uld_init(struct adapter *ada
- 	lld->write_cmpl_support = adap->params.write_cmpl_support;
- }
+diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
+index 17b1574920fd6..941e3f25b4a9f 100644
+--- a/drivers/scsi/Kconfig
++++ b/drivers/scsi/Kconfig
+@@ -986,7 +986,7 @@ config SCSI_SNI_53C710
  
--static void uld_attach(struct adapter *adap, unsigned int uld)
-+static int uld_attach(struct adapter *adap, unsigned int uld)
- {
--	void *handle;
- 	struct cxgb4_lld_info lli;
-+	void *handle;
+ config 53C700_LE_ON_BE
+ 	bool
+-	depends on SCSI_LASI700
++	depends on SCSI_LASI700 || SCSI_SNI_53C710
+ 	default y
  
- 	uld_init(adap, &lli);
- 	uld_queue_init(adap, uld, &lli);
-@@ -686,7 +686,7 @@ static void uld_attach(struct adapter *a
- 		dev_warn(adap->pdev_dev,
- 			 "could not attach to the %s driver, error %ld\n",
- 			 adap->uld[uld].name, PTR_ERR(handle));
--		return;
-+		return PTR_ERR(handle);
- 	}
- 
- 	adap->uld[uld].handle = handle;
-@@ -694,23 +694,24 @@ static void uld_attach(struct adapter *a
- 
- 	if (adap->flags & FULL_INIT_DONE)
- 		adap->uld[uld].state_change(handle, CXGB4_STATE_UP);
-+
-+	return 0;
- }
- 
--/**
-- *	cxgb4_register_uld - register an upper-layer driver
-- *	@type: the ULD type
-- *	@p: the ULD methods
-+/* cxgb4_register_uld - register an upper-layer driver
-+ * @type: the ULD type
-+ * @p: the ULD methods
-  *
-- *	Registers an upper-layer driver with this driver and notifies the ULD
-- *	about any presently available devices that support its type.  Returns
-- *	%-EBUSY if a ULD of the same type is already registered.
-+ * Registers an upper-layer driver with this driver and notifies the ULD
-+ * about any presently available devices that support its type.  Returns
-+ * %-EBUSY if a ULD of the same type is already registered.
-  */
- int cxgb4_register_uld(enum cxgb4_uld type,
- 		       const struct cxgb4_uld_info *p)
- {
--	int ret = 0;
- 	unsigned int adap_idx = 0;
- 	struct adapter *adap;
-+	int ret = 0;
- 
- 	if (type >= CXGB4_ULD_MAX)
- 		return -EINVAL;
-@@ -744,12 +745,16 @@ int cxgb4_register_uld(enum cxgb4_uld ty
- 		if (ret)
- 			goto free_irq;
- 		adap->uld[type] = *p;
--		uld_attach(adap, type);
-+		ret = uld_attach(adap, type);
-+		if (ret)
-+			goto free_txq;
- 		adap_idx++;
- 	}
- 	mutex_unlock(&uld_mutex);
- 	return 0;
- 
-+free_txq:
-+	release_sge_txq_uld(adap, type);
- free_irq:
- 	if (adap->flags & FULL_INIT_DONE)
- 		quiesce_rx_uld(adap, type);
+ config SCSI_STEX
+-- 
+2.20.1
+
 
 
