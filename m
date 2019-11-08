@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD753F555C
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9884EF5626
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390363AbfKHTB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:01:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59438 "EHLO mail.kernel.org"
+        id S2391390AbfKHTHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:07:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390369AbfKHTBz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:01:55 -0500
+        id S2391386AbfKHTHA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:07:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 553132067B;
-        Fri,  8 Nov 2019 19:01:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86641206A3;
+        Fri,  8 Nov 2019 19:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239714;
-        bh=+7sjtycYthxBbTdXZOuBgjunJxe9qUow+unZqqYmg7A=;
+        s=default; t=1573240020;
+        bh=rfJoh8q2ttJiOkExTu/CY0Vkr6sPogKzCVxD224wjXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ljVWKfbCJ6rafJtp0JHii93f26gArYT/21wKgVASNXK3cz9cUCe+Z4871KdtqED2A
-         VFcajzGHux6i4nXBJSG4JtJRvhnnJMQWB7CSOZFML4uJHOJ0tENmEZPVXFiNtDUDjl
-         cDCo5McXu3lzIySD1xPk+ygA5BBjJg7Lnh0xqFzg=
+        b=Kh/0O5Ol1BvpeOFWgYmXU3wik3Dw/haOgYHLGUm1C/S77993IuaSiGSU0IR0I8KkW
+         hCl+zt+knznUDGoDXdP/Fn/ahKu6h8YqEHw0c2VmFx6cyxZKEzdZlQ4lddxbET4XMZ
+         G3ibkhLFZQ324BmfiLcTo15B304GN7PbqRp9lTDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jaska Uimonen <jaska.uimonen@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Tom Zanussi <tom.zanussi@linux.intel.com>,
+        Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 08/79] ASoC: rt5682: add NULL handler to set_jack function
+Subject: [PATCH 5.3 060/140] tracing: Fix "gfp_t" format for synthetic events
 Date:   Fri,  8 Nov 2019 19:49:48 +0100
-Message-Id: <20191108174749.317380781@linuxfoundation.org>
+Message-Id: <20191108174909.046820456@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaska Uimonen <jaska.uimonen@intel.com>
+From: Zhengjun Xing <zhengjun.xing@linux.intel.com>
 
-[ Upstream commit a315e76fc544f09daf619530a7b2f85865e6b25e ]
+[ Upstream commit 9fa8c9c647be624e91b09ecffa7cd97ee0600b40 ]
 
-Implement NULL handler in set_jack function to disable
-irq's.
+In the format of synthetic events, the "gfp_t" is shown as "signed:1",
+but in fact the "gfp_t" is "unsigned", should be shown as "signed:0".
 
-Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20190927201408.925-4-pierre-louis.bossart@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+The issue can be reproduced by the following commands:
+
+echo 'memlatency u64 lat; unsigned int order; gfp_t gfp_flags; int migratetype' > /sys/kernel/debug/tracing/synthetic_events
+cat  /sys/kernel/debug/tracing/events/synthetic/memlatency/format
+
+name: memlatency
+ID: 2233
+format:
+        field:unsigned short common_type;       offset:0;       size:2; signed:0;
+        field:unsigned char common_flags;       offset:2;       size:1; signed:0;
+        field:unsigned char common_preempt_count;       offset:3;       size:1; signed:0;
+        field:int common_pid;   offset:4;       size:4; signed:1;
+
+        field:u64 lat;  offset:8;       size:8; signed:0;
+        field:unsigned int order;       offset:16;      size:4; signed:0;
+        field:gfp_t gfp_flags;  offset:24;      size:4; signed:1;
+        field:int migratetype;  offset:32;      size:4; signed:1;
+
+print fmt: "lat=%llu, order=%u, gfp_flags=%x, migratetype=%d", REC->lat, REC->order, REC->gfp_flags, REC->migratetype
+
+Link: http://lkml.kernel.org/r/20191018012034.6404-1-zhengjun.xing@linux.intel.com
+
+Reviewed-by: Tom Zanussi <tom.zanussi@linux.intel.com>
+Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5682.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ kernel/trace/trace_events_hist.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
-index 6f5dac09ceded..21e7c430baf7f 100644
---- a/sound/soc/codecs/rt5682.c
-+++ b/sound/soc/codecs/rt5682.c
-@@ -982,6 +982,16 @@ static int rt5682_set_jack_detect(struct snd_soc_component *component,
+diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+index dd310d3b58431..725b9b35f933c 100644
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -674,6 +674,8 @@ static bool synth_field_signed(char *type)
  {
- 	struct rt5682_priv *rt5682 = snd_soc_component_get_drvdata(component);
+ 	if (str_has_prefix(type, "u"))
+ 		return false;
++	if (strcmp(type, "gfp_t") == 0)
++		return false;
  
-+	rt5682->hs_jack = hs_jack;
-+
-+	if (!hs_jack) {
-+		regmap_update_bits(rt5682->regmap, RT5682_IRQ_CTRL_2,
-+				   RT5682_JD1_EN_MASK, RT5682_JD1_DIS);
-+		regmap_update_bits(rt5682->regmap, RT5682_RC_CLK_CTRL,
-+				   RT5682_POW_JDH | RT5682_POW_JDL, 0);
-+		return 0;
-+	}
-+
- 	switch (rt5682->pdata.jd_src) {
- 	case RT5682_JD1:
- 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_2,
-@@ -1019,8 +1029,6 @@ static int rt5682_set_jack_detect(struct snd_soc_component *component,
- 		break;
- 	}
- 
--	rt5682->hs_jack = hs_jack;
--
- 	return 0;
+ 	return true;
  }
- 
 -- 
 2.20.1
 
