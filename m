@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D85A8F558A
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 749FAF5505
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388124AbfKHTDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:03:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60928 "EHLO mail.kernel.org"
+        id S2389323AbfKHS77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:59:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729833AbfKHTDF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:03:05 -0500
+        id S1731773AbfKHS77 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:59:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 31F81215EA;
-        Fri,  8 Nov 2019 19:03:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF0EC22559;
+        Fri,  8 Nov 2019 18:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239784;
-        bh=caerxxbWsm1Pp5Wd/RgLWcj1/JZ4KMfdap7er8g7ap0=;
+        s=default; t=1573239598;
+        bh=GrDR/KfEa55q+XgH6XKOcuelZG4bs5H5zJITdZsvvvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U1vFOhFJ0yqjhwMrUn94AGOpZ2cCOjWYWKOCrudUK+cGgdHYh27Z/V/Nt+k5LO6mw
-         oPMwOLyBXpMk3QuK9WTH+fN71llP63UpFDeMGC+ysseZa/jjiJeMNhrU10DPC4s3m9
-         BQyx8SWBI6c+1k7jf9ey5cEVrzI64X8rwBqvjBe4=
+        b=LA3bl08A2Qzg1NKeeWm6S9UllzWHdyzIytKr0AUF3wThmp2Se/gftNbuz7Igo1sUD
+         Hzl2hW9k93gEL0oiraEul3sJi+NzfXC7KvyYHzxaQByqykECm6yMDm9cFqn+TAmeKi
+         e0mUIN+8FIzEZxa0iQpD1fjbFiNd8N2vR6sPczrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 60/79] selftests: fib_tests: add more tests for metric update
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 52/62] kbuild: use -fmacro-prefix-map to make __FILE__ a relative path
 Date:   Fri,  8 Nov 2019 19:50:40 +0100
-Message-Id: <20191108174820.075150796@linuxfoundation.org>
+Message-Id: <20191108174755.304501752@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
+References: <20191108174719.228826381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 37de3b354150450ba12275397155e68113e99901 ]
+[ Upstream commit a73619a845d5625079cc1b3b820f44c899618388 ]
 
-This patch adds two more tests to ipv4_addr_metric_test() to
-explicitly cover the scenarios fixed by the previous patch.
+The __FILE__ macro is used everywhere in the kernel to locate the file
+printing the log message, such as WARN_ON(), etc.  If the kernel is
+built out of tree, this can be a long absolute path, like this:
 
-Suggested-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  WARNING: CPU: 1 PID: 1 at /path/to/build/directory/arch/arm64/kernel/foo.c:...
+
+This is because Kbuild runs in the objtree instead of the srctree,
+then __FILE__ is expanded to a file path prefixed with $(srctree)/.
+
+Commit 9da0763bdd82 ("kbuild: Use relative path when building in a
+subdir of the source tree") improved this to some extent; $(srctree)
+becomes ".." if the objtree is a child of the srctree.
+
+For other cases of out-of-tree build, __FILE__ is still the absolute
+path.  It also means the kernel image depends on where it was built.
+
+A brand-new option from GCC, -fmacro-prefix-map, solves this problem.
+If your compiler supports it, __FILE__ is the relative path from the
+srctree regardless of O= option.  This provides more readable log and
+more reproducible builds.
+
+Please note __FILE__ is always an absolute path for external modules.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/fib_tests.sh |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ Makefile | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/tools/testing/selftests/net/fib_tests.sh
-+++ b/tools/testing/selftests/net/fib_tests.sh
-@@ -1301,6 +1301,27 @@ ipv4_addr_metric_test()
- 	fi
- 	log_test $rc 0 "Prefix route with metric on link up"
+diff --git a/Makefile b/Makefile
+index 1d7f47334ca2b..61660387eb34b 100644
+--- a/Makefile
++++ b/Makefile
+@@ -840,6 +840,9 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=incompatible-pointer-types)
+ # Require designated initializers for all marked structures
+ KBUILD_CFLAGS   += $(call cc-option,-Werror=designated-init)
  
-+	# explicitly check for metric changes on edge scenarios
-+	run_cmd "$IP addr flush dev dummy2"
-+	run_cmd "$IP addr add dev dummy2 172.16.104.0/24 metric 259"
-+	run_cmd "$IP addr change dev dummy2 172.16.104.0/24 metric 260"
-+	rc=$?
-+	if [ $rc -eq 0 ]; then
-+		check_route "172.16.104.0/24 dev dummy2 proto kernel scope link src 172.16.104.0 metric 260"
-+		rc=$?
-+	fi
-+	log_test $rc 0 "Modify metric of .0/24 address"
++# change __FILE__ to the relative path from the srctree
++KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
 +
-+	run_cmd "$IP addr flush dev dummy2"
-+	run_cmd "$IP addr add dev dummy2 172.16.104.1/32 peer 172.16.104.2 metric 260"
-+	run_cmd "$IP addr change dev dummy2 172.16.104.1/32 peer 172.16.104.2 metric 261"
-+	rc=$?
-+	if [ $rc -eq 0 ]; then
-+		check_route "172.16.104.2 dev dummy2 proto kernel scope link src 172.16.104.1 metric 261"
-+		rc=$?
-+	fi
-+	log_test $rc 0 "Modify metric of address with peer route"
-+
- 	$IP li del dummy1
- 	$IP li del dummy2
- 	cleanup
+ # use the deterministic mode of AR if available
+ KBUILD_ARFLAGS := $(call ar-option,D)
+ 
+-- 
+2.20.1
+
 
 
