@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A51F4AC0
+	by mail.lfdr.de (Postfix) with ESMTP id 88C7AF4AC1
 	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390497AbfKHMJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390020AbfKHMJy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 8 Nov 2019 07:09:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52662 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388041AbfKHLjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S2388062AbfKHLjt (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 8 Nov 2019 06:39:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E3E5222C4;
-        Fri,  8 Nov 2019 11:39:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 845D2222C6;
+        Fri,  8 Nov 2019 11:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213188;
-        bh=kxpznDMExbY+NIj9/CH/dtzZrDEOQHhlfV8VAdGz+C4=;
+        s=default; t=1573213189;
+        bh=1lS/UyAtBNQsiqwWb7YJnxOKYosA1o14gN2Xh6864as=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2tQBUebA1Q2+/HYXzlfJoNaGMlSxpEi7po7k9O+JE5PejkWP9QrXqiUCPcQfMhWt
-         HadUF2gmWFJJPJT69YcZV3tg6JskiPlEdZm0w12xbrpMFNAIb9f6IguYI5aDrtpLHN
-         LgXsbYguTY8gtGpobZDDG4wpXrql+hwIzeq5WanQ=
+        b=rlySRmJ7dFJE/53CUFKqx0ccIP1X07TKmgThaZpmrG3/O50F4BS3/eXDBQvduMqRv
+         7g+64joarbD6QSeIcXwkeTgaI0Qn9nsbjx+Idk1dc/NUQOH5Bzm7FYMbKFdCyO3C60
+         UKebh9z8vQWZE7ngnVvRseslsWpflILdShNELSkY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
@@ -30,9 +30,9 @@ Cc:     Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
         Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-amlogic@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 078/205] ARM: dts: meson8: fix the clock controller register size
-Date:   Fri,  8 Nov 2019 06:35:45 -0500
-Message-Id: <20191108113752.12502-78-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 079/205] ARM: dts: meson8b: fix the clock controller register size
+Date:   Fri,  8 Nov 2019 06:35:46 -0500
+Message-Id: <20191108113752.12502-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -47,7 +47,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit f7f9da89bc4f61e33f7b9f5c75c4efdc1f0455d8 ]
+[ Upstream commit f31094fe8c16fbd2ca47921acf93b744b045aace ]
 
 The clock controller registers are not 0x460 wide because the reset
 controller starts at CBUS 0x4404. This currently overlaps with the
@@ -59,23 +59,23 @@ Amlogic's GPL kernel sources the last "HHI" register is
 HHI_HDMI_PHY_CNTL2 at CBUS + 0x43a8. 0x400 was chosen because that size
 doesn't seem unlikely.
 
-Fixes: 2c323c43a3d619 ("ARM: dts: meson8: add and use the real clock controller")
+Fixes: 4a69fcd3a10803 ("ARM: meson: Add DTS for Odroid-C1 and Tronfy MXQ boards")
 Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
 Signed-off-by: Kevin Hilman <khilman@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/meson8.dtsi | 2 +-
+ arch/arm/boot/dts/meson8b.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/meson8.dtsi b/arch/arm/boot/dts/meson8.dtsi
-index d77dcf890cfc8..7162e0ca05b0a 100644
---- a/arch/arm/boot/dts/meson8.dtsi
-+++ b/arch/arm/boot/dts/meson8.dtsi
-@@ -194,7 +194,7 @@
+diff --git a/arch/arm/boot/dts/meson8b.dtsi b/arch/arm/boot/dts/meson8b.dtsi
+index 5b3e5c50c72f7..4293047a4b76b 100644
+--- a/arch/arm/boot/dts/meson8b.dtsi
++++ b/arch/arm/boot/dts/meson8b.dtsi
+@@ -163,7 +163,7 @@
  		#clock-cells = <1>;
  		#reset-cells = <1>;
- 		compatible = "amlogic,meson8-clkc";
+ 		compatible = "amlogic,meson8b-clkc";
 -		reg = <0x8000 0x4>, <0x4000 0x460>;
 +		reg = <0x8000 0x4>, <0x4000 0x400>;
  	};
