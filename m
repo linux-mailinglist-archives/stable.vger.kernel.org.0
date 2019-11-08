@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9548F5699
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B84CCF5547
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389531AbfKHTJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:09:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41676 "EHLO mail.kernel.org"
+        id S2390168AbfKHTBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:01:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391795AbfKHTJr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:09:47 -0500
+        id S1732355AbfKHTBW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:01:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D51D820673;
-        Fri,  8 Nov 2019 19:09:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F77F21D7B;
+        Fri,  8 Nov 2019 19:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240186;
-        bh=FmP9XTOThCf9edZjXuK00ofv3vQ4dyHYewdZPqO1gm4=;
+        s=default; t=1573239679;
+        bh=OKzxs6Vp36RleM3DGjN+gDcSlMvf+Optl6R2M+moc5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eH+HPnDXO8Yo3C6ErCuw8/dbpyq7lVWIyWTAZJc2JCl+jlh9/F3fDlnLp9gpBW1HF
-         vvCH2In5gPGamnBW5mXjZNNhg7e+lz1MPvsrFSLwAp1P7YSmKKOTxR/THpyY5b87A7
-         kWPy+fvswhjusRMdmf7Gtgf0UW43vu+cBfw1BrKQ=
+        b=kMLTX50sVXvEWmtfVHleZMEChJsYaiiLVpcAIhSeKLEgc9K7psSd5nqY+fI/dFrzA
+         QBDhW+pk985SBTTEKC9E+1JISfiGAsl1h5WvpzjRNa8AXCfQ+aNnjFj7GVOZlNdqqO
+         0aeYFpP4aNC4kPWOJDfUzkVfu9juhyJoPHk+VOS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Mikhak <alan.mikhak@sifive.com>,
-        Marc Zyngier <maz@kernel.org>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>
-Subject: [PATCH 5.3 076/140] irqchip/sifive-plic: Skip contexts except supervisor in plic_init()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 24/79] drm/amdgpu: fix potential VM faults
 Date:   Fri,  8 Nov 2019 19:50:04 +0100
-Message-Id: <20191108174909.904490504@linuxfoundation.org>
+Message-Id: <20191108174759.515948589@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Mikhak <alan.mikhak@sifive.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 41860cc447045c811ce6d5a92f93a065a691fe8e ]
+[ Upstream commit 3122051edc7c27cc08534be730f4c7c180919b8a ]
 
-Modify plic_init() to skip .dts interrupt contexts other
-than supervisor external interrupt.
+When we allocate new page tables under memory
+pressure we should not evict old ones.
 
-The .dts entry for plic may specify multiple interrupt contexts.
-For example, it may assign two entries IRQ_M_EXT and IRQ_S_EXT,
-in that order, to the same interrupt controller. This patch
-modifies plic_init() to skip the IRQ_M_EXT context since
-IRQ_S_EXT is currently the only supported context.
-
-If IRQ_M_EXT is not skipped, plic_init() will report "handler
-already present for context" when it comes across the IRQ_S_EXT
-context in the next iteration of its loop.
-
-Without this patch, .dts would have to be edited to replace the
-value of IRQ_M_EXT with -1 for it to be skipped.
-
-Signed-off-by: Alan Mikhak <alan.mikhak@sifive.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Paul Walmsley <paul.walmsley@sifive.com> # arch/riscv
-Link: https://lkml.kernel.org/r/1571933503-21504-1-git-send-email-alan.mikhak@sifive.com
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-sifive-plic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/irqchip/irq-sifive-plic.c b/drivers/irqchip/irq-sifive-plic.c
-index daefc52b0ec55..7d0a12fe2714a 100644
---- a/drivers/irqchip/irq-sifive-plic.c
-+++ b/drivers/irqchip/irq-sifive-plic.c
-@@ -252,8 +252,8 @@ static int __init plic_init(struct device_node *node,
- 			continue;
- 		}
- 
--		/* skip context holes */
--		if (parent.args[0] == -1)
-+		/* skip contexts other than supervisor external interrupt */
-+		if (parent.args[0] != IRQ_S_EXT)
- 			continue;
- 
- 		hartid = plic_find_hart_id(parent.np);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+index b0e14a3d54efd..b14ce112703f0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_object.c
+@@ -428,7 +428,8 @@ static int amdgpu_bo_do_create(struct amdgpu_device *adev,
+ 		.interruptible = (bp->type != ttm_bo_type_kernel),
+ 		.no_wait_gpu = false,
+ 		.resv = bp->resv,
+-		.flags = TTM_OPT_FLAG_ALLOW_RES_EVICT
++		.flags = bp->type != ttm_bo_type_kernel ?
++			TTM_OPT_FLAG_ALLOW_RES_EVICT : 0
+ 	};
+ 	struct amdgpu_bo *bo;
+ 	unsigned long page_align, size = bp->size;
 -- 
 2.20.1
 
