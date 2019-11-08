@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C984F5749
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D0DBF578B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388327AbfKHTT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:19:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57242 "EHLO mail.kernel.org"
+        id S2388568AbfKHTYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:24:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389454AbfKHTAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:09 -0500
+        id S1732258AbfKHSxT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:53:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E7F22067B;
-        Fri,  8 Nov 2019 18:57:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CBD0218AE;
+        Fri,  8 Nov 2019 18:53:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239449;
-        bh=edyaPEsSFDSaiIed7hgWIzOEDLJ9eNGK6LfhNHk5TbA=;
+        s=default; t=1573239199;
+        bh=BklGw2CHk0rhA5E7/1cYkeaiRWPgm4YdmDA/LT6GVH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZSCSx9ZEqxbJXn8aGeGkUydPWAJWijRZSGg+3KrsunmlYG5Sw498/fyt6GHpoKKYA
-         ILjj0Klu6hYw/cdGoC76ua8nsLhfIgpLp1jzlt1eYfb5yZOvm99iXUTLAIi8/W6zua
-         YeEa9VjKksQ7piRwzj+SO2dmdWsy19AiaLAL9438=
+        b=q+OVtS0NF4D8rr5dZDM1Zj3FRU2NymJ+eWbce0Y3zKzL9Tt1lsJOzEhDwJW4n0O+4
+         mSX/o6Flm4gUVgwOtU7zwiXhYYyj0S7Gq++nogGII4s6RAAqjVA2kORt0VTIbS6Qtk
+         RgH5eqa7pUZgrY1JGF+dYWc6sN+rRUEiATeJWwjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>,
-        Ray Jui <ray.jui@broadcom.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/62] arm64: dts: Fix gpio to pinmux mapping
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Christoffer Dall <christoffer.dall@linaro.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Greg Hackmann <ghackmann@google.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>
+Subject: [PATCH 4.4 32/75] arm64: KVM: Report SMCCC_ARCH_WORKAROUND_1 BP hardening support
 Date:   Fri,  8 Nov 2019 19:49:49 +0100
-Message-Id: <20191108174721.289735410@linuxfoundation.org>
+Message-Id: <20191108174741.407382517@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
+References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,61 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-[ Upstream commit 965f6603e3335a953f4f876792074cb36bf65f7f ]
+commit 6167ec5c9145cdf493722dfd80a5d48bafc4a18a upstream.
 
-There are total of 151 non-secure gpio (0-150) and four
-pins of pinmux (91, 92, 93 and 94) are not mapped to any
-gpio pin, hence update same in DT.
+A new feature of SMCCC 1.1 is that it offers firmware-based CPU
+workarounds. In particular, SMCCC_ARCH_WORKAROUND_1 provides
+BP hardening for CVE-2017-5715.
 
-Fixes: 8aa428cc1e2e ("arm64: dts: Add pinctrl DT nodes for Stingray SOC")
-Signed-off-by: Rayagonda Kokatanur <rayagonda.kokatanur@broadcom.com>
-Reviewed-by: Ray Jui <ray.jui@broadcom.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If the host has some mitigation for this issue, report that
+we deal with it using SMCCC_ARCH_WORKAROUND_1, as we apply the
+host workaround on every guest exit.
+
+Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Reviewed-by: Christoffer Dall <christoffer.dall@linaro.org>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[v4.9: account for files moved to virt/ upstream]
+Signed-off-by: Mark Rutland <mark.rutland@arm.com> [v4.9 backport]
+Tested-by: Greg Hackmann <ghackmann@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[ardb: restrict to include/linux/arm-smccc.h]
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/broadcom/stingray/stingray-pinctrl.dtsi | 5 +++--
- arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi         | 3 +--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/linux/arm-smccc.h |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray-pinctrl.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray-pinctrl.dtsi
-index 15214d05fec1c..8c20d4a0cb4ed 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray-pinctrl.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray-pinctrl.dtsi
-@@ -42,13 +42,14 @@
+--- a/include/linux/arm-smccc.h
++++ b/include/linux/arm-smccc.h
+@@ -70,6 +70,11 @@
+ 			   ARM_SMCCC_SMC_32,				\
+ 			   0, 1)
  
- 		pinmux: pinmux@0014029c {
- 			compatible = "pinctrl-single";
--			reg = <0x0014029c 0x250>;
-+			reg = <0x0014029c 0x26c>;
- 			#address-cells = <1>;
- 			#size-cells = <1>;
- 			pinctrl-single,register-width = <32>;
- 			pinctrl-single,function-mask = <0xf>;
- 			pinctrl-single,gpio-range = <
--				&range 0 154 MODE_GPIO
-+				&range 0  91 MODE_GPIO
-+				&range 95 60 MODE_GPIO
- 				>;
- 			range: gpio-range {
- 				#pinctrl-single,gpio-range-cells = <3>;
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-index 2b76293b51c83..3d2921ef29351 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-@@ -444,8 +444,7 @@
- 					<&pinmux 108 16 27>,
- 					<&pinmux 135 77 6>,
- 					<&pinmux 141 67 4>,
--					<&pinmux 145 149 6>,
--					<&pinmux 151 91 4>;
-+					<&pinmux 145 149 6>;
- 		};
++#define ARM_SMCCC_ARCH_WORKAROUND_1					\
++	ARM_SMCCC_CALL_VAL(ARM_SMCCC_FAST_CALL,				\
++			   ARM_SMCCC_SMC_32,				\
++			   0, 0x8000)
++
+ #ifndef __ASSEMBLY__
  
- 		i2c1: i2c@000e0000 {
--- 
-2.20.1
-
+ #include <linux/linkage.h>
 
 
