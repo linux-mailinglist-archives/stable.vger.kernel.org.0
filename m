@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2B4F53F2
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B105F53F4
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731772AbfKHSwq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:52:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49132 "EHLO mail.kernel.org"
+        id S1731911AbfKHSwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:52:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731679AbfKHSwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:52:45 -0500
+        id S1731825AbfKHSww (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:52:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1087C21924;
-        Fri,  8 Nov 2019 18:52:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D5722178F;
+        Fri,  8 Nov 2019 18:52:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239164;
-        bh=6y+jfJcGeHLQFcRrqtT7+4LWvEATv9JVCdDJ/SqMQvE=;
+        s=default; t=1573239167;
+        bh=AoTIuNbtRgG+6afq9HEaULMf6Zn926x/LsgsaaJ84CE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFE+TsqNjJq6Q5dWEubfiKM7pSmqo9sw/Xx75JLc4P99Pt75FH+XCHMJgsCDLSp4B
-         er307AiykEAMCHIA+UmlgfBPx1oxLFcBHYxVQrjI4uHEGBaXeyYfToI/FDu67kmHjb
-         g9C+rGVrZ8w1tpbDgwLoX6bXO/DcBQYF/zfOFM6c=
+        b=DVIboEUk1UAOpXi/gMTOJKjeqJ/6zXGAILpiIZOVkezmT20UnJXPDJCXKgxs+Vtk3
+         lYdCkMwCBJY+JwSjpUmoWxstkKD4/l+dTSr2oaWdt1HFYr453APUGRmvNF1nBWSRGe
+         WKtO5vWrVv+Q0XHYQh2ufmMhjgYwgVmgH53eVCpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Thiemo Nagel <tnagel@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 21/75] inet: stop leaking jiffies on the wire
-Date:   Fri,  8 Nov 2019 19:49:38 +0100
-Message-Id: <20191108174728.875843662@linuxfoundation.org>
+        Jonathan Berger <jonathann1@walla.com>,
+        Amit Klein <aksecurity@gmail.com>,
+        Benny Pinkas <benny@pinkas.net>,
+        Tom Herbert <tom@herbertland.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Mahesh Bandewar <maheshb@google.com>
+Subject: [PATCH 4.4 22/75] net/flow_dissector: switch to siphash
+Date:   Fri,  8 Nov 2019 19:49:39 +0100
+Message-Id: <20191108174729.201631038@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
 References: <20191108174708.135680837@linuxfoundation.org>
@@ -46,92 +50,382 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit a904a0693c189691eeee64f6c6b188bd7dc244e9 ]
+commit 55667441c84fa5e0911a0aac44fb059c15ba6da2 upstream.
 
-Historically linux tried to stick to RFC 791, 1122, 2003
-for IPv4 ID field generation.
+UDP IPv6 packets auto flowlabels are using a 32bit secret
+(static u32 hashrnd in net/core/flow_dissector.c) and
+apply jhash() over fields known by the receivers.
 
-RFC 6864 made clear that no matter how hard we try,
-we can not ensure unicity of IP ID within maximum
-lifetime for all datagrams with a given source
-address/destination address/protocol tuple.
+Attackers can easily infer the 32bit secret and use this information
+to identify a device and/or user, since this 32bit secret is only
+set at boot time.
 
-Linux uses a per socket inet generator (inet_id), initialized
-at connection startup with a XOR of 'jiffies' and other
-fields that appear clear on the wire.
+Really, using jhash() to generate cookies sent on the wire
+is a serious security concern.
 
-Thiemo Nagel pointed that this strategy is a privacy
-concern as this provides 16 bits of entropy to fingerprint
-devices.
+Trying to change the rol32(hash, 16) in ip6_make_flowlabel() would be
+a dead end. Trying to periodically change the secret (like in sch_sfq.c)
+could change paths taken in the network for long lived flows.
 
-Let's switch to a random starting point, this is just as
-good as far as RFC 6864 is concerned and does not leak
-anything critical.
+Let's switch to siphash, as we did in commit df453700e8d8
+("inet: switch IP ID generator to siphash")
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Using a cryptographically strong pseudo random function will solve this
+privacy issue and more generally remove other weak points in the stack.
+
+Packet schedulers using skb_get_hash_perturb() benefit from this change.
+
+Fixes: b56774163f99 ("ipv6: Enable auto flow labels by default")
+Fixes: 42240901f7c4 ("ipv6: Implement different admin modes for automatic flow labels")
+Fixes: 67800f9b1f4e ("ipv6: Call skb_get_hash_flowi6 to get skb->hash in ip6_make_flowlabel")
+Fixes: cb1ce2ef387b ("ipv6: Implement automatic flow label generation on transmit")
 Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Thiemo Nagel <tnagel@google.com>
+Reported-by: Jonathan Berger <jonathann1@walla.com>
+Reported-by: Amit Klein <aksecurity@gmail.com>
+Reported-by: Benny Pinkas <benny@pinkas.net>
+Cc: Tom Herbert <tom@herbertland.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Mahesh Bandewar <maheshb@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dccp/ipv4.c     |    2 +-
- net/ipv4/datagram.c |    2 +-
- net/ipv4/tcp_ipv4.c |    4 ++--
- net/sctp/socket.c   |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ include/linux/skbuff.h       |    3 +-
+ include/net/flow_dissector.h |    3 +-
+ net/core/flow_dissector.c    |   48 +++++++++++++++++--------------------------
+ net/sched/sch_fq_codel.c     |    6 ++---
+ net/sched/sch_hhf.c          |    8 +++----
+ net/sched/sch_sfb.c          |   13 ++++++-----
+ net/sched/sch_sfq.c          |   14 +++++++-----
+ 7 files changed, 46 insertions(+), 49 deletions(-)
 
---- a/net/dccp/ipv4.c
-+++ b/net/dccp/ipv4.c
-@@ -121,7 +121,7 @@ int dccp_v4_connect(struct sock *sk, str
- 						    inet->inet_daddr,
- 						    inet->inet_sport,
- 						    inet->inet_dport);
--	inet->inet_id = dp->dccps_iss ^ jiffies;
-+	inet->inet_id = prandom_u32();
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1073,7 +1073,8 @@ static inline __u32 skb_get_hash_flowi4(
+ 	return skb->hash;
+ }
  
- 	err = dccp_connect(sk);
- 	rt = NULL;
---- a/net/ipv4/datagram.c
-+++ b/net/ipv4/datagram.c
-@@ -75,7 +75,7 @@ int __ip4_datagram_connect(struct sock *
- 	inet->inet_dport = usin->sin_port;
- 	sk->sk_state = TCP_ESTABLISHED;
- 	sk_set_txhash(sk);
--	inet->inet_id = jiffies;
-+	inet->inet_id = prandom_u32();
+-__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb);
++__u32 skb_get_hash_perturb(const struct sk_buff *skb,
++			   const siphash_key_t *perturb);
  
- 	sk_dst_set(sk, &rt->dst);
- 	err = 0;
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -241,7 +241,7 @@ int tcp_v4_connect(struct sock *sk, stru
- 							   inet->inet_sport,
- 							   usin->sin_port);
+ static inline __u32 skb_get_hash_raw(const struct sk_buff *skb)
+ {
+--- a/include/net/flow_dissector.h
++++ b/include/net/flow_dissector.h
+@@ -3,6 +3,7 @@
  
--	inet->inet_id = tp->write_seq ^ jiffies;
-+	inet->inet_id = prandom_u32();
+ #include <linux/types.h>
+ #include <linux/in6.h>
++#include <linux/siphash.h>
+ #include <uapi/linux/if_ether.h>
  
- 	err = tcp_connect(sk);
+ /**
+@@ -146,7 +147,7 @@ struct flow_dissector {
+ struct flow_keys {
+ 	struct flow_dissector_key_control control;
+ #define FLOW_KEYS_HASH_START_FIELD basic
+-	struct flow_dissector_key_basic basic;
++	struct flow_dissector_key_basic basic __aligned(SIPHASH_ALIGNMENT);
+ 	struct flow_dissector_key_tags tags;
+ 	struct flow_dissector_key_keyid keyid;
+ 	struct flow_dissector_key_ports ports;
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -505,45 +505,34 @@ out_bad:
+ }
+ EXPORT_SYMBOL(__skb_flow_dissect);
  
-@@ -1302,7 +1302,7 @@ struct sock *tcp_v4_syn_recv_sock(const
- 	inet_csk(newsk)->icsk_ext_hdr_len = 0;
- 	if (inet_opt)
- 		inet_csk(newsk)->icsk_ext_hdr_len = inet_opt->opt.optlen;
--	newinet->inet_id = newtp->write_seq ^ jiffies;
-+	newinet->inet_id = prandom_u32();
+-static u32 hashrnd __read_mostly;
++static siphash_key_t hashrnd __read_mostly;
+ static __always_inline void __flow_hash_secret_init(void)
+ {
+ 	net_get_random_once(&hashrnd, sizeof(hashrnd));
+ }
  
- 	if (!dst) {
- 		dst = inet_csk_route_child_sock(sk, newsk, req);
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -7267,7 +7267,7 @@ void sctp_copy_sock(struct sock *newsk,
- 	newinet->inet_rcv_saddr = inet->inet_rcv_saddr;
- 	newinet->inet_dport = htons(asoc->peer.port);
- 	newinet->pmtudisc = inet->pmtudisc;
--	newinet->inet_id = asoc->next_tsn ^ jiffies;
-+	newinet->inet_id = prandom_u32();
+-static __always_inline u32 __flow_hash_words(const u32 *words, u32 length,
+-					     u32 keyval)
++static const void *flow_keys_hash_start(const struct flow_keys *flow)
+ {
+-	return jhash2(words, length, keyval);
+-}
+-
+-static inline const u32 *flow_keys_hash_start(const struct flow_keys *flow)
+-{
+-	const void *p = flow;
+-
+-	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % sizeof(u32));
+-	return (const u32 *)(p + FLOW_KEYS_HASH_OFFSET);
++	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % SIPHASH_ALIGNMENT);
++	return &flow->FLOW_KEYS_HASH_START_FIELD;
+ }
  
- 	newinet->uc_ttl = inet->uc_ttl;
- 	newinet->mc_loop = 1;
+ static inline size_t flow_keys_hash_length(const struct flow_keys *flow)
+ {
+-	size_t diff = FLOW_KEYS_HASH_OFFSET + sizeof(flow->addrs);
+-	BUILD_BUG_ON((sizeof(*flow) - FLOW_KEYS_HASH_OFFSET) % sizeof(u32));
+-	BUILD_BUG_ON(offsetof(typeof(*flow), addrs) !=
+-		     sizeof(*flow) - sizeof(flow->addrs));
++	size_t len = offsetof(typeof(*flow), addrs) - FLOW_KEYS_HASH_OFFSET;
+ 
+ 	switch (flow->control.addr_type) {
+ 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
+-		diff -= sizeof(flow->addrs.v4addrs);
++		len += sizeof(flow->addrs.v4addrs);
+ 		break;
+ 	case FLOW_DISSECTOR_KEY_IPV6_ADDRS:
+-		diff -= sizeof(flow->addrs.v6addrs);
++		len += sizeof(flow->addrs.v6addrs);
+ 		break;
+ 	case FLOW_DISSECTOR_KEY_TIPC_ADDRS:
+-		diff -= sizeof(flow->addrs.tipcaddrs);
++		len += sizeof(flow->addrs.tipcaddrs);
+ 		break;
+ 	}
+-	return (sizeof(*flow) - diff) / sizeof(u32);
++	return len;
+ }
+ 
+ __be32 flow_get_u32_src(const struct flow_keys *flow)
+@@ -609,14 +598,15 @@ static inline void __flow_hash_consisten
+ 	}
+ }
+ 
+-static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
++static inline u32 __flow_hash_from_keys(struct flow_keys *keys,
++					const siphash_key_t *keyval)
+ {
+ 	u32 hash;
+ 
+ 	__flow_hash_consistentify(keys);
+ 
+-	hash = __flow_hash_words(flow_keys_hash_start(keys),
+-				 flow_keys_hash_length(keys), keyval);
++	hash = siphash(flow_keys_hash_start(keys),
++		       flow_keys_hash_length(keys), keyval);
+ 	if (!hash)
+ 		hash = 1;
+ 
+@@ -626,12 +616,13 @@ static inline u32 __flow_hash_from_keys(
+ u32 flow_hash_from_keys(struct flow_keys *keys)
+ {
+ 	__flow_hash_secret_init();
+-	return __flow_hash_from_keys(keys, hashrnd);
++	return __flow_hash_from_keys(keys, &hashrnd);
+ }
+ EXPORT_SYMBOL(flow_hash_from_keys);
+ 
+ static inline u32 ___skb_get_hash(const struct sk_buff *skb,
+-				  struct flow_keys *keys, u32 keyval)
++				  struct flow_keys *keys,
++				  const siphash_key_t *keyval)
+ {
+ 	skb_flow_dissect_flow_keys(skb, keys,
+ 				   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
+@@ -679,7 +670,7 @@ u32 __skb_get_hash_symmetric(struct sk_b
+ 			   NULL, 0, 0, 0,
+ 			   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
+ 
+-	return __flow_hash_from_keys(&keys, hashrnd);
++	return __flow_hash_from_keys(&keys, &hashrnd);
+ }
+ EXPORT_SYMBOL_GPL(__skb_get_hash_symmetric);
+ 
+@@ -698,12 +689,13 @@ void __skb_get_hash(struct sk_buff *skb)
+ 
+ 	__flow_hash_secret_init();
+ 
+-	__skb_set_sw_hash(skb, ___skb_get_hash(skb, &keys, hashrnd),
++	__skb_set_sw_hash(skb, ___skb_get_hash(skb, &keys, &hashrnd),
+ 			  flow_keys_have_l4(&keys));
+ }
+ EXPORT_SYMBOL(__skb_get_hash);
+ 
+-__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb)
++__u32 skb_get_hash_perturb(const struct sk_buff *skb,
++			   const siphash_key_t *perturb)
+ {
+ 	struct flow_keys keys;
+ 
+--- a/net/sched/sch_fq_codel.c
++++ b/net/sched/sch_fq_codel.c
+@@ -55,7 +55,7 @@ struct fq_codel_sched_data {
+ 	struct fq_codel_flow *flows;	/* Flows table [flows_cnt] */
+ 	u32		*backlogs;	/* backlog table [flows_cnt] */
+ 	u32		flows_cnt;	/* number of flows */
+-	u32		perturbation;	/* hash perturbation */
++	siphash_key_t	perturbation;	/* hash perturbation */
+ 	u32		quantum;	/* psched_mtu(qdisc_dev(sch)); */
+ 	struct codel_params cparams;
+ 	struct codel_stats cstats;
+@@ -69,7 +69,7 @@ struct fq_codel_sched_data {
+ static unsigned int fq_codel_hash(const struct fq_codel_sched_data *q,
+ 				  struct sk_buff *skb)
+ {
+-	u32 hash = skb_get_hash_perturb(skb, q->perturbation);
++	u32 hash = skb_get_hash_perturb(skb, &q->perturbation);
+ 
+ 	return reciprocal_scale(hash, q->flows_cnt);
+ }
+@@ -420,7 +420,7 @@ static int fq_codel_init(struct Qdisc *s
+ 	sch->limit = 10*1024;
+ 	q->flows_cnt = 1024;
+ 	q->quantum = psched_mtu(qdisc_dev(sch));
+-	q->perturbation = prandom_u32();
++	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+ 	INIT_LIST_HEAD(&q->new_flows);
+ 	INIT_LIST_HEAD(&q->old_flows);
+ 	codel_params_init(&q->cparams, sch);
+--- a/net/sched/sch_hhf.c
++++ b/net/sched/sch_hhf.c
+@@ -4,11 +4,11 @@
+  * Copyright (C) 2013 Nandita Dukkipati <nanditad@google.com>
+  */
+ 
+-#include <linux/jhash.h>
+ #include <linux/jiffies.h>
+ #include <linux/module.h>
+ #include <linux/skbuff.h>
+ #include <linux/vmalloc.h>
++#include <linux/siphash.h>
+ #include <net/pkt_sched.h>
+ #include <net/sock.h>
+ 
+@@ -125,7 +125,7 @@ struct wdrr_bucket {
+ 
+ struct hhf_sched_data {
+ 	struct wdrr_bucket buckets[WDRR_BUCKET_CNT];
+-	u32		   perturbation;   /* hash perturbation */
++	siphash_key_t	   perturbation;   /* hash perturbation */
+ 	u32		   quantum;        /* psched_mtu(qdisc_dev(sch)); */
+ 	u32		   drop_overlimit; /* number of times max qdisc packet
+ 					    * limit was hit
+@@ -263,7 +263,7 @@ static enum wdrr_bucket_idx hhf_classify
+ 	}
+ 
+ 	/* Get hashed flow-id of the skb. */
+-	hash = skb_get_hash_perturb(skb, q->perturbation);
++	hash = skb_get_hash_perturb(skb, &q->perturbation);
+ 
+ 	/* Check if this packet belongs to an already established HH flow. */
+ 	flow_pos = hash & HHF_BIT_MASK;
+@@ -602,7 +602,7 @@ static int hhf_init(struct Qdisc *sch, s
+ 
+ 	sch->limit = 1000;
+ 	q->quantum = psched_mtu(qdisc_dev(sch));
+-	q->perturbation = prandom_u32();
++	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+ 	INIT_LIST_HEAD(&q->new_buckets);
+ 	INIT_LIST_HEAD(&q->old_buckets);
+ 
+--- a/net/sched/sch_sfb.c
++++ b/net/sched/sch_sfb.c
+@@ -22,7 +22,7 @@
+ #include <linux/errno.h>
+ #include <linux/skbuff.h>
+ #include <linux/random.h>
+-#include <linux/jhash.h>
++#include <linux/siphash.h>
+ #include <net/ip.h>
+ #include <net/pkt_sched.h>
+ #include <net/inet_ecn.h>
+@@ -48,7 +48,7 @@ struct sfb_bucket {
+  * (Section 4.4 of SFB reference : moving hash functions)
+  */
+ struct sfb_bins {
+-	u32		  perturbation; /* jhash perturbation */
++	siphash_key_t	  perturbation; /* siphash key */
+ 	struct sfb_bucket bins[SFB_LEVELS][SFB_NUMBUCKETS];
+ };
+ 
+@@ -219,7 +219,8 @@ static u32 sfb_compute_qlen(u32 *prob_r,
+ 
+ static void sfb_init_perturbation(u32 slot, struct sfb_sched_data *q)
+ {
+-	q->bins[slot].perturbation = prandom_u32();
++	get_random_bytes(&q->bins[slot].perturbation,
++			 sizeof(q->bins[slot].perturbation));
+ }
+ 
+ static void sfb_swap_slot(struct sfb_sched_data *q)
+@@ -313,9 +314,9 @@ static int sfb_enqueue(struct sk_buff *s
+ 		/* If using external classifiers, get result and record it. */
+ 		if (!sfb_classify(skb, fl, &ret, &salt))
+ 			goto other_drop;
+-		sfbhash = jhash_1word(salt, q->bins[slot].perturbation);
++		sfbhash = siphash_1u32(salt, &q->bins[slot].perturbation);
+ 	} else {
+-		sfbhash = skb_get_hash_perturb(skb, q->bins[slot].perturbation);
++		sfbhash = skb_get_hash_perturb(skb, &q->bins[slot].perturbation);
+ 	}
+ 
+ 
+@@ -351,7 +352,7 @@ static int sfb_enqueue(struct sk_buff *s
+ 		/* Inelastic flow */
+ 		if (q->double_buffering) {
+ 			sfbhash = skb_get_hash_perturb(skb,
+-			    q->bins[slot].perturbation);
++			    &q->bins[slot].perturbation);
+ 			if (!sfbhash)
+ 				sfbhash = 1;
+ 			sfb_skb_cb(skb)->hashes[slot] = sfbhash;
+--- a/net/sched/sch_sfq.c
++++ b/net/sched/sch_sfq.c
+@@ -18,7 +18,7 @@
+ #include <linux/errno.h>
+ #include <linux/init.h>
+ #include <linux/skbuff.h>
+-#include <linux/jhash.h>
++#include <linux/siphash.h>
+ #include <linux/slab.h>
+ #include <linux/vmalloc.h>
+ #include <net/netlink.h>
+@@ -120,7 +120,7 @@ struct sfq_sched_data {
+ 	u8		headdrop;
+ 	u8		maxdepth;	/* limit of packets per flow */
+ 
+-	u32		perturbation;
++	siphash_key_t 	perturbation;
+ 	u8		cur_depth;	/* depth of longest slot */
+ 	u8		flags;
+ 	unsigned short  scaled_quantum; /* SFQ_ALLOT_SIZE(quantum) */
+@@ -158,7 +158,7 @@ static inline struct sfq_head *sfq_dep_h
+ static unsigned int sfq_hash(const struct sfq_sched_data *q,
+ 			     const struct sk_buff *skb)
+ {
+-	return skb_get_hash_perturb(skb, q->perturbation) & (q->divisor - 1);
++	return skb_get_hash_perturb(skb, &q->perturbation) & (q->divisor - 1);
+ }
+ 
+ static unsigned int sfq_classify(struct sk_buff *skb, struct Qdisc *sch,
+@@ -607,9 +607,11 @@ static void sfq_perturbation(unsigned lo
+ 	struct Qdisc *sch = (struct Qdisc *)arg;
+ 	struct sfq_sched_data *q = qdisc_priv(sch);
+ 	spinlock_t *root_lock = qdisc_lock(qdisc_root_sleeping(sch));
++	siphash_key_t nkey;
+ 
++	get_random_bytes(&nkey, sizeof(nkey));
+ 	spin_lock(root_lock);
+-	q->perturbation = prandom_u32();
++	q->perturbation = nkey;
+ 	if (!q->filter_list && q->tail)
+ 		sfq_rehash(sch);
+ 	spin_unlock(root_lock);
+@@ -681,7 +683,7 @@ static int sfq_change(struct Qdisc *sch,
+ 	del_timer(&q->perturb_timer);
+ 	if (q->perturb_period) {
+ 		mod_timer(&q->perturb_timer, jiffies + q->perturb_period);
+-		q->perturbation = prandom_u32();
++		get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+ 	}
+ 	sch_tree_unlock(sch);
+ 	kfree(p);
+@@ -737,7 +739,7 @@ static int sfq_init(struct Qdisc *sch, s
+ 	q->quantum = psched_mtu(qdisc_dev(sch));
+ 	q->scaled_quantum = SFQ_ALLOT_SIZE(q->quantum);
+ 	q->perturb_period = 0;
+-	q->perturbation = prandom_u32();
++	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
+ 
+ 	if (opt) {
+ 		int err = sfq_change(sch, opt);
 
 
