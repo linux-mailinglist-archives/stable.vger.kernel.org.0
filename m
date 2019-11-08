@@ -2,102 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11801F407E
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 07:38:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9F6F40BA
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 07:45:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727016AbfKHGiW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 01:38:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57860 "EHLO mail.kernel.org"
+        id S1725886AbfKHGpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 01:45:18 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:38425 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725372AbfKHGiW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 01:38:22 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D726B21D6C;
-        Fri,  8 Nov 2019 06:38:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573195100;
-        bh=ieq994yZc2Vpj4i3TC+W/mt+eyZaGMkEyFcmL4nTI8g=;
-        h=Subject:To:From:Date:From;
-        b=vH/D/asO7jEghIKHxje/vgMRjeu/sG/FMQpkfScSIkhaGylZMthls5PUMX0b+FCsd
-         K8CJFWJMfi1PK0L3qW3XrNQGuGLrry7rqS4VQimV44sYgVLzDduZjwx5JrQkYu+XQK
-         ZID5IilUHC24cXmQ7Hkc0fEHZ27Gek6f0bPzf5t0=
-Subject: patch "staging: rtl8192e: fix potential use after free" added to staging-next
-To:     bianpan2016@163.com, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 08 Nov 2019 07:38:00 +0100
-Message-ID: <1573195080160125@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+        id S1725372AbfKHGpS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 01:45:18 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.84_2)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1iSy1A-0005AI-6H; Fri, 08 Nov 2019 06:45:12 +0000
+From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Date:   Fri, 08 Nov 2019 06:38:59 +0000
+Subject: [git:media_tree/master] media: vivid: Fix wrong locking that causes race conditions on streaming stop
+To:     linuxtv-commits@linuxtv.org
+Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Alexander Popov <alex.popov@linux.com>, stable@vger.kernel.org
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1iSy1A-0005AI-6H@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an automatic generated email to let you know that the following patch were queued:
 
-This is a note to let you know that I've just added the patch titled
+Subject: media: vivid: Fix wrong locking that causes race conditions on streaming stop
+Author:  Alexander Popov <alex.popov@linux.com>
+Date:    Sun Nov 3 23:17:19 2019 +0100
 
-    staging: rtl8192e: fix potential use after free
+There is the same incorrect approach to locking implemented in
+vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
+sdr_cap_stop_streaming().
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+These functions are called during streaming stopping with vivid_dev.mutex
+locked. And they all do the same mistake while stopping their kthreads,
+which need to lock this mutex as well. See the example from
+vivid_stop_generating_vid_cap():
+  /* shutdown control thread */
+  vivid_grab_controls(dev, false);
+  mutex_unlock(&dev->mutex);
+  kthread_stop(dev->kthread_vid_cap);
+  dev->kthread_vid_cap = NULL;
+  mutex_lock(&dev->mutex);
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+But when this mutex is unlocked, another vb2_fop_read() can lock it
+instead of vivid_thread_vid_cap() and manipulate the buffer queue.
+That causes a use-after-free access later.
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+To fix those issues let's:
+  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
+vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
+  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
+the loops of the vivid kthread handlers.
 
-If you have any questions about this process, please let me know.
+Signed-off-by: Alexander Popov <alex.popov@linux.com>
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: <stable@vger.kernel.org>      # for v3.18 and up
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 
+ drivers/media/platform/vivid/vivid-kthread-cap.c | 8 +++++---
+ drivers/media/platform/vivid/vivid-kthread-out.c | 8 +++++---
+ drivers/media/platform/vivid/vivid-sdr-cap.c     | 8 +++++---
+ 3 files changed, 15 insertions(+), 9 deletions(-)
 
-From b7aa39a2ed0112d07fc277ebd24a08a7b2368ab9 Mon Sep 17 00:00:00 2001
-From: Pan Bian <bianpan2016@163.com>
-Date: Tue, 5 Nov 2019 22:49:11 +0800
-Subject: staging: rtl8192e: fix potential use after free
-
-The variable skb is released via kfree_skb() when the return value of
-_rtl92e_tx is not zero. However, after that, skb is accessed again to
-read its length, which may result in a use after free bug. This patch
-fixes the bug by moving the release operation to where skb is never
-used later.
-
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1572965351-6745-1-git-send-email-bianpan2016@163.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/rtl8192e/rtl8192e/rtl_core.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
-index b08712a9c029..dace81a7d1ba 100644
---- a/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
-+++ b/drivers/staging/rtl8192e/rtl8192e/rtl_core.c
-@@ -1616,14 +1616,15 @@ static void _rtl92e_hard_data_xmit(struct sk_buff *skb, struct net_device *dev,
- 	memcpy((unsigned char *)(skb->cb), &dev, sizeof(dev));
- 	skb_push(skb, priv->rtllib->tx_headroom);
- 	ret = _rtl92e_tx(dev, skb);
--	if (ret != 0)
--		kfree_skb(skb);
+diff --git a/drivers/media/platform/vivid/vivid-kthread-cap.c b/drivers/media/platform/vivid/vivid-kthread-cap.c
+index 9f981e8bae6e..01a9d671b947 100644
+--- a/drivers/media/platform/vivid/vivid-kthread-cap.c
++++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
+@@ -818,7 +818,11 @@ static int vivid_thread_vid_cap(void *data)
+ 		if (kthread_should_stop())
+ 			break;
  
- 	if (queue_index != MGNT_QUEUE) {
- 		priv->rtllib->stats.tx_bytes += (skb->len -
- 						 priv->rtllib->tx_headroom);
- 		priv->rtllib->stats.tx_packets++;
- 	}
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
 +
-+	if (ret != 0)
-+		kfree_skb(skb);
+ 		cur_jiffies = jiffies;
+ 		if (dev->cap_seq_resync) {
+ 			dev->jiffies_vid_cap = cur_jiffies;
+@@ -998,8 +1002,6 @@ void vivid_stop_generating_vid_cap(struct vivid_dev *dev, bool *pstreaming)
+ 
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_cap);
+ 	dev->kthread_vid_cap = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+diff --git a/drivers/media/platform/vivid/vivid-kthread-out.c b/drivers/media/platform/vivid/vivid-kthread-out.c
+index c974235d7de3..6780687978f9 100644
+--- a/drivers/media/platform/vivid/vivid-kthread-out.c
++++ b/drivers/media/platform/vivid/vivid-kthread-out.c
+@@ -166,7 +166,11 @@ static int vivid_thread_vid_out(void *data)
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->out_seq_resync) {
+ 			dev->jiffies_vid_out = cur_jiffies;
+@@ -344,8 +348,6 @@ void vivid_stop_generating_vid_out(struct vivid_dev *dev, bool *pstreaming)
+ 
+ 	/* shutdown control thread */
+ 	vivid_grab_controls(dev, false);
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_vid_out);
+ 	dev->kthread_vid_out = NULL;
+-	mutex_lock(&dev->mutex);
+ }
+diff --git a/drivers/media/platform/vivid/vivid-sdr-cap.c b/drivers/media/platform/vivid/vivid-sdr-cap.c
+index 9acc709b0740..2b7522e16efc 100644
+--- a/drivers/media/platform/vivid/vivid-sdr-cap.c
++++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
+@@ -141,7 +141,11 @@ static int vivid_thread_sdr_cap(void *data)
+ 		if (kthread_should_stop())
+ 			break;
+ 
+-		mutex_lock(&dev->mutex);
++		if (!mutex_trylock(&dev->mutex)) {
++			schedule_timeout_uninterruptible(1);
++			continue;
++		}
++
+ 		cur_jiffies = jiffies;
+ 		if (dev->sdr_cap_seq_resync) {
+ 			dev->jiffies_sdr_cap = cur_jiffies;
+@@ -303,10 +307,8 @@ static void sdr_cap_stop_streaming(struct vb2_queue *vq)
+ 	}
+ 
+ 	/* shutdown control thread */
+-	mutex_unlock(&dev->mutex);
+ 	kthread_stop(dev->kthread_sdr_cap);
+ 	dev->kthread_sdr_cap = NULL;
+-	mutex_lock(&dev->mutex);
  }
  
- static int _rtl92e_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
--- 
-2.24.0
-
-
+ static void sdr_cap_buf_request_complete(struct vb2_buffer *vb)
