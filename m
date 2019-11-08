@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69F53F56D5
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB30F56BD
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731127AbfKHTLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:11:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42974 "EHLO mail.kernel.org"
+        id S2389632AbfKHTKp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:10:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391909AbfKHTKm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:10:42 -0500
+        id S2388212AbfKHTKo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:10:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F149A21D82;
-        Fri,  8 Nov 2019 19:10:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB2992087E;
+        Fri,  8 Nov 2019 19:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240241;
-        bh=wFDjA2v+gkBrtrjNRPGQxKgCcRWFyG6N6sN3tvgirLE=;
+        s=default; t=1573240244;
+        bh=3oqN9qWgbnEMey6o548/1M+XQR4qFTVWwAbeghvBoXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IXjOXs1hwqKIN6relhV2UrQdj871sGLCjFhz4qHBY/eRe7X7vBVXQoqh4CsnaR6DK
-         X7T3KO7ob6uTQ4E5tbpFiz7hagZkpN1+0aF/BbukizmzeTbt0jkyKWTar2czBPAHFr
-         F3UhloW+yRsySn3lBFelGPz8NgOkQDAuH/OJAZVU=
+        b=EX2SpfqVQjSaZ9M0QsnTnp1GLniYNLdlANuZKhQw4iQrdBpsoNJPJxTRudVC5/64P
+         IsULw60ULPGfBczDb03eeprUQjBCIthZC0Ok/uwwoagUkV/hdPi0RXNtOnLM0Shq61
+         K4HjODSqJFMt46//imzkNIUeN2h4lZh40S/oY33o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Desnes A. Nunes do Rosario" <desnesn@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sandipan Das <sandipan@linux.ibm.com>
-Subject: [PATCH 5.3 137/140] selftests/powerpc: Fix compile error on tlbie_test due to newer gcc
-Date:   Fri,  8 Nov 2019 19:51:05 +0100
-Message-Id: <20191108174913.209758721@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 5.3 138/140] ASoC: pcm3168a: The codec does not support S32_LE
+Date:   Fri,  8 Nov 2019 19:51:06 +0100
+Message-Id: <20191108174913.261851974@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
 References: <20191108174900.189064908@linuxfoundation.org>
@@ -45,42 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-commit 5b216ea1c40cf06eead15054c70e238c9bd4729e upstream.
+commit 7b2db65b59c30d58c129d3c8b2101feca686155a upstream.
 
-Newer versions of GCC (>= 9) demand that the size of the string to be
-copied must be explicitly smaller than the size of the destination.
-Thus, the NULL char has to be taken into account on strncpy.
+24 bits is supported in all modes and 16 bit only when the codec is slave
+and the DAI is set to RIGHT_J.
 
-This will avoid the following compiling error:
+Remove the unsupported sample format.
 
-  tlbie_test.c: In function 'main':
-  tlbie_test.c:639:4: error: 'strncpy' specified bound 100 equals destination size
-      strncpy(logdir, optarg, LOGDIR_NAME_SIZE);
-      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cc1: all warnings being treated as errors
-
-Signed-off-by: Desnes A. Nunes do Rosario <desnesn@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20191003211010.9711-1-desnesn@linux.ibm.com
-Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20190919071652.31724-1-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/testing/selftests/powerpc/mm/tlbie_test.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/pcm3168a.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/tools/testing/selftests/powerpc/mm/tlbie_test.c
-+++ b/tools/testing/selftests/powerpc/mm/tlbie_test.c
-@@ -636,7 +636,7 @@ int main(int argc, char *argv[])
- 			nrthreads = strtoul(optarg, NULL, 10);
- 			break;
- 		case 'l':
--			strncpy(logdir, optarg, LOGDIR_NAME_SIZE);
-+			strncpy(logdir, optarg, LOGDIR_NAME_SIZE - 1);
- 			break;
- 		case 't':
- 			run_time = strtoul(optarg, NULL, 10);
+--- a/sound/soc/codecs/pcm3168a.c
++++ b/sound/soc/codecs/pcm3168a.c
+@@ -21,8 +21,7 @@
+ 
+ #define PCM3168A_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | \
+ 			 SNDRV_PCM_FMTBIT_S24_3LE | \
+-			 SNDRV_PCM_FMTBIT_S24_LE | \
+-			 SNDRV_PCM_FMTBIT_S32_LE)
++			 SNDRV_PCM_FMTBIT_S24_LE)
+ 
+ #define PCM3168A_FMT_I2S		0x0
+ #define PCM3168A_FMT_LEFT_J		0x1
 
 
