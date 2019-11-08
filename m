@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57FA1F550B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D38C3F5775
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389469AbfKHTAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:00:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57238 "EHLO mail.kernel.org"
+        id S2388802AbfKHTW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:22:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389418AbfKHTAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:08 -0500
+        id S1732317AbfKHS40 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:56:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D368224EE;
-        Fri,  8 Nov 2019 18:59:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A79F214DB;
+        Fri,  8 Nov 2019 18:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239548;
-        bh=NU7qfOU21zQDW5QJyblEzO5U4tADEDO1kqVIH3u08PE=;
+        s=default; t=1573239385;
+        bh=L8xFWu/+/7/Nkr5p+5Zx106+m2sJDDPUmMD7Cw6e4JQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQn5E0oUcArjg23eJe07qhFT3Vf7H3csDQNyFET5oXmmKIHrwUzklnyeIgdoVyUfP
-         WKSzEKtD2vT+Kgqpzl+/qP6D3OSYDoW+DUFNBeIAomtDmFRhWJppw6U0tkNln6rL61
-         kX4QI4XjgbtUAum6hmcQ45bwoNv7l+Y+33FWYDBo=
+        b=Q7z3BhGw43Nsvi1dD0UOQkAT3Zd/kmT/wYUM8w//5bJorj7XcyWEHFiMQ3b37QD/b
+         3a8rq4j3jx5YVBA1MM8Jd0MUEBZxb39yZ/QQTS+Cs7brpIee0up/T3nHG7dX7F+Fr0
+         PG8oDr7fp0jPHJ5GCH9htQew8MCrMocITQ7+OW9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Wei Wang <weiwan@google.com>,
+        Craig Gallek <cgallek@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 41/62] net: bcmgenet: reset 40nm EPHY on energy detect
+Subject: [PATCH 4.9 22/34] selftests: net: reuseport_dualstack: fix uninitalized parameter
 Date:   Fri,  8 Nov 2019 19:50:29 +0100
-Message-Id: <20191108174749.232189821@linuxfoundation.org>
+Message-Id: <20191108174643.100159854@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
+References: <20191108174618.266472504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Doug Berger <opendmb@gmail.com>
+From: Wei Wang <weiwan@google.com>
 
-[ Upstream commit 25382b991d252aed961cd434176240f9de6bb15f ]
+[ Upstream commit d64479a3e3f9924074ca7b50bd72fa5211dca9c1 ]
 
-The EPHY integrated into the 40nm Set-Top Box devices can falsely
-detect energy when connected to a disabled peer interface. When the
-peer interface is enabled the EPHY will detect and report the link
-as active, but on occasion may get into a state where it is not
-able to exchange data with the connected GENET MAC. This issue has
-not been observed when the link parameters are auto-negotiated;
-however, it has been observed with a manually configured link.
+This test reports EINVAL for getsockopt(SOL_SOCKET, SO_DOMAIN)
+occasionally due to the uninitialized length parameter.
+Initialize it to fix this, and also use int for "test_family" to comply
+with the API standard.
 
-It has been empirically determined that issuing a soft reset to the
-EPHY when energy is detected prevents it from getting into this bad
-state.
-
-Fixes: 1c1008c793fa ("net: bcmgenet: add main driver file")
-Signed-off-by: Doug Berger <opendmb@gmail.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: d6a61f80b871 ("soreuseport: test mixed v4/v6 sockets")
+Reported-by: Maciej Żenczykowski <maze@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Wei Wang <weiwan@google.com>
+Cc: Craig Gallek <cgallek@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/reuseport_dualstack.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -1985,6 +1985,8 @@ static void bcmgenet_link_intr_enable(st
- 	 */
- 	if (priv->internal_phy) {
- 		int0_enable |= UMAC_IRQ_LINK_EVENT;
-+		if (GENET_IS_V1(priv) || GENET_IS_V2(priv) || GENET_IS_V3(priv))
-+			int0_enable |= UMAC_IRQ_PHY_DET_R;
- 	} else if (priv->ext_phy) {
- 		int0_enable |= UMAC_IRQ_LINK_EVENT;
- 	} else if (priv->phy_interface == PHY_INTERFACE_MODE_MOCA) {
-@@ -2608,6 +2610,10 @@ static void bcmgenet_irq_task(struct wor
- 		bcmgenet_power_up(priv, GENET_POWER_WOL_MAGIC);
- 	}
+--- a/tools/testing/selftests/net/reuseport_dualstack.c
++++ b/tools/testing/selftests/net/reuseport_dualstack.c
+@@ -128,7 +128,7 @@ static void test(int *rcv_fds, int count
+ {
+ 	struct epoll_event ev;
+ 	int epfd, i, test_fd;
+-	uint16_t test_family;
++	int test_family;
+ 	socklen_t len;
  
-+	if (status & UMAC_IRQ_PHY_DET_R &&
-+	    priv->dev->phydev->autoneg != AUTONEG_ENABLE)
-+		phy_init_hw(priv->dev->phydev);
-+
- 	/* Link UP/DOWN event */
- 	if (status & UMAC_IRQ_LINK_EVENT)
- 		phy_mac_interrupt(priv->phydev,
-@@ -2713,8 +2719,7 @@ static irqreturn_t bcmgenet_isr0(int irq
- 	}
+ 	epfd = epoll_create(1);
+@@ -145,6 +145,7 @@ static void test(int *rcv_fds, int count
+ 	send_from_v4(proto);
  
- 	/* all other interested interrupts handled in bottom half */
--	status &= (UMAC_IRQ_LINK_EVENT |
--		   UMAC_IRQ_MPD_R);
-+	status &= (UMAC_IRQ_LINK_EVENT | UMAC_IRQ_MPD_R | UMAC_IRQ_PHY_DET_R);
- 	if (status) {
- 		/* Save irq status for bottom-half processing. */
- 		spin_lock_irqsave(&priv->lock, flags);
+ 	test_fd = receive_once(epfd, proto);
++	len = sizeof(test_family);
+ 	if (getsockopt(test_fd, SOL_SOCKET, SO_DOMAIN, &test_family, &len))
+ 		error(1, errno, "failed to read socket domain");
+ 	if (test_family != AF_INET)
 
 
