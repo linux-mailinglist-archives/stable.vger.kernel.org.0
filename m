@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71AC8F56B8
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50AA4F56BA
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391902AbfKHTKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:10:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42852 "EHLO mail.kernel.org"
+        id S2391911AbfKHTKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:10:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730571AbfKHTKg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:10:36 -0500
+        id S2389632AbfKHTKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:10:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1829521D7B;
-        Fri,  8 Nov 2019 19:10:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FE7C222C6;
+        Fri,  8 Nov 2019 19:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240235;
-        bh=xgSpBqSLkquN9a8a8MVfL6qy56+9Z/eZyt2So1rSis4=;
+        s=default; t=1573240238;
+        bh=jwImnRv/fUHFl4mR8I1T5ZXFVhs2kTlbmUc2oQlOw1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIOOdq2P/3nAeI8vnXaJi2Z640nhrLrHxBoxqzWQS41NI2mM5gWa2CIzf/DzI3Hax
-         zyx0Ou81SmEEiQzwI4A2jrFcw5uPzugVQwG0nxVmACWSxFYNaVpV4wC0m4EdkcjXKr
-         2MM2FYRzX26f8TEtlpTLT775Y33/4FQ4OFm2f4wE=
+        b=JKHeQVRncH/mmToUFoAu8Ae6VVwNmSlbVOfx2P1g/QTXG0CD9TylfuJ112leTzbEb
+         7P8ofEnm7CRkQX3ipKbYBpAkdMa+AyLh86kwKwwe+s3SfzoWq7RSsyxUbu0VGq5A3S
+         E4P3/74YqOAZA+ldQvZUjWn0VdF7Y8UJv0XG1/6o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        David Wysochanski <dwysocha@redhat.com>
-Subject: [PATCH 5.3 135/140] CIFS: Fix retry mid list corruption on reconnects
-Date:   Fri,  8 Nov 2019 19:51:03 +0100
-Message-Id: <20191108174913.103146663@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sandipan Das <sandipan@linux.ibm.com>
+Subject: [PATCH 5.3 136/140] selftests/powerpc: Add test case for tlbie vs mtpidr ordering issue
+Date:   Fri,  8 Nov 2019 19:51:04 +0100
+Message-Id: <20191108174913.156090721@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
 References: <20191108174900.189064908@linuxfoundation.org>
@@ -45,187 +45,773 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-commit abe57073d08c13b95a46ccf48cc9dc957d5c6fdb upstream.
+commit 93cad5f789951eaa27c3392b15294b4e51253944 upstream.
 
-When the client hits reconnect it iterates over the mid
-pending queue marking entries for retry and moving them
-to a temporary list to issue callbacks later without holding
-GlobalMid_Lock. In the same time there is no guarantee that
-mids can't be removed from the temporary list or even
-freed completely by another thread. It may cause a temporary
-list corruption:
-
-[  430.454897] list_del corruption. prev->next should be ffff98d3a8f316c0, but was 2e885cb266355469
-[  430.464668] ------------[ cut here ]------------
-[  430.466569] kernel BUG at lib/list_debug.c:51!
-[  430.468476] invalid opcode: 0000 [#1] SMP PTI
-[  430.470286] CPU: 0 PID: 13267 Comm: cifsd Kdump: loaded Not tainted 5.4.0-rc3+ #19
-[  430.473472] Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
-[  430.475872] RIP: 0010:__list_del_entry_valid.cold+0x31/0x55
-...
-[  430.510426] Call Trace:
-[  430.511500]  cifs_reconnect+0x25e/0x610 [cifs]
-[  430.513350]  cifs_readv_from_socket+0x220/0x250 [cifs]
-[  430.515464]  cifs_read_from_socket+0x4a/0x70 [cifs]
-[  430.517452]  ? try_to_wake_up+0x212/0x650
-[  430.519122]  ? cifs_small_buf_get+0x16/0x30 [cifs]
-[  430.521086]  ? allocate_buffers+0x66/0x120 [cifs]
-[  430.523019]  cifs_demultiplex_thread+0xdc/0xc30 [cifs]
-[  430.525116]  kthread+0xfb/0x130
-[  430.526421]  ? cifs_handle_standard+0x190/0x190 [cifs]
-[  430.528514]  ? kthread_park+0x90/0x90
-[  430.530019]  ret_from_fork+0x35/0x40
-
-Fix this by obtaining extra references for mids being retried
-and marking them as MID_DELETED which indicates that such a mid
-has been dequeued from the pending list.
-
-Also move mid cleanup logic from DeleteMidQEntry to
-_cifs_mid_q_entry_release which is called when the last reference
-to a particular mid is put. This allows to avoid any use-after-free
-of response buffers.
-
-The patch needs to be backported to stable kernels. A stable tag
-is not mentioned below because the patch doesn't apply cleanly
-to any actively maintained stable kernel.
-
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Reviewed-and-tested-by: David Wysochanski <dwysocha@redhat.com>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+[mpe: Some minor fixes to make it build]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190924035254.24612-4-aneesh.kumar@linux.ibm.com
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/connect.c   |   10 +++++++++-
- fs/cifs/transport.c |   42 +++++++++++++++++++++++-------------------
- 2 files changed, 32 insertions(+), 20 deletions(-)
+ tools/testing/selftests/powerpc/mm/Makefile     |    2 
+ tools/testing/selftests/powerpc/mm/tlbie_test.c |  734 ++++++++++++++++++++++++
+ 2 files changed, 736 insertions(+)
 
---- a/fs/cifs/connect.c
-+++ b/fs/cifs/connect.c
-@@ -556,9 +556,11 @@ cifs_reconnect(struct TCP_Server_Info *s
- 	spin_lock(&GlobalMid_Lock);
- 	list_for_each_safe(tmp, tmp2, &server->pending_mid_q) {
- 		mid_entry = list_entry(tmp, struct mid_q_entry, qhead);
-+		kref_get(&mid_entry->refcount);
- 		if (mid_entry->mid_state == MID_REQUEST_SUBMITTED)
- 			mid_entry->mid_state = MID_RETRY_NEEDED;
- 		list_move(&mid_entry->qhead, &retry_list);
-+		mid_entry->mid_flags |= MID_DELETED;
- 	}
- 	spin_unlock(&GlobalMid_Lock);
- 	mutex_unlock(&server->srv_mutex);
-@@ -568,6 +570,7 @@ cifs_reconnect(struct TCP_Server_Info *s
- 		mid_entry = list_entry(tmp, struct mid_q_entry, qhead);
- 		list_del_init(&mid_entry->qhead);
- 		mid_entry->callback(mid_entry);
-+		cifs_mid_q_entry_release(mid_entry);
- 	}
+--- a/tools/testing/selftests/powerpc/mm/Makefile
++++ b/tools/testing/selftests/powerpc/mm/Makefile
+@@ -4,6 +4,7 @@ noarg:
  
- 	if (cifs_rdma_enabled(server)) {
-@@ -887,8 +890,10 @@ dequeue_mid(struct mid_q_entry *mid, boo
- 	if (mid->mid_flags & MID_DELETED)
- 		printk_once(KERN_WARNING
- 			    "trying to dequeue a deleted mid\n");
--	else
-+	else {
- 		list_del_init(&mid->qhead);
-+		mid->mid_flags |= MID_DELETED;
-+	}
- 	spin_unlock(&GlobalMid_Lock);
- }
+ TEST_GEN_PROGS := hugetlb_vs_thp_test subpage_prot prot_sao segv_errors wild_bctr \
+ 		  large_vm_fork_separation
++TEST_GEN_PROGS_EXTENDED := tlbie_test
+ TEST_GEN_FILES := tempfile
  
-@@ -958,8 +963,10 @@ static void clean_demultiplex_info(struc
- 		list_for_each_safe(tmp, tmp2, &server->pending_mid_q) {
- 			mid_entry = list_entry(tmp, struct mid_q_entry, qhead);
- 			cifs_dbg(FYI, "Clearing mid 0x%llx\n", mid_entry->mid);
-+			kref_get(&mid_entry->refcount);
- 			mid_entry->mid_state = MID_SHUTDOWN;
- 			list_move(&mid_entry->qhead, &dispose_list);
-+			mid_entry->mid_flags |= MID_DELETED;
- 		}
- 		spin_unlock(&GlobalMid_Lock);
+ top_srcdir = ../../../../..
+@@ -19,3 +20,4 @@ $(OUTPUT)/large_vm_fork_separation: CFLA
+ $(OUTPUT)/tempfile:
+ 	dd if=/dev/zero of=$@ bs=64k count=1
  
-@@ -969,6 +976,7 @@ static void clean_demultiplex_info(struc
- 			cifs_dbg(FYI, "Callback mid 0x%llx\n", mid_entry->mid);
- 			list_del_init(&mid_entry->qhead);
- 			mid_entry->callback(mid_entry);
-+			cifs_mid_q_entry_release(mid_entry);
- 		}
- 		/* 1/8th of sec is more than enough time for them to exit */
- 		msleep(125);
---- a/fs/cifs/transport.c
-+++ b/fs/cifs/transport.c
-@@ -86,22 +86,8 @@ AllocMidQEntry(const struct smb_hdr *smb
- 
- static void _cifs_mid_q_entry_release(struct kref *refcount)
- {
--	struct mid_q_entry *mid = container_of(refcount, struct mid_q_entry,
--					       refcount);
--
--	mempool_free(mid, cifs_mid_poolp);
--}
--
--void cifs_mid_q_entry_release(struct mid_q_entry *midEntry)
--{
--	spin_lock(&GlobalMid_Lock);
--	kref_put(&midEntry->refcount, _cifs_mid_q_entry_release);
--	spin_unlock(&GlobalMid_Lock);
--}
--
--void
--DeleteMidQEntry(struct mid_q_entry *midEntry)
--{
-+	struct mid_q_entry *midEntry =
-+			container_of(refcount, struct mid_q_entry, refcount);
- #ifdef CONFIG_CIFS_STATS2
- 	__le16 command = midEntry->server->vals->lock_cmd;
- 	__u16 smb_cmd = le16_to_cpu(midEntry->command);
-@@ -166,6 +152,19 @@ DeleteMidQEntry(struct mid_q_entry *midE
- 		}
- 	}
- #endif
++$(OUTPUT)/tlbie_test: LDLIBS += -lpthread
+--- /dev/null
++++ b/tools/testing/selftests/powerpc/mm/tlbie_test.c
+@@ -0,0 +1,734 @@
++// SPDX-License-Identifier: GPL-2.0
 +
-+	mempool_free(midEntry, cifs_mid_poolp);
++/*
++ * Copyright 2019, Nick Piggin, Gautham R. Shenoy, Aneesh Kumar K.V, IBM Corp.
++ */
++
++/*
++ *
++ * Test tlbie/mtpidr race. We have 4 threads doing flush/load/compare/store
++ * sequence in a loop. The same threads also rung a context switch task
++ * that does sched_yield() in loop.
++ *
++ * The snapshot thread mark the mmap area PROT_READ in between, make a copy
++ * and copy it back to the original area. This helps us to detect if any
++ * store continued to happen after we marked the memory PROT_READ.
++ */
++
++#define _GNU_SOURCE
++#include <stdio.h>
++#include <sys/mman.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <sys/ipc.h>
++#include <sys/shm.h>
++#include <sys/stat.h>
++#include <sys/time.h>
++#include <linux/futex.h>
++#include <unistd.h>
++#include <asm/unistd.h>
++#include <string.h>
++#include <stdlib.h>
++#include <fcntl.h>
++#include <sched.h>
++#include <time.h>
++#include <stdarg.h>
++#include <sched.h>
++#include <pthread.h>
++#include <signal.h>
++#include <sys/prctl.h>
++
++static inline void dcbf(volatile unsigned int *addr)
++{
++	__asm__ __volatile__ ("dcbf %y0; sync" : : "Z"(*(unsigned char *)addr) : "memory");
 +}
 +
-+void cifs_mid_q_entry_release(struct mid_q_entry *midEntry)
++static void err_msg(char *msg)
 +{
-+	spin_lock(&GlobalMid_Lock);
-+	kref_put(&midEntry->refcount, _cifs_mid_q_entry_release);
-+	spin_unlock(&GlobalMid_Lock);
++
++	time_t now;
++	time(&now);
++	printf("=================================\n");
++	printf("    Error: %s\n", msg);
++	printf("    %s", ctime(&now));
++	printf("=================================\n");
++	exit(1);
 +}
 +
-+void DeleteMidQEntry(struct mid_q_entry *midEntry)
++static char *map1;
++static char *map2;
++static pid_t rim_process_pid;
++
++/*
++ * A "rim-sequence" is defined to be the sequence of the following
++ * operations performed on a memory word:
++ *	1) FLUSH the contents of that word.
++ *	2) LOAD the contents of that word.
++ *	3) COMPARE the contents of that word with the content that was
++ *	           previously stored at that word
++ *	4) STORE new content into that word.
++ *
++ * The threads in this test that perform the rim-sequence are termed
++ * as rim_threads.
++ */
++
++/*
++ * A "corruption" is defined to be the failed COMPARE operation in a
++ * rim-sequence.
++ *
++ * A rim_thread that detects a corruption informs about it to all the
++ * other rim_threads, and the mem_snapshot thread.
++ */
++static volatile unsigned int corruption_found;
++
++/*
++ * This defines the maximum number of rim_threads in this test.
++ *
++ * The THREAD_ID_BITS denote the number of bits required
++ * to represent the thread_ids [0..MAX_THREADS - 1].
++ * We are being a bit paranoid here and set it to 8 bits,
++ * though 6 bits suffice.
++ *
++ */
++#define MAX_THREADS 		64
++#define THREAD_ID_BITS		8
++#define THREAD_ID_MASK		((1 << THREAD_ID_BITS) - 1)
++static unsigned int rim_thread_ids[MAX_THREADS];
++static pthread_t rim_threads[MAX_THREADS];
++
++
++/*
++ * Each rim_thread works on an exclusive "chunk" of size
++ * RIM_CHUNK_SIZE.
++ *
++ * The ith rim_thread works on the ith chunk.
++ *
++ * The ith chunk begins at
++ * map1 + (i * RIM_CHUNK_SIZE)
++ */
++#define RIM_CHUNK_SIZE  	1024
++#define BITS_PER_BYTE 		8
++#define WORD_SIZE     		(sizeof(unsigned int))
++#define WORD_BITS		(WORD_SIZE * BITS_PER_BYTE)
++#define WORDS_PER_CHUNK		(RIM_CHUNK_SIZE/WORD_SIZE)
++
++static inline char *compute_chunk_start_addr(unsigned int thread_id)
 +{
- 	cifs_mid_q_entry_release(midEntry);
- }
- 
-@@ -173,8 +172,10 @@ void
- cifs_delete_mid(struct mid_q_entry *mid)
- {
- 	spin_lock(&GlobalMid_Lock);
--	list_del_init(&mid->qhead);
--	mid->mid_flags |= MID_DELETED;
-+	if (!(mid->mid_flags & MID_DELETED)) {
-+		list_del_init(&mid->qhead);
-+		mid->mid_flags |= MID_DELETED;
++	char *chunk_start;
++
++	chunk_start = (char *)((unsigned long)map1 +
++			       (thread_id * RIM_CHUNK_SIZE));
++
++	return chunk_start;
++}
++
++/*
++ * The "word-offset" of a word-aligned address inside a chunk, is
++ * defined to be the number of words that precede the address in that
++ * chunk.
++ *
++ * WORD_OFFSET_BITS denote the number of bits required to represent
++ * the word-offsets of all the word-aligned addresses of a chunk.
++ */
++#define WORD_OFFSET_BITS	(__builtin_ctz(WORDS_PER_CHUNK))
++#define WORD_OFFSET_MASK	((1 << WORD_OFFSET_BITS) - 1)
++
++static inline unsigned int compute_word_offset(char *start, unsigned int *addr)
++{
++	unsigned int delta_bytes, ret;
++	delta_bytes = (unsigned long)addr - (unsigned long)start;
++
++	ret = delta_bytes/WORD_SIZE;
++
++	return ret;
++}
++
++/*
++ * A "sweep" is defined to be the sequential execution of the
++ * rim-sequence by a rim_thread on its chunk one word at a time,
++ * starting from the first word of its chunk and ending with the last
++ * word of its chunk.
++ *
++ * Each sweep of a rim_thread is uniquely identified by a sweep_id.
++ * SWEEP_ID_BITS denote the number of bits required to represent
++ * the sweep_ids of rim_threads.
++ *
++ * As to why SWEEP_ID_BITS are computed as a function of THREAD_ID_BITS,
++ * WORD_OFFSET_BITS, and WORD_BITS, see the "store-pattern" below.
++ */
++#define SWEEP_ID_BITS		(WORD_BITS - (THREAD_ID_BITS + WORD_OFFSET_BITS))
++#define SWEEP_ID_MASK		((1 << SWEEP_ID_BITS) - 1)
++
++/*
++ * A "store-pattern" is the word-pattern that is stored into a word
++ * location in the 4)STORE step of the rim-sequence.
++ *
++ * In the store-pattern, we shall encode:
++ *
++ *      - The thread-id of the rim_thread performing the store
++ *        (The most significant THREAD_ID_BITS)
++ *
++ *      - The word-offset of the address into which the store is being
++ *        performed (The next WORD_OFFSET_BITS)
++ *
++ *      - The sweep_id of the current sweep in which the store is
++ *        being performed. (The lower SWEEP_ID_BITS)
++ *
++ * Store Pattern: 32 bits
++ * |------------------|--------------------|---------------------------------|
++ * |    Thread id     |  Word offset       |         sweep_id                |
++ * |------------------|--------------------|---------------------------------|
++ *    THREAD_ID_BITS     WORD_OFFSET_BITS          SWEEP_ID_BITS
++ *
++ * In the store pattern, the (Thread-id + Word-offset) uniquely identify the
++ * address to which the store is being performed i.e,
++ *    address == map1 +
++ *              (Thread-id * RIM_CHUNK_SIZE) + (Word-offset * WORD_SIZE)
++ *
++ * And the sweep_id in the store pattern identifies the time when the
++ * store was performed by the rim_thread.
++ *
++ * We shall use this property in the 3)COMPARE step of the
++ * rim-sequence.
++ */
++#define SWEEP_ID_SHIFT	0
++#define WORD_OFFSET_SHIFT	(SWEEP_ID_BITS)
++#define THREAD_ID_SHIFT		(WORD_OFFSET_BITS + SWEEP_ID_BITS)
++
++/*
++ * Compute the store pattern for a given thread with id @tid, at
++ * location @addr in the sweep identified by @sweep_id
++ */
++static inline unsigned int compute_store_pattern(unsigned int tid,
++						 unsigned int *addr,
++						 unsigned int sweep_id)
++{
++	unsigned int ret = 0;
++	char *start = compute_chunk_start_addr(tid);
++	unsigned int word_offset = compute_word_offset(start, addr);
++
++	ret += (tid & THREAD_ID_MASK) << THREAD_ID_SHIFT;
++	ret += (word_offset & WORD_OFFSET_MASK) << WORD_OFFSET_SHIFT;
++	ret += (sweep_id & SWEEP_ID_MASK) << SWEEP_ID_SHIFT;
++	return ret;
++}
++
++/* Extract the thread-id from the given store-pattern */
++static inline unsigned int extract_tid(unsigned int pattern)
++{
++	unsigned int ret;
++
++	ret = (pattern >> THREAD_ID_SHIFT) & THREAD_ID_MASK;
++	return ret;
++}
++
++/* Extract the word-offset from the given store-pattern */
++static inline unsigned int extract_word_offset(unsigned int pattern)
++{
++	unsigned int ret;
++
++	ret = (pattern >> WORD_OFFSET_SHIFT) & WORD_OFFSET_MASK;
++
++	return ret;
++}
++
++/* Extract the sweep-id from the given store-pattern */
++static inline unsigned int extract_sweep_id(unsigned int pattern)
++
++{
++	unsigned int ret;
++
++	ret = (pattern >> SWEEP_ID_SHIFT) & SWEEP_ID_MASK;
++
++	return ret;
++}
++
++/************************************************************
++ *                                                          *
++ *          Logging the output of the verification          *
++ *                                                          *
++ ************************************************************/
++#define LOGDIR_NAME_SIZE 100
++static char logdir[LOGDIR_NAME_SIZE];
++
++static FILE *fp[MAX_THREADS];
++static const char logfilename[] ="Thread-%02d-Chunk";
++
++static inline void start_verification_log(unsigned int tid,
++					  unsigned int *addr,
++					  unsigned int cur_sweep_id,
++					  unsigned int prev_sweep_id)
++{
++	FILE *f;
++	char logfile[30];
++	char path[LOGDIR_NAME_SIZE + 30];
++	char separator[2] = "/";
++	char *chunk_start = compute_chunk_start_addr(tid);
++	unsigned int size = RIM_CHUNK_SIZE;
++
++	sprintf(logfile, logfilename, tid);
++	strcpy(path, logdir);
++	strcat(path, separator);
++	strcat(path, logfile);
++	f = fopen(path, "w");
++
++	if (!f) {
++		err_msg("Unable to create logfile\n");
 +	}
- 	spin_unlock(&GlobalMid_Lock);
- 
- 	DeleteMidQEntry(mid);
-@@ -868,7 +869,10 @@ cifs_sync_mid_result(struct mid_q_entry
- 		rc = -EHOSTDOWN;
- 		break;
- 	default:
--		list_del_init(&mid->qhead);
-+		if (!(mid->mid_flags & MID_DELETED)) {
-+			list_del_init(&mid->qhead);
-+			mid->mid_flags |= MID_DELETED;
++
++	fp[tid] = f;
++
++	fprintf(f, "----------------------------------------------------------\n");
++	fprintf(f, "PID                = %d\n", rim_process_pid);
++	fprintf(f, "Thread id          = %02d\n", tid);
++	fprintf(f, "Chunk Start Addr   = 0x%016lx\n", (unsigned long)chunk_start);
++	fprintf(f, "Chunk Size         = %d\n", size);
++	fprintf(f, "Next Store Addr    = 0x%016lx\n", (unsigned long)addr);
++	fprintf(f, "Current sweep-id   = 0x%08x\n", cur_sweep_id);
++	fprintf(f, "Previous sweep-id  = 0x%08x\n", prev_sweep_id);
++	fprintf(f, "----------------------------------------------------------\n");
++}
++
++static inline void log_anamoly(unsigned int tid, unsigned int *addr,
++			       unsigned int expected, unsigned int observed)
++{
++	FILE *f = fp[tid];
++
++	fprintf(f, "Thread %02d: Addr 0x%lx: Expected 0x%x, Observed 0x%x\n",
++	        tid, (unsigned long)addr, expected, observed);
++	fprintf(f, "Thread %02d: Expected Thread id   = %02d\n", tid, extract_tid(expected));
++	fprintf(f, "Thread %02d: Observed Thread id   = %02d\n", tid, extract_tid(observed));
++	fprintf(f, "Thread %02d: Expected Word offset = %03d\n", tid, extract_word_offset(expected));
++	fprintf(f, "Thread %02d: Observed Word offset = %03d\n", tid, extract_word_offset(observed));
++	fprintf(f, "Thread %02d: Expected sweep-id    = 0x%x\n", tid, extract_sweep_id(expected));
++	fprintf(f, "Thread %02d: Observed sweep-id    = 0x%x\n", tid, extract_sweep_id(observed));
++	fprintf(f, "----------------------------------------------------------\n");
++}
++
++static inline void end_verification_log(unsigned int tid, unsigned nr_anamolies)
++{
++	FILE *f = fp[tid];
++	char logfile[30];
++	char path[LOGDIR_NAME_SIZE + 30];
++	char separator[] = "/";
++
++	fclose(f);
++
++	if (nr_anamolies == 0) {
++		remove(path);
++		return;
++	}
++
++	sprintf(logfile, logfilename, tid);
++	strcpy(path, logdir);
++	strcat(path, separator);
++	strcat(path, logfile);
++
++	printf("Thread %02d chunk has %d corrupted words. For details check %s\n",
++		tid, nr_anamolies, path);
++}
++
++/*
++ * When a COMPARE step of a rim-sequence fails, the rim_thread informs
++ * everyone else via the shared_memory pointed to by
++ * corruption_found variable. On seeing this, every thread verifies the
++ * content of its chunk as follows.
++ *
++ * Suppose a thread identified with @tid was about to store (but not
++ * yet stored) to @next_store_addr in its current sweep identified
++ * @cur_sweep_id. Let @prev_sweep_id indicate the previous sweep_id.
++ *
++ * This implies that for all the addresses @addr < @next_store_addr,
++ * Thread @tid has already performed a store as part of its current
++ * sweep. Hence we expect the content of such @addr to be:
++ *    |-------------------------------------------------|
++ *    | tid   | word_offset(addr) |    cur_sweep_id     |
++ *    |-------------------------------------------------|
++ *
++ * Since Thread @tid is yet to perform stores on address
++ * @next_store_addr and above, we expect the content of such an
++ * address @addr to be:
++ *    |-------------------------------------------------|
++ *    | tid   | word_offset(addr) |    prev_sweep_id    |
++ *    |-------------------------------------------------|
++ *
++ * The verifier function @verify_chunk does this verification and logs
++ * any anamolies that it finds.
++ */
++static void verify_chunk(unsigned int tid, unsigned int *next_store_addr,
++		  unsigned int cur_sweep_id,
++		  unsigned int prev_sweep_id)
++{
++	unsigned int *iter_ptr;
++	unsigned int size = RIM_CHUNK_SIZE;
++	unsigned int expected;
++	unsigned int observed;
++	char *chunk_start = compute_chunk_start_addr(tid);
++
++	int nr_anamolies = 0;
++
++	start_verification_log(tid, next_store_addr,
++			       cur_sweep_id, prev_sweep_id);
++
++	for (iter_ptr = (unsigned int *)chunk_start;
++	     (unsigned long)iter_ptr < (unsigned long)chunk_start + size;
++	     iter_ptr++) {
++		unsigned int expected_sweep_id;
++
++		if (iter_ptr < next_store_addr) {
++			expected_sweep_id = cur_sweep_id;
++		} else {
++			expected_sweep_id = prev_sweep_id;
 +		}
- 		cifs_dbg(VFS, "%s: invalid mid state mid=%llu state=%d\n",
- 			 __func__, mid->mid, mid->mid_state);
- 		rc = -EIO;
++
++		expected = compute_store_pattern(tid, iter_ptr, expected_sweep_id);
++
++		dcbf((volatile unsigned int*)iter_ptr); //Flush before reading
++		observed = *iter_ptr;
++
++	        if (observed != expected) {
++			nr_anamolies++;
++			log_anamoly(tid, iter_ptr, expected, observed);
++		}
++	}
++
++	end_verification_log(tid, nr_anamolies);
++}
++
++static void set_pthread_cpu(pthread_t th, int cpu)
++{
++	cpu_set_t run_cpu_mask;
++	struct sched_param param;
++
++	CPU_ZERO(&run_cpu_mask);
++	CPU_SET(cpu, &run_cpu_mask);
++	pthread_setaffinity_np(th, sizeof(cpu_set_t), &run_cpu_mask);
++
++	param.sched_priority = 1;
++	if (0 && sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
++		/* haven't reproduced with this setting, it kills random preemption which may be a factor */
++		fprintf(stderr, "could not set SCHED_FIFO, run as root?\n");
++	}
++}
++
++static void set_mycpu(int cpu)
++{
++	cpu_set_t run_cpu_mask;
++	struct sched_param param;
++
++	CPU_ZERO(&run_cpu_mask);
++	CPU_SET(cpu, &run_cpu_mask);
++	sched_setaffinity(0, sizeof(cpu_set_t), &run_cpu_mask);
++
++	param.sched_priority = 1;
++	if (0 && sched_setscheduler(0, SCHED_FIFO, &param) == -1) {
++		fprintf(stderr, "could not set SCHED_FIFO, run as root?\n");
++	}
++}
++
++static volatile int segv_wait;
++
++static void segv_handler(int signo, siginfo_t *info, void *extra)
++{
++	while (segv_wait) {
++		sched_yield();
++	}
++
++}
++
++static void set_segv_handler(void)
++{
++	struct sigaction sa;
++
++	sa.sa_flags = SA_SIGINFO;
++	sa.sa_sigaction = segv_handler;
++
++	if (sigaction(SIGSEGV, &sa, NULL) == -1) {
++		perror("sigaction");
++		exit(EXIT_FAILURE);
++	}
++}
++
++int timeout = 0;
++/*
++ * This function is executed by every rim_thread.
++ *
++ * This function performs sweeps over the exclusive chunks of the
++ * rim_threads executing the rim-sequence one word at a time.
++ */
++static void *rim_fn(void *arg)
++{
++	unsigned int tid = *((unsigned int *)arg);
++
++	int size = RIM_CHUNK_SIZE;
++	char *chunk_start = compute_chunk_start_addr(tid);
++
++	unsigned int prev_sweep_id;
++	unsigned int cur_sweep_id = 0;
++
++	/* word access */
++	unsigned int pattern = cur_sweep_id;
++	unsigned int *pattern_ptr = &pattern;
++	unsigned int *w_ptr, read_data;
++
++	set_segv_handler();
++
++	/*
++	 * Let us initialize the chunk:
++	 *
++	 * Each word-aligned address addr in the chunk,
++	 * is initialized to :
++	 *    |-------------------------------------------------|
++	 *    | tid   | word_offset(addr) |         0           |
++	 *    |-------------------------------------------------|
++	 */
++	for (w_ptr = (unsigned int *)chunk_start;
++	     (unsigned long)w_ptr < (unsigned long)(chunk_start) + size;
++	     w_ptr++) {
++
++		*pattern_ptr = compute_store_pattern(tid, w_ptr, cur_sweep_id);
++		*w_ptr = *pattern_ptr;
++	}
++
++	while (!corruption_found && !timeout) {
++		prev_sweep_id = cur_sweep_id;
++		cur_sweep_id = cur_sweep_id + 1;
++
++		for (w_ptr = (unsigned int *)chunk_start;
++		     (unsigned long)w_ptr < (unsigned long)(chunk_start) + size;
++		     w_ptr++)  {
++			unsigned int old_pattern;
++
++			/*
++			 * Compute the pattern that we would have
++			 * stored at this location in the previous
++			 * sweep.
++			 */
++			old_pattern = compute_store_pattern(tid, w_ptr, prev_sweep_id);
++
++			/*
++			 * FLUSH:Ensure that we flush the contents of
++			 *       the cache before loading
++			 */
++			dcbf((volatile unsigned int*)w_ptr); //Flush
++
++			/* LOAD: Read the value */
++			read_data = *w_ptr; //Load
++
++			/*
++			 * COMPARE: Is it the same as what we had stored
++			 *          in the previous sweep ? It better be!
++			 */
++			if (read_data != old_pattern) {
++				/* No it isn't! Tell everyone */
++				corruption_found = 1;
++			}
++
++			/*
++			 * Before performing a store, let us check if
++			 * any rim_thread has found a corruption.
++			 */
++			if (corruption_found || timeout) {
++				/*
++				 * Yes. Someone (including us!) has found
++				 * a corruption :(
++				 *
++				 * Let us verify that our chunk is
++				 * correct.
++				 */
++				/* But first, let us allow the dust to settle down! */
++				verify_chunk(tid, w_ptr, cur_sweep_id, prev_sweep_id);
++
++				return 0;
++			}
++
++			/*
++			 * Compute the new pattern that we are going
++			 * to write to this location
++			 */
++			*pattern_ptr = compute_store_pattern(tid, w_ptr, cur_sweep_id);
++
++			/*
++			 * STORE: Now let us write this pattern into
++			 *        the location
++			 */
++			*w_ptr = *pattern_ptr;
++		}
++	}
++
++	return NULL;
++}
++
++
++static unsigned long start_cpu = 0;
++static unsigned long nrthreads = 4;
++
++static pthread_t mem_snapshot_thread;
++
++static void *mem_snapshot_fn(void *arg)
++{
++	int page_size = getpagesize();
++	size_t size = page_size;
++	void *tmp = malloc(size);
++
++	while (!corruption_found && !timeout) {
++		/* Stop memory migration once corruption is found */
++		segv_wait = 1;
++
++		mprotect(map1, size, PROT_READ);
++
++		/*
++		 * Load from the working alias (map1). Loading from map2
++		 * also fails.
++		 */
++		memcpy(tmp, map1, size);
++
++		/*
++		 * Stores must go via map2 which has write permissions, but
++		 * the corrupted data tends to be seen in the snapshot buffer,
++		 * so corruption does not appear to be introduced at the
++		 * copy-back via map2 alias here.
++		 */
++		memcpy(map2, tmp, size);
++		/*
++		 * Before releasing other threads, must ensure the copy
++		 * back to
++		 */
++		asm volatile("sync" ::: "memory");
++		mprotect(map1, size, PROT_READ|PROT_WRITE);
++		asm volatile("sync" ::: "memory");
++		segv_wait = 0;
++
++		usleep(1); /* This value makes a big difference */
++	}
++
++	return 0;
++}
++
++void alrm_sighandler(int sig)
++{
++	timeout = 1;
++}
++
++int main(int argc, char *argv[])
++{
++	int c;
++	int page_size = getpagesize();
++	time_t now;
++	int i, dir_error;
++	pthread_attr_t attr;
++	key_t shm_key = (key_t) getpid();
++	int shmid, run_time = 20 * 60;
++	struct sigaction sa_alrm;
++
++	snprintf(logdir, LOGDIR_NAME_SIZE,
++		 "/tmp/logdir-%u", (unsigned int)getpid());
++	while ((c = getopt(argc, argv, "r:hn:l:t:")) != -1) {
++		switch(c) {
++		case 'r':
++			start_cpu = strtoul(optarg, NULL, 10);
++			break;
++		case 'h':
++			printf("%s [-r <start_cpu>] [-n <nrthreads>] [-l <logdir>] [-t <timeout>]\n", argv[0]);
++			exit(0);
++			break;
++		case 'n':
++			nrthreads = strtoul(optarg, NULL, 10);
++			break;
++		case 'l':
++			strncpy(logdir, optarg, LOGDIR_NAME_SIZE);
++			break;
++		case 't':
++			run_time = strtoul(optarg, NULL, 10);
++			break;
++		default:
++			printf("invalid option\n");
++			exit(0);
++			break;
++		}
++	}
++
++	if (nrthreads > MAX_THREADS)
++		nrthreads = MAX_THREADS;
++
++	shmid = shmget(shm_key, page_size, IPC_CREAT|0666);
++	if (shmid < 0) {
++		err_msg("Failed shmget\n");
++	}
++
++	map1 = shmat(shmid, NULL, 0);
++	if (map1 == (void *) -1) {
++		err_msg("Failed shmat");
++	}
++
++	map2 = shmat(shmid, NULL, 0);
++	if (map2 == (void *) -1) {
++		err_msg("Failed shmat");
++	}
++
++	dir_error = mkdir(logdir, 0755);
++
++	if (dir_error) {
++		err_msg("Failed mkdir");
++	}
++
++	printf("start_cpu list:%lu\n", start_cpu);
++	printf("number of worker threads:%lu + 1 snapshot thread\n", nrthreads);
++	printf("Allocated address:0x%016lx + secondary map:0x%016lx\n", (unsigned long)map1, (unsigned long)map2);
++	printf("logdir at : %s\n", logdir);
++	printf("Timeout: %d seconds\n", run_time);
++
++	time(&now);
++	printf("=================================\n");
++	printf("     Starting Test\n");
++	printf("     %s", ctime(&now));
++	printf("=================================\n");
++
++	for (i = 0; i < nrthreads; i++) {
++		if (1 && !fork()) {
++			prctl(PR_SET_PDEATHSIG, SIGKILL);
++			set_mycpu(start_cpu + i);
++			for (;;)
++				sched_yield();
++			exit(0);
++		}
++	}
++
++
++	sa_alrm.sa_handler = &alrm_sighandler;
++	sigemptyset(&sa_alrm.sa_mask);
++	sa_alrm.sa_flags = 0;
++
++	if (sigaction(SIGALRM, &sa_alrm, 0) == -1) {
++		err_msg("Failed signal handler registration\n");
++	}
++
++	alarm(run_time);
++
++	pthread_attr_init(&attr);
++	for (i = 0; i < nrthreads; i++) {
++		rim_thread_ids[i] = i;
++		pthread_create(&rim_threads[i], &attr, rim_fn, &rim_thread_ids[i]);
++		set_pthread_cpu(rim_threads[i], start_cpu + i);
++	}
++
++	pthread_create(&mem_snapshot_thread, &attr, mem_snapshot_fn, map1);
++	set_pthread_cpu(mem_snapshot_thread, start_cpu + i);
++
++
++	pthread_join(mem_snapshot_thread, NULL);
++	for (i = 0; i < nrthreads; i++) {
++		pthread_join(rim_threads[i], NULL);
++	}
++
++	if (!timeout) {
++		time(&now);
++		printf("=================================\n");
++		printf("      Data Corruption Detected\n");
++		printf("      %s", ctime(&now));
++		printf("      See logfiles in %s\n", logdir);
++		printf("=================================\n");
++		return 1;
++	}
++	return 0;
++}
 
 
