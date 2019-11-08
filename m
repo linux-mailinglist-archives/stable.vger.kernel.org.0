@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F598F45F4
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:38:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41F15F4600
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:39:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732840AbfKHLio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:38:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
+        id S1733145AbfKHLjM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:39:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732701AbfKHLin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:43 -0500
+        id S1733118AbfKHLjJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:39:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 823A321D82;
-        Fri,  8 Nov 2019 11:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7982620869;
+        Fri,  8 Nov 2019 11:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213123;
-        bh=DCGoM8RFU/85m16B7mGU3/4vxVxz030aYpVZQqpMOeU=;
+        s=default; t=1573213149;
+        bh=quaFVzJRdtGC0pYG6THaiNj51wCyvvfrzByeOymHtEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BCHCYQKjZu0WXcs3MJUZWdayn7RkZTCkHIrvMnWfAeC1hAoXdV//RnhxQxwDP53N0
-         xzSVBZzUzqif8cm7FLVuTpDBPSJG1dumRFPkPF7CE1Ip60znUzkj8DDpLr/BVqEhts
-         iXKmfgs0Irv9yQXrP6p4p3PWOAAPuRk/jrj1dVrM=
+        b=16X08zWAS1efqdqalvvGccLUXYgq2tuDRnRNSaQ2h5dDY9Ux11PjRhUHf7sfOLzf2
+         HfEu+sPxLadm8wG+KI46BVTtXTFizvHFCqvmerOftgtZVOt79bQr3ahfm4vnTZw/iV
+         7ZyNVwFVObRzGLqXtNKME4+nbkvy3Xk4Aey+RKZI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 042/205] ARM: dts: exynos: Fix sound in Snow-rev5 Chromebook
-Date:   Fri,  8 Nov 2019 06:35:09 -0500
-Message-Id: <20191108113752.12502-42-sashal@kernel.org>
+Cc:     Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 058/205] iwlwifi: mvm: avoid sending too many BARs
+Date:   Fri,  8 Nov 2019 06:35:25 -0500
+Message-Id: <20191108113752.12502-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,55 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit 64858773d78e820003a94e5a7179d368213655d6 ]
+[ Upstream commit 1a19c139be18ed4d6d681049cc48586fae070120 ]
 
-This patch adds missing properties to the CODEC and sound nodes, so the
-audio will work also on Snow rev5 Chromebook. This patch is an extension
-to the commit e9eefc3f8ce0 ("ARM: dts: exynos: Add missing clock and
-DAI properties to the max98095 node in Snow Chromebook")
-and commit 6ab569936d60 ("ARM: dts: exynos: Enable HDMI audio on Snow
-Chromebook").  It has been reported that such changes work fine on the
-rev5 board too.
+When we receive TX response, we may release a few packets
+due to a hole that was closed in the transmission window.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-[krzk: Fixed typo in phandle to &max98090]
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+However, if that frame failed, we will mark all the released
+frames as failed and will send multiple BARs.
+
+This affects statistics badly, and cause unnecessary frames
+transmission.
+
+Instead, mark all the following packets as success, with the
+desired result of sending a bar for the failed frame only.
+
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-snow-rev5.dts | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm/boot/dts/exynos5250-snow-rev5.dts b/arch/arm/boot/dts/exynos5250-snow-rev5.dts
-index 0348b1c49a691..7cbfc6f1f4b8f 100644
---- a/arch/arm/boot/dts/exynos5250-snow-rev5.dts
-+++ b/arch/arm/boot/dts/exynos5250-snow-rev5.dts
-@@ -20,6 +20,14 @@
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+index 5615ce55cef56..cb2e52e7f46c9 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+@@ -1438,6 +1438,14 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
+ 			break;
+ 		}
  
- 		samsung,model = "Snow-I2S-MAX98090";
- 		samsung,audio-codec = <&max98090>;
++		/*
++		 * If we are freeing multiple frames, mark all the frames
++		 * but the first one as acked, since they were acknowledged
++		 * before
++		 * */
++		if (skb_freed > 1)
++			info->flags |= IEEE80211_TX_STAT_ACK;
 +
-+		cpu {
-+			sound-dai = <&i2s0 0>;
-+		};
-+
-+		codec {
-+			sound-dai = <&max98090 0>, <&hdmi>;
-+		};
- 	};
- };
+ 		iwl_mvm_tx_status_check_trigger(mvm, status);
  
-@@ -31,6 +39,9 @@
- 		interrupt-parent = <&gpx0>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&max98090_irq>;
-+		clocks = <&pmu_system_controller 0>;
-+		clock-names = "mclk";
-+		#sound-dai-cells = <1>;
- 	};
- };
- 
+ 		info->status.rates[0].count = tx_resp->failure_frame + 1;
 -- 
 2.20.1
 
