@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71578F49D3
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:06:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF523F49D6
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:06:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391724AbfKHMEx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390572AbfKHMEx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 8 Nov 2019 07:04:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55558 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733048AbfKHLl5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:41:57 -0500
+        id S2389723AbfKHLl7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:41:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 731F621D82;
-        Fri,  8 Nov 2019 11:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D9B1222C4;
+        Fri,  8 Nov 2019 11:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213317;
-        bh=KoIC1QyqhyN8DmbL2eUSeFGN3iQb5ME2i+EKkEFOJQU=;
+        s=default; t=1573213318;
+        bh=0tFSaKQyGEqGezkRj4bPM4JS9i+QDuEA8486jI4EfWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iwn3mYGStOwDpU4cUBRpMK796LpxfH3UtvNZhM6rwhIycF6DslSpAqLVd/2FYJE+W
-         /3z67ghBXkhMi2SKebkCmIen5wqybvWafoYMvz4HTCAyYcbGYCkQ6faM9p2ixMriVs
-         CzWQeH7G/fMONnyaeyVbVCKttqUx6Pj6LTEg/Xqs=
+        b=XGe9tFSJ0LVyj5tfjMsXXMWdK2jpL+t+zy56ijqnfzwv65caZwm0IEQqT+lu1K0Vb
+         hVbI12t3afhhsnJD71PCJVWd7Cba70Nbgdh8LVHlkKujpXAxhcFp4Z/0q5dS+8GBPR
+         F+ZugGTcsDnlzkGIXESMdIBERwx8OC+v+Dd4Qz+g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 161/205] media: dvb: fix compat ioctl translation
-Date:   Fri,  8 Nov 2019 06:37:08 -0500
-Message-Id: <20191108113752.12502-161-sashal@kernel.org>
+Cc:     Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 162/205] net: bcmgenet: Fix speed selection for reverse MII
+Date:   Fri,  8 Nov 2019 06:37:09 -0500
+Message-Id: <20191108113752.12502-162-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,79 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit 1ccbeeb888ac33627d91f1ccf0b84ef3bcadef24 ]
+[ Upstream commit 00eb2243b933a496958f4ce1bcf59840fea8be16 ]
 
-The VIDEO_GET_EVENT and VIDEO_STILLPICTURE was added back in 2005 but
-it never worked because the command number is wrong.
+The phy supported speed is being used to determine if the MAC should
+be configured to 100 or 1G. The masking logic is broken. Instead, look
+at 1G supported speeds to enable 1G MAC support.
 
-Using the right command number means we have a better chance of them
-actually doing the right thing, though clearly nobody has ever tried
-it successfully.
-
-I noticed these while auditing the remaining users of compat_time_t
-for y2038 bugs. This one is fine in that regard, it just never did
-anything.
-
-Fixes: 6e87abd0b8cb ("[DVB]: Add compat ioctl handling.")
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/compat_ioctl.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/broadcom/genet/bcmmii.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/compat_ioctl.c b/fs/compat_ioctl.c
-index 8f08095ee54e9..3a03f74a8cc4e 100644
---- a/fs/compat_ioctl.c
-+++ b/fs/compat_ioctl.c
-@@ -141,6 +141,7 @@ struct compat_video_event {
- 		unsigned int frame_rate;
- 	} u;
- };
-+#define VIDEO_GET_EVENT32 _IOR('o', 28, struct compat_video_event)
- 
- static int do_video_get_event(struct file *file,
- 		unsigned int cmd, struct compat_video_event __user *up)
-@@ -152,7 +153,7 @@ static int do_video_get_event(struct file *file,
- 	if (kevent == NULL)
- 		return -EFAULT;
- 
--	err = do_ioctl(file, cmd, (unsigned long)kevent);
-+	err = do_ioctl(file, VIDEO_GET_EVENT, (unsigned long)kevent);
- 	if (!err) {
- 		err  = convert_in_user(&kevent->type, &up->type);
- 		err |= convert_in_user(&kevent->timestamp, &up->timestamp);
-@@ -171,6 +172,7 @@ struct compat_video_still_picture {
-         compat_uptr_t iFrame;
-         int32_t size;
- };
-+#define VIDEO_STILLPICTURE32 _IOW('o', 30, struct compat_video_still_picture)
- 
- static int do_video_stillpicture(struct file *file,
- 		unsigned int cmd, struct compat_video_still_picture __user *up)
-@@ -193,7 +195,7 @@ static int do_video_stillpicture(struct file *file,
- 	if (err)
- 		return -EFAULT;
- 
--	err = do_ioctl(file, cmd, (unsigned long) up_native);
-+	err = do_ioctl(file, VIDEO_STILLPICTURE, (unsigned long) up_native);
- 
- 	return err;
- }
-@@ -1302,9 +1304,9 @@ static long do_ioctl_trans(unsigned int cmd,
- 		return rtc_ioctl(file, cmd, argp);
- 
- 	/* dvb */
--	case VIDEO_GET_EVENT:
-+	case VIDEO_GET_EVENT32:
- 		return do_video_get_event(file, cmd, argp);
--	case VIDEO_STILLPICTURE:
-+	case VIDEO_STILLPICTURE32:
- 		return do_video_stillpicture(file, cmd, argp);
- 	}
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmmii.c b/drivers/net/ethernet/broadcom/genet/bcmmii.c
+index 0d527fa5de610..b0592fd4135b3 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
+@@ -226,11 +226,10 @@ int bcmgenet_mii_config(struct net_device *dev, bool init)
+ 		 * capabilities, use that knowledge to also configure the
+ 		 * Reverse MII interface correctly.
+ 		 */
+-		if ((dev->phydev->supported & PHY_BASIC_FEATURES) ==
+-				PHY_BASIC_FEATURES)
+-			port_ctrl = PORT_MODE_EXT_RVMII_25;
+-		else
++		if (dev->phydev->supported & PHY_1000BT_FEATURES)
+ 			port_ctrl = PORT_MODE_EXT_RVMII_50;
++		else
++			port_ctrl = PORT_MODE_EXT_RVMII_25;
+ 		bcmgenet_sys_writel(priv, port_ctrl, SYS_PORT_CTRL);
+ 		break;
  
 -- 
 2.20.1
