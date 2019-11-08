@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 651E0F4AEC
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FFBCF4A8D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:12:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388839AbfKHMM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:12:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51784 "EHLO mail.kernel.org"
+        id S1732871AbfKHLit (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:38:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732852AbfKHLir (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:47 -0500
+        id S1732862AbfKHLit (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C63EE20869;
-        Fri,  8 Nov 2019 11:38:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E752E21D6C;
+        Fri,  8 Nov 2019 11:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213126;
-        bh=XkpVBslqKuTdE5Rwg3WUgngD4asXjVjBos72JgaNb94=;
+        s=default; t=1573213127;
+        bh=IxqNtubm1ik/2pU1sDOhqVUVrkUUGyiic2eiJsNd5K4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbPmAcHfQcljEhJlvQ1b8S1WtiWTHAsUvyfmAUGLE6UR5BRMatMzGWDfRSAaMvjoE
-         X1eDEfeH/57UY2tX7S9nc1LtU6/QiWgYA3iyjdzoa/09KBTWjPH1RjuKxoK4V7k9nR
-         xhGi0Bnnuc2ESrEcPZQaY20WDbJQTN2+7/Ym2op4=
+        b=MXHHGG3e0rAikKvRaLqLS9al7hwmtjQITZ+tWiL3uUaQ4f45tHMfBAGuzZhd8Gudp
+         FsQnwQaRXRrytvtyxuV4keNdk6aye15yW7a3oirU5tIAa9AOBIAq85b6UmXFAJluLQ
+         y0j41U0t55ZLebiy+aZiqdHhLz5ypFRZ/rucR0TU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 045/205] ARM: dts: exynos: Fix regulators configuration on Peach Pi/Pit Chromebooks
-Date:   Fri,  8 Nov 2019 06:35:12 -0500
-Message-Id: <20191108113752.12502-45-sashal@kernel.org>
+Cc:     Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 046/205] i40evf: Validate the number of queues a PF sends
+Date:   Fri,  8 Nov 2019 06:35:13 -0500
+Message-Id: <20191108113752.12502-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -44,84 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
 
-[ Upstream commit f8f3b7fc21b1cb59385b780acd9b9a26d04cb7b2 ]
+[ Upstream commit 3c818910911c93bb5099c6637ec350f90c0e71fc ]
 
-Regulators, which are marked as 'on-in-suspend' seems to be critical for
-board operation, thus they must not be disabled anytime. This can be
-only assured by marking them as 'always-on', because otherwise some
-actions of their clients might result in turning them off. This patch
-restores suspend/resume operation on Peach-Pit Chromebook board. It
-partially reverts 'always-on' property removal done by the commit
-mentioned in the Fixes tag.
+A PF can send any number of queues to the VF and the VF may not
+be able to support that many. Check to see that the number of
+queues is less than or equal to the max number of queues the
+VF can have.
 
-Fixes: 665c441eea3d ("ARM: dts: exynos: Remove unneded always-on for regulators on Peach boards")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5420-peach-pit.dts | 3 +++
- arch/arm/boot/dts/exynos5800-peach-pi.dts  | 3 +++
- 2 files changed, 6 insertions(+)
+ .../ethernet/intel/i40evf/i40evf_virtchnl.c   | 32 +++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/arch/arm/boot/dts/exynos5420-peach-pit.dts b/arch/arm/boot/dts/exynos5420-peach-pit.dts
-index 25bdc9d97a4df..769d60d6c9006 100644
---- a/arch/arm/boot/dts/exynos5420-peach-pit.dts
-+++ b/arch/arm/boot/dts/exynos5420-peach-pit.dts
-@@ -312,6 +312,7 @@
- 				regulator-name = "vdd_1v35";
- 				regulator-min-microvolt = <1350000>;
- 				regulator-max-microvolt = <1350000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -333,6 +334,7 @@
- 				regulator-name = "vdd_2v";
- 				regulator-min-microvolt = <2000000>;
- 				regulator-max-microvolt = <2000000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -343,6 +345,7 @@
- 				regulator-name = "vdd_1v8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-diff --git a/arch/arm/boot/dts/exynos5800-peach-pi.dts b/arch/arm/boot/dts/exynos5800-peach-pi.dts
-index 7989631b39ccf..492e2cd2e559e 100644
---- a/arch/arm/boot/dts/exynos5800-peach-pi.dts
-+++ b/arch/arm/boot/dts/exynos5800-peach-pi.dts
-@@ -312,6 +312,7 @@
- 				regulator-name = "vdd_1v35";
- 				regulator-min-microvolt = <1350000>;
- 				regulator-max-microvolt = <1350000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -333,6 +334,7 @@
- 				regulator-name = "vdd_2v";
- 				regulator-min-microvolt = <2000000>;
- 				regulator-max-microvolt = <2000000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -343,6 +345,7 @@
- 				regulator-name = "vdd_1v8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
+diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c b/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
+index 565677de5ba37..94dabc9d89f73 100644
+--- a/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
++++ b/drivers/net/ethernet/intel/i40evf/i40evf_virtchnl.c
+@@ -153,6 +153,32 @@ int i40evf_send_vf_config_msg(struct i40evf_adapter *adapter)
+ 					  NULL, 0);
+ }
+ 
++/**
++ * i40evf_validate_num_queues
++ * @adapter: adapter structure
++ *
++ * Validate that the number of queues the PF has sent in
++ * VIRTCHNL_OP_GET_VF_RESOURCES is not larger than the VF can handle.
++ **/
++static void i40evf_validate_num_queues(struct i40evf_adapter *adapter)
++{
++	if (adapter->vf_res->num_queue_pairs > I40EVF_MAX_REQ_QUEUES) {
++		struct virtchnl_vsi_resource *vsi_res;
++		int i;
++
++		dev_info(&adapter->pdev->dev, "Received %d queues, but can only have a max of %d\n",
++			 adapter->vf_res->num_queue_pairs,
++			 I40EVF_MAX_REQ_QUEUES);
++		dev_info(&adapter->pdev->dev, "Fixing by reducing queues to %d\n",
++			 I40EVF_MAX_REQ_QUEUES);
++		adapter->vf_res->num_queue_pairs = I40EVF_MAX_REQ_QUEUES;
++		for (i = 0; i < adapter->vf_res->num_vsis; i++) {
++			vsi_res = &adapter->vf_res->vsi_res[i];
++			vsi_res->num_queue_pairs = I40EVF_MAX_REQ_QUEUES;
++		}
++	}
++}
++
+ /**
+  * i40evf_get_vf_config
+  * @adapter: private adapter structure
+@@ -195,6 +221,11 @@ int i40evf_get_vf_config(struct i40evf_adapter *adapter)
+ 	err = (i40e_status)le32_to_cpu(event.desc.cookie_low);
+ 	memcpy(adapter->vf_res, event.msg_buf, min(event.msg_len, len));
+ 
++	/* some PFs send more queues than we should have so validate that
++	 * we aren't getting too many queues
++	 */
++	if (!err)
++		i40evf_validate_num_queues(adapter);
+ 	i40e_vf_parse_hw_config(hw, adapter->vf_res);
+ out_alloc:
+ 	kfree(event.msg_buf);
+@@ -1329,6 +1360,7 @@ void i40evf_virtchnl_completion(struct i40evf_adapter *adapter,
+ 			  I40E_MAX_VF_VSI *
+ 			  sizeof(struct virtchnl_vsi_resource);
+ 		memcpy(adapter->vf_res, msg, min(msglen, len));
++		i40evf_validate_num_queues(adapter);
+ 		i40e_vf_parse_hw_config(&adapter->hw, adapter->vf_res);
+ 		/* restore current mac address */
+ 		ether_addr_copy(adapter->hw.mac.addr, netdev->dev_addr);
 -- 
 2.20.1
 
