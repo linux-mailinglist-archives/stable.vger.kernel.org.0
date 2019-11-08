@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85270F4965
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:03:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDB95F495F
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:02:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390788AbfKHMC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:02:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57096 "EHLO mail.kernel.org"
+        id S2388172AbfKHLmz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:42:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390201AbfKHLmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:42:51 -0500
+        id S2390178AbfKHLmy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:42:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77D6F21D7E;
-        Fri,  8 Nov 2019 11:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26B8F222C4;
+        Fri,  8 Nov 2019 11:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213371;
-        bh=22kIZsl/bIcPa0cFsLFTDaxNqr3npF3OWDyd/GMPzLc=;
+        s=default; t=1573213374;
+        bh=KIk9cKBAlYSu52MEBaNKdwuUofEr+nQ0flIVxSGQwz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GXqD7O5sDs8vDb/6pDf2WilC6UL9J3hNRsggi63dP2hSE02TTJSVihP1O8kP/fH6d
-         pMRyhT5E5njv58n5auu2E50c+NuYwFt2exhLecU1/mOXCdVC4k3HySYZTPSTW0vaBa
-         1rZ4ZBzTdrqx/7fyo84vEtvEG0vkIcESls9u9WnM=
+        b=T4Yo9EjGn4W+TxaSEX8fnBqJujMnpP+4tdFAiesPf3JNG8v2zLTypLk196SzQ37p5
+         YM/8I+e32MwFUeUHTd3xJflmUMdw3pLMkI0FRYfG9I7eo9MRrgntrplVKsYhsSilXj
+         Hepm87tKaxBNX528iYWeXriV/QrjMhO+r8iontyE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
-        Jiri Benc <jbenc@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 198/205] ip_gre: fix parsing gre header in ipgre_err
-Date:   Fri,  8 Nov 2019 06:37:45 -0500
-Message-Id: <20191108113752.12502-198-sashal@kernel.org>
+Cc:     Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Subhash Jadavani <subhashj@codeaurora.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Evan Green <evgreen@chromium.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 199/205] scsi: ufshcd: Fix NULL pointer dereference for in ufshcd_init
+Date:   Fri,  8 Nov 2019 06:37:46 -0500
+Message-Id: <20191108113752.12502-199-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -44,70 +47,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+From: Vivek Gautam <vivek.gautam@codeaurora.org>
 
-[ Upstream commit b0350d51f001e6edc13ee4f253b98b50b05dd401 ]
+[ Upstream commit eebcc19646489b68399ce7b35d9c38eb9f4ec40f ]
 
-gre_parse_header stops parsing when csum_err is encountered, which means
-tpi->key is undefined and ip_tunnel_lookup will return NULL improperly.
+Error paths in ufshcd_init() ufshcd_hba_exit() killed clk_scaling workqueue
+when the workqueue is actually created quite late in ufshcd_init().  So, we
+end up getting NULL pointer dereference in such error paths.  Fix this by
+moving clk_scaling initialization and kill codes to two separate methods, and
+call them at required places.
 
-This patch introduce a NULL pointer as csum_err parameter. Even when
-csum_err is encountered, it won't return error and continue parsing gre
-header as expected.
+Fixes: 401f1e4490ee ("scsi: ufs: don't suspend clock scaling during clock
+gating")
 
-Fixes: 9f57c67c379d ("gre: Remove support for sharing GRE protocol hook.")
-Reported-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vivek Gautam <vivek.gautam@codeaurora.org>
+Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: Subhash Jadavani <subhashj@codeaurora.org>
+Cc: Matthias Kaehlcke <mka@chromium.org>
+Cc: Evan Green <evgreen@chromium.org>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Evan Green <evgreen@chromium.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/gre_demux.c | 7 ++++---
- net/ipv4/ip_gre.c    | 9 +++------
- 2 files changed, 7 insertions(+), 9 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 53 +++++++++++++++++++++++++--------------
+ 1 file changed, 34 insertions(+), 19 deletions(-)
 
-diff --git a/net/ipv4/gre_demux.c b/net/ipv4/gre_demux.c
-index f21ea6125fc2d..511b32ea25331 100644
---- a/net/ipv4/gre_demux.c
-+++ b/net/ipv4/gre_demux.c
-@@ -87,13 +87,14 @@ int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 4aaba3e030554..8bce755e0f5bc 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1772,6 +1772,34 @@ out:
+ 	return count;
+ }
  
- 	options = (__be32 *)(greh + 1);
- 	if (greh->flags & GRE_CSUM) {
--		if (skb_checksum_simple_validate(skb)) {
-+		if (!skb_checksum_simple_validate(skb)) {
-+			skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
-+						 null_compute_pseudo);
-+		} else if (csum_err) {
- 			*csum_err = true;
- 			return -EINVAL;
- 		}
- 
--		skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
--					 null_compute_pseudo);
- 		options++;
++static void ufshcd_init_clk_scaling(struct ufs_hba *hba)
++{
++	char wq_name[sizeof("ufs_clkscaling_00")];
++
++	if (!ufshcd_is_clkscaling_supported(hba))
++		return;
++
++	INIT_WORK(&hba->clk_scaling.suspend_work,
++		  ufshcd_clk_scaling_suspend_work);
++	INIT_WORK(&hba->clk_scaling.resume_work,
++		  ufshcd_clk_scaling_resume_work);
++
++	snprintf(wq_name, sizeof(wq_name), "ufs_clkscaling_%d",
++		 hba->host->host_no);
++	hba->clk_scaling.workq = create_singlethread_workqueue(wq_name);
++
++	ufshcd_clkscaling_init_sysfs(hba);
++}
++
++static void ufshcd_exit_clk_scaling(struct ufs_hba *hba)
++{
++	if (!ufshcd_is_clkscaling_supported(hba))
++		return;
++
++	destroy_workqueue(hba->clk_scaling.workq);
++	ufshcd_devfreq_remove(hba);
++}
++
+ static void ufshcd_init_clk_gating(struct ufs_hba *hba)
+ {
+ 	char wq_name[sizeof("ufs_clk_gating_00")];
+@@ -6676,6 +6704,7 @@ out:
+ 	 */
+ 	if (ret && !ufshcd_eh_in_progress(hba) && !hba->pm_op_in_progress) {
+ 		pm_runtime_put_sync(hba->dev);
++		ufshcd_exit_clk_scaling(hba);
+ 		ufshcd_hba_exit(hba);
  	}
  
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 0b87558f265eb..9d5db4e40b2a9 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -232,13 +232,10 @@ static void gre_err(struct sk_buff *skb, u32 info)
- 	const int type = icmp_hdr(skb)->type;
- 	const int code = icmp_hdr(skb)->code;
- 	struct tnl_ptk_info tpi;
--	bool csum_err = false;
+@@ -7223,12 +7252,9 @@ static void ufshcd_hba_exit(struct ufs_hba *hba)
+ 		ufshcd_variant_hba_exit(hba);
+ 		ufshcd_setup_vreg(hba, false);
+ 		ufshcd_suspend_clkscaling(hba);
+-		if (ufshcd_is_clkscaling_supported(hba)) {
++		if (ufshcd_is_clkscaling_supported(hba))
+ 			if (hba->devfreq)
+ 				ufshcd_suspend_clkscaling(hba);
+-			destroy_workqueue(hba->clk_scaling.workq);
+-			ufshcd_devfreq_remove(hba);
+-		}
+ 		ufshcd_setup_clocks(hba, false);
+ 		ufshcd_setup_hba_vreg(hba, false);
+ 		hba->is_powered = false;
+@@ -7908,6 +7934,7 @@ void ufshcd_remove(struct ufs_hba *hba)
+ 	ufshcd_disable_intr(hba, hba->intr_mask);
+ 	ufshcd_hba_stop(hba, true);
  
--	if (gre_parse_header(skb, &tpi, &csum_err, htons(ETH_P_IP),
--			     iph->ihl * 4) < 0) {
--		if (!csum_err)		/* ignore csum errors. */
--			return;
++	ufshcd_exit_clk_scaling(hba);
+ 	ufshcd_exit_clk_gating(hba);
+ 	if (ufshcd_is_clkscaling_supported(hba))
+ 		device_remove_file(hba->dev, &hba->clk_scaling.enable_attr);
+@@ -8079,6 +8106,8 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
+ 
+ 	ufshcd_init_clk_gating(hba);
+ 
++	ufshcd_init_clk_scaling(hba);
++
+ 	/*
+ 	 * In order to avoid any spurious interrupt immediately after
+ 	 * registering UFS controller interrupt handler, clear any pending UFS
+@@ -8117,21 +8146,6 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
+ 		goto out_remove_scsi_host;
+ 	}
+ 
+-	if (ufshcd_is_clkscaling_supported(hba)) {
+-		char wq_name[sizeof("ufs_clkscaling_00")];
+-
+-		INIT_WORK(&hba->clk_scaling.suspend_work,
+-			  ufshcd_clk_scaling_suspend_work);
+-		INIT_WORK(&hba->clk_scaling.resume_work,
+-			  ufshcd_clk_scaling_resume_work);
+-
+-		snprintf(wq_name, sizeof(wq_name), "ufs_clkscaling_%d",
+-			 host->host_no);
+-		hba->clk_scaling.workq = create_singlethread_workqueue(wq_name);
+-
+-		ufshcd_clkscaling_init_sysfs(hba);
 -	}
-+	if (gre_parse_header(skb, &tpi, NULL, htons(ETH_P_IP),
-+			     iph->ihl * 4) < 0)
-+		return;
- 
- 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
- 		ipv4_update_pmtu(skb, dev_net(skb->dev), info,
+-
+ 	/*
+ 	 * Set the default power management level for runtime and system PM.
+ 	 * Default power saving mode is to keep UFS link in Hibern8 state
+@@ -8169,6 +8183,7 @@ int ufshcd_init(struct ufs_hba *hba, void __iomem *mmio_base, unsigned int irq)
+ out_remove_scsi_host:
+ 	scsi_remove_host(hba->host);
+ exit_gating:
++	ufshcd_exit_clk_scaling(hba);
+ 	ufshcd_exit_clk_gating(hba);
+ out_disable:
+ 	hba->is_irq_enabled = false;
 -- 
 2.20.1
 
