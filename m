@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E0814F5640
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C46FF54C1
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390951AbfKHTHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:07:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38476 "EHLO mail.kernel.org"
+        id S1732389AbfKHSxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:53:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390983AbfKHTHl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:07:41 -0500
+        id S1732330AbfKHSxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:53:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41B352196F;
-        Fri,  8 Nov 2019 19:07:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B675A21D7E;
+        Fri,  8 Nov 2019 18:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240060;
-        bh=Y61ZJb/1fN2SECbdyVM3niqERKXBoze0HLnOYjt7n5s=;
+        s=default; t=1573239211;
+        bh=v3Vsq1jWVxR4xtDWLkdlbQS32M/Y8m4OfBUBuowFf88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2mDJEeMoHYCSwjIkhxn70Er9wRTMxdFF/YWnOwfRuQvbi4H54JVpZvVErRhJ1+tMj
-         5ghmYTmp4Wo+KKZkK10+/Pg8tfUvwB9oizcDijNqqVcItS1I9tQqryiMOj7h0UBRxn
-         HgmwlT3LgsougDdrcM3+cjrt75eW+w/TWKNNYtlE=
+        b=I82p5YtCYvUiux2B1qCo801zFqtMQWb/AV+FfQtljZJsDctlbIRNhRNcU/JdTDjgo
+         e64k1zsdP1Od7CJPtkeig2eSLGq9xE5VOn8rtx8+P4V6mlsHn7ZFWINHquossIvHzB
+         LT8pv1C/HUn0nN6E0m1YCD/3mdgdczqyj3VgBCGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
-        Eyal Reizer <eyalr@ti.com>, Guy Mishol <guym@ti.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 033/140] ARM: dts: Use level interrupt for omap4 & 5 wlcore
+Subject: [PATCH 4.4 04/75] ASoc: rockchip: i2s: Fix RPM imbalance
 Date:   Fri,  8 Nov 2019 19:49:21 +0100
-Message-Id: <20191108174906.487977846@linuxfoundation.org>
+Message-Id: <20191108174711.263144275@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
+References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,109 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 087a2b7ec973f6f30f6e7b72cb50b6f7734ffdd2 ]
+[ Upstream commit b1e620e7d32f5aad5353cc3cfc13ed99fea65d3a ]
 
-Commit 572cf7d7b07d ("ARM: dts: Improve omap l4per idling with wlcore edge
-sensitive interrupt") changed wlcore interrupts to use edge interrupt based
-on what's specified in the wl1835mod.pdf data sheet.
+If rockchip_pcm_platform_register() fails, e.g. upon deferring to wait
+for an absent DMA channel, we return without disabling RPM, which makes
+subsequent re-probe attempts scream with errors about the unbalanced
+enable. Don't do that.
 
-However, there are still cases where we can have lost interrupts as
-described in omap_gpio_unidle(). And using a level interrupt instead of edge
-interrupt helps as we avoid the check for untriggered GPIO interrupts in
-omap_gpio_unidle().
-
-And with commit e6818d29ea15 ("gpio: gpio-omap: configure edge detection
-for level IRQs for idle wakeup") GPIOs idle just fine with level interrupts.
-
-Let's change omap4 and 5 wlcore users back to using level interrupt
-instead of edge interrupt. Let's not change the others as I've only seen
-this on omap4 and 5, probably because the other SoCs don't have l4per idle
-independent of the CPUs.
-
-Fixes: 572cf7d7b07d ("ARM: dts: Improve omap l4per idling with wlcore edge sensitive interrupt")
-Depends-on: e6818d29ea15 ("gpio: gpio-omap: configure edge detection for level IRQs for idle wakeup")
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: Eyal Reizer <eyalr@ti.com>
-Cc: Guy Mishol <guym@ti.com>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: ebb75c0bdba2 ("ASoC: rockchip: i2s: Adjust devm usage")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Link: https://lore.kernel.org/r/bcb12a849a05437fb18372bc7536c649b94bdf07.1570029862.git.robin.murphy@arm.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap4-droid4-xt894.dts       | 2 +-
- arch/arm/boot/dts/omap4-panda-common.dtsi      | 2 +-
- arch/arm/boot/dts/omap4-sdp.dts                | 2 +-
- arch/arm/boot/dts/omap4-var-som-om44-wlan.dtsi | 2 +-
- arch/arm/boot/dts/omap5-board-common.dtsi      | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ sound/soc/rockchip/rockchip_i2s.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap4-droid4-xt894.dts b/arch/arm/boot/dts/omap4-droid4-xt894.dts
-index 4454449de00c0..a40fe8d49da64 100644
---- a/arch/arm/boot/dts/omap4-droid4-xt894.dts
-+++ b/arch/arm/boot/dts/omap4-droid4-xt894.dts
-@@ -369,7 +369,7 @@
- 		compatible = "ti,wl1285", "ti,wl1283";
- 		reg = <2>;
- 		/* gpio_100 with gpmc_wait2 pad as wakeirq */
--		interrupts-extended = <&gpio4 4 IRQ_TYPE_EDGE_RISING>,
-+		interrupts-extended = <&gpio4 4 IRQ_TYPE_LEVEL_HIGH>,
- 				      <&omap4_pmx_core 0x4e>;
- 		interrupt-names = "irq", "wakeup";
- 		ref-clock-frequency = <26000000>;
-diff --git a/arch/arm/boot/dts/omap4-panda-common.dtsi b/arch/arm/boot/dts/omap4-panda-common.dtsi
-index 14be2ecb62b1f..55ea8b6189af5 100644
---- a/arch/arm/boot/dts/omap4-panda-common.dtsi
-+++ b/arch/arm/boot/dts/omap4-panda-common.dtsi
-@@ -474,7 +474,7 @@
- 		compatible = "ti,wl1271";
- 		reg = <2>;
- 		/* gpio_53 with gpmc_ncs3 pad as wakeup */
--		interrupts-extended = <&gpio2 21 IRQ_TYPE_EDGE_RISING>,
-+		interrupts-extended = <&gpio2 21 IRQ_TYPE_LEVEL_HIGH>,
- 				      <&omap4_pmx_core 0x3a>;
- 		interrupt-names = "irq", "wakeup";
- 		ref-clock-frequency = <38400000>;
-diff --git a/arch/arm/boot/dts/omap4-sdp.dts b/arch/arm/boot/dts/omap4-sdp.dts
-index 3c274965ff40a..91480ac1f3286 100644
---- a/arch/arm/boot/dts/omap4-sdp.dts
-+++ b/arch/arm/boot/dts/omap4-sdp.dts
-@@ -512,7 +512,7 @@
- 		compatible = "ti,wl1281";
- 		reg = <2>;
- 		interrupt-parent = <&gpio1>;
--		interrupts = <21 IRQ_TYPE_EDGE_RISING>; /* gpio 53 */
-+		interrupts = <21 IRQ_TYPE_LEVEL_HIGH>; /* gpio 53 */
- 		ref-clock-frequency = <26000000>;
- 		tcxo-clock-frequency = <26000000>;
- 	};
-diff --git a/arch/arm/boot/dts/omap4-var-som-om44-wlan.dtsi b/arch/arm/boot/dts/omap4-var-som-om44-wlan.dtsi
-index 6dbbc9b3229cc..d0032213101e6 100644
---- a/arch/arm/boot/dts/omap4-var-som-om44-wlan.dtsi
-+++ b/arch/arm/boot/dts/omap4-var-som-om44-wlan.dtsi
-@@ -69,7 +69,7 @@
- 		compatible = "ti,wl1271";
- 		reg = <2>;
- 		interrupt-parent = <&gpio2>;
--		interrupts = <9 IRQ_TYPE_EDGE_RISING>; /* gpio 41 */
-+		interrupts = <9 IRQ_TYPE_LEVEL_HIGH>; /* gpio 41 */
- 		ref-clock-frequency = <38400000>;
- 	};
- };
-diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
-index 7fff555ee3943..68ac04641bdb1 100644
---- a/arch/arm/boot/dts/omap5-board-common.dtsi
-+++ b/arch/arm/boot/dts/omap5-board-common.dtsi
-@@ -362,7 +362,7 @@
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&wlcore_irq_pin>;
- 		interrupt-parent = <&gpio1>;
--		interrupts = <14 IRQ_TYPE_EDGE_RISING>;	/* gpio 14 */
-+		interrupts = <14 IRQ_TYPE_LEVEL_HIGH>;	/* gpio 14 */
- 		ref-clock-frequency = <26000000>;
- 	};
- };
+diff --git a/sound/soc/rockchip/rockchip_i2s.c b/sound/soc/rockchip/rockchip_i2s.c
+index 58ee64594f075..f583f317644a1 100644
+--- a/sound/soc/rockchip/rockchip_i2s.c
++++ b/sound/soc/rockchip/rockchip_i2s.c
+@@ -530,7 +530,7 @@ static int rockchip_i2s_probe(struct platform_device *pdev)
+ 	ret = devm_snd_dmaengine_pcm_register(&pdev->dev, NULL, 0);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not register PCM\n");
+-		return ret;
++		goto err_suspend;
+ 	}
+ 
+ 	return 0;
 -- 
 2.20.1
 
