@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15FA8F4825
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA35CF46F5
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:48:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388742AbfKHLyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:54:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33840 "EHLO mail.kernel.org"
+        id S2391287AbfKHLqP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:46:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391277AbfKHLqM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:46:12 -0500
+        id S2391279AbfKHLqN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:46:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6023D20656;
-        Fri,  8 Nov 2019 11:46:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C95C2084D;
+        Fri,  8 Nov 2019 11:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213572;
-        bh=lZXxMuWIybLFtXGs8v1ZWRWHg9eTWJ+Zb4KyQrFSfR0=;
+        s=default; t=1573213573;
+        bh=Jeo/39pPQmoT6D0knHh+tThuVePJ8AIQxDESlg922GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EqCqO7Y0bJeLwaI1IoAcVrKiR2axvDv4ex+7ZhP1fYE0tB8ZZhELnZb4OXcb1qn48
-         KFTjA19qrDohzkUYc93VjGRGSnu5kC5b8+kQNY+JAltRDXL0ELQLYWzpYabjKAMH8T
-         IZ1rK38F/tOE7LkzJ8UqleLlBfzJ+yL8k9b2VsbI=
+        b=OBkuRYekczZ/EshlOU6MYWR+Rbe9eKnJpWX+6pTZA5TaVjOiphNG6trpXOKAsQmyA
+         8l1kQgb8tOhVeKm2pe9737YoNb2f4K8L5vmLJMBnxVqjj6VEW6iIzfopKCL52jN3CL
+         /sC3qvQgwVwE40bdHwuIAH0NkccbV1tJWjHB8XNE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sara Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 18/64] iwlwifi: mvm: avoid sending too many BARs
-Date:   Fri,  8 Nov 2019 06:44:59 -0500
-Message-Id: <20191108114545.15351-18-sashal@kernel.org>
+Cc:     Marcel Ziswiler <marcel@ziswiler.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 19/64] ARM: dts: pxa: fix power i2c base address
+Date:   Fri,  8 Nov 2019 06:45:00 -0500
+Message-Id: <20191108114545.15351-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114545.15351-1-sashal@kernel.org>
 References: <20191108114545.15351-1-sashal@kernel.org>
@@ -44,48 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sara Sharon <sara.sharon@intel.com>
+From: Marcel Ziswiler <marcel@ziswiler.com>
 
-[ Upstream commit 1a19c139be18ed4d6d681049cc48586fae070120 ]
+[ Upstream commit 8a1ecc01a473b75ab97be9b36f623e4551a6e9ae ]
 
-When we receive TX response, we may release a few packets
-due to a hole that was closed in the transmission window.
+There is one too many zeroes in the Power I2C base address. Fix this.
 
-However, if that frame failed, we will mark all the released
-frames as failed and will send multiple BARs.
-
-This affects statistics badly, and cause unnecessary frames
-transmission.
-
-Instead, mark all the following packets as success, with the
-desired result of sending a bar for the failed frame only.
-
-Signed-off-by: Sara Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
+Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm/boot/dts/pxa27x.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-index 1aa74b87599ff..63dcea640d076 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -1303,6 +1303,14 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
- 			break;
- 		}
+diff --git a/arch/arm/boot/dts/pxa27x.dtsi b/arch/arm/boot/dts/pxa27x.dtsi
+index 9e73dc6b3ed3e..0e1320afa1562 100644
+--- a/arch/arm/boot/dts/pxa27x.dtsi
++++ b/arch/arm/boot/dts/pxa27x.dtsi
+@@ -70,7 +70,7 @@
+ 			clocks = <&clks CLK_PWM1>;
+ 		};
  
-+		/*
-+		 * If we are freeing multiple frames, mark all the frames
-+		 * but the first one as acked, since they were acknowledged
-+		 * before
-+		 * */
-+		if (skb_freed > 1)
-+			info->flags |= IEEE80211_TX_STAT_ACK;
-+
- 		iwl_mvm_tx_status_check_trigger(mvm, status);
- 
- 		info->status.rates[0].count = tx_resp->failure_frame + 1;
+-		pwri2c: i2c@40f000180 {
++		pwri2c: i2c@40f00180 {
+ 			compatible = "mrvl,pxa-i2c";
+ 			reg = <0x40f00180 0x24>;
+ 			interrupts = <6>;
 -- 
 2.20.1
 
