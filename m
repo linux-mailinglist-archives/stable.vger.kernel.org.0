@@ -2,72 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26DA7F414E
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 08:23:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BA71F4290
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 09:53:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730151AbfKHHXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 02:23:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43580 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730144AbfKHHXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 02:23:45 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27C1920865;
-        Fri,  8 Nov 2019 07:23:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573197824;
-        bh=DDfs6FWc8p3pAzEndhsq6wQPUgefCA0dOddZfYHyZkY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fJ3ccBshDAatN6O+7cCd/FlB+Eac964P6cE8s4mGkbVG/ypROfy4YZmqnjKic6bcc
-         XBbP0hYexFDzyMtYEeihnMqXHIzIQQUJq33IzoeRCTErwiqXrGSrUM+tlxMch0hkCV
-         +wk85BEc3lBvvDrM2Rb5l66ExRIiIpS8hEk8hlg4=
-Date:   Fri, 8 Nov 2019 08:23:42 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Oliver Neukum <oneukum@suse.com>
-Cc:     Alan Stern <stern@rowland.harvard.edu>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 4.19 114/149] UAS: Revert commit 3ae62a42090f ("UAS: fix
- alignment of scatter/gather segments")
-Message-ID: <20191108072342.GA583220@kroah.com>
-References: <Pine.LNX.4.44L0.1911051007140.1678-100000@iolanthe.rowland.org>
- <1572968467.2921.27.camel@suse.com>
- <20191105163805.GB2760793@kroah.com>
- <1573126365.3024.4.camel@suse.com>
+        id S1728513AbfKHIxk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 03:53:40 -0500
+Received: from mx2.suse.de ([195.135.220.15]:40428 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726072AbfKHIxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 03:53:40 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id BD938B219;
+        Fri,  8 Nov 2019 08:53:38 +0000 (UTC)
+Date:   Fri, 8 Nov 2019 09:53:37 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Roman Gushchin <guro@fb.com>
+Cc:     "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Tejun Heo <tj@kernel.org>
+Subject: Re: [PATCH 1/2] mm: memcg: switch to css_tryget() in
+ get_mem_cgroup_from_mm()
+Message-ID: <20191108085337.GA15658@dhcp22.suse.cz>
+References: <20191106225131.3543616-1-guro@fb.com>
+ <20191107122125.GS8314@dhcp22.suse.cz>
+ <20191107164236.GB2919@castle.dhcp.thefacebook.com>
+ <20191107170200.GX8314@dhcp22.suse.cz>
+ <20191107224107.GA8219@castle.DHCP.thefacebook.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1573126365.3024.4.camel@suse.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191107224107.GA8219@castle.DHCP.thefacebook.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 07, 2019 at 12:32:45PM +0100, Oliver Neukum wrote:
-> Am Dienstag, den 05.11.2019, 17:38 +0100 schrieb Greg Kroah-Hartman:
-> > > > Given this information, perhaps you will decide that the revert is 
-> > > > worthwhile.
-> > > 
-> > > Damned if I do, damned if I do not.
-> > > Check for usbip and special case it?
+On Thu 07-11-19 22:41:13, Roman Gushchin wrote:
+> On Thu, Nov 07, 2019 at 06:02:00PM +0100, Michal Hocko wrote:
+> > On Thu 07-11-19 16:42:41, Roman Gushchin wrote:
+[...]
+> > > It's an exiting task with the PF_EXITING flag set and it's in their late stages
+> > > of life.
 > > 
-> > We should be able to do that in the host controller driver for usbip,
-> > right?  What is the symptom if you use a UAS device with usbip and this
-> > commit?
+> > This is a signal delivery path AFAIU (get_signal) and the coredumping
+> > happens before do_exit. My understanding is that that unlinking
+> > happens from cgroup_exit. So either I am misreading the backtrace or
+> > there is some other way to leave cgroups or there is something more
+> > going on.
 > 
-> Yes, that patch should then also be applied. Then it will work.
-> Without it, commands will fail, as transfers will end prematurely.
+> Yeah, you're right. I have no better explanation for this and the similar,
+> mentioned in the commit bsd accounting issue,
 
-Ok, I'm confused now.  I just checked, and I really have no idea what
-needs to be backported anymore.  3ae62a42090f ("UAS: fix alignment of
-scatter/gather segments") was backported to all of the stable kernels,
-and now we reverted it.
+Tejun mentioned bsd accounting issue as well, but I do not see any
+explicit reference to it in neither of the two patches.
 
-So what else needs to be done here?
+> than some very rare race condition
+> that allows cgroups to be offlined with a task inside.
+> 
+> I'll think more about it.
 
-thanks,
+Thanks a lot. As I've said, I am not opposing this change once we have a
+proper changelog but I find the explanation really weak. If there is a
+race then it should be fixed as well.
 
-greg k-h
+Thanks!
+-- 
+Michal Hocko
+SUSE Labs
