@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06EBDF56DB
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D85A8F558A
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732997AbfKHTMN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:12:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41392 "EHLO mail.kernel.org"
+        id S2388124AbfKHTDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:03:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730154AbfKHTJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:09:35 -0500
+        id S1729833AbfKHTDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:03:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 328272087E;
-        Fri,  8 Nov 2019 19:09:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31F81215EA;
+        Fri,  8 Nov 2019 19:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240174;
-        bh=Eo4M+CcVoL5z+LaKljF9jKB5DJ888zaDFmwooiIRzxU=;
+        s=default; t=1573239784;
+        bh=caerxxbWsm1Pp5Wd/RgLWcj1/JZ4KMfdap7er8g7ap0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQA8enWiMIOpgYYeG6qN8TSjRT901Bpc44W6nHYA3BEdKyy72VmcuHxpoVzL8OZfg
-         bnUZ7f/ylv46fuqclpkzCwBeNkXcr+7PHJceRZNdWWPUx1MgPpY2tliHeLknSaCIcI
-         V3U8L1lgPwQH4YDQj5FwI/bP8nY/FqqyoZqlaUB0=
+        b=U1vFOhFJ0yqjhwMrUn94AGOpZ2cCOjWYWKOCrudUK+cGgdHYh27Z/V/Nt+k5LO6mw
+         oPMwOLyBXpMk3QuK9WTH+fN71llP63UpFDeMGC+ysseZa/jjiJeMNhrU10DPC4s3m9
+         BQyx8SWBI6c+1k7jf9ey5cEVrzI64X8rwBqvjBe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.3 112/140] net/mlx5e: Initialize on stack link modes bitmap
+        stable@vger.kernel.org, David Ahern <dsahern@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 60/79] selftests: fib_tests: add more tests for metric update
 Date:   Fri,  8 Nov 2019 19:50:40 +0100
-Message-Id: <20191108174911.905416820@linuxfoundation.org>
+Message-Id: <20191108174820.075150796@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@mellanox.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 926b37f76fb0a22fe93c8873c819fd167180e85c ]
+[ Upstream commit 37de3b354150450ba12275397155e68113e99901 ]
 
-Initialize link modes bitmap on stack before using it, otherwise the
-outcome of ethtool set link ksettings might have unexpected values.
+This patch adds two more tests to ipv4_addr_metric_test() to
+explicitly cover the scenarios fixed by the previous patch.
 
-Fixes: 4b95840a6ced ("net/mlx5e: Fix matching of speed to PRM link modes")
-Signed-off-by: Aya Levin <ayal@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Suggested-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/fib_tests.sh |   21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
-@@ -1021,7 +1021,7 @@ static bool ext_link_mode_requested(cons
- {
- #define MLX5E_MIN_PTYS_EXT_LINK_MODE_BIT ETHTOOL_LINK_MODE_50000baseKR_Full_BIT
- 	int size = __ETHTOOL_LINK_MODE_MASK_NBITS - MLX5E_MIN_PTYS_EXT_LINK_MODE_BIT;
--	__ETHTOOL_DECLARE_LINK_MODE_MASK(modes);
-+	__ETHTOOL_DECLARE_LINK_MODE_MASK(modes) = {0,};
+--- a/tools/testing/selftests/net/fib_tests.sh
++++ b/tools/testing/selftests/net/fib_tests.sh
+@@ -1301,6 +1301,27 @@ ipv4_addr_metric_test()
+ 	fi
+ 	log_test $rc 0 "Prefix route with metric on link up"
  
- 	bitmap_set(modes, MLX5E_MIN_PTYS_EXT_LINK_MODE_BIT, size);
- 	return bitmap_intersects(modes, adver, __ETHTOOL_LINK_MODE_MASK_NBITS);
++	# explicitly check for metric changes on edge scenarios
++	run_cmd "$IP addr flush dev dummy2"
++	run_cmd "$IP addr add dev dummy2 172.16.104.0/24 metric 259"
++	run_cmd "$IP addr change dev dummy2 172.16.104.0/24 metric 260"
++	rc=$?
++	if [ $rc -eq 0 ]; then
++		check_route "172.16.104.0/24 dev dummy2 proto kernel scope link src 172.16.104.0 metric 260"
++		rc=$?
++	fi
++	log_test $rc 0 "Modify metric of .0/24 address"
++
++	run_cmd "$IP addr flush dev dummy2"
++	run_cmd "$IP addr add dev dummy2 172.16.104.1/32 peer 172.16.104.2 metric 260"
++	run_cmd "$IP addr change dev dummy2 172.16.104.1/32 peer 172.16.104.2 metric 261"
++	rc=$?
++	if [ $rc -eq 0 ]; then
++		check_route "172.16.104.2 dev dummy2 proto kernel scope link src 172.16.104.1 metric 261"
++		rc=$?
++	fi
++	log_test $rc 0 "Modify metric of address with peer route"
++
+ 	$IP li del dummy1
+ 	$IP li del dummy2
+ 	cleanup
 
 
