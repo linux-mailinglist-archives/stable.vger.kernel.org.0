@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35B54F56A1
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 570FFF5592
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391810AbfKHTJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:09:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42008 "EHLO mail.kernel.org"
+        id S1732387AbfKHTDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:03:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391825AbfKHTJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:09:58 -0500
+        id S2388365AbfKHTDR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:03:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80E062196F;
-        Fri,  8 Nov 2019 19:09:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D69372067B;
+        Fri,  8 Nov 2019 19:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240198;
-        bh=oDbZB7orneX006l4dQrazAI3AMgWkUEeoDS5nYSAriU=;
+        s=default; t=1573239796;
+        bh=EaCQpflTUZSUJ+NfNeJT/l/Xy4jwsgfkrS/58WizykM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcMnwfl84vdrXID4t8qBUrTIae9rDxGnOoaIIilOJNXjBmGVQ/j1xyVFzcXEtwDUX
-         79JPocC52zAmUH2klSYb5gCeCJCA+69qt3SGEFHNUGGfVWqb+YO37tMzaD958utb/8
-         fqgCAWxtkcyrQfkHXpRWjxu2aHZU6IPfhrzj0eAA=
+        b=Pmw7vURyjljujKmwnDCo1g58qruhq+N2tjDy+QlkDSOqInm+ZHsqU1V4X3nJ9RU/F
+         m6xknIVuMXc5twgberTORRtT/Z+Tk+7L/DRPCWsAfhn/78YSWzrgYSMD/YDr8Uj87E
+         pJA68FKhIpwuowHOb/nnqMIkNC4x5dm10BQ/8Jwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@mellanox.com>,
+        Moshe Shemesh <moshe@mellanox.com>,
         Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.3 115/140] net/mlx5: Fix rtable reference leak
+Subject: [PATCH 4.19 63/79] net/mlx5e: Fix ethtool self test: link speed
 Date:   Fri,  8 Nov 2019 19:50:43 +0100
-Message-Id: <20191108174912.063099581@linuxfoundation.org>
+Message-Id: <20191108174821.264362420@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,58 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@mellanox.com>
+From: Aya Levin <ayal@mellanox.com>
 
-[ Upstream commit 2347cee83b2bd868bde2d283db0fac89f22be4e0 ]
+[ Upstream commit 534e7366f41b0c689b01af4375aefcd1462adedf ]
 
-If the rt entry gateway family is not AF_INET for multipath device,
-rtable reference is leaked.
-Hence, fix it by releasing the reference.
+Ethtool self test contains a test for link speed. This test reads the
+PTYS register and determines whether the current speed is valid or not.
+Change current implementation to use the function mlx5e_port_linkspeed()
+that does the same check and fails when speed is invalid. This code
+redundancy lead to a bug when mlx5e_port_linkspeed() was updated with
+expended speeds and the self test was not.
 
-Fixes: 5fb091e8130b ("net/mlx5e: Use hint to resolve route when in HW multipath mode")
-Fixes: e32ee6c78efa ("net/mlx5e: Support tunnel encap over tagged Ethernet")
-Signed-off-by: Parav Pandit <parav@mellanox.com>
+Fixes: 2c81bfd5ae56 ("net/mlx5e: Move port speed code from en_ethtool.c to en/port.c")
+Signed-off-by: Aya Levin <ayal@mellanox.com>
+Reviewed-by: Moshe Shemesh <moshe@mellanox.com>
 Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c |   12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_selftest.c |   15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/tc_tun.c
-@@ -90,15 +90,19 @@ static int mlx5e_route_lookup_ipv4(struc
- 	if (ret)
- 		return ret;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_selftest.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_selftest.c
+@@ -35,6 +35,7 @@
+ #include <linux/udp.h>
+ #include <net/udp.h>
+ #include "en.h"
++#include "en/port.h"
  
--	if (mlx5_lag_is_multipath(mdev) && rt->rt_gw_family != AF_INET)
-+	if (mlx5_lag_is_multipath(mdev) && rt->rt_gw_family != AF_INET) {
-+		ip_rt_put(rt);
- 		return -ENETUNREACH;
-+	}
- #else
- 	return -EOPNOTSUPP;
- #endif
+ enum {
+ 	MLX5E_ST_LINK_STATE,
+@@ -80,22 +81,12 @@ static int mlx5e_test_link_state(struct
  
- 	ret = get_route_and_out_devs(priv, rt->dst.dev, route_dev, out_dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		ip_rt_put(rt);
- 		return ret;
-+	}
+ static int mlx5e_test_link_speed(struct mlx5e_priv *priv)
+ {
+-	u32 out[MLX5_ST_SZ_DW(ptys_reg)];
+-	u32 eth_proto_oper;
+-	int i;
++	u32 speed;
  
- 	if (!(*out_ttl))
- 		*out_ttl = ip4_dst_hoplimit(&rt->dst);
-@@ -142,8 +146,10 @@ static int mlx5e_route_lookup_ipv6(struc
- 		*out_ttl = ip6_dst_hoplimit(dst);
+ 	if (!netif_carrier_ok(priv->netdev))
+ 		return 1;
  
- 	ret = get_route_and_out_devs(priv, dst->dev, route_dev, out_dev);
--	if (ret < 0)
-+	if (ret < 0) {
-+		dst_release(dst);
- 		return ret;
-+	}
- #else
- 	return -EOPNOTSUPP;
- #endif
+-	if (mlx5_query_port_ptys(priv->mdev, out, sizeof(out), MLX5_PTYS_EN, 1))
+-		return 1;
+-
+-	eth_proto_oper = MLX5_GET(ptys_reg, out, eth_proto_oper);
+-	for (i = 0; i < MLX5E_LINK_MODES_NUMBER; i++) {
+-		if (eth_proto_oper & MLX5E_PROT_MASK(i))
+-			return 0;
+-	}
+-	return 1;
++	return mlx5e_port_linkspeed(priv->mdev, &speed);
+ }
+ 
+ struct mlx5ehdr {
 
 
