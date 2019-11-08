@@ -2,118 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 169E0F4BF7
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:38:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1694BF4C29
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:53:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726232AbfKHMiX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:38:23 -0500
-Received: from us-smtp-2.mimecast.com ([207.211.31.81]:32808 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726199AbfKHMiW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 07:38:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573216702;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=+qGZKTynsT8+tlXJru7A+ZjufiUpA02K1rrJMH/k/+Y=;
-        b=MHYayCleHbHcolyskIdm5xC2eJQ8BPx463eUhH0V0MPI6lshp+aUNYSD8vJh4Z3I6LFEgR
-        EZb99NCOCF1kfGppduRj9u4Ncg7Rs34hyGEPkVIC+IfphFu205hmuykZ7R9tmaPEuOaLx4
-        8M/nzmgZOhxqMKHCRhG2m5Ts7XnTf5U=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-163-m-rA_OdeMXieg1mOSWDC8A-1; Fri, 08 Nov 2019 07:38:20 -0500
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CF42A107ACC3
-        for <stable@vger.kernel.org>; Fri,  8 Nov 2019 12:38:19 +0000 (UTC)
-Received: from max.com (unknown [10.40.206.2])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D3F3A6084E;
-        Fri,  8 Nov 2019 12:38:16 +0000 (UTC)
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-To:     cluster-devel@redhat.com
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 1/2] gfs2: Multi-block allocations in gfs2_page_mkwrite
-Date:   Fri,  8 Nov 2019 13:38:13 +0100
-Message-Id: <20191108123814.5138-1-agruenba@redhat.com>
+        id S1726651AbfKHMxa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:53:30 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:38035 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726373AbfKHMxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 07:53:30 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id D7BCE2179E;
+        Fri,  8 Nov 2019 07:53:27 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 08 Nov 2019 07:53:27 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=tVK81DjKzTpZ5A/g0hA0fAY6+df
+        srIU784jVVZ7319k=; b=JapXeNKNHpS+UcQQ9fGP8bGb8zEVSAQ5PucjjSH9cug
+        9RRKtt2h3sKwtZ8ECjNDk+1eZ0W5GUNB7rOVTgzui69/ca07Vn1QrQNlXnNehqqo
+        d8ma27LPbSPe+mUOrqL9bHBxhyuqN+vzF9LD9WqDR5DzxUfG5+cZt2EHV5SgYyiV
+        Njlh6/JrOGvGt1OoY/5FJyEs7QqSLn6mljsZtWLHh9yWB/ZT7hi8CWndFb81yYWQ
+        Oz9K+UR9R6qMEInHFjJWy+/zi3V0hkkBO1pl8BErWISO6yKBZYAzAjYqMGVhw0rk
+        sL3iMW+GQfjaG6zreBHQax2PeCQx3nOSJQmNT50EAcw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=tVK81D
+        jKzTpZ5A/g0hA0fAY6+dfsrIU784jVVZ7319k=; b=d0dYimQIcM5bB3P9Rcn6vP
+        LXW6ResWq0zuCmejDcXKSfxLLMGxuBqztQDqmW+jo+d8H9WE43HeqXFV0ZMjjwMj
+        bwwDBlEZIVF86WH/I+VoyuKsL+DUeV6XBU46vNIhFYJyjqgQGSae+gcJOZJqGZJD
+        BMG7RSIeOkV3EvCiRgYHRtOqVCkzEcM8JwSgAtISI3umrVjfMlVBHg5kOKvf0BNl
+        vDuGx8ULtiulMUsGl5xO10eDCH5CDGaXrxZCVGK6GjZ9/XNwSX86CMSi+JLDOgh9
+        6w478JN5D2Ha3oCTMmMPGkS1AjCGitNHmGkgPmotOQpKJ5n8c40iGdjHS0U45N9g
+        ==
+X-ME-Sender: <xms:R2XFXQ9DA-KEgjDL13C4WB8MAqi3d4DkCPX19RKvuMknsKgLbYXg5Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddvuddggeeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpehkvghrnhgvlh
+    drohhrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhr
+    ohhmpehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:R2XFXWWSLBpyeWM5I8xfsOD-stkDzvC3sr3p7YPLCq0jPuXWQt5FGg>
+    <xmx:R2XFXbnYExOM0DMG4RsEjkRsELrbZqXM9I-eWTP5Y_cty5nZDx9WzQ>
+    <xmx:R2XFXUGQkuMCbnOhFvs-MJuOAPAoOB1OcFCVj1UVchIbNNtuYGZv6Q>
+    <xmx:R2XFXSREWTJ_rhT1PmbQPNiOzmCoiSW5bts0pTk1wvAxR6CvV_XLGA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 65E033060064;
+        Fri,  8 Nov 2019 07:53:27 -0500 (EST)
+Date:   Fri, 8 Nov 2019 13:53:25 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+Cc:     stable@vger.kernel.org, vkoul@kernel.org
+Subject: Re: [PATCH][STABLE backport 4.14/4.9] dmaengine: qcom: bam_dma: Fix
+ resource leak
+Message-ID: <20191108125325.GA738452@kroah.com>
+References: <20191105201442.12477-1-jeffrey.l.hugo@gmail.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: m-rA_OdeMXieg1mOSWDC8A-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191105201442.12477-1-jeffrey.l.hugo@gmail.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In gfs2_page_mkwrite's gfs2_allocate_page_backing helper, try to
-allocate as many blocks at once as we need.  Pass in the size of the
-requested allocation.
+On Tue, Nov 05, 2019 at 12:14:42PM -0800, Jeffrey Hugo wrote:
+> Commit 7667819385457b4aeb5fac94f67f52ab52cc10d5 upstream.
+> 
+> bam_dma_terminate_all() will leak resources if any of the transactions are
+> committed to the hardware (present in the desc fifo), and not complete.
+> Since bam_dma_terminate_all() does not cause the hardware to be updated,
+> the hardware will still operate on any previously committed transactions.
+> This can cause memory corruption if the memory for the transaction has been
+> reassigned, and will cause a sync issue between the BAM and its client(s).
+> 
+> Fix this by properly updating the hardware in bam_dma_terminate_all().
+> 
+> Fixes: e7c0fe2a5c84 ("dmaengine: add Qualcomm BAM dma driver")
+> Signed-off-by: Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/r/20191017152606.34120-1-jeffrey.l.hugo@gmail.com
+> Signed-off-by: Vinod Koul <vkoul@kernel.org>
+> ---
+> Backported to 4.14 which is lacking 6b4faeac05bc
+> ("dmaengine: qcom-bam: Process multiple pending descriptors")
+> This version also applies to 4.9.
 
-Fixes: 35af80aef99b ("gfs2: don't use buffer_heads in gfs2_allocate_page_ba=
-cking")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
----
- fs/gfs2/file.c | 15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+Thanks for this and the 4.4 backport, all now queued up.
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 33ace1832294..30b857017fd3 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -381,27 +381,28 @@ static void gfs2_size_hint(struct file *filep, loff_t=
- offset, size_t size)
- /**
-  * gfs2_allocate_page_backing - Allocate blocks for a write fault
-  * @page: The (locked) page to allocate backing for
-+ * @length: Size of the allocation
-  *
-  * We try to allocate all the blocks required for the page in one go.  Thi=
-s
-  * might fail for various reasons, so we keep trying until all the blocks =
-to
-  * back this page are allocated.  If some of the blocks are already alloca=
-ted,
-  * that is ok too.
-  */
--static int gfs2_allocate_page_backing(struct page *page)
-+static int gfs2_allocate_page_backing(struct page *page, unsigned int leng=
-th)
- {
- =09u64 pos =3D page_offset(page);
--=09u64 size =3D PAGE_SIZE;
-=20
- =09do {
- =09=09struct iomap iomap =3D { };
-=20
--=09=09if (gfs2_iomap_get_alloc(page->mapping->host, pos, 1, &iomap))
-+=09=09if (gfs2_iomap_get_alloc(page->mapping->host, pos, length, &iomap))
- =09=09=09return -EIO;
-=20
--=09=09iomap.length =3D min(iomap.length, size);
--=09=09size -=3D iomap.length;
-+=09=09if (length < iomap.length)
-+=09=09=09iomap.length =3D length;
-+=09=09length -=3D iomap.length;
- =09=09pos +=3D iomap.length;
--=09} while (size > 0);
-+=09} while (length > 0);
-=20
- =09return 0;
- }
-@@ -501,7 +502,7 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vm=
-f)
- =09if (gfs2_is_stuffed(ip))
- =09=09ret =3D gfs2_unstuff_dinode(ip, page);
- =09if (ret =3D=3D 0)
--=09=09ret =3D gfs2_allocate_page_backing(page);
-+=09=09ret =3D gfs2_allocate_page_backing(page, PAGE_SIZE);
-=20
- out_trans_end:
- =09if (ret)
---=20
-2.20.1
-
+greg k-h
