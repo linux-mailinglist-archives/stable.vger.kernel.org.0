@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFB4AF46AF
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:44:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C716F48D9
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:59:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390717AbfKHLoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:44:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59122 "EHLO mail.kernel.org"
+        id S1733207AbfKHL7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:59:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390713AbfKHLoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:44:15 -0500
+        id S1733257AbfKHLoR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:44:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A9A621D6C;
-        Fri,  8 Nov 2019 11:44:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4F0421D82;
+        Fri,  8 Nov 2019 11:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213454;
-        bh=9H/S9MZdf5+9c4GFaI7HTfzDZGkIWEQ1oZwuu/OMqMw=;
+        s=default; t=1573213456;
+        bh=1YNBzt0jbY+niUzO7ze/IcroOlW0T0+ZDdhYKHwxpCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qfe6yz7iJIhnc2MJv4JeVZY4kxPxFIlGy/aqK2j/u61oFcDiAp9f3O7tHm/3LlSxI
-         JY5FLG23dPZF9OIedbMsu8Bq+5TVbiUBo9fFFdaZANwGCbsppOdwduaHdNKl8E2qOO
-         bEjX+S3YfEm7UbTGpMVG+kysK0xPVzj7IpipVRgQ=
+        b=zOe4V7J2CzbeZvMog1hLkQtsxx0r03ebsklcq5rVDi15kbhAyFe6yURPv2tcKepxc
+         /2DARTKKzRS7Tf8CspV64Zf2nlheyorB+tQAAK3bt5ngY+xXHGrr4RTy1Y1YQbvY3S
+         TA71Pesm7R5jXY1oe8a4y/bdFvEK7ImMiKB8qoWk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Parav Pandit <parav@mellanox.com>,
+        Daniel Jurgens <danielj@mellanox.com>,
         Leon Romanovsky <leonro@mellanox.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 044/103] RDMA/core: Rate limit MAD error messages
-Date:   Fri,  8 Nov 2019 06:42:09 -0500
-Message-Id: <20191108114310.14363-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 045/103] RDMA/core: Follow correct unregister order between sysfs and cgroup
+Date:   Fri,  8 Nov 2019 06:42:10 -0500
+Message-Id: <20191108114310.14363-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -47,172 +47,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Parav Pandit <parav@mellanox.com>
 
-[ Upstream commit f9d08f1e1939ad4d92e38bd3dee6842512f5bee6 ]
+[ Upstream commit c715a39541bb399eb03d728a996b224d90ce1336 ]
 
-While registering a mad agent, a user space can trigger various errors
-and flood the logs.
+During register_device() init sequence is,
+(a) register with rdma cgroup followed by
+(b) register with sysfs
 
-Therefore, decrease verbosity and rate limit such error messages.
-While we are at it, use __func__ to print function name.
+Therefore, unregister_device() sequence should follow the reverse order.
 
 Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
 Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/mad.c | 72 ++++++++++++++++++-----------------
- 1 file changed, 37 insertions(+), 35 deletions(-)
+ drivers/infiniband/core/device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/mad.c b/drivers/infiniband/core/mad.c
-index e4339b9e43a54..6072ac7023cb7 100644
---- a/drivers/infiniband/core/mad.c
-+++ b/drivers/infiniband/core/mad.c
-@@ -217,30 +217,30 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
- 	/* Validate parameters */
- 	qpn = get_spl_qp_index(qp_type);
- 	if (qpn == -1) {
--		dev_notice(&device->dev,
--			   "ib_register_mad_agent: invalid QP Type %d\n",
--			   qp_type);
-+		dev_dbg_ratelimited(&device->dev, "%s: invalid QP Type %d\n",
-+				    __func__, qp_type);
- 		goto error1;
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index 61ade4b3e7bb5..6b0d1d8609cad 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -599,8 +599,8 @@ void ib_unregister_device(struct ib_device *device)
  	}
+ 	up_read(&lists_rwsem);
  
- 	if (rmpp_version && rmpp_version != IB_MGMT_RMPP_VERSION) {
--		dev_notice(&device->dev,
--			   "ib_register_mad_agent: invalid RMPP Version %u\n",
--			   rmpp_version);
-+		dev_dbg_ratelimited(&device->dev,
-+				    "%s: invalid RMPP Version %u\n",
-+				    __func__, rmpp_version);
- 		goto error1;
- 	}
+-	ib_device_unregister_rdmacg(device);
+ 	ib_device_unregister_sysfs(device);
++	ib_device_unregister_rdmacg(device);
  
- 	/* Validate MAD registration request if supplied */
- 	if (mad_reg_req) {
- 		if (mad_reg_req->mgmt_class_version >= MAX_MGMT_VERSION) {
--			dev_notice(&device->dev,
--				   "ib_register_mad_agent: invalid Class Version %u\n",
--				   mad_reg_req->mgmt_class_version);
-+			dev_dbg_ratelimited(&device->dev,
-+					    "%s: invalid Class Version %u\n",
-+					    __func__,
-+					    mad_reg_req->mgmt_class_version);
- 			goto error1;
- 		}
- 		if (!recv_handler) {
--			dev_notice(&device->dev,
--				   "ib_register_mad_agent: no recv_handler\n");
-+			dev_dbg_ratelimited(&device->dev,
-+					    "%s: no recv_handler\n", __func__);
- 			goto error1;
- 		}
- 		if (mad_reg_req->mgmt_class >= MAX_MGMT_CLASS) {
-@@ -250,9 +250,9 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
- 			 */
- 			if (mad_reg_req->mgmt_class !=
- 			    IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE) {
--				dev_notice(&device->dev,
--					   "ib_register_mad_agent: Invalid Mgmt Class 0x%x\n",
--					   mad_reg_req->mgmt_class);
-+				dev_dbg_ratelimited(&device->dev,
-+					"%s: Invalid Mgmt Class 0x%x\n",
-+					__func__, mad_reg_req->mgmt_class);
- 				goto error1;
- 			}
- 		} else if (mad_reg_req->mgmt_class == 0) {
-@@ -260,8 +260,9 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
- 			 * Class 0 is reserved in IBA and is used for
- 			 * aliasing of IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE
- 			 */
--			dev_notice(&device->dev,
--				   "ib_register_mad_agent: Invalid Mgmt Class 0\n");
-+			dev_dbg_ratelimited(&device->dev,
-+					    "%s: Invalid Mgmt Class 0\n",
-+					    __func__);
- 			goto error1;
- 		} else if (is_vendor_class(mad_reg_req->mgmt_class)) {
- 			/*
-@@ -269,18 +270,19 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
- 			 * ensure supplied OUI is not zero
- 			 */
- 			if (!is_vendor_oui(mad_reg_req->oui)) {
--				dev_notice(&device->dev,
--					   "ib_register_mad_agent: No OUI specified for class 0x%x\n",
--					   mad_reg_req->mgmt_class);
-+				dev_dbg_ratelimited(&device->dev,
-+					"%s: No OUI specified for class 0x%x\n",
-+					__func__,
-+					mad_reg_req->mgmt_class);
- 				goto error1;
- 			}
- 		}
- 		/* Make sure class supplied is consistent with RMPP */
- 		if (!ib_is_mad_class_rmpp(mad_reg_req->mgmt_class)) {
- 			if (rmpp_version) {
--				dev_notice(&device->dev,
--					   "ib_register_mad_agent: RMPP version for non-RMPP class 0x%x\n",
--					   mad_reg_req->mgmt_class);
-+				dev_dbg_ratelimited(&device->dev,
-+					"%s: RMPP version for non-RMPP class 0x%x\n",
-+					__func__, mad_reg_req->mgmt_class);
- 				goto error1;
- 			}
- 		}
-@@ -291,9 +293,9 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
- 					IB_MGMT_CLASS_SUBN_LID_ROUTED) &&
- 			    (mad_reg_req->mgmt_class !=
- 					IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE)) {
--				dev_notice(&device->dev,
--					   "ib_register_mad_agent: Invalid SM QP type: class 0x%x\n",
--					   mad_reg_req->mgmt_class);
-+				dev_dbg_ratelimited(&device->dev,
-+					"%s: Invalid SM QP type: class 0x%x\n",
-+					__func__, mad_reg_req->mgmt_class);
- 				goto error1;
- 			}
- 		} else {
-@@ -301,9 +303,9 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
- 					IB_MGMT_CLASS_SUBN_LID_ROUTED) ||
- 			    (mad_reg_req->mgmt_class ==
- 					IB_MGMT_CLASS_SUBN_DIRECTED_ROUTE)) {
--				dev_notice(&device->dev,
--					   "ib_register_mad_agent: Invalid GS QP type: class 0x%x\n",
--					   mad_reg_req->mgmt_class);
-+				dev_dbg_ratelimited(&device->dev,
-+					"%s: Invalid GS QP type: class 0x%x\n",
-+					__func__, mad_reg_req->mgmt_class);
- 				goto error1;
- 			}
- 		}
-@@ -318,18 +320,18 @@ struct ib_mad_agent *ib_register_mad_agent(struct ib_device *device,
- 	/* Validate device and port */
- 	port_priv = ib_get_mad_port(device, port_num);
- 	if (!port_priv) {
--		dev_notice(&device->dev,
--			   "ib_register_mad_agent: Invalid port %d\n",
--			   port_num);
-+		dev_dbg_ratelimited(&device->dev, "%s: Invalid port %d\n",
-+				    __func__, port_num);
- 		ret = ERR_PTR(-ENODEV);
- 		goto error1;
- 	}
+ 	mutex_unlock(&device_mutex);
  
--	/* Verify the QP requested is supported.  For example, Ethernet devices
--	 * will not have QP0 */
-+	/* Verify the QP requested is supported. For example, Ethernet devices
-+	 * will not have QP0.
-+	 */
- 	if (!port_priv->qp_info[qpn].qp) {
--		dev_notice(&device->dev,
--			   "ib_register_mad_agent: QP %d not supported\n", qpn);
-+		dev_dbg_ratelimited(&device->dev, "%s: QP %d not supported\n",
-+				    __func__, qpn);
- 		ret = ERR_PTR(-EPROTONOSUPPORT);
- 		goto error1;
- 	}
 -- 
 2.20.1
 
