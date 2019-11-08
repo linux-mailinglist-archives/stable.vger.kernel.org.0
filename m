@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A3F0F483D
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:55:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A6C6F483A
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:55:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390625AbfKHLzf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:55:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33328 "EHLO mail.kernel.org"
+        id S2391211AbfKHLp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:45:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391206AbfKHLpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:45:55 -0500
+        id S2391210AbfKHLp5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:45:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47C36222C2;
-        Fri,  8 Nov 2019 11:45:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6697121D82;
+        Fri,  8 Nov 2019 11:45:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213555;
-        bh=N18+N6OlaSTcc9dJRJHr9msZMDgvNfCMsLX146+55ag=;
+        s=default; t=1573213556;
+        bh=mhHN88vt379iosWB8gbGNyPhtscPz6r7O0iId8KiFuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XoodSAsMpaxIe5aTOFmAAWMun+i0rg+0gcKJG03EJfJmnfEbkzmpa6Jpj+OqUtbG7
-         0FniE25qlc2hbTFDpKHrvx3Pm2u1KDsSSio1QBbDUKLO5TYWhB9ovSy23AgEE/tMYr
-         2zdyEuQI1+MRntCvumzGY8AXqHaP/kqaM1trRQaA=
+        b=I9QL+syMOelHor+AFgDn5FiA45QgxP40otS0AVG7KuZnROi1dNOv1MVH9H3pr9qbN
+         vowtciIeSa4brvvVUjrLLzkQ/sdbfuy9GVKHZbmcRaei64J6/+T75//Tp1Xfnu4CZW
+         4wQQUR4ewtV63q0bnwhKnSoEtUGjxhPaZK8JchG8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jay Foster <jayfoster@ieee.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 05/64] ARM: dts: at91/trivial: Fix USART1 definition for at91sam9g45
-Date:   Fri,  8 Nov 2019 06:44:46 -0500
-Message-Id: <20191108114545.15351-5-sashal@kernel.org>
+Cc:     Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 06/64] cfg80211: Avoid regulatory restore when COUNTRY_IE_IGNORE is set
+Date:   Fri,  8 Nov 2019 06:44:47 -0500
+Message-Id: <20191108114545.15351-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114545.15351-1-sashal@kernel.org>
 References: <20191108114545.15351-1-sashal@kernel.org>
@@ -44,33 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Foster <jayfoster@ieee.org>
+From: Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>
 
-[ Upstream commit 10af10db8c76fa5b9bf1f52a895c1cb2c0ac24da ]
+[ Upstream commit 7417844b63d4b0dc8ab23f88259bf95de7d09b57 ]
 
-Fix a typo. No functional change made by this patch.
+When REGULATORY_COUNTRY_IE_IGNORE is set,  __reg_process_hint_country_ie()
+ignores the country code change request from __cfg80211_connect_result()
+via regulatory_hint_country_ie().
 
-Signed-off-by: Jay Foster <jayfoster@ieee.org>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+After Disconnect, similar to above, country code should not be reset to
+world when country IE ignore is set. But this is violated and restore of
+regulatory settings is invoked by cfg80211_disconnect_work via
+regulatory_hint_disconnect().
+
+To address this, avoid regulatory restore from regulatory_hint_disconnect()
+when COUNTRY_IE_IGNORE is set.
+
+Note: Currently, restore_regulatory_settings() takes care of clearing
+beacon hints. But in the proposed change, regulatory restore is avoided.
+Therefore, explicitly clear beacon hints when DISABLE_BEACON_HINTS
+is not set.
+
+Signed-off-by: Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91sam9g45.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/reg.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
-diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi b/arch/arm/boot/dts/at91sam9g45.dtsi
-index b3501ae2a3bd1..4fba898b8f4f9 100644
---- a/arch/arm/boot/dts/at91sam9g45.dtsi
-+++ b/arch/arm/boot/dts/at91sam9g45.dtsi
-@@ -546,7 +546,7 @@
- 					};
- 				};
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index 44befe9f9ff08..dde741f298de7 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -2616,8 +2616,54 @@ static void restore_regulatory_settings(bool reset_user)
+ 	schedule_work(&reg_work);
+ }
  
--				uart1 {
-+				usart1 {
- 					pinctrl_usart1: usart1-0 {
- 						atmel,pins =
- 							<AT91_PIOB 4 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PB4 periph A with pullup */
++static bool is_wiphy_all_set_reg_flag(enum ieee80211_regulatory_flags flag)
++{
++	struct cfg80211_registered_device *rdev;
++	struct wireless_dev *wdev;
++
++	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
++		list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
++			wdev_lock(wdev);
++			if (!(wdev->wiphy->regulatory_flags & flag)) {
++				wdev_unlock(wdev);
++				return false;
++			}
++			wdev_unlock(wdev);
++		}
++	}
++
++	return true;
++}
++
+ void regulatory_hint_disconnect(void)
+ {
++	/* Restore of regulatory settings is not required when wiphy(s)
++	 * ignore IE from connected access point but clearance of beacon hints
++	 * is required when wiphy(s) supports beacon hints.
++	 */
++	if (is_wiphy_all_set_reg_flag(REGULATORY_COUNTRY_IE_IGNORE)) {
++		struct reg_beacon *reg_beacon, *btmp;
++
++		if (is_wiphy_all_set_reg_flag(REGULATORY_DISABLE_BEACON_HINTS))
++			return;
++
++		spin_lock_bh(&reg_pending_beacons_lock);
++		list_for_each_entry_safe(reg_beacon, btmp,
++					 &reg_pending_beacons, list) {
++			list_del(&reg_beacon->list);
++			kfree(reg_beacon);
++		}
++		spin_unlock_bh(&reg_pending_beacons_lock);
++
++		list_for_each_entry_safe(reg_beacon, btmp,
++					 &reg_beacon_list, list) {
++			list_del(&reg_beacon->list);
++			kfree(reg_beacon);
++		}
++
++		return;
++	}
++
+ 	pr_debug("All devices are disconnected, going to restore regulatory settings\n");
+ 	restore_regulatory_settings(false);
+ }
 -- 
 2.20.1
 
