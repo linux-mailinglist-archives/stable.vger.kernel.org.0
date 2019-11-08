@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98AD9F54DB
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9967F5649
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387863AbfKHSz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:55:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53300 "EHLO mail.kernel.org"
+        id S2391504AbfKHTHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:07:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387848AbfKHSzz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:55:55 -0500
+        id S2391510AbfKHTHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:07:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0BB5218AE;
-        Fri,  8 Nov 2019 18:55:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9A7B222C4;
+        Fri,  8 Nov 2019 19:07:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239348;
-        bh=owHE3ZeIOv3rXmhivjkG2BGzQ+rYjTJYyoFrtT9JlVk=;
+        s=default; t=1573240072;
+        bh=gaaJ8b3ZfHjytfh+NG/YwqsMU1/VL4hgRLftpVuGPLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oakz9beQXkFsMB4WGOtcYvCUcS4gBwr6mNrFWooshVsayv8mUSVtYQSX+Ko+dtpkn
-         ljm1cqqqpQizUdBGKHJScfTZQAkfa2s1T7/T7hbpsLWg5IdYN9tpv+rA2SeKeOErlN
-         MAdKE3oDt5+qd8reR1locLtdPs6omYjOYqZduV70=
+        b=1zhIbAI4300oUfAiC5wyIci7+wzI4JyRvLJvt6n83rQKdSgsZpQiD9NRTY1Vg7A5R
+         5SRA1KQ97W3kvrD33Kzu7cpS0Ddj/S6iH6V1Z8pD3qEyRrp3Gxhk0kb1MhFcOF4NvI
+         33azqJqJ2lyan7ZqgP0qVynInfxnDERO1SZv1xSg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Nishanth Menon <nm@ti.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 01/34] regulator: ti-abb: Fix timeout in ti_abb_wait_txdone/ti_abb_clear_all_txdone
+        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 080/140] cxgb4: request the TX CIDX updates to status page
 Date:   Fri,  8 Nov 2019 19:50:08 +0100
-Message-Id: <20191108174620.512838356@linuxfoundation.org>
+Message-Id: <20191108174910.158668196@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
-References: <20191108174618.266472504@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,79 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Raju Rangoju <rajur@chelsio.com>
 
-[ Upstream commit f64db548799e0330897c3203680c2ee795ade518 ]
+[ Upstream commit 7c3bebc3d8688b84795c11848c314a2fbfe045e0 ]
 
-ti_abb_wait_txdone() may return -ETIMEDOUT when ti_abb_check_txdone()
-returns true in the latest iteration of the while loop because the timeout
-value is abb->settling_time + 1. Similarly, ti_abb_clear_all_txdone() may
-return -ETIMEDOUT when ti_abb_check_txdone() returns false in the latest
-iteration of the while loop. Fix it.
+For adapters which support the SGE Doorbell Queue Timer facility,
+we configured the Ethernet TX Queues to send CIDX Updates to the
+Associated Ethernet RX Response Queue with CPL_SGE_EGR_UPDATE
+messages to allow us to respond more quickly to the CIDX Updates.
+But, this was adding load to PCIe Link RX bandwidth and,
+potentially, resulting in higher CPU Interrupt load.
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20190929095848.21960-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch requests the HW to deliver the CIDX updates to the TX
+queue status page rather than generating an ingress queue message
+(as an interrupt). With this patch, the load on RX bandwidth is
+reduced and a substantial improvement in BW is noticed at lower
+IO sizes.
+
+Fixes: d429005fdf2c ("cxgb4/cxgb4vf: Add support for SGE doorbell queue timer")
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/regulator/ti-abb-regulator.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/sge.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
-index d2f9942987535..6d17357b3a248 100644
---- a/drivers/regulator/ti-abb-regulator.c
-+++ b/drivers/regulator/ti-abb-regulator.c
-@@ -173,19 +173,14 @@ static int ti_abb_wait_txdone(struct device *dev, struct ti_abb *abb)
- 	while (timeout++ <= abb->settling_time) {
- 		status = ti_abb_check_txdone(abb);
- 		if (status)
--			break;
-+			return 0;
+--- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
+@@ -3791,15 +3791,11 @@ int t4_sge_alloc_eth_txq(struct adapter
+ 	 * write the CIDX Updates into the Status Page at the end of the
+ 	 * TX Queue.
+ 	 */
+-	c.autoequiqe_to_viid = htonl((dbqt
+-				      ? FW_EQ_ETH_CMD_AUTOEQUIQE_F
+-				      : FW_EQ_ETH_CMD_AUTOEQUEQE_F) |
++	c.autoequiqe_to_viid = htonl(FW_EQ_ETH_CMD_AUTOEQUEQE_F |
+ 				     FW_EQ_ETH_CMD_VIID_V(pi->viid));
  
- 		udelay(1);
- 	}
+ 	c.fetchszm_to_iqid =
+-		htonl(FW_EQ_ETH_CMD_HOSTFCMODE_V(dbqt
+-						 ? HOSTFCMODE_INGRESS_QUEUE_X
+-						 : HOSTFCMODE_STATUS_PAGE_X) |
++		htonl(FW_EQ_ETH_CMD_HOSTFCMODE_V(HOSTFCMODE_STATUS_PAGE_X) |
+ 		      FW_EQ_ETH_CMD_PCIECHN_V(pi->tx_chan) |
+ 		      FW_EQ_ETH_CMD_FETCHRO_F | FW_EQ_ETH_CMD_IQID_V(iqid));
  
--	if (timeout > abb->settling_time) {
--		dev_warn_ratelimited(dev,
--				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
--				     __func__, timeout, readl(abb->int_base));
--		return -ETIMEDOUT;
--	}
--
--	return 0;
-+	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
-+			     __func__, timeout, readl(abb->int_base));
-+	return -ETIMEDOUT;
- }
- 
- /**
-@@ -205,19 +200,14 @@ static int ti_abb_clear_all_txdone(struct device *dev, const struct ti_abb *abb)
- 
- 		status = ti_abb_check_txdone(abb);
- 		if (!status)
--			break;
-+			return 0;
- 
- 		udelay(1);
- 	}
- 
--	if (timeout > abb->settling_time) {
--		dev_warn_ratelimited(dev,
--				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
--				     __func__, timeout, readl(abb->int_base));
--		return -ETIMEDOUT;
--	}
--
--	return 0;
-+	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
-+			     __func__, timeout, readl(abb->int_base));
-+	return -ETIMEDOUT;
- }
- 
- /**
--- 
-2.20.1
-
 
 
