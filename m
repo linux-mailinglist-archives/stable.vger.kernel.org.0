@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7FD5F48FB
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:00:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54B88F48F7
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:00:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390827AbfKHMAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:00:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58592 "EHLO mail.kernel.org"
+        id S2389023AbfKHLoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:44:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390612AbfKHLn5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:43:57 -0500
+        id S2390628AbfKHLoA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:44:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 024A521D6C;
-        Fri,  8 Nov 2019 11:43:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48C83222C2;
+        Fri,  8 Nov 2019 11:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213436;
-        bh=Je3mY+k6AJwFTQTtplBtM3RDBofS3mlAZmUdYt0ev6g=;
+        s=default; t=1573213440;
+        bh=EGOy6xUak/D4P5zc7KNc2Rs4carT6OwSr6QBfTr+Sm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iNcfln5jQaHRqzCC5LyKe+l/ZHFCflfHAMT2Pa6IefqzkuMMIOoGlUVLcqzhAPBtq
-         300FbYzNQaiIragc1DYBXE/JLtriDs9DpOKL8pFFNikuV7mXnEeLy0Abmcr8E74n6m
-         bVJ1y3R+E9Gvnr2hg2680B3fk8+/4gfC+E5C+m68=
+        b=bnHkHFaL+M1dSZoy4+kfI6ECeWebLmfCINtBMnRCNNLH/6o1EICroSokNw8qqg1p8
+         oEiLpJ6+NpQTo08eJ7YVuvsqdMnstPXDpN+0shRjF9acW8bWGhMRRSoIn2fzZ1qXIV
+         hBjaeG9cmbWJHE0wg0/tk7Bv/NfM4eDkKMhBTYkA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sven Schmitt <Sven.Schmitt@mixed-mode.de>,
-        Sven Schmitt <sven.schmitt@mixed-mode.de>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+Cc:     Jiada Wang <jiada_wang@mentor.com>,
+        Timo Wischer <twischer@de.adit-jv.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 033/103] soc: imx: gpc: fix PDN delay
-Date:   Fri,  8 Nov 2019 06:41:58 -0500
-Message-Id: <20191108114310.14363-33-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 034/103] ASoC: rsnd: ssi: Fix issue in dma data address assignment
+Date:   Fri,  8 Nov 2019 06:41:59 -0500
+Message-Id: <20191108114310.14363-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -45,35 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Schmitt <Sven.Schmitt@mixed-mode.de>
+From: Jiada Wang <jiada_wang@mentor.com>
 
-[ Upstream commit 9f4d61d531e0efc9c3283963ae5ef7e314579191 ]
+[ Upstream commit 0e289012b47a2de1f029a6b61c75998e2f159dd9 ]
 
-imx6_pm_domain_power_off() reads iso and iso2sw from GPC_PGC_PUPSCR_OFFS
-which stores the power up delays.
-So use GPC_PGC_PDNSCR_OFFS for the correct delays.
+Same SSI device may be used in different dai links,
+by only having one dma struct in rsnd_ssi, after the first
+instance's dma config be initilized, the following instances
+can no longer configure dma, this causes issue, when their
+dma data address are different from the first instance.
 
-Signed-off-by: Sven Schmitt <sven.schmitt@mixed-mode.de>
-Reviewed-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+Signed-off-by: Timo Wischer <twischer@de.adit-jv.com>
+[Kuninori: tidyup for upstream]
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Tested-by: Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/imx/gpc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/sh/rcar/rsnd.h | 1 +
+ sound/soc/sh/rcar/ssi.c  | 4 +---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/soc/imx/gpc.c b/drivers/soc/imx/gpc.c
-index c54d229f8da49..3a12123de4662 100644
---- a/drivers/soc/imx/gpc.c
-+++ b/drivers/soc/imx/gpc.c
-@@ -73,7 +73,7 @@ static int imx6_pm_domain_power_off(struct generic_pm_domain *genpd)
- 		return -EBUSY;
+diff --git a/sound/soc/sh/rcar/rsnd.h b/sound/soc/sh/rcar/rsnd.h
+index 1768a0ae469d0..c68b31483c7be 100644
+--- a/sound/soc/sh/rcar/rsnd.h
++++ b/sound/soc/sh/rcar/rsnd.h
+@@ -432,6 +432,7 @@ struct rsnd_dai_stream {
+ 	char name[RSND_DAI_NAME_SIZE];
+ 	struct snd_pcm_substream *substream;
+ 	struct rsnd_mod *mod[RSND_MOD_MAX];
++	struct rsnd_mod *dma;
+ 	struct rsnd_dai *rdai;
+ 	u32 parent_ssi_status;
+ };
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index 60cc550c5a4ca..cae9ed6a0cdb9 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -66,7 +66,6 @@
  
- 	/* Read ISO and ISO2SW power down delays */
--	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PUPSCR_OFFS, &val);
-+	regmap_read(pd->regmap, pd->reg_offs + GPC_PGC_PDNSCR_OFFS, &val);
- 	iso = val & 0x3f;
- 	iso2sw = (val >> 8) & 0x3f;
+ struct rsnd_ssi {
+ 	struct rsnd_mod mod;
+-	struct rsnd_mod *dma;
  
+ 	u32 flags;
+ 	u32 cr_own;
+@@ -868,7 +867,6 @@ static int rsnd_ssi_dma_probe(struct rsnd_mod *mod,
+ 			      struct rsnd_dai_stream *io,
+ 			      struct rsnd_priv *priv)
+ {
+-	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+ 	int ret;
+ 
+ 	/*
+@@ -883,7 +881,7 @@ static int rsnd_ssi_dma_probe(struct rsnd_mod *mod,
+ 		return ret;
+ 
+ 	/* SSI probe might be called many times in MUX multi path */
+-	ret = rsnd_dma_attach(io, mod, &ssi->dma);
++	ret = rsnd_dma_attach(io, mod, &io->dma);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
