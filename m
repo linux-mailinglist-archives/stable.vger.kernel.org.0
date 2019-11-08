@@ -2,53 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A16E7F438A
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 10:38:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A63FF4390
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 10:38:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731323AbfKHJi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 04:38:29 -0500
-Received: from mx2.suse.de ([195.135.220.15]:39778 "EHLO mx1.suse.de"
+        id S1730623AbfKHJij (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 04:38:39 -0500
+Received: from mx2.suse.de ([195.135.220.15]:39772 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1731477AbfKHJi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731444AbfKHJi2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 8 Nov 2019 04:38:28 -0500
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 0B6A7AEAF;
+        by mx1.suse.de (Postfix) with ESMTP id 0B306AE8A;
         Fri,  8 Nov 2019 09:38:24 +0000 (UTC)
 From:   Vlastimil Babka <vbabka@suse.cz>
 To:     stable@vger.kernel.org
 Cc:     linux-mm@kvack.org, linux-kernel@vger.kernel.org,
         Ajay Kaher <akaher@vmware.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.vnet.ibm.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Hillf Danton <hillf.zj@alibaba-inc.com>,
-        Ingo Molnar <mingo@redhat.com>, Jann Horn <jannh@google.com>,
-        Juergen Gross <jgross@suse.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Peter Zijlstra <peterz@infradead.org>,
+        Will Deacon <will.deacon@arm.com>,
         Punit Agrawal <punit.agrawal@arm.com>,
         Steve Capper <steve.capper@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH STABLE 4.4 0/8] page refcount overflow backports
-Date:   Fri,  8 Nov 2019 10:38:06 +0100
-Message-Id: <20191108093814.16032-1-vbabka@suse.cz>
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        "Aneesh Kumar K . V" <aneesh.kumar@linux.vnet.ibm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Hillf Danton <hillf.zj@alibaba-inc.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>
+Subject: [PATCH STABLE 4.4 1/8] mm, gup: remove broken VM_BUG_ON_PAGE compound check for hugepages
+Date:   Fri,  8 Nov 2019 10:38:07 +0100
+Message-Id: <20191108093814.16032-2-vbabka@suse.cz>
 X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191108093814.16032-1-vbabka@suse.cz>
+References: <20191108093814.16032-1-vbabka@suse.cz>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -56,59 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Will Deacon <will.deacon@arm.com>
 
-this series backports the CVE-2019-11487 fixes (page refcount overflow) to
-4.4 stable. It differs from Ajay's series [1] in the following:
+commit a3e328556d41bb61c55f9dfcc62d6a826ea97b85 upstream.
 
-- gup.c variants of fast gup for x86 and s390 are fixed too. I've not fixed
-  sparc, mips, sh. It's unlikely the known overflow scenario based on FUSE,
-  which needs 140GB of RAM, is a problem for those architectures, and I don't
-  feel confident enough to patch them. I've sent the same fixup for 4.9 [3]
-- there are some differences in backport adaptations, hopefully not important.
-  My version is taken from our 4.4 based kernel, which was just simpler for me
-  than adding the missing parts to Ajay's version
-- The last patch fixes another problem in the fast gup implementation on x86,
-  that I've previously posted and got merged to 4.9 stable [2].
+When operating on hugepages with DEBUG_VM enabled, the GUP code checks
+the compound head for each tail page prior to calling
+page_cache_add_speculative.  This is broken, because on the fast-GUP
+path (where we don't hold any page table locks) we can be racing with a
+concurrent invocation of split_huge_page_to_list.
 
-[1] https://lore.kernel.org/linux-mm/1570581863-12090-1-git-send-email-akaher@vmware.com/
-[2] https://lore.kernel.org/linux-mm/20190802160614.8089-1-vbabka@suse.cz/
-[3] https://lore.kernel.org/linux-mm/9c130fa4-e52d-f8bd-c450-42341c7ab441@suse.cz/
+split_huge_page_to_list deals with this race by using page_ref_freeze to
+freeze the page and force concurrent GUPs to fail whilst the component
+pages are modified.  This modification includes clearing the
+compound_head field for the tail pages, so checking this prior to a
+successful call to page_cache_add_speculative can lead to false
+positives: In fact, page_cache_add_speculative *already* has this check
+once the page refcount has been successfully updated, so we can simply
+remove the broken calls to VM_BUG_ON_PAGE.
 
-Linus Torvalds (3):
-  mm: make page ref count overflow check tighter and more explicit
-  mm: add 'try_get_page()' helper function
-  mm: prevent get_user_pages() from overflowing page refcount
+Link: http://lkml.kernel.org/r/20170522133604.11392-2-punit.agrawal@arm.com
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Punit Agrawal <punit.agrawal@arm.com>
+Acked-by: Steve Capper <steve.capper@arm.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.vnet.ibm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Hillf Danton <hillf.zj@alibaba-inc.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
+---
+ mm/gup.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-Matthew Wilcox (1):
-  fs: prevent page refcount overflow in pipe_buf_get
-
-Miklos Szeredi (1):
-  pipe: add pipe_buf_get() helper
-
-Punit Agrawal (1):
-  mm, gup: ensure real head page is ref-counted when using hugepages
-
-Vlastimil Babka (1):
-  x86, mm, gup: prevent get_page() race with munmap in paravirt guest
-
-Will Deacon (1):
-  mm, gup: remove broken VM_BUG_ON_PAGE compound check for hugepages
-
- arch/s390/mm/gup.c        |  6 +++--
- arch/x86/mm/gup.c         | 23 ++++++++++++++++++-
- fs/fuse/dev.c             | 12 +++++-----
- fs/pipe.c                 |  4 ++--
- fs/splice.c               | 12 ++++++++--
- include/linux/mm.h        | 26 ++++++++++++++++++++-
- include/linux/pipe_fs_i.h | 17 ++++++++++++--
- kernel/trace/trace.c      |  6 ++++-
- mm/gup.c                  | 48 +++++++++++++++++++++++++++------------
- mm/huge_memory.c          |  2 +-
- mm/hugetlb.c              | 18 +++++++++++++--
- mm/internal.h             | 17 ++++++++++----
- 12 files changed, 152 insertions(+), 39 deletions(-)
-
+diff --git a/mm/gup.c b/mm/gup.c
+index 2cd3b31e3666..6f9088cb8ebe 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -1134,7 +1134,6 @@ static int gup_huge_pmd(pmd_t orig, pmd_t *pmdp, unsigned long addr,
+ 	page = head + ((addr & ~PMD_MASK) >> PAGE_SHIFT);
+ 	tail = page;
+ 	do {
+-		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+ 		pages[*nr] = page;
+ 		(*nr)++;
+ 		page++;
+@@ -1181,7 +1180,6 @@ static int gup_huge_pud(pud_t orig, pud_t *pudp, unsigned long addr,
+ 	page = head + ((addr & ~PUD_MASK) >> PAGE_SHIFT);
+ 	tail = page;
+ 	do {
+-		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+ 		pages[*nr] = page;
+ 		(*nr)++;
+ 		page++;
+@@ -1224,7 +1222,6 @@ static int gup_huge_pgd(pgd_t orig, pgd_t *pgdp, unsigned long addr,
+ 	page = head + ((addr & ~PGDIR_MASK) >> PAGE_SHIFT);
+ 	tail = page;
+ 	do {
+-		VM_BUG_ON_PAGE(compound_head(page) != head, page);
+ 		pages[*nr] = page;
+ 		(*nr)++;
+ 		page++;
 -- 
 2.23.0
 
