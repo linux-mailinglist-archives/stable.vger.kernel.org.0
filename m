@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F228F5516
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26DA6F54D1
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389619AbfKHTAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:00:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57270 "EHLO mail.kernel.org"
+        id S1733062AbfKHSyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:54:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389602AbfKHTAQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:16 -0500
+        id S1733061AbfKHSyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:54:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 723B622492;
-        Fri,  8 Nov 2019 18:58:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A628E20865;
+        Fri,  8 Nov 2019 18:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239516;
-        bh=HN37Y8k9TjCmVjpYCPPC/KIF+TDcr7oL/MRjDh6vyT0=;
+        s=default; t=1573239284;
+        bh=0tRlxh1q0Gt/y03vJ6IG2f7o1/4C/6UXXWZi5nlA6a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FiI8u7A6irWYeOxXPKsALugE1BwAi8RxgdDoIlU0n5F8FHOYBztITdpBLhtjkF+TA
-         TWuivtTAV8+Po0EjYMfuJokd3JmUyKx3mv4xZ4YC7SSEXqjx85Z95mStjZDGHk35q+
-         49zN8jJXHXVNDhZmCO+b96WeOaEJMp7NGgRGJ9UM=
+        b=2A449Y3E8cTohTuDmh4xNkU/auX0YeX4P+BC/IS/IOmLmzbN4sr5TQJTZ0L9WtdWb
+         nPqaM1Yblzoj9T3jGrbpMuwztsw5zEf81ZUDQw98ePERIheuMLm5EBQ/Tdp/hkKuCc
+         zUapr0wE6la88GxbLUjTHo+bTShtjlLHEAaiaLIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
-        Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 31/62] net/mlx4_core: Dynamically set guaranteed amount of counters per VF
+        Julien Thierry <julien.thierry@arm.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        "David A. Long" <dave.long@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.4 62/75] ARM: 8793/1: signal: replace __put_user_error with __put_user
 Date:   Fri,  8 Nov 2019 19:50:19 +0100
-Message-Id: <20191108174743.346086695@linuxfoundation.org>
+Message-Id: <20191108174803.303185859@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
+References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@mellanox.com>
+From: Julien Thierry <julien.thierry@arm.com>
 
-[ Upstream commit e19868efea0c103f23b4b7e986fd0a703822111f ]
+Commit 18ea66bd6e7a95bdc598223d72757190916af28b upstream.
 
-Prior to this patch, the amount of counters guaranteed per VF in the
-resource tracker was MLX4_VF_COUNTERS_PER_PORT * MLX4_MAX_PORTS. It was
-set regardless if the VF was single or dual port.
-This caused several VFs to have no guaranteed counters although the
-system could satisfy their request.
+With Spectre-v1.1 mitigations, __put_user_error is pointless. In an attempt
+to remove it, replace its references in frame setups with __put_user.
 
-The fix is to dynamically guarantee counters, based on each VF
-specification.
-
-Fixes: 9de92c60beaa ("net/mlx4_core: Adjust counter grant policy in the resource tracker")
-Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David A. Long <dave.long@linaro.org>
+Reviewed-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/resource_tracker.c |   42 +++++++++++-------
- 1 file changed, 26 insertions(+), 16 deletions(-)
+ arch/arm/kernel/signal.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
-@@ -471,12 +471,31 @@ void mlx4_init_quotas(struct mlx4_dev *d
- 		priv->mfunc.master.res_tracker.res_alloc[RES_MPT].quota[pf];
+--- a/arch/arm/kernel/signal.c
++++ b/arch/arm/kernel/signal.c
+@@ -302,7 +302,7 @@ setup_sigframe(struct sigframe __user *s
+ 	if (err == 0)
+ 		err |= preserve_vfp_context(&aux->vfp);
+ #endif
+-	__put_user_error(0, &aux->end_magic, err);
++	err |= __put_user(0, &aux->end_magic);
+ 
+ 	return err;
  }
+@@ -434,7 +434,7 @@ setup_frame(struct ksignal *ksig, sigset
+ 	/*
+ 	 * Set uc.uc_flags to a value which sc.trap_no would never have.
+ 	 */
+-	__put_user_error(0x5ac3c35a, &frame->uc.uc_flags, err);
++	err = __put_user(0x5ac3c35a, &frame->uc.uc_flags);
  
--static int get_max_gauranteed_vfs_counter(struct mlx4_dev *dev)
-+static int
-+mlx4_calc_res_counter_guaranteed(struct mlx4_dev *dev,
-+				 struct resource_allocator *res_alloc,
-+				 int vf)
- {
--	/* reduce the sink counter */
--	return (dev->caps.max_counters - 1 -
--		(MLX4_PF_COUNTERS_PER_PORT * MLX4_MAX_PORTS))
--		/ MLX4_MAX_PORTS;
-+	struct mlx4_active_ports actv_ports;
-+	int ports, counters_guaranteed;
-+
-+	/* For master, only allocate according to the number of phys ports */
-+	if (vf == mlx4_master_func_num(dev))
-+		return MLX4_PF_COUNTERS_PER_PORT * dev->caps.num_ports;
-+
-+	/* calculate real number of ports for the VF */
-+	actv_ports = mlx4_get_active_ports(dev, vf);
-+	ports = bitmap_weight(actv_ports.ports, dev->caps.num_ports);
-+	counters_guaranteed = ports * MLX4_VF_COUNTERS_PER_PORT;
-+
-+	/* If we do not have enough counters for this VF, do not
-+	 * allocate any for it. '-1' to reduce the sink counter.
-+	 */
-+	if ((res_alloc->res_reserved + counters_guaranteed) >
-+	    (dev->caps.max_counters - 1))
-+		return 0;
-+
-+	return counters_guaranteed;
- }
+ 	err |= setup_sigframe(frame, regs, set);
+ 	if (err == 0)
+@@ -454,8 +454,8 @@ setup_rt_frame(struct ksignal *ksig, sig
  
- int mlx4_init_resource_tracker(struct mlx4_dev *dev)
-@@ -484,7 +503,6 @@ int mlx4_init_resource_tracker(struct ml
- 	struct mlx4_priv *priv = mlx4_priv(dev);
- 	int i, j;
- 	int t;
--	int max_vfs_guarantee_counter = get_max_gauranteed_vfs_counter(dev);
+ 	err |= copy_siginfo_to_user(&frame->info, &ksig->info);
  
- 	priv->mfunc.master.res_tracker.slave_list =
- 		kzalloc(dev->num_slaves * sizeof(struct slave_list),
-@@ -601,16 +619,8 @@ int mlx4_init_resource_tracker(struct ml
- 				break;
- 			case RES_COUNTER:
- 				res_alloc->quota[t] = dev->caps.max_counters;
--				if (t == mlx4_master_func_num(dev))
--					res_alloc->guaranteed[t] =
--						MLX4_PF_COUNTERS_PER_PORT *
--						MLX4_MAX_PORTS;
--				else if (t <= max_vfs_guarantee_counter)
--					res_alloc->guaranteed[t] =
--						MLX4_VF_COUNTERS_PER_PORT *
--						MLX4_MAX_PORTS;
--				else
--					res_alloc->guaranteed[t] = 0;
-+				res_alloc->guaranteed[t] =
-+					mlx4_calc_res_counter_guaranteed(dev, res_alloc, t);
- 				break;
- 			default:
- 				break;
+-	__put_user_error(0, &frame->sig.uc.uc_flags, err);
+-	__put_user_error(NULL, &frame->sig.uc.uc_link, err);
++	err |= __put_user(0, &frame->sig.uc.uc_flags);
++	err |= __put_user(NULL, &frame->sig.uc.uc_link);
+ 
+ 	err |= __save_altstack(&frame->sig.uc.uc_stack, regs->ARM_sp);
+ 	err |= setup_sigframe(&frame->sig, regs, set);
 
 
