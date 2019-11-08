@@ -2,416 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB418F5BD0
-	for <lists+stable@lfdr.de>; Sat,  9 Nov 2019 00:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0C1CF5BE9
+	for <lists+stable@lfdr.de>; Sat,  9 Nov 2019 00:40:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726640AbfKHXYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 18:24:36 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:59659 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726394AbfKHXYg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 18:24:36 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573255474;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=ewi+DfyHCYB+xjBP8/YwZfyCz+eQakAJ47Bx8RjyefQ=;
-        b=fFLiiS7O60ntrveoxrdB4YX2wN7/oJ4H9dGlynJV/y+17iDlTEB07f+/KRluiwguyGu68V
-        wYZfp48n0iVsIn6G66X6qYmVTCL/zTjegle3gAVFuwpMww27LIwvFCT8CYSxUYb9iQAPYW
-        YPfGmmQM31QE5fP1beXuXy76Fs46uH0=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-262-7aRlgcW1PmSwAuv3XyJQIA-1; Fri, 08 Nov 2019 18:24:32 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 082E61800DFD
-        for <stable@vger.kernel.org>; Fri,  8 Nov 2019 23:24:32 +0000 (UTC)
-Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F229E60BE1;
-        Fri,  8 Nov 2019 23:24:28 +0000 (UTC)
+        id S1726843AbfKHXkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 18:40:31 -0500
+Received: from mail-wm1-f43.google.com ([209.85.128.43]:36297 "EHLO
+        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726349AbfKHXka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 18:40:30 -0500
+Received: by mail-wm1-f43.google.com with SMTP id c22so7882744wmd.1
+        for <stable@vger.kernel.org>; Fri, 08 Nov 2019 15:40:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8H3+XZQf7y0EzQqLefOV5zH9jSqy7tXDApOEueZQ9Xw=;
+        b=LTiPiVtsIunXguyzBqejRKAuJilNe8KJtXLC2e6s9f1TvYKlPWJHpsU028TKJU46G6
+         5ITldKINbkCG09wSRXFbuPK635P8F7MlvnRw8VflPojNnf5lKZJVRPOJ45P7Bh4GxV+s
+         GxX8oJZd5JRBxG2oW1SfScS4f5qgPxAJWhEyDO2y83GoGADD24e4AJBJJ/LBv6YF4UXb
+         xSraHmQhlLpRb8F36+LeKBWrktB9LuqA94hKHBjBaUTKEUGKspmlVm6A24LyKGl3BE5J
+         4sPYBUjn5H1dstwCUnGI2zFnsDn663Qh7n1TCyTsL8oUf4Gzpt94YeSg6QdUt/UAcEzp
+         GW+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8H3+XZQf7y0EzQqLefOV5zH9jSqy7tXDApOEueZQ9Xw=;
+        b=pB+QckpUevFaOr1lfHZwRnN3seJQO1jGzi9CmYQJghjUeggXAHRYRNKCnTvb1Dq4Sk
+         UK0GWVQ5mqM6CyQ26U/l04jSapJ2tdWalukhx+qUR/OJA7Clp600Sa3TkXFaVeVJSsnm
+         DULe9doYNzzDFkrmhBojHHmlRThRHNWgv43dGPWijAdOy1hQhH8LI8xSnXjxBg4Qyy6j
+         A29k0RvUpy5eSyhIZ33nr/jkEX0cTzRwHIrvvrWWRBloiF99+LFXUJnAonop92CGUJ+L
+         ltCWkIP8KhQDJdu5h0mwuh6uKfs/8zfPBnuzm0vKTc4Gyoy2vyUOyLwYeSg82XdbKn9H
+         iV/g==
+X-Gm-Message-State: APjAAAXT8g+i3w7ngyICBad6PF8GnsSsidQ58TxHzeUq6Ogo3k8/+Ex2
+        lfsuE0ZZOu1vi6Cyw2xzhbqtXM1Iy5sMJA==
+X-Google-Smtp-Source: APXvYqxha6WiRRm9mV1qwxp5xElUNkSurerTSAtG/dulzw+mt0Vot5SakgTV+IPVlCsa2xHr5YTKmg==
+X-Received: by 2002:a1c:21c4:: with SMTP id h187mr4663558wmh.46.1573256427294;
+        Fri, 08 Nov 2019 15:40:27 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id v16sm8901496wrc.84.2019.11.08.15.40.26
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 08 Nov 2019 15:40:26 -0800 (PST)
+Message-ID: <5dc5fcea.1c69fb81.185b3.e88c@mx.google.com>
+Date:   Fri, 08 Nov 2019 15:40:26 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
-Date:   Fri, 08 Nov 2019 23:24:28 -0000
-CC:     Milos Malik <mmalik@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Message-ID: <cki.7DDE925E96.Z05XC9DM86@redhat.com>
-X-Gitlab-Pipeline-ID: 272982
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/272982
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-MC-Unique: 7aRlgcW1PmSwAuv3XyJQIA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.82-80-gb56f5a59d51a
+Subject: stable-rc/linux-4.19.y boot: 116 boots: 0 failed,
+ 109 passed with 7 offline (v4.19.82-80-gb56f5a59d51a)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 116 boots: 0 failed, 109 passed with 7 offline=
+ (v4.19.82-80-gb56f5a59d51a)
 
-Hello,
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.82-80-gb56f5a59d51a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.82-80-gb56f5a59d51a/
 
-We ran automated tests on a patchset that was proposed for merging into thi=
-s
-kernel tree. The patches were applied to:
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.82-80-gb56f5a59d51a
+Git Commit: b56f5a59d51ac99b2c9af3df39a0a7a573053bcc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 68 unique boards, 22 SoC families, 14 builds out of 206
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux.git
-            Commit: 37b4d0c37c0b - Linux 5.3.9
+Offline Platforms:
 
-The results of these automated tests are provided below.
+arm:
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-All kernel binaries, config files, and logs are available for download here=
-:
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
-  https://artifacts.cki-project.org/pipelines/272982
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
 
-One or more kernel tests failed:
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
 
-    ppc64le:
-     =E2=9D=8C selinux-policy: serge-testsuite
-
-    aarch64:
-     =E2=9D=8C selinux-policy: serge-testsuite
-
-    x86_64:
-     =E2=9D=8C selinux-policy: serge-testsuite
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 37b4d0c37c0b - Linux 5.3.9
-
-
-We grabbed the 0f688e389816 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  regulator-of-fix-suspend-min-max-voltage-parsing.patch
-  asoc-samsung-arndale-add-missing-of-node-dereferenci.patch
-  asoc-wm8994-do-not-register-inapplicable-controls-fo.patch
-  regulator-da9062-fix-suspend_enable-disable-preparat.patch
-  asoc-topology-fix-a-signedness-bug-in-soc_tplg_dapm_.patch
-  arm64-dts-allwinner-a64-pine64-plus-add-phy-regulato.patch
-  arm64-dts-allwinner-a64-drop-pmu-node.patch
-  arm64-dts-allwinner-a64-sopine-baseboard-add-phy-reg.patch
-  arm64-dts-fix-gpio-to-pinmux-mapping.patch
-  regulator-ti-abb-fix-timeout-in-ti_abb_wait_txdone-t.patch
-  pinctrl-intel-allocate-irq-chip-dynamic.patch
-  asoc-sof-loader-fix-kernel-oops-on-firmware-boot-fai.patch
-  asoc-sof-topology-fix-parse-fail-issue-for-byte-bool.patch
-  asoc-sof-intel-hda-fix-warnings-during-fw-load.patch
-  asoc-sof-intel-initialise-and-verify-fw-crash-dump-d.patch
-  asoc-sof-intel-hda-disable-dmi-l1-entry-during-captu.patch
-  asoc-rt5682-add-null-handler-to-set_jack-function.patch
-  asoc-intel-sof_rt5682-add-remove-function-to-disable.patch
-  asoc-intel-bytcr_rt5651-add-null-check-to-support_bu.patch
-  regulator-pfuze100-regulator-variable-val-in-pfuze10.patch
-  asoc-wm_adsp-don-t-generate-kcontrols-without-read-f.patch
-  asoc-rockchip-i2s-fix-rpm-imbalance.patch
-  arm64-dts-rockchip-fix-rockpro64-rk808-interrupt-lin.patch
-  arm-dts-logicpd-torpedo-som-remove-twl_keypad.patch
-  arm64-dts-rockchip-fix-rockpro64-vdd-log-regulator-s.patch
-  arm64-dts-rockchip-fix-rockpro64-sdhci-settings.patch
-  pinctrl-ns2-fix-off-by-one-bugs-in-ns2_pinmux_enable.patch
-  pinctrl-stmfx-fix-null-pointer-on-remove.patch
-  arm64-dts-zii-ultra-fix-arm-regulator-states.patch
-  arm-dts-am3874-iceboard-fix-i2c-mux-idle-disconnect-.patch
-  asoc-msm8916-wcd-digital-add-missing-mix2-path-for-r.patch
-  asoc-simple_card_utils.h-fix-potential-multiple-rede.patch
-  arm-dts-use-level-interrupt-for-omap4-5-wlcore.patch
-  arm-mm-fix-alignment-handler-faults-under-memory-pre.patch
-  scsi-qla2xxx-fix-a-potential-null-pointer-dereferenc.patch
-  scsi-scsi_dh_alua-handle-rtpg-sense-code-correctly-d.patch
-  scsi-sni_53c710-fix-compilation-error.patch
-  scsi-fix-kconfig-dependency-warning-related-to-53c70.patch
-  arm-8908-1-add-__always_inline-to-functions-called-f.patch
-  arm-8914-1-nommu-fix-exc_ret-for-xip.patch
-  arm64-dts-rockchip-fix-rockpro64-sdmmc-settings.patch
-  arm64-dts-rockchip-fix-usb-c-on-hugsun-x99-tv-box.patch
-  arm64-dts-lx2160a-correct-cpu-core-idle-state-name.patch
-  arm-dts-imx6q-logicpd-re-enable-snvs-power-key.patch
-  arm-dts-vf610-zii-scu4-aib-specify-i2c-mux-idle-disc.patch
-  arm-dts-imx7s-correct-gpt-s-ipg-clock-source.patch
-  arm64-dts-imx8mq-use-correct-clock-for-usdhc-s-ipg-c.patch
-  arm64-dts-imx8mm-use-correct-clock-for-usdhc-s-ipg-c.patch
-  perf-tools-fix-resource-leak-of-closedir-on-the-erro.patch
-  perf-c2c-fix-memory-leak-in-build_cl_output.patch
-  8250-men-mcb-fix-error-checking-when-get_num_ports-r.patch
-  perf-kmem-fix-memory-leak-in-compact_gfp_flags.patch
-  arm-davinci-dm365-fix-mcbsp-dma_slave_map-entry.patch
-  drm-amdgpu-fix-potential-vm-faults.patch
-  drm-amdgpu-fix-error-handling-in-amdgpu_bo_list_crea.patch
-  scsi-target-core-do-not-overwrite-cdb-byte-1.patch
-  scsi-hpsa-add-missing-hunks-in-reset-patch.patch
-  asoc-intel-sof-rt5682-add-a-check-for-devm_clk_get.patch
-  asoc-sof-control-return-true-when-kcontrol-values-ch.patch
-  tracing-fix-gfp_t-format-for-synthetic-events.patch
-  arm-dts-bcm2837-rpi-cm3-avoid-leds-gpio-probing-issu.patch
-  i2c-aspeed-fix-master-pending-state-handling.patch
-  drm-komeda-don-t-flush-inactive-pipes.patch
-  arm-8926-1-v7m-remove-register-save-to-stack-before-.patch
-  selftests-kvm-vmx_set_nested_state_test-don-t-check-.patch
-  selftests-kvm-fix-sync_regs_test-with-newer-gccs.patch
-  alsa-hda-add-tigerlake-jasperlake-pci-id.patch
-  of-unittest-fix-memory-leak-in-unittest_data_add.patch
-  mips-bmips-mark-exception-vectors-as-char-arrays.patch
-  irqchip-gic-v3-its-use-the-exact-itslist-for-vmovp.patch
-  i2c-mt65xx-fix-null-ptr-dereference.patch
-  i2c-stm32f7-fix-first-byte-to-send-in-slave-mode.patch
-  i2c-stm32f7-fix-a-race-in-slave-mode-with-arbitratio.patch
-  i2c-stm32f7-remove-warning-when-compiling-with-w-1.patch
-  cifs-fix-cifsinodeinfo-lock_sem-deadlock-when-reconn.patch
-  irqchip-sifive-plic-skip-contexts-except-supervisor-.patch
-  nbd-protect-cmd-status-with-cmd-lock.patch
-  nbd-handle-racing-with-error-ed-out-commands.patch
-  cxgb4-fix-panic-when-attaching-to-uld-fail.patch
-  cxgb4-request-the-tx-cidx-updates-to-status-page.patch
-  dccp-do-not-leak-jiffies-on-the-wire.patch
-  erspan-fix-the-tun_info-options_len-check-for-erspan.patch
-  inet-stop-leaking-jiffies-on-the-wire.patch
-  net-annotate-accesses-to-sk-sk_incoming_cpu.patch
-  net-annotate-lockless-accesses-to-sk-sk_napi_id.patch
-  net-dsa-bcm_sf2-fix-imp-setup-for-port-different-than-8.patch
-  net-ethernet-ftgmac100-fix-dma-coherency-issue-with-sw-checksum.patch
-  net-fix-sk_page_frag-recursion-from-memory-reclaim.patch
-  net-hisilicon-fix-ping-latency-when-deal-with-high-throughput.patch
-  net-mlx4_core-dynamically-set-guaranteed-amount-of-counters-per-vf.patch
-  netns-fix-gfp-flags-in-rtnl_net_notifyid.patch
-  net-rtnetlink-fix-a-typo-fbd-fdb.patch
-  net-usb-lan78xx-disable-interrupts-before-calling-generic_handle_irq.patc=
-h
-  net-zeroing-the-structure-ethtool_wolinfo-in-ethtool_get_wol.patch
-  selftests-net-reuseport_dualstack-fix-uninitalized-parameter.patch
-  udp-fix-data-race-in-udp_set_dev_scratch.patch
-  vxlan-check-tun_info-options_len-properly.patch
-  net-add-skb_queue_empty_lockless.patch
-  udp-use-skb_queue_empty_lockless.patch
-  net-use-skb_queue_empty_lockless-in-poll-handlers.patch
-  net-use-skb_queue_empty_lockless-in-busy-poll-contexts.patch
-  net-add-read_once-annotation-in-__skb_wait_for_more_packets.patch
-  ipv4-fix-route-update-on-metric-change.patch
-  selftests-fib_tests-add-more-tests-for-metric-update.patch
-  net-smc-fix-closing-of-fallback-smc-sockets.patch
-  net-smc-keep-vlan_id-for-smc-r-in-smc_listen_work.patch
-  keys-fix-memory-leak-in-copy_net_ns.patch
-  net-phylink-fix-phylink_dbg-macro.patch
-  rxrpc-fix-handling-of-last-subpacket-of-jumbo-packet.patch
-  net-mlx5e-determine-source-port-properly-for-vlan-push-action.patch
-  net-mlx5e-remove-incorrect-match-criteria-assignment-line.patch
-  net-mlx5e-initialize-on-stack-link-modes-bitmap.patch
-  net-mlx5-fix-flow-counter-list-auto-bits-struct.patch
-  net-smc-fix-refcounting-for-non-blocking-connect.patch
-  net-mlx5-fix-rtable-reference-leak.patch
-  mlxsw-core-unpublish-devlink-parameters-during-reload.patch
-  r8169-fix-wrong-phy-id-issue-with-rtl8168dp.patch
-  net-mlx5e-fix-ethtool-self-test-link-speed.patch
-  net-mlx5e-fix-handling-of-compressed-cqes-in-case-of-low-napi-budget.patc=
-h
-  ipv4-fix-ipskb_frag_pmtu-handling-with-fragmentation.patch
-  net-bcmgenet-don-t-set-phydev-link-from-mac.patch
-  net-dsa-b53-do-not-clear-existing-mirrored-port-mask.patch
-  net-dsa-fix-switch-tree-list.patch
-  net-ensure-correct-skb-tstamp-in-various-fragmenters.patch
-  net-hns3-fix-mis-counting-irq-vector-numbers-issue.patch
-  net-netem-fix-error-path-for-corrupted-gso-frames.patch
-  net-reorder-struct-net-fields-to-avoid-false-sharing.patch
-  net-usb-lan78xx-connect-phy-before-registering-mac.patch
-  r8152-add-device-id-for-lenovo-thinkpad-usb-c-dock-gen-2.patch
-  net-netem-correct-the-parent-s-backlog-when-corrupted-packet-was-dropped.=
-patch
-  net-phy-bcm7xxx-define-soft_reset-for-40nm-ephy.patch
-  net-bcmgenet-reset-40nm-ephy-on-energy-detect.patch
-  net-flow_dissector-switch-to-siphash.patch
-  platform-x86-pmc_atom-add-siemens-simatic-ipc227e-to-critclk_systems-dmi-=
-table.patch
-  cifs-fix-retry-mid-list-corruption-on-reconnects.patch
-  selftests-powerpc-add-test-case-for-tlbie-vs-mtpidr-ordering-issue.patch
-  selftests-powerpc-fix-compile-error-on-tlbie_test-due-to-newer-gcc.patch
-  asoc-pcm3168a-the-codec-does-not-support-s32_le.patch
-  arm64-dts-ti-k3-am65-main-fix-gic-its-node-unit-address.patch
-  usb-gadget-udc-core-fix-segfault-if-udc_bind_to_driver-for-pending-driver=
--fails.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Networking bridge: sanity
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking sctp-auth: sockopts test
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 Networking TCP: keepalive test
-       =E2=9C=85 Networking UDP: socket
-       =E2=9C=85 Networking tunnel: gre basic
-       =E2=9C=85 Networking tunnel: vxlan basic
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 storage: SCSI VPD
-       =E2=9C=85 stress: stress-ng
-       =E2=9C=85 trace: ftrace/tracer
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+---
+For more info write to <info@kernelci.org>
