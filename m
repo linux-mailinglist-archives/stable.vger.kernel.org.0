@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9114BF4AE0
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B10AF4A92
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733032AbfKHMMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:12:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51870 "EHLO mail.kernel.org"
+        id S1732916AbfKHLiz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:38:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732900AbfKHLiw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:52 -0500
+        id S1732908AbfKHLix (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6472421D7E;
-        Fri,  8 Nov 2019 11:38:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 855A721D82;
+        Fri,  8 Nov 2019 11:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213132;
-        bh=FBFUnT8LQXED72+Al9YJaWDfbqJLi+M8khoAEx+dqV4=;
+        s=default; t=1573213133;
+        bh=nPImtLa7CiPKcBTHi4tjRJteyGGCkBAYAjme1M75yYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZmDKTrDoBezHLCwqndpJSKwjhacobY4wp7n1k913Pm4bSucRTkQLL3eHkr9WmBS3
-         wTHMCicaqSF/bj7nhTwuAsjpLpBTo8keLJF8jbx9n1KwmPGTWqff81BojjEgtYab9m
-         sLGMTIO6k6oZrTrpOOXjzZW1uoJITm9fXosqhuvE=
+        b=ytZW8iGQGnsv9JbNOB8ZA+gvT3NkHNcegw5jDOoOz5Uln6+Wo8XMc6cO8wb5xG9k8
+         CZ01K0dewBUfoyqlk1nZqnAC6QuIqsPsmjDyigoj58raZRmSrFbHlhoRBz4eNLsdYM
+         A2N5WBv2GO9tqqw7g/ZrizS4wNAJkXEoOGZf7hQA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Patryk=20Ma=C5=82ek?= <patryk.malek@intel.com>,
         Andrew Bowers <andrewx.bowers@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 050/205] i40evf: Don't enable vlan stripping when rx offload is turned on
-Date:   Fri,  8 Nov 2019 06:35:17 -0500
-Message-Id: <20191108113752.12502-50-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 051/205] i40e: hold the rtnl lock on clearing interrupt scheme
+Date:   Fri,  8 Nov 2019 06:35:18 -0500
+Message-Id: <20191108113752.12502-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -47,52 +47,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Patryk Małek <patryk.malek@intel.com>
 
-[ Upstream commit 3bd77e2ae1477d6f87fc3f542c737119d5decf9f ]
+[ Upstream commit 5cba17b14182696d6bb0ec83a1d087933f252241 ]
 
-With current implementation of i40evf_set_features when user sets
-any offload via ethtool we set I40EVF_FLAG_AQ_ENABLE_VLAN_STRIPPING
-as a required aq which triggers driver to call
-i40evf_enable_vlan_stripping. This shouldn't take place.
-This patches fixes it by setting the flag only when VLAN offload
-is turned on.
+Hold the rtnl lock when we're clearing interrupt scheme
+in i40e_shutdown and in i40e_remove.
 
 Signed-off-by: Patryk Małek <patryk.malek@intel.com>
 Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40evf/i40evf_main.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_main.c b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-index bc4fa9df6da3e..3fc46d2adc087 100644
---- a/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-+++ b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-@@ -3097,18 +3097,19 @@ static int i40evf_set_features(struct net_device *netdev,
- {
- 	struct i40evf_adapter *adapter = netdev_priv(netdev);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 1577dbaab7425..1a66373184d62 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -14208,6 +14208,7 @@ static void i40e_remove(struct pci_dev *pdev)
+ 	mutex_destroy(&hw->aq.asq_mutex);
  
--	/* Don't allow changing VLAN_RX flag when VLAN is set for VF
--	 * and return an error in this case
-+	/* Don't allow changing VLAN_RX flag when adapter is not capable
-+	 * of VLAN offload
- 	 */
--	if (VLAN_ALLOWED(adapter)) {
-+	if (!VLAN_ALLOWED(adapter)) {
-+		if ((netdev->features ^ features) & NETIF_F_HW_VLAN_CTAG_RX)
-+			return -EINVAL;
-+	} else if ((netdev->features ^ features) & NETIF_F_HW_VLAN_CTAG_RX) {
- 		if (features & NETIF_F_HW_VLAN_CTAG_RX)
- 			adapter->aq_required |=
- 				I40EVF_FLAG_AQ_ENABLE_VLAN_STRIPPING;
- 		else
- 			adapter->aq_required |=
- 				I40EVF_FLAG_AQ_DISABLE_VLAN_STRIPPING;
--	} else if ((netdev->features ^ features) & NETIF_F_HW_VLAN_CTAG_RX) {
--		return -EINVAL;
+ 	/* Clear all dynamic memory lists of rings, q_vectors, and VSIs */
++	rtnl_lock();
+ 	i40e_clear_interrupt_scheme(pf);
+ 	for (i = 0; i < pf->num_alloc_vsi; i++) {
+ 		if (pf->vsi[i]) {
+@@ -14216,6 +14217,7 @@ static void i40e_remove(struct pci_dev *pdev)
+ 			pf->vsi[i] = NULL;
+ 		}
  	}
++	rtnl_unlock();
  
- 	return 0;
+ 	for (i = 0; i < I40E_MAX_VEB; i++) {
+ 		kfree(pf->veb[i]);
+@@ -14427,7 +14429,13 @@ static void i40e_shutdown(struct pci_dev *pdev)
+ 	wr32(hw, I40E_PFPM_WUFC,
+ 	     (pf->wol_en ? I40E_PFPM_WUFC_MAG_MASK : 0));
+ 
++	/* Since we're going to destroy queues during the
++	 * i40e_clear_interrupt_scheme() we should hold the RTNL lock for this
++	 * whole section
++	 */
++	rtnl_lock();
+ 	i40e_clear_interrupt_scheme(pf);
++	rtnl_unlock();
+ 
+ 	if (system_state == SYSTEM_POWER_OFF) {
+ 		pci_wake_from_d3(pdev, pf->wol_en);
 -- 
 2.20.1
 
