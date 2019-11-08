@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41EC6F4853
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69F2DF46DA
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:45:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389075AbfKHL4E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:56:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32906 "EHLO mail.kernel.org"
+        id S2391158AbfKHLpk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:45:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391155AbfKHLpi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:45:38 -0500
+        id S2388716AbfKHLpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:45:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C6C1222480;
-        Fri,  8 Nov 2019 11:45:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EAB4E222CB;
+        Fri,  8 Nov 2019 11:45:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213537;
-        bh=3PqxP/RmrmKWRP42n9bA3cQ5bxkt2HDhwqRdGD6EXjk=;
+        s=default; t=1573213538;
+        bh=F0f1DFQic3UsgOCXhcyyXPEfDgitzNZkVWAjT/PbzZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OGO4Dr/lewC9U1n0M3LIcoOEWlA2OOhqzeGixWrfwBLDZSRW3C31CKPzlwAQE6r1I
-         wc85gzAt3h+1g/iLueJuyMHkcj1tFO+h+wncCI6Bxm+1aNOvvzNh40Fa/n0DN0BR8j
-         AP4mo4Kzj5bFuXH6apXAoPdBg7MmA8DBcG5q6+uU=
+        b=xUWNqVkZLyvbq9UUMBsY6fM9DSzhUnJBa1MW75U/jQnVSknWW42PX9Ur6M90bzT2A
+         J81+BBdF4edQENgeELqxUdj3QEP4fScl4eUBuafnWvADYfleEZjJVNmNqmkysNjowQ
+         WzfDYxkBj4FSGSLWNUdzLSyk6okn0XLjkC9NXkxE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
-        Jiri Benc <jbenc@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 100/103] ip_gre: fix parsing gre header in ipgre_err
-Date:   Fri,  8 Nov 2019 06:43:05 -0500
-Message-Id: <20191108114310.14363-100-sashal@kernel.org>
+Cc:     Rob Herring <robh@kernel.org>, Heiko Stuebner <heiko@sntech.de>,
+        linux-rockchip@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 101/103] ARM: dts: rockchip: Fix erroneous SPI bus dtc warnings on rk3036
+Date:   Fri,  8 Nov 2019 06:43:06 -0500
+Message-Id: <20191108114310.14363-101-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -44,70 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit b0350d51f001e6edc13ee4f253b98b50b05dd401 ]
+[ Upstream commit 131c3eb428ccd5f0c784b9edb4f72ec296a045d2 ]
 
-gre_parse_header stops parsing when csum_err is encountered, which means
-tpi->key is undefined and ip_tunnel_lookup will return NULL improperly.
+dtc has new checks for SPI buses. The rk3036 dts file has a node named
+spi' which causes false positive warnings. As the node is a pinctrl child
+node, change the node name to be 'spi-pins' to fix the warnings.
 
-This patch introduce a NULL pointer as csum_err parameter. Even when
-csum_err is encountered, it won't return error and continue parsing gre
-header as expected.
+arch/arm/boot/dts/rk3036-evb.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #address-cells for SPI bus
+arch/arm/boot/dts/rk3036-kylin.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #address-cells for SPI bus
+arch/arm/boot/dts/rk3036-evb.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #size-cells for SPI bus
+arch/arm/boot/dts/rk3036-kylin.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #size-cells for SPI bus
 
-Fixes: 9f57c67c379d ("gre: Remove support for sharing GRE protocol hook.")
-Reported-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Heiko Stuebner <heiko@sntech.de>
+Cc: linux-rockchip@lists.infradead.org
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/gre_demux.c | 7 ++++---
- net/ipv4/ip_gre.c    | 9 +++------
- 2 files changed, 7 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/rk3036.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/gre_demux.c b/net/ipv4/gre_demux.c
-index b798862b6be5d..7efe740c06ebf 100644
---- a/net/ipv4/gre_demux.c
-+++ b/net/ipv4/gre_demux.c
-@@ -86,13 +86,14 @@ int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
+diff --git a/arch/arm/boot/dts/rk3036.dtsi b/arch/arm/boot/dts/rk3036.dtsi
+index 5c0a76493d22a..03cf0c84ac0aa 100644
+--- a/arch/arm/boot/dts/rk3036.dtsi
++++ b/arch/arm/boot/dts/rk3036.dtsi
+@@ -750,7 +750,7 @@
+ 			/* no rts / cts for uart2 */
+ 		};
  
- 	options = (__be32 *)(greh + 1);
- 	if (greh->flags & GRE_CSUM) {
--		if (skb_checksum_simple_validate(skb)) {
-+		if (!skb_checksum_simple_validate(skb)) {
-+			skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
-+						 null_compute_pseudo);
-+		} else if (csum_err) {
- 			*csum_err = true;
- 			return -EINVAL;
- 		}
- 
--		skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
--					 null_compute_pseudo);
- 		options++;
- 	}
- 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 347be2ea78d4a..f8d3a7ddf62af 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -230,13 +230,10 @@ static void gre_err(struct sk_buff *skb, u32 info)
- 	const int type = icmp_hdr(skb)->type;
- 	const int code = icmp_hdr(skb)->code;
- 	struct tnl_ptk_info tpi;
--	bool csum_err = false;
- 
--	if (gre_parse_header(skb, &tpi, &csum_err, htons(ETH_P_IP),
--			     iph->ihl * 4) < 0) {
--		if (!csum_err)		/* ignore csum errors. */
--			return;
--	}
-+	if (gre_parse_header(skb, &tpi, NULL, htons(ETH_P_IP),
-+			     iph->ihl * 4) < 0)
-+		return;
- 
- 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
- 		ipv4_update_pmtu(skb, dev_net(skb->dev), info,
+-		spi {
++		spi-pins {
+ 			spi_txd:spi-txd {
+ 				rockchip,pins = <1 29 RK_FUNC_3 &pcfg_pull_default>;
+ 			};
 -- 
 2.20.1
 
