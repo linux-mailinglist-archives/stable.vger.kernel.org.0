@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E3AF412F
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 08:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41602F412E
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 08:18:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729951AbfKHHSe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 02:18:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41770 "EHLO mail.kernel.org"
+        id S1729764AbfKHHSd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 02:18:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725886AbfKHHSe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 02:18:34 -0500
+        id S1725886AbfKHHSd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 02:18:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 240F9214DB;
-        Fri,  8 Nov 2019 07:18:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 817332085B;
+        Fri,  8 Nov 2019 07:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573197513;
-        bh=XKTWza8Y9AOcKC66SVWC0rS/L5+fSVM2yshdZULFT8I=;
+        s=default; t=1573197511;
+        bh=V0BHKUiRMHgKTkJyAFpHuw3X/fjzN2F/ystH0oBGEkA=;
         h=Subject:To:From:Date:From;
-        b=mTjiPzG3zGzhhP7QPW6CZd/zNMMKVntcm+1jhsrop1tT/kLZpRdNgPhp+nM3hJRiL
-         74srx6O+M9yR2N/fNbSnw/qnY/Ql6y+efdTII+9NxpGv8lbqsg9BHPlIRsdTgVx3Hx
-         tTexz4OXV8tWphZAcu+f6BIT4f1Kir/0Lf2rMgsQ=
-Subject: patch "appledisplay: fix error handling in the scheduled work" added to usb-next
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        b=BynJv3BTmikToMyPgobz7a+iV8ic+YUj/QnmsC6AmTwkaftEC2YBVom412pH5PX7c
+         rcrujllUoj9AS9bDM81Eaj5nqXnyWOYGf0bGpxTCMAznpkOyuHWTEomog4aSVjmT/i
+         bHcsGoew9DI0i7s5OksHTUF9M147QBC2T+rizdJE=
+Subject: patch "usbip: tools: fix fd leakage in the function of" added to usb-next
+To:     hewenliang4@huawei.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Fri, 08 Nov 2019 08:17:37 +0100
-Message-ID: <157319745722391@kroah.com>
+Message-ID: <1573197457253132@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    appledisplay: fix error handling in the scheduled work
+    usbip: tools: fix fd leakage in the function of
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,54 +55,36 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 91feb01596e5efc0cc922cc73f5583114dccf4d2 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Wed, 6 Nov 2019 13:49:01 +0100
-Subject: appledisplay: fix error handling in the scheduled work
+From 26a4d4c00f85cb844dd11dd35e848b079c2f5e8f Mon Sep 17 00:00:00 2001
+From: Hewenliang <hewenliang4@huawei.com>
+Date: Fri, 25 Oct 2019 00:35:15 -0400
+Subject: usbip: tools: fix fd leakage in the function of
+ read_attr_usbip_status
 
-The work item can operate on
+We should close the fd before the return of read_attr_usbip_status.
 
-1. stale memory left over from the last transfer
-the actual length of the data transfered needs to be checked
-2. memory already freed
-the error handling in appledisplay_probe() needs
-to cancel the work in that case
-
-Reported-and-tested-by: syzbot+495dab1f175edc9c2f13@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Fixes: 3391ba0e2792 ("usbip: tools: Extract generic code to be shared with vudc backend")
+Signed-off-by: Hewenliang <hewenliang4@huawei.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191106124902.7765-1-oneukum@suse.com
+Link: https://lore.kernel.org/r/20191025043515.20053-1-hewenliang4@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/appledisplay.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ tools/usb/usbip/libsrc/usbip_host_common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/misc/appledisplay.c b/drivers/usb/misc/appledisplay.c
-index ac92725458b5..ba1eaabc7796 100644
---- a/drivers/usb/misc/appledisplay.c
-+++ b/drivers/usb/misc/appledisplay.c
-@@ -164,7 +164,12 @@ static int appledisplay_bl_get_brightness(struct backlight_device *bd)
- 		0,
- 		pdata->msgdata, 2,
- 		ACD_USB_TIMEOUT);
--	brightness = pdata->msgdata[1];
-+	if (retval < 2) {
-+		if (retval >= 0)
-+			retval = -EMSGSIZE;
-+	} else {
-+		brightness = pdata->msgdata[1];
-+	}
- 	mutex_unlock(&pdata->sysfslock);
+diff --git a/tools/usb/usbip/libsrc/usbip_host_common.c b/tools/usb/usbip/libsrc/usbip_host_common.c
+index 2813aa821c82..d1d8ba2a4a40 100644
+--- a/tools/usb/usbip/libsrc/usbip_host_common.c
++++ b/tools/usb/usbip/libsrc/usbip_host_common.c
+@@ -57,7 +57,7 @@ static int32_t read_attr_usbip_status(struct usbip_usb_device *udev)
+ 	}
  
- 	if (retval < 0)
-@@ -299,6 +304,7 @@ static int appledisplay_probe(struct usb_interface *iface,
- 	if (pdata) {
- 		if (pdata->urb) {
- 			usb_kill_urb(pdata->urb);
-+			cancel_delayed_work_sync(&pdata->work);
- 			if (pdata->urbdata)
- 				usb_free_coherent(pdata->udev, ACD_URB_BUFFER_LEN,
- 					pdata->urbdata, pdata->urb->transfer_dma);
+ 	value = atoi(status);
+-
++	close(fd);
+ 	return value;
+ }
+ 
 -- 
 2.24.0
 
