@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F15F553B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B739F577B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:06:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732829AbfKHTBF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:01:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58340 "EHLO mail.kernel.org"
+        id S1730851AbfKHTWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:22:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390062AbfKHTBC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:01:02 -0500
+        id S2387616AbfKHSze (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:55:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA1D62178F;
-        Fri,  8 Nov 2019 19:01:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA0A6218AE;
+        Fri,  8 Nov 2019 18:55:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239662;
-        bh=8Q9g2juXNBV5no/rSw06P+H5qP7c3cfW0hVwZxa0L+4=;
+        s=default; t=1573239333;
+        bh=+5huyMqjI7fgVldVohQ+1GuXRgw/Bu4hD6O9RL07Dpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmqXjra6ZgMH7fv8LknQuEk9TEwujUezgCsn89Rw0ZqgaQnEtBKOUQPI2Rqbo/R9S
-         OFLvF6I26JVn5NxwZtHCicQjOIr1Aqx7pAkWdNJYY3UPUEGSrV8f3J7zF4njofQymx
-         zru9Fy03AnF0SAyfoPYX2lEAl3N1rWuRZZYkgqAI=
+        b=aRcq235kkGrjl2sC/x1R0FO+EL0XXg4LAbngkIYJPVEJkpJwPtkxdE/Zk2joy3Fqa
+         Cj8EhreRNJplriE13ERp04cpqw8b/EAFM0wf9jpHU1Nq7pg/SKjq18c5Aiy6CM7Ux7
+         q3J/WvA6IFRnByseBAg8XXXDcq0vxYMfWyrYV3wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 19/79] ARM: dts: imx7s: Correct GPTs ipg clock source
+        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
+        <ardb@kernel.org>, Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        "David A. Long" <dave.long@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.4 42/75] ARM: bugs: hook processor bug checking into SMP and suspend paths
 Date:   Fri,  8 Nov 2019 19:49:59 +0100
-Message-Id: <20191108174755.240726768@linuxfoundation.org>
+Message-Id: <20191108174749.313487476@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
+References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +48,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anson Huang <Anson.Huang@nxp.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 252b9e21bcf46b0d16f733f2e42b21fdc60addee ]
+Commit 26602161b5ba795928a5a719fe1d5d9f2ab5c3ef upstream.
 
-i.MX7S/D's GPT ipg clock should be from GPT clock root and
-controlled by CCM's GPT CCGR, using correct clock source for
-GPT ipg clock instead of IMX7D_CLK_DUMMY.
+Check for CPU bugs when secondary processors are being brought online,
+and also when CPUs are resuming from a low power mode.  This gives an
+opportunity to check that processor specific bug workarounds are
+correctly enabled for all paths that a CPU re-enters the kernel.
 
-Fixes: 3ef79ca6bd1d ("ARM: dts: imx7d: use imx7s.dtsi as base device tree")
-Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Boot-tested-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: David A. Long <dave.long@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx7s.dtsi | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm/include/asm/bugs.h |    2 ++
+ arch/arm/kernel/bugs.c      |    5 +++++
+ arch/arm/kernel/smp.c       |    4 ++++
+ arch/arm/kernel/suspend.c   |    2 ++
+ 4 files changed, 13 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
-index a7f697b0290ff..90f5bdfa9b3ce 100644
---- a/arch/arm/boot/dts/imx7s.dtsi
-+++ b/arch/arm/boot/dts/imx7s.dtsi
-@@ -443,7 +443,7 @@
- 				compatible = "fsl,imx7d-gpt", "fsl,imx6sx-gpt";
- 				reg = <0x302d0000 0x10000>;
- 				interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
--				clocks = <&clks IMX7D_CLK_DUMMY>,
-+				clocks = <&clks IMX7D_GPT1_ROOT_CLK>,
- 					 <&clks IMX7D_GPT1_ROOT_CLK>;
- 				clock-names = "ipg", "per";
- 			};
-@@ -452,7 +452,7 @@
- 				compatible = "fsl,imx7d-gpt", "fsl,imx6sx-gpt";
- 				reg = <0x302e0000 0x10000>;
- 				interrupts = <GIC_SPI 54 IRQ_TYPE_LEVEL_HIGH>;
--				clocks = <&clks IMX7D_CLK_DUMMY>,
-+				clocks = <&clks IMX7D_GPT2_ROOT_CLK>,
- 					 <&clks IMX7D_GPT2_ROOT_CLK>;
- 				clock-names = "ipg", "per";
- 				status = "disabled";
-@@ -462,7 +462,7 @@
- 				compatible = "fsl,imx7d-gpt", "fsl,imx6sx-gpt";
- 				reg = <0x302f0000 0x10000>;
- 				interrupts = <GIC_SPI 53 IRQ_TYPE_LEVEL_HIGH>;
--				clocks = <&clks IMX7D_CLK_DUMMY>,
-+				clocks = <&clks IMX7D_GPT3_ROOT_CLK>,
- 					 <&clks IMX7D_GPT3_ROOT_CLK>;
- 				clock-names = "ipg", "per";
- 				status = "disabled";
-@@ -472,7 +472,7 @@
- 				compatible = "fsl,imx7d-gpt", "fsl,imx6sx-gpt";
- 				reg = <0x30300000 0x10000>;
- 				interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
--				clocks = <&clks IMX7D_CLK_DUMMY>,
-+				clocks = <&clks IMX7D_GPT4_ROOT_CLK>,
- 					 <&clks IMX7D_GPT4_ROOT_CLK>;
- 				clock-names = "ipg", "per";
- 				status = "disabled";
--- 
-2.20.1
-
+--- a/arch/arm/include/asm/bugs.h
++++ b/arch/arm/include/asm/bugs.h
+@@ -14,8 +14,10 @@ extern void check_writebuffer_bugs(void)
+ 
+ #ifdef CONFIG_MMU
+ extern void check_bugs(void);
++extern void check_other_bugs(void);
+ #else
+ #define check_bugs() do { } while (0)
++#define check_other_bugs() do { } while (0)
+ #endif
+ 
+ #endif
+--- a/arch/arm/kernel/bugs.c
++++ b/arch/arm/kernel/bugs.c
+@@ -3,7 +3,12 @@
+ #include <asm/bugs.h>
+ #include <asm/proc-fns.h>
+ 
++void check_other_bugs(void)
++{
++}
++
+ void __init check_bugs(void)
+ {
+ 	check_writebuffer_bugs();
++	check_other_bugs();
+ }
+--- a/arch/arm/kernel/smp.c
++++ b/arch/arm/kernel/smp.c
+@@ -29,6 +29,7 @@
+ #include <linux/irq_work.h>
+ 
+ #include <linux/atomic.h>
++#include <asm/bugs.h>
+ #include <asm/smp.h>
+ #include <asm/cacheflush.h>
+ #include <asm/cpu.h>
+@@ -396,6 +397,9 @@ asmlinkage void secondary_start_kernel(v
+ 	 * before we continue - which happens after __cpu_up returns.
+ 	 */
+ 	set_cpu_online(cpu, true);
++
++	check_other_bugs();
++
+ 	complete(&cpu_running);
+ 
+ 	local_irq_enable();
+--- a/arch/arm/kernel/suspend.c
++++ b/arch/arm/kernel/suspend.c
+@@ -1,6 +1,7 @@
+ #include <linux/init.h>
+ #include <linux/slab.h>
+ 
++#include <asm/bugs.h>
+ #include <asm/cacheflush.h>
+ #include <asm/idmap.h>
+ #include <asm/pgalloc.h>
+@@ -34,6 +35,7 @@ int cpu_suspend(unsigned long arg, int (
+ 		cpu_switch_mm(mm->pgd, mm);
+ 		local_flush_bp_all();
+ 		local_flush_tlb_all();
++		check_other_bugs();
+ 	}
+ 
+ 	return ret;
 
 
