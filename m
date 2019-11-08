@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B0FF49F7
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77767F49BC
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:06:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389331AbfKHMGX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:06:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54552 "EHLO mail.kernel.org"
+        id S2389325AbfKHLlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:41:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389269AbfKHLlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:41:17 -0500
+        id S1732718AbfKHLlS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:41:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D9C3222D1;
-        Fri,  8 Nov 2019 11:41:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69EC322473;
+        Fri,  8 Nov 2019 11:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213277;
-        bh=uTKsTivW0RpecLbaYmvvG3ITNtocrjUSNEeJ/vh93D8=;
+        s=default; t=1573213278;
+        bh=BsYITncQjbDdzgjbZ7L3lXwyTDl12qrWP9tYAragwzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pca/xqiWRctBggkXhUUfzFc3aUEWYVs98QzlKsaLB3b67UrtQ92YWq2DeE2xqIqsm
-         ioQfZkcWKKidhU10M8ZoDsG7OZ16Z4vAIeUEO6qZDMZ3m+nQ9ixp8LyPkLlnte27NQ
-         II1R3KgL14sRRPLXlcZv/WcHvjJmJP+3IzXxa4vk=
+        b=rFYAvhRgntCDCwJ64gEI4rtGeINnZbIHXjxvsajh3EhbECgT1y2dzUh4jMXpQ4gEn
+         XgqmJUBnoLB4RAHLqxmowh6yUSnIrz45U55fMKGgod8FgEVkvesrt8BlSpepPKBtuE
+         Fx2ZrqawqduLbcUPLhLLdZRbvsduoyII+qPt/NaQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Quinn Tran <quinn.tran@cavium.com>,
         Himanshu Madhani <himanshu.madhani@cavium.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 138/205] scsi: qla2xxx: Fix iIDMA error
-Date:   Fri,  8 Nov 2019 06:36:45 -0500
-Message-Id: <20191108113752.12502-138-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 139/205] scsi: qla2xxx: Defer chip reset until target mode is enabled
+Date:   Fri,  8 Nov 2019 06:36:46 -0500
+Message-Id: <20191108113752.12502-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -46,48 +46,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Quinn Tran <quinn.tran@cavium.com>
 
-[ Upstream commit 8d9bf0a9a268f7ca0b811d6e6a1fc783afa5c746 ]
+[ Upstream commit 93eca6135183f7a71e36acd47655a085ed11bcdc ]
 
-When switch responds with error for Get Port Speed Command (GPSC), driver
-should not proceed with telling FW about the speed of the remote port.
+For target mode, any chip reset triggered before target mode is enabled will
+be held off until user is ready to enable.  This prevents the chip from
+starting or running before it is intended.
 
 Signed-off-by: Quinn Tran <quinn.tran@cavium.com>
 Signed-off-by: Himanshu Madhani <himanshu.madhani@cavium.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c | 28 +++++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index 34ff4bbc8de10..d611cf722244c 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3277,7 +3277,7 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
- 			ql_dbg(ql_dbg_disc, vha, 0x2019,
- 			    "GPSC command unsupported, disabling query.\n");
- 			ha->flags.gpsc_supported = 0;
--			res = QLA_SUCCESS;
-+			goto done;
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 60b6019a2fcae..bfbdec61b3c6e 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -6051,12 +6051,27 @@ qla2x00_do_dpc(void *data)
+ 		if (test_and_clear_bit
+ 		    (ISP_ABORT_NEEDED, &base_vha->dpc_flags) &&
+ 		    !test_bit(UNLOADING, &base_vha->dpc_flags)) {
++			bool do_reset = true;
++
++			switch (ql2x_ini_mode) {
++			case QLA2XXX_INI_MODE_ENABLED:
++				break;
++			case QLA2XXX_INI_MODE_DISABLED:
++				if (!qla_tgt_mode_enabled(base_vha))
++					do_reset = false;
++				break;
++			case QLA2XXX_INI_MODE_DUAL:
++				if (!qla_dual_mode_enabled(base_vha))
++					do_reset = false;
++				break;
++			default:
++				break;
++			}
+ 
+-			ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
+-			    "ISP abort scheduled.\n");
+-			if (!(test_and_set_bit(ABORT_ISP_ACTIVE,
++			if (do_reset && !(test_and_set_bit(ABORT_ISP_ACTIVE,
+ 			    &base_vha->dpc_flags))) {
+-
++				ql_dbg(ql_dbg_dpc, base_vha, 0x4007,
++				    "ISP abort scheduled.\n");
+ 				if (ha->isp_ops->abort_isp(base_vha)) {
+ 					/* failed. retry later */
+ 					set_bit(ISP_ABORT_NEEDED,
+@@ -6064,10 +6079,9 @@ qla2x00_do_dpc(void *data)
+ 				}
+ 				clear_bit(ABORT_ISP_ACTIVE,
+ 						&base_vha->dpc_flags);
++				ql_dbg(ql_dbg_dpc, base_vha, 0x4008,
++				    "ISP abort end.\n");
+ 			}
+-
+-			ql_dbg(ql_dbg_dpc, base_vha, 0x4008,
+-			    "ISP abort end.\n");
  		}
- 	} else {
- 		switch (be16_to_cpu(ct_rsp->rsp.gpsc.speed)) {
-@@ -3310,7 +3310,6 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
- 		    be16_to_cpu(ct_rsp->rsp.gpsc.speeds),
- 		    be16_to_cpu(ct_rsp->rsp.gpsc.speed));
- 	}
--done:
- 	memset(&ea, 0, sizeof(ea));
- 	ea.event = FCME_GPSC_DONE;
- 	ea.rc = res;
-@@ -3318,6 +3317,7 @@ done:
- 	ea.sp = sp;
- 	qla2x00_fcport_event_handler(vha, &ea);
  
-+done:
- 	sp->free(sp);
- }
- 
+ 		if (test_and_clear_bit(FCPORT_UPDATE_NEEDED,
 -- 
 2.20.1
 
