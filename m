@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C7AF54CF
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78577F565D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730614AbfKHSyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:54:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51620 "EHLO mail.kernel.org"
+        id S2391609AbfKHTIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:08:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732994AbfKHSyg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:54:36 -0500
+        id S2388102AbfKHTIV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:08:21 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9478214DB;
-        Fri,  8 Nov 2019 18:54:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09A9720673;
+        Fri,  8 Nov 2019 19:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239275;
-        bh=sBgZbgR6C/Lf8SuiqL44jF3+gojir72YaIXEd0Ba2uU=;
+        s=default; t=1573240101;
+        bh=N4KjHgFK9d/d12dmfSPmyBLi3zVooy+ZWFOBJe3ffqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ys0COiLmKbdomai9L8XRlt0EFmX6nJyx9JdtV3ojvMRbATdVBT0J4bVSmCHjGaAUk
-         OCpl+TM7Rn0IypNnPj1f6fLHYnuBWO81vU++5o36zy2GkETaqhVV2BSwCsCrRLTbnF
-         r8PIwhQ1poZ+IM0J8u0EBN4kioeRoePsufW8ftRM=
+        b=1lAfgIdgNDRJN4Uxu4L1dQ8EwbHOCxtajfRuPhqLRpnDnTmPuqG4wdnsBn0RmiuI6
+         ihBLo4MQVpOHa2aIHPWE8iyBri7LNvXSnxr86lrAnGhosu/X3LjFBS3Ve8xrhhhEv6
+         AgsYki8IAoa12d+RP6z7Sam+cVUBCmpcFQPLESYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Julien Thierry <julien.thierry@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David A. Long" <dave.long@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.4 59/75] ARM: 8789/1: signal: copy registers using __copy_to_user()
-Date:   Fri,  8 Nov 2019 19:50:16 +0100
-Message-Id: <20191108174800.827466181@linuxfoundation.org>
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 089/140] net: hisilicon: Fix ping latency when deal with high throughput
+Date:   Fri,  8 Nov 2019 19:50:17 +0100
+Message-Id: <20191108174910.699178710@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,84 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julien Thierry <julien.thierry@arm.com>
+From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 
-Commit 5ca451cf6ed04443774bbb7ee45332dafa42e99f upstream.
+[ Upstream commit e56bd641ca61beb92b135298d5046905f920b734 ]
 
-When saving the ARM integer registers, use __copy_to_user() to
-copy them into user signal frame, rather than __put_user_error().
-This has the benefit of disabling/enabling PAN once for the whole copy
-intead of once per write.
+This is due to error in over budget processing.
+When dealing with high throughput, the used buffers
+that exceeds the budget is not cleaned up. In addition,
+it takes a lot of cycles to clean up the used buffer,
+and then the buffer where the valid data is located can take effect.
 
-Signed-off-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David A. Long <dave.long@linaro.org>
-Reviewed-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/signal.c |   47 ++++++++++++++++++++++++++---------------------
- 1 file changed, 26 insertions(+), 21 deletions(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/arch/arm/kernel/signal.c
-+++ b/arch/arm/kernel/signal.c
-@@ -256,30 +256,35 @@ static int
- setup_sigframe(struct sigframe __user *sf, struct pt_regs *regs, sigset_t *set)
- {
- 	struct aux_sigframe __user *aux;
-+	struct sigcontext context;
- 	int err = 0;
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -237,6 +237,7 @@ struct hip04_priv {
+ 	dma_addr_t rx_phys[RX_DESC_NUM];
+ 	unsigned int rx_head;
+ 	unsigned int rx_buf_size;
++	unsigned int rx_cnt_remaining;
  
--	__put_user_error(regs->ARM_r0, &sf->uc.uc_mcontext.arm_r0, err);
--	__put_user_error(regs->ARM_r1, &sf->uc.uc_mcontext.arm_r1, err);
--	__put_user_error(regs->ARM_r2, &sf->uc.uc_mcontext.arm_r2, err);
--	__put_user_error(regs->ARM_r3, &sf->uc.uc_mcontext.arm_r3, err);
--	__put_user_error(regs->ARM_r4, &sf->uc.uc_mcontext.arm_r4, err);
--	__put_user_error(regs->ARM_r5, &sf->uc.uc_mcontext.arm_r5, err);
--	__put_user_error(regs->ARM_r6, &sf->uc.uc_mcontext.arm_r6, err);
--	__put_user_error(regs->ARM_r7, &sf->uc.uc_mcontext.arm_r7, err);
--	__put_user_error(regs->ARM_r8, &sf->uc.uc_mcontext.arm_r8, err);
--	__put_user_error(regs->ARM_r9, &sf->uc.uc_mcontext.arm_r9, err);
--	__put_user_error(regs->ARM_r10, &sf->uc.uc_mcontext.arm_r10, err);
--	__put_user_error(regs->ARM_fp, &sf->uc.uc_mcontext.arm_fp, err);
--	__put_user_error(regs->ARM_ip, &sf->uc.uc_mcontext.arm_ip, err);
--	__put_user_error(regs->ARM_sp, &sf->uc.uc_mcontext.arm_sp, err);
--	__put_user_error(regs->ARM_lr, &sf->uc.uc_mcontext.arm_lr, err);
--	__put_user_error(regs->ARM_pc, &sf->uc.uc_mcontext.arm_pc, err);
--	__put_user_error(regs->ARM_cpsr, &sf->uc.uc_mcontext.arm_cpsr, err);
-+	context = (struct sigcontext) {
-+		.arm_r0        = regs->ARM_r0,
-+		.arm_r1        = regs->ARM_r1,
-+		.arm_r2        = regs->ARM_r2,
-+		.arm_r3        = regs->ARM_r3,
-+		.arm_r4        = regs->ARM_r4,
-+		.arm_r5        = regs->ARM_r5,
-+		.arm_r6        = regs->ARM_r6,
-+		.arm_r7        = regs->ARM_r7,
-+		.arm_r8        = regs->ARM_r8,
-+		.arm_r9        = regs->ARM_r9,
-+		.arm_r10       = regs->ARM_r10,
-+		.arm_fp        = regs->ARM_fp,
-+		.arm_ip        = regs->ARM_ip,
-+		.arm_sp        = regs->ARM_sp,
-+		.arm_lr        = regs->ARM_lr,
-+		.arm_pc        = regs->ARM_pc,
-+		.arm_cpsr      = regs->ARM_cpsr,
+ 	struct device_node *phy_node;
+ 	struct phy_device *phy;
+@@ -575,7 +576,6 @@ static int hip04_rx_poll(struct napi_str
+ 	struct hip04_priv *priv = container_of(napi, struct hip04_priv, napi);
+ 	struct net_device *ndev = priv->ndev;
+ 	struct net_device_stats *stats = &ndev->stats;
+-	unsigned int cnt = hip04_recv_cnt(priv);
+ 	struct rx_desc *desc;
+ 	struct sk_buff *skb;
+ 	unsigned char *buf;
+@@ -588,8 +588,8 @@ static int hip04_rx_poll(struct napi_str
  
--	__put_user_error(current->thread.trap_no, &sf->uc.uc_mcontext.trap_no, err);
--	__put_user_error(current->thread.error_code, &sf->uc.uc_mcontext.error_code, err);
--	__put_user_error(current->thread.address, &sf->uc.uc_mcontext.fault_address, err);
--	__put_user_error(set->sig[0], &sf->uc.uc_mcontext.oldmask, err);
-+		.trap_no       = current->thread.trap_no,
-+		.error_code    = current->thread.error_code,
-+		.fault_address = current->thread.address,
-+		.oldmask       = set->sig[0],
-+	};
-+
-+	err |= __copy_to_user(&sf->uc.uc_mcontext, &context, sizeof(context));
+ 	/* clean up tx descriptors */
+ 	tx_remaining = hip04_tx_reclaim(ndev, false);
+-
+-	while (cnt && !last) {
++	priv->rx_cnt_remaining += hip04_recv_cnt(priv);
++	while (priv->rx_cnt_remaining && !last) {
+ 		buf = priv->rx_buf[priv->rx_head];
+ 		skb = build_skb(buf, priv->rx_buf_size);
+ 		if (unlikely(!skb)) {
+@@ -635,11 +635,13 @@ refill:
+ 		hip04_set_recv_desc(priv, phys);
  
- 	err |= __copy_to_user(&sf->uc.uc_sigmask, set, sizeof(*set));
+ 		priv->rx_head = RX_NEXT(priv->rx_head);
+-		if (rx >= budget)
++		if (rx >= budget) {
++			--priv->rx_cnt_remaining;
+ 			goto done;
++		}
  
+-		if (--cnt == 0)
+-			cnt = hip04_recv_cnt(priv);
++		if (--priv->rx_cnt_remaining == 0)
++			priv->rx_cnt_remaining += hip04_recv_cnt(priv);
+ 	}
+ 
+ 	if (!(priv->reg_inten & RCV_INT)) {
+@@ -724,6 +726,7 @@ static int hip04_mac_open(struct net_dev
+ 	int i;
+ 
+ 	priv->rx_head = 0;
++	priv->rx_cnt_remaining = 0;
+ 	priv->tx_head = 0;
+ 	priv->tx_tail = 0;
+ 	hip04_reset_ppe(priv);
 
 
