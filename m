@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB18CF4729
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42C34F4750
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:49:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390850AbfKHLsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:48:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37078 "EHLO mail.kernel.org"
+        id S2388313AbfKHLte (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:49:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391713AbfKHLsI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:48:08 -0500
+        id S2388048AbfKHLsL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:48:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA86F22473;
-        Fri,  8 Nov 2019 11:48:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E8907222D1;
+        Fri,  8 Nov 2019 11:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213688;
-        bh=7t+zd6ApZDLHyDBXxaHnsvqdU5V0/DfKsl898ThufDs=;
+        s=default; t=1573213690;
+        bh=IKe3NgO/UtZdXa4rzM4MFaxevILnmTQeYY26tJYkwg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUWgHiHFCRWQ/9SyTG1TDjhbRStH8znvxM35f9ZZc443MGbZviFRs1CiHL5IaZXqw
-         9q3h3bwi71TbHH7eV5VtWUrqNeDTJdtn+1RSn2geAj4NJz0+YOM3kl+7TjeQD+qN0E
-         l8mg2d5RTiIUa8zJqdcTUDZFTq0fAy9BFCd8dpKk=
+        b=0xudPmSPJWRom6q+9IhdZfpo5x09UHpYDhlV0WKgPtfgvbybM/POiPGgeAl1mF2au
+         pg/xWoTrPYm5oA9SY/jlS6inqC6C9sc5Rmq1SxsJlNaiZoEyH3xCo35nTCfJrC+kvE
+         sBYsYZi1U1JtO2LW4BgfJMpzr+TcDZmGWy+3oJNY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lao Wei <zrlw@qq.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 34/44] media: fix: media: pci: meye: validate offset to avoid arbitrary access
-Date:   Fri,  8 Nov 2019 06:47:10 -0500
-Message-Id: <20191108114721.15944-34-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 35/44] ALSA: intel8x0m: Register irq handler after register initializations
+Date:   Fri,  8 Nov 2019 06:47:11 -0500
+Message-Id: <20191108114721.15944-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114721.15944-1-sashal@kernel.org>
 References: <20191108114721.15944-1-sashal@kernel.org>
@@ -43,35 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lao Wei <zrlw@qq.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit eac7230fdb4672c2cb56f6a01a1744f562c01f80 ]
+[ Upstream commit 7064f376d4a10686f51c879401a569bb4babf9c6 ]
 
-Motion eye video4linux driver for Sony Vaio PictureBook desn't validate user-controlled parameter
-'vma->vm_pgoff', a malicious process might access all of kernel memory from user space by trying
-pass different arbitrary address.
-Discussion: http://www.openwall.com/lists/oss-security/2018/07/06/1
+The interrupt handler has to be acquired after the other resource
+initialization when allocated with IRQF_SHARED.  Otherwise it's
+triggered before the resource gets ready, and may lead to unpleasant
+behavior.
 
-Signed-off-by: Lao Wei <zrlw@qq.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/meye/meye.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/intel8x0m.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/media/pci/meye/meye.c b/drivers/media/pci/meye/meye.c
-index ba887e8e1b171..a85c5199ccd30 100644
---- a/drivers/media/pci/meye/meye.c
-+++ b/drivers/media/pci/meye/meye.c
-@@ -1469,7 +1469,7 @@ static int meye_mmap(struct file *file, struct vm_area_struct *vma)
- 	unsigned long page, pos;
- 
- 	mutex_lock(&meye.lock);
--	if (size > gbuffers * gbufsize) {
-+	if (size > gbuffers * gbufsize || offset > gbuffers * gbufsize - size) {
- 		mutex_unlock(&meye.lock);
- 		return -EINVAL;
+diff --git a/sound/pci/intel8x0m.c b/sound/pci/intel8x0m.c
+index 1bc98c867133d..2286dfd72ff7e 100644
+--- a/sound/pci/intel8x0m.c
++++ b/sound/pci/intel8x0m.c
+@@ -1171,16 +1171,6 @@ static int snd_intel8x0m_create(struct snd_card *card,
  	}
+ 
+  port_inited:
+-	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
+-			KBUILD_MODNAME, chip)) {
+-		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
+-		snd_intel8x0m_free(chip);
+-		return -EBUSY;
+-	}
+-	chip->irq = pci->irq;
+-	pci_set_master(pci);
+-	synchronize_irq(chip->irq);
+-
+ 	/* initialize offsets */
+ 	chip->bdbars_count = 2;
+ 	tbl = intel_regs;
+@@ -1224,11 +1214,21 @@ static int snd_intel8x0m_create(struct snd_card *card,
+ 	chip->int_sta_reg = ICH_REG_GLOB_STA;
+ 	chip->int_sta_mask = int_sta_masks;
+ 
++	pci_set_master(pci);
++
+ 	if ((err = snd_intel8x0m_chip_init(chip, 1)) < 0) {
+ 		snd_intel8x0m_free(chip);
+ 		return err;
+ 	}
+ 
++	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
++			KBUILD_MODNAME, chip)) {
++		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
++		snd_intel8x0m_free(chip);
++		return -EBUSY;
++	}
++	chip->irq = pci->irq;
++
+ 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0) {
+ 		snd_intel8x0m_free(chip);
+ 		return err;
 -- 
 2.20.1
 
