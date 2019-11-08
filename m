@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C938EF56A7
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05738F55A8
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391091AbfKHTKK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:10:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42230 "EHLO mail.kernel.org"
+        id S1729880AbfKHTDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:03:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390558AbfKHTKH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:10:07 -0500
+        id S2389067AbfKHTDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:03:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD61A2087E;
-        Fri,  8 Nov 2019 19:10:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAA682067B;
+        Fri,  8 Nov 2019 19:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240206;
-        bh=YhMzm4NgSEM2VlaCR0suJJCJG7KofwFCLJtHo+JQlgA=;
+        s=default; t=1573239831;
+        bh=LPyWKNaF23tAYXigEeqXlnfzD+LfEPiA2U1n4C8pCKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uWF8kh/s8lRXGRNio2rqmwBwPSDoeOXY1g7ePzHCEZfomViinFNVZKyB9tGO72yoD
-         DjPRbt9aiP0j4ike6r7C1Z//drn+Q+ZOKVeATgsdTnHlnph/1b5D18GajLG2qjnhX2
-         5hrmwbrLOgijSBJnFaK/zPB8rmC9fu5h2y13FHcs=
+        b=lippWH7KGX44ZwW1J+KjqqS6dheLBdiPfLxkjLPy0B1hkDnP+b++SVzL0aG6Uhn4D
+         5z2GS5LezKft4k4mVFUlbq7yctVwTJ8r1CE5KUzzbKAc97w39vrUlK4qFXEcgK6Glb
+         mgFU4Hb0eTxtd8mDLqCejtPVD+R5j+qBKooaDk3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 126/140] net: netem: fix error path for corrupted GSO frames
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sandipan Das <sandipan@linux.ibm.com>
+Subject: [PATCH 4.19 74/79] powerpc/mm: Fixup tlbie vs mtpidr/mtlpidr ordering issue on POWER9
 Date:   Fri,  8 Nov 2019 19:50:54 +0100
-Message-Id: <20191108174912.631787150@linuxfoundation.org>
+Message-Id: <20191108174825.808375465@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,69 +45,348 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit a7fa12d15855904aff1716e1fc723c03ba38c5cc ]
+commit 047e6575aec71d75b765c22111820c4776cd1c43 upstream.
 
-To corrupt a GSO frame we first perform segmentation.  We then
-proceed using the first segment instead of the full GSO skb and
-requeue the rest of the segments as separate packets.
+On POWER9, under some circumstances, a broadcast TLB invalidation will
+fail to invalidate the ERAT cache on some threads when there are
+parallel mtpidr/mtlpidr happening on other threads of the same core.
+This can cause stores to continue to go to a page after it's unmapped.
 
-If there are any issues with processing the first segment we
-still want to process the rest, therefore we jump to the
-finish_segs label.
+The workaround is to force an ERAT flush using PID=0 or LPID=0 tlbie
+flush. This additional TLB flush will cause the ERAT cache
+invalidation. Since we are using PID=0 or LPID=0, we don't get
+filtered out by the TLB snoop filtering logic.
 
-Commit 177b8007463c ("net: netem: fix backlog accounting for
-corrupted GSO frames") started using the pointer to the first
-segment in the "rest of segments processing", but as mentioned
-above the first segment may had already been freed at this point.
+We need to still follow this up with another tlbie to take care of
+store vs tlbie ordering issue explained in commit:
+a5d4b5891c2f ("powerpc/mm: Fixup tlbie vs store ordering issue on
+POWER9"). The presence of ERAT cache implies we can still get new
+stores and they may miss store queue marking flush.
 
-Backlog corrections for parent qdiscs have to be adjusted.
-
-Fixes: 177b8007463c ("net: netem: fix backlog accounting for corrupted GSO frames")
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reported-by: Ben Hutchings <ben@decadent.org.uk>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20190924035254.24612-3-aneesh.kumar@linux.ibm.com
+[sandipan: Backported to v4.19]
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_netem.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/powerpc/include/asm/cputable.h |    3 -
+ arch/powerpc/kernel/dt_cpu_ftrs.c   |    2 
+ arch/powerpc/kvm/book3s_hv_rm_mmu.c |   42 ++++++++++++++----
+ arch/powerpc/mm/hash_native_64.c    |   29 +++++++++++--
+ arch/powerpc/mm/tlb-radix.c         |   80 ++++++++++++++++++++++++++++++++----
+ 5 files changed, 134 insertions(+), 22 deletions(-)
 
---- a/net/sched/sch_netem.c
-+++ b/net/sched/sch_netem.c
-@@ -509,6 +509,7 @@ static int netem_enqueue(struct sk_buff
- 		if (skb->ip_summed == CHECKSUM_PARTIAL &&
- 		    skb_checksum_help(skb)) {
- 			qdisc_drop(skb, sch, to_free);
-+			skb = NULL;
- 			goto finish_segs;
+--- a/arch/powerpc/include/asm/cputable.h
++++ b/arch/powerpc/include/asm/cputable.h
+@@ -214,6 +214,7 @@ static inline void cpu_feature_keys_init
+ #define CPU_FTR_P9_TM_XER_SO_BUG	LONG_ASM_CONST(0x0000200000000000)
+ #define CPU_FTR_P9_TLBIE_STQ_BUG	LONG_ASM_CONST(0x0000400000000000)
+ #define CPU_FTR_P9_TIDR			LONG_ASM_CONST(0x0000800000000000)
++#define CPU_FTR_P9_TLBIE_ERAT_BUG	LONG_ASM_CONST(0x0001000000000000)
+ 
+ #ifndef __ASSEMBLY__
+ 
+@@ -460,7 +461,7 @@ static inline void cpu_feature_keys_init
+ 	    CPU_FTR_CFAR | CPU_FTR_HVMODE | CPU_FTR_VMX_COPY | \
+ 	    CPU_FTR_DBELL | CPU_FTR_HAS_PPR | CPU_FTR_ARCH_207S | \
+ 	    CPU_FTR_TM_COMP | CPU_FTR_ARCH_300 | CPU_FTR_PKEY | \
+-	    CPU_FTR_P9_TLBIE_STQ_BUG | CPU_FTR_P9_TIDR)
++	    CPU_FTR_P9_TLBIE_STQ_BUG | CPU_FTR_P9_TLBIE_ERAT_BUG | CPU_FTR_P9_TIDR)
+ #define CPU_FTRS_POWER9_DD2_0 CPU_FTRS_POWER9
+ #define CPU_FTRS_POWER9_DD2_1 (CPU_FTRS_POWER9 | CPU_FTR_POWER9_DD2_1)
+ #define CPU_FTRS_POWER9_DD2_2 (CPU_FTRS_POWER9 | CPU_FTR_POWER9_DD2_1 | \
+--- a/arch/powerpc/kernel/dt_cpu_ftrs.c
++++ b/arch/powerpc/kernel/dt_cpu_ftrs.c
+@@ -717,6 +717,8 @@ static __init void update_tlbie_feature_
+ 			WARN_ONCE(1, "Unknown PVR");
+ 			cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_STQ_BUG;
  		}
- 
-@@ -593,9 +594,10 @@ static int netem_enqueue(struct sk_buff
- finish_segs:
- 	if (segs) {
- 		unsigned int len, last_len;
--		int nb = 0;
-+		int nb;
- 
--		len = skb->len;
-+		len = skb ? skb->len : 0;
-+		nb = skb ? 1 : 0;
- 
- 		while (segs) {
- 			skb2 = segs->next;
-@@ -612,7 +614,8 @@ finish_segs:
- 			}
- 			segs = skb2;
- 		}
--		qdisc_tree_reduce_backlog(sch, -nb, prev_len - len);
-+		/* Parent qdiscs accounted for 1 skb of size @prev_len */
-+		qdisc_tree_reduce_backlog(sch, -(nb - 1), -(len - prev_len));
++
++		cur_cpu_spec->cpu_features |= CPU_FTR_P9_TLBIE_ERAT_BUG;
  	}
- 	return NET_XMIT_SUCCESS;
  }
+ 
+--- a/arch/powerpc/kvm/book3s_hv_rm_mmu.c
++++ b/arch/powerpc/kvm/book3s_hv_rm_mmu.c
+@@ -434,6 +434,37 @@ static inline int is_mmio_hpte(unsigned
+ 		(HPTE_R_KEY_HI | HPTE_R_KEY_LO));
+ }
+ 
++static inline void fixup_tlbie_lpid(unsigned long rb_value, unsigned long lpid)
++{
++
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_ERAT_BUG)) {
++		/* Radix flush for a hash guest */
++
++		unsigned long rb,rs,prs,r,ric;
++
++		rb = PPC_BIT(52); /* IS = 2 */
++		rs = 0;  /* lpid = 0 */
++		prs = 0; /* partition scoped */
++		r = 1;   /* radix format */
++		ric = 0; /* RIC_FLSUH_TLB */
++
++		/*
++		 * Need the extra ptesync to make sure we don't
++		 * re-order the tlbie
++		 */
++		asm volatile("ptesync": : :"memory");
++		asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
++			     : : "r"(rb), "i"(r), "i"(prs),
++			       "i"(ric), "r"(rs) : "memory");
++	}
++
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		asm volatile(PPC_TLBIE_5(%0,%1,0,0,0) : :
++			     "r" (rb_value), "r" (lpid));
++	}
++}
++
+ static void do_tlbies(struct kvm *kvm, unsigned long *rbvalues,
+ 		      long npages, int global, bool need_sync)
+ {
+@@ -452,16 +483,7 @@ static void do_tlbies(struct kvm *kvm, u
+ 				     "r" (rbvalues[i]), "r" (kvm->arch.lpid));
+ 		}
+ 
+-		if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+-			/*
+-			 * Need the extra ptesync to make sure we don't
+-			 * re-order the tlbie
+-			 */
+-			asm volatile("ptesync": : :"memory");
+-			asm volatile(PPC_TLBIE_5(%0,%1,0,0,0) : :
+-				     "r" (rbvalues[0]), "r" (kvm->arch.lpid));
+-		}
+-
++		fixup_tlbie_lpid(rbvalues[i - 1], kvm->arch.lpid);
+ 		asm volatile("eieio; tlbsync; ptesync" : : : "memory");
+ 	} else {
+ 		if (need_sync)
+--- a/arch/powerpc/mm/hash_native_64.c
++++ b/arch/powerpc/mm/hash_native_64.c
+@@ -201,8 +201,31 @@ static inline unsigned long  ___tlbie(un
+ 	return va;
+ }
+ 
+-static inline void fixup_tlbie(unsigned long vpn, int psize, int apsize, int ssize)
++static inline void fixup_tlbie_vpn(unsigned long vpn, int psize,
++				   int apsize, int ssize)
+ {
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_ERAT_BUG)) {
++		/* Radix flush for a hash guest */
++
++		unsigned long rb,rs,prs,r,ric;
++
++		rb = PPC_BIT(52); /* IS = 2 */
++		rs = 0;  /* lpid = 0 */
++		prs = 0; /* partition scoped */
++		r = 1;   /* radix format */
++		ric = 0; /* RIC_FLSUH_TLB */
++
++		/*
++		 * Need the extra ptesync to make sure we don't
++		 * re-order the tlbie
++		 */
++		asm volatile("ptesync": : :"memory");
++		asm volatile(PPC_TLBIE_5(%0, %4, %3, %2, %1)
++			     : : "r"(rb), "i"(r), "i"(prs),
++			       "i"(ric), "r"(rs) : "memory");
++	}
++
++
+ 	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+ 		/* Need the extra ptesync to ensure we don't reorder tlbie*/
+ 		asm volatile("ptesync": : :"memory");
+@@ -287,7 +310,7 @@ static inline void tlbie(unsigned long v
+ 		asm volatile("ptesync": : :"memory");
+ 	} else {
+ 		__tlbie(vpn, psize, apsize, ssize);
+-		fixup_tlbie(vpn, psize, apsize, ssize);
++		fixup_tlbie_vpn(vpn, psize, apsize, ssize);
+ 		asm volatile("eieio; tlbsync; ptesync": : :"memory");
+ 	}
+ 	if (lock_tlbie && !use_local)
+@@ -860,7 +883,7 @@ static void native_flush_hash_range(unsi
+ 		/*
+ 		 * Just do one more with the last used values.
+ 		 */
+-		fixup_tlbie(vpn, psize, psize, ssize);
++		fixup_tlbie_vpn(vpn, psize, psize, ssize);
+ 		asm volatile("eieio; tlbsync; ptesync":::"memory");
+ 
+ 		if (lock_tlbie)
+--- a/arch/powerpc/mm/tlb-radix.c
++++ b/arch/powerpc/mm/tlb-radix.c
+@@ -215,21 +215,82 @@ static inline void __tlbie_lpid_va(unsig
+ 	trace_tlbie(lpid, 0, rb, rs, ric, prs, r);
+ }
+ 
+-static inline void fixup_tlbie(void)
++
++static inline void fixup_tlbie_va(unsigned long va, unsigned long pid,
++				  unsigned long ap)
+ {
+-	unsigned long pid = 0;
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_ERAT_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_va(va, 0, ap, RIC_FLUSH_TLB);
++	}
++
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_va(va, pid, ap, RIC_FLUSH_TLB);
++	}
++}
++
++static inline void fixup_tlbie_va_range(unsigned long va, unsigned long pid,
++					unsigned long ap)
++{
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_ERAT_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_pid(0, RIC_FLUSH_TLB);
++	}
++
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_va(va, pid, ap, RIC_FLUSH_TLB);
++	}
++}
++
++static inline void fixup_tlbie_pid(unsigned long pid)
++{
++	/*
++	 * We can use any address for the invalidation, pick one which is
++	 * probably unused as an optimisation.
++	 */
+ 	unsigned long va = ((1UL << 52) - 1);
+ 
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_ERAT_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_pid(0, RIC_FLUSH_TLB);
++	}
++
+ 	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+ 		asm volatile("ptesync": : :"memory");
+ 		__tlbie_va(va, pid, mmu_get_ap(MMU_PAGE_64K), RIC_FLUSH_TLB);
+ 	}
+ }
+ 
++
++static inline void fixup_tlbie_lpid_va(unsigned long va, unsigned long lpid,
++				       unsigned long ap)
++{
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_ERAT_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_lpid_va(va, 0, ap, RIC_FLUSH_TLB);
++	}
++
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_lpid_va(va, lpid, ap, RIC_FLUSH_TLB);
++	}
++}
++
+ static inline void fixup_tlbie_lpid(unsigned long lpid)
+ {
++	/*
++	 * We can use any address for the invalidation, pick one which is
++	 * probably unused as an optimisation.
++	 */
+ 	unsigned long va = ((1UL << 52) - 1);
+ 
++	if (cpu_has_feature(CPU_FTR_P9_TLBIE_ERAT_BUG)) {
++		asm volatile("ptesync": : :"memory");
++		__tlbie_lpid(0, RIC_FLUSH_TLB);
++	}
++
+ 	if (cpu_has_feature(CPU_FTR_P9_TLBIE_STQ_BUG)) {
+ 		asm volatile("ptesync": : :"memory");
+ 		__tlbie_lpid_va(va, lpid, mmu_get_ap(MMU_PAGE_64K), RIC_FLUSH_TLB);
+@@ -277,6 +338,7 @@ static inline void _tlbie_pid(unsigned l
+ 	switch (ric) {
+ 	case RIC_FLUSH_TLB:
+ 		__tlbie_pid(pid, RIC_FLUSH_TLB);
++		fixup_tlbie_pid(pid);
+ 		break;
+ 	case RIC_FLUSH_PWC:
+ 		__tlbie_pid(pid, RIC_FLUSH_PWC);
+@@ -284,8 +346,8 @@ static inline void _tlbie_pid(unsigned l
+ 	case RIC_FLUSH_ALL:
+ 	default:
+ 		__tlbie_pid(pid, RIC_FLUSH_ALL);
++		fixup_tlbie_pid(pid);
+ 	}
+-	fixup_tlbie();
+ 	asm volatile("eieio; tlbsync; ptesync": : :"memory");
+ }
+ 
+@@ -329,6 +391,7 @@ static inline void _tlbie_lpid(unsigned
+ 	switch (ric) {
+ 	case RIC_FLUSH_TLB:
+ 		__tlbie_lpid(lpid, RIC_FLUSH_TLB);
++		fixup_tlbie_lpid(lpid);
+ 		break;
+ 	case RIC_FLUSH_PWC:
+ 		__tlbie_lpid(lpid, RIC_FLUSH_PWC);
+@@ -336,8 +399,8 @@ static inline void _tlbie_lpid(unsigned
+ 	case RIC_FLUSH_ALL:
+ 	default:
+ 		__tlbie_lpid(lpid, RIC_FLUSH_ALL);
++		fixup_tlbie_lpid(lpid);
+ 	}
+-	fixup_tlbie_lpid(lpid);
+ 	asm volatile("eieio; tlbsync; ptesync": : :"memory");
+ }
+ 
+@@ -410,6 +473,8 @@ static inline void __tlbie_va_range(unsi
+ 
+ 	for (addr = start; addr < end; addr += page_size)
+ 		__tlbie_va(addr, pid, ap, RIC_FLUSH_TLB);
++
++	fixup_tlbie_va_range(addr - page_size, pid, ap);
+ }
+ 
+ static inline void _tlbie_va(unsigned long va, unsigned long pid,
+@@ -419,7 +484,7 @@ static inline void _tlbie_va(unsigned lo
+ 
+ 	asm volatile("ptesync": : :"memory");
+ 	__tlbie_va(va, pid, ap, ric);
+-	fixup_tlbie();
++	fixup_tlbie_va(va, pid, ap);
+ 	asm volatile("eieio; tlbsync; ptesync": : :"memory");
+ }
+ 
+@@ -430,7 +495,7 @@ static inline void _tlbie_lpid_va(unsign
+ 
+ 	asm volatile("ptesync": : :"memory");
+ 	__tlbie_lpid_va(va, lpid, ap, ric);
+-	fixup_tlbie_lpid(lpid);
++	fixup_tlbie_lpid_va(va, lpid, ap);
+ 	asm volatile("eieio; tlbsync; ptesync": : :"memory");
+ }
+ 
+@@ -442,7 +507,6 @@ static inline void _tlbie_va_range(unsig
+ 	if (also_pwc)
+ 		__tlbie_pid(pid, RIC_FLUSH_PWC);
+ 	__tlbie_va_range(start, end, pid, page_size, psize);
+-	fixup_tlbie();
+ 	asm volatile("eieio; tlbsync; ptesync": : :"memory");
+ }
+ 
+@@ -773,7 +837,7 @@ is_local:
+ 			if (gflush)
+ 				__tlbie_va_range(gstart, gend, pid,
+ 						PUD_SIZE, MMU_PAGE_1G);
+-			fixup_tlbie();
++
+ 			asm volatile("eieio; tlbsync; ptesync": : :"memory");
+ 		}
+ 	}
 
 
