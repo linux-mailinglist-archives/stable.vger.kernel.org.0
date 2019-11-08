@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A358F54CB
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:00:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2623CF5653
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732943AbfKHSy2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:54:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51466 "EHLO mail.kernel.org"
+        id S2390129AbfKHTII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:08:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732894AbfKHSy1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:54:27 -0500
+        id S2391556AbfKHTII (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:08:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C2842178F;
-        Fri,  8 Nov 2019 18:54:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B679920673;
+        Fri,  8 Nov 2019 19:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239266;
-        bh=zwYyAJLSObBEsF9dCOOxn6zbulyaGRBnJ+Jk5+Fl4hY=;
+        s=default; t=1573240087;
+        bh=OLuwf24e/31bhS3CECSY0LveJTZ4yHq+llR+jExCtEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ynGhRzntsXVJ/YSyVQszQi1DLQBYEMNzCpRoTiFnlueXgjKRRACoex+N1wcHICTqq
-         VN9P5Xps5KkAjKVihU4LYGFu88GCMg0dHgc4gLnQmjUbDGaAreXH7FJnF0IZOqF9pC
-         KDDny+s0M0NB2eBA5t9R1TpWadW1kcrxknD7o8vY=
+        b=K170Vp86J+FGgCLNQldPSvbOa/A1IB1VBbNOMG1xv1R/ftpdqAoLVXkF/Uozqusvx
+         q5E5DIiGW4R7bbMeQKZgdH4pSp8i7aM+9WwUOeE9Yzh7MReTN100+Jf+qqVnIJsTJE
+         Pv7ew+hkI5E7ZJ/JYEAD5gnMkH2WDv7toYPsXIio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
-        <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David A. Long" <dave.long@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.4 56/75] ARM: use __inttype() in get_user()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 085/140] net: annotate lockless accesses to sk->sk_napi_id
 Date:   Fri,  8 Nov 2019 19:50:13 +0100
-Message-Id: <20191108174758.172101214@linuxfoundation.org>
+Message-Id: <20191108174910.455835258@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Eric Dumazet <edumazet@google.com>
 
-Commit d09fbb327d670737ab40fd8bbb0765ae06b8b739 upstream.
+[ Upstream commit ee8d153d46a3b98c064ee15c0c0a3bbf1450e5a1 ]
 
-Borrow the x86 implementation of __inttype() to use in get_user() to
-select an integer type suitable to temporarily hold the result value.
-This is necessary to avoid propagating the volatile nature of the
-result argument, which can cause the following warning:
+We already annotated most accesses to sk->sk_napi_id
 
-lib/iov_iter.c:413:5: warning: optimization may eliminate reads and/or writes to register variables [-Wvolatile-register-var]
+We missed sk_mark_napi_id() and sk_mark_napi_id_once()
+which might be called without socket lock held in UDP stack.
 
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David A. Long <dave.long@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+KCSAN reported :
+BUG: KCSAN: data-race in udpv6_queue_rcv_one_skb / udpv6_queue_rcv_one_skb
+
+write to 0xffff888121c6d108 of 4 bytes by interrupt on cpu 0:
+ sk_mark_napi_id include/net/busy_poll.h:125 [inline]
+ __udpv6_queue_rcv_skb net/ipv6/udp.c:571 [inline]
+ udpv6_queue_rcv_one_skb+0x70c/0xb40 net/ipv6/udp.c:672
+ udpv6_queue_rcv_skb+0xb5/0x400 net/ipv6/udp.c:689
+ udp6_unicast_rcv_skb.isra.0+0xd7/0x180 net/ipv6/udp.c:832
+ __udp6_lib_rcv+0x69c/0x1770 net/ipv6/udp.c:913
+ udpv6_rcv+0x2b/0x40 net/ipv6/udp.c:1015
+ ip6_protocol_deliver_rcu+0x22a/0xbe0 net/ipv6/ip6_input.c:409
+ ip6_input_finish+0x30/0x50 net/ipv6/ip6_input.c:450
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip6_input+0x177/0x190 net/ipv6/ip6_input.c:459
+ dst_input include/net/dst.h:442 [inline]
+ ip6_rcv_finish+0x110/0x140 net/ipv6/ip6_input.c:76
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ipv6_rcv+0x1a1/0x1b0 net/ipv6/ip6_input.c:284
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
+ process_backlog+0x1d3/0x420 net/core/dev.c:5955
+ napi_poll net/core/dev.c:6392 [inline]
+ net_rx_action+0x3ae/0xa90 net/core/dev.c:6460
+
+write to 0xffff888121c6d108 of 4 bytes by interrupt on cpu 1:
+ sk_mark_napi_id include/net/busy_poll.h:125 [inline]
+ __udpv6_queue_rcv_skb net/ipv6/udp.c:571 [inline]
+ udpv6_queue_rcv_one_skb+0x70c/0xb40 net/ipv6/udp.c:672
+ udpv6_queue_rcv_skb+0xb5/0x400 net/ipv6/udp.c:689
+ udp6_unicast_rcv_skb.isra.0+0xd7/0x180 net/ipv6/udp.c:832
+ __udp6_lib_rcv+0x69c/0x1770 net/ipv6/udp.c:913
+ udpv6_rcv+0x2b/0x40 net/ipv6/udp.c:1015
+ ip6_protocol_deliver_rcu+0x22a/0xbe0 net/ipv6/ip6_input.c:409
+ ip6_input_finish+0x30/0x50 net/ipv6/ip6_input.c:450
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip6_input+0x177/0x190 net/ipv6/ip6_input.c:459
+ dst_input include/net/dst.h:442 [inline]
+ ip6_rcv_finish+0x110/0x140 net/ipv6/ip6_input.c:76
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ipv6_rcv+0x1a1/0x1b0 net/ipv6/ip6_input.c:284
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
+ process_backlog+0x1d3/0x420 net/core/dev.c:5955
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 10890 Comm: syz-executor.0 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: e68b6e50fa35 ("udp: enable busy polling for all sockets")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/include/asm/uaccess.h |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/net/busy_poll.h |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/arm/include/asm/uaccess.h
-+++ b/arch/arm/include/asm/uaccess.h
-@@ -123,6 +123,13 @@ static inline void set_fs(mm_segment_t f
- 	flag; })
+--- a/include/net/busy_poll.h
++++ b/include/net/busy_poll.h
+@@ -122,7 +122,7 @@ static inline void skb_mark_napi_id(stru
+ static inline void sk_mark_napi_id(struct sock *sk, const struct sk_buff *skb)
+ {
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+-	sk->sk_napi_id = skb->napi_id;
++	WRITE_ONCE(sk->sk_napi_id, skb->napi_id);
+ #endif
+ 	sk_rx_queue_set(sk, skb);
+ }
+@@ -132,8 +132,8 @@ static inline void sk_mark_napi_id_once(
+ 					const struct sk_buff *skb)
+ {
+ #ifdef CONFIG_NET_RX_BUSY_POLL
+-	if (!sk->sk_napi_id)
+-		sk->sk_napi_id = skb->napi_id;
++	if (!READ_ONCE(sk->sk_napi_id))
++		WRITE_ONCE(sk->sk_napi_id, skb->napi_id);
+ #endif
+ }
  
- /*
-+ * This is a type: either unsigned long, if the argument fits into
-+ * that type, or otherwise unsigned long long.
-+ */
-+#define __inttype(x) \
-+	__typeof__(__builtin_choose_expr(sizeof(x) > sizeof(0UL), 0ULL, 0UL))
-+
-+/*
-  * Single-value transfer routines.  They automatically use the right
-  * size if we just have the right pointer type.  Note that the functions
-  * which read from user space (*get_*) need to take care not to leak
-@@ -191,7 +198,7 @@ extern int __get_user_64t_4(void *);
- 	({								\
- 		unsigned long __limit = current_thread_info()->addr_limit - 1; \
- 		register const typeof(*(p)) __user *__p asm("r0") = (p);\
--		register typeof(x) __r2 asm("r2");			\
-+		register __inttype(x) __r2 asm("r2");			\
- 		register unsigned long __l asm("r1") = __limit;		\
- 		register int __e asm("r0");				\
- 		unsigned int __ua_flags = uaccess_save_and_enable();	\
 
 
