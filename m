@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2301AF4989
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:04:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A31F498B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:04:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390025AbfKHLmd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:42:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56502 "EHLO mail.kernel.org"
+        id S1732971AbfKHMDx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:03:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390012AbfKHLmc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:42:32 -0500
+        id S2390040AbfKHLme (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:42:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92FEE21D7B;
-        Fri,  8 Nov 2019 11:42:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3E93222C5;
+        Fri,  8 Nov 2019 11:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213351;
-        bh=lxoQO1EoauxQvVrXhOgcjT27wnFtW9WZsPTLQMG3sWA=;
+        s=default; t=1573213353;
+        bh=3R1O+2sefDUBuO2KrxNRutCSxBn0BF/KyQKfUA/8QQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svwlLwWQZWdZx5xue/2NOi8fzDwdofOv11A20r1JNW0XsXBNmEBBbOr3lnjEYMwCj
-         7FNE8RaZsOstn4Bbw7XSJ00LQW+/kJIIeQ7/5yNdiZEZDUBOopi4RTASqrs+nrIFSw
-         jOQh48fl1F6r+AzFJzkZ9piy9Pv58+83bi8lnbG4=
+        b=h+t6PNKaSH0k4ywBttqLBwyLX9XJPN8ubG3z+zPROr1GK3oHOZEarrRIA4jfWxu3/
+         FQViyZiw6tHGkRMsEWBxZnxCD3M2sp/T9LCEj2X8CturUvT4E+RHPrJRL+w0iUyx+K
+         wdy1p6SNqy7jGSjbb2tXHhjRXFDJCvaO7M+/yGt0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alan Modra <amodra@gmail.com>, Reza Arbab <arbab@linux.ibm.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 182/205] powerpc/vdso: Correct call frame information
-Date:   Fri,  8 Nov 2019 06:37:29 -0500
-Message-Id: <20191108113752.12502-182-sashal@kernel.org>
+Cc:     Rob Herring <robh@kernel.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 184/205] ARM: dts: sunxi: Fix I2C bus warnings
+Date:   Fri,  8 Nov 2019 06:37:31 -0500
+Message-Id: <20191108113752.12502-184-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -43,98 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Modra <amodra@gmail.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 56d20861c027498b5a1112b4f9f05b56d906fdda ]
+[ Upstream commit 0729b4af5753b65aa031f58c435da53dbbf56d19 ]
 
-Call Frame Information is used by gdb for back-traces and inserting
-breakpoints on function return for the "finish" command.  This failed
-when inside __kernel_clock_gettime.  More concerning than difficulty
-debugging is that CFI is also used by stack frame unwinding code to
-implement exceptions.  If you have an app that needs to handle
-asynchronous exceptions for some reason, and you are unlucky enough to
-get one inside the VDSO time functions, your app will crash.
+dtc has new checks for I2C buses. Fix the warnings in unit-addresses.
 
-What's wrong:  There is control flow in __kernel_clock_gettime that
-reaches label 99 without saving lr in r12.  CFI info however is
-interpreted by the unwinder without reference to control flow: It's a
-simple matter of "Execute all the CFI opcodes up to the current
-address".  That means the unwinder thinks r12 contains the return
-address at label 99.  Disabuse it of that notion by resetting CFI for
-the return address at label 99.
+arch/arm/boot/dts/sun8i-a23-gt90h-v4.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a23-inet86dz.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a23-polaroid-mid2407pxe03.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a23-polaroid-mid2809pxe04.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a33-ga10h-v1.1.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a33-inet-d978-rev2.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: missing or empty reg property
+arch/arm/boot/dts/sun8i-a33-ippo-q8h-v1.2.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: missing or empty reg property
+arch/arm/boot/dts/sun8i-a33-q8-tablet.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-utoo-p66.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun5i-a13-difrnce-dit4350.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-empire-electronix-m712.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-inet-98v-rev2.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-q8-tablet.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
 
-Note that the ".cfi_restore lr" could have gone anywhere from the
-"mtlr r12" a few instructions earlier to the instruction at label 99.
-I put the CFI as late as possible, because in general that's best
-practice (and if possible grouped with other CFI in order to reduce
-the number of CFI opcodes executed when unwinding).  Using r12 as the
-return address is perfectly fine after the "mtlr r12" since r12 on
-that code path still contains the return address.
-
-__get_datapage also has a CFI error.  That function temporarily saves
-lr in r0, and reflects that fact with ".cfi_register lr,r0".  A later
-use of r0 means the CFI at that point isn't correct, as r0 no longer
-contains the return address.  Fix that too.
-
-Signed-off-by: Alan Modra <amodra@gmail.com>
-Tested-by: Reza Arbab <arbab@linux.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/vdso32/datapage.S     | 1 +
- arch/powerpc/kernel/vdso32/gettimeofday.S | 1 +
- arch/powerpc/kernel/vdso64/datapage.S     | 1 +
- arch/powerpc/kernel/vdso64/gettimeofday.S | 1 +
- 4 files changed, 4 insertions(+)
+ arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi | 3 ++-
+ arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi | 3 ++-
+ arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts    | 2 +-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/vdso32/datapage.S b/arch/powerpc/kernel/vdso32/datapage.S
-index 3745113fcc652..2a7eb5452aba7 100644
---- a/arch/powerpc/kernel/vdso32/datapage.S
-+++ b/arch/powerpc/kernel/vdso32/datapage.S
-@@ -37,6 +37,7 @@ data_page_branch:
- 	mtlr	r0
- 	addi	r3, r3, __kernel_datapage_offset-data_page_branch
- 	lwz	r0,0(r3)
-+  .cfi_restore lr
- 	add	r3,r0,r3
- 	blr
-   .cfi_endproc
-diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
-index 75cff3f336b3a..afd516b572f86 100644
---- a/arch/powerpc/kernel/vdso32/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
-@@ -139,6 +139,7 @@ V_FUNCTION_BEGIN(__kernel_clock_gettime)
+diff --git a/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi b/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi
+index 8acbaab14fe51..d2a2eb8b3f262 100644
+--- a/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi
++++ b/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi
+@@ -92,7 +92,8 @@
  	 */
- 99:
- 	li	r0,__NR_clock_gettime
-+  .cfi_restore lr
- 	sc
- 	blr
-   .cfi_endproc
-diff --git a/arch/powerpc/kernel/vdso64/datapage.S b/arch/powerpc/kernel/vdso64/datapage.S
-index abf17feffe404..bf96686915116 100644
---- a/arch/powerpc/kernel/vdso64/datapage.S
-+++ b/arch/powerpc/kernel/vdso64/datapage.S
-@@ -37,6 +37,7 @@ data_page_branch:
- 	mtlr	r0
- 	addi	r3, r3, __kernel_datapage_offset-data_page_branch
- 	lwz	r0,0(r3)
-+  .cfi_restore lr
- 	add	r3,r0,r3
- 	blr
-   .cfi_endproc
-diff --git a/arch/powerpc/kernel/vdso64/gettimeofday.S b/arch/powerpc/kernel/vdso64/gettimeofday.S
-index afbad2ac31472..1f324c28705bc 100644
---- a/arch/powerpc/kernel/vdso64/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso64/gettimeofday.S
-@@ -169,6 +169,7 @@ V_FUNCTION_BEGIN(__kernel_clock_gettime)
+ 	clock-frequency = <400000>;
+ 
+-	touchscreen: touchscreen {
++	touchscreen: touchscreen@40 {
++		reg = <0x40>;
+ 		interrupt-parent = <&pio>;
+ 		interrupts = <6 11 IRQ_TYPE_EDGE_FALLING>; /* EINT11 (PG11) */
+ 		pinctrl-names = "default";
+diff --git a/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi b/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi
+index 880096c7e2523..5e8a95af89b8c 100644
+--- a/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi
++++ b/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi
+@@ -69,7 +69,8 @@
  	 */
- 99:
- 	li	r0,__NR_clock_gettime
-+  .cfi_restore lr
- 	sc
- 	blr
-   .cfi_endproc
+ 	clock-frequency = <400000>;
+ 
+-	touchscreen: touchscreen@0 {
++	touchscreen: touchscreen@40 {
++		reg = <0x40>;
+ 		interrupt-parent = <&pio>;
+ 		interrupts = <1 5 IRQ_TYPE_EDGE_FALLING>; /* PB5 */
+ 		pinctrl-names = "default";
+diff --git a/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts b/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
+index 35859d8f3267f..bf97f6244c233 100644
+--- a/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
++++ b/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
+@@ -95,7 +95,7 @@
+ &i2c0 {
+ 	status = "okay";
+ 
+-	axp22x: pmic@68 {
++	axp22x: pmic@34 {
+ 		compatible = "x-powers,axp221";
+ 		reg = <0x34>;
+ 		interrupt-parent = <&nmi_intc>;
 -- 
 2.20.1
 
