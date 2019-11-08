@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A92B9F570E
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D731F5635
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387763AbfKHTQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:16:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48268 "EHLO mail.kernel.org"
+        id S2391434AbfKHTHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:07:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730114AbfKHTQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:16:45 -0500
+        id S2391441AbfKHTHY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:07:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A727622486;
-        Fri,  8 Nov 2019 18:58:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 29F4D2087E;
+        Fri,  8 Nov 2019 19:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239496;
-        bh=MEbPA6Qcubxag4Ew2M//KXeX4cegr3py9JHVD7ZNsRI=;
+        s=default; t=1573240043;
+        bh=ht9JGwRvyPE1oQY2tPbaSAi9RSWCgC0V/DymEc6snjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FJgu5saNhtaP9YjaDCSucAtoM0WFLQY8+diGz/kTWcLLU0NazSBO6PekxNco3b2yS
-         jSxcStkEUocgmZcWMNlRXmugv9lMgROuiJa9OeIsc37SZ4g5G4g94PDGmXPTWSaHlR
-         pHvQ0OEgFoc4MPKfWP08c2+WaD4rUsGq592lRFVY=
+        b=ELCo2DyELWLDC1Tw39q2GwiAB7M2EwB3rDegDSNvqiJA2uNeDHCnaYpcd8gy7z6+I
+         W017ZD7ObaeqYRi7qrlwrT7FPoP5yg03zwVqtxPf4XM16SXC9AHBn2CvOwaqcFcsOd
+         rYla0iSzKFYRRS4PpCXnaHyjD/EMTfyTIEXKdVFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Scott Branden <scott.branden@broadcom.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/62] pinctrl: ns2: Fix off by one bugs in ns2_pinmux_enable()
+        stable@vger.kernel.org, Pan Xiuli <xiuli.pan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 067/140] ALSA: hda: Add Tigerlake/Jasperlake PCI ID
 Date:   Fri,  8 Nov 2019 19:49:55 +0100
-Message-Id: <20191108174726.087257917@linuxfoundation.org>
+Message-Id: <20191108174909.430405131@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Pan Xiuli <xiuli.pan@linux.intel.com>
 
-[ Upstream commit 39b65fbb813089e366b376bd8acc300b6fd646dc ]
+[ Upstream commit 4750c212174892d26645cdf5ad73fb0e9d594ed3 ]
 
-The pinctrl->functions[] array has pinctrl->num_functions elements and
-the pinctrl->groups[] array is the same way.  These are set in
-ns2_pinmux_probe().  So the > comparisons should be >= so that we don't
-read one element beyond the end of the array.
+Add HD Audio Device PCI ID for the Intel Tigerlake and Jasperlake
+platform.
 
-Fixes: b5aa1006e4a9 ("pinctrl: ns2: add pinmux driver support for Broadcom NS2 SoC")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/20190926081426.GB2332@mwanda
-Acked-by: Scott Branden <scott.branden@broadcom.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Pan Xiuli <xiuli.pan@linux.intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20191022194402.23178-1-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/bcm/pinctrl-ns2-mux.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_intel.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/pinctrl/bcm/pinctrl-ns2-mux.c b/drivers/pinctrl/bcm/pinctrl-ns2-mux.c
-index 4b5cf0e0f16e2..951090faa6a91 100644
---- a/drivers/pinctrl/bcm/pinctrl-ns2-mux.c
-+++ b/drivers/pinctrl/bcm/pinctrl-ns2-mux.c
-@@ -640,8 +640,8 @@ static int ns2_pinmux_enable(struct pinctrl_dev *pctrl_dev,
- 	const struct ns2_pin_function *func;
- 	const struct ns2_pin_group *grp;
- 
--	if (grp_select > pinctrl->num_groups ||
--		func_select > pinctrl->num_functions)
-+	if (grp_select >= pinctrl->num_groups ||
-+		func_select >= pinctrl->num_functions)
- 		return -EINVAL;
- 
- 	func = &pinctrl->functions[func_select];
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index b0de3e3b33e5c..e1791d01ccc01 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -2431,6 +2431,12 @@ static const struct pci_device_id azx_ids[] = {
+ 	/* Icelake */
+ 	{ PCI_DEVICE(0x8086, 0x34c8),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	/* Jasperlake */
++	{ PCI_DEVICE(0x8086, 0x38c8),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
++	/* Tigerlake */
++	{ PCI_DEVICE(0x8086, 0xa0c8),
++	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
+ 	/* Elkhart Lake */
+ 	{ PCI_DEVICE(0x8086, 0x4b55),
+ 	  .driver_data = AZX_DRIVER_SKL | AZX_DCAPS_INTEL_SKYLAKE},
 -- 
 2.20.1
 
