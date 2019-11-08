@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 353A8F53EF
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A2B4F53F2
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731684AbfKHSwo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:52:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49050 "EHLO mail.kernel.org"
+        id S1731772AbfKHSwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:52:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731605AbfKHSwm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:52:42 -0500
+        id S1731679AbfKHSwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:52:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69D16214DB;
-        Fri,  8 Nov 2019 18:52:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1087C21924;
+        Fri,  8 Nov 2019 18:52:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239161;
-        bh=81n0pooKY1Xkc0ogZGHwYM9jhBtueGj6wMJOZ08ZO5E=;
+        s=default; t=1573239164;
+        bh=6y+jfJcGeHLQFcRrqtT7+4LWvEATv9JVCdDJ/SqMQvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJVe7qMCEscVnZHGb3vHqNtY0iUyBfKUfnrrzRWgFZrihgmPLb9QGIXtm3qBrnv25
-         p9eSb5QKlyoaQf66cn15Va6AUkn3irq1GcgJW12SSj3VohBS8hv40IJ+PqwYGGcYhz
-         fXCj4UDyvoZmT7HYAaIgdOTbu3Ow8uicSrnVH5hE=
+        b=KFE+TsqNjJq6Q5dWEubfiKM7pSmqo9sw/Xx75JLc4P99Pt75FH+XCHMJgsCDLSp4B
+         er307AiykEAMCHIA+UmlgfBPx1oxLFcBHYxVQrjI4uHEGBaXeyYfToI/FDu67kmHjb
+         g9C+rGVrZ8w1tpbDgwLoX6bXO/DcBQYF/zfOFM6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
-        Jack Morgenstein <jackm@dev.mellanox.co.il>,
-        Tariq Toukan <tariqt@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Thiemo Nagel <tnagel@google.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 20/75] net/mlx4_core: Dynamically set guaranteed amount of counters per VF
-Date:   Fri,  8 Nov 2019 19:49:37 +0100
-Message-Id: <20191108174726.898574485@linuxfoundation.org>
+Subject: [PATCH 4.4 21/75] inet: stop leaking jiffies on the wire
+Date:   Fri,  8 Nov 2019 19:49:38 +0100
+Message-Id: <20191108174728.875843662@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
 References: <20191108174708.135680837@linuxfoundation.org>
@@ -45,94 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eran Ben Elisha <eranbe@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit e19868efea0c103f23b4b7e986fd0a703822111f ]
+[ Upstream commit a904a0693c189691eeee64f6c6b188bd7dc244e9 ]
 
-Prior to this patch, the amount of counters guaranteed per VF in the
-resource tracker was MLX4_VF_COUNTERS_PER_PORT * MLX4_MAX_PORTS. It was
-set regardless if the VF was single or dual port.
-This caused several VFs to have no guaranteed counters although the
-system could satisfy their request.
+Historically linux tried to stick to RFC 791, 1122, 2003
+for IPv4 ID field generation.
 
-The fix is to dynamically guarantee counters, based on each VF
-specification.
+RFC 6864 made clear that no matter how hard we try,
+we can not ensure unicity of IP ID within maximum
+lifetime for all datagrams with a given source
+address/destination address/protocol tuple.
 
-Fixes: 9de92c60beaa ("net/mlx4_core: Adjust counter grant policy in the resource tracker")
-Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
-Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
-Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Linux uses a per socket inet generator (inet_id), initialized
+at connection startup with a XOR of 'jiffies' and other
+fields that appear clear on the wire.
+
+Thiemo Nagel pointed that this strategy is a privacy
+concern as this provides 16 bits of entropy to fingerprint
+devices.
+
+Let's switch to a random starting point, this is just as
+good as far as RFC 6864 is concerned and does not leak
+anything critical.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: Thiemo Nagel <tnagel@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/resource_tracker.c |   42 +++++++++++-------
- 1 file changed, 26 insertions(+), 16 deletions(-)
+ net/dccp/ipv4.c     |    2 +-
+ net/ipv4/datagram.c |    2 +-
+ net/ipv4/tcp_ipv4.c |    4 ++--
+ net/sctp/socket.c   |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
-@@ -463,12 +463,31 @@ void mlx4_init_quotas(struct mlx4_dev *d
- 		priv->mfunc.master.res_tracker.res_alloc[RES_MPT].quota[pf];
- }
+--- a/net/dccp/ipv4.c
++++ b/net/dccp/ipv4.c
+@@ -121,7 +121,7 @@ int dccp_v4_connect(struct sock *sk, str
+ 						    inet->inet_daddr,
+ 						    inet->inet_sport,
+ 						    inet->inet_dport);
+-	inet->inet_id = dp->dccps_iss ^ jiffies;
++	inet->inet_id = prandom_u32();
  
--static int get_max_gauranteed_vfs_counter(struct mlx4_dev *dev)
-+static int
-+mlx4_calc_res_counter_guaranteed(struct mlx4_dev *dev,
-+				 struct resource_allocator *res_alloc,
-+				 int vf)
- {
--	/* reduce the sink counter */
--	return (dev->caps.max_counters - 1 -
--		(MLX4_PF_COUNTERS_PER_PORT * MLX4_MAX_PORTS))
--		/ MLX4_MAX_PORTS;
-+	struct mlx4_active_ports actv_ports;
-+	int ports, counters_guaranteed;
-+
-+	/* For master, only allocate according to the number of phys ports */
-+	if (vf == mlx4_master_func_num(dev))
-+		return MLX4_PF_COUNTERS_PER_PORT * dev->caps.num_ports;
-+
-+	/* calculate real number of ports for the VF */
-+	actv_ports = mlx4_get_active_ports(dev, vf);
-+	ports = bitmap_weight(actv_ports.ports, dev->caps.num_ports);
-+	counters_guaranteed = ports * MLX4_VF_COUNTERS_PER_PORT;
-+
-+	/* If we do not have enough counters for this VF, do not
-+	 * allocate any for it. '-1' to reduce the sink counter.
-+	 */
-+	if ((res_alloc->res_reserved + counters_guaranteed) >
-+	    (dev->caps.max_counters - 1))
-+		return 0;
-+
-+	return counters_guaranteed;
- }
+ 	err = dccp_connect(sk);
+ 	rt = NULL;
+--- a/net/ipv4/datagram.c
++++ b/net/ipv4/datagram.c
+@@ -75,7 +75,7 @@ int __ip4_datagram_connect(struct sock *
+ 	inet->inet_dport = usin->sin_port;
+ 	sk->sk_state = TCP_ESTABLISHED;
+ 	sk_set_txhash(sk);
+-	inet->inet_id = jiffies;
++	inet->inet_id = prandom_u32();
  
- int mlx4_init_resource_tracker(struct mlx4_dev *dev)
-@@ -476,7 +495,6 @@ int mlx4_init_resource_tracker(struct ml
- 	struct mlx4_priv *priv = mlx4_priv(dev);
- 	int i, j;
- 	int t;
--	int max_vfs_guarantee_counter = get_max_gauranteed_vfs_counter(dev);
+ 	sk_dst_set(sk, &rt->dst);
+ 	err = 0;
+--- a/net/ipv4/tcp_ipv4.c
++++ b/net/ipv4/tcp_ipv4.c
+@@ -241,7 +241,7 @@ int tcp_v4_connect(struct sock *sk, stru
+ 							   inet->inet_sport,
+ 							   usin->sin_port);
  
- 	priv->mfunc.master.res_tracker.slave_list =
- 		kzalloc(dev->num_slaves * sizeof(struct slave_list),
-@@ -593,16 +611,8 @@ int mlx4_init_resource_tracker(struct ml
- 				break;
- 			case RES_COUNTER:
- 				res_alloc->quota[t] = dev->caps.max_counters;
--				if (t == mlx4_master_func_num(dev))
--					res_alloc->guaranteed[t] =
--						MLX4_PF_COUNTERS_PER_PORT *
--						MLX4_MAX_PORTS;
--				else if (t <= max_vfs_guarantee_counter)
--					res_alloc->guaranteed[t] =
--						MLX4_VF_COUNTERS_PER_PORT *
--						MLX4_MAX_PORTS;
--				else
--					res_alloc->guaranteed[t] = 0;
-+				res_alloc->guaranteed[t] =
-+					mlx4_calc_res_counter_guaranteed(dev, res_alloc, t);
- 				res_alloc->res_free -= res_alloc->guaranteed[t];
- 				break;
- 			default:
+-	inet->inet_id = tp->write_seq ^ jiffies;
++	inet->inet_id = prandom_u32();
+ 
+ 	err = tcp_connect(sk);
+ 
+@@ -1302,7 +1302,7 @@ struct sock *tcp_v4_syn_recv_sock(const
+ 	inet_csk(newsk)->icsk_ext_hdr_len = 0;
+ 	if (inet_opt)
+ 		inet_csk(newsk)->icsk_ext_hdr_len = inet_opt->opt.optlen;
+-	newinet->inet_id = newtp->write_seq ^ jiffies;
++	newinet->inet_id = prandom_u32();
+ 
+ 	if (!dst) {
+ 		dst = inet_csk_route_child_sock(sk, newsk, req);
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -7267,7 +7267,7 @@ void sctp_copy_sock(struct sock *newsk,
+ 	newinet->inet_rcv_saddr = inet->inet_rcv_saddr;
+ 	newinet->inet_dport = htons(asoc->peer.port);
+ 	newinet->pmtudisc = inet->pmtudisc;
+-	newinet->inet_id = asoc->next_tsn ^ jiffies;
++	newinet->inet_id = prandom_u32();
+ 
+ 	newinet->uc_ttl = inet->uc_ttl;
+ 	newinet->mc_loop = 1;
 
 
