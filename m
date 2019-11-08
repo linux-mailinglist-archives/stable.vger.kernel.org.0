@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C1AF54CD
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:00:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F029F55AC
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733002AbfKHSyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:54:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
+        id S2387767AbfKHTD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:03:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732994AbfKHSyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:54:33 -0500
+        id S2389401AbfKHTD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:03:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 064382178F;
-        Fri,  8 Nov 2019 18:54:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9ACB220650;
+        Fri,  8 Nov 2019 19:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239272;
-        bh=J0uk805EP9l5Ca02BBLotKgTkavHTiUxv4DsCvLcthw=;
+        s=default; t=1573239837;
+        bh=26yenZUwaIRr6X613M2xzDB+jE59fnyLX4fWHHmWfnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZtLRhT1HVd1hZ/Zwx8teLi3qje+Swhhsmjzmfvktj+XfigWjyQMK+aLiGgglOa6F8
-         fn2xbBOIYDBD2P17OXbyD5on+sJSImUkc11K0hL7Pz7H2S5gTHMIxoWw/GNuQHmB8x
-         Zbj3FjOd224mFqzhCz0FvfY4ZAFm8XpC2ifb9KJg=
+        b=QeOeAnzS8GPMibf/f9ooSSMUQhQ7ImvxaXtLsmj7G6boLNKWmxZkvHRpW3/iwFbN7
+         gxmB2TFOs4Q4m/7cSd0SyAWqIgla36HAODa3qF7g4hZNCq1j/Q49GWAuNWilgOKCk6
+         nhZ5oUDQDtfvhP+9XK6UzlV5azrDfW9ySMOiGuwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
-        <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David A. Long" <dave.long@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.4 58/75] ARM: spectre-v1: mitigate user accesses
-Date:   Fri,  8 Nov 2019 19:50:15 +0100
-Message-Id: <20191108174759.863122443@linuxfoundation.org>
+        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 36/79] nbd: handle racing with errored out commands
+Date:   Fri,  8 Nov 2019 19:50:16 +0100
+Message-Id: <20191108174806.174452403@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,77 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Josef Bacik <josef@toxicpanda.com>
 
-Commit a3c0f84765bb429ba0fd23de1c57b5e1591c9389 upstream.
+[ Upstream commit 7ce23e8e0a9cd38338fc8316ac5772666b565ca9 ]
 
-Spectre variant 1 attacks are about this sequence of pseudo-code:
+We hit the following warning in production
 
-	index = load(user-manipulated pointer);
-	access(base + index * stride);
+print_req_error: I/O error, dev nbd0, sector 7213934408 flags 80700
+------------[ cut here ]------------
+refcount_t: underflow; use-after-free.
+WARNING: CPU: 25 PID: 32407 at lib/refcount.c:190 refcount_sub_and_test_checked+0x53/0x60
+Workqueue: knbd-recv recv_work [nbd]
+RIP: 0010:refcount_sub_and_test_checked+0x53/0x60
+Call Trace:
+ blk_mq_free_request+0xb7/0xf0
+ blk_mq_complete_request+0x62/0xf0
+ recv_work+0x29/0xa1 [nbd]
+ process_one_work+0x1f5/0x3f0
+ worker_thread+0x2d/0x3d0
+ ? rescuer_thread+0x340/0x340
+ kthread+0x111/0x130
+ ? kthread_create_on_node+0x60/0x60
+ ret_from_fork+0x1f/0x30
+---[ end trace b079c3c67f98bb7c ]---
 
-In order for the cache side-channel to work, the access() must me made
-to memory which userspace can detect whether cache lines have been
-loaded.  On 32-bit ARM, this must be either user accessible memory, or
-a kernel mapping of that same user accessible memory.
+This was preceded by us timing out everything and shutting down the
+sockets for the device.  The problem is we had a request in the queue at
+the same time, so we completed the request twice.  This can actually
+happen in a lot of cases, we fail to get a ref on our config, we only
+have one connection and just error out the command, etc.
 
-The problem occurs when the load() speculatively loads privileged data,
-and the subsequent access() is made to user accessible memory.
+Fix this by checking cmd->status in nbd_read_stat.  We only change this
+under the cmd->lock, so we are safe to check this here and see if we've
+already error'ed this command out, which would indicate that we've
+completed it as well.
 
-Any load() which makes use of a user-maniplated pointer is a potential
-problem if the data it has loaded is used in a subsequent access.  This
-also applies for the access() if the data loaded by that access is used
-by a subsequent access.
+Reviewed-by: Mike Christie <mchristi@redhat.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 
-Harden the get_user() accessors against Spectre attacks by forcing out
-of bounds addresses to a NULL pointer.  This prevents get_user() being
-used as the load() step above.  As a side effect, put_user() will also
-be affected even though it isn't implicated.
-
-Also harden copy_from_user() by redoing the bounds check within the
-arm_copy_from_user() code, and NULLing the pointer if out of bounds.
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David A. Long <dave.long@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/assembler.h |    4 ++++
- arch/arm/lib/copy_from_user.S    |    9 +++++++++
- 2 files changed, 13 insertions(+)
+ drivers/block/nbd.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm/include/asm/assembler.h
-+++ b/arch/arm/include/asm/assembler.h
-@@ -454,6 +454,10 @@ THUMB(	orr	\reg , \reg , #PSR_T_BIT	)
- 	adds	\tmp, \addr, #\size - 1
- 	sbcccs	\tmp, \tmp, \limit
- 	bcs	\bad
-+#ifdef CONFIG_CPU_SPECTRE
-+	movcs	\addr, #0
-+	csdb
-+#endif
- #endif
- 	.endm
- 
---- a/arch/arm/lib/copy_from_user.S
-+++ b/arch/arm/lib/copy_from_user.S
-@@ -90,6 +90,15 @@
- 	.text
- 
- ENTRY(arm_copy_from_user)
-+#ifdef CONFIG_CPU_SPECTRE
-+	get_thread_info r3
-+	ldr	r3, [r3, #TI_ADDR_LIMIT]
-+	adds	ip, r1, r2	@ ip=addr+size
-+	sub	r3, r3, #1	@ addr_limit - 1
-+	cmpcc	ip, r3		@ if (addr+size > addr_limit - 1)
-+	movcs	r1, #0		@ addr = NULL
-+	csdb
-+#endif
- 
- #include "copy_template.S"
- 
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index da6a36d14f4cf..867841c56a6da 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -663,6 +663,12 @@ static struct nbd_cmd *nbd_read_stat(struct nbd_device *nbd, int index)
+ 		ret = -ENOENT;
+ 		goto out;
+ 	}
++	if (cmd->status != BLK_STS_OK) {
++		dev_err(disk_to_dev(nbd->disk), "Command already handled %p\n",
++			req);
++		ret = -ENOENT;
++		goto out;
++	}
+ 	if (test_bit(NBD_CMD_REQUEUED, &cmd->flags)) {
+ 		dev_err(disk_to_dev(nbd->disk), "Raced with timeout on req %p\n",
+ 			req);
+-- 
+2.20.1
+
 
 
