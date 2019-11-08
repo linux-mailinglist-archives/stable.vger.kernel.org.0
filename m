@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF52EF546A
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:59:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4E2F545D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:59:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389023AbfKHS7a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:59:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56336 "EHLO mail.kernel.org"
+        id S1732685AbfKHS4v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:56:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388926AbfKHS73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:59:29 -0500
+        id S1732635AbfKHS4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:56:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3DA02255C;
-        Fri,  8 Nov 2019 18:59:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CF7B21D7F;
+        Fri,  8 Nov 2019 18:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239569;
-        bh=v9PPuIRY93R4lGfaNyPfFvpC2mtDl2BYQVLPH+Ij+Yo=;
+        s=default; t=1573239409;
+        bh=62vY4g6/bESYO88NRwrlwzQy36mMS6grugZ4Uu9XJ9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NRfG0CdDlHDoGXJ8AqdeJ2FTvu+H/l/R3+yxNxoM296xCqcf5HVWFRmcr55tds4mR
-         RoFprwi0KIMaS+UToGZgBTTwP0/j/hXh5+ySmyOLoaA5v32HQoj9gtugjF9SW2fqhS
-         Xm5YAyuRPOTF8nW2xfPLnciFmpdwJnsuetIaNg04=
+        b=KNNNzQiZvT7dCdrRzcVvskWj3p8/S7ez1VEc3gzlrSOrVRypIVmjCmvBlaMj31+Hw
+         xyJGnU09OB6eVahEH+QQs8DJCkDDuq0HQn/TZf3gdY6/i8V+bMxPDSHj0lRth70oBK
+         al2qM12goNTlCQetxtRuLJv6d9qX+OFCrPwbtLEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 47/62] erspan: fix the tun_info options_len check for erspan
-Date:   Fri,  8 Nov 2019 19:50:35 +0100
-Message-Id: <20191108174752.161636977@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 29/34] Kbuild: make designated_init attribute fatal
+Date:   Fri,  8 Nov 2019 19:50:36 +0100
+Message-Id: <20191108174651.103667553@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
+References: <20191108174618.266472504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,34 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 2eb8d6d2910cfe3dc67dc056f26f3dd9c63d47cd ]
+[ Upstream commit c834f0e8a8bb3025aac38e802fca2e686720f544 ]
 
-The check for !md doens't really work for ip_tunnel_info_opts(info) which
-only does info + 1. Also to avoid out-of-bounds access on info, it should
-ensure options_len is not less than erspan_metadata in both erspan_xmit()
-and ip6erspan_tunnel_xmit().
+If a structure is marked with __attribute__((designated_init)) from
+GCC or Sparse, it needs to have all static initializers using designated
+initialization. Fail the build for any missing cases. This attribute will
+be used by the randstruct plugin to make sure randomized structures are
+being correctly initialized.
 
-Fixes: 1a66a836da ("gre: add collect_md mode to ERSPAN tunnel")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c |    3 +++
+ Makefile | 3 +++
  1 file changed, 3 insertions(+)
 
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -592,6 +592,9 @@ static void erspan_fb_xmit(struct sk_buf
- 		truncate = true;
- 	}
+diff --git a/Makefile b/Makefile
+index b7f6639f4e7a2..19c7e30684077 100644
+--- a/Makefile
++++ b/Makefile
+@@ -834,6 +834,9 @@ KBUILD_CFLAGS   += $(call cc-option,-Werror=date-time)
+ # enforce correct pointer usage
+ KBUILD_CFLAGS   += $(call cc-option,-Werror=incompatible-pointer-types)
  
-+	if (tun_info->options_len < sizeof(*md))
-+		goto err_free_rt;
++# Require designated initializers for all marked structures
++KBUILD_CFLAGS   += $(call cc-option,-Werror=designated-init)
 +
- 	md = ip_tunnel_info_opts(tun_info);
- 	if (!md)
- 		goto err_free_rt;
+ # use the deterministic mode of AR if available
+ KBUILD_ARFLAGS := $(call ar-option,D)
+ 
+-- 
+2.20.1
+
 
 
