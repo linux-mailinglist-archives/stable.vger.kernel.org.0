@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A5C4F4903
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:00:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38145F490E
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391708AbfKHMAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2390913AbfKHMAT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 8 Nov 2019 07:00:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58500 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390594AbfKHLnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:43:52 -0500
+        id S2390600AbfKHLnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:43:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 689E1222CF;
-        Fri,  8 Nov 2019 11:43:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B3862245A;
+        Fri,  8 Nov 2019 11:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213432;
-        bh=wV0PEgMTP2ewp/zK9SfyPeKGCygghrXr9NicZlG2qNU=;
+        s=default; t=1573213433;
+        bh=pJS58U8mwZIYJHL/49hU2S6Sd3AeaEcSOOkKJJyeS8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLOCgoZpcd8gq26i5vkKo/clm9FVA6GSVCrszBdYOu2ZmcX7bFxyrDyMRWFaHfUcI
-         fr80BOXmqww9eHagdNbnFiqWEnnDpb8UgNmORfE9oCeVhU5Oq4BZ2RJQ3A1TJi+oRA
-         25c3P6ZXqF1bsOJDim0ZhInxE0/C1E7m9psAGlww=
+        b=zoS8PnDIyQkDQSChD4uqKBRuLCizD7v8DZX7+Vq9otK8YfycL7risRhtRBiKTQUL4
+         i1GoFFGeQHCgHkbBm+H01nzpTSBJaubYfofDCPavsiPwBOgoWECm2X3GhuarOH4CkB
+         V6OAIo4GL/dY7ACuiafsgAyiiO3NGaZ0GYTWnpSY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robert Jarzmik <robert.jarzmik@free.fr>,
+Cc:     Marcel Ziswiler <marcel@ziswiler.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 030/103] ARM: dts: pxa: fix the rtc controller
-Date:   Fri,  8 Nov 2019 06:41:55 -0500
-Message-Id: <20191108114310.14363-30-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 031/103] ARM: dts: pxa: fix power i2c base address
+Date:   Fri,  8 Nov 2019 06:41:56 -0500
+Message-Id: <20191108114310.14363-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -42,54 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Jarzmik <robert.jarzmik@free.fr>
+From: Marcel Ziswiler <marcel@ziswiler.com>
 
-[ Upstream commit 24a610eba32a80ed778ea79680b600c3fe73d7de ]
+[ Upstream commit 8a1ecc01a473b75ab97be9b36f623e4551a6e9ae ]
 
-The RTC controller is fed by an external fixed 32kHz clock. Yet the
-driver wants to acquire this clock, even though it doesn't make any use
-of it, ie. doesn't get the rate to make calculation.
+There is one too many zeroes in the Power I2C base address. Fix this.
 
-Therefore, use the exported 32.768kHz clock in the PXA clock tree to
-make the driver happy and working.
-
+Signed-off-by: Marcel Ziswiler <marcel@ziswiler.com>
 Signed-off-by: Robert Jarzmik <robert.jarzmik@free.fr>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/pxa25x.dtsi | 4 ++++
- arch/arm/boot/dts/pxa27x.dtsi | 4 ++++
- 2 files changed, 8 insertions(+)
+ arch/arm/boot/dts/pxa27x.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/pxa25x.dtsi b/arch/arm/boot/dts/pxa25x.dtsi
-index 95d59be97213e..8494b57871709 100644
---- a/arch/arm/boot/dts/pxa25x.dtsi
-+++ b/arch/arm/boot/dts/pxa25x.dtsi
-@@ -80,6 +80,10 @@
- 			#pwm-cells = <1>;
- 			clocks = <&clks CLK_PWM1>;
- 		};
-+
-+		rtc@40900000 {
-+			clocks = <&clks CLK_OSC32k768>;
-+		};
- 	};
- 
- 	timer@40a00000 {
 diff --git a/arch/arm/boot/dts/pxa27x.dtsi b/arch/arm/boot/dts/pxa27x.dtsi
-index 747f750f675d9..2ab6986433c82 100644
+index 2ab6986433c82..3228ad5fb725f 100644
 --- a/arch/arm/boot/dts/pxa27x.dtsi
 +++ b/arch/arm/boot/dts/pxa27x.dtsi
-@@ -113,6 +113,10 @@
- 
- 			status = "disabled";
+@@ -71,7 +71,7 @@
+ 			clocks = <&clks CLK_PWM1>;
  		};
-+
-+		rtc@40900000 {
-+			clocks = <&clks CLK_OSC32k768>;
-+		};
- 	};
  
- 	clocks {
+-		pwri2c: i2c@40f000180 {
++		pwri2c: i2c@40f00180 {
+ 			compatible = "mrvl,pxa-i2c";
+ 			reg = <0x40f00180 0x24>;
+ 			interrupts = <6>;
 -- 
 2.20.1
 
