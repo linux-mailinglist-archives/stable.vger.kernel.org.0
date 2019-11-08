@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B105F53F4
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C35C7F53F7
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731911AbfKHSwx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:52:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
+        id S1732061AbfKHSxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:53:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731825AbfKHSww (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:52:52 -0500
+        id S1732030AbfKHSxB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:53:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D5722178F;
-        Fri,  8 Nov 2019 18:52:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0592214DB;
+        Fri,  8 Nov 2019 18:52:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239167;
-        bh=AoTIuNbtRgG+6afq9HEaULMf6Zn926x/LsgsaaJ84CE=;
+        s=default; t=1573239179;
+        bh=3z24VMb6w2aEusAaHy6nE0web8vjYf2I0RI5Q+3sXNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVIboEUk1UAOpXi/gMTOJKjeqJ/6zXGAILpiIZOVkezmT20UnJXPDJCXKgxs+Vtk3
-         lYdCkMwCBJY+JwSjpUmoWxstkKD4/l+dTSr2oaWdt1HFYr453APUGRmvNF1nBWSRGe
-         WKtO5vWrVv+Q0XHYQh2ufmMhjgYwgVmgH53eVCpE=
+        b=GVxJS/RHh4/fU/DaUIxKITCgZ+g7F6pEQWkhL9zVWa14nwZeaOYwjHnLlA1exioBf
+         7PXSnFgrl+47XdEwerUgPDp2TcuMPXuPe12Efq66f+vIAyQ7YRrKtlgREjtZRcwHsc
+         FtpXItvdpHeQIBpwnWqCzH33R3UdRLMElQubW/00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Jonathan Berger <jonathann1@walla.com>,
-        Amit Klein <aksecurity@gmail.com>,
-        Benny Pinkas <benny@pinkas.net>,
-        Tom Herbert <tom@herbertland.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Mahesh Bandewar <maheshb@google.com>
-Subject: [PATCH 4.4 22/75] net/flow_dissector: switch to siphash
-Date:   Fri,  8 Nov 2019 19:49:39 +0100
-Message-Id: <20191108174729.201631038@linuxfoundation.org>
+        Lars Persson <lars.persson@axis.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.4 26/75] ARM: 8479/2: add implementation for arm-smccc
+Date:   Fri,  8 Nov 2019 19:49:43 +0100
+Message-Id: <20191108174733.563457851@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
 References: <20191108174708.135680837@linuxfoundation.org>
@@ -48,384 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-commit 55667441c84fa5e0911a0aac44fb059c15ba6da2 upstream.
+Commit b329f95d70f3f955093e9a2b18ac1ed3587a8f73 upstream.
 
-UDP IPv6 packets auto flowlabels are using a 32bit secret
-(static u32 hashrnd in net/core/flow_dissector.c) and
-apply jhash() over fields known by the receivers.
+Adds implementation for arm-smccc and enables CONFIG_HAVE_SMCCC for
+architectures that may support arm-smccc. It's the responsibility of the
+caller to know if the SMC instruction is supported by the platform.
 
-Attackers can easily infer the 32bit secret and use this information
-to identify a device and/or user, since this 32bit secret is only
-set at boot time.
-
-Really, using jhash() to generate cookies sent on the wire
-is a serious security concern.
-
-Trying to change the rol32(hash, 16) in ip6_make_flowlabel() would be
-a dead end. Trying to periodically change the secret (like in sch_sfq.c)
-could change paths taken in the network for long lived flows.
-
-Let's switch to siphash, as we did in commit df453700e8d8
-("inet: switch IP ID generator to siphash")
-
-Using a cryptographically strong pseudo random function will solve this
-privacy issue and more generally remove other weak points in the stack.
-
-Packet schedulers using skb_get_hash_perturb() benefit from this change.
-
-Fixes: b56774163f99 ("ipv6: Enable auto flow labels by default")
-Fixes: 42240901f7c4 ("ipv6: Implement different admin modes for automatic flow labels")
-Fixes: 67800f9b1f4e ("ipv6: Call skb_get_hash_flowi6 to get skb->hash in ip6_make_flowlabel")
-Fixes: cb1ce2ef387b ("ipv6: Implement automatic flow label generation on transmit")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Jonathan Berger <jonathann1@walla.com>
-Reported-by: Amit Klein <aksecurity@gmail.com>
-Reported-by: Benny Pinkas <benny@pinkas.net>
-Cc: Tom Herbert <tom@herbertland.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Mahesh Bandewar <maheshb@google.com>
+Reviewed-by: Lars Persson <lars.persson@axis.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h       |    3 +-
- include/net/flow_dissector.h |    3 +-
- net/core/flow_dissector.c    |   48 +++++++++++++++++--------------------------
- net/sched/sch_fq_codel.c     |    6 ++---
- net/sched/sch_hhf.c          |    8 +++----
- net/sched/sch_sfb.c          |   13 ++++++-----
- net/sched/sch_sfq.c          |   14 +++++++-----
- 7 files changed, 46 insertions(+), 49 deletions(-)
+ arch/arm/Kconfig             |    1 
+ arch/arm/kernel/Makefile     |    2 +
+ arch/arm/kernel/armksyms.c   |    6 ++++
+ arch/arm/kernel/smccc-call.S |   62 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 71 insertions(+)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1073,7 +1073,8 @@ static inline __u32 skb_get_hash_flowi4(
- 	return skb->hash;
- }
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -37,6 +37,7 @@ config ARM
+ 	select HAVE_ARCH_KGDB if !CPU_ENDIAN_BE32
+ 	select HAVE_ARCH_SECCOMP_FILTER if (AEABI && !OABI_COMPAT)
+ 	select HAVE_ARCH_TRACEHOOK
++	select HAVE_ARM_SMCCC if CPU_V7
+ 	select HAVE_BPF_JIT
+ 	select HAVE_CC_STACKPROTECTOR
+ 	select HAVE_CONTEXT_TRACKING
+--- a/arch/arm/kernel/Makefile
++++ b/arch/arm/kernel/Makefile
+@@ -91,4 +91,6 @@ obj-y				+= psci-call.o
+ obj-$(CONFIG_SMP)		+= psci_smp.o
+ endif
  
--__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb);
-+__u32 skb_get_hash_perturb(const struct sk_buff *skb,
-+			   const siphash_key_t *perturb);
++obj-$(CONFIG_HAVE_ARM_SMCCC)	+= smccc-call.o
++
+ extra-y := $(head-y) vmlinux.lds
+--- a/arch/arm/kernel/armksyms.c
++++ b/arch/arm/kernel/armksyms.c
+@@ -16,6 +16,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/uaccess.h>
+ #include <linux/io.h>
++#include <linux/arm-smccc.h>
  
- static inline __u32 skb_get_hash_raw(const struct sk_buff *skb)
- {
---- a/include/net/flow_dissector.h
-+++ b/include/net/flow_dissector.h
-@@ -3,6 +3,7 @@
- 
- #include <linux/types.h>
- #include <linux/in6.h>
-+#include <linux/siphash.h>
- #include <uapi/linux/if_ether.h>
- 
- /**
-@@ -146,7 +147,7 @@ struct flow_dissector {
- struct flow_keys {
- 	struct flow_dissector_key_control control;
- #define FLOW_KEYS_HASH_START_FIELD basic
--	struct flow_dissector_key_basic basic;
-+	struct flow_dissector_key_basic basic __aligned(SIPHASH_ALIGNMENT);
- 	struct flow_dissector_key_tags tags;
- 	struct flow_dissector_key_keyid keyid;
- 	struct flow_dissector_key_ports ports;
---- a/net/core/flow_dissector.c
-+++ b/net/core/flow_dissector.c
-@@ -505,45 +505,34 @@ out_bad:
- }
- EXPORT_SYMBOL(__skb_flow_dissect);
- 
--static u32 hashrnd __read_mostly;
-+static siphash_key_t hashrnd __read_mostly;
- static __always_inline void __flow_hash_secret_init(void)
- {
- 	net_get_random_once(&hashrnd, sizeof(hashrnd));
- }
- 
--static __always_inline u32 __flow_hash_words(const u32 *words, u32 length,
--					     u32 keyval)
-+static const void *flow_keys_hash_start(const struct flow_keys *flow)
- {
--	return jhash2(words, length, keyval);
--}
--
--static inline const u32 *flow_keys_hash_start(const struct flow_keys *flow)
--{
--	const void *p = flow;
--
--	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % sizeof(u32));
--	return (const u32 *)(p + FLOW_KEYS_HASH_OFFSET);
-+	BUILD_BUG_ON(FLOW_KEYS_HASH_OFFSET % SIPHASH_ALIGNMENT);
-+	return &flow->FLOW_KEYS_HASH_START_FIELD;
- }
- 
- static inline size_t flow_keys_hash_length(const struct flow_keys *flow)
- {
--	size_t diff = FLOW_KEYS_HASH_OFFSET + sizeof(flow->addrs);
--	BUILD_BUG_ON((sizeof(*flow) - FLOW_KEYS_HASH_OFFSET) % sizeof(u32));
--	BUILD_BUG_ON(offsetof(typeof(*flow), addrs) !=
--		     sizeof(*flow) - sizeof(flow->addrs));
-+	size_t len = offsetof(typeof(*flow), addrs) - FLOW_KEYS_HASH_OFFSET;
- 
- 	switch (flow->control.addr_type) {
- 	case FLOW_DISSECTOR_KEY_IPV4_ADDRS:
--		diff -= sizeof(flow->addrs.v4addrs);
-+		len += sizeof(flow->addrs.v4addrs);
- 		break;
- 	case FLOW_DISSECTOR_KEY_IPV6_ADDRS:
--		diff -= sizeof(flow->addrs.v6addrs);
-+		len += sizeof(flow->addrs.v6addrs);
- 		break;
- 	case FLOW_DISSECTOR_KEY_TIPC_ADDRS:
--		diff -= sizeof(flow->addrs.tipcaddrs);
-+		len += sizeof(flow->addrs.tipcaddrs);
- 		break;
- 	}
--	return (sizeof(*flow) - diff) / sizeof(u32);
-+	return len;
- }
- 
- __be32 flow_get_u32_src(const struct flow_keys *flow)
-@@ -609,14 +598,15 @@ static inline void __flow_hash_consisten
- 	}
- }
- 
--static inline u32 __flow_hash_from_keys(struct flow_keys *keys, u32 keyval)
-+static inline u32 __flow_hash_from_keys(struct flow_keys *keys,
-+					const siphash_key_t *keyval)
- {
- 	u32 hash;
- 
- 	__flow_hash_consistentify(keys);
- 
--	hash = __flow_hash_words(flow_keys_hash_start(keys),
--				 flow_keys_hash_length(keys), keyval);
-+	hash = siphash(flow_keys_hash_start(keys),
-+		       flow_keys_hash_length(keys), keyval);
- 	if (!hash)
- 		hash = 1;
- 
-@@ -626,12 +616,13 @@ static inline u32 __flow_hash_from_keys(
- u32 flow_hash_from_keys(struct flow_keys *keys)
- {
- 	__flow_hash_secret_init();
--	return __flow_hash_from_keys(keys, hashrnd);
-+	return __flow_hash_from_keys(keys, &hashrnd);
- }
- EXPORT_SYMBOL(flow_hash_from_keys);
- 
- static inline u32 ___skb_get_hash(const struct sk_buff *skb,
--				  struct flow_keys *keys, u32 keyval)
-+				  struct flow_keys *keys,
-+				  const siphash_key_t *keyval)
- {
- 	skb_flow_dissect_flow_keys(skb, keys,
- 				   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
-@@ -679,7 +670,7 @@ u32 __skb_get_hash_symmetric(struct sk_b
- 			   NULL, 0, 0, 0,
- 			   FLOW_DISSECTOR_F_STOP_AT_FLOW_LABEL);
- 
--	return __flow_hash_from_keys(&keys, hashrnd);
-+	return __flow_hash_from_keys(&keys, &hashrnd);
- }
- EXPORT_SYMBOL_GPL(__skb_get_hash_symmetric);
- 
-@@ -698,12 +689,13 @@ void __skb_get_hash(struct sk_buff *skb)
- 
- 	__flow_hash_secret_init();
- 
--	__skb_set_sw_hash(skb, ___skb_get_hash(skb, &keys, hashrnd),
-+	__skb_set_sw_hash(skb, ___skb_get_hash(skb, &keys, &hashrnd),
- 			  flow_keys_have_l4(&keys));
- }
- EXPORT_SYMBOL(__skb_get_hash);
- 
--__u32 skb_get_hash_perturb(const struct sk_buff *skb, u32 perturb)
-+__u32 skb_get_hash_perturb(const struct sk_buff *skb,
-+			   const siphash_key_t *perturb)
- {
- 	struct flow_keys keys;
- 
---- a/net/sched/sch_fq_codel.c
-+++ b/net/sched/sch_fq_codel.c
-@@ -55,7 +55,7 @@ struct fq_codel_sched_data {
- 	struct fq_codel_flow *flows;	/* Flows table [flows_cnt] */
- 	u32		*backlogs;	/* backlog table [flows_cnt] */
- 	u32		flows_cnt;	/* number of flows */
--	u32		perturbation;	/* hash perturbation */
-+	siphash_key_t	perturbation;	/* hash perturbation */
- 	u32		quantum;	/* psched_mtu(qdisc_dev(sch)); */
- 	struct codel_params cparams;
- 	struct codel_stats cstats;
-@@ -69,7 +69,7 @@ struct fq_codel_sched_data {
- static unsigned int fq_codel_hash(const struct fq_codel_sched_data *q,
- 				  struct sk_buff *skb)
- {
--	u32 hash = skb_get_hash_perturb(skb, q->perturbation);
-+	u32 hash = skb_get_hash_perturb(skb, &q->perturbation);
- 
- 	return reciprocal_scale(hash, q->flows_cnt);
- }
-@@ -420,7 +420,7 @@ static int fq_codel_init(struct Qdisc *s
- 	sch->limit = 10*1024;
- 	q->flows_cnt = 1024;
- 	q->quantum = psched_mtu(qdisc_dev(sch));
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	INIT_LIST_HEAD(&q->new_flows);
- 	INIT_LIST_HEAD(&q->old_flows);
- 	codel_params_init(&q->cparams, sch);
---- a/net/sched/sch_hhf.c
-+++ b/net/sched/sch_hhf.c
-@@ -4,11 +4,11 @@
-  * Copyright (C) 2013 Nandita Dukkipati <nanditad@google.com>
-  */
- 
--#include <linux/jhash.h>
- #include <linux/jiffies.h>
- #include <linux/module.h>
- #include <linux/skbuff.h>
- #include <linux/vmalloc.h>
-+#include <linux/siphash.h>
- #include <net/pkt_sched.h>
- #include <net/sock.h>
- 
-@@ -125,7 +125,7 @@ struct wdrr_bucket {
- 
- struct hhf_sched_data {
- 	struct wdrr_bucket buckets[WDRR_BUCKET_CNT];
--	u32		   perturbation;   /* hash perturbation */
-+	siphash_key_t	   perturbation;   /* hash perturbation */
- 	u32		   quantum;        /* psched_mtu(qdisc_dev(sch)); */
- 	u32		   drop_overlimit; /* number of times max qdisc packet
- 					    * limit was hit
-@@ -263,7 +263,7 @@ static enum wdrr_bucket_idx hhf_classify
- 	}
- 
- 	/* Get hashed flow-id of the skb. */
--	hash = skb_get_hash_perturb(skb, q->perturbation);
-+	hash = skb_get_hash_perturb(skb, &q->perturbation);
- 
- 	/* Check if this packet belongs to an already established HH flow. */
- 	flow_pos = hash & HHF_BIT_MASK;
-@@ -602,7 +602,7 @@ static int hhf_init(struct Qdisc *sch, s
- 
- 	sch->limit = 1000;
- 	q->quantum = psched_mtu(qdisc_dev(sch));
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	INIT_LIST_HEAD(&q->new_buckets);
- 	INIT_LIST_HEAD(&q->old_buckets);
- 
---- a/net/sched/sch_sfb.c
-+++ b/net/sched/sch_sfb.c
-@@ -22,7 +22,7 @@
- #include <linux/errno.h>
- #include <linux/skbuff.h>
- #include <linux/random.h>
--#include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <net/ip.h>
- #include <net/pkt_sched.h>
- #include <net/inet_ecn.h>
-@@ -48,7 +48,7 @@ struct sfb_bucket {
-  * (Section 4.4 of SFB reference : moving hash functions)
-  */
- struct sfb_bins {
--	u32		  perturbation; /* jhash perturbation */
-+	siphash_key_t	  perturbation; /* siphash key */
- 	struct sfb_bucket bins[SFB_LEVELS][SFB_NUMBUCKETS];
- };
- 
-@@ -219,7 +219,8 @@ static u32 sfb_compute_qlen(u32 *prob_r,
- 
- static void sfb_init_perturbation(u32 slot, struct sfb_sched_data *q)
- {
--	q->bins[slot].perturbation = prandom_u32();
-+	get_random_bytes(&q->bins[slot].perturbation,
-+			 sizeof(q->bins[slot].perturbation));
- }
- 
- static void sfb_swap_slot(struct sfb_sched_data *q)
-@@ -313,9 +314,9 @@ static int sfb_enqueue(struct sk_buff *s
- 		/* If using external classifiers, get result and record it. */
- 		if (!sfb_classify(skb, fl, &ret, &salt))
- 			goto other_drop;
--		sfbhash = jhash_1word(salt, q->bins[slot].perturbation);
-+		sfbhash = siphash_1u32(salt, &q->bins[slot].perturbation);
- 	} else {
--		sfbhash = skb_get_hash_perturb(skb, q->bins[slot].perturbation);
-+		sfbhash = skb_get_hash_perturb(skb, &q->bins[slot].perturbation);
- 	}
- 
- 
-@@ -351,7 +352,7 @@ static int sfb_enqueue(struct sk_buff *s
- 		/* Inelastic flow */
- 		if (q->double_buffering) {
- 			sfbhash = skb_get_hash_perturb(skb,
--			    q->bins[slot].perturbation);
-+			    &q->bins[slot].perturbation);
- 			if (!sfbhash)
- 				sfbhash = 1;
- 			sfb_skb_cb(skb)->hashes[slot] = sfbhash;
---- a/net/sched/sch_sfq.c
-+++ b/net/sched/sch_sfq.c
-@@ -18,7 +18,7 @@
- #include <linux/errno.h>
- #include <linux/init.h>
- #include <linux/skbuff.h>
--#include <linux/jhash.h>
-+#include <linux/siphash.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- #include <net/netlink.h>
-@@ -120,7 +120,7 @@ struct sfq_sched_data {
- 	u8		headdrop;
- 	u8		maxdepth;	/* limit of packets per flow */
- 
--	u32		perturbation;
-+	siphash_key_t 	perturbation;
- 	u8		cur_depth;	/* depth of longest slot */
- 	u8		flags;
- 	unsigned short  scaled_quantum; /* SFQ_ALLOT_SIZE(quantum) */
-@@ -158,7 +158,7 @@ static inline struct sfq_head *sfq_dep_h
- static unsigned int sfq_hash(const struct sfq_sched_data *q,
- 			     const struct sk_buff *skb)
- {
--	return skb_get_hash_perturb(skb, q->perturbation) & (q->divisor - 1);
-+	return skb_get_hash_perturb(skb, &q->perturbation) & (q->divisor - 1);
- }
- 
- static unsigned int sfq_classify(struct sk_buff *skb, struct Qdisc *sch,
-@@ -607,9 +607,11 @@ static void sfq_perturbation(unsigned lo
- 	struct Qdisc *sch = (struct Qdisc *)arg;
- 	struct sfq_sched_data *q = qdisc_priv(sch);
- 	spinlock_t *root_lock = qdisc_lock(qdisc_root_sleeping(sch));
-+	siphash_key_t nkey;
- 
-+	get_random_bytes(&nkey, sizeof(nkey));
- 	spin_lock(root_lock);
--	q->perturbation = prandom_u32();
-+	q->perturbation = nkey;
- 	if (!q->filter_list && q->tail)
- 		sfq_rehash(sch);
- 	spin_unlock(root_lock);
-@@ -681,7 +683,7 @@ static int sfq_change(struct Qdisc *sch,
- 	del_timer(&q->perturb_timer);
- 	if (q->perturb_period) {
- 		mod_timer(&q->perturb_timer, jiffies + q->perturb_period);
--		q->perturbation = prandom_u32();
-+		get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 	}
- 	sch_tree_unlock(sch);
- 	kfree(p);
-@@ -737,7 +739,7 @@ static int sfq_init(struct Qdisc *sch, s
- 	q->quantum = psched_mtu(qdisc_dev(sch));
- 	q->scaled_quantum = SFQ_ALLOT_SIZE(q->quantum);
- 	q->perturb_period = 0;
--	q->perturbation = prandom_u32();
-+	get_random_bytes(&q->perturbation, sizeof(q->perturbation));
- 
- 	if (opt) {
- 		int err = sfq_change(sch, opt);
+ #include <asm/checksum.h>
+ #include <asm/ftrace.h>
+@@ -175,3 +176,8 @@ EXPORT_SYMBOL(__gnu_mcount_nc);
+ EXPORT_SYMBOL(__pv_phys_pfn_offset);
+ EXPORT_SYMBOL(__pv_offset);
+ #endif
++
++#ifdef CONFIG_HAVE_ARM_SMCCC
++EXPORT_SYMBOL(arm_smccc_smc);
++EXPORT_SYMBOL(arm_smccc_hvc);
++#endif
+--- /dev/null
++++ b/arch/arm/kernel/smccc-call.S
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (c) 2015, Linaro Limited
++ *
++ * This software is licensed under the terms of the GNU General Public
++ * License version 2, as published by the Free Software Foundation, and
++ * may be copied, distributed, and modified under those terms.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ */
++#include <linux/linkage.h>
++
++#include <asm/opcodes-sec.h>
++#include <asm/opcodes-virt.h>
++#include <asm/unwind.h>
++
++	/*
++	 * Wrap c macros in asm macros to delay expansion until after the
++	 * SMCCC asm macro is expanded.
++	 */
++	.macro SMCCC_SMC
++	__SMC(0)
++	.endm
++
++	.macro SMCCC_HVC
++	__HVC(0)
++	.endm
++
++	.macro SMCCC instr
++UNWIND(	.fnstart)
++	mov	r12, sp
++	push	{r4-r7}
++UNWIND(	.save	{r4-r7})
++	ldm	r12, {r4-r7}
++	\instr
++	pop	{r4-r7}
++	ldr	r12, [sp, #(4 * 4)]
++	stm	r12, {r0-r3}
++	bx	lr
++UNWIND(	.fnend)
++	.endm
++
++/*
++ * void smccc_smc(unsigned long a0, unsigned long a1, unsigned long a2,
++ *		  unsigned long a3, unsigned long a4, unsigned long a5,
++ *		  unsigned long a6, unsigned long a7, struct arm_smccc_res *res)
++ */
++ENTRY(arm_smccc_smc)
++	SMCCC SMCCC_SMC
++ENDPROC(arm_smccc_smc)
++
++/*
++ * void smccc_hvc(unsigned long a0, unsigned long a1, unsigned long a2,
++ *		  unsigned long a3, unsigned long a4, unsigned long a5,
++ *		  unsigned long a6, unsigned long a7, struct arm_smccc_res *res)
++ */
++ENTRY(arm_smccc_hvc)
++	SMCCC SMCCC_HVC
++ENDPROC(arm_smccc_hvc)
 
 
