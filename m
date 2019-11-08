@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4133CF54B8
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7539F5606
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731412AbfKHSwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:52:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48868 "EHLO mail.kernel.org"
+        id S1730645AbfKHTGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:06:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731195AbfKHSwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:52:34 -0500
+        id S2391236AbfKHTGU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:06:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 961112178F;
-        Fri,  8 Nov 2019 18:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C774A215EA;
+        Fri,  8 Nov 2019 19:06:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239153;
-        bh=7uzewt8hdsiAqgQV0KAbgITKBU6rxAT/QGpAOMXsW8w=;
+        s=default; t=1573239979;
+        bh=P4zG2zc4HzXAbjCh9CbxjkYCEruYbNIs3m8vPW6qBzo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oHmGPRuPCNcz8sSIVNduLhBlht9GRM8px6I157XF8vhDhXrkjSbgsWNtbUu7yB1pL
-         bwy/VhMLsVwVVv2uE2DIinfNWiw4Dj+gCH7SSoNLwkxqEpHKnhHV1dYwhNl6CQccyV
-         UDEgIvd+QPBDirxB7S33KA+D/PwDzdmOHgoqwNpQ=
+        b=QfZyZmV6ca0/yKRoJ8CwvppUzah+K+BfWGmIaVtKkH8wnTr+x972pySNySJv063ab
+         446/aMCsN+V2ZW9vBlmwKkGp1IvsRkWKpNR4/diFdSBBYmZu+U+22UBv8wx43NphPD
+         jYJ2IwaRz8iANT10uclilPrZGD/s8ARHLvOtW+i8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 18/75] net: add READ_ONCE() annotation in __skb_wait_for_more_packets()
+        stable@vger.kernel.org, Anson Huang <Anson.Huang@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 047/140] arm64: dts: imx8mq: Use correct clock for usdhcs ipg clk
 Date:   Fri,  8 Nov 2019 19:49:35 +0100
-Message-Id: <20191108174724.355845852@linuxfoundation.org>
+Message-Id: <20191108174908.377402919@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Anson Huang <Anson.Huang@nxp.com>
 
-[ Upstream commit 7c422d0ce97552dde4a97e6290de70ec6efb0fc6 ]
+[ Upstream commit b0759297f2c8dda455ff78a1d1ac95e261300ae3 ]
 
-__skb_wait_for_more_packets() can be called while other cpus
-can feed packets to the socket receive queue.
+On i.MX8MQ, usdhc's ipg clock is from IMX8MQ_CLK_IPG_ROOT,
+assign it explicitly instead of using IMX8MQ_CLK_DUMMY.
 
-KCSAN reported :
-
-BUG: KCSAN: data-race in __skb_wait_for_more_packets / __udp_enqueue_schedule_skb
-
-write to 0xffff888102e40b58 of 8 bytes by interrupt on cpu 0:
- __skb_insert include/linux/skbuff.h:1852 [inline]
- __skb_queue_before include/linux/skbuff.h:1958 [inline]
- __skb_queue_tail include/linux/skbuff.h:1991 [inline]
- __udp_enqueue_schedule_skb+0x2d7/0x410 net/ipv4/udp.c:1470
- __udp_queue_rcv_skb net/ipv4/udp.c:1940 [inline]
- udp_queue_rcv_one_skb+0x7bd/0xc70 net/ipv4/udp.c:2057
- udp_queue_rcv_skb+0xb5/0x400 net/ipv4/udp.c:2074
- udp_unicast_rcv_skb.isra.0+0x7e/0x1c0 net/ipv4/udp.c:2233
- __udp4_lib_rcv+0xa44/0x17c0 net/ipv4/udp.c:2300
- udp_rcv+0x2b/0x40 net/ipv4/udp.c:2470
- ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
- ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
- dst_input include/net/dst.h:442 [inline]
- ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
- __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
- __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
- process_backlog+0x1d3/0x420 net/core/dev.c:5955
-
-read to 0xffff888102e40b58 of 8 bytes by task 13035 on cpu 1:
- __skb_wait_for_more_packets+0xfa/0x320 net/core/datagram.c:100
- __skb_recv_udp+0x374/0x500 net/ipv4/udp.c:1683
- udp_recvmsg+0xe1/0xb10 net/ipv4/udp.c:1712
- inet_recvmsg+0xbb/0x250 net/ipv4/af_inet.c:838
- sock_recvmsg_nosec+0x5c/0x70 net/socket.c:871
- ___sys_recvmsg+0x1a0/0x3e0 net/socket.c:2480
- do_recvmmsg+0x19a/0x5c0 net/socket.c:2601
- __sys_recvmmsg+0x1ef/0x200 net/socket.c:2680
- __do_sys_recvmmsg net/socket.c:2703 [inline]
- __se_sys_recvmmsg net/socket.c:2696 [inline]
- __x64_sys_recvmmsg+0x89/0xb0 net/socket.c:2696
- do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 13035 Comm: syz-executor.3 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 748f908cc882 ("arm64: add basic DTS for i.MX8MQ")
+Signed-off-by: Anson Huang <Anson.Huang@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/datagram.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/freescale/imx8mq.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/core/datagram.c
-+++ b/net/core/datagram.c
-@@ -96,7 +96,7 @@ static int wait_for_more_packets(struct
- 	if (error)
- 		goto out_err;
- 
--	if (sk->sk_receive_queue.prev != skb)
-+	if (READ_ONCE(sk->sk_receive_queue.prev) != skb)
- 		goto out;
- 
- 	/* Socket shut down? */
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq.dtsi b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+index d1f4eb197af26..32c270c4c22b8 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq.dtsi
+@@ -782,7 +782,7 @@
+ 				             "fsl,imx7d-usdhc";
+ 				reg = <0x30b40000 0x10000>;
+ 				interrupts = <GIC_SPI 22 IRQ_TYPE_LEVEL_HIGH>;
+-				clocks = <&clk IMX8MQ_CLK_DUMMY>,
++				clocks = <&clk IMX8MQ_CLK_IPG_ROOT>,
+ 				         <&clk IMX8MQ_CLK_NAND_USDHC_BUS>,
+ 				         <&clk IMX8MQ_CLK_USDHC1_ROOT>;
+ 				clock-names = "ipg", "ahb", "per";
+@@ -799,7 +799,7 @@
+ 				             "fsl,imx7d-usdhc";
+ 				reg = <0x30b50000 0x10000>;
+ 				interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+-				clocks = <&clk IMX8MQ_CLK_DUMMY>,
++				clocks = <&clk IMX8MQ_CLK_IPG_ROOT>,
+ 				         <&clk IMX8MQ_CLK_NAND_USDHC_BUS>,
+ 				         <&clk IMX8MQ_CLK_USDHC2_ROOT>;
+ 				clock-names = "ipg", "ahb", "per";
+-- 
+2.20.1
+
 
 
