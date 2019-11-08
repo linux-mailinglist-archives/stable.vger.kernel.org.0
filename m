@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E45F2F5421
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E578F545A
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:59:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732967AbfKHSya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:54:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51536 "EHLO mail.kernel.org"
+        id S1732578AbfKHS4j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:56:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732959AbfKHSy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:54:29 -0500
+        id S1732525AbfKHS4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:56:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1662218AE;
-        Fri,  8 Nov 2019 18:54:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D918E214DB;
+        Fri,  8 Nov 2019 18:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239269;
-        bh=qLaqX/z0adtFJJvxmrhsMd/vQ3e+34HWLa887NEigz8=;
+        s=default; t=1573239397;
+        bh=WZb83f7ajjCS4RolwHUHtussqsT1ehPfqHysGCEZhVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OamCFJoR59zpi67rS3vhqH8FlkOMuhjBVJbeXfb5aAuZLfqxfZ+VoewCXjhn3mk+4
-         8wr0QfN8ifV4PeXMzaZN7KXBN/vSyvyo2tfhOnyj4pU4+6zxtXczGbGSuDtoaJjVl6
-         ELJPEJJ0cqQqHaIGMOR3yZ8D/a79JXvGiPfahdd0=
+        b=twGQ03GMDI4xpbs4BOlCd2exdbMKXvVxM6U4k3DW36/dCZ7MYxSvxkMUmIAZxUeTf
+         HXDnJMNUJc5Cz1TC9IK1OZRqR2Lmy+twbk0OksgtryBQ1XIj2ZWS/8jaWIKed4Wpsx
+         ZKeNDgceAgDUhR2tI4H70q1W84LdYjw8aKe93dmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
-        <ardb@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        "David A. Long" <dave.long@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.4 57/75] ARM: spectre-v1: use get_user() for __get_user()
-Date:   Fri,  8 Nov 2019 19:50:14 +0100
-Message-Id: <20191108174759.489192959@linuxfoundation.org>
+        stable@vger.kernel.org, Laurence Oberman <loberman@redhat.com>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Hannes Reinecke <hare@suse.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 08/34] scsi: scsi_dh_alua: handle RTPG sense code correctly during state transitions
+Date:   Fri,  8 Nov 2019 19:50:15 +0100
+Message-Id: <20191108174629.145691706@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
+References: <20191108174618.266472504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Hannes Reinecke <hare@suse.com>
 
-Commit b1cd0a14806321721aae45f5446ed83a3647c914 upstream.
+[ Upstream commit b6ce6fb121a655aefe41dccc077141c102145a37 ]
 
-Fixing __get_user() for spectre variant 1 is not sane: we would have to
-add address space bounds checking in order to validate that the location
-should be accessed, and then zero the address if found to be invalid.
+Some arrays are not capable of returning RTPG data during state
+transitioning, but rather return an 'LUN not accessible, asymmetric access
+state transition' sense code. In these cases we can set the state to
+'transitioning' directly and don't need to evaluate the RTPG data (which we
+won't have anyway).
 
-Since __get_user() is supposed to avoid the bounds check, and this is
-exactly what get_user() does, there's no point having two different
-implementations that are doing the same thing.  So, when the Spectre
-workarounds are required, make __get_user() an alias of get_user().
-
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David A. Long <dave.long@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20191007135701.32389-1-hare@suse.de
+Reviewed-by: Laurence Oberman <loberman@redhat.com>
+Reviewed-by: Ewan D. Milne <emilne@redhat.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/uaccess.h |   17 +++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/arch/arm/include/asm/uaccess.h
-+++ b/arch/arm/include/asm/uaccess.h
-@@ -288,6 +288,16 @@ static inline void set_fs(mm_segment_t f
- #define user_addr_max() \
- 	(segment_eq(get_fs(), KERNEL_DS) ? ~0UL : get_fs())
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index 98787588247bf..60c288526355a 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -527,6 +527,7 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 	unsigned int tpg_desc_tbl_off;
+ 	unsigned char orig_transition_tmo;
+ 	unsigned long flags;
++	bool transitioning_sense = false;
  
-+#ifdef CONFIG_CPU_SPECTRE
-+/*
-+ * When mitigating Spectre variant 1, it is not worth fixing the non-
-+ * verifying accessors, because we need to add verification of the
-+ * address space there.  Force these to use the standard get_user()
-+ * version instead.
-+ */
-+#define __get_user(x, ptr) get_user(x, ptr)
-+#else
+ 	if (!pg->expiry) {
+ 		unsigned long transition_tmo = ALUA_FAILOVER_TIMEOUT * HZ;
+@@ -571,13 +572,19 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 			goto retry;
+ 		}
+ 		/*
+-		 * Retry on ALUA state transition or if any
+-		 * UNIT ATTENTION occurred.
++		 * If the array returns with 'ALUA state transition'
++		 * sense code here it cannot return RTPG data during
++		 * transition. So set the state to 'transitioning' directly.
+ 		 */
+ 		if (sense_hdr.sense_key == NOT_READY &&
+-		    sense_hdr.asc == 0x04 && sense_hdr.ascq == 0x0a)
+-			err = SCSI_DH_RETRY;
+-		else if (sense_hdr.sense_key == UNIT_ATTENTION)
++		    sense_hdr.asc == 0x04 && sense_hdr.ascq == 0x0a) {
++			transitioning_sense = true;
++			goto skip_rtpg;
++		}
++		/*
++		 * Retry on any other UNIT ATTENTION occurred.
++		 */
++		if (sense_hdr.sense_key == UNIT_ATTENTION)
+ 			err = SCSI_DH_RETRY;
+ 		if (err == SCSI_DH_RETRY &&
+ 		    pg->expiry != 0 && time_before(jiffies, pg->expiry)) {
+@@ -665,7 +672,11 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 		off = 8 + (desc[7] * 4);
+ 	}
+ 
++ skip_rtpg:
+ 	spin_lock_irqsave(&pg->lock, flags);
++	if (transitioning_sense)
++		pg->state = SCSI_ACCESS_STATE_TRANSITIONING;
 +
- /*
-  * The "__xxx" versions of the user access functions do not verify the
-  * address space - it must have been done previously with a separate
-@@ -304,12 +314,6 @@ static inline void set_fs(mm_segment_t f
- 	__gu_err;							\
- })
- 
--#define __get_user_error(x, ptr, err)					\
--({									\
--	__get_user_err((x), (ptr), err);				\
--	(void) 0;							\
--})
--
- #define __get_user_err(x, ptr, err)					\
- do {									\
- 	unsigned long __gu_addr = (unsigned long)(ptr);			\
-@@ -369,6 +373,7 @@ do {									\
- 
- #define __get_user_asm_word(x, addr, err)			\
- 	__get_user_asm(x, addr, err, ldr)
-+#endif
- 
- 
- #define __put_user_switch(x, ptr, __err, __fn)				\
+ 	sdev_printk(KERN_INFO, sdev,
+ 		    "%s: port group %02x state %c %s supports %c%c%c%c%c%c%c\n",
+ 		    ALUA_DH_NAME, pg->group_id, print_alua_state(pg->state),
+-- 
+2.20.1
+
 
 
