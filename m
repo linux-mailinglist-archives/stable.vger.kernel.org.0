@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7362F574E
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 714D2F54D6
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390560AbfKHTUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:20:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57246 "EHLO mail.kernel.org"
+        id S1726804AbfKHSzX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:55:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731773AbfKHTAI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:08 -0500
+        id S1731643AbfKHSzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:55:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18ECA224F0;
-        Fri,  8 Nov 2019 18:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AAAC121D7B;
+        Fri,  8 Nov 2019 18:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239551;
-        bh=g2BON5a5jLpDiYBnmSleR8ildfbDV/YBltGJeWLKpHQ=;
+        s=default; t=1573239319;
+        bh=JqBJ33MfxgJoV04Jkn6Y2nD3m+tGGlp3H9Rs53UmXYU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yjk3+/V1o5ZD/pC3rfeSk5B0N6dUmZsQ/6LbhvfqLg2UL5JOoWyQU3fbAIqXLcUE9
-         yt+LdtZ29ntuf6LcMajBKWpHNb48hKie8YnsG9P7+TwVTG9v9ME5YNk4ksAOm+iojF
-         tpWxUvYpGmdzeiz1FiOE3gi0GOh+QNmH/nHLwT7A=
+        b=HJSRF6y/rPA1qXOwdfPHjdRuS1YPOM4CUXvNxsNnaM+gXyHaOh8b25PwqcGP3BmnX
+         9SDgZfcI/Ver5SvPl7EVj4salZwOA7CzBl0ukA6c+eIqH22qDm4R6+EZETIfPrVqTh
+         CcExgjWahOq50EHUsfAbv5O0n+M3domKfJaBf8OY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 42/62] net: add skb_queue_empty_lockless()
+        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
+        <ardb@kernel.org>, Russell King <rmk+kernel@armlinux.org.uk>,
+        "David A. Long" <dave.long@linaro.org>,
+        Julien Thierry <julien.thierry@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH 4.4 73/75] ARM: fix the cockup in the previous patch
 Date:   Fri,  8 Nov 2019 19:50:30 +0100
-Message-Id: <20191108174749.326432373@linuxfoundation.org>
+Message-Id: <20191108174812.725818389@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
+References: <20191108174708.135680837@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,93 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit d7d16a89350ab263484c0aa2b523dd3a234e4a80 ]
+Commit d6951f582cc50ba0ad22ef46b599740966599b14 upstream.
 
-Some paths call skb_queue_empty() without holding
-the queue lock. We must use a barrier in order
-to not let the compiler do strange things, and avoid
-KCSAN splats.
+The intention in the previous patch was to only place the processor
+tables in the .rodata section if big.Little was being built and we
+wanted the branch target hardening, but instead (due to the way it
+was tested) it ended up always placing the tables into the .rodata
+section.
 
-Adding a barrier in skb_queue_empty() might be overkill,
-I prefer adding a new helper to clearly identify
-points where the callers might be lockless. This might
-help us finding real bugs.
+Although harmless, let's correct this anyway.
 
-The corresponding WRITE_ONCE() should add zero cost
-for current compilers.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3a4d0c2172bc ("ARM: ensure that processor vtables is not lost after boot")
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David A. Long <dave.long@linaro.org>
+Reviewed-by: Julien Thierry <julien.thierry@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |   33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ arch/arm/mm/proc-macros.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1346,6 +1346,19 @@ static inline int skb_queue_empty(const
- }
+--- a/arch/arm/mm/proc-macros.S
++++ b/arch/arm/mm/proc-macros.S
+@@ -263,7 +263,7 @@
+  * If we are building for big.Little with branch predictor hardening,
+  * we need the processor function tables to remain available after boot.
+  */
+-#if 1 // defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
++#if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
+ 	.section ".rodata"
+ #endif
+ 	.type	\name\()_processor_functions, #object
+@@ -301,7 +301,7 @@ ENTRY(\name\()_processor_functions)
+ 	.endif
  
- /**
-+ *	skb_queue_empty_lockless - check if a queue is empty
-+ *	@list: queue head
-+ *
-+ *	Returns true if the queue is empty, false otherwise.
-+ *	This variant can be used in lockless contexts.
-+ */
-+static inline bool skb_queue_empty_lockless(const struct sk_buff_head *list)
-+{
-+	return READ_ONCE(list->next) == (const struct sk_buff *) list;
-+}
-+
-+
-+/**
-  *	skb_queue_is_last - check if skb is the last entry in the queue
-  *	@list: queue head
-  *	@skb: buffer
-@@ -1709,9 +1722,11 @@ static inline void __skb_insert(struct s
- 				struct sk_buff *prev, struct sk_buff *next,
- 				struct sk_buff_head *list)
- {
--	newsk->next = next;
--	newsk->prev = prev;
--	next->prev  = prev->next = newsk;
-+	/* see skb_queue_empty_lockless() for the opposite READ_ONCE() */
-+	WRITE_ONCE(newsk->next, next);
-+	WRITE_ONCE(newsk->prev, prev);
-+	WRITE_ONCE(next->prev, newsk);
-+	WRITE_ONCE(prev->next, newsk);
- 	list->qlen++;
- }
- 
-@@ -1722,11 +1737,11 @@ static inline void __skb_queue_splice(co
- 	struct sk_buff *first = list->next;
- 	struct sk_buff *last = list->prev;
- 
--	first->prev = prev;
--	prev->next = first;
-+	WRITE_ONCE(first->prev, prev);
-+	WRITE_ONCE(prev->next, first);
- 
--	last->next = next;
--	next->prev = last;
-+	WRITE_ONCE(last->next, next);
-+	WRITE_ONCE(next->prev, last);
- }
- 
- /**
-@@ -1867,8 +1882,8 @@ static inline void __skb_unlink(struct s
- 	next	   = skb->next;
- 	prev	   = skb->prev;
- 	skb->next  = skb->prev = NULL;
--	next->prev = prev;
--	prev->next = next;
-+	WRITE_ONCE(next->prev, prev);
-+	WRITE_ONCE(prev->next, next);
- }
- 
- /**
+ 	.size	\name\()_processor_functions, . - \name\()_processor_functions
+-#if 1 // defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
++#if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
+ 	.previous
+ #endif
+ .endm
 
 
