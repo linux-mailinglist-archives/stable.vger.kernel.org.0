@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D8FFF5707
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BEAF55C3
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732476AbfKHTPs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:15:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34464 "EHLO mail.kernel.org"
+        id S2391022AbfKHTEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:04:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389751AbfKHTE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:04:29 -0500
+        id S2391016AbfKHTEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:04:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48BFC2087E;
-        Fri,  8 Nov 2019 19:04:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50FD3214DB;
+        Fri,  8 Nov 2019 19:04:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239868;
-        bh=vEco0Qc5gNZWgnkrLje5461Udlzws/Ff4y+WCVIP6Ug=;
+        s=default; t=1573239871;
+        bh=E+OCrg1Hgz1vdAv/f74VlJJK7oGTL8UsyW2/kOx4ziE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFhC77ZbyXDqxFPQ1e952FjbLxW2HTPVA6JLQAWZpNeoda9m0Spg7Wkw4TV+BydEP
-         lPwizK61ag6TaW1EzJnTI0RFROIK9qKF6Zwb6/mQMdrBK3oS+mGH9iyoHzhpD4a8Mf
-         SBe3OthQVEFkiyexese/UP+o0MkmP5DUG1aNmnLY=
+        b=mcqWl5fnyugNmaBUFDV+UjV6X53+XETueGlpiRr+pK7H8crWNNjqD881tmf7GjRUf
+         3GrY+VdUb/6NCMxfoLdTq1LL384IYxUEZ/uK46Cugwi/RGMMJLK5Xk8li5CLlrHPFy
+         YseMLSbfWyBjN4mp0698TPvAESjXdDlEgYifsyjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Nishanth Menon <nm@ti.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Federico Ricchiuto <fed.ricchiuto@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 010/140] regulator: ti-abb: Fix timeout in ti_abb_wait_txdone/ti_abb_clear_all_txdone
-Date:   Fri,  8 Nov 2019 19:48:58 +0100
-Message-Id: <20191108174901.797776449@linuxfoundation.org>
+Subject: [PATCH 5.3 011/140] pinctrl: intel: Allocate IRQ chip dynamic
+Date:   Fri,  8 Nov 2019 19:48:59 +0100
+Message-Id: <20191108174901.907292692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
 References: <20191108174900.189064908@linuxfoundation.org>
@@ -44,77 +46,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit f64db548799e0330897c3203680c2ee795ade518 ]
+[ Upstream commit 57ff2df1b952c7934d7b0e1d3a2ec403ec76edec ]
 
-ti_abb_wait_txdone() may return -ETIMEDOUT when ti_abb_check_txdone()
-returns true in the latest iteration of the while loop because the timeout
-value is abb->settling_time + 1. Similarly, ti_abb_clear_all_txdone() may
-return -ETIMEDOUT when ti_abb_check_txdone() returns false in the latest
-iteration of the while loop. Fix it.
+Keeping the IRQ chip definition static shares it with multiple instances of
+the GPIO chip in the system. This is bad and now we get this warning from
+GPIO library:
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20190929095848.21960-1-axel.lin@ingics.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+"detected irqchip that is shared with multiple gpiochips: please fix the driver."
+
+Hence, move the IRQ chip definition from being driver static into the struct
+intel_pinctrl. So a unique IRQ chip is used for each GPIO chip instance.
+
+Fixes: ee1a6ca43dba ("pinctrl: intel: Add Intel Broxton pin controller support")
+Depends-on: 5ff56b015e85 ("pinctrl: intel: Disable GPIO pin interrupts in suspend")
+Reported-by: Federico Ricchiuto <fed.ricchiuto@gmail.com>
+Suggested-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ti-abb-regulator.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ drivers/pinctrl/intel/pinctrl-intel.c | 27 ++++++++++++++-------------
+ 1 file changed, 14 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
-index cced1ffb896c1..89b9314d64c9d 100644
---- a/drivers/regulator/ti-abb-regulator.c
-+++ b/drivers/regulator/ti-abb-regulator.c
-@@ -173,19 +173,14 @@ static int ti_abb_wait_txdone(struct device *dev, struct ti_abb *abb)
- 	while (timeout++ <= abb->settling_time) {
- 		status = ti_abb_check_txdone(abb);
- 		if (status)
--			break;
-+			return 0;
- 
- 		udelay(1);
- 	}
- 
--	if (timeout > abb->settling_time) {
--		dev_warn_ratelimited(dev,
--				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
--				     __func__, timeout, readl(abb->int_base));
--		return -ETIMEDOUT;
--	}
--
--	return 0;
-+	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
-+			     __func__, timeout, readl(abb->int_base));
-+	return -ETIMEDOUT;
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index a18d6eefe6726..4323796cbe118 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -96,6 +96,7 @@ struct intel_pinctrl_context {
+  * @pctldesc: Pin controller description
+  * @pctldev: Pointer to the pin controller device
+  * @chip: GPIO chip in this pin controller
++ * @irqchip: IRQ chip in this pin controller
+  * @soc: SoC/PCH specific pin configuration data
+  * @communities: All communities in this pin controller
+  * @ncommunities: Number of communities in this pin controller
+@@ -108,6 +109,7 @@ struct intel_pinctrl {
+ 	struct pinctrl_desc pctldesc;
+ 	struct pinctrl_dev *pctldev;
+ 	struct gpio_chip chip;
++	struct irq_chip irqchip;
+ 	const struct intel_pinctrl_soc_data *soc;
+ 	struct intel_community *communities;
+ 	size_t ncommunities;
+@@ -1081,16 +1083,6 @@ static irqreturn_t intel_gpio_irq(int irq, void *data)
+ 	return ret;
  }
  
- /**
-@@ -205,19 +200,14 @@ static int ti_abb_clear_all_txdone(struct device *dev, const struct ti_abb *abb)
+-static struct irq_chip intel_gpio_irqchip = {
+-	.name = "intel-gpio",
+-	.irq_ack = intel_gpio_irq_ack,
+-	.irq_mask = intel_gpio_irq_mask,
+-	.irq_unmask = intel_gpio_irq_unmask,
+-	.irq_set_type = intel_gpio_irq_type,
+-	.irq_set_wake = intel_gpio_irq_wake,
+-	.flags = IRQCHIP_MASK_ON_SUSPEND,
+-};
+-
+ static int intel_gpio_add_pin_ranges(struct intel_pinctrl *pctrl,
+ 				     const struct intel_community *community)
+ {
+@@ -1140,12 +1132,22 @@ static int intel_gpio_probe(struct intel_pinctrl *pctrl, int irq)
  
- 		status = ti_abb_check_txdone(abb);
- 		if (!status)
--			break;
-+			return 0;
+ 	pctrl->chip = intel_gpio_chip;
  
- 		udelay(1);
++	/* Setup GPIO chip */
+ 	pctrl->chip.ngpio = intel_gpio_ngpio(pctrl);
+ 	pctrl->chip.label = dev_name(pctrl->dev);
+ 	pctrl->chip.parent = pctrl->dev;
+ 	pctrl->chip.base = -1;
+ 	pctrl->irq = irq;
+ 
++	/* Setup IRQ chip */
++	pctrl->irqchip.name = dev_name(pctrl->dev);
++	pctrl->irqchip.irq_ack = intel_gpio_irq_ack;
++	pctrl->irqchip.irq_mask = intel_gpio_irq_mask;
++	pctrl->irqchip.irq_unmask = intel_gpio_irq_unmask;
++	pctrl->irqchip.irq_set_type = intel_gpio_irq_type;
++	pctrl->irqchip.irq_set_wake = intel_gpio_irq_wake;
++	pctrl->irqchip.flags = IRQCHIP_MASK_ON_SUSPEND;
++
+ 	ret = devm_gpiochip_add_data(pctrl->dev, &pctrl->chip, pctrl);
+ 	if (ret) {
+ 		dev_err(pctrl->dev, "failed to register gpiochip\n");
+@@ -1175,15 +1177,14 @@ static int intel_gpio_probe(struct intel_pinctrl *pctrl, int irq)
+ 		return ret;
  	}
  
--	if (timeout > abb->settling_time) {
--		dev_warn_ratelimited(dev,
--				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
--				     __func__, timeout, readl(abb->int_base));
--		return -ETIMEDOUT;
--	}
--
--	return 0;
-+	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
-+			     __func__, timeout, readl(abb->int_base));
-+	return -ETIMEDOUT;
+-	ret = gpiochip_irqchip_add(&pctrl->chip, &intel_gpio_irqchip, 0,
++	ret = gpiochip_irqchip_add(&pctrl->chip, &pctrl->irqchip, 0,
+ 				   handle_bad_irq, IRQ_TYPE_NONE);
+ 	if (ret) {
+ 		dev_err(pctrl->dev, "failed to add irqchip\n");
+ 		return ret;
+ 	}
+ 
+-	gpiochip_set_chained_irqchip(&pctrl->chip, &intel_gpio_irqchip, irq,
+-				     NULL);
++	gpiochip_set_chained_irqchip(&pctrl->chip, &pctrl->irqchip, irq, NULL);
+ 	return 0;
  }
  
- /**
 -- 
 2.20.1
 
