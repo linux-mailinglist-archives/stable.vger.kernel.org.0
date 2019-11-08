@@ -2,90 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 875E7F49E9
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:06:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49797F4B4D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:18:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389436AbfKHMFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:05:55 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:58504 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1732305AbfKHMFz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 07:05:55 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=u1LSxi/xCIm7BKmi90jrl3S/RxiU2mUU9mchFDPyUmk=; b=wvPi+97JaYr5DNz3EiEYA8J1B
-        86NnGoS8DUz4donPwa6uIK0Uh/VQnx7asQLshI9hePIgRQnLk6IDsNzfQMwbGo108UXP4p4RpUAWo
-        uxPeOBGlRcjfUpV2/TkglWeRMWvv4sKtKaZJ7A5ygAf95Tl9ZuqOPJYMbv6xznlW3zjEs=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1iT31S-0007Cx-Fg; Fri, 08 Nov 2019 12:05:50 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id 959772740C6C; Fri,  8 Nov 2019 12:05:49 +0000 (GMT)
-Date:   Fri, 8 Nov 2019 12:05:49 +0000
-From:   Mark Brown <broonie@kernel.org>
+        id S1732663AbfKHMQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:16:33 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:58682 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1731612AbfKHMQd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 07:16:33 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xA8CDl3Z054449
+        for <stable@vger.kernel.org>; Fri, 8 Nov 2019 07:16:32 -0500
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w57hwhckr-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Fri, 08 Nov 2019 07:16:32 -0500
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <jwi@linux.ibm.com>;
+        Fri, 8 Nov 2019 12:16:30 -0000
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Fri, 8 Nov 2019 12:16:27 -0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id xA8CGQIn18481198
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 8 Nov 2019 12:16:26 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id C517FA4054;
+        Fri,  8 Nov 2019 12:16:26 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8774EA405B;
+        Fri,  8 Nov 2019 12:16:26 +0000 (GMT)
+Received: from [9.152.222.69] (unknown [9.152.222.69])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri,  8 Nov 2019 12:16:26 +0000 (GMT)
+Subject: Re: [PATCH AUTOSEL 4.19 204/205] s390/qeth: limit csum offload
+ erratum to L3 devices
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-spi@vger.kernel.org,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        linux-gpio@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 124/205] gpio: of: Handle SPI chipselect
- legacy bindings
-Message-ID: <20191108120549.GA5532@sirena.co.uk>
+        "David S . Miller" <davem@davemloft.net>,
+        linux-s390@vger.kernel.org
 References: <20191108113752.12502-1-sashal@kernel.org>
- <20191108113752.12502-124-sashal@kernel.org>
+ <20191108113752.12502-204-sashal@kernel.org>
+ <2e4553d6-de1f-bb61-33e4-10a5c23f0aa7@linux.ibm.com>
+ <20191108120025.GM4787@sasha-vm>
+From:   Julian Wiedmann <jwi@linux.ibm.com>
+Date:   Fri, 8 Nov 2019 13:16:26 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
-Content-Disposition: inline
-In-Reply-To: <20191108113752.12502-124-sashal@kernel.org>
-X-Cookie: Life is like a simile.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191108120025.GM4787@sasha-vm>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+x-cbid: 19110812-0012-0000-0000-00000361E08A
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19110812-0013-0000-0000-0000219D4507
+Message-Id: <4d8f1938-af6e-7e0e-4085-2f7c53390b2d@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-11-08_03:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1031 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1910280000 definitions=main-1911080121
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 08.11.19 13:00, Sasha Levin wrote:
+> On Fri, Nov 08, 2019 at 12:50:24PM +0100, Julian Wiedmann wrote:
+>> On 08.11.19 12:37, Sasha Levin wrote:
+>>> From: Julian Wiedmann <jwi@linux.ibm.com>
+>>>
+>>> [ Upstream commit f231dc9dbd789b0f98a15941e3cebedb4ad72ad5 ]
+>>>
+>>> Combined L3+L4 csum offload is only required for some L3 HW. So for
+>>> L2 devices, don't offload the IP header csum calculation.
+>>>
+>>
+>> NACK, this has no relevance for stable.
+> 
+> Sure, I'll drop it.
+> 
+> Do you have an idea why the centos and ubuntu folks might have
+> backported this commit into their kernels?
+> 
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+No clue, I trust they have their own reasons.
 
-On Fri, Nov 08, 2019 at 06:36:31AM -0500, Sasha Levin wrote:
-> From: Linus Walleij <linus.walleij@linaro.org>
->=20
-> [ Upstream commit 6953c57ab1721ce57914fc5741d0ce0568756bb0 ]
->=20
-> The SPI chipselects are assumed to be active low in the current
-> binding, so when we want to use GPIO descriptors and handle
-> the active low/high semantics in gpiolib, we need a special
-> parsing quirk to deal with this.
-
-This stuff is *incredibly* fragile, are we sure this isn't manifiesting
-in later kernels as a result of some other fix or cleanup exposing
-issues and won't break without that fixup?  I loose track of all the
-GPIO stuff.
-
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl3FWhwACgkQJNaLcl1U
-h9D6VAf/aQvUCk5KwmYDafiih+sMdQS5rdG1M0qIchk9PsPJfHsAk/+c+Alwdcq5
-VFhvlX/FDZspFImn1yh2S+YblDxd084LRo3bC/aLlzt5BC3hLBRQoqR3np12R/6B
-sE1WLP9j1G85zUpvCluxCodf5QUPeijr5ByW+L7q70Dmovx8YI8EsNMG7ady8drc
-9sdnO+kpoLizkvJDPsSY67RcxSHmD3gdxq28Bsnc8q2HuHq545Ypip8EicHP1ptX
-Mt+D5+kjLIztZssCVjpYK8Vssqm6kSiz8Acaq7MShBSAo6pVvdDU2cNoLmGXyezg
-R4EkfCZITRI4doWFNGv5hshc54GSng==
-=lio8
------END PGP SIGNATURE-----
-
---/9DWx/yDrRhgMJTb--
