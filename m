@@ -2,74 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48EE9F4D2B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 14:29:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D4BF4D5A
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 14:39:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727429AbfKHN3f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 08:29:35 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:40908 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726445AbfKHN3f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 08:29:35 -0500
-Received: by mail-wr1-f67.google.com with SMTP id i10so7057609wrs.7
-        for <stable@vger.kernel.org>; Fri, 08 Nov 2019 05:29:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=s/yCUpNC7XfUqw3qRnXOOPQdfMSEXjROzZKokUlrT+4=;
-        b=kQxhd6WYx4zSJ34MVdg6iu3jSnvVhqp+/NWK6UAQvh29We+u3EWGKX34Tj8fLT2GsS
-         kiawqEJJtufPUT9mPd0qx1yCi6OulmnQzluuYQiOkhLMu4JUi9/Ki0vJTwgtq5N6L4id
-         /IO8OL/RUiFd4oSBHvDu4+DQtoTMVJmBOKB/2hgOBDFKu21fmJK9vahHZqS7rECsZtgv
-         KCwsMoPR2B6+110VX1ClgNXP5/Pa4wVGpRAsU5EcALwhWtheqKXIpWoDoUn8w2Bl6vvy
-         2710ACs0Cb3CJts579X0nwSiSPETCe9G/A3tkQUwoilX8MxjfgMdgkSZKy4vIymRbj24
-         Zr1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=s/yCUpNC7XfUqw3qRnXOOPQdfMSEXjROzZKokUlrT+4=;
-        b=JBPL0yXramkB/IU6NYfCJG8PbjeQ7iyYhNNAtYHy0hQ/uT3QcqqfLwTwJXqF5VzYLW
-         LZA20q53kTk8kezvC+YHaXlvIpwL654kOwQ62BRh3xjhtpDVTYxnhIFAgc3Q69rQ9WUU
-         bf7O4IzeKFAGz+wfsXdYO2Mp3ZrgJbZ/K+esX4JInYFgcpDUqfLdKKPWCFqBnrU1OUkp
-         Ye1wpTmMjXVGOAnDgxlToAfXkI0hw203PYC3izyBeVg8FsyTZS7+8VZN0PlJx+ieyMx4
-         rqW6wafL+O80WQ5oPSp9yQOucVO3gotbGAoilqJ+hHNmbIiePUho2YsaxIRqhCa1wO4P
-         6G/w==
-X-Gm-Message-State: APjAAAUICeEni1wsMoDP2AwCnhyQkMeKN5prhy9wau1+XqO02Y2P5K9v
-        9S1LhhhGvY+TYeEdRLwWOIpR7m4lX47aIxNlEA2ycw==
-X-Google-Smtp-Source: APXvYqzsdygW5AygGk/js0Y+Ac9hOdYUtZWBOn4vF+aoz6aDsYIRQnoaZ2mx3uRca8EavbgeKNoO98RnuPUC8ulpg+k=
-X-Received: by 2002:adf:ec42:: with SMTP id w2mr8014445wrn.32.1573219773069;
- Fri, 08 Nov 2019 05:29:33 -0800 (PST)
+        id S1727675AbfKHNjn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 08:39:43 -0500
+Received: from gecko.sbs.de ([194.138.37.40]:36718 "EHLO gecko.sbs.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726445AbfKHNjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 08:39:42 -0500
+X-Greylist: delayed 909 seconds by postgrey-1.27 at vger.kernel.org; Fri, 08 Nov 2019 08:39:41 EST
+Received: from thoth.sbs.de (thoth.sbs.de [192.35.17.2])
+        by gecko.sbs.de (8.15.2/8.15.2) with ESMTPS id xA8DOV5L017509
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
+        for <stable@vger.kernel.org>; Fri, 8 Nov 2019 14:24:31 +0100
+Received: from mail1.sbs.de (mail1.sbs.de [192.129.41.35])
+        by thoth.sbs.de (8.15.2/8.15.2) with ESMTPS id xA8DOP9J019499
+        (version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 8 Nov 2019 14:24:26 +0100
+Received: from [139.25.68.37] ([139.25.68.37])
+        by mail1.sbs.de (8.15.2/8.15.2) with ESMTP id xA8DOPMU025877;
+        Fri, 8 Nov 2019 14:24:25 +0100
+Subject: Re: [PATCH v1] platform/x86: pmc_atom: Add Siemens SIMATIC IPC227E to
+ critclk_systems DMI table
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     stable@vger.kernel.org
+References: <20191107170530.6115-1-andriy.shevchenko@linux.intel.com>
+ <20191108131813.GD761587@kroah.com>
+From:   Jan Kiszka <jan.kiszka@siemens.com>
+Message-ID: <e448f04b-ea0c-f0b7-a8fe-f4952144dc09@siemens.com>
+Date:   Fri, 8 Nov 2019 14:24:23 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.1.1
 MIME-Version: 1.0
-References: <20191108123554.29004-1-ardb@kernel.org> <20191108123554.29004-9-ardb@kernel.org>
- <20191108131105.GA759061@kroah.com>
-In-Reply-To: <20191108131105.GA759061@kroah.com>
-From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date:   Fri, 8 Nov 2019 14:29:21 +0100
-Message-ID: <CAKv+Gu819gSLLtOOMDVwoO6UmGgy=ng8SLMzOY_UJeZMM9=sOw@mail.gmail.com>
-Subject: Re: [PATCH for-stable-4.4 08/50] arm/arm64: KVM: Advertise SMCCC v1.1
-To:     Greg KH <greg@kroah.com>
-Cc:     Ard Biesheuvel <ardb@kernel.org>, stable <stable@vger.kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Mark Rutland <mark.rutland@arm.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191108131813.GD761587@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-purgate-type: clean
+X-purgate-Ad: Categorized by eleven eXpurgate (R) http://www.eleven.de
+X-purgate: clean
+X-purgate: This mail is considered clean (visit http://www.eleven.de for further information)
+X-purgate-size: 1003
+X-purgate-ID: 149902::1573219471-00001F04-03C153FA/0/0
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 8 Nov 2019 at 14:11, Greg KH <greg@kroah.com> wrote:
->
-> On Fri, Nov 08, 2019 at 01:35:12PM +0100, Ard Biesheuvel wrote:
-> > From: Mark Rutland <mark.rutland@arm.com>
-> >
-> > From: Marc Zyngier <marc.zyngier@arm.com>
->
-> Lots of Mar[c/k]'s :)
->
-> I'll fix this up...
->
+On 08.11.19 14:18, Greg Kroah-Hartman wrote:
+> On Thu, Nov 07, 2019 at 07:05:30PM +0200, Andy Shevchenko wrote:
+>> From: Jan Kiszka <jan.kiszka@siemens.com>
+>>
+>> The SIMATIC IPC227E uses the PMC clock for on-board components and gets
+>> stuck during boot if the clock is disabled. Therefore, add this device
+>> to the critical systems list.
+>>
+>> Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+>> Cc: <stable@vger.kernel.org>
+>> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+>> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>> ---
+>>
+>> - resend for stable inclusion
+> 
+> What git id is this in Linus's tree, and what tree(s) is this backport
+> for?
 
-This is eactly how it appears in v4.9, so I just left it. Same for the
-double 'upstream commit' that you responded to.
+Upstream ID ad0d315b4d4e7138f43acf03308192ec00e9614d.
+
+We should target down to 4.14, the last stable kernel that got bothered 
+by 648e921888ad as far as I can see.
+
+Jan
+
+-- 
+Siemens AG, Corporate Technology, CT RDA IOT SES-DE
+Corporate Competence Center Embedded Linux
