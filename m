@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C103F473E
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:49:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6147FF4748
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:49:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390260AbfKHLsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:48:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37392 "EHLO mail.kernel.org"
+        id S1732760AbfKHLtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:49:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389985AbfKHLsW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:48:22 -0500
+        id S2391733AbfKHLsY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:48:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 565A4222CE;
-        Fri,  8 Nov 2019 11:48:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C44FB21924;
+        Fri,  8 Nov 2019 11:48:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213702;
-        bh=xEv4H0IgVHYmb74M4fjlkD9XU6PYj9n5CKOA9uGY6UY=;
+        s=default; t=1573213704;
+        bh=xmteAW81h2blFb8tQocIaklh7OglFSJcqZ7I45f1uC8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQCc0olz/1T/5MXoBgSmzm1qUqXiivcoXlGvF/q1Lf1U4DBOmAVoyVf8rMScnSrrs
-         6tnO6ZwYT9nOCeTM+Ge9chQAGuDiQRQcG9eQzg1JWL9ka9gSEzURECKu6mPBqV+vFl
-         pp1/rY2Z7c5Pu1x4ExFRVpyCPAOdIqCXKmvVV7WY=
+        b=y5h8Y0ACW7Kd3KI0moAo0jlnP7xuxCfhsoBDWu6ITfz7CjI9rysVbsyPxBJzSPQZ9
+         6YGZrThKkUWNiPR2veRCaP7a+OJrL5Wv8l8SHjfwBodlfUxIOO/Q1jf8seulNB5H3v
+         4vlY5OjtPfR5/x1p4xoSQY1sjqTpET2NtlY+0/YA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ganesh Goudar <ganeshgr@chelsio.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 41/44] cxgb4: Fix endianness issue in t4_fwcache()
-Date:   Fri,  8 Nov 2019 06:47:17 -0500
-Message-Id: <20191108114721.15944-41-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 42/44] power: supply: ab8500_fg: silence uninitialized variable warnings
+Date:   Fri,  8 Nov 2019 06:47:18 -0500
+Message-Id: <20191108114721.15944-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114721.15944-1-sashal@kernel.org>
 References: <20191108114721.15944-1-sashal@kernel.org>
@@ -44,33 +43,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganesh Goudar <ganeshgr@chelsio.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 0dc235afc59a226d951352b0adf4a89b532a9d13 ]
+[ Upstream commit 54baff8d4e5dce2cef61953b1dc22079cda1ddb1 ]
 
-Do not put host-endian 0 or 1 into big endian feild.
+If kstrtoul() fails then we print "charge_full" when it's uninitialized.
+The debug printk doesn't add anything so I deleted it and cleaned these
+two functions up a bit.
 
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Ganesh Goudar <ganeshgr@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/t4_hw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/power/ab8500_fg.c | 31 ++++++++++++-------------------
+ 1 file changed, 12 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-index de23f23b41de6..832ad1bd1f29b 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/t4_hw.c
-@@ -3482,7 +3482,7 @@ int t4_fwcache(struct adapter *adap, enum fw_params_param_dev_fwcache op)
- 	c.param[0].mnem =
- 		cpu_to_be32(FW_PARAMS_MNEM_V(FW_PARAMS_MNEM_DEV) |
- 			    FW_PARAMS_PARAM_X_V(FW_PARAMS_PARAM_DEV_FWCACHE));
--	c.param[0].val = (__force __be32)op;
-+	c.param[0].val = cpu_to_be32(op);
+diff --git a/drivers/power/ab8500_fg.c b/drivers/power/ab8500_fg.c
+index 3830dade5d69d..d91111200dde2 100644
+--- a/drivers/power/ab8500_fg.c
++++ b/drivers/power/ab8500_fg.c
+@@ -2447,17 +2447,14 @@ static ssize_t charge_full_store(struct ab8500_fg *di, const char *buf,
+ 				 size_t count)
+ {
+ 	unsigned long charge_full;
+-	ssize_t ret;
++	int ret;
  
- 	return t4_wr_mbox(adap, adap->mbox, &c, sizeof(c), NULL);
+ 	ret = kstrtoul(buf, 10, &charge_full);
++	if (ret)
++		return ret;
+ 
+-	dev_dbg(di->dev, "Ret %zd charge_full %lu", ret, charge_full);
+-
+-	if (!ret) {
+-		di->bat_cap.max_mah = (int) charge_full;
+-		ret = count;
+-	}
+-	return ret;
++	di->bat_cap.max_mah = (int) charge_full;
++	return count;
  }
+ 
+ static ssize_t charge_now_show(struct ab8500_fg *di, char *buf)
+@@ -2469,20 +2466,16 @@ static ssize_t charge_now_store(struct ab8500_fg *di, const char *buf,
+ 				 size_t count)
+ {
+ 	unsigned long charge_now;
+-	ssize_t ret;
++	int ret;
+ 
+ 	ret = kstrtoul(buf, 10, &charge_now);
++	if (ret)
++		return ret;
+ 
+-	dev_dbg(di->dev, "Ret %zd charge_now %lu was %d",
+-		ret, charge_now, di->bat_cap.prev_mah);
+-
+-	if (!ret) {
+-		di->bat_cap.user_mah = (int) charge_now;
+-		di->flags.user_cap = true;
+-		ret = count;
+-		queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
+-	}
+-	return ret;
++	di->bat_cap.user_mah = (int) charge_now;
++	di->flags.user_cap = true;
++	queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
++	return count;
+ }
+ 
+ static struct ab8500_fg_sysfs_entry charge_full_attr =
 -- 
 2.20.1
 
