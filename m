@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F15F4600
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:39:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1001F460B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:40:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733145AbfKHLjM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:39:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52086 "EHLO mail.kernel.org"
+        id S2387670AbfKHLjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:39:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733118AbfKHLjJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:39:09 -0500
+        id S1730616AbfKHLjf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:39:35 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7982620869;
-        Fri,  8 Nov 2019 11:39:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8562C20869;
+        Fri,  8 Nov 2019 11:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213149;
-        bh=quaFVzJRdtGC0pYG6THaiNj51wCyvvfrzByeOymHtEo=;
+        s=default; t=1573213175;
+        bh=L5ZKUrc/TBLLpyooRleWyieQNY5ylLKmZ/vovfO3UOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=16X08zWAS1efqdqalvvGccLUXYgq2tuDRnRNSaQ2h5dDY9Ux11PjRhUHf7sfOLzf2
-         HfEu+sPxLadm8wG+KI46BVTtXTFizvHFCqvmerOftgtZVOt79bQr3ahfm4vnTZw/iV
-         7ZyNVwFVObRzGLqXtNKME4+nbkvy3Xk4Aey+RKZI=
+        b=tM7whB751xtK/0CVLtvrZ2F3vewXmn9e79a/6qEBVcPRd47UY0mcAyUd2dQrPyUUS
+         +VIuV6qd/NC9kXYp4uvRtik12qMjAbBRtuSGI3AbqWr3W35H4vYnchKM3IS26WZmr2
+         IVT6sBt9R9vDXDrDXC3bbG37AmuZy1MXw5snyvy8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sara Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 058/205] iwlwifi: mvm: avoid sending too many BARs
-Date:   Fri,  8 Nov 2019 06:35:25 -0500
-Message-Id: <20191108113752.12502-58-sashal@kernel.org>
+Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 071/205] net: hns3: Fix for multicast failure
+Date:   Fri,  8 Nov 2019 06:35:38 -0500
+Message-Id: <20191108113752.12502-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -44,48 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sara Sharon <sara.sharon@intel.com>
+From: Huazhong Tan <tanhuazhong@huawei.com>
 
-[ Upstream commit 1a19c139be18ed4d6d681049cc48586fae070120 ]
+[ Upstream commit fd5f9da3f6583046215d614a87792b46e55785e2 ]
 
-When we receive TX response, we may release a few packets
-due to a hole that was closed in the transmission window.
+When the lower 24 bits of the IPV6 link-local addresses at both
+ends are the same, the multicast MAC address for Neigbour Discovery
+is the same. The multicast for Neigbour Discovery will fail.
 
-However, if that frame failed, we will mark all the released
-frames as failed and will send multiple BARs.
+This patch fixes it by including the bonding uplink port in the
+multicast group.
 
-This affects statistics badly, and cause unnecessary frames
-transmission.
-
-Instead, mark all the following packets as success, with the
-desired result of sending a bar for the failed frame only.
-
-Signed-off-by: Sara Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: 46a3df9f9718("net: hns3: Add HNS3 Acceleration Engine & Compatibility Layer Support")
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-index 5615ce55cef56..cb2e52e7f46c9 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -1438,6 +1438,14 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
- 			break;
- 		}
- 
-+		/*
-+		 * If we are freeing multiple frames, mark all the frames
-+		 * but the first one as acked, since they were acknowledged
-+		 * before
-+		 * */
-+		if (skb_freed > 1)
-+			info->flags |= IEEE80211_TX_STAT_ACK;
-+
- 		iwl_mvm_tx_status_check_trigger(mvm, status);
- 
- 		info->status.rates[0].count = tx_resp->failure_frame + 1;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 89ca69fa2b97b..44d0cb3f73a44 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -4374,7 +4374,7 @@ int hclge_add_mc_addr_common(struct hclge_vport *vport,
+ 	hnae3_set_bit(req.flags, HCLGE_MAC_VLAN_BIT0_EN_B, 1);
+ 	hnae3_set_bit(req.entry_type, HCLGE_MAC_VLAN_BIT0_EN_B, 0);
+ 	hnae3_set_bit(req.entry_type, HCLGE_MAC_VLAN_BIT1_EN_B, 1);
+-	hnae3_set_bit(req.mc_mac_en, HCLGE_MAC_VLAN_BIT0_EN_B, 0);
++	hnae3_set_bit(req.mc_mac_en, HCLGE_MAC_VLAN_BIT0_EN_B, 1);
+ 	hclge_prepare_mac_addr(&req, addr);
+ 	status = hclge_lookup_mac_vlan_tbl(vport, &req, desc, true);
+ 	if (!status) {
+@@ -4441,7 +4441,7 @@ int hclge_rm_mc_addr_common(struct hclge_vport *vport,
+ 	hnae3_set_bit(req.flags, HCLGE_MAC_VLAN_BIT0_EN_B, 1);
+ 	hnae3_set_bit(req.entry_type, HCLGE_MAC_VLAN_BIT0_EN_B, 0);
+ 	hnae3_set_bit(req.entry_type, HCLGE_MAC_VLAN_BIT1_EN_B, 1);
+-	hnae3_set_bit(req.mc_mac_en, HCLGE_MAC_VLAN_BIT0_EN_B, 0);
++	hnae3_set_bit(req.mc_mac_en, HCLGE_MAC_VLAN_BIT0_EN_B, 1);
+ 	hclge_prepare_mac_addr(&req, addr);
+ 	status = hclge_lookup_mac_vlan_tbl(vport, &req, desc, true);
+ 	if (!status) {
 -- 
 2.20.1
 
