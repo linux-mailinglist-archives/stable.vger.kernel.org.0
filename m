@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C5FAF5709
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0532BF5655
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732147AbfKHTQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:16:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33402 "EHLO mail.kernel.org"
+        id S2391098AbfKHTIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:08:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390818AbfKHTDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:03:40 -0500
+        id S2388241AbfKHTIN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:08:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C2C12067B;
-        Fri,  8 Nov 2019 19:03:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7078020673;
+        Fri,  8 Nov 2019 19:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239819;
-        bh=iS5YkiRMX6QfvMF8CirRm7kVBGedLM1vXfK0qMWYnL4=;
+        s=default; t=1573240092;
+        bh=s8a3PHtKvm5UcDZ/xqQFIvDL3A5gyQWQm3dc3/nTjMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQ0bc8EeH13A5pelWoL0Yeh0s4aRUvPSubsyARqVrlP5apEcKTxGCWLEwfgDBzGmO
-         osIz2KkzJaBLHVK6WoFIEXI7Mk329FxQVXWVlON9+S0OY3XCGxD/7qAOq9RWz611rp
-         EWDPzN8Riy8o81Cs2BuOZSZfbdCqL35nTugEv1Ww=
+        b=I6wvqjJeadD22jgU8g69E75jenW0IORfcD2VA0lTCF8ATm+FkAzli+diGHdV1ZmhH
+         Gse0VhM2tVFzHzqK7zOYrXEGpBGm6W/kHcozf2MpirXtU6wFNj7PrK3MAT1TREMs0O
+         Kn5tGcDrw51IrQd33oQ6jetmyYDa6NeVp/pVx12w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Christie <mchristi@redhat.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/79] nbd: protect cmd->status with cmd->lock
+        stable@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Vijay Khemka <vijaykhemka@fb.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 087/140] net: ethernet: ftgmac100: Fix DMA coherency issue with SW checksum
 Date:   Fri,  8 Nov 2019 19:50:15 +0100
-Message-Id: <20191108174805.118697450@linuxfoundation.org>
+Message-Id: <20191108174910.581446743@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,64 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-[ Upstream commit de6346ecbc8f5591ebd6c44ac164e8b8671d71d7 ]
+[ Upstream commit 88824e3bf29a2fcacfd9ebbfe03063649f0f3254 ]
 
-We already do this for the most part, except in timeout and clear_req.
-For the timeout case we take the lock after we grab a ref on the config,
-but that isn't really necessary because we're safe to touch the cmd at
-this point, so just move the order around.
+We are calling the checksum helper after the dma_map_single()
+call to map the packet. This is incorrect as the checksumming
+code will touch the packet from the CPU. This means the cache
+won't be properly flushes (or the bounce buffering will leave
+us with the unmodified packet to DMA).
 
-For the clear_req cause this is initiated by the user, so again is safe.
+This moves the calculation of the checksum & vlan tags to
+before the DMA mapping.
 
-Reviewed-by: Mike Christie <mchristi@redhat.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This also has the side effect of fixing another bug: If the
+checksum helper fails, we goto "drop" to drop the packet, which
+will not unmap the DMA mapping.
+
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Fixes: 05690d633f30 ("ftgmac100: Upgrade to NETIF_F_HW_CSUM")
+Reviewed-by: Vijay Khemka <vijaykhemka@fb.com>
+Tested-by: Vijay Khemka <vijaykhemka@fb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/block/nbd.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/faraday/ftgmac100.c |   25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index bd9aafe86c2fc..da6a36d14f4cf 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -349,17 +349,16 @@ static enum blk_eh_timer_return nbd_xmit_timeout(struct request *req,
- 	struct nbd_device *nbd = cmd->nbd;
- 	struct nbd_config *config;
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -726,6 +726,18 @@ static netdev_tx_t ftgmac100_hard_start_
+ 	 */
+ 	nfrags = skb_shinfo(skb)->nr_frags;
  
-+	if (!mutex_trylock(&cmd->lock))
-+		return BLK_EH_RESET_TIMER;
++	/* Setup HW checksumming */
++	csum_vlan = 0;
++	if (skb->ip_summed == CHECKSUM_PARTIAL &&
++	    !ftgmac100_prep_tx_csum(skb, &csum_vlan))
++		goto drop;
 +
- 	if (!refcount_inc_not_zero(&nbd->config_refs)) {
- 		cmd->status = BLK_STS_TIMEOUT;
-+		mutex_unlock(&cmd->lock);
- 		goto done;
- 	}
- 	config = nbd->config;
++	/* Add VLAN tag */
++	if (skb_vlan_tag_present(skb)) {
++		csum_vlan |= FTGMAC100_TXDES1_INS_VLANTAG;
++		csum_vlan |= skb_vlan_tag_get(skb) & 0xffff;
++	}
++
+ 	/* Get header len */
+ 	len = skb_headlen(skb);
  
--	if (!mutex_trylock(&cmd->lock)) {
--		nbd_config_put(nbd);
--		return BLK_EH_RESET_TIMER;
+@@ -752,19 +764,6 @@ static netdev_tx_t ftgmac100_hard_start_
+ 	if (nfrags == 0)
+ 		f_ctl_stat |= FTGMAC100_TXDES0_LTS;
+ 	txdes->txdes3 = cpu_to_le32(map);
+-
+-	/* Setup HW checksumming */
+-	csum_vlan = 0;
+-	if (skb->ip_summed == CHECKSUM_PARTIAL &&
+-	    !ftgmac100_prep_tx_csum(skb, &csum_vlan))
+-		goto drop;
+-
+-	/* Add VLAN tag */
+-	if (skb_vlan_tag_present(skb)) {
+-		csum_vlan |= FTGMAC100_TXDES1_INS_VLANTAG;
+-		csum_vlan |= skb_vlan_tag_get(skb) & 0xffff;
 -	}
 -
- 	if (config->num_connections > 1) {
- 		dev_err_ratelimited(nbd_to_dev(nbd),
- 				    "Connection timed out, retrying (%d/%d alive)\n",
-@@ -745,7 +744,10 @@ static void nbd_clear_req(struct request *req, void *data, bool reserved)
- {
- 	struct nbd_cmd *cmd = blk_mq_rq_to_pdu(req);
+ 	txdes->txdes1 = cpu_to_le32(csum_vlan);
  
-+	mutex_lock(&cmd->lock);
- 	cmd->status = BLK_STS_IOERR;
-+	mutex_unlock(&cmd->lock);
-+
- 	blk_mq_complete_request(req);
- }
- 
--- 
-2.20.1
-
+ 	/* Next descriptor */
 
 
