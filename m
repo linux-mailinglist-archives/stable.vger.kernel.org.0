@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 714D2F54D6
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78A7BF5572
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726804AbfKHSzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:55:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52640 "EHLO mail.kernel.org"
+        id S2390554AbfKHTCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:02:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731643AbfKHSzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:55:19 -0500
+        id S2390553AbfKHTCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:02:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAAC121D7B;
-        Fri,  8 Nov 2019 18:55:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B997B222C6;
+        Fri,  8 Nov 2019 19:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239319;
-        bh=JqBJ33MfxgJoV04Jkn6Y2nD3m+tGGlp3H9Rs53UmXYU=;
+        s=default; t=1573239752;
+        bh=kjVY/QYwGT0A/t48RdyXw9jg7Zcaof+ZFiXgC9WvTZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJSRF6y/rPA1qXOwdfPHjdRuS1YPOM4CUXvNxsNnaM+gXyHaOh8b25PwqcGP3BmnX
-         9SDgZfcI/Ver5SvPl7EVj4salZwOA7CzBl0ukA6c+eIqH22qDm4R6+EZETIfPrVqTh
-         CcExgjWahOq50EHUsfAbv5O0n+M3domKfJaBf8OY=
+        b=2or22b4s3kXOtl8/3A4YcqZVfZ+MdipLp+zwx7VnxCy7BQbQR5vsi2rkvF+61omsQ
+         2GYbnJwen/uxRxHcMS8FJcheIRGcxiXwd1HYJpwLP7MSN6CaHSQ2Dbhw2LwKX0MyFj
+         gze8fSEpUR+OL8NwjjlN6OaU1RnJanIkPBFLvE1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk, Ard Biesheuvel" 
-        <ardb@kernel.org>, Russell King <rmk+kernel@armlinux.org.uk>,
-        "David A. Long" <dave.long@linaro.org>,
-        Julien Thierry <julien.thierry@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 4.4 73/75] ARM: fix the cockup in the previous patch
+        stable@vger.kernel.org, zhanglin <zhang.lin16@zte.com.cn>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 50/79] net: Zeroing the structure ethtool_wolinfo in ethtool_get_wol()
 Date:   Fri,  8 Nov 2019 19:50:30 +0100
-Message-Id: <20191108174812.725818389@linuxfoundation.org>
+Message-Id: <20191108174814.533229269@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,48 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: zhanglin <zhang.lin16@zte.com.cn>
 
-Commit d6951f582cc50ba0ad22ef46b599740966599b14 upstream.
+[ Upstream commit 5ff223e86f5addbfae26419cbb5d61d98f6fbf7d ]
 
-The intention in the previous patch was to only place the processor
-tables in the .rodata section if big.Little was being built and we
-wanted the branch target hardening, but instead (due to the way it
-was tested) it ended up always placing the tables into the .rodata
-section.
+memset() the structure ethtool_wolinfo that has padded bytes
+but the padded bytes have not been zeroed out.
 
-Although harmless, let's correct this anyway.
-
-Fixes: 3a4d0c2172bc ("ARM: ensure that processor vtables is not lost after boot")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: David A. Long <dave.long@linaro.org>
-Reviewed-by: Julien Thierry <julien.thierry@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: zhanglin <zhang.lin16@zte.com.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/proc-macros.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/ethtool.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mm/proc-macros.S
-+++ b/arch/arm/mm/proc-macros.S
-@@ -263,7 +263,7 @@
-  * If we are building for big.Little with branch predictor hardening,
-  * we need the processor function tables to remain available after boot.
-  */
--#if 1 // defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
-+#if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
- 	.section ".rodata"
- #endif
- 	.type	\name\()_processor_functions, #object
-@@ -301,7 +301,7 @@ ENTRY(\name\()_processor_functions)
- 	.endif
+--- a/net/core/ethtool.c
++++ b/net/core/ethtool.c
+@@ -1482,11 +1482,13 @@ static int ethtool_reset(struct net_devi
  
- 	.size	\name\()_processor_functions, . - \name\()_processor_functions
--#if 1 // defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
-+#if defined(CONFIG_BIG_LITTLE) && defined(CONFIG_HARDEN_BRANCH_PREDICTOR)
- 	.previous
- #endif
- .endm
+ static int ethtool_get_wol(struct net_device *dev, char __user *useraddr)
+ {
+-	struct ethtool_wolinfo wol = { .cmd = ETHTOOL_GWOL };
++	struct ethtool_wolinfo wol;
+ 
+ 	if (!dev->ethtool_ops->get_wol)
+ 		return -EOPNOTSUPP;
+ 
++	memset(&wol, 0, sizeof(struct ethtool_wolinfo));
++	wol.cmd = ETHTOOL_GWOL;
+ 	dev->ethtool_ops->get_wol(dev, &wol);
+ 
+ 	if (copy_to_user(useraddr, &wol, sizeof(wol)))
 
 
