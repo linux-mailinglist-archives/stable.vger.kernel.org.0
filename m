@@ -2,52 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14DAFF5273
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 18:17:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB2CCF5243
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 18:10:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727767AbfKHRRr convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 8 Nov 2019 12:17:47 -0500
-Received: from mail.palitramed.ru ([84.53.237.5]:40384 "EHLO
-        mail.palitramed.ru" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726049AbfKHRRr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 12:17:47 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.palitramed.ru (Postfix) with ESMTP id 0104B1DC8525;
-        Fri,  8 Nov 2019 17:57:33 +0300 (MSK)
-Received: from mail.palitramed.ru ([127.0.0.1])
-        by localhost (mail.palitramed.ru [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id ZAk_svMpNRbc; Fri,  8 Nov 2019 17:57:32 +0300 (MSK)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.palitramed.ru (Postfix) with ESMTP id 9311A1DC851F;
-        Fri,  8 Nov 2019 17:57:29 +0300 (MSK)
-X-Virus-Scanned: amavisd-new at palitramed.ru
-Received: from mail.palitramed.ru ([127.0.0.1])
-        by localhost (mail.palitramed.ru [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id RO-qUvawIuWU; Fri,  8 Nov 2019 17:57:29 +0300 (MSK)
-Received: from [192.168.8.105] (unknown [154.118.6.95])
-        by mail.palitramed.ru (Postfix) with ESMTPA id A39DE1DC84FB;
-        Fri,  8 Nov 2019 17:57:21 +0300 (MSK)
-Content-Type: text/plain; charset="iso-8859-1"
+        id S1726640AbfKHRKP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 12:10:15 -0500
+Received: from muru.com ([72.249.23.125]:40970 "EHLO muru.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725970AbfKHRKP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 12:10:15 -0500
+Received: from atomide.com (localhost [127.0.0.1])
+        by muru.com (Postfix) with ESMTPS id 012E380D4;
+        Fri,  8 Nov 2019 17:10:47 +0000 (UTC)
+Date:   Fri, 8 Nov 2019 09:10:08 -0800
+From:   Tony Lindgren <tony@atomide.com>
+To:     "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc:     =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        David Sterba <dsterba@suse.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Yangtao Li <tiny.windzz@gmail.com>,
+        Alexios Zavras <alexios.zavras@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Allison Randal <allison@lohutok.net>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        John Stultz <john.stultz@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        devicetree@vger.kernel.org, letux-kernel@openphoenux.org,
+        linux-mmc@vger.kernel.org, kernel@pyra-handheld.com,
+        linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v3 03/12] ARM: dts: pandora-common: define wl1251 as
+ child node of mmc3
+Message-ID: <20191108171008.GJ5610@atomide.com>
+References: <cover.1573122644.git.hns@goldelico.com>
+ <bd14b481105b21a0c1882a1ea34281893233db31.1573122644.git.hns@goldelico.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Content-Description: Mail message body
-Subject: Your Account Update Verification!  
-To:     Recipients <debbett@shertel.net>
-From:   "TSB" <debbett@shertel.net>
-Date:   Fri, 08 Nov 2019 06:57:20 -0800
-Reply-To: craigdonaldson@indamail.hu
-Message-Id: <20191108145721.A39DE1DC84FB@mail.palitramed.ru>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <bd14b481105b21a0c1882a1ea34281893233db31.1573122644.git.hns@goldelico.com>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-]]This is transfer to your provided bank account details below.
-Bank name: Deutsche Kreditbank Ag
-Bank Branch : Leipzig city, Germany
-Swift Bic: BYLADEM1001.
-IBAN: DE56 1203 0000 0010 5034 49
-Account Name: Bettina Schön
-We will appreciate if you can confirm this to be true as we will not
-be held liable for unauthorised transfer.
-Yours faithfully,
+* H. Nikolaus Schaller <hns@goldelico.com> [191107 10:33]:
+> Since v4.7 the dma initialization requires that there is a
+> device tree property for "rx" and "tx" channels which is
+> not provided by the pdata-quirks initialization.
+> 
+> By conversion of the mmc3 setup to device tree this will
+> finally allows to remove the OpenPandora wlan specific omap3
+> data-quirks.
+> 
+> Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
+
+Probably best to queue this all via the mmc tree when no more comments:
+
+Acked-by: Tony Lindgren <tony@atomide.com>
