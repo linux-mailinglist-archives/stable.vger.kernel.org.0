@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0C1F4BCA
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:36:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C03F4BCB
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:36:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726983AbfKHMgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:36:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44190 "EHLO mail.kernel.org"
+        id S1726986AbfKHMgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:36:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
         id S1726121AbfKHMgk (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 8 Nov 2019 07:36:40 -0500
 Received: from localhost.localdomain (lfbn-mar-1-550-151.w90-118.abo.wanadoo.fr [90.118.131.151])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A63B522473;
-        Fri,  8 Nov 2019 12:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AE71222C9;
+        Fri,  8 Nov 2019 12:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573216598;
-        bh=WSTMKA6CZD25gPji7U33DAMleVGxbEX54DWnjjhYd2E=;
+        s=default; t=1573216600;
+        bh=fohN2EgCxM4KrmRqy6S243kBWWnDq8mAUU+2eHCbReY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsWzBCOOTQsAdHUWwvrPJ/p6mVzuIJsxSPXaUgtM7iD76kS1OZGdt0rCggv5iayAp
-         spZJiVcJNjl6e2CiRDlZ6/4dvAoCZCeJReFSNyTViROCSsyBDOODU6RRqE1ivkxJuU
-         x1GpGjzT6rQkErbpkwWj6vHTsst/Qhz5nCN9HLZ4=
+        b=t7UlN9adKBNCAirmtZKH6uS8UcKkJFvsM12E5WAonI+2uz8PQTnMNbbda7TW0tELL
+         xyjeJyhO0DF2hxPQQgcm12gudNNZrrvjPq4uz7+rrrE4vyYbShA7muTfWzXCBZaHff
+         cKhY63Hv7Dl2TzzrWsloA0zILTpVEY0aqx5kXrpE=
 From:   Ard Biesheuvel <ardb@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk,
-        Marc Zyngier <marc.zyngier@arm.com>,
         Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH for-stable-4.4 16/50] arm/arm64: smccc-1.1: Handle function result as parameters
-Date:   Fri,  8 Nov 2019 13:35:20 +0100
-Message-Id: <20191108123554.29004-17-ardb@kernel.org>
+Subject: [PATCH for-stable-4.4 17/50] ARM: add more CPU part numbers for Cortex and Brahma B15 CPUs
+Date:   Fri,  8 Nov 2019 13:35:21 +0100
+Message-Id: <20191108123554.29004-18-ardb@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108123554.29004-1-ardb@kernel.org>
 References: <20191108123554.29004-1-ardb@kernel.org>
@@ -41,139 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <marc.zyngier@arm.com>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 755a8bf5579d22eb5636685c516d8dede799e27b ]
+Commit f5683e76f35b4ec5891031b6a29036efe0a1ff84 upstream.
 
-If someone has the silly idea to write something along those lines:
+Add CPU part numbers for Cortex A53, A57, A72, A73, A75 and the
+Broadcom Brahma B15 CPU.
 
-	extern u64 foo(void);
-
-	void bar(struct arm_smccc_res *res)
-	{
-		arm_smccc_1_1_smc(0xbad, foo(), res);
-	}
-
-they are in for a surprise, as this gets compiled as:
-
-	0000000000000588 <bar>:
-	 588:   a9be7bfd        stp     x29, x30, [sp, #-32]!
-	 58c:   910003fd        mov     x29, sp
-	 590:   f9000bf3        str     x19, [sp, #16]
-	 594:   aa0003f3        mov     x19, x0
-	 598:   aa1e03e0        mov     x0, x30
-	 59c:   94000000        bl      0 <_mcount>
-	 5a0:   94000000        bl      0 <foo>
-	 5a4:   aa0003e1        mov     x1, x0
-	 5a8:   d4000003        smc     #0x0
-	 5ac:   b4000073        cbz     x19, 5b8 <bar+0x30>
-	 5b0:   a9000660        stp     x0, x1, [x19]
-	 5b4:   a9010e62        stp     x2, x3, [x19, #16]
-	 5b8:   f9400bf3        ldr     x19, [sp, #16]
-	 5bc:   a8c27bfd        ldp     x29, x30, [sp], #32
-	 5c0:   d65f03c0        ret
-	 5c4:   d503201f        nop
-
-The call to foo "overwrites" the x0 register for the return value,
-and we end up calling the wrong secure service.
-
-A solution is to evaluate all the parameters before assigning
-anything to specific registers, leading to the expected result:
-
-	0000000000000588 <bar>:
-	 588:   a9be7bfd        stp     x29, x30, [sp, #-32]!
-	 58c:   910003fd        mov     x29, sp
-	 590:   f9000bf3        str     x19, [sp, #16]
-	 594:   aa0003f3        mov     x19, x0
-	 598:   aa1e03e0        mov     x0, x30
-	 59c:   94000000        bl      0 <_mcount>
-	 5a0:   94000000        bl      0 <foo>
-	 5a4:   aa0003e1        mov     x1, x0
-	 5a8:   d28175a0        mov     x0, #0xbad
-	 5ac:   d4000003        smc     #0x0
-	 5b0:   b4000073        cbz     x19, 5bc <bar+0x34>
-	 5b4:   a9000660        stp     x0, x1, [x19]
-	 5b8:   a9010e62        stp     x2, x3, [x19, #16]
-	 5bc:   f9400bf3        ldr     x19, [sp, #16]
-	 5c0:   a8c27bfd        ldp     x29, x30, [sp], #32
-	 5c4:   d65f03c0        ret
-
-Reported-by: Julien Grall <julien.grall@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Boot-tested-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: David A. Long <dave.long@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 ---
- include/linux/arm-smccc.h | 30 +++++++++++++-------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ arch/arm/include/asm/cputype.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
-index 9b340ff4fd7b..78b8e0a61f3f 100644
---- a/include/linux/arm-smccc.h
-+++ b/include/linux/arm-smccc.h
-@@ -173,41 +173,51 @@ asmlinkage void arm_smccc_hvc(unsigned long a0, unsigned long a1,
- 	register unsigned long r3 asm("r3")
+diff --git a/arch/arm/include/asm/cputype.h b/arch/arm/include/asm/cputype.h
+index e9d04f475929..76bb3bd060d1 100644
+--- a/arch/arm/include/asm/cputype.h
++++ b/arch/arm/include/asm/cputype.h
+@@ -74,8 +74,16 @@
+ #define ARM_CPU_PART_CORTEX_A12		0x4100c0d0
+ #define ARM_CPU_PART_CORTEX_A17		0x4100c0e0
+ #define ARM_CPU_PART_CORTEX_A15		0x4100c0f0
++#define ARM_CPU_PART_CORTEX_A53		0x4100d030
++#define ARM_CPU_PART_CORTEX_A57		0x4100d070
++#define ARM_CPU_PART_CORTEX_A72		0x4100d080
++#define ARM_CPU_PART_CORTEX_A73		0x4100d090
++#define ARM_CPU_PART_CORTEX_A75		0x4100d0a0
+ #define ARM_CPU_PART_MASK		0xff00fff0
  
- #define __declare_arg_1(a0, a1, res)					\
-+	typeof(a1) __a1 = a1;						\
- 	struct arm_smccc_res   *___res = res;				\
- 	register unsigned long r0 asm("r0") = (u32)a0;			\
--	register unsigned long r1 asm("r1") = a1;			\
-+	register unsigned long r1 asm("r1") = __a1;			\
- 	register unsigned long r2 asm("r2");				\
- 	register unsigned long r3 asm("r3")
- 
- #define __declare_arg_2(a0, a1, a2, res)				\
-+	typeof(a1) __a1 = a1;						\
-+	typeof(a2) __a2 = a2;						\
- 	struct arm_smccc_res   *___res = res;				\
- 	register unsigned long r0 asm("r0") = (u32)a0;			\
--	register unsigned long r1 asm("r1") = a1;			\
--	register unsigned long r2 asm("r2") = a2;			\
-+	register unsigned long r1 asm("r1") = __a1;			\
-+	register unsigned long r2 asm("r2") = __a2;			\
- 	register unsigned long r3 asm("r3")
- 
- #define __declare_arg_3(a0, a1, a2, a3, res)				\
-+	typeof(a1) __a1 = a1;						\
-+	typeof(a2) __a2 = a2;						\
-+	typeof(a3) __a3 = a3;						\
- 	struct arm_smccc_res   *___res = res;				\
- 	register unsigned long r0 asm("r0") = (u32)a0;			\
--	register unsigned long r1 asm("r1") = a1;			\
--	register unsigned long r2 asm("r2") = a2;			\
--	register unsigned long r3 asm("r3") = a3
-+	register unsigned long r1 asm("r1") = __a1;			\
-+	register unsigned long r2 asm("r2") = __a2;			\
-+	register unsigned long r3 asm("r3") = __a3
- 
- #define __declare_arg_4(a0, a1, a2, a3, a4, res)			\
-+	typeof(a4) __a4 = a4;						\
- 	__declare_arg_3(a0, a1, a2, a3, res);				\
--	register typeof(a4) r4 asm("r4") = a4
-+	register unsigned long r4 asm("r4") = __a4
- 
- #define __declare_arg_5(a0, a1, a2, a3, a4, a5, res)			\
-+	typeof(a5) __a5 = a5;						\
- 	__declare_arg_4(a0, a1, a2, a3, a4, res);			\
--	register typeof(a5) r5 asm("r5") = a5
-+	register unsigned long r5 asm("r5") = __a5
- 
- #define __declare_arg_6(a0, a1, a2, a3, a4, a5, a6, res)		\
-+	typeof(a6) __a6 = a6;						\
- 	__declare_arg_5(a0, a1, a2, a3, a4, a5, res);			\
--	register typeof(a6) r6 asm("r6") = a6
-+	register unsigned long r6 asm("r6") = __a6
- 
- #define __declare_arg_7(a0, a1, a2, a3, a4, a5, a6, a7, res)		\
-+	typeof(a7) __a7 = a7;						\
- 	__declare_arg_6(a0, a1, a2, a3, a4, a5, a6, res);		\
--	register typeof(a7) r7 asm("r7") = a7
-+	register unsigned long r7 asm("r7") = __a7
- 
- #define ___declare_args(count, ...) __declare_arg_ ## count(__VA_ARGS__)
- #define __declare_args(count, ...)  ___declare_args(count, __VA_ARGS__)
++/* Broadcom cores */
++#define ARM_CPU_PART_BRAHMA_B15		0x420000f0
++
+ #define ARM_CPU_XSCALE_ARCH_MASK	0xe000
+ #define ARM_CPU_XSCALE_ARCH_V1		0x2000
+ #define ARM_CPU_XSCALE_ARCH_V2		0x4000
 -- 
 2.20.1
 
