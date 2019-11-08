@@ -2,63 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8BC2F4CFC
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 14:18:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48EE9F4D2B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 14:29:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726670AbfKHNSR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 08:18:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58416 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726445AbfKHNSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 08:18:17 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C1842178F;
-        Fri,  8 Nov 2019 13:18:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573219095;
-        bh=sP1OZrQAJIoqqZXO4RjJougxT+iTY/yOmxNYqofhWS4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HkOHhitqqinFjzG4z8/bk24GJH8ncMbo9JHetCNe1zGMAqoWgjwH4k1Rib6glDagS
-         1txlEfXm8XQnDeg1n3uaTf8xVezJ8gcFWB7ISRkND9FJisX9Cm7hdcWGnJZCks2ukb
-         fM9UPdYEUsj8bNWxLZtHF/vQLibngervh6/LXoPI=
-Date:   Fri, 8 Nov 2019 14:18:13 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc:     Jan Kiszka <jan.kiszka@siemens.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1] platform/x86: pmc_atom: Add Siemens SIMATIC IPC227E
- to critclk_systems DMI table
-Message-ID: <20191108131813.GD761587@kroah.com>
-References: <20191107170530.6115-1-andriy.shevchenko@linux.intel.com>
+        id S1727429AbfKHN3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 08:29:35 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:40908 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726445AbfKHN3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 08:29:35 -0500
+Received: by mail-wr1-f67.google.com with SMTP id i10so7057609wrs.7
+        for <stable@vger.kernel.org>; Fri, 08 Nov 2019 05:29:33 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=s/yCUpNC7XfUqw3qRnXOOPQdfMSEXjROzZKokUlrT+4=;
+        b=kQxhd6WYx4zSJ34MVdg6iu3jSnvVhqp+/NWK6UAQvh29We+u3EWGKX34Tj8fLT2GsS
+         kiawqEJJtufPUT9mPd0qx1yCi6OulmnQzluuYQiOkhLMu4JUi9/Ki0vJTwgtq5N6L4id
+         /IO8OL/RUiFd4oSBHvDu4+DQtoTMVJmBOKB/2hgOBDFKu21fmJK9vahHZqS7rECsZtgv
+         KCwsMoPR2B6+110VX1ClgNXP5/Pa4wVGpRAsU5EcALwhWtheqKXIpWoDoUn8w2Bl6vvy
+         2710ACs0Cb3CJts579X0nwSiSPETCe9G/A3tkQUwoilX8MxjfgMdgkSZKy4vIymRbj24
+         Zr1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=s/yCUpNC7XfUqw3qRnXOOPQdfMSEXjROzZKokUlrT+4=;
+        b=JBPL0yXramkB/IU6NYfCJG8PbjeQ7iyYhNNAtYHy0hQ/uT3QcqqfLwTwJXqF5VzYLW
+         LZA20q53kTk8kezvC+YHaXlvIpwL654kOwQ62BRh3xjhtpDVTYxnhIFAgc3Q69rQ9WUU
+         bf7O4IzeKFAGz+wfsXdYO2Mp3ZrgJbZ/K+esX4JInYFgcpDUqfLdKKPWCFqBnrU1OUkp
+         Ye1wpTmMjXVGOAnDgxlToAfXkI0hw203PYC3izyBeVg8FsyTZS7+8VZN0PlJx+ieyMx4
+         rqW6wafL+O80WQ5oPSp9yQOucVO3gotbGAoilqJ+hHNmbIiePUho2YsaxIRqhCa1wO4P
+         6G/w==
+X-Gm-Message-State: APjAAAUICeEni1wsMoDP2AwCnhyQkMeKN5prhy9wau1+XqO02Y2P5K9v
+        9S1LhhhGvY+TYeEdRLwWOIpR7m4lX47aIxNlEA2ycw==
+X-Google-Smtp-Source: APXvYqzsdygW5AygGk/js0Y+Ac9hOdYUtZWBOn4vF+aoz6aDsYIRQnoaZ2mx3uRca8EavbgeKNoO98RnuPUC8ulpg+k=
+X-Received: by 2002:adf:ec42:: with SMTP id w2mr8014445wrn.32.1573219773069;
+ Fri, 08 Nov 2019 05:29:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191107170530.6115-1-andriy.shevchenko@linux.intel.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+References: <20191108123554.29004-1-ardb@kernel.org> <20191108123554.29004-9-ardb@kernel.org>
+ <20191108131105.GA759061@kroah.com>
+In-Reply-To: <20191108131105.GA759061@kroah.com>
+From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date:   Fri, 8 Nov 2019 14:29:21 +0100
+Message-ID: <CAKv+Gu819gSLLtOOMDVwoO6UmGgy=ng8SLMzOY_UJeZMM9=sOw@mail.gmail.com>
+Subject: Re: [PATCH for-stable-4.4 08/50] arm/arm64: KVM: Advertise SMCCC v1.1
+To:     Greg KH <greg@kroah.com>
+Cc:     Ard Biesheuvel <ardb@kernel.org>, stable <stable@vger.kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Mark Rutland <mark.rutland@arm.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 07, 2019 at 07:05:30PM +0200, Andy Shevchenko wrote:
-> From: Jan Kiszka <jan.kiszka@siemens.com>
-> 
-> The SIMATIC IPC227E uses the PMC clock for on-board components and gets
-> stuck during boot if the clock is disabled. Therefore, add this device
-> to the critical systems list.
-> 
-> Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> ---
-> 
-> - resend for stable inclusion
+On Fri, 8 Nov 2019 at 14:11, Greg KH <greg@kroah.com> wrote:
+>
+> On Fri, Nov 08, 2019 at 01:35:12PM +0100, Ard Biesheuvel wrote:
+> > From: Mark Rutland <mark.rutland@arm.com>
+> >
+> > From: Marc Zyngier <marc.zyngier@arm.com>
+>
+> Lots of Mar[c/k]'s :)
+>
+> I'll fix this up...
+>
 
-What git id is this in Linus's tree, and what tree(s) is this backport
-for?
-
-thanks,
-
-greg k-h
+This is eactly how it appears in v4.9, so I just left it. Same for the
+double 'upstream commit' that you responded to.
