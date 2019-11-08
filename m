@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75699F4A89
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50E54F4AF2
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732770AbfKHLil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:38:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51598 "EHLO mail.kernel.org"
+        id S2391472AbfKHMMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:12:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732758AbfKHLik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:40 -0500
+        id S1732771AbfKHLil (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 168B021D7B;
-        Fri,  8 Nov 2019 11:38:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 655E421D6C;
+        Fri,  8 Nov 2019 11:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213120;
-        bh=csGxPfHGGw7vrgsXdVIZiGSXswdvnVTZni67Jb2fpOE=;
+        s=default; t=1573213121;
+        bh=Q4mGNBQr66Q94q9GgnenfCd+MuSvKRlgye09kJ8YuMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqvTE3tCUWCuGCV8joydZcK8GwRR1THKT2Bgp9vvEZ4ZHMSLcuXbOJVs0Sa4kGVg9
-         9Z0CADew93Fmi+9qqTcqTlZdYDb+W2KlrrqaospwM/hYyTrL3vrFpXwGpMl3O8CCaa
-         fVdx0KBIVhhWdlpZwnjG9UxH+akiYDLPPLryxA00=
+        b=IlPVRw/hJOxJNi5OclxYXM1GMNU30Y7f6Oq3eXWL8UmxrUv8k4Dbjp9l1KJdO67sW
+         jRb++jGVc0wbBx446EMctI3Ea9ktvcMDPYi99Ju5O6rPUO4lpwE7REIWsB3eYKh6Ln
+         qiBXi0dCDyL3V3Nqjev+k7V9htNh+3ZWYDrBcTqo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>,
-        Hauke Mehrtens <hauke@hauke-m.de>,
-        Paul Burton <paul.burton@mips.com>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <zajec5@gmail.com>,
-        linux-mips@linux-mips.org, Sasha Levin <sashal@kernel.org>,
-        linux-mips@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 039/205] MIPS: BCM47XX: Enable USB power on Netgear WNDR3400v3
-Date:   Fri,  8 Nov 2019 06:35:06 -0500
-Message-Id: <20191108113752.12502-39-sashal@kernel.org>
+Cc:     Andrzej Hajda <a.hajda@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 040/205] ARM: dts: exynos: Use i2c-gpio for HDMI-DDC on Arndale
+Date:   Fri,  8 Nov 2019 06:35:07 -0500
+Message-Id: <20191108113752.12502-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,53 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
+From: Andrzej Hajda <a.hajda@samsung.com>
 
-[ Upstream commit feef7918667b84f9d5653c501542dd8d84ae32af ]
+[ Upstream commit 620375c8fdf2f9f5110ed48d6c407cc4b7554f86 ]
 
-Setting GPIO 21 high seems to be required to enable power to USB ports
-on the WNDR3400v3. As there is already similar code for WNR3500L,
-make the existing USB power GPIO code generic and use that.
+HDMI-DDC for unknown reasons doesn't work with Exynos I2C controllers.
+Fortunately i2c-gpio comes to the rescue.
 
-Signed-off-by: Tuomas Tynkkynen <tuomas.tynkkynen@iki.fi>
-Acked-by: Hauke Mehrtens <hauke@hauke-m.de>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/20259/
-Cc: Rafał Miłecki <zajec5@gmail.com>
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm47xx/workarounds.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/exynos5250-arndale.dts  | 28 ++++++++++++++++-------
+ arch/arm/boot/dts/exynos5250-pinctrl.dtsi |  6 +++++
+ 2 files changed, 26 insertions(+), 8 deletions(-)
 
-diff --git a/arch/mips/bcm47xx/workarounds.c b/arch/mips/bcm47xx/workarounds.c
-index 1a8a07e7a5633..46eddbec8d9fd 100644
---- a/arch/mips/bcm47xx/workarounds.c
-+++ b/arch/mips/bcm47xx/workarounds.c
-@@ -5,9 +5,8 @@
- #include <bcm47xx_board.h>
- #include <bcm47xx.h>
+diff --git a/arch/arm/boot/dts/exynos5250-arndale.dts b/arch/arm/boot/dts/exynos5250-arndale.dts
+index 7a8a5c55701a8..bb3fcd652b5d7 100644
+--- a/arch/arm/boot/dts/exynos5250-arndale.dts
++++ b/arch/arm/boot/dts/exynos5250-arndale.dts
+@@ -150,7 +150,7 @@
  
--static void __init bcm47xx_workarounds_netgear_wnr3500l(void)
-+static void __init bcm47xx_workarounds_enable_usb_power(int usb_power)
- {
--	const int usb_power = 12;
- 	int err;
+ &hdmi {
+ 	status = "okay";
+-	ddc = <&i2c_2>;
++	ddc = <&i2c_ddc>;
+ 	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_LOW>;
+ 	vdd_osc-supply = <&ldo10_reg>;
+ 	vdd_pll-supply = <&ldo8_reg>;
+@@ -452,13 +452,6 @@
+ 	};
+ };
  
- 	err = gpio_request_one(usb_power, GPIOF_OUT_INIT_HIGH, "usb_power");
-@@ -23,7 +22,10 @@ void __init bcm47xx_workarounds(void)
+-&i2c_2 {
+-	status = "okay";
+-	/* used by HDMI DDC */
+-	samsung,i2c-sda-delay = <100>;
+-	samsung,i2c-max-bus-freq = <66000>;
+-};
+-
+ &i2c_3 {
+ 	status = "okay";
  
- 	switch (board) {
- 	case BCM47XX_BOARD_NETGEAR_WNR3500L:
--		bcm47xx_workarounds_netgear_wnr3500l();
-+		bcm47xx_workarounds_enable_usb_power(12);
-+		break;
-+	case BCM47XX_BOARD_NETGEAR_WNDR3400_V3:
-+		bcm47xx_workarounds_enable_usb_power(21);
- 		break;
- 	default:
- 		/* No workaround(s) needed */
+@@ -547,3 +540,22 @@
+ 	status = "okay";
+ 	samsung,exynos-sataphy-i2c-phandle = <&sata_phy_i2c>;
+ };
++
++&soc {
++	/*
++	 * For unknown reasons HDMI-DDC does not work with Exynos I2C
++	 * controllers. Lets use software I2C over GPIO pins as a workaround.
++	 */
++	i2c_ddc: i2c-gpio {
++		pinctrl-names = "default";
++		pinctrl-0 = <&i2c2_gpio_bus>;
++		status = "okay";
++		compatible = "i2c-gpio";
++		gpios = <&gpa0 6 0 /* sda */
++			 &gpa0 7 0 /* scl */
++			>;
++		i2c-gpio,delay-us = <2>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++	};
++};
+diff --git a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
+index 6ff6dea29d449..b25d520393b8b 100644
+--- a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
++++ b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
+@@ -225,6 +225,12 @@
+ 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
+ 	};
+ 
++	i2c2_gpio_bus: i2c2-gpio-bus {
++		samsung,pins = "gpa0-6", "gpa0-7";
++		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
++		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
++	};
++
+ 	uart2_data: uart2-data {
+ 		samsung,pins = "gpa1-0", "gpa1-1";
+ 		samsung,pin-function = <EXYNOS_PIN_FUNC_2>;
 -- 
 2.20.1
 
