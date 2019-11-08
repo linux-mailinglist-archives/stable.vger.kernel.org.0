@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE723F555A
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD753F555C
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390314AbfKHTBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:01:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59364 "EHLO mail.kernel.org"
+        id S2390363AbfKHTB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:01:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390348AbfKHTBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:01:52 -0500
+        id S2390369AbfKHTBz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:01:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 079062067B;
-        Fri,  8 Nov 2019 19:01:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 553132067B;
+        Fri,  8 Nov 2019 19:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239711;
-        bh=vEco0Qc5gNZWgnkrLje5461Udlzws/Ff4y+WCVIP6Ug=;
+        s=default; t=1573239714;
+        bh=+7sjtycYthxBbTdXZOuBgjunJxe9qUow+unZqqYmg7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YtHpVG39P/Rz1av6fLgn11wZRTwrB5LnFSXcNvfaRoTWmBmQGTIrLZMh5NbMQRK5C
-         v1oXU3AaEEl/iDoC6rCVQFmPwuM/olpLuWYBQXFpkc1QaEPmRBSUDdzPPtPQsfXZCu
-         +4gZD43laBGFeFe6Ycr0k8OVQ6WplTdo+j49kTqU=
+        b=ljVWKfbCJ6rafJtp0JHii93f26gArYT/21wKgVASNXK3cz9cUCe+Z4871KdtqED2A
+         VFcajzGHux6i4nXBJSG4JtJRvhnnJMQWB7CSOZFML4uJHOJ0tENmEZPVXFiNtDUDjl
+         cDCo5McXu3lzIySD1xPk+ygA5BBjJg7Lnh0xqFzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Axel Lin <axel.lin@ingics.com>,
-        Nishanth Menon <nm@ti.com>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jaska Uimonen <jaska.uimonen@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/79] regulator: ti-abb: Fix timeout in ti_abb_wait_txdone/ti_abb_clear_all_txdone
-Date:   Fri,  8 Nov 2019 19:49:47 +0100
-Message-Id: <20191108174749.216787984@linuxfoundation.org>
+Subject: [PATCH 4.19 08/79] ASoC: rt5682: add NULL handler to set_jack function
+Date:   Fri,  8 Nov 2019 19:49:48 +0100
+Message-Id: <20191108174749.317380781@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
 References: <20191108174745.495640141@linuxfoundation.org>
@@ -44,77 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Axel Lin <axel.lin@ingics.com>
+From: Jaska Uimonen <jaska.uimonen@intel.com>
 
-[ Upstream commit f64db548799e0330897c3203680c2ee795ade518 ]
+[ Upstream commit a315e76fc544f09daf619530a7b2f85865e6b25e ]
 
-ti_abb_wait_txdone() may return -ETIMEDOUT when ti_abb_check_txdone()
-returns true in the latest iteration of the while loop because the timeout
-value is abb->settling_time + 1. Similarly, ti_abb_clear_all_txdone() may
-return -ETIMEDOUT when ti_abb_check_txdone() returns false in the latest
-iteration of the while loop. Fix it.
+Implement NULL handler in set_jack function to disable
+irq's.
 
-Signed-off-by: Axel Lin <axel.lin@ingics.com>
-Acked-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/20190929095848.21960-1-axel.lin@ingics.com
+Signed-off-by: Jaska Uimonen <jaska.uimonen@intel.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20190927201408.925-4-pierre-louis.bossart@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ti-abb-regulator.c | 26 ++++++++------------------
- 1 file changed, 8 insertions(+), 18 deletions(-)
+ sound/soc/codecs/rt5682.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/ti-abb-regulator.c b/drivers/regulator/ti-abb-regulator.c
-index cced1ffb896c1..89b9314d64c9d 100644
---- a/drivers/regulator/ti-abb-regulator.c
-+++ b/drivers/regulator/ti-abb-regulator.c
-@@ -173,19 +173,14 @@ static int ti_abb_wait_txdone(struct device *dev, struct ti_abb *abb)
- 	while (timeout++ <= abb->settling_time) {
- 		status = ti_abb_check_txdone(abb);
- 		if (status)
--			break;
-+			return 0;
+diff --git a/sound/soc/codecs/rt5682.c b/sound/soc/codecs/rt5682.c
+index 6f5dac09ceded..21e7c430baf7f 100644
+--- a/sound/soc/codecs/rt5682.c
++++ b/sound/soc/codecs/rt5682.c
+@@ -982,6 +982,16 @@ static int rt5682_set_jack_detect(struct snd_soc_component *component,
+ {
+ 	struct rt5682_priv *rt5682 = snd_soc_component_get_drvdata(component);
  
- 		udelay(1);
++	rt5682->hs_jack = hs_jack;
++
++	if (!hs_jack) {
++		regmap_update_bits(rt5682->regmap, RT5682_IRQ_CTRL_2,
++				   RT5682_JD1_EN_MASK, RT5682_JD1_DIS);
++		regmap_update_bits(rt5682->regmap, RT5682_RC_CLK_CTRL,
++				   RT5682_POW_JDH | RT5682_POW_JDL, 0);
++		return 0;
++	}
++
+ 	switch (rt5682->pdata.jd_src) {
+ 	case RT5682_JD1:
+ 		snd_soc_component_update_bits(component, RT5682_CBJ_CTRL_2,
+@@ -1019,8 +1029,6 @@ static int rt5682_set_jack_detect(struct snd_soc_component *component,
+ 		break;
  	}
  
--	if (timeout > abb->settling_time) {
--		dev_warn_ratelimited(dev,
--				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
--				     __func__, timeout, readl(abb->int_base));
--		return -ETIMEDOUT;
--	}
+-	rt5682->hs_jack = hs_jack;
 -
--	return 0;
-+	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
-+			     __func__, timeout, readl(abb->int_base));
-+	return -ETIMEDOUT;
+ 	return 0;
  }
  
- /**
-@@ -205,19 +200,14 @@ static int ti_abb_clear_all_txdone(struct device *dev, const struct ti_abb *abb)
- 
- 		status = ti_abb_check_txdone(abb);
- 		if (!status)
--			break;
-+			return 0;
- 
- 		udelay(1);
- 	}
- 
--	if (timeout > abb->settling_time) {
--		dev_warn_ratelimited(dev,
--				     "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
--				     __func__, timeout, readl(abb->int_base));
--		return -ETIMEDOUT;
--	}
--
--	return 0;
-+	dev_warn_ratelimited(dev, "%s:TRANXDONE timeout(%duS) int=0x%08x\n",
-+			     __func__, timeout, readl(abb->int_base));
-+	return -ETIMEDOUT;
- }
- 
- /**
 -- 
 2.20.1
 
