@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E49DBF4931
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:02:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5726F492B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389501AbfKHMBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:01:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58112 "EHLO mail.kernel.org"
+        id S2389627AbfKHMB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:01:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731028AbfKHLng (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:43:36 -0500
+        id S2390500AbfKHLnh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:43:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC89F222CF;
-        Fri,  8 Nov 2019 11:43:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2EC322466;
+        Fri,  8 Nov 2019 11:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213415;
-        bh=TH9xCLF2rAa8rVklfhnNV7Qx4tBI5zCAyNdwfNZCEoc=;
+        s=default; t=1573213416;
+        bh=wuXGaCurOLNVfx79qh8djeDpvCXeYHqq5oLCFT/3IoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v4DbY+5oj+SPzyQEAdChaw4+UerSDozNkPrFT++xIZUzo7Gx+d2zLHgloloxcO7M6
-         nQLUwB1G0P9VRNUqGF67ET6n6a3kTro/5svdaL+bsRGFhKgwpSH5AGJjMLDIjScyDX
-         uO0R5x5+nQww4D6xmCxrvWJNsDBQRZLKNEGh1js8=
+        b=fQMuBfyi00Ql5kRZmg/M+HKDQNnpzaaxj0v0zx6f0FqPnQYbkreJNOHzvZkj3Q2kU
+         YMKgSgVZjlJgPSV0XjpLOVY6sCygQGj2wWomhUGFV5l9XgfJFgmSxOvKk5htlm+X7B
+         P//2Aq/zNfIC4+JA0aRh8l/gk6xj7kz5h64VZcuI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 018/103] ASoC: dpcm: Properly initialise hw->rate_max
-Date:   Fri,  8 Nov 2019 06:41:43 -0500
-Message-Id: <20191108114310.14363-18-sashal@kernel.org>
+Cc:     Paul Cercueil <paul@crapouillou.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 019/103] pinctrl: ingenic: Probe driver at subsys_initcall
+Date:   Fri,  8 Nov 2019 06:41:44 -0500
+Message-Id: <20191108114310.14363-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -43,40 +43,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit e33ffbd9cd39da09831ce62c11025d830bf78d9e ]
+[ Upstream commit 556a36a71ed80e17ade49225b58513ea3c9e4558 ]
 
-If the CPU DAI does not initialise rate_max, say if using
-using KNOT or CONTINUOUS, then the rate_max field will be
-initialised to 0. A value of zero in the rate_max field of
-the hardware runtime will cause the sound card to support no
-sample rates at all. Obviously this is not desired, just a
-different mechanism is being used to apply the constraints. As
-such update the setting of rate_max in dpcm_init_runtime_hw
-to be consistent with the non-DPCM cases and set rate_max to
-UINT_MAX if nothing is defined on the CPU DAI.
+Using postcore_initcall() makes the driver try to initialize way too
+early.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 +-
+ drivers/pinctrl/pinctrl-ingenic.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 052b6294a4283..24047375c2fbb 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1578,7 +1578,7 @@ static void dpcm_init_runtime_hw(struct snd_pcm_runtime *runtime,
- 				 u64 formats)
+diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
+index 103aaab413570..1541f8cba5562 100644
+--- a/drivers/pinctrl/pinctrl-ingenic.c
++++ b/drivers/pinctrl/pinctrl-ingenic.c
+@@ -849,4 +849,4 @@ static int __init ingenic_pinctrl_drv_register(void)
  {
- 	runtime->hw.rate_min = stream->rate_min;
--	runtime->hw.rate_max = stream->rate_max;
-+	runtime->hw.rate_max = min_not_zero(stream->rate_max, UINT_MAX);
- 	runtime->hw.channels_min = stream->channels_min;
- 	runtime->hw.channels_max = stream->channels_max;
- 	if (runtime->hw.formats)
+ 	return platform_driver_register(&ingenic_pinctrl_driver);
+ }
+-postcore_initcall(ingenic_pinctrl_drv_register);
++subsys_initcall(ingenic_pinctrl_drv_register);
 -- 
 2.20.1
 
