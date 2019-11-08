@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6719EF5712
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC1B4F5665
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730114AbfKHTRC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:17:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59662 "EHLO mail.kernel.org"
+        id S2391640AbfKHTIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:08:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390432AbfKHTCH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:02:07 -0500
+        id S2391628AbfKHTIe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:08:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BFFE2067B;
-        Fri,  8 Nov 2019 19:02:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D3AD206A3;
+        Fri,  8 Nov 2019 19:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239726;
-        bh=XUup1KMSh6hlnB0o4MhW1bPWWPX6n1O67UYpNXbfpK4=;
+        s=default; t=1573240113;
+        bh=TAuMHgqwJJKTmBeWOg5vHut9F581cQ4TYt5g1x0s8Pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xgq7fNKGZJ5tyDmlY9qIMM4S+arPey9gUTeuX2W1pd6JXKgXHfFh3SdFejLpgx8rO
-         C9S0HSmjZ2j5yqKzihL0WWGvnFx9WjFeFQ2pdNKltiT3klFZ/y/KlbQCjlSHSF9QsR
-         aBV5pAj4lLRUIhPF7hi0n6t4v2ccUBgWHMM5RrP8=
+        b=C+Wk7k39kzyKJKzYJUOoQ604rrl6M2x4iSZQ8yZyEnXs9WzVXTwdiKBZHHw9cO9fb
+         Q7Df4C62ks1RGgcumqhm93oDqFdZH/LmhbSEYetCq1C+efon4ZmnkOd/1noIzv2R6D
+         gjhVkY6tL5a51mgSuuVA0sp4erUiHEEA5NeRWSnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 41/79] net: annotate accesses to sk->sk_incoming_cpu
+        stable@vger.kernel.org, Woojung Huh <woojung.huh@microchip.com>,
+        Marc Zyngier <maz@kernel.org>, Andrew Lunn <andrew@lunn.ch>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        David Miller <davem@davemloft.net>,
+        Daniel Wagner <dwagner@suse.de>
+Subject: [PATCH 5.3 093/140] net: usb: lan78xx: Disable interrupts before calling generic_handle_irq()
 Date:   Fri,  8 Nov 2019 19:50:21 +0100
-Message-Id: <20191108174810.096350757@linuxfoundation.org>
+Message-Id: <20191108174910.923423603@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,158 +49,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-[ Upstream commit 7170a977743b72cf3eb46ef6ef89885dc7ad3621 ]
+[ Upstream commit 0a29ac5bd3a988dc151c8d26910dec2557421f64 ]
 
-This socket field can be read and written by concurrent cpus.
+lan78xx_status() will run with interrupts enabled due to the change in
+ed194d136769 ("usb: core: remove local_irq_save() around ->complete()
+handler"). generic_handle_irq() expects to be run with IRQs disabled.
 
-Use READ_ONCE() and WRITE_ONCE() annotations to document this,
-and avoid some compiler 'optimizations'.
+[    4.886203] 000: irq 79 handler irq_default_primary_handler+0x0/0x8 enabled interrupts
+[    4.886243] 000: WARNING: CPU: 0 PID: 0 at kernel/irq/handle.c:152 __handle_irq_event_percpu+0x154/0x168
+[    4.896294] 000: Modules linked in:
+[    4.896301] 000: CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.3.6 #39
+[    4.896310] 000: Hardware name: Raspberry Pi 3 Model B+ (DT)
+[    4.896315] 000: pstate: 60000005 (nZCv daif -PAN -UAO)
+[    4.896321] 000: pc : __handle_irq_event_percpu+0x154/0x168
+[    4.896331] 000: lr : __handle_irq_event_percpu+0x154/0x168
+[    4.896339] 000: sp : ffff000010003cc0
+[    4.896346] 000: x29: ffff000010003cc0 x28: 0000000000000060
+[    4.896355] 000: x27: ffff000011021980 x26: ffff00001189c72b
+[    4.896364] 000: x25: ffff000011702bc0 x24: ffff800036d6e400
+[    4.896373] 000: x23: 000000000000004f x22: ffff000010003d64
+[    4.896381] 000: x21: 0000000000000000 x20: 0000000000000002
+[    4.896390] 000: x19: ffff8000371c8480 x18: 0000000000000060
+[    4.896398] 000: x17: 0000000000000000 x16: 00000000000000eb
+[    4.896406] 000: x15: ffff000011712d18 x14: 7265746e69206465
+[    4.896414] 000: x13: ffff000010003ba0 x12: ffff000011712df0
+[    4.896422] 000: x11: 0000000000000001 x10: ffff000011712e08
+[    4.896430] 000: x9 : 0000000000000001 x8 : 000000000003c920
+[    4.896437] 000: x7 : ffff0000118cc410 x6 : ffff0000118c7f00
+[    4.896445] 000: x5 : 000000000003c920 x4 : 0000000000004510
+[    4.896453] 000: x3 : ffff000011712dc8 x2 : 0000000000000000
+[    4.896461] 000: x1 : 73a3f67df94c1500 x0 : 0000000000000000
+[    4.896466] 000: Call trace:
+[    4.896471] 000:  __handle_irq_event_percpu+0x154/0x168
+[    4.896481] 000:  handle_irq_event_percpu+0x50/0xb0
+[    4.896489] 000:  handle_irq_event+0x40/0x98
+[    4.896497] 000:  handle_simple_irq+0xa4/0xf0
+[    4.896505] 000:  generic_handle_irq+0x24/0x38
+[    4.896513] 000:  intr_complete+0xb0/0xe0
+[    4.896525] 000:  __usb_hcd_giveback_urb+0x58/0xd8
+[    4.896533] 000:  usb_giveback_urb_bh+0xd0/0x170
+[    4.896539] 000:  tasklet_action_common.isra.0+0x9c/0x128
+[    4.896549] 000:  tasklet_hi_action+0x24/0x30
+[    4.896556] 000:  __do_softirq+0x120/0x23c
+[    4.896564] 000:  irq_exit+0xb8/0xd8
+[    4.896571] 000:  __handle_domain_irq+0x64/0xb8
+[    4.896579] 000:  bcm2836_arm_irqchip_handle_irq+0x60/0xc0
+[    4.896586] 000:  el1_irq+0xb8/0x140
+[    4.896592] 000:  arch_cpu_idle+0x10/0x18
+[    4.896601] 000:  do_idle+0x200/0x280
+[    4.896608] 000:  cpu_startup_entry+0x20/0x28
+[    4.896615] 000:  rest_init+0xb4/0xc0
+[    4.896623] 000:  arch_call_rest_init+0xc/0x14
+[    4.896632] 000:  start_kernel+0x454/0x480
 
-KCSAN reported :
-
-BUG: KCSAN: data-race in tcp_v4_rcv / tcp_v4_rcv
-
-write to 0xffff88812220763c of 4 bytes by interrupt on cpu 0:
- sk_incoming_cpu_update include/net/sock.h:953 [inline]
- tcp_v4_rcv+0x1b3c/0x1bb0 net/ipv4/tcp_ipv4.c:1934
- ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
- ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
- dst_input include/net/dst.h:442 [inline]
- ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
- __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
- __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
- process_backlog+0x1d3/0x420 net/core/dev.c:5955
- napi_poll net/core/dev.c:6392 [inline]
- net_rx_action+0x3ae/0xa90 net/core/dev.c:6460
- __do_softirq+0x115/0x33f kernel/softirq.c:292
- do_softirq_own_stack+0x2a/0x40 arch/x86/entry/entry_64.S:1082
- do_softirq.part.0+0x6b/0x80 kernel/softirq.c:337
- do_softirq kernel/softirq.c:329 [inline]
- __local_bh_enable_ip+0x76/0x80 kernel/softirq.c:189
-
-read to 0xffff88812220763c of 4 bytes by interrupt on cpu 1:
- sk_incoming_cpu_update include/net/sock.h:952 [inline]
- tcp_v4_rcv+0x181a/0x1bb0 net/ipv4/tcp_ipv4.c:1934
- ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
- ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
- dst_input include/net/dst.h:442 [inline]
- ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
- NF_HOOK include/linux/netfilter.h:305 [inline]
- NF_HOOK include/linux/netfilter.h:299 [inline]
- ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
- __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
- __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
- process_backlog+0x1d3/0x420 net/core/dev.c:5955
- napi_poll net/core/dev.c:6392 [inline]
- net_rx_action+0x3ae/0xa90 net/core/dev.c:6460
- __do_softirq+0x115/0x33f kernel/softirq.c:292
- run_ksoftirqd+0x46/0x60 kernel/softirq.c:603
- smpboot_thread_fn+0x37d/0x4a0 kernel/smpboot.c:165
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 16 Comm: ksoftirqd/1 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: ed194d136769 ("usb: core: remove local_irq_save() around ->complete() handler")
+Cc: Woojung Huh <woojung.huh@microchip.com>
+Cc: Marc Zyngier <maz@kernel.org>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Stefan Wahren <wahrenst@gmx.net>
+Cc: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: David Miller <davem@davemloft.net>
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Tested-by: Stefan Wahren <wahrenst@gmx.net>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sock.h          |    4 ++--
- net/core/sock.c             |    4 ++--
- net/ipv4/inet_hashtables.c  |    2 +-
- net/ipv4/udp.c              |    2 +-
- net/ipv6/inet6_hashtables.c |    2 +-
- net/ipv6/udp.c              |    2 +-
- 6 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/net/usb/lan78xx.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -945,8 +945,8 @@ static inline void sk_incoming_cpu_updat
- {
- 	int cpu = raw_smp_processor_id();
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -1265,8 +1265,11 @@ static void lan78xx_status(struct lan78x
+ 		netif_dbg(dev, link, dev->net, "PHY INTR: 0x%08x\n", intdata);
+ 		lan78xx_defer_kevent(dev, EVENT_LINK_RESET);
  
--	if (unlikely(sk->sk_incoming_cpu != cpu))
--		sk->sk_incoming_cpu = cpu;
-+	if (unlikely(READ_ONCE(sk->sk_incoming_cpu) != cpu))
-+		WRITE_ONCE(sk->sk_incoming_cpu, cpu);
- }
- 
- static inline void sock_rps_record_flow_hash(__u32 hash)
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -1005,7 +1005,7 @@ set_rcvbuf:
- 		break;
- 
- 	case SO_INCOMING_CPU:
--		sk->sk_incoming_cpu = val;
-+		WRITE_ONCE(sk->sk_incoming_cpu, val);
- 		break;
- 
- 	case SO_CNX_ADVICE:
-@@ -1341,7 +1341,7 @@ int sock_getsockopt(struct socket *sock,
- 		break;
- 
- 	case SO_INCOMING_CPU:
--		v.val = sk->sk_incoming_cpu;
-+		v.val = READ_ONCE(sk->sk_incoming_cpu);
- 		break;
- 
- 	case SO_MEMINFO:
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -248,7 +248,7 @@ static inline int compute_score(struct s
- 			if (sk->sk_bound_dev_if)
- 				score += 4;
- 		}
--		if (sk->sk_incoming_cpu == raw_smp_processor_id())
-+		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 			score++;
- 	}
- 	return score;
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -408,7 +408,7 @@ static int compute_score(struct sock *sk
- 			score += 4;
- 	}
- 
--	if (sk->sk_incoming_cpu == raw_smp_processor_id())
-+	if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 		score++;
- 	return score;
- }
---- a/net/ipv6/inet6_hashtables.c
-+++ b/net/ipv6/inet6_hashtables.c
-@@ -118,7 +118,7 @@ static inline int compute_score(struct s
- 			if (sk->sk_bound_dev_if)
- 				score++;
- 		}
--		if (sk->sk_incoming_cpu == raw_smp_processor_id())
-+		if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 			score++;
- 	}
- 	return score;
---- a/net/ipv6/udp.c
-+++ b/net/ipv6/udp.c
-@@ -154,7 +154,7 @@ static int compute_score(struct sock *sk
- 			score++;
- 	}
- 
--	if (sk->sk_incoming_cpu == raw_smp_processor_id())
-+	if (READ_ONCE(sk->sk_incoming_cpu) == raw_smp_processor_id())
- 		score++;
- 
- 	return score;
+-		if (dev->domain_data.phyirq > 0)
++		if (dev->domain_data.phyirq > 0) {
++			local_irq_disable();
+ 			generic_handle_irq(dev->domain_data.phyirq);
++			local_irq_enable();
++		}
+ 	} else
+ 		netdev_warn(dev->net,
+ 			    "unexpected interrupt: 0x%08x\n", intdata);
 
 
