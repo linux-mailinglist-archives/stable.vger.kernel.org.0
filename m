@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C220FF489B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:58:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C737EF489D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390902AbfKHLot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:44:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59832 "EHLO mail.kernel.org"
+        id S2390911AbfKHLou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:44:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390895AbfKHLos (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:44:48 -0500
+        id S2390900AbfKHLot (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:44:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB6FE2245C;
-        Fri,  8 Nov 2019 11:44:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E48712245A;
+        Fri,  8 Nov 2019 11:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213487;
-        bh=rEIAm3V1qILwCRot6idR0i5DGBcrYmtiS7UblRxpyFI=;
+        s=default; t=1573213488;
+        bh=Pa2DiUzIt5+WJpajolX0XfJiLPV7WRel0zK4pP7B+9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNCc8AA+cQ4Qf8YzydxiYEkuLkTy0DrSTnQzl/YeYf4+S2rEcxxh6wRdyYSfhgyhQ
-         xzuYoBUFSX4NuqFNckckTlDTFWOgAo251NIFSvwVJblTZ2TU0hpm3YdfQlL+fGZzHx
-         XQ6I7l7AIVVztfOWXbF5Ro738JB9IAqbmdgLWRbs=
+        b=uPBr/Zfanq6dMod+o/S3rQcd4zF7vZ+uwGgR3X3K7g+3oJotpjV0QhzJ6vIn2D9eM
+         EIdbcKMAUtRMy9xWLLAuZhVyKoGDPThcc8hV0HfQ3ucvrxWwKzQWY+aUHM0r8C20W8
+         VTK3yFcdCIWbtHt7KEYxKiVJenSVXe+NESJiExzU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 067/103] f2fs: fix memory leak of percpu counter in fill_super()
-Date:   Fri,  8 Nov 2019 06:42:32 -0500
-Message-Id: <20191108114310.14363-67-sashal@kernel.org>
+Cc:     Quinn Tran <quinn.tran@cavium.com>,
+        Himanshu Madhani <himanshu.madhani@cavium.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 068/103] scsi: qla2xxx: Fix iIDMA error
+Date:   Fri,  8 Nov 2019 06:42:33 -0500
+Message-Id: <20191108114310.14363-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -43,39 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Quinn Tran <quinn.tran@cavium.com>
 
-[ Upstream commit 4a70e255449c9a13eed7a6eeecc85a1ea63cef76 ]
+[ Upstream commit 8d9bf0a9a268f7ca0b811d6e6a1fc783afa5c746 ]
 
-In fill_super -> init_percpu_info, we should destroy percpu counter
-in error path, otherwise memory allcoated for percpu counter will
-leak.
+When switch responds with error for Get Port Speed Command (GPSC), driver
+should not proceed with telling FW about the speed of the remote port.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Quinn Tran <quinn.tran@cavium.com>
+Signed-off-by: Himanshu Madhani <himanshu.madhani@cavium.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_gs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index e70975ca723b7..62a7821806593 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -2117,8 +2117,12 @@ static int init_percpu_info(struct f2fs_sb_info *sbi)
- 	if (err)
- 		return err;
+diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
+index 2a19ec0660cbb..1088038e6a418 100644
+--- a/drivers/scsi/qla2xxx/qla_gs.c
++++ b/drivers/scsi/qla2xxx/qla_gs.c
+@@ -3033,7 +3033,7 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
+ 			ql_dbg(ql_dbg_disc, vha, 0x2019,
+ 			    "GPSC command unsupported, disabling query.\n");
+ 			ha->flags.gpsc_supported = 0;
+-			res = QLA_SUCCESS;
++			goto done;
+ 		}
+ 	} else {
+ 		switch (be16_to_cpu(ct_rsp->rsp.gpsc.speed)) {
+@@ -3066,13 +3066,13 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
+ 		    be16_to_cpu(ct_rsp->rsp.gpsc.speeds),
+ 		    be16_to_cpu(ct_rsp->rsp.gpsc.speed));
+ 	}
+-done:
+ 	memset(&ea, 0, sizeof(ea));
+ 	ea.event = FCME_GPSC_DONE;
+ 	ea.rc = res;
+ 	ea.fcport = fcport;
+ 	qla2x00_fcport_event_handler(vha, &ea);
  
--	return percpu_counter_init(&sbi->total_valid_inode_count, 0,
-+	err = percpu_counter_init(&sbi->total_valid_inode_count, 0,
- 								GFP_KERNEL);
-+	if (err)
-+		percpu_counter_destroy(&sbi->alloc_valid_block_count);
-+
-+	return err;
++done:
+ 	sp->free(sp);
  }
  
- #ifdef CONFIG_BLK_DEV_ZONED
 -- 
 2.20.1
 
