@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A99B3F557E
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 009BAF5773
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731405AbfKHTCs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:02:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60582 "EHLO mail.kernel.org"
+        id S1727558AbfKHTWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:22:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731744AbfKHTCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:02:47 -0500
+        id S1731772AbfKHS4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:56:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9D9C215EA;
-        Fri,  8 Nov 2019 19:02:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E0B921924;
+        Fri,  8 Nov 2019 18:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239767;
-        bh=n+DjzyOSmmmFEl8IbLZkY3lr0MNUV7MEu3/2CzBSCnA=;
+        s=default; t=1573239403;
+        bh=dbEl2i4Bhjq6++/eGx0bw/oOLJQWB8YBTk8w5f/dfbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZIsSdBVbiBwyjjjrVOy/s99D6osF8ZDFP8aQhuN5/CJ+2CRNZ2UKZTNSxD77SB1r
-         VAeL4MYtCp9EG0o3WQYq1xmtv/PbT5DNEFTbqqShd4dSi4Npr/voahPnQPN1qOpM7H
-         atQudN5TGOqTFyye+WRbLBYB6oJLnAHMD8dkwj1U=
+        b=Rugvsg/eU/uYLHomDJegmi4PPi8QgOHxmAWQUs2eapRIO3IarHPXbIsP9K2i28U/i
+         tKRz//zQwOZPn2uaEoKRkCXus3cG4/FPeq2lrvC21AbAHi9/H2WzI+CjDxbvIa5o44
+         URTakjmXn1m2WOAZl7CRd6F3nuAwMrN5vBMsWSHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        stable@vger.kernel.org, Eran Ben Elisha <eranbe@mellanox.com>,
+        Jack Morgenstein <jackm@dev.mellanox.co.il>,
+        Tariq Toukan <tariqt@mellanox.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 54/79] net: add skb_queue_empty_lockless()
+Subject: [PATCH 4.9 27/34] net/mlx4_core: Dynamically set guaranteed amount of counters per VF
 Date:   Fri,  8 Nov 2019 19:50:34 +0100
-Message-Id: <20191108174818.776614754@linuxfoundation.org>
+Message-Id: <20191108174648.464103608@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
+References: <20191108174618.266472504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,93 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Eran Ben Elisha <eranbe@mellanox.com>
 
-[ Upstream commit d7d16a89350ab263484c0aa2b523dd3a234e4a80 ]
+[ Upstream commit e19868efea0c103f23b4b7e986fd0a703822111f ]
 
-Some paths call skb_queue_empty() without holding
-the queue lock. We must use a barrier in order
-to not let the compiler do strange things, and avoid
-KCSAN splats.
+Prior to this patch, the amount of counters guaranteed per VF in the
+resource tracker was MLX4_VF_COUNTERS_PER_PORT * MLX4_MAX_PORTS. It was
+set regardless if the VF was single or dual port.
+This caused several VFs to have no guaranteed counters although the
+system could satisfy their request.
 
-Adding a barrier in skb_queue_empty() might be overkill,
-I prefer adding a new helper to clearly identify
-points where the callers might be lockless. This might
-help us finding real bugs.
+The fix is to dynamically guarantee counters, based on each VF
+specification.
 
-The corresponding WRITE_ONCE() should add zero cost
-for current compilers.
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
+Fixes: 9de92c60beaa ("net/mlx4_core: Adjust counter grant policy in the resource tracker")
+Signed-off-by: Eran Ben Elisha <eranbe@mellanox.com>
+Signed-off-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |   33 ++++++++++++++++++++++++---------
- 1 file changed, 24 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/resource_tracker.c |   42 +++++++++++-------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1380,6 +1380,19 @@ static inline int skb_queue_empty(const
+--- a/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
++++ b/drivers/net/ethernet/mellanox/mlx4/resource_tracker.c
+@@ -470,12 +470,31 @@ void mlx4_init_quotas(struct mlx4_dev *d
+ 		priv->mfunc.master.res_tracker.res_alloc[RES_MPT].quota[pf];
  }
  
- /**
-+ *	skb_queue_empty_lockless - check if a queue is empty
-+ *	@list: queue head
-+ *
-+ *	Returns true if the queue is empty, false otherwise.
-+ *	This variant can be used in lockless contexts.
-+ */
-+static inline bool skb_queue_empty_lockless(const struct sk_buff_head *list)
-+{
-+	return READ_ONCE(list->next) == (const struct sk_buff *) list;
-+}
-+
-+
-+/**
-  *	skb_queue_is_last - check if skb is the last entry in the queue
-  *	@list: queue head
-  *	@skb: buffer
-@@ -1723,9 +1736,11 @@ static inline void __skb_insert(struct s
- 				struct sk_buff *prev, struct sk_buff *next,
- 				struct sk_buff_head *list)
+-static int get_max_gauranteed_vfs_counter(struct mlx4_dev *dev)
++static int
++mlx4_calc_res_counter_guaranteed(struct mlx4_dev *dev,
++				 struct resource_allocator *res_alloc,
++				 int vf)
  {
--	newsk->next = next;
--	newsk->prev = prev;
--	next->prev  = prev->next = newsk;
-+	/* see skb_queue_empty_lockless() for the opposite READ_ONCE() */
-+	WRITE_ONCE(newsk->next, next);
-+	WRITE_ONCE(newsk->prev, prev);
-+	WRITE_ONCE(next->prev, newsk);
-+	WRITE_ONCE(prev->next, newsk);
- 	list->qlen++;
+-	/* reduce the sink counter */
+-	return (dev->caps.max_counters - 1 -
+-		(MLX4_PF_COUNTERS_PER_PORT * MLX4_MAX_PORTS))
+-		/ MLX4_MAX_PORTS;
++	struct mlx4_active_ports actv_ports;
++	int ports, counters_guaranteed;
++
++	/* For master, only allocate according to the number of phys ports */
++	if (vf == mlx4_master_func_num(dev))
++		return MLX4_PF_COUNTERS_PER_PORT * dev->caps.num_ports;
++
++	/* calculate real number of ports for the VF */
++	actv_ports = mlx4_get_active_ports(dev, vf);
++	ports = bitmap_weight(actv_ports.ports, dev->caps.num_ports);
++	counters_guaranteed = ports * MLX4_VF_COUNTERS_PER_PORT;
++
++	/* If we do not have enough counters for this VF, do not
++	 * allocate any for it. '-1' to reduce the sink counter.
++	 */
++	if ((res_alloc->res_reserved + counters_guaranteed) >
++	    (dev->caps.max_counters - 1))
++		return 0;
++
++	return counters_guaranteed;
  }
  
-@@ -1736,11 +1751,11 @@ static inline void __skb_queue_splice(co
- 	struct sk_buff *first = list->next;
- 	struct sk_buff *last = list->prev;
+ int mlx4_init_resource_tracker(struct mlx4_dev *dev)
+@@ -483,7 +502,6 @@ int mlx4_init_resource_tracker(struct ml
+ 	struct mlx4_priv *priv = mlx4_priv(dev);
+ 	int i, j;
+ 	int t;
+-	int max_vfs_guarantee_counter = get_max_gauranteed_vfs_counter(dev);
  
--	first->prev = prev;
--	prev->next = first;
-+	WRITE_ONCE(first->prev, prev);
-+	WRITE_ONCE(prev->next, first);
- 
--	last->next = next;
--	next->prev = last;
-+	WRITE_ONCE(last->next, next);
-+	WRITE_ONCE(next->prev, last);
- }
- 
- /**
-@@ -1881,8 +1896,8 @@ static inline void __skb_unlink(struct s
- 	next	   = skb->next;
- 	prev	   = skb->prev;
- 	skb->next  = skb->prev = NULL;
--	next->prev = prev;
--	prev->next = next;
-+	WRITE_ONCE(next->prev, prev);
-+	WRITE_ONCE(prev->next, next);
- }
- 
- /**
+ 	priv->mfunc.master.res_tracker.slave_list =
+ 		kzalloc(dev->num_slaves * sizeof(struct slave_list),
+@@ -600,16 +618,8 @@ int mlx4_init_resource_tracker(struct ml
+ 				break;
+ 			case RES_COUNTER:
+ 				res_alloc->quota[t] = dev->caps.max_counters;
+-				if (t == mlx4_master_func_num(dev))
+-					res_alloc->guaranteed[t] =
+-						MLX4_PF_COUNTERS_PER_PORT *
+-						MLX4_MAX_PORTS;
+-				else if (t <= max_vfs_guarantee_counter)
+-					res_alloc->guaranteed[t] =
+-						MLX4_VF_COUNTERS_PER_PORT *
+-						MLX4_MAX_PORTS;
+-				else
+-					res_alloc->guaranteed[t] = 0;
++				res_alloc->guaranteed[t] =
++					mlx4_calc_res_counter_guaranteed(dev, res_alloc, t);
+ 				res_alloc->res_free -= res_alloc->guaranteed[t];
+ 				break;
+ 			default:
 
 
