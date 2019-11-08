@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 806A8F562F
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5C1F5631
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390338AbfKHTHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:07:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
+        id S2387807AbfKHTHT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:07:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387807AbfKHTHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:07:15 -0500
+        id S2391425AbfKHTHS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:07:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5976621D7B;
-        Fri,  8 Nov 2019 19:07:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B26A82196F;
+        Fri,  8 Nov 2019 19:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240034;
-        bh=K32ZWAUHZYwZ6ldFuJYFcJMs3ik48+4h5AWGsB4QZsI=;
+        s=default; t=1573240038;
+        bh=cJ6t2TafyczZEuNkVhNQTkIyWqNQmIOm7Mg0qAcJHPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=icuVCbF1NC1W1S6kWMokXtH6kKxRMkBl4RFbZe9t3MeO9fxJKVLvzwJO6XuKL4NNq
-         4wGC/z/StAIlm60zmiOTfFBk68Hp0bHAsLgU6KyPZbhQWgm3iIgkLvW5p9SgHSapEK
-         HogkzX3m6zVl0kydpo17BpjtoXzJ/W4pHszaXWOI=
+        b=NDcpwX1/OMflu4QwjK2r/vPvKeU2wZLAiSUJSqe42lJme5mNSReer6uzhiktKMEBN
+         BXlq0BBr2BUxsRLLv7nBsd1fE8ruoQovWDsQZmMmVAsAl373tjakOIGaobRl2+3Sf+
+         y6n1paAQ65zjlNIeIu9ycsdCwOebV5qdyFMGCtAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, afzal mohammed <afzal.mohd.ma@gmail.com>,
-        Vladimir Murzin <vladimir.murzin@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 064/140] ARM: 8926/1: v7m: remove register save to stack before svc
-Date:   Fri,  8 Nov 2019 19:49:52 +0100
-Message-Id: <20191108174909.263966482@linuxfoundation.org>
+Subject: [PATCH 5.3 065/140] selftests: kvm: vmx_set_nested_state_test: dont check for VMX support twice
+Date:   Fri,  8 Nov 2019 19:49:53 +0100
+Message-Id: <20191108174909.315506364@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
 References: <20191108174900.189064908@linuxfoundation.org>
@@ -45,61 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-[ Upstream commit 2ecb287998a47cc0a766f6071f63bc185f338540 ]
+[ Upstream commit 700c17d9cec8712f4091692488fb63e2680f7a5d ]
 
-r0-r3 & r12 registers are saved & restored, before & after svc
-respectively. Intention was to preserve those registers across thread to
-handler mode switch.
+vmx_set_nested_state_test() checks if VMX is supported twice: in the very
+beginning (and skips the whole test if it's not) and before doing
+test_vmx_nested_state(). One should be enough.
 
-On v7-M, hardware saves the register context upon exception in AAPCS
-complaint way. Restoring r0-r3 & r12 is done from stack location where
-hardware saves it, not from the location on stack where these registers
-were saved.
-
-To clarify, on stm32f429 discovery board:
-
-1. before svc, sp - 0x90009ff8
-2. r0-r3,r12 saved to 0x90009ff8 - 0x9000a00b
-3. upon svc, h/w decrements sp by 32 & pushes registers onto stack
-4. after svc,  sp - 0x90009fd8
-5. r0-r3,r12 restored from 0x90009fd8 - 0x90009feb
-
-Above means r0-r3,r12 is not restored from the location where they are
-saved, but since hardware pushes the registers onto stack, the registers
-are restored correctly.
-
-Note that during register saving to stack (step 2), it goes past
-0x9000a000. And it seems, based on objdump, there are global symbols
-residing there, and it perhaps can cause issues on a non-XIP Kernel
-(on XIP, data section is setup later).
-
-Based on the analysis above, manually saving registers onto stack is at
-best no-op and at worst can cause data section corruption. Hence remove
-storing of registers onto stack before svc.
-
-Fixes: b70cd406d7fe ("ARM: 8671/1: V7M: Preserve registers across switch from Thread to Handler mode")
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
-Acked-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/proc-v7m.S | 1 -
- 1 file changed, 1 deletion(-)
+ .../selftests/kvm/x86_64/vmx_set_nested_state_test.c       | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/arch/arm/mm/proc-v7m.S b/arch/arm/mm/proc-v7m.S
-index efebf4120a0c4..1a49d503eafc8 100644
---- a/arch/arm/mm/proc-v7m.S
-+++ b/arch/arm/mm/proc-v7m.S
-@@ -132,7 +132,6 @@ __v7m_setup_cont:
- 	dsb
- 	mov	r6, lr			@ save LR
- 	ldr	sp, =init_thread_union + THREAD_START_SP
--	stmia	sp, {r0-r3, r12}
- 	cpsie	i
- 	svc	#0
- 1:	cpsid	i
+diff --git a/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c b/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c
+index 853e370e8a394..a6d85614ae4d6 100644
+--- a/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c
++++ b/tools/testing/selftests/kvm/x86_64/vmx_set_nested_state_test.c
+@@ -271,12 +271,7 @@ int main(int argc, char *argv[])
+ 	state.flags = KVM_STATE_NESTED_RUN_PENDING;
+ 	test_nested_state_expect_einval(vm, &state);
+ 
+-	/*
+-	 * TODO: When SVM support is added for KVM_SET_NESTED_STATE
+-	 *       add tests here to support it like VMX.
+-	 */
+-	if (entry->ecx & CPUID_VMX)
+-		test_vmx_nested_state(vm);
++	test_vmx_nested_state(vm);
+ 
+ 	kvm_vm_free(vm);
+ 	return 0;
 -- 
 2.20.1
 
