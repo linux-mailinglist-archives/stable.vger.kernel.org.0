@@ -2,390 +2,390 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EABD2F533B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:07:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3758AF540D
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 19:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726394AbfKHSHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:07:15 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:46482 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726232AbfKHSHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 8 Nov 2019 13:07:15 -0500
-Received: by mail-ot1-f68.google.com with SMTP id n23so5925206otr.13
-        for <stable@vger.kernel.org>; Fri, 08 Nov 2019 10:07:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=indeed.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=QGlt3hJXtY0qLEPas6BDipXimkRdfVS9UKyV7NuPWbg=;
-        b=fygNr0MGZS52n8WF/1Do7Y/T88408MQDZkQTrVZ4Ua1ovriStGy8DGyGRBAmUFJsLn
-         dY+QC8oEds804ZVCydITSekS1DooRa7vwlBvtCOHwgkGkQfM3p4K6+LgBzP3vnm7i9aT
-         ca1tbbhvDPtkNYs9xKjzYKPxOYMJOF4nEVnjo=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=QGlt3hJXtY0qLEPas6BDipXimkRdfVS9UKyV7NuPWbg=;
-        b=AEShQv8v1Ys20neCKBGA2JWG+aDqym/xOV8HLTHxlKSspICY494l7YIN4SsICEMP9l
-         gfGDgdATfhbWVrfRHB73AhKXBWV2MIkYrKT0q5aVRRvfMndoFQqnZvJmxBVkPUdFmSf3
-         B9KZo74a1oVu/Q5p5Sgi0y2n4F8m1zj/0VXt7T+pmykMQy+P1Cc0aPJ5zRmq4t7PCbks
-         eqHJKa4bU0VhQ8I2RyzoJhoRBXKuzGawtCoGRJQKgbw8u+uWbr2fVZKveJ3KFQxVwQH7
-         bFmu6LO7nLA+W3EWQ9hOCUrRw9KpXrIsBz71yytMMHHIFdX/GuUXKXXr1+4gvQ0YSLXo
-         8+bg==
-X-Gm-Message-State: APjAAAXKtxnBC9EP+IQnldUGGXJQu5n015LOkl4bDpAx6xm5hxDU5HzH
-        JWbOpIilvsOEY8K6J+2tx7pfIQ==
-X-Google-Smtp-Source: APXvYqwb791WDf/zt4UE/J11247cOSzcG+iVYR2Xg162J/Nslvh/BJ+xr7r7mOZMuS+nWGjfIocCFg==
-X-Received: by 2002:a9d:458a:: with SMTP id x10mr9513413ote.365.1573236431469;
-        Fri, 08 Nov 2019 10:07:11 -0800 (PST)
-Received: from cando.ausoff.indeed.net ([97.105.47.162])
-        by smtp.gmail.com with ESMTPSA id l23sm1976716oig.44.2019.11.08.10.07.10
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 08 Nov 2019 10:07:11 -0800 (PST)
-From:   Dave Chiluk <chiluk+linux@indeed.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Ben Segall <bsegall@google.com>, Phil Auld <pauld@redhat.com>,
-        stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>, Qian Cai <cai@lca.pw>
-Subject: [PATCH v4.14.y 1/2] sched/fair: Fix low cpu usage with high throttling by removing expiration of cpu-local slices
-Date:   Fri,  8 Nov 2019 12:06:26 -0600
-Message-Id: <1573236387-15456-2-git-send-email-chiluk+linux@indeed.com>
-X-Mailer: git-send-email 1.8.3.1
-In-Reply-To: <20191104110832.GE1945210@kroah.com>
-References: <20191104110832.GE1945210@kroah.com>
+        id S1726670AbfKHSxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:53:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1732632AbfKHSxu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:53:50 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 155912178F;
+        Fri,  8 Nov 2019 18:53:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573239228;
+        bh=FzYIPp5nwqOQVjismqwhXZRrHO+7PVam12mEDWsJeZ8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=I16t1BCGh9wwJEItOXRXiUYWS2abICuuxVEN/UxSd+47WCOqjRAzj3fzOi48l0sQp
+         C88qvRLFR4o1EIA93uSUOkKrklaaJoW5ecaRdJudXuJHVSk4NNlC7F1XPrHlJ4zYGY
+         01e5kyq1z4VJVHulpzsaDaXHa+b04Omu1xlKC9ik=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.4 00/75] 4.4.200-stable review
+Date:   Fri,  8 Nov 2019 19:49:17 +0100
+Message-Id: <20191108174708.135680837@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.0
+MIME-Version: 1.0
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.200-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.200-rc1
+X-KernelTest-Deadline: 2019-11-10T17:48+00:00
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit de53fd7aedb100f03e5d2231cfce0e4993282425 ]
+This is the start of the stable review cycle for the 4.4.200 release.
+There are 75 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-It has been observed, that highly-threaded, non-cpu-bound applications
-running under cpu.cfs_quota_us constraints can hit a high percentage of
-periods throttled while simultaneously not consuming the allocated
-amount of quota. This use case is typical of user-interactive non-cpu
-bound applications, such as those running in kubernetes or mesos when
-run on multiple cpu cores.
+Responses should be made by Sun 10 Nov 2019 05:42:11 PM UTC.
+Anything received after that time might be too late.
 
-This has been root caused to cpu-local run queue being allocated per cpu
-bandwidth slices, and then not fully using that slice within the period.
-At which point the slice and quota expires. This expiration of unused
-slice results in applications not being able to utilize the quota for
-which they are allocated.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.200-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-The non-expiration of per-cpu slices was recently fixed by
-'commit 512ac999d275 ("sched/fair: Fix bandwidth timer clock drift
-condition")'. Prior to that it appears that this had been broken since
-at least 'commit 51f2176d74ac ("sched/fair: Fix unlocked reads of some
-cfs_b->quota/period")' which was introduced in v3.16-rc1 in 2014. That
-added the following conditional which resulted in slices never being
-expired.
+thanks,
 
-if (cfs_rq->runtime_expires != cfs_b->runtime_expires) {
-	/* extend local deadline, drift is bounded above by 2 ticks */
-	cfs_rq->runtime_expires += TICK_NSEC;
+greg k-h
 
-Because this was broken for nearly 5 years, and has recently been fixed
-and is now being noticed by many users running kubernetes
-(https://github.com/kubernetes/kubernetes/issues/67577) it is my opinion
-that the mechanisms around expiring runtime should be removed
-altogether.
+-------------
+Pseudo-Shortlog of commits:
 
-This allows quota already allocated to per-cpu run-queues to live longer
-than the period boundary. This allows threads on runqueues that do not
-use much CPU to continue to use their remaining slice over a longer
-period of time than cpu.cfs_period_us. However, this helps prevent the
-above condition of hitting throttling while also not fully utilizing
-your cpu quota.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.200-rc1
 
-This theoretically allows a machine to use slightly more than its
-allotted quota in some periods. This overflow would be bounded by the
-remaining quota left on each per-cpu runqueueu. This is typically no
-more than min_cfs_rq_runtime=1ms per cpu. For CPU bound tasks this will
-change nothing, as they should theoretically fully utilize all of their
-quota in each period. For user-interactive tasks as described above this
-provides a much better user/application experience as their cpu
-utilization will more closely match the amount they requested when they
-hit throttling. This means that cpu limits no longer strictly apply per
-period for non-cpu bound applications, but that they are still accurate
-over longer timeframes.
+zhangyi (F) <yi.zhang@huawei.com>
+    fs/dcache: move security_d_instantiate() behind attaching dentry to inode
 
-This greatly improves performance of high-thread-count, non-cpu bound
-applications with low cfs_quota_us allocation on high-core-count
-machines. In the case of an artificial testcase (10ms/100ms of quota on
-80 CPU machine), this commit resulted in almost 30x performance
-improvement, while still maintaining correct cpu quota restrictions.
-That testcase is available at https://github.com/indeedeng/fibtest.
+Petr Vorel <pvorel@suse.cz>
+    alarmtimer: Change remaining ENOTSUPP to EOPNOTSUPP
 
-Fixes: 512ac999d275 ("sched/fair: Fix bandwidth timer clock drift condition")
-Signed-off-by: Dave Chiluk <chiluk+linux@indeed.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Phil Auld <pauld@redhat.com>
-Reviewed-by: Ben Segall <bsegall@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: John Hammond <jhammond@indeed.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Kyle Anderson <kwa@yelp.com>
-Cc: Gabriel Munos <gmunoz@netflix.com>
-Cc: Peter Oskolkov <posk@posk.io>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Brendan Gregg <bgregg@netflix.com>
-Link: https://lkml.kernel.org/r/1563900266-19734-2-git-send-email-chiluk+linux@indeed.com
-(cherry picked from commit 25d2df31fd426f34c18227c2cfe2d5e6d14a34fc)
----
- Documentation/scheduler/sched-bwc.txt | 45 ++++++++++++++++++++++
- kernel/sched/fair.c                   | 70 ++++-------------------------------
- kernel/sched/sched.h                  |  4 --
- 3 files changed, 52 insertions(+), 67 deletions(-)
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: fix the cockup in the previous patch
 
-diff --git a/Documentation/scheduler/sched-bwc.txt b/Documentation/scheduler/sched-bwc.txt
-index f6b1873..de583fb 100644
---- a/Documentation/scheduler/sched-bwc.txt
-+++ b/Documentation/scheduler/sched-bwc.txt
-@@ -90,6 +90,51 @@ There are two ways in which a group may become throttled:
- In case b) above, even though the child may have runtime remaining it will not
- be allowed to until the parent's runtime is refreshed.
- 
-+CFS Bandwidth Quota Caveats
-+---------------------------
-+Once a slice is assigned to a cpu it does not expire.  However all but 1ms of
-+the slice may be returned to the global pool if all threads on that cpu become
-+unrunnable. This is configured at compile time by the min_cfs_rq_runtime
-+variable. This is a performance tweak that helps prevent added contention on
-+the global lock.
-+
-+The fact that cpu-local slices do not expire results in some interesting corner
-+cases that should be understood.
-+
-+For cgroup cpu constrained applications that are cpu limited this is a
-+relatively moot point because they will naturally consume the entirety of their
-+quota as well as the entirety of each cpu-local slice in each period. As a
-+result it is expected that nr_periods roughly equal nr_throttled, and that
-+cpuacct.usage will increase roughly equal to cfs_quota_us in each period.
-+
-+For highly-threaded, non-cpu bound applications this non-expiration nuance
-+allows applications to briefly burst past their quota limits by the amount of
-+unused slice on each cpu that the task group is running on (typically at most
-+1ms per cpu or as defined by min_cfs_rq_runtime).  This slight burst only
-+applies if quota had been assigned to a cpu and then not fully used or returned
-+in previous periods. This burst amount will not be transferred between cores.
-+As a result, this mechanism still strictly limits the task group to quota
-+average usage, albeit over a longer time window than a single period.  This
-+also limits the burst ability to no more than 1ms per cpu.  This provides
-+better more predictable user experience for highly threaded applications with
-+small quota limits on high core count machines. It also eliminates the
-+propensity to throttle these applications while simultanously using less than
-+quota amounts of cpu. Another way to say this, is that by allowing the unused
-+portion of a slice to remain valid across periods we have decreased the
-+possibility of wastefully expiring quota on cpu-local silos that don't need a
-+full slice's amount of cpu time.
-+
-+The interaction between cpu-bound and non-cpu-bound-interactive applications
-+should also be considered, especially when single core usage hits 100%. If you
-+gave each of these applications half of a cpu-core and they both got scheduled
-+on the same CPU it is theoretically possible that the non-cpu bound application
-+will use up to 1ms additional quota in some periods, thereby preventing the
-+cpu-bound application from fully using its quota by that same amount. In these
-+instances it will be up to the CFS algorithm (see sched-design-CFS.rst) to
-+decide which application is chosen to run, as they will both be runnable and
-+have remaining quota. This runtime discrepancy will be made up in the following
-+periods when the interactive application idles.
-+
- Examples
- --------
- 1. Limit a group to 1 CPU worth of runtime.
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 55a33009..d5c032e 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -4106,8 +4106,6 @@ void __refill_cfs_bandwidth_runtime(struct cfs_bandwidth *cfs_b)
- 
- 	now = sched_clock_cpu(smp_processor_id());
- 	cfs_b->runtime = cfs_b->quota;
--	cfs_b->runtime_expires = now + ktime_to_ns(cfs_b->period);
--	cfs_b->expires_seq++;
- }
- 
- static inline struct cfs_bandwidth *tg_cfs_bandwidth(struct task_group *tg)
-@@ -4129,8 +4127,7 @@ static int assign_cfs_rq_runtime(struct cfs_rq *cfs_rq)
- {
- 	struct task_group *tg = cfs_rq->tg;
- 	struct cfs_bandwidth *cfs_b = tg_cfs_bandwidth(tg);
--	u64 amount = 0, min_amount, expires;
--	int expires_seq;
-+	u64 amount = 0, min_amount;
- 
- 	/* note: this is a positive sum as runtime_remaining <= 0 */
- 	min_amount = sched_cfs_bandwidth_slice() - cfs_rq->runtime_remaining;
-@@ -4147,61 +4144,17 @@ static int assign_cfs_rq_runtime(struct cfs_rq *cfs_rq)
- 			cfs_b->idle = 0;
- 		}
- 	}
--	expires_seq = cfs_b->expires_seq;
--	expires = cfs_b->runtime_expires;
- 	raw_spin_unlock(&cfs_b->lock);
- 
- 	cfs_rq->runtime_remaining += amount;
--	/*
--	 * we may have advanced our local expiration to account for allowed
--	 * spread between our sched_clock and the one on which runtime was
--	 * issued.
--	 */
--	if (cfs_rq->expires_seq != expires_seq) {
--		cfs_rq->expires_seq = expires_seq;
--		cfs_rq->runtime_expires = expires;
--	}
- 
- 	return cfs_rq->runtime_remaining > 0;
- }
- 
--/*
-- * Note: This depends on the synchronization provided by sched_clock and the
-- * fact that rq->clock snapshots this value.
-- */
--static void expire_cfs_rq_runtime(struct cfs_rq *cfs_rq)
--{
--	struct cfs_bandwidth *cfs_b = tg_cfs_bandwidth(cfs_rq->tg);
--
--	/* if the deadline is ahead of our clock, nothing to do */
--	if (likely((s64)(rq_clock(rq_of(cfs_rq)) - cfs_rq->runtime_expires) < 0))
--		return;
--
--	if (cfs_rq->runtime_remaining < 0)
--		return;
--
--	/*
--	 * If the local deadline has passed we have to consider the
--	 * possibility that our sched_clock is 'fast' and the global deadline
--	 * has not truly expired.
--	 *
--	 * Fortunately we can check determine whether this the case by checking
--	 * whether the global deadline(cfs_b->expires_seq) has advanced.
--	 */
--	if (cfs_rq->expires_seq == cfs_b->expires_seq) {
--		/* extend local deadline, drift is bounded above by 2 ticks */
--		cfs_rq->runtime_expires += TICK_NSEC;
--	} else {
--		/* global deadline is ahead, expiration has passed */
--		cfs_rq->runtime_remaining = 0;
--	}
--}
--
- static void __account_cfs_rq_runtime(struct cfs_rq *cfs_rq, u64 delta_exec)
- {
- 	/* dock delta_exec before expiring quota (as it could span periods) */
- 	cfs_rq->runtime_remaining -= delta_exec;
--	expire_cfs_rq_runtime(cfs_rq);
- 
- 	if (likely(cfs_rq->runtime_remaining > 0))
- 		return;
-@@ -4387,8 +4340,7 @@ void unthrottle_cfs_rq(struct cfs_rq *cfs_rq)
- 		resched_curr(rq);
- }
- 
--static u64 distribute_cfs_runtime(struct cfs_bandwidth *cfs_b,
--		u64 remaining, u64 expires)
-+static u64 distribute_cfs_runtime(struct cfs_bandwidth *cfs_b, u64 remaining)
- {
- 	struct cfs_rq *cfs_rq;
- 	u64 runtime;
-@@ -4413,7 +4365,6 @@ static u64 distribute_cfs_runtime(struct cfs_bandwidth *cfs_b,
- 		remaining -= runtime;
- 
- 		cfs_rq->runtime_remaining += runtime;
--		cfs_rq->runtime_expires = expires;
- 
- 		/* we check whether we're throttled above */
- 		if (cfs_rq->runtime_remaining > 0)
-@@ -4438,7 +4389,7 @@ static u64 distribute_cfs_runtime(struct cfs_bandwidth *cfs_b,
-  */
- static int do_sched_cfs_period_timer(struct cfs_bandwidth *cfs_b, int overrun)
- {
--	u64 runtime, runtime_expires;
-+	u64 runtime;
- 	int throttled;
- 
- 	/* no need to continue the timer with no bandwidth constraint */
-@@ -4466,8 +4417,6 @@ static int do_sched_cfs_period_timer(struct cfs_bandwidth *cfs_b, int overrun)
- 	/* account preceding periods in which throttling occurred */
- 	cfs_b->nr_throttled += overrun;
- 
--	runtime_expires = cfs_b->runtime_expires;
--
- 	/*
- 	 * This check is repeated as we are holding onto the new bandwidth while
- 	 * we unthrottle. This can potentially race with an unthrottled group
-@@ -4480,8 +4429,7 @@ static int do_sched_cfs_period_timer(struct cfs_bandwidth *cfs_b, int overrun)
- 		cfs_b->distribute_running = 1;
- 		raw_spin_unlock(&cfs_b->lock);
- 		/* we can't nest cfs_b->lock while distributing bandwidth */
--		runtime = distribute_cfs_runtime(cfs_b, runtime,
--						 runtime_expires);
-+		runtime = distribute_cfs_runtime(cfs_b, runtime);
- 		raw_spin_lock(&cfs_b->lock);
- 
- 		cfs_b->distribute_running = 0;
-@@ -4558,8 +4506,7 @@ static void __return_cfs_rq_runtime(struct cfs_rq *cfs_rq)
- 		return;
- 
- 	raw_spin_lock(&cfs_b->lock);
--	if (cfs_b->quota != RUNTIME_INF &&
--	    cfs_rq->runtime_expires == cfs_b->runtime_expires) {
-+	if (cfs_b->quota != RUNTIME_INF) {
- 		cfs_b->runtime += slack_runtime;
- 
- 		/* we are under rq->lock, defer unthrottling using a timer */
-@@ -4591,7 +4538,6 @@ static __always_inline void return_cfs_rq_runtime(struct cfs_rq *cfs_rq)
- static void do_sched_cfs_slack_timer(struct cfs_bandwidth *cfs_b)
- {
- 	u64 runtime = 0, slice = sched_cfs_bandwidth_slice();
--	u64 expires;
- 
- 	/* confirm we're still not at a refresh boundary */
- 	raw_spin_lock(&cfs_b->lock);
-@@ -4608,7 +4554,6 @@ static void do_sched_cfs_slack_timer(struct cfs_bandwidth *cfs_b)
- 	if (cfs_b->quota != RUNTIME_INF && cfs_b->runtime > slice)
- 		runtime = cfs_b->runtime;
- 
--	expires = cfs_b->runtime_expires;
- 	if (runtime)
- 		cfs_b->distribute_running = 1;
- 
-@@ -4617,11 +4562,10 @@ static void do_sched_cfs_slack_timer(struct cfs_bandwidth *cfs_b)
- 	if (!runtime)
- 		return;
- 
--	runtime = distribute_cfs_runtime(cfs_b, runtime, expires);
-+	runtime = distribute_cfs_runtime(cfs_b, runtime);
- 
- 	raw_spin_lock(&cfs_b->lock);
--	if (expires == cfs_b->runtime_expires)
--		cfs_b->runtime -= min(runtime, cfs_b->runtime);
-+	cfs_b->runtime -= min(runtime, cfs_b->runtime);
- 	cfs_b->distribute_running = 0;
- 	raw_spin_unlock(&cfs_b->lock);
- }
-diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
-index 452b569..268f560 100644
---- a/kernel/sched/sched.h
-+++ b/kernel/sched/sched.h
-@@ -280,8 +280,6 @@ struct cfs_bandwidth {
- 	ktime_t period;
- 	u64 quota, runtime;
- 	s64 hierarchical_quota;
--	u64 runtime_expires;
--	int expires_seq;
- 
- 	short idle, period_active;
- 	struct hrtimer period_timer, slack_timer;
-@@ -489,8 +487,6 @@ struct cfs_rq {
- 
- #ifdef CONFIG_CFS_BANDWIDTH
- 	int runtime_enabled;
--	int expires_seq;
--	u64 runtime_expires;
- 	s64 runtime_remaining;
- 
- 	u64 throttled_clock, throttled_clock_task;
--- 
-1.8.3.1
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: ensure that processor vtables is not lost after boot
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v2: per-CPU vtables to work around big.Little systems
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: add PROC_VTABLE and PROC_TABLE macros
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: clean up per-processor check_bugs method call
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: split out processor lookup
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: make lookup_processor_type() non-__init
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8810/1: vfp: Fix wrong assignement to ufp_exc
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8796/1: spectre-v1,v1.1: provide helpers for address sanitization
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8795/1: spectre-v1.1: use put_user() for __put_user()
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8794/1: uaccess: Prevent speculative use of the current addr_limit
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8793/1: signal: replace __put_user_error with __put_user
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8792/1: oabi-compat: copy oabi events using __copy_to_user()
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8791/1: vfp: use __copy_to_user() when saving VFP state
+
+Julien Thierry <julien.thierry@arm.com>
+    ARM: 8789/1: signal: copy registers using __copy_to_user()
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v1: mitigate user accesses
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v1: use get_user() for __get_user()
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: use __inttype() in get_user()
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: oabi-compat: copy semops using __copy_from_user()
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: vfp: use __copy_from_user() when restoring VFP state
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: signal: copy registers using __copy_from_user()
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v1: fix syscall entry
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v1: add array_index_mask_nospec() implementation
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v1: add speculation barrier (csdb) macros
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v2: warn about incorrect context switching functions
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v2: add firmware based hardening
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v2: harden user aborts in kernel space
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v2: add Cortex A8 and A15 validation of the IBE bit
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre-v2: harden branch predictor on context switches
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: spectre: add Kconfig symbol for CPUs vulnerable to Spectre
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: bugs: add support for per-processor bug checking
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: bugs: hook processor bug checking into SMP and suspend paths
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: bugs: prepare processor bug infrastructure
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: add more CPU part numbers for Cortex and Brahma B15 CPUs
+
+Marc Zyngier <marc.zyngier@arm.com>
+    arm/arm64: smccc-1.1: Handle function result as parameters
+
+Marc Zyngier <marc.zyngier@arm.com>
+    arm/arm64: smccc-1.1: Make return values unsigned long
+
+Marc Zyngier <marc.zyngier@arm.com>
+    arm/arm64: smccc: Add SMCCC-specific return codes
+
+Marc Zyngier <marc.zyngier@arm.com>
+    arm/arm64: smccc: Implement SMCCC v1.1 inline primitive
+
+Marc Zyngier <marc.zyngier@arm.com>
+    arm/arm64: smccc: Make function identifiers an unsigned quantity
+
+Marc Zyngier <marc.zyngier@arm.com>
+    firmware/psci: Expose SMCCC version through psci_ops
+
+Marc Zyngier <marc.zyngier@arm.com>
+    firmware/psci: Expose PSCI conduit
+
+Marc Zyngier <marc.zyngier@arm.com>
+    arm64: KVM: Report SMCCC_ARCH_WORKAROUND_1 BP hardening support
+
+Marc Zyngier <marc.zyngier@arm.com>
+    arm/arm64: KVM: Advertise SMCCC v1.1
+
+Vladimir Murzin <vladimir.murzin@arm.com>
+    ARM: Move system register accessors to asm/cp15.h
+
+Russell King <rmk+kernel@arm.linux.org.uk>
+    ARM: uaccess: remove put_user() code duplication
+
+Jens Wiklander <jens.wiklander@linaro.org>
+    ARM: 8481/2: drivers: psci: replace psci firmware calls
+
+Jens Wiklander <jens.wiklander@linaro.org>
+    ARM: 8480/2: arm64: add implementation for arm-smccc
+
+Jens Wiklander <jens.wiklander@linaro.org>
+    ARM: 8479/2: add implementation for arm-smccc
+
+Jens Wiklander <jens.wiklander@linaro.org>
+    ARM: 8478/2: arm/arm64: add arm-smccc
+
+Andrey Ryabinin <ryabinin.a.a@gmail.com>
+    ARM: 8051/1: put_user: fix possible data corruption in put_user
+
+Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+    dmaengine: qcom: bam_dma: Fix resource leak
+
+Eric Dumazet <edumazet@google.com>
+    net/flow_dissector: switch to siphash
+
+Eric Dumazet <edumazet@google.com>
+    inet: stop leaking jiffies on the wire
+
+Eran Ben Elisha <eranbe@mellanox.com>
+    net/mlx4_core: Dynamically set guaranteed amount of counters per VF
+
+Xin Long <lucien.xin@gmail.com>
+    vxlan: check tun_info options_len properly
+
+Eric Dumazet <edumazet@google.com>
+    net: add READ_ONCE() annotation in __skb_wait_for_more_packets()
+
+zhanglin <zhang.lin16@zte.com.cn>
+    net: Zeroing the structure ethtool_wolinfo in ethtool_get_wol()
+
+Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+    net: hisilicon: Fix ping latency when deal with high throughput
+
+Tejun Heo <tj@kernel.org>
+    net: fix sk_page_frag() recursion from memory reclaim
+
+Eric Dumazet <edumazet@google.com>
+    dccp: do not leak jiffies on the wire
+
+Dave Wysochanski <dwysocha@redhat.com>
+    cifs: Fix cifsInodeInfo lock_sem deadlock when reconnect occurs
+
+Jonas Gorski <jonas.gorski@gmail.com>
+    MIPS: bmips: mark exception vectors as char arrays
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    of: unittest: fix memory leak in unittest_data_add
+
+Bodo Stroesser <bstroesser@ts.fujitsu.com>
+    scsi: target: core: Do not overwrite CDB byte 1
+
+Yunfeng Ye <yeyunfeng@huawei.com>
+    perf kmem: Fix memory leak in compact_gfp_flags()
+
+Thomas Bogendoerfer <tbogendoerfer@suse.de>
+    scsi: fix kconfig dependency warning related to 53C700_LE_ON_BE
+
+Thomas Bogendoerfer <tbogendoerfer@suse.de>
+    scsi: sni_53c710: fix compilation error
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: mm: fix alignment handler faults under memory pressure
+
+Adam Ford <aford173@gmail.com>
+    ARM: dts: logicpd-torpedo-som: Remove twl_keypad
+
+Robin Murphy <robin.murphy@arm.com>
+    ASoc: rockchip: i2s: Fix RPM imbalance
+
+Yizhuo <yzhai003@ucr.edu>
+    regulator: pfuze100-regulator: Variable "val" in pfuze100_regulator_probe() could be uninitialized
+
+Axel Lin <axel.lin@ingics.com>
+    regulator: ti-abb: Fix timeout in ti_abb_wait_txdone/ti_abb_clear_all_txdone
+
+Seth Forshee <seth.forshee@canonical.com>
+    kbuild: add -fcf-protection=none when using retpoline flags
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  10 +-
+ arch/arm/Kconfig                                   |   3 +-
+ arch/arm/boot/dts/logicpd-torpedo-som.dtsi         |   4 +
+ arch/arm/include/asm/arch_gicv3.h                  |  27 +-
+ arch/arm/include/asm/assembler.h                   |  23 ++
+ arch/arm/include/asm/barrier.h                     |  34 +++
+ arch/arm/include/asm/bugs.h                        |   6 +-
+ arch/arm/include/asm/cp15.h                        |  18 ++
+ arch/arm/include/asm/cputype.h                     |   9 +
+ arch/arm/include/asm/proc-fns.h                    |  65 ++++-
+ arch/arm/include/asm/system_misc.h                 |  15 ++
+ arch/arm/include/asm/thread_info.h                 |   8 +-
+ arch/arm/include/asm/uaccess.h                     | 177 ++++++++-----
+ arch/arm/kernel/Makefile                           |   4 +-
+ arch/arm/kernel/armksyms.c                         |   6 +
+ arch/arm/kernel/bugs.c                             |  18 ++
+ arch/arm/kernel/entry-common.S                     |  18 +-
+ arch/arm/kernel/entry-header.S                     |  25 ++
+ arch/arm/kernel/head-common.S                      |   6 +-
+ arch/arm/kernel/psci-call.S                        |  31 ---
+ arch/arm/kernel/setup.c                            |  40 +--
+ arch/arm/kernel/signal.c                           | 125 ++++-----
+ arch/arm/kernel/smccc-call.S                       |  62 +++++
+ arch/arm/kernel/smp.c                              |  36 +++
+ arch/arm/kernel/suspend.c                          |   2 +
+ arch/arm/kernel/sys_oabi-compat.c                  |  16 +-
+ arch/arm/lib/copy_from_user.S                      |   5 +
+ arch/arm/mm/Kconfig                                |  23 ++
+ arch/arm/mm/Makefile                               |   2 +-
+ arch/arm/mm/alignment.c                            |  44 +++-
+ arch/arm/mm/fault.c                                |   3 +
+ arch/arm/mm/proc-macros.S                          |  13 +-
+ arch/arm/mm/proc-v7-2level.S                       |   6 -
+ arch/arm/mm/proc-v7-bugs.c                         | 161 ++++++++++++
+ arch/arm/mm/proc-v7.S                              | 154 ++++++++---
+ arch/arm/vfp/vfpmodule.c                           |  37 ++-
+ arch/arm64/Kconfig                                 |   1 +
+ arch/arm64/kernel/Makefile                         |   4 +-
+ arch/arm64/kernel/arm64ksyms.c                     |   5 +
+ arch/arm64/kernel/asm-offsets.c                    |   3 +
+ arch/arm64/kernel/psci-call.S                      |  28 --
+ arch/arm64/kernel/smccc-call.S                     |  43 ++++
+ arch/mips/bcm63xx/prom.c                           |   2 +-
+ arch/mips/include/asm/bmips.h                      |  10 +-
+ arch/mips/kernel/smp-bmips.c                       |   8 +-
+ drivers/dma/qcom_bam_dma.c                         |  14 +
+ drivers/firmware/Kconfig                           |   3 +
+ drivers/firmware/psci.c                            |  78 +++++-
+ drivers/net/ethernet/hisilicon/hip04_eth.c         |  15 +-
+ .../net/ethernet/mellanox/mlx4/resource_tracker.c  |  42 +--
+ drivers/net/vxlan.c                                |   5 +-
+ drivers/of/unittest.c                              |   1 +
+ drivers/regulator/pfuze100-regulator.c             |   8 +-
+ drivers/regulator/ti-abb-regulator.c               |  26 +-
+ drivers/scsi/Kconfig                               |   2 +-
+ drivers/scsi/sni_53c710.c                          |   4 +-
+ drivers/target/target_core_device.c                |  21 --
+ fs/cifs/cifsglob.h                                 |   5 +
+ fs/cifs/cifsproto.h                                |   1 +
+ fs/cifs/file.c                                     |  23 +-
+ fs/cifs/smb2file.c                                 |   2 +-
+ fs/dcache.c                                        |   2 +-
+ include/linux/arm-smccc.h                          | 283 +++++++++++++++++++++
+ include/linux/gfp.h                                |  23 ++
+ include/linux/psci.h                               |  13 +
+ include/linux/skbuff.h                             |   3 +-
+ include/net/flow_dissector.h                       |   3 +-
+ include/net/sock.h                                 |  11 +-
+ kernel/time/alarmtimer.c                           |   4 +-
+ net/core/datagram.c                                |   2 +-
+ net/core/ethtool.c                                 |   4 +-
+ net/core/flow_dissector.c                          |  48 ++--
+ net/dccp/ipv4.c                                    |   4 +-
+ net/ipv4/datagram.c                                |   2 +-
+ net/ipv4/tcp_ipv4.c                                |   4 +-
+ net/sched/sch_fq_codel.c                           |   6 +-
+ net/sched/sch_hhf.c                                |   8 +-
+ net/sched/sch_sfb.c                                |  13 +-
+ net/sched/sch_sfq.c                                |  14 +-
+ net/sctp/socket.c                                  |   2 +-
+ sound/soc/rockchip/rockchip_i2s.c                  |   2 +-
+ tools/perf/builtin-kmem.c                          |   1 +
+ 82 files changed, 1556 insertions(+), 486 deletions(-)
+
 
