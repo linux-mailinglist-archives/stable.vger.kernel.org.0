@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87180F47AE
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FE01F47A8
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:52:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391516AbfKHLrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:47:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35614 "EHLO mail.kernel.org"
+        id S2391523AbfKHLrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:47:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391512AbfKHLrO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:47:14 -0500
+        id S2391456AbfKHLrQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:47:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A78F32245A;
-        Fri,  8 Nov 2019 11:47:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6266222C2;
+        Fri,  8 Nov 2019 11:47:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213634;
-        bh=dBhYL/8fBTCGaEmqO7RyJD8piCm0z71coejeJpx+Kp4=;
+        s=default; t=1573213635;
+        bh=uvTzRYFfk/sJXWEWGYxYzMFli1kGT3IeXso2izXmZUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PGhI5DcKIVqKZBJrHuER7PTTfuTSmgFd9mrMGYyxk/+C9jRYxkme3nP1QwQjYl2Y5
-         iKGqkGxv4eyb2en9eq5LwcGWxaJ6aTuXE3U/8ZE1C448jc40RY0rZrcXUkTqINiWQ0
-         lRpJoak3A/YO9z00YOEsYwO58vD+DSGBA+tIYzmA=
+        b=xIyMTGRiwXycc+1Oftgy2NCNEiVNmDenFKTninQUNuHN+ka7Oll41lviKgcCTF9Vd
+         Fxfo6/Jy77rPiaxTCZw7k2LztNBCCQb6jzu0LFc8nFkkLVNvwoe3aNlZM44yoYV/34
+         u7MecPoq20D4EYFZzZwfLtheI0dkZlmxbTn38hXU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bernd Edlinger <bernd.edlinger@hotmail.de>,
-        Tejun Heo <tj@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 61/64] kernfs: Fix range checks in kernfs_get_target_path
-Date:   Fri,  8 Nov 2019 06:45:42 -0500
-Message-Id: <20191108114545.15351-61-sashal@kernel.org>
+Cc:     Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
+        Jiri Benc <jbenc@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 62/64] ip_gre: fix parsing gre header in ipgre_err
+Date:   Fri,  8 Nov 2019 06:45:43 -0500
+Message-Id: <20191108114545.15351-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114545.15351-1-sashal@kernel.org>
 References: <20191108114545.15351-1-sashal@kernel.org>
@@ -44,48 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bernd Edlinger <bernd.edlinger@hotmail.de>
+From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
 
-[ Upstream commit a75e78f21f9ad4b810868c89dbbabcc3931591ca ]
+[ Upstream commit b0350d51f001e6edc13ee4f253b98b50b05dd401 ]
 
-The terminating NUL byte is only there because the buffer is
-allocated with kzalloc(PAGE_SIZE, GFP_KERNEL), but since the
-range-check is off-by-one, and PAGE_SIZE==PATH_MAX, the
-returned string may not be zero-terminated if it is exactly
-PATH_MAX characters long.  Furthermore also the initial loop
-may theoretically exceed PATH_MAX and cause a fault.
+gre_parse_header stops parsing when csum_err is encountered, which means
+tpi->key is undefined and ip_tunnel_lookup will return NULL improperly.
 
-Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
-Acked-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch introduce a NULL pointer as csum_err parameter. Even when
+csum_err is encountered, it won't return error and continue parsing gre
+header as expected.
+
+Fixes: 9f57c67c379d ("gre: Remove support for sharing GRE protocol hook.")
+Reported-by: Jiri Benc <jbenc@redhat.com>
+Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/kernfs/symlink.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ net/ipv4/gre_demux.c | 7 ++++---
+ net/ipv4/ip_gre.c    | 9 +++------
+ 2 files changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/fs/kernfs/symlink.c b/fs/kernfs/symlink.c
-index 80317b04c84a2..e431a850f2f2b 100644
---- a/fs/kernfs/symlink.c
-+++ b/fs/kernfs/symlink.c
-@@ -63,6 +63,9 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
- 		if (base == kn)
- 			break;
+diff --git a/net/ipv4/gre_demux.c b/net/ipv4/gre_demux.c
+index b798862b6be5d..7efe740c06ebf 100644
+--- a/net/ipv4/gre_demux.c
++++ b/net/ipv4/gre_demux.c
+@@ -86,13 +86,14 @@ int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
  
-+		if ((s - path) + 3 >= PATH_MAX)
-+			return -ENAMETOOLONG;
-+
- 		strcpy(s, "../");
- 		s += 3;
- 		base = base->parent;
-@@ -79,7 +82,7 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
- 	if (len < 2)
- 		return -EINVAL;
- 	len--;
--	if ((s - path) + len > PATH_MAX)
-+	if ((s - path) + len >= PATH_MAX)
- 		return -ENAMETOOLONG;
+ 	options = (__be32 *)(greh + 1);
+ 	if (greh->flags & GRE_CSUM) {
+-		if (skb_checksum_simple_validate(skb)) {
++		if (!skb_checksum_simple_validate(skb)) {
++			skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
++						 null_compute_pseudo);
++		} else if (csum_err) {
+ 			*csum_err = true;
+ 			return -EINVAL;
+ 		}
  
- 	/* reverse fillup of target string from target to base */
+-		skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
+-					 null_compute_pseudo);
+ 		options++;
+ 	}
+ 
+diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
+index 576f705d81809..9609ad71dd260 100644
+--- a/net/ipv4/ip_gre.c
++++ b/net/ipv4/ip_gre.c
+@@ -224,13 +224,10 @@ static void gre_err(struct sk_buff *skb, u32 info)
+ 	const int type = icmp_hdr(skb)->type;
+ 	const int code = icmp_hdr(skb)->code;
+ 	struct tnl_ptk_info tpi;
+-	bool csum_err = false;
+ 
+-	if (gre_parse_header(skb, &tpi, &csum_err, htons(ETH_P_IP),
+-			     iph->ihl * 4) < 0) {
+-		if (!csum_err)		/* ignore csum errors. */
+-			return;
+-	}
++	if (gre_parse_header(skb, &tpi, NULL, htons(ETH_P_IP),
++			     iph->ihl * 4) < 0)
++		return;
+ 
+ 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
+ 		ipv4_update_pmtu(skb, dev_net(skb->dev), info,
 -- 
 2.20.1
 
