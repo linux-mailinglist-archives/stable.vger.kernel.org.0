@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC87AF5745
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A36F5563
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731933AbfKHTTu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:19:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57274 "EHLO mail.kernel.org"
+        id S2390431AbfKHTCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:02:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389452AbfKHTAJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:00:09 -0500
+        id S2390411AbfKHTCE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:02:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00A0A2247C;
-        Fri,  8 Nov 2019 18:58:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFB6120650;
+        Fri,  8 Nov 2019 19:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239493;
-        bh=H8DwnQzxdmC9AtSbI+5z2WagDrrcQST/upFS0U/jWFc=;
+        s=default; t=1573239723;
+        bh=ajrQFUpHfoZrFxmZ57IP0Y32djqaiWekFynq+8+EYS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTG90j+bjOxHUpf1+guq3+gsrAt6ySonbSKf4dkoZQqMDyR8pbHrZN6FxSELDcO79
-         mX8s5dv78tfdYpdHgWtacbkO06ln+xtjGiHVSqgLNtn7lwwh0zUHbPTfiN3NfKWwXe
-         zHG8Vrw6ep6oBjOPXQtDrRPd00UunxFhiEUccvVA=
+        b=AAspifYtxlsZgfCgMUlWFvo6UdBg/AdC2ScSk2vbxxuOYbGwLXeiO3BW+mlNZa8HS
+         taEeDHlOw5aGXEbTtKo2lCtyQqy/8uKmrqLkM0bEooYv+4iINVBqt00Sn+L+FycMeN
+         lYbcCThZlcO+2bXj3Eb+S4BG6FtFKG3BdQLnrqrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Thiemo Nagel <tnagel@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 24/62] dccp: do not leak jiffies on the wire
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 32/79] i2c: stm32f7: fix a race in slave mode with arbitration loss irq
 Date:   Fri,  8 Nov 2019 19:50:12 +0100
-Message-Id: <20191108174739.339675281@linuxfoundation.org>
+Message-Id: <20191108174803.425199865@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-[ Upstream commit 3d1e5039f5f87a8731202ceca08764ee7cb010d3 ]
+[ Upstream commit 6d6b0d0d5afc8c4c84b08261260ba11dfa5206f2 ]
 
-For some reason I missed the case of DCCP passive
-flows in my previous patch.
+When in slave mode, an arbitration loss (ARLO) may be detected before the
+slave had a chance to detect the stop condition (STOPF in ISR).
+This is seen when two master + slave adapters switch their roles. It
+provokes the i2c bus to be stuck, busy as SCL line is stretched.
+- the I2C_SLAVE_STOP event is never generated due to STOPF flag is set but
+  don't generate an irq (race with ARLO irq, STOPIE is masked). STOPF flag
+  remains set until next master xfer (e.g. when STOPIE irq get unmasked).
+  In this case, completion is generated too early: immediately upon new
+  transfer request (then it doesn't send all data).
+- Some data get stuck in TXDR register. As a consequence, the controller
+  stretches the SCL line: the bus gets busy until a future master transfer
+  triggers the bus busy / recovery mechanism (this can take time... and
+  may never happen at all)
 
-Fixes: a904a0693c18 ("inet: stop leaking jiffies on the wire")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Thiemo Nagel <tnagel@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+So choice is to let the STOPF being detected by the slave isr handler,
+to properly handle this stop condition. E.g. don't mask IRQs in error
+handler, when the slave is running.
+
+Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dccp/ipv4.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-stm32f7.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/net/dccp/ipv4.c
-+++ b/net/dccp/ipv4.c
-@@ -417,7 +417,7 @@ struct sock *dccp_v4_request_recv_sock(c
- 	RCU_INIT_POINTER(newinet->inet_opt, rcu_dereference(ireq->ireq_opt));
- 	newinet->mc_index  = inet_iif(skb);
- 	newinet->mc_ttl	   = ip_hdr(skb)->ttl;
--	newinet->inet_id   = jiffies;
-+	newinet->inet_id   = prandom_u32();
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 48521bc8a4d23..362b23505f214 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1488,7 +1488,7 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+ 	void __iomem *base = i2c_dev->base;
+ 	struct device *dev = i2c_dev->dev;
+ 	struct stm32_i2c_dma *dma = i2c_dev->dma;
+-	u32 mask, status;
++	u32 status;
  
- 	if (dst == NULL && (dst = inet_csk_route_child_sock(sk, newsk, req)) == NULL)
- 		goto put_and_exit;
+ 	status = readl_relaxed(i2c_dev->base + STM32F7_I2C_ISR);
+ 
+@@ -1513,12 +1513,15 @@ static irqreturn_t stm32f7_i2c_isr_error(int irq, void *data)
+ 		f7_msg->result = -EINVAL;
+ 	}
+ 
+-	/* Disable interrupts */
+-	if (stm32f7_i2c_is_slave_registered(i2c_dev))
+-		mask = STM32F7_I2C_XFER_IRQ_MASK;
+-	else
+-		mask = STM32F7_I2C_ALL_IRQ_MASK;
+-	stm32f7_i2c_disable_irq(i2c_dev, mask);
++	if (!i2c_dev->slave_running) {
++		u32 mask;
++		/* Disable interrupts */
++		if (stm32f7_i2c_is_slave_registered(i2c_dev))
++			mask = STM32F7_I2C_XFER_IRQ_MASK;
++		else
++			mask = STM32F7_I2C_ALL_IRQ_MASK;
++		stm32f7_i2c_disable_irq(i2c_dev, mask);
++	}
+ 
+ 	/* Disable dma */
+ 	if (i2c_dev->use_dma) {
+-- 
+2.20.1
+
 
 
