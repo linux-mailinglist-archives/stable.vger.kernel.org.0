@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16FCFF45EF
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:38:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F598F45F4
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:38:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732750AbfKHLij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:38:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51538 "EHLO mail.kernel.org"
+        id S1732840AbfKHLio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:38:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732746AbfKHLii (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:38 -0500
+        id S1732701AbfKHLin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:43 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0075721D7B;
-        Fri,  8 Nov 2019 11:38:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 823A321D82;
+        Fri,  8 Nov 2019 11:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213117;
-        bh=YfqKLYSnsyumgux2Rxwepr9n4EMJK++Yk6lQwlbYAtY=;
+        s=default; t=1573213123;
+        bh=DCGoM8RFU/85m16B7mGU3/4vxVxz030aYpVZQqpMOeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ub6uhxxIvAFxuRipXtMWtAX3RdS2A51lb3t8SaP3R8D+YJ3/6yaRhXsm6XjBmYnjA
-         lNCXKvNjhHCOIQlAc5fa93b5fCkYSXahOPm6fUfO95nl9tq6UPB1mn1YAJyDU3xZ4z
-         YUrbUwW6ODJQuZK5HkA0VSboQzO29FxxTljClOQU=
+        b=BCHCYQKjZu0WXcs3MJUZWdayn7RkZTCkHIrvMnWfAeC1hAoXdV//RnhxQxwDP53N0
+         xzSVBZzUzqif8cm7FLVuTpDBPSJG1dumRFPkPF7CE1Ip60znUzkj8DDpLr/BVqEhts
+         iXKmfgs0Irv9yQXrP6p4p3PWOAAPuRk/jrj1dVrM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Akshu Agrawal <akshu.agrawal@amd.com>,
-        Daniel Kurtz <djkurtz@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 037/205] ASoC: AMD: Change MCLK to 48Mhz
-Date:   Fri,  8 Nov 2019 06:35:04 -0500
-Message-Id: <20191108113752.12502-37-sashal@kernel.org>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 042/205] ARM: dts: exynos: Fix sound in Snow-rev5 Chromebook
+Date:   Fri,  8 Nov 2019 06:35:09 -0500
+Message-Id: <20191108113752.12502-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -44,36 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akshu Agrawal <akshu.agrawal@amd.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit a1b1e9880f0c2754a5ac416a546d9f295f72eabc ]
+[ Upstream commit 64858773d78e820003a94e5a7179d368213655d6 ]
 
-25Mhz MCLK which was earlier used was of spread type.
-Thus, we were not getting accurate rate. The 48Mhz system
-clk is of non-spread type and we are changing to it to get
-accurate rate.
+This patch adds missing properties to the CODEC and sound nodes, so the
+audio will work also on Snow rev5 Chromebook. This patch is an extension
+to the commit e9eefc3f8ce0 ("ARM: dts: exynos: Add missing clock and
+DAI properties to the max98095 node in Snow Chromebook")
+and commit 6ab569936d60 ("ARM: dts: exynos: Enable HDMI audio on Snow
+Chromebook").  It has been reported that such changes work fine on the
+rev5 board too.
 
-Signed-off-by: Akshu Agrawal <akshu.agrawal@amd.com>
-Reviewed-by: Daniel Kurtz <djkurtz@chromium.org>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+[krzk: Fixed typo in phandle to &max98090]
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/acp-da7219-max98357a.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos5250-snow-rev5.dts | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/sound/soc/amd/acp-da7219-max98357a.c b/sound/soc/amd/acp-da7219-max98357a.c
-index 8e3275a96a821..e53b54d77692e 100644
---- a/sound/soc/amd/acp-da7219-max98357a.c
-+++ b/sound/soc/amd/acp-da7219-max98357a.c
-@@ -42,7 +42,7 @@
- #include "../codecs/da7219.h"
- #include "../codecs/da7219-aad.h"
+diff --git a/arch/arm/boot/dts/exynos5250-snow-rev5.dts b/arch/arm/boot/dts/exynos5250-snow-rev5.dts
+index 0348b1c49a691..7cbfc6f1f4b8f 100644
+--- a/arch/arm/boot/dts/exynos5250-snow-rev5.dts
++++ b/arch/arm/boot/dts/exynos5250-snow-rev5.dts
+@@ -20,6 +20,14 @@
  
--#define CZ_PLAT_CLK 25000000
-+#define CZ_PLAT_CLK 48000000
- #define DUAL_CHANNEL		2
+ 		samsung,model = "Snow-I2S-MAX98090";
+ 		samsung,audio-codec = <&max98090>;
++
++		cpu {
++			sound-dai = <&i2s0 0>;
++		};
++
++		codec {
++			sound-dai = <&max98090 0>, <&hdmi>;
++		};
+ 	};
+ };
  
- static struct snd_soc_jack cz_jack;
+@@ -31,6 +39,9 @@
+ 		interrupt-parent = <&gpx0>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&max98090_irq>;
++		clocks = <&pmu_system_controller 0>;
++		clock-names = "mclk";
++		#sound-dai-cells = <1>;
+ 	};
+ };
+ 
 -- 
 2.20.1
 
