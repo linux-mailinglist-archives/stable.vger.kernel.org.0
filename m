@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC03DF4A93
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E081F4A94
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732954AbfKHLi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:38:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51926 "EHLO mail.kernel.org"
+        id S1732977AbfKHLi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:38:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732937AbfKHLi4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:56 -0500
+        id S1732968AbfKHLi5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C15EB21D6C;
-        Fri,  8 Nov 2019 11:38:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA4E721D7B;
+        Fri,  8 Nov 2019 11:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213135;
-        bh=J01Tua1xHqm84z2bULbDOEq1M7xNvcNCSEryKQmdtZc=;
+        s=default; t=1573213136;
+        bh=9+wXAdScMRLLd2ki2eKbU2z5dqGISXkxKwkNjAfpYFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BIAt3tmY76Pkt8HVm4TsOjCQwms2oxVAacypeAQSYhMfK4Ok0IvmpfYVYEyrMzP7Z
-         5Nk81kmObrmk4yqRBFF8jj9Ay8w/RVJBbr78xroA+HTLoweoTMvXKWGBGaaKZosktI
-         +FeP8bIib4RtKyxn6JCoOXjShziMsRIeEeIMSilg=
+        b=Mb5HqADSRdIBKuobVMDovx8oaseO7lu1woWs52Hg8x1oSrU3z/rXUkiSFey9TLtxp
+         Z2GkRnJF48ofUW+mufqcLBk9RvV0JnGbDKW1rVWLuGBI5C3IR0B+5bA6wgIqzIQHIL
+         8AWl381tey6DW7qKOXgfkZaYSrHrE+W42hnJOyWo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Patryk=20Ma=C5=82ek?= <patryk.malek@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 053/205] i40e: Prevent deleting MAC address from VF when set by PF
-Date:   Fri,  8 Nov 2019 06:35:20 -0500
-Message-Id: <20191108113752.12502-53-sashal@kernel.org>
+Cc:     Vijay Immanuel <vijayi@attalasystems.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 054/205] IB/rxe: avoid back-to-back retries
+Date:   Fri,  8 Nov 2019 06:35:21 -0500
+Message-Id: <20191108113752.12502-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -45,43 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Małek <patryk.malek@intel.com>
+From: Vijay Immanuel <vijayi@attalasystems.com>
 
-[ Upstream commit 5907cf6c5bbe78be2ed18b875b316c6028b20634 ]
+[ Upstream commit 4e4c53df567714b3d08b2b5d8ccb1d175fc9be01 ]
 
-To prevent VF from deleting MAC address that was assigned by the
-PF we need to check for that scenario when we try to delete a MAC
-address from a VF.
+Error retries can occur due to timeouts, NAKs or receiving
+packets beyond the current read request. Avoid back-to-back
+retries due to packet processing, by only retrying the initial
+attempt immediately. Subsequent retries must be due to timeouts.
 
-Signed-off-by: Patryk Małek <patryk.malek@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Continue to process completion packets after scheduling a retry.
+
+Signed-off-by: Vijay Immanuel <vijayi@attalasystems.com>
+Signed-off-by: Doug Ledford <dledford@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/infiniband/sw/rxe/rxe_comp.c  | 18 +++++++++++++++++-
+ drivers/infiniband/sw/rxe/rxe_verbs.h |  1 +
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index d86f3fa7aa6a4..46a71d289bca2 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -2571,6 +2571,16 @@ static int i40e_vc_del_mac_addr_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
- 			ret = I40E_ERR_INVALID_MAC_ADDR;
- 			goto error_param;
- 		}
-+
-+		if (vf->pf_set_mac &&
-+		    ether_addr_equal(al->list[i].addr,
-+				     vf->default_lan_addr.addr)) {
-+			dev_err(&pf->pdev->dev,
-+				"MAC addr %pM has been set by PF, cannot delete it for VF %d, reset VF to change MAC addr\n",
-+				vf->default_lan_addr.addr, vf->vf_id);
-+			ret = I40E_ERR_PARAM;
-+			goto error_param;
-+		}
- 	}
- 	vsi = pf->vsi[vf->lan_vsi_idx];
+diff --git a/drivers/infiniband/sw/rxe/rxe_comp.c b/drivers/infiniband/sw/rxe/rxe_comp.c
+index 83311dd07019b..ed96441595d81 100644
+--- a/drivers/infiniband/sw/rxe/rxe_comp.c
++++ b/drivers/infiniband/sw/rxe/rxe_comp.c
+@@ -191,6 +191,7 @@ static inline void reset_retry_counters(struct rxe_qp *qp)
+ {
+ 	qp->comp.retry_cnt = qp->attr.retry_cnt;
+ 	qp->comp.rnr_retry = qp->attr.rnr_retry;
++	qp->comp.started_retry = 0;
+ }
  
+ static inline enum comp_state check_psn(struct rxe_qp *qp,
+@@ -676,6 +677,20 @@ int rxe_completer(void *arg)
+ 				goto exit;
+ 			}
+ 
++			/* if we've started a retry, don't start another
++			 * retry sequence, unless this is a timeout.
++			 */
++			if (qp->comp.started_retry &&
++			    !qp->comp.timeout_retry) {
++				if (pkt) {
++					rxe_drop_ref(pkt->qp);
++					kfree_skb(skb);
++					skb = NULL;
++				}
++
++				goto done;
++			}
++
+ 			if (qp->comp.retry_cnt > 0) {
+ 				if (qp->comp.retry_cnt != 7)
+ 					qp->comp.retry_cnt--;
+@@ -692,6 +707,7 @@ int rxe_completer(void *arg)
+ 					rxe_counter_inc(rxe,
+ 							RXE_CNT_COMP_RETRY);
+ 					qp->req.need_retry = 1;
++					qp->comp.started_retry = 1;
+ 					rxe_run_task(&qp->req.task, 1);
+ 				}
+ 
+@@ -701,7 +717,7 @@ int rxe_completer(void *arg)
+ 					skb = NULL;
+ 				}
+ 
+-				goto exit;
++				goto done;
+ 
+ 			} else {
+ 				rxe_counter_inc(rxe, RXE_CNT_RETRY_EXCEEDED);
+diff --git a/drivers/infiniband/sw/rxe/rxe_verbs.h b/drivers/infiniband/sw/rxe/rxe_verbs.h
+index 3b731c7682e5b..a0ec28d2b71a4 100644
+--- a/drivers/infiniband/sw/rxe/rxe_verbs.h
++++ b/drivers/infiniband/sw/rxe/rxe_verbs.h
+@@ -158,6 +158,7 @@ struct rxe_comp_info {
+ 	int			opcode;
+ 	int			timeout;
+ 	int			timeout_retry;
++	int			started_retry;
+ 	u32			retry_cnt;
+ 	u32			rnr_retry;
+ 	struct rxe_task		task;
 -- 
 2.20.1
 
