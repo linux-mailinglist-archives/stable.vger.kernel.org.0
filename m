@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82A26F4B1D
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:14:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13A70F4B1A
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732358AbfKHLiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:38:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51166 "EHLO mail.kernel.org"
+        id S1732428AbfKHLiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:38:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732259AbfKHLiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:15 -0500
+        id S1732378AbfKHLiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D44EF222C2;
-        Fri,  8 Nov 2019 11:38:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5DE720869;
+        Fri,  8 Nov 2019 11:38:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213095;
-        bh=cdrS8Uc5C1CK0pynDXTy5DUwfd0d+1/Gvdh+qg1pCMY=;
+        s=default; t=1573213096;
+        bh=xCW/lSW1U3Vl+AVPWZpivK93tjtE9RmQzvGRaO6XjAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btpa0CO/OO2MLs76HbKvlePvTWQ7TYe4u9X0RtfC72jII/V1P68CuYi2qFR3llDzf
-         IuFuucKdSN29Jbl21LpTJjT0FucRFGwZ5VWsVuC6J6byoEFZZIXIbVWuxwpLwDPTiv
-         m3f7QNOSFDvSdysJTwUy9yM8LSJJGkyZipEVVRzQ=
+        b=qtRZig1KtoHepME2rcxOoBueBZik0izotpqd9cM0pV2q+z6FDX36cSQsw8+o/+Fii
+         YHXX6gBxt1SOTlHELhn4KiAQu51A+2L3w8pvisN/nZzhMHs0Vs7aSLXXFFIJ+eewa8
+         G8xI9xd0xPJwWRs6anQcZ+P1C4IYeDC5UfFeNjbA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 020/205] extcon: cht-wc: Return from default case to avoid warnings
-Date:   Fri,  8 Nov 2019 06:34:47 -0500
-Message-Id: <20191108113752.12502-20-sashal@kernel.org>
+Cc:     Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 021/205] cfg80211: Avoid regulatory restore when COUNTRY_IE_IGNORE is set
+Date:   Fri,  8 Nov 2019 06:34:48 -0500
+Message-Id: <20191108113752.12502-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,47 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>
 
-[ Upstream commit 962341b54b99965ebec5f70c8d39f1c382eea833 ]
+[ Upstream commit 7417844b63d4b0dc8ab23f88259bf95de7d09b57 ]
 
-When we have first case to fall through it's not enough to put
-single comment there to satisfy compiler. Instead of doing that,
-return fall back value directly from default case.
+When REGULATORY_COUNTRY_IE_IGNORE is set,  __reg_process_hint_country_ie()
+ignores the country code change request from __cfg80211_connect_result()
+via regulatory_hint_country_ie().
 
-This to avoid following warnings:
+After Disconnect, similar to above, country code should not be reset to
+world when country IE ignore is set. But this is violated and restore of
+regulatory settings is invoked by cfg80211_disconnect_work via
+regulatory_hint_disconnect().
 
-drivers/extcon/extcon-intel-cht-wc.c: In function ‘cht_wc_extcon_get_charger’:
-include/linux/device.h:1420:2: warning: this statement may fall through [-Wimplicit-fallthrough=]
-  _dev_warn(dev, dev_fmt(fmt), ##__VA_ARGS__)
-  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/extcon/extcon-intel-cht-wc.c:148:3: note: in expansion of macro ‘dev_warn’
-   dev_warn(ext->dev,
-   ^~~~~~~~
-drivers/extcon/extcon-intel-cht-wc.c:152:2: note: here
-  case CHT_WC_USBSRC_TYPE_SDP:
-  ^~~~
+To address this, avoid regulatory restore from regulatory_hint_disconnect()
+when COUNTRY_IE_IGNORE is set.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Note: Currently, restore_regulatory_settings() takes care of clearing
+beacon hints. But in the proposed change, regulatory restore is avoided.
+Therefore, explicitly clear beacon hints when DISABLE_BEACON_HINTS
+is not set.
+
+Signed-off-by: Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-intel-cht-wc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/wireless/reg.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 46 insertions(+)
 
-diff --git a/drivers/extcon/extcon-intel-cht-wc.c b/drivers/extcon/extcon-intel-cht-wc.c
-index 5e1dd27722781..bdb67878179ed 100644
---- a/drivers/extcon/extcon-intel-cht-wc.c
-+++ b/drivers/extcon/extcon-intel-cht-wc.c
-@@ -156,7 +156,7 @@ static int cht_wc_extcon_get_charger(struct cht_wc_extcon_data *ext,
- 		dev_warn(ext->dev,
- 			"Unhandled charger type %d, defaulting to SDP\n",
- 			 ret);
--		/* Fall through, treat as SDP */
-+		return EXTCON_CHG_USB_SDP;
- 	case CHT_WC_USBSRC_TYPE_SDP:
- 	case CHT_WC_USBSRC_TYPE_FLOAT_DP_DN:
- 	case CHT_WC_USBSRC_TYPE_OTHER:
+diff --git a/net/wireless/reg.c b/net/wireless/reg.c
+index cccbf845079c8..68ae97ef8bf0b 100644
+--- a/net/wireless/reg.c
++++ b/net/wireless/reg.c
+@@ -3225,8 +3225,54 @@ static void restore_regulatory_settings(bool reset_user)
+ 	schedule_work(&reg_work);
+ }
+ 
++static bool is_wiphy_all_set_reg_flag(enum ieee80211_regulatory_flags flag)
++{
++	struct cfg80211_registered_device *rdev;
++	struct wireless_dev *wdev;
++
++	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
++		list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
++			wdev_lock(wdev);
++			if (!(wdev->wiphy->regulatory_flags & flag)) {
++				wdev_unlock(wdev);
++				return false;
++			}
++			wdev_unlock(wdev);
++		}
++	}
++
++	return true;
++}
++
+ void regulatory_hint_disconnect(void)
+ {
++	/* Restore of regulatory settings is not required when wiphy(s)
++	 * ignore IE from connected access point but clearance of beacon hints
++	 * is required when wiphy(s) supports beacon hints.
++	 */
++	if (is_wiphy_all_set_reg_flag(REGULATORY_COUNTRY_IE_IGNORE)) {
++		struct reg_beacon *reg_beacon, *btmp;
++
++		if (is_wiphy_all_set_reg_flag(REGULATORY_DISABLE_BEACON_HINTS))
++			return;
++
++		spin_lock_bh(&reg_pending_beacons_lock);
++		list_for_each_entry_safe(reg_beacon, btmp,
++					 &reg_pending_beacons, list) {
++			list_del(&reg_beacon->list);
++			kfree(reg_beacon);
++		}
++		spin_unlock_bh(&reg_pending_beacons_lock);
++
++		list_for_each_entry_safe(reg_beacon, btmp,
++					 &reg_beacon_list, list) {
++			list_del(&reg_beacon->list);
++			kfree(reg_beacon);
++		}
++
++		return;
++	}
++
+ 	pr_debug("All devices are disconnected, going to restore regulatory settings\n");
+ 	restore_regulatory_settings(false);
+ }
 -- 
 2.20.1
 
