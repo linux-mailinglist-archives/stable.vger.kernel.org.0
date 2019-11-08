@@ -2,19 +2,19 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB2CCF5243
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 18:10:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B59EAF5252
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 18:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726640AbfKHRKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 12:10:15 -0500
-Received: from muru.com ([72.249.23.125]:40970 "EHLO muru.com"
+        id S1728633AbfKHRLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 12:11:13 -0500
+Received: from muru.com ([72.249.23.125]:41074 "EHLO muru.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725970AbfKHRKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 12:10:15 -0500
+        id S1725970AbfKHRLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 12:11:12 -0500
 Received: from atomide.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTPS id 012E380D4;
-        Fri,  8 Nov 2019 17:10:47 +0000 (UTC)
-Date:   Fri, 8 Nov 2019 09:10:08 -0800
+        by muru.com (Postfix) with ESMTPS id D4BDB817C;
+        Fri,  8 Nov 2019 17:11:45 +0000 (UTC)
+Date:   Fri, 8 Nov 2019 09:11:06 -0800
 From:   Tony Lindgren <tony@atomide.com>
 To:     "H. Nikolaus Schaller" <hns@goldelico.com>
 Cc:     =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>,
@@ -36,37 +36,36 @@ Cc:     =?utf-8?Q?Beno=C3=AEt?= Cousson <bcousson@baylibre.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         John Stultz <john.stultz@linaro.org>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        devicetree@vger.kernel.org, letux-kernel@openphoenux.org,
-        linux-mmc@vger.kernel.org, kernel@pyra-handheld.com,
-        linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v3 03/12] ARM: dts: pandora-common: define wl1251 as
- child node of mmc3
-Message-ID: <20191108171008.GJ5610@atomide.com>
+        linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mmc@vger.kernel.org, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, letux-kernel@openphoenux.org,
+        kernel@pyra-handheld.com, stable@vger.kernel.org
+Subject: Re: [PATCH v3 06/12] omap: pdata-quirks: remove openpandora quirks
+ for mmc3 and wl1251
+Message-ID: <20191108171106.GL5610@atomide.com>
 References: <cover.1573122644.git.hns@goldelico.com>
- <bd14b481105b21a0c1882a1ea34281893233db31.1573122644.git.hns@goldelico.com>
+ <ff450c14eb1e13d2db6533fa06e069c5bec3a0c4.1573122644.git.hns@goldelico.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <bd14b481105b21a0c1882a1ea34281893233db31.1573122644.git.hns@goldelico.com>
+In-Reply-To: <ff450c14eb1e13d2db6533fa06e069c5bec3a0c4.1573122644.git.hns@goldelico.com>
 User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* H. Nikolaus Schaller <hns@goldelico.com> [191107 10:33]:
-> Since v4.7 the dma initialization requires that there is a
-> device tree property for "rx" and "tx" channels which is
-> not provided by the pdata-quirks initialization.
+* H. Nikolaus Schaller <hns@goldelico.com> [191107 10:32]:
+> With a wl1251 child node of mmc3 in the device tree decoded
+> in omap_hsmmc.c to handle special wl1251 initialization, we do
+> no longer need to instantiate the mmc3 through pdata quirks.
 > 
-> By conversion of the mmc3 setup to device tree this will
-> finally allows to remove the OpenPandora wlan specific omap3
-> data-quirks.
+> We also can remove the wlan regulator and reset/interrupt definitions
+> and do them through device tree.
 > 
 > Fixes: 81eef6ca9201 ("mmc: omap_hsmmc: Use dma_request_chan() for requesting DMA channel")
 
-Probably best to queue this all via the mmc tree when no more comments:
+Good to see this go away:
 
 Acked-by: Tony Lindgren <tony@atomide.com>
