@@ -2,156 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9F6F40BA
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 07:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E572FF411B
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 08:16:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725886AbfKHGpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 01:45:18 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:38425 "EHLO www.linuxtv.org"
+        id S1726672AbfKHHQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 02:16:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725372AbfKHGpS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 01:45:18 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.84_2)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1iSy1A-0005AI-6H; Fri, 08 Nov 2019 06:45:12 +0000
-From:   Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Date:   Fri, 08 Nov 2019 06:38:59 +0000
-Subject: [git:media_tree/master] media: vivid: Fix wrong locking that causes race conditions on streaming stop
-To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Alexander Popov <alex.popov@linux.com>, stable@vger.kernel.org
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1iSy1A-0005AI-6H@www.linuxtv.org>
+        id S1725975AbfKHHQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 02:16:07 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id C10162085B;
+        Fri,  8 Nov 2019 07:16:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573197367;
+        bh=RJ3i04SwfXcwKmq0EHYyXVnlEbH7f72RMSXYsyco3L8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qNxChiB28FrgtcROd3gfSgzttSq+FiQ0KkYycBEDrRs3Uv858qYTVK5vFoSpjDSiH
+         m6m0ZovTUajtO2clgbtLs3Le+Bk2cfnUr3hWbDbWlS1OqgLrWr9OaEaBwq8RbfQ6+1
+         USRXfwWSAPWNM7uhvBzX7EoJ8I87W8ek41D1rTHs=
+Date:   Fri, 8 Nov 2019 08:16:04 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Doug Berger <opendmb@gmail.com>
+Cc:     davem@davemloft.net, f.fainelli@gmail.com,
+        stable-commits@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Patch "net: bcmgenet: soft reset 40nm EPHYs before MAC init" has
+ been added to the 4.19-stable tree
+Message-ID: <20191108071604.GA526603@kroah.com>
+References: <1573050816170143@kroah.com>
+ <5e6efc7e-f738-0198-3b74-433ae766da51@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5e6efc7e-f738-0198-3b74-433ae766da51@gmail.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+On Thu, Nov 07, 2019 at 10:08:27AM -0800, Doug Berger wrote:
+> Just to triple check, this commit should be removed from the 4.19-stable
+> tree too.
 
-Subject: media: vivid: Fix wrong locking that causes race conditions on streaming stop
-Author:  Alexander Popov <alex.popov@linux.com>
-Date:    Sun Nov 3 23:17:19 2019 +0100
+Ah, good catch, now dropped, thanks.
 
-There is the same incorrect approach to locking implemented in
-vivid_stop_generating_vid_cap(), vivid_stop_generating_vid_out() and
-sdr_cap_stop_streaming().
-
-These functions are called during streaming stopping with vivid_dev.mutex
-locked. And they all do the same mistake while stopping their kthreads,
-which need to lock this mutex as well. See the example from
-vivid_stop_generating_vid_cap():
-  /* shutdown control thread */
-  vivid_grab_controls(dev, false);
-  mutex_unlock(&dev->mutex);
-  kthread_stop(dev->kthread_vid_cap);
-  dev->kthread_vid_cap = NULL;
-  mutex_lock(&dev->mutex);
-
-But when this mutex is unlocked, another vb2_fop_read() can lock it
-instead of vivid_thread_vid_cap() and manipulate the buffer queue.
-That causes a use-after-free access later.
-
-To fix those issues let's:
-  1. avoid unlocking the mutex in vivid_stop_generating_vid_cap(),
-vivid_stop_generating_vid_out() and sdr_cap_stop_streaming();
-  2. use mutex_trylock() with schedule_timeout_uninterruptible() in
-the loops of the vivid kthread handlers.
-
-Signed-off-by: Alexander Popov <alex.popov@linux.com>
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Tested-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: <stable@vger.kernel.org>      # for v3.18 and up
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-
- drivers/media/platform/vivid/vivid-kthread-cap.c | 8 +++++---
- drivers/media/platform/vivid/vivid-kthread-out.c | 8 +++++---
- drivers/media/platform/vivid/vivid-sdr-cap.c     | 8 +++++---
- 3 files changed, 15 insertions(+), 9 deletions(-)
-
----
-
-diff --git a/drivers/media/platform/vivid/vivid-kthread-cap.c b/drivers/media/platform/vivid/vivid-kthread-cap.c
-index 9f981e8bae6e..01a9d671b947 100644
---- a/drivers/media/platform/vivid/vivid-kthread-cap.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-cap.c
-@@ -818,7 +818,11 @@ static int vivid_thread_vid_cap(void *data)
- 		if (kthread_should_stop())
- 			break;
- 
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
-+
- 		cur_jiffies = jiffies;
- 		if (dev->cap_seq_resync) {
- 			dev->jiffies_vid_cap = cur_jiffies;
-@@ -998,8 +1002,6 @@ void vivid_stop_generating_vid_cap(struct vivid_dev *dev, bool *pstreaming)
- 
- 	/* shutdown control thread */
- 	vivid_grab_controls(dev, false);
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_vid_cap);
- 	dev->kthread_vid_cap = NULL;
--	mutex_lock(&dev->mutex);
- }
-diff --git a/drivers/media/platform/vivid/vivid-kthread-out.c b/drivers/media/platform/vivid/vivid-kthread-out.c
-index c974235d7de3..6780687978f9 100644
---- a/drivers/media/platform/vivid/vivid-kthread-out.c
-+++ b/drivers/media/platform/vivid/vivid-kthread-out.c
-@@ -166,7 +166,11 @@ static int vivid_thread_vid_out(void *data)
- 		if (kthread_should_stop())
- 			break;
- 
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
-+
- 		cur_jiffies = jiffies;
- 		if (dev->out_seq_resync) {
- 			dev->jiffies_vid_out = cur_jiffies;
-@@ -344,8 +348,6 @@ void vivid_stop_generating_vid_out(struct vivid_dev *dev, bool *pstreaming)
- 
- 	/* shutdown control thread */
- 	vivid_grab_controls(dev, false);
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_vid_out);
- 	dev->kthread_vid_out = NULL;
--	mutex_lock(&dev->mutex);
- }
-diff --git a/drivers/media/platform/vivid/vivid-sdr-cap.c b/drivers/media/platform/vivid/vivid-sdr-cap.c
-index 9acc709b0740..2b7522e16efc 100644
---- a/drivers/media/platform/vivid/vivid-sdr-cap.c
-+++ b/drivers/media/platform/vivid/vivid-sdr-cap.c
-@@ -141,7 +141,11 @@ static int vivid_thread_sdr_cap(void *data)
- 		if (kthread_should_stop())
- 			break;
- 
--		mutex_lock(&dev->mutex);
-+		if (!mutex_trylock(&dev->mutex)) {
-+			schedule_timeout_uninterruptible(1);
-+			continue;
-+		}
-+
- 		cur_jiffies = jiffies;
- 		if (dev->sdr_cap_seq_resync) {
- 			dev->jiffies_sdr_cap = cur_jiffies;
-@@ -303,10 +307,8 @@ static void sdr_cap_stop_streaming(struct vb2_queue *vq)
- 	}
- 
- 	/* shutdown control thread */
--	mutex_unlock(&dev->mutex);
- 	kthread_stop(dev->kthread_sdr_cap);
- 	dev->kthread_sdr_cap = NULL;
--	mutex_lock(&dev->mutex);
- }
- 
- static void sdr_cap_buf_request_complete(struct vb2_buffer *vb)
+greg k-h
