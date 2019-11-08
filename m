@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87490F56AB
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60645F55B8
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733142AbfKHTKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:10:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42428 "EHLO mail.kernel.org"
+        id S2389660AbfKHTEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:04:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733054AbfKHTKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:10:15 -0500
+        id S1732428AbfKHTEP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:04:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2E3420673;
-        Fri,  8 Nov 2019 19:10:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04E282067B;
+        Fri,  8 Nov 2019 19:04:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240215;
-        bh=KtYj48o4KEAxpLKreC1Q2lNuWWIVvYTfhACSsyqR/m4=;
+        s=default; t=1573239854;
+        bh=zy4tbe8pw1MO7Bj4qek8GqStWBL+RTXZSE5eYlxDNkQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KuWbMifQRNIwZBwB0gx9XV0rvUGn4QneH9CsjCr+oh5a7TRMcHslvC03mGvSzL1Bw
-         erfDkhOaaBrni9Q3qjMW26AO6S67kPmgugwdNIKR7QWbQe6oeRxoJaNG4o7VDs8KXs
-         Lu7eGqpYrTDhIdcGsx9PDkyBAgqHEXSu/ASVL+YY=
+        b=HCnaHklPiBqmaud6hLe+Bs1FpvuzA17jx7xiPY6IbzFizk61HW6Snnep3sMcXNtcq
+         jd8w9AETkzRy8L784nLbvvW+S11tFl18ZUBnHgsKFQRra479J2JPCS4Xfh31+8N7Fl
+         yUm4A/nhri1TThvV3zKD2q5etTM3O9tZSOdGnkbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kazutoshi Noguchi <noguchi.kazutosi@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 129/140] r8152: add device id for Lenovo ThinkPad USB-C Dock Gen 2
+        stable@vger.kernel.org, Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.19 77/79] ASoC: pcm3168a: The codec does not support S32_LE
 Date:   Fri,  8 Nov 2019 19:50:57 +0100
-Message-Id: <20191108174912.786493721@linuxfoundation.org>
+Message-Id: <20191108174829.033434277@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
+References: <20191108174745.495640141@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kazutoshi Noguchi <noguchi.kazutosi@gmail.com>
+From: Peter Ujfalusi <peter.ujfalusi@ti.com>
 
-[ Upstream commit b3060531979422d5bb18d80226f978910284dc70 ]
+commit 7b2db65b59c30d58c129d3c8b2101feca686155a upstream.
 
-This device is sold as 'ThinkPad USB-C Dock Gen 2 (40AS)'.
-Chipset is RTL8153 and works with r8152.
-Without this, the generic cdc_ether grabs the device, and the device jam
-connected networks up when the machine suspends.
+24 bits is supported in all modes and 16 bit only when the codec is slave
+and the DAI is set to RIGHT_J.
 
-Signed-off-by: Kazutoshi Noguchi <noguchi.kazutosi@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Remove the unsupported sample format.
+
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Link: https://lore.kernel.org/r/20190919071652.31724-1-peter.ujfalusi@ti.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/usb/cdc_ether.c |    7 +++++++
- drivers/net/usb/r8152.c     |    1 +
- 2 files changed, 8 insertions(+)
 
---- a/drivers/net/usb/cdc_ether.c
-+++ b/drivers/net/usb/cdc_ether.c
-@@ -787,6 +787,13 @@ static const struct usb_device_id	produc
- 	.driver_info = 0,
- },
+---
+ sound/soc/codecs/pcm3168a.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+--- a/sound/soc/codecs/pcm3168a.c
++++ b/sound/soc/codecs/pcm3168a.c
+@@ -24,8 +24,7 @@
  
-+/* ThinkPad USB-C Dock Gen 2 (based on Realtek RTL8153) */
-+{
-+	USB_DEVICE_AND_INTERFACE_INFO(LENOVO_VENDOR_ID, 0xa387, USB_CLASS_COMM,
-+			USB_CDC_SUBCLASS_ETHERNET, USB_CDC_PROTO_NONE),
-+	.driver_info = 0,
-+},
-+
- /* NVIDIA Tegra USB 3.0 Ethernet Adapters (based on Realtek RTL8153) */
- {
- 	USB_DEVICE_AND_INTERFACE_INFO(NVIDIA_VENDOR_ID, 0x09ff, USB_CLASS_COMM,
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -5402,6 +5402,7 @@ static const struct usb_device_id rtl815
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7205)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x720c)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x7214)},
-+	{REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0xa387)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_LINKSYS, 0x0041)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_NVIDIA,  0x09ff)},
- 	{REALTEK_USB_DEVICE(VENDOR_ID_TPLINK,  0x0601)},
+ #define PCM3168A_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | \
+ 			 SNDRV_PCM_FMTBIT_S24_3LE | \
+-			 SNDRV_PCM_FMTBIT_S24_LE | \
+-			 SNDRV_PCM_FMTBIT_S32_LE)
++			 SNDRV_PCM_FMTBIT_S24_LE)
+ 
+ #define PCM3168A_FMT_I2S		0x0
+ #define PCM3168A_FMT_LEFT_J		0x1
 
 
