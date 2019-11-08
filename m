@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A7BF5572
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:02:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 970E0F5679
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390554AbfKHTCd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:02:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60244 "EHLO mail.kernel.org"
+        id S2391230AbfKHTJF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:09:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390553AbfKHTCc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:02:32 -0500
+        id S2390974AbfKHTJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:09:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B997B222C6;
-        Fri,  8 Nov 2019 19:02:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF121206A3;
+        Fri,  8 Nov 2019 19:09:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239752;
-        bh=kjVY/QYwGT0A/t48RdyXw9jg7Zcaof+ZFiXgC9WvTZI=;
+        s=default; t=1573240142;
+        bh=c4Kv7/xrKmzSuqPqsp605zhWvaRFr5oeH/7XyGqOx/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2or22b4s3kXOtl8/3A4YcqZVfZ+MdipLp+zwx7VnxCy7BQbQR5vsi2rkvF+61omsQ
-         2GYbnJwen/uxRxHcMS8FJcheIRGcxiXwd1HYJpwLP7MSN6CaHSQ2Dbhw2LwKX0MyFj
-         gze8fSEpUR+OL8NwjjlN6OaU1RnJanIkPBFLvE1c=
+        b=u3cVpm7wHsUbMFbczyXer/qDAGSK1GQt5unEQ1Hkg++ZOUdLb9Jp30efZU7KHNds4
+         Io5FbOmKbFO8qexEwSDXRkn5F5rhrRx7PGNhsXVHsoYNV/qz4UlG9S/csr1sOdqX9M
+         Pyxp6dXjgMHVKGmWwxVv/7/UtXA3wUNxdmT8RhVc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhanglin <zhang.lin16@zte.com.cn>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 50/79] net: Zeroing the structure ethtool_wolinfo in ethtool_get_wol()
+Subject: [PATCH 5.3 102/140] net: add READ_ONCE() annotation in __skb_wait_for_more_packets()
 Date:   Fri,  8 Nov 2019 19:50:30 +0100
-Message-Id: <20191108174814.533229269@linuxfoundation.org>
+Message-Id: <20191108174911.390369925@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhanglin <zhang.lin16@zte.com.cn>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5ff223e86f5addbfae26419cbb5d61d98f6fbf7d ]
+[ Upstream commit 7c422d0ce97552dde4a97e6290de70ec6efb0fc6 ]
 
-memset() the structure ethtool_wolinfo that has padded bytes
-but the padded bytes have not been zeroed out.
+__skb_wait_for_more_packets() can be called while other cpus
+can feed packets to the socket receive queue.
 
-Signed-off-by: zhanglin <zhang.lin16@zte.com.cn>
+KCSAN reported :
+
+BUG: KCSAN: data-race in __skb_wait_for_more_packets / __udp_enqueue_schedule_skb
+
+write to 0xffff888102e40b58 of 8 bytes by interrupt on cpu 0:
+ __skb_insert include/linux/skbuff.h:1852 [inline]
+ __skb_queue_before include/linux/skbuff.h:1958 [inline]
+ __skb_queue_tail include/linux/skbuff.h:1991 [inline]
+ __udp_enqueue_schedule_skb+0x2d7/0x410 net/ipv4/udp.c:1470
+ __udp_queue_rcv_skb net/ipv4/udp.c:1940 [inline]
+ udp_queue_rcv_one_skb+0x7bd/0xc70 net/ipv4/udp.c:2057
+ udp_queue_rcv_skb+0xb5/0x400 net/ipv4/udp.c:2074
+ udp_unicast_rcv_skb.isra.0+0x7e/0x1c0 net/ipv4/udp.c:2233
+ __udp4_lib_rcv+0xa44/0x17c0 net/ipv4/udp.c:2300
+ udp_rcv+0x2b/0x40 net/ipv4/udp.c:2470
+ ip_protocol_deliver_rcu+0x4d/0x420 net/ipv4/ip_input.c:204
+ ip_local_deliver_finish+0x110/0x140 net/ipv4/ip_input.c:231
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip_local_deliver+0x133/0x210 net/ipv4/ip_input.c:252
+ dst_input include/net/dst.h:442 [inline]
+ ip_rcv_finish+0x121/0x160 net/ipv4/ip_input.c:413
+ NF_HOOK include/linux/netfilter.h:305 [inline]
+ NF_HOOK include/linux/netfilter.h:299 [inline]
+ ip_rcv+0x18f/0x1a0 net/ipv4/ip_input.c:523
+ __netif_receive_skb_one_core+0xa7/0xe0 net/core/dev.c:5010
+ __netif_receive_skb+0x37/0xf0 net/core/dev.c:5124
+ process_backlog+0x1d3/0x420 net/core/dev.c:5955
+
+read to 0xffff888102e40b58 of 8 bytes by task 13035 on cpu 1:
+ __skb_wait_for_more_packets+0xfa/0x320 net/core/datagram.c:100
+ __skb_recv_udp+0x374/0x500 net/ipv4/udp.c:1683
+ udp_recvmsg+0xe1/0xb10 net/ipv4/udp.c:1712
+ inet_recvmsg+0xbb/0x250 net/ipv4/af_inet.c:838
+ sock_recvmsg_nosec+0x5c/0x70 net/socket.c:871
+ ___sys_recvmsg+0x1a0/0x3e0 net/socket.c:2480
+ do_recvmmsg+0x19a/0x5c0 net/socket.c:2601
+ __sys_recvmmsg+0x1ef/0x200 net/socket.c:2680
+ __do_sys_recvmmsg net/socket.c:2703 [inline]
+ __se_sys_recvmmsg net/socket.c:2696 [inline]
+ __x64_sys_recvmmsg+0x89/0xb0 net/socket.c:2696
+ do_syscall_64+0xcc/0x370 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 13035 Comm: syz-executor.3 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/ethtool.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/core/datagram.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -1482,11 +1482,13 @@ static int ethtool_reset(struct net_devi
+--- a/net/core/datagram.c
++++ b/net/core/datagram.c
+@@ -97,7 +97,7 @@ int __skb_wait_for_more_packets(struct s
+ 	if (error)
+ 		goto out_err;
  
- static int ethtool_get_wol(struct net_device *dev, char __user *useraddr)
- {
--	struct ethtool_wolinfo wol = { .cmd = ETHTOOL_GWOL };
-+	struct ethtool_wolinfo wol;
+-	if (sk->sk_receive_queue.prev != skb)
++	if (READ_ONCE(sk->sk_receive_queue.prev) != skb)
+ 		goto out;
  
- 	if (!dev->ethtool_ops->get_wol)
- 		return -EOPNOTSUPP;
- 
-+	memset(&wol, 0, sizeof(struct ethtool_wolinfo));
-+	wol.cmd = ETHTOOL_GWOL;
- 	dev->ethtool_ops->get_wol(dev, &wol);
- 
- 	if (copy_to_user(useraddr, &wol, sizeof(wol)))
+ 	/* Socket shut down? */
 
 
