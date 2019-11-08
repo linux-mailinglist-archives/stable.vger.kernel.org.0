@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB7FF4A90
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC03DF4A93
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732928AbfKHLiz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:38:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51918 "EHLO mail.kernel.org"
+        id S1732954AbfKHLi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:38:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732910AbfKHLiy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:54 -0500
+        id S1732937AbfKHLi4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A107C21D7E;
-        Fri,  8 Nov 2019 11:38:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C15EB21D6C;
+        Fri,  8 Nov 2019 11:38:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213134;
-        bh=U24cqw19Ki1GCxDzs7Eviju9mnv0Og7Nxqdr/g0uSQ8=;
+        s=default; t=1573213135;
+        bh=J01Tua1xHqm84z2bULbDOEq1M7xNvcNCSEryKQmdtZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SYa/decjF060e8XlXf4f/ym2rrO97WKmRFI0HJVv3dIomy7+LTilJ2EybNdHf+88z
-         vMn7HBpwrcAqimlmwsd2OGDBuKCi8Zyq+ksHy3DqU6CEEgQy6TZLP4XD6n8f7RqHoW
-         AqpUM60/Gsx4v/BTYVcE2aDehjGsOSEZb3KIPTAM=
+        b=BIAt3tmY76Pkt8HVm4TsOjCQwms2oxVAacypeAQSYhMfK4Ok0IvmpfYVYEyrMzP7Z
+         5Nk81kmObrmk4yqRBFF8jj9Ay8w/RVJBbr78xroA+HTLoweoTMvXKWGBGaaKZosktI
+         +FeP8bIib4RtKyxn6JCoOXjShziMsRIeEeIMSilg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lihong Yang <lihong.yang@intel.com>,
+Cc:     =?UTF-8?q?Patryk=20Ma=C5=82ek?= <patryk.malek@intel.com>,
         Andrew Bowers <andrewx.bowers@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 052/205] i40evf: cancel workqueue sync for adminq when a VF is removed
-Date:   Fri,  8 Nov 2019 06:35:19 -0500
-Message-Id: <20191108113752.12502-52-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 053/205] i40e: Prevent deleting MAC address from VF when set by PF
+Date:   Fri,  8 Nov 2019 06:35:20 -0500
+Message-Id: <20191108113752.12502-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,36 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lihong Yang <lihong.yang@intel.com>
+From: Patryk Małek <patryk.malek@intel.com>
 
-[ Upstream commit babbcc60040abfb7a9e3caa1c58fe182ae73762a ]
+[ Upstream commit 5907cf6c5bbe78be2ed18b875b316c6028b20634 ]
 
-If a VF is being removed, there is no need to continue with the
-workqueue sync for the adminq task, thus cancel it. Without this call,
-when VFs are created and removed right away, there might be a chance for
-the driver to crash with events stuck in the adminq.
+To prevent VF from deleting MAC address that was assigned by the
+PF we need to check for that scenario when we try to delete a MAC
+address from a VF.
 
-Signed-off-by: Lihong Yang <lihong.yang@intel.com>
+Signed-off-by: Patryk Małek <patryk.malek@intel.com>
 Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40evf/i40evf_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_main.c b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-index 3fc46d2adc087..f50c19b833686 100644
---- a/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-+++ b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
-@@ -3884,6 +3884,8 @@ static void i40evf_remove(struct pci_dev *pdev)
- 	if (adapter->watchdog_timer.function)
- 		del_timer_sync(&adapter->watchdog_timer);
- 
-+	cancel_work_sync(&adapter->adminq_task);
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index d86f3fa7aa6a4..46a71d289bca2 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2571,6 +2571,16 @@ static int i40e_vc_del_mac_addr_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
+ 			ret = I40E_ERR_INVALID_MAC_ADDR;
+ 			goto error_param;
+ 		}
 +
- 	i40evf_free_rss(adapter);
++		if (vf->pf_set_mac &&
++		    ether_addr_equal(al->list[i].addr,
++				     vf->default_lan_addr.addr)) {
++			dev_err(&pf->pdev->dev,
++				"MAC addr %pM has been set by PF, cannot delete it for VF %d, reset VF to change MAC addr\n",
++				vf->default_lan_addr.addr, vf->vf_id);
++			ret = I40E_ERR_PARAM;
++			goto error_param;
++		}
+ 	}
+ 	vsi = pf->vsi[vf->lan_vsi_idx];
  
- 	if (hw->aq.asq.count)
 -- 
 2.20.1
 
