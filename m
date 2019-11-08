@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 970E0F5679
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C652BF54E2
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391230AbfKHTJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:09:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40442 "EHLO mail.kernel.org"
+        id S2388177AbfKHS4a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:56:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390974AbfKHTJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:09:05 -0500
+        id S1730370AbfKHS4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:56:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF121206A3;
-        Fri,  8 Nov 2019 19:09:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79A0C20865;
+        Fri,  8 Nov 2019 18:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573240142;
-        bh=c4Kv7/xrKmzSuqPqsp605zhWvaRFr5oeH/7XyGqOx/8=;
+        s=default; t=1573239389;
+        bh=KUogLKcEAM1Oo4j6K0X0LbBHYfizmBtH+lKey9kETMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u3cVpm7wHsUbMFbczyXer/qDAGSK1GQt5unEQ1Hkg++ZOUdLb9Jp30efZU7KHNds4
-         Io5FbOmKbFO8qexEwSDXRkn5F5rhrRx7PGNhsXVHsoYNV/qz4UlG9S/csr1sOdqX9M
-         Pyxp6dXjgMHVKGmWwxVv/7/UtXA3wUNxdmT8RhVc=
+        b=hMtTbMnMClpMUu7uZYUwwT2Ke4gpVY8sF9AwW9gAgJsv/jaI2Rg+7MMF1/uXyQFwI
+         LRv2h5HXaj48YfzNQWmm1U0yS4B4um+JHU34g6myAT8RerVGyfCABYyEvRY4wPSnB0
+         nZ6oZb8WbM6TF+MiniIpItzEI8axVYvc7LXltb3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 102/140] net: add READ_ONCE() annotation in __skb_wait_for_more_packets()
+Subject: [PATCH 4.9 23/34] net: add READ_ONCE() annotation in __skb_wait_for_more_packets()
 Date:   Fri,  8 Nov 2019 19:50:30 +0100
-Message-Id: <20191108174911.390369925@linuxfoundation.org>
+Message-Id: <20191108174643.872487561@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
-References: <20191108174900.189064908@linuxfoundation.org>
+In-Reply-To: <20191108174618.266472504@linuxfoundation.org>
+References: <20191108174618.266472504@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -109,7 +109,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/core/datagram.c
 +++ b/net/core/datagram.c
-@@ -97,7 +97,7 @@ int __skb_wait_for_more_packets(struct s
+@@ -96,7 +96,7 @@ int __skb_wait_for_more_packets(struct s
  	if (error)
  		goto out_err;
  
