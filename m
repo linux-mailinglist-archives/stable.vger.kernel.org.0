@@ -2,106 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 763D9F554B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7779DF54DD
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390194AbfKHTB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 14:01:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58846 "EHLO mail.kernel.org"
+        id S2387962AbfKHS4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 13:56:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390188AbfKHTB2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 14:01:28 -0500
+        id S1732164AbfKHS4D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 13:56:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE70D21D7E;
-        Fri,  8 Nov 2019 19:01:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E70632178F;
+        Fri,  8 Nov 2019 18:56:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239688;
-        bh=ILInvjgqKHt6USRV+yI3xJFvX/OSj+lwjEbmcOh66G0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hdqo7MgoGlUbip/6z7OFyKxdBdtloKVScg+LlY4AagM3l5VeVam6L2WhI6IqoIFj+
-         9NDfP8dmiEjM27C3jOVeAfG1N2A4YtGTW+oLyc5DTy8MxyVHvBuiSIR6AZarjpqJto
-         Urhl/zqDa4Nt8XBK05/6CP6hsTpD4nyAel0LWF/I=
+        s=default; t=1573239362;
+        bh=0jAsKdiJdwPpdCjhGpdl16rAFrkPufAApEspDAtLZDU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=X8gQgSVRT+sDrbPtCeIflnf+GN/a1FV6mV+o3SeC57B/Qx5zwnScGhXCOaL1drqT+
+         +tUy/rxJsjRaB51kAaqUw2Zy/53/0Vhm6bgnMMTMiPjjmuBN+lL9htnSEfixI8Z4WR
+         w4xVJ6SqcTYqLY5L1phqbgi5eZwaGNIoj3OdUeaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, afzal mohammed <afzal.mohd.ma@gmail.com>,
-        Vladimir Murzin <vladimir.murzin@arm.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 27/79] ARM: 8926/1: v7m: remove register save to stack before svc
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 4.9 00/34] 4.9.200-stable review
 Date:   Fri,  8 Nov 2019 19:50:07 +0100
-Message-Id: <20191108174800.916142823@linuxfoundation.org>
+Message-Id: <20191108174618.266472504@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174745.495640141@linuxfoundation.org>
-References: <20191108174745.495640141@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.200-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.9.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.9.200-rc1
+X-KernelTest-Deadline: 2019-11-10T17:46+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: afzal mohammed <afzal.mohd.ma@gmail.com>
+This is the start of the stable review cycle for the 4.9.200 release.
+There are 34 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 2ecb287998a47cc0a766f6071f63bc185f338540 ]
+Responses should be made by Sun 10 Nov 2019 05:42:11 PM UTC.
+Anything received after that time might be too late.
 
-r0-r3 & r12 registers are saved & restored, before & after svc
-respectively. Intention was to preserve those registers across thread to
-handler mode switch.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.200-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+and the diffstat can be found below.
 
-On v7-M, hardware saves the register context upon exception in AAPCS
-complaint way. Restoring r0-r3 & r12 is done from stack location where
-hardware saves it, not from the location on stack where these registers
-were saved.
+thanks,
 
-To clarify, on stm32f429 discovery board:
+greg k-h
 
-1. before svc, sp - 0x90009ff8
-2. r0-r3,r12 saved to 0x90009ff8 - 0x9000a00b
-3. upon svc, h/w decrements sp by 32 & pushes registers onto stack
-4. after svc,  sp - 0x90009fd8
-5. r0-r3,r12 restored from 0x90009fd8 - 0x90009feb
+-------------
+Pseudo-Shortlog of commits:
 
-Above means r0-r3,r12 is not restored from the location where they are
-saved, but since hardware pushes the registers onto stack, the registers
-are restored correctly.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.9.200-rc1
 
-Note that during register saving to stack (step 2), it goes past
-0x9000a000. And it seems, based on objdump, there are global symbols
-residing there, and it perhaps can cause issues on a non-XIP Kernel
-(on XIP, data section is setup later).
+Petr Vorel <pvorel@suse.cz>
+    alarmtimer: Change remaining ENOTSUPP to EOPNOTSUPP
 
-Based on the analysis above, manually saving registers onto stack is at
-best no-op and at worst can cause data section corruption. Hence remove
-storing of registers onto stack before svc.
+Jeffrey Hugo <jeffrey.l.hugo@gmail.com>
+    dmaengine: qcom: bam_dma: Fix resource leak
 
-Fixes: b70cd406d7fe ("ARM: 8671/1: V7M: Preserve registers across switch from Thread to Handler mode")
-Signed-off-by: afzal mohammed <afzal.mohd.ma@gmail.com>
-Acked-by: Vladimir Murzin <vladimir.murzin@arm.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/arm/mm/proc-v7m.S | 1 -
- 1 file changed, 1 deletion(-)
+Eric Dumazet <edumazet@google.com>
+    net/flow_dissector: switch to siphash
 
-diff --git a/arch/arm/mm/proc-v7m.S b/arch/arm/mm/proc-v7m.S
-index 59d82864c134b..9c2978c128d97 100644
---- a/arch/arm/mm/proc-v7m.S
-+++ b/arch/arm/mm/proc-v7m.S
-@@ -135,7 +135,6 @@ __v7m_setup_cont:
- 	dsb
- 	mov	r6, lr			@ save LR
- 	ldr	sp, =init_thread_union + THREAD_START_SP
--	stmia	sp, {r0-r3, r12}
- 	cpsie	i
- 	svc	#0
- 1:	cpsid	i
--- 
-2.20.1
+Seth Forshee <seth.forshee@canonical.com>
+    kbuild: add -fcf-protection=none when using retpoline flags
 
+Masahiro Yamada <yamada.masahiro@socionext.com>
+    kbuild: use -fmacro-prefix-map to make __FILE__ a relative path
+
+Kees Cook <keescook@chromium.org>
+    Kbuild: make designated_init attribute fatal
+
+Eric Dumazet <edumazet@google.com>
+    inet: stop leaking jiffies on the wire
+
+Eran Ben Elisha <eranbe@mellanox.com>
+    net/mlx4_core: Dynamically set guaranteed amount of counters per VF
+
+Xin Long <lucien.xin@gmail.com>
+    vxlan: check tun_info options_len properly
+
+Doug Berger <opendmb@gmail.com>
+    net: bcmgenet: reset 40nm EPHY on energy detect
+
+Vivien Didelot <vivien.didelot@gmail.com>
+    net: dsa: fix switch tree list
+
+Eric Dumazet <edumazet@google.com>
+    net: add READ_ONCE() annotation in __skb_wait_for_more_packets()
+
+Wei Wang <weiwan@google.com>
+    selftests: net: reuseport_dualstack: fix uninitalized parameter
+
+zhanglin <zhang.lin16@zte.com.cn>
+    net: Zeroing the structure ethtool_wolinfo in ethtool_get_wol()
+
+Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+    net: hisilicon: Fix ping latency when deal with high throughput
+
+Tejun Heo <tj@kernel.org>
+    net: fix sk_page_frag() recursion from memory reclaim
+
+Eric Dumazet <edumazet@google.com>
+    dccp: do not leak jiffies on the wire
+
+Dave Wysochanski <dwysocha@redhat.com>
+    cifs: Fix cifsInodeInfo lock_sem deadlock when reconnect occurs
+
+Jonas Gorski <jonas.gorski@gmail.com>
+    MIPS: bmips: mark exception vectors as char arrays
+
+Navid Emamdoost <navid.emamdoost@gmail.com>
+    of: unittest: fix memory leak in unittest_data_add
+
+Bodo Stroesser <bstroesser@ts.fujitsu.com>
+    scsi: target: core: Do not overwrite CDB byte 1
+
+Peter Ujfalusi <peter.ujfalusi@ti.com>
+    ARM: davinci: dm365: Fix McBSP dma_slave_map entry
+
+Yunfeng Ye <yeyunfeng@huawei.com>
+    perf kmem: Fix memory leak in compact_gfp_flags()
+
+Anson Huang <Anson.Huang@nxp.com>
+    ARM: dts: imx7s: Correct GPT's ipg clock source
+
+Thomas Bogendoerfer <tbogendoerfer@suse.de>
+    scsi: fix kconfig dependency warning related to 53C700_LE_ON_BE
+
+Thomas Bogendoerfer <tbogendoerfer@suse.de>
+    scsi: sni_53c710: fix compilation error
+
+Hannes Reinecke <hare@suse.com>
+    scsi: scsi_dh_alua: handle RTPG sense code correctly during state transitions
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    ARM: mm: fix alignment handler faults under memory pressure
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    pinctrl: ns2: Fix off by one bugs in ns2_pinmux_enable()
+
+Adam Ford <aford173@gmail.com>
+    ARM: dts: logicpd-torpedo-som: Remove twl_keypad
+
+Robin Murphy <robin.murphy@arm.com>
+    ASoc: rockchip: i2s: Fix RPM imbalance
+
+Stuart Henderson <stuarth@opensource.cirrus.com>
+    ASoC: wm_adsp: Don't generate kcontrols without READ flags
+
+Yizhuo <yzhai003@ucr.edu>
+    regulator: pfuze100-regulator: Variable "val" in pfuze100_regulator_probe() could be uninitialized
+
+Axel Lin <axel.lin@ingics.com>
+    regulator: ti-abb: Fix timeout in ti_abb_wait_txdone/ti_abb_clear_all_txdone
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           | 16 +++++++-
+ arch/arm/boot/dts/imx7s.dtsi                       |  8 ++--
+ arch/arm/boot/dts/logicpd-torpedo-som.dtsi         |  4 ++
+ arch/arm/mach-davinci/dm365.c                      |  4 +-
+ arch/arm/mm/alignment.c                            | 44 ++++++++++++++++----
+ arch/mips/bcm63xx/prom.c                           |  2 +-
+ arch/mips/include/asm/bmips.h                      | 10 ++---
+ arch/mips/kernel/smp-bmips.c                       |  8 ++--
+ drivers/dma/qcom/bam_dma.c                         | 14 +++++++
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c     |  9 +++-
+ drivers/net/ethernet/hisilicon/hip04_eth.c         | 15 ++++---
+ .../net/ethernet/mellanox/mlx4/resource_tracker.c  | 42 +++++++++++--------
+ drivers/net/vxlan.c                                |  5 ++-
+ drivers/of/unittest.c                              |  1 +
+ drivers/pinctrl/bcm/pinctrl-ns2-mux.c              |  4 +-
+ drivers/regulator/pfuze100-regulator.c             |  8 +++-
+ drivers/regulator/ti-abb-regulator.c               | 26 ++++--------
+ drivers/scsi/Kconfig                               |  2 +-
+ drivers/scsi/device_handler/scsi_dh_alua.c         | 21 +++++++---
+ drivers/scsi/sni_53c710.c                          |  4 +-
+ drivers/target/target_core_device.c                | 21 ----------
+ fs/cifs/cifsglob.h                                 |  5 +++
+ fs/cifs/cifsproto.h                                |  1 +
+ fs/cifs/file.c                                     | 23 +++++++----
+ fs/cifs/smb2file.c                                 |  2 +-
+ include/linux/gfp.h                                | 23 +++++++++++
+ include/linux/skbuff.h                             |  3 +-
+ include/net/flow_dissector.h                       |  3 +-
+ include/net/fq.h                                   |  2 +-
+ include/net/fq_impl.h                              |  4 +-
+ include/net/sock.h                                 | 11 +++--
+ kernel/time/alarmtimer.c                           |  4 +-
+ net/core/datagram.c                                |  2 +-
+ net/core/ethtool.c                                 |  4 +-
+ net/core/flow_dissector.c                          | 48 +++++++++-------------
+ net/dccp/ipv4.c                                    |  4 +-
+ net/dsa/dsa2.c                                     |  2 +-
+ net/ipv4/datagram.c                                |  2 +-
+ net/ipv4/tcp_ipv4.c                                |  4 +-
+ net/sched/sch_fq_codel.c                           |  6 +--
+ net/sched/sch_hhf.c                                |  8 ++--
+ net/sched/sch_sfb.c                                | 13 +++---
+ net/sched/sch_sfq.c                                | 14 ++++---
+ net/sctp/socket.c                                  |  2 +-
+ sound/soc/codecs/wm_adsp.c                         |  3 +-
+ sound/soc/rockchip/rockchip_i2s.c                  |  2 +-
+ tools/perf/builtin-kmem.c                          |  1 +
+ tools/testing/selftests/net/reuseport_dualstack.c  |  3 +-
+ 48 files changed, 286 insertions(+), 181 deletions(-)
 
 
