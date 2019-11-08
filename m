@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCAFCF54C7
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6404F56FC
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:05:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727699AbfKHSxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:53:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50486 "EHLO mail.kernel.org"
+        id S1732314AbfKHTPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:15:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732519AbfKHSxn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:53:43 -0500
+        id S2389181AbfKHTFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:05:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74E44214DB;
-        Fri,  8 Nov 2019 18:53:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADF5F21D82;
+        Fri,  8 Nov 2019 19:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239223;
-        bh=TTTgOS79xzCkyvAQmvyDhZ4Enfn54YURfcmMu7/oJZI=;
+        s=default; t=1573239950;
+        bh=OSa49LhWO0fQPrA54M1luI/Olq9wf5UzWACp8mVh660=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SipSLqkDICFAXrUb8LcBQZfdXYrtsHTHo9mbZ5++A8RspD2pZBDoITvdyLP/SBPsc
-         pq6Co/NLByOrlniEvvOI+iQoEfMUuGldPnjOxKdqG5/HKgjHcM7Cv3z+qsCZy3JEol
-         70ZxiGtpcdcn/bjy0U9uep1Xh+IN6YJSsj82RVeM=
+        b=O4HkxTpUAlsjAMAZiVV83rxN3iDb9+K8G4NDJsqgjchUZFJhiT2j7TC3drMgmcyt5
+         /dJQn/zfKBw8D7PqVls9zDmuotpsQGPmzAkKzhuxhpi9TEwBn1hNFO2lEijoV7bs19
+         woLX+UFtj+XvLj+8nedmON2P1S6wD/WqD/XjVoIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Thomas Bogendoerfer <tbogendoerfer@suse.de>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 08/75] scsi: fix kconfig dependency warning related to 53C700_LE_ON_BE
-Date:   Fri,  8 Nov 2019 19:49:25 +0100
-Message-Id: <20191108174716.044076638@linuxfoundation.org>
+Subject: [PATCH 5.3 038/140] scsi: fix kconfig dependency warning related to 53C700_LE_ON_BE
+Date:   Fri,  8 Nov 2019 19:49:26 +0100
+Message-Id: <20191108174907.676197012@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174708.135680837@linuxfoundation.org>
-References: <20191108174708.135680837@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -67,10 +67,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/scsi/Kconfig b/drivers/scsi/Kconfig
-index 433c5e3d57338..070359a7eea1d 100644
+index 1b92f3c19ff32..90cf4691b8c35 100644
 --- a/drivers/scsi/Kconfig
 +++ b/drivers/scsi/Kconfig
-@@ -1013,7 +1013,7 @@ config SCSI_SNI_53C710
+@@ -898,7 +898,7 @@ config SCSI_SNI_53C710
  
  config 53C700_LE_ON_BE
  	bool
