@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2697FF485B
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:57:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4568F485E
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 12:57:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391093AbfKHLpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:45:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60594 "EHLO mail.kernel.org"
+        id S1732675AbfKHLp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:45:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391087AbfKHLpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:45:20 -0500
+        id S2391088AbfKHLpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:45:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4211C222C5;
-        Fri,  8 Nov 2019 11:45:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76AD4222D4;
+        Fri,  8 Nov 2019 11:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213519;
-        bh=UJIkCko1T/uvwuZdVtUds6NrBGotpYuWsGiGTTT/KO8=;
+        s=default; t=1573213520;
+        bh=fTe/6jv6vp2P2ZrGxFtNky6NeEAfIueFoy7sJP/UR2c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fwVN+FXGr7rTZeoHO7PtocShsTlWj5tgijID86FXsjZmVhbJ6w33P7AI2QxIG+zoA
-         K2SOSofT0YF3GpwpPP6YcadGUmhvaS31ahnTh0GbXnMqcE8KL2UkgT1ewNvixv4Va4
-         /Kancl42HDg4mcM1jarLJLzppPozGgauxim+MCRo=
+        b=wU/vzSC/oupknt7grS1umDVHtpp3MCvzouOJjkfIXKFgrtuVIgeQiXdTk3GLVfXm6
+         quYGU1gkcTATqwyi6xgSGzc+9dW/FMbPWTY0NfVb7BwxpZuPyn8dBZKjkIDh8v9EY8
+         UzAhdQ66XwAWAhxVLItOqGTgGN2HCU+W2438Hhvs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Lamparter <chunkeey@gmail.com>,
-        John Crispin <john@phrozen.org>,
+Cc:     Niklas Cassel <niklas.cassel@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Andy Gross <andy.gross@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 087/103] ARM: dts: qcom: ipq4019: fix cpu0's qcom,saw2 reg value
-Date:   Fri,  8 Nov 2019 06:42:52 -0500
-Message-Id: <20191108114310.14363-87-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 088/103] soc: qcom: wcnss_ctrl: Avoid string overflow
+Date:   Fri,  8 Nov 2019 06:42:53 -0500
+Message-Id: <20191108114310.14363-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108114310.14363-1-sashal@kernel.org>
 References: <20191108114310.14363-1-sashal@kernel.org>
@@ -45,41 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Niklas Cassel <niklas.cassel@linaro.org>
 
-[ Upstream commit bd73a3dd257fb838bd456a18eeee0ef0224b7a40 ]
+[ Upstream commit 4c96ed170d658d8826d94edec8ac93ee777981a2 ]
 
-while compiling an ipq4019 target, dtc will complain:
-regulator@b089000 unit address format error, expected "2089000"
+'chinfo.name' is used as a NUL-terminated string, but using strncpy() with
+the length equal to the buffer size may result in lack of the termination:
 
-The saw0 regulator reg value seems to be
-copied and pasted from qcom-ipq8064.dtsi.
+drivers//soc/qcom/wcnss_ctrl.c: In function 'qcom_wcnss_open_channel':
+drivers//soc/qcom/wcnss_ctrl.c:284:2: warning: 'strncpy' specified bound 32 equals destination size [-Wstringop-truncation]
+  strncpy(chinfo.name, name, sizeof(chinfo.name));
+  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-This patch fixes the reg value to match that of the
-unit address which in turn silences the warning.
-(There is no driver for qcom,saw2 right now.
-So this went unnoticed)
+This changes it to use the safer strscpy() instead.
 
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: John Crispin <john@phrozen.org>
+Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/qcom-ipq4019.dtsi | 2 +-
+ drivers/soc/qcom/wcnss_ctrl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/qcom-ipq4019.dtsi b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-index 10d112a4078ec..19156cbb60034 100644
---- a/arch/arm/boot/dts/qcom-ipq4019.dtsi
-+++ b/arch/arm/boot/dts/qcom-ipq4019.dtsi
-@@ -234,7 +234,7 @@
+diff --git a/drivers/soc/qcom/wcnss_ctrl.c b/drivers/soc/qcom/wcnss_ctrl.c
+index df3ccb30bc2dd..373400dd816d6 100644
+--- a/drivers/soc/qcom/wcnss_ctrl.c
++++ b/drivers/soc/qcom/wcnss_ctrl.c
+@@ -281,7 +281,7 @@ struct rpmsg_endpoint *qcom_wcnss_open_channel(void *wcnss, const char *name, rp
+ 	struct rpmsg_channel_info chinfo;
+ 	struct wcnss_ctrl *_wcnss = wcnss;
  
-                 saw0: regulator@b089000 {
-                         compatible = "qcom,saw2";
--                        reg = <0x02089000 0x1000>, <0x0b009000 0x1000>;
-+			reg = <0x0b089000 0x1000>, <0x0b009000 0x1000>;
-                         regulator;
-                 };
+-	strncpy(chinfo.name, name, sizeof(chinfo.name));
++	strscpy(chinfo.name, name, sizeof(chinfo.name));
+ 	chinfo.src = RPMSG_ADDR_ANY;
+ 	chinfo.dst = RPMSG_ADDR_ANY;
  
 -- 
 2.20.1
