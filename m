@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF9AF4BC4
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:36:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75ED8F4BC5
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:36:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726959AbfKHMg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:36:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44018 "EHLO mail.kernel.org"
+        id S1726964AbfKHMgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:36:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726121AbfKHMg3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 07:36:29 -0500
+        id S1726121AbfKHMgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 07:36:31 -0500
 Received: from localhost.localdomain (lfbn-mar-1-550-151.w90-118.abo.wanadoo.fr [90.118.131.151])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92F7E22459;
-        Fri,  8 Nov 2019 12:36:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 455662245A;
+        Fri,  8 Nov 2019 12:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573216588;
-        bh=inb/cqMT+oShP3jVH33yG8lEW3vWYc4DlUhG+Dmlb08=;
+        s=default; t=1573216590;
+        bh=R/teWzkKlAclgziOTLglPUbWYKOqfY6WpljAdcggmHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qUnpISO7D6Dm8xiLb+F+c385GkQ4ZfoyytCyFE/gbd9ZnSxuE3HvJhQGLtMgJgtKq
-         i6+DYsrQh85MKBfOUygCJ+MKJ25C8JvD9wDnrMMuNmqjQkX6TipdNcMyRqAFv01sK4
-         uWpfzPC2Cujy6N+3KH74SYxjGB8k1GzAg+jsQ7q8=
+        b=xcm4sKP507/rfZcd0zFRBc/sX/ISZXeaa9Tvrga2q4N5Xp1WaomCJ0T5qKxV1nVv4
+         zRFvcmw9IbRscHkTs347HfppVXf0WkSvwCwaYrOmmzxsP+zU1NlDg6oKkzOr+Q9bnp
+         95IYpW9d5Kv2VQigQIn/gvGwlVf5f9vK20VMDmUc=
 From:   Ard Biesheuvel <ardb@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     linus.walleij@linaro.org, rmk+kernel@armlinux.org.uk,
         Mark Rutland <mark.rutland@arm.com>,
         Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH for-stable-4.4 10/50] firmware/psci: Expose PSCI conduit
-Date:   Fri,  8 Nov 2019 13:35:14 +0100
-Message-Id: <20191108123554.29004-11-ardb@kernel.org>
+Subject: [PATCH for-stable-4.4 11/50] firmware/psci: Expose SMCCC version through psci_ops
+Date:   Fri,  8 Nov 2019 13:35:15 +0100
+Message-Id: <20191108123554.29004-12-ardb@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108123554.29004-1-ardb@kernel.org>
 References: <20191108123554.29004-1-ardb@kernel.org>
@@ -45,11 +45,11 @@ From: Mark Rutland <mark.rutland@arm.com>
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit 09a8d6d48499f93e2abde691f5800081cd858726 upstream.
+commit e78eef554a912ef6c1e0bbf97619dafbeae3339f upstream.
 
-In order to call into the firmware to apply workarounds, it is
-useful to find out whether we're using HVC or SMC. Let's expose
-this through the psci_ops.
+Since PSCI 1.0 allows the SMCCC version to be (indirectly) probed,
+let's do that at boot time, and expose the version of the calling
+convention as part of the psci_ops structure.
 
 Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Reviewed-by: Robin Murphy <robin.murphy@arm.com>
@@ -61,94 +61,83 @@ Tested-by: Greg Hackmann <ghackmann@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 ---
- drivers/firmware/psci.c | 28 ++++++++++++++++----
- include/linux/psci.h    |  7 +++++
- 2 files changed, 30 insertions(+), 5 deletions(-)
+ drivers/firmware/psci.c | 27 ++++++++++++++++++++
+ include/linux/psci.h    |  6 +++++
+ 2 files changed, 33 insertions(+)
 
 diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
-index b38305ba0965..eb5f9161ff10 100644
+index eb5f9161ff10..bc3efe6c9279 100644
 --- a/drivers/firmware/psci.c
 +++ b/drivers/firmware/psci.c
-@@ -55,7 +55,9 @@ bool psci_tos_resident_on(int cpu)
- 	return cpu == resident_cpu;
- }
+@@ -57,6 +57,7 @@ bool psci_tos_resident_on(int cpu)
  
--struct psci_operations psci_ops;
-+struct psci_operations psci_ops = {
-+	.conduit = PSCI_CONDUIT_NONE,
-+};
+ struct psci_operations psci_ops = {
+ 	.conduit = PSCI_CONDUIT_NONE,
++	.smccc_version = SMCCC_VERSION_1_0,
+ };
  
  typedef unsigned long (psci_fn)(unsigned long, unsigned long,
- 				unsigned long, unsigned long);
-@@ -206,6 +208,22 @@ static unsigned long psci_migrate_info_up_cpu(void)
- 			      0, 0, 0);
+@@ -339,6 +340,31 @@ static void __init psci_init_migrate(void)
+ 	pr_info("Trusted OS resident on physical CPU 0x%lx\n", cpuid);
  }
  
-+static void set_conduit(enum psci_conduit conduit)
++static void __init psci_init_smccc(void)
 +{
-+	switch (conduit) {
-+	case PSCI_CONDUIT_HVC:
-+		invoke_psci_fn = __invoke_psci_fn_hvc;
-+		break;
-+	case PSCI_CONDUIT_SMC:
-+		invoke_psci_fn = __invoke_psci_fn_smc;
-+		break;
-+	default:
-+		WARN(1, "Unexpected PSCI conduit %d\n", conduit);
++	u32 ver = ARM_SMCCC_VERSION_1_0;
++	int feature;
++
++	feature = psci_features(ARM_SMCCC_VERSION_FUNC_ID);
++
++	if (feature != PSCI_RET_NOT_SUPPORTED) {
++		u32 ret;
++		ret = invoke_psci_fn(ARM_SMCCC_VERSION_FUNC_ID, 0, 0, 0);
++		if (ret == ARM_SMCCC_VERSION_1_1) {
++			psci_ops.smccc_version = SMCCC_VERSION_1_1;
++			ver = ret;
++		}
 +	}
 +
-+	psci_ops.conduit = conduit;
++	/*
++	 * Conveniently, the SMCCC and PSCI versions are encoded the
++	 * same way. No, this isn't accidental.
++	 */
++	pr_info("SMC Calling Convention v%d.%d\n",
++		PSCI_VERSION_MAJOR(ver), PSCI_VERSION_MINOR(ver));
++
 +}
 +
- static int get_set_conduit_method(struct device_node *np)
+ static void __init psci_0_2_set_functions(void)
  {
- 	const char *method;
-@@ -218,9 +236,9 @@ static int get_set_conduit_method(struct device_node *np)
+ 	pr_info("Using standard PSCI v0.2 function IDs\n");
+@@ -385,6 +411,7 @@ static int __init psci_probe(void)
+ 	psci_init_migrate();
+ 
+ 	if (PSCI_VERSION_MAJOR(ver) >= 1) {
++		psci_init_smccc();
+ 		psci_init_cpu_suspend();
+ 		psci_init_system_suspend();
  	}
- 
- 	if (!strcmp("hvc", method)) {
--		invoke_psci_fn = __invoke_psci_fn_hvc;
-+		set_conduit(PSCI_CONDUIT_HVC);
- 	} else if (!strcmp("smc", method)) {
--		invoke_psci_fn = __invoke_psci_fn_smc;
-+		set_conduit(PSCI_CONDUIT_SMC);
- 	} else {
- 		pr_warn("invalid \"method\" property: %s\n", method);
- 		return -EINVAL;
-@@ -480,9 +498,9 @@ int __init psci_acpi_init(void)
- 	pr_info("probing for conduit method from ACPI.\n");
- 
- 	if (acpi_psci_use_hvc())
--		invoke_psci_fn = __invoke_psci_fn_hvc;
-+		set_conduit(PSCI_CONDUIT_HVC);
- 	else
--		invoke_psci_fn = __invoke_psci_fn_smc;
-+		set_conduit(PSCI_CONDUIT_SMC);
- 
- 	return psci_probe();
- }
 diff --git a/include/linux/psci.h b/include/linux/psci.h
-index 12c4865457ad..864cdede8d15 100644
+index 864cdede8d15..f78438214a59 100644
 --- a/include/linux/psci.h
 +++ b/include/linux/psci.h
-@@ -24,6 +24,12 @@ bool psci_tos_resident_on(int cpu);
- bool psci_power_state_loses_context(u32 state);
- bool psci_power_state_is_valid(u32 state);
+@@ -30,6 +30,11 @@ enum psci_conduit {
+ 	PSCI_CONDUIT_HVC,
+ };
  
-+enum psci_conduit {
-+	PSCI_CONDUIT_NONE,
-+	PSCI_CONDUIT_SMC,
-+	PSCI_CONDUIT_HVC,
++enum smccc_version {
++	SMCCC_VERSION_1_0,
++	SMCCC_VERSION_1_1,
 +};
 +
  struct psci_operations {
  	int (*cpu_suspend)(u32 state, unsigned long entry_point);
  	int (*cpu_off)(u32 state);
-@@ -32,6 +38,7 @@ struct psci_operations {
- 	int (*affinity_info)(unsigned long target_affinity,
+@@ -39,6 +44,7 @@ struct psci_operations {
  			unsigned long lowest_affinity_level);
  	int (*migrate_info_type)(void);
-+	enum psci_conduit conduit;
+ 	enum psci_conduit conduit;
++	enum smccc_version smccc_version;
  };
  
  extern struct psci_operations psci_ops;
