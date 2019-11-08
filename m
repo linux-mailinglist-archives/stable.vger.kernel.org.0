@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 21AD2F54FB
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:01:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD7B3F568E
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 21:04:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389048AbfKHS7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 13:59:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56380 "EHLO mail.kernel.org"
+        id S2390258AbfKHTJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 14:09:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388926AbfKHS7c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 13:59:32 -0500
+        id S2403817AbfKHTJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 14:09:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CB9722501;
-        Fri,  8 Nov 2019 18:59:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49B252087E;
+        Fri,  8 Nov 2019 19:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573239571;
-        bh=KB02WUCjZe9gVhl9Ru7yYHU+f40XexxgHI/C88O7Lw8=;
+        s=default; t=1573240165;
+        bh=rkWc8IbdEaSvrxsOfVoAZ+1MbxALwcX4Njf18RbH3vU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FMOJkb5uDS2y2ImMRnq8jx7kNa5VUYfucPHnMAz787Paphb03RwqAKZeheJyojXUS
-         n6Fbm+VrUdFlhRY/HzkIA5D0P98mWHWo1GT/NS1gUc1iUkjgRZMLTA6L7MM2w4HOGE
-         usoY8VQoRjCEgXF6fIRBWUy+djMNEBQyMb2kx990=
+        b=1HgA9tv1cZMjYzZwEYu3mzAXz7BcJdi+I3W8T5kd1UI17Y8gBCRd5oFQZBsGPFxXP
+         TvlzXdw2QzGuuNRCD6QO5qQK55xkA1A5iSg+ABk/rVwqSY5UGAD1170Gh8f0RMsUqL
+         IFyY4pXnMW8lhcG34n6JzIWrxfToAbN33DhH/m5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Thiemo Nagel <tnagel@google.com>,
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 48/62] inet: stop leaking jiffies on the wire
-Date:   Fri,  8 Nov 2019 19:50:36 +0100
-Message-Id: <20191108174752.638063700@linuxfoundation.org>
+Subject: [PATCH 5.3 109/140] rxrpc: Fix handling of last subpacket of jumbo packet
+Date:   Fri,  8 Nov 2019 19:50:37 +0100
+Message-Id: <20191108174911.749361622@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191108174719.228826381@linuxfoundation.org>
-References: <20191108174719.228826381@linuxfoundation.org>
+In-Reply-To: <20191108174900.189064908@linuxfoundation.org>
+References: <20191108174900.189064908@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,94 +43,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: David Howells <dhowells@redhat.com>
 
-[ Upstream commit a904a0693c189691eeee64f6c6b188bd7dc244e9 ]
+[ Upstream commit f9c32435ab7221d1d6cb35738fa85a2da012b23e ]
 
-Historically linux tried to stick to RFC 791, 1122, 2003
-for IPv4 ID field generation.
+When rxrpc_recvmsg_data() sets the return value to 1 because it's drained
+all the data for the last packet, it checks the last-packet flag on the
+whole packet - but this is wrong, since the last-packet flag is only set on
+the final subpacket of the last jumbo packet.  This means that a call that
+receives its last packet in a jumbo packet won't complete properly.
 
-RFC 6864 made clear that no matter how hard we try,
-we can not ensure unicity of IP ID within maximum
-lifetime for all datagrams with a given source
-address/destination address/protocol tuple.
+Fix this by having rxrpc_locate_data() determine the last-packet state of
+the subpacket it's looking at and passing that back to the caller rather
+than having the caller look in the packet header.  The caller then needs to
+cache this in the rxrpc_call struct as rxrpc_locate_data() isn't then
+called again for this packet.
 
-Linux uses a per socket inet generator (inet_id), initialized
-at connection startup with a XOR of 'jiffies' and other
-fields that appear clear on the wire.
-
-Thiemo Nagel pointed that this strategy is a privacy
-concern as this provides 16 bits of entropy to fingerprint
-devices.
-
-Let's switch to a random starting point, this is just as
-good as far as RFC 6864 is concerned and does not leak
-anything critical.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: Thiemo Nagel <tnagel@google.com>
+Fixes: 248f219cb8bc ("rxrpc: Rewrite the data and ack handling code")
+Fixes: e2de6c404898 ("rxrpc: Use info in skbuff instead of reparsing a jumbo packet")
+Signed-off-by: David Howells <dhowells@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dccp/ipv4.c     |    2 +-
- net/ipv4/datagram.c |    2 +-
- net/ipv4/tcp_ipv4.c |    4 ++--
- net/sctp/socket.c   |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ net/rxrpc/ar-internal.h |    1 +
+ net/rxrpc/recvmsg.c     |   18 +++++++++++++-----
+ 2 files changed, 14 insertions(+), 5 deletions(-)
 
---- a/net/dccp/ipv4.c
-+++ b/net/dccp/ipv4.c
-@@ -121,7 +121,7 @@ int dccp_v4_connect(struct sock *sk, str
- 						    inet->inet_daddr,
- 						    inet->inet_sport,
- 						    inet->inet_dport);
--	inet->inet_id = dp->dccps_iss ^ jiffies;
-+	inet->inet_id = prandom_u32();
+--- a/net/rxrpc/ar-internal.h
++++ b/net/rxrpc/ar-internal.h
+@@ -596,6 +596,7 @@ struct rxrpc_call {
+ 	int			debug_id;	/* debug ID for printks */
+ 	unsigned short		rx_pkt_offset;	/* Current recvmsg packet offset */
+ 	unsigned short		rx_pkt_len;	/* Current recvmsg packet len */
++	bool			rx_pkt_last;	/* Current recvmsg packet is last */
  
- 	err = dccp_connect(sk);
- 	rt = NULL;
---- a/net/ipv4/datagram.c
-+++ b/net/ipv4/datagram.c
-@@ -75,7 +75,7 @@ int __ip4_datagram_connect(struct sock *
- 	inet->inet_dport = usin->sin_port;
- 	sk->sk_state = TCP_ESTABLISHED;
- 	sk_set_txhash(sk);
--	inet->inet_id = jiffies;
-+	inet->inet_id = prandom_u32();
+ 	/* Rx/Tx circular buffer, depending on phase.
+ 	 *
+--- a/net/rxrpc/recvmsg.c
++++ b/net/rxrpc/recvmsg.c
+@@ -267,11 +267,13 @@ static int rxrpc_verify_packet(struct rx
+  */
+ static int rxrpc_locate_data(struct rxrpc_call *call, struct sk_buff *skb,
+ 			     u8 *_annotation,
+-			     unsigned int *_offset, unsigned int *_len)
++			     unsigned int *_offset, unsigned int *_len,
++			     bool *_last)
+ {
+ 	struct rxrpc_skb_priv *sp = rxrpc_skb(skb);
+ 	unsigned int offset = sizeof(struct rxrpc_wire_header);
+ 	unsigned int len;
++	bool last = false;
+ 	int ret;
+ 	u8 annotation = *_annotation;
+ 	u8 subpacket = annotation & RXRPC_RX_ANNO_SUBPACKET;
+@@ -281,6 +283,8 @@ static int rxrpc_locate_data(struct rxrp
+ 	len = skb->len - offset;
+ 	if (subpacket < sp->nr_subpackets - 1)
+ 		len = RXRPC_JUMBO_DATALEN;
++	else if (sp->rx_flags & RXRPC_SKB_INCL_LAST)
++		last = true;
  
- 	sk_dst_set(sk, &rt->dst);
- 	err = 0;
---- a/net/ipv4/tcp_ipv4.c
-+++ b/net/ipv4/tcp_ipv4.c
-@@ -245,7 +245,7 @@ int tcp_v4_connect(struct sock *sk, stru
- 						 inet->inet_daddr);
+ 	if (!(annotation & RXRPC_RX_ANNO_VERIFIED)) {
+ 		ret = rxrpc_verify_packet(call, skb, annotation, offset, len);
+@@ -291,6 +295,7 @@ static int rxrpc_locate_data(struct rxrp
+ 
+ 	*_offset = offset;
+ 	*_len = len;
++	*_last = last;
+ 	call->conn->security->locate_data(call, skb, _offset, _len);
+ 	return 0;
+ }
+@@ -309,7 +314,7 @@ static int rxrpc_recvmsg_data(struct soc
+ 	rxrpc_serial_t serial;
+ 	rxrpc_seq_t hard_ack, top, seq;
+ 	size_t remain;
+-	bool last;
++	bool rx_pkt_last;
+ 	unsigned int rx_pkt_offset, rx_pkt_len;
+ 	int ix, copy, ret = -EAGAIN, ret2;
+ 
+@@ -319,6 +324,7 @@ static int rxrpc_recvmsg_data(struct soc
+ 
+ 	rx_pkt_offset = call->rx_pkt_offset;
+ 	rx_pkt_len = call->rx_pkt_len;
++	rx_pkt_last = call->rx_pkt_last;
+ 
+ 	if (call->state >= RXRPC_CALL_SERVER_ACK_REQUEST) {
+ 		seq = call->rx_hard_ack;
+@@ -329,6 +335,7 @@ static int rxrpc_recvmsg_data(struct soc
+ 	/* Barriers against rxrpc_input_data(). */
+ 	hard_ack = call->rx_hard_ack;
+ 	seq = hard_ack + 1;
++
+ 	while (top = smp_load_acquire(&call->rx_top),
+ 	       before_eq(seq, top)
+ 	       ) {
+@@ -356,7 +363,8 @@ static int rxrpc_recvmsg_data(struct soc
+ 		if (rx_pkt_offset == 0) {
+ 			ret2 = rxrpc_locate_data(call, skb,
+ 						 &call->rxtx_annotations[ix],
+-						 &rx_pkt_offset, &rx_pkt_len);
++						 &rx_pkt_offset, &rx_pkt_len,
++						 &rx_pkt_last);
+ 			trace_rxrpc_recvmsg(call, rxrpc_recvmsg_next, seq,
+ 					    rx_pkt_offset, rx_pkt_len, ret2);
+ 			if (ret2 < 0) {
+@@ -396,13 +404,12 @@ static int rxrpc_recvmsg_data(struct soc
+ 		}
+ 
+ 		/* The whole packet has been transferred. */
+-		last = sp->hdr.flags & RXRPC_LAST_PACKET;
+ 		if (!(flags & MSG_PEEK))
+ 			rxrpc_rotate_rx_window(call);
+ 		rx_pkt_offset = 0;
+ 		rx_pkt_len = 0;
+ 
+-		if (last) {
++		if (rx_pkt_last) {
+ 			ASSERTCMP(seq, ==, READ_ONCE(call->rx_top));
+ 			ret = 1;
+ 			goto out;
+@@ -415,6 +422,7 @@ out:
+ 	if (!(flags & MSG_PEEK)) {
+ 		call->rx_pkt_offset = rx_pkt_offset;
+ 		call->rx_pkt_len = rx_pkt_len;
++		call->rx_pkt_last = rx_pkt_last;
  	}
- 
--	inet->inet_id = tp->write_seq ^ jiffies;
-+	inet->inet_id = prandom_u32();
- 
- 	if (tcp_fastopen_defer_connect(sk, &err))
- 		return err;
-@@ -1368,7 +1368,7 @@ struct sock *tcp_v4_syn_recv_sock(const
- 	inet_csk(newsk)->icsk_ext_hdr_len = 0;
- 	if (inet_opt)
- 		inet_csk(newsk)->icsk_ext_hdr_len = inet_opt->opt.optlen;
--	newinet->inet_id = newtp->write_seq ^ jiffies;
-+	newinet->inet_id = prandom_u32();
- 
- 	if (!dst) {
- 		dst = inet_csk_route_child_sock(sk, newsk, req);
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -8136,7 +8136,7 @@ void sctp_copy_sock(struct sock *newsk,
- 	newinet->inet_rcv_saddr = inet->inet_rcv_saddr;
- 	newinet->inet_dport = htons(asoc->peer.port);
- 	newinet->pmtudisc = inet->pmtudisc;
--	newinet->inet_id = asoc->next_tsn ^ jiffies;
-+	newinet->inet_id = prandom_u32();
- 
- 	newinet->uc_ttl = inet->uc_ttl;
- 	newinet->mc_loop = 1;
+ done:
+ 	trace_rxrpc_recvmsg(call, rxrpc_recvmsg_data_return, seq,
 
 
