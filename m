@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 225FFF49FE
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E6CF49B8
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388976AbfKHMGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 07:06:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54338 "EHLO mail.kernel.org"
+        id S2389286AbfKHLlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 06:41:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732686AbfKHLlK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:41:10 -0500
+        id S2389215AbfKHLlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:41:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C720D21D82;
-        Fri,  8 Nov 2019 11:41:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC041222C2;
+        Fri,  8 Nov 2019 11:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213269;
-        bh=rLuchZSaVl6hL2AxWE69LD1xaNk+KTTrNRmLnVGEBPM=;
+        s=default; t=1573213271;
+        bh=PqZZ0bxqXQ0wT7uuBrDv+Tbx5Fn5EsJo8lr5iAdkK4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JFj2lXxav6F9ATeQslynt6WTbtmrfkDbjStAQTfUvm0qIAz9UNGpI5SKb9GRK/N0J
-         1Fc0unH/vnySnTzD90paemqOUHKNIEjyi1AmGmZiVnObuAI7fi7dExOoK6BxRuiVZn
-         JCcmLKbZTW3IHI/n+YAT9RczQQAu+crxQVR0vfb4=
+        b=lZfvzCv6QyGSxjpUjSSkFJevqo4AaZzlC8UtyU8yrUsrYg7m2WZ45Cr14trGjiran
+         /rfBtQ84LVFuXgcZWxOebcnUHOykxicCXVDC3qf3aFtDsbpSCG/ESMv7MC66Y4k8CI
+         p4f3fpyUy9ddvCw2sy6Yi2jlQVmhJPIHtyqu5w2A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Eric W. Biederman" <ebiederm@xmission.com>,
         Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 132/205] signal: Properly deliver SIGILL from uprobes
-Date:   Fri,  8 Nov 2019 06:36:39 -0500
-Message-Id: <20191108113752.12502-132-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 133/205] signal: Properly deliver SIGSEGV from x86 uprobes
+Date:   Fri,  8 Nov 2019 06:36:40 -0500
+Message-Id: <20191108113752.12502-133-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -45,51 +45,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 
-[ Upstream commit 55a3235fc71bf34303e34a95eeee235b2d2a35dd ]
+[ Upstream commit 4a63c1ffd384ebdce40aac9c997dab68379137be ]
 
-For userspace to tell the difference between a random signal and an
-exception, the exception must include siginfo information.
+For userspace to tell the difference between an random signal
+and an exception, the exception must include siginfo information.
 
-Using SEND_SIG_FORCED for SIGILL is thus wrong, and it will result
-in userspace seeing si_code == SI_USER (like a random signal) instead
-of si_code == SI_KERNEL or a more specific si_code as all exceptions
+Using SEND_SIG_FORCED for SIGSEGV is thus wrong, and it will result in
+userspace seeing si_code == SI_USER (like a random signal) instead of
+si_code == SI_KERNEL or a more specific si_code as all exceptions
 deliver.
 
-Therefore replace force_sig_info(SIGILL, SEND_SIG_FORCE, current)
-with force_sig(SIG_ILL, current) which gets this right and is
-shorter and easier to type.
+Therefore replace force_sig_info(SIGSEGV, SEND_SIG_FORCE, current)
+with force_sig(SIG_SEGV, current) which gets this right and is shorter
+and easier to type.
 
-Fixes: 014940bad8e4 ("uprobes/x86: Send SIGILL if arch_uprobe_post_xol() fails")
-Fixes: 0b5256c7f173 ("uprobes: Send SIGILL if handle_trampoline() fails")
+Fixes: 791eca10107f ("uretprobes/x86: Hijack return address")
 Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/uprobes.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/uprobes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index 578d4ac54484f..c173e4131df88 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -1858,7 +1858,7 @@ static void handle_trampoline(struct pt_regs *regs)
+diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+index 9119859ba7871..420aa7d3a2e6b 100644
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -1089,7 +1089,7 @@ arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs
+ 		pr_err("return address clobbered: pid=%d, %%sp=%#lx, %%ip=%#lx\n",
+ 		       current->pid, regs->sp, regs->ip);
  
-  sigill:
- 	uprobe_warn(current, "handle uretprobe, sending SIGILL.");
--	force_sig_info(SIGILL, SEND_SIG_FORCED, current);
-+	force_sig(SIGILL, current);
- 
- }
- 
-@@ -1974,7 +1974,7 @@ static void handle_singlestep(struct uprobe_task *utask, struct pt_regs *regs)
- 
- 	if (unlikely(err)) {
- 		uprobe_warn(current, "execute the probed insn, sending SIGILL.");
--		force_sig_info(SIGILL, SEND_SIG_FORCED, current);
-+		force_sig(SIGILL, current);
+-		force_sig_info(SIGSEGV, SEND_SIG_FORCED, current);
++		force_sig(SIGSEGV, current);
  	}
- }
  
+ 	return -1;
 -- 
 2.20.1
 
