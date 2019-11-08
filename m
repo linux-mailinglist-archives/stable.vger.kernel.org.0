@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5D6F4B08
-	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32711F4B04
+	for <lists+stable@lfdr.de>; Fri,  8 Nov 2019 13:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732582AbfKHLi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 8 Nov 2019 06:38:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51336 "EHLO mail.kernel.org"
+        id S2387812AbfKHMNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 8 Nov 2019 07:13:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732378AbfKHLiZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 8 Nov 2019 06:38:25 -0500
+        id S1732607AbfKHLi1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 8 Nov 2019 06:38:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E82D21D7F;
-        Fri,  8 Nov 2019 11:38:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96266222C2;
+        Fri,  8 Nov 2019 11:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573213105;
-        bh=UuQWW+L4IQqGuH0JRhMtWTxzuWW1bEjd2yHLLq7S33Q=;
+        s=default; t=1573213106;
+        bh=FHM4HVtZVOGP6VKYw1QKxuyGGkLfTjwkJEWM9cdaLps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mnSExosS69sGCRGnfG+W8JiSSuvjHAyDOYilCjs2LIMhx3QL8TUioXWfOdKA6tSkF
-         OLKxXjbKBlyD2LcAW9bXMXkduiXY3t1uQvu7JRkzsRX0+StlAd7kbuk4eyM5B3e4LJ
-         ArMlYGWWbION/e0evk9nqZS0QW4moySLekYS7Oxk=
+        b=KvIj+DkBvmdb5j3T9ZYXQNcEjQHMn+hflBQIhazNhmZZh+RAiFe4GSFTdtJSluzlK
+         90gVNDyQwCOXOfX1l+zdulypMIKI+9fVsex31L8x+pPcoK+kzvbzyiWiyiLRGWVAJh
+         BkNcULp5YY4ZCqyINQ8LtOOYU2ZIPw4J+lCke86Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dedy Lansky <dlansky@codeaurora.org>,
-        Maya Erez <merez@codeaurora.org>,
+Cc:     Sven Eckelmann <sven.eckelmann@openmesh.com>,
         Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, wil6210@qti.qualcomm.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 028/205] wil6210: fix invalid memory access for rx_buff_mgmt debugfs
-Date:   Fri,  8 Nov 2019 06:34:55 -0500
-Message-Id: <20191108113752.12502-28-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 029/205] ath10k: limit available channels via DT ieee80211-freq-limit
+Date:   Fri,  8 Nov 2019 06:34:56 -0500
+Message-Id: <20191108113752.12502-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191108113752.12502-1-sashal@kernel.org>
 References: <20191108113752.12502-1-sashal@kernel.org>
@@ -46,34 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dedy Lansky <dlansky@codeaurora.org>
+From: Sven Eckelmann <sven.eckelmann@openmesh.com>
 
-[ Upstream commit 4405b632e3da839defec966e4b0be44d0c5e3102 ]
+[ Upstream commit 34d5629d2ca89d847b7040762b87964c696c14da ]
 
-Check rx_buff_mgmt is allocated before accessing its internal fields.
+Tri-band devices (1x 2.4GHz + 2x 5GHz) often incorporate special filters in
+the RX and TX path. These filtered channel can in theory still be used by
+the hardware but the signal strength is reduced so much that it makes no
+sense.
 
-Signed-off-by: Dedy Lansky <dlansky@codeaurora.org>
-Signed-off-by: Maya Erez <merez@codeaurora.org>
+There is already a DT property to limit the available channels but ath10k
+has to manually call this functionality to limit the currrently set wiphy
+channels further.
+
+Signed-off-by: Sven Eckelmann <sven.eckelmann@openmesh.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wil6210/debugfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/ath/ath10k/mac.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
-index 51c3330bc316f..ceace95b1595c 100644
---- a/drivers/net/wireless/ath/wil6210/debugfs.c
-+++ b/drivers/net/wireless/ath/wil6210/debugfs.c
-@@ -1263,6 +1263,9 @@ static int wil_rx_buff_mgmt_debugfs_show(struct seq_file *s, void *data)
- 	int num_active;
- 	int num_free;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 1419f9d1505fe..9d033da46ec2e 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -18,6 +18,7 @@
  
-+	if (!rbm->buff_arr)
-+		return -EINVAL;
-+
- 	seq_printf(s, "  size = %zu\n", rbm->size);
- 	seq_printf(s, "  free_list_empty_cnt = %lu\n",
- 		   rbm->free_list_empty_cnt);
+ #include "mac.h"
+ 
++#include <net/cfg80211.h>
+ #include <net/mac80211.h>
+ #include <linux/etherdevice.h>
+ #include <linux/acpi.h>
+@@ -8363,6 +8364,7 @@ int ath10k_mac_register(struct ath10k *ar)
+ 		ar->hw->wiphy->bands[NL80211_BAND_5GHZ] = band;
+ 	}
+ 
++	wiphy_read_of_freq_limits(ar->hw->wiphy);
+ 	ath10k_mac_setup_ht_vht_cap(ar);
+ 
+ 	ar->hw->wiphy->interface_modes =
 -- 
 2.20.1
 
