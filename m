@@ -2,31 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 630D2F67CC
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 07:42:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18887F67C9
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 07:42:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725836AbfKJGmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Nov 2019 01:42:50 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:56032 "EHLO www.linuxtv.org"
+        id S1726582AbfKJGmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Nov 2019 01:42:47 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:55938 "EHLO www.linuxtv.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726586AbfKJGmu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 10 Nov 2019 01:42:50 -0500
+        id S1725836AbfKJGmr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 10 Nov 2019 01:42:47 -0500
 Received: from mchehab by www.linuxtv.org with local (Exim 4.84_2)
         (envelope-from <mchehab@linuxtv.org>)
-        id 1iTgvt-0004x4-BH; Sun, 10 Nov 2019 06:42:45 +0000
+        id 1iTgvt-0004wd-8i; Sun, 10 Nov 2019 06:42:45 +0000
 From:   Mauro Carvalho Chehab <mchehab@kernel.org>
-Date:   Sat, 09 Nov 2019 08:06:27 +0000
-Subject: [git:media_tree/master] media: hantro: Fix picture order count table enable
+Date:   Sat, 09 Nov 2019 08:07:02 +0000
+Subject: [git:media_tree/master] media: vimc: sen: remove unused kthread_sen field
 To:     linuxtv-commits@linuxtv.org
-Cc:     Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Jonas Karlman <jonas@kwiboo.se>, stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Francois Buergisser <fbuergisser@chromium.org>
+Cc:     stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 Mail-followup-to: linux-media@vger.kernel.org
 Forward-to: linux-media@vger.kernel.org
 Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1iTgvt-0004x4-BH@www.linuxtv.org>
+Message-Id: <E1iTgvt-0004wd-8i@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -34,57 +31,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: hantro: Fix picture order count table enable
-Author:  Francois Buergisser <fbuergisser@chromium.org>
-Date:    Tue Oct 29 02:24:48 2019 +0100
+Subject: media: vimc: sen: remove unused kthread_sen field
+Author:  Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Date:    Tue Nov 5 18:53:17 2019 +0100
 
-The picture order count table only makes sense for profiles
-higher than Baseline. This is confirmed by the H.264 specification
-(See 8.2.1 Decoding process for picture order count), which
-clarifies how POC are used for features not present in Baseline.
+The field kthread_sen in the vimc_sen_device is
+not set and used. So remove the field and
+the code that check if it is non NULL
 
-"""
-Picture order counts are used to determine initial picture orderings
-for reference pictures in the decoding of B slices, to represent picture
-order differences between frames or fields for motion vector derivation
-in temporal direct mode, for implicit mode weighted prediction in B slices,
-and for decoder conformance checking.
-"""
-
-As a side note, this change matches various vendors downstream codebases,
-including ChromiumOS and IMX VPU libraries.
-
-Fixes: dea0a82f3d22 ("media: hantro: Add support for H264 decoding on G1")
-Signed-off-by: Francois Buergisser <fbuergisser@chromium.org>
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Tested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 Cc: <stable@vger.kernel.org>      # for v5.4 and up
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 
- drivers/staging/media/hantro/hantro_g1_h264_dec.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/media/platform/vimc/vimc-sensor.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
 ---
 
-diff --git a/drivers/staging/media/hantro/hantro_g1_h264_dec.c b/drivers/staging/media/hantro/hantro_g1_h264_dec.c
-index a1cb18680200..70a6b5b26477 100644
---- a/drivers/staging/media/hantro/hantro_g1_h264_dec.c
-+++ b/drivers/staging/media/hantro/hantro_g1_h264_dec.c
-@@ -34,9 +34,11 @@ static void set_params(struct hantro_ctx *ctx)
- 	reg = G1_REG_DEC_CTRL0_DEC_AXI_WR_ID(0x0);
- 	if (sps->flags & V4L2_H264_SPS_FLAG_MB_ADAPTIVE_FRAME_FIELD)
- 		reg |= G1_REG_DEC_CTRL0_SEQ_MBAFF_E;
--	reg |= G1_REG_DEC_CTRL0_PICORD_COUNT_E;
--	if (sps->profile_idc > 66 && dec_param->nal_ref_idc)
--		reg |= G1_REG_DEC_CTRL0_WRITE_MVS_E;
-+	if (sps->profile_idc > 66) {
-+		reg |= G1_REG_DEC_CTRL0_PICORD_COUNT_E;
-+		if (dec_param->nal_ref_idc)
-+			reg |= G1_REG_DEC_CTRL0_WRITE_MVS_E;
-+	}
+diff --git a/drivers/media/platform/vimc/vimc-sensor.c b/drivers/media/platform/vimc/vimc-sensor.c
+index 25ee89a067f7..32380f504591 100644
+--- a/drivers/media/platform/vimc/vimc-sensor.c
++++ b/drivers/media/platform/vimc/vimc-sensor.c
+@@ -18,7 +18,6 @@ struct vimc_sen_device {
+ 	struct vimc_ent_device ved;
+ 	struct v4l2_subdev sd;
+ 	struct tpg_data tpg;
+-	struct task_struct *kthread_sen;
+ 	u8 *frame;
+ 	/* The active format */
+ 	struct v4l2_mbus_framefmt mbus_format;
+@@ -202,10 +201,6 @@ static int vimc_sen_s_stream(struct v4l2_subdev *sd, int enable)
+ 		const struct vimc_pix_map *vpix;
+ 		unsigned int frame_size;
  
- 	if (!(sps->flags & V4L2_H264_SPS_FLAG_FRAME_MBS_ONLY) &&
- 	    (sps->flags & V4L2_H264_SPS_FLAG_MB_ADAPTIVE_FRAME_FIELD ||
+-		if (vsen->kthread_sen)
+-			/* tpg is already executing */
+-			return 0;
+-
+ 		/* Calculate the frame size */
+ 		vpix = vimc_pix_map_by_code(vsen->mbus_format.code);
+ 		frame_size = vsen->mbus_format.width * vpix->bpp *
