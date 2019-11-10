@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53EDDF62A6
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:44:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7F6AF62B0
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:44:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728574AbfKJCoc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:44:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
+        id S1728672AbfKJCov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:44:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727549AbfKJCob (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:44:31 -0500
+        id S1728656AbfKJCos (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:44:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE29D21848;
-        Sun, 10 Nov 2019 02:44:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7ACF215EA;
+        Sun, 10 Nov 2019 02:44:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353870;
-        bh=8YwN1mIPCq0li5Fv10AaqXAk7tANchOV30SvSfyabI8=;
+        s=default; t=1573353887;
+        bh=YUdWJefQqbJCfgysInUFfykhGjVrzLCnQMM6zBJYnkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JHG3rCPgP6Pk3voZK1r4IQ8tSdJI3+Cf9Z6EkTuM98PvbZStLr/wGO50T7q4gGJyG
-         3sV86Qlvt+nHgse103iyN7x4TufnqgsNOIircR3W6QVlHeGiwSl9lztgQL9ZbUTVyq
-         /Ow/zeAdxIjHwtocmuG0BkoysJYo7FYHbyWfzXjo=
+        b=Vxhm1GP9BfqhIBPvV1WvFlw0B4k5wW2RadfUv2SIIKmBmUCwKMQERhAqdbTpuI4k1
+         0xHgC3Ik8FKG/jkNBaWjJ6k9MG0lXXetLjz2m5XZY+Clmqylgld5A/6aKveu0lRLpK
+         w6GDzp7Qu+99AP2acQoZrZ4UILbWzYpBOokHikAA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Justin Ernst <justin.ernst@hpe.com>, Borislav Petkov <bp@suse.de>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 150/191] EDAC: Raise the maximum number of memory controllers
-Date:   Sat,  9 Nov 2019 21:39:32 -0500
-Message-Id: <20191110024013.29782-150-sashal@kernel.org>
+Cc:     Erel Geron <erelx.geron@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 161/191] iwlwifi: fix non_shared_ant for 22000 devices
+Date:   Sat,  9 Nov 2019 21:39:43 -0500
+Message-Id: <20191110024013.29782-161-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -44,61 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Ernst <justin.ernst@hpe.com>
+From: Erel Geron <erelx.geron@intel.com>
 
-[ Upstream commit 6b58859419554fb824e09cfdd73151a195473cbc ]
+[ Upstream commit a40287727d9b737e183959fd31a4e0c55f312853 ]
 
-We observe an oops in the skx_edac module during boot:
+The non-shared antenna was wrong for 22000 device series.
+Fix it to ANT_B for correct antenna preference by coex in MVM driver.
 
-  EDAC MC0: Giving out device to module skx_edac controller Skylake Socket#0 IMC#0
-  EDAC MC1: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
-  EDAC MC2: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
-  ...
-  EDAC MC13: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
-  EDAC MC14: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
-  EDAC MC15: Giving out device to module skx_edac controller Skylake Socket#1 IMC#1
-  Too many memory controllers: 16
-  EDAC MC: Removed device 0 for skx_edac Skylake Socket#0 IMC#0
-
-We observe there are two memory controllers per socket, with a limit
-of 16. Raise the maximum number of memory controllers from 16 to 2 *
-MAX_NUMNODES (1024).
-
-[ bp: This is just a band-aid fix until we've sorted out the whole issue
-  with the bus_type association and handling in EDAC and can get rid of
-  this arbitrary limit. ]
-
-Signed-off-by: Justin Ernst <justin.ernst@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Russ Anderson <russ.anderson@hpe.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac@vger.kernel.org
-Link: https://lkml.kernel.org/r/20180925143449.284634-1-justin.ernst@hpe.com
+Fixes: e34d975e40ff ("iwlwifi: Add a000 HW family support")
+Signed-off-by: Erel Geron <erelx.geron@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/edac.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/cfg/22000.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/edac.h b/include/linux/edac.h
-index bffb97828ed67..958d69332c1d5 100644
---- a/include/linux/edac.h
-+++ b/include/linux/edac.h
-@@ -17,6 +17,7 @@
- #include <linux/completion.h>
- #include <linux/workqueue.h>
- #include <linux/debugfs.h>
-+#include <linux/numa.h>
- 
- #define EDAC_DEVICE_NAME_LEN	31
- 
-@@ -670,6 +671,6 @@ struct mem_ctl_info {
- /*
-  * Maximum number of memory controllers in the coherent fabric.
-  */
--#define EDAC_MAX_MCS	16
-+#define EDAC_MAX_MCS	2 * MAX_NUMNODES
- 
- #endif
+diff --git a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
+index b4347806a59ed..a0de61aa0feff 100644
+--- a/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
++++ b/drivers/net/wireless/intel/iwlwifi/cfg/22000.c
+@@ -143,7 +143,7 @@ static const struct iwl_ht_params iwl_22000_ht_params = {
+ 	.ucode_api_min = IWL_22000_UCODE_API_MIN,			\
+ 	.led_mode = IWL_LED_RF_STATE,					\
+ 	.nvm_hw_section_num = NVM_HW_SECTION_NUM_FAMILY_22000,		\
+-	.non_shared_ant = ANT_A,					\
++	.non_shared_ant = ANT_B,					\
+ 	.dccm_offset = IWL_22000_DCCM_OFFSET,				\
+ 	.dccm_len = IWL_22000_DCCM_LEN,					\
+ 	.dccm2_offset = IWL_22000_DCCM2_OFFSET,				\
 -- 
 2.20.1
 
