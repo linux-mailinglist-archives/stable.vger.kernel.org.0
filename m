@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FFD5F6240
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:41:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04792F624B
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:42:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727463AbfKJCla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:41:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35844 "EHLO mail.kernel.org"
+        id S1727709AbfKJCmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:42:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727451AbfKJCl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:41:29 -0500
+        id S1727702AbfKJCmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:42:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3795721850;
-        Sun, 10 Nov 2019 02:41:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4AD321924;
+        Sun, 10 Nov 2019 02:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353687;
-        bh=TWMtyGoTPlsTVwTgBV9Um9JUDKWHvmdAk1nWhp7XC/0=;
+        s=default; t=1573353720;
+        bh=1WDmaeQnzHdPuKnUb+DOjRMz6dZ0mYdB0EDJCkGbeH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H8yrPZZ3yKyRct/SVz+z4m6/HLI+ByhdxNiDEB76S0HFs7+c5oUwKQ4Tq3zTLqOmF
-         sHmOCcWSDrIoOXaU1BIrH4ihxMoYLOMBffo4xyKk+mH2JY5aOkloLyGKY3tqjKZxYQ
-         4h//6Onr0lFLvZMro8qeftplQTIX3WrfgyZqqCCQ=
+        b=LA2MbHg7iUZJ/GS5AgBWqYX8HE2UNImI/XBkSAZmKB2Xoxi1lCIJxm6y6OU6QNdbq
+         4DYq8tHaYkHrKVMW3xSySFaL/tqOPfVw94iKVAMI7S4nHPsGXE+/vPbCk+55vY9sWO
+         nzwft1Glb0QfuNu6K+eN3Rk64Mw3FBFsCDgSHzSo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 043/191] net: broadcom: fix return type of ndo_start_xmit function
-Date:   Sat,  9 Nov 2019 21:37:45 -0500
-Message-Id: <20191110024013.29782-43-sashal@kernel.org>
+Cc:     Loic Poulain <loic.poulain@linaro.org>,
+        Peter Chen <peter.chen@nxp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 053/191] usb: chipidea: Fix otg event handler
+Date:   Sat,  9 Nov 2019 21:37:55 -0500
+Message-Id: <20191110024013.29782-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -43,67 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 0c13b8d1aee87c35a2fbc1d85a1f766227cf54b5 ]
+[ Upstream commit 59739131e0ca06db7560f9073fff2fb83f6bc2a5 ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+At OTG work running time, it's possible that several events need to be
+addressed (e.g. ID and VBUS events). The current implementation handles
+only one event at a time which leads to ignoring the other one. Fix it.
 
-Found by coccinelle.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcm63xx_enet.c | 5 +++--
- drivers/net/ethernet/broadcom/sb1250-mac.c   | 4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/chipidea/otg.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcm63xx_enet.c b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-index 897302adc38ec..50f8a377596e1 100644
---- a/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-+++ b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-@@ -568,12 +568,13 @@ static irqreturn_t bcm_enet_isr_dma(int irq, void *dev_id)
- /*
-  * tx request callback
-  */
--static int bcm_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+bcm_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct bcm_enet_priv *priv;
- 	struct bcm_enet_desc *desc;
- 	u32 len_stat;
--	int ret;
-+	netdev_tx_t ret;
+diff --git a/drivers/usb/chipidea/otg.c b/drivers/usb/chipidea/otg.c
+index db4ceffcf2a61..f25d4827fd49c 100644
+--- a/drivers/usb/chipidea/otg.c
++++ b/drivers/usb/chipidea/otg.c
+@@ -203,14 +203,17 @@ static void ci_otg_work(struct work_struct *work)
+ 	}
  
- 	priv = netdev_priv(dev);
+ 	pm_runtime_get_sync(ci->dev);
++
+ 	if (ci->id_event) {
+ 		ci->id_event = false;
+ 		ci_handle_id_switch(ci);
+-	} else if (ci->b_sess_valid_event) {
++	}
++
++	if (ci->b_sess_valid_event) {
+ 		ci->b_sess_valid_event = false;
+ 		ci_handle_vbus_change(ci);
+-	} else
+-		dev_err(ci->dev, "unexpected event occurs at %s\n", __func__);
++	}
++
+ 	pm_runtime_put_sync(ci->dev);
  
-diff --git a/drivers/net/ethernet/broadcom/sb1250-mac.c b/drivers/net/ethernet/broadcom/sb1250-mac.c
-index ef4a0c326736d..7e3f9642ba6c5 100644
---- a/drivers/net/ethernet/broadcom/sb1250-mac.c
-+++ b/drivers/net/ethernet/broadcom/sb1250-mac.c
-@@ -299,7 +299,7 @@ static enum sbmac_state sbmac_set_channel_state(struct sbmac_softc *,
- static void sbmac_promiscuous_mode(struct sbmac_softc *sc, int onoff);
- static uint64_t sbmac_addr2reg(unsigned char *ptr);
- static irqreturn_t sbmac_intr(int irq, void *dev_instance);
--static int sbmac_start_tx(struct sk_buff *skb, struct net_device *dev);
-+static netdev_tx_t sbmac_start_tx(struct sk_buff *skb, struct net_device *dev);
- static void sbmac_setmulti(struct sbmac_softc *sc);
- static int sbmac_init(struct platform_device *pldev, long long base);
- static int sbmac_set_speed(struct sbmac_softc *s, enum sbmac_speed speed);
-@@ -2028,7 +2028,7 @@ static irqreturn_t sbmac_intr(int irq,void *dev_instance)
-  *  Return value:
-  *  	   nothing
-  ********************************************************************* */
--static int sbmac_start_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t sbmac_start_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct sbmac_softc *sc = netdev_priv(dev);
- 	unsigned long flags;
+ 	enable_irq(ci->irq);
 -- 
 2.20.1
 
