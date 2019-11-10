@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2B2AF664F
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:13:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB564F6651
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728045AbfKJCmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:42:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
+        id S1728062AbfKJCmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:42:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728036AbfKJCmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:42:51 -0500
+        id S1727974AbfKJCmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:42:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84EFF21019;
-        Sun, 10 Nov 2019 02:42:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9CC721882;
+        Sun, 10 Nov 2019 02:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353770;
-        bh=ChvYNTCoC5kgVm4lG/S0gWOv6jx+z6gpAQ2QopclRSE=;
+        s=default; t=1573353771;
+        bh=5ZDLL2jzO0bYUJZZV6wHwNTMpEYiGBSQOV5StXzn/1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mFTqGLy3eDUgCnPP4yDpyE/aILkCrACwX0sK7tnUjR5qb7EH4opBGleQo5HF71OFA
-         dhBcqMKWliRHGGvVZScNhIw2E+apNQc9LugWI5t4+Wp5VhqNQc0D80rkWzHnC4HtiR
-         epJAPCEV25clgDFiWtlwBOsz5D76jUlmHhx9FPFQ=
+        b=OZqIEXh01Redyj5gTHP/XPqjaA3ZcqVbfmoOj7zu5enkShekz80JENK06SkzXqPCQ
+         jYAPTuTedvk74t6jHXmO+9nKdmdk7Z5tpxC93EsNTFhM8dxRgOXWPLVqi3tiJSGbEy
+         EcRaTHnwDA2vdaG6aVIgzw+lxXXMNTyOs3Njdb2M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <keith.busch@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sinan Kaya <okaya@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        linux-pci@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 081/191] PCI/ERR: Use slot reset if available
-Date:   Sat,  9 Nov 2019 21:38:23 -0500
-Message-Id: <20191110024013.29782-81-sashal@kernel.org>
+Cc:     Prashant Bhole <bhole_prashant_q7@lab.ntt.co.jp>,
+        Song Liu <songliubraving@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 082/191] samples/bpf: fix compilation failure
+Date:   Sat,  9 Nov 2019 21:38:24 -0500
+Message-Id: <20191110024013.29782-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -44,143 +45,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <keith.busch@intel.com>
+From: Prashant Bhole <bhole_prashant_q7@lab.ntt.co.jp>
 
-[ Upstream commit c4eed62a214330908eec11b0dc170d34fa50b412 ]
+[ Upstream commit 32c009798385ce21080beaa87a9b95faad3acd1e ]
 
-The secondary bus reset may have link side effects that a hotplug capable
-port may incorrectly react to.  Use the slot specific reset for hotplug
-ports, fixing the undesirable link down-up handling during error
-recovering.
+following commit:
+commit d58e468b1112 ("flow_dissector: implements flow dissector BPF hook")
+added struct bpf_flow_keys which conflicts with the struct with
+same name in sockex2_kern.c and sockex3_kern.c
 
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-[bhelgaas: fold in
-https://lore.kernel.org/linux-pci/20180926152326.14821-1-keith.busch@intel.com
-for issue reported by Stephen Rothwell <sfr@canb.auug.org.au>]
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Sinan Kaya <okaya@kernel.org>
+similar to commit:
+commit 534e0e52bc23 ("samples/bpf: fix a compilation failure")
+we tried the rename it "flow_keys" but it also conflicted with struct
+having same name in include/net/flow_dissector.h. Hence renaming the
+struct to "flow_key_record". Also, this commit doesn't fix the
+compilation error completely because the similar struct is present in
+sockex3_kern.c. Hence renaming it in both files sockex3_user.c and
+sockex3_kern.c
+
+Signed-off-by: Prashant Bhole <bhole_prashant_q7@lab.ntt.co.jp>
+Acked-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c      | 37 +++++++++++++++++++++++++++++++++++++
- drivers/pci/pci.h      |  2 ++
- drivers/pci/pcie/aer.c |  2 +-
- drivers/pci/pcie/err.c |  2 +-
- drivers/pci/slot.c     |  1 -
- 5 files changed, 41 insertions(+), 3 deletions(-)
+ samples/bpf/sockex2_kern.c | 11 ++++++-----
+ samples/bpf/sockex3_kern.c |  8 ++++----
+ samples/bpf/sockex3_user.c |  4 ++--
+ 3 files changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 2baf1f82f8933..c9f51fc24563c 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -35,6 +35,8 @@
- #include <linux/aer.h>
- #include "pci.h"
- 
-+DEFINE_MUTEX(pci_slot_mutex);
-+
- const char *pci_power_names[] = {
- 	"error", "D0", "D1", "D2", "D3hot", "D3cold", "unknown",
+diff --git a/samples/bpf/sockex2_kern.c b/samples/bpf/sockex2_kern.c
+index f58acfc925561..f2f9dbc021b0d 100644
+--- a/samples/bpf/sockex2_kern.c
++++ b/samples/bpf/sockex2_kern.c
+@@ -14,7 +14,7 @@ struct vlan_hdr {
+ 	__be16 h_vlan_encapsulated_proto;
  };
-@@ -5191,6 +5193,41 @@ static int pci_bus_reset(struct pci_bus *bus, int probe)
- 	return ret;
+ 
+-struct bpf_flow_keys {
++struct flow_key_record {
+ 	__be32 src;
+ 	__be32 dst;
+ 	union {
+@@ -59,7 +59,7 @@ static inline __u32 ipv6_addr_hash(struct __sk_buff *ctx, __u64 off)
  }
  
-+/**
-+ * pci_bus_error_reset - reset the bridge's subordinate bus
-+ * @bridge: The parent device that connects to the bus to reset
-+ *
-+ * This function will first try to reset the slots on this bus if the method is
-+ * available. If slot reset fails or is not available, this will fall back to a
-+ * secondary bus reset.
-+ */
-+int pci_bus_error_reset(struct pci_dev *bridge)
-+{
-+	struct pci_bus *bus = bridge->subordinate;
-+	struct pci_slot *slot;
-+
-+	if (!bus)
-+		return -ENOTTY;
-+
-+	mutex_lock(&pci_slot_mutex);
-+	if (list_empty(&bus->slots))
-+		goto bus_reset;
-+
-+	list_for_each_entry(slot, &bus->slots, list)
-+		if (pci_probe_reset_slot(slot))
-+			goto bus_reset;
-+
-+	list_for_each_entry(slot, &bus->slots, list)
-+		if (pci_slot_reset(slot, 0))
-+			goto bus_reset;
-+
-+	mutex_unlock(&pci_slot_mutex);
-+	return 0;
-+bus_reset:
-+	mutex_unlock(&pci_slot_mutex);
-+	return pci_bus_reset(bridge->subordinate, 0);
-+}
-+
- /**
-  * pci_probe_reset_bus - probe whether a PCI bus can be reset
-  * @bus: PCI bus to probe
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index ab25752f00d96..e9ede82ee2c25 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -35,6 +35,7 @@ int pci_mmap_fits(struct pci_dev *pdev, int resno, struct vm_area_struct *vmai,
- 
- int pci_probe_reset_function(struct pci_dev *dev);
- int pci_bridge_secondary_bus_reset(struct pci_dev *dev);
-+int pci_bus_error_reset(struct pci_dev *dev);
- 
- /**
-  * struct pci_platform_pm_ops - Firmware PM callbacks
-@@ -136,6 +137,7 @@ static inline void pci_remove_legacy_files(struct pci_bus *bus) { return; }
- 
- /* Lock for read/write access to pci device and bus lists */
- extern struct rw_semaphore pci_bus_sem;
-+extern struct mutex pci_slot_mutex;
- 
- extern raw_spinlock_t pci_lock;
- 
-diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
-index 5c3ea7254c6ae..1563e22600eca 100644
---- a/drivers/pci/pcie/aer.c
-+++ b/drivers/pci/pcie/aer.c
-@@ -1528,7 +1528,7 @@ static pci_ers_result_t aer_root_reset(struct pci_dev *dev)
- 	reg32 &= ~ROOT_PORT_INTR_ON_MESG_MASK;
- 	pci_write_config_dword(dev, pos + PCI_ERR_ROOT_COMMAND, reg32);
- 
--	rc = pci_bridge_secondary_bus_reset(dev);
-+	rc = pci_bus_error_reset(dev);
- 	pci_printk(KERN_DEBUG, dev, "Root Port link has been reset\n");
- 
- 	/* Clear Root Error Status */
-diff --git a/drivers/pci/pcie/err.c b/drivers/pci/pcie/err.c
-index 708fd3a0d6466..12c1205e1d804 100644
---- a/drivers/pci/pcie/err.c
-+++ b/drivers/pci/pcie/err.c
-@@ -177,7 +177,7 @@ static pci_ers_result_t default_reset_link(struct pci_dev *dev)
+ static inline __u64 parse_ip(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_proto,
+-			     struct bpf_flow_keys *flow)
++			     struct flow_key_record *flow)
  {
- 	int rc;
+ 	__u64 verlen;
  
--	rc = pci_bridge_secondary_bus_reset(dev);
-+	rc = pci_bus_error_reset(dev);
- 	pci_printk(KERN_DEBUG, dev, "downstream link has been reset\n");
- 	return rc ? PCI_ERS_RESULT_DISCONNECT : PCI_ERS_RESULT_RECOVERED;
+@@ -83,7 +83,7 @@ static inline __u64 parse_ip(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_proto
  }
-diff --git a/drivers/pci/slot.c b/drivers/pci/slot.c
-index e634229ece895..a32897f83ee51 100644
---- a/drivers/pci/slot.c
-+++ b/drivers/pci/slot.c
-@@ -14,7 +14,6 @@
  
- struct kset *pci_slots_kset;
- EXPORT_SYMBOL_GPL(pci_slots_kset);
--static DEFINE_MUTEX(pci_slot_mutex);
+ static inline __u64 parse_ipv6(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_proto,
+-			       struct bpf_flow_keys *flow)
++			       struct flow_key_record *flow)
+ {
+ 	*ip_proto = load_byte(skb,
+ 			      nhoff + offsetof(struct ipv6hdr, nexthdr));
+@@ -96,7 +96,8 @@ static inline __u64 parse_ipv6(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_pro
+ 	return nhoff;
+ }
  
- static ssize_t pci_slot_attr_show(struct kobject *kobj,
- 					struct attribute *attr, char *buf)
+-static inline bool flow_dissector(struct __sk_buff *skb, struct bpf_flow_keys *flow)
++static inline bool flow_dissector(struct __sk_buff *skb,
++				  struct flow_key_record *flow)
+ {
+ 	__u64 nhoff = ETH_HLEN;
+ 	__u64 ip_proto;
+@@ -198,7 +199,7 @@ struct bpf_map_def SEC("maps") hash_map = {
+ SEC("socket2")
+ int bpf_prog2(struct __sk_buff *skb)
+ {
+-	struct bpf_flow_keys flow = {};
++	struct flow_key_record flow = {};
+ 	struct pair *value;
+ 	u32 key;
+ 
+diff --git a/samples/bpf/sockex3_kern.c b/samples/bpf/sockex3_kern.c
+index 95907f8d2b17d..c527b57d3ec8a 100644
+--- a/samples/bpf/sockex3_kern.c
++++ b/samples/bpf/sockex3_kern.c
+@@ -61,7 +61,7 @@ struct vlan_hdr {
+ 	__be16 h_vlan_encapsulated_proto;
+ };
+ 
+-struct bpf_flow_keys {
++struct flow_key_record {
+ 	__be32 src;
+ 	__be32 dst;
+ 	union {
+@@ -88,7 +88,7 @@ static inline __u32 ipv6_addr_hash(struct __sk_buff *ctx, __u64 off)
+ }
+ 
+ struct globals {
+-	struct bpf_flow_keys flow;
++	struct flow_key_record flow;
+ };
+ 
+ struct bpf_map_def SEC("maps") percpu_map = {
+@@ -114,14 +114,14 @@ struct pair {
+ 
+ struct bpf_map_def SEC("maps") hash_map = {
+ 	.type = BPF_MAP_TYPE_HASH,
+-	.key_size = sizeof(struct bpf_flow_keys),
++	.key_size = sizeof(struct flow_key_record),
+ 	.value_size = sizeof(struct pair),
+ 	.max_entries = 1024,
+ };
+ 
+ static void update_stats(struct __sk_buff *skb, struct globals *g)
+ {
+-	struct bpf_flow_keys key = g->flow;
++	struct flow_key_record key = g->flow;
+ 	struct pair *value;
+ 
+ 	value = bpf_map_lookup_elem(&hash_map, &key);
+diff --git a/samples/bpf/sockex3_user.c b/samples/bpf/sockex3_user.c
+index 22f74d0e14934..9d02e0404719a 100644
+--- a/samples/bpf/sockex3_user.c
++++ b/samples/bpf/sockex3_user.c
+@@ -13,7 +13,7 @@
+ #define PARSE_IP_PROG_FD (prog_fd[0])
+ #define PROG_ARRAY_FD (map_fd[0])
+ 
+-struct flow_keys {
++struct flow_key_record {
+ 	__be32 src;
+ 	__be32 dst;
+ 	union {
+@@ -64,7 +64,7 @@ int main(int argc, char **argv)
+ 	(void) f;
+ 
+ 	for (i = 0; i < 5; i++) {
+-		struct flow_keys key = {}, next_key;
++		struct flow_key_record key = {}, next_key;
+ 		struct pair value;
+ 
+ 		sleep(1);
 -- 
 2.20.1
 
