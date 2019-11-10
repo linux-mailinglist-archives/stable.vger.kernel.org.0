@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2CE3F64A5
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA93EF64A7
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbfKJCto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:49:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59784 "EHLO mail.kernel.org"
+        id S1728042AbfKJC4m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:56:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729519AbfKJCto (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:49:44 -0500
+        id S1729531AbfKJCtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:49:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B564722573;
-        Sun, 10 Nov 2019 02:49:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B7C822595;
+        Sun, 10 Nov 2019 02:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354183;
-        bh=eEownlkPfVu13wGtnwr3XoSC/zxbkHiIhTahBXw1/Cg=;
+        s=default; t=1573354184;
+        bh=rYpbs0dKw7NuXQPuiS1JlwOkFwEBEGYINd5c/qDq/JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C/2aiT0YRy8R1zU5VSsZLidIiRuJ0aYL9WDdWSVo7QsSQy/9y+Oeg31PCxp+GwCJO
-         hbbowKRaY4ZE+h3rryLdaF7AmXbhx923zyLDis/gEfZ3PPZfTbL4cy+3T9XWfIG11y
-         zaLZjV2uY+tFbkic9tb/Iz1ZNujcFajrSXQqbDrc=
+        b=1wOdY7priKmOwnQsCIxsz7B3RGXOtXrVCNR0FGfoRpe49GkA/1QPtLweJYuLqP29u
+         8M/FgNKjcWLdVvrKo2Y9v3JrTpaag895fpC84+3GpCeA/BeZoQznogCa+KTg+S8LWP
+         bvWjnoBjafZDIvn+hEs7rzGvyNCrhSq/LqCjHe7M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 32/66] media: davinci: Fix implicit enum conversion warning
-Date:   Sat,  9 Nov 2019 21:48:11 -0500
-Message-Id: <20191110024846.32598-32-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 33/66] usb: gadget: uvc: configfs: Drop leaked references to config items
+Date:   Sat,  9 Nov 2019 21:48:12 -0500
+Message-Id: <20191110024846.32598-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024846.32598-1-sashal@kernel.org>
 References: <20191110024846.32598-1-sashal@kernel.org>
@@ -46,45 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 4158757395b300b6eb308fc20b96d1d231484413 ]
+[ Upstream commit 86f3daed59bceb4fa7981d85e89f63ebbae1d561 ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+Some of the .allow_link() and .drop_link() operations implementations
+call config_group_find_item() and then leak the reference to the
+returned item. Fix this by dropping those references where needed.
 
-drivers/media/platform/davinci/vpbe_display.c:524:24: warning: implicit
-conversion from enumeration type 'enum osd_v_exp_ratio' to different
-enumeration type 'enum osd_h_exp_ratio' [-Wenum-conversion]
-                        layer_info->h_exp = V_EXP_6_OVER_5;
-                                          ~ ^~~~~~~~~~~~~~
-1 warning generated.
-
-This appears to be a copy and paste error judging from the couple of
-lines directly above this statement and the way that height is handled
-in the if block above this one.
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/vpbe_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_configfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
-index a9bc0175e4d3d..c839003953a74 100644
---- a/drivers/media/platform/davinci/vpbe_display.c
-+++ b/drivers/media/platform/davinci/vpbe_display.c
-@@ -518,7 +518,7 @@ vpbe_disp_calculate_scale_factor(struct vpbe_display *disp_dev,
- 		else if (v_scale == 4)
- 			layer_info->v_zoom = ZOOM_X4;
- 		if (v_exp)
--			layer_info->h_exp = V_EXP_6_OVER_5;
-+			layer_info->v_exp = V_EXP_6_OVER_5;
- 	} else {
- 		/* no scaling, only cropping. Set display area to crop area */
- 		cfg->ysize = expected_ysize;
+diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
+index d7dcd39fe12cb..3803dda54666b 100644
+--- a/drivers/usb/gadget/function/uvc_configfs.c
++++ b/drivers/usb/gadget/function/uvc_configfs.c
+@@ -543,6 +543,7 @@ static int uvcg_control_class_allow_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ 	return ret;
+ }
+@@ -584,6 +585,7 @@ static int uvcg_control_class_drop_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ 	return ret;
+ }
+@@ -2047,6 +2049,7 @@ static int uvcg_streaming_class_allow_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ 	return ret;
+ }
+@@ -2091,6 +2094,7 @@ static int uvcg_streaming_class_drop_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ 	return ret;
+ }
 -- 
 2.20.1
 
