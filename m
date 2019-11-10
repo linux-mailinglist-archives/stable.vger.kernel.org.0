@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1DCF6424
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:58:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36E32F6452
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:59:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727883AbfKJC5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:57:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47262 "EHLO mail.kernel.org"
+        id S1729852AbfKJC6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:58:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729411AbfKJC4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:56:48 -0500
+        id S1729382AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:56:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 303D82256C;
-        Sun, 10 Nov 2019 02:48:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82C582256E;
+        Sun, 10 Nov 2019 02:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354117;
-        bh=6A8AMzApxeD633JBTo2GcM4Q0z+6kicVCh4alMGaeGo=;
+        s=default; t=1573354119;
+        bh=Y73+dY1Y0k2XuM4+cKQsdic8Xpu6IH+WkIG2UhOnRI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZjaBEQ9ZgqYfScvNWKnHhnt8vYWTtTplqj3ZEDiyRBeCgOW/+YfOOZZj2qhRIRbH
-         DMnTwb0HkGa0eFdZdOQKLCa1N4++qS71jxVX7SZZvmEh2s4WQlepAjJgtMiK3j3PZx
-         r1xhOl71tXILjrUARig8yg3m+acREg8+nivlauEY=
+        b=A0JtwvucN9trG3O7QaeDTHJlk/2x0aVsqN56Zhj7y6YgPdxewMnnFYwFxkKQO1iwr
+         gpaq9GVb2H+M2MEfe01+v7zN/7VwR5a3VANx/ii+aqCm6rS5CDdraLgA7cmRu6LS1t
+         3xo8G/BJ7XmnOEqCuD8i9+kn0QJIGRnOO+bK2Znw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tan Hu <tan.hu@zte.com.cn>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 105/109] netfilter: masquerade: don't flush all conntracks if only one address deleted on device
-Date:   Sat,  9 Nov 2019 21:45:37 -0500
-Message-Id: <20191110024541.31567-105-sashal@kernel.org>
+Cc:     Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 107/109] fuse: use READ_ONCE on congestion_threshold and max_background
+Date:   Sat,  9 Nov 2019 21:45:39 -0500
+Message-Id: <20191110024541.31567-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -45,124 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tan Hu <tan.hu@zte.com.cn>
+From: Kirill Tkhai <ktkhai@virtuozzo.com>
 
-[ Upstream commit 097f95d319f817e651bd51f8846aced92a55a6a1 ]
+[ Upstream commit 2a23f2b8adbe4bd584f936f7ac17a99750eed9d7 ]
 
-We configured iptables as below, which only allowed incoming data on
-established connections:
+Since they are of unsigned int type, it's allowed to read them
+unlocked during reporting to userspace. Let's underline this fact
+with READ_ONCE() macroses.
 
-iptables -t mangle -A PREROUTING -m state --state ESTABLISHED -j ACCEPT
-iptables -t mangle -P PREROUTING DROP
-
-When deleting a secondary address, current masquerade implements would
-flush all conntracks on this device. All the established connections on
-primary address also be deleted, then subsequent incoming data on the
-connections would be dropped wrongly because it was identified as NEW
-connection.
-
-So when an address was delete, it should only flush connections related
-with the address.
-
-Signed-off-by: Tan Hu <tan.hu@zte.com.cn>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/netfilter/nf_nat_masquerade_ipv4.c | 22 ++++++++++++++++++---
- net/ipv6/netfilter/nf_nat_masquerade_ipv6.c | 19 +++++++++++++++---
- 2 files changed, 35 insertions(+), 6 deletions(-)
+ fs/fuse/control.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c b/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c
-index 0c366aad89cb4..b531fe204323d 100644
---- a/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c
-+++ b/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c
-@@ -105,12 +105,26 @@ static int masq_device_event(struct notifier_block *this,
- 	return NOTIFY_DONE;
- }
+diff --git a/fs/fuse/control.c b/fs/fuse/control.c
+index 5be0339dcceb2..42bed87dd5ea9 100644
+--- a/fs/fuse/control.c
++++ b/fs/fuse/control.c
+@@ -107,7 +107,7 @@ static ssize_t fuse_conn_max_background_read(struct file *file,
+ 	if (!fc)
+ 		return 0;
  
-+static int inet_cmp(struct nf_conn *ct, void *ptr)
-+{
-+	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
-+	struct net_device *dev = ifa->ifa_dev->dev;
-+	struct nf_conntrack_tuple *tuple;
-+
-+	if (!device_cmp(ct, (void *)(long)dev->ifindex))
-+		return 0;
-+
-+	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
-+
-+	return ifa->ifa_address == tuple->dst.u3.ip;
-+}
-+
- static int masq_inet_event(struct notifier_block *this,
- 			   unsigned long event,
- 			   void *ptr)
- {
- 	struct in_device *idev = ((struct in_ifaddr *)ptr)->ifa_dev;
--	struct netdev_notifier_info info;
-+	struct net *net = dev_net(idev->dev);
+-	val = fc->max_background;
++	val = READ_ONCE(fc->max_background);
+ 	fuse_conn_put(fc);
  
- 	/* The masq_dev_notifier will catch the case of the device going
- 	 * down.  So if the inetdev is dead and being destroyed we have
-@@ -120,8 +134,10 @@ static int masq_inet_event(struct notifier_block *this,
- 	if (idev->dead)
- 		return NOTIFY_DONE;
+ 	return fuse_conn_limit_read(file, buf, len, ppos, val);
+@@ -144,7 +144,7 @@ static ssize_t fuse_conn_congestion_threshold_read(struct file *file,
+ 	if (!fc)
+ 		return 0;
  
--	netdev_notifier_info_init(&info, idev->dev);
--	return masq_device_event(this, event, &info);
-+	if (event == NETDEV_DOWN)
-+		nf_ct_iterate_cleanup_net(net, inet_cmp, ptr, 0, 0);
-+
-+	return NOTIFY_DONE;
- }
+-	val = fc->congestion_threshold;
++	val = READ_ONCE(fc->congestion_threshold);
+ 	fuse_conn_put(fc);
  
- static struct notifier_block masq_dev_notifier = {
-diff --git a/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c b/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c
-index 98f61fcb91088..b0f3745d1bee9 100644
---- a/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c
-+++ b/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c
-@@ -88,18 +88,30 @@ static struct notifier_block masq_dev_notifier = {
- struct masq_dev_work {
- 	struct work_struct work;
- 	struct net *net;
-+	struct in6_addr addr;
- 	int ifindex;
- };
- 
-+static int inet_cmp(struct nf_conn *ct, void *work)
-+{
-+	struct masq_dev_work *w = (struct masq_dev_work *)work;
-+	struct nf_conntrack_tuple *tuple;
-+
-+	if (!device_cmp(ct, (void *)(long)w->ifindex))
-+		return 0;
-+
-+	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
-+
-+	return ipv6_addr_equal(&w->addr, &tuple->dst.u3.in6);
-+}
-+
- static void iterate_cleanup_work(struct work_struct *work)
- {
- 	struct masq_dev_work *w;
--	long index;
- 
- 	w = container_of(work, struct masq_dev_work, work);
- 
--	index = w->ifindex;
--	nf_ct_iterate_cleanup_net(w->net, device_cmp, (void *)index, 0, 0);
-+	nf_ct_iterate_cleanup_net(w->net, inet_cmp, (void *)w, 0, 0);
- 
- 	put_net(w->net);
- 	kfree(w);
-@@ -148,6 +160,7 @@ static int masq_inet_event(struct notifier_block *this,
- 		INIT_WORK(&w->work, iterate_cleanup_work);
- 		w->ifindex = dev->ifindex;
- 		w->net = net;
-+		w->addr = ifa->addr;
- 		schedule_work(&w->work);
- 
- 		return NOTIFY_DONE;
+ 	return fuse_conn_limit_read(file, buf, len, ppos, val);
 -- 
 2.20.1
 
