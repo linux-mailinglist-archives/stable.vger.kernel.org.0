@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E8FEF64CB
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:02:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0DEFF64BD
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:02:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729446AbfKJCt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:49:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58706 "EHLO mail.kernel.org"
+        id S1729437AbfKJDCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:02:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729443AbfKJCt1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:49:27 -0500
+        id S1729457AbfKJCtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:49:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E55FF22582;
-        Sun, 10 Nov 2019 02:49:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DF7322583;
+        Sun, 10 Nov 2019 02:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354166;
-        bh=aVKmmzuDZ5QTQRCW128cpPdiooGGRAKbQA6riTvUBew=;
+        s=default; t=1573354170;
+        bh=DvC0D0QxehONCjbsilXKY7Bm0ptoTdza56kz4LCrfTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aiXePIOc5+cZRgZIxrOeJ6Ap3RoFpUv2qZHOeCRTaNIsgtW5iRoVThC7mT/5YMVez
-         y8oWFAxhC6za0ma1987nr7FxeCrRXJLdk4NNEfqMunLWiR2xM4LrZtRr6V486hTwJW
-         cissVaaVuY/TyMKryogOKE56/JRwSzpk/dRZbkxM=
+        b=iMatkWaEJxsWIteDS4JKfnoQ9S5mTOGyNPJL4QQl9Y2wjA7hOJk2mRwos4NK54YQJ
+         wPbnCgxhNKEgDw+tgHINXHUFOcoNIeOBB0yAHzud3Pr6C4Nt3H/Sw/CJGrppnheazO
+         NrV1XxAL6arqPIWgZzZQAlqTHH7c63de29GvDbaA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 23/66] spi: pic32: Use proper enum in dmaengine_prep_slave_rg
-Date:   Sat,  9 Nov 2019 21:48:02 -0500
-Message-Id: <20191110024846.32598-23-sashal@kernel.org>
+Cc:     Rob Herring <robh@kernel.org>, Jason Cooper <jason@lakedaemon.net>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+        Gregory Clement <gregory.clement@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 25/66] ARM: dts: marvell: Fix SPI and I2C bus warnings
+Date:   Sat,  9 Nov 2019 21:48:04 -0500
+Message-Id: <20191110024846.32598-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024846.32598-1-sashal@kernel.org>
 References: <20191110024846.32598-1-sashal@kernel.org>
@@ -44,57 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 8cfde7847d5ed0bb77bace41519572963e43cd17 ]
+[ Upstream commit cf680cc5251487b9a39919c3cda31a108af19cf8 ]
 
-Clang warns when one enumerated type is converted implicitly to another:
+dtc has new checks for I2C and SPI buses. Fix the warnings in node names
+and unit-addresses.
 
-drivers/spi/spi-pic32.c:323:8: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-                                          DMA_FROM_DEVICE,
-                                          ^~~~~~~~~~~~~~~
-drivers/spi/spi-pic32.c:333:8: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-                                          DMA_TO_DEVICE,
-                                          ^~~~~~~~~~~~~
-2 warnings generated.
+arch/arm/boot/dts/dove-cubox.dtb: Warning (i2c_bus_reg): /i2c-mux/i2c@0/clock-generator: I2C bus unit address format error, expected "60"
+arch/arm/boot/dts/dove-cubox-es.dtb: Warning (i2c_bus_reg): /i2c-mux/i2c@0/clock-generator: I2C bus unit address format error, expected "60"
+arch/arm/boot/dts/dove-cubox.dtb: Warning (spi_bus_bridge): /mbus/internal-regs/spi-ctrl@10600: node name for SPI buses should be 'spi'
+arch/arm/boot/dts/dove-cubox-es.dtb: Warning (spi_bus_bridge): /mbus/internal-regs/spi-ctrl@10600: node name for SPI buses should be 'spi'
+arch/arm/boot/dts/dove-dove-db.dtb: Warning (spi_bus_bridge): /mbus/internal-regs/spi-ctrl@10600: node name for SPI buses should be 'spi'
+arch/arm/boot/dts/dove-sbc-a510.dtb: Warning (spi_bus_bridge): /mbus/internal-regs/spi-ctrl@10600: node name for SPI buses should be 'spi'
+arch/arm/boot/dts/dove-sbc-a510.dtb: Warning (spi_bus_bridge): /mbus/internal-regs/spi-ctrl@14600: node name for SPI buses should be 'spi'
+arch/arm/boot/dts/orion5x-kuroboxpro.dtb: Warning (i2c_bus_reg): /soc/internal-regs/i2c@11000/rtc: I2C bus unit address format error, expected "32"
+arch/arm/boot/dts/orion5x-linkstation-lschl.dtb: Warning (i2c_bus_reg): /soc/internal-regs/i2c@11000/rtc: I2C bus unit address format error, expected "32"
+arch/arm/boot/dts/orion5x-linkstation-lsgl.dtb: Warning (i2c_bus_reg): /soc/internal-regs/i2c@11000/rtc: I2C bus unit address format error, expected "32"
+arch/arm/boot/dts/orion5x-linkstation-lswtgl.dtb: Warning (i2c_bus_reg): /soc/internal-regs/i2c@11000/rtc: I2C bus unit address format error, expected "32"
 
-Use the proper enums from dma_transfer_direction (DMA_FROM_DEVICE =
-DMA_DEV_TO_MEM = 2, DMA_TO_DEVICE = DMA_MEM_TO_DEV = 1) to satify Clang.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/159
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Cc: Andrew Lunn <andrew@lunn.ch>
+Cc: Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>
+Cc: Gregory Clement <gregory.clement@bootlin.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pic32.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/dove-cubox.dts           | 2 +-
+ arch/arm/boot/dts/dove.dtsi                | 6 +++---
+ arch/arm/boot/dts/orion5x-linkstation.dtsi | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
-index fefb688a34328..2f4df804c4d80 100644
---- a/drivers/spi/spi-pic32.c
-+++ b/drivers/spi/spi-pic32.c
-@@ -320,7 +320,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
- 	desc_rx = dmaengine_prep_slave_sg(master->dma_rx,
- 					  xfer->rx_sg.sgl,
- 					  xfer->rx_sg.nents,
--					  DMA_FROM_DEVICE,
-+					  DMA_DEV_TO_MEM,
- 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc_rx) {
- 		ret = -EINVAL;
-@@ -330,7 +330,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
- 	desc_tx = dmaengine_prep_slave_sg(master->dma_tx,
- 					  xfer->tx_sg.sgl,
- 					  xfer->tx_sg.nents,
--					  DMA_TO_DEVICE,
-+					  DMA_MEM_TO_DEV,
- 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc_tx) {
- 		ret = -EINVAL;
+diff --git a/arch/arm/boot/dts/dove-cubox.dts b/arch/arm/boot/dts/dove-cubox.dts
+index af3cb633135fc..ee32315e3d3af 100644
+--- a/arch/arm/boot/dts/dove-cubox.dts
++++ b/arch/arm/boot/dts/dove-cubox.dts
+@@ -86,7 +86,7 @@
+ 	status = "okay";
+ 	clock-frequency = <100000>;
+ 
+-	si5351: clock-generator {
++	si5351: clock-generator@60 {
+ 		compatible = "silabs,si5351a-msop";
+ 		reg = <0x60>;
+ 		#address-cells = <1>;
+diff --git a/arch/arm/boot/dts/dove.dtsi b/arch/arm/boot/dts/dove.dtsi
+index 698d58cea20d2..11342aeccb73a 100644
+--- a/arch/arm/boot/dts/dove.dtsi
++++ b/arch/arm/boot/dts/dove.dtsi
+@@ -152,7 +152,7 @@
+ 				  0xffffe000 MBUS_ID(0x03, 0x01) 0 0x0000800   /* CESA SRAM  2k */
+ 				  0xfffff000 MBUS_ID(0x0d, 0x00) 0 0x0000800>; /* PMU  SRAM  2k */
+ 
+-			spi0: spi-ctrl@10600 {
++			spi0: spi@10600 {
+ 				compatible = "marvell,orion-spi";
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+@@ -165,7 +165,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			i2c: i2c-ctrl@11000 {
++			i2c: i2c@11000 {
+ 				compatible = "marvell,mv64xxx-i2c";
+ 				reg = <0x11000 0x20>;
+ 				#address-cells = <1>;
+@@ -215,7 +215,7 @@
+ 				status = "disabled";
+ 			};
+ 
+-			spi1: spi-ctrl@14600 {
++			spi1: spi@14600 {
+ 				compatible = "marvell,orion-spi";
+ 				#address-cells = <1>;
+ 				#size-cells = <0>;
+diff --git a/arch/arm/boot/dts/orion5x-linkstation.dtsi b/arch/arm/boot/dts/orion5x-linkstation.dtsi
+index ed456ab35fd84..c1bc8376d4eb0 100644
+--- a/arch/arm/boot/dts/orion5x-linkstation.dtsi
++++ b/arch/arm/boot/dts/orion5x-linkstation.dtsi
+@@ -156,7 +156,7 @@
+ &i2c {
+ 	status = "okay";
+ 
+-	rtc {
++	rtc@32 {
+ 		compatible = "ricoh,rs5c372a";
+ 		reg = <0x32>;
+ 	};
 -- 
 2.20.1
 
