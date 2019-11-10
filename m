@@ -2,27 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06504F6AEB
+	by mail.lfdr.de (Postfix) with ESMTP id 81405F6AEC
 	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 19:58:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726878AbfKJS6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Nov 2019 13:58:12 -0500
-Received: from mail.fireflyinternet.com ([109.228.58.192]:52999 "EHLO
+        id S1726778AbfKJS6N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Nov 2019 13:58:13 -0500
+Received: from mail.fireflyinternet.com ([109.228.58.192]:53026 "EHLO
         fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726778AbfKJS6M (ORCPT
+        with ESMTP id S1726835AbfKJS6M (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 13:58:12 -0500
 X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
 Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19151885-1500050 
-        for multiple; Sun, 10 Nov 2019 18:58:10 +0000
+        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19151892-1500050 
+        for multiple; Sun, 10 Nov 2019 18:58:12 +0000
 From:   Chris Wilson <chris@chris-wilson.co.uk>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
         Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH 05/25] drm/i915/pmu: "Frequency" is reported as accumulated cycles
-Date:   Sun, 10 Nov 2019 18:57:46 +0000
-Message-Id: <20191110185806.17413-5-chris@chris-wilson.co.uk>
+Subject: [PATCH 12/25] drm/i915/userptr: Try to acquire the page lock around set_page_dirty()
+Date:   Sun, 10 Nov 2019 18:57:53 +0000
+Message-Id: <20191110185806.17413-12-chris@chris-wilson.co.uk>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191110185806.17413-1-chris@chris-wilson.co.uk>
 References: <20191110185806.17413-1-chris@chris-wilson.co.uk>
@@ -33,33 +35,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We report "frequencies" (actual-frequency, requested-frequency) as the
-number of accumulated cycles so that the average frequency over that
-period may be determined by the user. This means the units we report to
-the user are Mcycles (or just M), not MHz.
+set_page_dirty says:
 
+	For pages with a mapping this should be done under the page lock
+	for the benefit of asynchronous memory errors who prefer a
+	consistent dirty state. This rule can be broken in some special
+	cases, but should be better not to.
+
+Under those rules, it is only safe for us to use the plain set_page_dirty
+calls for shmemfs/anonymous memory. Userptr may be used with real
+mappings and so needs to use the locked version (set_page_dirty_lock).
+
+However, following a try_to_unmap() we may want to remove the userptr and
+so call put_pages(). However, try_to_unmap() acquires the page lock and
+so we must avoid recursively locking the pages ourselves -- which means
+that we cannot safely acquire the lock around set_page_dirty(). Since we
+can't be sure of the lock, we have to risk skip dirtying the page, or
+else risk calling set_page_dirty() without a lock and so risk fs
+corruption.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112012
+Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video m
+References: cb6d7c7dc7ff ("drm/i915/userptr: Acquire the page lock around set_page_dirty()")
+References: 505a8ec7e11a ("Revert "drm/i915/userptr: Acquire the page lock around set_page_dirty()"")
+References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
 Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
 Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
 Cc: stable@vger.kernel.org
 ---
- drivers/gpu/drm/i915/i915_pmu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gem/i915_gem_userptr.c | 22 ++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/i915_pmu.c b/drivers/gpu/drm/i915/i915_pmu.c
-index 4804775644bf..9b02be0ad4e6 100644
---- a/drivers/gpu/drm/i915/i915_pmu.c
-+++ b/drivers/gpu/drm/i915/i915_pmu.c
-@@ -908,8 +908,8 @@ create_event_attributes(struct i915_pmu *pmu)
- 		const char *name;
- 		const char *unit;
- 	} events[] = {
--		__event(I915_PMU_ACTUAL_FREQUENCY, "actual-frequency", "MHz"),
--		__event(I915_PMU_REQUESTED_FREQUENCY, "requested-frequency", "MHz"),
-+		__event(I915_PMU_ACTUAL_FREQUENCY, "actual-frequency", "M"),
-+		__event(I915_PMU_REQUESTED_FREQUENCY, "requested-frequency", "M"),
- 		__event(I915_PMU_INTERRUPTS, "interrupts", NULL),
- 		__event(I915_PMU_RC6_RESIDENCY, "rc6-residency", "ns"),
- 	};
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+index 5e87126def2f..54ebc7ab71bc 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+@@ -651,8 +651,28 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+ 		obj->mm.dirty = false;
+ 
+ 	for_each_sgt_page(page, sgt_iter, pages) {
+-		if (obj->mm.dirty)
++		if (obj->mm.dirty && trylock_page(page)) {
++			/*
++			 * As this may not be anonymous memory (e.g. shmem)
++			 * but exist on a real mapping, we have to lock
++			 * the page in order to dirty it -- holding
++			 * the page reference is not sufficient to
++			 * prevent the inode from being truncated.
++			 * Play safe and take the lock.
++			 *
++			 * However...!
++			 *
++			 * The mmu-notifier can be invalidated for a
++			 * migrate_page, that is alreadying holding the lock
++			 * on the page. Such a try_to_unmap() will result
++			 * in us calling put_pages() and so recursively try
++			 * to lock the page. We avoid that deadlock with
++			 * a trylock_page() and in exchange we risk missing
++			 * some page dirtying.
++			 */
+ 			set_page_dirty(page);
++			unlock_page(page);
++		}
+ 
+ 		mark_page_accessed(page);
+ 		put_page(page);
 -- 
 2.24.0
 
