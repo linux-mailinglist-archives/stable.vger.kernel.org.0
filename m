@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDBB2F6396
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:53:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D20F6391
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:53:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727473AbfKJCxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:53:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35536 "EHLO mail.kernel.org"
+        id S1727220AbfKJCx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:53:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728079AbfKJCvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:51:12 -0500
+        id S1729914AbfKJCvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:51:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0582322594;
-        Sun, 10 Nov 2019 02:51:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3042A22595;
+        Sun, 10 Nov 2019 02:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354271;
-        bh=9vHTsqmnu+cuuI3EJ+XhZIbw+Rq+l0wS6KturhsKzNY=;
+        s=default; t=1573354272;
+        bh=Cg+4qi4q+XTTYzZRmspi7f+I4Y5Jitg8gRm9nE/UjfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOn3ejnN1nvp9lX7omW8e/WO3xZPk/rFQ2XVIjnTs11KlmDw0P6ehREBhJUv+EeXd
-         ANCyAlIqOxAkaAvUQAAWBQhdY+skriv0UKqviBJIHCpz3+dbg2rEHQiozTBzE4et7a
-         MtR+GE77JLVRuwTPL5UdY05PjvJHI29mladEVI5s=
+        b=X/vcqWTlD6ft0mxC96aVhZxlVNIyJvkcbz+GfvrM1Z9YJZ/RHMgN1oMqurSJnovhW
+         rEHV0vWwMTOutvRQVA3VDUNPV3KbrZFB4MfSSuyLu76pa20Wqq4TB1gZKdNI9g/wLl
+         tfvYqpvX2mmRnIfLqVLLCTpX7TxrTLN5KwEJQ7Ss=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stefan Agner <stefan@agner.ch>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.4 19/40] cpufeature: avoid warning when compiling with clang
-Date:   Sat,  9 Nov 2019 21:50:11 -0500
-Message-Id: <20191110025032.827-19-sashal@kernel.org>
+Cc:     Shahed Shaikh <Shahed.Shaikh@cavium.com>,
+        Ariel Elior <ariel.elior@cavium.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 20/40] bnx2x: Ignore bandwidth attention in single function mode
+Date:   Sat,  9 Nov 2019 21:50:12 -0500
+Message-Id: <20191110025032.827-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110025032.827-1-sashal@kernel.org>
 References: <20191110025032.827-1-sashal@kernel.org>
@@ -45,44 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Shahed Shaikh <Shahed.Shaikh@cavium.com>
 
-[ Upstream commit c785896b21dd8e156326ff660050b0074d3431df ]
+[ Upstream commit 75a110a1783ef8324ffd763b24f4ac268253cbca ]
 
-The table id (second) argument to MODULE_DEVICE_TABLE is often
-referenced otherwise. This is not the case for CPU features. This
-leads to warnings when building the kernel with Clang:
-  arch/arm/crypto/aes-ce-glue.c:450:1: warning: variable
-    'cpu_feature_match_AES' is not needed and will not be emitted
-    [-Wunneeded-internal-declaration]
-  module_cpu_feature_match(AES, aes_init);
-  ^
+This is a workaround for FW bug -
+MFW generates bandwidth attention in single function mode, which
+is only expected to be generated in multi function mode.
+This undesired attention in SF mode results in incorrect HW
+configuration and resulting into Tx timeout.
 
-Avoid warnings by using __maybe_unused, similar to commit 1f318a8bafcf
-("modules: mark __inittest/__exittest as __maybe_unused").
-
-Fixes: 67bad2fdb754 ("cpu: add generic support for CPU feature based module autoloading")
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Shahed Shaikh <Shahed.Shaikh@cavium.com>
+Signed-off-by: Ariel Elior <ariel.elior@cavium.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/cpufeature.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/include/linux/cpufeature.h b/include/linux/cpufeature.h
-index 986c06c88d814..84d3c81b59781 100644
---- a/include/linux/cpufeature.h
-+++ b/include/linux/cpufeature.h
-@@ -45,7 +45,7 @@
-  * 'asm/cpufeature.h' of your favorite architecture.
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+index d450d8b3708cd..82960603da332 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+@@ -3532,6 +3532,16 @@ static void bnx2x_drv_info_iscsi_stat(struct bnx2x *bp)
   */
- #define module_cpu_feature_match(x, __initfunc)			\
--static struct cpu_feature const cpu_feature_match_ ## x[] =	\
-+static struct cpu_feature const __maybe_unused cpu_feature_match_ ## x[] = \
- 	{ { .feature = cpu_feature(x) }, { } };			\
- MODULE_DEVICE_TABLE(cpu, cpu_feature_match_ ## x);		\
- 								\
+ static void bnx2x_config_mf_bw(struct bnx2x *bp)
+ {
++	/* Workaround for MFW bug.
++	 * MFW is not supposed to generate BW attention in
++	 * single function mode.
++	 */
++	if (!IS_MF(bp)) {
++		DP(BNX2X_MSG_MCP,
++		   "Ignoring MF BW config in single function mode\n");
++		return;
++	}
++
+ 	if (bp->link_vars.link_up) {
+ 		bnx2x_cmng_fns_init(bp, true, CMNG_FNS_MINMAX);
+ 		bnx2x_link_sync_notify(bp);
 -- 
 2.20.1
 
