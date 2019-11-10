@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C99EF6639
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:12:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26802F662B
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:12:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727578AbfKJDMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:12:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
+        id S1728263AbfKJCnU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:43:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728245AbfKJCnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:43:18 -0500
+        id S1728253AbfKJCnT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:43:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5AAD21655;
-        Sun, 10 Nov 2019 02:43:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB32121D7B;
+        Sun, 10 Nov 2019 02:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353797;
-        bh=ZPjfq3pUDu+AsWiU2zu9iZRPXobWVshwV8XGX7wGb6U=;
+        s=default; t=1573353798;
+        bh=hwEnfSrRKF/vEjZnGBCUmDoqUXJUVgPMbVJ6QRvL9Iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zSzxb2Cre9lKEpFQBuwJTV2YRb2jqznHW79aK4xvYMTg0eJ3D8h/5VaXgUryakfTF
-         b9A8CrPkkfQho/9umD40nVXyWz+B0kLF8aWRt/z0Zyd99ALhLIfIqgtv26BzHclER3
-         dsQvjB3WAMTzE3VWKzYodVgO6g0qoTmxWxCIMSHE=
+        b=ZajjaPChSchmKSBP82RK9spptkioIiUcnF4PDmj+Z3doUgqAY/lxBqMiw4TPZb2Px
+         XSn7P9dmZVBEpifCo+o7+jxShfpjmOF4SE4ZNDIXiXmMzbtNQ0zpF0zhklyFbUoSyv
+         y2547ljk8hZ7PQIo1FVSQ42vMif5fCYeG7rNJwZE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Stuebner <heiko@sntech.de>, Sasha Levin <sashal@kernel.org>,
-        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 096/191] ARM: dts: rockchip: explicitly set vcc_sd0 pin to gpio on rk3188-radxarock
-Date:   Sat,  9 Nov 2019 21:38:38 -0500
-Message-Id: <20191110024013.29782-96-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 097/191] usb: gadget: uvc: configfs: Drop leaked references to config items
+Date:   Sat,  9 Nov 2019 21:38:39 -0500
+Message-Id: <20191110024013.29782-97-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -42,54 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Stuebner <heiko@sntech.de>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit a2df0984e73fd9e1dad5fc3f1c307ec3de395e30 ]
+[ Upstream commit 86f3daed59bceb4fa7981d85e89f63ebbae1d561 ]
 
-It is good practice to make the setting of gpio-pinctrls explicitly in the
-devicetree, and in this case even necessary.
-Rockchip boards start with iomux settings set to gpio for most pins and
-while the linux pinctrl driver also implicitly sets the gpio function if
-a pin is requested as gpio that is not necessarily true for other drivers.
+Some of the .allow_link() and .drop_link() operations implementations
+call config_group_find_item() and then leak the reference to the
+returned item. Fix this by dropping those references where needed.
 
-The issue in question stems from uboot, where the sdmmc_pwr pin is set
-to function 1 (sdmmc-power) by the bootrom when reading the 1st-stage
-loader. The regulator controlled by the pin is active-low though, so
-when the dwmmc hw-block sets its enabled bit, it actually disables the
-regulator. By changing the pin back to gpio we fix that behaviour.
-
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3188-radxarock.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/gadget/function/uvc_configfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/rk3188-radxarock.dts b/arch/arm/boot/dts/rk3188-radxarock.dts
-index 45fd2b302dda1..4a2890618f6fc 100644
---- a/arch/arm/boot/dts/rk3188-radxarock.dts
-+++ b/arch/arm/boot/dts/rk3188-radxarock.dts
-@@ -93,6 +93,8 @@
- 		regulator-min-microvolt = <3300000>;
- 		regulator-max-microvolt = <3300000>;
- 		gpio = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&sdmmc_pwr>;
- 		startup-delay-us = <100000>;
- 		vin-supply = <&vcc_io>;
- 	};
-@@ -315,6 +317,12 @@
- 		};
- 	};
+diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
+index b51f0d2788269..dc4edba95a478 100644
+--- a/drivers/usb/gadget/function/uvc_configfs.c
++++ b/drivers/usb/gadget/function/uvc_configfs.c
+@@ -544,6 +544,7 @@ static int uvcg_control_class_allow_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ 	return ret;
+ }
+@@ -579,6 +580,7 @@ static void uvcg_control_class_drop_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ }
  
-+	sd0 {
-+		sdmmc_pwr: sdmmc-pwr {
-+			rockchip,pins = <RK_GPIO3 1 RK_FUNC_GPIO &pcfg_pull_none>;
-+		};
-+	};
-+
- 	usb {
- 		host_vbus_drv: host-vbus-drv {
- 			rockchip,pins = <0 3 RK_FUNC_GPIO &pcfg_pull_none>;
+@@ -2038,6 +2040,7 @@ static int uvcg_streaming_class_allow_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ 	return ret;
+ }
+@@ -2078,6 +2081,7 @@ static void uvcg_streaming_class_drop_link(struct config_item *src,
+ unlock:
+ 	mutex_unlock(&opts->lock);
+ out:
++	config_item_put(header);
+ 	mutex_unlock(su_mutex);
+ }
+ 
 -- 
 2.20.1
 
