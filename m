@@ -2,107 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81405F6AEC
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 19:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC4F9F6B0E
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 20:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726778AbfKJS6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Nov 2019 13:58:13 -0500
-Received: from mail.fireflyinternet.com ([109.228.58.192]:53026 "EHLO
-        fireflyinternet.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726835AbfKJS6M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 13:58:12 -0500
-X-Default-Received-SPF: pass (skip=forwardok (res=PASS)) x-ip-name=78.156.65.138;
-Received: from haswell.alporthouse.com (unverified [78.156.65.138]) 
-        by fireflyinternet.com (Firefly Internet (M1)) with ESMTP id 19151892-1500050 
-        for multiple; Sun, 10 Nov 2019 18:58:12 +0000
-From:   Chris Wilson <chris@chris-wilson.co.uk>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 12/25] drm/i915/userptr: Try to acquire the page lock around set_page_dirty()
-Date:   Sun, 10 Nov 2019 18:57:53 +0000
-Message-Id: <20191110185806.17413-12-chris@chris-wilson.co.uk>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191110185806.17413-1-chris@chris-wilson.co.uk>
-References: <20191110185806.17413-1-chris@chris-wilson.co.uk>
+        id S1726925AbfKJTIH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Nov 2019 14:08:07 -0500
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:51047 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726778AbfKJTIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 14:08:07 -0500
+Received: by mail-wm1-f66.google.com with SMTP id l17so10298036wmh.0
+        for <stable@vger.kernel.org>; Sun, 10 Nov 2019 11:08:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=G+6aFIJf6576zHBDz5oxv9jLGIeEc6O8ND4aUJ6CJOE=;
+        b=FLse7WB+6XlVoA3mkFNaZrxdITZpwg9UJFsCSAi7YUrIpLUbxaHd/kJE9Wya8WvpF6
+         ZkBj2gcWOW/bVWl/2Krw/QjZ7hBJ5kPxv4TxLrEL4vGnnpq1WJKeizb/1w+rtngJttjb
+         AliLWJPBxC9By8quyKG8JmwzdQ/srHthC/QRwH+QlaKElH9C1Ms2wPL9rywMIZpfbFo+
+         vbn5mkAQAwQZ+GyK5NKkN33BXEWr65mNdgyBZ6z9jS2fs6R1cqXsGjd1mjHnxJJ7Ye+0
+         8cd8Dr8vR7Q8LFOj8tAkN7/lpR4drWSSNWQrJlPqbKABytsLru1cp1Mu0GkALHHqw5EP
+         LatQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=G+6aFIJf6576zHBDz5oxv9jLGIeEc6O8ND4aUJ6CJOE=;
+        b=tpBBwv5izywTTDkzJwTStK8MAactmeUKgnOra7Q9wSChlRjplhhmmVGFT6YpHMp11f
+         BLzbRAzAad/P6OHEbVOPrqqcg/mfOQjfa6oNAzhkPcwqJ81viWYhAJiXqrkSw9vw8Q+s
+         vXACnVsf5DoDOrsWXp/KyhnIcW4rcc9ig9di9q5gJxljLEy8etaNnqIMzkJCA9S2WD1L
+         EWJBlkdLxK3vy8USChCUFl51w4aOndjPWKFTUs2iNb9rPcHkiSWVehy7zyuoZrxmoRCT
+         AGvJn6lfV7wKznENyC4xbREYWzzCYHJ6lq27XC0+XDWIz1cfDc6pQNTFpEMHrSv83mjh
+         i8Vw==
+X-Gm-Message-State: APjAAAX+ApK8BQpVT1SxPewS9WA8AfaVustGbGNMfadW5qxu+NnvOJwZ
+        mKuDk9WX30mi5IhQefW2HuZKCDg3dfQ=
+X-Google-Smtp-Source: APXvYqwdSVqNl/IdSCATv6gCifw3mz9a8cauFg49FsRqJmwC93P+jXDbGJXLrlISYaqefLsXVhBytA==
+X-Received: by 2002:a1c:9e58:: with SMTP id h85mr18115675wme.77.1573412884989;
+        Sun, 10 Nov 2019 11:08:04 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y15sm11873057wrh.94.2019.11.10.11.08.04
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 10 Nov 2019 11:08:04 -0800 (PST)
+Message-ID: <5dc86014.1c69fb81.76c85.ac89@mx.google.com>
+Date:   Sun, 10 Nov 2019 11:08:04 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.200
+Subject: stable-rc/linux-4.4.y boot: 38 boots: 0 failed,
+ 37 passed with 1 conflict (v4.4.200)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-set_page_dirty says:
+stable-rc/linux-4.4.y boot: 38 boots: 0 failed, 37 passed with 1 conflict (=
+v4.4.200)
 
-	For pages with a mapping this should be done under the page lock
-	for the benefit of asynchronous memory errors who prefer a
-	consistent dirty state. This rule can be broken in some special
-	cases, but should be better not to.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.200/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.200/
 
-Under those rules, it is only safe for us to use the plain set_page_dirty
-calls for shmemfs/anonymous memory. Userptr may be used with real
-mappings and so needs to use the locked version (set_page_dirty_lock).
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.200
+Git Commit: 1b8629e7c9b52079a6471973a1e2e14012b885e9
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 19 unique boards, 9 SoC families, 8 builds out of 190
 
-However, following a try_to_unmap() we may want to remove the userptr and
-so call put_pages(). However, try_to_unmap() acquires the page lock and
-so we must avoid recursively locking the pages ourselves -- which means
-that we cannot safely acquire the lock around set_page_dirty(). Since we
-can't be sure of the lock, we have to risk skip dirtying the page, or
-else risk calling set_page_dirty() without a lock and so risk fs
-corruption.
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112012
-Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video m
-References: cb6d7c7dc7ff ("drm/i915/userptr: Acquire the page lock around set_page_dirty()")
-References: 505a8ec7e11a ("Revert "drm/i915/userptr: Acquire the page lock around set_page_dirty()"")
-References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: stable@vger.kernel.org
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
 ---
- drivers/gpu/drm/i915/gem/i915_gem_userptr.c | 22 ++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-index 5e87126def2f..54ebc7ab71bc 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
-@@ -651,8 +651,28 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
- 		obj->mm.dirty = false;
- 
- 	for_each_sgt_page(page, sgt_iter, pages) {
--		if (obj->mm.dirty)
-+		if (obj->mm.dirty && trylock_page(page)) {
-+			/*
-+			 * As this may not be anonymous memory (e.g. shmem)
-+			 * but exist on a real mapping, we have to lock
-+			 * the page in order to dirty it -- holding
-+			 * the page reference is not sufficient to
-+			 * prevent the inode from being truncated.
-+			 * Play safe and take the lock.
-+			 *
-+			 * However...!
-+			 *
-+			 * The mmu-notifier can be invalidated for a
-+			 * migrate_page, that is alreadying holding the lock
-+			 * on the page. Such a try_to_unmap() will result
-+			 * in us calling put_pages() and so recursively try
-+			 * to lock the page. We avoid that deadlock with
-+			 * a trylock_page() and in exchange we risk missing
-+			 * some page dirtying.
-+			 */
- 			set_page_dirty(page);
-+			unlock_page(page);
-+		}
- 
- 		mark_page_accessed(page);
- 		put_page(page);
--- 
-2.24.0
-
+For more info write to <info@kernelci.org>
