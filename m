@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 463F4F622F
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD869F6239
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:41:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727032AbfKJCko (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:40:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34126 "EHLO mail.kernel.org"
+        id S1727284AbfKJClL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:41:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727023AbfKJCko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:40:44 -0500
+        id S1727279AbfKJClL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:41:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9B8A214E0;
-        Sun, 10 Nov 2019 02:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8262E21019;
+        Sun, 10 Nov 2019 02:41:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353642;
-        bh=s64GRie63AvxpCh2Q6I1WlA90S7QTrxx/6sBq6jqZvQ=;
+        s=default; t=1573353670;
+        bh=tXpvznd+oBOZN2eCbwim3PFiLXJbR9UB2tAzNx1l3vY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bYwrobiatQhejy9OcAZ+ptyeHgIB446T92lUcV9XUYAM05k5RjOlnPaR2Q50B9Zfk
-         MM2XXTQzKPtKn6CPIBNII+/djmJqlGc6mIPTb0RK2b7yg5uv8MqIyzzZhLLX5Sz4fZ
-         F7YrGrZLLYxy6diDFHZr8st7h9I4UhUJNIkPeo6c=
+        b=DndFncJe+wcKkYO5SVNKHXJTqDGpf1JX7gTBOf0zZ6gATDmSgsMnVvxEhQ5dHvPCM
+         4x/RkdE1MpZq8UGrGYPAP2cFg4G/WA0FaiF12fGwdZQEnFCQZcjOeebCQZy23oEykq
+         gYwuuNsGXJPLa42lrskjU4ZQPVellkGRaaLgNcv8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 024/191] net: cavium: fix return type of ndo_start_xmit function
-Date:   Sat,  9 Nov 2019 21:37:26 -0500
-Message-Id: <20191110024013.29782-24-sashal@kernel.org>
+Cc:     Rob Herring <robh@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 036/191] libfdt: Ensure INT_MAX is defined in libfdt_env.h
+Date:   Sat,  9 Nov 2019 21:37:38 -0500
+Message-Id: <20191110024013.29782-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -43,96 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit ac1172dea10b6ba51de9346d3130db688b5196c5 ]
+[ Upstream commit 53dd9dce6979bc54d64a3a09a2fb20187a025be7 ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+The next update of libfdt has a new dependency on INT_MAX. Update the
+instances of libfdt_env.h in the kernel to either include the necessary
+header with the definition or define it locally.
 
-Found by coccinelle.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/liquidio/lio_main.c    | 2 +-
- drivers/net/ethernet/cavium/liquidio/lio_vf_main.c | 2 +-
- drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c  | 5 +++--
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c   | 5 +++--
- 4 files changed, 8 insertions(+), 6 deletions(-)
+ arch/arm/boot/compressed/libfdt_env.h | 2 ++
+ arch/powerpc/boot/libfdt_env.h        | 2 ++
+ include/linux/libfdt_env.h            | 1 +
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-index 6fb13fa73b271..304e4b9436276 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-@@ -2324,7 +2324,7 @@ static inline int send_nic_timestamp_pkt(struct octeon_device *oct,
-  * @returns whether the packet was transmitted to the device okay or not
-  *             (NETDEV_TX_OK or NETDEV_TX_BUSY)
-  */
--static int liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
-+static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
- 	struct lio *lio;
- 	struct octnet_buf_free_info *finfo;
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-index b77835724dc84..d83773bc0dd7f 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-@@ -1390,7 +1390,7 @@ static int send_nic_timestamp_pkt(struct octeon_device *oct,
-  * @returns whether the packet was transmitted to the device okay or not
-  *             (NETDEV_TX_OK or NETDEV_TX_BUSY)
-  */
--static int liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
-+static netdev_tx_t liquidio_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
- 	struct octnet_buf_free_info *finfo;
- 	union octnic_cmd_setup cmdsetup;
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c b/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c
-index c99b59fe4c8fb..a1bda1683ebfc 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_vf_rep.c
-@@ -31,7 +31,8 @@
+diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
+index 07437816e0986..b36c0289a308e 100644
+--- a/arch/arm/boot/compressed/libfdt_env.h
++++ b/arch/arm/boot/compressed/libfdt_env.h
+@@ -6,6 +6,8 @@
+ #include <linux/string.h>
+ #include <asm/byteorder.h>
  
- static int lio_vf_rep_open(struct net_device *ndev);
- static int lio_vf_rep_stop(struct net_device *ndev);
--static int lio_vf_rep_pkt_xmit(struct sk_buff *skb, struct net_device *ndev);
-+static netdev_tx_t lio_vf_rep_pkt_xmit(struct sk_buff *skb,
-+				       struct net_device *ndev);
- static void lio_vf_rep_tx_timeout(struct net_device *netdev);
- static int lio_vf_rep_phys_port_name(struct net_device *dev,
- 				     char *buf, size_t len);
-@@ -382,7 +383,7 @@ lio_vf_rep_packet_sent_callback(struct octeon_device *oct,
- 		netif_wake_queue(ndev);
- }
++#define INT_MAX			((int)(~0U>>1))
++
+ typedef __be16 fdt16_t;
+ typedef __be32 fdt32_t;
+ typedef __be64 fdt64_t;
+diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
+index 2a0c8b1bf1479..2abc8e83b95e9 100644
+--- a/arch/powerpc/boot/libfdt_env.h
++++ b/arch/powerpc/boot/libfdt_env.h
+@@ -5,6 +5,8 @@
+ #include <types.h>
+ #include <string.h>
  
--static int
-+static netdev_tx_t
- lio_vf_rep_pkt_xmit(struct sk_buff *skb, struct net_device *ndev)
- {
- 	struct lio_vf_rep_desc *vf_rep = netdev_priv(ndev);
-diff --git a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-index bb43ddb7539e7..4b3aecf98f2af 100644
---- a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-+++ b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-@@ -1268,12 +1268,13 @@ static int octeon_mgmt_stop(struct net_device *netdev)
- 	return 0;
- }
++#define INT_MAX			((int)(~0U>>1))
++
+ #include "of.h"
  
--static int octeon_mgmt_xmit(struct sk_buff *skb, struct net_device *netdev)
-+static netdev_tx_t
-+octeon_mgmt_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
- 	struct octeon_mgmt *p = netdev_priv(netdev);
- 	union mgmt_port_ring_entry re;
- 	unsigned long flags;
--	int rv = NETDEV_TX_BUSY;
-+	netdev_tx_t rv = NETDEV_TX_BUSY;
+ typedef unsigned long uintptr_t;
+diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
+index c6ac1fe7ec68a..edb0f0c309044 100644
+--- a/include/linux/libfdt_env.h
++++ b/include/linux/libfdt_env.h
+@@ -2,6 +2,7 @@
+ #ifndef LIBFDT_ENV_H
+ #define LIBFDT_ENV_H
  
- 	re.d64 = 0;
- 	re.s.tstamp = ((skb_shinfo(skb)->tx_flags & SKBTX_HW_TSTAMP) != 0);
++#include <linux/kernel.h>	/* For INT_MAX */
+ #include <linux/string.h>
+ 
+ #include <asm/byteorder.h>
 -- 
 2.20.1
 
