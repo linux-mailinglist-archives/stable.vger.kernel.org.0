@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78C28F637B
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:53:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45F15F637F
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:53:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730000AbfKJCv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:51:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36094 "EHLO mail.kernel.org"
+        id S1727654AbfKJCxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:53:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729991AbfKJCv2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:51:28 -0500
+        id S1729993AbfKJCv3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:51:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEF8F22794;
-        Sun, 10 Nov 2019 02:51:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 096FF22595;
+        Sun, 10 Nov 2019 02:51:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354287;
-        bh=OQxAjtgjoRmh71w/KKY3w4GztgCDEsVjgMRHOe26tms=;
+        s=default; t=1573354288;
+        bh=BpAp6XH2uSlXE1JsPhrWmKuprZOOpZwsT4hO8c9rf1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1VcWbhDzXd88Vjrw2hxfKWy5/Nnng8PHKsETbX46icpbFWeqgYCqmK/gD6yXcizfq
-         VBX+VgBFd7zS4jkB+ciTHJKkn2j6J7xdQBs8ea5AnF01DdOTmB4LV1AGq6WuLKxgo2
-         hY7yJi94VjCalrWcSkYBqisSztHwLLFpnk17cduQ=
+        b=ZHdwmJIpTwkONjtWhQeqtQ4KkoVC+y49y0dWZ2AZ10uxgOJ9nwrMVHVyxOEVfQGfq
+         s0MKQpWz+q0Pn8hnvRnyKbjBeRGzdi0QnS3TI1B4drveggjb9XIfdzqqakNfjIlxpS
+         JebYjxvnsrgMhWDZfr2v4SB2VmWxwsb8HvCyxclQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 29/40] usb: gadget: uvc: Only halt video streaming endpoint in bulk mode
-Date:   Sat,  9 Nov 2019 21:50:21 -0500
-Message-Id: <20191110025032.827-29-sashal@kernel.org>
+Cc:     Laura Abbott <labbott@redhat.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        kgdb-bugreport@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.4 30/40] misc: kgdbts: Fix restrict error
+Date:   Sat,  9 Nov 2019 21:50:22 -0500
+Message-Id: <20191110025032.827-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110025032.827-1-sashal@kernel.org>
 References: <20191110025032.827-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,42 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Laura Abbott <labbott@redhat.com>
 
-[ Upstream commit 8dbf9c7abefd5c1434a956d5c6b25e11183061a3 ]
+[ Upstream commit fa0218ef733e6f247a1a3986e3eb12460064ac77 ]
 
-When USB requests for video data fail to be submitted, the driver
-signals a problem to the host by halting the video streaming endpoint.
-This is only valid in bulk mode, as isochronous transfers have no
-handshake phase and can't thus report a stall. The usb_ep_set_halt()
-call returns an error when using isochronous endpoints, which we happily
-ignore, but some UDCs complain in the kernel log. Fix this by only
-trying to halt the endpoint in bulk mode.
+kgdbts current fails when compiled with restrict:
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Tested-by: Paul Elder <paul.elder@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+drivers/misc/kgdbts.c: In function ‘configure_kgdbts’:
+drivers/misc/kgdbts.c:1070:2: error: ‘strcpy’ source argument is the same as destination [-Werror=restrict]
+  strcpy(config, opt);
+  ^~~~~~~~~~~~~~~~~~~
+
+As the error says, config is being used in both the source and destination.
+Refactor the code to avoid the extra copy and put the parsing closer to
+the actual location.
+
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/misc/kgdbts.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index 540917f54506a..d6bab12b0b47d 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -136,7 +136,9 @@ static int uvcg_video_ep_queue(struct uvc_video *video, struct usb_request *req)
- 	ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
- 	if (ret < 0) {
- 		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
--		usb_ep_set_halt(video->ep);
-+		/* Isochronous endpoints can't be halted. */
-+		if (usb_endpoint_xfer_bulk(video->ep->desc))
-+			usb_ep_set_halt(video->ep);
- 	}
+diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
+index bb3a76ad80da2..fc8cb855c6e66 100644
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -979,6 +979,12 @@ static void kgdbts_run_tests(void)
+ 	int nmi_sleep = 0;
+ 	int i;
  
- 	return ret;
++	verbose = 0;
++	if (strstr(config, "V1"))
++		verbose = 1;
++	if (strstr(config, "V2"))
++		verbose = 2;
++
+ 	ptr = strchr(config, 'F');
+ 	if (ptr)
+ 		fork_test = simple_strtol(ptr + 1, NULL, 10);
+@@ -1062,13 +1068,6 @@ static int kgdbts_option_setup(char *opt)
+ 		return -ENOSPC;
+ 	}
+ 	strcpy(config, opt);
+-
+-	verbose = 0;
+-	if (strstr(config, "V1"))
+-		verbose = 1;
+-	if (strstr(config, "V2"))
+-		verbose = 2;
+-
+ 	return 0;
+ }
+ 
+@@ -1080,9 +1079,6 @@ static int configure_kgdbts(void)
+ 
+ 	if (!strlen(config) || isspace(config[0]))
+ 		goto noconfig;
+-	err = kgdbts_option_setup(config);
+-	if (err)
+-		goto noconfig;
+ 
+ 	final_ack = 0;
+ 	run_plant_and_detach_test(1);
 -- 
 2.20.1
 
