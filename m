@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E039F6258
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:42:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 027CAF6261
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:43:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727878AbfKJCmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:42:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38422 "EHLO mail.kernel.org"
+        id S1728021AbfKJCms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:42:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727870AbfKJCm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:42:29 -0500
+        id S1727974AbfKJCms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:42:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEFF5214E0;
-        Sun, 10 Nov 2019 02:42:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA54F21848;
+        Sun, 10 Nov 2019 02:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353749;
-        bh=WlfZxGvFtSLI+pDvBdYGRlWued5mo0mUhIgQQNCXeqE=;
+        s=default; t=1573353767;
+        bh=8GO4XkRygHmVTWKvH9SbwPX3T6ChRn2RDaOvhj0FWc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPn3WViVcnS+QtD7yxdGqBcrqqJKQL2bNe2arfBuIRlCI9CwZHwlgX5kVVa9+Jsyp
-         szF0xl3xIVMha+bNVbArT3SOcHosrJPhxVE7nqaXIDFr5mBo7YOPFC+EnpJuOpYD6E
-         WVhMniM12gs/RmC2pX+/8cCW3LBeeyYxpW6Op7Ck=
+        b=IgFSrB+yh4W0GvXVRhb3f2yzSKXf7Yt61ofrKRC57OCrhkQjoOUwrIjaebs5nekhC
+         fdsQsXOkTlQ4W2eBU2yastYGtG0osWFlJuWYDxquWZR9450hKxaWqWVwRD67Cq8/gD
+         d88eo51RF2n3Q/b/ZP6Sw4korhj7n9pfpdxO1U7E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 065/191] f2fs: fix to recover inode's uid/gid during POR
-Date:   Sat,  9 Nov 2019 21:38:07 -0500
-Message-Id: <20191110024013.29782-65-sashal@kernel.org>
+Cc:     Keith Busch <keith.busch@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sinan Kaya <okaya@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 079/191] PCI/AER: Take reference on error devices
+Date:   Sat,  9 Nov 2019 21:38:21 -0500
+Message-Id: <20191110024013.29782-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -43,43 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Keith Busch <keith.busch@intel.com>
 
-[ Upstream commit dc4cd1257c86451cec3e8e352cc376348e4f4af4 ]
+[ Upstream commit 60271ab044a53edb9dcbe76bebea2221c4ff04d9 ]
 
-Step to reproduce this bug:
-1. logon as root
-2. mount -t f2fs /dev/sdd /mnt;
-3. touch /mnt/file;
-4. chown system /mnt/file; chgrp system /mnt/file;
-5. xfs_io -f /mnt/file -c "fsync";
-6. godown /mnt;
-7. umount /mnt;
-8. mount -t f2fs /dev/sdd /mnt;
+Error handling may be running in parallel with a hot removal.  Reference
+count the device during AER handling so the device can not be freed while
+AER wants to reference it.
 
-After step 8) we will expect file's uid/gid are all system, but during
-recovery, these two fields were not been recovered, fix it.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Sinan Kaya <okaya@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/recovery.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/pcie/aer.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
-index 2c3be4c3c626f..2c5d2c25d37e3 100644
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -216,6 +216,8 @@ static void recover_inode(struct inode *inode, struct page *page)
- 	char *name;
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index 637d638f73da5..ffbbd759683c5 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -866,7 +866,7 @@ void cper_print_aer(struct pci_dev *dev, int aer_severity,
+ static int add_error_device(struct aer_err_info *e_info, struct pci_dev *dev)
+ {
+ 	if (e_info->error_dev_num < AER_MAX_MULTI_ERR_DEVICES) {
+-		e_info->dev[e_info->error_dev_num] = dev;
++		e_info->dev[e_info->error_dev_num] = pci_dev_get(dev);
+ 		e_info->error_dev_num++;
+ 		return 0;
+ 	}
+@@ -1013,6 +1013,7 @@ static void handle_error_source(struct pci_dev *dev, struct aer_err_info *info)
+ 		pcie_do_nonfatal_recovery(dev);
+ 	else if (info->severity == AER_FATAL)
+ 		pcie_do_fatal_recovery(dev, PCIE_PORT_SERVICE_AER);
++	pci_dev_put(dev);
+ }
  
- 	inode->i_mode = le16_to_cpu(raw->i_mode);
-+	i_uid_write(inode, le32_to_cpu(raw->i_uid));
-+	i_gid_write(inode, le32_to_cpu(raw->i_gid));
- 	f2fs_i_size_write(inode, le64_to_cpu(raw->i_size));
- 	inode->i_atime.tv_sec = le64_to_cpu(raw->i_atime);
- 	inode->i_ctime.tv_sec = le64_to_cpu(raw->i_ctime);
+ #ifdef CONFIG_ACPI_APEI_PCIEAER
 -- 
 2.20.1
 
