@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C8F8F6300
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:49:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AE85F6306
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:49:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728225AbfKJCst (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:48:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56552 "EHLO mail.kernel.org"
+        id S1726983AbfKJCtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:49:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727984AbfKJCss (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:48:48 -0500
+        id S1726670AbfKJCtB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:49:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3111C22573;
-        Sun, 10 Nov 2019 02:48:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF41D22573;
+        Sun, 10 Nov 2019 02:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354127;
-        bh=XO4jExzsjGqVGycvgNA7RUSP7N/Lq6fZtpDKT8aTcWE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nS3GTpbVSU79UOfmOdapDWmuwF2+haTWnVM541S4JD+jvl6faBaLd3/uVsTcSB4c1
-         TYXtksx/NaTCA+DkRoNZL6NfeOsziAasRUAvnJIWGue+Mc+J6t1uiobsJ28I+ltC8A
-         MBhQve/U373CldWdFSqIFKvnejtpD07YalyieLk4=
+        s=default; t=1573354141;
+        bh=0K5Le4/yUVvQ+7LVnDH2eIxwNTpwnAm+e6EkDjNqOyY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=g2RJBZ66mQDsskJ+rDjDxUCkvBqwkyEtIsRevJ88BWQCD0UE9MdpPLdVGjpN36pje
+         qWPSTWdxlfU46JLZ/QoYqbSFqMiQL83CQJSMYlUUxRTbob90JA+bTuf5Zximo4l62U
+         rQ3w0LTfOoyMXQwjnTczwbu1WFYeO8988W1ks3Ho=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 01/66] s390/qeth: invoke softirqs after napi_schedule()
-Date:   Sat,  9 Nov 2019 21:47:40 -0500
-Message-Id: <20191110024846.32598-1-sashal@kernel.org>
+Cc:     Rob Herring <robh@kernel.org>,
+        Russell King <linux@armlinux.org.uk>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 08/66] libfdt: Ensure INT_MAX is defined in libfdt_env.h
+Date:   Sat,  9 Nov 2019 21:47:47 -0500
+Message-Id: <20191110024846.32598-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191110024846.32598-1-sashal@kernel.org>
+References: <20191110024846.32598-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -41,60 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 4d19db777a2f32c9b76f6fd517ed8960576cb43e ]
+[ Upstream commit 53dd9dce6979bc54d64a3a09a2fb20187a025be7 ]
 
-Calling napi_schedule() from process context does not ensure that the
-NET_RX softirq is run in a timely fashion. So trigger it manually.
+The next update of libfdt has a new dependency on INT_MAX. Update the
+instances of libfdt_env.h in the kernel to either include the necessary
+header with the definition or define it locally.
 
-This is no big issue with current code. A call to ndo_open() is usually
-followed by a ndo_set_rx_mode() call, and for qeth this contains a
-spin_unlock_bh(). Except for OSN, where qeth_l2_set_rx_mode() bails out
-early.
-Nevertheless it's best to not depend on this behaviour, and just fix
-the issue at its source like all other drivers do. For instance see
-commit 83a0c6e58901 ("i40e: Invoke softirqs after napi_reschedule").
-
-Fixes: a1c3ed4c9ca0 ("qeth: NAPI support for l2 and l3 discipline")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_l2_main.c | 3 +++
- drivers/s390/net/qeth_l3_main.c | 3 +++
- 2 files changed, 6 insertions(+)
+ arch/arm/boot/compressed/libfdt_env.h | 2 ++
+ arch/powerpc/boot/libfdt_env.h        | 2 ++
+ include/linux/libfdt_env.h            | 1 +
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
-index 6ba4e921d2fd3..51152681aba6e 100644
---- a/drivers/s390/net/qeth_l2_main.c
-+++ b/drivers/s390/net/qeth_l2_main.c
-@@ -991,7 +991,10 @@ static int __qeth_l2_open(struct net_device *dev)
+diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
+index 17ae0f3efac8e..005bf4ff1b4cb 100644
+--- a/arch/arm/boot/compressed/libfdt_env.h
++++ b/arch/arm/boot/compressed/libfdt_env.h
+@@ -5,6 +5,8 @@
+ #include <linux/string.h>
+ #include <asm/byteorder.h>
  
- 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
- 		napi_enable(&card->napi);
-+		local_bh_disable();
- 		napi_schedule(&card->napi);
-+		/* kick-start the NAPI softirq: */
-+		local_bh_enable();
- 	} else
- 		rc = -EIO;
- 	return rc;
-diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
-index 6e6ba1baf9c48..b40a61d9ad9ec 100644
---- a/drivers/s390/net/qeth_l3_main.c
-+++ b/drivers/s390/net/qeth_l3_main.c
-@@ -3005,7 +3005,10 @@ static int __qeth_l3_open(struct net_device *dev)
++#define INT_MAX			((int)(~0U>>1))
++
+ typedef __be16 fdt16_t;
+ typedef __be32 fdt32_t;
+ typedef __be64 fdt64_t;
+diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
+index 7e3789ea396b8..0b3db6322c793 100644
+--- a/arch/powerpc/boot/libfdt_env.h
++++ b/arch/powerpc/boot/libfdt_env.h
+@@ -4,6 +4,8 @@
+ #include <types.h>
+ #include <string.h>
  
- 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
- 		napi_enable(&card->napi);
-+		local_bh_disable();
- 		napi_schedule(&card->napi);
-+		/* kick-start the NAPI softirq: */
-+		local_bh_enable();
- 	} else
- 		rc = -EIO;
- 	return rc;
++#define INT_MAX			((int)(~0U>>1))
++
+ #include "of.h"
+ 
+ typedef u32 uint32_t;
+diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
+index 2a663c6bb4285..8850e243c9406 100644
+--- a/include/linux/libfdt_env.h
++++ b/include/linux/libfdt_env.h
+@@ -1,6 +1,7 @@
+ #ifndef _LIBFDT_ENV_H
+ #define _LIBFDT_ENV_H
+ 
++#include <linux/kernel.h>	/* For INT_MAX */
+ #include <linux/string.h>
+ 
+ #include <asm/byteorder.h>
 -- 
 2.20.1
 
