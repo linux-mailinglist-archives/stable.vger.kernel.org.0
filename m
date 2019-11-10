@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 209A0F64B6
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:01:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBC65F64B3
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726805AbfKJDBz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:01:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59366 "EHLO mail.kernel.org"
+        id S1729505AbfKJCtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:49:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729479AbfKJCth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:49:37 -0500
+        id S1729498AbfKJCtj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:49:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 997B522582;
-        Sun, 10 Nov 2019 02:49:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D03322581;
+        Sun, 10 Nov 2019 02:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354176;
-        bh=gtx+21LnuuVEvzEgRNUs8bf/q7NwwX/2OoYioDv49Go=;
+        s=default; t=1573354179;
+        bh=8DD4osZh3pqSw/v3Z8lBeKCbS7/Ml7qR65jLNRSZyrc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0oo6V9TSY2ZxTVuaWbtGB2u0MMiZw9LH+FvY0Wo0eSdCZNsvVHscJaBZVjoaOEMR
-         zHs4ir93wfCLHejNfbZzdYOZ1j1Nv/cpGeF0DoB/QMbd+msIFzsHUbwQV7SoxbmWr4
-         jenFyJF3F3tLRzkWcfaJGxIYBrxhzr3UyPl65itI=
+        b=NWQdmhx4D1nh6VHPgsz9WlVM3JvuhWWfGUBO19agIsDqSfgHYfSPrFN2ti1JELu0c
+         90mMgr/QchD6RXf7GP5T/CskoACyFkIwDL84R9uEWnZJcrdJoPuUBntssFCc8jxE7W
+         w3ZnlZg4ry8T49zSesKTpDahnSC+BxhShTMRoIlw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthew Whitehead <tedheadster@gmail.com>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
-        Jia Zhang <qianyue.zj@alibaba-inc.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Philippe Ombredanne <pombredanne@nexb.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 28/66] x86/CPU: Use correct macros for Cyrix calls
-Date:   Sat,  9 Nov 2019 21:48:07 -0500
-Message-Id: <20191110024846.32598-28-sashal@kernel.org>
+Cc:     Dengcheng Zhu <dzhu@wavecomp.com>,
+        Rachel Mozes <rachel.mozes@intel.com>,
+        Paul Burton <paul.burton@mips.com>, pburton@wavecomp.com,
+        ralf@linux-mips.org, linux-mips@linux-mips.org,
+        Sasha Levin <sashal@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 29/66] MIPS: kexec: Relax memory restriction
+Date:   Sat,  9 Nov 2019 21:48:08 -0500
+Message-Id: <20191110024846.32598-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024846.32598-1-sashal@kernel.org>
 References: <20191110024846.32598-1-sashal@kernel.org>
@@ -50,65 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Whitehead <tedheadster@gmail.com>
+From: Dengcheng Zhu <dzhu@wavecomp.com>
 
-[ Upstream commit 03b099bdcdf7125d4a63dc9ddeefdd454e05123d ]
+[ Upstream commit a6da4d6fdf8bd512c98d3ac7f1d16bc4bb282919 ]
 
-There are comments in processor-cyrix.h advising you to _not_ make calls
-using the deprecated macros in this style:
+We can rely on the system kernel and the dump capture kernel themselves in
+memory usage.
 
-  setCx86_old(CX86_CCR4, getCx86_old(CX86_CCR4) | 0x80);
+Being restrictive with 512MB limit may cause kexec tool failure on some
+platforms.
 
-This is because it expands the macro into a non-functioning calling
-sequence. The calling order must be:
-
-  outb(CX86_CCR2, 0x22);
-  inb(0x23);
-
-From the comments:
-
- * When using the old macros a line like
- *   setCx86(CX86_CCR2, getCx86(CX86_CCR2) | 0x88);
- * gets expanded to:
- *  do {
- *    outb((CX86_CCR2), 0x22);
- *    outb((({
- *        outb((CX86_CCR2), 0x22);
- *        inb(0x23);
- *    }) | 0x88), 0x23);
- *  } while (0);
-
-The new macros fix this problem, so use them instead.
-
-Signed-off-by: Matthew Whitehead <tedheadster@gmail.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Andy Lutomirski <luto@amacapital.net>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Jia Zhang <qianyue.zj@alibaba-inc.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Philippe Ombredanne <pombredanne@nexb.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20180921212041.13096-2-tedheadster@gmail.com
+Tested-by: Rachel Mozes <rachel.mozes@intel.com>
+Reported-by: Rachel Mozes <rachel.mozes@intel.com>
+Signed-off-by: Dengcheng Zhu <dzhu@wavecomp.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Patchwork: https://patchwork.linux-mips.org/patch/20568/
+Cc: pburton@wavecomp.com
+Cc: ralf@linux-mips.org
+Cc: linux-mips@linux-mips.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/cyrix.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/include/asm/kexec.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/cyrix.c b/arch/x86/kernel/cpu/cyrix.c
-index 311d0fad17e6b..a4f6e0ec4ba0f 100644
---- a/arch/x86/kernel/cpu/cyrix.c
-+++ b/arch/x86/kernel/cpu/cyrix.c
-@@ -434,7 +434,7 @@ static void cyrix_identify(struct cpuinfo_x86 *c)
- 			/* enable MAPEN  */
- 			setCx86(CX86_CCR3, (ccr3 & 0x0f) | 0x10);
- 			/* enable cpuid  */
--			setCx86_old(CX86_CCR4, getCx86_old(CX86_CCR4) | 0x80);
-+			setCx86(CX86_CCR4, getCx86(CX86_CCR4) | 0x80);
- 			/* disable MAPEN */
- 			setCx86(CX86_CCR3, ccr3);
- 			local_irq_restore(flags);
+diff --git a/arch/mips/include/asm/kexec.h b/arch/mips/include/asm/kexec.h
+index 493a3cc7c39ad..cfdbe66575f4d 100644
+--- a/arch/mips/include/asm/kexec.h
++++ b/arch/mips/include/asm/kexec.h
+@@ -12,11 +12,11 @@
+ #include <asm/stacktrace.h>
+ 
+ /* Maximum physical address we can use pages from */
+-#define KEXEC_SOURCE_MEMORY_LIMIT (0x20000000)
++#define KEXEC_SOURCE_MEMORY_LIMIT (-1UL)
+ /* Maximum address we can reach in physical address mode */
+-#define KEXEC_DESTINATION_MEMORY_LIMIT (0x20000000)
++#define KEXEC_DESTINATION_MEMORY_LIMIT (-1UL)
+  /* Maximum address we can use for the control code buffer */
+-#define KEXEC_CONTROL_MEMORY_LIMIT (0x20000000)
++#define KEXEC_CONTROL_MEMORY_LIMIT (-1UL)
+ /* Reserve 3*4096 bytes for board-specific info */
+ #define KEXEC_CONTROL_PAGE_SIZE (4096 + 3*4096)
+ 
 -- 
 2.20.1
 
