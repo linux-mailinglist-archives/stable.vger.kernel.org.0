@@ -2,95 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 990D9F69BC
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 16:34:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDCDEF69C2
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 16:34:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726733AbfKJPeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Nov 2019 10:34:04 -0500
-Received: from netrider.rowland.org ([192.131.102.5]:46501 "HELO
-        netrider.rowland.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with SMTP id S1726684AbfKJPeD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 10:34:03 -0500
-Received: (qmail 29471 invoked by uid 500); 10 Nov 2019 10:34:02 -0500
-Received: from localhost (sendmail-bs@127.0.0.1)
-  by localhost with SMTP; 10 Nov 2019 10:34:02 -0500
-Date:   Sun, 10 Nov 2019 10:34:02 -0500 (EST)
-From:   Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To:     Oliver Neukum <oneukum@suse.com>
-cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Christoph Hellwig <hch@lst.de>
-Subject: Re: [PATCH 4.19 114/149] UAS: Revert commit 3ae62a42090f ("UAS: fix
- alignment of scatter/gather segments")
-In-Reply-To: <1573396023.2662.4.camel@suse.com>
-Message-ID: <Pine.LNX.4.44L0.1911101028430.29192-100000@netrider.rowland.org>
+        id S1726973AbfKJPek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Nov 2019 10:34:40 -0500
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:33281 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726653AbfKJPej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 10:34:39 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 9B091412;
+        Sun, 10 Nov 2019 10:34:38 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 10 Nov 2019 10:34:38 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm2; bh=jIDeH2sJ/VlBR52JL2i1+2RenUQ
+        AFXoezfuK16AoBEA=; b=jPdQZNljeEryoxvh73Z7lBW20p+qALIczcbTBZom5OL
+        bRrYMgs63R8t21/tP4J3yQA7TOtntChgRcAZwdOokb/nJvA/FKeH3RT2Vijs94R4
+        B111es/697CgXiom77b+RKzRFbkID+kQkXhUbcMtKW2h1FyjB1lYrFSvzcfqizGk
+        dLU6P/yvjWtdek0BLWj2yR4hOE7VEBjqaRfWIFFVEeWmg+AMMdwpqp278RROedOG
+        On2RAW3vlYlSdl6NwXk1LNnxAI41C1SmGsNIgjCM3KPMMunSpHwhGa9y+nAjbSHv
+        qd3J/QAM+XJCNqMjTgP7BlmLxoBejxZP8FiD8A7jFcw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jIDeH2
+        sJ/VlBR52JL2i1+2RenUQAFXoezfuK16AoBEA=; b=tXCWWH5EpEn+Z/wg93ykPn
+        4L0qaEwHkk1uvY6OvBZJQ+WE64SWQpuC1keHJKzyTTElUWEAjV+2118hxfjgGIiX
+        +CcsdqE6bb9AzR5+z58C1EXKZbk0vbmhSGlyjqTglv/gl7ys5j1hWXFBTguUP2tz
+        OjdvjJ2BRW4Q14fajKJjv1oGJPKAYJrpDIPhof6g3WQiQGJPxLsIbvoMS6LQqfnk
+        hHRAWVIV0myEMwygaZibgK3wEUs1vcbC+YK6wO52Wm2E0eOxsFbWCp048hGVLVxv
+        XjG7gKd0RHpUgdCXEeJlEm7f0WTDV48hyeSprKmG1ewzT86coTnpocLypYhJCLXQ
+        ==
+X-ME-Sender: <xms:Di7IXW3DWNTjP4o_r2FKzpyeN92uJ9V3UuO0IrCDn8HtSLRtvHnH1g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddvhedgkeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Di7IXb-FZsZ_kN8xWzp50Ut0xZk64CjGBWiVdjppSjNA_hR_QUcE4g>
+    <xmx:Di7IXfsrWGVPctjwiBHI_y2V41QZ21Q4zrVilJnV8tp9o1qNXWg_6w>
+    <xmx:Di7IXZoRL8V1WiTHfSYNp7cALuXfvo1SjKtzfl3BgSvFbYdwXY8RAw>
+    <xmx:Di7IXdnHOiGAyiyDCgc6CvlX_Lku3ajgCEQtIYZTV_7uJ9_3TS_9Aw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A081980059;
+        Sun, 10 Nov 2019 10:34:37 -0500 (EST)
+Date:   Sun, 10 Nov 2019 16:34:36 +0100
+From:   Greg KH <greg@kroah.com>
+To:     David Miller <davem@davemloft.net>
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCHES] Networking
+Message-ID: <20191110153436.GA2865851@kroah.com>
+References: <20191109.214709.2055803887587817489.davem@davemloft.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191109.214709.2055803887587817489.davem@davemloft.net>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 10 Nov 2019, Oliver Neukum wrote:
-
-> Am Freitag, den 08.11.2019, 10:35 -0500 schrieb Alan Stern:
-> > On Fri, 8 Nov 2019, Greg Kroah-Hartman wrote:
-> > 
-> > > On Thu, Nov 07, 2019 at 12:32:45PM +0100, Oliver Neukum wrote:
-> > > > Am Dienstag, den 05.11.2019, 17:38 +0100 schrieb Greg Kroah-Hartman:
-> > > > > > > Given this information, perhaps you will decide that the revert is 
-> > > > > > > worthwhile.
-> > > > > > 
-> > > > > > Damned if I do, damned if I do not.
-> > > > > > Check for usbip and special case it?
-> > > > > 
-> > > > > We should be able to do that in the host controller driver for usbip,
-> > > > > right?  What is the symptom if you use a UAS device with usbip and this
-> > > > > commit?
-> > > > 
-> > > > Yes, that patch should then also be applied. Then it will work.
-> > > > Without it, commands will fail, as transfers will end prematurely.
-> > > 
-> > > Ok, I'm confused now.  I just checked, and I really have no idea what
-> > > needs to be backported anymore.  3ae62a42090f ("UAS: fix alignment of
-> > > scatter/gather segments") was backported to all of the stable kernels,
-> > > and now we reverted it.
-> > > 
-> > > So what else needs to be done here?
-> > 
-> > In one sense, nothing needs to be done.  3ae62a42090f was intended to
-> > fix a long-standing problem with USBIP, but people reported a
+On Sat, Nov 09, 2019 at 09:47:09PM -0800, David Miller wrote:
 > 
-> OK, now I am a bit confused. AFAICT 3ae62a42090f actually did fix the
-> issue. So if you simply revert it, the issue will reappear.
+> Please queue up the following networking bug fixes for v4.19 and v5.3
+> stable, respectively.
 
-Correct.  I think.
+All now queued up, thanks!
 
-> > regression in performance.  (Admittedly, the report was about the
-> > correponding change to usb-storage, not the change to uas, but it's
-> > reasonable to think the effect would be the same.)  So in line with the
-> 
-> Yes.
-> 
-> > no-regressions policy, we only need to revert the commit -- which you 
-> > have already done.
-> 
-> But that breaks UAS over USBIP, doesn't it?
-
-It was already broken to start with.  The attempted fix caused a
-regression, so the fix must be reverted.
-
-> > On the other hand, the long-standing problem in USBIP can be fixed by
-> > back-porting commit ea44d190764b.  But since that commit isn't a
-> > bug-fix (and since it's rather large), you may question whether it is
-> > appropriate for the -stable kernel series.
-> 
-> It certainly is large. But without it UAS won't work over USBIP, will
-> it? I think that is the central question we need to answer here.
-
-You are right.  If Greg is okay with porting ea44d190764b to the stable 
-kernels, I won't object.
-
-Alan Stern
-
+greg k-h
