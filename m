@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 66A2BF66AE
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E26B0F6699
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727100AbfKJDOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:14:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37212 "EHLO mail.kernel.org"
+        id S1727729AbfKJCmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:42:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727719AbfKJCmD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:42:03 -0500
+        id S1727722AbfKJCmF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:42:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E455E20650;
-        Sun, 10 Nov 2019 02:42:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22D6321882;
+        Sun, 10 Nov 2019 02:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353722;
-        bh=UfS95GJysZRLmUAshqxkU0vPr30zhIK/rGe4ZYB1oZA=;
+        s=default; t=1573353724;
+        bh=qtfPSf5XdBg0WP4w6wOZQEFPEjvRITY3Jf5D6oN0y44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uu+Jo06soYQTVtxpXeuBCrWPusSIpe6S3r0NCHGzIGeiGoRasSNbJGBu3q0A7TNw1
-         4Dplj3rVbGUC/zUHtjxQ1HEnaUyxViDOY81TOeCiSptCEBXmtAintMro/zTNxca1IO
-         OyR86PQGongpQ/DvFhCAUOnjyI7PUmOrI48OyiQE=
+        b=nztg3SLtobSi7ImkzpS1Bl9dXpnQbYkkxrvQ85dni3f06qN9RG7DtbUzxUjSXfzqB
+         qtS1shxMGyJMzgeCmN1Y01MT8/eOR9q8163Ws644EN10YwZHPjL+B/pipz+Kvq+jfo
+         pv0132foX+xk5G4dn1+19vKRdBMVCgq9IdkmPeS8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guido Kiener <guido@kiener-muenchen.de>,
-        Guido Kiener <guido.kiener@rohde-schwarz.com>,
-        Steve Bayless <steve_bayless@keysight.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 054/191] usb: usbtmc: Fix ioctl USBTMC_IOCTL_ABORT_BULK_OUT
-Date:   Sat,  9 Nov 2019 21:37:56 -0500
-Message-Id: <20191110024013.29782-54-sashal@kernel.org>
+Cc:     Halil Pasic <pasic@linux.ibm.com>,
+        Michael Mueller <mimu@linux.ibm.com>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 055/191] s390/zcrypt: enable AP bus scan without a valid default domain
+Date:   Sat,  9 Nov 2019 21:37:57 -0500
+Message-Id: <20191110024013.29782-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -45,83 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guido Kiener <guido@kiener-muenchen.de>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 0e59088e7ff7aeda49dedadbf0e967761b909ad8 ]
+[ Upstream commit 1c472d46283263497adccd7a0bec64ee2f9c09e5 ]
 
-Add parameter 'tag' to function usbtmc_ioctl_abort_bulk_out_tag()
-for future versions.
+The AP bus scan is aborted before doing anything worth mentioning if
+ap_select_domain() fails, e.g. if the ap_rights.aqm mask is all zeros.
+As the result of this the ap bus fails to manage (e.g. create and
+register) devices like it is supposed to.
 
-Use USBTMC_BUFSIZE (4k) instead of USBTMC_SIZE_IOBUFFER (2k).
-Using USBTMC_SIZE_IOBUFFER is deprecated.
+Let us make ap_scan_bus() work even if ap_select_domain() can't select a
+default domain. Let's also make ap_select_domain() return void, as there
+are no more callers interested in its return value.
 
-Insert a sleep of 50 ms between subsequent
-CHECK_ABORT_BULK_OUT_STATUS control requests to avoid stressing
-the instrument with repeated requests.
-
-Use common macro USB_CTRL_GET_TIMEOUT instead of USBTMC_TIMEOUT.
-
-Signed-off-by: Guido Kiener <guido.kiener@rohde-schwarz.com>
-Reviewed-by: Steve Bayless <steve_bayless@keysight.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Reported-by: Michael Mueller <mimu@linux.ibm.com>
+Fixes: 7e0bdbe5c21c "s390/zcrypt: AP bus support for alternate driver(s)"
+[freude@linux.ibm.com: title and patch header slightly modified]
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/usbtmc.c | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ drivers/s390/crypto/ap_bus.c | 18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/usb/class/usbtmc.c b/drivers/usb/class/usbtmc.c
-index 83ffa5a14c3db..3ce45c9e9d20d 100644
---- a/drivers/usb/class/usbtmc.c
-+++ b/drivers/usb/class/usbtmc.c
-@@ -342,7 +342,8 @@ static int usbtmc_ioctl_abort_bulk_in(struct usbtmc_device_data *data)
+diff --git a/drivers/s390/crypto/ap_bus.c b/drivers/s390/crypto/ap_bus.c
+index 3be54651698a3..027a53eec42a5 100644
+--- a/drivers/s390/crypto/ap_bus.c
++++ b/drivers/s390/crypto/ap_bus.c
+@@ -1223,11 +1223,10 @@ static struct bus_attribute *const ap_bus_attrs[] = {
+ };
  
+ /**
+- * ap_select_domain(): Select an AP domain.
+- *
+- * Pick one of the 16 AP domains.
++ * ap_select_domain(): Select an AP domain if possible and we haven't
++ * already done so before.
+  */
+-static int ap_select_domain(void)
++static void ap_select_domain(void)
+ {
+ 	int count, max_count, best_domain;
+ 	struct ap_queue_status status;
+@@ -1242,7 +1241,7 @@ static int ap_select_domain(void)
+ 	if (ap_domain_index >= 0) {
+ 		/* Domain has already been selected. */
+ 		spin_unlock_bh(&ap_domain_lock);
+-		return 0;
++		return;
+ 	}
+ 	best_domain = -1;
+ 	max_count = 0;
+@@ -1269,11 +1268,8 @@ static int ap_select_domain(void)
+ 	if (best_domain >= 0) {
+ 		ap_domain_index = best_domain;
+ 		AP_DBF(DBF_DEBUG, "new ap_domain_index=%d\n", ap_domain_index);
+-		spin_unlock_bh(&ap_domain_lock);
+-		return 0;
+ 	}
+ 	spin_unlock_bh(&ap_domain_lock);
+-	return -ENODEV;
  }
  
--static int usbtmc_ioctl_abort_bulk_out(struct usbtmc_device_data *data)
-+static int usbtmc_ioctl_abort_bulk_out_tag(struct usbtmc_device_data *data,
-+					   u8 tag)
- {
- 	struct device *dev;
- 	u8 *buffer;
-@@ -359,8 +360,8 @@ static int usbtmc_ioctl_abort_bulk_out(struct usbtmc_device_data *data)
- 			     usb_rcvctrlpipe(data->usb_dev, 0),
- 			     USBTMC_REQUEST_INITIATE_ABORT_BULK_OUT,
- 			     USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_ENDPOINT,
--			     data->bTag_last_write, data->bulk_out,
--			     buffer, 2, USBTMC_TIMEOUT);
-+			     tag, data->bulk_out,
-+			     buffer, 2, USB_CTRL_GET_TIMEOUT);
+ /*
+@@ -1351,8 +1347,7 @@ static void ap_scan_bus(struct work_struct *unused)
+ 	AP_DBF(DBF_DEBUG, "%s running\n", __func__);
  
- 	if (rv < 0) {
- 		dev_err(dev, "usb_control_msg returned %d\n", rv);
-@@ -379,12 +380,14 @@ static int usbtmc_ioctl_abort_bulk_out(struct usbtmc_device_data *data)
- 	n = 0;
+ 	ap_query_configuration(ap_configuration);
+-	if (ap_select_domain() != 0)
+-		goto out;
++	ap_select_domain();
  
- usbtmc_abort_bulk_out_check_status:
-+	/* do not stress device with subsequent requests */
-+	msleep(50);
- 	rv = usb_control_msg(data->usb_dev,
- 			     usb_rcvctrlpipe(data->usb_dev, 0),
- 			     USBTMC_REQUEST_CHECK_ABORT_BULK_OUT_STATUS,
- 			     USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_ENDPOINT,
- 			     0, data->bulk_out, buffer, 0x08,
--			     USBTMC_TIMEOUT);
-+			     USB_CTRL_GET_TIMEOUT);
- 	n++;
- 	if (rv < 0) {
- 		dev_err(dev, "usb_control_msg returned %d\n", rv);
-@@ -418,6 +421,11 @@ static int usbtmc_ioctl_abort_bulk_out(struct usbtmc_device_data *data)
- 	return rv;
+ 	for (id = 0; id < AP_DEVICES; id++) {
+ 		/* check if device is registered */
+@@ -1468,12 +1463,11 @@ static void ap_scan_bus(struct work_struct *unused)
+ 		}
+ 	} /* end device loop */
+ 
+-	if (defdomdevs < 1)
++	if (ap_domain_index >= 0 && defdomdevs < 1)
+ 		AP_DBF(DBF_INFO,
+ 		       "no queue device with default domain %d available\n",
+ 		       ap_domain_index);
+ 
+-out:
+ 	mod_timer(&ap_config_timer, jiffies + ap_config_time * HZ);
  }
  
-+static int usbtmc_ioctl_abort_bulk_out(struct usbtmc_device_data *data)
-+{
-+	return usbtmc_ioctl_abort_bulk_out_tag(data, data->bTag_last_write);
-+}
-+
- static int usbtmc488_ioctl_read_stb(struct usbtmc_file_data *file_data,
- 				void __user *arg)
- {
 -- 
 2.20.1
 
