@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78409F6288
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E4F8F6291
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:44:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727011AbfKJCno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:43:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42350 "EHLO mail.kernel.org"
+        id S1728466AbfKJCoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:44:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728354AbfKJCno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:43:44 -0500
+        id S1728463AbfKJCn7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:43:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63F4021D7E;
-        Sun, 10 Nov 2019 02:43:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 851D921924;
+        Sun, 10 Nov 2019 02:43:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353824;
-        bh=D3c4QNkcyVqlFOZhnDcJ9OHruFT4RFcZq54k2LzNZLo=;
+        s=default; t=1573353839;
+        bh=Clahr9tyx0YwPFKHVEbZpyqfQUlA1RpfBoLTc9F30ng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DBIlQZXBuIUO5Pci4K0+z1tBw7fDi8cFblj9iGn1QseKmTpfWgYNhCbI78AEp0xRW
-         AlUxoQWFIBIztXxiUh1xkhmBQ6jjD03s+6PyU+PYxsJS71joZs7t13zkNabY7IIn0q
-         UHcPCBP13TaOLnpFG8G/NoznpzxmLtoxMspOvTAM=
+        b=HbDpAkUpmKX84ZKLdP8GPAvdUWpc2x0As5G6GMZA37ZG1O33lyG24wpgJhoAhAm5/
+         67gqFjdJvwFupfz5Do9A3/I7J++LyT1Ar73cDZvAjEJJtR79x5Dz9TFqQB+zbifYxA
+         M9BvZ/uLwlg370PpSN19Vv18y6uePHZCWlBJ4cGw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 119/191] slimbus: ngd: return proper error code instead of zero
-Date:   Sat,  9 Nov 2019 21:39:01 -0500
-Message-Id: <20191110024013.29782-119-sashal@kernel.org>
+Cc:     Chengguang Xu <cgxu519@gmx.com>, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.19 128/191] f2fs: fix remount problem of option io_bits
+Date:   Sat,  9 Nov 2019 21:39:10 -0500
+Message-Id: <20191110024013.29782-128-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -43,32 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Chengguang Xu <cgxu519@gmx.com>
 
-[ Upstream commit 9652e6aa62a1836494ebb8dbd402587c083b568c ]
+[ Upstream commit c6b1867b1da3b1203b4c49988afeebdcbdf65499 ]
 
-It looks like there is a typo in probe return. Fix it.
+Currently we show mount option "io_bits=%u" as "io_size=%uKB",
+it will cause option parsing problem(unrecognized mount option)
+in remount.
 
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chengguang Xu <cgxu519@gmx.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/super.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index a9abde2f4088b..e587be9064e74 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1393,7 +1393,7 @@ static int qcom_slim_ngd_probe(struct platform_device *pdev)
- 	if (ctrl->mwq)
- 		destroy_workqueue(ctrl->mwq);
- 
--	return 0;
-+	return ret;
- }
- 
- static int qcom_slim_ngd_ctrl_probe(struct platform_device *pdev)
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index d9106bbe7df63..c3f07171a5ab9 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1336,7 +1336,8 @@ static int f2fs_show_options(struct seq_file *seq, struct dentry *root)
+ 				from_kgid_munged(&init_user_ns,
+ 					F2FS_OPTION(sbi).s_resgid));
+ 	if (F2FS_IO_SIZE_BITS(sbi))
+-		seq_printf(seq, ",io_size=%uKB", F2FS_IO_SIZE_KB(sbi));
++		seq_printf(seq, ",io_bits=%u",
++				F2FS_OPTION(sbi).write_io_size_bits);
+ #ifdef CONFIG_F2FS_FAULT_INJECTION
+ 	if (test_opt(sbi, FAULT_INJECTION)) {
+ 		seq_printf(seq, ",fault_injection=%u",
 -- 
 2.20.1
 
