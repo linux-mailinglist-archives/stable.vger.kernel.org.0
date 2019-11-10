@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 608F7F636B
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:52:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3517F6365
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:52:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727800AbfKJCwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:52:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36568 "EHLO mail.kernel.org"
+        id S1730043AbfKJCvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:51:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730024AbfKJCvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:51:40 -0500
+        id S1730030AbfKJCvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:51:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C78122581;
-        Sun, 10 Nov 2019 02:51:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9829C22583;
+        Sun, 10 Nov 2019 02:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354300;
-        bh=i1i7cHnRw8mqsnFpsZPU0xEVm/PGqfyMQsM3ZrClmjQ=;
+        s=default; t=1573354301;
+        bh=youHC11LHjAs4CWKcmpmT/pWr3+p84Nsi0dY0gcXfR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLoAzClW2BmjRUsIaE1ZjHmkdkz3qS9V+SK+2G0qbQhKGsimEFTf+u8xK9azH9evI
-         /QjbmuQoy0nKavLN/jCQ8SPwdH7SPP6/g43aSiiaDNU7gYndeN3EtSsuraNI5EhSmr
-         3u854rU108UQWy3vxJOMS1P9FndLqhZ91kY4sCdg=
+        b=ltsF3wRNvGeXBriGZr5AY7RnZ1AnsF1UF9kPMJ5RJRBB+jABKRhjNgTHNjZAooRRw
+         tjIWRgS9ikX4Kv6wwpup5UoY3TsAFnRbHRD+JZqu2PtNQ2jsJjHOm1GhjMe3IQ0TNi
+         S0uIjcvvKI2tps3RMQJrvupOGe1ijKcRR+S/bG3o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 36/40] net: smsc: fix return type of ndo_start_xmit function
-Date:   Sat,  9 Nov 2019 21:50:28 -0500
-Message-Id: <20191110025032.827-36-sashal@kernel.org>
+Cc:     Justin Ernst <justin.ernst@hpe.com>, Borislav Petkov <bp@suse.de>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-edac@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 37/40] EDAC: Raise the maximum number of memory controllers
+Date:   Sat,  9 Nov 2019 21:50:29 -0500
+Message-Id: <20191110025032.827-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110025032.827-1-sashal@kernel.org>
 References: <20191110025032.827-1-sashal@kernel.org>
@@ -43,68 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Justin Ernst <justin.ernst@hpe.com>
 
-[ Upstream commit 6323d57f335ce1490d025cacc83fc10b07792130 ]
+[ Upstream commit 6b58859419554fb824e09cfdd73151a195473cbc ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+We observe an oops in the skx_edac module during boot:
 
-Found by coccinelle.
+  EDAC MC0: Giving out device to module skx_edac controller Skylake Socket#0 IMC#0
+  EDAC MC1: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
+  EDAC MC2: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
+  ...
+  EDAC MC13: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
+  EDAC MC14: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
+  EDAC MC15: Giving out device to module skx_edac controller Skylake Socket#1 IMC#1
+  Too many memory controllers: 16
+  EDAC MC: Removed device 0 for skx_edac Skylake Socket#0 IMC#0
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+We observe there are two memory controllers per socket, with a limit
+of 16. Raise the maximum number of memory controllers from 16 to 2 *
+MAX_NUMNODES (1024).
+
+[ bp: This is just a band-aid fix until we've sorted out the whole issue
+  with the bus_type association and handling in EDAC and can get rid of
+  this arbitrary limit. ]
+
+Signed-off-by: Justin Ernst <justin.ernst@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Russ Anderson <russ.anderson@hpe.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-edac@vger.kernel.org
+Link: https://lkml.kernel.org/r/20180925143449.284634-1-justin.ernst@hpe.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/smsc/smc911x.c  | 3 ++-
- drivers/net/ethernet/smsc/smc91x.c   | 3 ++-
- drivers/net/ethernet/smsc/smsc911x.c | 3 ++-
- 3 files changed, 6 insertions(+), 3 deletions(-)
+ include/linux/edac.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/smsc/smc911x.c b/drivers/net/ethernet/smsc/smc911x.c
-index bd64eb982e527..37fb6dfc10875 100644
---- a/drivers/net/ethernet/smsc/smc911x.c
-+++ b/drivers/net/ethernet/smsc/smc911x.c
-@@ -511,7 +511,8 @@ static void smc911x_hardware_send_pkt(struct net_device *dev)
-  * now, or set the card to generates an interrupt when ready
-  * for the packet.
-  */
--static int smc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+smc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct smc911x_local *lp = netdev_priv(dev);
- 	unsigned int free;
-diff --git a/drivers/net/ethernet/smsc/smc91x.c b/drivers/net/ethernet/smsc/smc91x.c
-index 23a0388100834..7405f537beca7 100644
---- a/drivers/net/ethernet/smsc/smc91x.c
-+++ b/drivers/net/ethernet/smsc/smc91x.c
-@@ -637,7 +637,8 @@ done:	if (!THROTTLE_TX_PKTS)
-  * now, or set the card to generates an interrupt when ready
-  * for the packet.
-  */
--static int smc_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+smc_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct smc_local *lp = netdev_priv(dev);
- 	void __iomem *ioaddr = lp->base;
-diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
-index 219a99b7a631d..b62bf77a64f43 100644
---- a/drivers/net/ethernet/smsc/smsc911x.c
-+++ b/drivers/net/ethernet/smsc/smsc911x.c
-@@ -1677,7 +1677,8 @@ static int smsc911x_stop(struct net_device *dev)
- }
+diff --git a/include/linux/edac.h b/include/linux/edac.h
+index 4fe67b853de04..9bb4f3311e137 100644
+--- a/include/linux/edac.h
++++ b/include/linux/edac.h
+@@ -17,6 +17,7 @@
+ #include <linux/completion.h>
+ #include <linux/workqueue.h>
+ #include <linux/debugfs.h>
++#include <linux/numa.h>
  
- /* Entry point for transmitting a packet */
--static int smsc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+smsc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct smsc911x_data *pdata = netdev_priv(dev);
- 	unsigned int freespace;
+ struct device;
+ 
+@@ -778,6 +779,6 @@ struct mem_ctl_info {
+ /*
+  * Maximum number of memory controllers in the coherent fabric.
+  */
+-#define EDAC_MAX_MCS	16
++#define EDAC_MAX_MCS	2 * MAX_NUMNODES
+ 
+ #endif
 -- 
 2.20.1
 
