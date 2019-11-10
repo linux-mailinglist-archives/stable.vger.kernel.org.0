@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F261F6456
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71B8DF6432
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:58:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbfKJC7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47214 "EHLO mail.kernel.org"
+        id S1729651AbfKJC5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:57:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729268AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:56:47 -0500
+        id S1729405AbfKJC4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:56:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 247F2222D1;
-        Sun, 10 Nov 2019 02:47:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4C492222BE;
+        Sun, 10 Nov 2019 02:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354055;
-        bh=tTpIGXVuqGrtRoD1ab8w5sMCyys71HtQw55eRKeWIeo=;
+        s=default; t=1573354058;
+        bh=FgAEuwJeq6bU+l6jFE4Y9bLsRENUulQAqRtrvdYS76E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MSqMmbQWmrbXgPyPn5qVcBcxEeKEm4lMHdd4fT5dCLrnxgTykWjaWqSEgbR288mss
-         PrEBfi8J2BvERAB+JKqLzKVCKB3WlKlTXQZCO7+ZkWsH7l2Bqbp2Ahc/ZquzTm4Cbr
-         s2+zbkBfjWjaAQBFQVWzd7UIOudqUQ40RiTRpSgw=
+        b=NBzci+iwFFmE7/niY853YDYqPaM1y8yg0ElTDyGml36qQj0yiJ27gpAjybgPAg/fq
+         O9kA8kylNlKGobKitkork0Ehr7L3zxynQEC3s5VsbA0tsTcD9Z2UH38ctihRzKxY3T
+         HWCsk+td03Q137ycBVo7miBjfGt2/UjH2X3cvprY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomasz Nowicki <tnowicki@caviumnetworks.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+Cc:     Laura Abbott <labbott@redhat.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 065/109] coresight: etm4x: Configure EL2 exception level when kernel is running in HYP
-Date:   Sat,  9 Nov 2019 21:44:57 -0500
-Message-Id: <20191110024541.31567-65-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        kgdb-bugreport@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 067/109] misc: kgdbts: Fix restrict error
+Date:   Sat,  9 Nov 2019 21:44:59 -0500
+Message-Id: <20191110024541.31567-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,107 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Nowicki <tnowicki@caviumnetworks.com>
+From: Laura Abbott <labbott@redhat.com>
 
-[ Upstream commit b860801e3237ec4c74cf8de0be4816996757ae5c ]
+[ Upstream commit fa0218ef733e6f247a1a3986e3eb12460064ac77 ]
 
-For non-VHE systems host kernel runs at EL1 and jumps to EL2 whenever
-hypervisor code should be executed. In this case ETM4x driver must
-restrict configuration to EL1 when it setups kernel tracing.
-However, there is no separate hypervisor privilege level when VHE
-is enabled, the host kernel runs at EL2.
+kgdbts current fails when compiled with restrict:
 
-This patch fixes configuration of TRCACATRn register for VHE systems
-so that ETM_EXLEVEL_NS_HYP bit is used instead of ETM_EXLEVEL_NS_OS
-to on/off kernel tracing. At the same time, it moves common code
-to new helper.
+drivers/misc/kgdbts.c: In function ‘configure_kgdbts’:
+drivers/misc/kgdbts.c:1070:2: error: ‘strcpy’ source argument is the same as destination [-Werror=restrict]
+  strcpy(config, opt);
+  ^~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: Tomasz Nowicki <tnowicki@caviumnetworks.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+As the error says, config is being used in both the source and destination.
+Refactor the code to avoid the extra copy and put the parsing closer to
+the actual location.
+
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c | 40 +++++++++----------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ drivers/misc/kgdbts.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index b0141ba7b7414..fb392688281b5 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -35,6 +35,7 @@
- #include <linux/pm_runtime.h>
- #include <asm/sections.h>
- #include <asm/local.h>
-+#include <asm/virt.h>
+diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
+index 94cbc5c98cae6..05824ff6b9168 100644
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -981,6 +981,12 @@ static void kgdbts_run_tests(void)
+ 	int nmi_sleep = 0;
+ 	int i;
  
- #include "coresight-etm4x.h"
- #include "coresight-etm-perf.h"
-@@ -623,7 +624,7 @@ static void etm4_set_default_config(struct etmv4_config *config)
- 	config->vinst_ctrl |= BIT(0);
++	verbose = 0;
++	if (strstr(config, "V1"))
++		verbose = 1;
++	if (strstr(config, "V2"))
++		verbose = 2;
++
+ 	ptr = strchr(config, 'F');
+ 	if (ptr)
+ 		fork_test = simple_strtol(ptr + 1, NULL, 10);
+@@ -1064,13 +1070,6 @@ static int kgdbts_option_setup(char *opt)
+ 		return -ENOSPC;
+ 	}
+ 	strcpy(config, opt);
+-
+-	verbose = 0;
+-	if (strstr(config, "V1"))
+-		verbose = 1;
+-	if (strstr(config, "V2"))
+-		verbose = 2;
+-
+ 	return 0;
  }
  
--static u64 etm4_get_access_type(struct etmv4_config *config)
-+static u64 etm4_get_ns_access_type(struct etmv4_config *config)
- {
- 	u64 access_type = 0;
+@@ -1082,9 +1081,6 @@ static int configure_kgdbts(void)
  
-@@ -634,17 +635,26 @@ static u64 etm4_get_access_type(struct etmv4_config *config)
- 	 *   Bit[13] Exception level 1 - OS
- 	 *   Bit[14] Exception level 2 - Hypervisor
- 	 *   Bit[15] Never implemented
--	 *
--	 * Always stay away from hypervisor mode.
- 	 */
--	access_type = ETM_EXLEVEL_NS_HYP;
--
--	if (config->mode & ETM_MODE_EXCL_KERN)
--		access_type |= ETM_EXLEVEL_NS_OS;
-+	if (!is_kernel_in_hyp_mode()) {
-+		/* Stay away from hypervisor mode for non-VHE */
-+		access_type =  ETM_EXLEVEL_NS_HYP;
-+		if (config->mode & ETM_MODE_EXCL_KERN)
-+			access_type |= ETM_EXLEVEL_NS_OS;
-+	} else if (config->mode & ETM_MODE_EXCL_KERN) {
-+		access_type = ETM_EXLEVEL_NS_HYP;
-+	}
+ 	if (!strlen(config) || isspace(config[0]))
+ 		goto noconfig;
+-	err = kgdbts_option_setup(config);
+-	if (err)
+-		goto noconfig;
  
- 	if (config->mode & ETM_MODE_EXCL_USER)
- 		access_type |= ETM_EXLEVEL_NS_APP;
- 
-+	return access_type;
-+}
-+
-+static u64 etm4_get_access_type(struct etmv4_config *config)
-+{
-+	u64 access_type = etm4_get_ns_access_type(config);
-+
- 	/*
- 	 * EXLEVEL_S, bits[11:8], don't trace anything happening
- 	 * in secure state.
-@@ -898,20 +908,10 @@ void etm4_config_trace_mode(struct etmv4_config *config)
- 
- 	addr_acc = config->addr_acc[ETM_DEFAULT_ADDR_COMP];
- 	/* clear default config */
--	addr_acc &= ~(ETM_EXLEVEL_NS_APP | ETM_EXLEVEL_NS_OS);
-+	addr_acc &= ~(ETM_EXLEVEL_NS_APP | ETM_EXLEVEL_NS_OS |
-+		      ETM_EXLEVEL_NS_HYP);
- 
--	/*
--	 * EXLEVEL_NS, bits[15:12]
--	 * The Exception levels are:
--	 *   Bit[12] Exception level 0 - Application
--	 *   Bit[13] Exception level 1 - OS
--	 *   Bit[14] Exception level 2 - Hypervisor
--	 *   Bit[15] Never implemented
--	 */
--	if (mode & ETM_MODE_EXCL_KERN)
--		addr_acc |= ETM_EXLEVEL_NS_OS;
--	else
--		addr_acc |= ETM_EXLEVEL_NS_APP;
-+	addr_acc |= etm4_get_ns_access_type(config);
- 
- 	config->addr_acc[ETM_DEFAULT_ADDR_COMP] = addr_acc;
- 	config->addr_acc[ETM_DEFAULT_ADDR_COMP + 1] = addr_acc;
+ 	final_ack = 0;
+ 	run_plant_and_detach_test(1);
 -- 
 2.20.1
 
