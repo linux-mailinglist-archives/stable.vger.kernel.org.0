@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68FF7F6544
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:06:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0828FF6541
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:06:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727241AbfKJDGF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:06:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
+        id S1727012AbfKJDF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:05:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728991AbfKJCqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:46:11 -0500
+        id S1728999AbfKJCqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:46:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA66421D7E;
-        Sun, 10 Nov 2019 02:46:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F75F21D7B;
+        Sun, 10 Nov 2019 02:46:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353970;
-        bh=QJJHtwudMUdjrvEkEKhASbB4r4PZp0YPBCLBKA/Tqo4=;
+        s=default; t=1573353972;
+        bh=kTmw3R8+zKRRIwrPUJUV0U38l6kOeVwDG9DIZ2NKL4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=puR0aN+pi2uSbGjwqCNps7QOa5QiIpBf62SGglhOVDDQx+b3CXx7QFOYSK3gUOSno
-         X2hUGztopCbNUn5b39YlRbehBtZL+BP9g0qms85OvIzAc2GtsgqQvfYChocwi1x8x3
-         XbOUCovcUsyTz3lHYQwFqqJ9tPudkue7//mnIAug=
+        b=hYc9mZP/ceva3Yz8EovnXZhtfIvh6UzexRMYRxYxVXysWBS5oQrdenw1IhdZvZNEE
+         MAkZfjeOpU6sIW+ha5FL0+Huy3tNSU3VfTwmvmD885CgussvvkB9K9ZqXpT7WwMpXv
+         idn2/ycKpB6Z9Z2EryWa3CuiU/96qz46FLr3Rjcc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 018/109] power: supply: twl4030_charger: disable eoc interrupt on linear charge
-Date:   Sat,  9 Nov 2019 21:44:10 -0500
-Message-Id: <20191110024541.31567-18-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 019/109] net: toshiba: fix return type of ndo_start_xmit function
+Date:   Sat,  9 Nov 2019 21:44:11 -0500
+Message-Id: <20191110024541.31567-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -43,73 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 079cdff3d0a09c5da10ae1be35def7a116776328 ]
+[ Upstream commit bacade822524e02f662d88f784d2ae821a5546fb ]
 
-This avoids getting woken up from suspend after power interruptions
-when the bci wrongly thinks the battery is full just because
-of input current going low because of low input power
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/twl4030_charger.c | 27 +++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/toshiba/ps3_gelic_net.c | 4 ++--
+ drivers/net/ethernet/toshiba/ps3_gelic_net.h | 2 +-
+ drivers/net/ethernet/toshiba/spider_net.c    | 4 ++--
+ drivers/net/ethernet/toshiba/tc35815.c       | 6 ++++--
+ 4 files changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
-index d3cba954bab54..b20491016b1e4 100644
---- a/drivers/power/supply/twl4030_charger.c
-+++ b/drivers/power/supply/twl4030_charger.c
-@@ -440,6 +440,7 @@ static void twl4030_current_worker(struct work_struct *data)
- static int twl4030_charger_enable_usb(struct twl4030_bci *bci, bool enable)
+diff --git a/drivers/net/ethernet/toshiba/ps3_gelic_net.c b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+index 88d74aef218a2..75237c81c63d6 100644
+--- a/drivers/net/ethernet/toshiba/ps3_gelic_net.c
++++ b/drivers/net/ethernet/toshiba/ps3_gelic_net.c
+@@ -845,9 +845,9 @@ static int gelic_card_kick_txdma(struct gelic_card *card,
+  * @skb: packet to send out
+  * @netdev: interface device structure
+  *
+- * returns 0 on success, <0 on failure
++ * returns NETDEV_TX_OK on success, NETDEV_TX_BUSY on failure
+  */
+-int gelic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
++netdev_tx_t gelic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
  {
- 	int ret;
-+	u32 reg;
+ 	struct gelic_card *card = netdev_card(netdev);
+ 	struct gelic_descr *descr;
+diff --git a/drivers/net/ethernet/toshiba/ps3_gelic_net.h b/drivers/net/ethernet/toshiba/ps3_gelic_net.h
+index 003d0452d9cb1..fbbf9b54b173b 100644
+--- a/drivers/net/ethernet/toshiba/ps3_gelic_net.h
++++ b/drivers/net/ethernet/toshiba/ps3_gelic_net.h
+@@ -370,7 +370,7 @@ void gelic_card_up(struct gelic_card *card);
+ void gelic_card_down(struct gelic_card *card);
+ int gelic_net_open(struct net_device *netdev);
+ int gelic_net_stop(struct net_device *netdev);
+-int gelic_net_xmit(struct sk_buff *skb, struct net_device *netdev);
++netdev_tx_t gelic_net_xmit(struct sk_buff *skb, struct net_device *netdev);
+ void gelic_net_set_multi(struct net_device *netdev);
+ void gelic_net_tx_timeout(struct net_device *netdev);
+ int gelic_net_setup_netdev(struct net_device *netdev, struct gelic_card *card);
+diff --git a/drivers/net/ethernet/toshiba/spider_net.c b/drivers/net/ethernet/toshiba/spider_net.c
+index cec9e70ab9955..da136b8843dd9 100644
+--- a/drivers/net/ethernet/toshiba/spider_net.c
++++ b/drivers/net/ethernet/toshiba/spider_net.c
+@@ -880,9 +880,9 @@ spider_net_kick_tx_dma(struct spider_net_card *card)
+  * @skb: packet to send out
+  * @netdev: interface device structure
+  *
+- * returns 0 on success, !0 on failure
++ * returns NETDEV_TX_OK on success, NETDEV_TX_BUSY on failure
+  */
+-static int
++static netdev_tx_t
+ spider_net_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	int cnt;
+diff --git a/drivers/net/ethernet/toshiba/tc35815.c b/drivers/net/ethernet/toshiba/tc35815.c
+index 9146068979d2c..03afc4d8c3ec1 100644
+--- a/drivers/net/ethernet/toshiba/tc35815.c
++++ b/drivers/net/ethernet/toshiba/tc35815.c
+@@ -474,7 +474,8 @@ static void free_rxbuf_skb(struct pci_dev *hwdev, struct sk_buff *skb, dma_addr_
+ /* Index to functions, as function prototypes. */
  
- 	if (bci->usb_mode == CHARGE_OFF)
- 		enable = false;
-@@ -453,14 +454,38 @@ static int twl4030_charger_enable_usb(struct twl4030_bci *bci, bool enable)
- 			bci->usb_enabled = 1;
- 		}
- 
--		if (bci->usb_mode == CHARGE_AUTO)
-+		if (bci->usb_mode == CHARGE_AUTO) {
-+			/* Enable interrupts now. */
-+			reg = ~(u32)(TWL4030_ICHGLOW | TWL4030_ICHGEOC |
-+					TWL4030_TBATOR2 | TWL4030_TBATOR1 |
-+					TWL4030_BATSTS);
-+			ret = twl_i2c_write_u8(TWL4030_MODULE_INTERRUPTS, reg,
-+				       TWL4030_INTERRUPTS_BCIIMR1A);
-+			if (ret < 0) {
-+				dev_err(bci->dev,
-+					"failed to unmask interrupts: %d\n",
-+					ret);
-+				return ret;
-+			}
- 			/* forcing the field BCIAUTOUSB (BOOT_BCI[1]) to 1 */
- 			ret = twl4030_clear_set_boot_bci(0, TWL4030_BCIAUTOUSB);
-+		}
- 
- 		/* forcing USBFASTMCHG(BCIMFSTS4[2]) to 1 */
- 		ret = twl4030_clear_set(TWL_MODULE_MAIN_CHARGE, 0,
- 			TWL4030_USBFASTMCHG, TWL4030_BCIMFSTS4);
- 		if (bci->usb_mode == CHARGE_LINEAR) {
-+			/* Enable interrupts now. */
-+			reg = ~(u32)(TWL4030_ICHGLOW | TWL4030_TBATOR2 |
-+					TWL4030_TBATOR1 | TWL4030_BATSTS);
-+			ret = twl_i2c_write_u8(TWL4030_MODULE_INTERRUPTS, reg,
-+				       TWL4030_INTERRUPTS_BCIIMR1A);
-+			if (ret < 0) {
-+				dev_err(bci->dev,
-+					"failed to unmask interrupts: %d\n",
-+					ret);
-+				return ret;
-+			}
- 			twl4030_clear_set_boot_bci(TWL4030_BCIAUTOAC|TWL4030_CVENAC, 0);
- 			/* Watch dog key: WOVF acknowledge */
- 			ret = twl_i2c_write_u8(TWL_MODULE_MAIN_CHARGE, 0x33,
+ static int	tc35815_open(struct net_device *dev);
+-static int	tc35815_send_packet(struct sk_buff *skb, struct net_device *dev);
++static netdev_tx_t	tc35815_send_packet(struct sk_buff *skb,
++					    struct net_device *dev);
+ static irqreturn_t	tc35815_interrupt(int irq, void *dev_id);
+ static int	tc35815_rx(struct net_device *dev, int limit);
+ static int	tc35815_poll(struct napi_struct *napi, int budget);
+@@ -1248,7 +1249,8 @@ tc35815_open(struct net_device *dev)
+  * invariant will hold if you make sure that the netif_*_queue()
+  * calls are done at the proper times.
+  */
+-static int tc35815_send_packet(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++tc35815_send_packet(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct tc35815_local *lp = netdev_priv(dev);
+ 	struct TxFD *txfd;
 -- 
 2.20.1
 
