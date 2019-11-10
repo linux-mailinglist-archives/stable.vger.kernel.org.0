@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C413F6418
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:57:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C2F4F644B
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:58:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727538AbfKJC5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:57:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47214 "EHLO mail.kernel.org"
+        id S1727579AbfKJC6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:58:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729445AbfKJC4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:56:48 -0500
+        id S1729378AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:56:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 169BD22491;
-        Sun, 10 Nov 2019 02:48:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BB2C22499;
+        Sun, 10 Nov 2019 02:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354083;
-        bh=BpnwpGuXXtlyoebxNxuNBkJRbnnyc53jKXJmL7lQueM=;
+        s=default; t=1573354085;
+        bh=ZymKRHFBH5fnM7kbEWRV6nZyVFEMsP3Qo4tBlcJZExc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2k7OeUkdOR9b6Mcfq7mQLAQJ+1APzuk9FlGyTIrtSrDGJKeJg0wc/0Q64mecuGMxQ
-         uFSTjWFqbfhHzSfRM7nmZd2TuWDhonrNAewdGzOSND5dltwl6FzWGqyblFK/OMkeMu
-         4e2Q6Scrrv6wZ5tDMODD26OqH2IsjlxLl4I1Jp/g=
+        b=L3fZBM4fUfu8ADckt3tirKTtRutwB7lBxsJmz1hpKUIfietGdbI5gLEKph1q/Z0mJ
+         pqTpbX5V4YBr5+iEz7O5AKO4IOyCEOSITguVemtVnccYWVABxt8UozEOtSEnOYb9al
+         5lo8/GRuW0Na3OTTQo7SKQ1BW81pe/ZkD4aYmXZg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 081/109] ARM: dts: realview: Fix SPI controller node names
-Date:   Sat,  9 Nov 2019 21:45:13 -0500
-Message-Id: <20191110024541.31567-81-sashal@kernel.org>
+Cc:     Stuart Hayes <stuart.w.hayes@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 082/109] firmware: dell_rbu: Make payload memory uncachable
+Date:   Sat,  9 Nov 2019 21:45:14 -0500
+Message-Id: <20191110024541.31567-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -43,90 +43,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Stuart Hayes <stuart.w.hayes@gmail.com>
 
-[ Upstream commit 016add12977bcc30f77d7e48fc9a3a024cb46645 ]
+[ Upstream commit 6aecee6ad41cf97c0270f72da032c10eef025bf0 ]
 
-SPI controller nodes should be named 'spi' rather than 'ssp'. Fixing the
-name enables dtc SPI bus checks.
+The dell_rbu driver takes firmware update payloads and puts them in memory so
+the system BIOS can find them after a reboot.  This sometimes fails (though
+rarely), because the memory containing the payload is in the CPU cache but
+never gets written back to main memory before the system is rebooted (CPU
+cache contents are lost on reboot).
 
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+With this patch, the payload memory will be changed to uncachable to ensure
+that the payload is actually in main memory before the system is rebooted.
+
+Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/arm-realview-eb.dtsi    | 2 +-
- arch/arm/boot/dts/arm-realview-pb1176.dts | 2 +-
- arch/arm/boot/dts/arm-realview-pb11mp.dts | 2 +-
- arch/arm/boot/dts/arm-realview-pbx.dtsi   | 2 +-
- arch/arm/boot/dts/versatile-ab.dts        | 2 +-
- 5 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/firmware/dell_rbu.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/arm/boot/dts/arm-realview-eb.dtsi b/arch/arm/boot/dts/arm-realview-eb.dtsi
-index e2e9599596e25..05379b6c1c13b 100644
---- a/arch/arm/boot/dts/arm-realview-eb.dtsi
-+++ b/arch/arm/boot/dts/arm-realview-eb.dtsi
-@@ -334,7 +334,7 @@
- 			clock-names = "uartclk", "apb_pclk";
- 		};
+diff --git a/drivers/firmware/dell_rbu.c b/drivers/firmware/dell_rbu.c
+index 2f452f1f7c8a0..53f27a6e2d761 100644
+--- a/drivers/firmware/dell_rbu.c
++++ b/drivers/firmware/dell_rbu.c
+@@ -45,6 +45,7 @@
+ #include <linux/moduleparam.h>
+ #include <linux/firmware.h>
+ #include <linux/dma-mapping.h>
++#include <asm/set_memory.h>
  
--		ssp: ssp@1000d000 {
-+		ssp: spi@1000d000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x1000d000 0x1000>;
- 			clocks = <&sspclk>, <&pclk>;
-diff --git a/arch/arm/boot/dts/arm-realview-pb1176.dts b/arch/arm/boot/dts/arm-realview-pb1176.dts
-index c789564f28033..c1fd5615ddfe3 100644
---- a/arch/arm/boot/dts/arm-realview-pb1176.dts
-+++ b/arch/arm/boot/dts/arm-realview-pb1176.dts
-@@ -343,7 +343,7 @@
- 			clock-names = "apb_pclk";
- 		};
+ MODULE_AUTHOR("Abhay Salunke <abhay_salunke@dell.com>");
+ MODULE_DESCRIPTION("Driver for updating BIOS image on DELL systems");
+@@ -181,6 +182,11 @@ static int create_packet(void *data, size_t length)
+ 			packet_data_temp_buf = NULL;
+ 		}
+ 	}
++	/*
++	 * set to uncachable or it may never get written back before reboot
++	 */
++	set_memory_uc((unsigned long)packet_data_temp_buf, 1 << ordernum);
++
+ 	spin_lock(&rbu_data.lock);
  
--		pb1176_ssp: ssp@1010b000 {
-+		pb1176_ssp: spi@1010b000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x1010b000 0x1000>;
- 			interrupt-parent = <&intc_dc1176>;
-diff --git a/arch/arm/boot/dts/arm-realview-pb11mp.dts b/arch/arm/boot/dts/arm-realview-pb11mp.dts
-index 3944765ac4b06..e306f1cceb4ec 100644
---- a/arch/arm/boot/dts/arm-realview-pb11mp.dts
-+++ b/arch/arm/boot/dts/arm-realview-pb11mp.dts
-@@ -480,7 +480,7 @@
- 			clock-names = "uartclk", "apb_pclk";
- 		};
- 
--		ssp@1000d000 {
-+		spi@1000d000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x1000d000 0x1000>;
- 			interrupt-parent = <&intc_pb11mp>;
-diff --git a/arch/arm/boot/dts/arm-realview-pbx.dtsi b/arch/arm/boot/dts/arm-realview-pbx.dtsi
-index aeb49c4bd773f..2bf3958b2e6b9 100644
---- a/arch/arm/boot/dts/arm-realview-pbx.dtsi
-+++ b/arch/arm/boot/dts/arm-realview-pbx.dtsi
-@@ -318,7 +318,7 @@
- 			clock-names = "uartclk", "apb_pclk";
- 		};
- 
--		ssp: ssp@1000d000 {
-+		ssp: spi@1000d000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x1000d000 0x1000>;
- 			clocks = <&sspclk>, <&pclk>;
-diff --git a/arch/arm/boot/dts/versatile-ab.dts b/arch/arm/boot/dts/versatile-ab.dts
-index 4a51612996bc2..a9000d22b2c00 100644
---- a/arch/arm/boot/dts/versatile-ab.dts
-+++ b/arch/arm/boot/dts/versatile-ab.dts
-@@ -304,7 +304,7 @@
- 			clock-names = "apb_pclk";
- 		};
- 
--		ssp@101f4000 {
-+		spi@101f4000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x101f4000 0x1000>;
- 			interrupts = <11>;
+ 	newpacket->data = packet_data_temp_buf;
+@@ -349,6 +355,8 @@ static void packet_empty_list(void)
+ 		 * to make sure there are no stale RBU packets left in memory
+ 		 */
+ 		memset(newpacket->data, 0, rbu_data.packetsize);
++		set_memory_wb((unsigned long)newpacket->data,
++			1 << newpacket->ordernum);
+ 		free_pages((unsigned long) newpacket->data,
+ 			newpacket->ordernum);
+ 		kfree(newpacket);
 -- 
 2.20.1
 
