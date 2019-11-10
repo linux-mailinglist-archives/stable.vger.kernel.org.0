@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A0A2F6372
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:52:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 608F7F636B
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:52:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726823AbfKJCwd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:52:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
+        id S1727800AbfKJCwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:52:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726902AbfKJCvh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:51:37 -0500
+        id S1730024AbfKJCvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:51:40 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49EE622595;
-        Sun, 10 Nov 2019 02:51:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C78122581;
+        Sun, 10 Nov 2019 02:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354297;
-        bh=DAgjWYRQf/Pepdfl7HaxtWpkqKg1eDbMhQhEiRzh5oQ=;
+        s=default; t=1573354300;
+        bh=i1i7cHnRw8mqsnFpsZPU0xEVm/PGqfyMQsM3ZrClmjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nkpWHzYr4WzWrHULoP1LkVPX6tIfVvsG9PICuVjodCm2mvO7AFpujPee2EJYflRXe
-         q4gjkn5WzuSULJV4bj6oI4TSZc/gwzUXk2VA6z7ALH/HgPZjc8Z2FO1pQIBgZlH3oe
-         XFlW+ueVfS7vSaIisYFv7MUwUrcjUP00vJavRw3E=
+        b=hLoAzClW2BmjRUsIaE1ZjHmkdkz3qS9V+SK+2G0qbQhKGsimEFTf+u8xK9azH9evI
+         /QjbmuQoy0nKavLN/jCQ8SPwdH7SPP6/g43aSiiaDNU7gYndeN3EtSsuraNI5EhSmr
+         3u854rU108UQWy3vxJOMS1P9FndLqhZ91kY4sCdg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 35/40] ARM: tegra: apalis_t30: fix mmc1 cmd pull-up
-Date:   Sat,  9 Nov 2019 21:50:27 -0500
-Message-Id: <20191110025032.827-35-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 36/40] net: smsc: fix return type of ndo_start_xmit function
+Date:   Sat,  9 Nov 2019 21:50:28 -0500
+Message-Id: <20191110025032.827-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110025032.827-1-sashal@kernel.org>
 References: <20191110025032.827-1-sashal@kernel.org>
@@ -44,42 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 1c997fe4becdc6fcbc06e23982ceb65621e6572a ]
+[ Upstream commit 6323d57f335ce1490d025cacc83fc10b07792130 ]
 
-Fix MMC1 cmd pin pull-up causing issues on carrier boards without
-external pull-up.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra30-apalis.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/smsc/smc911x.c  | 3 ++-
+ drivers/net/ethernet/smsc/smc91x.c   | 3 ++-
+ drivers/net/ethernet/smsc/smsc911x.c | 3 ++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra30-apalis.dtsi b/arch/arm/boot/dts/tegra30-apalis.dtsi
-index bf361277fe105..9a8c20cd06885 100644
---- a/arch/arm/boot/dts/tegra30-apalis.dtsi
-+++ b/arch/arm/boot/dts/tegra30-apalis.dtsi
-@@ -147,14 +147,14 @@
+diff --git a/drivers/net/ethernet/smsc/smc911x.c b/drivers/net/ethernet/smsc/smc911x.c
+index bd64eb982e527..37fb6dfc10875 100644
+--- a/drivers/net/ethernet/smsc/smc911x.c
++++ b/drivers/net/ethernet/smsc/smc911x.c
+@@ -511,7 +511,8 @@ static void smc911x_hardware_send_pkt(struct net_device *dev)
+  * now, or set the card to generates an interrupt when ready
+  * for the packet.
+  */
+-static int smc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++smc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct smc911x_local *lp = netdev_priv(dev);
+ 	unsigned int free;
+diff --git a/drivers/net/ethernet/smsc/smc91x.c b/drivers/net/ethernet/smsc/smc91x.c
+index 23a0388100834..7405f537beca7 100644
+--- a/drivers/net/ethernet/smsc/smc91x.c
++++ b/drivers/net/ethernet/smsc/smc91x.c
+@@ -637,7 +637,8 @@ done:	if (!THROTTLE_TX_PKTS)
+  * now, or set the card to generates an interrupt when ready
+  * for the packet.
+  */
+-static int smc_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++smc_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct smc_local *lp = netdev_priv(dev);
+ 	void __iomem *ioaddr = lp->base;
+diff --git a/drivers/net/ethernet/smsc/smsc911x.c b/drivers/net/ethernet/smsc/smsc911x.c
+index 219a99b7a631d..b62bf77a64f43 100644
+--- a/drivers/net/ethernet/smsc/smsc911x.c
++++ b/drivers/net/ethernet/smsc/smsc911x.c
+@@ -1677,7 +1677,8 @@ static int smsc911x_stop(struct net_device *dev)
+ }
  
- 			/* Apalis MMC1 */
- 			sdmmc3_clk_pa6 {
--				nvidia,pins = "sdmmc3_clk_pa6",
--					      "sdmmc3_cmd_pa7";
-+				nvidia,pins = "sdmmc3_clk_pa6";
- 				nvidia,function = "sdmmc3";
- 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
- 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
- 			};
- 			sdmmc3_dat0_pb7 {
--				nvidia,pins = "sdmmc3_dat0_pb7",
-+				nvidia,pins = "sdmmc3_cmd_pa7",
-+					      "sdmmc3_dat0_pb7",
- 					      "sdmmc3_dat1_pb6",
- 					      "sdmmc3_dat2_pb5",
- 					      "sdmmc3_dat3_pb4",
+ /* Entry point for transmitting a packet */
+-static int smsc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++smsc911x_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct smsc911x_data *pdata = netdev_priv(dev);
+ 	unsigned int freespace;
 -- 
 2.20.1
 
