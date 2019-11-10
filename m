@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36A8FF6485
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:00:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F4C3F6483
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:00:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728223AbfKJDAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:00:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47258 "EHLO mail.kernel.org"
+        id S1729271AbfKJC4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:56:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729272AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:56:47 -0500
+        id S1728943AbfKJC4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:56:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D20F22475;
-        Sun, 10 Nov 2019 02:47:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 064962247A;
+        Sun, 10 Nov 2019 02:47:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354059;
-        bh=Nt/j/Quy+7hqRj6CUCAC/l4/pPFaooAS5ODSYfQ2Llc=;
+        s=default; t=1573354067;
+        bh=l2juZTLHselRSV+UkyHgPIziKlXPN/x9vhH96gkWGgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoO8kcXoL/soJAOgkhvOc/n7UqLQAYvjx3Nj4NZYCeg4s/z/pkK6mTh5caofChQi6
-         VhoxCY9MO1QXKMjzzl2UqJ4Y/yEoMZFOvtoTbBGa8im4lIDcbJcOQfyhDJhyq/A9UI
-         4WDQmjhHajlGxVAtO16R0jLgbtFtI9QCFBJvxqyE=
+        b=zmkq+J9uk8XBtf+yasAvBbbDeiDxRfgAGomp+KEEOMuXclEB5GyccTQ4M10GVEdft
+         I/slpvWtN/Xx9XS/xqlHrFkSLFYPocI7NSe0BdZhmm8oQtjdr8xjIT6thR8FHOPm9m
+         XjFz65H39Fjy0VQRXnIrqvA1ZJQPRJfW1vWxm61c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhong jiang <zhongjiang@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 068/109] misc: genwqe: should return proper error value.
-Date:   Sat,  9 Nov 2019 21:45:00 -0500
-Message-Id: <20191110024541.31567-68-sashal@kernel.org>
+Cc:     Jason Yan <yanaijie@huawei.com>,
+        chenxiang <chenxiang66@hisilicon.com>,
+        John Garry <john.garry@huawei.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Ewan Milne <emilne@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Tomas Henzl <thenzl@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Hannes Reinecke <hare@suse.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 071/109] scsi: libsas: always unregister the old device if going to discover new
+Date:   Sat,  9 Nov 2019 21:45:03 -0500
+Message-Id: <20191110024541.31567-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -43,80 +50,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Jason Yan <yanaijie@huawei.com>
 
-[ Upstream commit 02241995b004faa7d9ff628e97f24056190853f8 ]
+[ Upstream commit 32c850bf587f993b2620b91e5af8a64a7813f504 ]
 
-The function should return -EFAULT when copy_from_user fails. Even
-though the caller does not distinguish them. but we should keep backward
-compatibility.
+If we went into sas_rediscover_dev() the attached_sas_addr was already insured
+not to be zero. So it's unnecessary to check if the attached_sas_addr is zero.
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+And although if the sas address is not changed, we always have to unregister
+the old device when we are going to register a new one. We cannot just leave
+the device there and bring up the new.
+
+Signed-off-by: Jason Yan <yanaijie@huawei.com>
+CC: chenxiang <chenxiang66@hisilicon.com>
+CC: John Garry <john.garry@huawei.com>
+CC: Johannes Thumshirn <jthumshirn@suse.de>
+CC: Ewan Milne <emilne@redhat.com>
+CC: Christoph Hellwig <hch@lst.de>
+CC: Tomas Henzl <thenzl@redhat.com>
+CC: Dan Williams <dan.j.williams@intel.com>
+CC: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/genwqe/card_utils.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/scsi/libsas/sas_expander.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/misc/genwqe/card_utils.c b/drivers/misc/genwqe/card_utils.c
-index cb12409851575..f55e6e822bea4 100644
---- a/drivers/misc/genwqe/card_utils.c
-+++ b/drivers/misc/genwqe/card_utils.c
-@@ -298,7 +298,7 @@ static int genwqe_sgl_size(int num_pages)
- int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 			  void __user *user_addr, size_t user_size)
- {
--	int rc;
-+	int ret = -ENOMEM;
- 	struct pci_dev *pci_dev = cd->pci_dev;
- 
- 	sgl->fpage_offs = offset_in_page((unsigned long)user_addr);
-@@ -317,7 +317,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 	if (get_order(sgl->sgl_size) > MAX_ORDER) {
- 		dev_err(&pci_dev->dev,
- 			"[%s] err: too much memory requested!\n", __func__);
--		return -ENOMEM;
-+		return ret;
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index 259ee0d3c3e61..7f2d00354a850 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -2060,14 +2060,11 @@ static int sas_rediscover_dev(struct domain_device *dev, int phy_id, bool last)
+ 		return res;
  	}
  
- 	sgl->sgl = __genwqe_alloc_consistent(cd, sgl->sgl_size,
-@@ -325,7 +325,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 	if (sgl->sgl == NULL) {
- 		dev_err(&pci_dev->dev,
- 			"[%s] err: no memory available!\n", __func__);
--		return -ENOMEM;
-+		return ret;
- 	}
+-	/* delete the old link */
+-	if (SAS_ADDR(phy->attached_sas_addr) &&
+-	    SAS_ADDR(sas_addr) != SAS_ADDR(phy->attached_sas_addr)) {
+-		SAS_DPRINTK("ex %016llx phy 0x%x replace %016llx\n",
+-			    SAS_ADDR(dev->sas_addr), phy_id,
+-			    SAS_ADDR(phy->attached_sas_addr));
+-		sas_unregister_devs_sas_addr(dev, phy_id, last);
+-	}
++	/* we always have to delete the old device when we went here */
++	SAS_DPRINTK("ex %016llx phy 0x%x replace %016llx\n",
++		    SAS_ADDR(dev->sas_addr), phy_id,
++		    SAS_ADDR(phy->attached_sas_addr));
++	sas_unregister_devs_sas_addr(dev, phy_id, last);
  
- 	/* Only use buffering on incomplete pages */
-@@ -338,7 +338,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 		/* Sync with user memory */
- 		if (copy_from_user(sgl->fpage + sgl->fpage_offs,
- 				   user_addr, sgl->fpage_size)) {
--			rc = -EFAULT;
-+			ret = -EFAULT;
- 			goto err_out;
- 		}
- 	}
-@@ -351,7 +351,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 		/* Sync with user memory */
- 		if (copy_from_user(sgl->lpage, user_addr + user_size -
- 				   sgl->lpage_size, sgl->lpage_size)) {
--			rc = -EFAULT;
-+			ret = -EFAULT;
- 			goto err_out2;
- 		}
- 	}
-@@ -373,7 +373,8 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 	sgl->sgl = NULL;
- 	sgl->sgl_dma_addr = 0;
- 	sgl->sgl_size = 0;
--	return -ENOMEM;
-+
-+	return ret;
+ 	return sas_discover_new(dev, phy_id);
  }
- 
- int genwqe_setup_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
 -- 
 2.20.1
 
