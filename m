@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7484F645E
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:59:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8F8F6300
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:49:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729556AbfKJC7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:59:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S1728225AbfKJCst (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:48:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729381AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:56:47 -0500
+        id S1727984AbfKJCss (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:48:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2F4B2256F;
-        Sun, 10 Nov 2019 02:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3111C22573;
+        Sun, 10 Nov 2019 02:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354121;
-        bh=TgMTOV6vcLpQIk4fl+/asFU0iDlVDGF7K2gCTffcTAY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nw+4F+dMzBSVp8Zh5+ch9FS+ciuVdZ3PfIjQVS9WJqyVIfPqr5158VDvmrMbXh9rp
-         TbSh3oExkpe6L9ThfZpu4fsnXCoP0pTHtuKGWsu2qGapNxZmpc1jG9V/ryHteHKUDP
-         2JloV4bwPKTg2CJ469NMZ8mhKxtTbdHPrEbtYbNw=
+        s=default; t=1573354127;
+        bh=XO4jExzsjGqVGycvgNA7RUSP7N/Lq6fZtpDKT8aTcWE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nS3GTpbVSU79UOfmOdapDWmuwF2+haTWnVM541S4JD+jvl6faBaLd3/uVsTcSB4c1
+         TYXtksx/NaTCA+DkRoNZL6NfeOsziAasRUAvnJIWGue+Mc+J6t1uiobsJ28I+ltC8A
+         MBhQve/U373CldWdFSqIFKvnejtpD07YalyieLk4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
+Cc:     Julian Wiedmann <jwi@linux.ibm.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 109/109] net: phy: mdio-bcm-unimac: mark PM functions as __maybe_unused
-Date:   Sat,  9 Nov 2019 21:45:41 -0500
-Message-Id: <20191110024541.31567-109-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/66] s390/qeth: invoke softirqs after napi_schedule()
+Date:   Sat,  9 Nov 2019 21:47:40 -0500
+Message-Id: <20191110024846.32598-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
-References: <20191110024541.31567-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,51 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 9b97123a584f60a5bca5a2663485768a1f6cd0a4 ]
+[ Upstream commit 4d19db777a2f32c9b76f6fd517ed8960576cb43e ]
 
-The newly added runtime-pm support causes a harmless warning
-when CONFIG_PM is disabled:
+Calling napi_schedule() from process context does not ensure that the
+NET_RX softirq is run in a timely fashion. So trigger it manually.
 
-drivers/net/phy/mdio-bcm-unimac.c:330:12: error: 'unimac_mdio_resume' defined but not used [-Werror=unused-function]
- static int unimac_mdio_resume(struct device *d)
-drivers/net/phy/mdio-bcm-unimac.c:321:12: error: 'unimac_mdio_suspend' defined but not used [-Werror=unused-function]
- static int unimac_mdio_suspend(struct device *d)
+This is no big issue with current code. A call to ndo_open() is usually
+followed by a ndo_set_rx_mode() call, and for qeth this contains a
+spin_unlock_bh(). Except for OSN, where qeth_l2_set_rx_mode() bails out
+early.
+Nevertheless it's best to not depend on this behaviour, and just fix
+the issue at its source like all other drivers do. For instance see
+commit 83a0c6e58901 ("i40e: Invoke softirqs after napi_reschedule").
 
-Marking the functions as __maybe_unused is the easiest workaround
-and avoids adding #ifdef checks.
-
-Fixes: b78ac6ecd1b6 ("net: phy: mdio-bcm-unimac: Allow configuring MDIO clock divider")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: a1c3ed4c9ca0 ("qeth: NAPI support for l2 and l3 discipline")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio-bcm-unimac.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 3 +++
+ drivers/s390/net/qeth_l3_main.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/phy/mdio-bcm-unimac.c b/drivers/net/phy/mdio-bcm-unimac.c
-index f9d98a6e67bc4..52703bbd4d666 100644
---- a/drivers/net/phy/mdio-bcm-unimac.c
-+++ b/drivers/net/phy/mdio-bcm-unimac.c
-@@ -316,7 +316,7 @@ static int unimac_mdio_remove(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index 6ba4e921d2fd3..51152681aba6e 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -991,7 +991,10 @@ static int __qeth_l2_open(struct net_device *dev)
  
--static int unimac_mdio_suspend(struct device *d)
-+static int __maybe_unused unimac_mdio_suspend(struct device *d)
- {
- 	struct unimac_mdio_priv *priv = dev_get_drvdata(d);
+ 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
+ 		napi_enable(&card->napi);
++		local_bh_disable();
+ 		napi_schedule(&card->napi);
++		/* kick-start the NAPI softirq: */
++		local_bh_enable();
+ 	} else
+ 		rc = -EIO;
+ 	return rc;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 6e6ba1baf9c48..b40a61d9ad9ec 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -3005,7 +3005,10 @@ static int __qeth_l3_open(struct net_device *dev)
  
-@@ -325,7 +325,7 @@ static int unimac_mdio_suspend(struct device *d)
- 	return 0;
- }
- 
--static int unimac_mdio_resume(struct device *d)
-+static int __maybe_unused unimac_mdio_resume(struct device *d)
- {
- 	struct unimac_mdio_priv *priv = dev_get_drvdata(d);
- 	int ret;
+ 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
+ 		napi_enable(&card->napi);
++		local_bh_disable();
+ 		napi_schedule(&card->napi);
++		/* kick-start the NAPI softirq: */
++		local_bh_enable();
+ 	} else
+ 		rc = -EIO;
+ 	return rc;
 -- 
 2.20.1
 
