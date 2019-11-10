@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 670BAF63FA
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6CF5F63F8
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:56:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727637AbfKJC4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:56:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60242 "EHLO mail.kernel.org"
+        id S1727640AbfKJCtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:49:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729567AbfKJCtw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:49:52 -0500
+        id S1729572AbfKJCtx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:49:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77F4622593;
-        Sun, 10 Nov 2019 02:49:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81A7022581;
+        Sun, 10 Nov 2019 02:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354191;
-        bh=LKMhtjxEW4lnTFxYqZTK/rlDQFdEDmQqHjo7U3iI96Q=;
+        s=default; t=1573354192;
+        bh=C/p5ffkx9IEH3kI+wV1/WForkf/HV3MApMb1oJBFRpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhvuQrfRpVR9UON1Jjsn/015h9LgqTBWwu+LLYp3G5XEpZoyhazj595M2rax/pcbR
-         YqlTJqyyw1BMZX5vvA6soPo63Ynxee3mEFfZP9kumuPXNmml70n8Naw4yJZ8yi3+wj
-         5c2c6mx38THXgLTtPTgM95Exmux0i78BaUeTrOqk=
+        b=hUsPTCdfTyb5wnmJvfw2byxvW3QaTqwurTrpUhcXEYz3cOvRhlDmATfdJ9vcTw6dm
+         tMOkkM9bdvco+cJB68AF3F+gLdxpwZmFwgJx85jbQsqJEkgFXOtFZskfFOiW2QhiEF
+         UE+5YtPCy9MBsjlYhCTkcOmzykMGTSWbz1Vzjbzg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomasz Nowicki <tnowicki@caviumnetworks.com>,
+Cc:     Leo Yan <leo.yan@linaro.org>,
         Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 39/66] coresight: etm4x: Configure EL2 exception level when kernel is running in HYP
-Date:   Sat,  9 Nov 2019 21:48:18 -0500
-Message-Id: <20191110024846.32598-39-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 40/66] coresight: tmc: Fix byte-address alignment for RRP
+Date:   Sat,  9 Nov 2019 21:48:19 -0500
+Message-Id: <20191110024846.32598-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024846.32598-1-sashal@kernel.org>
 References: <20191110024846.32598-1-sashal@kernel.org>
@@ -44,107 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Nowicki <tnowicki@caviumnetworks.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-[ Upstream commit b860801e3237ec4c74cf8de0be4816996757ae5c ]
+[ Upstream commit e7753f3937610633a540f2be81be87531f96ff04 ]
 
-For non-VHE systems host kernel runs at EL1 and jumps to EL2 whenever
-hypervisor code should be executed. In this case ETM4x driver must
-restrict configuration to EL1 when it setups kernel tracing.
-However, there is no separate hypervisor privilege level when VHE
-is enabled, the host kernel runs at EL2.
+>From the comment in the code, it claims the requirement for byte-address
+alignment for RRP register: 'for 32-bit, 64-bit and 128-bit wide trace
+memory, the four LSBs must be 0s. For 256-bit wide trace memory, the
+five LSBs must be 0s'.  This isn't consistent with the program, the
+program sets five LSBs as zeros for 32/64/128-bit wide trace memory and
+set six LSBs zeros for 256-bit wide trace memory.
 
-This patch fixes configuration of TRCACATRn register for VHE systems
-so that ETM_EXLEVEL_NS_HYP bit is used instead of ETM_EXLEVEL_NS_OS
-to on/off kernel tracing. At the same time, it moves common code
-to new helper.
+After checking with the CoreSight Trace Memory Controller technical
+reference manual (ARM DDI 0461B, section 3.3.4 RAM Read Pointer
+Register), it proves the comment is right and the program does wrong
+setting.
 
-Signed-off-by: Tomasz Nowicki <tnowicki@caviumnetworks.com>
+This patch fixes byte-address alignment for RRP by following correct
+definition in the technical reference manual.
+
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c | 40 +++++++++----------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ drivers/hwtracing/coresight/coresight-tmc-etf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index 44d6c29e26448..22079f886f452 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -35,6 +35,7 @@
- #include <linux/pm_runtime.h>
- #include <asm/sections.h>
- #include <asm/local.h>
-+#include <asm/virt.h>
+diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+index d6941ea24d8df..14df4e34c21cf 100644
+--- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
++++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
+@@ -425,10 +425,10 @@ static void tmc_update_etf_buffer(struct coresight_device *csdev,
+ 		case TMC_MEM_INTF_WIDTH_32BITS:
+ 		case TMC_MEM_INTF_WIDTH_64BITS:
+ 		case TMC_MEM_INTF_WIDTH_128BITS:
+-			mask = GENMASK(31, 5);
++			mask = GENMASK(31, 4);
+ 			break;
+ 		case TMC_MEM_INTF_WIDTH_256BITS:
+-			mask = GENMASK(31, 6);
++			mask = GENMASK(31, 5);
+ 			break;
+ 		}
  
- #include "coresight-etm4x.h"
- #include "coresight-etm-perf.h"
-@@ -615,7 +616,7 @@ static void etm4_set_default_config(struct etmv4_config *config)
- 	config->vinst_ctrl |= BIT(0);
- }
- 
--static u64 etm4_get_access_type(struct etmv4_config *config)
-+static u64 etm4_get_ns_access_type(struct etmv4_config *config)
- {
- 	u64 access_type = 0;
- 
-@@ -626,17 +627,26 @@ static u64 etm4_get_access_type(struct etmv4_config *config)
- 	 *   Bit[13] Exception level 1 - OS
- 	 *   Bit[14] Exception level 2 - Hypervisor
- 	 *   Bit[15] Never implemented
--	 *
--	 * Always stay away from hypervisor mode.
- 	 */
--	access_type = ETM_EXLEVEL_NS_HYP;
--
--	if (config->mode & ETM_MODE_EXCL_KERN)
--		access_type |= ETM_EXLEVEL_NS_OS;
-+	if (!is_kernel_in_hyp_mode()) {
-+		/* Stay away from hypervisor mode for non-VHE */
-+		access_type =  ETM_EXLEVEL_NS_HYP;
-+		if (config->mode & ETM_MODE_EXCL_KERN)
-+			access_type |= ETM_EXLEVEL_NS_OS;
-+	} else if (config->mode & ETM_MODE_EXCL_KERN) {
-+		access_type = ETM_EXLEVEL_NS_HYP;
-+	}
- 
- 	if (config->mode & ETM_MODE_EXCL_USER)
- 		access_type |= ETM_EXLEVEL_NS_APP;
- 
-+	return access_type;
-+}
-+
-+static u64 etm4_get_access_type(struct etmv4_config *config)
-+{
-+	u64 access_type = etm4_get_ns_access_type(config);
-+
- 	/*
- 	 * EXLEVEL_S, bits[11:8], don't trace anything happening
- 	 * in secure state.
-@@ -890,20 +900,10 @@ void etm4_config_trace_mode(struct etmv4_config *config)
- 
- 	addr_acc = config->addr_acc[ETM_DEFAULT_ADDR_COMP];
- 	/* clear default config */
--	addr_acc &= ~(ETM_EXLEVEL_NS_APP | ETM_EXLEVEL_NS_OS);
-+	addr_acc &= ~(ETM_EXLEVEL_NS_APP | ETM_EXLEVEL_NS_OS |
-+		      ETM_EXLEVEL_NS_HYP);
- 
--	/*
--	 * EXLEVEL_NS, bits[15:12]
--	 * The Exception levels are:
--	 *   Bit[12] Exception level 0 - Application
--	 *   Bit[13] Exception level 1 - OS
--	 *   Bit[14] Exception level 2 - Hypervisor
--	 *   Bit[15] Never implemented
--	 */
--	if (mode & ETM_MODE_EXCL_KERN)
--		addr_acc |= ETM_EXLEVEL_NS_OS;
--	else
--		addr_acc |= ETM_EXLEVEL_NS_APP;
-+	addr_acc |= etm4_get_ns_access_type(config);
- 
- 	config->addr_acc[ETM_DEFAULT_ADDR_COMP] = addr_acc;
- 	config->addr_acc[ETM_DEFAULT_ADDR_COMP + 1] = addr_acc;
 -- 
 2.20.1
 
