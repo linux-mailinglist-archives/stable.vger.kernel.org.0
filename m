@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 668E1F6466
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:00:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 591A5F646A
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729576AbfKJC7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:59:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47202 "EHLO mail.kernel.org"
+        id S1729613AbfKJC7i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:59:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729356AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729291AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 9 Nov 2019 21:56:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7A8E222C6;
-        Sun, 10 Nov 2019 02:47:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CB1322489;
+        Sun, 10 Nov 2019 02:47:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354071;
-        bh=AVsTff8XYCIJMMJe5wlggyX8gJLBRn9KGyjOJ6ZA1Ag=;
+        s=default; t=1573354079;
+        bh=ZPtKjX3uI6JJyJjI4bzyj4tUmNCcPffp8zZPvBgkP5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wq47mZndz/A59aCp+uLJnHdsWjoe9kIQh77oGzwLFrmznZoZUyKmlZfeBT6Yg99zn
-         qA7g1JRpB8rbCjDKPwU998FnCKpcP/xrdIfwAAhFZR1WudAO4yGia/0V1InkwtHLrR
-         EcOVcymZdX1xeZWcW7TB/b9g7lQQFb2AmlynS+TA=
+        b=NPXbhTgPqupvRjQSfw4wcvWH/3kECjMIh4h9Y6BIut83j0H6uH3dyAfG590+uN6pj
+         OTyOfrjny1+ltH8pkrucBxO14RU6QBttuJmIJeo0pOQpUl9U1yVyk3U6LomwVsvwUR
+         iFFLU/iblTmxGDHGY76ls+VlokoI87cgB0HUBtL4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 074/109] ARM: tegra: apalis_t30: fix mmc1 cmd pull-up
-Date:   Sat,  9 Nov 2019 21:45:06 -0500
-Message-Id: <20191110024541.31567-74-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 077/109] net: faraday: fix return type of ndo_start_xmit function
+Date:   Sat,  9 Nov 2019 21:45:09 -0500
+Message-Id: <20191110024541.31567-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -44,42 +43,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 1c997fe4becdc6fcbc06e23982ceb65621e6572a ]
+[ Upstream commit 0a715156656bddf4aa92d9868f850aeeb0465fd0 ]
 
-Fix MMC1 cmd pin pull-up causing issues on carrier boards without
-external pull-up.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra30-apalis.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/faraday/ftgmac100.c | 4 ++--
+ drivers/net/ethernet/faraday/ftmac100.c  | 7 ++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/tegra30-apalis.dtsi b/arch/arm/boot/dts/tegra30-apalis.dtsi
-index faa8cd2914e8b..b9368d40bc6fb 100644
---- a/arch/arm/boot/dts/tegra30-apalis.dtsi
-+++ b/arch/arm/boot/dts/tegra30-apalis.dtsi
-@@ -166,14 +166,14 @@
+diff --git a/drivers/net/ethernet/faraday/ftgmac100.c b/drivers/net/ethernet/faraday/ftgmac100.c
+index 9ed8e4b815304..f03d44362bb2b 100644
+--- a/drivers/net/ethernet/faraday/ftgmac100.c
++++ b/drivers/net/ethernet/faraday/ftgmac100.c
+@@ -707,8 +707,8 @@ static bool ftgmac100_prep_tx_csum(struct sk_buff *skb, u32 *csum_vlan)
+ 	return skb_checksum_help(skb) == 0;
+ }
  
- 			/* Apalis MMC1 */
- 			sdmmc3_clk_pa6 {
--				nvidia,pins = "sdmmc3_clk_pa6",
--					      "sdmmc3_cmd_pa7";
-+				nvidia,pins = "sdmmc3_clk_pa6";
- 				nvidia,function = "sdmmc3";
- 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
- 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
- 			};
- 			sdmmc3_dat0_pb7 {
--				nvidia,pins = "sdmmc3_dat0_pb7",
-+				nvidia,pins = "sdmmc3_cmd_pa7",
-+					      "sdmmc3_dat0_pb7",
- 					      "sdmmc3_dat1_pb6",
- 					      "sdmmc3_dat2_pb5",
- 					      "sdmmc3_dat3_pb4",
+-static int ftgmac100_hard_start_xmit(struct sk_buff *skb,
+-				     struct net_device *netdev)
++static netdev_tx_t ftgmac100_hard_start_xmit(struct sk_buff *skb,
++					     struct net_device *netdev)
+ {
+ 	struct ftgmac100 *priv = netdev_priv(netdev);
+ 	struct ftgmac100_txdes *txdes, *first;
+diff --git a/drivers/net/ethernet/faraday/ftmac100.c b/drivers/net/ethernet/faraday/ftmac100.c
+index 415fd93e9930f..769c627aace5d 100644
+--- a/drivers/net/ethernet/faraday/ftmac100.c
++++ b/drivers/net/ethernet/faraday/ftmac100.c
+@@ -632,8 +632,8 @@ static void ftmac100_tx_complete(struct ftmac100 *priv)
+ 		;
+ }
+ 
+-static int ftmac100_xmit(struct ftmac100 *priv, struct sk_buff *skb,
+-			 dma_addr_t map)
++static netdev_tx_t ftmac100_xmit(struct ftmac100 *priv, struct sk_buff *skb,
++				 dma_addr_t map)
+ {
+ 	struct net_device *netdev = priv->netdev;
+ 	struct ftmac100_txdes *txdes;
+@@ -1013,7 +1013,8 @@ static int ftmac100_stop(struct net_device *netdev)
+ 	return 0;
+ }
+ 
+-static int ftmac100_hard_start_xmit(struct sk_buff *skb, struct net_device *netdev)
++static netdev_tx_t
++ftmac100_hard_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	struct ftmac100 *priv = netdev_priv(netdev);
+ 	dma_addr_t map;
 -- 
 2.20.1
 
