@@ -2,91 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B12BF6A63
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 17:58:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9F8F6A8A
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 18:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726651AbfKJQ6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Nov 2019 11:58:30 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:41381 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726616AbfKJQ6a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 11:58:30 -0500
-Received: by mail-wr1-f68.google.com with SMTP id p4so12088292wrm.8
-        for <stable@vger.kernel.org>; Sun, 10 Nov 2019 08:58:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yvbNMkXdALI8POpmOlZsGojz1d4yNgSez82IC788SnI=;
-        b=KDwwtqYQSXlQCX3e8ZTUjaaDkWWnh5lOa3mrgHDTVMMmMpGd02iZAhmEIqoGNOxgoN
-         ji9OqNk9q35zL6CXiWqw2hkVPd44xMk5+HMMYmMzpQdmm9GtEIAlFKqUv83KYJ95RHr+
-         dPvc75TJArro9LgN5IumEqFMfU78FAC805JNO/olWXntec2oYerNbsIaw47Vg8HXvNJc
-         iyOC/yXkd2EUqbb3/rYBDQ5z3tdu+bMgqx5qjgEnrYQ3mqNZkt7kIlV8fQiqIePB7q6m
-         0hgXVtbUhS17BPD98tDrflYTCmxETYjClN4QW3Aq8vcqs5JCe+jjd3WhJs6AY9e7Qqid
-         wE+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yvbNMkXdALI8POpmOlZsGojz1d4yNgSez82IC788SnI=;
-        b=fNEdi8VKMchfOvdpAEmew4zSRwVftnuZ2KDb8tpfoh/Q+3C38aCca/HJeqgh3JJ3E5
-         AzIO9i9f2tjdNmCh0cpZ5f9Vncs4TaGeSGekeAGpGb3l6nkMBpHhtISOR+D5cNXXRLr3
-         N9WTusBrnTxX7FMLP5cgwsEQsBQhCbAzgsfcyOAwt0VpPu1PJDtumu2VSczRid7WnEoB
-         XmN86EHtk2iOLEl2TTyMwkxoCrpDuKtHwvqhseCouWXZm8UMLsH7GoTW+r63bfNZA3Mj
-         m/hDwnkuSstKlBg5iZmtKSKPidYd1GoZTxrUjrMzP2Fz7GwH7j6z4jClM+JlUEEFja1M
-         EjYA==
-X-Gm-Message-State: APjAAAUb4A+Zo+nEMiXovrqMDsIBJb5OxkXnoKCrLDjPxW0/vNjwz8dQ
-        XZgLZW20zZUEeSN1lZrxZNVXI1itRIc=
-X-Google-Smtp-Source: APXvYqx146HTRMMi0wkCZnv0udwy3f7lmAzmkf9BOPh7xYQeokSb6hs9mxOKsV4GmceXAgo/HkKAfA==
-X-Received: by 2002:adf:db41:: with SMTP id f1mr16447207wrj.351.1573405108026;
-        Sun, 10 Nov 2019 08:58:28 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w10sm11046018wmd.26.2019.11.10.08.58.26
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 10 Nov 2019 08:58:27 -0800 (PST)
-Message-ID: <5dc841b3.1c69fb81.a5fbc.44a6@mx.google.com>
-Date:   Sun, 10 Nov 2019 08:58:27 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.83
-Subject: stable-rc/linux-4.19.y boot: 70 boots: 0 failed,
- 69 passed with 1 untried/unknown (v4.19.83)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726733AbfKJRTk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Nov 2019 12:19:40 -0500
+Received: from www.linuxtv.org ([130.149.80.248]:36658 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726651AbfKJRTk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 10 Nov 2019 12:19:40 -0500
+Received: from mchehab by www.linuxtv.org with local (Exim 4.84_2)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1iTqsE-0001ny-A2; Sun, 10 Nov 2019 17:19:38 +0000
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+Date:   Sun, 10 Nov 2019 16:48:56 +0000
+Subject: [git:media_tree/master] media: hantro: Fix s_fmt for dynamic resolution changes
+To:     linuxtv-commits@linuxtv.org
+Cc:     Boris Brezillon <boris.brezillon@collabora.com>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Ezequiel Garcia <ezequiel@collabora.com>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1iTqsE-0001ny-A2@www.linuxtv.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 70 boots: 0 failed, 69 passed with 1 untried/u=
-nknown (v4.19.83)
+This is an automatic generated email to let you know that the following patch were queued:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.83/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.83/
+Subject: media: hantro: Fix s_fmt for dynamic resolution changes
+Author:  Ezequiel Garcia <ezequiel@collabora.com>
+Date:    Mon Oct 7 19:45:02 2019 +0200
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.83
-Git Commit: 7d8dbefc22ff71c12c5f63ab0c6de7f70d1f044a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 41 unique boards, 14 SoC families, 10 builds out of 206
+Commit 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
+changed the conditions under S_FMT was allowed for OUTPUT
+CAPTURE buffers.
 
-Boot Regressions Detected:
+However, and according to the mem-to-mem stateless decoder specification,
+in order to support dynamic resolution changes, S_FMT should be allowed
+even if OUTPUT buffers have been allocated.
 
-arm:
+Relax decoder S_FMT restrictions on OUTPUT buffers, allowing a
+resolution modification, provided the pixel format stays the same.
 
-    sunxi_defconfig:
-        gcc-8:
-          sun8i-h2-plus-orangepi-r1:
-              lab-baylibre: new failure (last pass: v4.19.82)
+Tested on RK3288 platforms using ChromiumOS Video Decode/Encode
+Accelerator Unittests.
+
+[hverkuil: fix typo: In other -> In order]
+
+Fixes: 953aaa1492c53 ("media: rockchip/vpu: Prepare things to support decoders")
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Cc: <stable@vger.kernel.org>      # for v5.4 and up
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+
+ drivers/staging/media/hantro/hantro_v4l2.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
 ---
-For more info write to <info@kernelci.org>
+
+diff --git a/drivers/staging/media/hantro/hantro_v4l2.c b/drivers/staging/media/hantro/hantro_v4l2.c
+index 3dae52abb96c..fcf95c1d39ca 100644
+--- a/drivers/staging/media/hantro/hantro_v4l2.c
++++ b/drivers/staging/media/hantro/hantro_v4l2.c
+@@ -367,20 +367,27 @@ vidioc_s_fmt_out_mplane(struct file *file, void *priv, struct v4l2_format *f)
+ {
+ 	struct v4l2_pix_format_mplane *pix_mp = &f->fmt.pix_mp;
+ 	struct hantro_ctx *ctx = fh_to_ctx(priv);
++	struct vb2_queue *vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
+ 	const struct hantro_fmt *formats;
+ 	unsigned int num_fmts;
+-	struct vb2_queue *vq;
+ 	int ret;
+ 
+-	/* Change not allowed if queue is busy. */
+-	vq = v4l2_m2m_get_vq(ctx->fh.m2m_ctx, f->type);
+-	if (vb2_is_busy(vq))
+-		return -EBUSY;
++	ret = vidioc_try_fmt_out_mplane(file, priv, f);
++	if (ret)
++		return ret;
+ 
+ 	if (!hantro_is_encoder_ctx(ctx)) {
+ 		struct vb2_queue *peer_vq;
+ 
+ 		/*
++		 * In order to support dynamic resolution change,
++		 * the decoder admits a resolution change, as long
++		 * as the pixelformat remains. Can't be done if streaming.
++		 */
++		if (vb2_is_streaming(vq) || (vb2_is_busy(vq) &&
++		    pix_mp->pixelformat != ctx->src_fmt.pixelformat))
++			return -EBUSY;
++		/*
+ 		 * Since format change on the OUTPUT queue will reset
+ 		 * the CAPTURE queue, we can't allow doing so
+ 		 * when the CAPTURE queue has buffers allocated.
+@@ -389,12 +396,15 @@ vidioc_s_fmt_out_mplane(struct file *file, void *priv, struct v4l2_format *f)
+ 					  V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE);
+ 		if (vb2_is_busy(peer_vq))
+ 			return -EBUSY;
++	} else {
++		/*
++		 * The encoder doesn't admit a format change if
++		 * there are OUTPUT buffers allocated.
++		 */
++		if (vb2_is_busy(vq))
++			return -EBUSY;
+ 	}
+ 
+-	ret = vidioc_try_fmt_out_mplane(file, priv, f);
+-	if (ret)
+-		return ret;
+-
+ 	formats = hantro_get_formats(ctx, &num_fmts);
+ 	ctx->vpu_src_fmt = hantro_find_format(formats, num_fmts,
+ 					      pix_mp->pixelformat);
