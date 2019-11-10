@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F9E0F64AA
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:01:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A8FF6485
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:00:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729185AbfKJDBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:01:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47214 "EHLO mail.kernel.org"
+        id S1728223AbfKJDAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:00:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729194AbfKJC4q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:56:46 -0500
+        id S1729272AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:56:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2FCB22246A;
-        Sun, 10 Nov 2019 02:47:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D20F22475;
+        Sun, 10 Nov 2019 02:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354056;
-        bh=oHMUJSdY6GTcK8AEGZQrARA28E+MfxcypOGkikh7IlM=;
+        s=default; t=1573354059;
+        bh=Nt/j/Quy+7hqRj6CUCAC/l4/pPFaooAS5ODSYfQ2Llc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSRAYwkoYT3oxwFIYtIKAh4f3wNth5Q7/rRCcgz6IARd1QTN37+qZtmSDyfYC4Lpq
-         Af8YlaK4oQD701Ks9Oy/PssZJxyMyZDWBNd7k8Hvl1CcF4m6aBmATLbHJfbH77Eulh
-         wNHKMA5biGXRNxeg086fUnkD7Ul6uF5sqyHdBgCI=
+        b=OoO8kcXoL/soJAOgkhvOc/n7UqLQAYvjx3Nj4NZYCeg4s/z/pkK6mTh5caofChQi6
+         VhoxCY9MO1QXKMjzzl2UqJ4Y/yEoMZFOvtoTbBGa8im4lIDcbJcOQfyhDJhyq/A9UI
+         4WDQmjhHajlGxVAtO16R0jLgbtFtI9QCFBJvxqyE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leo Yan <leo.yan@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
+Cc:     zhong jiang <zhongjiang@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 066/109] coresight: tmc: Fix byte-address alignment for RRP
-Date:   Sat,  9 Nov 2019 21:44:58 -0500
-Message-Id: <20191110024541.31567-66-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 068/109] misc: genwqe: should return proper error value.
+Date:   Sat,  9 Nov 2019 21:45:00 -0500
+Message-Id: <20191110024541.31567-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -45,52 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: zhong jiang <zhongjiang@huawei.com>
 
-[ Upstream commit e7753f3937610633a540f2be81be87531f96ff04 ]
+[ Upstream commit 02241995b004faa7d9ff628e97f24056190853f8 ]
 
->From the comment in the code, it claims the requirement for byte-address
-alignment for RRP register: 'for 32-bit, 64-bit and 128-bit wide trace
-memory, the four LSBs must be 0s. For 256-bit wide trace memory, the
-five LSBs must be 0s'.  This isn't consistent with the program, the
-program sets five LSBs as zeros for 32/64/128-bit wide trace memory and
-set six LSBs zeros for 256-bit wide trace memory.
+The function should return -EFAULT when copy_from_user fails. Even
+though the caller does not distinguish them. but we should keep backward
+compatibility.
 
-After checking with the CoreSight Trace Memory Controller technical
-reference manual (ARM DDI 0461B, section 3.3.4 RAM Read Pointer
-Register), it proves the comment is right and the program does wrong
-setting.
-
-This patch fixes byte-address alignment for RRP by following correct
-definition in the technical reference manual.
-
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Mike Leach <mike.leach@linaro.org>
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-tmc-etf.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/genwqe/card_utils.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-tmc-etf.c b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-index e2513b7862427..336194d059fed 100644
---- a/drivers/hwtracing/coresight/coresight-tmc-etf.c
-+++ b/drivers/hwtracing/coresight/coresight-tmc-etf.c
-@@ -442,10 +442,10 @@ static void tmc_update_etf_buffer(struct coresight_device *csdev,
- 		case TMC_MEM_INTF_WIDTH_32BITS:
- 		case TMC_MEM_INTF_WIDTH_64BITS:
- 		case TMC_MEM_INTF_WIDTH_128BITS:
--			mask = GENMASK(31, 5);
-+			mask = GENMASK(31, 4);
- 			break;
- 		case TMC_MEM_INTF_WIDTH_256BITS:
--			mask = GENMASK(31, 6);
-+			mask = GENMASK(31, 5);
- 			break;
- 		}
+diff --git a/drivers/misc/genwqe/card_utils.c b/drivers/misc/genwqe/card_utils.c
+index cb12409851575..f55e6e822bea4 100644
+--- a/drivers/misc/genwqe/card_utils.c
++++ b/drivers/misc/genwqe/card_utils.c
+@@ -298,7 +298,7 @@ static int genwqe_sgl_size(int num_pages)
+ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
+ 			  void __user *user_addr, size_t user_size)
+ {
+-	int rc;
++	int ret = -ENOMEM;
+ 	struct pci_dev *pci_dev = cd->pci_dev;
  
+ 	sgl->fpage_offs = offset_in_page((unsigned long)user_addr);
+@@ -317,7 +317,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
+ 	if (get_order(sgl->sgl_size) > MAX_ORDER) {
+ 		dev_err(&pci_dev->dev,
+ 			"[%s] err: too much memory requested!\n", __func__);
+-		return -ENOMEM;
++		return ret;
+ 	}
+ 
+ 	sgl->sgl = __genwqe_alloc_consistent(cd, sgl->sgl_size,
+@@ -325,7 +325,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
+ 	if (sgl->sgl == NULL) {
+ 		dev_err(&pci_dev->dev,
+ 			"[%s] err: no memory available!\n", __func__);
+-		return -ENOMEM;
++		return ret;
+ 	}
+ 
+ 	/* Only use buffering on incomplete pages */
+@@ -338,7 +338,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
+ 		/* Sync with user memory */
+ 		if (copy_from_user(sgl->fpage + sgl->fpage_offs,
+ 				   user_addr, sgl->fpage_size)) {
+-			rc = -EFAULT;
++			ret = -EFAULT;
+ 			goto err_out;
+ 		}
+ 	}
+@@ -351,7 +351,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
+ 		/* Sync with user memory */
+ 		if (copy_from_user(sgl->lpage, user_addr + user_size -
+ 				   sgl->lpage_size, sgl->lpage_size)) {
+-			rc = -EFAULT;
++			ret = -EFAULT;
+ 			goto err_out2;
+ 		}
+ 	}
+@@ -373,7 +373,8 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
+ 	sgl->sgl = NULL;
+ 	sgl->sgl_dma_addr = 0;
+ 	sgl->sgl_size = 0;
+-	return -ENOMEM;
++
++	return ret;
+ }
+ 
+ int genwqe_setup_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
 -- 
 2.20.1
 
