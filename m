@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4E2F6571
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:07:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C83E6F656F
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727773AbfKJDHN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:07:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46922 "EHLO mail.kernel.org"
+        id S1728825AbfKJCp2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:45:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726927AbfKJCp0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:45:26 -0500
+        id S1728822AbfKJCp2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:45:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D1A6222BE;
-        Sun, 10 Nov 2019 02:45:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 923F8214E0;
+        Sun, 10 Nov 2019 02:45:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353926;
-        bh=rUWE+gCpVtyvviHYp6lEwaLES4+niP2PfE8w5mXRyp4=;
+        s=default; t=1573353927;
+        bh=H7Djb+n3qjxbE2dVJgW6kUOuIo0sOoojYsnEGEwGFNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CzHEndCmfNr+gQOfabqjAdPxDWom2yz3sVW4GRxL7R7fY7ZtMUj3HKS5WWqhInNd4
-         B8MMS7B8WhfNyr1auYIUvVF0j29t7HvBl/XNppHCiXndHbyp3bQ6bHviVa+BRTtgK1
-         xtLelJglcOtF3ILRH9xauAsGNWL9FU5KC3Etxv2Q=
+        b=Grj27dbWIntNjgj74K+I5jR4G1ELH7heHYghfcgYPTMsIFncdACUEWGZBHQi/Ze3a
+         QU2OP9PWZEedD9UfOKPVkUlOo8UwlU3cwFMZgAqgljVUEY4yWJdw1bAH6qPm8lD60C
+         Z5OMvRlb/sytNVVgRzrT/X7m2jMvMtCclu7kHaLM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Israel Rukshin <israelr@mellanox.com>,
-        Max Gurtovoy <maxg@mellanox.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 187/191] IB/iser: Fix possible NULL deref at iser_inv_desc()
-Date:   Sat,  9 Nov 2019 21:40:09 -0500
-Message-Id: <20191110024013.29782-187-sashal@kernel.org>
+Cc:     Rui Miguel Silva <rui.silva@linaro.org>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 188/191] media: ov2680: fix null dereference at power on
+Date:   Sat,  9 Nov 2019 21:40:10 -0500
+Message-Id: <20191110024013.29782-188-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -45,69 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Israel Rukshin <israelr@mellanox.com>
+From: Rui Miguel Silva <rui.silva@linaro.org>
 
-[ Upstream commit 65f07f5a09dacf3b60619f196f096ea3671a5eda ]
+[ Upstream commit c45fbdf24c61a7b7a37f1b3bbd46f054637a3627 ]
 
-In case target remote invalidates bogus rkey and signature is not used,
-pi_ctx is NULL deref.
+Swapping the order between v4l2 subdevice registration and checking chip
+id in b7a417628abf ("media: ov2680: don't register the v4l2 subdevice
+before checking chip ID") makes the mode restore to use the sensor
+controls before they are set, so move the mode restore call to s_power
+after the handler setup for controls is done.
 
-The commit also fails the connection on bogus remote invalidation.
+This remove also the need for the error code path in power on function.
 
-Fixes: 59caaed7a72a ("IB/iser: Support the remote invalidation exception")
-Signed-off-by: Israel Rukshin <israelr@mellanox.com>
-Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: b7a417628abf ("media: ov2680: don't register the v4l2 subdevice before checking chip ID")
+
+Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/iser/iser_initiator.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/media/i2c/ov2680.c | 12 ++----------
+ 1 file changed, 2 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/iser/iser_initiator.c b/drivers/infiniband/ulp/iser/iser_initiator.c
-index 2f6388596f886..96af06cfe0afd 100644
---- a/drivers/infiniband/ulp/iser/iser_initiator.c
-+++ b/drivers/infiniband/ulp/iser/iser_initiator.c
-@@ -589,13 +589,19 @@ void iser_login_rsp(struct ib_cq *cq, struct ib_wc *wc)
- 	ib_conn->post_recv_buf_count--;
+diff --git a/drivers/media/i2c/ov2680.c b/drivers/media/i2c/ov2680.c
+index 3ccd584568fb5..d8798fb714ba8 100644
+--- a/drivers/media/i2c/ov2680.c
++++ b/drivers/media/i2c/ov2680.c
+@@ -568,10 +568,6 @@ static int ov2680_power_on(struct ov2680_dev *sensor)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = ov2680_mode_restore(sensor);
+-	if (ret < 0)
+-		goto disable;
+-
+ 	sensor->is_enabled = true;
+ 
+ 	/* Set clock lane into LP-11 state */
+@@ -580,12 +576,6 @@ static int ov2680_power_on(struct ov2680_dev *sensor)
+ 	ov2680_stream_disable(sensor);
+ 
+ 	return 0;
+-
+-disable:
+-	dev_err(dev, "failed to enable sensor: %d\n", ret);
+-	ov2680_power_off(sensor);
+-
+-	return ret;
  }
  
--static inline void
-+static inline int
- iser_inv_desc(struct iser_fr_desc *desc, u32 rkey)
- {
--	if (likely(rkey == desc->rsc.mr->rkey))
-+	if (likely(rkey == desc->rsc.mr->rkey)) {
- 		desc->rsc.mr_valid = 0;
--	else if (likely(rkey == desc->pi_ctx->sig_mr->rkey))
-+	} else if (likely(desc->pi_ctx && rkey == desc->pi_ctx->sig_mr->rkey)) {
- 		desc->pi_ctx->sig_mr_valid = 0;
-+	} else {
-+		iser_err("Bogus remote invalidation for rkey %#x\n", rkey);
-+		return -EINVAL;
-+	}
+ static int ov2680_s_power(struct v4l2_subdev *sd, int on)
+@@ -606,6 +596,8 @@ static int ov2680_s_power(struct v4l2_subdev *sd, int on)
+ 		ret = v4l2_ctrl_handler_setup(&sensor->ctrls.handler);
+ 		if (ret < 0)
+ 			return ret;
 +
-+	return 0;
- }
++		ret = ov2680_mode_restore(sensor);
+ 	}
  
- static int
-@@ -623,12 +629,14 @@ iser_check_remote_inv(struct iser_conn *iser_conn,
- 
- 			if (iser_task->dir[ISER_DIR_IN]) {
- 				desc = iser_task->rdma_reg[ISER_DIR_IN].mem_h;
--				iser_inv_desc(desc, rkey);
-+				if (unlikely(iser_inv_desc(desc, rkey)))
-+					return -EINVAL;
- 			}
- 
- 			if (iser_task->dir[ISER_DIR_OUT]) {
- 				desc = iser_task->rdma_reg[ISER_DIR_OUT].mem_h;
--				iser_inv_desc(desc, rkey);
-+				if (unlikely(iser_inv_desc(desc, rkey)))
-+					return -EINVAL;
- 			}
- 		} else {
- 			iser_err("failed to get task for itt=%d\n", hdr->itt);
+ 	return ret;
 -- 
 2.20.1
 
