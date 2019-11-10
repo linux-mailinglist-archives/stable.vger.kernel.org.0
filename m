@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FC42F657D
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:07:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DABCF6584
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:08:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728798AbfKJCpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:45:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46522 "EHLO mail.kernel.org"
+        id S1727942AbfKJDH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:07:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728788AbfKJCpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:45:20 -0500
+        id S1728796AbfKJCpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:45:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC388222BE;
-        Sun, 10 Nov 2019 02:45:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8A3121848;
+        Sun, 10 Nov 2019 02:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353919;
-        bh=6zIYvAQLeAqmRqLZCnOGn1hGP8lmOux0Wh75nSABTTI=;
+        s=default; t=1573353920;
+        bh=Nyd3IFEncmva4CFy6JnvNMxW1suuTboYSQorV7E3X2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=isbFdRsoULsWqnRqnukhJf5Y2YP710nsKXd3zs+1YUabLu+RYjqiqI4OjoJErJsT7
-         E/SsXg09h+220/pu7SIw59KGUzWhcRdhcpeGKbyS9mkFlpc+hQA7jPwQ449qsaCOb9
-         MfJkrJzIXaWVYrKwKtIvyVD9j8O39ZIkRT6BDUfw=
+        b=rpy2AXs/+5belLThjZtlp8w/m0l9R5smGLWMung5o4R5IM7S/AfPJELGbkwM/VAd4
+         NW6lyr+t0Ps9Ve0sw5rNJEayKqxw36eEbWMmvzXfaJy+SIC3ZcXj/IYQ2SLxsLnIog
+         yzbxXXo6E7J5eU3WLxWkxNlJlzzP2BQ+ShTdds8Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rtc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 182/191] rtc: armada38x: fix possible race condition
-Date:   Sat,  9 Nov 2019 21:40:04 -0500
-Message-Id: <20191110024013.29782-182-sashal@kernel.org>
+Cc:     Tan Hu <tan.hu@zte.com.cn>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 183/191] netfilter: masquerade: don't flush all conntracks if only one address deleted on device
+Date:   Sat,  9 Nov 2019 21:40:05 -0500
+Message-Id: <20191110024013.29782-183-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -42,82 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Tan Hu <tan.hu@zte.com.cn>
 
-[ Upstream commit 7d61cbb945a753af08e247b5f10bdd5dbb8d6c80 ]
+[ Upstream commit 097f95d319f817e651bd51f8846aced92a55a6a1 ]
 
-The IRQ is requested before the struct rtc is allocated and registered, but
-this struct is used in the IRQ handler. This may lead to a NULL pointer
-dereference.
+We configured iptables as below, which only allowed incoming data on
+established connections:
 
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before requesting the IRQ.
+iptables -t mangle -A PREROUTING -m state --state ESTABLISHED -j ACCEPT
+iptables -t mangle -P PREROUTING DROP
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+When deleting a secondary address, current masquerade implements would
+flush all conntracks on this device. All the established connections on
+primary address also be deleted, then subsequent incoming data on the
+connections would be dropped wrongly because it was identified as NEW
+connection.
+
+So when an address was delete, it should only flush connections related
+with the address.
+
+Signed-off-by: Tan Hu <tan.hu@zte.com.cn>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-armada38x.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ net/ipv4/netfilter/nf_nat_masquerade_ipv4.c | 22 ++++++++++++++++++---
+ net/ipv6/netfilter/nf_nat_masquerade_ipv6.c | 19 +++++++++++++++---
+ 2 files changed, 35 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
-index bde53c8ccee2c..b74338d6dde60 100644
---- a/drivers/rtc/rtc-armada38x.c
-+++ b/drivers/rtc/rtc-armada38x.c
-@@ -514,7 +514,6 @@ MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
- 
- static __init int armada38x_rtc_probe(struct platform_device *pdev)
- {
--	const struct rtc_class_ops *ops;
- 	struct resource *res;
- 	struct armada38x_rtc *rtc;
- 	const struct of_device_id *match;
-@@ -551,6 +550,11 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "no irq\n");
- 		return rtc->irq;
- 	}
-+
-+	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(rtc->rtc_dev))
-+		return PTR_ERR(rtc->rtc_dev);
-+
- 	if (devm_request_irq(&pdev->dev, rtc->irq, armada38x_rtc_alarm_irq,
- 				0, pdev->name, rtc) < 0) {
- 		dev_warn(&pdev->dev, "Interrupt not available.\n");
-@@ -560,28 +564,24 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
- 
- 	if (rtc->irq != -1) {
- 		device_init_wakeup(&pdev->dev, 1);
--		ops = &armada38x_rtc_ops;
-+		rtc->rtc_dev->ops = &armada38x_rtc_ops;
- 	} else {
- 		/*
- 		 * If there is no interrupt available then we can't
- 		 * use the alarm
- 		 */
--		ops = &armada38x_rtc_ops_noirq;
-+		rtc->rtc_dev->ops = &armada38x_rtc_ops_noirq;
- 	}
- 	rtc->data = (struct armada38x_rtc_data *)match->data;
- 
--
- 	/* Update RTC-MBUS bridge timing parameters */
- 	rtc->data->update_mbus_timing(rtc);
- 
--	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
--						ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtc_dev)) {
--		ret = PTR_ERR(rtc->rtc_dev);
-+	ret = rtc_register_device(rtc->rtc_dev);
-+	if (ret)
- 		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
--		return ret;
--	}
--	return 0;
-+
-+	return ret;
+diff --git a/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c b/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c
+index 4c7fcd32f8e62..41327bb990932 100644
+--- a/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c
++++ b/net/ipv4/netfilter/nf_nat_masquerade_ipv4.c
+@@ -104,12 +104,26 @@ static int masq_device_event(struct notifier_block *this,
+ 	return NOTIFY_DONE;
  }
  
- #ifdef CONFIG_PM_SLEEP
++static int inet_cmp(struct nf_conn *ct, void *ptr)
++{
++	struct in_ifaddr *ifa = (struct in_ifaddr *)ptr;
++	struct net_device *dev = ifa->ifa_dev->dev;
++	struct nf_conntrack_tuple *tuple;
++
++	if (!device_cmp(ct, (void *)(long)dev->ifindex))
++		return 0;
++
++	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
++
++	return ifa->ifa_address == tuple->dst.u3.ip;
++}
++
+ static int masq_inet_event(struct notifier_block *this,
+ 			   unsigned long event,
+ 			   void *ptr)
+ {
+ 	struct in_device *idev = ((struct in_ifaddr *)ptr)->ifa_dev;
+-	struct netdev_notifier_info info;
++	struct net *net = dev_net(idev->dev);
+ 
+ 	/* The masq_dev_notifier will catch the case of the device going
+ 	 * down.  So if the inetdev is dead and being destroyed we have
+@@ -119,8 +133,10 @@ static int masq_inet_event(struct notifier_block *this,
+ 	if (idev->dead)
+ 		return NOTIFY_DONE;
+ 
+-	netdev_notifier_info_init(&info, idev->dev);
+-	return masq_device_event(this, event, &info);
++	if (event == NETDEV_DOWN)
++		nf_ct_iterate_cleanup_net(net, inet_cmp, ptr, 0, 0);
++
++	return NOTIFY_DONE;
+ }
+ 
+ static struct notifier_block masq_dev_notifier = {
+diff --git a/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c b/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c
+index 37b1d413c825b..0ad0da5a26002 100644
+--- a/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c
++++ b/net/ipv6/netfilter/nf_nat_masquerade_ipv6.c
+@@ -87,18 +87,30 @@ static struct notifier_block masq_dev_notifier = {
+ struct masq_dev_work {
+ 	struct work_struct work;
+ 	struct net *net;
++	struct in6_addr addr;
+ 	int ifindex;
+ };
+ 
++static int inet_cmp(struct nf_conn *ct, void *work)
++{
++	struct masq_dev_work *w = (struct masq_dev_work *)work;
++	struct nf_conntrack_tuple *tuple;
++
++	if (!device_cmp(ct, (void *)(long)w->ifindex))
++		return 0;
++
++	tuple = &ct->tuplehash[IP_CT_DIR_REPLY].tuple;
++
++	return ipv6_addr_equal(&w->addr, &tuple->dst.u3.in6);
++}
++
+ static void iterate_cleanup_work(struct work_struct *work)
+ {
+ 	struct masq_dev_work *w;
+-	long index;
+ 
+ 	w = container_of(work, struct masq_dev_work, work);
+ 
+-	index = w->ifindex;
+-	nf_ct_iterate_cleanup_net(w->net, device_cmp, (void *)index, 0, 0);
++	nf_ct_iterate_cleanup_net(w->net, inet_cmp, (void *)w, 0, 0);
+ 
+ 	put_net(w->net);
+ 	kfree(w);
+@@ -147,6 +159,7 @@ static int masq_inet6_event(struct notifier_block *this,
+ 		INIT_WORK(&w->work, iterate_cleanup_work);
+ 		w->ifindex = dev->ifindex;
+ 		w->net = net;
++		w->addr = ifa->addr;
+ 		schedule_work(&w->work);
+ 
+ 		return NOTIFY_DONE;
 -- 
 2.20.1
 
