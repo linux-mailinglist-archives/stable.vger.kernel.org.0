@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 22E44F6624
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:12:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42897F6634
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728307AbfKJCnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:43:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
+        id S1727394AbfKJDME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:12:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728286AbfKJCnY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727380AbfKJCnY (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 9 Nov 2019 21:43:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3BE15214E0;
-        Sun, 10 Nov 2019 02:43:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A43F21D7E;
+        Sun, 10 Nov 2019 02:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353803;
-        bh=nQTEW2sPLQXF4S3Lvl9L5CzIUmUDreOj4jlhRJhdpGw=;
+        s=default; t=1573353804;
+        bh=qccNVmZMxv5kQtq0rUpntk6zxaeEGhRVlDuYNiPXVyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcBEOtl7Fit125725A+ZL76V0Qnc7fI48HQJorNakWupPVzWTTiQPafayaqcfMw/w
-         a9JkLodVeR+I/ohlkaVCpqoptdbQDLefRvPGK7mRJos7dCylA8T9p1mQ13H/SIzeK5
-         vuGeYGVL7EeuLkggdV86w8Otl4cb+mrp38VxegMg=
+        b=HyUSeRVPniONhFotUQaMv0PP4WWSbqi/gOefp1bhvDkrm4XtSTA94NBl3VmIOQtKH
+         kRGFzJyuQ28uHxxPBPqcWU2HFEsf5ogc1bDYDIzA1ZpTb+fAS1e6eAu9cOwlMpYBAu
+         56XsRtIEwj0P6KSdJlPWruOoNuW6FwrNgt6J0fS0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brendan Higgins <brendanhiggins@google.com>,
-        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 101/191] i2c: aspeed: fix invalid clock parameters for very large divisors
-Date:   Sat,  9 Nov 2019 21:38:43 -0500
-Message-Id: <20191110024013.29782-101-sashal@kernel.org>
+Cc:     Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 102/191] gpiolib: Fix gpio_direction_* for single direction GPIOs
+Date:   Sat,  9 Nov 2019 21:38:44 -0500
+Message-Id: <20191110024013.29782-102-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -44,164 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brendan Higgins <brendanhiggins@google.com>
+From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
-[ Upstream commit 17ccba67109cd0631f206cf49e17986218b47854 ]
+[ Upstream commit ae9847f48a4b4bff0335da20be63ac84d94eb54c ]
 
-The function that computes clock parameters from divisors did not
-respect the maximum size of the bitfields that the parameters were
-written to. This fixes the bug.
+GPIOs with no programmable direction are not required to implement
+direction_output nor direction_input.
 
-This bug can be reproduced with (and this fix verified with) the test
-at: https://kunit-review.googlesource.com/c/linux/+/1035/
+If we try to set an output direction on an output-only GPIO or input
+direction on an input-only GPIO simply return 0.
 
-Discovered-by-KUnit: https://kunit-review.googlesource.com/c/linux/+/1035/
-Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
-Reviewed-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This allows this single direction GPIO to be used by libgpiod.
+
+Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-aspeed.c | 65 +++++++++++++++++++++++----------
- 1 file changed, 45 insertions(+), 20 deletions(-)
+ drivers/gpio/gpiolib.c | 36 ++++++++++++++++++++++++++++--------
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
-index a19fbff168617..d9401b5191069 100644
---- a/drivers/i2c/busses/i2c-aspeed.c
-+++ b/drivers/i2c/busses/i2c-aspeed.c
-@@ -137,7 +137,8 @@ struct aspeed_i2c_bus {
- 	/* Synchronizes I/O mem access to base. */
- 	spinlock_t			lock;
- 	struct completion		cmd_complete;
--	u32				(*get_clk_reg_val)(u32 divisor);
-+	u32				(*get_clk_reg_val)(struct device *dev,
-+							   u32 divisor);
- 	unsigned long			parent_clk_frequency;
- 	u32				bus_frequency;
- 	/* Transaction state. */
-@@ -686,16 +687,27 @@ static const struct i2c_algorithm aspeed_i2c_algo = {
- #endif /* CONFIG_I2C_SLAVE */
- };
- 
--static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
-+static u32 aspeed_i2c_get_clk_reg_val(struct device *dev,
-+				      u32 clk_high_low_mask,
-+				      u32 divisor)
+diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
+index 565ab945698ca..b81a27c7f89c4 100644
+--- a/drivers/gpio/gpiolib.c
++++ b/drivers/gpio/gpiolib.c
+@@ -2541,19 +2541,27 @@ EXPORT_SYMBOL_GPL(gpiochip_free_own_desc);
+ int gpiod_direction_input(struct gpio_desc *desc)
  {
--	u32 base_clk, clk_high, clk_low, tmp;
-+	u32 base_clk_divisor, clk_high_low_max, clk_high, clk_low, tmp;
-+
-+	/*
-+	 * SCL_high and SCL_low represent a value 1 greater than what is stored
-+	 * since a zero divider is meaningless. Thus, the max value each can
-+	 * store is every bit set + 1. Since SCL_high and SCL_low are added
-+	 * together (see below), the max value of both is the max value of one
-+	 * them times two.
-+	 */
-+	clk_high_low_max = (clk_high_low_mask + 1) * 2;
+ 	struct gpio_chip	*chip;
+-	int			status = -EINVAL;
++	int			status = 0;
  
- 	/*
- 	 * The actual clock frequency of SCL is:
- 	 *	SCL_freq = APB_freq / (base_freq * (SCL_high + SCL_low))
- 	 *		 = APB_freq / divisor
- 	 * where base_freq is a programmable clock divider; its value is
--	 *	base_freq = 1 << base_clk
-+	 *	base_freq = 1 << base_clk_divisor
- 	 * SCL_high is the number of base_freq clock cycles that SCL stays high
- 	 * and SCL_low is the number of base_freq clock cycles that SCL stays
- 	 * low for a period of SCL.
-@@ -705,47 +717,59 @@ static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
- 	 *	SCL_low	 = clk_low + 1
- 	 * Thus,
- 	 *	SCL_freq = APB_freq /
--	 *		((1 << base_clk) * (clk_high + 1 + clk_low + 1))
-+	 *		((1 << base_clk_divisor) * (clk_high + 1 + clk_low + 1))
- 	 * The documentation recommends clk_high >= clk_high_max / 2 and
- 	 * clk_low >= clk_low_max / 2 - 1 when possible; this last constraint
- 	 * gives us the following solution:
- 	 */
--	base_clk = divisor > clk_high_low_max ?
-+	base_clk_divisor = divisor > clk_high_low_max ?
- 			ilog2((divisor - 1) / clk_high_low_max) + 1 : 0;
--	tmp = (divisor + (1 << base_clk) - 1) >> base_clk;
--	clk_low = tmp / 2;
--	clk_high = tmp - clk_low;
+ 	VALIDATE_DESC(desc);
+ 	chip = desc->gdev->chip;
  
--	if (clk_high)
--		clk_high--;
-+	if (base_clk_divisor > ASPEED_I2CD_TIME_BASE_DIVISOR_MASK) {
-+		base_clk_divisor = ASPEED_I2CD_TIME_BASE_DIVISOR_MASK;
-+		clk_low = clk_high_low_mask;
-+		clk_high = clk_high_low_mask;
-+		dev_err(dev,
-+			"clamping clock divider: divider requested, %u, is greater than largest possible divider, %u.\n",
-+			divisor, (1 << base_clk_divisor) * clk_high_low_max);
-+	} else {
-+		tmp = (divisor + (1 << base_clk_divisor) - 1)
-+				>> base_clk_divisor;
-+		clk_low = tmp / 2;
-+		clk_high = tmp - clk_low;
-+
-+		if (clk_high)
-+			clk_high--;
+-	if (!chip->get || !chip->direction_input) {
++	if (!chip->get && chip->direction_input) {
+ 		gpiod_warn(desc,
+-			"%s: missing get() or direction_input() operations\n",
++			"%s: missing get() and direction_input() operations\n",
+ 			__func__);
+ 		return -EIO;
+ 	}
  
--	if (clk_low)
--		clk_low--;
-+		if (clk_low)
-+			clk_low--;
+-	status = chip->direction_input(chip, gpio_chip_hwgpio(desc));
++	if (chip->direction_input) {
++		status = chip->direction_input(chip, gpio_chip_hwgpio(desc));
++	} else if (chip->get_direction &&
++		  (chip->get_direction(chip, gpio_chip_hwgpio(desc)) != 1)) {
++		gpiod_warn(desc,
++			"%s: missing direction_input() operation\n",
++			__func__);
++		return -EIO;
 +	}
+ 	if (status == 0)
+ 		clear_bit(FLAG_IS_OUT, &desc->flags);
  
- 
- 	return ((clk_high << ASPEED_I2CD_TIME_SCL_HIGH_SHIFT)
- 		& ASPEED_I2CD_TIME_SCL_HIGH_MASK)
- 			| ((clk_low << ASPEED_I2CD_TIME_SCL_LOW_SHIFT)
- 			   & ASPEED_I2CD_TIME_SCL_LOW_MASK)
--			| (base_clk & ASPEED_I2CD_TIME_BASE_DIVISOR_MASK);
-+			| (base_clk_divisor
-+			   & ASPEED_I2CD_TIME_BASE_DIVISOR_MASK);
- }
- 
--static u32 aspeed_i2c_24xx_get_clk_reg_val(u32 divisor)
-+static u32 aspeed_i2c_24xx_get_clk_reg_val(struct device *dev, u32 divisor)
+@@ -2575,16 +2583,28 @@ static int gpiod_direction_output_raw_commit(struct gpio_desc *desc, int value)
  {
- 	/*
- 	 * clk_high and clk_low are each 3 bits wide, so each can hold a max
- 	 * value of 8 giving a clk_high_low_max of 16.
- 	 */
--	return aspeed_i2c_get_clk_reg_val(16, divisor);
-+	return aspeed_i2c_get_clk_reg_val(dev, GENMASK(2, 0), divisor);
- }
+ 	struct gpio_chip *gc = desc->gdev->chip;
+ 	int val = !!value;
+-	int ret;
++	int ret = 0;
  
--static u32 aspeed_i2c_25xx_get_clk_reg_val(u32 divisor)
-+static u32 aspeed_i2c_25xx_get_clk_reg_val(struct device *dev, u32 divisor)
- {
- 	/*
- 	 * clk_high and clk_low are each 4 bits wide, so each can hold a max
- 	 * value of 16 giving a clk_high_low_max of 32.
- 	 */
--	return aspeed_i2c_get_clk_reg_val(32, divisor);
-+	return aspeed_i2c_get_clk_reg_val(dev, GENMASK(3, 0), divisor);
- }
+-	if (!gc->set || !gc->direction_output) {
++	if (!gc->set && !gc->direction_output) {
+ 		gpiod_warn(desc,
+-		       "%s: missing set() or direction_output() operations\n",
++		       "%s: missing set() and direction_output() operations\n",
+ 		       __func__);
+ 		return -EIO;
+ 	}
  
- /* precondition: bus.lock has been acquired. */
-@@ -758,7 +782,7 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
- 	clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
- 			ASPEED_I2CD_TIME_THDSTA_MASK |
- 			ASPEED_I2CD_TIME_TACST_MASK);
--	clk_reg_val |= bus->get_clk_reg_val(divisor);
-+	clk_reg_val |= bus->get_clk_reg_val(bus->dev, divisor);
- 	writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
- 	writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
- 
-@@ -874,7 +898,8 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
- 	if (!match)
- 		bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
- 	else
--		bus->get_clk_reg_val = (u32 (*)(u32))match->data;
-+		bus->get_clk_reg_val = (u32 (*)(struct device *, u32))
-+				match->data;
- 
- 	/* Initialize the I2C adapter */
- 	spin_lock_init(&bus->lock);
+-	ret = gc->direction_output(gc, gpio_chip_hwgpio(desc), val);
++	if (gc->direction_output) {
++		ret = gc->direction_output(gc, gpio_chip_hwgpio(desc), val);
++	} else {
++		if (gc->get_direction &&
++		    gc->get_direction(gc, gpio_chip_hwgpio(desc))) {
++			gpiod_warn(desc,
++				"%s: missing direction_output() operation\n",
++				__func__);
++			return -EIO;
++		}
++		gc->set(gc, gpio_chip_hwgpio(desc), val);
++	}
++
+ 	if (!ret)
+ 		set_bit(FLAG_IS_OUT, &desc->flags);
+ 	trace_gpio_value(desc_to_gpio(desc), 0, val);
 -- 
 2.20.1
 
