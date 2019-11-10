@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D4D1F66F5
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:17:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D1C5F66ED
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:17:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727810AbfKJDRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:17:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33386 "EHLO mail.kernel.org"
+        id S1726946AbfKJCkd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:40:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726889AbfKJCk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:40:29 -0500
+        id S1726925AbfKJCkc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:40:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9771F21019;
-        Sun, 10 Nov 2019 02:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FCA9222C4;
+        Sun, 10 Nov 2019 02:40:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353628;
-        bh=LOoFyHqdtFlQI7thHL/oKGR6t8lo4GqLDvCdzHE5FfU=;
+        s=default; t=1573353632;
+        bh=H6WRcRF4jr5TKpnkFhGUjOIpidjg4AoHJXVq/R2DmTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uLsPjiy537BMp0wQCkeZpuV6/lRb4qcAX5s1AJoPZ9e+tN6+Bb4EL+7ndoNJZ8oLo
-         11i48UX9cnjwOyKFYOlhjH9NyYC/bs5ePXdkPJRK3BDGxiDbzvVyCuSEHNE1+4SJcZ
-         e6jLM0tJ3I5QwBo5gaVJFGQ1H935r3eni/z13r50=
+        b=kPWZWmrs+U37S2EQ+w7t2vNPp8zy+H/dH3PkgYDFUBhNQl3MOr6VYqZo2yoJ+cmJK
+         ykmg8D5xfixo3cXW3DFP5/b+26RJkaHhmSna6r7Y4bDU6Y1N4Y/HP4wxnwoQ/ZpoGW
+         yek4PuVvtbePeG8OrOQ9EjPhXwyNVx+4pNdzsnD4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anton Vasilyev <vasilyev@ispras.ru>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 012/191] serial: mxs-auart: Fix potential infinite loop
-Date:   Sat,  9 Nov 2019 21:37:14 -0500
-Message-Id: <20191110024013.29782-12-sashal@kernel.org>
+Cc:     Yonghong Song <yhs@fb.com>, Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 015/191] samples/bpf: fix a compilation failure
+Date:   Sat,  9 Nov 2019 21:37:17 -0500
+Message-Id: <20191110024013.29782-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -46,43 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Vasilyev <vasilyev@ispras.ru>
+From: Yonghong Song <yhs@fb.com>
 
-[ Upstream commit 5963e8a3122471cadfe0eba41c4ceaeaa5c8bb4d ]
+[ Upstream commit 534e0e52bc23de588e81b5a6f75e10c8c4b189fc ]
 
-On the error path of mxs_auart_request_gpio_irq() is performed
-backward iterating with index i of enum type. Underline enum type
-may be unsigned char. In this case check (--i >= 0) will be always
-true and error handling goes into infinite loop.
+samples/bpf build failed with the following errors:
 
-The patch changes the check so that it is valid for signed and unsigned
-types.
+  $ make samples/bpf/
+  ...
+  HOSTCC  samples/bpf/sockex3_user.o
+  /data/users/yhs/work/net-next/samples/bpf/sockex3_user.c:16:8: error: redefinition of ‘struct bpf_flow_keys’
+   struct bpf_flow_keys {
+          ^
+  In file included from /data/users/yhs/work/net-next/samples/bpf/sockex3_user.c:4:0:
+  ./usr/include/linux/bpf.h:2338:9: note: originally defined here
+    struct bpf_flow_keys *flow_keys;
+           ^
+  make[3]: *** [samples/bpf/sockex3_user.o] Error 1
 
-Found by Linux Driver Verification project (linuxtesting.org).
+Commit d58e468b1112d ("flow_dissector: implements flow dissector BPF hook")
+introduced struct bpf_flow_keys in include/uapi/linux/bpf.h and hence
+caused the naming conflict with samples/bpf/sockex3_user.c.
 
-Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
-Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The fix is to rename struct bpf_flow_keys in samples/bpf/sockex3_user.c
+to flow_keys to avoid the conflict.
+
+Signed-off-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/mxs-auart.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ samples/bpf/sockex3_user.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/mxs-auart.c b/drivers/tty/serial/mxs-auart.c
-index 34acdf29713d7..4c188f4079b3e 100644
---- a/drivers/tty/serial/mxs-auart.c
-+++ b/drivers/tty/serial/mxs-auart.c
-@@ -1634,8 +1634,9 @@ static int mxs_auart_request_gpio_irq(struct mxs_auart_port *s)
+diff --git a/samples/bpf/sockex3_user.c b/samples/bpf/sockex3_user.c
+index 5ba3ae9d180ba..22f74d0e14934 100644
+--- a/samples/bpf/sockex3_user.c
++++ b/samples/bpf/sockex3_user.c
+@@ -13,7 +13,7 @@
+ #define PARSE_IP_PROG_FD (prog_fd[0])
+ #define PROG_ARRAY_FD (map_fd[0])
  
- 	/*
- 	 * If something went wrong, rollback.
-+	 * Be careful: i may be unsigned.
- 	 */
--	while (err && (--i >= 0))
-+	while (err && (i-- > 0))
- 		if (irq[i] >= 0)
- 			free_irq(irq[i], s);
+-struct bpf_flow_keys {
++struct flow_keys {
+ 	__be32 src;
+ 	__be32 dst;
+ 	union {
+@@ -64,7 +64,7 @@ int main(int argc, char **argv)
+ 	(void) f;
  
+ 	for (i = 0; i < 5; i++) {
+-		struct bpf_flow_keys key = {}, next_key;
++		struct flow_keys key = {}, next_key;
+ 		struct pair value;
+ 
+ 		sleep(1);
 -- 
 2.20.1
 
