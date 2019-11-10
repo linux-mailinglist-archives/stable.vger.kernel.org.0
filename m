@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A783F63E0
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:55:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A58A3F63DB
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:55:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727486AbfKJCzk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:55:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33178 "EHLO mail.kernel.org"
+        id S1729656AbfKJCuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:50:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727758AbfKJCuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:50:13 -0500
+        id S1729655AbfKJCuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:50:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74FCD229F2;
-        Sun, 10 Nov 2019 02:50:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93247225AD;
+        Sun, 10 Nov 2019 02:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354213;
-        bh=K4yGkZRbv35RcfeluxzhT6L6sAAB+YWzrmzYRIBSGGs=;
+        s=default; t=1573354214;
+        bh=H0/qcPuyNj8VHYkAGniOjGUPht77ncyCRxdKZH54tbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pCas/GwH9km4eo5bTV2D7fmY8xRvMWUQG7ZkFKxrbc3F0w/W63C0saXKYprNEYYwi
-         b3/xlLkqkRBAZK2UW1FMrPk9k2F301PB7CN4M25EoLlmHkD7jaMwv9K+rB2zGgpJ0j
-         0CUR9GPdz6l19W8jC//yVeaqkqAgunO3N6cXaovY=
+        b=uJtFXehVOwHvGlgyNxqys36mRvGzgefbEaK0YTL3Qu3fHHR1aKvMoHO2IoACqVj/f
+         /1v50yM6Zd0VYBuQQrCkPrK89aqtxUugSH3Bygq/MCWnwLuGfS/hkn5y3Lk5foJ1JI
+         p8YuwCbPIic0E9ifwR8DIqnjlfcbmbJRUAG4jW/w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 52/66] Bluetooth: L2CAP: Detect if remote is not able to use the whole MPS
-Date:   Sat,  9 Nov 2019 21:48:31 -0500
-Message-Id: <20191110024846.32598-52-sashal@kernel.org>
+Cc:     Christoph Manszewski <c.manszewski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Kamil Konieczny <k.konieczny@partner.samsung.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 53/66] crypto: s5p-sss: Fix Fix argument list alignment
+Date:   Sat,  9 Nov 2019 21:48:32 -0500
+Message-Id: <20191110024846.32598-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024846.32598-1-sashal@kernel.org>
 References: <20191110024846.32598-1-sashal@kernel.org>
@@ -44,42 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Christoph Manszewski <c.manszewski@samsung.com>
 
-[ Upstream commit a5c3021bb62b970713550db3f7fd08aa70665d7e ]
+[ Upstream commit 6c12b6ba45490eeb820fdceccf5a53f42a26799c ]
 
-If the remote is not able to fully utilize the MPS choosen recalculate
-the credits based on the actual amount it is sending that way it can
-still send packets of MTU size without credits dropping to 0.
+Fix misalignment of continued argument list.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Christoph Manszewski <c.manszewski@samsung.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Acked-by: Kamil Konieczny <k.konieczny@partner.samsung.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/crypto/s5p-sss.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 48d23abfe7992..1306962a792af 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -6811,6 +6811,16 @@ static int l2cap_le_data_rcv(struct l2cap_chan *chan, struct sk_buff *skb)
- 		chan->sdu_len = sdu_len;
- 		chan->sdu_last_frag = skb;
+diff --git a/drivers/crypto/s5p-sss.c b/drivers/crypto/s5p-sss.c
+index 500e4090e2fd4..5a37c075ee553 100644
+--- a/drivers/crypto/s5p-sss.c
++++ b/drivers/crypto/s5p-sss.c
+@@ -298,7 +298,7 @@ static void s5p_unset_indata(struct s5p_aes_dev *dev)
+ }
  
-+		/* Detect if remote is not able to use the selected MPS */
-+		if (skb->len + L2CAP_SDULEN_SIZE < chan->mps) {
-+			u16 mps_len = skb->len + L2CAP_SDULEN_SIZE;
-+
-+			/* Adjust the number of credits */
-+			BT_DBG("chan->mps %u -> %u", chan->mps, mps_len);
-+			chan->mps = mps_len;
-+			l2cap_chan_le_send_credits(chan);
-+		}
-+
- 		return 0;
- 	}
+ static int s5p_make_sg_cpy(struct s5p_aes_dev *dev, struct scatterlist *src,
+-			    struct scatterlist **dst)
++			   struct scatterlist **dst)
+ {
+ 	void *pages;
+ 	int len;
+@@ -510,7 +510,7 @@ static int s5p_set_indata_start(struct s5p_aes_dev *dev,
+ }
  
+ static int s5p_set_outdata_start(struct s5p_aes_dev *dev,
+-				struct ablkcipher_request *req)
++				 struct ablkcipher_request *req)
+ {
+ 	struct scatterlist *sg;
+ 	int err;
 -- 
 2.20.1
 
