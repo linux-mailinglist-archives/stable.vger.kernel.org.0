@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 05760F639C
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:53:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98142F6348
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:51:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729888AbfKJCvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:51:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
+        id S1729893AbfKJCvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:51:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729877AbfKJCvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:51:05 -0500
+        id S1729889AbfKJCvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:51:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C31C522794;
-        Sun, 10 Nov 2019 02:51:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C980122790;
+        Sun, 10 Nov 2019 02:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354265;
-        bh=/NIyCPyZeLdBwZL2f6/XlX7dwDQA8o09yF4PJxAG3WA=;
+        s=default; t=1573354266;
+        bh=wFarCmC1vgEJ83u0SNHI/6bTj2VuSACrgAQl9SOjl9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wK7VOwEMNMcPo3yQVH8MzWYB+SUVRdNywLnuF2IMpPatHL8MYqHv85TDBFUUsmGrj
-         0dvvXMKeOThX9SQHqAxxwbq0+CpPwSr/yyCIR2Y8NiIgoEBqzhRw6BaNe1vVWZFcni
-         6Kx3OmAtAe5sJHfrNdCSbnpWcizYfZt9Ms1Y6yHw=
+        b=sa2mIf8Ya/7kPaHCxl47bThOIu0HR94tA4m4pZyoRoEsUPlvgImOBJCusFzu6nHDd
+         FwX2zx8NhQpn5UtAYdas48T2FsZrl/7WGN3n3J7xcfPQTVVZUnN+CpF7618Y7erTmJ
+         +ps3vq74JLL23pD9ZKBHu//maSvTuwgeexbk/dQI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Loic Poulain <loic.poulain@linaro.org>,
-        Peter Chen <peter.chen@nxp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 14/40] usb: chipidea: Fix otg event handler
-Date:   Sat,  9 Nov 2019 21:50:06 -0500
-Message-Id: <20191110025032.827-14-sashal@kernel.org>
+Cc:     Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 15/40] ARM: dts: am335x-evm: fix number of cpsw
+Date:   Sat,  9 Nov 2019 21:50:07 -0500
+Message-Id: <20191110025032.827-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110025032.827-1-sashal@kernel.org>
 References: <20191110025032.827-1-sashal@kernel.org>
@@ -43,46 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 59739131e0ca06db7560f9073fff2fb83f6bc2a5 ]
+[ Upstream commit dcbf6b18d81bcdc51390ca1b258c17e2e13b7d0c ]
 
-At OTG work running time, it's possible that several events need to be
-addressed (e.g. ID and VBUS events). The current implementation handles
-only one event at a time which leads to ignoring the other one. Fix it.
+am335x-evm has only one CPSW external port physically wired, but DT defines
+2 ext. ports. As result, PHY connection failure reported for the second
+ext. port.
 
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Update DT to reflect am335x-evm board HW configuration, and, while here,
+switch to use phy-handle instead of phy_id.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/otg.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/am335x-evm.dts | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/chipidea/otg.c b/drivers/usb/chipidea/otg.c
-index f36a1ac3bfbdf..b8650210be0f7 100644
---- a/drivers/usb/chipidea/otg.c
-+++ b/drivers/usb/chipidea/otg.c
-@@ -206,14 +206,17 @@ static void ci_otg_work(struct work_struct *work)
- 	}
+diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
+index d9d00ab863a21..2b8614e406f03 100644
+--- a/arch/arm/boot/dts/am335x-evm.dts
++++ b/arch/arm/boot/dts/am335x-evm.dts
+@@ -697,6 +697,7 @@
+ 	pinctrl-0 = <&cpsw_default>;
+ 	pinctrl-1 = <&cpsw_sleep>;
+ 	status = "okay";
++	slaves = <1>;
+ };
  
- 	pm_runtime_get_sync(ci->dev);
-+
- 	if (ci->id_event) {
- 		ci->id_event = false;
- 		ci_handle_id_switch(ci);
--	} else if (ci->b_sess_valid_event) {
-+	}
-+
-+	if (ci->b_sess_valid_event) {
- 		ci->b_sess_valid_event = false;
- 		ci_handle_vbus_change(ci);
--	} else
--		dev_err(ci->dev, "unexpected event occurs at %s\n", __func__);
-+	}
-+
- 	pm_runtime_put_sync(ci->dev);
+ &davinci_mdio {
+@@ -704,15 +705,14 @@
+ 	pinctrl-0 = <&davinci_mdio_default>;
+ 	pinctrl-1 = <&davinci_mdio_sleep>;
+ 	status = "okay";
+-};
  
- 	enable_irq(ci->irq);
+-&cpsw_emac0 {
+-	phy_id = <&davinci_mdio>, <0>;
+-	phy-mode = "rgmii-txid";
++	ethphy0: ethernet-phy@0 {
++		reg = <0>;
++	};
+ };
+ 
+-&cpsw_emac1 {
+-	phy_id = <&davinci_mdio>, <1>;
++&cpsw_emac0 {
++	phy-handle = <&ethphy0>;
+ 	phy-mode = "rgmii-txid";
+ };
+ 
 -- 
 2.20.1
 
