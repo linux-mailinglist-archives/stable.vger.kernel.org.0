@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 701AAF65EB
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:10:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8626F65EE
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:10:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727384AbfKJCoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:44:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43126 "EHLO mail.kernel.org"
+        id S1728467AbfKJCoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:44:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727041AbfKJCoI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:44:08 -0500
+        id S1727406AbfKJCoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:44:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5941E21655;
-        Sun, 10 Nov 2019 02:44:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E6C4D21655;
+        Sun, 10 Nov 2019 02:44:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353847;
-        bh=hYB5w+UMz/UqauZuigYfxBQ7rra5sbV9A9cqsKXHT6A=;
+        s=default; t=1573353850;
+        bh=yRG4lXGZHqVRRehlry61nL/wufOOr98J8YvVsQqt1zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkEFTMyhLkJJ801OtcSM6/KETlxymbF0+m6lMOb3YJ2+WMIt/dl+uyRj1sLJ9qe69
-         lUlm6PU03f0OZnjkb7vZncMERFF7KtXgJHcNsXaFv1kCejIccHKP0tdkKVzrY97TeO
-         BFI7ydqQR9V+HYupiRFyuQCkTWblI4gVk9kD0aYg=
+        b=wQhaZeVCv4n8CGDmaX+10s2hPPFum1suUK7hFX/vWppsOnQrP9k1ln948CsoguSk2
+         aSM4Pijv8nxuM0yVg2WgGAx6l7a2IU9SX6hZLKYJVLHcbgUNBdaorQqbxZYUYTQ7SQ
+         61iTXOC+vg5H/D5tfDgaEVl5CoSYN/MT5lg4k0kc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sai Praneeth <sai.praneeth.prakhya@intel.com>,
-        Bhupesh Sharma <bhsharma@redhat.com>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 134/191] efi: Make efi_rts_work accessible to efi page fault handler
-Date:   Sat,  9 Nov 2019 21:39:16 -0500
-Message-Id: <20191110024013.29782-134-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 136/191] arm64: tegra: I2C on Tegra194 is not compatible with Tegra114
+Date:   Sat,  9 Nov 2019 21:39:18 -0500
+Message-Id: <20191110024013.29782-136-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -45,165 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sai Praneeth <sai.praneeth.prakhya@intel.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 9dbbedaa6171247c4c7c40b83f05b200a117c2e0 ]
+[ Upstream commit d9fd22447ba59a9b53a202fade977e82bfba8d8d ]
 
-After the kernel has booted, if any accesses by firmware causes a page
-fault, the efi page fault handler would freeze efi_rts_wq and schedules
-a new process. To do this, the efi page fault handler needs
-efi_rts_work. Hence, make it accessible.
+Tegra194 contains a version of the I2C controller that is no longer
+compatible with the version found in Tegra114.
 
-There will be no race conditions in accessing this structure, because
-all the calls to efi runtime services are already serialized.
-
-Tested-by: Bhupesh Sharma <bhsharma@redhat.com>
-Suggested-by: Matt Fleming <matt@codeblueprint.co.uk>
-Based-on-code-from: Ricardo Neri <ricardo.neri@intel.com>
-Signed-off-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/runtime-wrappers.c | 53 +++++--------------------
- include/linux/efi.h                     | 36 +++++++++++++++++
- 2 files changed, 45 insertions(+), 44 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra194.dtsi | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/firmware/efi/runtime-wrappers.c b/drivers/firmware/efi/runtime-wrappers.c
-index 1606abead22cc..b31e3d3729a6d 100644
---- a/drivers/firmware/efi/runtime-wrappers.c
-+++ b/drivers/firmware/efi/runtime-wrappers.c
-@@ -45,39 +45,7 @@
- #define __efi_call_virt(f, args...) \
- 	__efi_call_virt_pointer(efi.systab->runtime, f, args)
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+index a4dfcd19b9e88..9fc14bb9a0aff 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+@@ -118,7 +118,7 @@
+ 		};
  
--/* efi_runtime_service() function identifiers */
--enum efi_rts_ids {
--	GET_TIME,
--	SET_TIME,
--	GET_WAKEUP_TIME,
--	SET_WAKEUP_TIME,
--	GET_VARIABLE,
--	GET_NEXT_VARIABLE,
--	SET_VARIABLE,
--	QUERY_VARIABLE_INFO,
--	GET_NEXT_HIGH_MONO_COUNT,
--	UPDATE_CAPSULE,
--	QUERY_CAPSULE_CAPS,
--};
--
--/*
-- * efi_runtime_work:	Details of EFI Runtime Service work
-- * @arg<1-5>:		EFI Runtime Service function arguments
-- * @status:		Status of executing EFI Runtime Service
-- * @efi_rts_id:		EFI Runtime Service function identifier
-- * @efi_rts_comp:	Struct used for handling completions
-- */
--struct efi_runtime_work {
--	void *arg1;
--	void *arg2;
--	void *arg3;
--	void *arg4;
--	void *arg5;
--	efi_status_t status;
--	struct work_struct work;
--	enum efi_rts_ids efi_rts_id;
--	struct completion efi_rts_comp;
--};
-+struct efi_runtime_work efi_rts_work;
+ 		gen1_i2c: i2c@3160000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x03160000 0x10000>;
+ 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -143,7 +143,7 @@
+ 		};
  
- /*
-  * efi_queue_work:	Queue efi_runtime_service() and wait until it's done
-@@ -91,7 +59,6 @@ struct efi_runtime_work {
-  */
- #define efi_queue_work(_rts, _arg1, _arg2, _arg3, _arg4, _arg5)		\
- ({									\
--	struct efi_runtime_work efi_rts_work;				\
- 	efi_rts_work.status = EFI_ABORTED;				\
- 									\
- 	init_completion(&efi_rts_work.efi_rts_comp);			\
-@@ -191,18 +158,16 @@ extern struct semaphore __efi_uv_runtime_lock __alias(efi_runtime_lock);
-  */
- static void efi_call_rts(struct work_struct *work)
- {
--	struct efi_runtime_work *efi_rts_work;
- 	void *arg1, *arg2, *arg3, *arg4, *arg5;
- 	efi_status_t status = EFI_NOT_FOUND;
+ 		cam_i2c: i2c@3180000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x03180000 0x10000>;
+ 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -157,7 +157,7 @@
  
--	efi_rts_work = container_of(work, struct efi_runtime_work, work);
--	arg1 = efi_rts_work->arg1;
--	arg2 = efi_rts_work->arg2;
--	arg3 = efi_rts_work->arg3;
--	arg4 = efi_rts_work->arg4;
--	arg5 = efi_rts_work->arg5;
-+	arg1 = efi_rts_work.arg1;
-+	arg2 = efi_rts_work.arg2;
-+	arg3 = efi_rts_work.arg3;
-+	arg4 = efi_rts_work.arg4;
-+	arg5 = efi_rts_work.arg5;
+ 		/* shares pads with dpaux1 */
+ 		dp_aux_ch1_i2c: i2c@3190000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x03190000 0x10000>;
+ 			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -171,7 +171,7 @@
  
--	switch (efi_rts_work->efi_rts_id) {
-+	switch (efi_rts_work.efi_rts_id) {
- 	case GET_TIME:
- 		status = efi_call_virt(get_time, (efi_time_t *)arg1,
- 				       (efi_time_cap_t *)arg2);
-@@ -260,8 +225,8 @@ static void efi_call_rts(struct work_struct *work)
- 		 */
- 		pr_err("Requested executing invalid EFI Runtime Service.\n");
- 	}
--	efi_rts_work->status = status;
--	complete(&efi_rts_work->efi_rts_comp);
-+	efi_rts_work.status = status;
-+	complete(&efi_rts_work.efi_rts_comp);
- }
+ 		/* shares pads with dpaux0 */
+ 		dp_aux_ch0_i2c: i2c@31b0000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x031b0000 0x10000>;
+ 			interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -184,7 +184,7 @@
+ 		};
  
- static efi_status_t virt_efi_get_time(efi_time_t *tm, efi_time_cap_t *tc)
-diff --git a/include/linux/efi.h b/include/linux/efi.h
-index f43fc61fbe2c9..9d4c25090fd04 100644
---- a/include/linux/efi.h
-+++ b/include/linux/efi.h
-@@ -1666,6 +1666,42 @@ struct linux_efi_tpm_eventlog {
+ 		gen7_i2c: i2c@31c0000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x031c0000 0x10000>;
+ 			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -197,7 +197,7 @@
+ 		};
  
- extern int efi_tpm_eventlog_init(void);
+ 		gen9_i2c: i2c@31e0000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x031e0000 0x10000>;
+ 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -264,7 +264,7 @@
+ 		};
  
-+/* efi_runtime_service() function identifiers */
-+enum efi_rts_ids {
-+	GET_TIME,
-+	SET_TIME,
-+	GET_WAKEUP_TIME,
-+	SET_WAKEUP_TIME,
-+	GET_VARIABLE,
-+	GET_NEXT_VARIABLE,
-+	SET_VARIABLE,
-+	QUERY_VARIABLE_INFO,
-+	GET_NEXT_HIGH_MONO_COUNT,
-+	UPDATE_CAPSULE,
-+	QUERY_CAPSULE_CAPS,
-+};
-+
-+/*
-+ * efi_runtime_work:	Details of EFI Runtime Service work
-+ * @arg<1-5>:		EFI Runtime Service function arguments
-+ * @status:		Status of executing EFI Runtime Service
-+ * @efi_rts_id:		EFI Runtime Service function identifier
-+ * @efi_rts_comp:	Struct used for handling completions
-+ */
-+struct efi_runtime_work {
-+	void *arg1;
-+	void *arg2;
-+	void *arg3;
-+	void *arg4;
-+	void *arg5;
-+	efi_status_t status;
-+	struct work_struct work;
-+	enum efi_rts_ids efi_rts_id;
-+	struct completion efi_rts_comp;
-+};
-+
-+extern struct efi_runtime_work efi_rts_work;
-+
- /* Workqueue to queue EFI Runtime Services */
- extern struct workqueue_struct *efi_rts_wq;
+ 		gen2_i2c: i2c@c240000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x0c240000 0x10000>;
+ 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -277,7 +277,7 @@
+ 		};
  
+ 		gen8_i2c: i2c@c250000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x0c250000 0x10000>;
+ 			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
 -- 
 2.20.1
 
