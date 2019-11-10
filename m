@@ -2,73 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0029CF6829
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 10:28:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 862B9F68B0
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 12:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726656AbfKJJ2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Nov 2019 04:28:19 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:42059 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726641AbfKJJ2T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 04:28:19 -0500
-Received: by mail-wr1-f68.google.com with SMTP id a15so11435217wrf.9
-        for <stable@vger.kernel.org>; Sun, 10 Nov 2019 01:28:17 -0800 (PST)
+        id S1726641AbfKJLcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Nov 2019 06:32:12 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:42540 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726610AbfKJLcM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 06:32:12 -0500
+Received: by mail-wr1-f65.google.com with SMTP id a15so11606342wrf.9
+        for <stable@vger.kernel.org>; Sun, 10 Nov 2019 03:32:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=DdL+N1YwCUx/tCe4SHz3OQtUGlGsdYVolL9iE7DgDPo=;
-        b=r+vV0bsJGLXuwrs3MjRArtj7/dkgU2mTnFr4mrAQWwk+VzhSvNU6H4ANg5LVxogaLf
-         Firr7R9cjkT9CaizVpvgW5huynkXEpTeMZvhvu53b3pMmHHMVJS+hnMlfc4g33HDJSt8
-         oQhcK9zJvJD1+buwTV8At35UgdPqgA6hFuP5XmFP/rOm7iehbgmA1CrD3ZAJuzmDRt6k
-         r/8vDgvFiKCQrsnZmXNLsNdponCllc9WYgVEJaa0UIniTp2zgpKH0ZqtmGUXEOm0qTf9
-         y3n0/NN0Kc5JR2HNwkEQQXvdqbZepkTNCtizipO4vMh/QeUzfq8VJJHOLd23elERz9/P
-         XDNw==
+        d=baylibre-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id;
+        bh=eqtZaRSTf6xIkwuPq1/HFHXXUlATMq/NHIIuhCWeknE=;
+        b=0kwJ4ih0MBW94wtyqcnSiEUWwf7e4nSsn7yZjt1Ih7C14XjKqudwbSRuNuRXNwioYK
+         yRsvj0cK1ELFBUaF6SP4LZ36SsDk8pgOVRo2dUc2h/mtmUckG1TbphQzWu6iYxj6aT2A
+         GJS8Ps8Dbc9bT4z6oFAVtpKz7/qzKzbeeSxpWG1SND6foE6Vm4K9uUQtECf4P+G0C1vw
+         oaJr6SdzCoLyCX4D8NIhIexfeRZWjPJGzTN+O5wiPRpzLhCokFbACXrvkbaR/okV2KKU
+         XwI3jRTFPtsnCNh9E8fx/T9UmSXGX75Ws1ZDqOIVD39sT16TArR4eJqBukqx2bFlF5Kt
+         O1Lw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=DdL+N1YwCUx/tCe4SHz3OQtUGlGsdYVolL9iE7DgDPo=;
-        b=lhbu2/9mlOxqvANkr/8iSSq/WJJ0ccK9q085XV+dUz5qX3X0SGkc91TScUgxYAsdw7
-         lGt0Aa0rzwWOQmEXP+Vt8UbkjUnrDVLSk8cFwX+aTu2SnOCJLYoPxiyCALGc0JgFb0yq
-         PdPBPNfjZJNnaGmwQcnc/NJIJeSs3l13m/6WHN3w7JQNY53+dYZiaRv4qNfDC/+JFad0
-         XW3I64K/kVUm5wrqJYuzccdTcsETz3SRj0z0NpRCGdN8KrjRIGBcr6fXSg01XTFckAJ1
-         QjW+CplMxMu4ahxT7JpSoeN07sonNuRjneMiFDC33tl/lHiusru+EzBj5LSaFgUB4qlt
-         BPCw==
-X-Gm-Message-State: APjAAAW+aATuQrwuoRRsgLJc5s1GErNl9V5AsS7k7/HxdfAsyxd/78jG
-        Ijao3IOSgEL+i2HjR0fOFznolwQEPH69TeKqe3g=
-X-Google-Smtp-Source: APXvYqw2suaDxIuslCEV+7JfFTPC0ihB/Gea4zBMB7bL7dErA89lhzsYt3a7HYl+w1jYzT3do4VtbJPgtK+mi/JnuJQ=
-X-Received: by 2002:adf:c409:: with SMTP id v9mr16171318wrf.41.1573378096680;
- Sun, 10 Nov 2019 01:28:16 -0800 (PST)
-MIME-Version: 1.0
-Reply-To: bashamzebdani@gmail.com
-Received: by 2002:a5d:4e89:0:0:0:0:0 with HTTP; Sun, 10 Nov 2019 01:28:15
- -0800 (PST)
-From:   "Mr.Basham Zebdani" <bashamzebdani@gmail.com>
-Date:   Sun, 10 Nov 2019 09:28:15 +0000
-X-Google-Sender-Auth: Hq8NBBUJA_UVVvr0CY0umw6LcSY
-Message-ID: <CAG3TQM1jbvZp42TZoXU0jauO8cdOKYTnVX+pO93AQyqUSX5-cg@mail.gmail.com>
-Subject: PRODUCT SUPPLY
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=eqtZaRSTf6xIkwuPq1/HFHXXUlATMq/NHIIuhCWeknE=;
+        b=ZY32xNBHVuvBkqZUB8HZGxl3K8NTbo3L16+YoHJ/Us5GFy43ibxX3TFTpcBMSZrAkl
+         gO7bUNG10H3sB2dN5bItuL42aUP9DLMHvz05M5fNqIRcG2OdVtzGoovBLlwWMtYBahLJ
+         p+gyufxfgGqAfem9yuj/vUpwpzup8rA+JJSBRe4skyk9vBkAo+5ZbEFPZ4BHSreEv02G
+         Q0WXRruTsaJUAdKrN3g7TM2tiq2p/cGblJuMrNZDRmkHPRWxc6Pb15StXbOU+8gvqOiY
+         dskfNrZ4WlIk/Xvtc60+Qu3WzbyzP2iVCUURRZwEaGujmNjZay9SHpSCD/WG/WgK85O0
+         6xNA==
+X-Gm-Message-State: APjAAAV5MXIf7/53acv5tEdiQkpPypqhE16P4CNZRFqJoL8+SZ5yccLq
+        LxNUdhIi5qmeu7SRNHWWUG+pCw==
+X-Google-Smtp-Source: APXvYqwVMKPltIJcxfYK5pX/jgL4O+v5P+oIZIcn6bHiA4cAV1wqJtXljV3PMLaASgLhKqeraItTfg==
+X-Received: by 2002:adf:fe8d:: with SMTP id l13mr172966wrr.287.1573385530196;
+        Sun, 10 Nov 2019 03:32:10 -0800 (PST)
+Received: from localhost.localdomain ([51.15.160.169])
+        by smtp.googlemail.com with ESMTPSA id p4sm13440238wrx.71.2019.11.10.03.32.08
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Sun, 10 Nov 2019 03:32:09 -0800 (PST)
+From:   Corentin Labbe <clabbe@baylibre.com>
+To:     alexandre.torgue@st.com, davem@davemloft.net, joabreu@synopsys.com,
+        mripard@kernel.org, peppe.cavallaro@st.com, wens@csie.org
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        netdev@vger.kernel.org, linux-sunxi@googlegroups.com,
+        Corentin Labbe <clabbe@baylibre.com>,
+        "# v4 . 15+" <stable@vger.kernel.org>
+Subject: [PATCH] net: ethernet: dwmac-sun8i: Use the correct function in exit path
+Date:   Sun, 10 Nov 2019 11:30:48 +0000
+Message-Id: <1573385448-30282-1-git-send-email-clabbe@baylibre.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Sir/ Madam,
+When PHY is not powered, the probe function fail and some resource are
+still unallocated.
+Furthermore some BUG happens:
+dwmac-sun8i 5020000.ethernet: EMAC reset timeout
+------------[ cut here ]------------
+kernel BUG at /linux-next/net/core/dev.c:9844!
 
-I am writing  you from  the Republic of Burkina Faso for  trade
-inquiry. I want to send you a request for quote. Please send me your
-brochure,  product catalog and pricing information.
+So let's use the right function (stmmac_pltfr_remove) in the error path.
 
-Also tell me your nearest sales  office to Burkina Faso. We hope to
-build a long term business relationship with your respective  company
-therefore your information and cooperation will be much  appreciated.
+Fixes: 9f93ac8d4085 ("net-next: stmmac: Add dwmac-sun8i")
+Cc: <stable@vger.kernel.org> # v4.15+
+Signed-off-by: Corentin Labbe <clabbe@baylibre.com>
+---
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Please do not hesitate to contact me if you need any further
-information or help from our side and hope to hear from you soon.
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+index eefb06d918c8..1c8d84ed8410 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sun8i.c
+@@ -1227,7 +1227,7 @@ static int sun8i_dwmac_probe(struct platform_device *pdev)
+ dwmac_mux:
+ 	sun8i_dwmac_unset_syscon(gmac);
+ dwmac_exit:
+-	sun8i_dwmac_exit(pdev, plat_dat->bsp_priv);
++	stmmac_pltfr_remove(pdev);
+ return ret;
+ }
+ 
+-- 
+2.23.0
 
-Mr, Basham Zebdani
-
- Thomas ZONGO Logistique Et Commerce Sarl.
-NO. 316, Avenue Professeur Joseph Ki-Zerbo . Ouagadougou 01 Burkina Faso.
