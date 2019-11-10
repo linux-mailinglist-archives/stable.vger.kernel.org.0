@@ -2,77 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDCDEF69C2
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 16:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02ADCF69C6
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 16:35:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726973AbfKJPek (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 10 Nov 2019 10:34:40 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:33281 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726653AbfKJPej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 10:34:39 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 9B091412;
-        Sun, 10 Nov 2019 10:34:38 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 10 Nov 2019 10:34:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=jIDeH2sJ/VlBR52JL2i1+2RenUQ
-        AFXoezfuK16AoBEA=; b=jPdQZNljeEryoxvh73Z7lBW20p+qALIczcbTBZom5OL
-        bRrYMgs63R8t21/tP4J3yQA7TOtntChgRcAZwdOokb/nJvA/FKeH3RT2Vijs94R4
-        B111es/697CgXiom77b+RKzRFbkID+kQkXhUbcMtKW2h1FyjB1lYrFSvzcfqizGk
-        dLU6P/yvjWtdek0BLWj2yR4hOE7VEBjqaRfWIFFVEeWmg+AMMdwpqp278RROedOG
-        On2RAW3vlYlSdl6NwXk1LNnxAI41C1SmGsNIgjCM3KPMMunSpHwhGa9y+nAjbSHv
-        qd3J/QAM+XJCNqMjTgP7BlmLxoBejxZP8FiD8A7jFcw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=jIDeH2
-        sJ/VlBR52JL2i1+2RenUQAFXoezfuK16AoBEA=; b=tXCWWH5EpEn+Z/wg93ykPn
-        4L0qaEwHkk1uvY6OvBZJQ+WE64SWQpuC1keHJKzyTTElUWEAjV+2118hxfjgGIiX
-        +CcsdqE6bb9AzR5+z58C1EXKZbk0vbmhSGlyjqTglv/gl7ys5j1hWXFBTguUP2tz
-        OjdvjJ2BRW4Q14fajKJjv1oGJPKAYJrpDIPhof6g3WQiQGJPxLsIbvoMS6LQqfnk
-        hHRAWVIV0myEMwygaZibgK3wEUs1vcbC+YK6wO52Wm2E0eOxsFbWCp048hGVLVxv
-        XjG7gKd0RHpUgdCXEeJlEm7f0WTDV48hyeSprKmG1ewzT86coTnpocLypYhJCLXQ
-        ==
-X-ME-Sender: <xms:Di7IXW3DWNTjP4o_r2FKzpyeN92uJ9V3UuO0IrCDn8HtSLRtvHnH1g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddvhedgkeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
-    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
-    vehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Di7IXb-FZsZ_kN8xWzp50Ut0xZk64CjGBWiVdjppSjNA_hR_QUcE4g>
-    <xmx:Di7IXfsrWGVPctjwiBHI_y2V41QZ21Q4zrVilJnV8tp9o1qNXWg_6w>
-    <xmx:Di7IXZoRL8V1WiTHfSYNp7cALuXfvo1SjKtzfl3BgSvFbYdwXY8RAw>
-    <xmx:Di7IXdnHOiGAyiyDCgc6CvlX_Lku3ajgCEQtIYZTV_7uJ9_3TS_9Aw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A081980059;
-        Sun, 10 Nov 2019 10:34:37 -0500 (EST)
-Date:   Sun, 10 Nov 2019 16:34:36 +0100
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20191110153436.GA2865851@kroah.com>
-References: <20191109.214709.2055803887587817489.davem@davemloft.net>
+        id S1726731AbfKJPf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 10 Nov 2019 10:35:28 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:35319 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726653AbfKJPf2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 10 Nov 2019 10:35:28 -0500
+Received: by mail-wr1-f67.google.com with SMTP id s5so888746wrw.2
+        for <stable@vger.kernel.org>; Sun, 10 Nov 2019 07:35:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=BPMVDpp3SBOJ3Z2dWnmhCL244d2+GR6k/okCqO84TQw=;
+        b=QhQFYfRvBSXOYH1CA+29d+SOtTxUwmN8E7QDudbPewunWMy93qO33bg8OCYxqt2KK6
+         uGgBgd6NjJLjf99TZYXawsHVBVyENHQN6tZuuu0YmYYNZ0pk+G5bgq8HHLh0hqAB+GJq
+         vuLsSZbwTf5iu+UvhGsf3eZTwu8/k3HsOg9tZqBBqcy7pyTNv4rUT+Bs7RxqCBLaoRa4
+         ijKtotX+8eCDV6JYdtrsIKDsDwtTsp7zCIRBf9LSRktYcx293qVyLy8PLXnErsrGp8F9
+         dit61cJ05pDRw6CXpRq3f0YrJrHnN7RJ4vjm0het1cKnMnngxM0/f3p3m+ECBi+0hwIu
+         jwdw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=BPMVDpp3SBOJ3Z2dWnmhCL244d2+GR6k/okCqO84TQw=;
+        b=obkMsc2X3IozcSEvuiS6ZG12M39TAzeS2pgQ4ktWU1v6pw0WoN64r495aMuww90puC
+         lpoQFd0SAoeFlf06J53210ehbXH9RxSBK/AR4gYHlShkT7B0rOEg2bXRp6dfNNGroibc
+         jyD/6UBYw8MWNCxJKsubBmbMueEhVmqThII2UQY8hXAWJFoel/hpswzG2iHGubwEdNIX
+         2nE/Gb+Antx/qa2AKQCPdejGcQR/Gd0MyLOAfOSvR7rc/N1U8X94gxK1kUguPOsaPK8l
+         XHjvw0RAnkXCUaNNq6sPE7f3awxfGF4nGp5t18SmbOHPIwfJgStBlaE4qNegkURWAdbD
+         kU4w==
+X-Gm-Message-State: APjAAAWZdZU/2acjDv6Og73XjpmFKV9Vn3ndJi25oKvTCB4dA2zueH+O
+        pQXhaT/Ntm2Zu8Cn7OOF1V/6xJ+K7pI=
+X-Google-Smtp-Source: APXvYqxPeOxf1Evni8YkMCizq9rAkw/e/vf5MxRJD5sU1f5CqWDb2DaxofWy8dmC91LoxD2GWuLaPg==
+X-Received: by 2002:adf:f3c5:: with SMTP id g5mr916590wrp.5.1573400124931;
+        Sun, 10 Nov 2019 07:35:24 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id t5sm11445757wro.76.2019.11.10.07.35.24
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 10 Nov 2019 07:35:24 -0800 (PST)
+Message-ID: <5dc82e3c.1c69fb81.6fae9.7c1a@mx.google.com>
+Date:   Sun, 10 Nov 2019 07:35:24 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191109.214709.2055803887587817489.davem@davemloft.net>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.200
+Subject: stable/linux-4.4.y boot: 37 boots: 0 failed,
+ 35 passed with 2 conflicts (v4.4.200)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 09, 2019 at 09:47:09PM -0800, David Miller wrote:
-> 
-> Please queue up the following networking bug fixes for v4.19 and v5.3
-> stable, respectively.
+stable/linux-4.4.y boot: 37 boots: 0 failed, 35 passed with 2 conflicts (v4=
+.4.200)
 
-All now queued up, thanks!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+4.y/kernel/v4.4.200/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.4.y/ke=
+rnel/v4.4.200/
 
-greg k-h
+Tree: stable
+Branch: linux-4.4.y
+Git Describe: v4.4.200
+Git Commit: 1b8629e7c9b52079a6471973a1e2e14012b885e9
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 20 unique boards, 10 SoC families, 8 builds out of 190
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
