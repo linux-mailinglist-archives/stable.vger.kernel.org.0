@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D0F1F6519
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:04:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF52BF6514
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728181AbfKJDEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:04:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51106 "EHLO mail.kernel.org"
+        id S1727801AbfKJDEa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:04:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729169AbfKJCqs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:46:48 -0500
+        id S1729166AbfKJCqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:46:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 684F321D7B;
-        Sun, 10 Nov 2019 02:46:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 769D921850;
+        Sun, 10 Nov 2019 02:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354008;
-        bh=faCWoOYAfIbvkx3JZpbhyswh7/Ci/iA7KBk4Qo6abWQ=;
+        s=default; t=1573354009;
+        bh=fMAtgmI930Z8gUhddQonnfxS9dGC3YaYHi8d80VubaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/GCH/BGQdcR25LI9fzc3AM4+J6LIpWWhlzuXTnfDK04+FtRETUhmPSRboV6mORAd
-         2PPG2m9vDpi9av0PCT9a49sRzsSCDHrHnuYo6/MZFVQMOXfGm7rZNJWv3SEiTwThYh
-         ZIrodIgt6kzEQ/8qUeVDyAMC0Ne5YHzDshLMt03E=
+        b=QDs0WHjKb+gDfpF9CnS5EEehQUCKyTZsXgjZZTAmMb9I6KacEMNYe0TJsYRjuCI/6
+         AkyZDxSvAnSDiYxyLxAKrZnjiFO6iReIupi3BFzRqNDXp+xRCzvP8SVWNzQXg2SGzf
+         evDXX8mX5xfj8iyDrbIvv2BTU2NSyPFWYugyPJWc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 034/109] ARM: dts: ste: Fix SPI controller node names
-Date:   Sat,  9 Nov 2019 21:44:26 -0500
-Message-Id: <20191110024541.31567-34-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 035/109] spi: pic32: Use proper enum in dmaengine_prep_slave_rg
+Date:   Sat,  9 Nov 2019 21:44:27 -0500
+Message-Id: <20191110024541.31567-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -43,84 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 2f967f9e9fa076affb711da1a8389b5d33814fc6 ]
+[ Upstream commit 8cfde7847d5ed0bb77bace41519572963e43cd17 ]
 
-SPI controller nodes should be named 'spi' rather than 'ssp'. Fixing the
-name enables dtc SPI bus checks.
+Clang warns when one enumerated type is converted implicitly to another:
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+drivers/spi/spi-pic32.c:323:8: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+                                          DMA_FROM_DEVICE,
+                                          ^~~~~~~~~~~~~~~
+drivers/spi/spi-pic32.c:333:8: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+                                          DMA_TO_DEVICE,
+                                          ^~~~~~~~~~~~~
+2 warnings generated.
+
+Use the proper enums from dma_transfer_direction (DMA_FROM_DEVICE =
+DMA_DEV_TO_MEM = 2, DMA_TO_DEVICE = DMA_MEM_TO_DEV = 1) to satify Clang.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/159
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-dbx5x0.dtsi     | 4 ++--
- arch/arm/boot/dts/ste-hrefprev60.dtsi | 2 +-
- arch/arm/boot/dts/ste-snowball.dts    | 2 +-
- arch/arm/boot/dts/ste-u300.dts        | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/spi/spi-pic32.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ste-dbx5x0.dtsi b/arch/arm/boot/dts/ste-dbx5x0.dtsi
-index 3dc0028e108b3..986767735e249 100644
---- a/arch/arm/boot/dts/ste-dbx5x0.dtsi
-+++ b/arch/arm/boot/dts/ste-dbx5x0.dtsi
-@@ -878,7 +878,7 @@
- 			power-domains = <&pm_domains DOMAIN_VAPE>;
- 		};
- 
--		ssp@80002000 {
-+		spi@80002000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x80002000 0x1000>;
- 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
-@@ -892,7 +892,7 @@
- 			power-domains = <&pm_domains DOMAIN_VAPE>;
- 		};
- 
--		ssp@80003000 {
-+		spi@80003000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x80003000 0x1000>;
- 			interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm/boot/dts/ste-hrefprev60.dtsi b/arch/arm/boot/dts/ste-hrefprev60.dtsi
-index 3f14b4df69b4e..94eeb7f1c9478 100644
---- a/arch/arm/boot/dts/ste-hrefprev60.dtsi
-+++ b/arch/arm/boot/dts/ste-hrefprev60.dtsi
-@@ -57,7 +57,7 @@
- 			};
- 		};
- 
--		ssp@80002000 {
-+		spi@80002000 {
- 			/*
- 			 * On the first generation boards, this SSP/SPI port was connected
- 			 * to the AB8500.
-diff --git a/arch/arm/boot/dts/ste-snowball.dts b/arch/arm/boot/dts/ste-snowball.dts
-index ade1d0d4e5f45..1bf4358f8fa71 100644
---- a/arch/arm/boot/dts/ste-snowball.dts
-+++ b/arch/arm/boot/dts/ste-snowball.dts
-@@ -376,7 +376,7 @@
- 			pinctrl-1 = <&i2c3_sleep_mode>;
- 		};
- 
--		ssp@80002000 {
-+		spi@80002000 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&ssp0_snowball_mode>;
- 		};
-diff --git a/arch/arm/boot/dts/ste-u300.dts b/arch/arm/boot/dts/ste-u300.dts
-index 62ecb6a2fa39e..1bd1aba3322f1 100644
---- a/arch/arm/boot/dts/ste-u300.dts
-+++ b/arch/arm/boot/dts/ste-u300.dts
-@@ -442,7 +442,7 @@
- 			dma-names = "rx";
- 		};
- 
--		spi: ssp@c0006000 {
-+		spi: spi@c0006000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0xc0006000 0x1000>;
- 			interrupt-parent = <&vica>;
+diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
+index f8a45af1fa9f2..288002f6c613e 100644
+--- a/drivers/spi/spi-pic32.c
++++ b/drivers/spi/spi-pic32.c
+@@ -320,7 +320,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
+ 	desc_rx = dmaengine_prep_slave_sg(master->dma_rx,
+ 					  xfer->rx_sg.sgl,
+ 					  xfer->rx_sg.nents,
+-					  DMA_FROM_DEVICE,
++					  DMA_DEV_TO_MEM,
+ 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+ 	if (!desc_rx) {
+ 		ret = -EINVAL;
+@@ -330,7 +330,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
+ 	desc_tx = dmaengine_prep_slave_sg(master->dma_tx,
+ 					  xfer->tx_sg.sgl,
+ 					  xfer->tx_sg.nents,
+-					  DMA_TO_DEVICE,
++					  DMA_MEM_TO_DEV,
+ 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+ 	if (!desc_tx) {
+ 		ret = -EINVAL;
 -- 
 2.20.1
 
