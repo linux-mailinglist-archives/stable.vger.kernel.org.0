@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B52E3F663C
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:12:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C99EF6639
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727059AbfKJDM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:12:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40952 "EHLO mail.kernel.org"
+        id S1727578AbfKJDMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:12:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728235AbfKJCnR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:43:17 -0500
+        id S1728245AbfKJCnS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:43:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B05B222C4;
-        Sun, 10 Nov 2019 02:43:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5AAD21655;
+        Sun, 10 Nov 2019 02:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353796;
-        bh=462SlDLPYOjKpbBMqwLyNlPFzdHH8Ky0vEUzOdx8woE=;
+        s=default; t=1573353797;
+        bh=ZPjfq3pUDu+AsWiU2zu9iZRPXobWVshwV8XGX7wGb6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JYdv/CipkzOtgFP3mRD8WZ8iB99+eaFFKzRCoK01n1+mJh1xUtoNxIiJ8Wcsba0/3
-         e3ozWvNddo1cCH7sjBCxToAobOHe3GRJHoYG6ge+o5NwQ0c5JqzyY/kSgMhXTBhz9U
-         kB4ddpflrMughw5EBbiEIhN4SIzAu9b0db7FcGow=
+        b=zSzxb2Cre9lKEpFQBuwJTV2YRb2jqznHW79aK4xvYMTg0eJ3D8h/5VaXgUryakfTF
+         b9A8CrPkkfQho/9umD40nVXyWz+B0kLF8aWRt/z0Zyd99ALhLIfIqgtv26BzHclER3
+         dsQvjB3WAMTzE3VWKzYodVgO6g0qoTmxWxCIMSHE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 095/191] media: davinci: Fix implicit enum conversion warning
-Date:   Sat,  9 Nov 2019 21:38:37 -0500
-Message-Id: <20191110024013.29782-95-sashal@kernel.org>
+Cc:     Heiko Stuebner <heiko@sntech.de>, Sasha Levin <sashal@kernel.org>,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 096/191] ARM: dts: rockchip: explicitly set vcc_sd0 pin to gpio on rk3188-radxarock
+Date:   Sat,  9 Nov 2019 21:38:38 -0500
+Message-Id: <20191110024013.29782-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -46,45 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Heiko Stuebner <heiko@sntech.de>
 
-[ Upstream commit 4158757395b300b6eb308fc20b96d1d231484413 ]
+[ Upstream commit a2df0984e73fd9e1dad5fc3f1c307ec3de395e30 ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+It is good practice to make the setting of gpio-pinctrls explicitly in the
+devicetree, and in this case even necessary.
+Rockchip boards start with iomux settings set to gpio for most pins and
+while the linux pinctrl driver also implicitly sets the gpio function if
+a pin is requested as gpio that is not necessarily true for other drivers.
 
-drivers/media/platform/davinci/vpbe_display.c:524:24: warning: implicit
-conversion from enumeration type 'enum osd_v_exp_ratio' to different
-enumeration type 'enum osd_h_exp_ratio' [-Wenum-conversion]
-                        layer_info->h_exp = V_EXP_6_OVER_5;
-                                          ~ ^~~~~~~~~~~~~~
-1 warning generated.
+The issue in question stems from uboot, where the sdmmc_pwr pin is set
+to function 1 (sdmmc-power) by the bootrom when reading the 1st-stage
+loader. The regulator controlled by the pin is active-low though, so
+when the dwmmc hw-block sets its enabled bit, it actually disables the
+regulator. By changing the pin back to gpio we fix that behaviour.
 
-This appears to be a copy and paste error judging from the couple of
-lines directly above this statement and the way that height is handled
-in the if block above this one.
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/vpbe_display.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/rk3188-radxarock.dts | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/platform/davinci/vpbe_display.c b/drivers/media/platform/davinci/vpbe_display.c
-index b0eb3d899eb44..6f82693524331 100644
---- a/drivers/media/platform/davinci/vpbe_display.c
-+++ b/drivers/media/platform/davinci/vpbe_display.c
-@@ -521,7 +521,7 @@ vpbe_disp_calculate_scale_factor(struct vpbe_display *disp_dev,
- 		else if (v_scale == 4)
- 			layer_info->v_zoom = ZOOM_X4;
- 		if (v_exp)
--			layer_info->h_exp = V_EXP_6_OVER_5;
-+			layer_info->v_exp = V_EXP_6_OVER_5;
- 	} else {
- 		/* no scaling, only cropping. Set display area to crop area */
- 		cfg->ysize = expected_ysize;
+diff --git a/arch/arm/boot/dts/rk3188-radxarock.dts b/arch/arm/boot/dts/rk3188-radxarock.dts
+index 45fd2b302dda1..4a2890618f6fc 100644
+--- a/arch/arm/boot/dts/rk3188-radxarock.dts
++++ b/arch/arm/boot/dts/rk3188-radxarock.dts
+@@ -93,6 +93,8 @@
+ 		regulator-min-microvolt = <3300000>;
+ 		regulator-max-microvolt = <3300000>;
+ 		gpio = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&sdmmc_pwr>;
+ 		startup-delay-us = <100000>;
+ 		vin-supply = <&vcc_io>;
+ 	};
+@@ -315,6 +317,12 @@
+ 		};
+ 	};
+ 
++	sd0 {
++		sdmmc_pwr: sdmmc-pwr {
++			rockchip,pins = <RK_GPIO3 1 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
++
+ 	usb {
+ 		host_vbus_drv: host-vbus-drv {
+ 			rockchip,pins = <0 3 RK_FUNC_GPIO &pcfg_pull_none>;
 -- 
 2.20.1
 
