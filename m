@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B03F66C2
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:16:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FD4AF66BE
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:16:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727112AbfKJDP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 22:15:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35260 "EHLO mail.kernel.org"
+        id S1727366AbfKJClU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:41:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727302AbfKJClN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:41:13 -0500
+        id S1727344AbfKJClU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:41:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E907821850;
-        Sun, 10 Nov 2019 02:41:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 708DD214E0;
+        Sun, 10 Nov 2019 02:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353672;
-        bh=6rLXOOpyhENEwIWRMZg72JBdXNe4tH+Hrc/ZYftRZBI=;
+        s=default; t=1573353679;
+        bh=JAbrtaSL+QK41Axroq+rf9albIjpZv9Etw0phcmZYG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyQecCYNxowagmHGSDkEKKm5wLO5zKsLbOsrwoa/W/kZ3DdChFH4f3fqiKtW8XGlO
-         y+Gn0F14abKhdyGyUiBh5EzhEzYUOQBSEjy/FF6rgICqWAaCv4FWN1XHlXJYOJ2D6z
-         AFVbGT7ct2MiE6E6bHU7IuZfqCXoI967PuHZMrtE=
+        b=MDd03eYJ6ETMTDZaGSOdHijULjJf1R7U5kuD7/dCRewrFHIar9ftklsJu3/YJSCkj
+         EifKxuLIWvDNL/JhUaT8fa/3ZwibOGDXhe2ToqnrX+fuqkr/UbqEqRs8DQfcJH9ho3
+         9jDH4foOZOw8KcSQyI7tIl5CaEVKGTA8EzzaTX28=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 038/191] power: supply: twl4030_charger: disable eoc interrupt on linear charge
-Date:   Sat,  9 Nov 2019 21:37:40 -0500
-Message-Id: <20191110024013.29782-38-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 040/191] net: marvell: fix return type of ndo_start_xmit function
+Date:   Sat,  9 Nov 2019 21:37:42 -0500
+Message-Id: <20191110024013.29782-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -43,73 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 079cdff3d0a09c5da10ae1be35def7a116776328 ]
+[ Upstream commit f03508ce3f9650148262c176e0178413e16c902b ]
 
-This avoids getting woken up from suspend after power interruptions
-when the bci wrongly thinks the battery is full just because
-of input current going low because of low input power
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/twl4030_charger.c | 27 +++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvneta.c           | 2 +-
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c | 2 +-
+ drivers/net/ethernet/marvell/pxa168_eth.c       | 3 ++-
+ 3 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
-index adcaa0a10a6f4..0e202d4273fb6 100644
---- a/drivers/power/supply/twl4030_charger.c
-+++ b/drivers/power/supply/twl4030_charger.c
-@@ -440,6 +440,7 @@ static void twl4030_current_worker(struct work_struct *data)
- static int twl4030_charger_enable_usb(struct twl4030_bci *bci, bool enable)
+diff --git a/drivers/net/ethernet/marvell/mvneta.c b/drivers/net/ethernet/marvell/mvneta.c
+index 28762314353f9..4313bbb2396f4 100644
+--- a/drivers/net/ethernet/marvell/mvneta.c
++++ b/drivers/net/ethernet/marvell/mvneta.c
+@@ -2394,7 +2394,7 @@ static int mvneta_tx_frag_process(struct mvneta_port *pp, struct sk_buff *skb,
+ }
+ 
+ /* Main tx processing */
+-static int mvneta_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t mvneta_tx(struct sk_buff *skb, struct net_device *dev)
  {
- 	int ret;
-+	u32 reg;
+ 	struct mvneta_port *pp = netdev_priv(dev);
+ 	u16 txq_id = skb_get_queue_mapping(skb);
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index 29f1260535325..1cc0e8fda4d5e 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -2901,7 +2901,7 @@ static int mvpp2_tx_tso(struct sk_buff *skb, struct net_device *dev,
+ }
  
- 	if (bci->usb_mode == CHARGE_OFF)
- 		enable = false;
-@@ -453,14 +454,38 @@ static int twl4030_charger_enable_usb(struct twl4030_bci *bci, bool enable)
- 			bci->usb_enabled = 1;
- 		}
+ /* Main tx processing */
+-static int mvpp2_tx(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t mvpp2_tx(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct mvpp2_port *port = netdev_priv(dev);
+ 	struct mvpp2_tx_queue *txq, *aggr_txq;
+diff --git a/drivers/net/ethernet/marvell/pxa168_eth.c b/drivers/net/ethernet/marvell/pxa168_eth.c
+index 3a9730612a704..ff2fea0f8b751 100644
+--- a/drivers/net/ethernet/marvell/pxa168_eth.c
++++ b/drivers/net/ethernet/marvell/pxa168_eth.c
+@@ -1260,7 +1260,8 @@ static int pxa168_rx_poll(struct napi_struct *napi, int budget)
+ 	return work_done;
+ }
  
--		if (bci->usb_mode == CHARGE_AUTO)
-+		if (bci->usb_mode == CHARGE_AUTO) {
-+			/* Enable interrupts now. */
-+			reg = ~(u32)(TWL4030_ICHGLOW | TWL4030_ICHGEOC |
-+					TWL4030_TBATOR2 | TWL4030_TBATOR1 |
-+					TWL4030_BATSTS);
-+			ret = twl_i2c_write_u8(TWL4030_MODULE_INTERRUPTS, reg,
-+				       TWL4030_INTERRUPTS_BCIIMR1A);
-+			if (ret < 0) {
-+				dev_err(bci->dev,
-+					"failed to unmask interrupts: %d\n",
-+					ret);
-+				return ret;
-+			}
- 			/* forcing the field BCIAUTOUSB (BOOT_BCI[1]) to 1 */
- 			ret = twl4030_clear_set_boot_bci(0, TWL4030_BCIAUTOUSB);
-+		}
- 
- 		/* forcing USBFASTMCHG(BCIMFSTS4[2]) to 1 */
- 		ret = twl4030_clear_set(TWL_MODULE_MAIN_CHARGE, 0,
- 			TWL4030_USBFASTMCHG, TWL4030_BCIMFSTS4);
- 		if (bci->usb_mode == CHARGE_LINEAR) {
-+			/* Enable interrupts now. */
-+			reg = ~(u32)(TWL4030_ICHGLOW | TWL4030_TBATOR2 |
-+					TWL4030_TBATOR1 | TWL4030_BATSTS);
-+			ret = twl_i2c_write_u8(TWL4030_MODULE_INTERRUPTS, reg,
-+				       TWL4030_INTERRUPTS_BCIIMR1A);
-+			if (ret < 0) {
-+				dev_err(bci->dev,
-+					"failed to unmask interrupts: %d\n",
-+					ret);
-+				return ret;
-+			}
- 			twl4030_clear_set_boot_bci(TWL4030_BCIAUTOAC|TWL4030_CVENAC, 0);
- 			/* Watch dog key: WOVF acknowledge */
- 			ret = twl_i2c_write_u8(TWL_MODULE_MAIN_CHARGE, 0x33,
+-static int pxa168_eth_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++pxa168_eth_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct pxa168_eth_private *pep = netdev_priv(dev);
+ 	struct net_device_stats *stats = &dev->stats;
 -- 
 2.20.1
 
