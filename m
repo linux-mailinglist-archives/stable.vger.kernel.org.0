@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D07C7F6457
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:59:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E084F6445
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727780AbfKJC7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47198 "EHLO mail.kernel.org"
+        id S1729540AbfKJC6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:58:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729304AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729393AbfKJC4r (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 9 Nov 2019 21:56:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E16E5222CE;
-        Sun, 10 Nov 2019 02:47:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C3E1222D4;
+        Sun, 10 Nov 2019 02:47:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354051;
-        bh=OQxAjtgjoRmh71w/KKY3w4GztgCDEsVjgMRHOe26tms=;
+        s=default; t=1573354052;
+        bh=cj5u95BnEoI4lNCshidUefaPX9ljRH1R6f9BmPwhev4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQGFTodDPnUnVCTKhNFIAAwe7HiQuJi6gyBbdBBaiDmXEgFL4MliBHLQ4jTgUMjH+
-         0rpd+qubxigkMt0XZOwf+/VmbbEyVORUWaAa7L4OrqgwxRNBwtnIZA8y8baYfUq4qy
-         8WnK6PxbiXDONJZrr9Yc3BGQA3URPUPe8y/fG/Z0=
+        b=n7u/IrwF9F3aOaMjqSwwpH99Q+BCxgdx+e3FOtBQwLeSml6GpureNTbTQVySmmzs7
+         eT3lQbRQtfV1lZExwR3bp1tNH9RhklZT8BjJP19osm9koOS7n6Z2ZTSIEw1Dx1/TRi
+         Gzmyi/ygtK4u547GIk2z9tGJkRl+ri3uXv2ANeIg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 061/109] usb: gadget: uvc: Only halt video streaming endpoint in bulk mode
-Date:   Sat,  9 Nov 2019 21:44:53 -0500
-Message-Id: <20191110024541.31567-61-sashal@kernel.org>
+Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 062/109] coresight: Fix handling of sinks
+Date:   Sat,  9 Nov 2019 21:44:54 -0500
+Message-Id: <20191110024541.31567-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024541.31567-1-sashal@kernel.org>
 References: <20191110024541.31567-1-sashal@kernel.org>
@@ -44,42 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit 8dbf9c7abefd5c1434a956d5c6b25e11183061a3 ]
+[ Upstream commit c71369de02b285d9da526a526d8f2affc7b17c59 ]
 
-When USB requests for video data fail to be submitted, the driver
-signals a problem to the host by halting the video streaming endpoint.
-This is only valid in bulk mode, as isochronous transfers have no
-handshake phase and can't thus report a stall. The usb_ep_set_halt()
-call returns an error when using isochronous endpoints, which we happily
-ignore, but some UDCs complain in the kernel log. Fix this by only
-trying to halt the endpoint in bulk mode.
+The coresight components could be operated either in sysfs mode or in perf
+mode. For some of the components, the mode of operation doesn't matter as
+they simply relay the data to the next component in the trace path. But for
+sinks, they need to be able to provide the trace data back to the user.
+Thus we need to make sure that "mode" is handled appropriately. e.g,
+the sysfs mode could have multiple sources driving the trace data, while
+perf mode doesn't allow sharing the sink.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Tested-by: Paul Elder <paul.elder@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+The coresight_enable_sink() however doesn't really allow this check to
+trigger as it skips the "enable_sink" callback if the component is
+already enabled, irrespective of the mode. This could cause mixing
+of data from different modes or even same mode (in perf), if the
+sources are different. Also, if we fail to enable the sink while
+enabling a path (where sink is the first component enabled),
+we could end up in disabling the components in the "entire"
+path which were not enabled in this trial, causing disruptions
+in the existing trace paths.
+
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/hwtracing/coresight/coresight.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index 540917f54506a..d6bab12b0b47d 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -136,7 +136,9 @@ static int uvcg_video_ep_queue(struct uvc_video *video, struct usb_request *req)
- 	ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
- 	if (ret < 0) {
- 		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
--		usb_ep_set_halt(video->ep);
-+		/* Isochronous endpoints can't be halted. */
-+		if (usb_endpoint_xfer_bulk(video->ep->desc))
-+			usb_ep_set_halt(video->ep);
+diff --git a/drivers/hwtracing/coresight/coresight.c b/drivers/hwtracing/coresight/coresight.c
+index e571e4010dff0..366c1d493af35 100644
+--- a/drivers/hwtracing/coresight/coresight.c
++++ b/drivers/hwtracing/coresight/coresight.c
+@@ -140,12 +140,14 @@ static int coresight_enable_sink(struct coresight_device *csdev, u32 mode)
+ {
+ 	int ret;
+ 
+-	if (!csdev->enable) {
+-		if (sink_ops(csdev)->enable) {
+-			ret = sink_ops(csdev)->enable(csdev, mode);
+-			if (ret)
+-				return ret;
+-		}
++	/*
++	 * We need to make sure the "new" session is compatible with the
++	 * existing "mode" of operation.
++	 */
++	if (sink_ops(csdev)->enable) {
++		ret = sink_ops(csdev)->enable(csdev, mode);
++		if (ret)
++			return ret;
+ 		csdev->enable = true;
  	}
  
- 	return ret;
+@@ -347,8 +349,14 @@ int coresight_enable_path(struct list_head *path, u32 mode)
+ 		switch (type) {
+ 		case CORESIGHT_DEV_TYPE_SINK:
+ 			ret = coresight_enable_sink(csdev, mode);
++			/*
++			 * Sink is the first component turned on. If we
++			 * failed to enable the sink, there are no components
++			 * that need disabling. Disabling the path here
++			 * would mean we could disrupt an existing session.
++			 */
+ 			if (ret)
+-				goto err;
++				goto out;
+ 			break;
+ 		case CORESIGHT_DEV_TYPE_SOURCE:
+ 			/* sources are enabled from either sysFS or Perf */
 -- 
 2.20.1
 
