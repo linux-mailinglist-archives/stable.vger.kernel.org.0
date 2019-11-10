@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E07DFF6227
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:40:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE65DF6228
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:40:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726951AbfKJCke (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:40:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33458 "EHLO mail.kernel.org"
+        id S1726959AbfKJCkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:40:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726916AbfKJCkc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:40:32 -0500
+        id S1726927AbfKJCke (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:40:34 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05DAA214E0;
-        Sun, 10 Nov 2019 02:40:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7014A222CB;
+        Sun, 10 Nov 2019 02:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353630;
-        bh=9GpZghVh8JavbMok4A6OLs2mufrG9hzrrwqhY1b+89Y=;
+        s=default; t=1573353633;
+        bh=YqZWzUQJTKdmC1hV7IUxf49LhrQKLeopy1rzr6WQcL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zx7/2swJVFCdwfZ34xExtipXIYEcVOvpeAM1iwv7IP865eOCnx72vuAvUoc8zCmrn
-         MQBjWxPiE+lytFDKlsAUGWvVuHI5jy9VobQG1tblfsxjtkDVdhsCw6kTTDMbAGmIMp
-         6r87AGzQVHVMZ7eYHjzrZwu0EGqWdhuFDRYIeSF4=
+        b=Q4yU7ws9aAGoFBBRcTQ4OIhcxzn06ZTHpHFQ79+H8UPHO0o6xJTsRWF6NzVS+/ZJJ
+         wbmFsKD4Xp9tiiVRwQzlk4rc6GAbdqBnHqLx5kYIz4eXunZD2ckl8H/iuXy8KiT2jO
+         hNToqWmCUMHbJc5FtXeM9rJgiKFr/vYioGYbGOgA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>,
-        Nishanth Menon <nm@ti.com>, Tero Kristo <t-kristo@ti.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 014/191] arm64: dts: ti: k3-am65: Change #address-cells and #size-cells of interconnect to 2
-Date:   Sat,  9 Nov 2019 21:37:16 -0500
-Message-Id: <20191110024013.29782-14-sashal@kernel.org>
+Cc:     Jonas Gorski <jonas.gorski@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 016/191] spi/bcm63xx-hsspi: keep pll clk enabled
+Date:   Sat,  9 Nov 2019 21:37:18 -0500
+Message-Id: <20191110024013.29782-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -44,130 +43,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Jonas Gorski <jonas.gorski@gmail.com>
 
-[ Upstream commit 3bc1572068e3896b60d86f9c0fb56d1cef28201c ]
+[ Upstream commit 0fd85869c2a9c8723a98bc1f56a876e8383649f4 ]
 
-AM65 has two PCIe controllers and each PCIe controller has '2' address
-spaces one within the 4GB address space of the SoC and the other above
-the 4GB address space of the SoC (cbass_main) in addition to the
-register space. The size of the address space above the 4GB SoC address
-space is 4GB. These address ranges will be used by CPU/DMA to access
-the PCIe address space. In order to represent the address space above
-the 4GB SoC address space and to represent the size of this address
-space as 4GB, change address-cells and size-cells of interconnect to 2.
+If the pll clock needs to be enabled to get its rate, it will also need
+to be enabled to provide it. So ensure it is kept enabled through the
+lifetime of the device.
 
-Since OSPI has similar need in MCU Domain Memory Map, change
-address-cells and size-cells of cbass_mcu interconnect also to 2.
-
-Fixes: ea47eed33a3fe3d919 ("arm64: dts: ti: Add Support for AM654 SoC")
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Acked-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Vignesh R <vigneshr@ti.com>
-Acked-by: Nishanth Menon <nm@ti.com>
-Signed-off-by: Tero Kristo <t-kristo@ti.com>
+Fixes: 0d7412ed1f5dc ("spi/bcm63xx-hspi: Enable the clock before calling clk_get_rate().")
+Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-am65-main.dtsi | 10 +++---
- arch/arm64/boot/dts/ti/k3-am65.dtsi      | 44 ++++++++++++------------
- 2 files changed, 27 insertions(+), 27 deletions(-)
+ drivers/spi/spi-bcm63xx-hsspi.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-index 2409344df4fa2..faace3805c014 100644
---- a/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am65-main.dtsi
-@@ -8,13 +8,13 @@
- &cbass_main {
- 	gic500: interrupt-controller@1800000 {
- 		compatible = "arm,gic-v3";
--		#address-cells = <1>;
--		#size-cells = <1>;
-+		#address-cells = <2>;
-+		#size-cells = <2>;
- 		ranges;
- 		#interrupt-cells = <3>;
- 		interrupt-controller;
--		reg = <0x01800000 0x10000>,	/* GICD */
--		      <0x01880000 0x90000>;	/* GICR */
-+		reg = <0x00 0x01800000 0x00 0x10000>,	/* GICD */
-+		      <0x00 0x01880000 0x00 0x90000>;	/* GICR */
- 		/*
- 		 * vcpumntirq:
- 		 * virtual CPU interface maintenance interrupt
-@@ -23,7 +23,7 @@
+diff --git a/drivers/spi/spi-bcm63xx-hsspi.c b/drivers/spi/spi-bcm63xx-hsspi.c
+index c23849f7aa7bc..9a06ffdb73b88 100644
+--- a/drivers/spi/spi-bcm63xx-hsspi.c
++++ b/drivers/spi/spi-bcm63xx-hsspi.c
+@@ -101,6 +101,7 @@ struct bcm63xx_hsspi {
  
- 		gic_its: gic-its@18200000 {
- 			compatible = "arm,gic-v3-its";
--			reg = <0x01820000 0x10000>;
-+			reg = <0x00 0x01820000 0x00 0x10000>;
- 			msi-controller;
- 			#msi-cells = <1>;
- 		};
-diff --git a/arch/arm64/boot/dts/ti/k3-am65.dtsi b/arch/arm64/boot/dts/ti/k3-am65.dtsi
-index cede1fa0983c9..ded364d208351 100644
---- a/arch/arm64/boot/dts/ti/k3-am65.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am65.dtsi
-@@ -46,38 +46,38 @@
+ 	struct platform_device *pdev;
+ 	struct clk *clk;
++	struct clk *pll_clk;
+ 	void __iomem *regs;
+ 	u8 __iomem *fifo;
  
- 	cbass_main: interconnect@100000 {
- 		compatible = "simple-bus";
--		#address-cells = <1>;
--		#size-cells = <1>;
--		ranges = <0x00100000 0x00 0x00100000 0x00020000>, /* ctrl mmr */
--			 <0x00600000 0x00 0x00600000 0x00001100>, /* GPIO */
--			 <0x00900000 0x00 0x00900000 0x00012000>, /* serdes */
--			 <0x01000000 0x00 0x01000000 0x0af02400>, /* Most peripherals */
--			 <0x30800000 0x00 0x30800000 0x0bc00000>, /* MAIN NAVSS */
-+		#address-cells = <2>;
-+		#size-cells = <2>;
-+		ranges = <0x00 0x00100000 0x00 0x00100000 0x00 0x00020000>, /* ctrl mmr */
-+			 <0x00 0x00600000 0x00 0x00600000 0x00 0x00001100>, /* GPIO */
-+			 <0x00 0x00900000 0x00 0x00900000 0x00 0x00012000>, /* serdes */
-+			 <0x00 0x01000000 0x00 0x01000000 0x00 0x0af02400>, /* Most peripherals */
-+			 <0x00 0x30800000 0x00 0x30800000 0x00 0x0bc00000>, /* MAIN NAVSS */
- 			 /* MCUSS Range */
--			 <0x28380000 0x00 0x28380000 0x03880000>,
--			 <0x40200000 0x00 0x40200000 0x00900100>,
--			 <0x42040000 0x00 0x42040000 0x03ac2400>,
--			 <0x45100000 0x00 0x45100000 0x00c24000>,
--			 <0x46000000 0x00 0x46000000 0x00200000>,
--			 <0x47000000 0x00 0x47000000 0x00068400>;
-+			 <0x00 0x28380000 0x00 0x28380000 0x00 0x03880000>,
-+			 <0x00 0x40200000 0x00 0x40200000 0x00 0x00900100>,
-+			 <0x00 0x42040000 0x00 0x42040000 0x00 0x03ac2400>,
-+			 <0x00 0x45100000 0x00 0x45100000 0x00 0x00c24000>,
-+			 <0x00 0x46000000 0x00 0x46000000 0x00 0x00200000>,
-+			 <0x00 0x47000000 0x00 0x47000000 0x00 0x00068400>;
+@@ -332,7 +333,7 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
+ 	struct resource *res_mem;
+ 	void __iomem *regs;
+ 	struct device *dev = &pdev->dev;
+-	struct clk *clk;
++	struct clk *clk, *pll_clk = NULL;
+ 	int irq, ret;
+ 	u32 reg, rate, num_cs = HSSPI_SPI_MAX_CS;
  
- 		cbass_mcu: interconnect@28380000 {
- 			compatible = "simple-bus";
--			#address-cells = <1>;
--			#size-cells = <1>;
--			ranges = <0x28380000 0x28380000 0x03880000>, /* MCU NAVSS*/
--				 <0x40200000 0x40200000 0x00900100>, /* First peripheral window */
--				 <0x42040000 0x42040000 0x03ac2400>, /* WKUP */
--				 <0x45100000 0x45100000 0x00c24000>, /* MMRs, remaining NAVSS */
--				 <0x46000000 0x46000000 0x00200000>, /* CPSW */
--				 <0x47000000 0x47000000 0x00068400>; /* OSPI space 1 */
-+			#address-cells = <2>;
-+			#size-cells = <2>;
-+			ranges = <0x00 0x28380000 0x00 0x28380000 0x00 0x03880000>, /* MCU NAVSS*/
-+				 <0x00 0x40200000 0x00 0x40200000 0x00 0x00900100>, /* First peripheral window */
-+				 <0x00 0x42040000 0x00 0x42040000 0x00 0x03ac2400>, /* WKUP */
-+				 <0x00 0x45100000 0x00 0x45100000 0x00 0x00c24000>, /* MMRs, remaining NAVSS */
-+				 <0x00 0x46000000 0x00 0x46000000 0x00 0x00200000>, /* CPSW */
-+				 <0x00 0x47000000 0x00 0x47000000 0x00 0x00068400>; /* OSPI space 1 */
+@@ -358,7 +359,7 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
  
- 			cbass_wakeup: interconnect@42040000 {
- 				compatible = "simple-bus";
- 				#address-cells = <1>;
- 				#size-cells = <1>;
- 				/* WKUP  Basic peripherals */
--				ranges = <0x42040000 0x42040000 0x03ac2400>;
-+				ranges = <0x42040000 0x00 0x42040000 0x03ac2400>;
- 			};
- 		};
- 	};
+ 	rate = clk_get_rate(clk);
+ 	if (!rate) {
+-		struct clk *pll_clk = devm_clk_get(dev, "pll");
++		pll_clk = devm_clk_get(dev, "pll");
+ 
+ 		if (IS_ERR(pll_clk)) {
+ 			ret = PTR_ERR(pll_clk);
+@@ -373,19 +374,20 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
+ 		clk_disable_unprepare(pll_clk);
+ 		if (!rate) {
+ 			ret = -EINVAL;
+-			goto out_disable_clk;
++			goto out_disable_pll_clk;
+ 		}
+ 	}
+ 
+ 	master = spi_alloc_master(&pdev->dev, sizeof(*bs));
+ 	if (!master) {
+ 		ret = -ENOMEM;
+-		goto out_disable_clk;
++		goto out_disable_pll_clk;
+ 	}
+ 
+ 	bs = spi_master_get_devdata(master);
+ 	bs->pdev = pdev;
+ 	bs->clk = clk;
++	bs->pll_clk = pll_clk;
+ 	bs->regs = regs;
+ 	bs->speed_hz = rate;
+ 	bs->fifo = (u8 __iomem *)(bs->regs + HSSPI_FIFO_REG(0));
+@@ -440,6 +442,8 @@ static int bcm63xx_hsspi_probe(struct platform_device *pdev)
+ 
+ out_put_master:
+ 	spi_master_put(master);
++out_disable_pll_clk:
++	clk_disable_unprepare(pll_clk);
+ out_disable_clk:
+ 	clk_disable_unprepare(clk);
+ 	return ret;
+@@ -453,6 +457,7 @@ static int bcm63xx_hsspi_remove(struct platform_device *pdev)
+ 
+ 	/* reset the hardware and block queue progress */
+ 	__raw_writel(0, bs->regs + HSSPI_INT_MASK_REG);
++	clk_disable_unprepare(bs->pll_clk);
+ 	clk_disable_unprepare(bs->clk);
+ 
+ 	return 0;
+@@ -465,6 +470,7 @@ static int bcm63xx_hsspi_suspend(struct device *dev)
+ 	struct bcm63xx_hsspi *bs = spi_master_get_devdata(master);
+ 
+ 	spi_master_suspend(master);
++	clk_disable_unprepare(bs->pll_clk);
+ 	clk_disable_unprepare(bs->clk);
+ 
+ 	return 0;
+@@ -480,6 +486,12 @@ static int bcm63xx_hsspi_resume(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	if (bs->pll_clk) {
++		ret = clk_prepare_enable(bs->pll_clk);
++		if (ret)
++			return ret;
++	}
++
+ 	spi_master_resume(master);
+ 
+ 	return 0;
 -- 
 2.20.1
 
