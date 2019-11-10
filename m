@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB3A2F6643
+	by mail.lfdr.de (Postfix) with ESMTP id 51691F6642
 	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:12:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728196AbfKJCnL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:43:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40686 "EHLO mail.kernel.org"
+        id S1727925AbfKJDMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:12:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728191AbfKJCnL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:43:11 -0500
+        id S1728200AbfKJCnM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:43:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6CEB21D82;
-        Sun, 10 Nov 2019 02:43:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 233B5222BE;
+        Sun, 10 Nov 2019 02:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353790;
-        bh=QBninmn1N0bnodZPUNG5LFWIH1SXzGqrLbKpZ9NwMJs=;
+        s=default; t=1573353792;
+        bh=tlbUosy2fq8Q/oWAJId8gRxFvS+jxOmsLcfyNhEtnSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9AygsUkmvWFQPwintV9fYBXWmrhYceVdTxHoAUj0FHfLH/pk5gvGiEBvO9hhU65U
-         KkFU4qsamBWzxYF8TIHGZGfmdjXjrY1BfnO/dWX4VDjh6GFKr2aSyNGZYmTQ1yyH/U
-         uO9DjAEaqngPmJJUmD15a3NbU6Mrgexch7I7kHIA=
+        b=0GO9r9TzM9xRZ6Yfb3EwtFaOcjcFnf4FvfgddpOj1nEP3Kf7+h02+u3YAxQcUcE6i
+         +pqhiB0xKtzAt5lVGilb4FERVWkZdw6hmHnBvgNHh1wa6o6oMf7UvF8QI5RQQVfQDi
+         ofNSLm6fGjtjqD3MiptFoZ9EONECXc+6H2mAMyvQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Machata <petrm@mellanox.com>, Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 091/191] mlxsw: Make MLXSW_SP1_FWREV_MINOR a hard requirement
-Date:   Sat,  9 Nov 2019 21:38:33 -0500
-Message-Id: <20191110024013.29782-91-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        devel@driverdev.osuosl.org
+Subject: [PATCH AUTOSEL 4.19 092/191] media: imx: work around false-positive warning, again
+Date:   Sat,  9 Nov 2019 21:38:34 -0500
+Message-Id: <20191110024013.29782-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -44,51 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 12ba7e1045521ec9f251c93ae0a6735cc3f42337 ]
+[ Upstream commit 8d1a4817cce1b15b4909f0e324a4f5af5952da67 ]
 
-Up until now, mlxsw tolerated firmware versions that weren't exactly
-matching the required version, if the branch number matched. That
-allowed the users to test various firmware versions as long as they were
-on the right branch.
+A warning that I thought to be solved by a previous patch of mine
+has resurfaced with gcc-8:
 
-On the other hand, it made it impossible for mlxsw to put a hard lower
-bound on a version that fixes all problems known to date. If a user had
-a somewhat older FW version installed, mlxsw would start up just fine,
-possibly performing non-optimally as it would use features that trigger
-problematic behavior.
+media/imx/imx-media-csi.c: In function 'csi_link_validate':
+media/imx/imx-media-csi.c:1025:20: error: 'upstream_ep' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+media/imx/imx-media-csi.c:1026:24: error: 'upstream_ep.bus_type' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+media/imx/imx-media-csi.c:127:19: error: 'upstream_ep.bus.parallel.bus_width' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+media/imx/imx-media-csi.c: In function 'csi_enum_mbus_code':
+media/imx/imx-media-csi.c:132:9: error: '*((void *)&upstream_ep+12)' may be used uninitialized in this function [-Werror=maybe-uninitialized]
+media/imx/imx-media-csi.c:132:48: error: 'upstream_ep.bus.parallel.bus_width' may be used uninitialized in this function [-Werror=maybe-uninitialized]
 
-Therefore tweak the check to accept any FW version that is:
+I spent some more time digging in this time, and think I have a better
+fix, bailing out of the function that either initializes or errors
+out here, which simplifies the code enough for gcc to figure out
+what is going on. The earlier partial workaround can be removed now,
+as the new workaround is better.
 
-- on the same branch as the preferred version, and
-- the same as or newer than the preferred version.
+Fixes: 890f27693f2a ("media: imx: work around false-positive warning")
 
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 5 ++++-
+ drivers/staging/media/imx/imx-media-csi.c | 5 ++++-
  1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 1c170a0fd2cc9..e498ee95bacab 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -336,7 +336,10 @@ static int mlxsw_sp_fw_rev_validate(struct mlxsw_sp *mlxsw_sp)
- 		return -EINVAL;
- 	}
- 	if (MLXSW_SP_FWREV_MINOR_TO_BRANCH(rev->minor) ==
--	    MLXSW_SP_FWREV_MINOR_TO_BRANCH(req_rev->minor))
-+	    MLXSW_SP_FWREV_MINOR_TO_BRANCH(req_rev->minor) &&
-+	    (rev->minor > req_rev->minor ||
-+	     (rev->minor == req_rev->minor &&
-+	      rev->subminor >= req_rev->subminor)))
- 		return 0;
+diff --git a/drivers/staging/media/imx/imx-media-csi.c b/drivers/staging/media/imx/imx-media-csi.c
+index d17ce1fb4ef51..0f8fdc347091b 100644
+--- a/drivers/staging/media/imx/imx-media-csi.c
++++ b/drivers/staging/media/imx/imx-media-csi.c
+@@ -166,6 +166,9 @@ static int csi_get_upstream_endpoint(struct csi_priv *priv,
+ 	struct v4l2_subdev *sd;
+ 	struct media_pad *pad;
  
- 	dev_info(mlxsw_sp->bus_info->dev, "The firmware version %d.%d.%d is incompatible with the driver\n",
++	if (!IS_ENABLED(CONFIG_OF))
++		return -ENXIO;
++
+ 	if (!priv->src_sd)
+ 		return -EPIPE;
+ 
+@@ -1072,7 +1075,7 @@ static int csi_link_validate(struct v4l2_subdev *sd,
+ 			     struct v4l2_subdev_format *sink_fmt)
+ {
+ 	struct csi_priv *priv = v4l2_get_subdevdata(sd);
+-	struct v4l2_fwnode_endpoint upstream_ep = {};
++	struct v4l2_fwnode_endpoint upstream_ep;
+ 	bool is_csi2;
+ 	int ret;
+ 
 -- 
 2.20.1
 
