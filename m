@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 800ABF631D
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:49:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66100F6321
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 03:49:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729431AbfKJCtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:49:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59586 "EHLO mail.kernel.org"
+        id S1729540AbfKJCtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 21:49:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729509AbfKJCtk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:49:40 -0500
+        id S1729527AbfKJCtq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:49:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7319522593;
-        Sun, 10 Nov 2019 02:49:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16C40225AE;
+        Sun, 10 Nov 2019 02:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573354180;
-        bh=eGfE6SgmCLBEH7KuVge+NgvgK1bshcL4bLGOD+896oU=;
+        s=default; t=1573354185;
+        bh=SWnbQ6ESsCx2svhKme4+smyFG/NDFa640/NUKAqdQIE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y4FO+4VzAy4Gmb+QL8DRh1pJC2ECwA9GVOK+B4bOHhVpoqIV836dwUapAFxoxl5ER
-         2E+YR/c2UNrqfxYzX35gFuLtHntjDEsizIt+oanhErWg6v3uM68/+r5uDg+DXiDpWx
-         lVxfRjja5oFFfg1189p/gtAVERMFnEyL4/jiux6A=
+        b=K3ixPP4BTK7FkESH9MsA+O3Jf4z4MpJXNr4aGksBpQWVG6+Qi4iIWYvmGNsTbotrC
+         uMX64K4QZiKjKW67NEom3uqVGXZuRpUXNJtiHlQ3KEKgTU7y8gsMhQcbvEQ/AslKTN
+         jEX2k04WMamh28TjII+5oJScdzWABZ3U5cLmkCgc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 30/66] media: pci: ivtv: Fix a sleep-in-atomic-context bug in ivtv_yuv_init()
-Date:   Sat,  9 Nov 2019 21:48:09 -0500
-Message-Id: <20191110024846.32598-30-sashal@kernel.org>
+Cc:     Joel Pepper <joel.pepper@rwth-aachen.de>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 34/66] usb: gadget: uvc: configfs: Prevent format changes after linking header
+Date:   Sat,  9 Nov 2019 21:48:13 -0500
+Message-Id: <20191110024846.32598-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024846.32598-1-sashal@kernel.org>
 References: <20191110024846.32598-1-sashal@kernel.org>
@@ -44,51 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Joel Pepper <joel.pepper@rwth-aachen.de>
 
-[ Upstream commit 8d11eb847de7d89c2754988c944d51a4f63e219b ]
+[ Upstream commit cb2200f7af8341aaf0c6abd7ba37e4c667c41639 ]
 
-The driver may sleep in a interrupt handler.
+While checks are in place to avoid attributes and children of a format
+being manipulated after the format is linked into the streaming header,
+the linked flag was never actually set, invalidating the protections.
+Update the flag as appropriate in the header link calls.
 
-The function call paths (from bottom to top) in Linux-4.16 are:
-
-[FUNC] kzalloc(GFP_KERNEL)
-drivers/media/pci/ivtv/ivtv-yuv.c, 938:
-	kzalloc in ivtv_yuv_init
-drivers/media/pci/ivtv/ivtv-yuv.c, 960:
-	ivtv_yuv_init in ivtv_yuv_next_free
-drivers/media/pci/ivtv/ivtv-yuv.c, 1126:
-	ivtv_yuv_next_free in ivtv_yuv_setup_stream_frame
-drivers/media/pci/ivtv/ivtv-irq.c, 827:
-	ivtv_yuv_setup_stream_frame in ivtv_irq_dec_data_req
-drivers/media/pci/ivtv/ivtv-irq.c, 1013:
-	ivtv_irq_dec_data_req in ivtv_irq_handler
-
-To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
-
-This bug is found by my static analysis tool DSAC.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Joel Pepper <joel.pepper@rwth-aachen.de>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/ivtv/ivtv-yuv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_configfs.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/pci/ivtv/ivtv-yuv.c b/drivers/media/pci/ivtv/ivtv-yuv.c
-index f7299d3d82449..bcb51e87c72f0 100644
---- a/drivers/media/pci/ivtv/ivtv-yuv.c
-+++ b/drivers/media/pci/ivtv/ivtv-yuv.c
-@@ -935,7 +935,7 @@ static void ivtv_yuv_init(struct ivtv *itv)
- 	}
+diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
+index 3803dda54666b..3d843e14447bb 100644
+--- a/drivers/usb/gadget/function/uvc_configfs.c
++++ b/drivers/usb/gadget/function/uvc_configfs.c
+@@ -772,6 +772,7 @@ static int uvcg_streaming_header_allow_link(struct config_item *src,
+ 	format_ptr->fmt = target_fmt;
+ 	list_add_tail(&format_ptr->entry, &src_hdr->formats);
+ 	++src_hdr->num_fmt;
++	++target_fmt->linked;
  
- 	/* We need a buffer for blanking when Y plane is offset - non-fatal if we can't get one */
--	yi->blanking_ptr = kzalloc(720 * 16, GFP_KERNEL|__GFP_NOWARN);
-+	yi->blanking_ptr = kzalloc(720 * 16, GFP_ATOMIC|__GFP_NOWARN);
- 	if (yi->blanking_ptr) {
- 		yi->blanking_dmaptr = pci_map_single(itv->pdev, yi->blanking_ptr, 720*16, PCI_DMA_TODEVICE);
- 	} else {
+ out:
+ 	mutex_unlock(&opts->lock);
+@@ -810,6 +811,8 @@ static int uvcg_streaming_header_drop_link(struct config_item *src,
+ 			break;
+ 		}
+ 
++	--target_fmt->linked;
++
+ out:
+ 	mutex_unlock(&opts->lock);
+ 	mutex_unlock(su_mutex);
 -- 
 2.20.1
 
