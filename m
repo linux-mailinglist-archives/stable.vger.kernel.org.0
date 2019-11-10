@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 155F5F66CC
-	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53158F66D3
+	for <lists+stable@lfdr.de>; Sun, 10 Nov 2019 04:16:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727199AbfKJClD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 9 Nov 2019 21:41:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34814 "EHLO mail.kernel.org"
+        id S1726960AbfKJDQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 9 Nov 2019 22:16:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727180AbfKJClC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 9 Nov 2019 21:41:02 -0500
+        id S1727187AbfKJClD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 9 Nov 2019 21:41:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61F6D21019;
-        Sun, 10 Nov 2019 02:41:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A121C214E0;
+        Sun, 10 Nov 2019 02:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573353661;
-        bh=AKjBnir9TlDMJlToyX9ECF1OlXxD7fOPgHiw+Fyj1nw=;
+        s=default; t=1573353662;
+        bh=VHiTryP+MU+PLdWreCOV2vP2vxJ3anEvXl6BhTjOKbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kgzPsqpC5W8cWF972kwc2iaZYdgWZo+NwgNnn3f1cg5miBA+ulEDDAYcY42Dy5Mj1
-         p6wN2Uq8p0m6+LAZiJY7oMxf/rf11iHl6XgZP/4Ao0cxseb04vXSLfNY2PBK3WiDcJ
-         s6IUi0zn6tqOzABHJ1OnysWiVto+PqluUsuBV0pY=
+        b=PEMdlO6wRyUZOiiZ7TFFB5V7IQmoMrPpt+4xWlRessOKHAEwGy9D/GOpD4YHoXJ5x
+         fWPnxLrnuzl9jrzlTdcivDzveXwK+4Cf7y4myHyR/tMsqCwrWlMeHVrjlkwnmkVnOh
+         ZWTJbw5a9PXloewg9f7zGUjoeoHZWWKFChFaea6A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rob Herring <robh@kernel.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 033/191] ARM: dts: atmel: Fix I2C and SPI bus warnings
-Date:   Sat,  9 Nov 2019 21:37:35 -0500
-Message-Id: <20191110024013.29782-33-sashal@kernel.org>
+Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 034/191] OPP: Protect dev_list with opp_table lock
+Date:   Sat,  9 Nov 2019 21:37:36 -0500
+Message-Id: <20191110024013.29782-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191110024013.29782-1-sashal@kernel.org>
 References: <20191110024013.29782-1-sashal@kernel.org>
@@ -44,118 +43,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit c890ecdbe93d482512a911b299bfb009780a29c2 ]
+[ Upstream commit 3d2556992a878a2210d3be498416aee39e0c32aa ]
 
-dtc has new checks for I2C and SPI buses. Fix the warnings in node names
-and unit-addresses.
+The dev_list needs to be protected with a lock, else we may have
+simultaneous access (addition/removal) to it and that would be racy.
+Extend scope of the opp_table lock to protect dev_list as well.
 
-arch/arm/boot/dts/at91-dvk_som60.dtb: Warning (i2c_bus_reg): /ahb/apb/i2c@f0018000/eeprom@87: I2C bus unit address format error, expected "57"
-arch/arm/boot/dts/at91-dvk_som60.dtb: Warning (i2c_bus_reg): /ahb/apb/i2c@f0018000/ft5426@56: I2C bus unit address format error, expected "38"
-arch/arm/boot/dts/at91-vinco.dtb: Warning (i2c_bus_reg): /ahb/apb/i2c@f8024000/rtc@64: I2C bus unit address format error, expected "32"
-arch/arm/boot/dts/at91sam9260ek.dtb: Warning (spi_bus_reg): /ahb/apb/spi@fffc8000/mtd_dataflash@0: SPI bus unit address format error, expected "1"
-arch/arm/boot/dts/at91sam9g20ek_2mmc.dtb: Warning (spi_bus_reg): /ahb/apb/spi@fffc8000/mtd_dataflash@0: SPI bus unit address format error, expected "1"
-arch/arm/boot/dts/at91sam9g20ek.dtb: Warning (spi_bus_reg): /ahb/apb/spi@fffc8000/mtd_dataflash@0: SPI bus unit address format error, expected "1"
-arch/arm/boot/dts/at91sam9261ek.dtb: Warning (spi_bus_reg): /ahb/apb/spi@fffc8000/tsc2046@0: SPI bus unit address format error, expected "2"
-
-Signed-off-by: Rob Herring <robh@kernel.org>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Tested-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91-dvk_su60_somc.dtsi     | 4 ++--
- arch/arm/boot/dts/at91-dvk_su60_somc_lcm.dtsi | 4 ++--
- arch/arm/boot/dts/at91-vinco.dts              | 2 +-
- arch/arm/boot/dts/at91sam9260ek.dts           | 2 +-
- arch/arm/boot/dts/at91sam9261ek.dts           | 2 +-
- arch/arm/boot/dts/at91sam9g20ek_common.dtsi   | 2 +-
- 6 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/opp/core.c | 21 +++++++++++++++++++--
+ drivers/opp/cpu.c  |  2 ++
+ drivers/opp/opp.h  |  2 +-
+ 3 files changed, 22 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/at91-dvk_su60_somc.dtsi b/arch/arm/boot/dts/at91-dvk_su60_somc.dtsi
-index bb86f17ed5ed1..21876da7c4425 100644
---- a/arch/arm/boot/dts/at91-dvk_su60_somc.dtsi
-+++ b/arch/arm/boot/dts/at91-dvk_su60_somc.dtsi
-@@ -70,9 +70,9 @@
- &i2c1 {
- 	status = "okay";
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index f3433bf47b100..14d4ef5943741 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -48,9 +48,14 @@ static struct opp_device *_find_opp_dev(const struct device *dev,
+ static struct opp_table *_find_opp_table_unlocked(struct device *dev)
+ {
+ 	struct opp_table *opp_table;
++	bool found;
  
--	eeprom@87 {
-+	eeprom@57 {
- 		compatible = "giantec,gt24c32a", "atmel,24c32";
--		reg = <87>;
-+		reg = <0x57>;
- 		pagesize = <32>;
- 	};
- };
-diff --git a/arch/arm/boot/dts/at91-dvk_su60_somc_lcm.dtsi b/arch/arm/boot/dts/at91-dvk_su60_somc_lcm.dtsi
-index 4b9176dc5d029..df0f0cc575c18 100644
---- a/arch/arm/boot/dts/at91-dvk_su60_somc_lcm.dtsi
-+++ b/arch/arm/boot/dts/at91-dvk_su60_somc_lcm.dtsi
-@@ -59,9 +59,9 @@
- &i2c1 {
- 	status = "okay";
+ 	list_for_each_entry(opp_table, &opp_tables, node) {
+-		if (_find_opp_dev(dev, opp_table)) {
++		mutex_lock(&opp_table->lock);
++		found = !!_find_opp_dev(dev, opp_table);
++		mutex_unlock(&opp_table->lock);
++
++		if (found) {
+ 			_get_opp_table_kref(opp_table);
  
--	ft5426@56 {
-+	ft5426@38 {
- 		compatible = "focaltech,ft5426", "edt,edt-ft5406";
--		reg = <56>;
-+		reg = <0x38>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_lcd_ctp_int>;
+ 			return opp_table;
+@@ -766,6 +771,8 @@ struct opp_device *_add_opp_dev(const struct device *dev,
  
-diff --git a/arch/arm/boot/dts/at91-vinco.dts b/arch/arm/boot/dts/at91-vinco.dts
-index 1be9889a2b3a1..430277291e025 100644
---- a/arch/arm/boot/dts/at91-vinco.dts
-+++ b/arch/arm/boot/dts/at91-vinco.dts
-@@ -128,7 +128,7 @@
- 			i2c2: i2c@f8024000 {
- 				status = "okay";
+ 	/* Initialize opp-dev */
+ 	opp_dev->dev = dev;
++
++	mutex_lock(&opp_table->lock);
+ 	list_add(&opp_dev->node, &opp_table->dev_list);
  
--				rtc1: rtc@64 {
-+				rtc1: rtc@32 {
- 					compatible = "epson,rx8900";
- 					reg = <0x32>;
- 				};
-diff --git a/arch/arm/boot/dts/at91sam9260ek.dts b/arch/arm/boot/dts/at91sam9260ek.dts
-index d2b865f602932..07d1b571e6017 100644
---- a/arch/arm/boot/dts/at91sam9260ek.dts
-+++ b/arch/arm/boot/dts/at91sam9260ek.dts
-@@ -127,7 +127,7 @@
+ 	/* Create debugfs entries for the opp_table */
+@@ -773,6 +780,7 @@ struct opp_device *_add_opp_dev(const struct device *dev,
+ 	if (ret)
+ 		dev_err(dev, "%s: Failed to register opp debugfs (%d)\n",
+ 			__func__, ret);
++	mutex_unlock(&opp_table->lock);
  
- 			spi0: spi@fffc8000 {
- 				cs-gpios = <0>, <&pioC 11 0>, <0>, <0>;
--				mtd_dataflash@0 {
-+				mtd_dataflash@1 {
- 					compatible = "atmel,at45", "atmel,dataflash";
- 					spi-max-frequency = <50000000>;
- 					reg = <1>;
-diff --git a/arch/arm/boot/dts/at91sam9261ek.dts b/arch/arm/boot/dts/at91sam9261ek.dts
-index a29fc04940762..a57f2d435dcae 100644
---- a/arch/arm/boot/dts/at91sam9261ek.dts
-+++ b/arch/arm/boot/dts/at91sam9261ek.dts
-@@ -160,7 +160,7 @@
- 					spi-max-frequency = <15000000>;
- 				};
+ 	return opp_dev;
+ }
+@@ -791,6 +799,7 @@ static struct opp_table *_allocate_opp_table(struct device *dev)
+ 	if (!opp_table)
+ 		return NULL;
  
--				tsc2046@0 {
-+				tsc2046@2 {
- 					reg = <2>;
- 					compatible = "ti,ads7843";
- 					interrupts-extended = <&pioC 2 IRQ_TYPE_EDGE_BOTH>;
-diff --git a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-index 71df3adfc7ca1..ec1f17ab6753b 100644
---- a/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-+++ b/arch/arm/boot/dts/at91sam9g20ek_common.dtsi
-@@ -109,7 +109,7 @@
++	mutex_init(&opp_table->lock);
+ 	INIT_LIST_HEAD(&opp_table->dev_list);
  
- 			spi0: spi@fffc8000 {
- 				cs-gpios = <0>, <&pioC 11 0>, <0>, <0>;
--				mtd_dataflash@0 {
-+				mtd_dataflash@1 {
- 					compatible = "atmel,at45", "atmel,dataflash";
- 					spi-max-frequency = <50000000>;
- 					reg = <1>;
+ 	opp_dev = _add_opp_dev(dev, opp_table);
+@@ -812,7 +821,6 @@ static struct opp_table *_allocate_opp_table(struct device *dev)
+ 
+ 	BLOCKING_INIT_NOTIFIER_HEAD(&opp_table->head);
+ 	INIT_LIST_HEAD(&opp_table->opp_list);
+-	mutex_init(&opp_table->lock);
+ 	kref_init(&opp_table->kref);
+ 
+ 	/* Secure the device table modification */
+@@ -854,6 +862,10 @@ static void _opp_table_kref_release(struct kref *kref)
+ 	if (!IS_ERR(opp_table->clk))
+ 		clk_put(opp_table->clk);
+ 
++	/*
++	 * No need to take opp_table->lock here as we are guaranteed that no
++	 * references to the OPP table are taken at this point.
++	 */
+ 	opp_dev = list_first_entry(&opp_table->dev_list, struct opp_device,
+ 				   node);
+ 
+@@ -1719,6 +1731,9 @@ void _dev_pm_opp_remove_table(struct opp_table *opp_table, struct device *dev,
+ {
+ 	struct dev_pm_opp *opp, *tmp;
+ 
++	/* Protect dev_list */
++	mutex_lock(&opp_table->lock);
++
+ 	/* Find if opp_table manages a single device */
+ 	if (list_is_singular(&opp_table->dev_list)) {
+ 		/* Free static OPPs */
+@@ -1736,6 +1751,8 @@ void _dev_pm_opp_remove_table(struct opp_table *opp_table, struct device *dev,
+ 	} else {
+ 		_remove_opp_dev(_find_opp_dev(dev, opp_table), opp_table);
+ 	}
++
++	mutex_unlock(&opp_table->lock);
+ }
+ 
+ void _dev_pm_opp_find_and_remove_table(struct device *dev, bool remove_all)
+diff --git a/drivers/opp/cpu.c b/drivers/opp/cpu.c
+index 0c09107094350..2868a022a0407 100644
+--- a/drivers/opp/cpu.c
++++ b/drivers/opp/cpu.c
+@@ -222,8 +222,10 @@ int dev_pm_opp_get_sharing_cpus(struct device *cpu_dev, struct cpumask *cpumask)
+ 	cpumask_clear(cpumask);
+ 
+ 	if (opp_table->shared_opp == OPP_TABLE_ACCESS_SHARED) {
++		mutex_lock(&opp_table->lock);
+ 		list_for_each_entry(opp_dev, &opp_table->dev_list, node)
+ 			cpumask_set_cpu(opp_dev->dev->id, cpumask);
++		mutex_unlock(&opp_table->lock);
+ 	} else {
+ 		cpumask_set_cpu(cpu_dev->id, cpumask);
+ 	}
+diff --git a/drivers/opp/opp.h b/drivers/opp/opp.h
+index 7c540fd063b2d..e0866b1c1f1b2 100644
+--- a/drivers/opp/opp.h
++++ b/drivers/opp/opp.h
+@@ -126,7 +126,7 @@ enum opp_table_access {
+  * @dev_list:	list of devices that share these OPPs
+  * @opp_list:	table of opps
+  * @kref:	for reference count of the table.
+- * @lock:	mutex protecting the opp_list.
++ * @lock:	mutex protecting the opp_list and dev_list.
+  * @np:		struct device_node pointer for opp's DT node.
+  * @clock_latency_ns_max: Max clock latency in nanoseconds.
+  * @shared_opp: OPP is shared between multiple devices.
 -- 
 2.20.1
 
