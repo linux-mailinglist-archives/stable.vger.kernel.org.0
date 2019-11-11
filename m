@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91A2EF7BD4
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C25C9F7AFA
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:32:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727296AbfKKSkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:40:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59444 "EHLO mail.kernel.org"
+        id S1727312AbfKKSbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:31:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbfKKSkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:40:18 -0500
+        id S1726985AbfKKSbX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:31:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD245214E0;
-        Mon, 11 Nov 2019 18:40:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64B3F21655;
+        Mon, 11 Nov 2019 18:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497617;
-        bh=H6V87+rGGbmXBhNnZctbvfyuGfxIShbUzx2vWyqDkqM=;
+        s=default; t=1573497081;
+        bh=tF8qDHsPVZtXQvwRNh4NG+WoEz3m+Rq0sHb3zs48rVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e7SSlCTq40kS+YcgTr5pR+SGgSS54219zOdNBvQITS0OlIAi8XIYylRNdgXeQZSuo
-         NOtn6tAx2HuNThMsd1Q6XF/rZ5OYa3amE72/3KoLDJra9wngE/ds/T5BXzCfFV1shr
-         66aA2GVJTCwvnfbct4DT9KObq8awOxqdgMz52wCs=
+        b=mwoxbM/B0FvvgmjEw+t+vM/wu8JPMxn3OkTQjj4RI06fsctyxvS352ukt5ZHMoBjm
+         YhCavbNBiNPBfn4XUAIP92MNdOQo/MalqlFr3eKG+1GIRJfyKpWLOm1RsFplKlpK8E
+         kJPgUce9d7YgT1XDg8ht4KDNCU5bkZ37PenTx7nY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nikhil Badola <nikhil.badola@freescale.com>,
-        Ran Wang <ran.wang_1@nxp.com>, Peter Chen <peter.chen@nxp.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 082/105] usb: fsl: Check memory resource before releasing it
+Subject: [PATCH 4.4 38/43] NFSv4: Dont allow a cached open with a revoked delegation
 Date:   Mon, 11 Nov 2019 19:28:52 +0100
-Message-Id: <20191111181447.033495169@linuxfoundation.org>
+Message-Id: <20191111181327.473748962@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikhil Badola <nikhil.badola@freescale.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit bc1e3a2dd0c9954fd956ac43ca2876bbea018c01 ]
+[ Upstream commit be3df3dd4c70ee020587a943a31b98a0fb4b6424 ]
 
-Check memory resource existence before releasing it to avoid NULL
-pointer dereference
+If the delegation is marked as being revoked, we must not use it
+for cached opens.
 
-Signed-off-by: Nikhil Badola <nikhil.badola@freescale.com>
-Reviewed-by: Ran Wang <ran.wang_1@nxp.com>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: 869f9dfa4d6d ("NFSv4: Fix races between nfs_remove_bad_delegation() and delegation return")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fsl_udc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/delegation.c | 10 ++++++++++
+ fs/nfs/delegation.h |  1 +
+ fs/nfs/nfs4proc.c   |  7 ++-----
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fsl_udc_core.c b/drivers/usb/gadget/udc/fsl_udc_core.c
-index 7874c112f3fd8..ee48c7938d619 100644
---- a/drivers/usb/gadget/udc/fsl_udc_core.c
-+++ b/drivers/usb/gadget/udc/fsl_udc_core.c
-@@ -2569,7 +2569,7 @@ static int fsl_udc_remove(struct platform_device *pdev)
- 	dma_pool_destroy(udc_controller->td_pool);
- 	free_irq(udc_controller->irq, udc_controller);
- 	iounmap(dr_regs);
--	if (pdata->operating_mode == FSL_USB2_DR_DEVICE)
-+	if (res && (pdata->operating_mode == FSL_USB2_DR_DEVICE))
- 		release_mem_region(res->start, resource_size(res));
+diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
+index 7af5eeabc80e1..5dac3382405ce 100644
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -52,6 +52,16 @@ nfs4_is_valid_delegation(const struct nfs_delegation *delegation,
+ 	return false;
+ }
  
- 	/* free udc --wait for the release() finished */
++struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode)
++{
++	struct nfs_delegation *delegation;
++
++	delegation = rcu_dereference(NFS_I(inode)->delegation);
++	if (nfs4_is_valid_delegation(delegation, 0))
++		return delegation;
++	return NULL;
++}
++
+ static int
+ nfs4_do_check_delegation(struct inode *inode, fmode_t flags, bool mark)
+ {
+diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
+index 333063e032f01..26a8af7bdca36 100644
+--- a/fs/nfs/delegation.h
++++ b/fs/nfs/delegation.h
+@@ -58,6 +58,7 @@ int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state
+ int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state, const nfs4_stateid *stateid);
+ bool nfs4_copy_delegation_stateid(nfs4_stateid *dst, struct inode *inode, fmode_t flags);
+ 
++struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode);
+ void nfs_mark_delegation_referenced(struct nfs_delegation *delegation);
+ int nfs4_have_delegation(struct inode *inode, fmode_t flags);
+ int nfs4_check_delegation(struct inode *inode, fmode_t flags);
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index 900a62a9ad4e5..08207001d4753 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1243,8 +1243,6 @@ static int can_open_delegated(struct nfs_delegation *delegation, fmode_t fmode,
+ 		return 0;
+ 	if ((delegation->type & fmode) != fmode)
+ 		return 0;
+-	if (test_bit(NFS_DELEGATION_RETURNING, &delegation->flags))
+-		return 0;
+ 	switch (claim) {
+ 	case NFS4_OPEN_CLAIM_NULL:
+ 	case NFS4_OPEN_CLAIM_FH:
+@@ -1473,7 +1471,6 @@ static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmo
+ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
+ {
+ 	struct nfs4_state *state = opendata->state;
+-	struct nfs_inode *nfsi = NFS_I(state->inode);
+ 	struct nfs_delegation *delegation;
+ 	int open_mode = opendata->o_arg.open_flags;
+ 	fmode_t fmode = opendata->o_arg.fmode;
+@@ -1490,7 +1487,7 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
+ 		}
+ 		spin_unlock(&state->owner->so_lock);
+ 		rcu_read_lock();
+-		delegation = rcu_dereference(nfsi->delegation);
++		delegation = nfs4_get_valid_delegation(state->inode);
+ 		if (!can_open_delegated(delegation, fmode, claim)) {
+ 			rcu_read_unlock();
+ 			break;
+@@ -1981,7 +1978,7 @@ static void nfs4_open_prepare(struct rpc_task *task, void *calldata)
+ 		if (can_open_cached(data->state, data->o_arg.fmode, data->o_arg.open_flags))
+ 			goto out_no_action;
+ 		rcu_read_lock();
+-		delegation = rcu_dereference(NFS_I(data->state->inode)->delegation);
++		delegation = nfs4_get_valid_delegation(data->state->inode);
+ 		if (can_open_delegated(delegation, data->o_arg.fmode, claim))
+ 			goto unlock_no_action;
+ 		rcu_read_unlock();
 -- 
 2.20.1
 
