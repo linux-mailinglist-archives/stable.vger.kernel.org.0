@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62847F7DAC
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:59:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC4B2F7D87
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:58:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730859AbfKKS5n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:57:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57378 "EHLO mail.kernel.org"
+        id S1730868AbfKKS5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:57:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730832AbfKKS5k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:57:40 -0500
+        id S1727262AbfKKS5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:57:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADA042184C;
-        Mon, 11 Nov 2019 18:57:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 947C0222C1;
+        Mon, 11 Nov 2019 18:57:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498659;
-        bh=Yg5APykiLBbTYygB+VJWegrWeN78ZT6GmOlo7CdiLaE=;
+        s=default; t=1573498663;
+        bh=fgqNPAr5XDCss93EM/QzAK1dHgpfVXnobgcH0VQ+uJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=af0WtYrWRuM6dTkFxT6foArhqbF4hQrXT0MZ+VdtGLF6FkGcs4jCxN0UeZtOgPqJJ
-         IB7nL1zTkLaxs5dl1iMTldyOZvs1Ha2EqCJCvzV1gvpubNAi8HGJOIIoqu+SI3Cak2
-         4OuLdF89e64p6v0RuDaDSdfMfbMNmwEazRaGuPas=
+        b=l6nwsJBvquuc0dBvoVjxUOnlO9AMH/Z8hALokZA8A/xkQQWB9k2Jg1oYjLk+ycg1h
+         GMQVISeBiojlAZfrWdjOFMOY6Q1mnFUiXd/fXg7BWae+qb4yB6Ti4KbMBpgPBimiAr
+         bsflpdsFjPoPeTSbqgRLftdQOSaNn57WCf049NmU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 182/193] arm64: apply ARM64_ERRATUM_843419 workaround for Brahma-B53 core
-Date:   Mon, 11 Nov 2019 19:29:24 +0100
-Message-Id: <20191111181514.532157274@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 183/193] NFSv4: Dont allow a cached open with a revoked delegation
+Date:   Mon, 11 Nov 2019 19:29:25 +0100
+Message-Id: <20191111181514.601791896@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -43,82 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Trond Myklebust <trondmy@gmail.com>
 
-[ Upstream commit 1cf45b8fdbb87040e1d1bd793891089f4678aa41 ]
+[ Upstream commit be3df3dd4c70ee020587a943a31b98a0fb4b6424 ]
 
-The Broadcom Brahma-B53 core is susceptible to the issue described by
-ARM64_ERRATUM_843419 so this commit enables the workaround to be applied
-when executing on that core.
+If the delegation is marked as being revoked, we must not use it
+for cached opens.
 
-Since there are now multiple entries to match, we must convert the
-existing ARM64_ERRATUM_843419 into an erratum list and use
-cpucap_multi_entry_cap_matches to match our entries.
-
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+Fixes: 869f9dfa4d6d ("NFSv4: Fix races between nfs_remove_bad_delegation() and delegation return")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/arm64/silicon-errata.rst |  2 ++
- arch/arm64/kernel/cpu_errata.c         | 23 ++++++++++++++++++++---
- 2 files changed, 22 insertions(+), 3 deletions(-)
+ fs/nfs/delegation.c | 10 ++++++++++
+ fs/nfs/delegation.h |  1 +
+ fs/nfs/nfs4proc.c   |  7 ++-----
+ 3 files changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
-index 8c87c68dcc324..d5f72a5b214f8 100644
---- a/Documentation/arm64/silicon-errata.rst
-+++ b/Documentation/arm64/silicon-errata.rst
-@@ -93,6 +93,8 @@ stable kernels.
- +----------------+-----------------+-----------------+-----------------------------+
- | Broadcom       | Brahma-B53      | N/A             | ARM64_ERRATUM_845719        |
- +----------------+-----------------+-----------------+-----------------------------+
-+| Broadcom       | Brahma-B53      | N/A             | ARM64_ERRATUM_843419        |
-++----------------+-----------------+-----------------+-----------------------------+
- +----------------+-----------------+-----------------+-----------------------------+
- | Cavium         | ThunderX ITS    | #22375,24313    | CAVIUM_ERRATUM_22375        |
- +----------------+-----------------+-----------------+-----------------------------+
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index 799d62ef7a9bd..ed4c2f28f1576 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -755,6 +755,23 @@ static const struct midr_range erratum_845719_list[] = {
- };
- #endif
+diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
+index ad7a771014714..af549d70ec507 100644
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -53,6 +53,16 @@ nfs4_is_valid_delegation(const struct nfs_delegation *delegation,
+ 	return false;
+ }
  
-+#ifdef CONFIG_ARM64_ERRATUM_843419
-+static const struct arm64_cpu_capabilities erratum_843419_list[] = {
-+	{
-+		/* Cortex-A53 r0p[01234] */
-+		.matches = is_affected_midr_range,
-+		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 4),
-+		MIDR_FIXED(0x4, BIT(8)),
-+	},
-+	{
-+		/* Brahma-B53 r0p[0] */
-+		.matches = is_affected_midr_range,
-+		ERRATA_MIDR_REV(MIDR_BRAHMA_B53, 0, 0),
-+	},
-+	{},
-+};
-+#endif
++struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode)
++{
++	struct nfs_delegation *delegation;
 +
- const struct arm64_cpu_capabilities arm64_errata[] = {
- #ifdef CONFIG_ARM64_WORKAROUND_CLEAN_CACHE
- 	{
-@@ -786,11 +803,11 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_843419
- 	{
--	/* Cortex-A53 r0p[01234] */
- 		.desc = "ARM erratum 843419",
- 		.capability = ARM64_WORKAROUND_843419,
--		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 4),
--		MIDR_FIXED(0x4, BIT(8)),
-+		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
-+		.matches = cpucap_multi_entry_cap_matches,
-+		.match_list = erratum_843419_list,
- 	},
- #endif
- #ifdef CONFIG_ARM64_ERRATUM_845719
++	delegation = rcu_dereference(NFS_I(inode)->delegation);
++	if (nfs4_is_valid_delegation(delegation, 0))
++		return delegation;
++	return NULL;
++}
++
+ static int
+ nfs4_do_check_delegation(struct inode *inode, fmode_t flags, bool mark)
+ {
+diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
+index 9eb87ae4c9827..8b14d441e699b 100644
+--- a/fs/nfs/delegation.h
++++ b/fs/nfs/delegation.h
+@@ -68,6 +68,7 @@ int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state,
+ bool nfs4_copy_delegation_stateid(struct inode *inode, fmode_t flags, nfs4_stateid *dst, const struct cred **cred);
+ bool nfs4_refresh_delegation_stateid(nfs4_stateid *dst, struct inode *inode);
+ 
++struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode);
+ void nfs_mark_delegation_referenced(struct nfs_delegation *delegation);
+ int nfs4_have_delegation(struct inode *inode, fmode_t flags);
+ int nfs4_check_delegation(struct inode *inode, fmode_t flags);
+diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
+index e1e7d2724b971..e600f28b1ddb9 100644
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -1435,8 +1435,6 @@ static int can_open_delegated(struct nfs_delegation *delegation, fmode_t fmode,
+ 		return 0;
+ 	if ((delegation->type & fmode) != fmode)
+ 		return 0;
+-	if (test_bit(NFS_DELEGATION_RETURNING, &delegation->flags))
+-		return 0;
+ 	switch (claim) {
+ 	case NFS4_OPEN_CLAIM_NULL:
+ 	case NFS4_OPEN_CLAIM_FH:
+@@ -1805,7 +1803,6 @@ static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmo
+ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
+ {
+ 	struct nfs4_state *state = opendata->state;
+-	struct nfs_inode *nfsi = NFS_I(state->inode);
+ 	struct nfs_delegation *delegation;
+ 	int open_mode = opendata->o_arg.open_flags;
+ 	fmode_t fmode = opendata->o_arg.fmode;
+@@ -1822,7 +1819,7 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
+ 		}
+ 		spin_unlock(&state->owner->so_lock);
+ 		rcu_read_lock();
+-		delegation = rcu_dereference(nfsi->delegation);
++		delegation = nfs4_get_valid_delegation(state->inode);
+ 		if (!can_open_delegated(delegation, fmode, claim)) {
+ 			rcu_read_unlock();
+ 			break;
+@@ -2366,7 +2363,7 @@ static void nfs4_open_prepare(struct rpc_task *task, void *calldata)
+ 					data->o_arg.open_flags, claim))
+ 			goto out_no_action;
+ 		rcu_read_lock();
+-		delegation = rcu_dereference(NFS_I(data->state->inode)->delegation);
++		delegation = nfs4_get_valid_delegation(data->state->inode);
+ 		if (can_open_delegated(delegation, data->o_arg.fmode, claim))
+ 			goto unlock_no_action;
+ 		rcu_read_unlock();
 -- 
 2.20.1
 
