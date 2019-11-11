@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3CAF7CE4
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:51:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A161F7C01
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:42:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729550AbfKKSuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:50:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44772 "EHLO mail.kernel.org"
+        id S1728995AbfKKSmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:42:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730372AbfKKSuv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:50:51 -0500
+        id S1728987AbfKKSmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:42:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 534A7214E0;
-        Mon, 11 Nov 2019 18:50:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B265214E0;
+        Mon, 11 Nov 2019 18:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498250;
-        bh=AxjSEsBuqLMR7CGO0L2PJe8Z58LIy3vQxJ+3lq10mw8=;
+        s=default; t=1573497726;
+        bh=w0UtcrszX9z1YkmznrZ7XxXhk6MbQ0MaEmd6+OEWjfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QM+S8LUO0es9TxyGUoIlElFHgCPi52BMHJO5aQqyAZ8X6OSNw+UYAGtbayo+ypkel
-         CQ3agWQeSFTd9Lvr516LNaIm0HpZk/iGx6hGqsY3cesCVzs31KKvQHMFZ0/ZWxSy8/
-         FbUcGmOJfVYw3IQWwL1i+QIRS/kSDpm/sWpCfynY=
+        b=FkV6jLst674oFO42UDm/TVnCqkxYhsUO/smNOMB/6YxyNrC4nkOARVbfDOYhy7UdE
+         /xpglcbjCcGyZoWvKdkJ/PViK6Ddhw9Rg+LzKRhpAAx0l/61cCyO4wjh+QKhUqcfte
+         6FK2LzMw0tB+NMOs523i0Z02x0qcs2qcCe+/CLvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.3 064/193] netfilter: nf_tables: Align nft_expr private data to 64-bit
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 007/125] net: usb: qmi_wwan: add support for DW5821e with eSIM support
 Date:   Mon, 11 Nov 2019 19:27:26 +0100
-Message-Id: <20191111181505.729127861@linuxfoundation.org>
+Message-Id: <20191111181440.365329779@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-commit 250367c59e6ba0d79d702a059712d66edacd4a1a upstream.
+[ Upstream commit e497df686e8fed8c1dd69179010656362858edb3 ]
 
-Invoking the following commands on a 32-bit architecture with strict
-alignment requirements (such as an ARMv7-based Raspberry Pi) results
-in an alignment exception:
+Exactly same layout as the default DW5821e module, just a different
+vid/pid.
 
- # nft add table ip test-ip4
- # nft add chain ip test-ip4 output { type filter hook output priority 0; }
- # nft add rule  ip test-ip4 output quota 1025 bytes
+The QMI interface is exposed in USB configuration #1:
 
-Alignment trap: not handling instruction e1b26f9f at [<7f4473f8>]
-Unhandled fault: alignment exception (0x001) at 0xb832e824
-Internal error: : 1 [#1] PREEMPT SMP ARM
-Hardware name: BCM2835
-[<7f4473fc>] (nft_quota_do_init [nft_quota])
-[<7f447448>] (nft_quota_init [nft_quota])
-[<7f4260d0>] (nf_tables_newrule [nf_tables])
-[<7f4168dc>] (nfnetlink_rcv_batch [nfnetlink])
-[<7f416bd0>] (nfnetlink_rcv [nfnetlink])
-[<8078b334>] (netlink_unicast)
-[<8078b664>] (netlink_sendmsg)
-[<8071b47c>] (sock_sendmsg)
-[<8071bd18>] (___sys_sendmsg)
-[<8071ce3c>] (__sys_sendmsg)
-[<8071ce94>] (sys_sendmsg)
+P:  Vendor=413c ProdID=81e0 Rev=03.18
+S:  Manufacturer=Dell Inc.
+S:  Product=DW5821e-eSIM Snapdragon X20 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
 
-The reason is that nft_quota_do_init() calls atomic64_set() on an
-atomic64_t which is only aligned to 32-bit, not 64-bit, because it
-succeeds struct nft_expr in memory which only contains a 32-bit pointer.
-Fix by aligning the nft_expr private data to 64-bit.
-
-Fixes: 96518518cc41 ("netfilter: add nftables")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v3.13+
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/net/netfilter/nf_tables.h |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/qmi_wwan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/net/netfilter/nf_tables.h
-+++ b/include/net/netfilter/nf_tables.h
-@@ -801,7 +801,8 @@ struct nft_expr_ops {
-  */
- struct nft_expr {
- 	const struct nft_expr_ops	*ops;
--	unsigned char			data[];
-+	unsigned char			data[]
-+		__attribute__((aligned(__alignof__(u64))));
- };
- 
- static inline void *nft_expr_priv(const struct nft_expr *expr)
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1297,6 +1297,7 @@ static const struct usb_device_id produc
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
+ 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
++	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
+ 	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
+ 	{QMI_FIXED_INTF(0x03f0, 0x9d1d, 1)},	/* HP lt4120 Snapdragon X5 LTE */
+ 	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */
 
 
