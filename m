@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EF15F7E6A
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45A81F7DDC
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:00:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728175AbfKKSpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:45:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37438 "EHLO mail.kernel.org"
+        id S1727109AbfKKSy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:54:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729847AbfKKSpV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:45:21 -0500
+        id S1729539AbfKKSy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:54:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0D10214E0;
-        Mon, 11 Nov 2019 18:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21008204EC;
+        Mon, 11 Nov 2019 18:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497920;
-        bh=kinpNwYLAbFbcv0INl+n+Jk3R5U6KkCib8TlU4z/nx0=;
+        s=default; t=1573498497;
+        bh=pUWKp8naBDs9sjU+E0WOyTLJfsG5GyDZCVxfypsKw5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HE26saA87IUEPsI+sxm6TT1O/qaQ50bDdWrqCypRZAFCD51NEmO1IV2/Uh6hDkt5h
-         a4O/ANby0C22+mhmlv06fNbCvZQAeBJf9hm/hvVQjFrGqMqstd9tpM90D53QgcRpGN
-         3KkIaE+SLmynGSXB/FL+BFWaz446RD+b9yqa34v8=
+        b=fk0sUEygIIdxD3eOQCSVH82w9bSMi9lX+BtZH7o5Wr7WThLu35yNx5vyBPYcC67f+
+         TolrLnQ6KeShtPRHZ1B2LB8YVZQzXeFBJbd7tR9L0ioP6Nx5IAT31wi4D3tDnIrhc4
+         Y79S/1h/vndQPzTSpgfVy+NLtG6m7vn2+08Xv7IE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
+        stable@vger.kernel.org, Xiang Chen <chenxiang66@hisilicon.com>,
+        Bart Van Assche <bvanassche@acm.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 079/125] scsi: qla2xxx: fixup incorrect usage of host_byte
+Subject: [PATCH 5.3 136/193] scsi: sd: define variable dif as unsigned int instead of bool
 Date:   Mon, 11 Nov 2019 19:28:38 +0100
-Message-Id: <20191111181450.702770553@linuxfoundation.org>
+Message-Id: <20191111181511.204518731@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.com>
+From: Xiang Chen <chenxiang66@hisilicon.com>
 
-[ Upstream commit 66cf50e65b183c863825f5c28a818e3f47a72e40 ]
+[ Upstream commit 0cf9f4e547cebb5f5d2d046437c71ddcc8ea4a39 ]
 
-DRIVER_ERROR is a a driver byte setting, not a host byte.  The qla2xxx
-driver should rather return DID_ERROR here to be in line with the other
-drivers.
+Variable dif in function sd_setup_read_write_cmnd() is the return value of
+function scsi_host_dif_capable() which returns dif capability of disks.  If
+define it as bool, even for the disks which support DIF3, the function
+still return dif=1, which causes IO error. So define variable dif as
+unsigned int instead of bool.
 
-Link: https://lore.kernel.org/r/20191018140458.108278-1-hare@suse.de
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Fixes: e249e42d277e ("scsi: sd: Clean up sd_setup_read_write_cmnd()")
+Link: https://lore.kernel.org/r/1571725628-132736-1-git-send-email-chenxiang66@hisilicon.com
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/sd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
-index 4a9fd8d944d60..85b03a7f473c1 100644
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -258,7 +258,7 @@ qla2x00_process_els(struct bsg_job *bsg_job)
- 	srb_t *sp;
- 	const char *type;
- 	int req_sg_cnt, rsp_sg_cnt;
--	int rval =  (DRIVER_ERROR << 16);
-+	int rval =  (DID_ERROR << 16);
- 	uint16_t nextlid = 0;
+diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+index 2d77f32e13d5e..9dc367e2e742d 100644
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -1166,11 +1166,12 @@ static blk_status_t sd_setup_read_write_cmnd(struct scsi_cmnd *cmd)
+ 	sector_t lba = sectors_to_logical(sdp, blk_rq_pos(rq));
+ 	sector_t threshold;
+ 	unsigned int nr_blocks = sectors_to_logical(sdp, blk_rq_sectors(rq));
+-	bool dif, dix;
+ 	unsigned int mask = logical_to_sectors(sdp, 1) - 1;
+ 	bool write = rq_data_dir(rq) == WRITE;
+ 	unsigned char protect, fua;
+ 	blk_status_t ret;
++	unsigned int dif;
++	bool dix;
  
- 	if (bsg_request->msgcode == FC_BSG_RPT_ELS) {
-@@ -433,7 +433,7 @@ qla2x00_process_ct(struct bsg_job *bsg_job)
- 	struct Scsi_Host *host = fc_bsg_to_shost(bsg_job);
- 	scsi_qla_host_t *vha = shost_priv(host);
- 	struct qla_hw_data *ha = vha->hw;
--	int rval = (DRIVER_ERROR << 16);
-+	int rval = (DID_ERROR << 16);
- 	int req_sg_cnt, rsp_sg_cnt;
- 	uint16_t loop_id;
- 	struct fc_port *fcport;
-@@ -1948,7 +1948,7 @@ qlafx00_mgmt_cmd(struct bsg_job *bsg_job)
- 	struct Scsi_Host *host = fc_bsg_to_shost(bsg_job);
- 	scsi_qla_host_t *vha = shost_priv(host);
- 	struct qla_hw_data *ha = vha->hw;
--	int rval = (DRIVER_ERROR << 16);
-+	int rval = (DID_ERROR << 16);
- 	struct qla_mt_iocb_rqst_fx00 *piocb_rqst;
- 	srb_t *sp;
- 	int req_sg_cnt = 0, rsp_sg_cnt = 0;
+ 	ret = scsi_init_io(cmd);
+ 	if (ret != BLK_STS_OK)
 -- 
 2.20.1
 
