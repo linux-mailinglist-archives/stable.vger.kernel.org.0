@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C17AF6E72
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:12:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90241F6E83
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:22:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726780AbfKKGM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:12:28 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:50519 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725796AbfKKGM2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:12:28 -0500
+        id S1726360AbfKKGWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:22:15 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:37125 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726205AbfKKGWP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:22:15 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 525B0568;
-        Mon, 11 Nov 2019 01:12:27 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:12:27 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 2684820F20;
+        Mon, 11 Nov 2019 01:22:14 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:22:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=qRhtAj
-        faD9judxMXR9eAv6eQImdxJJyUU2SPpseE/co=; b=C0HLE5D/S0narO0P7rjBQx
-        KRXHbDpTkkpXLjW3eU89IczqNqBKx7lGL4fgSLu+c/9xJlc0mF7Wzi+r3hr5tYaY
-        CuTSGNPUO0k/r2MtYxjGJ1zSiCP6sl4Si7ub7jKIjk4ZsVZ4KkX8orWbDAldKWl5
-        jkO08vkhcU0AKcj4SgbOOW+6atReivzUoaMDCLh3p50II+z+4U2HvMICygnhOzEc
-        eZAiWy10uavkdUGRYNuGsPjNISZDulHJ8j3+1KUQfFX59di4f9I/Lydliswzl4d7
-        7HYpxHWweQ4rA6IYv02BfUa3BmexqugkVEEXYPlVZ6sk11f+Dyg9aEMuUH0DGW9A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=HvrS+s
+        DQZpyZLN0fcTiYSzV7vkeRJLL5sVUiJOnPx4o=; b=aKIEmFMu+hHLX+e8lqFUKj
+        ORo+Q/Dob2v1W7EPfIO99BYvO8JoMmOTQMOjWTaKh7UEgE1qW+mhKr/LMLaem3tL
+        tW43Nchg9NKXXHYiv5mSEou6KIezOtUACqjByb4I0dTHUlp002PTRbg+p5fK6GsH
+        6ivSdv33BVdW4VMci10+L6DxWRrx09+Z93jhjI1muXX7relZSjStVqIkk6VjqjOo
+        l+x0WSyu8PUwpKGpIUsIeVgXL4FOoDoOBYXaAb+mWO9xS1D4KUL41F1BimVV05iQ
+        BkXmuGVRFTYh4duwg47HuHm6mMuJISZM82rQ2MBgByhz7fbkeROS3xnVqR46ip7Q
         ==
-X-ME-Sender: <xms:yvvIXRqwhNLFVTU_jDPJ_K6iaRk63CYDK4bfm2zmleKYHbJJH75yaA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleegucetufdoteggodetrfdotf
+X-ME-Sender: <xms:Ff7IXXBEKd_v4fCcGTZttKjvQFrPWxdsPOXpbexncUY24cNPe4634Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:yvvIXcnUdKZwIuoVcIlEVMy4_FEDJ1a6kqIruvPVebvlzbeDzpj7zg>
-    <xmx:yvvIXQIbz-tfp6w6c4K9ngNnH_-JxdyNnZkx9oYqf-L8im7Ti10kUA>
-    <xmx:yvvIXZz-3vZD6HGuEodoslAmcZ4vYpG__SdYng1KCLZA16OGqubBow>
-    <xmx:yvvIXb4RgB-CElqCSPeCL7hhA6mQ7_rLD_WL0mQ9KMgK-2MNcQSCBg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Ff7IXVI8Bkdp6CIFRc6B_CxCGYvbniU7nFH4gxiaR1u3jZ9qPoO9xA>
+    <xmx:Ff7IXSxiOqUrjbxJjGF_aqYeGUobtKmbdHhA2wyMqKTG8caFbXzV9g>
+    <xmx:Ff7IXRw6Yd0dacYSltK9rIqioonJZ0qYblNXig5xJ8p4_NdSP6XHMQ>
+    <xmx:Fv7IXUs8C5s3jvM0UZR9yZ5hujKLLPEqvQfRT7XKTPb-ZbV5R2jNtA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 60AE5306005E;
-        Mon, 11 Nov 2019 01:12:26 -0500 (EST)
-Subject: FAILED: patch "[PATCH] blkcg: make blkcg_print_stat() print stats only for online" failed to apply to 4.19-stable tree
-To:     tj@kernel.org, axboe@kernel.dk, guro@fb.com, jbacik@fb.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 7BC8E8005C;
+        Mon, 11 Nov 2019 01:22:13 -0500 (EST)
+Subject: FAILED: patch "[PATCH] iio: imu: inv_mpu6050: fix no data on MPU6050" failed to apply to 4.19-stable tree
+To:     JManeyrol@invensense.com, Jonathan.Cameron@huawei.com,
+        jmaneyrol@invensense.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Nov 2019 07:12:24 +0100
-Message-ID: <1573452744205173@kroah.com>
+Date:   Mon, 11 Nov 2019 07:22:11 +0100
+Message-ID: <15734533311935@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -67,74 +68,142 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b0814361a25cba73a224548843ed92d8ea78715a Mon Sep 17 00:00:00 2001
-From: Tejun Heo <tj@kernel.org>
-Date: Tue, 5 Nov 2019 08:09:51 -0800
-Subject: [PATCH] blkcg: make blkcg_print_stat() print stats only for online
- blkgs
+From 6e82ae6b8d11b948b74e71396efd8e074c415f44 Mon Sep 17 00:00:00 2001
+From: Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
+Date: Wed, 16 Oct 2019 14:43:28 +0000
+Subject: [PATCH] iio: imu: inv_mpu6050: fix no data on MPU6050
 
-blkcg_print_stat() iterates blkgs under RCU and doesn't test whether
-the blkg is online.  This can call into pd_stat_fn() on a pd which is
-still being initialized leading to an oops.
+Some chips have a fifo overflow bit issue where the bit is always
+set. The result is that every data is dropped.
 
-The heaviest operation - recursively summing up rwstat counters - is
-already done while holding the queue_lock.  Expand queue_lock to cover
-the other operations and skip the blkg if it isn't online yet.  The
-online state is protected by both blkcg and queue locks, so this
-guarantees that only online blkgs are processed.
+Change fifo overflow management by checking fifo count against
+a maximum value.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Roman Gushchin <guro@fb.com>
-Cc: Josef Bacik <jbacik@fb.com>
-Fixes: 903d23f0a354 ("blk-cgroup: allow controllers to output their own stats")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Add fifo size in chip hardware set of values.
 
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 5d21027b1faf..1eb8895be4c6 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -934,9 +934,14 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
- 		int i;
- 		bool has_stats = false;
+Fixes: f5057e7b2dba ("iio: imu: inv_mpu6050: better fifo overflow handling")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+index b17f060b52fc..868281b8adb0 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
+@@ -114,54 +114,63 @@ static const struct inv_mpu6050_hw hw_info[] = {
+ 		.name = "MPU6050",
+ 		.reg = &reg_set_6050,
+ 		.config = &chip_config_6050,
++		.fifo_size = 1024,
+ 	},
+ 	{
+ 		.whoami = INV_MPU6500_WHOAMI_VALUE,
+ 		.name = "MPU6500",
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
++		.fifo_size = 512,
+ 	},
+ 	{
+ 		.whoami = INV_MPU6515_WHOAMI_VALUE,
+ 		.name = "MPU6515",
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
++		.fifo_size = 512,
+ 	},
+ 	{
+ 		.whoami = INV_MPU6000_WHOAMI_VALUE,
+ 		.name = "MPU6000",
+ 		.reg = &reg_set_6050,
+ 		.config = &chip_config_6050,
++		.fifo_size = 1024,
+ 	},
+ 	{
+ 		.whoami = INV_MPU9150_WHOAMI_VALUE,
+ 		.name = "MPU9150",
+ 		.reg = &reg_set_6050,
+ 		.config = &chip_config_6050,
++		.fifo_size = 1024,
+ 	},
+ 	{
+ 		.whoami = INV_MPU9250_WHOAMI_VALUE,
+ 		.name = "MPU9250",
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
++		.fifo_size = 512,
+ 	},
+ 	{
+ 		.whoami = INV_MPU9255_WHOAMI_VALUE,
+ 		.name = "MPU9255",
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
++		.fifo_size = 512,
+ 	},
+ 	{
+ 		.whoami = INV_ICM20608_WHOAMI_VALUE,
+ 		.name = "ICM20608",
+ 		.reg = &reg_set_6500,
+ 		.config = &chip_config_6050,
++		.fifo_size = 512,
+ 	},
+ 	{
+ 		.whoami = INV_ICM20602_WHOAMI_VALUE,
+ 		.name = "ICM20602",
+ 		.reg = &reg_set_icm20602,
+ 		.config = &chip_config_6050,
++		.fifo_size = 1008,
+ 	},
+ };
  
-+		spin_lock_irq(&blkg->q->queue_lock);
-+
-+		if (!blkg->online)
-+			goto skip;
-+
- 		dname = blkg_dev_name(blkg);
- 		if (!dname)
--			continue;
-+			goto skip;
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+index db1c6904388b..51235677c534 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
+@@ -100,12 +100,14 @@ struct inv_mpu6050_chip_config {
+  *  @name:      name of the chip.
+  *  @reg:   register map of the chip.
+  *  @config:    configuration of the chip.
++ *  @fifo_size:	size of the FIFO in bytes.
+  */
+ struct inv_mpu6050_hw {
+ 	u8 whoami;
+ 	u8 *name;
+ 	const struct inv_mpu6050_reg_map *reg;
+ 	const struct inv_mpu6050_chip_config *config;
++	size_t fifo_size;
+ };
  
- 		/*
- 		 * Hooray string manipulation, count is the size written NOT
-@@ -946,8 +951,6 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
- 		 */
- 		off += scnprintf(buf+off, size-off, "%s ", dname);
- 
--		spin_lock_irq(&blkg->q->queue_lock);
--
- 		blkg_rwstat_recursive_sum(blkg, NULL,
- 				offsetof(struct blkcg_gq, stat_bytes), &rwstat);
- 		rbytes = rwstat.cnt[BLKG_RWSTAT_READ];
-@@ -960,8 +963,6 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
- 		wios = rwstat.cnt[BLKG_RWSTAT_WRITE];
- 		dios = rwstat.cnt[BLKG_RWSTAT_DISCARD];
- 
--		spin_unlock_irq(&blkg->q->queue_lock);
--
- 		if (rbytes || wbytes || rios || wios) {
- 			has_stats = true;
- 			off += scnprintf(buf+off, size-off,
-@@ -999,6 +1000,8 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
- 				seq_commit(sf, -1);
- 			}
- 		}
-+	skip:
-+		spin_unlock_irq(&blkg->q->queue_lock);
+ /*
+diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+index 5f9a5de0bab4..72d8c5790076 100644
+--- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
++++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
+@@ -180,9 +180,6 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 			"failed to ack interrupt\n");
+ 		goto flush_fifo;
  	}
- 
- 	rcu_read_unlock();
+-	/* handle fifo overflow by reseting fifo */
+-	if (int_status & INV_MPU6050_BIT_FIFO_OVERFLOW_INT)
+-		goto flush_fifo;
+ 	if (!(int_status & INV_MPU6050_BIT_RAW_DATA_RDY_INT)) {
+ 		dev_warn(regmap_get_device(st->map),
+ 			"spurious interrupt with status 0x%x\n", int_status);
+@@ -211,6 +208,18 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
+ 	if (result)
+ 		goto end_session;
+ 	fifo_count = get_unaligned_be16(&data[0]);
++
++	/*
++	 * Handle fifo overflow by resetting fifo.
++	 * Reset if there is only 3 data set free remaining to mitigate
++	 * possible delay between reading fifo count and fifo data.
++	 */
++	nb = 3 * bytes_per_datum;
++	if (fifo_count >= st->hw->fifo_size - nb) {
++		dev_warn(regmap_get_device(st->map), "fifo overflow reset\n");
++		goto flush_fifo;
++	}
++
+ 	/* compute and process all complete datum */
+ 	nb = fifo_count / bytes_per_datum;
+ 	inv_mpu6050_update_period(st, pf->timestamp, nb);
 
