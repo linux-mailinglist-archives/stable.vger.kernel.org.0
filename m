@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58236F7D9A
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:58:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0ECBF7BCD
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:40:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728527AbfKKS60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:58:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59018 "EHLO mail.kernel.org"
+        id S1728590AbfKKSj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:39:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730952AbfKKS6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:58:25 -0500
+        id S1729201AbfKKSj6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:39:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B59621655;
-        Mon, 11 Nov 2019 18:58:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8ED8121925;
+        Mon, 11 Nov 2019 18:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498705;
-        bh=htiOC1uVGR+O9cmER5N2/CdEIVGN+j7kvh9EzVsIIPE=;
+        s=default; t=1573497597;
+        bh=YQs+1EPKoIJNVEYToKN9gg81eX8jHycoxZJUZvxjTNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hzb8tIxSGq/EujvfR5LNA6bltbbrZTDXXUrLvjT89URdw2U2fNKgt0RUiC/7ZzW/
-         ZrgQDV9O7/Ft6hlZBbVw91CNXkuSZ2TitC1eFX1a/gDaEvKoJve2RPK3tPO4JnjkeH
-         NqsU3Px2qsf1pAYKnVLtayoK7sLbfAKxB28NT+5c=
+        b=h9nm4a72YOJ5yecxeaudEWLVRFWVBBOg6z3OvU+Bd2uxpRU+Nz9lZLYqnvWke62+h
+         z5ZdUor8jM8KAr2E5dRkQYuM4T+r+R7Rx7+IV8AIUXGIkRhCw4cShhcCvvxLbv+Y6Z
+         b0tZE3iQScT/+ASt4W4VdZ+/TMUX5pxhJSPLdwwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Anton Eidelman <anton@lightbitslabs.com>,
-        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 156/193] nvme-multipath: fix possible io hang after ctrl reconnect
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 088/105] perf/x86/amd/ibs: Handle erratum #420 only on the affected CPU family (10h)
 Date:   Mon, 11 Nov 2019 19:28:58 +0100
-Message-Id: <20191111181512.649678505@linuxfoundation.org>
+Message-Id: <20191111181447.616944222@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Eidelman <anton@lightbitslabs.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit af8fd0424713a2adb812d10d55e86718152cf656 ]
+[ Upstream commit e431e79b60603079d269e0c2a5177943b95fa4b6 ]
 
-The following scenario results in an IO hang:
-1) ctrl completes a request with NVME_SC_ANA_TRANSITION.
-   NVME_NS_ANA_PENDING bit in ns->flags is set and ana_work is triggered.
-2) ana_work: nvme_read_ana_log() tries to get the ANA log page from the ctrl.
-   This fails because ctrl disconnects.
-   Therefore nvme_update_ns_ana_state() is not called
-   and NVME_NS_ANA_PENDING bit in ns->flags is not cleared.
-3) ctrl reconnects: nvme_mpath_init(ctrl,...) calls
-   nvme_read_ana_log(ctrl, groups_only=true).
-   However, nvme_update_ana_state() does not update namespaces
-   because nr_nsids = 0 (due to groups_only mode).
-4) scan_work calls nvme_validate_ns() finds the ns and re-validates OK.
+This saves us writing the IBS control MSR twice when disabling the
+event.
 
-Result:
-The ctrl is now live but NVME_NS_ANA_PENDING bit in ns->flags is still set.
-Consequently ctrl will never be considered a viable path by __nvme_find_path().
-IO will hang if ctrl is the only or the last path to the namespace.
+I searched revision guides for all families since 10h, and did not
+find occurrence of erratum #420, nor anything remotely similar:
+so we isolate the secondary MSR write to family 10h only.
 
-More generally, while ctrl is reconnecting, its ANA state may change.
-And because nvme_mpath_init() requests ANA log in groups_only mode,
-these changes are not propagated to the existing ctrl namespaces.
-This may result in a mal-function or an IO hang.
+Also unconditionally update the count mask for IBS Op implementations
+that have read & writeable current count (CurCnt) fields in addition
+to the MaxCnt field.  These bits were reserved on prior
+implementations, and therefore shouldn't have negative impact.
 
-Solution:
-nvme_mpath_init() will nvme_read_ana_log() with groups_only set to false.
-This will not harm the new ctrl case (no namespaces present),
-and will make sure the ANA state of namespaces gets updated after reconnect.
-
-Note: Another option would be for nvme_mpath_init() to invoke
-nvme_parse_ana_log(..., nvme_set_ns_ana_state) for each existing namespace.
-
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
-Signed-off-by: Keith Busch <kbusch@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Fixes: c9574fe0bdb9 ("perf/x86-ibs: Implement workaround for IBS erratum #420")
+Link: https://lkml.kernel.org/r/20191023150955.30292-2-kim.phillips@amd.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/ibs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 30de7efef0035..d320684d25b20 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -715,7 +715,7 @@ int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
- 		goto out;
- 	}
- 
--	error = nvme_read_ana_log(ctrl, true);
-+	error = nvme_read_ana_log(ctrl, false);
- 	if (error)
- 		goto out_free_ana_log_buf;
- 	return 0;
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index 4deecdb26ab30..f24e9adaa3167 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -389,7 +389,8 @@ static inline void perf_ibs_disable_event(struct perf_ibs *perf_ibs,
+ 					  struct hw_perf_event *hwc, u64 config)
+ {
+ 	config &= ~perf_ibs->cnt_mask;
+-	wrmsrl(hwc->config_base, config);
++	if (boot_cpu_data.x86 == 0x10)
++		wrmsrl(hwc->config_base, config);
+ 	config &= ~perf_ibs->enable_mask;
+ 	wrmsrl(hwc->config_base, config);
+ }
+@@ -564,7 +565,8 @@ static struct perf_ibs perf_ibs_op = {
+ 	},
+ 	.msr			= MSR_AMD64_IBSOPCTL,
+ 	.config_mask		= IBS_OP_CONFIG_MASK,
+-	.cnt_mask		= IBS_OP_MAX_CNT,
++	.cnt_mask		= IBS_OP_MAX_CNT | IBS_OP_CUR_CNT |
++				  IBS_OP_CUR_CNT_RAND,
+ 	.enable_mask		= IBS_OP_ENABLE,
+ 	.valid_mask		= IBS_OP_VAL,
+ 	.max_period		= IBS_OP_MAX_CNT << 4,
 -- 
 2.20.1
 
