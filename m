@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA74F7BE1
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:41:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A22F7CF0
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:52:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729308AbfKKSky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:40:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60068 "EHLO mail.kernel.org"
+        id S1729378AbfKKSvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:51:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729307AbfKKSky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:40:54 -0500
+        id S1730263AbfKKSvR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:51:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 225C721783;
-        Mon, 11 Nov 2019 18:40:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FA8D222C1;
+        Mon, 11 Nov 2019 18:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497653;
-        bh=2UNOtVcCgsWOM9ecfbBQ1K/3t56d8DMFfhrPNwCxjK4=;
+        s=default; t=1573498277;
+        bh=6lgpsgg7uVgYl5DWn9S8ulDSED75HDu61aSomNLuS7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=St+R1/Goyb7ZwIu9AjmmXjB7k/93w2CRzWqqonyJK7GVwo2ElxhSbUK+pAdFNG2YW
-         q1c77u7bUQrzus6uLeto6yo1rf+ZgkQmVKbJqVBb7Q53tuIYcLISb5BdGYSxPdwSeo
-         Ghe9AWffYl2xlmOduSRMGioH/DV/MdFwJ/LhNjos=
+        b=octoxiIHkIdGxSlqejmULtG6fgFQSdo1AJ0aZoBGwd+F+Erc4iorripbFbZEGWh19
+         WHo2LQfQi7qdONeLrkAJEG+76/Bs8xHh/Oja1KnpAZnrX5XjYDXXy0+gVCdnKwcERT
+         EBqnhoV27zg56BLTZGvWmIyvcbJvamYrF4gBHL+o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 018/125] ALSA: hda/ca0132 - Fix possible workqueue stall
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.3 075/193] can: peak_usb: fix a potential out-of-sync while decoding packets
 Date:   Mon, 11 Nov 2019 19:27:37 +0100
-Message-Id: <20191111181442.369597747@linuxfoundation.org>
+Message-Id: <20191111181506.659173609@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-commit 15c2b3cc09a31620914955cb2a89c277c18ee999 upstream.
+commit de280f403f2996679e2607384980703710576fed upstream.
 
-The unsolicited event handler for the headphone jack on CA0132 codec
-driver tries to reschedule the another delayed work with
-cancel_delayed_work_sync().  It's no good idea, unfortunately,
-especially after we changed the work queue to the standard global
-one; this may lead to a stall because both works are using the same
-global queue.
+When decoding a buffer received from PCAN-USB, the first timestamp read in
+a packet is a 16-bit coded time base, and the next ones are an 8-bit
+offset to this base, regardless of the type of packet read.
 
-Fix it by dropping the _sync but does call cancel_delayed_work()
-instead.
+This patch corrects a potential loss of synchronization by using a
+timestamp index read from the buffer, rather than an index of received
+data packets, to determine on the sizeof the timestamp to be read from the
+packet being decoded.
 
-Fixes: 993884f6a26c ("ALSA: hda/ca0132 - Delay HP amp turnon.")
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1155836
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191105134316.19294-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Fixes: 46be265d3388 ("can: usb: PEAK-System Technik PCAN-USB specific part")
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_ca0132.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/usb/peak_usb/pcan_usb.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -6769,7 +6769,7 @@ static void hp_callback(struct hda_codec
- 	/* Delay enabling the HP amp, to let the mic-detection
- 	 * state machine run.
- 	 */
--	cancel_delayed_work_sync(&spec->unsol_hp_work);
-+	cancel_delayed_work(&spec->unsol_hp_work);
- 	schedule_delayed_work(&spec->unsol_hp_work, msecs_to_jiffies(500));
- 	tbl = snd_hda_jack_tbl_get(codec, cb->nid);
- 	if (tbl)
+--- a/drivers/net/can/usb/peak_usb/pcan_usb.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb.c
+@@ -100,7 +100,7 @@ struct pcan_usb_msg_context {
+ 	u8 *end;
+ 	u8 rec_cnt;
+ 	u8 rec_idx;
+-	u8 rec_data_idx;
++	u8 rec_ts_idx;
+ 	struct net_device *netdev;
+ 	struct pcan_usb *pdev;
+ };
+@@ -547,10 +547,15 @@ static int pcan_usb_decode_status(struct
+ 	mc->ptr += PCAN_USB_CMD_ARGS;
+ 
+ 	if (status_len & PCAN_USB_STATUSLEN_TIMESTAMP) {
+-		int err = pcan_usb_decode_ts(mc, !mc->rec_idx);
++		int err = pcan_usb_decode_ts(mc, !mc->rec_ts_idx);
+ 
+ 		if (err)
+ 			return err;
++
++		/* Next packet in the buffer will have a timestamp on a single
++		 * byte
++		 */
++		mc->rec_ts_idx++;
+ 	}
+ 
+ 	switch (f) {
+@@ -632,10 +637,13 @@ static int pcan_usb_decode_data(struct p
+ 
+ 	cf->can_dlc = get_can_dlc(rec_len);
+ 
+-	/* first data packet timestamp is a word */
+-	if (pcan_usb_decode_ts(mc, !mc->rec_data_idx))
++	/* Only first packet timestamp is a word */
++	if (pcan_usb_decode_ts(mc, !mc->rec_ts_idx))
+ 		goto decode_failed;
+ 
++	/* Next packet in the buffer will have a timestamp on a single byte */
++	mc->rec_ts_idx++;
++
+ 	/* read data */
+ 	memset(cf->data, 0x0, sizeof(cf->data));
+ 	if (status_len & PCAN_USB_STATUSLEN_RTR) {
+@@ -688,7 +696,6 @@ static int pcan_usb_decode_msg(struct pe
+ 		/* handle normal can frames here */
+ 		} else {
+ 			err = pcan_usb_decode_data(&mc, sl);
+-			mc.rec_data_idx++;
+ 		}
+ 	}
+ 
 
 
