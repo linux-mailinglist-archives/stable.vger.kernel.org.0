@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46B45F7DF0
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:00:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93536F7EEB
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729974AbfKKSxz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:53:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49092 "EHLO mail.kernel.org"
+        id S1727823AbfKKShM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:37:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729260AbfKKSxx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:53:53 -0500
+        id S1727785AbfKKShL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:37:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C04D921783;
-        Mon, 11 Nov 2019 18:53:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F2FB204FD;
+        Mon, 11 Nov 2019 18:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498433;
-        bh=tkG/7XE93bwOWzGz6iLk765b1fbL6BXtghTwdX2w60A=;
+        s=default; t=1573497430;
+        bh=ezdMpOZBc7nuvT/RQXHfOgSv42XWpVPhTvjDuhk/2xE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fdVEXvXg29R72HxDBMl1YZsDEbig63kq9l4BWj3EMCN27HNmokDCx+z8v4lbnuyp0
-         izsKQRFnRk6qgqbdZVcsBb2SQkG2mpz4rRXLnA3Z23i/sDmfgHYKyURWGigp2EDpR1
-         1gxUMqRXdTbtk0OJ1DONCdMOwl/YGD4TSoWX63MM=
+        b=uDYh4bgpExrGzK4CZtURnB5TsVNjdo4SiOJraKzZLOUk/Dh8ppPCarVboCsmc5kcJ
+         bpXp50SEV7sMcsDaN9W9YBljy9XlgJ6lX1qzY3gt2dxsI9iv/8Ah58zQFpgA/TEp//
+         dltixqhvFAR1QnnLHNu0s4nkmn3jXXSexSpN3BV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 119/193] scsi: qla2xxx: Initialized mailbox to prevent driver load failure
-Date:   Mon, 11 Nov 2019 19:28:21 +0100
-Message-Id: <20191111181509.947823219@linuxfoundation.org>
+        Keerthy <j-keerthy@ti.com>, Bjorn Helgaas <bhelgaas@google.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.14 052/105] PCI: dra7xx: Add shutdown handler to cleanly turn off clocks
+Date:   Mon, 11 Nov 2019 19:28:22 +0100
+Message-Id: <20191111181443.084527801@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Himanshu Madhani <hmadhani@marvell.com>
+From: Keerthy <j-keerthy@ti.com>
 
-[ Upstream commit c2ff2a36eff60efb5e123c940115216d6bf65684 ]
+commit 9c049bea083fea21373b8baf51fe49acbe24e105 upstream
 
-This patch fixes issue with Gen7 adapter in a blade environment where one
-of the ports will not be detected by driver. Firmware expects mailbox 11 to
-be set or cleared by driver for newer ISP.
+Add shutdown handler to cleanly turn off clocks.  This will help in cases of
+kexec where in a new kernel can boot abruptly.
 
-Following message is seen in the log file:
-
-[   18.810892] qla2xxx [0000:d8:00.0]-1820:1: **** Failed=102 mb[0]=4005 mb[1]=37 mb[2]=20 mb[3]=8
-[   18.819596]  cmd=2 ****
-
-[mkp: typos]
-
-Link: https://lore.kernel.org/r/20191022193643.7076-2-hmadhani@marvell.com
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Keerthy <j-keerthy@ti.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_mbx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/dwc/pci-dra7xx.c |   17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
-index abfb9c800ce28..ac4640f456786 100644
---- a/drivers/scsi/qla2xxx/qla_mbx.c
-+++ b/drivers/scsi/qla2xxx/qla_mbx.c
-@@ -710,6 +710,7 @@ qla2x00_execute_fw(scsi_qla_host_t *vha, uint32_t risc_addr)
- 		mcp->mb[2] = LSW(risc_addr);
- 		mcp->mb[3] = 0;
- 		mcp->mb[4] = 0;
-+		mcp->mb[11] = 0;
- 		ha->flags.using_lr_setting = 0;
- 		if (IS_QLA25XX(ha) || IS_QLA81XX(ha) || IS_QLA83XX(ha) ||
- 		    IS_QLA27XX(ha) || IS_QLA28XX(ha)) {
-@@ -754,7 +755,7 @@ qla2x00_execute_fw(scsi_qla_host_t *vha, uint32_t risc_addr)
- 		if (ha->flags.exchoffld_enabled)
- 			mcp->mb[4] |= ENABLE_EXCHANGE_OFFLD;
+--- a/drivers/pci/dwc/pci-dra7xx.c
++++ b/drivers/pci/dwc/pci-dra7xx.c
+@@ -817,6 +817,22 @@ static int dra7xx_pcie_resume_noirq(stru
+ }
+ #endif
  
--		mcp->out_mb |= MBX_4|MBX_3|MBX_2|MBX_1;
-+		mcp->out_mb |= MBX_4 | MBX_3 | MBX_2 | MBX_1 | MBX_11;
- 		mcp->in_mb |= MBX_3 | MBX_2 | MBX_1;
- 	} else {
- 		mcp->mb[1] = LSW(risc_addr);
--- 
-2.20.1
-
++void dra7xx_pcie_shutdown(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	struct dra7xx_pcie *dra7xx = dev_get_drvdata(dev);
++	int ret;
++
++	dra7xx_pcie_stop_link(dra7xx->pci);
++
++	ret = pm_runtime_put_sync(dev);
++	if (ret < 0)
++		dev_dbg(dev, "pm_runtime_put_sync failed\n");
++
++	pm_runtime_disable(dev);
++	dra7xx_pcie_disable_phy(dra7xx);
++}
++
+ static const struct dev_pm_ops dra7xx_pcie_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(dra7xx_pcie_suspend, dra7xx_pcie_resume)
+ 	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(dra7xx_pcie_suspend_noirq,
+@@ -830,5 +846,6 @@ static struct platform_driver dra7xx_pci
+ 		.suppress_bind_attrs = true,
+ 		.pm	= &dra7xx_pcie_pm_ops,
+ 	},
++	.shutdown = dra7xx_pcie_shutdown,
+ };
+ builtin_platform_driver_probe(dra7xx_pcie_driver, dra7xx_pcie_probe);
 
 
