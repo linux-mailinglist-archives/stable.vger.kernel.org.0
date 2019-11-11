@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB7DAF7AF4
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 451CAF7C49
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:45:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727568AbfKKSbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:31:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47692 "EHLO mail.kernel.org"
+        id S1729781AbfKKSox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:44:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727559AbfKKSbL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:31:11 -0500
+        id S1729776AbfKKSox (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:44:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4F4221783;
-        Mon, 11 Nov 2019 18:31:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B15E0204FD;
+        Mon, 11 Nov 2019 18:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497070;
-        bh=RJg+NpvpsDYYNN2voNdfNoMG1zjJq7mpF5ZJMNMGIcQ=;
+        s=default; t=1573497892;
+        bh=Uwa8wS0dmARYNw/g0YO2nMdEBPNRIqFT6GX1YFH3etI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MYwuQmVJOZVpVBizKOuQIS/yulijKj6DjrSi5YtRiaDIYhIC7w70vNtBSk78l/Fmj
-         i+vwbfrfqdVkLgLwpJ4qrIUEAVGUZhUq7uZCmeHEDIS5wPFQf5v+eQkEnetlXHn7Yv
-         iQ3EISoxmVz+fLDJeyzC1HDMR1eAqRg5Gpq94LFI=
+        b=Q7uIhPXdtel4naEE8llrpm8DCeoBuCgy6JGwN6z1lNZ/071dK/KRXMmp8xs2EM650
+         LcKSG9x07No2Elkyy4YKbsqKWzaFhV23uknEtDeMxL1TfdoyCLup5anq1ybEqC7V8e
+         dOd1UG82r8JHu45Md81AJ8aCHA/XFks7xTQpu2EY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 34/43] perf/x86/amd/ibs: Fix reading of the IBS OpData register and thus precise RIP validity
+        stable@vger.kernel.org,
+        Nikhil Badola <nikhil.badola@freescale.com>,
+        Ran Wang <ran.wang_1@nxp.com>, Peter Chen <peter.chen@nxp.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 089/125] usb: fsl: Check memory resource before releasing it
 Date:   Mon, 11 Nov 2019 19:28:48 +0100
-Message-Id: <20191111181324.929853900@linuxfoundation.org>
+Message-Id: <20191111181451.931107178@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Nikhil Badola <nikhil.badola@freescale.com>
 
-[ Upstream commit 317b96bb14303c7998dbcd5bc606bd8038fdd4b4 ]
+[ Upstream commit bc1e3a2dd0c9954fd956ac43ca2876bbea018c01 ]
 
-The loop that reads all the IBS MSRs into *buf stopped one MSR short of
-reading the IbsOpData register, which contains the RipInvalid status bit.
+Check memory resource existence before releasing it to avoid NULL
+pointer dereference
 
-Fix the offset_max assignment so the MSR gets read, so the RIP invalid
-evaluation is based on what the IBS h/w output, instead of what was
-left in memory.
-
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Fixes: d47e8238cd76 ("perf/x86-ibs: Take instruction pointer from ibs sample")
-Link: https://lkml.kernel.org/r/20191023150955.30292-1-kim.phillips@amd.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Nikhil Badola <nikhil.badola@freescale.com>
+Reviewed-by: Ran Wang <ran.wang_1@nxp.com>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/perf_event_amd_ibs.c |    2 +-
+ drivers/usb/gadget/udc/fsl_udc_core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kernel/cpu/perf_event_amd_ibs.c
-+++ b/arch/x86/kernel/cpu/perf_event_amd_ibs.c
-@@ -555,7 +555,7 @@ static int perf_ibs_handle_irq(struct pe
- 	if (event->attr.sample_type & PERF_SAMPLE_RAW)
- 		offset_max = perf_ibs->offset_max;
- 	else if (check_rip)
--		offset_max = 2;
-+		offset_max = 3;
- 	else
- 		offset_max = 1;
- 	do {
+diff --git a/drivers/usb/gadget/udc/fsl_udc_core.c b/drivers/usb/gadget/udc/fsl_udc_core.c
+index be59309e848c3..d44b26d5b2a2c 100644
+--- a/drivers/usb/gadget/udc/fsl_udc_core.c
++++ b/drivers/usb/gadget/udc/fsl_udc_core.c
+@@ -2552,7 +2552,7 @@ static int fsl_udc_remove(struct platform_device *pdev)
+ 	dma_pool_destroy(udc_controller->td_pool);
+ 	free_irq(udc_controller->irq, udc_controller);
+ 	iounmap(dr_regs);
+-	if (pdata->operating_mode == FSL_USB2_DR_DEVICE)
++	if (res && (pdata->operating_mode == FSL_USB2_DR_DEVICE))
+ 		release_mem_region(res->start, resource_size(res));
+ 
+ 	/* free udc --wait for the release() finished */
+-- 
+2.20.1
+
 
 
