@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A1B3F7C12
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B027F7D37
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727520AbfKKSmv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:42:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34092 "EHLO mail.kernel.org"
+        id S1730045AbfKKSy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:54:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727362AbfKKSmu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:42:50 -0500
+        id S1729238AbfKKSyZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:54:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2E6A21925;
-        Mon, 11 Nov 2019 18:42:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E225121655;
+        Mon, 11 Nov 2019 18:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497770;
-        bh=ZK/ZBjuL36PlHFysUhKmPHj4iSBscDJgj7PWaoy0ufo=;
+        s=default; t=1573498464;
+        bh=9q5/zV/FnDiSt7TPeNKbQH7zrlOP2C+0OwMbgELhz4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsLbtlPZleMfPY1ys/ebRQ2UyWrWeSkro0+Qad1Ozm/ihKpQF4F76itXAKmpFuzWK
-         5jMWe4Gjh19Bff29hBu8BkLdhsH8w+imlsxG7qws4ITaGCIXOaMky6tfPff3RMfff4
-         vusf+MbfQC2KrsRWHVdRtnc49KyKUDZJSg8jymRE=
+        b=Kxzay5Anm7HfMLoKad5WgFjmpjQ/MRoZfoA5UzWzkgvQlBMJSXeIZTYcb3Mpwr9J6
+         Gy9ZpRByiSsqmfQPMqjKOVmeaM68LfA5eF0ryYIAuThQP18ES8AzMQgVuxs+XH/Mu+
+         FOWtRta2NLGRZpG114Wb+qY3I7Y1481YA0w4ucSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.19 053/125] configfs_register_group() shouldnt be (and isnt) called in rmdirable parts
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 110/193] scsi: qla2xxx: fixup incorrect usage of host_byte
 Date:   Mon, 11 Nov 2019 19:28:12 +0100
-Message-Id: <20191111181447.430082052@linuxfoundation.org>
+Message-Id: <20191111181509.232208679@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Hannes Reinecke <hare@suse.com>
 
-commit f19e4ed1e1edbfa3c9ccb9fed17759b7d6db24c6 upstream.
+[ Upstream commit 66cf50e65b183c863825f5c28a818e3f47a72e40 ]
 
-revert cc57c07343bd "configfs: fix registered group removal"
-It was an attempt to handle something that fundamentally doesn't
-work - configfs_register_group() should never be done in a part
-of tree that can be rmdir'ed.  And in mainline it never had been,
-so let's not borrow trouble; the fix was racy anyway, it would take
-a lot more to make that work and desired semantics is not clear.
+DRIVER_ERROR is a a driver byte setting, not a host byte.  The qla2xxx
+driver should rather return DID_ERROR here to be in line with the other
+drivers.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20191018140458.108278-1-hare@suse.de
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c |   11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/scsi/qla2xxx/qla_bsg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1782,16 +1782,6 @@ void configfs_unregister_group(struct co
- 	struct dentry *dentry = group->cg_item.ci_dentry;
- 	struct dentry *parent = group->cg_item.ci_parent->ci_dentry;
+diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
+index 5441557b424b3..3084c2cff7bd5 100644
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -257,7 +257,7 @@ qla2x00_process_els(struct bsg_job *bsg_job)
+ 	srb_t *sp;
+ 	const char *type;
+ 	int req_sg_cnt, rsp_sg_cnt;
+-	int rval =  (DRIVER_ERROR << 16);
++	int rval =  (DID_ERROR << 16);
+ 	uint16_t nextlid = 0;
  
--	mutex_lock(&subsys->su_mutex);
--	if (!group->cg_item.ci_parent->ci_group) {
--		/*
--		 * The parent has already been unlinked and detached
--		 * due to a rmdir.
--		 */
--		goto unlink_group;
--	}
--	mutex_unlock(&subsys->su_mutex);
--
- 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
- 	spin_lock(&configfs_dirent_lock);
- 	configfs_detach_prep(dentry, NULL);
-@@ -1806,7 +1796,6 @@ void configfs_unregister_group(struct co
- 	dput(dentry);
- 
- 	mutex_lock(&subsys->su_mutex);
--unlink_group:
- 	unlink_group(group);
- 	mutex_unlock(&subsys->su_mutex);
- }
+ 	if (bsg_request->msgcode == FC_BSG_RPT_ELS) {
+@@ -432,7 +432,7 @@ qla2x00_process_ct(struct bsg_job *bsg_job)
+ 	struct Scsi_Host *host = fc_bsg_to_shost(bsg_job);
+ 	scsi_qla_host_t *vha = shost_priv(host);
+ 	struct qla_hw_data *ha = vha->hw;
+-	int rval = (DRIVER_ERROR << 16);
++	int rval = (DID_ERROR << 16);
+ 	int req_sg_cnt, rsp_sg_cnt;
+ 	uint16_t loop_id;
+ 	struct fc_port *fcport;
+@@ -1951,7 +1951,7 @@ qlafx00_mgmt_cmd(struct bsg_job *bsg_job)
+ 	struct Scsi_Host *host = fc_bsg_to_shost(bsg_job);
+ 	scsi_qla_host_t *vha = shost_priv(host);
+ 	struct qla_hw_data *ha = vha->hw;
+-	int rval = (DRIVER_ERROR << 16);
++	int rval = (DID_ERROR << 16);
+ 	struct qla_mt_iocb_rqst_fx00 *piocb_rqst;
+ 	srb_t *sp;
+ 	int req_sg_cnt = 0, rsp_sg_cnt = 0;
+-- 
+2.20.1
+
 
 
