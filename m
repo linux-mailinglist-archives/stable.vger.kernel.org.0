@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AEB8F7F31
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33216F7EF7
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728215AbfKKSdq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:33:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51192 "EHLO mail.kernel.org"
+        id S1728974AbfKKSiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:38:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728208AbfKKSdq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:33:46 -0500
+        id S1728970AbfKKSiS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:38:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A3B620656;
-        Mon, 11 Nov 2019 18:33:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 380DB204FD;
+        Mon, 11 Nov 2019 18:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497225;
-        bh=CUXlu8NZW03WkyDCebKAp5bWiJQw0Dd3ZEeLxh35JVE=;
+        s=default; t=1573497497;
+        bh=lWYXohEveQ9l45sEh9RSFjZwLmKDb85yvXYMavMpE8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1qoLazrQSqT3+H0LKIS4wrRTCXCN2oMFc9Fumyy6xyxRYNNZELu7jdcV5hUWa4PX
-         teq6sRC/C6X3ujkt0RpV/MJgeEia/A+sJCtTed1SyMGjX+XYpr9K5Per0/FddWsx2b
-         ysyhAm+NNkRGWiyYPaf9MX5AIAtB7+l4wD1mkaWg=
+        b=yNitIQTuNwWQlGr766FR2ftyArrZERQepCynuZFmnjP9paPs9tnyncHxis2qeJGpq
+         OT1Vkeck6HYyW7qg41VcCnxGw4aIyDDT5phkldzOz7qZxdk286ar87oxlgLd3PeP6m
+         fIT9W51izacVPzp7nMEkIbYrcidFVtNdbUoYW0Sg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikhil Badola <nikhil.badola@freescale.com>,
-        Ran Wang <ran.wang_1@nxp.com>, Peter Chen <peter.chen@nxp.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 44/65] usb: fsl: Check memory resource before releasing it
+Subject: [PATCH 4.14 074/105] RDMA/uverbs: Prevent potential underflow
 Date:   Mon, 11 Nov 2019 19:28:44 +0100
-Message-Id: <20191111181348.778597595@linuxfoundation.org>
+Message-Id: <20191111181446.065683727@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikhil Badola <nikhil.badola@freescale.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit bc1e3a2dd0c9954fd956ac43ca2876bbea018c01 ]
+[ Upstream commit a9018adfde809d44e71189b984fa61cc89682b5e ]
 
-Check memory resource existence before releasing it to avoid NULL
-pointer dereference
+The issue is in drivers/infiniband/core/uverbs_std_types_cq.c in the
+UVERBS_HANDLER(UVERBS_METHOD_CQ_CREATE) function.  We check that:
 
-Signed-off-by: Nikhil Badola <nikhil.badola@freescale.com>
-Reviewed-by: Ran Wang <ran.wang_1@nxp.com>
-Reviewed-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+        if (attr.comp_vector >= attrs->ufile->device->num_comp_vectors) {
+
+But we don't check if "attr.comp_vector" is negative.  It could
+potentially lead to an array underflow.  My concern would be where
+cq->vector is used in the create_cq() function from the cxgb4 driver.
+
+And really "attr.comp_vector" is appears as a u32 to user space so that's
+the right type to use.
+
+Fixes: 9ee79fce3642 ("IB/core: Add completion queue (cq) object actions")
+Link: https://lore.kernel.org/r/20191011133419.GA22905@mwanda
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fsl_udc_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/core/uverbs.h | 2 +-
+ include/rdma/ib_verbs.h          | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fsl_udc_core.c b/drivers/usb/gadget/udc/fsl_udc_core.c
-index 8991a40707926..bd98557caa280 100644
---- a/drivers/usb/gadget/udc/fsl_udc_core.c
-+++ b/drivers/usb/gadget/udc/fsl_udc_core.c
-@@ -2570,7 +2570,7 @@ static int fsl_udc_remove(struct platform_device *pdev)
- 	dma_pool_destroy(udc_controller->td_pool);
- 	free_irq(udc_controller->irq, udc_controller);
- 	iounmap(dr_regs);
--	if (pdata->operating_mode == FSL_USB2_DR_DEVICE)
-+	if (res && (pdata->operating_mode == FSL_USB2_DR_DEVICE))
- 		release_mem_region(res->start, resource_size(res));
+diff --git a/drivers/infiniband/core/uverbs.h b/drivers/infiniband/core/uverbs.h
+index 37c8903e7fd0c..8d79a48ccd388 100644
+--- a/drivers/infiniband/core/uverbs.h
++++ b/drivers/infiniband/core/uverbs.h
+@@ -87,7 +87,7 @@
  
- 	/* free udc --wait for the release() finished */
+ struct ib_uverbs_device {
+ 	atomic_t				refcount;
+-	int					num_comp_vectors;
++	u32					num_comp_vectors;
+ 	struct completion			comp;
+ 	struct device			       *dev;
+ 	struct ib_device	__rcu	       *ib_dev;
+diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
+index b8a5118b6a428..4a43193319894 100644
+--- a/include/rdma/ib_verbs.h
++++ b/include/rdma/ib_verbs.h
+@@ -306,7 +306,7 @@ enum ib_cq_creation_flags {
+ 
+ struct ib_cq_init_attr {
+ 	unsigned int	cqe;
+-	int		comp_vector;
++	u32		comp_vector;
+ 	u32		flags;
+ };
+ 
 -- 
 2.20.1
 
