@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3988F7E22
+	by mail.lfdr.de (Postfix) with ESMTP id 422D1F7E21
 	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729847AbfKKSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:50:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44160 "EHLO mail.kernel.org"
+        id S1729131AbfKKSub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:50:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728461AbfKKSu1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:50:27 -0500
+        id S1730367AbfKKSua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:50:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AC90222C1;
-        Mon, 11 Nov 2019 18:50:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53800204FD;
+        Mon, 11 Nov 2019 18:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498226;
-        bh=xgMeimPcvHOIArbrDbWkWWbd5mdHO0gP7skiv0N82S0=;
+        s=default; t=1573498229;
+        bh=IfH9tq6cL2VYhnjLG1DC36yApFqfu+QxjovjyIrrBio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yg5Hgu+FrZ6zaSTvDDIwJ6RZtEjuTB/dOHCnp1zR6AE4DWApdWTN7GaA0zTjIQj0i
-         AHifWnyhO5SqWi1PPMCW3mEwMKHzUWPk01CHk6kcqTdwLes5B2qj/hzpNWQKTY3LRV
-         TK/iMD05gQpicjDQwJDuy5sJttS4JAAqxWzSDuMg=
+        b=Re/1U4ykr/DUJhz4M3Cw7SmpnT36BwH+AcOxT55dPCLwFbc0Rf7fYnknkffPVGaNU
+         OXjlMFguiArFbpqiufcEtWnLP28S3nZdOn5N8J5ut/bvdRnPBqbEZ5N7u2FMSvMGRO
+         0E9daRYuBe9QvOa00ExgXgz8r3/kKQtO96poMizM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>,
+        =?UTF-8?q?Zbyn=C4=9Bk=20Kocur?= <zbynek.kocur@fel.cvut.cz>,
+        Andreas Klinger <ak@it-klinger.de>, Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.3 058/193] iio: imu: inv_mpu6050: fix no data on MPU6050
-Date:   Mon, 11 Nov 2019 19:27:20 +0100
-Message-Id: <20191111181505.263610846@linuxfoundation.org>
+Subject: [PATCH 5.3 059/193] iio: srf04: fix wrong limitation in distance measuring
+Date:   Mon, 11 Nov 2019 19:27:21 +0100
+Message-Id: <20191111181505.341643858@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -44,143 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
+From: Andreas Klinger <ak@it-klinger.de>
 
-commit 6e82ae6b8d11b948b74e71396efd8e074c415f44 upstream.
+commit 431f7667bd6889a274913162dfd19cce9d84848e upstream.
 
-Some chips have a fifo overflow bit issue where the bit is always
-set. The result is that every data is dropped.
+The measured time value in the driver is limited to the maximum distance
+which can be read by the sensor. This limitation was wrong and is fixed
+by this patch.
 
-Change fifo overflow management by checking fifo count against
-a maximum value.
+It also takes into account that we are supporting a variety of sensors
+today and that the recently added sensors have a higher maximum
+distance range.
 
-Add fifo size in chip hardware set of values.
+Changes in v2:
+- Added a Tested-by
 
-Fixes: f5057e7b2dba ("iio: imu: inv_mpu6050: better fifo overflow handling")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+Suggested-by: Zbyněk Kocur <zbynek.kocur@fel.cvut.cz>
+Tested-by: Zbyněk Kocur <zbynek.kocur@fel.cvut.cz>
+Signed-off-by: Andreas Klinger <ak@it-klinger.de>
+Cc:<Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/imu/inv_mpu6050/inv_mpu_core.c |    9 +++++++++
- drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |    2 ++
- drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c |   15 ++++++++++++---
- 3 files changed, 23 insertions(+), 3 deletions(-)
+ drivers/iio/proximity/srf04.c |   29 +++++++++++++++--------------
+ 1 file changed, 15 insertions(+), 14 deletions(-)
 
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-@@ -114,54 +114,63 @@ static const struct inv_mpu6050_hw hw_in
- 		.name = "MPU6050",
- 		.reg = &reg_set_6050,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1024,
- 	},
- 	{
- 		.whoami = INV_MPU6500_WHOAMI_VALUE,
- 		.name = "MPU6500",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_MPU6515_WHOAMI_VALUE,
- 		.name = "MPU6515",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_MPU6000_WHOAMI_VALUE,
- 		.name = "MPU6000",
- 		.reg = &reg_set_6050,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1024,
- 	},
- 	{
- 		.whoami = INV_MPU9150_WHOAMI_VALUE,
- 		.name = "MPU9150",
- 		.reg = &reg_set_6050,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1024,
- 	},
- 	{
- 		.whoami = INV_MPU9250_WHOAMI_VALUE,
- 		.name = "MPU9250",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_MPU9255_WHOAMI_VALUE,
- 		.name = "MPU9255",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_ICM20608_WHOAMI_VALUE,
- 		.name = "ICM20608",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_ICM20602_WHOAMI_VALUE,
- 		.name = "ICM20602",
- 		.reg = &reg_set_icm20602,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1008,
- 	},
- };
+--- a/drivers/iio/proximity/srf04.c
++++ b/drivers/iio/proximity/srf04.c
+@@ -110,7 +110,7 @@ static int srf04_read(struct srf04_data
+ 	udelay(data->cfg->trigger_pulse_us);
+ 	gpiod_set_value(data->gpiod_trig, 0);
  
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-@@ -100,12 +100,14 @@ struct inv_mpu6050_chip_config {
-  *  @name:      name of the chip.
-  *  @reg:   register map of the chip.
-  *  @config:    configuration of the chip.
-+ *  @fifo_size:	size of the FIFO in bytes.
-  */
- struct inv_mpu6050_hw {
- 	u8 whoami;
- 	u8 *name;
- 	const struct inv_mpu6050_reg_map *reg;
- 	const struct inv_mpu6050_chip_config *config;
-+	size_t fifo_size;
- };
- 
- /*
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
-@@ -180,9 +180,6 @@ irqreturn_t inv_mpu6050_read_fifo(int ir
- 			"failed to ack interrupt\n");
- 		goto flush_fifo;
+-	/* it cannot take more than 20 ms */
++	/* it should not take more than 20 ms until echo is rising */
+ 	ret = wait_for_completion_killable_timeout(&data->rising, HZ/50);
+ 	if (ret < 0) {
+ 		mutex_unlock(&data->lock);
+@@ -120,7 +120,8 @@ static int srf04_read(struct srf04_data
+ 		return -ETIMEDOUT;
  	}
--	/* handle fifo overflow by reseting fifo */
--	if (int_status & INV_MPU6050_BIT_FIFO_OVERFLOW_INT)
--		goto flush_fifo;
- 	if (!(int_status & INV_MPU6050_BIT_RAW_DATA_RDY_INT)) {
- 		dev_warn(regmap_get_device(st->map),
- 			"spurious interrupt with status 0x%x\n", int_status);
-@@ -211,6 +208,18 @@ irqreturn_t inv_mpu6050_read_fifo(int ir
- 	if (result)
- 		goto end_session;
- 	fifo_count = get_unaligned_be16(&data[0]);
-+
-+	/*
-+	 * Handle fifo overflow by resetting fifo.
-+	 * Reset if there is only 3 data set free remaining to mitigate
-+	 * possible delay between reading fifo count and fifo data.
-+	 */
-+	nb = 3 * bytes_per_datum;
-+	if (fifo_count >= st->hw->fifo_size - nb) {
-+		dev_warn(regmap_get_device(st->map), "fifo overflow reset\n");
-+		goto flush_fifo;
-+	}
-+
- 	/* compute and process all complete datum */
- 	nb = fifo_count / bytes_per_datum;
- 	inv_mpu6050_update_period(st, pf->timestamp, nb);
+ 
+-	ret = wait_for_completion_killable_timeout(&data->falling, HZ/50);
++	/* it cannot take more than 50 ms until echo is falling */
++	ret = wait_for_completion_killable_timeout(&data->falling, HZ/20);
+ 	if (ret < 0) {
+ 		mutex_unlock(&data->lock);
+ 		return ret;
+@@ -135,19 +136,19 @@ static int srf04_read(struct srf04_data
+ 
+ 	dt_ns = ktime_to_ns(ktime_dt);
+ 	/*
+-	 * measuring more than 3 meters is beyond the capabilities of
+-	 * the sensor
++	 * measuring more than 6,45 meters is beyond the capabilities of
++	 * the supported sensors
+ 	 * ==> filter out invalid results for not measuring echos of
+ 	 *     another us sensor
+ 	 *
+ 	 * formula:
+-	 *         distance       3 m
+-	 * time = ---------- = --------- = 9404389 ns
+-	 *          speed       319 m/s
++	 *         distance     6,45 * 2 m
++	 * time = ---------- = ------------ = 40438871 ns
++	 *          speed         319 m/s
+ 	 *
+ 	 * using a minimum speed at -20 °C of 319 m/s
+ 	 */
+-	if (dt_ns > 9404389)
++	if (dt_ns > 40438871)
+ 		return -EIO;
+ 
+ 	time_ns = dt_ns;
+@@ -159,20 +160,20 @@ static int srf04_read(struct srf04_data
+ 	 *   with Temp in °C
+ 	 *   and speed in m/s
+ 	 *
+-	 * use 343 m/s as ultrasonic speed at 20 °C here in absence of the
++	 * use 343,5 m/s as ultrasonic speed at 20 °C here in absence of the
+ 	 * temperature
+ 	 *
+ 	 * therefore:
+-	 *             time     343
+-	 * distance = ------ * -----
+-	 *             10^6       2
++	 *             time     343,5     time * 106
++	 * distance = ------ * ------- = ------------
++	 *             10^6         2         617176
+ 	 *   with time in ns
+ 	 *   and distance in mm (one way)
+ 	 *
+-	 * because we limit to 3 meters the multiplication with 343 just
++	 * because we limit to 6,45 meters the multiplication with 106 just
+ 	 * fits into 32 bit
+ 	 */
+-	distance_mm = time_ns * 343 / 2000000;
++	distance_mm = time_ns * 106 / 617176;
+ 
+ 	return distance_mm;
+ }
 
 
