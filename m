@@ -2,50 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0ECBF7BCD
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:40:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40185F7D9C
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:58:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728590AbfKKSj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:39:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59118 "EHLO mail.kernel.org"
+        id S1730698AbfKKS6a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:58:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729201AbfKKSj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:39:58 -0500
+        id S1730952AbfKKS6a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:58:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8ED8121925;
-        Mon, 11 Nov 2019 18:39:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78B5F20659;
+        Mon, 11 Nov 2019 18:58:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497597;
-        bh=YQs+1EPKoIJNVEYToKN9gg81eX8jHycoxZJUZvxjTNM=;
+        s=default; t=1573498709;
+        bh=UNKoRBtM+PCUOoBJR2Fga9b4eBO6VBZfy3vyN5ZIkzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h9nm4a72YOJ5yecxeaudEWLVRFWVBBOg6z3OvU+Bd2uxpRU+Nz9lZLYqnvWke62+h
-         z5ZdUor8jM8KAr2E5dRkQYuM4T+r+R7Rx7+IV8AIUXGIkRhCw4cShhcCvvxLbv+Y6Z
-         b0tZE3iQScT/+ASt4W4VdZ+/TMUX5pxhJSPLdwwg=
+        b=p+bElZPC6NSaScJn/pq91NZLCT1Fl61yU5ay3iIq4ANjOR7X2oh+lVfbyRfTO2iFn
+         7j6aAGrwPHP+NtT/TLzaEIBP+W1sO9ejTR2PBDGcKm4o8q2Npwv64noYWLcETOoi9P
+         mskkANz/pRFRptNZRvBm8WGlk01J/1R7o7CsgSgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/105] perf/x86/amd/ibs: Handle erratum #420 only on the affected CPU family (10h)
-Date:   Mon, 11 Nov 2019 19:28:58 +0100
-Message-Id: <20191111181447.616944222@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Nicolas Waisman <nico@semmle.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 157/193] fjes: Handle workqueue allocation failure
+Date:   Mon, 11 Nov 2019 19:28:59 +0100
+Message-Id: <20191111181512.719769717@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kim Phillips <kim.phillips@amd.com>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit e431e79b60603079d269e0c2a5177943b95fa4b6 ]
+[ Upstream commit 85ac30fa2e24f628e9f4f9344460f4015d33fd7d ]
 
-This saves us writing the IBS control MSR twice when disabling the
-event.
+In the highly unlikely event that we fail to allocate either of the
+"/txrx" or "/control" workqueues, we should bail cleanly rather than
+blindly march on with NULL queue pointer(s) installed in the
+'fjes_adapter' instance.
 
-I searched revision guides for all families since 10h, and did not
-find occurrence of erratum #420, nor anything remotely similar:
-so we isolate the secondary MSR write to family 10h only.
-
-Also unconditionally update the count mask for IBS Op implementations
-that have read & writeable current count (CurCnt) fields in addition
-to the MaxCnt field.  These bits were reserved on prior
-implementations, and therefore shouldn't have negative impact.
-
-Signed-off-by: Kim Phillips <kim.phillips@amd.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Fixes: c9574fe0bdb9 ("perf/x86-ibs: Implement workaround for IBS erratum #420")
-Link: https://lkml.kernel.org/r/20191023150955.30292-2-kim.phillips@amd.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: "David S. Miller" <davem@davemloft.net>
+Reported-by: Nicolas Waisman <nico@semmle.com>
+Link: https://lore.kernel.org/lkml/CADJ_3a8WFrs5NouXNqS5WYe7rebFP+_A5CheeqAyD_p7DFJJcg@mail.gmail.com/
+Signed-off-by: Will Deacon <will@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/ibs.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/fjes/fjes_main.c | 15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
-index 4deecdb26ab30..f24e9adaa3167 100644
---- a/arch/x86/events/amd/ibs.c
-+++ b/arch/x86/events/amd/ibs.c
-@@ -389,7 +389,8 @@ static inline void perf_ibs_disable_event(struct perf_ibs *perf_ibs,
- 					  struct hw_perf_event *hwc, u64 config)
- {
- 	config &= ~perf_ibs->cnt_mask;
--	wrmsrl(hwc->config_base, config);
-+	if (boot_cpu_data.x86 == 0x10)
-+		wrmsrl(hwc->config_base, config);
- 	config &= ~perf_ibs->enable_mask;
- 	wrmsrl(hwc->config_base, config);
- }
-@@ -564,7 +565,8 @@ static struct perf_ibs perf_ibs_op = {
- 	},
- 	.msr			= MSR_AMD64_IBSOPCTL,
- 	.config_mask		= IBS_OP_CONFIG_MASK,
--	.cnt_mask		= IBS_OP_MAX_CNT,
-+	.cnt_mask		= IBS_OP_MAX_CNT | IBS_OP_CUR_CNT |
-+				  IBS_OP_CUR_CNT_RAND,
- 	.enable_mask		= IBS_OP_ENABLE,
- 	.valid_mask		= IBS_OP_VAL,
- 	.max_period		= IBS_OP_MAX_CNT << 4,
+diff --git a/drivers/net/fjes/fjes_main.c b/drivers/net/fjes/fjes_main.c
+index bbbc1dcb6ab5c..b517c1af9de05 100644
+--- a/drivers/net/fjes/fjes_main.c
++++ b/drivers/net/fjes/fjes_main.c
+@@ -1237,8 +1237,17 @@ static int fjes_probe(struct platform_device *plat_dev)
+ 	adapter->open_guard = false;
+ 
+ 	adapter->txrx_wq = alloc_workqueue(DRV_NAME "/txrx", WQ_MEM_RECLAIM, 0);
++	if (unlikely(!adapter->txrx_wq)) {
++		err = -ENOMEM;
++		goto err_free_netdev;
++	}
++
+ 	adapter->control_wq = alloc_workqueue(DRV_NAME "/control",
+ 					      WQ_MEM_RECLAIM, 0);
++	if (unlikely(!adapter->control_wq)) {
++		err = -ENOMEM;
++		goto err_free_txrx_wq;
++	}
+ 
+ 	INIT_WORK(&adapter->tx_stall_task, fjes_tx_stall_task);
+ 	INIT_WORK(&adapter->raise_intr_rxdata_task,
+@@ -1255,7 +1264,7 @@ static int fjes_probe(struct platform_device *plat_dev)
+ 	hw->hw_res.irq = platform_get_irq(plat_dev, 0);
+ 	err = fjes_hw_init(&adapter->hw);
+ 	if (err)
+-		goto err_free_netdev;
++		goto err_free_control_wq;
+ 
+ 	/* setup MAC address (02:00:00:00:00:[epid])*/
+ 	netdev->dev_addr[0] = 2;
+@@ -1277,6 +1286,10 @@ static int fjes_probe(struct platform_device *plat_dev)
+ 
+ err_hw_exit:
+ 	fjes_hw_exit(&adapter->hw);
++err_free_control_wq:
++	destroy_workqueue(adapter->control_wq);
++err_free_txrx_wq:
++	destroy_workqueue(adapter->txrx_wq);
+ err_free_netdev:
+ 	free_netdev(netdev);
+ err_out:
 -- 
 2.20.1
 
