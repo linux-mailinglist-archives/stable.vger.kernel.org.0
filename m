@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DB6F7F0B
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8510F7F4C
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727628AbfKKTHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 14:07:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56044 "EHLO mail.kernel.org"
+        id S1727238AbfKKSc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:32:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728849AbfKKShW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:37:22 -0500
+        id S1727222AbfKKScx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:32:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFF95204FD;
-        Mon, 11 Nov 2019 18:37:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CAAB20674;
+        Mon, 11 Nov 2019 18:32:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497442;
-        bh=bD4K1NaAFhMCwSJwgVe/D3+stuw+uSmAlZ6tLzZuNNc=;
+        s=default; t=1573497172;
+        bh=foS21jyDG7+AiNiYalDNGoY+ubZ8bYGRS1cP3+yOoZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NnKX3o5xFH0+YCpnGA812F3Nw0/RJnt00aVgy49v4sA+Xn4ViV9a+9qdt/I33DzPU
-         cOXRIBtknrDV+xsPT+moTMVdfC1tWVBKdSgA4z1e/bSHjvQcyYvDBtZU5JtKfeh3MF
-         JKaA9cgAvtQfRcI0x9jfH71Lq9ZWnTeMo++4/QU8=
+        b=XbcIsA1VAfQR+ycg9PQQfpgBUZEGbh34YVJgHaHHpFbY2JtGchbCRuvgDEYBDMbqD
+         OETS6pblHM2WRC4Xjtmv7WRn4+uMkju/fmdMHh55UVJLJoPW3oHuNDaQPzw3qk6kHH
+         WvDK4yKFbUSwSsC+CMOax72IWVHVFraXsi8kxxZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Arvind Yadav <arvind.yadav.cs@gmail.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Mark Brown <broonie@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 056/105] ASoC: davinci-mcasp: Handle return value of devm_kasprintf
-Date:   Mon, 11 Nov 2019 19:28:26 +0100
-Message-Id: <20191111181444.051082593@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Meyer <thomas@m3y3r.de>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4.9 27/65] configfs: Fix bool initialization/comparison
+Date:   Mon, 11 Nov 2019 19:28:27 +0100
+Message-Id: <20191111181346.107117626@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arvind Yadav <arvind.yadav.cs@gmail.com>
+From: Thomas Meyer <thomas@m3y3r.de>
 
-commit 0c8b794c4a10aaf7ac0d4a49be2b2638e2038adb upstream
+commit 3f6928c347707a65cee10a9f54b85ad5fb078b3f upstream.
 
-devm_kasprintf() can fail here and we must check its return value.
+Bool initializations should use true and false. Bool tests don't need
+comparisons.
 
-Signed-off-by: Arvind Yadav <arvind.yadav.cs@gmail.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- sound/soc/davinci/davinci-mcasp.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
 
---- a/sound/soc/davinci/davinci-mcasp.c
-+++ b/sound/soc/davinci/davinci-mcasp.c
-@@ -1894,6 +1894,10 @@ static int davinci_mcasp_probe(struct pl
- 	if (irq >= 0) {
- 		irq_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s_common",
- 					  dev_name(&pdev->dev));
-+		if (!irq_name) {
-+			ret = -ENOMEM;
-+			goto err;
-+		}
- 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
- 						davinci_mcasp_common_irq_handler,
- 						IRQF_ONESHOT | IRQF_SHARED,
-@@ -1911,6 +1915,10 @@ static int davinci_mcasp_probe(struct pl
- 	if (irq >= 0) {
- 		irq_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s_rx",
- 					  dev_name(&pdev->dev));
-+		if (!irq_name) {
-+			ret = -ENOMEM;
-+			goto err;
-+		}
- 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
- 						davinci_mcasp_rx_irq_handler,
- 						IRQF_ONESHOT, irq_name, mcasp);
-@@ -1926,6 +1934,10 @@ static int davinci_mcasp_probe(struct pl
- 	if (irq >= 0) {
- 		irq_name = devm_kasprintf(&pdev->dev, GFP_KERNEL, "%s_tx",
- 					  dev_name(&pdev->dev));
-+		if (!irq_name) {
-+			ret = -ENOMEM;
-+			goto err;
-+		}
- 		ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
- 						davinci_mcasp_tx_irq_handler,
- 						IRQF_ONESHOT, irq_name, mcasp);
+---
+ fs/configfs/file.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+--- a/fs/configfs/file.c
++++ b/fs/configfs/file.c
+@@ -166,7 +166,7 @@ configfs_read_bin_file(struct file *file
+ 		retval = -ETXTBSY;
+ 		goto out;
+ 	}
+-	buffer->read_in_progress = 1;
++	buffer->read_in_progress = true;
+ 
+ 	if (buffer->needs_read_fill) {
+ 		/* perform first read with buf == NULL to get extent */
+@@ -325,7 +325,7 @@ configfs_write_bin_file(struct file *fil
+ 		len = -ETXTBSY;
+ 		goto out;
+ 	}
+-	buffer->write_in_progress = 1;
++	buffer->write_in_progress = true;
+ 
+ 	/* buffer grows? */
+ 	if (*ppos + count > buffer->bin_buffer_size) {
+@@ -429,8 +429,8 @@ static int check_perm(struct inode * ino
+ 	}
+ 	mutex_init(&buffer->mutex);
+ 	buffer->needs_read_fill = 1;
+-	buffer->read_in_progress = 0;
+-	buffer->write_in_progress = 0;
++	buffer->read_in_progress = false;
++	buffer->write_in_progress = false;
+ 	buffer->ops = ops;
+ 	file->private_data = buffer;
+ 	goto Done;
+@@ -488,10 +488,10 @@ static int configfs_release_bin_file(str
+ 	ssize_t len = 0;
+ 	int ret;
+ 
+-	buffer->read_in_progress = 0;
++	buffer->read_in_progress = false;
+ 
+ 	if (buffer->write_in_progress) {
+-		buffer->write_in_progress = 0;
++		buffer->write_in_progress = false;
+ 
+ 		len = bin_attr->write(item, buffer->bin_buffer,
+ 				buffer->bin_buffer_size);
 
 
