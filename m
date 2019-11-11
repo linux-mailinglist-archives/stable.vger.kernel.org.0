@@ -2,34 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28BE8F7B59
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:35:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D20F7B5C
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:35:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726976AbfKKSfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:35:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53244 "EHLO mail.kernel.org"
+        id S1727312AbfKKSf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:35:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728503AbfKKSfW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:35:22 -0500
+        id S1728397AbfKKSf2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:35:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 474592173B;
-        Mon, 11 Nov 2019 18:35:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B4756214E0;
+        Mon, 11 Nov 2019 18:35:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497321;
-        bh=O8JqrFNL5fiRfUfBZHt8d/7Bp/awQ18JHCgSuhlLIGE=;
+        s=default; t=1573497327;
+        bh=mDXh+p9DiujxpHwfkKkbukJW0A5v+GXZtUYBfV6HGOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SuLXTfTSXiffYgm4TxU7JMtisgdfhbi2Pt/gr4XjE7gDSv6hffq07dYeQ2GhBwyR8
-         qsxbhR+CI3tBRdNgOYmS625cNkDL+7ILiup8xdZvwi36ptmXaPk8pvcpV5NXi7/VaJ
-         q2Oudxu4WW/BoplzXgqG2sQuCAcTwe/Dmuplsz3E=
+        b=HJnMS/coOF2i/OsxGKR4M14a9RSbp6mbIyo29A4/zsoB3Zl9mYOpkEb/Ko6QGTe+v
+         l2M9NSmHJjxQwN8ue/GSwTAcoDFIr12eB1Pokj3GO7E5CWVHd3hdLgfsZF4ELafxBG
+         16ByA0euDuQWgY9KCXJ7L5N+4bqP1WQzwsGzyfM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 014/105] ALSA: hda/ca0132 - Fix possible workqueue stall
-Date:   Mon, 11 Nov 2019 19:27:44 +0100
-Message-Id: <20191111181430.867150113@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
+        Gang Deng <gavin.dg@linux.alibaba.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 016/105] mm: thp: handle page cache THP correctly in PageTransCompoundMap
+Date:   Mon, 11 Nov 2019 19:27:46 +0100
+Message-Id: <20191111181432.495574074@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
 References: <20191111181421.390326245@linuxfoundation.org>
@@ -42,41 +49,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-commit 15c2b3cc09a31620914955cb2a89c277c18ee999 upstream.
+commit 169226f7e0d275c1879551f37484ef6683579a5c upstream.
 
-The unsolicited event handler for the headphone jack on CA0132 codec
-driver tries to reschedule the another delayed work with
-cancel_delayed_work_sync().  It's no good idea, unfortunately,
-especially after we changed the work queue to the standard global
-one; this may lead to a stall because both works are using the same
-global queue.
+We have a usecase to use tmpfs as QEMU memory backend and we would like
+to take the advantage of THP as well.  But, our test shows the EPT is
+not PMD mapped even though the underlying THP are PMD mapped on host.
+The number showed by /sys/kernel/debug/kvm/largepage is much less than
+the number of PMD mapped shmem pages as the below:
 
-Fix it by dropping the _sync but does call cancel_delayed_work()
-instead.
+  7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
+  Size:            4194304 kB
+  [snip]
+  AnonHugePages:         0 kB
+  ShmemPmdMapped:   579584 kB
+  [snip]
+  Locked:                0 kB
 
-Fixes: 993884f6a26c ("ALSA: hda/ca0132 - Delay HP amp turnon.")
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1155836
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191105134316.19294-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  cat /sys/kernel/debug/kvm/largepages
+  12
+
+And some benchmarks do worse than with anonymous THPs.
+
+By digging into the code we figured out that commit 127393fbe597 ("mm:
+thp: kvm: fix memory corruption in KVM with THP enabled") checks if
+there is a single PTE mapping on the page for anonymous THP when setting
+up EPT map.  But the _mapcount < 0 check doesn't work for page cache THP
+since every subpage of page cache THP would get _mapcount inc'ed once it
+is PMD mapped, so PageTransCompoundMap() always returns false for page
+cache THP.  This would prevent KVM from setting up PMD mapped EPT entry.
+
+So we need handle page cache THP correctly.  However, when page cache
+THP's PMD gets split, kernel just remove the map instead of setting up
+PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
+the subpages may get PTE mapped even though it is still a THP since the
+page cache THP may be mapped by other processes at the mean time.
+
+Checking its _mapcount and whether the THP has PTE mapped or not.
+Although this may report some false negative cases (PTE mapped by other
+processes), it looks not trivial to make this accurate.
+
+With this fix /sys/kernel/debug/kvm/largepage would show reasonable
+pages are PMD mapped by EPT as the below:
+
+  7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
+  Size:            4194304 kB
+  [snip]
+  AnonHugePages:         0 kB
+  ShmemPmdMapped:   557056 kB
+  [snip]
+  Locked:                0 kB
+
+  cat /sys/kernel/debug/kvm/largepages
+  271
+
+And the benchmarks are as same as anonymous THPs.
+
+[yang.shi@linux.alibaba.com: v4]
+  Link: http://lkml.kernel.org/r/1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com
+Link: http://lkml.kernel.org/r/1571769577-89735-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: dd78fedde4b9 ("rmap: support file thp")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Suggested-by: Hugh Dickins <hughd@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_ca0132.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/mm.h         |    5 -----
+ include/linux/mm_types.h   |    5 +++++
+ include/linux/page-flags.h |   20 ++++++++++++++++++--
+ 3 files changed, 23 insertions(+), 7 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -4440,7 +4440,7 @@ static void hp_callback(struct hda_codec
- 	/* Delay enabling the HP amp, to let the mic-detection
- 	 * state machine run.
- 	 */
--	cancel_delayed_work_sync(&spec->unsol_hp_work);
-+	cancel_delayed_work(&spec->unsol_hp_work);
- 	schedule_delayed_work(&spec->unsol_hp_work, msecs_to_jiffies(500));
- 	tbl = snd_hda_jack_tbl_get(codec, cb->nid);
- 	if (tbl)
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -549,11 +549,6 @@ static inline void *kvmalloc_array(size_
+ 
+ extern void kvfree(const void *addr);
+ 
+-static inline atomic_t *compound_mapcount_ptr(struct page *page)
+-{
+-	return &page[1].compound_mapcount;
+-}
+-
+ static inline int compound_mapcount(struct page *page)
+ {
+ 	VM_BUG_ON_PAGE(!PageCompound(page), page);
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -240,6 +240,11 @@ struct page_frag_cache {
+ 
+ typedef unsigned long vm_flags_t;
+ 
++static inline atomic_t *compound_mapcount_ptr(struct page *page)
++{
++	return &page[1].compound_mapcount;
++}
++
+ /*
+  * A region containing a mapping of a non-memory backed file under NOMMU
+  * conditions.  These are held in a global tree and are pinned by the VMAs that
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -565,12 +565,28 @@ static inline int PageTransCompound(stru
+  *
+  * Unlike PageTransCompound, this is safe to be called only while
+  * split_huge_pmd() cannot run from under us, like if protected by the
+- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
++ * MMU notifier, otherwise it may result in page->_mapcount check false
+  * positives.
++ *
++ * We have to treat page cache THP differently since every subpage of it
++ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
++ * mapped in the current process so comparing subpage's _mapcount to
++ * compound_mapcount to filter out PTE mapped case.
+  */
+ static inline int PageTransCompoundMap(struct page *page)
+ {
+-	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
++	struct page *head;
++
++	if (!PageTransCompound(page))
++		return 0;
++
++	if (PageAnon(page))
++		return atomic_read(&page->_mapcount) < 0;
++
++	head = compound_head(page);
++	/* File THP is PMD mapped and not PTE mapped */
++	return atomic_read(&page->_mapcount) ==
++	       atomic_read(compound_mapcount_ptr(head));
+ }
+ 
+ /*
 
 
