@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89906F7B35
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:34:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3494F7D4A
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728196AbfKKSdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:33:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51072 "EHLO mail.kernel.org"
+        id S1729935AbfKKSzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:55:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728177AbfKKSdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:33:41 -0500
+        id S1728884AbfKKSzS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:55:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 445EF20656;
-        Mon, 11 Nov 2019 18:33:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F23EF2173B;
+        Mon, 11 Nov 2019 18:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497219;
-        bh=jFKRDozkNnN17b4uRxPS4zmxpYQ3OKZr9Ar/cQVZc80=;
+        s=default; t=1573498517;
+        bh=Z5CEjgq2ljlTHK2PBa5/v+pJ3uM3+XprsHPKtfcyc7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dpUsczyA3nZb8ahRfp/Y2Jdc6Zy0P/hc6yCTq4mbGdaRY3FPjNdNDT9bzgXHU88eT
-         Pz0827JOXbBWEmyBQR0la6/jc55qcRNaLEBqQO9mcyaYeNO3Ng/hXEN6SMhB5j1xp6
-         9Div99mVp80aO/lZFe5cGpldc39H2W/UIevnQY00=
+        b=g2GkPkmNwqReNJr9KH5Hv8PjOu6k9wU5nUihiEDyP/GNv3PMfFfASj7A9dtjgnKpH
+         0rFI3bRnzg2qRsxUoWVnq6oZLDqwfSvAHoVVrMLsX+wBlMKTFJSB336oWgEOvmayQK
+         wt4EN5BTNG5iWpdnePl/+coQe4Jgo5XdW8ZutsU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Simon Horman <horms@verge.net.au>,
+        stable@vger.kernel.org,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 42/65] ipvs: move old_secure_tcp into struct netns_ipvs
-Date:   Mon, 11 Nov 2019 19:28:42 +0100
-Message-Id: <20191111181348.344555759@linuxfoundation.org>
+Subject: [PATCH 5.3 141/193] usb: dwc3: pci: prevent memory leak in dwc3_pci_probe
+Date:   Mon, 11 Nov 2019 19:28:43 +0100
+Message-Id: <20191111181511.558159952@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,115 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Navid Emamdoost <navid.emamdoost@gmail.com>
 
-[ Upstream commit c24b75e0f9239e78105f81c5f03a751641eb07ef ]
+[ Upstream commit 9bbfceea12a8f145097a27d7c7267af25893c060 ]
 
-syzbot reported the following issue :
+In dwc3_pci_probe a call to platform_device_alloc allocates a device
+which is correctly put in case of error except one case: when the call to
+platform_device_add_properties fails it directly returns instead of
+going to error handling. This commit replaces return with the goto.
 
-BUG: KCSAN: data-race in update_defense_level / update_defense_level
-
-read to 0xffffffff861a6260 of 4 bytes by task 3006 on cpu 1:
- update_defense_level+0x621/0xb30 net/netfilter/ipvs/ip_vs_ctl.c:177
- defense_work_handler+0x3d/0xd0 net/netfilter/ipvs/ip_vs_ctl.c:225
- process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
- worker_thread+0xa0/0x800 kernel/workqueue.c:2415
- kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
-
-write to 0xffffffff861a6260 of 4 bytes by task 7333 on cpu 0:
- update_defense_level+0xa62/0xb30 net/netfilter/ipvs/ip_vs_ctl.c:205
- defense_work_handler+0x3d/0xd0 net/netfilter/ipvs/ip_vs_ctl.c:225
- process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
- worker_thread+0xa0/0x800 kernel/workqueue.c:2415
- kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
- ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 7333 Comm: kworker/0:5 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events defense_work_handler
-
-Indeed, old_secure_tcp is currently a static variable, while it
-needs to be a per netns variable.
-
-Fixes: a0840e2e165a ("IPVS: netns, ip_vs_ctl local vars moved to ipvs struct.")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Simon Horman <horms@verge.net.au>
+Fixes: 1a7b12f69a94 ("usb: dwc3: pci: Supply device properties via driver data")
+Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip_vs.h            |  1 +
- net/netfilter/ipvs/ip_vs_ctl.c | 15 +++++++--------
- 2 files changed, 8 insertions(+), 8 deletions(-)
+ drivers/usb/dwc3/dwc3-pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
-index cd6018a9ee246..a26165744d980 100644
---- a/include/net/ip_vs.h
-+++ b/include/net/ip_vs.h
-@@ -887,6 +887,7 @@ struct netns_ipvs {
- 	struct delayed_work	defense_work;   /* Work handler */
- 	int			drop_rate;
- 	int			drop_counter;
-+	int			old_secure_tcp;
- 	atomic_t		dropentry;
- 	/* locks in ctl.c */
- 	spinlock_t		dropentry_lock;  /* drop entry handling */
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index 8037b25ddb76a..33125fc009cfd 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -97,7 +97,6 @@ static bool __ip_vs_addr_is_local_v6(struct net *net,
- static void update_defense_level(struct netns_ipvs *ipvs)
- {
- 	struct sysinfo i;
--	static int old_secure_tcp = 0;
- 	int availmem;
- 	int nomem;
- 	int to_change = -1;
-@@ -178,35 +177,35 @@ static void update_defense_level(struct netns_ipvs *ipvs)
- 	spin_lock(&ipvs->securetcp_lock);
- 	switch (ipvs->sysctl_secure_tcp) {
- 	case 0:
--		if (old_secure_tcp >= 2)
-+		if (ipvs->old_secure_tcp >= 2)
- 			to_change = 0;
- 		break;
- 	case 1:
- 		if (nomem) {
--			if (old_secure_tcp < 2)
-+			if (ipvs->old_secure_tcp < 2)
- 				to_change = 1;
- 			ipvs->sysctl_secure_tcp = 2;
- 		} else {
--			if (old_secure_tcp >= 2)
-+			if (ipvs->old_secure_tcp >= 2)
- 				to_change = 0;
- 		}
- 		break;
- 	case 2:
- 		if (nomem) {
--			if (old_secure_tcp < 2)
-+			if (ipvs->old_secure_tcp < 2)
- 				to_change = 1;
- 		} else {
--			if (old_secure_tcp >= 2)
-+			if (ipvs->old_secure_tcp >= 2)
- 				to_change = 0;
- 			ipvs->sysctl_secure_tcp = 1;
- 		}
- 		break;
- 	case 3:
--		if (old_secure_tcp < 2)
-+		if (ipvs->old_secure_tcp < 2)
- 			to_change = 1;
- 		break;
- 	}
--	old_secure_tcp = ipvs->sysctl_secure_tcp;
-+	ipvs->old_secure_tcp = ipvs->sysctl_secure_tcp;
- 	if (to_change >= 0)
- 		ip_vs_protocol_timeout_change(ipvs,
- 					      ipvs->sysctl_secure_tcp > 1);
+diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
+index 5e8e18222f922..023f0357efd77 100644
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -258,7 +258,7 @@ static int dwc3_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+ 
+ 	ret = platform_device_add_properties(dwc->dwc3, p);
+ 	if (ret < 0)
+-		return ret;
++		goto err;
+ 
+ 	ret = dwc3_pci_quirks(dwc);
+ 	if (ret)
 -- 
 2.20.1
 
