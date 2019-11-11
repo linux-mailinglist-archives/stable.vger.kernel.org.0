@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD45F7BC6
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:40:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0F4DF7D76
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727078AbfKKSjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:39:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58788 "EHLO mail.kernel.org"
+        id S1727447AbfKKS5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:57:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728254AbfKKSjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:39:43 -0500
+        id S1730795AbfKKS5F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:57:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58A262173B;
-        Mon, 11 Nov 2019 18:39:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB53920659;
+        Mon, 11 Nov 2019 18:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497582;
-        bh=jDfRS1hQzjMJmiMj46C0fIj6gSwRUc1XYB5Wre9T7UI=;
+        s=default; t=1573498624;
+        bh=Xn9xmVhJbceB5TGo945eRhwsCmVWx9YAH+0OcuDbu0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0YBc34wCMtY6W88aBidu1hP/he8+mCua+gtFfc4cwf7Y7G1w1suuzlQkNUa8buvnS
-         PaKkBGz+E2eUj+mX9mQ29d4a6jc/Suhn7Dz7dgAFo3JM2jx4D2pgmcUTlmfgAoGvAx
-         ieM5UhgY2l/dbyRnmgX7fj830WxjR1P3aAWk99DI=
+        b=l/OiCAUzHN4spkNqzzpIc+aLQ8t+wCivsxh3rj1TMytuRriy0+14z8lzvLpjTE1Bp
+         23/swtMGLam+Cm51kSkL/mBeqZ6mkFfabWRi8y/ZuNR+DYp2XL+wMcR7bybHVpXyJj
+         9NgBs1uZQfNBRHA6xKyqYaoVfeLTkHMVcF1wCoZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Jan Kara <jack@suse.cz>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 104/105] mm/filemap.c: dont initiate writeback if mapping has no dirty pages
-Date:   Mon, 11 Nov 2019 19:29:14 +0100
-Message-Id: <20191111181449.694521006@linuxfoundation.org>
+        stable@vger.kernel.org, Neil Brown <neilb@suse.de>,
+        kbuild test robot <lkp@intel.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 173/193] SUNRPC: Destroy the back channel when we destroy the host transport
+Date:   Mon, 11 Nov 2019 19:29:15 +0100
+Message-Id: <20191111181513.881682174@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +46,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Trond Myklebust <trondmy@gmail.com>
 
-commit c3aab9a0bd91b696a852169479b7db1ece6cbf8c upstream.
+[ Upstream commit 669996add4c92476e0f8d6b4cd2bb308d1939fd7 ]
 
-Functions like filemap_write_and_wait_range() should do nothing if inode
-has no dirty pages or pages currently under writeback.  But they anyway
-construct struct writeback_control and this does some atomic operations if
-CONFIG_CGROUP_WRITEBACK=y - on fast path it locks inode->i_lock and
-updates state of writeback ownership, on slow path might be more work.
-Current this path is safely avoided only when inode mapping has no pages.
+When we're destroying the host transport mechanism, we should ensure
+that we do not leak memory by failing to release any back channel
+slots that might still exist.
 
-For example generic_file_read_iter() calls filemap_write_and_wait_range()
-at each O_DIRECT read - pretty hot path.
-
-This patch skips starting new writeback if mapping has no dirty tags set.
-If writeback is already in progress filemap_write_and_wait_range() will
-wait for it.
-
-Link: http://lkml.kernel.org/r/156378816804.1087.8607636317907921438.stgit@buzz
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Neil Brown <neilb@suse.de>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/filemap.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/sunrpc/bc_xprt.h | 5 +++++
+ net/sunrpc/backchannel_rqst.c  | 2 +-
+ net/sunrpc/xprt.c              | 5 +++++
+ 3 files changed, 11 insertions(+), 1 deletion(-)
 
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -338,7 +338,8 @@ int __filemap_fdatawrite_range(struct ad
- 		.range_end = end,
- 	};
+diff --git a/include/linux/sunrpc/bc_xprt.h b/include/linux/sunrpc/bc_xprt.h
+index 87d27e13d8859..d796058cdff2a 100644
+--- a/include/linux/sunrpc/bc_xprt.h
++++ b/include/linux/sunrpc/bc_xprt.h
+@@ -64,6 +64,11 @@ static inline int xprt_setup_backchannel(struct rpc_xprt *xprt,
+ 	return 0;
+ }
  
--	if (!mapping_cap_writeback_dirty(mapping))
-+	if (!mapping_cap_writeback_dirty(mapping) ||
-+	    !mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
- 		return 0;
++static inline void xprt_destroy_backchannel(struct rpc_xprt *xprt,
++					    unsigned int max_reqs)
++{
++}
++
+ static inline bool svc_is_backchannel(const struct svc_rqst *rqstp)
+ {
+ 	return false;
+diff --git a/net/sunrpc/backchannel_rqst.c b/net/sunrpc/backchannel_rqst.c
+index 7eb251372f947..195b40c5dae4b 100644
+--- a/net/sunrpc/backchannel_rqst.c
++++ b/net/sunrpc/backchannel_rqst.c
+@@ -220,7 +220,7 @@ void xprt_destroy_bc(struct rpc_xprt *xprt, unsigned int max_reqs)
+ 		goto out;
  
- 	wbc_attach_fdatawrite_inode(&wbc, mapping->host);
+ 	spin_lock_bh(&xprt->bc_pa_lock);
+-	xprt->bc_alloc_max -= max_reqs;
++	xprt->bc_alloc_max -= min(max_reqs, xprt->bc_alloc_max);
+ 	list_for_each_entry_safe(req, tmp, &xprt->bc_pa_list, rq_bc_pa_list) {
+ 		dprintk("RPC:        req=%p\n", req);
+ 		list_del(&req->rq_bc_pa_list);
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 20631d64312cb..ac796f3d42409 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1935,6 +1935,11 @@ static void xprt_destroy_cb(struct work_struct *work)
+ 	rpc_destroy_wait_queue(&xprt->sending);
+ 	rpc_destroy_wait_queue(&xprt->backlog);
+ 	kfree(xprt->servername);
++	/*
++	 * Destroy any existing back channel
++	 */
++	xprt_destroy_backchannel(xprt, UINT_MAX);
++
+ 	/*
+ 	 * Tear down transport state and free the rpc_xprt
+ 	 */
+-- 
+2.20.1
+
 
 
