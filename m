@@ -2,65 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A36F748A
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 14:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E614DF74A1
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 14:19:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726889AbfKKNJL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 08:09:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35924 "EHLO mail.kernel.org"
+        id S1726949AbfKKNTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 08:19:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726843AbfKKNJL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 08:09:11 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726843AbfKKNTJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 08:19:09 -0500
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5652F2190F;
-        Mon, 11 Nov 2019 13:09:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FAA22190F;
+        Mon, 11 Nov 2019 13:19:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573477750;
-        bh=3xzfN7HO5sNEukhZGMJTQbWhQzu/Ph+4fmBi41L95NE=;
+        s=default; t=1573478348;
+        bh=qyBg9bdFVIL1EvyvpUhCDyDamOZmYL9V35D/8KSeDYM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=140HyVD1YDADStWVq/1srVYt7SBOok7BufX0EWHZ+XrC1dnRvHpvHAVQORzYeGJxE
-         30kCaFH+O0OFBXJQHp7v2VgnzPcmVLc4QiX/KL4q6C8xIMC1NnCkwEcM5EBgAJTA79
-         9y0OWF7V/eHFzhxsEOj/53ar5FR29t3NMHvnasiI=
-Date:   Mon, 11 Nov 2019 14:09:08 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Vidya Sagar <vidyas@nvidia.com>
-Cc:     stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: Re: stable request: PCI: tegra: Enable Relaxed Ordering only for
- Tegra20 & Tegra30
-Message-ID: <20191111130908.GA448544@kroah.com>
-References: <11251eb0-5675-9d3d-d15f-c346781e2bff@nvidia.com>
+        b=rQ5TwBuTzmjK2iH/6nrG9xwyiSJ8nhHqbPDmiZPaMAKQzoswUUt4cXB+N25Pluc+b
+         ekqs1O17HQzS4j4VKhB82Ta36zozyoiZBIBWvZ/z6uejC7mQ0qA3Crq3YHz+dzttSR
+         7Jy7CMjyOuc1FgCSa0Mwpy/pM70x75Fh5VoITHgE=
+Date:   Mon, 11 Nov 2019 08:19:07 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     andriy.shevchenko@linux.intel.com, malin.jonsson@ericsson.com,
+        mika.westerberg@linux.intel.com, oliver.barta@aptiv.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] pinctrl: intel: Avoid potential glitches
+ if pin is in GPIO" failed to apply to 4.19-stable tree
+Message-ID: <20191111131907.GR4787@sasha-vm>
+References: <157345199314214@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <11251eb0-5675-9d3d-d15f-c346781e2bff@nvidia.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <157345199314214@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 11, 2019 at 06:24:53PM +0530, Vidya Sagar wrote:
-> Hi Greg,
-> We noticed that the Tegra PCIe host controller driver enabled
-> "Relaxed Ordering" bit in the PCIe configuration space for "all"
-> devices erroneously. We pushed a fix for this through the
-> commit: 7be142caabc4780b13a522c485abc806de5c4114 and it has been
-> soaking in main line for the last four months.
-> Based on the discussion we had @ http://patchwork.ozlabs.org/patch/1127604/
-> we would now like to push it to the following stable kernels
-> 4.19                  : Applies cleanly
-> 3.16, 4.4, 4.9 & 4.14 : Following equivalent patch needs to be used as the
->                         file was at drivers/pci/host/pci-tegra.c earlier
->                         (and moved to drivers/pci/controller/pci-tegra.c starting 4.19)
+On Mon, Nov 11, 2019 at 06:59:53AM +0100, gregkh@linuxfoundation.org wrote:
+>
+>The patch below does not apply to the 4.19-stable tree.
+>If someone wants it applied there, or to any other stable or longterm
+>tree, then please email the backport, including the original git commit
+>id to <stable@vger.kernel.org>.
+>
+>thanks,
+>
+>greg k-h
+>
+>------------------ original commit in Linus's tree ------------------
+>
+>From 29c2c6aa32405dfee4a29911a51ba133edcedb0f Mon Sep 17 00:00:00 2001
+>From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+>Date: Mon, 14 Oct 2019 12:51:04 +0300
+>Subject: [PATCH] pinctrl: intel: Avoid potential glitches if pin is in GPIO
+> mode
+>
+>When consumer requests a pin, in order to be on the safest side,
+>we switch it first to GPIO mode followed by immediate transition
+>to the input state. Due to posted writes it's luckily to be a single
+>I/O transaction.
+>
+>However, if firmware or boot loader already configures the pin
+>to the GPIO mode, user expects no glitches for the requested pin.
+>We may check if the pin is pre-configured and leave it as is
+>till the actual consumer toggles its state to avoid glitches.
 
-All now queued up (except for 3.16, that's Ben's tree, he will get to it
-soon.)
+I've queued it up for 4.19, it was just a minor conflict with
+e58926e781d8 ("pinctrl: intel: Use GENMASK() consistently").
 
-thanks,
+However, for 4.14 and older:
 
-greg k-h
+>Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
+>Depends-on: f5a26acf0162 ("pinctrl: intel: Initialize GPIO properly when used through irqchip")
+
+We need to take this "Depends-on" commit, but in the past we have
+reverted it:
+
+https://lore.kernel.org/lkml/20180427135732.999030511@linuxfoundation.org/
+
+So I didn't do anything with this patch for <=4.14.
+
+-- 
+Thanks,
+Sasha
