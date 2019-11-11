@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7840FF7F7B
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E4AF7F76
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727058AbfKKS34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:29:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46004 "EHLO mail.kernel.org"
+        id S1727315AbfKKSa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:30:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726955AbfKKS34 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:29:56 -0500
+        id S1726910AbfKKSa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:30:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69B9321655;
-        Mon, 11 Nov 2019 18:29:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4856A21872;
+        Mon, 11 Nov 2019 18:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573496994;
-        bh=7HmGHMThrnYMwsBOF6NbCWuvJbMJdCj/JXWysiyCjVM=;
+        s=default; t=1573497026;
+        bh=gpJkM8tSzbzYkk30CQsNGrRPwbI6TaIqNSKozZigDIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2W0d/TQTwLSfukNdhQN14DkATpFnwvr+AMhM7o+KW4O1RsUrHyb6dFCSw4OBjyyuF
-         YOfXvoZRGbVUpJiXDi5/u2vVwHAhgg+Knq+Z0F2aUpxrLYePoipUSoW3zBk+mu+O1z
-         8ZeU5QBuWGwzhakAtiKKQwDc7jb1/wRFm4FaTKbs=
+        b=0gLYt0yZVyJew8ysSKKpObXg4AOtn3SpA2nvsnJjIj+K2cY0Eeo06s20TG7148+73
+         Rkc3sZq298Z5zCdihztRyCdNd2YSVqlOPWkTJMy0tNVVjRNGS5XY+0TnJJFNg1eXnT
+         cTYKhvMW5zwLcA5zaKFlLT/S3JY9hKcGh/hbIavM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 02/43] net: fix data-race in neigh_event_send()
-Date:   Mon, 11 Nov 2019 19:28:16 +0100
-Message-Id: <20191111181250.392472184@linuxfoundation.org>
+Subject: [PATCH 4.4 03/43] NFC: fdp: fix incorrect free object
+Date:   Mon, 11 Nov 2019 19:28:17 +0100
+Message-Id: <20191111181252.561390022@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
 References: <20191111181246.772983347@linuxfoundation.org>
@@ -44,86 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 1b53d64435d56902fc234ff2507142d971a09687 ]
+[ Upstream commit 517ce4e93368938b204451285e53014549804868 ]
 
-KCSAN reported the following data-race [1]
+The address of fw_vsc_cfg is on stack. Releasing it with devm_kfree() is
+incorrect, which may result in a system crash or other security impacts.
+The expected object to free is *fw_vsc_cfg.
 
-The fix will also prevent the compiler from optimizing out
-the condition.
-
-[1]
-
-BUG: KCSAN: data-race in neigh_resolve_output / neigh_resolve_output
-
-write to 0xffff8880a41dba78 of 8 bytes by interrupt on cpu 1:
- neigh_event_send include/net/neighbour.h:443 [inline]
- neigh_resolve_output+0x78/0x480 net/core/neighbour.c:1474
- neigh_output include/net/neighbour.h:511 [inline]
- ip_finish_output2+0x4af/0xe40 net/ipv4/ip_output.c:228
- __ip_finish_output net/ipv4/ip_output.c:308 [inline]
- __ip_finish_output+0x23a/0x490 net/ipv4/ip_output.c:290
- ip_finish_output+0x41/0x160 net/ipv4/ip_output.c:318
- NF_HOOK_COND include/linux/netfilter.h:294 [inline]
- ip_output+0xdf/0x210 net/ipv4/ip_output.c:432
- dst_output include/net/dst.h:436 [inline]
- ip_local_out+0x74/0x90 net/ipv4/ip_output.c:125
- __ip_queue_xmit+0x3a8/0xa40 net/ipv4/ip_output.c:532
- ip_queue_xmit+0x45/0x60 include/net/ip.h:237
- __tcp_transmit_skb+0xe81/0x1d60 net/ipv4/tcp_output.c:1169
- tcp_transmit_skb net/ipv4/tcp_output.c:1185 [inline]
- __tcp_retransmit_skb+0x4bd/0x15f0 net/ipv4/tcp_output.c:2976
- tcp_retransmit_skb+0x36/0x1a0 net/ipv4/tcp_output.c:2999
- tcp_retransmit_timer+0x719/0x16d0 net/ipv4/tcp_timer.c:515
- tcp_write_timer_handler+0x42d/0x510 net/ipv4/tcp_timer.c:598
- tcp_write_timer+0xd1/0xf0 net/ipv4/tcp_timer.c:618
-
-read to 0xffff8880a41dba78 of 8 bytes by interrupt on cpu 0:
- neigh_event_send include/net/neighbour.h:442 [inline]
- neigh_resolve_output+0x57/0x480 net/core/neighbour.c:1474
- neigh_output include/net/neighbour.h:511 [inline]
- ip_finish_output2+0x4af/0xe40 net/ipv4/ip_output.c:228
- __ip_finish_output net/ipv4/ip_output.c:308 [inline]
- __ip_finish_output+0x23a/0x490 net/ipv4/ip_output.c:290
- ip_finish_output+0x41/0x160 net/ipv4/ip_output.c:318
- NF_HOOK_COND include/linux/netfilter.h:294 [inline]
- ip_output+0xdf/0x210 net/ipv4/ip_output.c:432
- dst_output include/net/dst.h:436 [inline]
- ip_local_out+0x74/0x90 net/ipv4/ip_output.c:125
- __ip_queue_xmit+0x3a8/0xa40 net/ipv4/ip_output.c:532
- ip_queue_xmit+0x45/0x60 include/net/ip.h:237
- __tcp_transmit_skb+0xe81/0x1d60 net/ipv4/tcp_output.c:1169
- tcp_transmit_skb net/ipv4/tcp_output.c:1185 [inline]
- __tcp_retransmit_skb+0x4bd/0x15f0 net/ipv4/tcp_output.c:2976
- tcp_retransmit_skb+0x36/0x1a0 net/ipv4/tcp_output.c:2999
- tcp_retransmit_timer+0x719/0x16d0 net/ipv4/tcp_timer.c:515
- tcp_write_timer_handler+0x42d/0x510 net/ipv4/tcp_timer.c:598
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-rc3+ #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/neighbour.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nfc/fdp/i2c.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/neighbour.h
-+++ b/include/net/neighbour.h
-@@ -425,8 +425,8 @@ static inline int neigh_event_send(struc
- {
- 	unsigned long now = jiffies;
- 	
--	if (neigh->used != now)
--		neigh->used = now;
-+	if (READ_ONCE(neigh->used) != now)
-+		WRITE_ONCE(neigh->used, now);
- 	if (!(neigh->nud_state&(NUD_CONNECTED|NUD_DELAY|NUD_PROBE)))
- 		return __neigh_event_send(neigh, skb);
- 	return 0;
+--- a/drivers/nfc/fdp/i2c.c
++++ b/drivers/nfc/fdp/i2c.c
+@@ -268,7 +268,7 @@ static void fdp_nci_i2c_read_device_prop
+ 						  *fw_vsc_cfg, len);
+ 
+ 		if (r) {
+-			devm_kfree(dev, fw_vsc_cfg);
++			devm_kfree(dev, *fw_vsc_cfg);
+ 			goto vsc_read_err;
+ 		}
+ 	} else {
 
 
