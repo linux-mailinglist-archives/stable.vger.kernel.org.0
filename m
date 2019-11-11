@@ -2,40 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47069F7F68
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A09D6F7F3A
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727559AbfKKSbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:31:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47810 "EHLO mail.kernel.org"
+        id S1727605AbfKKSeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:34:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727257AbfKKSbQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:31:16 -0500
+        id S1728095AbfKKSeU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:34:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83B1B2173B;
-        Mon, 11 Nov 2019 18:31:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C4E92190F;
+        Mon, 11 Nov 2019 18:34:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497076;
-        bh=+hk06tjiMr95qY1OfTMCF0HksVGRgn4xCrIhJmgsw+U=;
+        s=default; t=1573497258;
+        bh=E96gvs1NXjW1VnSLVyGghXIHAbH03uuVsaYwe+itlj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CzmQMzAjTtHat376Tug0X/z7y/9FQMo/7FheNIMwQriv+awe+tsRwjCukxrUI77s
-         hVHTKmKbUKKsgux5UemaVzGh4Y6owFJpiirl27hpx+aP9+x/d7SJ3BSRrb3q6L6OiW
-         L7wJTu8o7bNJRGLbNDgu4REjZ/HmgFA6ArraONiI=
+        b=H7kXlswIrFR5NIHWTR8q9Eg7SqN6hUh3/doZ8SOqYWuS57OFSNdQe0F/1TKNPrki3
+         rPtRRcNZ+fsVzASOcJd5w9317wt7x4vqt7F4akdHvj2gKrpSZyiRh+gC6J1UMQC+dt
+         IIMFUElB6LNq1Xqdqpf5aKYE/gcdPp5mZ/gCb5P4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 36/43] scsi: qla2xxx: stop timer in shutdown path
+        stable@vger.kernel.org, Kim Phillips <kim.phillips@amd.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 50/65] perf/x86/amd/ibs: Handle erratum #420 only on the affected CPU family (10h)
 Date:   Mon, 11 Nov 2019 19:28:50 +0100
-Message-Id: <20191111181326.087588727@linuxfoundation.org>
+Message-Id: <20191111181350.880646578@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +55,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Kim Phillips <kim.phillips@amd.com>
 
-[ Upstream commit d3566abb1a1e7772116e4d50fb6a58d19c9802e5 ]
+[ Upstream commit e431e79b60603079d269e0c2a5177943b95fa4b6 ]
 
-In shutdown/reboot paths, the timer is not stopped:
+This saves us writing the IBS control MSR twice when disabling the
+event.
 
-  qla2x00_shutdown
-  pci_device_shutdown
-  device_shutdown
-  kernel_restart_prepare
-  kernel_restart
-  sys_reboot
+I searched revision guides for all families since 10h, and did not
+find occurrence of erratum #420, nor anything remotely similar:
+so we isolate the secondary MSR write to family 10h only.
 
-This causes lockups (on powerpc) when firmware config space access calls
-are interrupted by smp_send_stop later in reboot.
+Also unconditionally update the count mask for IBS Op implementations
+that have read & writeable current count (CurCnt) fields in addition
+to the MaxCnt field.  These bits were reserved on prior
+implementations, and therefore shouldn't have negative impact.
 
-Fixes: e30d1756480dc ("[SCSI] qla2xxx: Addition of shutdown callback handler.")
-Link: https://lore.kernel.org/r/20191024063804.14538-1-npiggin@gmail.com
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Kim Phillips <kim.phillips@amd.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Fixes: c9574fe0bdb9 ("perf/x86-ibs: Implement workaround for IBS erratum #420")
+Link: https://lkml.kernel.org/r/20191023150955.30292-2-kim.phillips@amd.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_os.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/events/amd/ibs.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index ff5df33fc7405..611a127f08d82 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -2962,6 +2962,10 @@ qla2x00_shutdown(struct pci_dev *pdev)
- 	/* Stop currently executing firmware. */
- 	qla2x00_try_to_stop_firmware(vha);
- 
-+	/* Disable timer */
-+	if (vha->timer_active)
-+		qla2x00_stop_timer(vha);
-+
- 	/* Turn adapter off line */
- 	vha->flags.online = 0;
- 
+diff --git a/arch/x86/events/amd/ibs.c b/arch/x86/events/amd/ibs.c
+index a8317d384773a..5f72b473f3ed3 100644
+--- a/arch/x86/events/amd/ibs.c
++++ b/arch/x86/events/amd/ibs.c
+@@ -388,7 +388,8 @@ static inline void perf_ibs_disable_event(struct perf_ibs *perf_ibs,
+ 					  struct hw_perf_event *hwc, u64 config)
+ {
+ 	config &= ~perf_ibs->cnt_mask;
+-	wrmsrl(hwc->config_base, config);
++	if (boot_cpu_data.x86 == 0x10)
++		wrmsrl(hwc->config_base, config);
+ 	config &= ~perf_ibs->enable_mask;
+ 	wrmsrl(hwc->config_base, config);
+ }
+@@ -563,7 +564,8 @@ static struct perf_ibs perf_ibs_op = {
+ 	},
+ 	.msr			= MSR_AMD64_IBSOPCTL,
+ 	.config_mask		= IBS_OP_CONFIG_MASK,
+-	.cnt_mask		= IBS_OP_MAX_CNT,
++	.cnt_mask		= IBS_OP_MAX_CNT | IBS_OP_CUR_CNT |
++				  IBS_OP_CUR_CNT_RAND,
+ 	.enable_mask		= IBS_OP_ENABLE,
+ 	.valid_mask		= IBS_OP_VAL,
+ 	.max_period		= IBS_OP_MAX_CNT << 4,
 -- 
 2.20.1
 
