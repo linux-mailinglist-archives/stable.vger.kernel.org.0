@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCF3FF7DAF
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FBEF7DB0
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:59:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728772AbfKKS5v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:57:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57786 "EHLO mail.kernel.org"
+        id S1730330AbfKKS5y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:57:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730875AbfKKS5v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:57:51 -0500
+        id S1730898AbfKKS5x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:57:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3132120659;
-        Mon, 11 Nov 2019 18:57:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F5CA222BD;
+        Mon, 11 Nov 2019 18:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498670;
-        bh=xRjkGyC2T/u82vScRl5yZiADyi8Ko5EwIaJV0FyKyac=;
+        s=default; t=1573498673;
+        bh=HCTN9DkNQvPEA8VdP3A+Hi+4+7mHJy4erm/9b/R1vMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LplaWkbEhJcRk5e2k5fM5hkotYnj63YcpdDTOCO6brgfQx4Nw3TJUp/FoXpeW0GT0
-         9EXT2tXZDksnfy1oTMHgaMfcY8UaR03tQsh77OPNv19taJKcaqFu1fS5OnTSqnsZmz
-         aNMqDJV4OZL59FOnhjQ9bO2uz0rCS+blND6fYmCw=
+        b=rZV7Gazncccz0j9VsnlGKcDWTszXU7qymZcwBpWRsNAXH6/SsLftbfPmWzA3VxR7w
+         Sv2HpVKYPu8+uZ6emqYpf7jwC+ijDKi7iIjJ9bNJBhfSoNO6lfsMTpG2bwhX02PAxs
+         f49p6j+OHNN7zWRo1ZCF+47xIbuCwyOtE0lYf8+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manfred Rudigier <manfred.rudigier@omicronenergy.com>,
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
         Aaron Brown <aaron.f.brown@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 185/193] igb: Fix constant media auto sense switching when no cable is connected
-Date:   Mon, 11 Nov 2019 19:29:27 +0100
-Message-Id: <20191111181514.741290870@linuxfoundation.org>
+Subject: [PATCH 5.3 186/193] e1000: fix memory leaks
+Date:   Mon, 11 Nov 2019 19:29:28 +0100
+Message-Id: <20191111181514.815408829@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -46,45 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manfred Rudigier <manfred.rudigier@omicronenergy.com>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit 8d5cfd7f76a2414e23c74bb8858af7540365d985 ]
+[ Upstream commit 8472ba62154058b64ebb83d5f57259a352d28697 ]
 
-At least on the i350 there is an annoying behavior that is maybe also
-present on 82580 devices, but was probably not noticed yet as MAS is not
-widely used.
+In e1000_set_ringparam(), 'tx_old' and 'rx_old' are not deallocated if
+e1000_up() fails, leading to memory leaks. Refactor the code to fix this
+issue.
 
-If no cable is connected on both fiber/copper ports the media auto sense
-code will constantly swap between them as part of the watchdog task and
-produce many unnecessary kernel log messages.
-
-The swap code responsible for this behavior (switching to fiber) should
-not be executed if the current media type is copper and there is no signal
-detected on the fiber port. In this case we can safely wait until the
-AUTOSENSE_EN bit is cleared.
-
-Signed-off-by: Manfred Rudigier <manfred.rudigier@omicronenergy.com>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
 Tested-by: Aaron Brown <aaron.f.brown@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/e1000/e1000_ethtool.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index b4df3e319467e..93a1352f5be90 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -2064,7 +2064,8 @@ static void igb_check_swap_media(struct igb_adapter *adapter)
- 	if ((hw->phy.media_type == e1000_media_type_copper) &&
- 	    (!(connsw & E1000_CONNSW_AUTOSENSE_EN))) {
- 		swap_now = true;
--	} else if (!(connsw & E1000_CONNSW_SERDESD)) {
-+	} else if ((hw->phy.media_type != e1000_media_type_copper) &&
-+		   !(connsw & E1000_CONNSW_SERDESD)) {
- 		/* copper signal takes time to appear */
- 		if (adapter->copper_tries < 4) {
- 			adapter->copper_tries++;
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_ethtool.c b/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
+index a41008523c983..2e07ffa87e346 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
+@@ -607,6 +607,7 @@ static int e1000_set_ringparam(struct net_device *netdev,
+ 	for (i = 0; i < adapter->num_rx_queues; i++)
+ 		rxdr[i].count = rxdr->count;
+ 
++	err = 0;
+ 	if (netif_running(adapter->netdev)) {
+ 		/* Try to get new resources before deleting old */
+ 		err = e1000_setup_all_rx_resources(adapter);
+@@ -627,14 +628,13 @@ static int e1000_set_ringparam(struct net_device *netdev,
+ 		adapter->rx_ring = rxdr;
+ 		adapter->tx_ring = txdr;
+ 		err = e1000_up(adapter);
+-		if (err)
+-			goto err_setup;
+ 	}
+ 	kfree(tx_old);
+ 	kfree(rx_old);
+ 
+ 	clear_bit(__E1000_RESETTING, &adapter->flags);
+-	return 0;
++	return err;
++
+ err_setup_tx:
+ 	e1000_free_all_rx_resources(adapter);
+ err_setup_rx:
+@@ -646,7 +646,6 @@ err_alloc_rx:
+ err_alloc_tx:
+ 	if (netif_running(adapter->netdev))
+ 		e1000_up(adapter);
+-err_setup:
+ 	clear_bit(__E1000_RESETTING, &adapter->flags);
+ 	return err;
+ }
 -- 
 2.20.1
 
