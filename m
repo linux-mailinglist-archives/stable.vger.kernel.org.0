@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C68F7C8E
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:47:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59525F7D82
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:57:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729438AbfKKSrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:47:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40082 "EHLO mail.kernel.org"
+        id S1730836AbfKKS5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:57:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730072AbfKKSrT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:47:19 -0500
+        id S1729045AbfKKS5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:57:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E52221655;
-        Mon, 11 Nov 2019 18:47:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AFCD222C1;
+        Mon, 11 Nov 2019 18:57:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498038;
-        bh=Qx6rEvYfQ/vz4Rbc+dIQHrZu8mzVfOmIM+BjA2Ep5dc=;
+        s=default; t=1573498649;
+        bh=jciIuqN6+XJ0SohuD/SxNfkHQ9OpVxARqL5y9dtpxGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eUJ8PNZwqdfKrJfNQAH8j2JkHW7B7UrKTDPTmECKQN9DEPAiPVGbaO/N3QYHyQGa/
-         LWzaeqR1p2LqM+yM+sO2RLacuRTJcly34JZ+PDJisyzd/QpaCRilNdi6PUfWXwUpX8
-         nw4lSbA6JuBXNnU7kqen0xT8VojBv247NsH9FviE=
+        b=0+clynyva2d7wCrL1UoFWj3U+fkp2cKm6kA2OEbPyyeaA+spqvgcQ+wUK9V6eG/wx
+         OPdafkbHOJWqroSNs/3m5gob+spbyEmlZkgWcupx99joOJa6rZFtPGvbPB+CaBItnC
+         rRtiPDbSAinNxOVaqxdmJ979Lk6EBhrLxKh4b0hU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 123/125] iio: imu: inv_mpu6050: fix no data on MPU6050
+        stable@vger.kernel.org, Doug Berger <opendmb@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 180/193] arm64: apply ARM64_ERRATUM_845719 workaround for Brahma-B53 core
 Date:   Mon, 11 Nov 2019 19:29:22 +0100
-Message-Id: <20191111181456.142299857@linuxfoundation.org>
+Message-Id: <20191111181514.384894649@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,149 +44,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
+From: Doug Berger <opendmb@gmail.com>
 
-[ Upstream commit 6e82ae6b8d11b948b74e71396efd8e074c415f44 ]
+[ Upstream commit bfc97f9f199cb041cf897af3af096540948cc705 ]
 
-Some chips have a fifo overflow bit issue where the bit is always
-set. The result is that every data is dropped.
+The Broadcom Brahma-B53 core is susceptible to the issue described by
+ARM64_ERRATUM_845719 so this commit enables the workaround to be applied
+when executing on that core.
 
-Change fifo overflow management by checking fifo count against
-a maximum value.
+Since there are now multiple entries to match, we must convert the
+existing ARM64_ERRATUM_845719 into an erratum list.
 
-Add fifo size in chip hardware set of values.
-
-Fixes: f5057e7b2dba ("iio: imu: inv_mpu6050: better fifo overflow handling")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Doug Berger <opendmb@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/inv_mpu6050/inv_mpu_core.c |  9 +++++++++
- drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h  |  2 ++
- drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c | 15 ++++++++++++---
- 3 files changed, 23 insertions(+), 3 deletions(-)
+ Documentation/arm64/silicon-errata.rst |  3 +++
+ arch/arm64/include/asm/cputype.h       |  2 ++
+ arch/arm64/kernel/cpu_errata.c         | 13 +++++++++++--
+ 3 files changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-index cb80c9e49fc7b..ea099523e0355 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_core.c
-@@ -121,54 +121,63 @@ static const struct inv_mpu6050_hw hw_info[] = {
- 		.name = "MPU6050",
- 		.reg = &reg_set_6050,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1024,
- 	},
- 	{
- 		.whoami = INV_MPU6500_WHOAMI_VALUE,
- 		.name = "MPU6500",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_MPU6515_WHOAMI_VALUE,
- 		.name = "MPU6515",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_MPU6000_WHOAMI_VALUE,
- 		.name = "MPU6000",
- 		.reg = &reg_set_6050,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1024,
- 	},
- 	{
- 		.whoami = INV_MPU9150_WHOAMI_VALUE,
- 		.name = "MPU9150",
- 		.reg = &reg_set_6050,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1024,
- 	},
- 	{
- 		.whoami = INV_MPU9250_WHOAMI_VALUE,
- 		.name = "MPU9250",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_MPU9255_WHOAMI_VALUE,
- 		.name = "MPU9255",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_ICM20608_WHOAMI_VALUE,
- 		.name = "ICM20608",
- 		.reg = &reg_set_6500,
- 		.config = &chip_config_6050,
-+		.fifo_size = 512,
- 	},
- 	{
- 		.whoami = INV_ICM20602_WHOAMI_VALUE,
- 		.name = "ICM20602",
- 		.reg = &reg_set_icm20602,
- 		.config = &chip_config_6050,
-+		.fifo_size = 1008,
- 	},
- };
+diff --git a/Documentation/arm64/silicon-errata.rst b/Documentation/arm64/silicon-errata.rst
+index 47feda6c15bcc..8c87c68dcc324 100644
+--- a/Documentation/arm64/silicon-errata.rst
++++ b/Documentation/arm64/silicon-errata.rst
+@@ -91,6 +91,9 @@ stable kernels.
+ | ARM            | MMU-500         | #841119,826419  | N/A                         |
+ +----------------+-----------------+-----------------+-----------------------------+
+ +----------------+-----------------+-----------------+-----------------------------+
++| Broadcom       | Brahma-B53      | N/A             | ARM64_ERRATUM_845719        |
+++----------------+-----------------+-----------------+-----------------------------+
+++----------------+-----------------+-----------------+-----------------------------+
+ | Cavium         | ThunderX ITS    | #22375,24313    | CAVIUM_ERRATUM_22375        |
+ +----------------+-----------------+-----------------+-----------------------------+
+ | Cavium         | ThunderX ITS    | #23144          | CAVIUM_ERRATUM_23144        |
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index b1454d117cd2c..aca07c2f6e6e3 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -79,6 +79,7 @@
+ #define CAVIUM_CPU_PART_THUNDERX_83XX	0x0A3
+ #define CAVIUM_CPU_PART_THUNDERX2	0x0AF
  
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-index bdbaf6e01ce3e..e56c1d191ae46 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_iio.h
-@@ -108,12 +108,14 @@ struct inv_mpu6050_chip_config {
-  *  @name:      name of the chip.
-  *  @reg:   register map of the chip.
-  *  @config:    configuration of the chip.
-+ *  @fifo_size:	size of the FIFO in bytes.
-  */
- struct inv_mpu6050_hw {
- 	u8 whoami;
- 	u8 *name;
- 	const struct inv_mpu6050_reg_map *reg;
- 	const struct inv_mpu6050_chip_config *config;
-+	size_t fifo_size;
- };
++#define BRCM_CPU_PART_BRAHMA_B53	0x100
+ #define BRCM_CPU_PART_VULCAN		0x516
  
- /*
-diff --git a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
-index 548e042f7b5bd..4f9c2765aa23f 100644
---- a/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
-+++ b/drivers/iio/imu/inv_mpu6050/inv_mpu_ring.c
-@@ -188,9 +188,6 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
- 			"failed to ack interrupt\n");
- 		goto flush_fifo;
- 	}
--	/* handle fifo overflow by reseting fifo */
--	if (int_status & INV_MPU6050_BIT_FIFO_OVERFLOW_INT)
--		goto flush_fifo;
- 	if (!(int_status & INV_MPU6050_BIT_RAW_DATA_RDY_INT)) {
- 		dev_warn(regmap_get_device(st->map),
- 			"spurious interrupt with status 0x%x\n", int_status);
-@@ -216,6 +213,18 @@ irqreturn_t inv_mpu6050_read_fifo(int irq, void *p)
- 	if (result)
- 		goto end_session;
- 	fifo_count = get_unaligned_be16(&data[0]);
+ #define QCOM_CPU_PART_FALKOR_V1		0x800
+@@ -105,6 +106,7 @@
+ #define MIDR_THUNDERX_81XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_81XX)
+ #define MIDR_THUNDERX_83XX MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX_83XX)
+ #define MIDR_CAVIUM_THUNDERX2 MIDR_CPU_MODEL(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX2)
++#define MIDR_BRAHMA_B53 MIDR_CPU_MODEL(ARM_CPU_IMP_BRCM, BRCM_CPU_PART_BRAHMA_B53)
+ #define MIDR_BRCM_VULCAN MIDR_CPU_MODEL(ARM_CPU_IMP_BRCM, BRCM_CPU_PART_VULCAN)
+ #define MIDR_QCOM_FALKOR_V1 MIDR_CPU_MODEL(ARM_CPU_IMP_QCOM, QCOM_CPU_PART_FALKOR_V1)
+ #define MIDR_QCOM_FALKOR MIDR_CPU_MODEL(ARM_CPU_IMP_QCOM, QCOM_CPU_PART_FALKOR)
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 4465be78ee466..d9da4201ba858 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -743,6 +743,16 @@ static const struct midr_range erratum_1418040_list[] = {
+ };
+ #endif
+ 
++#ifdef CONFIG_ARM64_ERRATUM_845719
++static const struct midr_range erratum_845719_list[] = {
++	/* Cortex-A53 r0p[01234] */
++	MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 4),
++	/* Brahma-B53 r0p[0] */
++	MIDR_REV(MIDR_BRAHMA_B53, 0, 0),
++	{},
++};
++#endif
 +
-+	/*
-+	 * Handle fifo overflow by resetting fifo.
-+	 * Reset if there is only 3 data set free remaining to mitigate
-+	 * possible delay between reading fifo count and fifo data.
-+	 */
-+	nb = 3 * bytes_per_datum;
-+	if (fifo_count >= st->hw->fifo_size - nb) {
-+		dev_warn(regmap_get_device(st->map), "fifo overflow reset\n");
-+		goto flush_fifo;
-+	}
-+
- 	/* compute and process all complete datum */
- 	nb = fifo_count / bytes_per_datum;
- 	inv_mpu6050_update_period(st, pf->timestamp, nb);
+ const struct arm64_cpu_capabilities arm64_errata[] = {
+ #ifdef CONFIG_ARM64_WORKAROUND_CLEAN_CACHE
+ 	{
+@@ -783,10 +793,9 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ #endif
+ #ifdef CONFIG_ARM64_ERRATUM_845719
+ 	{
+-	/* Cortex-A53 r0p[01234] */
+ 		.desc = "ARM erratum 845719",
+ 		.capability = ARM64_WORKAROUND_845719,
+-		ERRATA_MIDR_REV_RANGE(MIDR_CORTEX_A53, 0, 0, 4),
++		ERRATA_MIDR_RANGE_LIST(erratum_845719_list),
+ 	},
+ #endif
+ #ifdef CONFIG_CAVIUM_ERRATUM_23154
 -- 
 2.20.1
 
