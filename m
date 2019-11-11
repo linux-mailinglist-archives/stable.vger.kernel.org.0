@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3942F7E3B
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 573A4F7E1F
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729030AbfKKSt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:49:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42742 "EHLO mail.kernel.org"
+        id S1729113AbfKKSul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:50:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729712AbfKKStZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:49:25 -0500
+        id S1728736AbfKKSuk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:50:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75DFB204FD;
-        Mon, 11 Nov 2019 18:49:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 771E020674;
+        Mon, 11 Nov 2019 18:50:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498165;
-        bh=2u78YOH1CKUD4oplC5AJbBt7K9sYVMHVctpMzgvfTek=;
+        s=default; t=1573498240;
+        bh=zBMoCn20EK+hY3wb8aj4t/El2JV1Jt5wJ4xnEA4Cxgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ufAT8mt+n0QZXKMzj++ZwfdBKp2H9LlwWEzgFuslvmWQqk5+qO52Ifnm9oELgnQK
-         W5M2ZqGMLAslzpDvCtTEolyEN1o+ENNzvGFzKYuY1bifN8JFsFgni8S68kecmJSGMB
-         qPZzQeYVQhF5x2uST6YEYe9lEz8sf8Ezmx49aJpE=
+        b=sTiM+92bAOI+n/rYM7n3IiQqwzOuo1sw89SngF/JmJmatWF0wZpgW2amQ7zXIFo1L
+         C7IBrBKuIdq6IsP6Z8uOAgPWtNFajEDSO/aiYdyXP0nz1MlBJPidgItkK9hKrdL2PC
+         15J41cHOVHXvAK05R5dpylsD3zj3hb1rJGFjwFvs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 024/193] r8169: fix page read in r8168g_mdio_read
-Date:   Mon, 11 Nov 2019 19:26:46 +0100
-Message-Id: <20191111181502.003357086@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.3 026/193] ALSA: bebob: fix to detect configured source of sampling clock for Focusrite Saffire Pro i/o series
+Date:   Mon, 11 Nov 2019 19:26:48 +0100
+Message-Id: <20191111181502.178879216@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -43,35 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 9c6850fea3edefef6e7153b2c466f09155399882 ]
+commit 706ad6746a66546daf96d4e4a95e46faf6cf689a upstream.
 
-Functions like phy_modify_paged() read the current page, on Realtek
-PHY's this means reading the value of register 0x1f. Add special
-handling for reading this register, similar to what we do already
-in r8168g_mdio_write(). Currently we read a random value that by
-chance seems to be 0 always.
+For Focusrite Saffire Pro i/o, the lowest 8 bits of register represents
+configured source of sampling clock. The next lowest 8 bits represents
+whether the configured source is actually detected or not just after
+the register is changed for the source.
 
-Fixes: a2928d28643e ("r8169: use paged versions of phylib MDIO access functions")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Current implementation evaluates whole the register to detect configured
+source. This results in failure due to the next lowest 8 bits when the
+source is connected in advance.
+
+This commit fixes the bug.
+
+Fixes: 25784ec2d034 ("ALSA: bebob: Add support for Focusrite Saffire/SaffirePro series")
+Cc: <stable@vger.kernel.org> # v3.16+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20191102150920.20367-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/realtek/r8169_main.c |    3 +++
+ sound/firewire/bebob/bebob_focusrite.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -863,6 +863,9 @@ static void r8168g_mdio_write(struct rtl
+--- a/sound/firewire/bebob/bebob_focusrite.c
++++ b/sound/firewire/bebob/bebob_focusrite.c
+@@ -27,6 +27,8 @@
+ #define SAFFIRE_CLOCK_SOURCE_SPDIF		1
  
- static int r8168g_mdio_read(struct rtl8169_private *tp, int reg)
- {
-+	if (reg == 0x1f)
-+		return tp->ocp_base == OCP_STD_PHY_BASE ? 0 : tp->ocp_base >> 4;
-+
- 	if (tp->ocp_base != OCP_STD_PHY_BASE)
- 		reg -= 0x10;
+ /* clock sources as returned from register of Saffire Pro 10 and 26 */
++#define SAFFIREPRO_CLOCK_SOURCE_SELECT_MASK	0x000000ff
++#define SAFFIREPRO_CLOCK_SOURCE_DETECT_MASK	0x0000ff00
+ #define SAFFIREPRO_CLOCK_SOURCE_INTERNAL	0
+ #define SAFFIREPRO_CLOCK_SOURCE_SKIP		1 /* never used on hardware */
+ #define SAFFIREPRO_CLOCK_SOURCE_SPDIF		2
+@@ -189,6 +191,7 @@ saffirepro_both_clk_src_get(struct snd_b
+ 		map = saffirepro_clk_maps[1];
  
+ 	/* In a case that this driver cannot handle the value of register. */
++	value &= SAFFIREPRO_CLOCK_SOURCE_SELECT_MASK;
+ 	if (value >= SAFFIREPRO_CLOCK_SOURCE_COUNT || map[value] < 0) {
+ 		err = -EIO;
+ 		goto end;
 
 
