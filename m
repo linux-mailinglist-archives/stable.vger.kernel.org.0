@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4A25F7B31
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:34:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2D84F7D44
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:55:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728157AbfKKSdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:33:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50906 "EHLO mail.kernel.org"
+        id S1728866AbfKKSzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728153AbfKKSdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:33:31 -0500
+        id S1729864AbfKKSzB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:55:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E5D5214E0;
-        Mon, 11 Nov 2019 18:33:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FD8720818;
+        Mon, 11 Nov 2019 18:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497210;
-        bh=YUrDBmEZdgID93bbtuJb1eaRIraFqaGkPIKly41YPBU=;
+        s=default; t=1573498500;
+        bh=oa7+ObusdG651tsz+lRNsmIw5Rwdto7V/xiHEg4SlIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rbNnJuQqHn0jMf5a8JkIJNtuopr33hQ69zPb5SghZU1Ih9m3ceW2Xis9Bd3RxGacY
-         BzyCW6DpURn4ORB1SLyHBhvrkD5OapaVOpkI0E4Po98pKabNUeLs36MOBgRz0vDILm
-         rNsLVzAHC3qrZ4bxvdHlNRDxCBpBNrZ0Kzh2Kns4=
+        b=yEXypkrDngJUknxQghkYciV3VofDAlfQa7HcKd7oGBSNA0IOZMuu+SNMm1tlSVlYi
+         fngP8+DheGYNJPevcUOs9LkCtsd5suSmdzblerQzQC6oLukciM6q8lpi9Aw2czno1b
+         PChPIujWMqAh+FUaralnd5E2IpMvIvDBc7KfvF2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Lixu <lixu.zhang@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 39/65] HID: intel-ish-hid: fix wrong error handling in ishtp_cl_alloc_tx_ring()
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 137/193] usb: dwc3: select CONFIG_REGMAP_MMIO
 Date:   Mon, 11 Nov 2019 19:28:39 +0100
-Message-Id: <20191111181347.530950048@linuxfoundation.org>
+Message-Id: <20191111181511.282245835@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Lixu <lixu.zhang@intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 16ff7bf6dbcc6f77d2eec1ac9120edf44213c2f1 ]
+[ Upstream commit a51bab592fbbef10f0e42a8aed86adfbf6a68fa7 ]
 
-When allocating tx ring buffers failed, should free tx buffers, not rx buffers.
+After many randconfig builds, one configuration caused a link
+error with dwc3-meson-g12a lacking the regmap-mmio code:
 
-Signed-off-by: Zhang Lixu <lixu.zhang@intel.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+drivers/usb/dwc3/dwc3-meson-g12a.o: In function `dwc3_meson_g12a_probe':
+dwc3-meson-g12a.c:(.text+0x9f): undefined reference to `__devm_regmap_init_mmio_clk'
+
+Add the select statement that we have for all other users
+of that dependency.
+
+Fixes: c99993376f72 ("usb: dwc3: Add Amlogic G12A DWC3 glue")
+Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ishtp/client-buffers.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-index b9b917d2d50db..c41dbb167c91b 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/client-buffers.c
-@@ -90,7 +90,7 @@ int ishtp_cl_alloc_tx_ring(struct ishtp_cl *cl)
- 	return	0;
- out:
- 	dev_err(&cl->device->dev, "error in allocating Tx pool\n");
--	ishtp_cl_free_rx_ring(cl);
-+	ishtp_cl_free_tx_ring(cl);
- 	return	-ENOMEM;
- }
- 
+diff --git a/drivers/usb/dwc3/Kconfig b/drivers/usb/dwc3/Kconfig
+index 89abc6078703f..556a876c78962 100644
+--- a/drivers/usb/dwc3/Kconfig
++++ b/drivers/usb/dwc3/Kconfig
+@@ -102,6 +102,7 @@ config USB_DWC3_MESON_G12A
+        depends on ARCH_MESON || COMPILE_TEST
+        default USB_DWC3
+        select USB_ROLE_SWITCH
++	select REGMAP_MMIO
+        help
+          Support USB2/3 functionality in Amlogic G12A platforms.
+ 	 Say 'Y' or 'M' if you have one such device.
 -- 
 2.20.1
 
