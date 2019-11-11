@@ -2,519 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC71F7EE9
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0ED7F7E8F
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728795AbfKKSg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:36:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55512 "EHLO mail.kernel.org"
+        id S1728431AbfKKSka (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:40:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727730AbfKKSg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:36:57 -0500
+        id S1729260AbfKKSk3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:40:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3225120659;
-        Mon, 11 Nov 2019 18:36:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BA9D20659;
+        Mon, 11 Nov 2019 18:40:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497415;
-        bh=zE4uy5GX7HpJr/Z1NEUUkoA5v55oUPEYaTIxFhxVC00=;
-        h=From:To:Cc:Subject:Date:From;
-        b=g7a9omt8myhoHjRmWr38n9jsELaJzB0RMyPtZ6DvTuRKS+/AbjNyb1K4cl3HRBYLJ
-         l9EvnKrsvZEk2kNIkPv5gFkVMt4kIqXmeq6xuQzY80JK78C5wk5MSppgCvP/59ZhVo
-         S1oQkUhIK8XCkcJ9Ady3K02qPDhn4KuKPKW0FsfM=
+        s=default; t=1573497627;
+        bh=qSho/CZMZ2cR6XRqix1hafucaQQ3JDfrbkmJgbYggOA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jey41rDggIWKHo0EagSnUzoOQs44ML0a0W98cRyIyj78fPvVYN7XXcQO8qVnE7yLZ
+         /zQLfObJDAfUddLDIWALc5otexGv+nUiyxWkgFllIcm9b6p6VyaMIoZJRZt26YSt3g
+         9b2IBdmkMuvXoFlwkEOpwqwjeZqUjVTJ+7ln6LUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 000/105] 4.14.154-stable review
+        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
+        Ariel Elior <aelior@marvell.com>,
+        Sudarsana Kalluru <skalluru@marvell.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 011/125] qede: fix NULL pointer deref in __qede_remove()
 Date:   Mon, 11 Nov 2019 19:27:30 +0100
-Message-Id: <20191111181421.390326245@linuxfoundation.org>
+Message-Id: <20191111181441.058714460@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-MIME-Version: 1.0
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.154-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.154-rc1
-X-KernelTest-Deadline: 2019-11-13T18:14+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.154 release.
-There are 105 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
-
-Responses should be made by Wed, 13 Nov 2019 18:08:44 +0000.
-Anything received after that time might be too late.
-
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.154-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
-
-thanks,
-
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.154-rc1
-
-Tejun Heo <tj@kernel.org>
-    cgroup,writeback: don't switch wbs immediately on dead wbs if the memcg is dead
-
-Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-    mm/filemap.c: don't initiate writeback if mapping has no dirty pages
-
-Joakim Zhang <qiangqing.zhang@nxp.com>
-    can: flexcan: disable completely the ECC mechanism
-
-Jan Beulich <jbeulich@suse.com>
-    x86/apic/32: Avoid bogus LDR warnings
-
-Dou Liyang <douly.fnst@cn.fujitsu.com>
-    x86/apic: Drop logical_smp_processor_id() inline
-
-Dou Liyang <douly.fnst@cn.fujitsu.com>
-    x86/apic: Move pending interrupt check code into it's own function
-
-Wenwen Wang <wenwen@cs.uga.edu>
-    e1000: fix memory leaks
-
-Manfred Rudigier <manfred.rudigier@omicronenergy.com>
-    igb: Fix constant media auto sense switching when no cable is connected
-
-Chuhong Yuan <hslester96@gmail.com>
-    net: ethernet: arc: add the missed clk_disable_unprepare
-
-Trond Myklebust <trondmy@gmail.com>
-    NFSv4: Don't allow a cached open with a revoked delegation
-
-Haiyang Zhang <haiyangz@microsoft.com>
-    hv_netvsc: Fix error handling in netvsc_attach()
-
-Jiangfeng Xiao <xiaojiangfeng@huawei.com>
-    net: hisilicon: Fix "Trying to free already-free IRQ"
-
-Will Deacon <will@kernel.org>
-    fjes: Handle workqueue allocation failure
-
-Nicholas Piggin <npiggin@gmail.com>
-    scsi: qla2xxx: stop timer in shutdown path
-
-Potnuri Bharat Teja <bharat@chelsio.com>
-    RDMA/iw_cxgb4: Avoid freeing skb twice in arp failure case
-
-Johan Hovold <johan@kernel.org>
-    USB: ldusb: use unsigned size format specifiers
-
-Alan Stern <stern@rowland.harvard.edu>
-    USB: Skip endpoints with 0 maxpacket length
-
-Kim Phillips <kim.phillips@amd.com>
-    perf/x86/amd/ibs: Handle erratum #420 only on the affected CPU family (10h)
-
-Kim Phillips <kim.phillips@amd.com>
-    perf/x86/amd/ibs: Fix reading of the IBS OpData register and thus precise RIP validity
-
-Yinbo Zhu <yinbo.zhu@nxp.com>
-    usb: dwc3: remove the call trace of USBx_GFLADJ
-
-Peter Chen <peter.chen@nxp.com>
-    usb: gadget: configfs: fix concurrent issue between composite APIs
-
-Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
-    usb: gadget: composite: Fix possible double free memory bug
-
-Cristian Birsan <cristian.birsan@microchip.com>
-    usb: gadget: udc: atmel: Fix interrupt storm in FIFO mode.
-
-Nikhil Badola <nikhil.badola@freescale.com>
-    usb: fsl: Check memory resource before releasing it
-
-Taehee Yoo <ap420073@gmail.com>
-    macsec: fix refcnt leak in module exit routine
-
-Taehee Yoo <ap420073@gmail.com>
-    bonding: fix unexpected IFF_BONDING bit unset
-
-Eric Dumazet <edumazet@google.com>
-    ipvs: move old_secure_tcp into struct netns_ipvs
-
-Davide Caratti <dcaratti@redhat.com>
-    ipvs: don't ignore errors in case refcounting ip_vs module fails
-
-Himanshu Madhani <hmadhani@marvell.com>
-    scsi: qla2xxx: Initialized mailbox to prevent driver load failure
-
-Daniel Wagner <dwagner@suse.de>
-    scsi: lpfc: Honor module parameter lpfc_use_adisc
-
-Hillf Danton <hdanton@sina.com>
-    net: openvswitch: free vport unless register_netdevice() succeeds
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    RDMA/uverbs: Prevent potential underflow
-
-Hannes Reinecke <hare@suse.com>
-    scsi: qla2xxx: fixup incorrect usage of host_byte
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    net/mlx5: prevent memory leak in mlx5_fpga_conn_create_cq
-
-Kamal Heib <kamalheib1@gmail.com>
-    RDMA/qedr: Fix reported firmware version
-
-Zhang Lixu <lixu.zhang@intel.com>
-    HID: intel-ish-hid: fix wrong error handling in ishtp_cl_alloc_tx_ring()
-
-Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
-    dmaengine: xilinx_dma: Fix control reg update in vdma_channel_set_config
-
-Vidya Sagar <vidyas@nvidia.com>
-    PCI: tegra: Enable Relaxed Ordering only for Tegra20 & Tegra30
-
-Suwan Kim <suwan.kim027@gmail.com>
-    usbip: Implement SG support to vhci-hcd and stub driver
-
-Shuah Khan <shuah@kernel.org>
-    usbip: stub_rx: fix static checker warning on unnecessary checks
-
-Shuah Khan <shuah@kernel.org>
-    usbip: Fix vhci_urb_enqueue() URB null transfer buffer error path
-
-Bart Van Assche <bart.vanassche@wdc.com>
-    lib/scatterlist: Introduce sgl_alloc() and sgl_free()
-
-Qian Cai <cai@lca.pw>
-    sched/fair: Fix -Wunused-but-set-variable warnings
-
-Dave Chiluk <chiluk+linux@indeed.com>
-    sched/fair: Fix low cpu usage with high throttling by removing expiration of cpu-local slices
-
-Roger Quadros <rogerq@ti.com>
-    ARM: dts: dra7: Disable USB metastability workaround for USB2
-
-Zumeng Chen <zumeng.chen@gmail.com>
-    cpufreq: ti-cpufreq: add missing of_node_put()
-
-Claudio Foellmi <claudio.foellmi@ergon.ch>
-    i2c: omap: Trigger bus recovery in lockup case
-
-Christophe Jaillet <christophe.jaillet@wanadoo.fr>
-    ASoC: davinci-mcasp: Fix an error handling path in 'davinci_mcasp_probe()'
-
-Takashi Iwai <tiwai@suse.de>
-    ASoC: davinci: Kill BUG_ON() usage
-
-Arvind Yadav <arvind.yadav.cs@gmail.com>
-    ASoC: davinci-mcasp: Handle return value of devm_kasprintf
-
-Gustavo A. R. Silva <garsilva@embeddedor.com>
-    ASoC: tlv320dac31xx: mark expected switch fall-through
-
-Sudeep Holla <sudeep.holla@arm.com>
-    mailbox: reset txdone_method TXDONE_BY_POLL if client knows_txdone
-
-Kishon Vijay Abraham I <kishon@ti.com>
-    misc: pci_endpoint_test: Fix BUG_ON error during pci_disable_msi()
-
-Keerthy <j-keerthy@ti.com>
-    PCI: dra7xx: Add shutdown handler to cleanly turn off clocks
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    misc: pci_endpoint_test: Prevent some integer overflows
-
-Vignesh R <vigneshr@ti.com>
-    mtd: spi-nor: cadence-quadspi: add a delay in write sequence
-
-Roman Yeryomin <leroi.lists@gmail.com>
-    mtd: spi-nor: enable 4B opcodes for mx66l51235l
-
-Andrew F. Davis <afd@ti.com>
-    ASoC: tlv320aic31xx: Handle inverted BCLK in non-DSP modes
-
-Keerthy <j-keerthy@ti.com>
-    mfd: palmas: Assign the right powerhold mask for tps65917
-
-Roger Quadros <rogerq@ti.com>
-    usb: dwc3: Allow disabling of metastability workaround
-
-Al Viro <viro@zeniv.linux.org.uk>
-    configfs: fix a deadlock in configfs_symlink()
-
-Al Viro <viro@zeniv.linux.org.uk>
-    configfs: provide exclusion between IO and removals
-
-Al Viro <viro@zeniv.linux.org.uk>
-    configfs: new object reprsenting tree fragments
-
-Al Viro <viro@zeniv.linux.org.uk>
-    configfs_register_group() shouldn't be (and isn't) called in rmdirable parts
-
-Al Viro <viro@zeniv.linux.org.uk>
-    configfs: stash the data we need into configfs_buffer at open time
-
-Thomas Meyer <thomas@m3y3r.de>
-    configfs: Fix bool initialization/comparison
-
-Johan Hovold <johan@kernel.org>
-    can: peak_usb: fix slab info leak
-
-Johan Hovold <johan@kernel.org>
-    can: mcba_usb: fix use-after-free on disconnect
-
-Navid Emamdoost <navid.emamdoost@gmail.com>
-    can: gs_usb: gs_can_open(): prevent memory leak
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: rx-offload: can_rx_offload_queue_sorted(): fix error handling, avoid skb mem leak
-
-Stephane Grosjean <s.grosjean@peak-system.com>
-    can: peak_usb: fix a potential out-of-sync while decoding packets
-
-Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-    can: c_can: c_can_poll(): only read status register after status IRQ
-
-Johan Hovold <johan@kernel.org>
-    can: usb_8dev: fix use-after-free on disconnect
-
-Alexander Shishkin <alexander.shishkin@linux.intel.com>
-    intel_th: pci: Add Jasper Lake PCH support
-
-Alexander Shishkin <alexander.shishkin@linux.intel.com>
-    intel_th: pci: Add Comet Lake PCH support
-
-Dan Carpenter <dan.carpenter@oracle.com>
-    netfilter: ipset: Fix an error code in ip_set_sockfn_get()
-
-Lukas Wunner <lukas@wunner.de>
-    netfilter: nf_tables: Align nft_expr private data to 64-bit
-
-Andreas Klinger <ak@it-klinger.de>
-    iio: srf04: fix wrong limitation in distance measuring
-
-Alexandru Ardelean <alexandru.ardelean@analog.com>
-    iio: imu: adis16480: make sure provided frequency is positive
-
-Fabrice Gasnier <fabrice.gasnier@st.com>
-    iio: adc: stm32-adc: fix stopping dma
-
-Al Viro <viro@zeniv.linux.org.uk>
-    ceph: add missing check in d_revalidate snapdir handling
-
-Luis Henriques <lhenriques@suse.com>
-    ceph: fix use-after-free in __ceph_remove_cap()
-
-Catalin Marinas <catalin.marinas@arm.com>
-    arm64: Do not mask out PTE_RDONLY in pte_same()
-
-Jason Gerecke <killertofu@gmail.com>
-    HID: wacom: generic: Treat serial number and related fields as unsigned
-
-Alex Deucher <alexander.deucher@amd.com>
-    drm/radeon: fix si_enable_smc_cac() failed issue
-
-Jiri Olsa <jolsa@kernel.org>
-    perf tools: Fix time sorting
-
-Shuah Khan <skhan@linuxfoundation.org>
-    tools: gpio: Use !building_out_of_srctree to determine srctree
-
-Kevin Hao <haokexin@gmail.com>
-    dump_stack: avoid the livelock of the dump_lock
-
-Michal Hocko <mhocko@suse.com>
-    mm, vmstat: hide /proc/pagetypeinfo from normal users
-
-Yang Shi <yang.shi@linux.alibaba.com>
-    mm: thp: handle page cache THP correctly in PageTransCompoundMap
-
-Mel Gorman <mgorman@techsingularity.net>
-    mm, meminit: recalculate pcpu batch and high limits after init completes
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda/ca0132 - Fix possible workqueue stall
-
-Takashi Sakamoto <o-takashi@sakamocchi.jp>
-    ALSA: bebob: fix to detect configured source of sampling clock for Focusrite Saffire Pro i/o series
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: timer: Fix incorrectly assigned timer instance
-
-Manish Chopra <manishc@marvell.com>
-    qede: fix NULL pointer deref in __qede_remove()
-
-Pan Bian <bianpan2016@163.com>
-    NFC: st21nfca: fix double free
-
-Pan Bian <bianpan2016@163.com>
-    nfc: netlink: fix double device reference drop
-
-Pan Bian <bianpan2016@163.com>
-    NFC: fdp: fix incorrect free object
-
-Aleksander Morgado <aleksander@aleksander.es>
-    net: usb: qmi_wwan: add support for DW5821e with eSIM support
-
-Sean Tranchetti <stranche@codeaurora.org>
-    net: qualcomm: rmnet: Fix potential UAF when unregistering
-
-Eric Dumazet <edumazet@google.com>
-    net: fix data-race in neigh_event_send()
-
-Alexander Sverdlin <alexander.sverdlin@nokia.com>
-    net: ethernet: octeon_mgmt: Account for second possible VLAN header
-
-David Ahern <dsahern@kernel.org>
-    ipv4: Fix table id reference in fib_sync_down_addr
-
-Oliver Neukum <oneukum@suse.com>
-    CDC-NCM: handle incomplete transfer of MTU
-
-Jay Vosburgh <jay.vosburgh@canonical.com>
-    bonding: fix state transition issue in link monitoring
-
-
--------------
-
-Diffstat:
-
- Documentation/devicetree/bindings/usb/dwc3.txt     |   2 +
- Documentation/scheduler/sched-bwc.txt              |  45 ++++
- Makefile                                           |   4 +-
- arch/arm/boot/dts/dra7.dtsi                        |   1 +
- arch/arm64/include/asm/pgtable.h                   |  17 --
- arch/x86/events/amd/ibs.c                          |   8 +-
- arch/x86/include/asm/smp.h                         |  10 -
- arch/x86/kernel/apic/apic.c                        | 122 +++++----
- drivers/cpufreq/ti-cpufreq.c                       |   1 +
- drivers/dma/xilinx/xilinx_dma.c                    |   7 +
- drivers/gpu/drm/radeon/si_dpm.c                    |   1 +
- drivers/hid/intel-ish-hid/ishtp/client-buffers.c   |   2 +-
- drivers/hid/wacom.h                                |  15 ++
- drivers/hid/wacom_wac.c                            |  10 +-
- drivers/hwtracing/intel_th/pci.c                   |  10 +
- drivers/i2c/busses/i2c-omap.c                      |  25 +-
- drivers/iio/adc/stm32-adc.c                        |   4 +-
- drivers/iio/imu/adis16480.c                        |   5 +-
- drivers/iio/proximity/srf04.c                      |  29 +-
- drivers/infiniband/core/uverbs.h                   |   2 +-
- drivers/infiniband/hw/cxgb4/cm.c                   |   2 -
- drivers/infiniband/hw/qedr/main.c                  |   2 +-
- drivers/mailbox/mailbox.c                          |   4 +-
- drivers/mailbox/pcc.c                              |   4 +-
- drivers/mfd/palmas.c                               |  10 +-
- drivers/misc/pci_endpoint_test.c                   |  17 ++
- drivers/mtd/spi-nor/cadence-quadspi.c              |  27 +-
- drivers/mtd/spi-nor/spi-nor.c                      |   2 +-
- drivers/net/bonding/bond_main.c                    |  47 ++--
- drivers/net/can/c_can/c_can.c                      |  25 +-
- drivers/net/can/c_can/c_can.h                      |   1 +
- drivers/net/can/flexcan.c                          |   1 +
- drivers/net/can/rx-offload.c                       |   6 +-
- drivers/net/can/usb/gs_usb.c                       |   1 +
- drivers/net/can/usb/mcba_usb.c                     |   3 +-
- drivers/net/can/usb/peak_usb/pcan_usb.c            |  17 +-
- drivers/net/can/usb/peak_usb/pcan_usb_core.c       |   2 +-
- drivers/net/can/usb/usb_8dev.c                     |   3 +-
- drivers/net/ethernet/arc/emac_rockchip.c           |   3 +
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c   |   2 +-
- drivers/net/ethernet/hisilicon/hip04_eth.c         |   1 -
- drivers/net/ethernet/intel/e1000/e1000_ethtool.c   |   7 +-
- drivers/net/ethernet/intel/igb/igb_main.c          |   3 +-
- .../net/ethernet/mellanox/mlx5/core/fpga/conn.c    |   4 +-
- drivers/net/ethernet/qlogic/qede/qede_main.c       |  12 +-
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c |   4 +-
- drivers/net/fjes/fjes_main.c                       |  15 +-
- drivers/net/hyperv/netvsc_drv.c                    |   9 +-
- drivers/net/macsec.c                               |   4 -
- drivers/net/usb/cdc_ncm.c                          |   6 +-
- drivers/net/usb/qmi_wwan.c                         |   1 +
- drivers/nfc/fdp/i2c.c                              |   2 +-
- drivers/nfc/st21nfca/core.c                        |   1 +
- drivers/pci/dwc/pci-dra7xx.c                       |  17 ++
- drivers/pci/host/pci-tegra.c                       |   7 +-
- drivers/scsi/lpfc/lpfc_nportdisc.c                 |   4 +-
- drivers/scsi/qla2xxx/qla_bsg.c                     |   6 +-
- drivers/scsi/qla2xxx/qla_mbx.c                     |   3 +-
- drivers/scsi/qla2xxx/qla_os.c                      |   4 +
- drivers/usb/core/config.c                          |   5 +
- drivers/usb/dwc3/core.c                            |   6 +-
- drivers/usb/dwc3/core.h                            |   3 +
- drivers/usb/dwc3/gadget.c                          |   6 +-
- drivers/usb/gadget/composite.c                     |   4 +
- drivers/usb/gadget/configfs.c                      | 110 +++++++-
- drivers/usb/gadget/udc/atmel_usba_udc.c            |   6 +-
- drivers/usb/gadget/udc/fsl_udc_core.c              |   2 +-
- drivers/usb/misc/ldusb.c                           |   7 +-
- drivers/usb/usbip/Kconfig                          |   1 +
- drivers/usb/usbip/stub.h                           |   7 +-
- drivers/usb/usbip/stub_main.c                      |  57 ++--
- drivers/usb/usbip/stub_rx.c                        | 213 ++++++++++-----
- drivers/usb/usbip/stub_tx.c                        |  99 +++++--
- drivers/usb/usbip/usbip_common.c                   |  59 +++--
- drivers/usb/usbip/vhci_hcd.c                       |  16 +-
- drivers/usb/usbip/vhci_rx.c                        |   3 +
- drivers/usb/usbip/vhci_tx.c                        |  66 ++++-
- fs/ceph/caps.c                                     |  10 +-
- fs/ceph/inode.c                                    |   1 +
- fs/configfs/configfs_internal.h                    |  15 +-
- fs/configfs/dir.c                                  | 137 +++++++---
- fs/configfs/file.c                                 | 294 ++++++++++-----------
- fs/configfs/symlink.c                              |  33 ++-
- fs/fs-writeback.c                                  |   9 +-
- fs/nfs/delegation.c                                |  10 +
- fs/nfs/delegation.h                                |   1 +
- fs/nfs/nfs4proc.c                                  |   7 +-
- include/linux/mfd/palmas.h                         |   3 +
- include/linux/mm.h                                 |   5 -
- include/linux/mm_types.h                           |   5 +
- include/linux/page-flags.h                         |  20 +-
- include/linux/scatterlist.h                        |  10 +
- include/net/bonding.h                              |   3 +-
- include/net/ip_vs.h                                |   1 +
- include/net/neighbour.h                            |   4 +-
- include/net/netfilter/nf_tables.h                  |   3 +-
- include/rdma/ib_verbs.h                            |   2 +-
- kernel/sched/fair.c                                |  85 +-----
- kernel/sched/sched.h                               |   4 -
- lib/Kconfig                                        |   4 +
- lib/dump_stack.c                                   |   7 +-
- lib/scatterlist.c                                  | 105 ++++++++
- mm/filemap.c                                       |   3 +-
- mm/page_alloc.c                                    |  10 +-
- mm/vmstat.c                                        |   2 +-
- net/ipv4/fib_semantics.c                           |   2 +-
- net/netfilter/ipset/ip_set_core.c                  |   8 +-
- net/netfilter/ipvs/ip_vs_app.c                     |  12 +-
- net/netfilter/ipvs/ip_vs_ctl.c                     |  29 +-
- net/netfilter/ipvs/ip_vs_pe.c                      |   3 +-
- net/netfilter/ipvs/ip_vs_sched.c                   |   3 +-
- net/netfilter/ipvs/ip_vs_sync.c                    |  13 +-
- net/nfc/netlink.c                                  |   2 -
- net/openvswitch/vport-internal_dev.c               |  11 +-
- sound/core/timer.c                                 |   6 +-
- sound/firewire/bebob/bebob_focusrite.c             |   3 +
- sound/pci/hda/patch_ca0132.c                       |   2 +-
- sound/soc/codecs/tlv320aic31xx.c                   |  30 ++-
- sound/soc/davinci/davinci-mcasp.c                  |  21 +-
- tools/gpio/Makefile                                |   6 +-
- tools/perf/util/hist.c                             |   2 +-
- 121 files changed, 1532 insertions(+), 693 deletions(-)
+From: Manish Chopra <manishc@marvell.com>
+
+[ Upstream commit deabc87111c690097c03765ea017cd500f7376fc ]
+
+While rebooting the system with SR-IOV vfs enabled leads
+to below crash due to recurrence of __qede_remove() on the VF
+devices (first from .shutdown() flow of the VF itself and
+another from PF's .shutdown() flow executing pci_disable_sriov())
+
+This patch adds a safeguard in __qede_remove() flow to fix this,
+so that driver doesn't attempt to remove "already removed" devices.
+
+[  194.360134] BUG: unable to handle kernel NULL pointer dereference at 00000000000008dc
+[  194.360227] IP: [<ffffffffc03553c4>] __qede_remove+0x24/0x130 [qede]
+[  194.360304] PGD 0
+[  194.360325] Oops: 0000 [#1] SMP
+[  194.360360] Modules linked in: tcp_lp fuse tun bridge stp llc devlink bonding ip_set nfnetlink ib_isert iscsi_target_mod ib_srpt target_core_mod ib_srp scsi_transport_srp scsi_tgt ib_ipoib ib_umad rpcrdma sunrpc rdma_ucm ib_uverbs ib_iser rdma_cm iw_cm ib_cm libiscsi scsi_transport_iscsi dell_smbios iTCO_wdt iTCO_vendor_support dell_wmi_descriptor dcdbas vfat fat pcc_cpufreq skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel lrw gf128mul glue_helper ablk_helper cryptd qedr ib_core pcspkr ses enclosure joydev ipmi_ssif sg i2c_i801 lpc_ich mei_me mei wmi ipmi_si ipmi_devintf ipmi_msghandler tpm_crb acpi_pad acpi_power_meter xfs libcrc32c sd_mod crc_t10dif crct10dif_generic crct10dif_pclmul crct10dif_common crc32c_intel mgag200
+[  194.361044]  qede i2c_algo_bit drm_kms_helper qed syscopyarea sysfillrect nvme sysimgblt fb_sys_fops ttm nvme_core mpt3sas crc8 ptp drm pps_core ahci raid_class scsi_transport_sas libahci libata drm_panel_orientation_quirks nfit libnvdimm dm_mirror dm_region_hash dm_log dm_mod [last unloaded: ip_tables]
+[  194.361297] CPU: 51 PID: 7996 Comm: reboot Kdump: loaded Not tainted 3.10.0-1062.el7.x86_64 #1
+[  194.361359] Hardware name: Dell Inc. PowerEdge MX840c/0740HW, BIOS 2.4.6 10/15/2019
+[  194.361412] task: ffff9cea9b360000 ti: ffff9ceabebdc000 task.ti: ffff9ceabebdc000
+[  194.361463] RIP: 0010:[<ffffffffc03553c4>]  [<ffffffffc03553c4>] __qede_remove+0x24/0x130 [qede]
+[  194.361534] RSP: 0018:ffff9ceabebdfac0  EFLAGS: 00010282
+[  194.361570] RAX: 0000000000000000 RBX: ffff9cd013846098 RCX: 0000000000000000
+[  194.361621] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9cd013846098
+[  194.361668] RBP: ffff9ceabebdfae8 R08: 0000000000000000 R09: 0000000000000000
+[  194.361715] R10: 00000000bfe14201 R11: ffff9ceabfe141e0 R12: 0000000000000000
+[  194.361762] R13: ffff9cd013846098 R14: 0000000000000000 R15: ffff9ceab5e48000
+[  194.361810] FS:  00007f799c02d880(0000) GS:ffff9ceacb0c0000(0000) knlGS:0000000000000000
+[  194.361865] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  194.361903] CR2: 00000000000008dc CR3: 0000001bdac76000 CR4: 00000000007607e0
+[  194.361953] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  194.362002] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  194.362051] PKRU: 55555554
+[  194.362073] Call Trace:
+[  194.362109]  [<ffffffffc0355500>] qede_remove+0x10/0x20 [qede]
+[  194.362180]  [<ffffffffb97d0f3e>] pci_device_remove+0x3e/0xc0
+[  194.362240]  [<ffffffffb98b3c52>] __device_release_driver+0x82/0xf0
+[  194.362285]  [<ffffffffb98b3ce3>] device_release_driver+0x23/0x30
+[  194.362343]  [<ffffffffb97c86d4>] pci_stop_bus_device+0x84/0xa0
+[  194.362388]  [<ffffffffb97c87e2>] pci_stop_and_remove_bus_device+0x12/0x20
+[  194.362450]  [<ffffffffb97f153f>] pci_iov_remove_virtfn+0xaf/0x160
+[  194.362496]  [<ffffffffb97f1aec>] sriov_disable+0x3c/0xf0
+[  194.362534]  [<ffffffffb97f1bc3>] pci_disable_sriov+0x23/0x30
+[  194.362599]  [<ffffffffc02f83c3>] qed_sriov_disable+0x5e3/0x650 [qed]
+[  194.362658]  [<ffffffffb9622df6>] ? kfree+0x106/0x140
+[  194.362709]  [<ffffffffc02cc0c0>] ? qed_free_stream_mem+0x70/0x90 [qed]
+[  194.362754]  [<ffffffffb9622df6>] ? kfree+0x106/0x140
+[  194.362803]  [<ffffffffc02cd659>] qed_slowpath_stop+0x1a9/0x1d0 [qed]
+[  194.362854]  [<ffffffffc035544e>] __qede_remove+0xae/0x130 [qede]
+[  194.362904]  [<ffffffffc03554e0>] qede_shutdown+0x10/0x20 [qede]
+[  194.362956]  [<ffffffffb97cf90a>] pci_device_shutdown+0x3a/0x60
+[  194.363010]  [<ffffffffb98b180b>] device_shutdown+0xfb/0x1f0
+[  194.363066]  [<ffffffffb94b66c6>] kernel_restart_prepare+0x36/0x40
+[  194.363107]  [<ffffffffb94b66e2>] kernel_restart+0x12/0x60
+[  194.363146]  [<ffffffffb94b6959>] SYSC_reboot+0x229/0x260
+[  194.363196]  [<ffffffffb95f200d>] ? handle_mm_fault+0x39d/0x9b0
+[  194.363253]  [<ffffffffb942b621>] ? __switch_to+0x151/0x580
+[  194.363304]  [<ffffffffb9b7ec28>] ? __schedule+0x448/0x9c0
+[  194.363343]  [<ffffffffb94b69fe>] SyS_reboot+0xe/0x10
+[  194.363387]  [<ffffffffb9b8bede>] system_call_fastpath+0x25/0x2a
+[  194.363430] Code: f9 e9 37 ff ff ff 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41 55 4c 8d af 98 00 00 00 41 54 4c 89 ef 41 89 f4 53 e8 4c e4 55 f9 <80> b8 dc 08 00 00 01 48 89 c3 4c 8d b8 c0 08 00 00 4c 8b b0 c0
+[  194.363712] RIP  [<ffffffffc03553c4>] __qede_remove+0x24/0x130 [qede]
+[  194.363764]  RSP <ffff9ceabebdfac0>
+[  194.363791] CR2: 00000000000008dc
+
+Signed-off-by: Manish Chopra <manishc@marvell.com>
+Signed-off-by: Ariel Elior <aelior@marvell.com>
+Signed-off-by: Sudarsana Kalluru <skalluru@marvell.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/net/ethernet/qlogic/qede/qede_main.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
+
+--- a/drivers/net/ethernet/qlogic/qede/qede_main.c
++++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
+@@ -1170,8 +1170,16 @@ enum qede_remove_mode {
+ static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
+ {
+ 	struct net_device *ndev = pci_get_drvdata(pdev);
+-	struct qede_dev *edev = netdev_priv(ndev);
+-	struct qed_dev *cdev = edev->cdev;
++	struct qede_dev *edev;
++	struct qed_dev *cdev;
++
++	if (!ndev) {
++		dev_info(&pdev->dev, "Device has already been removed\n");
++		return;
++	}
++
++	edev = netdev_priv(ndev);
++	cdev = edev->cdev;
+ 
+ 	DP_INFO(edev, "Starting qede_remove\n");
+ 
 
 
