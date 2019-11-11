@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3257F7E14
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26905F7EA1
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729702AbfKKSwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:52:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
+        id S1728754AbfKKSly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:41:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729865AbfKKSwT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:52:19 -0500
+        id S1728725AbfKKSlx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:41:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DE3F21655;
-        Mon, 11 Nov 2019 18:52:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F108214E0;
+        Mon, 11 Nov 2019 18:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498339;
-        bh=aNDP+/2poeMF+6popBQojfBHhU4aPCVlLd8wbGM0N7A=;
+        s=default; t=1573497713;
+        bh=3vG4EWMklZ0ESCIkXmbbYhT1dEFxQiPHgFy+ESs2VdY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNFH1IQg1cq+DJZMQMIJXrtnurGEk8w0zTpj3j7+WbpWe/XoVdm8VTHtmuKX5L4ID
-         g+zNs4XVKFAHjvm4IVFim+IWXDNH4Kb5ygVuyO6REj67xcCssg/Ohk5WYcxb8c5FR0
-         0LXGSqHwUuujBzbGenzIFyfsItpoAa6UIHkQN28M=
+        b=2SmjJHETeK1pMkG0OM9tiw4ddMJTa8Q/a+J7MKAD2Z4MUFIqBgRHVZ1WTtrZEz0mV
+         GRd5bSXuUKJU9sy5bxRDLAzXa4cNRiiooKVoHWGQgqmBoeKePyG+hDFadIi8Wi79qD
+         IxBKXoHN4XLw5nFchlpmOnKoQIkouzEZ2HpIBc4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 091/193] HID: google: add magnemite/masterball USB ids
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 034/125] iio: imu: adis16480: make sure provided frequency is positive
 Date:   Mon, 11 Nov 2019 19:27:53 +0100
-Message-Id: <20191111181507.861717893@linuxfoundation.org>
+Message-Id: <20191111181445.151155830@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,50 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Boichat <drinkcat@chromium.org>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-[ Upstream commit 9e4dbc4646a84b2562ea7c64a542740687ff7daf ]
+commit 24e1eb5c0d78cfb9750b690bbe997d4d59170258 upstream.
 
-Add 2 additional hammer-like devices.
+It could happen that either `val` or `val2` [provided from userspace] is
+negative. In that case the computed frequency could get a weird value.
 
-Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by checking that neither of the 2 variables is negative, and check
+that the computed result is not-zero.
+
+Fixes: e4f959390178 ("iio: imu: adis16480 switch sampling frequency attr to core support")
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/hid-google-hammer.c | 4 ++++
- drivers/hid/hid-ids.h           | 2 ++
- 2 files changed, 6 insertions(+)
+ drivers/iio/imu/adis16480.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index ee5e0bdcf078f..154f1ce771d54 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -469,6 +469,10 @@ static int hammer_probe(struct hid_device *hdev,
- static const struct hid_device_id hammer_devices[] = {
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_MAGNEMITE) },
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_MASTERBALL) },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e4d51ce20a6aa..9cf5a95c1bd3c 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -475,6 +475,8 @@
- #define USB_DEVICE_ID_GOOGLE_STAFF	0x502b
- #define USB_DEVICE_ID_GOOGLE_WAND	0x502d
- #define USB_DEVICE_ID_GOOGLE_WHISKERS	0x5030
-+#define USB_DEVICE_ID_GOOGLE_MASTERBALL	0x503c
-+#define USB_DEVICE_ID_GOOGLE_MAGNEMITE	0x503d
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -270,8 +270,11 @@ static int adis16480_set_freq(struct iio
+ 	struct adis16480 *st = iio_priv(indio_dev);
+ 	unsigned int t;
  
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
--- 
-2.20.1
-
++	if (val < 0 || val2 < 0)
++		return -EINVAL;
++
+ 	t =  val * 1000 + val2 / 1000;
+-	if (t <= 0)
++	if (t == 0)
+ 		return -EINVAL;
+ 
+ 	t = 2460000 / t;
 
 
