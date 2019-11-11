@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5D6F7E6F
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10774F7EFD
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729749AbfKKSot (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:44:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36598 "EHLO mail.kernel.org"
+        id S1728255AbfKKSi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:38:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728627AbfKKSot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:44:49 -0500
+        id S1729007AbfKKSi1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:38:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AADF20674;
-        Mon, 11 Nov 2019 18:44:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35D9B204FD;
+        Mon, 11 Nov 2019 18:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497888;
-        bh=XXU3KuVpPqvwxj/p7e1akCU0d/Vt4OZCokodGA0grYY=;
+        s=default; t=1573497506;
+        bh=V/BFtrfACRvAuMyvrEX6mCnc3UD+mqWzo5Lyq4xWR2s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nppqzqb67HjYHrVchW+x3dCyjXMfhFkhhtzfy/PLRSMXw1rOH+mQN5Jb9Kbo3st+f
-         uA1GkB0HFIIubMZKwy0hANPuzhX5n307LAVc7SL3N7d0W77ubo2tOvGQGvOipAUY93
-         pxQGhOFFJ5x55V1729uMObSTTGB+No3i0ii9VwDI=
+        b=DLsfiytpB0Kr72BDtMVKMvCWagAQRuS9Hqu6UVs7Z7JrBNu5D9pkAlU8mOEDjo9GJ
+         sXSh68qyUOn1a5ILtccndL5fk2d5j+kBqsWXduEiKPM1CsEptGTjteMK1+AKKdsaV6
+         bvEdGAq8/lxrA0O5Soy6wCSlqHz21WMjP2Qe4w4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 088/125] macsec: fix refcnt leak in module exit routine
+Subject: [PATCH 4.14 077/105] scsi: qla2xxx: Initialized mailbox to prevent driver load failure
 Date:   Mon, 11 Nov 2019 19:28:47 +0100
-Message-Id: <20191111181451.823737572@linuxfoundation.org>
+Message-Id: <20191111181446.334591904@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Himanshu Madhani <hmadhani@marvell.com>
 
-[ Upstream commit 2bce1ebed17da54c65042ec2b962e3234bad5b47 ]
+[ Upstream commit c2ff2a36eff60efb5e123c940115216d6bf65684 ]
 
-When a macsec interface is created, it increases a refcnt to a lower
-device(real device). when macsec interface is deleted, the refcnt is
-decreased in macsec_free_netdev(), which is ->priv_destructor() of
-macsec interface.
+This patch fixes issue with Gen7 adapter in a blade environment where one
+of the ports will not be detected by driver. Firmware expects mailbox 11 to
+be set or cleared by driver for newer ISP.
 
-The problem scenario is this.
-When nested macsec interfaces are exiting, the exit routine of the
-macsec module makes refcnt leaks.
+Following message is seen in the log file:
 
-Test commands:
-    ip link add dummy0 type dummy
-    ip link add macsec0 link dummy0 type macsec
-    ip link add macsec1 link macsec0 type macsec
-    modprobe -rv macsec
+[   18.810892] qla2xxx [0000:d8:00.0]-1820:1: **** Failed=102 mb[0]=4005 mb[1]=37 mb[2]=20 mb[3]=8
+[   18.819596]  cmd=2 ****
 
-[  208.629433] unregister_netdevice: waiting for macsec0 to become free. Usage count = 1
+[mkp: typos]
 
-Steps of exit routine of macsec module are below.
-1. Calls ->dellink() in __rtnl_link_unregister().
-2. Checks refcnt and wait refcnt to be 0 if refcnt is not 0 in
-netdev_run_todo().
-3. Calls ->priv_destruvtor() in netdev_run_todo().
-
-Step2 checks refcnt, but step3 decreases refcnt.
-So, step2 waits forever.
-
-This patch makes the macsec module do not hold a refcnt of the lower
-device because it already holds a refcnt of the lower device with
-netdev_upper_dev_link().
-
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20191022193643.7076-2-hmadhani@marvell.com
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/scsi/qla2xxx/qla_mbx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 0dc92d2faa64d..05115fb0c97a9 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -3008,12 +3008,10 @@ static const struct nla_policy macsec_rtnl_policy[IFLA_MACSEC_MAX + 1] = {
- static void macsec_free_netdev(struct net_device *dev)
- {
- 	struct macsec_dev *macsec = macsec_priv(dev);
--	struct net_device *real_dev = macsec->real_dev;
+diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
+index 929ec087b8eb3..459481ce5872d 100644
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -624,6 +624,7 @@ qla2x00_execute_fw(scsi_qla_host_t *vha, uint32_t risc_addr)
+ 		mcp->mb[2] = LSW(risc_addr);
+ 		mcp->mb[3] = 0;
+ 		mcp->mb[4] = 0;
++		mcp->mb[11] = 0;
+ 		ha->flags.using_lr_setting = 0;
+ 		if (IS_QLA25XX(ha) || IS_QLA81XX(ha) || IS_QLA83XX(ha) ||
+ 		    IS_QLA27XX(ha)) {
+@@ -667,7 +668,7 @@ qla2x00_execute_fw(scsi_qla_host_t *vha, uint32_t risc_addr)
+ 		if (ha->flags.exchoffld_enabled)
+ 			mcp->mb[4] |= ENABLE_EXCHANGE_OFFLD;
  
- 	free_percpu(macsec->stats);
- 	free_percpu(macsec->secy.tx_sc.stats);
- 
--	dev_put(real_dev);
- }
- 
- static void macsec_setup(struct net_device *dev)
-@@ -3268,8 +3266,6 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
- 	if (err < 0)
- 		return err;
- 
--	dev_hold(real_dev);
--
- 	macsec->nest_level = dev_get_nest_level(real_dev) + 1;
- 	netdev_lockdep_set_classes(dev);
- 	lockdep_set_class_and_subclass(&dev->addr_list_lock,
+-		mcp->out_mb |= MBX_4|MBX_3|MBX_2|MBX_1;
++		mcp->out_mb |= MBX_4 | MBX_3 | MBX_2 | MBX_1 | MBX_11;
+ 		mcp->in_mb |= MBX_3 | MBX_2 | MBX_1;
+ 	} else {
+ 		mcp->mb[1] = LSW(risc_addr);
 -- 
 2.20.1
 
