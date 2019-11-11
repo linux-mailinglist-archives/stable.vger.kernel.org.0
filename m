@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF4D6F6E84
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D7A3F6E8C
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:30:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726652AbfKKGXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:23:05 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49225 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726205AbfKKGXF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:23:05 -0500
+        id S1726652AbfKKGaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:30:03 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:49641 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726360AbfKKGaD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:30:03 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 0D2DC2067B;
-        Mon, 11 Nov 2019 01:23:03 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:23:04 -0500
+        by mailout.west.internal (Postfix) with ESMTP id D65B35A8;
+        Mon, 11 Nov 2019 01:30:01 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:30:02 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=iE79xV
-        07klu6f57kOQBFA19DrYCS8HsmIogNYsCgW2E=; b=A7DLo0eg96eVF0TLbWZJ8H
-        Rz3j7ODfN8qfRV8u6wNqYwjlQpfaj59QNyf/Aczad8TvT8hSzlCR2/TFmK9jtTHD
-        PO7MlWGXOc8c054VAclVlM+8qZQ8pManTD/Zg3bLISDHFRS3mLQvbV3xv/pXsmLA
-        n7DMi3fiOb4LpgyGoV54Vk5iU2VyfA0wVEG6lR9XsV9fuGLJuSI2qIGWnChYldEV
-        t2EAQ8PmXTNOY3q9Ym4atXmxODpvm/mvRYlwnSgZIlolPHpt06Pd9C+rUc9oYkmO
-        SLteUscerbiSfanWsBnBet+P2sMZe7NaC/rj+fsGetHEZ3Akj+xR3gGnjfD7qQoQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Rl7V9r
+        nTRXQUvMq4AgTt3jCPap3BWe2t8a85ttyyp+w=; b=qSMRERudarysCg6NWZ4Zdq
+        LjtjyZP3aUv3WTuHVhMPvLA2DqewL+ZoUWeJuY9NeSDvAX0ee4Wi3RDgDlnIWmMX
+        uZ8/jEuKansJf3qtA/CgfamIMa+dAWGBRmDBswv4HYPZq4f/h0r4OjIxyy1DyuC2
+        VDp3XlPLjYIPkkaw/BNE4DkbT9I4MFq2CoVWXKpz873xOHf6zpQkaoS2pJ+OPrFC
+        MmgehYPQ3DK0t6jXUKBYf+TYKUpIYupY8kgPWcpJFdhYXSiPFxaGyVnSXAM8CLbU
+        kPIZX4Qj7L/zehjazgzFInNiQ2IlBx1lozdrxb1qHO6umlHmUoLHlRWJ7tGswqCg
         ==
-X-ME-Sender: <xms:R_7IXa3xLexDTxiC5naeatjRHtkHT83GhEPRJPxLZQVwelHr3yqp4w>
+X-ME-Sender: <xms:6f_IXUPRolwL8-xncfA21aEPWpaRzQU5rIFz5earGyGVPHVgEL8KTQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,19 +35,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleekucetufdoteggod
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
     ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:R_7IXTM_YjRPXnjkr8ouxb0RbuLMncqAVJTGg-ihIk2hi0SKv7gVpw>
-    <xmx:R_7IXVkL_Ak_RniTFzSTuqAm6lXuBoiSaKTonTMxJrDoSV72JUGkvw>
-    <xmx:R_7IXZrZ6aaf0xSYLCHlncJQieBL6a8Qq4QG9EdobPhitFzpbG59OQ>
-    <xmx:R_7IXYcC18NQm5g5jSyVmifg1ynMochLah3xr5A3eg1KHpJkqh_yDA>
+X-ME-Proxy: <xmx:6f_IXREvpLoBV503N_TM2uo01dr-XsRR_u8Fgzsuw2g57h63gsb0ug>
+    <xmx:6f_IXRwCD-bD3g9Tnf2CJlu0cT_dQDQsIiJykPFVmlIxVgSA-OP-FQ>
+    <xmx:6f_IXWujsXqw1RZS7ozUjeJ9tQuQANZdcQokivsIJO34HerjyQHb4Q>
+    <xmx:6f_IXRKHSFjDJtTa5RsFE4CqvsLzzEKFy-ZWqL74aJcWvk_fT0J4Cg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 43A58306005C;
-        Mon, 11 Nov 2019 01:23:03 -0500 (EST)
-Subject: FAILED: patch "[PATCH] clk: imx8m: Use SYS_PLL1_800M as intermediate parent of" failed to apply to 5.3-stable tree
-To:     leonard.crestez@nxp.com, sboyd@kernel.org, shawnguo@kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 9A9EA8005B;
+        Mon, 11 Nov 2019 01:30:00 -0500 (EST)
+Subject: FAILED: patch "[PATCH] x86/apic/32: Avoid bogus LDR warnings" failed to apply to 4.14-stable tree
+To:     jbeulich@suse.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Nov 2019 07:23:01 +0100
-Message-ID: <157345338112980@kroah.com>
+Date:   Mon, 11 Nov 2019 07:29:58 +0100
+Message-ID: <15734537989102@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.3-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,58 +68,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b234fe9558615098d8d62516e7041ad7f99ebcea Mon Sep 17 00:00:00 2001
-From: Leonard Crestez <leonard.crestez@nxp.com>
-Date: Tue, 22 Oct 2019 22:21:28 +0300
-Subject: [PATCH] clk: imx8m: Use SYS_PLL1_800M as intermediate parent of
- CLK_ARM
+From fe6f85ca121e9c74e7490fe66b0c5aae38e332c3 Mon Sep 17 00:00:00 2001
+From: Jan Beulich <jbeulich@suse.com>
+Date: Tue, 29 Oct 2019 10:34:19 +0100
+Subject: [PATCH] x86/apic/32: Avoid bogus LDR warnings
 
-During cpu frequency switching the main "CLK_ARM" is reparented to an
-intermediate "step" clock. On imx8mm and imx8mn the 24M oscillator is
-used for this purpose but it is extremely slow, increasing wakeup
-latencies to the point that i2c transactions can timeout and system
-becomes unresponsive.
+The removal of the LDR initialization in the bigsmp_32 APIC code unearthed
+a problem in setup_local_APIC().
 
-Fix by switching the "step" clk to SYS_PLL1_800M, matching the behavior
-of imx8m cpufreq drivers in imx vendor tree.
+The code checks unconditionally for a mismatch of the logical APIC id by
+comparing the early APIC id which was initialized in get_smp_config() with
+the actual LDR value in the APIC.
 
-This bug was not immediately apparent because upstream arm64 defconfig
-uses the "performance" governor by default so no cpufreq transitions
-happen.
+Due to the removal of the bogus LDR initialization the check now can
+trigger on bigsmp_32 APIC systems emitting a warning for every booting
+CPU. This is of course a false positive because the APIC is not using
+logical destination mode.
 
-Fixes: ba5625c3e272 ("clk: imx: Add clock driver support for imx8mm")
-Fixes: 96d6392b54db ("clk: imx: Add support for i.MX8MN clock driver")
+Restrict the check and the possibly resulting fixup to systems which are
+actually using the APIC in logical destination mode.
 
+[ tglx: Massaged changelog and added Cc stable ]
+
+Fixes: bae3a8d3308 ("x86/apic: Do not initialize LDR and DFR for bigsmp")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Link: https://lkml.kernel.org/r/f5d2b9c53f1ed5ccb1dd3c6624f56759d92e1689.1571771777.git.leonard.crestez@nxp.com
-Acked-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lkml.kernel.org/r/666d8f91-b5a8-1afd-7add-821e72a35f03@suse.com
 
-diff --git a/drivers/clk/imx/clk-imx8mm.c b/drivers/clk/imx/clk-imx8mm.c
-index 067ab876911d..172589e94f60 100644
---- a/drivers/clk/imx/clk-imx8mm.c
-+++ b/drivers/clk/imx/clk-imx8mm.c
-@@ -638,7 +638,7 @@ static int imx8mm_clocks_probe(struct platform_device *pdev)
- 					   clks[IMX8MM_CLK_A53_DIV],
- 					   clks[IMX8MM_CLK_A53_SRC],
- 					   clks[IMX8MM_ARM_PLL_OUT],
--					   clks[IMX8MM_CLK_24M]);
-+					   clks[IMX8MM_SYS_PLL1_800M]);
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 9e2dd2b296cd..2b0faf86da1b 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1586,9 +1586,6 @@ static void setup_local_APIC(void)
+ {
+ 	int cpu = smp_processor_id();
+ 	unsigned int value;
+-#ifdef CONFIG_X86_32
+-	int logical_apicid, ldr_apicid;
+-#endif
  
- 	imx_check_clocks(clks, ARRAY_SIZE(clks));
+ 	if (disable_apic) {
+ 		disable_ioapic_support();
+@@ -1626,16 +1623,21 @@ static void setup_local_APIC(void)
+ 	apic->init_apic_ldr();
  
-diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
-index 47a4b44ba3cb..58b5acee3830 100644
---- a/drivers/clk/imx/clk-imx8mn.c
-+++ b/drivers/clk/imx/clk-imx8mn.c
-@@ -610,7 +610,7 @@ static int imx8mn_clocks_probe(struct platform_device *pdev)
- 					   clks[IMX8MN_CLK_A53_DIV],
- 					   clks[IMX8MN_CLK_A53_SRC],
- 					   clks[IMX8MN_ARM_PLL_OUT],
--					   clks[IMX8MN_CLK_24M]);
-+					   clks[IMX8MN_SYS_PLL1_800M]);
+ #ifdef CONFIG_X86_32
+-	/*
+-	 * APIC LDR is initialized.  If logical_apicid mapping was
+-	 * initialized during get_smp_config(), make sure it matches the
+-	 * actual value.
+-	 */
+-	logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
+-	ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
+-	WARN_ON(logical_apicid != BAD_APICID && logical_apicid != ldr_apicid);
+-	/* always use the value from LDR */
+-	early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
++	if (apic->dest_logical) {
++		int logical_apicid, ldr_apicid;
++
++		/*
++		 * APIC LDR is initialized.  If logical_apicid mapping was
++		 * initialized during get_smp_config(), make sure it matches
++		 * the actual value.
++		 */
++		logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
++		ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
++		if (logical_apicid != BAD_APICID)
++			WARN_ON(logical_apicid != ldr_apicid);
++		/* Always use the value from LDR. */
++		early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
++	}
+ #endif
  
- 	imx_check_clocks(clks, ARRAY_SIZE(clks));
- 
+ 	/*
 
