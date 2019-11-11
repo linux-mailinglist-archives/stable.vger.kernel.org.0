@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B85A3F7EF6
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E116F7F71
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728965AbfKKSiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:38:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57154 "EHLO mail.kernel.org"
+        id S1727420AbfKKSay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:30:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728027AbfKKSiP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:38:15 -0500
+        id S1727483AbfKKSay (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:30:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8313F21E6F;
-        Mon, 11 Nov 2019 18:38:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F38D21925;
+        Mon, 11 Nov 2019 18:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497495;
-        bh=UqEsKD7kxd9sYdPrPpIkXzZPJTqKw70J1KYSfWLwVi0=;
+        s=default; t=1573497052;
+        bh=8Dm4+kdLqO+TbLDhdygXJ78ykpJU9KVLQFQitgP3Y7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DVBa4NbNu6DEQRG+fsXL0THqVRsOxjfojORYQnX+b4K8V5Wx0hU/KtCoY+Qxd1Kdm
-         N8D3tYYD0OT9iD2iCCDk96+VyqtFcR4J4DdjgqYib2XNdfnThseoWxeepMJR9cFver
-         mbn/tDgAXjU+ELTAABm7IbwRzbUy6KFDwzRqDDYg=
+        b=gOL/O6scxoXI/llLrnlzYBu4IJ9uAId3f6uDV9DTCOvUFIxg993aIeAuGPs3393jB
+         ppo4Gu73M/J9SFFAiShjxL1FYgo7Uf8QMpy79+huW6xguZF2YJn7AJQ6J1vBt160DM
+         KTJRd4xOOiQNzWy5fIZ4IvvvOY9daqnDSRr7KeDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 073/105] scsi: qla2xxx: fixup incorrect usage of host_byte
+Subject: [PATCH 4.4 29/43] bonding: fix unexpected IFF_BONDING bit unset
 Date:   Mon, 11 Nov 2019 19:28:43 +0100
-Message-Id: <20191111181445.921280627@linuxfoundation.org>
+Message-Id: <20191111181319.707800595@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 66cf50e65b183c863825f5c28a818e3f47a72e40 ]
+[ Upstream commit 65de65d9033750d2cf1b336c9d6e9da3a8b5cc6e ]
 
-DRIVER_ERROR is a a driver byte setting, not a host byte.  The qla2xxx
-driver should rather return DID_ERROR here to be in line with the other
-drivers.
+The IFF_BONDING means bonding master or bonding slave device.
+->ndo_add_slave() sets IFF_BONDING flag and ->ndo_del_slave() unsets
+IFF_BONDING flag.
 
-Link: https://lore.kernel.org/r/20191018140458.108278-1-hare@suse.de
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+bond0<--bond1
+
+Both bond0 and bond1 are bonding device and these should keep having
+IFF_BONDING flag until they are removed.
+But bond1 would lose IFF_BONDING at ->ndo_del_slave() because that routine
+do not check whether the slave device is the bonding type or not.
+This patch adds the interface type check routine before removing
+IFF_BONDING flag.
+
+Test commands:
+    ip link add bond0 type bond
+    ip link add bond1 type bond
+    ip link set bond1 master bond0
+    ip link set bond1 nomaster
+    ip link del bond1 type bond
+    ip link add bond1 type bond
+
+Splat looks like:
+[  226.665555] proc_dir_entry 'bonding/bond1' already registered
+[  226.666440] WARNING: CPU: 0 PID: 737 at fs/proc/generic.c:361 proc_register+0x2a9/0x3e0
+[  226.667571] Modules linked in: bonding af_packet sch_fq_codel ip_tables x_tables unix
+[  226.668662] CPU: 0 PID: 737 Comm: ip Not tainted 5.4.0-rc3+ #96
+[  226.669508] Hardware name: innotek GmbH VirtualBox/VirtualBox, BIOS VirtualBox 12/01/2006
+[  226.670652] RIP: 0010:proc_register+0x2a9/0x3e0
+[  226.671612] Code: 89 fa 48 c1 ea 03 80 3c 02 00 0f 85 39 01 00 00 48 8b 04 24 48 89 ea 48 c7 c7 a0 0b 14 9f 48 8b b0 e
+0 00 00 00 e8 07 e7 88 ff <0f> 0b 48 c7 c7 40 2d a5 9f e8 59 d6 23 01 48 8b 4c 24 10 48 b8 00
+[  226.675007] RSP: 0018:ffff888050e17078 EFLAGS: 00010282
+[  226.675761] RAX: dffffc0000000008 RBX: ffff88805fdd0f10 RCX: ffffffff9dd344e2
+[  226.676757] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffff88806c9f6b8c
+[  226.677751] RBP: ffff8880507160f3 R08: ffffed100d940019 R09: ffffed100d940019
+[  226.678761] R10: 0000000000000001 R11: ffffed100d940018 R12: ffff888050716008
+[  226.679757] R13: ffff8880507160f2 R14: dffffc0000000000 R15: ffffed100a0e2c1e
+[  226.680758] FS:  00007fdc217cc0c0(0000) GS:ffff88806c800000(0000) knlGS:0000000000000000
+[  226.681886] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  226.682719] CR2: 00007f49313424d0 CR3: 0000000050e46001 CR4: 00000000000606f0
+[  226.683727] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  226.684725] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  226.685681] Call Trace:
+[  226.687089]  proc_create_seq_private+0xb3/0xf0
+[  226.687778]  bond_create_proc_entry+0x1b3/0x3f0 [bonding]
+[  226.691458]  bond_netdev_event+0x433/0x970 [bonding]
+[  226.692139]  ? __module_text_address+0x13/0x140
+[  226.692779]  notifier_call_chain+0x90/0x160
+[  226.693401]  register_netdevice+0x9b3/0xd80
+[  226.694010]  ? alloc_netdev_mqs+0x854/0xc10
+[  226.694629]  ? netdev_change_features+0xa0/0xa0
+[  226.695278]  ? rtnl_create_link+0x2ed/0xad0
+[  226.695849]  bond_newlink+0x2a/0x60 [bonding]
+[  226.696422]  __rtnl_newlink+0xb9f/0x11b0
+[  226.696968]  ? rtnl_link_unregister+0x220/0x220
+[ ... ]
+
+Fixes: 0b680e753724 ("[PATCH] bonding: Add priv_flag to avoid event mishandling")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_main.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
-index 2ea0ef93f5cbb..7472d3882ad41 100644
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -258,7 +258,7 @@ qla2x00_process_els(struct bsg_job *bsg_job)
- 	srb_t *sp;
- 	const char *type;
- 	int req_sg_cnt, rsp_sg_cnt;
--	int rval =  (DRIVER_ERROR << 16);
-+	int rval =  (DID_ERROR << 16);
- 	uint16_t nextlid = 0;
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index 1bf4f54c2befb..e31b4c7d2522b 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -1719,7 +1719,8 @@ err_detach:
+ 	slave_disable_netpoll(new_slave);
  
- 	if (bsg_request->msgcode == FC_BSG_RPT_ELS) {
-@@ -433,7 +433,7 @@ qla2x00_process_ct(struct bsg_job *bsg_job)
- 	struct Scsi_Host *host = fc_bsg_to_shost(bsg_job);
- 	scsi_qla_host_t *vha = shost_priv(host);
- 	struct qla_hw_data *ha = vha->hw;
--	int rval = (DRIVER_ERROR << 16);
-+	int rval = (DID_ERROR << 16);
- 	int req_sg_cnt, rsp_sg_cnt;
- 	uint16_t loop_id;
- 	struct fc_port *fcport;
-@@ -1951,7 +1951,7 @@ qlafx00_mgmt_cmd(struct bsg_job *bsg_job)
- 	struct Scsi_Host *host = fc_bsg_to_shost(bsg_job);
- 	scsi_qla_host_t *vha = shost_priv(host);
- 	struct qla_hw_data *ha = vha->hw;
--	int rval = (DRIVER_ERROR << 16);
-+	int rval = (DID_ERROR << 16);
- 	struct qla_mt_iocb_rqst_fx00 *piocb_rqst;
- 	srb_t *sp;
- 	int req_sg_cnt = 0, rsp_sg_cnt = 0;
+ err_close:
+-	slave_dev->priv_flags &= ~IFF_BONDING;
++	if (!netif_is_bond_master(slave_dev))
++		slave_dev->priv_flags &= ~IFF_BONDING;
+ 	dev_close(slave_dev);
+ 
+ err_restore_mac:
+@@ -1915,7 +1916,8 @@ static int __bond_release_one(struct net_device *bond_dev,
+ 
+ 	dev_set_mtu(slave_dev, slave->original_mtu);
+ 
+-	slave_dev->priv_flags &= ~IFF_BONDING;
++	if (!netif_is_bond_master(slave_dev))
++		slave_dev->priv_flags &= ~IFF_BONDING;
+ 
+ 	bond_free_slave(slave);
+ 
 -- 
 2.20.1
 
