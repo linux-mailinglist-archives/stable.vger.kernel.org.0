@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FF4F7D92
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:58:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58236F7D9A
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:58:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730535AbfKKS6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:58:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58512 "EHLO mail.kernel.org"
+        id S1728527AbfKKS60 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:58:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730179AbfKKS6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:58:12 -0500
+        id S1730952AbfKKS6Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:58:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3EBE520659;
-        Mon, 11 Nov 2019 18:58:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B59621655;
+        Mon, 11 Nov 2019 18:58:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498690;
-        bh=nrBgn8UFKW74PBHjlnB2QG55PmpfCVjWh3tNrM096r4=;
+        s=default; t=1573498705;
+        bh=htiOC1uVGR+O9cmER5N2/CdEIVGN+j7kvh9EzVsIIPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qQcHGX5ajghLkw2L4p2WKaB3Bp4IjysLdrkKbBXf7UgGOn1VxLngNvGyqiUi5jbQh
-         SD2OwXSr3NXyPsz15JXP6iCjySjJkze0VMqqFuz4DIBsL3ALNgsGJy/M27Q0AcdPqX
-         gVfRJGrwdgHxKsZ9GoTYfagxptvgg725uihNGzUE=
+        b=1hzb8tIxSGq/EujvfR5LNA6bltbbrZTDXXUrLvjT89URdw2U2fNKgt0RUiC/7ZzW/
+         ZrgQDV9O7/Ft6hlZBbVw91CNXkuSZ2TitC1eFX1a/gDaEvKoJve2RPK3tPO4JnjkeH
+         NqsU3Px2qsf1pAYKnVLtayoK7sLbfAKxB28NT+5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Valentin Schneider <valentin.schneider@arm.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Dietmar.Eggemann@arm.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, hannes@cmpxchg.org,
-        lizefan@huawei.com, morten.rasmussen@arm.com, qperret@google.com,
-        tj@kernel.org, vincent.guittot@linaro.org,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 155/193] sched/topology: Allow sched_asym_cpucapacity to be disabled
-Date:   Mon, 11 Nov 2019 19:28:57 +0100
-Message-Id: <20191111181512.570764400@linuxfoundation.org>
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Anton Eidelman <anton@lightbitslabs.com>,
+        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 156/193] nvme-multipath: fix possible io hang after ctrl reconnect
+Date:   Mon, 11 Nov 2019 19:28:58 +0100
+Message-Id: <20191111181512.649678505@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -51,115 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Anton Eidelman <anton@lightbitslabs.com>
 
-[ Upstream commit e284df705cf1eeedb5ec3a66ed82d17a64659150 ]
+[ Upstream commit af8fd0424713a2adb812d10d55e86718152cf656 ]
 
-While the static key is correctly initialized as being disabled, it will
-remain forever enabled once turned on. This means that if we start with an
-asymmetric system and hotplug out enough CPUs to end up with an SMP system,
-the static key will remain set - which is obviously wrong. We should detect
-this and turn off things like misfit migration and capacity aware wakeups.
+The following scenario results in an IO hang:
+1) ctrl completes a request with NVME_SC_ANA_TRANSITION.
+   NVME_NS_ANA_PENDING bit in ns->flags is set and ana_work is triggered.
+2) ana_work: nvme_read_ana_log() tries to get the ANA log page from the ctrl.
+   This fails because ctrl disconnects.
+   Therefore nvme_update_ns_ana_state() is not called
+   and NVME_NS_ANA_PENDING bit in ns->flags is not cleared.
+3) ctrl reconnects: nvme_mpath_init(ctrl,...) calls
+   nvme_read_ana_log(ctrl, groups_only=true).
+   However, nvme_update_ana_state() does not update namespaces
+   because nr_nsids = 0 (due to groups_only mode).
+4) scan_work calls nvme_validate_ns() finds the ns and re-validates OK.
 
-As Quentin pointed out, having separate root domains makes this slightly
-trickier. We could have exclusive cpusets that create an SMP island - IOW,
-the domains within this root domain will not see any asymmetry. This means
-we can't just disable the key on domain destruction, we need to count how
-many asymmetric root domains we have.
+Result:
+The ctrl is now live but NVME_NS_ANA_PENDING bit in ns->flags is still set.
+Consequently ctrl will never be considered a viable path by __nvme_find_path().
+IO will hang if ctrl is the only or the last path to the namespace.
 
-Consider the following example using Juno r0 which is 2+4 big.LITTLE, where
-two identical cpusets are created: they both span both big and LITTLE CPUs:
+More generally, while ctrl is reconnecting, its ANA state may change.
+And because nvme_mpath_init() requests ANA log in groups_only mode,
+these changes are not propagated to the existing ctrl namespaces.
+This may result in a mal-function or an IO hang.
 
-    asym0    asym1
-  [       ][       ]
-   L  L  B  L  L  B
+Solution:
+nvme_mpath_init() will nvme_read_ana_log() with groups_only set to false.
+This will not harm the new ctrl case (no namespaces present),
+and will make sure the ANA state of namespaces gets updated after reconnect.
 
-  $ cgcreate -g cpuset:asym0
-  $ cgset -r cpuset.cpus=0,1,3 asym0
-  $ cgset -r cpuset.mems=0 asym0
-  $ cgset -r cpuset.cpu_exclusive=1 asym0
+Note: Another option would be for nvme_mpath_init() to invoke
+nvme_parse_ana_log(..., nvme_set_ns_ana_state) for each existing namespace.
 
-  $ cgcreate -g cpuset:asym1
-  $ cgset -r cpuset.cpus=2,4,5 asym1
-  $ cgset -r cpuset.mems=0 asym1
-  $ cgset -r cpuset.cpu_exclusive=1 asym1
-
-  $ cgset -r cpuset.sched_load_balance=0 .
-
-(the CPU numbering may look odd because on the Juno LITTLEs are CPUs 0,3-5
-and bigs are CPUs 1-2)
-
-If we make one of those SMP (IOW remove asymmetry) by e.g. hotplugging its
-big core, we would end up with an SMP cpuset and an asymmetric cpuset - the
-static key must remain set, because we still have one asymmetric root domain.
-
-With the above example, this could be done with:
-
-  $ echo 0 > /sys/devices/system/cpu/cpu2/online
-
-Which would result in:
-
-    asym0   asym1
-  [       ][    ]
-   L  L  B  L  L
-
-When both SMP and asymmetric cpusets are present, all CPUs will observe
-sched_asym_cpucapacity being set (it is system-wide), but not all CPUs
-observe asymmetry in their sched domain hierarchy:
-
-  per_cpu(sd_asym_cpucapacity, <any CPU in asym0>) == <some SD at DIE level>
-  per_cpu(sd_asym_cpucapacity, <any CPU in asym1>) == NULL
-
-Change the simple key enablement to an increment, and decrement the key
-counter when destroying domains that cover asymmetric CPUs.
-
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Dietmar.Eggemann@arm.com
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: hannes@cmpxchg.org
-Cc: lizefan@huawei.com
-Cc: morten.rasmussen@arm.com
-Cc: qperret@google.com
-Cc: tj@kernel.org
-Cc: vincent.guittot@linaro.org
-Fixes: df054e8445a4 ("sched/topology: Add static_key for asymmetric CPU capacity optimizations")
-Link: https://lkml.kernel.org/r/20191023153745.19515-3-valentin.schneider@arm.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Anton Eidelman <anton@lightbitslabs.com>
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/topology.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/nvme/host/multipath.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index 1906edb44d63c..93a8749763ea0 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -2008,7 +2008,7 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
- 	rcu_read_unlock();
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 30de7efef0035..d320684d25b20 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -715,7 +715,7 @@ int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
+ 		goto out;
+ 	}
  
- 	if (has_asym)
--		static_branch_enable_cpuslocked(&sched_asym_cpucapacity);
-+		static_branch_inc_cpuslocked(&sched_asym_cpucapacity);
- 
- 	if (rq && sched_debug_enabled) {
- 		pr_info("root domain span: %*pbl (max cpu_capacity = %lu)\n",
-@@ -2103,8 +2103,12 @@ int sched_init_domains(const struct cpumask *cpu_map)
-  */
- static void detach_destroy_domains(const struct cpumask *cpu_map)
- {
-+	unsigned int cpu = cpumask_any(cpu_map);
- 	int i;
- 
-+	if (rcu_access_pointer(per_cpu(sd_asym_cpucapacity, cpu)))
-+		static_branch_dec_cpuslocked(&sched_asym_cpucapacity);
-+
- 	rcu_read_lock();
- 	for_each_cpu(i, cpu_map)
- 		cpu_attach_domain(NULL, &def_root_domain, i);
+-	error = nvme_read_ana_log(ctrl, true);
++	error = nvme_read_ana_log(ctrl, false);
+ 	if (error)
+ 		goto out_free_ana_log_buf;
+ 	return 0;
 -- 
 2.20.1
 
