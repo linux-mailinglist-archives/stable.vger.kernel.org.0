@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D04AF7DD5
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89906F7B35
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:34:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727972AbfKKSzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:55:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52060 "EHLO mail.kernel.org"
+        id S1728196AbfKKSdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:33:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729935AbfKKSzP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:55:15 -0500
+        id S1728177AbfKKSdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:33:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E19A82196E;
-        Mon, 11 Nov 2019 18:55:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 445EF20656;
+        Mon, 11 Nov 2019 18:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498514;
-        bh=ov1z6PJJcP+3ujtfS1x1lADfQ0X4wczAc0hxYqjxYbw=;
+        s=default; t=1573497219;
+        bh=jFKRDozkNnN17b4uRxPS4zmxpYQ3OKZr9Ar/cQVZc80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlkAR4tZ44XC9lJ1bv98/abBfMtdyZZHPbQ28QW3CnvHlmedlCT0NoEewouvtJL+l
-         HDtd85ehOz7TgnRQcQUqjLJ9Yt2tEJsOproY1vC4adKHtBfo25eoKJPBHONcNSEYL/
-         c4oPG2n9PsvzA1NwN5aVSVjtFRJReYjxngkfdpUs=
+        b=dpUsczyA3nZb8ahRfp/Y2Jdc6Zy0P/hc6yCTq4mbGdaRY3FPjNdNDT9bzgXHU88eT
+         Pz0827JOXbBWEmyBQR0la6/jc55qcRNaLEBqQO9mcyaYeNO3Ng/hXEN6SMhB5j1xp6
+         9Div99mVp80aO/lZFe5cGpldc39H2W/UIevnQY00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chandana Kishori Chiluveru <cchiluve@codeaurora.org>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Simon Horman <horms@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 140/193] usb: gadget: composite: Fix possible double free memory bug
+Subject: [PATCH 4.9 42/65] ipvs: move old_secure_tcp into struct netns_ipvs
 Date:   Mon, 11 Nov 2019 19:28:42 +0100
-Message-Id: <20191111181511.490142393@linuxfoundation.org>
+Message-Id: <20191111181348.344555759@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 1c20c89b0421b52b2417bb0f62a611bc669eda1d ]
+[ Upstream commit c24b75e0f9239e78105f81c5f03a751641eb07ef ]
 
-composite_dev_cleanup call from the failure of configfs_composite_bind
-frees up the cdev->os_desc_req and cdev->req. If the previous calls of
-bind and unbind is successful these will carry stale values.
+syzbot reported the following issue :
 
-Consider the below sequence of function calls:
-configfs_composite_bind()
-        composite_dev_prepare()
-                - Allocate cdev->req, cdev->req->buf
-        composite_os_desc_req_prepare()
-                - Allocate cdev->os_desc_req, cdev->os_desc_req->buf
-configfs_composite_unbind()
-        composite_dev_cleanup()
-                - free the cdev->os_desc_req->buf and cdev->req->buf
-Next composition switch
-configfs_composite_bind()
-        - If it fails goto err_comp_cleanup will call the
-	  composite_dev_cleanup() function
-        composite_dev_cleanup()
-	        - calls kfree up with the stale values of cdev->req->buf and
-		  cdev->os_desc_req from the previous configfs_composite_bind
-		  call. The free call on these stale values leads to double free.
+BUG: KCSAN: data-race in update_defense_level / update_defense_level
 
-Hence, Fix this issue by setting request and buffer pointer to NULL after
-kfree.
+read to 0xffffffff861a6260 of 4 bytes by task 3006 on cpu 1:
+ update_defense_level+0x621/0xb30 net/netfilter/ipvs/ip_vs_ctl.c:177
+ defense_work_handler+0x3d/0xd0 net/netfilter/ipvs/ip_vs_ctl.c:225
+ process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
+ worker_thread+0xa0/0x800 kernel/workqueue.c:2415
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
 
-Signed-off-by: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+write to 0xffffffff861a6260 of 4 bytes by task 7333 on cpu 0:
+ update_defense_level+0xa62/0xb30 net/netfilter/ipvs/ip_vs_ctl.c:205
+ defense_work_handler+0x3d/0xd0 net/netfilter/ipvs/ip_vs_ctl.c:225
+ process_one_work+0x3d4/0x890 kernel/workqueue.c:2269
+ worker_thread+0xa0/0x800 kernel/workqueue.c:2415
+ kthread+0x1d4/0x200 drivers/block/aoe/aoecmd.c:1253
+ ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:352
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 7333 Comm: kworker/0:5 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events defense_work_handler
+
+Indeed, old_secure_tcp is currently a static variable, while it
+needs to be a per netns variable.
+
+Fixes: a0840e2e165a ("IPVS: netns, ip_vs_ctl local vars moved to ipvs struct.")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Simon Horman <horms@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/net/ip_vs.h            |  1 +
+ net/netfilter/ipvs/ip_vs_ctl.c | 15 +++++++--------
+ 2 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index 76883ff4f5bb6..c8ae07cd6fbfd 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -2156,14 +2156,18 @@ void composite_dev_cleanup(struct usb_composite_dev *cdev)
- 			usb_ep_dequeue(cdev->gadget->ep0, cdev->os_desc_req);
- 
- 		kfree(cdev->os_desc_req->buf);
-+		cdev->os_desc_req->buf = NULL;
- 		usb_ep_free_request(cdev->gadget->ep0, cdev->os_desc_req);
-+		cdev->os_desc_req = NULL;
+diff --git a/include/net/ip_vs.h b/include/net/ip_vs.h
+index cd6018a9ee246..a26165744d980 100644
+--- a/include/net/ip_vs.h
++++ b/include/net/ip_vs.h
+@@ -887,6 +887,7 @@ struct netns_ipvs {
+ 	struct delayed_work	defense_work;   /* Work handler */
+ 	int			drop_rate;
+ 	int			drop_counter;
++	int			old_secure_tcp;
+ 	atomic_t		dropentry;
+ 	/* locks in ctl.c */
+ 	spinlock_t		dropentry_lock;  /* drop entry handling */
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index 8037b25ddb76a..33125fc009cfd 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -97,7 +97,6 @@ static bool __ip_vs_addr_is_local_v6(struct net *net,
+ static void update_defense_level(struct netns_ipvs *ipvs)
+ {
+ 	struct sysinfo i;
+-	static int old_secure_tcp = 0;
+ 	int availmem;
+ 	int nomem;
+ 	int to_change = -1;
+@@ -178,35 +177,35 @@ static void update_defense_level(struct netns_ipvs *ipvs)
+ 	spin_lock(&ipvs->securetcp_lock);
+ 	switch (ipvs->sysctl_secure_tcp) {
+ 	case 0:
+-		if (old_secure_tcp >= 2)
++		if (ipvs->old_secure_tcp >= 2)
+ 			to_change = 0;
+ 		break;
+ 	case 1:
+ 		if (nomem) {
+-			if (old_secure_tcp < 2)
++			if (ipvs->old_secure_tcp < 2)
+ 				to_change = 1;
+ 			ipvs->sysctl_secure_tcp = 2;
+ 		} else {
+-			if (old_secure_tcp >= 2)
++			if (ipvs->old_secure_tcp >= 2)
+ 				to_change = 0;
+ 		}
+ 		break;
+ 	case 2:
+ 		if (nomem) {
+-			if (old_secure_tcp < 2)
++			if (ipvs->old_secure_tcp < 2)
+ 				to_change = 1;
+ 		} else {
+-			if (old_secure_tcp >= 2)
++			if (ipvs->old_secure_tcp >= 2)
+ 				to_change = 0;
+ 			ipvs->sysctl_secure_tcp = 1;
+ 		}
+ 		break;
+ 	case 3:
+-		if (old_secure_tcp < 2)
++		if (ipvs->old_secure_tcp < 2)
+ 			to_change = 1;
+ 		break;
  	}
- 	if (cdev->req) {
- 		if (cdev->setup_pending)
- 			usb_ep_dequeue(cdev->gadget->ep0, cdev->req);
- 
- 		kfree(cdev->req->buf);
-+		cdev->req->buf = NULL;
- 		usb_ep_free_request(cdev->gadget->ep0, cdev->req);
-+		cdev->req = NULL;
- 	}
- 	cdev->next_string_id = 0;
- 	device_remove_file(&cdev->gadget->dev, &dev_attr_suspended);
+-	old_secure_tcp = ipvs->sysctl_secure_tcp;
++	ipvs->old_secure_tcp = ipvs->sysctl_secure_tcp;
+ 	if (to_change >= 0)
+ 		ip_vs_protocol_timeout_change(ipvs,
+ 					      ipvs->sysctl_secure_tcp > 1);
 -- 
 2.20.1
 
