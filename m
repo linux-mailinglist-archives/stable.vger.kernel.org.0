@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07FBBF7E60
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2EEF7EC8
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729921AbfKKSpw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:45:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38094 "EHLO mail.kernel.org"
+        id S1727497AbfKKTGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 14:06:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729246AbfKKSpv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:45:51 -0500
+        id S1729138AbfKKSjL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:39:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA12920674;
-        Mon, 11 Nov 2019 18:45:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B603F20659;
+        Mon, 11 Nov 2019 18:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497950;
-        bh=+Vpmt56nQU9q+fWQ80iwQhJ7ao0djqDkThe4tFknWvA=;
+        s=default; t=1573497550;
+        bh=92ronLFtUrw6FpPIjyOv7L17PV0WUZhDLx5rq8LQBDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mstTC3iAPl7ThYOghBhUf56aAyPnNnpmZ3fl5YFYgwo+71xObBYGqTn5lolJwf6IR
-         inBWdTN1rtHrgRz1Jyt91k5aVAmjxArpITdYHgKb1cV3jqWTHCCeTkul6WTD3QbNfO
-         ZJgIhvjng1Nz1R6pBGSe/mmT+BXY5IWkVDcCRpXU=
+        b=1fK2lDVISu116JnI+A7DUOEr4sH8Llpw0bE/E7zDpPdLjamTISw0kcvnK8cI8dZXF
+         Foqi3cdNanAdBlkezH024jJZNRpv4XooVuQMObCTPky58d7FrVMbEoSk7wBgt/l/nI
+         W69Z/fh0D4clv9tjPhT+yIChaynqmThjGnJkzJfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Nicolas Waisman <nico@semmle.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/125] fjes: Handle workqueue allocation failure
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 094/105] net: hisilicon: Fix "Trying to free already-free IRQ"
 Date:   Mon, 11 Nov 2019 19:29:04 +0100
-Message-Id: <20191111181453.950179740@linuxfoundation.org>
+Message-Id: <20191111181448.399723781@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will@kernel.org>
+From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 
-[ Upstream commit 85ac30fa2e24f628e9f4f9344460f4015d33fd7d ]
+[ Upstream commit 63a41746827cb16dc6ad0d4d761ab4e7dda7a0c3 ]
 
-In the highly unlikely event that we fail to allocate either of the
-"/txrx" or "/control" workqueues, we should bail cleanly rather than
-blindly march on with NULL queue pointer(s) installed in the
-'fjes_adapter' instance.
+When rmmod hip04_eth.ko, we can get the following warning:
 
-Cc: "David S. Miller" <davem@davemloft.net>
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Link: https://lore.kernel.org/lkml/CADJ_3a8WFrs5NouXNqS5WYe7rebFP+_A5CheeqAyD_p7DFJJcg@mail.gmail.com/
-Signed-off-by: Will Deacon <will@kernel.org>
+Task track: rmmod(1623)>bash(1591)>login(1581)>init(1)
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1623 at kernel/irq/manage.c:1557 __free_irq+0xa4/0x2ac()
+Trying to free already-free IRQ 200
+Modules linked in: ping(O) pramdisk(O) cpuinfo(O) rtos_snapshot(O) interrupt_ctrl(O) mtdblock mtd_blkdevrtfs nfs_acl nfs lockd grace sunrpc xt_tcpudp ipt_REJECT iptable_filter ip_tables x_tables nf_reject_ipv
+CPU: 0 PID: 1623 Comm: rmmod Tainted: G           O    4.4.193 #1
+Hardware name: Hisilicon A15
+[<c020b408>] (rtos_unwind_backtrace) from [<c0206624>] (show_stack+0x10/0x14)
+[<c0206624>] (show_stack) from [<c03f2be4>] (dump_stack+0xa0/0xd8)
+[<c03f2be4>] (dump_stack) from [<c021a780>] (warn_slowpath_common+0x84/0xb0)
+[<c021a780>] (warn_slowpath_common) from [<c021a7e8>] (warn_slowpath_fmt+0x3c/0x68)
+[<c021a7e8>] (warn_slowpath_fmt) from [<c026876c>] (__free_irq+0xa4/0x2ac)
+[<c026876c>] (__free_irq) from [<c0268a14>] (free_irq+0x60/0x7c)
+[<c0268a14>] (free_irq) from [<c0469e80>] (release_nodes+0x1c4/0x1ec)
+[<c0469e80>] (release_nodes) from [<c0466924>] (__device_release_driver+0xa8/0x104)
+[<c0466924>] (__device_release_driver) from [<c0466a80>] (driver_detach+0xd0/0xf8)
+[<c0466a80>] (driver_detach) from [<c0465e18>] (bus_remove_driver+0x64/0x8c)
+[<c0465e18>] (bus_remove_driver) from [<c02935b0>] (SyS_delete_module+0x198/0x1e0)
+[<c02935b0>] (SyS_delete_module) from [<c0202ed0>] (__sys_trace_return+0x0/0x10)
+---[ end trace bb25d6123d849b44 ]---
+
+Currently "rmmod hip04_eth.ko" call free_irq more than once
+as devres_release_all and hip04_remove both call free_irq.
+This results in a 'Trying to free already-free IRQ' warning.
+To solve the problem free_irq has been moved out of hip04_remove.
+
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/fjes/fjes_main.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/fjes/fjes_main.c b/drivers/net/fjes/fjes_main.c
-index d3eae12390457..61a9843346ad7 100644
---- a/drivers/net/fjes/fjes_main.c
-+++ b/drivers/net/fjes/fjes_main.c
-@@ -1252,8 +1252,17 @@ static int fjes_probe(struct platform_device *plat_dev)
- 	adapter->open_guard = false;
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index 17cbe8145dcd9..ebc056b9a0fd2 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -945,7 +945,6 @@ static int hip04_remove(struct platform_device *pdev)
  
- 	adapter->txrx_wq = alloc_workqueue(DRV_NAME "/txrx", WQ_MEM_RECLAIM, 0);
-+	if (unlikely(!adapter->txrx_wq)) {
-+		err = -ENOMEM;
-+		goto err_free_netdev;
-+	}
-+
- 	adapter->control_wq = alloc_workqueue(DRV_NAME "/control",
- 					      WQ_MEM_RECLAIM, 0);
-+	if (unlikely(!adapter->control_wq)) {
-+		err = -ENOMEM;
-+		goto err_free_txrx_wq;
-+	}
- 
- 	INIT_WORK(&adapter->tx_stall_task, fjes_tx_stall_task);
- 	INIT_WORK(&adapter->raise_intr_rxdata_task,
-@@ -1270,7 +1279,7 @@ static int fjes_probe(struct platform_device *plat_dev)
- 	hw->hw_res.irq = platform_get_irq(plat_dev, 0);
- 	err = fjes_hw_init(&adapter->hw);
- 	if (err)
--		goto err_free_netdev;
-+		goto err_free_control_wq;
- 
- 	/* setup MAC address (02:00:00:00:00:[epid])*/
- 	netdev->dev_addr[0] = 2;
-@@ -1292,6 +1301,10 @@ static int fjes_probe(struct platform_device *plat_dev)
- 
- err_hw_exit:
- 	fjes_hw_exit(&adapter->hw);
-+err_free_control_wq:
-+	destroy_workqueue(adapter->control_wq);
-+err_free_txrx_wq:
-+	destroy_workqueue(adapter->txrx_wq);
- err_free_netdev:
- 	free_netdev(netdev);
- err_out:
+ 	hip04_free_ring(ndev, d);
+ 	unregister_netdev(ndev);
+-	free_irq(ndev->irq, ndev);
+ 	of_node_put(priv->phy_node);
+ 	cancel_work_sync(&priv->tx_timeout_task);
+ 	free_netdev(ndev);
 -- 
 2.20.1
 
