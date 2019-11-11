@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC5E2F7EFF
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B287F7F37
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727119AbfKKSie (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:38:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
+        id S1728274AbfKKSeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:34:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729021AbfKKSie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:38:34 -0500
+        id S1727538AbfKKSeG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:34:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3380921925;
-        Mon, 11 Nov 2019 18:38:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDFCE21925;
+        Mon, 11 Nov 2019 18:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497512;
-        bh=LLWwTlzKdjmy5s1VIl+pq4uOGDlreo98Jg/Th1Ac00U=;
+        s=default; t=1573497245;
+        bh=XJVCKmMwGkCdz22E3FBpGVVMRapcG0Uy12VL5Fhea8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RQTPLC/+RbqCGGqzvER6m7/K7ZH0TXIN8Xqpc6ZqlO+UxB6ORDACXvo1PR5THlJp9
-         HUAtya8A8mq16W+0IWghUQzrvyRKw3uSQy/8G8URljNvVuSZ5Sp7oE49pjL0IHZy2G
-         RLo22vSxG6GLX4P1c0fdbieEYtgFPc5CTGgZ1atI=
+        b=wWuxEP4W0/XrXEAhoZIvhJwcsi/4LYVhf0m6x12fCdXRAKcubYHrff+7e72OIcWKT
+         DCFi1Mh3Tmg50dbLpJ+34CTQ3vzLvW1l/zPUvjoHjvL9GLpX/+Uy+1YXnW5leI8TTy
+         EgxPoy0ixJLCMyAgfZp3ffNDGMxJrZsRBdIkwzP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.14 043/105] configfs: new object reprsenting tree fragments
+        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
+        Gang Deng <gavin.dg@linux.alibaba.com>,
+        Hugh Dickins <hughd@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 13/65] mm: thp: handle page cache THP correctly in PageTransCompoundMap
 Date:   Mon, 11 Nov 2019 19:28:13 +0100
-Message-Id: <20191111181440.920131156@linuxfoundation.org>
+Message-Id: <20191111181343.632952893@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,396 +49,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-commit 47320fbe11a6059ae502c9c16b668022fdb4cf76 upstream.
+commit 169226f7e0d275c1879551f37484ef6683579a5c upstream.
 
-Refcounted, hangs of configfs_dirent, created by operations that add
-fragments to configfs tree (mkdir and configfs_register_{subsystem,group}).
-Will be used in the next commit to provide exclusion between fragment
-removal and ->show/->store calls.
+We have a usecase to use tmpfs as QEMU memory backend and we would like
+to take the advantage of THP as well.  But, our test shows the EPT is
+not PMD mapped even though the underlying THP are PMD mapped on host.
+The number showed by /sys/kernel/debug/kvm/largepage is much less than
+the number of PMD mapped shmem pages as the below:
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+  7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
+  Size:            4194304 kB
+  [snip]
+  AnonHugePages:         0 kB
+  ShmemPmdMapped:   579584 kB
+  [snip]
+  Locked:                0 kB
+
+  cat /sys/kernel/debug/kvm/largepages
+  12
+
+And some benchmarks do worse than with anonymous THPs.
+
+By digging into the code we figured out that commit 127393fbe597 ("mm:
+thp: kvm: fix memory corruption in KVM with THP enabled") checks if
+there is a single PTE mapping on the page for anonymous THP when setting
+up EPT map.  But the _mapcount < 0 check doesn't work for page cache THP
+since every subpage of page cache THP would get _mapcount inc'ed once it
+is PMD mapped, so PageTransCompoundMap() always returns false for page
+cache THP.  This would prevent KVM from setting up PMD mapped EPT entry.
+
+So we need handle page cache THP correctly.  However, when page cache
+THP's PMD gets split, kernel just remove the map instead of setting up
+PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
+the subpages may get PTE mapped even though it is still a THP since the
+page cache THP may be mapped by other processes at the mean time.
+
+Checking its _mapcount and whether the THP has PTE mapped or not.
+Although this may report some false negative cases (PTE mapped by other
+processes), it looks not trivial to make this accurate.
+
+With this fix /sys/kernel/debug/kvm/largepage would show reasonable
+pages are PMD mapped by EPT as the below:
+
+  7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
+  Size:            4194304 kB
+  [snip]
+  AnonHugePages:         0 kB
+  ShmemPmdMapped:   557056 kB
+  [snip]
+  Locked:                0 kB
+
+  cat /sys/kernel/debug/kvm/largepages
+  271
+
+And the benchmarks are as same as anonymous THPs.
+
+[yang.shi@linux.alibaba.com: v4]
+  Link: http://lkml.kernel.org/r/1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com
+Link: http://lkml.kernel.org/r/1571769577-89735-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: dd78fedde4b9 ("rmap: support file thp")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
+Suggested-by: Hugh Dickins <hughd@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>	[4.8+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/configfs/configfs_internal.h |   15 ++++-
- fs/configfs/dir.c               |  105 +++++++++++++++++++++++++++++++---------
- fs/configfs/file.c              |    4 -
- 3 files changed, 97 insertions(+), 27 deletions(-)
+ include/linux/mm.h         |    5 -----
+ include/linux/mm_types.h   |    5 +++++
+ include/linux/page-flags.h |   20 ++++++++++++++++++--
+ 3 files changed, 23 insertions(+), 7 deletions(-)
 
---- a/fs/configfs/configfs_internal.h
-+++ b/fs/configfs/configfs_internal.h
-@@ -34,6 +34,15 @@
- #include <linux/list.h>
- #include <linux/spinlock.h>
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -504,11 +504,6 @@ static inline int is_vmalloc_or_module_a
  
-+struct configfs_fragment {
-+	atomic_t frag_count;
-+	struct rw_semaphore frag_sem;
-+	bool frag_dead;
-+};
-+
-+void put_fragment(struct configfs_fragment *);
-+struct configfs_fragment *get_fragment(struct configfs_fragment *);
-+
- struct configfs_dirent {
- 	atomic_t		s_count;
- 	int			s_dependent_count;
-@@ -48,6 +57,7 @@ struct configfs_dirent {
- #ifdef CONFIG_LOCKDEP
- 	int			s_depth;
- #endif
-+	struct configfs_fragment *s_frag;
- };
+ extern void kvfree(const void *addr);
  
- #define CONFIGFS_ROOT		0x0001
-@@ -75,8 +85,8 @@ extern int configfs_create(struct dentry
- extern int configfs_create_file(struct config_item *, const struct configfs_attribute *);
- extern int configfs_create_bin_file(struct config_item *,
- 				    const struct configfs_bin_attribute *);
--extern int configfs_make_dirent(struct configfs_dirent *,
--				struct dentry *, void *, umode_t, int);
-+extern int configfs_make_dirent(struct configfs_dirent *, struct dentry *,
-+				void *, umode_t, int, struct configfs_fragment *);
- extern int configfs_dirent_is_ready(struct configfs_dirent *);
- 
- extern void configfs_hash_and_remove(struct dentry * dir, const char * name);
-@@ -151,6 +161,7 @@ static inline void release_configfs_dire
+-static inline atomic_t *compound_mapcount_ptr(struct page *page)
+-{
+-	return &page[1].compound_mapcount;
+-}
+-
+ static inline int compound_mapcount(struct page *page)
  {
- 	if (!(sd->s_type & CONFIGFS_ROOT)) {
- 		kfree(sd->s_iattr);
-+		put_fragment(sd->s_frag);
- 		kmem_cache_free(configfs_dir_cachep, sd);
- 	}
- }
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -164,11 +164,38 @@ configfs_adjust_dir_dirent_depth_after_p
+ 	VM_BUG_ON_PAGE(!PageCompound(page), page);
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -262,6 +262,11 @@ struct page_frag_cache {
  
- #endif /* CONFIG_LOCKDEP */
+ typedef unsigned long vm_flags_t;
  
-+static struct configfs_fragment *new_fragment(void)
++static inline atomic_t *compound_mapcount_ptr(struct page *page)
 +{
-+	struct configfs_fragment *p;
-+
-+	p = kmalloc(sizeof(struct configfs_fragment), GFP_KERNEL);
-+	if (p) {
-+		atomic_set(&p->frag_count, 1);
-+		init_rwsem(&p->frag_sem);
-+		p->frag_dead = false;
-+	}
-+	return p;
-+}
-+
-+void put_fragment(struct configfs_fragment *frag)
-+{
-+	if (frag && atomic_dec_and_test(&frag->frag_count))
-+		kfree(frag);
-+}
-+
-+struct configfs_fragment *get_fragment(struct configfs_fragment *frag)
-+{
-+	if (likely(frag))
-+		atomic_inc(&frag->frag_count);
-+	return frag;
++	return &page[1].compound_mapcount;
 +}
 +
  /*
-  * Allocates a new configfs_dirent and links it to the parent configfs_dirent
+  * A region containing a mapping of a non-memory backed file under NOMMU
+  * conditions.  These are held in a global tree and are pinned by the VMAs that
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -545,12 +545,28 @@ static inline int PageTransCompound(stru
+  *
+  * Unlike PageTransCompound, this is safe to be called only while
+  * split_huge_pmd() cannot run from under us, like if protected by the
+- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
++ * MMU notifier, otherwise it may result in page->_mapcount check false
+  * positives.
++ *
++ * We have to treat page cache THP differently since every subpage of it
++ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
++ * mapped in the current process so comparing subpage's _mapcount to
++ * compound_mapcount to filter out PTE mapped case.
   */
- static struct configfs_dirent *configfs_new_dirent(struct configfs_dirent *parent_sd,
--						   void *element, int type)
-+						   void *element, int type,
-+						   struct configfs_fragment *frag)
+ static inline int PageTransCompoundMap(struct page *page)
  {
- 	struct configfs_dirent * sd;
- 
-@@ -188,6 +215,7 @@ static struct configfs_dirent *configfs_
- 		kmem_cache_free(configfs_dir_cachep, sd);
- 		return ERR_PTR(-ENOENT);
- 	}
-+	sd->s_frag = get_fragment(frag);
- 	list_add(&sd->s_sibling, &parent_sd->s_children);
- 	spin_unlock(&configfs_dirent_lock);
- 
-@@ -222,11 +250,11 @@ static int configfs_dirent_exists(struct
- 
- int configfs_make_dirent(struct configfs_dirent * parent_sd,
- 			 struct dentry * dentry, void * element,
--			 umode_t mode, int type)
-+			 umode_t mode, int type, struct configfs_fragment *frag)
- {
- 	struct configfs_dirent * sd;
- 
--	sd = configfs_new_dirent(parent_sd, element, type);
-+	sd = configfs_new_dirent(parent_sd, element, type, frag);
- 	if (IS_ERR(sd))
- 		return PTR_ERR(sd);
- 
-@@ -273,7 +301,8 @@ static void init_symlink(struct inode *
-  *	until it is validated by configfs_dir_set_ready()
-  */
- 
--static int configfs_create_dir(struct config_item *item, struct dentry *dentry)
-+static int configfs_create_dir(struct config_item *item, struct dentry *dentry,
-+				struct configfs_fragment *frag)
- {
- 	int error;
- 	umode_t mode = S_IFDIR| S_IRWXU | S_IRUGO | S_IXUGO;
-@@ -286,7 +315,8 @@ static int configfs_create_dir(struct co
- 		return error;
- 
- 	error = configfs_make_dirent(p->d_fsdata, dentry, item, mode,
--				     CONFIGFS_DIR | CONFIGFS_USET_CREATING);
-+				     CONFIGFS_DIR | CONFIGFS_USET_CREATING,
-+				     frag);
- 	if (unlikely(error))
- 		return error;
- 
-@@ -351,9 +381,10 @@ int configfs_create_link(struct configfs
- {
- 	int err = 0;
- 	umode_t mode = S_IFLNK | S_IRWXUGO;
-+	struct configfs_dirent *p = parent->d_fsdata;
- 
--	err = configfs_make_dirent(parent->d_fsdata, dentry, sl, mode,
--				   CONFIGFS_ITEM_LINK);
-+	err = configfs_make_dirent(p, dentry, sl, mode,
-+				   CONFIGFS_ITEM_LINK, p->s_frag);
- 	if (!err) {
- 		err = configfs_create(dentry, mode, init_symlink);
- 		if (err) {
-@@ -612,7 +643,8 @@ static int populate_attrs(struct config_
- 
- static int configfs_attach_group(struct config_item *parent_item,
- 				 struct config_item *item,
--				 struct dentry *dentry);
-+				 struct dentry *dentry,
-+				 struct configfs_fragment *frag);
- static void configfs_detach_group(struct config_item *item);
- 
- static void detach_groups(struct config_group *group)
-@@ -660,7 +692,8 @@ static void detach_groups(struct config_
-  * try using vfs_mkdir.  Just a thought.
-  */
- static int create_default_group(struct config_group *parent_group,
--				struct config_group *group)
-+				struct config_group *group,
-+				struct configfs_fragment *frag)
- {
- 	int ret;
- 	struct configfs_dirent *sd;
-@@ -676,7 +709,7 @@ static int create_default_group(struct c
- 		d_add(child, NULL);
- 
- 		ret = configfs_attach_group(&parent_group->cg_item,
--					    &group->cg_item, child);
-+					    &group->cg_item, child, frag);
- 		if (!ret) {
- 			sd = child->d_fsdata;
- 			sd->s_type |= CONFIGFS_USET_DEFAULT;
-@@ -690,13 +723,14 @@ static int create_default_group(struct c
- 	return ret;
+-	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
++	struct page *head;
++
++	if (!PageTransCompound(page))
++		return 0;
++
++	if (PageAnon(page))
++		return atomic_read(&page->_mapcount) < 0;
++
++	head = compound_head(page);
++	/* File THP is PMD mapped and not PTE mapped */
++	return atomic_read(&page->_mapcount) ==
++	       atomic_read(compound_mapcount_ptr(head));
  }
  
--static int populate_groups(struct config_group *group)
-+static int populate_groups(struct config_group *group,
-+			   struct configfs_fragment *frag)
- {
- 	struct config_group *new_group;
- 	int ret = 0;
- 
- 	list_for_each_entry(new_group, &group->default_groups, group_entry) {
--		ret = create_default_group(group, new_group);
-+		ret = create_default_group(group, new_group, frag);
- 		if (ret) {
- 			detach_groups(group);
- 			break;
-@@ -810,11 +844,12 @@ static void link_group(struct config_gro
-  */
- static int configfs_attach_item(struct config_item *parent_item,
- 				struct config_item *item,
--				struct dentry *dentry)
-+				struct dentry *dentry,
-+				struct configfs_fragment *frag)
- {
- 	int ret;
- 
--	ret = configfs_create_dir(item, dentry);
-+	ret = configfs_create_dir(item, dentry, frag);
- 	if (!ret) {
- 		ret = populate_attrs(item);
- 		if (ret) {
-@@ -844,12 +879,13 @@ static void configfs_detach_item(struct
- 
- static int configfs_attach_group(struct config_item *parent_item,
- 				 struct config_item *item,
--				 struct dentry *dentry)
-+				 struct dentry *dentry,
-+				 struct configfs_fragment *frag)
- {
- 	int ret;
- 	struct configfs_dirent *sd;
- 
--	ret = configfs_attach_item(parent_item, item, dentry);
-+	ret = configfs_attach_item(parent_item, item, dentry, frag);
- 	if (!ret) {
- 		sd = dentry->d_fsdata;
- 		sd->s_type |= CONFIGFS_USET_DIR;
-@@ -865,7 +901,7 @@ static int configfs_attach_group(struct
- 		 */
- 		inode_lock_nested(d_inode(dentry), I_MUTEX_CHILD);
- 		configfs_adjust_dir_dirent_depth_before_populate(sd);
--		ret = populate_groups(to_config_group(item));
-+		ret = populate_groups(to_config_group(item), frag);
- 		if (ret) {
- 			configfs_detach_item(item);
- 			d_inode(dentry)->i_flags |= S_DEAD;
-@@ -1260,6 +1296,7 @@ static int configfs_mkdir(struct inode *
- 	struct configfs_dirent *sd;
- 	struct config_item_type *type;
- 	struct module *subsys_owner = NULL, *new_item_owner = NULL;
-+	struct configfs_fragment *frag;
- 	char *name;
- 
- 	sd = dentry->d_parent->d_fsdata;
-@@ -1278,6 +1315,12 @@ static int configfs_mkdir(struct inode *
- 		goto out;
- 	}
- 
-+	frag = new_fragment();
-+	if (!frag) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
-+
- 	/* Get a working ref for the duration of this function */
- 	parent_item = configfs_get_config_item(dentry->d_parent);
- 	type = parent_item->ci_type;
-@@ -1380,9 +1423,9 @@ static int configfs_mkdir(struct inode *
- 	spin_unlock(&configfs_dirent_lock);
- 
- 	if (group)
--		ret = configfs_attach_group(parent_item, item, dentry);
-+		ret = configfs_attach_group(parent_item, item, dentry, frag);
- 	else
--		ret = configfs_attach_item(parent_item, item, dentry);
-+		ret = configfs_attach_item(parent_item, item, dentry, frag);
- 
- 	spin_lock(&configfs_dirent_lock);
- 	sd->s_type &= ~CONFIGFS_USET_IN_MKDIR;
-@@ -1419,6 +1462,7 @@ out_put:
- 	 * reference.
- 	 */
- 	config_item_put(parent_item);
-+	put_fragment(frag);
- 
- out:
- 	return ret;
-@@ -1587,7 +1631,7 @@ static int configfs_dir_open(struct inod
- 	 */
- 	err = -ENOENT;
- 	if (configfs_dirent_is_ready(parent_sd)) {
--		file->private_data = configfs_new_dirent(parent_sd, NULL, 0);
-+		file->private_data = configfs_new_dirent(parent_sd, NULL, 0, NULL);
- 		if (IS_ERR(file->private_data))
- 			err = PTR_ERR(file->private_data);
- 		else
-@@ -1743,8 +1787,13 @@ int configfs_register_group(struct confi
- {
- 	struct configfs_subsystem *subsys = parent_group->cg_subsys;
- 	struct dentry *parent;
-+	struct configfs_fragment *frag;
- 	int ret;
- 
-+	frag = new_fragment();
-+	if (!frag)
-+		return -ENOMEM;
-+
- 	mutex_lock(&subsys->su_mutex);
- 	link_group(parent_group, group);
- 	mutex_unlock(&subsys->su_mutex);
-@@ -1752,7 +1801,7 @@ int configfs_register_group(struct confi
- 	parent = parent_group->cg_item.ci_dentry;
- 
- 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
--	ret = create_default_group(parent_group, group);
-+	ret = create_default_group(parent_group, group, frag);
- 	if (ret)
- 		goto err_out;
- 
-@@ -1760,12 +1809,14 @@ int configfs_register_group(struct confi
- 	configfs_dir_set_ready(group->cg_item.ci_dentry->d_fsdata);
- 	spin_unlock(&configfs_dirent_lock);
- 	inode_unlock(d_inode(parent));
-+	put_fragment(frag);
- 	return 0;
- err_out:
- 	inode_unlock(d_inode(parent));
- 	mutex_lock(&subsys->su_mutex);
- 	unlink_group(group);
- 	mutex_unlock(&subsys->su_mutex);
-+	put_fragment(frag);
- 	return ret;
- }
- EXPORT_SYMBOL(configfs_register_group);
-@@ -1852,10 +1903,17 @@ int configfs_register_subsystem(struct c
- 	struct dentry *dentry;
- 	struct dentry *root;
- 	struct configfs_dirent *sd;
-+	struct configfs_fragment *frag;
-+
-+	frag = new_fragment();
-+	if (!frag)
-+		return -ENOMEM;
- 
- 	root = configfs_pin_fs();
--	if (IS_ERR(root))
-+	if (IS_ERR(root)) {
-+		put_fragment(frag);
- 		return PTR_ERR(root);
-+	}
- 
- 	if (!group->cg_item.ci_name)
- 		group->cg_item.ci_name = group->cg_item.ci_namebuf;
-@@ -1871,7 +1929,7 @@ int configfs_register_subsystem(struct c
- 		d_add(dentry, NULL);
- 
- 		err = configfs_attach_group(sd->s_element, &group->cg_item,
--					    dentry);
-+					    dentry, frag);
- 		if (err) {
- 			BUG_ON(d_inode(dentry));
- 			d_drop(dentry);
-@@ -1889,6 +1947,7 @@ int configfs_register_subsystem(struct c
- 		unlink_group(group);
- 		configfs_release_fs();
- 	}
-+	put_fragment(frag);
- 
- 	return err;
- }
---- a/fs/configfs/file.c
-+++ b/fs/configfs/file.c
-@@ -502,7 +502,7 @@ int configfs_create_file(struct config_i
- 
- 	inode_lock_nested(d_inode(dir), I_MUTEX_NORMAL);
- 	error = configfs_make_dirent(parent_sd, NULL, (void *) attr, mode,
--				     CONFIGFS_ITEM_ATTR);
-+				     CONFIGFS_ITEM_ATTR, parent_sd->s_frag);
- 	inode_unlock(d_inode(dir));
- 
- 	return error;
-@@ -524,7 +524,7 @@ int configfs_create_bin_file(struct conf
- 
- 	inode_lock_nested(dir->d_inode, I_MUTEX_NORMAL);
- 	error = configfs_make_dirent(parent_sd, NULL, (void *) bin_attr, mode,
--				     CONFIGFS_ITEM_BIN_ATTR);
-+				     CONFIGFS_ITEM_BIN_ATTR, parent_sd->s_frag);
- 	inode_unlock(dir->d_inode);
- 
- 	return error;
+ /*
 
 
