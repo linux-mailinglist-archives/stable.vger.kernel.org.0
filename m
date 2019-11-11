@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C5897F7C00
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA3CAF7CE4
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729463AbfKKSmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:42:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33208 "EHLO mail.kernel.org"
+        id S1729550AbfKKSuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:50:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729468AbfKKSmE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:42:04 -0500
+        id S1730372AbfKKSuv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:50:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 074BA20674;
-        Mon, 11 Nov 2019 18:42:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 534A7214E0;
+        Mon, 11 Nov 2019 18:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497723;
-        bh=PCHv+hTaj3m1wUuArJIxDlgvcAW8NtTUAcScLjKtTZI=;
+        s=default; t=1573498250;
+        bh=AxjSEsBuqLMR7CGO0L2PJe8Z58LIy3vQxJ+3lq10mw8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LVc8kxlJvH9bK9wTVDRw2CO/XypRNv3zpIu07uA1YBJZknkBBVdbwgl1uV4QSNSdK
-         h3qyI2V2VX4ZmpjSqdMuGlMA5kQlxp+BEWSIGegAZw+FrIf8AD9fAwhtbWVz/uy2g4
-         MEh8OZeb7ana4b3qb+Ur2NpfxD1fAdPsZf3kzsvo=
+        b=QM+S8LUO0es9TxyGUoIlElFHgCPi52BMHJO5aQqyAZ8X6OSNw+UYAGtbayo+ypkel
+         CQ3agWQeSFTd9Lvr516LNaIm0HpZk/iGx6hGqsY3cesCVzs31KKvQHMFZ0/ZWxSy8/
+         FbUcGmOJfVYw3IQWwL1i+QIRS/kSDpm/sWpCfynY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Tranchetti <stranche@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 006/125] net: qualcomm: rmnet: Fix potential UAF when unregistering
-Date:   Mon, 11 Nov 2019 19:27:25 +0100
-Message-Id: <20191111181440.205329891@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.3 064/193] netfilter: nf_tables: Align nft_expr private data to 64-bit
+Date:   Mon, 11 Nov 2019 19:27:26 +0100
+Message-Id: <20191111181505.729127861@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Tranchetti <stranche@codeaurora.org>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit e7a86c687e64ab24f88330ad24ecc9442ce40c5a ]
+commit 250367c59e6ba0d79d702a059712d66edacd4a1a upstream.
 
-During the exit/unregistration process of the RmNet driver, the function
-rmnet_unregister_real_device() is called to handle freeing the driver's
-internal state and removing the RX handler on the underlying physical
-device. However, the order of operations this function performs is wrong
-and can lead to a use after free of the rmnet_port structure.
+Invoking the following commands on a 32-bit architecture with strict
+alignment requirements (such as an ARMv7-based Raspberry Pi) results
+in an alignment exception:
 
-Before calling netdev_rx_handler_unregister(), this port structure is
-freed with kfree(). If packets are received on any RmNet devices before
-synchronize_net() completes, they will attempt to use this already-freed
-port structure when processing the packet. As such, before cleaning up any
-other internal state, the RX handler must be unregistered in order to
-guarantee that no further packets will arrive on the device.
+ # nft add table ip test-ip4
+ # nft add chain ip test-ip4 output { type filter hook output priority 0; }
+ # nft add rule  ip test-ip4 output quota 1025 bytes
 
-Fixes: ceed73a2cf4a ("drivers: net: ethernet: qualcomm: rmnet: Initial implementation")
-Signed-off-by: Sean Tranchetti <stranche@codeaurora.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Alignment trap: not handling instruction e1b26f9f at [<7f4473f8>]
+Unhandled fault: alignment exception (0x001) at 0xb832e824
+Internal error: : 1 [#1] PREEMPT SMP ARM
+Hardware name: BCM2835
+[<7f4473fc>] (nft_quota_do_init [nft_quota])
+[<7f447448>] (nft_quota_init [nft_quota])
+[<7f4260d0>] (nf_tables_newrule [nf_tables])
+[<7f4168dc>] (nfnetlink_rcv_batch [nfnetlink])
+[<7f416bd0>] (nfnetlink_rcv [nfnetlink])
+[<8078b334>] (netlink_unicast)
+[<8078b664>] (netlink_sendmsg)
+[<8071b47c>] (sock_sendmsg)
+[<8071bd18>] (___sys_sendmsg)
+[<8071ce3c>] (__sys_sendmsg)
+[<8071ce94>] (sys_sendmsg)
+
+The reason is that nft_quota_do_init() calls atomic64_set() on an
+atomic64_t which is only aligned to 32-bit, not 64-bit, because it
+succeeds struct nft_expr in memory which only contains a 32-bit pointer.
+Fix by aligning the nft_expr private data to 64-bit.
+
+Fixes: 96518518cc41 ("netfilter: add nftables")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org # v3.13+
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-+++ b/drivers/net/ethernet/qualcomm/rmnet/rmnet_config.c
-@@ -66,10 +66,10 @@ static int rmnet_unregister_real_device(
- 	if (port->nr_rmnet_devs)
- 		return -EINVAL;
+---
+ include/net/netfilter/nf_tables.h |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/include/net/netfilter/nf_tables.h
++++ b/include/net/netfilter/nf_tables.h
+@@ -801,7 +801,8 @@ struct nft_expr_ops {
+  */
+ struct nft_expr {
+ 	const struct nft_expr_ops	*ops;
+-	unsigned char			data[];
++	unsigned char			data[]
++		__attribute__((aligned(__alignof__(u64))));
+ };
  
--	kfree(port);
--
- 	netdev_rx_handler_unregister(real_dev);
- 
-+	kfree(port);
-+
- 	/* release reference on real_dev */
- 	dev_put(real_dev);
- 
+ static inline void *nft_expr_priv(const struct nft_expr *expr)
 
 
