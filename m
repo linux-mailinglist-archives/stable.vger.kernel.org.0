@@ -2,156 +2,345 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6B5F743C
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 13:43:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC6AF7457
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 13:50:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726879AbfKKMnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 07:43:52 -0500
-Received: from 14.mo7.mail-out.ovh.net ([178.33.251.19]:49309 "EHLO
-        14.mo7.mail-out.ovh.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726843AbfKKMnw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 07:43:52 -0500
-X-Greylist: delayed 4629 seconds by postgrey-1.27 at vger.kernel.org; Mon, 11 Nov 2019 07:43:50 EST
-Received: from player788.ha.ovh.net (unknown [10.109.146.82])
-        by mo7.mail-out.ovh.net (Postfix) with ESMTP id AF11713D240
-        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 12:26:39 +0100 (CET)
-Received: from kaod.org (lfbn-1-2229-223.w90-76.abo.wanadoo.fr [90.76.50.223])
-        (Authenticated sender: clg@kaod.org)
-        by player788.ha.ovh.net (Postfix) with ESMTPSA id 9FB97BEE6275;
-        Mon, 11 Nov 2019 11:26:26 +0000 (UTC)
-Subject: Re: [PATCH] KVM: PPC: Book3S HV: XIVE: Free previous EQ page when
- setting up a new one
-To:     Greg Kurz <groug@kaod.org>, Paul Mackerras <paulus@ozlabs.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        Lijun Pan <ljp@linux.ibm.com>,
-        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
-        kvm-ppc@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <157346576671.818016.10401178701091199969.stgit@bahia.lan>
-From:   =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-Message-ID: <3373a85a-09bb-3345-ef27-68177c360786@kaod.org>
-Date:   Mon, 11 Nov 2019 12:26:25 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        id S1726902AbfKKMul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 07:50:41 -0500
+Received: from us-smtp-2.mimecast.com ([205.139.110.61]:58105 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726810AbfKKMul (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 07:50:41 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573476638;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3mQCUrrni/aM6eGDrOeZ7Ly7jelCvmBU7SW5BJum148=;
+        b=Ugc/OBNNvj+X5Lvh6PAjqx+j5is8RbKErtKz8jMBZ4hCCqfur9O4y6qdCl9CsMone8Cxf4
+        U45cJheQqu1t9GULqYF0iJvFHANxVSk3Bo9Ok6EYOMJlpb3sRsmxKRjBx8zvFQqxB/XcoT
+        TR8Cx5kwqdbFlgcRjtNAG4gojv5JbGU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-230-3UTtjhbHNXaMbhMm2sodYA-1; Mon, 11 Nov 2019 07:50:36 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 092AF64A7D
+        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 12:50:36 +0000 (UTC)
+Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 115081001B35;
+        Mon, 11 Nov 2019 12:50:33 +0000 (UTC)
 MIME-Version: 1.0
-In-Reply-To: <157346576671.818016.10401178701091199969.stgit@bahia.lan>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Ovh-Tracer-Id: 5003217712743287575
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedufedruddvjedgvdelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdqfffguegfifdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhepuffvfhfhkffffgggjggtgfesthejredttdefjeenucfhrhhomhepveorughrihgtpgfnvggpifhorghtvghruceotghlgheskhgrohgurdhorhhgqeenucfkpheptddrtddrtddrtddpledtrdejiedrhedtrddvvdefnecurfgrrhgrmhepmhhouggvpehsmhhtphdqohhuthdphhgvlhhopehplhgrhigvrhejkeekrdhhrgdrohhvhhdrnhgvthdpihhnvghtpedtrddtrddtrddtpdhmrghilhhfrhhomheptghlgheskhgrohgurdhorhhgpdhrtghpthhtohepshhtrggslhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgeptd
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
+Date:   Mon, 11 Nov 2019 12:50:32 -0000
+CC:     Milos Malik <mmalik@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Message-ID: <cki.A54743AE8B.SFBRKWS1MQ@redhat.com>
+X-Gitlab-Pipeline-ID: 278269
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/278269
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-MC-Unique: 3UTtjhbHNXaMbhMm2sodYA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/11/2019 10:49, Greg Kurz wrote:
-> The EQ page is allocated by the guest and then passed to the hypervisor
-> with the H_INT_SET_QUEUE_CONFIG hcall. A reference is taken on the page
-> before handing it over to the HW. This reference is dropped either when
-> the guest issues the H_INT_RESET hcall or when the KVM device is released.
-> But, the guest can legitimately call H_INT_SET_QUEUE_CONFIG several times
-> to reset the EQ (vCPU hot unplug) or set a new EQ (guest reboot). In both
-> cases the EQ page reference is leaked. This is especially visible when
-> the guest memory is backed with huge pages: start a VM up to the guest
-> userspace, either reboot it or unplug a vCPU, quit QEMU. The leak is
-> observed by comparing the value of HugePages_Free in /proc/meminfo before
-> and after the VM is run.
-> 
-> Note that the EQ reset path seems to be calling put_page() but this is
-> done after xive_native_configure_queue() which clears the qpage field
-> in the XIVE queue structure, ie. the put_page() block is a nop and the
-> previous page pointer was just overwritten anyway. In the other case of
-> configuring a new EQ page, nothing seems to be done to release the old
-> one.
 
-Yes. Nice catch. I think we should try to fix the problem differently. 
+Hello,
 
-The routine xive_native_configure_queue() is only suited for XIVE 
-drivers doing their own EQ page allocation: Linux PowerNV and the 
-KVM XICS-over-XIVE device. The KVM XIVE device acts as a proxy for 
-the guest OS doing the allocation and it has different needs.
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
 
-Having a specific xive_native_configure_queue() for the KVM XIVE 
-device seems overkill. May be, we could introduce a helper routine 
-in KVM XIVE device calling xive_native_configure_queue() and handling 
-the page reference how it should be ? That is to drop the previous
-page reference in case of a change on q->qpage.
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 81584694bb70 - Linux 5.3.10
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
+
+All kernel binaries, config files, and logs are available for download here=
+:
+
+  https://artifacts.cki-project.org/pipelines/278269
+
+One or more kernel tests failed:
+
+    ppc64le:
+     =E2=9D=8C selinux-policy: serge-testsuite
+
+    aarch64:
+     =E2=9D=8C selinux-policy: serge-testsuite
+
+    x86_64:
+     =E2=9D=8C selinux-policy: serge-testsuite
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
+
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 81584694bb70 - Linux 5.3.10
 
 
-Also, we should try to preserve the previous setting until the whole 
-configuration is in place. That seems possible up to the call to 
-xive_native_configure_queue(). If kvmppc_xive_attach_escalation()
-fails I think it is too late, as the HW has been configured by 
-xive_native_configure_queue(), and we should just cleanup everything. 
+We grabbed the 6a1591cf97f1 commit of the stable queue repository.
 
-Thanks,
+We then merged the patchset with `git am`:
 
-C. 
+  bonding-fix-state-transition-issue-in-link-monitoring.patch
+  cdc-ncm-handle-incomplete-transfer-of-mtu.patch
+  ipv4-fix-table-id-reference-in-fib_sync_down_addr.patch
+  net-ethernet-octeon_mgmt-account-for-second-possible-vlan-header.patch
+  net-fix-data-race-in-neigh_event_send.patch
+  net-qualcomm-rmnet-fix-potential-uaf-when-unregistering.patch
+  net-tls-fix-sk_msg-trim-on-fallback-to-copy-mode.patch
+  net-usb-qmi_wwan-add-support-for-dw5821e-with-esim-support.patch
+  nfc-fdp-fix-incorrect-free-object.patch
+  nfc-netlink-fix-double-device-reference-drop.patch
+  nfc-st21nfca-fix-double-free.patch
+  qede-fix-null-pointer-deref-in-__qede_remove.patch
+  net-mscc-ocelot-don-t-handle-netdev-events-for-other-netdevs.patch
+  net-mscc-ocelot-fix-null-pointer-on-lag-slave-removal.patch
+  net-tls-don-t-pay-attention-to-sk_write_pending-when-pushing-partial-reco=
+rds.patch
+  net-tls-add-a-tx-lock.patch
+  selftests-tls-add-test-for-concurrent-recv-and-send.patch
+  ipv6-fixes-rt6_probe-and-fib6_nh-last_probe-init.patch
+  net-hns-fix-the-stray-netpoll-locks-causing-deadlock-in-napi-path.patch
+  net-prevent-load-store-tearing-on-sk-sk_stamp.patch
+  net-sched-prevent-duplicate-flower-rules-from-tcf_proto-destroy-race.patc=
+h
+  net-smc-fix-ethernet-interface-refcounting.patch
+  vsock-virtio-fix-sock-refcnt-holding-during-the-shutdown.patch
+  r8169-fix-page-read-in-r8168g_mdio_read.patch
+  alsa-timer-fix-incorrectly-assigned-timer-instance.patch
+  alsa-bebob-fix-to-detect-configured-source-of-sampling-clock-for-focusrit=
+e-saffire-pro-i-o-series.patch
+  alsa-hda-ca0132-fix-possible-workqueue-stall.patch
+  mm-memcontrol-fix-null-ptr-deref-in-percpu-stats-flush.patch
+  mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
+  mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.pa=
+tch
+  mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
+  mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
+  dump_stack-avoid-the-livelock-of-the-dump_lock.patch
+  mm-slab-make-page_cgroup_ino-to-recognize-non-compound-slab-pages-properl=
+y.patch
+  btrfs-consider-system-chunk-array-size-for-new-system-chunks.patch
+  btrfs-tree-checker-fix-wrong-check-on-max-devid.patch
+  btrfs-save-i_size-to-avoid-double-evaluation-of-i_size_read-in-compress_f=
+ile_range.patch
+  tools-gpio-use-building_out_of_srctree-to-determine-srctree.patch
+  pinctrl-intel-avoid-potential-glitches-if-pin-is-in-gpio-mode.patch
+  perf-tools-fix-time-sorting.patch
+  perf-map-use-zalloc-for-map_groups.patch
+  drm-radeon-fix-si_enable_smc_cac-failed-issue.patch
+  hid-wacom-generic-treat-serial-number-and-related-fields-as-unsigned.patc=
+h
+  mm-khugepaged-fix-might_sleep-warn-with-config_highpte-y.patch
+  soundwire-depend-on-acpi.patch
+  soundwire-depend-on-acpi-of.patch
+  soundwire-bus-set-initial-value-to-port_status.patch
+  blkcg-make-blkcg_print_stat-print-stats-only-for-online-blkgs.patch
+  arm64-do-not-mask-out-pte_rdonly-in-pte_same.patch
+  asoc-rsnd-dma-fix-ssi9-4-5-6-7-busif-dma-address.patch
+  ceph-fix-use-after-free-in-__ceph_remove_cap.patch
+  ceph-fix-rcu-case-handling-in-ceph_d_revalidate.patch
+  ceph-add-missing-check-in-d_revalidate-snapdir-handling.patch
+  ceph-don-t-try-to-handle-hashed-dentries-in-non-o_creat-atomic_open.patch
+  ceph-don-t-allow-copy_file_range-when-stripe_count-1.patch
+  iio-adc-stm32-adc-fix-stopping-dma.patch
+  iio-imu-adis16480-make-sure-provided-frequency-is-positive.patch
+  iio-imu-inv_mpu6050-fix-no-data-on-mpu6050.patch
+  iio-srf04-fix-wrong-limitation-in-distance-measuring.patch
+  arm-sunxi-fix-cpu-powerdown-on-a83t.patch
+  arm-dts-imx6-logicpd-re-enable-snvs-power-key.patch
+  cpufreq-intel_pstate-fix-invalid-epb-setting.patch
+  clone3-validate-stack-arguments.patch
+  netfilter-nf_tables-align-nft_expr-private-data-to-64-bit.patch
+  netfilter-ipset-fix-an-error-code-in-ip_set_sockfn_get.patch
+  intel_th-gth-fix-the-window-switching-sequence.patch
+  intel_th-pci-add-comet-lake-pch-support.patch
+  intel_th-pci-add-jasper-lake-pch-support.patch
+  x86-dumpstack-64-don-t-evaluate-exception-stacks-before-setup.patch
+  x86-apic-32-avoid-bogus-ldr-warnings.patch
+  smb3-fix-persistent-handles-reconnect.patch
+  can-usb_8dev-fix-use-after-free-on-disconnect.patch
+  can-flexcan-disable-completely-the-ecc-mechanism.patch
+  can-c_can-c_can_poll-only-read-status-register-after-status-irq.patch
+  can-peak_usb-fix-a-potential-out-of-sync-while-decoding-packets.patch
+  can-rx-offload-can_rx_offload_queue_sorted-fix-error-handling-avoid-skb-m=
+em-leak.patch
+  can-gs_usb-gs_can_open-prevent-memory-leak.patch
+  can-dev-add-missing-of_node_put-after-calling-of_get_child_by_name.patch
+  can-mcba_usb-fix-use-after-free-on-disconnect.patch
+  can-peak_usb-fix-slab-info-leak.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
 
-> Fix both cases by always calling put_page() on the existing EQ page in
-> kvmppc_xive_native_set_queue_config(). This is a seemless change for the
-> EQ reset case. However this causes xive_native_configure_queue() to be
-> called twice for the new EQ page case: one time to reset the EQ and another
-> time to configure the new page. This is needed because we cannot release
-> the EQ page before calling xive_native_configure_queue() since it may still
-> be used by the HW. We cannot modify xive_native_configure_queue() to drop
-> the reference either because this function is also used by the XICS-on-XIVE
-> device which requires free_pages() instead of put_page(). This isn't a big
-> deal anyway since H_INT_SET_QUEUE_CONFIG isn't a hot path.
-> 
-> Reported-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
-> Cc: stable@vger.kernel.org # v5.2
-> Fixes: 13ce3297c576 ("KVM: PPC: Book3S HV: XIVE: Add controls for the EQ configuration")
-> Signed-off-by: Greg Kurz <groug@kaod.org>
-> ---
->  arch/powerpc/kvm/book3s_xive_native.c |   21 ++++++++++++---------
->  1 file changed, 12 insertions(+), 9 deletions(-)
-> 
-> diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
-> index 34bd123fa024..8ab908d23dc2 100644
-> --- a/arch/powerpc/kvm/book3s_xive_native.c
-> +++ b/arch/powerpc/kvm/book3s_xive_native.c
-> @@ -570,10 +570,12 @@ static int kvmppc_xive_native_set_queue_config(struct kvmppc_xive *xive,
->  		 __func__, server, priority, kvm_eq.flags,
->  		 kvm_eq.qshift, kvm_eq.qaddr, kvm_eq.qtoggle, kvm_eq.qindex);
->  
-> -	/* reset queue and disable queueing */
-> -	if (!kvm_eq.qshift) {
-> -		q->guest_qaddr  = 0;
-> -		q->guest_qshift = 0;
-> +	/*
-> +	 * Reset queue and disable queueing. It will be re-enabled
-> +	 * later on if the guest is configuring a new EQ page.
-> +	 */
-> +	if (q->guest_qshift) {
-> +		page = virt_to_page(q->qpage);
->  
->  		rc = xive_native_configure_queue(xc->vp_id, q, priority,
->  						 NULL, 0, true);
-> @@ -583,12 +585,13 @@ static int kvmppc_xive_native_set_queue_config(struct kvmppc_xive *xive,
->  			return rc;
->  		}
->  
-> -		if (q->qpage) {
-> -			put_page(virt_to_page(q->qpage));
-> -			q->qpage = NULL;
-> -		}
-> +		put_page(page);
->  
-> -		return 0;
-> +		if (!kvm_eq.qshift) {
-> +			q->guest_qaddr  = 0;
-> +			q->guest_qshift = 0;
-> +			return 0;
-> +		}
->  	}
->  
->  	/*
-> 
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
