@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B87F7EBB
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A48CBF7F6B
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728207AbfKKTFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 14:05:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58682 "EHLO mail.kernel.org"
+        id S1727680AbfKKSbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:31:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727977AbfKKSje (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:39:34 -0500
+        id S1726978AbfKKSbe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:31:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F8E3204FD;
-        Mon, 11 Nov 2019 18:39:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AFAD2173B;
+        Mon, 11 Nov 2019 18:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497573;
-        bh=6BoxzKJfoTLRXFSyM632xFz5OUUPUolpB2hF7Y4yUR8=;
+        s=default; t=1573497093;
+        bh=+OcbpRDk8vmqcpdXP162JIV+eV/Y2V5IJpuBxfMkdiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laPJSurAMMyajXt235KpEnRWZS0dx+X3WKdtMA7aPbZMqm2X5hIIy+xUSJ3MXeLI5
-         FGRBsSD+vRw7L+9CA6SISDsQA0NBd71ULTUFfKpVcaQD8t5DvH+IVO+Y/uPVkkyQcH
-         9wnzkQe93XGzwgx9ExxUHaLUDriBrYTreVyXysxo=
+        b=YGlDqSXG75L4FUO0NE0qXxuaAjxzql/vW55/CwLquG4seZ1gnszr2ikBltRB5gGYY
+         fWz9/Fg1c1/RzvbV6hDD+e1t1UHsMchnM1znq1mlz+NkAN6QREnXnS9MgSb/vMFzZb
+         xhhzJ5qTM2HNfgY5LIucLy2VKvnPIj9flgIfNxkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chandana Kishori Chiluveru <cchiluve@codeaurora.org>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 084/105] usb: gadget: composite: Fix possible double free memory bug
-Date:   Mon, 11 Nov 2019 19:28:54 +0100
-Message-Id: <20191111181447.248454698@linuxfoundation.org>
+Subject: [PATCH 4.4 41/43] can: flexcan: disable completely the ECC mechanism
+Date:   Mon, 11 Nov 2019 19:28:55 +0100
+Message-Id: <20191111181328.218240801@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit 1c20c89b0421b52b2417bb0f62a611bc669eda1d ]
+[ Upstream commit 5e269324db5adb2f5f6ec9a93a9c7b0672932b47 ]
 
-composite_dev_cleanup call from the failure of configfs_composite_bind
-frees up the cdev->os_desc_req and cdev->req. If the previous calls of
-bind and unbind is successful these will carry stale values.
+The ECC (memory error detection and correction) mechanism can be
+activated or not, controlled by the ECCDIS bit in CAN_MECR. When
+disabled, updates on indications and reporting registers are stopped.
+So if want to disable ECC completely, had better assert ECCDIS bit, not
+just mask the related interrupts.
 
-Consider the below sequence of function calls:
-configfs_composite_bind()
-        composite_dev_prepare()
-                - Allocate cdev->req, cdev->req->buf
-        composite_os_desc_req_prepare()
-                - Allocate cdev->os_desc_req, cdev->os_desc_req->buf
-configfs_composite_unbind()
-        composite_dev_cleanup()
-                - free the cdev->os_desc_req->buf and cdev->req->buf
-Next composition switch
-configfs_composite_bind()
-        - If it fails goto err_comp_cleanup will call the
-	  composite_dev_cleanup() function
-        composite_dev_cleanup()
-	        - calls kfree up with the stale values of cdev->req->buf and
-		  cdev->os_desc_req from the previous configfs_composite_bind
-		  call. The free call on these stale values leads to double free.
-
-Hence, Fix this issue by setting request and buffer pointer to NULL after
-kfree.
-
-Signed-off-by: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: cdce844865be ("can: flexcan: add vf610 support for FlexCAN")
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/can/flexcan.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index 75c42393b64ba..b29cd3979391e 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -2187,14 +2187,18 @@ void composite_dev_cleanup(struct usb_composite_dev *cdev)
- 			usb_ep_dequeue(cdev->gadget->ep0, cdev->os_desc_req);
- 
- 		kfree(cdev->os_desc_req->buf);
-+		cdev->os_desc_req->buf = NULL;
- 		usb_ep_free_request(cdev->gadget->ep0, cdev->os_desc_req);
-+		cdev->os_desc_req = NULL;
- 	}
- 	if (cdev->req) {
- 		if (cdev->setup_pending)
- 			usb_ep_dequeue(cdev->gadget->ep0, cdev->req);
- 
- 		kfree(cdev->req->buf);
-+		cdev->req->buf = NULL;
- 		usb_ep_free_request(cdev->gadget->ep0, cdev->req);
-+		cdev->req = NULL;
- 	}
- 	cdev->next_string_id = 0;
- 	device_remove_file(&cdev->gadget->dev, &dev_attr_suspended);
--- 
-2.20.1
-
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -923,6 +923,7 @@ static int flexcan_chip_start(struct net
+ 		reg_mecr = flexcan_read(&regs->mecr);
+ 		reg_mecr &= ~FLEXCAN_MECR_ECRWRDIS;
+ 		flexcan_write(reg_mecr, &regs->mecr);
++		reg_mecr |= FLEXCAN_MECR_ECCDIS;
+ 		reg_mecr &= ~(FLEXCAN_MECR_NCEFAFRZ | FLEXCAN_MECR_HANCEI_MSK |
+ 			      FLEXCAN_MECR_FANCEI_MSK);
+ 		flexcan_write(reg_mecr, &regs->mecr);
 
 
