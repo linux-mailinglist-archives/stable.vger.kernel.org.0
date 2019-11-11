@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 26905F7EA1
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AD36F7ED9
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728754AbfKKSly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:41:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33024 "EHLO mail.kernel.org"
+        id S1728603AbfKKSft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:35:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728725AbfKKSlx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:41:53 -0500
+        id S1728596AbfKKSft (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:35:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F108214E0;
-        Mon, 11 Nov 2019 18:41:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03D812196E;
+        Mon, 11 Nov 2019 18:35:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497713;
-        bh=3vG4EWMklZ0ESCIkXmbbYhT1dEFxQiPHgFy+ESs2VdY=;
+        s=default; t=1573497348;
+        bh=DgOeGiA0kYlJ1pwptbjhYwSRiBmoHrCye0hH9BMijLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2SmjJHETeK1pMkG0OM9tiw4ddMJTa8Q/a+J7MKAD2Z4MUFIqBgRHVZ1WTtrZEz0mV
-         GRd5bSXuUKJU9sy5bxRDLAzXa4cNRiiooKVoHWGQgqmBoeKePyG+hDFadIi8Wi79qD
-         IxBKXoHN4XLw5nFchlpmOnKoQIkouzEZ2HpIBc4g=
+        b=yDfc0waTE+mJ83/fjioNmFOwQvf60cCPnTLaLpk4RyaIlTJ3J8WQPjlXnxB4mqLGo
+         KWnrmMBJxHfGWnlpGr4Mhn9ePDHq7L6d4pd/MCdU0VIzMh3hxJRe50xL+W/HJaVMhs
+         mzeWMNqrnsck4LvKBTmvMxCisKugWI4zHTEI+Nw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Ardelean <alexandru.ardelean@analog.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 034/125] iio: imu: adis16480: make sure provided frequency is positive
+        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
+        Steve Capper <steve.capper@arm.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 4.14 023/105] arm64: Do not mask out PTE_RDONLY in pte_same()
 Date:   Mon, 11 Nov 2019 19:27:53 +0100
-Message-Id: <20191111181445.151155830@linuxfoundation.org>
+Message-Id: <20191111181436.637567352@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <alexandru.ardelean@analog.com>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-commit 24e1eb5c0d78cfb9750b690bbe997d4d59170258 upstream.
+commit 6767df245f4736d0cf0c6fb7cf9cf94b27414245 upstream.
 
-It could happen that either `val` or `val2` [provided from userspace] is
-negative. In that case the computed frequency could get a weird value.
+Following commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out
+of set_pte_at()"), the PTE_RDONLY bit is no longer managed by
+set_pte_at() but built into the PAGE_* attribute definitions.
+Consequently, pte_same() must include this bit when checking two PTEs
+for equality.
 
-Fix this by checking that neither of the 2 variables is negative, and check
-that the computed result is not-zero.
+Remove the arm64-specific pte_same() function, practically reverting
+commit 747a70e60b72 ("arm64: Fix copy-on-write referencing in HugeTLB")
 
-Fixes: e4f959390178 ("iio: imu: adis16480 switch sampling frequency attr to core support")
-Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
+Cc: <stable@vger.kernel.org> # 4.14.x-
+Cc: Will Deacon <will@kernel.org>
+Cc: Steve Capper <steve.capper@arm.com>
+Reported-by: John Stultz <john.stultz@linaro.org>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/imu/adis16480.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/pgtable.h |   17 -----------------
+ 1 file changed, 17 deletions(-)
 
---- a/drivers/iio/imu/adis16480.c
-+++ b/drivers/iio/imu/adis16480.c
-@@ -270,8 +270,11 @@ static int adis16480_set_freq(struct iio
- 	struct adis16480 *st = iio_priv(indio_dev);
- 	unsigned int t;
+--- a/arch/arm64/include/asm/pgtable.h
++++ b/arch/arm64/include/asm/pgtable.h
+@@ -258,23 +258,6 @@ static inline void set_pte_at(struct mm_
+ 	set_pte(ptep, pte);
+ }
  
-+	if (val < 0 || val2 < 0)
-+		return -EINVAL;
-+
- 	t =  val * 1000 + val2 / 1000;
--	if (t <= 0)
-+	if (t == 0)
- 		return -EINVAL;
- 
- 	t = 2460000 / t;
+-#define __HAVE_ARCH_PTE_SAME
+-static inline int pte_same(pte_t pte_a, pte_t pte_b)
+-{
+-	pteval_t lhs, rhs;
+-
+-	lhs = pte_val(pte_a);
+-	rhs = pte_val(pte_b);
+-
+-	if (pte_present(pte_a))
+-		lhs &= ~PTE_RDONLY;
+-
+-	if (pte_present(pte_b))
+-		rhs &= ~PTE_RDONLY;
+-
+-	return (lhs == rhs);
+-}
+-
+ /*
+  * Huge pte definitions.
+  */
 
 
