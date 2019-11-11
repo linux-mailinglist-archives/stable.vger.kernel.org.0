@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6CFF7E5B
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67190F7E81
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729961AbfKKSqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:46:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38506 "EHLO mail.kernel.org"
+        id S1726951AbfKKSj0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:39:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729953AbfKKSqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:46:07 -0500
+        id S1727865AbfKKSjZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:39:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A18820674;
-        Mon, 11 Nov 2019 18:46:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF4E8204FD;
+        Mon, 11 Nov 2019 18:39:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497966;
-        bh=xfEgfX5Tk17FlbuIssIAcm1s/tupxh1PPvYDHYPfdbQ=;
+        s=default; t=1573497565;
+        bh=Kmfu4VmPrjZjFSmVSk+Vfr1mMgssEHe99ALGGhkqr0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCYrGZuFNT47JX3EqmPac/sd/FpvHmgxMA6Uln9bqxT5x0wOLN18HS7tItaVpg4A4
-         D0j3X/uCbP8NhnrW8dBIarTY06V+4bqaXN2qqNUNo262wjnqLPSHHDSWJhKdKTH9VF
-         7CFAW8Jq89my35oFnhuSIimTJpAwA/xVlkosX+NM=
+        b=rMKU/TS2B16oM/6ngAwfO9VWgqKVisG/nIorn8yugFwkKZB4VUEk1Pd4Eee3eWAlL
+         Gf7k7LxDMZLaktynKQ5ssbv1JMXAjxGSVdSBRoy0sNJUjH/ZOa9Jn+xZTdcUhFIlCQ
+         9ukK/Eqc8rlankLCegxLt4HVHg6IvDB0MTPPmRyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 109/125] iommu/amd: Apply the same IVRS IOAPIC workaround to Acer Aspire A315-41
-Date:   Mon, 11 Nov 2019 19:29:08 +0100
-Message-Id: <20191111181454.410104668@linuxfoundation.org>
+        stable@vger.kernel.org, Wenwen Wang <wenwen@cs.uga.edu>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 099/105] e1000: fix memory leaks
+Date:   Mon, 11 Nov 2019 19:29:09 +0100
+Message-Id: <20191111181449.035227403@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Wenwen Wang <wenwen@cs.uga.edu>
 
-[ Upstream commit ad3e8da2d422c63c13819a53d3c5ea9312cc0b9d ]
+[ Upstream commit 8472ba62154058b64ebb83d5f57259a352d28697 ]
 
-Acer Aspire A315-41 requires the very same workaround as the existing
-quirk for Dell Latitude 5495.  Add the new entry for that.
+In e1000_set_ringparam(), 'tx_old' and 'rx_old' are not deallocated if
+e1000_up() fails, leading to memory leaks. Refactor the code to fix this
+issue.
 
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1137799
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd_iommu_quirks.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/intel/e1000/e1000_ethtool.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu_quirks.c b/drivers/iommu/amd_iommu_quirks.c
-index c235f79b7a200..5120ce4fdce32 100644
---- a/drivers/iommu/amd_iommu_quirks.c
-+++ b/drivers/iommu/amd_iommu_quirks.c
-@@ -73,6 +73,19 @@ static const struct dmi_system_id ivrs_quirks[] __initconst = {
- 		},
- 		.driver_data = (void *)&ivrs_ioapic_quirks[DELL_LATITUDE_5495],
- 	},
-+	{
-+		/*
-+		 * Acer Aspire A315-41 requires the very same workaround as
-+		 * Dell Latitude 5495
-+		 */
-+		.callback = ivrs_ioapic_quirk_cb,
-+		.ident = "Acer Aspire A315-41",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Aspire A315-41"),
-+		},
-+		.driver_data = (void *)&ivrs_ioapic_quirks[DELL_LATITUDE_5495],
-+	},
- 	{
- 		.callback = ivrs_ioapic_quirk_cb,
- 		.ident = "Lenovo ideapad 330S-15ARR",
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_ethtool.c b/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
+index 10df2d60c1814..88b34f7223375 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_ethtool.c
+@@ -627,6 +627,7 @@ static int e1000_set_ringparam(struct net_device *netdev,
+ 	for (i = 0; i < adapter->num_rx_queues; i++)
+ 		rxdr[i].count = rxdr->count;
+ 
++	err = 0;
+ 	if (netif_running(adapter->netdev)) {
+ 		/* Try to get new resources before deleting old */
+ 		err = e1000_setup_all_rx_resources(adapter);
+@@ -647,14 +648,13 @@ static int e1000_set_ringparam(struct net_device *netdev,
+ 		adapter->rx_ring = rxdr;
+ 		adapter->tx_ring = txdr;
+ 		err = e1000_up(adapter);
+-		if (err)
+-			goto err_setup;
+ 	}
+ 	kfree(tx_old);
+ 	kfree(rx_old);
+ 
+ 	clear_bit(__E1000_RESETTING, &adapter->flags);
+-	return 0;
++	return err;
++
+ err_setup_tx:
+ 	e1000_free_all_rx_resources(adapter);
+ err_setup_rx:
+@@ -666,7 +666,6 @@ err_alloc_rx:
+ err_alloc_tx:
+ 	if (netif_running(adapter->netdev))
+ 		e1000_up(adapter);
+-err_setup:
+ 	clear_bit(__E1000_RESETTING, &adapter->flags);
+ 	return err;
+ }
 -- 
 2.20.1
 
