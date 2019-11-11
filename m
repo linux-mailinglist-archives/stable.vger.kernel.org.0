@@ -2,149 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAA1F6E4E
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34785F6E57
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:01:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726953AbfKKGAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:00:10 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:41391 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726205AbfKKGAJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:00:09 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id A8C5E21B03;
-        Mon, 11 Nov 2019 01:00:08 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:00:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7esCtB
-        dLc+G1RR5m50JFrf/V5PRlN7BzAeQzf0PlV7I=; b=ivqKj3ZmoH2JnHyTv1qCB1
-        iTaqPITpWwGqGBDcJDn29+KMQSuBTz+a6pbKBluAR834kdUFSB+GB/RfKOfbgAlF
-        TXKaYS2pmw1cyI+qw3lQjkpwl5+ahgVuY2COm44RX+RTvnrzy6wIvvTKAiprKOoV
-        THBUItFhibflBDe7Sqg6+muMUzvYnS/p4O3WiK2gkRT0sgCyKbi9Tf/usx/cTT+Q
-        nawRVGLyObJKhqHpp0v3ZvX7EoQq/teXLsZRMSIr2q0jyDmes6xctsFDg6fSoE2G
-        xcl4bBOinWO1EO/WegeoK+we3qCrpOZ3xLgn6eW8cVobpzKOX9HROpvlXVqfz+DA
-        ==
-X-ME-Sender: <xms:6PjIXTf7e7aGBdRXdzbK_bgy-SUsKZ2QkJNq9VYaxHYyExQIxOodSw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgledvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
-X-ME-Proxy: <xmx:6PjIXbqMutABQR5COOkA_Z9D9tDrtb3XTtCnxi2_hRBBmHbue6YDBg>
-    <xmx:6PjIXaPoiY7FtQjDL7uEdtDBScrwgtQANuJk9SLFt5e_P14D5_Likg>
-    <xmx:6PjIXUFw5d5e8UFwDGmDS9_wfjzGMSwNkoKPkqJe8tnky3lQHzCYcw>
-    <xmx:6PjIXaqtk4kWpWPSKT1BFZMtEDRKeeoXkxT7IB2m8AQxO5ems2Y2yA>
+        id S1726823AbfKKGBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:01:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725796AbfKKGBg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 01:01:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3FE043060062;
-        Mon, 11 Nov 2019 01:00:08 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: intel: Avoid potential glitches if pin is in GPIO" failed to apply to 4.4-stable tree
-To:     andriy.shevchenko@linux.intel.com, malin.jonsson@ericsson.com,
-        mika.westerberg@linux.intel.com, oliver.barta@aptiv.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Nov 2019 06:59:54 +0100
-Message-ID: <157345199430165@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D88320656;
+        Mon, 11 Nov 2019 06:01:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573452094;
+        bh=r2/46Oo7bzlP9QELn0pm6e6LdiAFm+dgs0+pcUxGDOQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WlVHQzIJM20xcbXlcK1Ol8oaCuqcHpKxgfD4GWSGZ890mzTBiDyJocMWMK/aajIoH
+         zFEHtHcOpa+qWbMSIWCY1uyqCuFSyrpbnu15vhkyvsKgfLDNJC3dtC1zA6XlkMTyNi
+         wFW4EpAhLRmhgJW/gN20IziDGpQejHQXTUTHFvMI=
+Date:   Mon, 11 Nov 2019 07:01:29 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Andres Freund <andres@anarazel.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        John Keeping <john@metanate.com>, Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.3 111/344] perf unwind: Fix libunwind when tid != pid
+Message-ID: <20191111060129.GA3197363@kroah.com>
+References: <20191003154540.062170222@linuxfoundation.org>
+ <20191003154551.163214533@linuxfoundation.org>
+ <20191110014621.n5yfednqfl7g3atr@alap3.anarazel.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191110014621.n5yfednqfl7g3atr@alap3.anarazel.de>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Nov 09, 2019 at 05:46:21PM -0800, Andres Freund wrote:
+> Hi,
+> 
+> On 2019-10-03 17:51:16 +0200, Greg Kroah-Hartman wrote:
+> > From: John Keeping <john@metanate.com>
+> >
+> > [ Upstream commit e8ba2906f6b9054102ad035ac9cafad9d4168589 ]
+> >
+> > Commit e5adfc3e7e77 ("perf map: Synthesize maps only for thread group
+> > leader") changed the recording side so that we no longer get mmap events
+> > for threads other than the thread group leader (when synthesising these
+> > events for threads which exist before perf is started).
+> >
+> > When a file recorded after this change is loaded, the lack of mmap
+> > records mean that unwinding is not set up for any other threads.
+> >
+> > This can be seen in a simple record/report scenario:
+> >
+> > 	perf record --call-graph=dwarf -t $TID
+> > 	perf report
+> >
+> > If $TID is a process ID then the report will show call graphs, but if
+> > $TID is a secondary thread the output is as if --call-graph=none was
+> > specified.
+> >
+> > Following the rationale in that commit, move the libunwind fields into
+> > struct map_groups and update the libunwind functions to take this
+> > instead of the struct thread.  This is only required for
+> > unwind__finish_access which must now be called from map_groups__delete
+> > and the others are changed for symmetry.
+> >
+> > Note that unwind__get_entries keeps the thread argument since it is
+> > required for symbol lookup and the libdw unwind provider uses the thread
+> > ID.
+> >
+> > Signed-off-by: John Keeping <john@metanate.com>
+> > Reviewed-by: Jiri Olsa <jolsa@kernel.org>
+> > Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> > Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+> > Cc: Namhyung Kim <namhyung@kernel.org>
+> > Cc: Peter Zijlstra <peterz@infradead.org>
+> > Fixes: e5adfc3e7e77 ("perf map: Synthesize maps only for thread group leader")
+> > Link: http://lkml.kernel.org/r/20190815100146.28842-2-john@metanate.com
+> > Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> This unfortunately broke --call-graph dwarf on 5.3 (and presumably older
+> branches), because while this commit has been included in stable, the
+> prerequisite
+> 
+> commit ab6cd0e5276e24403751e0b3b8ed807738a8571f
+> Author:     John Keeping <john@metanate.com>
+> AuthorDate: 2019-08-15 11:01:44 +0100
+> Commit:     Arnaldo Carvalho de Melo <acme@redhat.com>
+> CommitDate: 2019-08-16 12:25:23 -0300
+> 
+>     perf map: Use zalloc for map_groups
+> 
+>     In the next commit we will add new fields to map_groups and we need
+>     these to be null if no value is assigned.  The simplest way to achieve
+>     this is to request zeroed memory from the allocator.
+> 
+>     Signed-off-by: John Keeping <john@metanate.com>
+>     Reviewed-by: Jiri Olsa <jolsa@kernel.org>
+>     Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+>     Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+>     Cc: Namhyung Kim <namhyung@kernel.org>
+>     Cc: Peter Zijlstra <peterz@infradead.org>
+>     Cc: john keeping <john@metanate.com>
+>     Link: http://lkml.kernel.org/r/20190815100146.28842-1-john@metanate.com
+>     Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+> 
+> has not.
+> 
+> 
+> The crash I get is:
+> 
+> Thread 1 "perf" received signal SIGSEGV, Segmentation fault.
+> 0x0000555555872238 in unwind__flush_access (mg=0x555555c53b50) at util/unwind-libunwind.c:76
+> 76			mg->unwind_libunwind_ops->flush_access(mg);
+> (gdb) bt
+> #0  0x0000555555872238 in unwind__flush_access (mg=0x555555c53b50) at util/unwind-libunwind.c:76
+> #1  0x0000555555800ac4 in ____thread__set_comm (exec=true, timestamp=325096707055731, str=0x7ffff7f96ed8 "sleep", thread=0x555555c53bc0) at util/thread.c:254
+> #2  __thread__set_comm (thread=thread@entry=0x555555c53bc0, str=str@entry=0x7ffff7f96ed8 "sleep", timestamp=325096707055731, exec=exec@entry=true)
+>     at util/thread.c:268
+> #3  0x00005555557f132a in machine__process_comm_event (machine=0x555555c4bc68, event=0x7ffff7f96ec8, sample=0x7fffffff8f70) at util/machine.c:600
+> #4  0x00005555557fa93b in perf_session__deliver_event (session=0x555555c4baf0, event=0x7ffff7f96ec8, tool=0x555555acb9a0 <record>, file_offset=73416)
+>     at util/session.c:1473
+> #5  0x00005555557feae8 in do_flush (show_progress=true, oe=0x555555c52610) at util/ordered-events.c:243
+> #6  __ordered_events__flush (oe=oe@entry=0x555555c52610, how=how@entry=OE_FLUSH__FINAL, timestamp=timestamp@entry=0) at util/ordered-events.c:322
+> #7  0x00005555557fef45 in __ordered_events__flush (timestamp=<optimized out>, how=<optimized out>, oe=<optimized out>) at util/ordered-events.c:338
+> #8  ordered_events__flush (how=OE_FLUSH__FINAL, oe=0x555555c52610) at util/ordered-events.c:340
+> #9  ordered_events__flush (oe=oe@entry=0x555555c52610, how=how@entry=OE_FLUSH__FINAL) at util/ordered-events.c:338
+> #10 0x00005555557fd17c in __perf_session__process_events (session=0x555555c4baf0) at util/session.c:2152
+> #11 perf_session__process_events (session=session@entry=0x555555c4baf0) at util/session.c:2181
+> #12 0x0000555555729379 in process_buildids (rec=0x555555acb9a0 <record>) at builtin-record.c:829
+> #13 record__finish_output (rec=0x555555acb9a0 <record>) at builtin-record.c:1037
+> #14 0x000055555572c000 in __cmd_record (rec=0x555555acb9a0 <record>, argv=<optimized out>, argc=2) at builtin-record.c:1661
+> #15 cmd_record (argc=2, argv=<optimized out>) at builtin-record.c:2450
+> #16 0x000055555579cd9d in run_builtin (p=0x555555ad4958 <commands+216>, argc=5, argv=0x7fffffffdcc0) at perf.c:304
+> #17 0x0000555555714baa in handle_internal_command (argv=0x7fffffffdcc0, argc=5) at perf.c:356
+> #18 run_argv (argcp=<synthetic pointer>, argv=<synthetic pointer>) at perf.c:400
+> #19 main (argc=5, argv=0x7fffffffdcc0) at perf.c:525
+> 
+> (gdb) p *mg
+> $7 = {maps = {entries = {rb_node = 0x0}, names = {rb_node = 0x0}, lock = {lock = pthread_rwlock_t = {Status = Not acquired, Shared = No,
+>         Prefers = Readers}}}, machine = 0x555555c4bc68, refcnt = {refs = {counter = 1}}, addr_space = 0x693f6967632e6775,
+>   unwind_libunwind_ops = 0xa32313438313d64}
+> 
+> (gdb) p mg->unwind_libunwind_ops
+> $8 = (struct unwind_libunwind_ops *) 0xa32313438313d64
+> 
+> (gdb) p *mg->unwind_libunwind_ops
+> Cannot access memory at address 0xa32313438313d64
+> 
+> which makes sense, because map_groups__new() allocates the group with
+> malloc, and map_groups__init() only initializes map_groups->{maps,machine,refcnt}
+> 
+> 
+> A bit surprised that nobody complained about this so far...
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
+Thanks, I've queued up the other patch for 5.3.y now.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 29c2c6aa32405dfee4a29911a51ba133edcedb0f Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Mon, 14 Oct 2019 12:51:04 +0300
-Subject: [PATCH] pinctrl: intel: Avoid potential glitches if pin is in GPIO
- mode
-
-When consumer requests a pin, in order to be on the safest side,
-we switch it first to GPIO mode followed by immediate transition
-to the input state. Due to posted writes it's luckily to be a single
-I/O transaction.
-
-However, if firmware or boot loader already configures the pin
-to the GPIO mode, user expects no glitches for the requested pin.
-We may check if the pin is pre-configured and leave it as is
-till the actual consumer toggles its state to avoid glitches.
-
-Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
-Depends-on: f5a26acf0162 ("pinctrl: intel: Initialize GPIO properly when used through irqchip")
-Cc: stable@vger.kernel.org
-Cc: fei.yang@intel.com
-Reported-by: Oliver Barta <oliver.barta@aptiv.com>
-Reported-by: Malin Jonsson <malin.jonsson@ericsson.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index bc013599a9a3..83981ad66a71 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -52,6 +52,7 @@
- #define PADCFG0_GPIROUTNMI		BIT(17)
- #define PADCFG0_PMODE_SHIFT		10
- #define PADCFG0_PMODE_MASK		GENMASK(13, 10)
-+#define PADCFG0_PMODE_GPIO		0
- #define PADCFG0_GPIORXDIS		BIT(9)
- #define PADCFG0_GPIOTXDIS		BIT(8)
- #define PADCFG0_GPIORXSTATE		BIT(1)
-@@ -332,7 +333,7 @@ static void intel_pin_dbg_show(struct pinctrl_dev *pctldev, struct seq_file *s,
- 	cfg1 = readl(intel_get_padcfg(pctrl, pin, PADCFG1));
- 
- 	mode = (cfg0 & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
--	if (!mode)
-+	if (mode == PADCFG0_PMODE_GPIO)
- 		seq_puts(s, "GPIO ");
- 	else
- 		seq_printf(s, "mode %d ", mode);
-@@ -458,6 +459,11 @@ static void __intel_gpio_set_direction(void __iomem *padcfg0, bool input)
- 	writel(value, padcfg0);
- }
- 
-+static int intel_gpio_get_gpio_mode(void __iomem *padcfg0)
-+{
-+	return (readl(padcfg0) & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
-+}
-+
- static void intel_gpio_set_gpio_mode(void __iomem *padcfg0)
- {
- 	u32 value;
-@@ -491,7 +497,20 @@ static int intel_gpio_request_enable(struct pinctrl_dev *pctldev,
- 	}
- 
- 	padcfg0 = intel_get_padcfg(pctrl, pin, PADCFG0);
-+
-+	/*
-+	 * If pin is already configured in GPIO mode, we assume that
-+	 * firmware provides correct settings. In such case we avoid
-+	 * potential glitches on the pin. Otherwise, for the pin in
-+	 * alternative mode, consumer has to supply respective flags.
-+	 */
-+	if (intel_gpio_get_gpio_mode(padcfg0) == PADCFG0_PMODE_GPIO) {
-+		raw_spin_unlock_irqrestore(&pctrl->lock, flags);
-+		return 0;
-+	}
-+
- 	intel_gpio_set_gpio_mode(padcfg0);
-+
- 	/* Disable TX buffer and enable RX (this will be input) */
- 	__intel_gpio_set_direction(padcfg0, true);
- 
-
