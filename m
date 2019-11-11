@@ -2,127 +2,359 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BACABF8070
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:49:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CC4F80B8
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbfKKTtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 14:49:09 -0500
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:50328 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726946AbfKKTtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 14:49:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
-        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
-        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=xlxRJ7eQ2hoWBNWiw5OQy4FAPQxSog2xIp1mf5n6J1Q=; b=qWY/Z3ogFpgE
-        WO6W2d8bShpmUmf2IhB/qFCwk1w0Mo/LYxhZESl7RHlfuSEtRWCmHgC8LXLMy/D14o+zx9PdlBovE
-        xYRLpGDUa+uK4HPiuxTSjIJ1EVWCNzwiq1zKxqB0y76ltcvYH93B7dwDbARPp65PUsaKhtlq7SjfV
-        E2JRM=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=ypsilon.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <broonie@sirena.co.uk>)
-        id 1iUFgN-0005NW-Qr; Mon, 11 Nov 2019 19:49:03 +0000
-Received: by ypsilon.sirena.org.uk (Postfix, from userid 1000)
-        id 3FB1E27429EB; Mon, 11 Nov 2019 19:49:03 +0000 (GMT)
-From:   Mark Brown <broonie@kernel.org>
-To:     Jacob Rasmussen <jacobraz@chromium.org>
-Cc:     alsa-devel@alsa-project.org, Jacob Rasmussen <jacobraz@google.com>,
-        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org
-Subject: Applied "ASoC: rt5645: Fixed buddy jack support." to the asoc tree
-In-Reply-To: 
-X-Patchwork-Hint: ignore
-Message-Id: <20191111194903.3FB1E27429EB@ypsilon.sirena.org.uk>
-Date:   Mon, 11 Nov 2019 19:49:03 +0000 (GMT)
+        id S1726973AbfKKT6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 14:58:09 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:41351 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726962AbfKKT6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 14:58:09 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573502287;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Hu8CPAFJ4SYl2ydWhbre0O776n56T7e9FJGknEwm1oA=;
+        b=JNAJDpGTxw7PjrsDL2ivlFQNcc5w5GpEzCq6LgF8S9+Vmoo9y0tnRiY1ZpP0iVgI6BWk0m
+        v9OhtI6fGBpgOT4ggwvi+VnkPKl3YKEZDHQPxwJPYvmG5/j5RvZukutvfTt47qp7gm8lJw
+        VZfgMTNzOoDdG48xCFt11gMkjk496Ww=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-413-NDHgLGSDN5WsBSY-oaB_7A-1; Mon, 11 Nov 2019 14:58:03 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DA1BE801FA1;
+        Mon, 11 Nov 2019 19:58:02 +0000 (UTC)
+Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3A70B5DDAA;
+        Mon, 11 Nov 2019 19:57:57 +0000 (UTC)
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
+Date:   Mon, 11 Nov 2019 19:57:56 -0000
+CC:     Milos Malik <mmalik@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>
+Message-ID: <cki.4669B22B29.JOCN4MGVFE@redhat.com>
+X-Gitlab-Pipeline-ID: 278526
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/278526
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: NDHgLGSDN5WsBSY-oaB_7A-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
 
-   ASoC: rt5645: Fixed buddy jack support.
+Hello,
 
-has been applied to the asoc tree at
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git 
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 81584694bb70 - Linux 5.3.10
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
+The results of these automated tests are provided below.
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+All kernel binaries, config files, and logs are available for download here=
+:
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+  https://artifacts.cki-project.org/pipelines/278526
 
-Thanks,
-Mark
+One or more kernel tests failed:
 
-From e7cfd867fd9842f346688f28412eb83dec342900 Mon Sep 17 00:00:00 2001
-From: Jacob Rasmussen <jacobraz@chromium.org>
-Date: Mon, 11 Nov 2019 11:59:57 -0700
-Subject: [PATCH] ASoC: rt5645: Fixed buddy jack support.
+    ppc64le:
+     =E2=9D=8C selinux-policy: serge-testsuite
 
-The headphone jack on buddy was broken with the following commit:
-commit 6b5da66322c5 ("ASoC: rt5645: read jd1_1 status for jd
-detection").
-This changes the jd_mode for buddy to 4 so buddy can read from the same
-register that was used in the working version of this driver without
-affecting any other devices that might use this, since no other device uses
-jd_mode = 4. To test this I plugged and uplugged the headphone jack, verifying
-audio works.
+    aarch64:
+     =E2=9D=8C selinux-policy: serge-testsuite
 
-Signed-off-by: Jacob Rasmussen <jacobraz@google.com>
-Reviewed-by: Ross Zwisler <zwisler@google.com>
-Link: https://lore.kernel.org/r/20191111185957.217244-1-jacobraz@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Cc: stable@vger.kernel.org
----
- sound/soc/codecs/rt5645.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+    x86_64:
+     =E2=9D=8C selinux-policy: serge-testsuite
+     =E2=9D=8C LTP lite
 
-diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
-index 1c06b3b9218c..902ac98a3fbe 100644
---- a/sound/soc/codecs/rt5645.c
-+++ b/sound/soc/codecs/rt5645.c
-@@ -3270,6 +3270,9 @@ static void rt5645_jack_detect_work(struct work_struct *work)
- 		snd_soc_jack_report(rt5645->mic_jack,
- 				    report, SND_JACK_MICROPHONE);
- 		return;
-+	case 4:
-+		val = snd_soc_component_read32(rt5645->component, RT5645_A_JD_CTRL1) & 0x002;
-+		break;
- 	default: /* read rt5645 jd1_1 status */
- 		val = snd_soc_component_read32(rt5645->component, RT5645_INT_IRQ_ST) & 0x1000;
- 		break;
-@@ -3603,7 +3606,7 @@ static const struct rt5645_platform_data intel_braswell_platform_data = {
- static const struct rt5645_platform_data buddy_platform_data = {
- 	.dmic1_data_pin = RT5645_DMIC_DATA_GPIO5,
- 	.dmic2_data_pin = RT5645_DMIC_DATA_IN2P,
--	.jd_mode = 3,
-+	.jd_mode = 4,
- 	.level_trigger_irq = true,
- };
- 
-@@ -3999,6 +4002,7 @@ static int rt5645_i2c_probe(struct i2c_client *i2c,
- 					   RT5645_JD1_MODE_1);
- 			break;
- 		case 3:
-+		case 4:
- 			regmap_update_bits(rt5645->regmap, RT5645_A_JD_CTRL1,
- 					   RT5645_JD1_MODE_MASK,
- 					   RT5645_JD1_MODE_2);
--- 
-2.20.1
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
+
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 81584694bb70 - Linux 5.3.10
+
+
+We grabbed the 0e626424553f commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  bonding-fix-state-transition-issue-in-link-monitoring.patch
+  cdc-ncm-handle-incomplete-transfer-of-mtu.patch
+  ipv4-fix-table-id-reference-in-fib_sync_down_addr.patch
+  net-ethernet-octeon_mgmt-account-for-second-possible-vlan-header.patch
+  net-fix-data-race-in-neigh_event_send.patch
+  net-qualcomm-rmnet-fix-potential-uaf-when-unregistering.patch
+  net-tls-fix-sk_msg-trim-on-fallback-to-copy-mode.patch
+  net-usb-qmi_wwan-add-support-for-dw5821e-with-esim-support.patch
+  nfc-fdp-fix-incorrect-free-object.patch
+  nfc-netlink-fix-double-device-reference-drop.patch
+  nfc-st21nfca-fix-double-free.patch
+  qede-fix-null-pointer-deref-in-__qede_remove.patch
+  net-mscc-ocelot-don-t-handle-netdev-events-for-other-netdevs.patch
+  net-mscc-ocelot-fix-null-pointer-on-lag-slave-removal.patch
+  net-tls-don-t-pay-attention-to-sk_write_pending-when-pushing-partial-reco=
+rds.patch
+  net-tls-add-a-tx-lock.patch
+  selftests-tls-add-test-for-concurrent-recv-and-send.patch
+  ipv6-fixes-rt6_probe-and-fib6_nh-last_probe-init.patch
+  net-hns-fix-the-stray-netpoll-locks-causing-deadlock-in-napi-path.patch
+  net-prevent-load-store-tearing-on-sk-sk_stamp.patch
+  net-sched-prevent-duplicate-flower-rules-from-tcf_proto-destroy-race.patc=
+h
+  net-smc-fix-ethernet-interface-refcounting.patch
+  vsock-virtio-fix-sock-refcnt-holding-during-the-shutdown.patch
+  r8169-fix-page-read-in-r8168g_mdio_read.patch
+  alsa-timer-fix-incorrectly-assigned-timer-instance.patch
+  alsa-bebob-fix-to-detect-configured-source-of-sampling-clock-for-focusrit=
+e-saffire-pro-i-o-series.patch
+  alsa-hda-ca0132-fix-possible-workqueue-stall.patch
+  mm-memcontrol-fix-null-ptr-deref-in-percpu-stats-flush.patch
+  mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
+  mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.pa=
+tch
+  mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
+  mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
+  dump_stack-avoid-the-livelock-of-the-dump_lock.patch
+  mm-slab-make-page_cgroup_ino-to-recognize-non-compound-slab-pages-properl=
+y.patch
+  btrfs-consider-system-chunk-array-size-for-new-system-chunks.patch
+  btrfs-tree-checker-fix-wrong-check-on-max-devid.patch
+  btrfs-save-i_size-to-avoid-double-evaluation-of-i_size_read-in-compress_f=
+ile_range.patch
+  tools-gpio-use-building_out_of_srctree-to-determine-srctree.patch
+  pinctrl-intel-avoid-potential-glitches-if-pin-is-in-gpio-mode.patch
+  perf-tools-fix-time-sorting.patch
+  perf-map-use-zalloc-for-map_groups.patch
+  drm-radeon-fix-si_enable_smc_cac-failed-issue.patch
+  hid-wacom-generic-treat-serial-number-and-related-fields-as-unsigned.patc=
+h
+  mm-khugepaged-fix-might_sleep-warn-with-config_highpte-y.patch
+  soundwire-depend-on-acpi.patch
+  soundwire-depend-on-acpi-of.patch
+  soundwire-bus-set-initial-value-to-port_status.patch
+  blkcg-make-blkcg_print_stat-print-stats-only-for-online-blkgs.patch
+  arm64-do-not-mask-out-pte_rdonly-in-pte_same.patch
+  asoc-rsnd-dma-fix-ssi9-4-5-6-7-busif-dma-address.patch
+  ceph-fix-use-after-free-in-__ceph_remove_cap.patch
+  ceph-fix-rcu-case-handling-in-ceph_d_revalidate.patch
+  ceph-add-missing-check-in-d_revalidate-snapdir-handling.patch
+  ceph-don-t-try-to-handle-hashed-dentries-in-non-o_creat-atomic_open.patch
+  ceph-don-t-allow-copy_file_range-when-stripe_count-1.patch
+  iio-adc-stm32-adc-fix-stopping-dma.patch
+  iio-imu-adis16480-make-sure-provided-frequency-is-positive.patch
+  iio-imu-inv_mpu6050-fix-no-data-on-mpu6050.patch
+  iio-srf04-fix-wrong-limitation-in-distance-measuring.patch
+  arm-sunxi-fix-cpu-powerdown-on-a83t.patch
+  arm-dts-imx6-logicpd-re-enable-snvs-power-key.patch
+  cpufreq-intel_pstate-fix-invalid-epb-setting.patch
+  clone3-validate-stack-arguments.patch
+  netfilter-nf_tables-align-nft_expr-private-data-to-64-bit.patch
+  netfilter-ipset-fix-an-error-code-in-ip_set_sockfn_get.patch
+  intel_th-gth-fix-the-window-switching-sequence.patch
+  intel_th-pci-add-comet-lake-pch-support.patch
+  intel_th-pci-add-jasper-lake-pch-support.patch
+  x86-dumpstack-64-don-t-evaluate-exception-stacks-before-setup.patch
+  x86-apic-32-avoid-bogus-ldr-warnings.patch
+  smb3-fix-persistent-handles-reconnect.patch
+  can-usb_8dev-fix-use-after-free-on-disconnect.patch
+  can-flexcan-disable-completely-the-ecc-mechanism.patch
+  can-c_can-c_can_poll-only-read-status-register-after-status-irq.patch
+  can-peak_usb-fix-a-potential-out-of-sync-while-decoding-packets.patch
+  can-rx-offload-can_rx_offload_queue_sorted-fix-error-handling-avoid-skb-m=
+em-leak.patch
+  can-gs_usb-gs_can_open-prevent-memory-leak.patch
+  can-dev-add-missing-of_node_put-after-calling-of_get_child_by_name.patch
+  can-mcba_usb-fix-use-after-free-on-disconnect.patch
+  can-peak_usb-fix-slab-info-leak.patch
+  configfs-fix-a-deadlock-in-configfs_symlink.patch
+  alsa-usb-audio-more-validations-of-descriptor-units.patch
+  alsa-usb-audio-simplify-parse_audio_unit.patch
+  alsa-usb-audio-unify-the-release-of-usb_mixer_elem_info-objects.patch
+  alsa-usb-audio-remove-superfluous-blength-checks.patch
+  alsa-usb-audio-clean-up-check_input_term.patch
+  alsa-usb-audio-fix-possible-null-dereference-at-create_yamaha_midi_quirk.=
+patch
+  alsa-usb-audio-remove-some-dead-code.patch
+  alsa-usb-audio-fix-copy-paste-error-in-the-validator.patch
+  usbip-implement-sg-support-to-vhci-hcd-and-stub-driver.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9D=8C selinux-policy: serge-testsuite
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9D=8C LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
