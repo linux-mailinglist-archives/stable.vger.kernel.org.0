@@ -2,345 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC6AF7457
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 13:50:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D75F745B
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 13:55:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbfKKMul (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 07:50:41 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:58105 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726810AbfKKMul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 07:50:41 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573476638;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=3mQCUrrni/aM6eGDrOeZ7Ly7jelCvmBU7SW5BJum148=;
-        b=Ugc/OBNNvj+X5Lvh6PAjqx+j5is8RbKErtKz8jMBZ4hCCqfur9O4y6qdCl9CsMone8Cxf4
-        U45cJheQqu1t9GULqYF0iJvFHANxVSk3Bo9Ok6EYOMJlpb3sRsmxKRjBx8zvFQqxB/XcoT
-        TR8Cx5kwqdbFlgcRjtNAG4gojv5JbGU=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-230-3UTtjhbHNXaMbhMm2sodYA-1; Mon, 11 Nov 2019 07:50:36 -0500
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 092AF64A7D
-        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 12:50:36 +0000 (UTC)
-Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 115081001B35;
-        Mon, 11 Nov 2019 12:50:33 +0000 (UTC)
+        id S1726845AbfKKMy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 07:54:59 -0500
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:5520 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726811AbfKKMy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 07:54:59 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5dc959ea0000>; Mon, 11 Nov 2019 04:54:02 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Mon, 11 Nov 2019 04:54:58 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Mon, 11 Nov 2019 04:54:58 -0800
+Received: from [10.25.73.138] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 11 Nov
+ 2019 12:54:56 +0000
+X-Nvconfidentiality: public
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, Jon Hunter <jonathanh@nvidia.com>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+From:   Vidya Sagar <vidyas@nvidia.com>
+Subject: stable request: PCI: tegra: Enable Relaxed Ordering only for Tegra20
+ & Tegra30
+Message-ID: <11251eb0-5675-9d3d-d15f-c346781e2bff@nvidia.com>
+Date:   Mon, 11 Nov 2019 18:24:53 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2M?= FAIL: Stable queue: queue-5.3
-Date:   Mon, 11 Nov 2019 12:50:32 -0000
-CC:     Milos Malik <mmalik@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Message-ID: <cki.A54743AE8B.SFBRKWS1MQ@redhat.com>
-X-Gitlab-Pipeline-ID: 278269
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/278269
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-MC-Unique: 3UTtjhbHNXaMbhMm2sodYA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL105.nvidia.com (172.20.187.12) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1573476842; bh=+xw4RHjDS36gzKO4cmauOeRZWAtADr2G+vHfvheD29M=;
+        h=X-PGP-Universal:X-Nvconfidentiality:To:CC:From:Subject:Message-ID:
+         Date:User-Agent:MIME-Version:X-Originating-IP:X-ClientProxiedBy:
+         Content-Type:Content-Language:Content-Transfer-Encoding;
+        b=kprFEHosLLlHlXcJ4SLvTlzfuXUgike9IfAMT2B6FH2Zq51IftOVYqwjE6RarZ6SL
+         Jld+hd7gQ8eLsq5swVpmRvcDJDGXYPMWI4MjbN9aVYIxNJpZTAieRphv2ALeH3Atb4
+         hqJ4grZD2E6DqW+AsY3hLRIXYSbjpwPMTZk5VvY8++wlWod3y0RNDjAvYyjveH3wKV
+         eZViBnpKzvXZrQrGaqeog/H9x+OnQKiY5tZ4zJCSct/dyWzT24lxAbcbd6Wnij/K1I
+         dU0cCIaJecFc+Kw8c3GOA7iasx4Bnchcx442jjU3AMdivBLDegEMThtp3xw+wGJOIn
+         AykiT/wSXuOow==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
+We noticed that the Tegra PCIe host controller driver enabled
+"Relaxed Ordering" bit in the PCIe configuration space for "all"
+devices erroneously. We pushed a fix for this through the
+commit: 7be142caabc4780b13a522c485abc806de5c4114 and it has been
+soaking in main line for the last four months.
+Based on the discussion we had @ http://patchwork.ozlabs.org/patch/1127604/
+we would now like to push it to the following stable kernels
+4.19                  : Applies cleanly
+3.16, 4.4, 4.9 & 4.14 : Following equivalent patch needs to be used as the
+                         file was at drivers/pci/host/pci-tegra.c earlier
+                         (and moved to drivers/pci/controller/pci-tegra.c starting 4.19)
 
-Hello,
+---
+  drivers/pci/host/pci-tegra.c | 7 +++++--
+  1 file changed, 5 insertions(+), 2 deletions(-)
 
-We ran automated tests on a patchset that was proposed for merging into thi=
-s
-kernel tree. The patches were applied to:
+diff --git a/drivers/pci/host/pci-tegra.c b/drivers/pci/host/pci-tegra.c
+index 083cf37ca047..56daa83b041c 100644
+--- a/drivers/pci/host/pci-tegra.c
++++ b/drivers/pci/host/pci-tegra.c
+@@ -615,12 +615,15 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_fixup_class);
+  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_fixup_class);
+  DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_fixup_class);
 
-       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
-linux.git
-            Commit: 81584694bb70 - Linux 5.3.10
+-/* Tegra PCIE requires relaxed ordering */
++/* Tegra20 and Tegra30 PCIE requires relaxed ordering */
+  static void tegra_pcie_relax_enable(struct pci_dev *dev)
+  {
+         pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_RELAX_EN);
+  }
+-DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf0, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_relax_enable);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_relax_enable);
 
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-All kernel binaries, config files, and logs are available for download here=
-:
-
-  https://artifacts.cki-project.org/pipelines/278269
-
-One or more kernel tests failed:
-
-    ppc64le:
-     =E2=9D=8C selinux-policy: serge-testsuite
-
-    aarch64:
-     =E2=9D=8C selinux-policy: serge-testsuite
-
-    x86_64:
-     =E2=9D=8C selinux-policy: serge-testsuite
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this messa=
-ge.
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 81584694bb70 - Linux 5.3.10
-
-
-We grabbed the 6a1591cf97f1 commit of the stable queue repository.
-
-We then merged the patchset with `git am`:
-
-  bonding-fix-state-transition-issue-in-link-monitoring.patch
-  cdc-ncm-handle-incomplete-transfer-of-mtu.patch
-  ipv4-fix-table-id-reference-in-fib_sync_down_addr.patch
-  net-ethernet-octeon_mgmt-account-for-second-possible-vlan-header.patch
-  net-fix-data-race-in-neigh_event_send.patch
-  net-qualcomm-rmnet-fix-potential-uaf-when-unregistering.patch
-  net-tls-fix-sk_msg-trim-on-fallback-to-copy-mode.patch
-  net-usb-qmi_wwan-add-support-for-dw5821e-with-esim-support.patch
-  nfc-fdp-fix-incorrect-free-object.patch
-  nfc-netlink-fix-double-device-reference-drop.patch
-  nfc-st21nfca-fix-double-free.patch
-  qede-fix-null-pointer-deref-in-__qede_remove.patch
-  net-mscc-ocelot-don-t-handle-netdev-events-for-other-netdevs.patch
-  net-mscc-ocelot-fix-null-pointer-on-lag-slave-removal.patch
-  net-tls-don-t-pay-attention-to-sk_write_pending-when-pushing-partial-reco=
-rds.patch
-  net-tls-add-a-tx-lock.patch
-  selftests-tls-add-test-for-concurrent-recv-and-send.patch
-  ipv6-fixes-rt6_probe-and-fib6_nh-last_probe-init.patch
-  net-hns-fix-the-stray-netpoll-locks-causing-deadlock-in-napi-path.patch
-  net-prevent-load-store-tearing-on-sk-sk_stamp.patch
-  net-sched-prevent-duplicate-flower-rules-from-tcf_proto-destroy-race.patc=
-h
-  net-smc-fix-ethernet-interface-refcounting.patch
-  vsock-virtio-fix-sock-refcnt-holding-during-the-shutdown.patch
-  r8169-fix-page-read-in-r8168g_mdio_read.patch
-  alsa-timer-fix-incorrectly-assigned-timer-instance.patch
-  alsa-bebob-fix-to-detect-configured-source-of-sampling-clock-for-focusrit=
-e-saffire-pro-i-o-series.patch
-  alsa-hda-ca0132-fix-possible-workqueue-stall.patch
-  mm-memcontrol-fix-null-ptr-deref-in-percpu-stats-flush.patch
-  mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
-  mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.pa=
-tch
-  mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
-  mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
-  dump_stack-avoid-the-livelock-of-the-dump_lock.patch
-  mm-slab-make-page_cgroup_ino-to-recognize-non-compound-slab-pages-properl=
-y.patch
-  btrfs-consider-system-chunk-array-size-for-new-system-chunks.patch
-  btrfs-tree-checker-fix-wrong-check-on-max-devid.patch
-  btrfs-save-i_size-to-avoid-double-evaluation-of-i_size_read-in-compress_f=
-ile_range.patch
-  tools-gpio-use-building_out_of_srctree-to-determine-srctree.patch
-  pinctrl-intel-avoid-potential-glitches-if-pin-is-in-gpio-mode.patch
-  perf-tools-fix-time-sorting.patch
-  perf-map-use-zalloc-for-map_groups.patch
-  drm-radeon-fix-si_enable_smc_cac-failed-issue.patch
-  hid-wacom-generic-treat-serial-number-and-related-fields-as-unsigned.patc=
-h
-  mm-khugepaged-fix-might_sleep-warn-with-config_highpte-y.patch
-  soundwire-depend-on-acpi.patch
-  soundwire-depend-on-acpi-of.patch
-  soundwire-bus-set-initial-value-to-port_status.patch
-  blkcg-make-blkcg_print_stat-print-stats-only-for-online-blkgs.patch
-  arm64-do-not-mask-out-pte_rdonly-in-pte_same.patch
-  asoc-rsnd-dma-fix-ssi9-4-5-6-7-busif-dma-address.patch
-  ceph-fix-use-after-free-in-__ceph_remove_cap.patch
-  ceph-fix-rcu-case-handling-in-ceph_d_revalidate.patch
-  ceph-add-missing-check-in-d_revalidate-snapdir-handling.patch
-  ceph-don-t-try-to-handle-hashed-dentries-in-non-o_creat-atomic_open.patch
-  ceph-don-t-allow-copy_file_range-when-stripe_count-1.patch
-  iio-adc-stm32-adc-fix-stopping-dma.patch
-  iio-imu-adis16480-make-sure-provided-frequency-is-positive.patch
-  iio-imu-inv_mpu6050-fix-no-data-on-mpu6050.patch
-  iio-srf04-fix-wrong-limitation-in-distance-measuring.patch
-  arm-sunxi-fix-cpu-powerdown-on-a83t.patch
-  arm-dts-imx6-logicpd-re-enable-snvs-power-key.patch
-  cpufreq-intel_pstate-fix-invalid-epb-setting.patch
-  clone3-validate-stack-arguments.patch
-  netfilter-nf_tables-align-nft_expr-private-data-to-64-bit.patch
-  netfilter-ipset-fix-an-error-code-in-ip_set_sockfn_get.patch
-  intel_th-gth-fix-the-window-switching-sequence.patch
-  intel_th-pci-add-comet-lake-pch-support.patch
-  intel_th-pci-add-jasper-lake-pch-support.patch
-  x86-dumpstack-64-don-t-evaluate-exception-stacks-before-setup.patch
-  x86-apic-32-avoid-bogus-ldr-warnings.patch
-  smb3-fix-persistent-handles-reconnect.patch
-  can-usb_8dev-fix-use-after-free-on-disconnect.patch
-  can-flexcan-disable-completely-the-ecc-mechanism.patch
-  can-c_can-c_can_poll-only-read-status-register-after-status-irq.patch
-  can-peak_usb-fix-a-potential-out-of-sync-while-decoding-packets.patch
-  can-rx-offload-can_rx_offload_queue_sorted-fix-error-handling-avoid-skb-m=
-em-leak.patch
-  can-gs_usb-gs_can_open-prevent-memory-leak.patch
-  can-dev-add-missing-of_node_put-after-calling-of_get_child_by_name.patch
-  can-mcba_usb-fix-use-after-free-on-disconnect.patch
-  can-peak_usb-fix-slab-info-leak.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  ppc64le:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-  x86_64:
-    Host 1:
-       =E2=9C=85 Boot test
-       =E2=9D=8C selinux-policy: serge-testsuite
-       =E2=9C=85 lvm thinp sanity
-       =E2=9C=85 storage: software RAID testing
-       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
-
-    Host 2:
-       =E2=9C=85 Boot test
-       =E2=9C=85 Podman system integration test (as root)
-       =E2=9C=85 Podman system integration test (as user)
-       =E2=9C=85 LTP lite
-       =E2=9C=85 Loopdev Sanity
-       =E2=9C=85 jvm test suite
-       =E2=9C=85 AMTU (Abstract Machine Test Utility)
-       =E2=9C=85 LTP: openposix test suite
-       =E2=9C=85 Ethernet drivers sanity
-       =E2=9C=85 Networking socket: fuzz
-       =E2=9C=85 Networking route: pmtu
-       =E2=9C=85 Networking route_func: local
-       =E2=9C=85 Networking route_func: forward
-       =E2=9C=85 audit: audit testsuite test
-       =E2=9C=85 httpd: mod_ssl smoke sanity
-       =E2=9C=85 iotop: sanity
-       =E2=9C=85 tuned: tune-processes-through-perf
-       =E2=9C=85 pciutils: sanity smoke test
-       =E2=9C=85 ALSA PCM loopback test
-       =E2=9C=85 ALSA Control (mixer) Userspace Element test
-       =E2=9C=85 Usex - version 1.9-29
-       =E2=9C=85 stress: stress-ng
-       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
-       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+  static int tegra_pcie_setup(int nr, struct pci_sys_data *sys)
+  {
+--
+2.17.1
