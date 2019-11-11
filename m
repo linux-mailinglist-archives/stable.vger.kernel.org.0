@@ -2,117 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E9BF87C1
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 06:19:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFB83F8805
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 06:34:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726212AbfKLFTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 00:19:20 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:32811 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725781AbfKLFTU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 00:19:20 -0500
-Received: by mail-wr1-f66.google.com with SMTP id w9so10225451wrr.0
-        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 21:19:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=jb4O7IJ2ILRQfgZLEEcp8zvE57bJfU4NqztKtxInz5k=;
-        b=OLGJ62ryDZ7jxHPLxs6GcUbX9/RvgLLpfLr3hrVq3OH7muf0iNFSqZAKwVfGnNcxAX
-         WJoqRWUag4BAnkvqxrxm27tMBm+MA/ydBiN9fCQq8aWz54ySvXf2VsWDI6FBpQ62/2cp
-         7nH7aRY0qG5lfXGR4DgLXexpV5Z4Zn3ZqFFaunEwiJdgM44LpfBcm9ME84VXK+c2NoUX
-         mUgwQ/2Qfqsrt2KoKGc7XZpVl4OkQoOuc6Rzo6bPFuyH7WRSq3sdWiYJIFdpw4QJj1dc
-         Rcflt9Bq1w8wsIzFNZzWxKT+kB1kIxtDzRsLzbeoCFmQ4dzW8B/J9EOdOUlCvtD6I7S1
-         OZLA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=jb4O7IJ2ILRQfgZLEEcp8zvE57bJfU4NqztKtxInz5k=;
-        b=BJ0oqCiXStj9ILhg1EI9DbMAtWEnVhIm3Ku85Cfd2xxk7BJojoh+DBknj7I0q1lMEH
-         bztAhXeO1C934VWjJMFW0XU19oMctoSzgw4bpX3CoYL0rS+mkF4d2zQUbBkajkFKShsL
-         plXGgrRYAa+tCoezKOr6TfiBe4VE8zgbkGL+tFVTcjdpMN9cInwuBcyb1GYbawQNagSW
-         9LOTsHOCufIcTdFP+QGPVAmNGU9kaGt62Rytb1NI5yMnKk9s4h1pg35fets2JtNKLn6R
-         8239KIN/g2dQJRfEhomVYQJPf4qNx17R7GLHIYM8a8n4ZNQ2pj4etu84SzGTMI22RHb7
-         wtWA==
-X-Gm-Message-State: APjAAAVJmCz6CMlwKAtzcE8IBE5V4v4/hOvH+ocHJg3cL2tHIJa0VgIs
-        iH4L8nbILKR+VW6pAs2RDojEMw==
-X-Google-Smtp-Source: APXvYqySZmu6+OcTAA/QeAENc4gF5PNNeMExpdQJ1G7thYs0OHbMrb49h51v+zC3AAHdMXG64L1rZw==
-X-Received: by 2002:adf:afef:: with SMTP id y47mr23318476wrd.190.1573535957996;
-        Mon, 11 Nov 2019 21:19:17 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o189sm2851511wmo.23.2019.11.11.21.19.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Nov 2019 21:19:17 -0800 (PST)
-Message-ID: <5dca40d5.1c69fb81.9907.bb13@mx.google.com>
-Date:   Mon, 11 Nov 2019 21:19:17 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.83-126-g0f8b6b0b5b94
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
-Subject: Re: [PATCH 4.19 000/125] 4.19.84-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1725881AbfKLFeA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 00:34:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60760 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725775AbfKLFeA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 00:34:00 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 879C12084F;
+        Tue, 12 Nov 2019 05:33:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573536840;
+        bh=sbnFXAjpbcwJnf2+mH5IsFebJvwzJN37XivvkMyt/50=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Rrw9OoBoJJsfH217xuK/dIynZd/Lg3JslxJZPFFOu+cHhG9k+6kIM0nBggDw4x4G0
+         cRUqK3qLEBrT44fRfisxQOXG8+2cSiGBD+8JHqN6tT7EhpPwCfqnia3993/K2k8qKR
+         Nw05FMp4nIvID6V0U5M+CJ/5OXz/Z+jJcBv5Xg44=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 4.14 061/105] ARM: dts: dra7: Disable USB metastability workaround for USB2
+Date:   Mon, 11 Nov 2019 19:28:31 +0100
+Message-Id: <20191111181444.963730015@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
+User-Agent: quilt/0.66
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 120 boots: 0 failed, 112 passed with 8 offline=
- (v4.19.83-126-g0f8b6b0b5b94)
+From: Roger Quadros <rogerq@ti.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.83-126-g0f8b6b0b5b94/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.83-126-g0f8b6b0b5b94/
+commit b8c9c6fa2002b8fd4a9710f76f80f99c6046d48c upstream.
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.83-126-g0f8b6b0b5b94
-Git Commit: 0f8b6b0b5b946b33f5b60e9de252afb809a17e6a
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 22 SoC families, 14 builds out of 206
+The metastability workaround causes Erratic errors [1]
+on the HighSpeed USB PHY which can cause upto 2 seconds
+delay in enumerating to a USB host while in Gadget mode.
 
-Offline Platforms:
+Disable the Run/Stop metastability workaround to avoid this
+ill effect. We are aware that this opens up the opportunity
+for Run/Stop metastability, however this issue has never been
+observed in TI releases so we think that Run/Stop metastability
+is a lesser evil than the PHY Erratic errors. So disable it.
 
-arm:
+[1] USB controller trace during gadget enumeration
+    irq/90-dwc3-969   [000] d...    52.323145: dwc3_event: event
+    (00000901): Erratic Error [U0]
+    irq/90-dwc3-969   [000] d...    52.560646: dwc3_event: event
+    (00000901): Erratic Error [U0]
+    irq/90-dwc3-969   [000] d...    52.798144: dwc3_event: event
+    (00000901): Erratic Error [U0]
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-axg-s400: 1 offline lab
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Acked-by: Felipe Balbi <felipe.balbi@linux/intel.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
-For more info write to <info@kernelci.org>
+ arch/arm/boot/dts/dra7.dtsi |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -1540,6 +1540,7 @@
+ 				dr_mode = "otg";
+ 				snps,dis_u3_susphy_quirk;
+ 				snps,dis_u2_susphy_quirk;
++				snps,dis_metastability_quirk;
+ 			};
+ 		};
+ 
+
+
