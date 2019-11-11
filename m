@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42802F7E73
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB556F7DFC
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728737AbfKKSoX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:44:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35988 "EHLO mail.kernel.org"
+        id S1730138AbfKKSwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:52:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729715AbfKKSoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:44:22 -0500
+        id S1729325AbfKKSwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:52:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38E1620659;
-        Mon, 11 Nov 2019 18:44:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70F0420818;
+        Mon, 11 Nov 2019 18:52:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497861;
-        bh=5F3RXUfqErPauLi5jjwhKdWUACwF42uaQ3V/aKUi9d4=;
+        s=default; t=1573498367;
+        bh=ayfuX91gx37T++DZ/DF4dGO8PJP51xbQu+nZsKOaIl4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RwMkg173g4Rsodl0u9aOfoKMBkvq+TT0SEc7a4t8MItQ8Zmms0ZCuSId3l7bZFd2/
-         Ln9E9V+JWZrD0RhqhSq7NxKZMLEzkL5fSrDfbGpzKeF1TohWj+IZcW+kNhtfIi/6gz
-         nlA3GduoeJLM+jToljpbFHF5dSYm1iJ6K1wb93kM=
+        b=HHktI2Z7svSzL5+WRUKaw4VuNdoMF7K7CQl49uphUZETla7Svjb+AbM783ylnILxP
+         o/F+0QBkD23BUo/AJ03YLtahlAJGFrsX4uuNtpP+WyG0h/ofpjcKFPGpvbNXn6b7UJ
+         cD0zfQIQyTBnZB1nWAsnPOk+8wcFEWtoBNpqRqjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.19 040/125] intel_th: pci: Add Jasper Lake PCH support
-Date:   Mon, 11 Nov 2019 19:27:59 +0100
-Message-Id: <20191111181445.775402434@linuxfoundation.org>
+        stable@vger.kernel.org, Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 098/193] powerpc/32s: fix allow/prevent_user_access() when crossing segment boundaries.
+Date:   Mon, 11 Nov 2019 19:28:00 +0100
+Message-Id: <20191111181508.368745009@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-commit 9d55499d8da49e9261e95a490f3fda41d955f505 upstream.
+[ Upstream commit d10f60ae27d26d811e2a1bb39ded47df96d7499f ]
 
-This adds support for Intel TH on Jasper Lake PCH.
+Make sure starting addr is aligned to segment boundary so that when
+incrementing the segment, the starting address of the new segment is
+below the end address. Otherwise the last segment might get  missed.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191028070651.9770-8-alexander.shishkin@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: a68c31fc01ef ("powerpc/32s: Implement Kernel Userspace Access Protection")
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/067a1b09f15f421d40797c2d04c22d4049a1cee8.1571071875.git.christophe.leroy@c-s.fr
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/intel_th/pci.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ arch/powerpc/include/asm/book3s/32/kup.h | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/hwtracing/intel_th/pci.c
-+++ b/drivers/hwtracing/intel_th/pci.c
-@@ -190,6 +190,11 @@ static const struct pci_device_id intel_
- 		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0xa0a6),
- 		.driver_data = (kernel_ulong_t)&intel_th_2x,
- 	},
-+	{
-+		/* Jasper Lake PCH */
-+		PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4da6),
-+		.driver_data = (kernel_ulong_t)&intel_th_2x,
-+	},
- 	{ 0 },
- };
+diff --git a/arch/powerpc/include/asm/book3s/32/kup.h b/arch/powerpc/include/asm/book3s/32/kup.h
+index 677e9babef801..f9dc597b0b868 100644
+--- a/arch/powerpc/include/asm/book3s/32/kup.h
++++ b/arch/powerpc/include/asm/book3s/32/kup.h
+@@ -91,6 +91,7 @@
  
+ static inline void kuap_update_sr(u32 sr, u32 addr, u32 end)
+ {
++	addr &= 0xf0000000;	/* align addr to start of segment */
+ 	barrier();	/* make sure thread.kuap is updated before playing with SRs */
+ 	while (addr < end) {
+ 		mtsrin(sr, addr);
+-- 
+2.20.1
+
 
 
