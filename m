@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2EEF7EC8
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33114F7F26
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727497AbfKKTGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 14:06:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58208 "EHLO mail.kernel.org"
+        id S1728375AbfKKSeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:34:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729138AbfKKSjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:39:11 -0500
+        id S1728373AbfKKSef (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:34:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B603F20659;
-        Mon, 11 Nov 2019 18:39:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9254222C5;
+        Mon, 11 Nov 2019 18:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497550;
-        bh=92ronLFtUrw6FpPIjyOv7L17PV0WUZhDLx5rq8LQBDQ=;
+        s=default; t=1573497275;
+        bh=j1227qPE8Hj0hT9pr0IYy4IV8VS1IsyFc3vDGB7EdNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1fK2lDVISu116JnI+A7DUOEr4sH8Llpw0bE/E7zDpPdLjamTISw0kcvnK8cI8dZXF
-         Foqi3cdNanAdBlkezH024jJZNRpv4XooVuQMObCTPky58d7FrVMbEoSk7wBgt/l/nI
-         W69Z/fh0D4clv9tjPhT+yIChaynqmThjGnJkzJfQ=
+        b=1h8pf4Z9g08yo0Xr5XW6FaFbMEqP+iKB73AlKr0tvsF+t0vVrTCdv7zdXEbrEFtrt
+         +s4wd0rxTFhgb3mD9jzgtKhHe0yMVEWNOiMQIdehzvXLxyegEtYC+GaTirD18TiTeT
+         lRrat3HGFx+6YyKbu2J0WphKuA9cZSAX2xs1iLI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 094/105] net: hisilicon: Fix "Trying to free already-free IRQ"
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Jan Kara <jack@suse.cz>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 64/65] mm/filemap.c: dont initiate writeback if mapping has no dirty pages
 Date:   Mon, 11 Nov 2019 19:29:04 +0100
-Message-Id: <20191111181448.399723781@linuxfoundation.org>
+Message-Id: <20191111181356.611049234@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
 
-[ Upstream commit 63a41746827cb16dc6ad0d4d761ab4e7dda7a0c3 ]
+commit c3aab9a0bd91b696a852169479b7db1ece6cbf8c upstream.
 
-When rmmod hip04_eth.ko, we can get the following warning:
+Functions like filemap_write_and_wait_range() should do nothing if inode
+has no dirty pages or pages currently under writeback.  But they anyway
+construct struct writeback_control and this does some atomic operations if
+CONFIG_CGROUP_WRITEBACK=y - on fast path it locks inode->i_lock and
+updates state of writeback ownership, on slow path might be more work.
+Current this path is safely avoided only when inode mapping has no pages.
 
-Task track: rmmod(1623)>bash(1591)>login(1581)>init(1)
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1623 at kernel/irq/manage.c:1557 __free_irq+0xa4/0x2ac()
-Trying to free already-free IRQ 200
-Modules linked in: ping(O) pramdisk(O) cpuinfo(O) rtos_snapshot(O) interrupt_ctrl(O) mtdblock mtd_blkdevrtfs nfs_acl nfs lockd grace sunrpc xt_tcpudp ipt_REJECT iptable_filter ip_tables x_tables nf_reject_ipv
-CPU: 0 PID: 1623 Comm: rmmod Tainted: G           O    4.4.193 #1
-Hardware name: Hisilicon A15
-[<c020b408>] (rtos_unwind_backtrace) from [<c0206624>] (show_stack+0x10/0x14)
-[<c0206624>] (show_stack) from [<c03f2be4>] (dump_stack+0xa0/0xd8)
-[<c03f2be4>] (dump_stack) from [<c021a780>] (warn_slowpath_common+0x84/0xb0)
-[<c021a780>] (warn_slowpath_common) from [<c021a7e8>] (warn_slowpath_fmt+0x3c/0x68)
-[<c021a7e8>] (warn_slowpath_fmt) from [<c026876c>] (__free_irq+0xa4/0x2ac)
-[<c026876c>] (__free_irq) from [<c0268a14>] (free_irq+0x60/0x7c)
-[<c0268a14>] (free_irq) from [<c0469e80>] (release_nodes+0x1c4/0x1ec)
-[<c0469e80>] (release_nodes) from [<c0466924>] (__device_release_driver+0xa8/0x104)
-[<c0466924>] (__device_release_driver) from [<c0466a80>] (driver_detach+0xd0/0xf8)
-[<c0466a80>] (driver_detach) from [<c0465e18>] (bus_remove_driver+0x64/0x8c)
-[<c0465e18>] (bus_remove_driver) from [<c02935b0>] (SyS_delete_module+0x198/0x1e0)
-[<c02935b0>] (SyS_delete_module) from [<c0202ed0>] (__sys_trace_return+0x0/0x10)
----[ end trace bb25d6123d849b44 ]---
+For example generic_file_read_iter() calls filemap_write_and_wait_range()
+at each O_DIRECT read - pretty hot path.
 
-Currently "rmmod hip04_eth.ko" call free_irq more than once
-as devres_release_all and hip04_remove both call free_irq.
-This results in a 'Trying to free already-free IRQ' warning.
-To solve the problem free_irq has been moved out of hip04_remove.
+This patch skips starting new writeback if mapping has no dirty tags set.
+If writeback is already in progress filemap_write_and_wait_range() will
+wait for it.
 
-Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/156378816804.1087.8607636317907921438.stgit@buzz
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/hisilicon/hip04_eth.c | 1 -
- 1 file changed, 1 deletion(-)
+ mm/filemap.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
-index 17cbe8145dcd9..ebc056b9a0fd2 100644
---- a/drivers/net/ethernet/hisilicon/hip04_eth.c
-+++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
-@@ -945,7 +945,6 @@ static int hip04_remove(struct platform_device *pdev)
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -383,7 +383,8 @@ int __filemap_fdatawrite_range(struct ad
+ 		.range_end = end,
+ 	};
  
- 	hip04_free_ring(ndev, d);
- 	unregister_netdev(ndev);
--	free_irq(ndev->irq, ndev);
- 	of_node_put(priv->phy_node);
- 	cancel_work_sync(&priv->tx_timeout_task);
- 	free_netdev(ndev);
--- 
-2.20.1
-
+-	if (!mapping_cap_writeback_dirty(mapping))
++	if (!mapping_cap_writeback_dirty(mapping) ||
++	    !mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
+ 		return 0;
+ 
+ 	wbc_attach_fdatawrite_inode(&wbc, mapping->host);
 
 
