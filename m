@@ -2,44 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70D20F7B5C
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:35:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E96F7CFF
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:52:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727312AbfKKSf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:35:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53350 "EHLO mail.kernel.org"
+        id S1730047AbfKKSv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:51:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46202 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728397AbfKKSf2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:35:28 -0500
+        id S1727164AbfKKSv5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:51:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4756214E0;
-        Mon, 11 Nov 2019 18:35:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3A2A204EC;
+        Mon, 11 Nov 2019 18:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497327;
-        bh=mDXh+p9DiujxpHwfkKkbukJW0A5v+GXZtUYBfV6HGOc=;
+        s=default; t=1573498316;
+        bh=bzQqbUGu+CUfzFAe2p826YJsRVCnakkpSzjsJHM7Xdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJnMS/coOF2i/OsxGKR4M14a9RSbp6mbIyo29A4/zsoB3Zl9mYOpkEb/Ko6QGTe+v
-         l2M9NSmHJjxQwN8ue/GSwTAcoDFIr12eB1Pokj3GO7E5CWVHd3hdLgfsZF4ELafxBG
-         16ByA0euDuQWgY9KCXJ7L5N+4bqP1WQzwsGzyfM0=
+        b=O6z4q2svr2B/4f8habbH5fZsKHftWcvwd6q8mE4Md5A0FjzqXP3a8ifhRrAWt30Bf
+         KAArIkoQtk1eibqXyCTA2/0Iea5scS11xYPF1CSrqnbZsSoFwxuZeg6TY2iz5lzSNx
+         k8WSgWms8KWIwvbXqCG7DaNCDCPNeVk+m5vZZih0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
-        Gang Deng <gavin.dg@linux.alibaba.com>,
-        Hugh Dickins <hughd@google.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 016/105] mm: thp: handle page cache THP correctly in PageTransCompoundMap
-Date:   Mon, 11 Nov 2019 19:27:46 +0100
-Message-Id: <20191111181432.495574074@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.3 085/193] ALSA: usb-audio: Remove superfluous bLength checks
+Date:   Mon, 11 Nov 2019 19:27:47 +0100
+Message-Id: <20191111181507.426215111@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,145 +42,238 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 169226f7e0d275c1879551f37484ef6683579a5c upstream.
+commit b8e4f1fdfa422398c2d6c47bfb7d1feb3046d70a upstream.
 
-We have a usecase to use tmpfs as QEMU memory backend and we would like
-to take the advantage of THP as well.  But, our test shows the EPT is
-not PMD mapped even though the underlying THP are PMD mapped on host.
-The number showed by /sys/kernel/debug/kvm/largepage is much less than
-the number of PMD mapped shmem pages as the below:
+Now that we got the more comprehensive validation code for USB-audio
+descriptors, the check of overflow in each descriptor unit parser
+became superfluous.  Drop some of the obvious cases.
 
-  7f2778200000-7f2878200000 rw-s 00000000 00:14 262232 /dev/shm/qemu_back_mem.mem.Hz2hSf (deleted)
-  Size:            4194304 kB
-  [snip]
-  AnonHugePages:         0 kB
-  ShmemPmdMapped:   579584 kB
-  [snip]
-  Locked:                0 kB
-
-  cat /sys/kernel/debug/kvm/largepages
-  12
-
-And some benchmarks do worse than with anonymous THPs.
-
-By digging into the code we figured out that commit 127393fbe597 ("mm:
-thp: kvm: fix memory corruption in KVM with THP enabled") checks if
-there is a single PTE mapping on the page for anonymous THP when setting
-up EPT map.  But the _mapcount < 0 check doesn't work for page cache THP
-since every subpage of page cache THP would get _mapcount inc'ed once it
-is PMD mapped, so PageTransCompoundMap() always returns false for page
-cache THP.  This would prevent KVM from setting up PMD mapped EPT entry.
-
-So we need handle page cache THP correctly.  However, when page cache
-THP's PMD gets split, kernel just remove the map instead of setting up
-PTE map like what anonymous THP does.  Before KVM calls get_user_pages()
-the subpages may get PTE mapped even though it is still a THP since the
-page cache THP may be mapped by other processes at the mean time.
-
-Checking its _mapcount and whether the THP has PTE mapped or not.
-Although this may report some false negative cases (PTE mapped by other
-processes), it looks not trivial to make this accurate.
-
-With this fix /sys/kernel/debug/kvm/largepage would show reasonable
-pages are PMD mapped by EPT as the below:
-
-  7fbeaee00000-7fbfaee00000 rw-s 00000000 00:14 275464 /dev/shm/qemu_back_mem.mem.SKUvat (deleted)
-  Size:            4194304 kB
-  [snip]
-  AnonHugePages:         0 kB
-  ShmemPmdMapped:   557056 kB
-  [snip]
-  Locked:                0 kB
-
-  cat /sys/kernel/debug/kvm/largepages
-  271
-
-And the benchmarks are as same as anonymous THPs.
-
-[yang.shi@linux.alibaba.com: v4]
-  Link: http://lkml.kernel.org/r/1571865575-42913-1-git-send-email-yang.shi@linux.alibaba.com
-Link: http://lkml.kernel.org/r/1571769577-89735-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: dd78fedde4b9 ("rmap: support file thp")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Tested-by: Gang Deng <gavin.dg@linux.alibaba.com>
-Suggested-by: Hugh Dickins <hughd@google.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>	[4.8+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/mm.h         |    5 -----
- include/linux/mm_types.h   |    5 +++++
- include/linux/page-flags.h |   20 ++++++++++++++++++--
- 3 files changed, 23 insertions(+), 7 deletions(-)
+ sound/usb/clock.c |   14 +++------
+ sound/usb/mixer.c |   84 ------------------------------------------------------
+ 2 files changed, 6 insertions(+), 92 deletions(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -549,11 +549,6 @@ static inline void *kvmalloc_array(size_
- 
- extern void kvfree(const void *addr);
- 
--static inline atomic_t *compound_mapcount_ptr(struct page *page)
--{
--	return &page[1].compound_mapcount;
--}
--
- static inline int compound_mapcount(struct page *page)
+--- a/sound/usb/clock.c
++++ b/sound/usb/clock.c
+@@ -38,39 +38,37 @@ static void *find_uac_clock_desc(struct
+ static bool validate_clock_source_v2(void *p, int id)
  {
- 	VM_BUG_ON_PAGE(!PageCompound(page), page);
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -240,6 +240,11 @@ struct page_frag_cache {
- 
- typedef unsigned long vm_flags_t;
- 
-+static inline atomic_t *compound_mapcount_ptr(struct page *page)
-+{
-+	return &page[1].compound_mapcount;
-+}
-+
- /*
-  * A region containing a mapping of a non-memory backed file under NOMMU
-  * conditions.  These are held in a global tree and are pinned by the VMAs that
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -565,12 +565,28 @@ static inline int PageTransCompound(stru
-  *
-  * Unlike PageTransCompound, this is safe to be called only while
-  * split_huge_pmd() cannot run from under us, like if protected by the
-- * MMU notifier, otherwise it may result in page->_mapcount < 0 false
-+ * MMU notifier, otherwise it may result in page->_mapcount check false
-  * positives.
-+ *
-+ * We have to treat page cache THP differently since every subpage of it
-+ * would get _mapcount inc'ed once it is PMD mapped.  But, it may be PTE
-+ * mapped in the current process so comparing subpage's _mapcount to
-+ * compound_mapcount to filter out PTE mapped case.
-  */
- static inline int PageTransCompoundMap(struct page *page)
- {
--	return PageTransCompound(page) && atomic_read(&page->_mapcount) < 0;
-+	struct page *head;
-+
-+	if (!PageTransCompound(page))
-+		return 0;
-+
-+	if (PageAnon(page))
-+		return atomic_read(&page->_mapcount) < 0;
-+
-+	head = compound_head(page);
-+	/* File THP is PMD mapped and not PTE mapped */
-+	return atomic_read(&page->_mapcount) ==
-+	       atomic_read(compound_mapcount_ptr(head));
+ 	struct uac_clock_source_descriptor *cs = p;
+-	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
++	return cs->bClockID == id;
  }
  
- /*
+ static bool validate_clock_source_v3(void *p, int id)
+ {
+ 	struct uac3_clock_source_descriptor *cs = p;
+-	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
++	return cs->bClockID == id;
+ }
+ 
+ static bool validate_clock_selector_v2(void *p, int id)
+ {
+ 	struct uac_clock_selector_descriptor *cs = p;
+-	return cs->bLength >= sizeof(*cs) && cs->bClockID == id &&
+-		cs->bLength == 7 + cs->bNrInPins;
++	return cs->bClockID == id;
+ }
+ 
+ static bool validate_clock_selector_v3(void *p, int id)
+ {
+ 	struct uac3_clock_selector_descriptor *cs = p;
+-	return cs->bLength >= sizeof(*cs) && cs->bClockID == id &&
+-		cs->bLength == 11 + cs->bNrInPins;
++	return cs->bClockID == id;
+ }
+ 
+ static bool validate_clock_multiplier_v2(void *p, int id)
+ {
+ 	struct uac_clock_multiplier_descriptor *cs = p;
+-	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
++	return cs->bClockID == id;
+ }
+ 
+ static bool validate_clock_multiplier_v3(void *p, int id)
+ {
+ 	struct uac3_clock_multiplier_descriptor *cs = p;
+-	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
++	return cs->bClockID == id;
+ }
+ 
+ #define DEFINE_FIND_HELPER(name, obj, validator, type)		\
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -740,13 +740,6 @@ static int uac_mixer_unit_get_channels(s
+ {
+ 	int mu_channels;
+ 
+-	if (desc->bLength < sizeof(*desc))
+-		return -EINVAL;
+-	if (!desc->bNrInPins)
+-		return -EINVAL;
+-	if (desc->bLength < sizeof(*desc) + desc->bNrInPins)
+-		return -EINVAL;
+-
+ 	switch (state->mixer->protocol) {
+ 	case UAC_VERSION_1:
+ 	case UAC_VERSION_2:
+@@ -1781,13 +1774,6 @@ static int parse_clock_source_unit(struc
+ 	if (state->mixer->protocol != UAC_VERSION_2)
+ 		return -EINVAL;
+ 
+-	if (hdr->bLength != sizeof(*hdr)) {
+-		usb_audio_dbg(state->chip,
+-			      "Bogus clock source descriptor length of %d, ignoring.\n",
+-			      hdr->bLength);
+-		return 0;
+-	}
+-
+ 	/*
+ 	 * The only property of this unit we are interested in is the
+ 	 * clock source validity. If that isn't readable, just bail out.
+@@ -1846,62 +1832,20 @@ static int parse_audio_feature_unit(stru
+ 	__u8 *bmaControls;
+ 
+ 	if (state->mixer->protocol == UAC_VERSION_1) {
+-		if (hdr->bLength < 7) {
+-			usb_audio_err(state->chip,
+-				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
+-				      unitid);
+-			return -EINVAL;
+-		}
+ 		csize = hdr->bControlSize;
+-		if (!csize) {
+-			usb_audio_dbg(state->chip,
+-				      "unit %u: invalid bControlSize == 0\n",
+-				      unitid);
+-			return -EINVAL;
+-		}
+ 		channels = (hdr->bLength - 7) / csize - 1;
+ 		bmaControls = hdr->bmaControls;
+-		if (hdr->bLength < 7 + csize) {
+-			usb_audio_err(state->chip,
+-				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
+-				      unitid);
+-			return -EINVAL;
+-		}
+ 	} else if (state->mixer->protocol == UAC_VERSION_2) {
+ 		struct uac2_feature_unit_descriptor *ftr = _ftr;
+-		if (hdr->bLength < 6) {
+-			usb_audio_err(state->chip,
+-				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
+-				      unitid);
+-			return -EINVAL;
+-		}
+ 		csize = 4;
+ 		channels = (hdr->bLength - 6) / 4 - 1;
+ 		bmaControls = ftr->bmaControls;
+-		if (hdr->bLength < 6 + csize) {
+-			usb_audio_err(state->chip,
+-				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
+-				      unitid);
+-			return -EINVAL;
+-		}
+ 	} else { /* UAC_VERSION_3 */
+ 		struct uac3_feature_unit_descriptor *ftr = _ftr;
+ 
+-		if (hdr->bLength < 7) {
+-			usb_audio_err(state->chip,
+-				      "unit %u: invalid UAC3_FEATURE_UNIT descriptor\n",
+-				      unitid);
+-			return -EINVAL;
+-		}
+ 		csize = 4;
+ 		channels = (ftr->bLength - 7) / 4 - 1;
+ 		bmaControls = ftr->bmaControls;
+-		if (hdr->bLength < 7 + csize) {
+-			usb_audio_err(state->chip,
+-				      "unit %u: invalid UAC3_FEATURE_UNIT descriptor\n",
+-				      unitid);
+-			return -EINVAL;
+-		}
+ 	}
+ 
+ 	/* parse the source unit */
+@@ -2101,15 +2045,11 @@ static int parse_audio_input_terminal(st
+ 
+ 	if (state->mixer->protocol == UAC_VERSION_2) {
+ 		struct uac2_input_terminal_descriptor *d_v2 = raw_desc;
+-		if (d_v2->bLength < sizeof(*d_v2))
+-			return -EINVAL;
+ 		control = UAC2_TE_CONNECTOR;
+ 		term_id = d_v2->bTerminalID;
+ 		bmctls = le16_to_cpu(d_v2->bmControls);
+ 	} else if (state->mixer->protocol == UAC_VERSION_3) {
+ 		struct uac3_input_terminal_descriptor *d_v3 = raw_desc;
+-		if (d_v3->bLength < sizeof(*d_v3))
+-			return -EINVAL;
+ 		control = UAC3_TE_INSERTION;
+ 		term_id = d_v3->bTerminalID;
+ 		bmctls = le32_to_cpu(d_v3->bmControls);
+@@ -2371,18 +2311,7 @@ static int build_audio_procunit(struct m
+ 	const char *name = extension_unit ?
+ 		"Extension Unit" : "Processing Unit";
+ 
+-	if (desc->bLength < 13) {
+-		usb_audio_err(state->chip, "invalid %s descriptor (id %d)\n", name, unitid);
+-		return -EINVAL;
+-	}
+-
+ 	num_ins = desc->bNrInPins;
+-	if (desc->bLength < 13 + num_ins ||
+-	    desc->bLength < num_ins + uac_processing_unit_bControlSize(desc, state->mixer->protocol)) {
+-		usb_audio_err(state->chip, "invalid %s descriptor (id %d)\n", name, unitid);
+-		return -EINVAL;
+-	}
+-
+ 	for (i = 0; i < num_ins; i++) {
+ 		err = parse_audio_unit(state, desc->baSourceID[i]);
+ 		if (err < 0)
+@@ -2637,13 +2566,6 @@ static int parse_audio_selector_unit(str
+ 	const struct usbmix_name_map *map;
+ 	char **namelist;
+ 
+-	if (desc->bLength < 5 || !desc->bNrInPins ||
+-	    desc->bLength < 5 + desc->bNrInPins) {
+-		usb_audio_err(state->chip,
+-			"invalid SELECTOR UNIT descriptor %d\n", unitid);
+-		return -EINVAL;
+-	}
+-
+ 	for (i = 0; i < desc->bNrInPins; i++) {
+ 		err = parse_audio_unit(state, desc->baSourceID[i]);
+ 		if (err < 0)
+@@ -3149,8 +3071,6 @@ static int snd_usb_mixer_controls(struct
+ 		if (mixer->protocol == UAC_VERSION_1) {
+ 			struct uac1_output_terminal_descriptor *desc = p;
+ 
+-			if (desc->bLength < sizeof(*desc))
+-				continue; /* invalid descriptor? */
+ 			/* mark terminal ID as visited */
+ 			set_bit(desc->bTerminalID, state.unitbitmap);
+ 			state.oterm.id = desc->bTerminalID;
+@@ -3162,8 +3082,6 @@ static int snd_usb_mixer_controls(struct
+ 		} else if (mixer->protocol == UAC_VERSION_2) {
+ 			struct uac2_output_terminal_descriptor *desc = p;
+ 
+-			if (desc->bLength < sizeof(*desc))
+-				continue; /* invalid descriptor? */
+ 			/* mark terminal ID as visited */
+ 			set_bit(desc->bTerminalID, state.unitbitmap);
+ 			state.oterm.id = desc->bTerminalID;
+@@ -3189,8 +3107,6 @@ static int snd_usb_mixer_controls(struct
+ 		} else {  /* UAC_VERSION_3 */
+ 			struct uac3_output_terminal_descriptor *desc = p;
+ 
+-			if (desc->bLength < sizeof(*desc))
+-				continue; /* invalid descriptor? */
+ 			/* mark terminal ID as visited */
+ 			set_bit(desc->bTerminalID, state.unitbitmap);
+ 			state.oterm.id = desc->bTerminalID;
 
 
