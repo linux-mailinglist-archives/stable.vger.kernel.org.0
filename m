@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 95265F7548
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 14:47:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3576F756D
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 14:51:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbfKKNre (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 08:47:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46252 "EHLO mail.kernel.org"
+        id S1726887AbfKKNvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 08:51:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726928AbfKKNre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 08:47:34 -0500
+        id S1726811AbfKKNvn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 08:51:43 -0500
 Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1A96206A3;
-        Mon, 11 Nov 2019 13:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13656206A3;
+        Mon, 11 Nov 2019 13:51:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573480054;
-        bh=6Bk9YPbSoRH7AooYtlsYuckf9pdnyyXK/SWjD2DzVaA=;
+        s=default; t=1573480302;
+        bh=1R+knT9QFYv3b8z7wjWjLCJDywXyJJz/PJgR4UVEDqU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=c3P6rPWjGOkVRqUDXk6oeAD6T6hOWKeNwh0JqMxHWUWbWYZeVTYP8994hBL6ebW38
-         WNrHGWMZTXV9kIkML5TLf3iy1D4SYdsaIDuvqzq/JhVBLS1BCAzbnaPftKZiukiZRb
-         C0TXqm3yShJ81A079Iz+mqrjlcQTONNbjgCB0APs=
-Date:   Mon, 11 Nov 2019 08:47:32 -0500
+        b=VPrAiLdjfcAxePQnpmXBStpMY7n00/06UEaYIzQPjnEhBrpbPgw3AwzW9pDgRrALY
+         vuWkIwywei6tP5K9000KyCsnpDh8dFiy7h4cUraBYl0rTcCSH6YzjxFNtsKAQKWxna
+         nYAn9IGyxLcvbwyPisgNCEC/VgYb9VypX4efA0Rw=
+Date:   Mon, 11 Nov 2019 08:51:41 -0500
 From:   Sasha Levin <sashal@kernel.org>
 To:     gregkh@linuxfoundation.org
-Cc:     JManeyrol@invensense.com, Jonathan.Cameron@huawei.com,
+Cc:     leonard.crestez@nxp.com, sboyd@kernel.org, shawnguo@kernel.org,
         stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] iio: imu: inv_mpu6050: fix no data on
- MPU6050" failed to apply to 4.19-stable tree
-Message-ID: <20191111134732.GB8496@sasha-vm>
-References: <15734533311935@kroah.com>
+Subject: Re: FAILED: patch "[PATCH] clk: imx8m: Use SYS_PLL1_800M as
+ intermediate parent of" failed to apply to 5.3-stable tree
+Message-ID: <20191111135141.GC8496@sasha-vm>
+References: <157345338112980@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <15734533311935@kroah.com>
+In-Reply-To: <157345338112980@kroah.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 11, 2019 at 07:22:11AM +0100, gregkh@linuxfoundation.org wrote:
+On Mon, Nov 11, 2019 at 07:23:01AM +0100, gregkh@linuxfoundation.org wrote:
 >
->The patch below does not apply to the 4.19-stable tree.
+>The patch below does not apply to the 5.3-stable tree.
 >If someone wants it applied there, or to any other stable or longterm
 >tree, then please email the backport, including the original git commit
 >id to <stable@vger.kernel.org>.
@@ -55,26 +55,31 @@ On Mon, Nov 11, 2019 at 07:22:11AM +0100, gregkh@linuxfoundation.org wrote:
 >
 >------------------ original commit in Linus's tree ------------------
 >
->From 6e82ae6b8d11b948b74e71396efd8e074c415f44 Mon Sep 17 00:00:00 2001
->From: Jean-Baptiste Maneyrol <JManeyrol@invensense.com>
->Date: Wed, 16 Oct 2019 14:43:28 +0000
->Subject: [PATCH] iio: imu: inv_mpu6050: fix no data on MPU6050
+>From b234fe9558615098d8d62516e7041ad7f99ebcea Mon Sep 17 00:00:00 2001
+>From: Leonard Crestez <leonard.crestez@nxp.com>
+>Date: Tue, 22 Oct 2019 22:21:28 +0300
+>Subject: [PATCH] clk: imx8m: Use SYS_PLL1_800M as intermediate parent of
+> CLK_ARM
 >
->Some chips have a fifo overflow bit issue where the bit is always
->set. The result is that every data is dropped.
+>During cpu frequency switching the main "CLK_ARM" is reparented to an
+>intermediate "step" clock. On imx8mm and imx8mn the 24M oscillator is
+>used for this purpose but it is extremely slow, increasing wakeup
+>latencies to the point that i2c transactions can timeout and system
+>becomes unresponsive.
 >
->Change fifo overflow management by checking fifo count against
->a maximum value.
+>Fix by switching the "step" clk to SYS_PLL1_800M, matching the behavior
+>of imx8m cpufreq drivers in imx vendor tree.
 >
->Add fifo size in chip hardware set of values.
+>This bug was not immediately apparent because upstream arm64 defconfig
+>uses the "performance" governor by default so no cpufreq transitions
+>happen.
 >
->Fixes: f5057e7b2dba ("iio: imu: inv_mpu6050: better fifo overflow handling")
->Cc: stable@vger.kernel.org
->Signed-off-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
->Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+>Fixes: ba5625c3e272 ("clk: imx: Add clock driver support for imx8mm")
+>Fixes: 96d6392b54db ("clk: imx: Add support for i.MX8MN clock driver")
 
-I've resolved the conflict by also queueing up 22904bdff978 ("iio: imu:
-mpu6050: Add support for the ICM 20602 IMU") on 4.19.
+96d6392b54db doesn't exist on 5.3, so I've modified the patch to only
+fix the ba5625c3e272 related code and queued it for 5.3. Neither commit
+exists on 4.19 and older.
 
 -- 
 Thanks,
