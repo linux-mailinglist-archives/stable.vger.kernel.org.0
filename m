@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A64BFF7F74
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F219F7E55
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727427AbfKKSap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:30:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47134 "EHLO mail.kernel.org"
+        id S1729337AbfKKSqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:46:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727420AbfKKSao (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:30:44 -0500
+        id S1728474AbfKKSqv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:46:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6C1320674;
-        Mon, 11 Nov 2019 18:30:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1FB821783;
+        Mon, 11 Nov 2019 18:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497044;
-        bh=UEy7KH4A/4mCBkcVdLytqSpgFF0Uz+nEJMakBLOHAIo=;
+        s=default; t=1573498011;
+        bh=vSa3OwHpZ8OUxXteH9FhHaMegSgNgzkJ4irP9Ed/s90=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TEKE+7e2zzwuvlqvoaxeKdRAASLgavD71unvRE0R+lVia6jb4AtolGBRjR7gfh02C
-         /qnP6NAto7aK56MHNT+/UtUhoIDI1/hBMjmbLCV6C7JyExFwEwa6hNbXgu+64VgRkK
-         UhcVjm0UN+F/WMvk5S81YpEQiBh1cQe/Q2Vpq3Sk=
+        b=aNP51DAJDtB+1S8XoqxGshO0mm0bJPIxHrHF8tdkEMUMfaE+kX8UnYLQ58/eUNDqj
+         Zf+Gqn8gVAzunhuq1Eya+rVu3hVZlkJFGcNTqrX1/tBICD47vTo6AxfLO7sooiF3Sk
+         dq+Rh7QnTEdVyETTCgPSkUOdHUr8lINbz8F5UHV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <james.smart@broadcom.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Daniel Wagner <dwagner@suse.de>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 26/43] scsi: qla2xxx: fixup incorrect usage of host_byte
-Date:   Mon, 11 Nov 2019 19:28:40 +0100
-Message-Id: <20191111181317.115100793@linuxfoundation.org>
+Subject: [PATCH 4.19 082/125] scsi: lpfc: Honor module parameter lpfc_use_adisc
+Date:   Mon, 11 Nov 2019 19:28:41 +0100
+Message-Id: <20191111181451.116334245@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +47,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-[ Upstream commit 66cf50e65b183c863825f5c28a818e3f47a72e40 ]
+[ Upstream commit 0fd103ccfe6a06e40e2d9d8c91d96332cc9e1239 ]
 
-DRIVER_ERROR is a a driver byte setting, not a host byte.  The qla2xxx
-driver should rather return DID_ERROR here to be in line with the other
-drivers.
+The initial lpfc_desc_set_adisc implementation in commit
+dea3101e0a5c ("lpfc: add Emulex FC driver version 8.0.28") enabled ADISC if
 
-Link: https://lore.kernel.org/r/20191018140458.108278-1-hare@suse.de
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+	cfg_use_adisc && RSCN_MODE && FCP_2_DEVICE
+
+In commit 92d7f7b0cde3 ("[SCSI] lpfc: NPIV: add NPIV support on top of
+SLI-3") this changed to
+
+	(cfg_use_adisc && RSC_MODE) || FCP_2_DEVICE
+
+and later in commit ffc954936b13 ("[SCSI] lpfc 8.3.13: FC Discovery Fixes
+and enhancements.") to
+
+	(cfg_use_adisc && RSC_MODE) || (FCP_2_DEVICE && FCP_TARGET)
+
+A customer reports that after a devloss, an ADISC failure is logged. It
+turns out the ADISC flag is set even the user explicitly set lpfc_use_adisc
+= 0.
+
+[Sat Dec 22 22:55:58 2018] lpfc 0000:82:00.0: 2:(0):0203 Devloss timeout on WWPN 50:01:43:80:12:8e:40:20 NPort x05df00 Data: x82000000 x8 xa
+[Sat Dec 22 23:08:20 2018] lpfc 0000:82:00.0: 2:(0):2755 ADISC failure DID:05DF00 Status:x9/x70000
+
+[mkp: fixed Hannes' email]
+
+Fixes: 92d7f7b0cde3 ("[SCSI] lpfc: NPIV: add NPIV support on top of SLI-3")
+Cc: Dick Kennedy <dick.kennedy@broadcom.com>
+Cc: James Smart <james.smart@broadcom.com>
+Link: https://lore.kernel.org/r/20191022072112.132268-1-dwagner@suse.de
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc_nportdisc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
-index c26acde797f0d..2d5375d677367 100644
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -252,7 +252,7 @@ qla2x00_process_els(struct fc_bsg_job *bsg_job)
- 	srb_t *sp;
- 	const char *type;
- 	int req_sg_cnt, rsp_sg_cnt;
--	int rval =  (DRIVER_ERROR << 16);
-+	int rval =  (DID_ERROR << 16);
- 	uint16_t nextlid = 0;
+diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
+index a6619fd8238c1..ae6301c796785 100644
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -844,9 +844,9 @@ lpfc_disc_set_adisc(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
  
- 	if (bsg_job->request->msgcode == FC_BSG_RPT_ELS) {
-@@ -426,7 +426,7 @@ qla2x00_process_ct(struct fc_bsg_job *bsg_job)
- 	struct Scsi_Host *host = bsg_job->shost;
- 	scsi_qla_host_t *vha = shost_priv(host);
- 	struct qla_hw_data *ha = vha->hw;
--	int rval = (DRIVER_ERROR << 16);
-+	int rval = (DID_ERROR << 16);
- 	int req_sg_cnt, rsp_sg_cnt;
- 	uint16_t loop_id;
- 	struct fc_port *fcport;
-@@ -1910,7 +1910,7 @@ qlafx00_mgmt_cmd(struct fc_bsg_job *bsg_job)
- 	struct Scsi_Host *host = bsg_job->shost;
- 	scsi_qla_host_t *vha = shost_priv(host);
- 	struct qla_hw_data *ha = vha->hw;
--	int rval = (DRIVER_ERROR << 16);
-+	int rval = (DID_ERROR << 16);
- 	struct qla_mt_iocb_rqst_fx00 *piocb_rqst;
- 	srb_t *sp;
- 	int req_sg_cnt = 0, rsp_sg_cnt = 0;
+ 	if (!(vport->fc_flag & FC_PT2PT)) {
+ 		/* Check config parameter use-adisc or FCP-2 */
+-		if ((vport->cfg_use_adisc && (vport->fc_flag & FC_RSCN_MODE)) ||
++		if (vport->cfg_use_adisc && ((vport->fc_flag & FC_RSCN_MODE) ||
+ 		    ((ndlp->nlp_fcp_info & NLP_FCP_2_DEVICE) &&
+-		     (ndlp->nlp_type & NLP_FCP_TARGET))) {
++		     (ndlp->nlp_type & NLP_FCP_TARGET)))) {
+ 			spin_lock_irq(shost->host_lock);
+ 			ndlp->nlp_flag |= NLP_NPR_ADISC;
+ 			spin_unlock_irq(shost->host_lock);
 -- 
 2.20.1
 
