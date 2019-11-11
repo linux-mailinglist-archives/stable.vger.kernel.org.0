@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99BDDF7F29
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 837A5F7E74
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728091AbfKKSdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:33:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50450 "EHLO mail.kernel.org"
+        id S1729225AbfKKSoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:44:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727295AbfKKSdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:33:10 -0500
+        id S1729025AbfKKSoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:44:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B475120674;
-        Mon, 11 Nov 2019 18:33:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10016204FD;
+        Mon, 11 Nov 2019 18:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497187;
-        bh=Umhrk4I3/8m4n1PENLs+C//lxigBRjVE7+2A8v6Wleo=;
+        s=default; t=1573497848;
+        bh=WJqNjWlZeYXp/OdJW52AYkLhIjoXx0wfAPH5kCfAg+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AcM7T8n2PaSJbXm+z9dkrXOp/hwIvqP2rJwmo/OtcH/led+2+iy1RDOddn8UeA1W8
-         nuL+j9GyjyjEMF2Tfuw8B7MOy/x/4hOE/Hho7nOaDFYn9Deoz4+Bb/ZQvvqTcVFacb
-         I+iEybMmxkTNuWCGH+pBxkMwywsYERK2cXZQZy18=
+        b=YSk3Oyn/rzUalDr74mcAFhU4aCn1SegvxoysOlvwxiPAb1jlMDcz5qo53hrZ9vDbS
+         Hdl+3je0aBsBb+KnIIeB0aUtKHlPLth9vLQ56YmABE2xpqAFtUFkrqmMKEYJJ4+soc
+         FB1KQEA0hgLAJiXkkIL5DYR+IId4Q8xv57ZKrN68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.9 32/65] configfs: fix a deadlock in configfs_symlink()
-Date:   Mon, 11 Nov 2019 19:28:32 +0100
-Message-Id: <20191111181346.721864795@linuxfoundation.org>
+        stable@vger.kernel.org, Rafi Wiener <rafiw@mellanox.com>,
+        Oleg Kuporosov <olegk@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 074/125] RDMA/mlx5: Clear old rate limit when closing QP
+Date:   Mon, 11 Nov 2019 19:28:33 +0100
+Message-Id: <20191111181450.011683215@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Rafi Wiener <rafiw@mellanox.com>
 
-commit 351e5d869e5ac10cb40c78b5f2d7dfc816ad4587 upstream.
+[ Upstream commit c8973df2da677f375f8b12b6eefca2f44c8884d5 ]
 
-Configfs abuses symlink(2).  Unlike the normal filesystems, it
-wants the target resolved at symlink(2) time, like link(2) would've
-done.  The problem is that ->symlink() is called with the parent
-directory locked exclusive, so resolving the target inside the
-->symlink() is easily deadlocked.
+Before QP is closed it changes to ERROR state, when this happens
+the QP was left with old rate limit that was already removed from
+the table.
 
-Short of really ugly games in sys_symlink() itself, all we can
-do is to unlock the parent before resolving the target and
-relock it after.  However, that invalidates the checks done
-by the caller of ->symlink(), so we have to
-	* check that dentry is still where it used to be
-(it couldn't have been moved, but it could've been unhashed)
-	* recheck that it's still negative (somebody else
-might've successfully created a symlink with the same name
-while we were looking the target up)
-	* recheck the permissions on the parent directory.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 7d29f349a4b9 ("IB/mlx5: Properly adjust rate limit on QP state transitions")
+Signed-off-by: Rafi Wiener <rafiw@mellanox.com>
+Signed-off-by: Oleg Kuporosov <olegk@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Link: https://lore.kernel.org/r/20191002120243.16971-1-leon@kernel.org
+Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/symlink.c |   33 ++++++++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/qp.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/configfs/symlink.c
-+++ b/fs/configfs/symlink.c
-@@ -157,11 +157,42 @@ int configfs_symlink(struct inode *dir,
- 	    !type->ct_item_ops->allow_link)
- 		goto out_put;
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 77b1f3fd086ad..900f85ce0fb08 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -2828,10 +2828,12 @@ static int modify_raw_packet_qp_sq(struct mlx5_core_dev *dev,
+ 	}
  
-+	/*
-+	 * This is really sick.  What they wanted was a hybrid of
-+	 * link(2) and symlink(2) - they wanted the target resolved
-+	 * at syscall time (as link(2) would've done), be a directory
-+	 * (which link(2) would've refused to do) *AND* be a deep
-+	 * fucking magic, making the target busy from rmdir POV.
-+	 * symlink(2) is nothing of that sort, and the locking it
-+	 * gets matches the normal symlink(2) semantics.  Without
-+	 * attempts to resolve the target (which might very well
-+	 * not even exist yet) done prior to locking the parent
-+	 * directory.  This perversion, OTOH, needs to resolve
-+	 * the target, which would lead to obvious deadlocks if
-+	 * attempted with any directories locked.
-+	 *
-+	 * Unfortunately, that garbage is userland ABI and we should've
-+	 * said "no" back in 2005.  Too late now, so we get to
-+	 * play very ugly games with locking.
-+	 *
-+	 * Try *ANYTHING* of that sort in new code, and you will
-+	 * really regret it.  Just ask yourself - what could a BOFH
-+	 * do to me and do I want to find it out first-hand?
-+	 *
-+	 *  AV, a thoroughly annoyed bastard.
-+	 */
-+	inode_unlock(dir);
- 	ret = get_target(symname, &path, &target_item, dentry->d_sb);
-+	inode_lock(dir);
- 	if (ret)
- 		goto out_put;
+ 	/* Only remove the old rate after new rate was set */
+-	if ((old_rl.rate &&
+-	     !mlx5_rl_are_equal(&old_rl, &new_rl)) ||
+-	    (new_state != MLX5_SQC_STATE_RDY))
++	if ((old_rl.rate && !mlx5_rl_are_equal(&old_rl, &new_rl)) ||
++	    (new_state != MLX5_SQC_STATE_RDY)) {
+ 		mlx5_rl_remove_rate(dev, &old_rl);
++		if (new_state != MLX5_SQC_STATE_RDY)
++			memset(&new_rl, 0, sizeof(new_rl));
++	}
  
--	ret = type->ct_item_ops->allow_link(parent_item, target_item);
-+	if (dentry->d_inode || d_unhashed(dentry))
-+		ret = -EEXIST;
-+	else
-+		ret = inode_permission(dir, MAY_WRITE | MAY_EXEC);
-+	if (!ret)
-+		ret = type->ct_item_ops->allow_link(parent_item, target_item);
- 	if (!ret) {
- 		mutex_lock(&configfs_symlink_mutex);
- 		ret = create_link(parent_item, target_item, dentry);
+ 	ibqp->rl = new_rl;
+ 	sq->state = new_state;
+-- 
+2.20.1
+
 
 
