@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0ED7F7E8F
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38280F7F1B
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:09:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728431AbfKKSka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:40:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
+        id S1727832AbfKKSfI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:35:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729260AbfKKSk3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:40:29 -0500
+        id S1728466AbfKKSfI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:35:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BA9D20659;
-        Mon, 11 Nov 2019 18:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D45F6214E0;
+        Mon, 11 Nov 2019 18:35:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497627;
-        bh=qSho/CZMZ2cR6XRqix1hafucaQQ3JDfrbkmJgbYggOA=;
+        s=default; t=1573497307;
+        bh=3r23D6zkJlw8LUCK77Qs3OtI9qDtiRwwXwbW46ct794=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jey41rDggIWKHo0EagSnUzoOQs44ML0a0W98cRyIyj78fPvVYN7XXcQO8qVnE7yLZ
-         /zQLfObJDAfUddLDIWALc5otexGv+nUiyxWkgFllIcm9b6p6VyaMIoZJRZt26YSt3g
-         9b2IBdmkMuvXoFlwkEOpwqwjeZqUjVTJ+7ln6LUM=
+        b=dUWsCkpCzdMsYtl5pn7SUYDhXtN01InsB/U8dVh1F1IwSrXbN1Li4M/ddIEgUqYQ9
+         +4FF2CnvRbACCQI//Lk+jU5itVooBKW+v6Jboo8g8mrEADPOHf/ev3pyJ7zZWwqEL3
+         4iyzoLSKJXTvGGyJk77IGl2WEtTxk/9p+ABQUIwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Chopra <manishc@marvell.com>,
-        Ariel Elior <aelior@marvell.com>,
-        Sudarsana Kalluru <skalluru@marvell.com>,
+        stable@vger.kernel.org, Aleksei Zakharov <zakharov.a.g@yandex.ru>,
+        Sha Zhang <zhangsha.zhang@huawei.com>,
+        Mahesh Bandewar <maheshb@google.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 011/125] qede: fix NULL pointer deref in __qede_remove()
-Date:   Mon, 11 Nov 2019 19:27:30 +0100
-Message-Id: <20191111181441.058714460@linuxfoundation.org>
+Subject: [PATCH 4.14 001/105] bonding: fix state transition issue in link monitoring
+Date:   Mon, 11 Nov 2019 19:27:31 +0100
+Message-Id: <20191111181421.883447565@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,101 +48,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manish Chopra <manishc@marvell.com>
+From: Jay Vosburgh <jay.vosburgh@canonical.com>
 
-[ Upstream commit deabc87111c690097c03765ea017cd500f7376fc ]
+[ Upstream commit 1899bb325149e481de31a4f32b59ea6f24e176ea ]
 
-While rebooting the system with SR-IOV vfs enabled leads
-to below crash due to recurrence of __qede_remove() on the VF
-devices (first from .shutdown() flow of the VF itself and
-another from PF's .shutdown() flow executing pci_disable_sriov())
+Since de77ecd4ef02 ("bonding: improve link-status update in
+mii-monitoring"), the bonding driver has utilized two separate variables
+to indicate the next link state a particular slave should transition to.
+Each is used to communicate to a different portion of the link state
+change commit logic; one to the bond_miimon_commit function itself, and
+another to the state transition logic.
 
-This patch adds a safeguard in __qede_remove() flow to fix this,
-so that driver doesn't attempt to remove "already removed" devices.
+	Unfortunately, the two variables can become unsynchronized,
+resulting in incorrect link state transitions within bonding.  This can
+cause slaves to become stuck in an incorrect link state until a
+subsequent carrier state transition.
 
-[  194.360134] BUG: unable to handle kernel NULL pointer dereference at 00000000000008dc
-[  194.360227] IP: [<ffffffffc03553c4>] __qede_remove+0x24/0x130 [qede]
-[  194.360304] PGD 0
-[  194.360325] Oops: 0000 [#1] SMP
-[  194.360360] Modules linked in: tcp_lp fuse tun bridge stp llc devlink bonding ip_set nfnetlink ib_isert iscsi_target_mod ib_srpt target_core_mod ib_srp scsi_transport_srp scsi_tgt ib_ipoib ib_umad rpcrdma sunrpc rdma_ucm ib_uverbs ib_iser rdma_cm iw_cm ib_cm libiscsi scsi_transport_iscsi dell_smbios iTCO_wdt iTCO_vendor_support dell_wmi_descriptor dcdbas vfat fat pcc_cpufreq skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel lrw gf128mul glue_helper ablk_helper cryptd qedr ib_core pcspkr ses enclosure joydev ipmi_ssif sg i2c_i801 lpc_ich mei_me mei wmi ipmi_si ipmi_devintf ipmi_msghandler tpm_crb acpi_pad acpi_power_meter xfs libcrc32c sd_mod crc_t10dif crct10dif_generic crct10dif_pclmul crct10dif_common crc32c_intel mgag200
-[  194.361044]  qede i2c_algo_bit drm_kms_helper qed syscopyarea sysfillrect nvme sysimgblt fb_sys_fops ttm nvme_core mpt3sas crc8 ptp drm pps_core ahci raid_class scsi_transport_sas libahci libata drm_panel_orientation_quirks nfit libnvdimm dm_mirror dm_region_hash dm_log dm_mod [last unloaded: ip_tables]
-[  194.361297] CPU: 51 PID: 7996 Comm: reboot Kdump: loaded Not tainted 3.10.0-1062.el7.x86_64 #1
-[  194.361359] Hardware name: Dell Inc. PowerEdge MX840c/0740HW, BIOS 2.4.6 10/15/2019
-[  194.361412] task: ffff9cea9b360000 ti: ffff9ceabebdc000 task.ti: ffff9ceabebdc000
-[  194.361463] RIP: 0010:[<ffffffffc03553c4>]  [<ffffffffc03553c4>] __qede_remove+0x24/0x130 [qede]
-[  194.361534] RSP: 0018:ffff9ceabebdfac0  EFLAGS: 00010282
-[  194.361570] RAX: 0000000000000000 RBX: ffff9cd013846098 RCX: 0000000000000000
-[  194.361621] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9cd013846098
-[  194.361668] RBP: ffff9ceabebdfae8 R08: 0000000000000000 R09: 0000000000000000
-[  194.361715] R10: 00000000bfe14201 R11: ffff9ceabfe141e0 R12: 0000000000000000
-[  194.361762] R13: ffff9cd013846098 R14: 0000000000000000 R15: ffff9ceab5e48000
-[  194.361810] FS:  00007f799c02d880(0000) GS:ffff9ceacb0c0000(0000) knlGS:0000000000000000
-[  194.361865] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  194.361903] CR2: 00000000000008dc CR3: 0000001bdac76000 CR4: 00000000007607e0
-[  194.361953] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  194.362002] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  194.362051] PKRU: 55555554
-[  194.362073] Call Trace:
-[  194.362109]  [<ffffffffc0355500>] qede_remove+0x10/0x20 [qede]
-[  194.362180]  [<ffffffffb97d0f3e>] pci_device_remove+0x3e/0xc0
-[  194.362240]  [<ffffffffb98b3c52>] __device_release_driver+0x82/0xf0
-[  194.362285]  [<ffffffffb98b3ce3>] device_release_driver+0x23/0x30
-[  194.362343]  [<ffffffffb97c86d4>] pci_stop_bus_device+0x84/0xa0
-[  194.362388]  [<ffffffffb97c87e2>] pci_stop_and_remove_bus_device+0x12/0x20
-[  194.362450]  [<ffffffffb97f153f>] pci_iov_remove_virtfn+0xaf/0x160
-[  194.362496]  [<ffffffffb97f1aec>] sriov_disable+0x3c/0xf0
-[  194.362534]  [<ffffffffb97f1bc3>] pci_disable_sriov+0x23/0x30
-[  194.362599]  [<ffffffffc02f83c3>] qed_sriov_disable+0x5e3/0x650 [qed]
-[  194.362658]  [<ffffffffb9622df6>] ? kfree+0x106/0x140
-[  194.362709]  [<ffffffffc02cc0c0>] ? qed_free_stream_mem+0x70/0x90 [qed]
-[  194.362754]  [<ffffffffb9622df6>] ? kfree+0x106/0x140
-[  194.362803]  [<ffffffffc02cd659>] qed_slowpath_stop+0x1a9/0x1d0 [qed]
-[  194.362854]  [<ffffffffc035544e>] __qede_remove+0xae/0x130 [qede]
-[  194.362904]  [<ffffffffc03554e0>] qede_shutdown+0x10/0x20 [qede]
-[  194.362956]  [<ffffffffb97cf90a>] pci_device_shutdown+0x3a/0x60
-[  194.363010]  [<ffffffffb98b180b>] device_shutdown+0xfb/0x1f0
-[  194.363066]  [<ffffffffb94b66c6>] kernel_restart_prepare+0x36/0x40
-[  194.363107]  [<ffffffffb94b66e2>] kernel_restart+0x12/0x60
-[  194.363146]  [<ffffffffb94b6959>] SYSC_reboot+0x229/0x260
-[  194.363196]  [<ffffffffb95f200d>] ? handle_mm_fault+0x39d/0x9b0
-[  194.363253]  [<ffffffffb942b621>] ? __switch_to+0x151/0x580
-[  194.363304]  [<ffffffffb9b7ec28>] ? __schedule+0x448/0x9c0
-[  194.363343]  [<ffffffffb94b69fe>] SyS_reboot+0xe/0x10
-[  194.363387]  [<ffffffffb9b8bede>] system_call_fastpath+0x25/0x2a
-[  194.363430] Code: f9 e9 37 ff ff ff 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41 55 4c 8d af 98 00 00 00 41 54 4c 89 ef 41 89 f4 53 e8 4c e4 55 f9 <80> b8 dc 08 00 00 01 48 89 c3 4c 8d b8 c0 08 00 00 4c 8b b0 c0
-[  194.363712] RIP  [<ffffffffc03553c4>] __qede_remove+0x24/0x130 [qede]
-[  194.363764]  RSP <ffff9ceabebdfac0>
-[  194.363791] CR2: 00000000000008dc
+	The issue occurs when a special case in bond_slave_netdev_event
+sets slave->link directly to BOND_LINK_FAIL.  On the next pass through
+bond_miimon_inspect after the slave goes carrier up, the BOND_LINK_FAIL
+case will set the proposed next state (link_new_state) to BOND_LINK_UP,
+but the new_link to BOND_LINK_DOWN.  The setting of the final link state
+from new_link comes after that from link_new_state, and so the slave
+will end up incorrectly in _DOWN state.
 
-Signed-off-by: Manish Chopra <manishc@marvell.com>
-Signed-off-by: Ariel Elior <aelior@marvell.com>
-Signed-off-by: Sudarsana Kalluru <skalluru@marvell.com>
+	Resolve this by combining the two variables into one.
+
+Reported-by: Aleksei Zakharov <zakharov.a.g@yandex.ru>
+Reported-by: Sha Zhang <zhangsha.zhang@huawei.com>
+Cc: Mahesh Bandewar <maheshb@google.com>
+Fixes: de77ecd4ef02 ("bonding: improve link-status update in mii-monitoring")
+Signed-off-by: Jay Vosburgh <jay.vosburgh@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qede/qede_main.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/bonding/bond_main.c |   41 +++++++++++++++++++---------------------
+ include/net/bonding.h           |    3 --
+ 2 files changed, 21 insertions(+), 23 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qede/qede_main.c
-+++ b/drivers/net/ethernet/qlogic/qede/qede_main.c
-@@ -1170,8 +1170,16 @@ enum qede_remove_mode {
- static void __qede_remove(struct pci_dev *pdev, enum qede_remove_mode mode)
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -2055,8 +2055,7 @@ static int bond_miimon_inspect(struct bo
+ 	ignore_updelay = !rcu_dereference(bond->curr_active_slave);
+ 
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+-		slave->new_link = BOND_LINK_NOCHANGE;
+-		slave->link_new_state = slave->link;
++		bond_propose_link_state(slave, BOND_LINK_NOCHANGE);
+ 
+ 		link_state = bond_check_dev_link(bond, slave->dev, 0);
+ 
+@@ -2092,7 +2091,7 @@ static int bond_miimon_inspect(struct bo
+ 			}
+ 
+ 			if (slave->delay <= 0) {
+-				slave->new_link = BOND_LINK_DOWN;
++				bond_propose_link_state(slave, BOND_LINK_DOWN);
+ 				commit++;
+ 				continue;
+ 			}
+@@ -2131,7 +2130,7 @@ static int bond_miimon_inspect(struct bo
+ 				slave->delay = 0;
+ 
+ 			if (slave->delay <= 0) {
+-				slave->new_link = BOND_LINK_UP;
++				bond_propose_link_state(slave, BOND_LINK_UP);
+ 				commit++;
+ 				ignore_updelay = false;
+ 				continue;
+@@ -2151,7 +2150,7 @@ static void bond_miimon_commit(struct bo
+ 	struct slave *slave, *primary;
+ 
+ 	bond_for_each_slave(bond, slave, iter) {
+-		switch (slave->new_link) {
++		switch (slave->link_new_state) {
+ 		case BOND_LINK_NOCHANGE:
+ 			/* For 802.3ad mode, check current slave speed and
+ 			 * duplex again in case its port was disabled after
+@@ -2244,8 +2243,8 @@ static void bond_miimon_commit(struct bo
+ 
+ 		default:
+ 			netdev_err(bond->dev, "invalid new link %d on slave %s\n",
+-				   slave->new_link, slave->dev->name);
+-			slave->new_link = BOND_LINK_NOCHANGE;
++				   slave->link_new_state, slave->dev->name);
++			bond_propose_link_state(slave, BOND_LINK_NOCHANGE);
+ 
+ 			continue;
+ 		}
+@@ -2644,13 +2643,13 @@ static void bond_loadbalance_arp_mon(str
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+ 		unsigned long trans_start = dev_trans_start(slave->dev);
+ 
+-		slave->new_link = BOND_LINK_NOCHANGE;
++		bond_propose_link_state(slave, BOND_LINK_NOCHANGE);
+ 
+ 		if (slave->link != BOND_LINK_UP) {
+ 			if (bond_time_in_interval(bond, trans_start, 1) &&
+ 			    bond_time_in_interval(bond, slave->last_rx, 1)) {
+ 
+-				slave->new_link = BOND_LINK_UP;
++				bond_propose_link_state(slave, BOND_LINK_UP);
+ 				slave_state_changed = 1;
+ 
+ 				/* primary_slave has no meaning in round-robin
+@@ -2677,7 +2676,7 @@ static void bond_loadbalance_arp_mon(str
+ 			if (!bond_time_in_interval(bond, trans_start, 2) ||
+ 			    !bond_time_in_interval(bond, slave->last_rx, 2)) {
+ 
+-				slave->new_link = BOND_LINK_DOWN;
++				bond_propose_link_state(slave, BOND_LINK_DOWN);
+ 				slave_state_changed = 1;
+ 
+ 				if (slave->link_failure_count < UINT_MAX)
+@@ -2709,8 +2708,8 @@ static void bond_loadbalance_arp_mon(str
+ 			goto re_arm;
+ 
+ 		bond_for_each_slave(bond, slave, iter) {
+-			if (slave->new_link != BOND_LINK_NOCHANGE)
+-				slave->link = slave->new_link;
++			if (slave->link_new_state != BOND_LINK_NOCHANGE)
++				slave->link = slave->link_new_state;
+ 		}
+ 
+ 		if (slave_state_changed) {
+@@ -2733,9 +2732,9 @@ re_arm:
+ }
+ 
+ /* Called to inspect slaves for active-backup mode ARP monitor link state
+- * changes.  Sets new_link in slaves to specify what action should take
+- * place for the slave.  Returns 0 if no changes are found, >0 if changes
+- * to link states must be committed.
++ * changes.  Sets proposed link state in slaves to specify what action
++ * should take place for the slave.  Returns 0 if no changes are found, >0
++ * if changes to link states must be committed.
+  *
+  * Called with rcu_read_lock held.
+  */
+@@ -2747,12 +2746,12 @@ static int bond_ab_arp_inspect(struct bo
+ 	int commit = 0;
+ 
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+-		slave->new_link = BOND_LINK_NOCHANGE;
++		bond_propose_link_state(slave, BOND_LINK_NOCHANGE);
+ 		last_rx = slave_last_rx(bond, slave);
+ 
+ 		if (slave->link != BOND_LINK_UP) {
+ 			if (bond_time_in_interval(bond, last_rx, 1)) {
+-				slave->new_link = BOND_LINK_UP;
++				bond_propose_link_state(slave, BOND_LINK_UP);
+ 				commit++;
+ 			}
+ 			continue;
+@@ -2780,7 +2779,7 @@ static int bond_ab_arp_inspect(struct bo
+ 		if (!bond_is_active_slave(slave) &&
+ 		    !rcu_access_pointer(bond->current_arp_slave) &&
+ 		    !bond_time_in_interval(bond, last_rx, 3)) {
+-			slave->new_link = BOND_LINK_DOWN;
++			bond_propose_link_state(slave, BOND_LINK_DOWN);
+ 			commit++;
+ 		}
+ 
+@@ -2793,7 +2792,7 @@ static int bond_ab_arp_inspect(struct bo
+ 		if (bond_is_active_slave(slave) &&
+ 		    (!bond_time_in_interval(bond, trans_start, 2) ||
+ 		     !bond_time_in_interval(bond, last_rx, 2))) {
+-			slave->new_link = BOND_LINK_DOWN;
++			bond_propose_link_state(slave, BOND_LINK_DOWN);
+ 			commit++;
+ 		}
+ 	}
+@@ -2813,7 +2812,7 @@ static void bond_ab_arp_commit(struct bo
+ 	struct slave *slave;
+ 
+ 	bond_for_each_slave(bond, slave, iter) {
+-		switch (slave->new_link) {
++		switch (slave->link_new_state) {
+ 		case BOND_LINK_NOCHANGE:
+ 			continue;
+ 
+@@ -2866,7 +2865,7 @@ static void bond_ab_arp_commit(struct bo
+ 
+ 		default:
+ 			netdev_err(bond->dev, "impossible: new_link %d on slave %s\n",
+-				   slave->new_link, slave->dev->name);
++				   slave->link_new_state, slave->dev->name);
+ 			continue;
+ 		}
+ 
+--- a/include/net/bonding.h
++++ b/include/net/bonding.h
+@@ -149,7 +149,6 @@ struct slave {
+ 	unsigned long target_last_arp_rx[BOND_MAX_ARP_TARGETS];
+ 	s8     link;		/* one of BOND_LINK_XXXX */
+ 	s8     link_new_state;	/* one of BOND_LINK_XXXX */
+-	s8     new_link;
+ 	u8     backup:1,   /* indicates backup slave. Value corresponds with
+ 			      BOND_STATE_ACTIVE and BOND_STATE_BACKUP */
+ 	       inactive:1, /* indicates inactive slave */
+@@ -523,7 +522,7 @@ static inline void bond_propose_link_sta
+ 
+ static inline void bond_commit_link_state(struct slave *slave, bool notify)
  {
- 	struct net_device *ndev = pci_get_drvdata(pdev);
--	struct qede_dev *edev = netdev_priv(ndev);
--	struct qed_dev *cdev = edev->cdev;
-+	struct qede_dev *edev;
-+	struct qed_dev *cdev;
-+
-+	if (!ndev) {
-+		dev_info(&pdev->dev, "Device has already been removed\n");
-+		return;
-+	}
-+
-+	edev = netdev_priv(ndev);
-+	cdev = edev->cdev;
+-	if (slave->link == slave->link_new_state)
++	if (slave->link_new_state == BOND_LINK_NOCHANGE)
+ 		return;
  
- 	DP_INFO(edev, "Starting qede_remove\n");
- 
+ 	slave->link = slave->link_new_state;
 
 
