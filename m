@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CC3AF7D06
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:52:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3991CF7BFA
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:42:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729712AbfKKSwO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:52:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46492 "EHLO mail.kernel.org"
+        id S1727628AbfKKSlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:41:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730476AbfKKSwL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:52:11 -0500
+        id S1728725AbfKKSlu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:41:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 682DA204EC;
-        Mon, 11 Nov 2019 18:52:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D5B420674;
+        Mon, 11 Nov 2019 18:41:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498331;
-        bh=VIQSG7glfoUTAKYUaH51Z9lnqPzkGWvFKJyxBPJD8pI=;
+        s=default; t=1573497709;
+        bh=Bp+BCo3Rwgul7jvVV+Mz35jKgTHEIpcqUo9xo1puIpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GYbIIzo0ZOwwiWFSm2X/6L9gsaOnYpGBvY/Myp227sFG0UEpi4O3ujaTiSIuv+NhG
-         UUIaEonzTmzHBGkLSOe/rze/WbDLDyfpwvEZ682fj/FVzD0gbxU/J4wg3PvzqHDZI+
-         sHUClxxbPJKUam2ENfCpNXkHYYI4vHCeJlXzOPKc=
+        b=Q8CJ9Oy/aIUUSg4IxwgEHq8nXBbyKs6F0Hq98W2YuXuh5QEZ2W4wz8lz0VI5GzqoQ
+         No0Kp8FQ63WGfLD+/uh77X2QkqozDUsDXmJLoNWMrnXCRda24TUNQ/x9/6sIpDt46U
+         C/NoyMxEgLoX+epWDIeeIF3Lq4vnqNpKTQvXhilE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+0620f79a1978b1133fd7@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.3 089/193] ALSA: usb-audio: Fix copy&paste error in the validator
-Date:   Mon, 11 Nov 2019 19:27:51 +0100
-Message-Id: <20191111181507.720931448@linuxfoundation.org>
+        stable@vger.kernel.org, Fabrice Gasnier <fabrice.gasnier@st.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 033/125] iio: adc: stm32-adc: fix stopping dma
+Date:   Mon, 11 Nov 2019 19:27:52 +0100
+Message-Id: <20191111181445.074033994@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Fabrice Gasnier <fabrice.gasnier@st.com>
 
-commit ba8bf0967a154796be15c4983603aad0b05c3138 upstream.
+commit e6afcf6c598d6f3a0c9c408bfeddb3f5730608b0 upstream.
 
-The recently introduced USB-audio descriptor validator had a stupid
-copy&paste error that may lead to an unexpected overlook of too short
-descriptors for processing and extension units.  It's likely the cause
-of the report triggered by syzkaller fuzzer.  Let's fix it.
+There maybe a race when using dmaengine_terminate_all(). The predisable
+routine may call iio_triggered_buffer_predisable() prior to a pending DMA
+callback.
+Adopt dmaengine_terminate_sync() to ensure there's no pending DMA request
+before calling iio_triggered_buffer_predisable().
 
-Fixes: 57f8770620e9 ("ALSA: usb-audio: More validations of descriptor units")
-Reported-by: syzbot+0620f79a1978b1133fd7@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/s5hsgnkdbsl.wl-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 2763ea0585c9 ("iio: adc: stm32: add optional dma support")
+
+Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/validate.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/stm32-adc.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/usb/validate.c
-+++ b/sound/usb/validate.c
-@@ -75,7 +75,7 @@ static bool validate_processing_unit(con
+--- a/drivers/iio/adc/stm32-adc.c
++++ b/drivers/iio/adc/stm32-adc.c
+@@ -1340,7 +1340,7 @@ static int stm32_adc_dma_start(struct ii
+ 	cookie = dmaengine_submit(desc);
+ 	ret = dma_submit_error(cookie);
+ 	if (ret) {
+-		dmaengine_terminate_all(adc->dma_chan);
++		dmaengine_terminate_sync(adc->dma_chan);
+ 		return ret;
+ 	}
  
- 	if (d->bLength < sizeof(*d))
- 		return false;
--	len = d->bLength < sizeof(*d) + d->bNrInPins;
-+	len = sizeof(*d) + d->bNrInPins;
- 	if (d->bLength < len)
- 		return false;
- 	switch (v->protocol) {
+@@ -1413,7 +1413,7 @@ static int stm32_adc_buffer_predisable(s
+ 		dev_err(&indio_dev->dev, "predisable failed\n");
+ 
+ 	if (adc->dma_chan)
+-		dmaengine_terminate_all(adc->dma_chan);
++		dmaengine_terminate_sync(adc->dma_chan);
+ 
+ 	if (stm32_adc_set_trig(indio_dev, NULL))
+ 		dev_err(&indio_dev->dev, "Can't clear trigger\n");
 
 
