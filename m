@@ -2,78 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45764F76C7
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 15:44:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3138F76DB
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 15:45:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726878AbfKKOoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 09:44:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45404 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726832AbfKKOoE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 09:44:04 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B60DD21655;
-        Mon, 11 Nov 2019 14:44:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573483444;
-        bh=X7SG+tbgY0sJN0nODztzrxRc0XO7Oqb4PQoWRWATlqI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Wqn0TgsUbETeDo0/os7lfztGzXgKb9Z9TN9ioMMScBjrG5jilc96WmjRYghe1QF/s
-         utDaTNvmfHiHZHGrq2lNlFw4DhiX5m8LCmdGO7AKcfzbK6mR67DsIO98ErQ9e75v5Z
-         8AI/2+9Y1aGs8lG7mweqrJGU/JBBmr/nK/gl9qYo=
-Date:   Mon, 11 Nov 2019 09:44:01 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     qiangqing.zhang@nxp.com, mkl@pengutronix.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] can: flexcan: disable completely the ECC
- mechanism" failed to apply to 4.14-stable tree
-Message-ID: <20191111144401.GF8496@sasha-vm>
-References: <157345390614177@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <157345390614177@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727023AbfKKOp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 09:45:26 -0500
+Received: from youngberry.canonical.com ([91.189.89.112]:50185 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726871AbfKKOp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 09:45:26 -0500
+Received: from [114.253.244.234] (helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.86_2)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1iUAwV-0001nK-8A; Mon, 11 Nov 2019 14:45:23 +0000
+From:   Hui Wang <hui.wang@canonical.com>
+To:     alsa-devel@alsa-project.org, tiwai@suse.de
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] ALSA: hda/hdmi - add a parameter to let users decide if checking the eld_valid
+Date:   Mon, 11 Nov 2019 22:45:02 +0800
+Message-Id: <20191111144502.22910-1-hui.wang@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 11, 2019 at 07:31:46AM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 4.14-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From 5e269324db5adb2f5f6ec9a93a9c7b0672932b47 Mon Sep 17 00:00:00 2001
->From: Joakim Zhang <qiangqing.zhang@nxp.com>
->Date: Thu, 15 Aug 2019 08:00:26 +0000
->Subject: [PATCH] can: flexcan: disable completely the ECC mechanism
->
->The ECC (memory error detection and correction) mechanism can be
->activated or not, controlled by the ECCDIS bit in CAN_MECR. When
->disabled, updates on indications and reporting registers are stopped.
->So if want to disable ECC completely, had better assert ECCDIS bit, not
->just mask the related interrupts.
->
->Fixes: cdce844865be ("can: flexcan: add vf610 support for FlexCAN")
->Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
->Cc: linux-stable <stable@vger.kernel.org>
->Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+With the commit 7f641e26a6df ("ALSA: hda/hdmi - Consider eld_valid
+when reporting jack event"), the driver checks eld_valid before
+reporting Jack state, this fixes the 4 HDMI/DP audio devices issue.
 
-I've adjusted the patch to work around missing 88462d2a7830 ("can:
-flexcan: Remodel FlexCAN register r/w APIs for big endian FlexCAN
-controllers.") and queued it for 4.14-4.4.
+But recently some users complained that the hdmi audio on their
+machines couldn't work anymore with this commit. On their machines,
+the monitor_present is 1 while the eld_valid is 0 when plugging a
+monitor, and the hdmi audio could work even the eld_valid is 0.
 
+To make the hdmi audio work again on those machines, adding a module
+parameter, if usrs want to skip the checking eld_valid, they
+could set checking_eld_valid=0 when loading the module. And this
+parameter only applies to sense_via_verbs, for those getting eld via
+component, no need to apply this parameter since it is impossible
+that present is 1 while eld_valid is 0.
+
+BugLink: https://bugs.launchpad.net/bugs/1834771
+Fixes: 7f641e26a6df ("ALSA: hda/hdmi - Consider eld_valid when reporting jack event")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+---
+ sound/pci/hda/patch_hdmi.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/sound/pci/hda/patch_hdmi.c b/sound/pci/hda/patch_hdmi.c
+index be8a977fc684..d70fca4f4411 100644
+--- a/sound/pci/hda/patch_hdmi.c
++++ b/sound/pci/hda/patch_hdmi.c
+@@ -37,6 +37,11 @@ static bool static_hdmi_pcm;
+ module_param(static_hdmi_pcm, bool, 0644);
+ MODULE_PARM_DESC(static_hdmi_pcm, "Don't restrict PCM parameters per ELD info");
+ 
++static bool checking_eld_valid = true;
++module_param(checking_eld_valid, bool, 0644);
++MODULE_PARM_DESC(checking_eld_valid, "Checking eld_valid before reporting Jack "
++		 "state (default = 1, using verbs only)");
++
+ #define is_haswell(codec)  ((codec)->core.vendor_id == 0x80862807)
+ #define is_broadwell(codec)    ((codec)->core.vendor_id == 0x80862808)
+ #define is_skylake(codec) ((codec)->core.vendor_id == 0x80862809)
+@@ -1557,8 +1562,9 @@ static bool hdmi_present_sense_via_verbs(struct hdmi_spec_per_pin *per_pin,
+ 	jack = snd_hda_jack_tbl_get(codec, pin_nid);
+ 	if (jack) {
+ 		jack->block_report = !ret;
+-		jack->pin_sense = (eld->monitor_present && eld->eld_valid) ?
+-			AC_PINSENSE_PRESENCE : 0;
++		if (checking_eld_valid)
++			jack->pin_sense = (eld->monitor_present && eld->eld_valid) ?
++				AC_PINSENSE_PRESENCE : 0;
+ 	}
+ 	mutex_unlock(&per_pin->lock);
+ 	return ret;
 -- 
-Thanks,
-Sasha
+2.17.1
+
