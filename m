@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3098F7B4D
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:35:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A78F7DAA
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727257AbfKKSe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:34:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52696 "EHLO mail.kernel.org"
+        id S1730410AbfKKS5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:57:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728445AbfKKSe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:34:56 -0500
+        id S1729045AbfKKS5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:57:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4A7B52173B;
-        Mon, 11 Nov 2019 18:34:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A412222C2;
+        Mon, 11 Nov 2019 18:57:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497295;
-        bh=TEiizNpeGGn/64SlXyUHTweTnVZKaRelha1g5chG8j8=;
+        s=default; t=1573498652;
+        bh=nRbuoaP0ls5mMuvPlcnbXxC++POTCv9TaXemck2nBYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Elz9X8buQzX30V8y1EBE1o364hcaiXqXVxcP3BR0g3rqVqAksDo2BWbGvKsxTjw3q
-         76TIsXgYcYWl019IH0qp6CSaWvUeoqlmp61MgCmFIN3whVtYYv7hMSSy5GDXMYxy70
-         htaD/MZVjkd4YntYjZdP8cRNJ9eLQ/T9kQyrXuNk=
+        b=haFJOXT0WewyYFCKMh18x39cNXism/hLLNnQ4KkMwW+yoyaZTF9Zf/PeqBSL6Crq0
+         deGX4qMiJqqWczqh2cn008DJByFoB9GKrDulcw8zoXoOxDlztZ9jWC3rfEJF6fEEtX
+         kwRuy1QjOd3kePvfeyfzB5unwkwR9Vf7ROqXioxI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 56/65] NFSv4: Dont allow a cached open with a revoked delegation
+        Valentin Schneider <valentin.schneider@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar.Eggemann@arm.com,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, hannes@cmpxchg.org,
+        lizefan@huawei.com, morten.rasmussen@arm.com, qperret@google.com,
+        tj@kernel.org, vincent.guittot@linaro.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 154/193] sched/topology: Dont try to build empty sched domains
 Date:   Mon, 11 Nov 2019 19:28:56 +0100
-Message-Id: <20191111181353.479829307@linuxfoundation.org>
+Message-Id: <20191111181512.492886334@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +50,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit be3df3dd4c70ee020587a943a31b98a0fb4b6424 ]
+[ Upstream commit cd1cb3350561d2bf544ddfef76fbf0b1c9c7178f ]
 
-If the delegation is marked as being revoked, we must not use it
-for cached opens.
+Turns out hotplugging CPUs that are in exclusive cpusets can lead to the
+cpuset code feeding empty cpumasks to the sched domain rebuild machinery.
 
-Fixes: 869f9dfa4d6d ("NFSv4: Fix races between nfs_remove_bad_delegation() and delegation return")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This leads to the following splat:
+
+    Internal error: Oops: 96000004 [#1] PREEMPT SMP
+    Modules linked in:
+    CPU: 0 PID: 235 Comm: kworker/5:2 Not tainted 5.4.0-rc1-00005-g8d495477d62e #23
+    Hardware name: ARM Juno development board (r0) (DT)
+    Workqueue: events cpuset_hotplug_workfn
+    pstate: 60000005 (nZCv daif -PAN -UAO)
+    pc : build_sched_domains (./include/linux/arch_topology.h:23 kernel/sched/topology.c:1898 kernel/sched/topology.c:1969)
+    lr : build_sched_domains (kernel/sched/topology.c:1966)
+    Call trace:
+    build_sched_domains (./include/linux/arch_topology.h:23 kernel/sched/topology.c:1898 kernel/sched/topology.c:1969)
+    partition_sched_domains_locked (kernel/sched/topology.c:2250)
+    rebuild_sched_domains_locked (./include/linux/bitmap.h:370 ./include/linux/cpumask.h:538 kernel/cgroup/cpuset.c:955 kernel/cgroup/cpuset.c:978 kernel/cgroup/cpuset.c:1019)
+    rebuild_sched_domains (kernel/cgroup/cpuset.c:1032)
+    cpuset_hotplug_workfn (kernel/cgroup/cpuset.c:3205 (discriminator 2))
+    process_one_work (./arch/arm64/include/asm/jump_label.h:21 ./include/linux/jump_label.h:200 ./include/trace/events/workqueue.h:114 kernel/workqueue.c:2274)
+    worker_thread (./include/linux/compiler.h:199 ./include/linux/list.h:268 kernel/workqueue.c:2416)
+    kthread (kernel/kthread.c:255)
+    ret_from_fork (arch/arm64/kernel/entry.S:1167)
+    Code: f860dae2 912802d6 aa1603e1 12800000 (f8616853)
+
+The faulty line in question is:
+
+  cap = arch_scale_cpu_capacity(cpumask_first(cpu_map));
+
+and we're not checking the return value against nr_cpu_ids (we shouldn't
+have to!), which leads to the above.
+
+Prevent generate_sched_domains() from returning empty cpumasks, and add
+some assertion in build_sched_domains() to scream bloody murder if it
+happens again.
+
+The above splat was obtained on my Juno r0 with the following reproducer:
+
+  $ cgcreate -g cpuset:asym
+  $ cgset -r cpuset.cpus=0-3 asym
+  $ cgset -r cpuset.mems=0 asym
+  $ cgset -r cpuset.cpu_exclusive=1 asym
+
+  $ cgcreate -g cpuset:smp
+  $ cgset -r cpuset.cpus=4-5 smp
+  $ cgset -r cpuset.mems=0 smp
+  $ cgset -r cpuset.cpu_exclusive=1 smp
+
+  $ cgset -r cpuset.sched_load_balance=0 .
+
+  $ echo 0 > /sys/devices/system/cpu/cpu4/online
+  $ echo 0 > /sys/devices/system/cpu/cpu5/online
+
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Dietmar.Eggemann@arm.com
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: hannes@cmpxchg.org
+Cc: lizefan@huawei.com
+Cc: morten.rasmussen@arm.com
+Cc: qperret@google.com
+Cc: tj@kernel.org
+Cc: vincent.guittot@linaro.org
+Fixes: 05484e098448 ("sched/topology: Add SD_ASYM_CPUCAPACITY flag detection")
+Link: https://lkml.kernel.org/r/20191023153745.19515-2-valentin.schneider@arm.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 10 ++++++++++
- fs/nfs/delegation.h |  1 +
- fs/nfs/nfs4proc.c   |  7 ++-----
- 3 files changed, 13 insertions(+), 5 deletions(-)
+ kernel/cgroup/cpuset.c  | 3 ++-
+ kernel/sched/topology.c | 5 ++++-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index dff600ae0d747..46afd7cdcc378 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -52,6 +52,16 @@ nfs4_is_valid_delegation(const struct nfs_delegation *delegation,
- 	return false;
- }
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index 5aa37531ce76f..a8122c405603b 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -786,7 +786,8 @@ static int generate_sched_domains(cpumask_var_t **domains,
+ 		    cpumask_subset(cp->cpus_allowed, top_cpuset.effective_cpus))
+ 			continue;
  
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode)
-+{
-+	struct nfs_delegation *delegation;
-+
-+	delegation = rcu_dereference(NFS_I(inode)->delegation);
-+	if (nfs4_is_valid_delegation(delegation, 0))
-+		return delegation;
-+	return NULL;
-+}
-+
+-		if (is_sched_load_balance(cp))
++		if (is_sched_load_balance(cp) &&
++		    !cpumask_empty(cp->effective_cpus))
+ 			csa[csn++] = cp;
+ 
+ 		/* skip @cp's subtree if not a partition root */
+diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
+index f751ce0b783e5..1906edb44d63c 100644
+--- a/kernel/sched/topology.c
++++ b/kernel/sched/topology.c
+@@ -1927,7 +1927,7 @@ next_level:
  static int
- nfs4_do_check_delegation(struct inode *inode, fmode_t flags, bool mark)
+ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *attr)
  {
-diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
-index e9d5557968739..2c6cb7fb7d5ee 100644
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -62,6 +62,7 @@ int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state
- int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state, const nfs4_stateid *stateid);
- bool nfs4_copy_delegation_stateid(struct inode *inode, fmode_t flags, nfs4_stateid *dst, struct rpc_cred **cred);
+-	enum s_alloc alloc_state;
++	enum s_alloc alloc_state = sa_none;
+ 	struct sched_domain *sd;
+ 	struct s_data d;
+ 	struct rq *rq = NULL;
+@@ -1935,6 +1935,9 @@ build_sched_domains(const struct cpumask *cpu_map, struct sched_domain_attr *att
+ 	struct sched_domain_topology_level *tl_asym;
+ 	bool has_asym = false;
  
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode);
- void nfs_mark_delegation_referenced(struct nfs_delegation *delegation);
- int nfs4_have_delegation(struct inode *inode, fmode_t flags);
- int nfs4_check_delegation(struct inode *inode, fmode_t flags);
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 8354dfae7038e..ca4249ae644f2 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1368,8 +1368,6 @@ static int can_open_delegated(struct nfs_delegation *delegation, fmode_t fmode,
- 		return 0;
- 	if ((delegation->type & fmode) != fmode)
- 		return 0;
--	if (test_bit(NFS_DELEGATION_RETURNING, &delegation->flags))
--		return 0;
- 	switch (claim) {
- 	case NFS4_OPEN_CLAIM_NULL:
- 	case NFS4_OPEN_CLAIM_FH:
-@@ -1628,7 +1626,6 @@ static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmo
- static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- {
- 	struct nfs4_state *state = opendata->state;
--	struct nfs_inode *nfsi = NFS_I(state->inode);
- 	struct nfs_delegation *delegation;
- 	int open_mode = opendata->o_arg.open_flags;
- 	fmode_t fmode = opendata->o_arg.fmode;
-@@ -1645,7 +1642,7 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- 		}
- 		spin_unlock(&state->owner->so_lock);
- 		rcu_read_lock();
--		delegation = rcu_dereference(nfsi->delegation);
-+		delegation = nfs4_get_valid_delegation(state->inode);
- 		if (!can_open_delegated(delegation, fmode, claim)) {
- 			rcu_read_unlock();
- 			break;
-@@ -2142,7 +2139,7 @@ static void nfs4_open_prepare(struct rpc_task *task, void *calldata)
- 		if (can_open_cached(data->state, data->o_arg.fmode, data->o_arg.open_flags))
- 			goto out_no_action;
- 		rcu_read_lock();
--		delegation = rcu_dereference(NFS_I(data->state->inode)->delegation);
-+		delegation = nfs4_get_valid_delegation(data->state->inode);
- 		if (can_open_delegated(delegation, data->o_arg.fmode, claim))
- 			goto unlock_no_action;
- 		rcu_read_unlock();
++	if (WARN_ON(cpumask_empty(cpu_map)))
++		goto error;
++
+ 	alloc_state = __visit_domain_allocation_hell(&d, cpu_map);
+ 	if (alloc_state != sa_rootdomain)
+ 		goto error;
 -- 
 2.20.1
 
