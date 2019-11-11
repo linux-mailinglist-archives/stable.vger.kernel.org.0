@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65E4AF7F76
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 602E4F7ECC
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727315AbfKKSa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:30:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46740 "EHLO mail.kernel.org"
+        id S1728963AbfKKSi5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:38:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726910AbfKKSa2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:30:28 -0500
+        id S1729098AbfKKSi4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:38:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4856A21872;
-        Mon, 11 Nov 2019 18:30:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7438F214E0;
+        Mon, 11 Nov 2019 18:38:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497026;
-        bh=gpJkM8tSzbzYkk30CQsNGrRPwbI6TaIqNSKozZigDIs=;
+        s=default; t=1573497536;
+        bh=OQ64BzoaDbE/hhnAqYHTuEgdYzGDYxNt+YJB5VUtBcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gLYt0yZVyJew8ysSKKpObXg4AOtn3SpA2nvsnJjIj+K2cY0Eeo06s20TG7148+73
-         Rkc3sZq298Z5zCdihztRyCdNd2YSVqlOPWkTJMy0tNVVjRNGS5XY+0TnJJFNg1eXnT
-         cTYKhvMW5zwLcA5zaKFlLT/S3JY9hKcGh/hbIavM=
+        b=okvbkRrBaS8cAFnfLcKb7uEF7EEPWS1roc3+V+mfzyUw1GYNlRRmH/KHK0vO5qyhT
+         F4dcmHh0neUPXmNENPL/kO3Q1/WCyz86Hq7RGgu2L9g73exNHlysLODxwEdhakLXqr
+         UZ5X4pmYo+NqPzJ9FTalqPw/Qejgc5JcUMq/3Qbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 03/43] NFC: fdp: fix incorrect free object
-Date:   Mon, 11 Nov 2019 19:28:17 +0100
-Message-Id: <20191111181252.561390022@linuxfoundation.org>
+        "Andrew F. Davis" <afd@ti.com>, Mark Brown <broonie@kernel.org>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: [PATCH 4.14 048/105] ASoC: tlv320aic31xx: Handle inverted BCLK in non-DSP modes
+Date:   Mon, 11 Nov 2019 19:28:18 +0100
+Message-Id: <20191111181441.765541673@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +43,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: "Andrew F. Davis" <afd@ti.com>
 
-[ Upstream commit 517ce4e93368938b204451285e53014549804868 ]
+commit dcb407b257af06fa58b0544ec01ec9e0d3927e02 upstream
 
-The address of fw_vsc_cfg is on stack. Releasing it with devm_kfree() is
-incorrect, which may result in a system crash or other security impacts.
-The expected object to free is *fw_vsc_cfg.
+Currently BCLK inverting is only handled when the DAI format is
+DSP, but the BCLK may be inverted in any supported mode. Without
+this using this CODEC in any other mode than DSP with the BCLK
+inverted leads to bad sampling timing and very poor audio quality.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Andrew F. Davis <afd@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nfc/fdp/i2c.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/tlv320aic31xx.c |   28 ++++++++++++++++++----------
+ 1 file changed, 18 insertions(+), 10 deletions(-)
 
---- a/drivers/nfc/fdp/i2c.c
-+++ b/drivers/nfc/fdp/i2c.c
-@@ -268,7 +268,7 @@ static void fdp_nci_i2c_read_device_prop
- 						  *fw_vsc_cfg, len);
+--- a/sound/soc/codecs/tlv320aic31xx.c
++++ b/sound/soc/codecs/tlv320aic31xx.c
+@@ -924,6 +924,18 @@ static int aic31xx_set_dai_fmt(struct sn
+ 		return -EINVAL;
+ 	}
  
- 		if (r) {
--			devm_kfree(dev, fw_vsc_cfg);
-+			devm_kfree(dev, *fw_vsc_cfg);
- 			goto vsc_read_err;
- 		}
- 	} else {
++	/* signal polarity */
++	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
++	case SND_SOC_DAIFMT_NB_NF:
++		break;
++	case SND_SOC_DAIFMT_IB_NF:
++		iface_reg2 |= AIC31XX_BCLKINV_MASK;
++		break;
++	default:
++		dev_err(codec->dev, "Invalid DAI clock signal polarity\n");
++		return -EINVAL;
++	}
++
+ 	/* interface format */
+ 	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
+ 	case SND_SOC_DAIFMT_I2S:
+@@ -931,16 +943,12 @@ static int aic31xx_set_dai_fmt(struct sn
+ 	case SND_SOC_DAIFMT_DSP_A:
+ 		dsp_a_val = 0x1;
+ 	case SND_SOC_DAIFMT_DSP_B:
+-		/* NOTE: BCLKINV bit value 1 equas NB and 0 equals IB */
+-		switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
+-		case SND_SOC_DAIFMT_NB_NF:
+-			iface_reg2 |= AIC31XX_BCLKINV_MASK;
+-			break;
+-		case SND_SOC_DAIFMT_IB_NF:
+-			break;
+-		default:
+-			return -EINVAL;
+-		}
++		/*
++		 * NOTE: This CODEC samples on the falling edge of BCLK in
++		 * DSP mode, this is inverted compared to what most DAIs
++		 * expect, so we invert for this mode
++		 */
++		iface_reg2 ^= AIC31XX_BCLKINV_MASK;
+ 		iface_reg1 |= (AIC31XX_DSP_MODE <<
+ 			       AIC31XX_IFACE1_DATATYPE_SHIFT);
+ 		break;
 
 
