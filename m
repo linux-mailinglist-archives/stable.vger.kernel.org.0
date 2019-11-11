@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 655E7F7E31
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E0CEF7E49
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728115AbfKKSsj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:48:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41728 "EHLO mail.kernel.org"
+        id S1730143AbfKKSrj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:47:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729885AbfKKSsi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:48:38 -0500
+        id S1730140AbfKKSrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:47:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3444620674;
-        Mon, 11 Nov 2019 18:48:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C01F921783;
+        Mon, 11 Nov 2019 18:47:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498117;
-        bh=gDQ927N86NJpr2zwz2Sm8v3uLsseTxghxB6eufZM6Qk=;
+        s=default; t=1573498058;
+        bh=L1K7yYDdUDF0ZtxsBbAvchdHeIG5+ZbeQBrv3H+s6+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kaTIcYBzzsoV8rm8e1axThegzDeO0OELxVGS7DPIbrGfweKtTDBSYgFJeYDWV0/yg
-         PFq9ivYzaixNjYzs/ZlqmkpcPsTx2ge2AtEmItZ+7amv0bvRN9McPAXELo2xQocR/w
-         8APBUsqaaOHy83ankgHuO38s8D52dD/2BOx28+ZI=
+        b=S9Yyx55Gh7OCLXOuKsNN1aoFVMODtAuU+0SvYVBknavjC2tXXS8Zt9wYH+YGXSFYH
+         HkjszMgkslGPQTL82KO5tyPCO/syDM4sQyC/pRc9RgixMO21BeXtsV/WjKHNJLf+p8
+         4BPJYYuhdqKm5NiMuzUQq3MPXGvzME60bhBN86gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Aleksander Morgado <aleksander@aleksander.es>,
+        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 008/193] net: usb: qmi_wwan: add support for DW5821e with eSIM support
-Date:   Mon, 11 Nov 2019 19:26:30 +0100
-Message-Id: <20191111181500.509894323@linuxfoundation.org>
+Subject: [PATCH 5.3 011/193] NFC: st21nfca: fix double free
+Date:   Mon, 11 Nov 2019 19:26:33 +0100
+Message-Id: <20191111181500.744759856@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -44,43 +43,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Morgado <aleksander@aleksander.es>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit e497df686e8fed8c1dd69179010656362858edb3 ]
+[ Upstream commit 99a8efbb6e30b72ac98cecf81103f847abffb1e5 ]
 
-Exactly same layout as the default DW5821e module, just a different
-vid/pid.
+The variable nfcid_skb is not changed in the callee nfc_hci_get_param()
+if error occurs. Consequently, the freed variable nfcid_skb will be
+freed again, resulting in a double free bug. Set nfcid_skb to NULL after
+releasing it to fix the bug.
 
-The QMI interface is exposed in USB configuration #1:
-
-P:  Vendor=413c ProdID=81e0 Rev=03.18
-S:  Manufacturer=Dell Inc.
-S:  Product=DW5821e-eSIM Snapdragon X20 LTE
-S:  SerialNumber=0123456789ABCDEF
-C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-
-Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/qmi_wwan.c |    1 +
+ drivers/nfc/st21nfca/core.c |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/net/usb/qmi_wwan.c
-+++ b/drivers/net/usb/qmi_wwan.c
-@@ -1361,6 +1361,7 @@ static const struct usb_device_id produc
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 8)},	/* Dell Wireless 5811e */
- 	{QMI_FIXED_INTF(0x413c, 0x81b6, 10)},	/* Dell Wireless 5811e */
- 	{QMI_FIXED_INTF(0x413c, 0x81d7, 0)},	/* Dell Wireless 5821e */
-+	{QMI_FIXED_INTF(0x413c, 0x81e0, 0)},	/* Dell Wireless 5821e with eSIM support*/
- 	{QMI_FIXED_INTF(0x03f0, 0x4e1d, 8)},	/* HP lt4111 LTE/EV-DO/HSPA+ Gobi 4G Module */
- 	{QMI_FIXED_INTF(0x03f0, 0x9d1d, 1)},	/* HP lt4120 Snapdragon X5 LTE */
- 	{QMI_FIXED_INTF(0x22de, 0x9061, 3)},	/* WeTelecom WPD-600N */
+--- a/drivers/nfc/st21nfca/core.c
++++ b/drivers/nfc/st21nfca/core.c
+@@ -708,6 +708,7 @@ static int st21nfca_hci_complete_target_
+ 							NFC_PROTO_FELICA_MASK;
+ 		} else {
+ 			kfree_skb(nfcid_skb);
++			nfcid_skb = NULL;
+ 			/* P2P in type A */
+ 			r = nfc_hci_get_param(hdev, ST21NFCA_RF_READER_F_GATE,
+ 					ST21NFCA_RF_READER_F_NFCID1,
 
 
