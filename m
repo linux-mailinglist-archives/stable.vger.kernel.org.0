@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A0A5F7EB1
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8939DF7F54
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727618AbfKKSnT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:43:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34528 "EHLO mail.kernel.org"
+        id S1727128AbfKKSca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:32:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728300AbfKKSnS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:43:18 -0500
+        id S1727948AbfKKSc0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:32:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A50721783;
-        Mon, 11 Nov 2019 18:43:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0FA9222BD;
+        Mon, 11 Nov 2019 18:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497797;
-        bh=QiTlitfYGxD2rq2OwiN44AMkLuoCVAPxbQZCfxigeZQ=;
+        s=default; t=1573497146;
+        bh=jlnTzvoyGLFnWfdd3rhWLJ0o0stvG4YQ6aaLNBAKQag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ORQeLjbrKPbC45kdqtskSQERFm27ITPu8qKc3W59JoY1yAy2XNrQMHq+ygFZJc3qt
-         i2fOtnXnjmGdgL1zXTegzHN9u7EHVwJYDm0/+THA+LWciejlygVI3PrKsbJnKFt4Fj
-         3Y7LRMar2wS20YMtWCZVQKBL0Te1Pe4aPcwtqzB0=
+        b=14JLI1To+hW8c+9lT/jMAi9QJk1ZhTm/PJmjPCUkKlNvxES9wLvHNA1LjfxA5T2fJ
+         UmJ/Keq2ue3VAZ8G20K7ZoXieMKmg98HYJ8bisjEEOJBp1mSUD7MWz8dyh+Kthpu+5
+         E3Nc6FT5Qij05y5av7gTfHqlF1Trb/SXOBl77p50=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 060/125] ALSA: usb-audio: Remove superfluous bLength checks
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.9 19/65] iio: imu: adis16480: make sure provided frequency is positive
 Date:   Mon, 11 Nov 2019 19:28:19 +0100
-Message-Id: <20191111181448.330781223@linuxfoundation.org>
+Message-Id: <20191111181344.575619117@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,238 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-commit b8e4f1fdfa422398c2d6c47bfb7d1feb3046d70a upstream.
+commit 24e1eb5c0d78cfb9750b690bbe997d4d59170258 upstream.
 
-Now that we got the more comprehensive validation code for USB-audio
-descriptors, the check of overflow in each descriptor unit parser
-became superfluous.  Drop some of the obvious cases.
+It could happen that either `val` or `val2` [provided from userspace] is
+negative. In that case the computed frequency could get a weird value.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix this by checking that neither of the 2 variables is negative, and check
+that the computed result is not-zero.
+
+Fixes: e4f959390178 ("iio: imu: adis16480 switch sampling frequency attr to core support")
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/clock.c |   14 +++------
- sound/usb/mixer.c |   84 ------------------------------------------------------
- 2 files changed, 6 insertions(+), 92 deletions(-)
+ drivers/iio/imu/adis16480.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/usb/clock.c
-+++ b/sound/usb/clock.c
-@@ -52,39 +52,37 @@ static void *find_uac_clock_desc(struct
- static bool validate_clock_source_v2(void *p, int id)
- {
- 	struct uac_clock_source_descriptor *cs = p;
--	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
-+	return cs->bClockID == id;
- }
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -266,8 +266,11 @@ static int adis16480_set_freq(struct iio
+ 	struct adis16480 *st = iio_priv(indio_dev);
+ 	unsigned int t;
  
- static bool validate_clock_source_v3(void *p, int id)
- {
- 	struct uac3_clock_source_descriptor *cs = p;
--	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
-+	return cs->bClockID == id;
- }
- 
- static bool validate_clock_selector_v2(void *p, int id)
- {
- 	struct uac_clock_selector_descriptor *cs = p;
--	return cs->bLength >= sizeof(*cs) && cs->bClockID == id &&
--		cs->bLength == 7 + cs->bNrInPins;
-+	return cs->bClockID == id;
- }
- 
- static bool validate_clock_selector_v3(void *p, int id)
- {
- 	struct uac3_clock_selector_descriptor *cs = p;
--	return cs->bLength >= sizeof(*cs) && cs->bClockID == id &&
--		cs->bLength == 11 + cs->bNrInPins;
-+	return cs->bClockID == id;
- }
- 
- static bool validate_clock_multiplier_v2(void *p, int id)
- {
- 	struct uac_clock_multiplier_descriptor *cs = p;
--	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
-+	return cs->bClockID == id;
- }
- 
- static bool validate_clock_multiplier_v3(void *p, int id)
- {
- 	struct uac3_clock_multiplier_descriptor *cs = p;
--	return cs->bLength == sizeof(*cs) && cs->bClockID == id;
-+	return cs->bClockID == id;
- }
- 
- #define DEFINE_FIND_HELPER(name, obj, validator, type)		\
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -755,13 +755,6 @@ static int uac_mixer_unit_get_channels(s
- {
- 	int mu_channels;
- 
--	if (desc->bLength < sizeof(*desc))
--		return -EINVAL;
--	if (!desc->bNrInPins)
--		return -EINVAL;
--	if (desc->bLength < sizeof(*desc) + desc->bNrInPins)
--		return -EINVAL;
--
- 	switch (state->mixer->protocol) {
- 	case UAC_VERSION_1:
- 	case UAC_VERSION_2:
-@@ -1796,13 +1789,6 @@ static int parse_clock_source_unit(struc
- 	if (state->mixer->protocol != UAC_VERSION_2)
++	if (val < 0 || val2 < 0)
++		return -EINVAL;
++
+ 	t =  val * 1000 + val2 / 1000;
+-	if (t <= 0)
++	if (t == 0)
  		return -EINVAL;
  
--	if (hdr->bLength != sizeof(*hdr)) {
--		usb_audio_dbg(state->chip,
--			      "Bogus clock source descriptor length of %d, ignoring.\n",
--			      hdr->bLength);
--		return 0;
--	}
--
- 	/*
- 	 * The only property of this unit we are interested in is the
- 	 * clock source validity. If that isn't readable, just bail out.
-@@ -1861,62 +1847,20 @@ static int parse_audio_feature_unit(stru
- 	__u8 *bmaControls;
- 
- 	if (state->mixer->protocol == UAC_VERSION_1) {
--		if (hdr->bLength < 7) {
--			usb_audio_err(state->chip,
--				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
--				      unitid);
--			return -EINVAL;
--		}
- 		csize = hdr->bControlSize;
--		if (!csize) {
--			usb_audio_dbg(state->chip,
--				      "unit %u: invalid bControlSize == 0\n",
--				      unitid);
--			return -EINVAL;
--		}
- 		channels = (hdr->bLength - 7) / csize - 1;
- 		bmaControls = hdr->bmaControls;
--		if (hdr->bLength < 7 + csize) {
--			usb_audio_err(state->chip,
--				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
--				      unitid);
--			return -EINVAL;
--		}
- 	} else if (state->mixer->protocol == UAC_VERSION_2) {
- 		struct uac2_feature_unit_descriptor *ftr = _ftr;
--		if (hdr->bLength < 6) {
--			usb_audio_err(state->chip,
--				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
--				      unitid);
--			return -EINVAL;
--		}
- 		csize = 4;
- 		channels = (hdr->bLength - 6) / 4 - 1;
- 		bmaControls = ftr->bmaControls;
--		if (hdr->bLength < 6 + csize) {
--			usb_audio_err(state->chip,
--				      "unit %u: invalid UAC_FEATURE_UNIT descriptor\n",
--				      unitid);
--			return -EINVAL;
--		}
- 	} else { /* UAC_VERSION_3 */
- 		struct uac3_feature_unit_descriptor *ftr = _ftr;
- 
--		if (hdr->bLength < 7) {
--			usb_audio_err(state->chip,
--				      "unit %u: invalid UAC3_FEATURE_UNIT descriptor\n",
--				      unitid);
--			return -EINVAL;
--		}
- 		csize = 4;
- 		channels = (ftr->bLength - 7) / 4 - 1;
- 		bmaControls = ftr->bmaControls;
--		if (hdr->bLength < 7 + csize) {
--			usb_audio_err(state->chip,
--				      "unit %u: invalid UAC3_FEATURE_UNIT descriptor\n",
--				      unitid);
--			return -EINVAL;
--		}
- 	}
- 
- 	/* parse the source unit */
-@@ -2120,15 +2064,11 @@ static int parse_audio_input_terminal(st
- 
- 	if (state->mixer->protocol == UAC_VERSION_2) {
- 		struct uac2_input_terminal_descriptor *d_v2 = raw_desc;
--		if (d_v2->bLength < sizeof(*d_v2))
--			return -EINVAL;
- 		control = UAC2_TE_CONNECTOR;
- 		term_id = d_v2->bTerminalID;
- 		bmctls = le16_to_cpu(d_v2->bmControls);
- 	} else if (state->mixer->protocol == UAC_VERSION_3) {
- 		struct uac3_input_terminal_descriptor *d_v3 = raw_desc;
--		if (d_v3->bLength < sizeof(*d_v3))
--			return -EINVAL;
- 		control = UAC3_TE_INSERTION;
- 		term_id = d_v3->bTerminalID;
- 		bmctls = le32_to_cpu(d_v3->bmControls);
-@@ -2390,18 +2330,7 @@ static int build_audio_procunit(struct m
- 	const char *name = extension_unit ?
- 		"Extension Unit" : "Processing Unit";
- 
--	if (desc->bLength < 13) {
--		usb_audio_err(state->chip, "invalid %s descriptor (id %d)\n", name, unitid);
--		return -EINVAL;
--	}
--
- 	num_ins = desc->bNrInPins;
--	if (desc->bLength < 13 + num_ins ||
--	    desc->bLength < num_ins + uac_processing_unit_bControlSize(desc, state->mixer->protocol)) {
--		usb_audio_err(state->chip, "invalid %s descriptor (id %d)\n", name, unitid);
--		return -EINVAL;
--	}
--
- 	for (i = 0; i < num_ins; i++) {
- 		err = parse_audio_unit(state, desc->baSourceID[i]);
- 		if (err < 0)
-@@ -2656,13 +2585,6 @@ static int parse_audio_selector_unit(str
- 	const struct usbmix_name_map *map;
- 	char **namelist;
- 
--	if (desc->bLength < 5 || !desc->bNrInPins ||
--	    desc->bLength < 5 + desc->bNrInPins) {
--		usb_audio_err(state->chip,
--			"invalid SELECTOR UNIT descriptor %d\n", unitid);
--		return -EINVAL;
--	}
--
- 	for (i = 0; i < desc->bNrInPins; i++) {
- 		err = parse_audio_unit(state, desc->baSourceID[i]);
- 		if (err < 0)
-@@ -3168,8 +3090,6 @@ static int snd_usb_mixer_controls(struct
- 		if (mixer->protocol == UAC_VERSION_1) {
- 			struct uac1_output_terminal_descriptor *desc = p;
- 
--			if (desc->bLength < sizeof(*desc))
--				continue; /* invalid descriptor? */
- 			/* mark terminal ID as visited */
- 			set_bit(desc->bTerminalID, state.unitbitmap);
- 			state.oterm.id = desc->bTerminalID;
-@@ -3181,8 +3101,6 @@ static int snd_usb_mixer_controls(struct
- 		} else if (mixer->protocol == UAC_VERSION_2) {
- 			struct uac2_output_terminal_descriptor *desc = p;
- 
--			if (desc->bLength < sizeof(*desc))
--				continue; /* invalid descriptor? */
- 			/* mark terminal ID as visited */
- 			set_bit(desc->bTerminalID, state.unitbitmap);
- 			state.oterm.id = desc->bTerminalID;
-@@ -3208,8 +3126,6 @@ static int snd_usb_mixer_controls(struct
- 		} else {  /* UAC_VERSION_3 */
- 			struct uac3_output_terminal_descriptor *desc = p;
- 
--			if (desc->bLength < sizeof(*desc))
--				continue; /* invalid descriptor? */
- 			/* mark terminal ID as visited */
- 			set_bit(desc->bTerminalID, state.unitbitmap);
- 			state.oterm.id = desc->bTerminalID;
+ 	t = 2460000 / t;
 
 
