@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E1CF7B45
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:35:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56813F7BB9
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:39:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728353AbfKKSeb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:34:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52150 "EHLO mail.kernel.org"
+        id S1727384AbfKKSjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:39:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728343AbfKKSea (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:34:30 -0500
+        id S1729119AbfKKSjF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:39:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E60A21655;
-        Mon, 11 Nov 2019 18:34:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF4BE214E0;
+        Mon, 11 Nov 2019 18:39:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497269;
-        bh=ruQE4AZSfn+uFm1Jnz+1l3fCPEtKaaORfqJq7BvjEco=;
+        s=default; t=1573497544;
+        bh=tz9uFoefhrKH621KyE+P/p8W+zKZJg99OToA1UNMPLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OGN2+CGyS4M4OjOqLrNAJ4rURZRJPFWhhcq6GscRKgzXB4IwJvuC+Cdt1z31xGmQs
-         7qpjalSgA7g/5TOHUMO8pWawkwShz97UwSBTX1P7MJqpeMx2nPqVvgwAAqSSzaChCT
-         V0PgJKogznaaiJgBVqNiY2r6VYQlYLPPawqp7/hw=
+        b=GV5P0a01R3iVf0R6mQWyCzQjm4b8bqkV13g5bvmprVt0Y+vJnbj3pjAvD3rhejcCH
+         2HTTuMc6RHTA/rx9Q10tyR2nfrBH8rTIKEx++8suPm76bczylUaEjdLU95sFZuy0k+
+         jaYERvGe84ToWXAXN2NxOrLELk7/X+NZs9JPsdEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 62/65] x86/apic/32: Avoid bogus LDR warnings
+Subject: [PATCH 4.14 092/105] scsi: qla2xxx: stop timer in shutdown path
 Date:   Mon, 11 Nov 2019 19:29:02 +0100
-Message-Id: <20191111181356.216949292@linuxfoundation.org>
+Message-Id: <20191111181448.078837994@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit fe6f85ca121e9c74e7490fe66b0c5aae38e332c3 ]
+[ Upstream commit d3566abb1a1e7772116e4d50fb6a58d19c9802e5 ]
 
-The removal of the LDR initialization in the bigsmp_32 APIC code unearthed
-a problem in setup_local_APIC().
+In shutdown/reboot paths, the timer is not stopped:
 
-The code checks unconditionally for a mismatch of the logical APIC id by
-comparing the early APIC id which was initialized in get_smp_config() with
-the actual LDR value in the APIC.
+  qla2x00_shutdown
+  pci_device_shutdown
+  device_shutdown
+  kernel_restart_prepare
+  kernel_restart
+  sys_reboot
 
-Due to the removal of the bogus LDR initialization the check now can
-trigger on bigsmp_32 APIC systems emitting a warning for every booting
-CPU. This is of course a false positive because the APIC is not using
-logical destination mode.
+This causes lockups (on powerpc) when firmware config space access calls
+are interrupted by smp_send_stop later in reboot.
 
-Restrict the check and the possibly resulting fixup to systems which are
-actually using the APIC in logical destination mode.
-
-[ tglx: Massaged changelog and added Cc stable ]
-
-Fixes: bae3a8d3308 ("x86/apic: Do not initialize LDR and DFR for bigsmp")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/666d8f91-b5a8-1afd-7add-821e72a35f03@suse.com
+Fixes: e30d1756480dc ("[SCSI] qla2xxx: Addition of shutdown callback handler.")
+Link: https://lore.kernel.org/r/20191024063804.14538-1-npiggin@gmail.com
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/apic/apic.c | 28 +++++++++++++++-------------
- 1 file changed, 15 insertions(+), 13 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index ad2a220a4a7f7..722a76b88bcc0 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1341,9 +1341,6 @@ void setup_local_APIC(void)
- {
- 	int cpu = smp_processor_id();
- 	unsigned int value;
--#ifdef CONFIG_X86_32
--	int logical_apicid, ldr_apicid;
--#endif
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 7d7fb5bbb6007..343fbaa6d2a2d 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -3437,6 +3437,10 @@ qla2x00_shutdown(struct pci_dev *pdev)
+ 	/* Stop currently executing firmware. */
+ 	qla2x00_try_to_stop_firmware(vha);
  
- 
- 	if (disable_apic) {
-@@ -1384,16 +1381,21 @@ void setup_local_APIC(void)
- 	apic->init_apic_ldr();
- 
- #ifdef CONFIG_X86_32
--	/*
--	 * APIC LDR is initialized.  If logical_apicid mapping was
--	 * initialized during get_smp_config(), make sure it matches the
--	 * actual value.
--	 */
--	logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
--	ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
--	WARN_ON(logical_apicid != BAD_APICID && logical_apicid != ldr_apicid);
--	/* always use the value from LDR */
--	early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
-+	if (apic->dest_logical) {
-+		int logical_apicid, ldr_apicid;
++	/* Disable timer */
++	if (vha->timer_active)
++		qla2x00_stop_timer(vha);
 +
-+		/*
-+		 * APIC LDR is initialized.  If logical_apicid mapping was
-+		 * initialized during get_smp_config(), make sure it matches
-+		 * the actual value.
-+		 */
-+		logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
-+		ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
-+		if (logical_apicid != BAD_APICID)
-+			WARN_ON(logical_apicid != ldr_apicid);
-+		/* Always use the value from LDR. */
-+		early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
-+	}
- #endif
+ 	/* Turn adapter off line */
+ 	vha->flags.online = 0;
  
- 	/*
 -- 
 2.20.1
 
