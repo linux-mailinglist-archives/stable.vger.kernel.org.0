@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20C0CF7F1D
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E1BCF7F60
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727779AbfKKSfA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:35:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52770 "EHLO mail.kernel.org"
+        id S1727412AbfKKTKb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 14:10:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728447AbfKKSe6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:34:58 -0500
+        id S1727786AbfKKSby (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:31:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E41252190F;
-        Mon, 11 Nov 2019 18:34:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DF57214E0;
+        Mon, 11 Nov 2019 18:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497298;
-        bh=jbszZ+pK438idjmG/hhKzxYfkMI4SQrnmhW1whPaf/Y=;
+        s=default; t=1573497113;
+        bh=MnjhQlZwaODzj+JadDJkhh9j+AWvo5XL4w5QwgNBMyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sg7lLxvApHI8XS0kyRxlnWDpjUb9g3MmzxaG4Kw55ZzXMnEeDBAqqJTnUtpenHI02
-         +cGfmtSqvQkE5jqe5680PHC3Va1RInYYh4yRsRv3SrO63M4JVLoXWyZMljTq1/JWy4
-         iGLjBmHLrRgVIfb6qg+/INpT8ykImxoxkdeIL/xk=
+        b=cTFoLSfAxCJevBnHf6DN8idr93rN+ipzkB3n4UcpbW+H3hE6PHBaPNEefGydgeSDK
+         Qg5tmJXIg1+JfMW1F4sbBSHKltYTnAR7zpzDYz12UCv/qd9IT6iTipV+Iwp+kR+ggP
+         wfiHuHNcEbVoCD1EE6RoHSAftDdHVO9JM3rm+Cd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuhong Yuan <hslester96@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 57/65] net: ethernet: arc: add the missed clk_disable_unprepare
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.4 43/43] cgroup,writeback: dont switch wbs immediately on dead wbs if the memcg is dead
 Date:   Mon, 11 Nov 2019 19:28:57 +0100
-Message-Id: <20191111181353.785421590@linuxfoundation.org>
+Message-Id: <20191111181329.189491027@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuhong Yuan <hslester96@gmail.com>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 4202e219edd6cc164c042e16fa327525410705ae ]
+commit 65de03e251382306a4575b1779c57c87889eee49 upstream.
 
-The remove misses to disable and unprepare priv->macclk like what is done
-when probe fails.
-Add the missed call in remove.
+cgroup writeback tries to refresh the associated wb immediately if the
+current wb is dead.  This is to avoid keeping issuing IOs on the stale
+wb after memcg - blkcg association has changed (ie. when blkcg got
+disabled / enabled higher up in the hierarchy).
 
-Signed-off-by: Chuhong Yuan <hslester96@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unfortunately, the logic gets triggered spuriously on inodes which are
+associated with dead cgroups.  When the logic is triggered on dead
+cgroups, the attempt fails only after doing quite a bit of work
+allocating and initializing a new wb.
+
+While c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping
+has no dirty pages") alleviated the issue significantly as it now only
+triggers when the inode has dirty pages.  However, the condition can
+still be triggered before the inode is switched to a different cgroup
+and the logic simply doesn't make sense.
+
+Skip the immediate switching if the associated memcg is dying.
+
+This is a simplified version of the following two patches:
+
+ * https://lore.kernel.org/linux-mm/20190513183053.GA73423@dennisz-mbp/
+ * http://lkml.kernel.org/r/156355839560.2063.5265687291430814589.stgit@buzz
+
+Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Fixes: e8a7abf5a5bd ("writeback: disassociate inodes from dying bdi_writebacks")
+Acked-by: Dennis Zhou <dennis@kernel.org>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/arc/emac_rockchip.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/fs-writeback.c |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/arc/emac_rockchip.c b/drivers/net/ethernet/arc/emac_rockchip.c
-index c770ca37c9b21..a7d30731d376f 100644
---- a/drivers/net/ethernet/arc/emac_rockchip.c
-+++ b/drivers/net/ethernet/arc/emac_rockchip.c
-@@ -261,6 +261,9 @@ static int emac_rockchip_remove(struct platform_device *pdev)
- 	if (priv->regulator)
- 		regulator_disable(priv->regulator);
+--- a/fs/fs-writeback.c
++++ b/fs/fs-writeback.c
+@@ -582,10 +582,13 @@ void wbc_attach_and_unlock_inode(struct
+ 	spin_unlock(&inode->i_lock);
  
-+	if (priv->soc_data->need_div_macclk)
-+		clk_disable_unprepare(priv->macclk);
-+
- 	free_netdev(ndev);
- 	return err;
+ 	/*
+-	 * A dying wb indicates that the memcg-blkcg mapping has changed
+-	 * and a new wb is already serving the memcg.  Switch immediately.
++	 * A dying wb indicates that either the blkcg associated with the
++	 * memcg changed or the associated memcg is dying.  In the first
++	 * case, a replacement wb should already be available and we should
++	 * refresh the wb immediately.  In the second case, trying to
++	 * refresh will keep failing.
+ 	 */
+-	if (unlikely(wb_dying(wbc->wb)))
++	if (unlikely(wb_dying(wbc->wb) && !css_is_dying(wbc->wb->memcg_css)))
+ 		inode_switch_wbs(inode, wbc->wb_id);
  }
--- 
-2.20.1
-
+ 
 
 
