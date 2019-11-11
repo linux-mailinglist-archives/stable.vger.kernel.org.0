@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 707D9F7B93
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:38:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2D78F7AD6
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:30:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727717AbfKKShh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:37:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56266 "EHLO mail.kernel.org"
+        id S1727151AbfKKSaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:30:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728877AbfKKShg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:37:36 -0500
+        id S1727164AbfKKSaJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:30:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 638A0204FD;
-        Mon, 11 Nov 2019 18:37:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F4B921783;
+        Mon, 11 Nov 2019 18:30:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497453;
-        bh=UUJfsJTjQIR0PVeU3w+49eR4YbkU3H0RuogjCNK6NN8=;
+        s=default; t=1573497009;
+        bh=jlnTzvoyGLFnWfdd3rhWLJ0o0stvG4YQ6aaLNBAKQag=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQsh2ZxSjwEgzLiT2mG02o9vst5GN9dlUDvSH2q97GoNRQfJsQNnuJQYCE+bAtO1+
-         0nWcisL7wAUu8aUc0cYrfFKk23NPD6kOn5BSYMUaMbF0yX6bW+Xcajp4efjvnxwSQq
-         6dmiB41XuEeMRyqXYKP2HeE0/VbSrgmsR/Qi59Vk=
+        b=F1h/qXSmphk+5uua7dZ5bpwkPpaZwkEle+gwMU0oRBbTsAH0cIJYg94MtaJugpMDu
+         YeIGdpJOM+C7a8atXx09KmuHxI6DgpDqCbAkhwpxDP9q9RvBUDD68TnVxie68K8f+4
+         /QZ26/ptbnsmhNhj1ghmNYAtIQe93olwPaTfFNqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Claudio Foellmi <claudio.foellmi@ergon.ch>,
-        Vignesh R <vigneshr@ti.com>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 059/105] i2c: omap: Trigger bus recovery in lockup case
+        stable@vger.kernel.org,
+        Alexandru Ardelean <alexandru.ardelean@analog.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.4 15/43] iio: imu: adis16480: make sure provided frequency is positive
 Date:   Mon, 11 Nov 2019 19:28:29 +0100
-Message-Id: <20191111181444.761824937@linuxfoundation.org>
+Message-Id: <20191111181305.391419048@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,86 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Foellmi <claudio.foellmi@ergon.ch>
+From: Alexandru Ardelean <alexandru.ardelean@analog.com>
 
-commit 93367bfca98f36cece57c01dbce6ea1b4ac58245 upstream
+commit 24e1eb5c0d78cfb9750b690bbe997d4d59170258 upstream.
 
-A very conservative check for bus activity (to prevent interference
-in multimaster setups) prevented the bus recovery methods from being
-triggered in the case that SDA or SCL was stuck low.
-This defeats the purpose of the recovery mechanism, which was introduced
-for exactly this situation (a slave device keeping SDA pulled down).
+It could happen that either `val` or `val2` [provided from userspace] is
+negative. In that case the computed frequency could get a weird value.
 
-Also added a check to make sure SDA is low before attempting recovery.
-If SDA is not stuck low, recovery will not help, so we can skip it.
+Fix this by checking that neither of the 2 variables is negative, and check
+that the computed result is not-zero.
 
-Note that bus lockups can persist across reboots. The only other options
-are to reset or power cycle the offending slave device, and many i2c
-slaves do not even have a reset pin.
-
-If we see that one of the lines is low for the entire timeout duration,
-we can actually be sure that there is no other master driving the bus.
-It is therefore save for us to attempt a bus recovery.
-
-Signed-off-by: Claudio Foellmi <claudio.foellmi@ergon.ch>
-Tested-by: Vignesh R <vigneshr@ti.com>
-Reviewed-by: Grygorii Strashko <grygorii.strashko@ti.com>
-[wsa: fixed one return code to -EBUSY]
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Fixes: e4f959390178 ("iio: imu: adis16480 switch sampling frequency attr to core support")
+Signed-off-by: Alexandru Ardelean <alexandru.ardelean@analog.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/i2c/busses/i2c-omap.c |   25 +++++++++++++++++++++++--
- 1 file changed, 23 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-omap.c
-+++ b/drivers/i2c/busses/i2c-omap.c
-@@ -487,6 +487,22 @@ static int omap_i2c_init(struct omap_i2c
- }
+---
+ drivers/iio/imu/adis16480.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/drivers/iio/imu/adis16480.c
++++ b/drivers/iio/imu/adis16480.c
+@@ -266,8 +266,11 @@ static int adis16480_set_freq(struct iio
+ 	struct adis16480 *st = iio_priv(indio_dev);
+ 	unsigned int t;
  
- /*
-+ * Try bus recovery, but only if SDA is actually low.
-+ */
-+static int omap_i2c_recover_bus(struct omap_i2c_dev *omap)
-+{
-+	u16 systest;
++	if (val < 0 || val2 < 0)
++		return -EINVAL;
 +
-+	systest = omap_i2c_read_reg(omap, OMAP_I2C_SYSTEST_REG);
-+	if ((systest & OMAP_I2C_SYSTEST_SCL_I_FUNC) &&
-+	    (systest & OMAP_I2C_SYSTEST_SDA_I_FUNC))
-+		return 0; /* bus seems to already be fine */
-+	if (!(systest & OMAP_I2C_SYSTEST_SCL_I_FUNC))
-+		return -EBUSY; /* recovery would not fix SCL */
-+	return i2c_recover_bus(&omap->adapter);
-+}
-+
-+/*
-  * Waiting on Bus Busy
-  */
- static int omap_i2c_wait_for_bb(struct omap_i2c_dev *omap)
-@@ -496,7 +512,7 @@ static int omap_i2c_wait_for_bb(struct o
- 	timeout = jiffies + OMAP_I2C_TIMEOUT;
- 	while (omap_i2c_read_reg(omap, OMAP_I2C_STAT_REG) & OMAP_I2C_STAT_BB) {
- 		if (time_after(jiffies, timeout))
--			return i2c_recover_bus(&omap->adapter);
-+			return omap_i2c_recover_bus(omap);
- 		msleep(1);
- 	}
+ 	t =  val * 1000 + val2 / 1000;
+-	if (t <= 0)
++	if (t == 0)
+ 		return -EINVAL;
  
-@@ -577,8 +593,13 @@ static int omap_i2c_wait_for_bb_valid(st
- 		}
- 
- 		if (time_after(jiffies, timeout)) {
-+			/*
-+			 * SDA or SCL were low for the entire timeout without
-+			 * any activity detected. Most likely, a slave is
-+			 * locking up the bus with no master driving the clock.
-+			 */
- 			dev_warn(omap->dev, "timeout waiting for bus ready\n");
--			return -ETIMEDOUT;
-+			return omap_i2c_recover_bus(omap);
- 		}
- 
- 		msleep(1);
+ 	t = 2460000 / t;
 
 
