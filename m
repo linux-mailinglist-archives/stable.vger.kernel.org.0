@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1564F7F4A
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 741C4F7E77
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbfKKSdA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:33:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50376 "EHLO mail.kernel.org"
+        id S1728939AbfKKSn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:43:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728065AbfKKSc7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:32:59 -0500
+        id S1729682AbfKKSn4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:43:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D2CD20856;
-        Mon, 11 Nov 2019 18:32:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2ED920674;
+        Mon, 11 Nov 2019 18:43:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497178;
-        bh=ZK/ZBjuL36PlHFysUhKmPHj4iSBscDJgj7PWaoy0ufo=;
+        s=default; t=1573497835;
+        bh=hbb7MuaPZaqdvEjSeViM3WM9/Zb0UaWiSQzu5+zwwjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EeFelDZ9cJwfG94u/dZD6Cmc2+FJgMoHSupHeMgqh59dBe5l52H9cCrlmxutimQOu
-         X3ooclmNdUW0NhOFRmgUWx9U2YS5hrTuQCxMJo+8EACYZo+g3dpmzGy8WjY3IeoCA6
-         Auhcldl6UwRLF0RxCeiW1DLJUJ0oDcsOR4z2b848=
+        b=FJCkj0Fq/QMZxTZbvmuLAqFTQtwYiPjUkbM5LinKQAbaasOm3WJg2bjNFsVE+V7gH
+         VgSWDI/CcYgqZv2ht2YobRtHhnQ97q0408mRSm7PxnjHifYCJ0TDM+thWPGbiy3D8w
+         VsQl7SfBjG9hcGLa4KK3zwXql1FdP4+OUDEfr5fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.9 29/65] configfs_register_group() shouldnt be (and isnt) called in rmdirable parts
+        stable@vger.kernel.org, Nicolas Boichat <drinkcat@chromium.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 070/125] HID: google: add magnemite/masterball USB ids
 Date:   Mon, 11 Nov 2019 19:28:29 +0100
-Message-Id: <20191111181346.363794532@linuxfoundation.org>
+Message-Id: <20191111181449.479293828@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Nicolas Boichat <drinkcat@chromium.org>
 
-commit f19e4ed1e1edbfa3c9ccb9fed17759b7d6db24c6 upstream.
+[ Upstream commit 9e4dbc4646a84b2562ea7c64a542740687ff7daf ]
 
-revert cc57c07343bd "configfs: fix registered group removal"
-It was an attempt to handle something that fundamentally doesn't
-work - configfs_register_group() should never be done in a part
-of tree that can be rmdir'ed.  And in mainline it never had been,
-so let's not borrow trouble; the fix was racy anyway, it would take
-a lot more to make that work and desired semantics is not clear.
+Add 2 additional hammer-like devices.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Nicolas Boichat <drinkcat@chromium.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c |   11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/hid/hid-google-hammer.c | 4 ++++
+ drivers/hid/hid-ids.h           | 2 ++
+ 2 files changed, 6 insertions(+)
 
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1782,16 +1782,6 @@ void configfs_unregister_group(struct co
- 	struct dentry *dentry = group->cg_item.ci_dentry;
- 	struct dentry *parent = group->cg_item.ci_parent->ci_dentry;
+diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
+index 6bf4da7ad63a5..8cb63ea9977d6 100644
+--- a/drivers/hid/hid-google-hammer.c
++++ b/drivers/hid/hid-google-hammer.c
+@@ -120,6 +120,10 @@ static int hammer_input_configured(struct hid_device *hdev,
+ static const struct hid_device_id hammer_devices[] = {
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_MAGNEMITE) },
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_MASTERBALL) },
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+ 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STAFF) },
+ 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 6b33117ca60e5..02c263a4c0836 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -466,6 +466,8 @@
+ #define USB_DEVICE_ID_GOOGLE_STAFF	0x502b
+ #define USB_DEVICE_ID_GOOGLE_WAND	0x502d
+ #define USB_DEVICE_ID_GOOGLE_WHISKERS	0x5030
++#define USB_DEVICE_ID_GOOGLE_MASTERBALL	0x503c
++#define USB_DEVICE_ID_GOOGLE_MAGNEMITE	0x503d
  
--	mutex_lock(&subsys->su_mutex);
--	if (!group->cg_item.ci_parent->ci_group) {
--		/*
--		 * The parent has already been unlinked and detached
--		 * due to a rmdir.
--		 */
--		goto unlink_group;
--	}
--	mutex_unlock(&subsys->su_mutex);
--
- 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
- 	spin_lock(&configfs_dirent_lock);
- 	configfs_detach_prep(dentry, NULL);
-@@ -1806,7 +1796,6 @@ void configfs_unregister_group(struct co
- 	dput(dentry);
- 
- 	mutex_lock(&subsys->su_mutex);
--unlink_group:
- 	unlink_group(group);
- 	mutex_unlock(&subsys->su_mutex);
- }
+ #define USB_VENDOR_ID_GOTOP		0x08f2
+ #define USB_DEVICE_ID_SUPER_Q2		0x007f
+-- 
+2.20.1
+
 
 
