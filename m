@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6AF9F7F1C
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:09:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98A99F7E8C
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727745AbfKKSfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:35:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52834 "EHLO mail.kernel.org"
+        id S1728334AbfKKSkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:40:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728445AbfKKSfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:35:02 -0500
+        id S1728639AbfKKSkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:40:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 184932173B;
-        Mon, 11 Nov 2019 18:35:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32596214E0;
+        Mon, 11 Nov 2019 18:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497301;
-        bh=hSXP5BlIrHprB8jAsQ1pVwfYd3uQUcImPHcJBB0/Ahg=;
+        s=default; t=1573497602;
+        bh=5i1sxnLp1gpuWfgcIBlkwT5BI+AVOtU+/bjDCfqdO+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJ+GeeP3fl/tTQqcwJjUAi8iCi7z1KOQ5b3aqXS+rad1fO4vZ7x5i4c+G2TK7jQDa
-         ZKKJ7sRk4rrGdNKxmjngnR24hh35luJeFYsyzeNEsa9PgZz8K8q8ME/JZdbdrslOsN
-         9L8QHWHmNd0Nkb6QHutjBl0uDloUfCTfprfYrq+g=
+        b=Fuor0FygJlwxZOZp0OE/uC88FRFdJf+nyQ8hTsPzBZGzFCZ9KbJxIm/+J0+cOyS+O
+         NrNLUmSNUUN1Z4HnhYpiGE/nqoLES01l53Hkp9kurHKQZKC+l67FszzQs9aKAInRgP
+         U1t1+IBodFZAvv2brmfFV16T1NnCv5VvkoUwaxFU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Manfred Rudigier <manfred.rudigier@omicronenergy.com>,
-        Aaron Brown <aaron.f.brown@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 58/65] igb: Fix constant media auto sense switching when no cable is connected
-Date:   Mon, 11 Nov 2019 19:28:58 +0100
-Message-Id: <20191111181354.197999818@linuxfoundation.org>
+Subject: [PATCH 4.14 089/105] USB: Skip endpoints with 0 maxpacket length
+Date:   Mon, 11 Nov 2019 19:28:59 +0100
+Message-Id: <20191111181447.746051692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manfred Rudigier <manfred.rudigier@omicronenergy.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 8d5cfd7f76a2414e23c74bb8858af7540365d985 ]
+[ Upstream commit d482c7bb0541d19dea8bff437a9f3c5563b5b2d2 ]
 
-At least on the i350 there is an annoying behavior that is maybe also
-present on 82580 devices, but was probably not noticed yet as MAS is not
-widely used.
+Endpoints with a maxpacket length of 0 are probably useless.  They
+can't transfer any data, and it's not at all unlikely that an HCD will
+crash or hang when trying to handle an URB for such an endpoint.
 
-If no cable is connected on both fiber/copper ports the media auto sense
-code will constantly swap between them as part of the watchdog task and
-produce many unnecessary kernel log messages.
+Currently the USB core does not check for endpoints having a maxpacket
+value of 0.  This patch adds a check, printing a warning and skipping
+over any endpoints it catches.
 
-The swap code responsible for this behavior (switching to fiber) should
-not be executed if the current media type is copper and there is no signal
-detected on the fiber port. In this case we can safely wait until the
-AUTOSENSE_EN bit is cleared.
+Now, the USB spec does not rule out endpoints having maxpacket = 0.
+But since they wouldn't have any practical use, there doesn't seem to
+be any good reason for us to accept them.
 
-Signed-off-by: Manfred Rudigier <manfred.rudigier@omicronenergy.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+
+Link: https://lore.kernel.org/r/Pine.LNX.4.44L0.1910281050420.1485-100000@iolanthe.rowland.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/config.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index 7956176c2c73e..7e35bd6656307 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -1677,7 +1677,8 @@ static void igb_check_swap_media(struct igb_adapter *adapter)
- 	if ((hw->phy.media_type == e1000_media_type_copper) &&
- 	    (!(connsw & E1000_CONNSW_AUTOSENSE_EN))) {
- 		swap_now = true;
--	} else if (!(connsw & E1000_CONNSW_SERDESD)) {
-+	} else if ((hw->phy.media_type != e1000_media_type_copper) &&
-+		   !(connsw & E1000_CONNSW_SERDESD)) {
- 		/* copper signal takes time to appear */
- 		if (adapter->copper_tries < 4) {
- 			adapter->copper_tries++;
+diff --git a/drivers/usb/core/config.c b/drivers/usb/core/config.c
+index d03d0e46b121d..cfb8f1126cf82 100644
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -348,6 +348,11 @@ static int usb_parse_endpoint(struct device *ddev, int cfgno, int inum,
+ 
+ 	/* Validate the wMaxPacketSize field */
+ 	maxp = usb_endpoint_maxp(&endpoint->desc);
++	if (maxp == 0) {
++		dev_warn(ddev, "config %d interface %d altsetting %d endpoint 0x%X has wMaxPacketSize 0, skipping\n",
++		    cfgno, inum, asnum, d->bEndpointAddress);
++		goto skip_to_next_endpoint_or_interface_descriptor;
++	}
+ 
+ 	/* Find the highest legal maxpacket size for this endpoint */
+ 	i = 0;		/* additional transactions per microframe */
 -- 
 2.20.1
 
