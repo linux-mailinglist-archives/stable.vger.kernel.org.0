@@ -2,85 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3576F756D
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 14:51:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD48F7616
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 15:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726887AbfKKNvn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 08:51:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47766 "EHLO mail.kernel.org"
+        id S1726955AbfKKOMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 09:12:39 -0500
+Received: from mga07.intel.com ([134.134.136.100]:60176 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726811AbfKKNvn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 08:51:43 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13656206A3;
-        Mon, 11 Nov 2019 13:51:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573480302;
-        bh=1R+knT9QFYv3b8z7wjWjLCJDywXyJJz/PJgR4UVEDqU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VPrAiLdjfcAxePQnpmXBStpMY7n00/06UEaYIzQPjnEhBrpbPgw3AwzW9pDgRrALY
-         vuWkIwywei6tP5K9000KyCsnpDh8dFiy7h4cUraBYl0rTcCSH6YzjxFNtsKAQKWxna
-         nYAn9IGyxLcvbwyPisgNCEC/VgYb9VypX4efA0Rw=
-Date:   Mon, 11 Nov 2019 08:51:41 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     gregkh@linuxfoundation.org
-Cc:     leonard.crestez@nxp.com, sboyd@kernel.org, shawnguo@kernel.org,
+        id S1726912AbfKKOMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 09:12:38 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Nov 2019 06:12:37 -0800
+X-IronPort-AV: E=Sophos;i="5.68,293,1569308400"; 
+   d="scan'208";a="197679382"
+Received: from mpotanix-mobl2.ccr.corp.intel.com (HELO [10.252.20.183]) ([10.252.20.183])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/AES256-SHA; 11 Nov 2019 06:12:35 -0800
+Subject: Re: [FIXES 1/3] drm/i915/userptr: Try to acquire the page lock around
+ set_page_dirty()
+To:     Chris Wilson <chris@chris-wilson.co.uk>,
+        intel-gfx@lists.freedesktop.org
+Cc:     joonas.lahtinen@linux.intel.com,
+        Lionel Landwerlin <lionel.g.landwerlin@intel.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] clk: imx8m: Use SYS_PLL1_800M as
- intermediate parent of" failed to apply to 5.3-stable tree
-Message-ID: <20191111135141.GC8496@sasha-vm>
-References: <157345338112980@kroah.com>
+References: <20191111133205.11590-1-chris@chris-wilson.co.uk>
+From:   Tvrtko Ursulin <tvrtko.ursulin@linux.intel.com>
+Organization: Intel Corporation UK Plc
+Message-ID: <bff35e14-331b-1912-afe4-2989fd22695e@linux.intel.com>
+Date:   Mon, 11 Nov 2019 14:12:33 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <157345338112980@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191111133205.11590-1-chris@chris-wilson.co.uk>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 11, 2019 at 07:23:01AM +0100, gregkh@linuxfoundation.org wrote:
->
->The patch below does not apply to the 5.3-stable tree.
->If someone wants it applied there, or to any other stable or longterm
->tree, then please email the backport, including the original git commit
->id to <stable@vger.kernel.org>.
->
->thanks,
->
->greg k-h
->
->------------------ original commit in Linus's tree ------------------
->
->From b234fe9558615098d8d62516e7041ad7f99ebcea Mon Sep 17 00:00:00 2001
->From: Leonard Crestez <leonard.crestez@nxp.com>
->Date: Tue, 22 Oct 2019 22:21:28 +0300
->Subject: [PATCH] clk: imx8m: Use SYS_PLL1_800M as intermediate parent of
-> CLK_ARM
->
->During cpu frequency switching the main "CLK_ARM" is reparented to an
->intermediate "step" clock. On imx8mm and imx8mn the 24M oscillator is
->used for this purpose but it is extremely slow, increasing wakeup
->latencies to the point that i2c transactions can timeout and system
->becomes unresponsive.
->
->Fix by switching the "step" clk to SYS_PLL1_800M, matching the behavior
->of imx8m cpufreq drivers in imx vendor tree.
->
->This bug was not immediately apparent because upstream arm64 defconfig
->uses the "performance" governor by default so no cpufreq transitions
->happen.
->
->Fixes: ba5625c3e272 ("clk: imx: Add clock driver support for imx8mm")
->Fixes: 96d6392b54db ("clk: imx: Add support for i.MX8MN clock driver")
 
-96d6392b54db doesn't exist on 5.3, so I've modified the patch to only
-fix the ba5625c3e272 related code and queued it for 5.3. Neither commit
-exists on 4.19 and older.
+On 11/11/2019 13:32, Chris Wilson wrote:
+> set_page_dirty says:
+> 
+> 	For pages with a mapping this should be done under the page lock
+> 	for the benefit of asynchronous memory errors who prefer a
+> 	consistent dirty state. This rule can be broken in some special
+> 	cases, but should be better not to.
+> 
+> Under those rules, it is only safe for us to use the plain set_page_dirty
+> calls for shmemfs/anonymous memory. Userptr may be used with real
+> mappings and so needs to use the locked version (set_page_dirty_lock).
+> 
+> However, following a try_to_unmap() we may want to remove the userptr and
+> so call put_pages(). However, try_to_unmap() acquires the page lock and
+> so we must avoid recursively locking the pages ourselves -- which means
+> that we cannot safely acquire the lock around set_page_dirty(). Since we
+> can't be sure of the lock, we have to risk skip dirtying the page, or
+> else risk calling set_page_dirty() without a lock and so risk fs
+> corruption.
+> 
+> Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203317
+> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=112012
+> Fixes: 5cc9ed4b9a7a ("drm/i915: Introduce mapping of user pages into video m
+> References: cb6d7c7dc7ff ("drm/i915/userptr: Acquire the page lock around set_page_dirty()")
+> References: 505a8ec7e11a ("Revert "drm/i915/userptr: Acquire the page lock around set_page_dirty()"")
+> References: 6dcc693bc57f ("ext4: warn when page is dirtied without buffers")
+> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> Cc: Lionel Landwerlin <lionel.g.landwerlin@intel.com>
+> Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> Cc: stable@vger.kernel.org
+> ---
+>   drivers/gpu/drm/i915/gem/i915_gem_userptr.c | 22 ++++++++++++++++++++-
+>   1 file changed, 21 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+> index ee65c6acf0e2..dd104b0e2071 100644
+> --- a/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+> +++ b/drivers/gpu/drm/i915/gem/i915_gem_userptr.c
+> @@ -646,8 +646,28 @@ i915_gem_userptr_put_pages(struct drm_i915_gem_object *obj,
+>   		obj->mm.dirty = false;
+>   
+>   	for_each_sgt_page(page, sgt_iter, pages) {
+> -		if (obj->mm.dirty)
+> +		if (obj->mm.dirty && trylock_page(page)) {
+> +			/*
+> +			 * As this may not be anonymous memory (e.g. shmem)
+> +			 * but exist on a real mapping, we have to lock
+> +			 * the page in order to dirty it -- holding
+> +			 * the page reference is not sufficient to
+> +			 * prevent the inode from being truncated.
+> +			 * Play safe and take the lock.
+> +			 *
+> +			 * However...!
+> +			 *
+> +			 * The mmu-notifier can be invalidated for a
+> +			 * migrate_page, that is alreadying holding the lock
+> +			 * on the page. Such a try_to_unmap() will result
+> +			 * in us calling put_pages() and so recursively try
+> +			 * to lock the page. We avoid that deadlock with
+> +			 * a trylock_page() and in exchange we risk missing
+> +			 * some page dirtying.
+> +			 */
+>   			set_page_dirty(page);
+> +			unlock_page(page);
+> +		}
+>   
+>   		mark_page_accessed(page);
+>   		put_page(page);
+> 
 
--- 
-Thanks,
-Sasha
+It looks that the bug report could be about BUG_ON(PageWriteback(page)) 
+in ext4/mpage_prepare_extent_to_map which would be somewhat consistent 
+with not being allowed to call set_page_dirty on an unlocked page. So on 
+the basis of that:
+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+
+Regards,
+
+Tvrtko
