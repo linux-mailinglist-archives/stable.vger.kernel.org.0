@@ -2,71 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4154F74CF
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 14:28:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B23F74DF
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 14:30:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726928AbfKKN2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 08:28:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40934 "EHLO mail.kernel.org"
+        id S1726908AbfKKNaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 08:30:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726910AbfKKN2e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 08:28:34 -0500
+        id S1726845AbfKKNaL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 08:30:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D3AE2196E;
-        Mon, 11 Nov 2019 13:28:31 +0000 (UTC)
-Date:   Mon, 11 Nov 2019 14:28:29 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org, stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 2/2] USB: serial: mos7840: fix remote wakeup
-Message-ID: <20191111132829.GC450958@kroah.com>
-References: <20191107132119.2159-1-johan@kernel.org>
- <20191107132119.2159-2-johan@kernel.org>
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C3B92196E;
+        Mon, 11 Nov 2019 13:30:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573479010;
+        bh=6sclHmDGSQX+Wr1BcGArkl85LKftmhcRE7D1/+VeOtM=;
+        h=Subject:To:From:Date:From;
+        b=t5yr8WviscqiXKaNUEFDVEW7IaKCXFYnhK6t8jT5mHsFZXHkj8FuJVHzwUPqGeVnW
+         5Z4Dg+lTs41N/uTd/+fBOVBXsIpkb88sBYrWOTPwoAeqjtByEa5m54yyQGi9B6Wwbg
+         w9jfz/ACayGbJLMnZVYCOuKAitlGmkuTJhHKo/jA=
+Subject: patch "USB: chaoskey: fix error case of a timeout" added to usb-testing
+To:     oneukum@suse.com, gregkh@linuxfoundation.org, oneukum@suse.de,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 11 Nov 2019 14:30:00 +0100
+Message-ID: <157347900011770@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191107132119.2159-2-johan@kernel.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 07, 2019 at 02:21:19PM +0100, Johan Hovold wrote:
-> The driver was setting the device remote-wakeup feature during probe in
-> violation of the USB specification (which says it should only be set
-> just prior to suspending the device). This could potentially waste
-> power during suspend as well as lead to spurious wakeups.
-> 
-> Note that USB core would clear the remote-wakeup feature at first
-> resume.
-> 
-> Fixes: 3f5429746d91 ("USB: Moschip 7840 USB-Serial Driver")
-> Cc: stable <stable@vger.kernel.org>     # 2.6.19
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-> ---
->  drivers/usb/serial/mos7840.c | 5 -----
->  1 file changed, 5 deletions(-)
-> 
-> diff --git a/drivers/usb/serial/mos7840.c b/drivers/usb/serial/mos7840.c
-> index 3eeeee38debc..ab4bf8d6d7df 100644
-> --- a/drivers/usb/serial/mos7840.c
-> +++ b/drivers/usb/serial/mos7840.c
-> @@ -2290,11 +2290,6 @@ static int mos7840_port_probe(struct usb_serial_port *port)
->  			goto error;
->  		} else
->  			dev_dbg(&port->dev, "ZLP_REG5 Writing success status%d\n", status);
-> -
-> -		/* setting configuration feature to one */
-> -		usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
-> -				0x03, 0x00, 0x01, 0x00, NULL, 0x00,
-> -				MOS_WDR_TIMEOUT);
->  	}
->  	return 0;
->  error:
-> -- 
-> 2.23.0
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This is a note to let you know that I've just added the patch titled
+
+    USB: chaoskey: fix error case of a timeout
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
+
+If you have any questions about this process, please let me know.
+
+
+From 92aa5986f4f7b5a8bf282ca0f50967f4326559f5 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Thu, 7 Nov 2019 15:28:55 +0100
+Subject: USB: chaoskey: fix error case of a timeout
+
+In case of a timeout or if a signal aborts a read
+communication with the device needs to be ended
+lest we overwrite an active URB the next time we
+do IO to the device, as the URB may still be active.
+
+Signed-off-by: Oliver Neukum <oneukum@suse.de>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191107142856.16774-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/misc/chaoskey.c | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/misc/chaoskey.c b/drivers/usb/misc/chaoskey.c
+index 34e6cd6f40d3..87067c3d6109 100644
+--- a/drivers/usb/misc/chaoskey.c
++++ b/drivers/usb/misc/chaoskey.c
+@@ -384,13 +384,17 @@ static int _chaoskey_fill(struct chaoskey *dev)
+ 		!dev->reading,
+ 		(started ? NAK_TIMEOUT : ALEA_FIRST_TIMEOUT) );
+ 
+-	if (result < 0)
++	if (result < 0) {
++		usb_kill_urb(dev->urb);
+ 		goto out;
++	}
+ 
+-	if (result == 0)
++	if (result == 0) {
+ 		result = -ETIMEDOUT;
+-	else
++		usb_kill_urb(dev->urb);
++	} else {
+ 		result = dev->valid;
++	}
+ out:
+ 	/* Let the device go back to sleep eventually */
+ 	usb_autopm_put_interface(dev->interface);
+@@ -526,7 +530,21 @@ static int chaoskey_suspend(struct usb_interface *interface,
+ 
+ static int chaoskey_resume(struct usb_interface *interface)
+ {
++	struct chaoskey *dev;
++	struct usb_device *udev = interface_to_usbdev(interface);
++
+ 	usb_dbg(interface, "resume");
++	dev = usb_get_intfdata(interface);
++
++	/*
++	 * We may have lost power.
++	 * In that case the device that needs a long time
++	 * for the first requests needs an extended timeout
++	 * again
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == ALEA_VENDOR_ID)
++		dev->reads_started = false;
++
+ 	return 0;
+ }
+ #else
+-- 
+2.24.0
+
+
