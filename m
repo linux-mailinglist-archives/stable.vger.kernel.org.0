@@ -2,82 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4660DF82DC
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 23:26:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABD15F8320
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 23:54:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726978AbfKKW06 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 17:26:58 -0500
-Received: from mail-wr1-f49.google.com ([209.85.221.49]:33251 "EHLO
-        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726928AbfKKW06 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 17:26:58 -0500
-Received: by mail-wr1-f49.google.com with SMTP id w9so9581822wrr.0
-        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 14:26:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=isPaAaMoxfK8ANQkrDeI65OvcTSObXjccd/rJyjoBTw=;
-        b=Uw1Ba3MB1Ltqij0WSxNHopdqYwHidRCEXtuVR/rfq3JCsU+RPoDnOp8JUwixdO3ctV
-         MHDTC3YHjfAoankW+xayTvalENyZXV/WDEnK40md1EQM6bezkn+G5rb1FKoy1Q7XH3Cz
-         5Avypdv9GlxtedJfd5gydJLcfPpzTda0D9NPzMAtFUglAaKIVTPIjfA76a7/fLFEzqf7
-         tUhpWSPqtlNY/1HJ+9Ww7m7rr05/3ChoQWK2nhzALzcAW0Lwp31QcH3vsJVy0oXi4ORR
-         ajDN/l5kX5iaWLO+HDKp4BS6sW9f/+WnCzVo6mQeWjzy/wEEgsN4Zx/pPuNoesdL9mUX
-         oBag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=isPaAaMoxfK8ANQkrDeI65OvcTSObXjccd/rJyjoBTw=;
-        b=HRW/0xpzamIuEFv0h+f3xY7avMgePMOWYhMPi4BIca3LhS2z/8SiqSGQM7kkZutTTN
-         hmVlc+PXCJcWBzye+RQDQ7nwdTdJVlL2rDLAH5GVpo4l5cXY/deuNSXw98JCQvW1evKM
-         5DYxCB+MGgHtt4abY/TzGThNYl8dmIIa29oL1mMgmRsANylKhRjUAWMueN6tehefZ9S8
-         YumPUWWUnUlscOiOvkgqxrEC65TGgrKlQ3tVm5Ik69T4DWI+q7zQCaZ7ks6JuA5glCf0
-         a/qGidlig2e36rlYASv9axLH4YQKQvJxjGMkGK+DaMPYfIDJs3VtWbcMAmlNSGi0WIwV
-         poRw==
-X-Gm-Message-State: APjAAAW3iLqX6DlQnBxkGUFZX41WLPEjKNeNsW0hCIC/+cOlBKazNw0B
-        LsbGUIhXo4jWUVJtjPZCg3xy13l8CGuGHw==
-X-Google-Smtp-Source: APXvYqxR+2QnWs2mh6b1eL14uoHgXsH9kXbVuG8nhM2Wp3Dh1dYjisINZfbUJjfdAEVDwm66MWbWGQ==
-X-Received: by 2002:a5d:4991:: with SMTP id r17mr8326097wrq.176.1573511215803;
-        Mon, 11 Nov 2019 14:26:55 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id t1sm23562677wrn.81.2019.11.11.14.26.54
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Nov 2019 14:26:54 -0800 (PST)
-Message-ID: <5dc9e02e.1c69fb81.bdbf2.0e41@mx.google.com>
-Date:   Mon, 11 Nov 2019 14:26:54 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726896AbfKKWy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 17:54:29 -0500
+Received: from mga02.intel.com ([134.134.136.20]:34124 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726877AbfKKWy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 17:54:29 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Nov 2019 14:54:28 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,294,1569308400"; 
+   d="scan'208";a="202469946"
+Received: from sjchrist-coffee.jf.intel.com ([10.54.74.41])
+  by fmsmga007.fm.intel.com with ESMTP; 11 Nov 2019 14:54:28 -0800
+From:   Sean Christopherson <sean.j.christopherson@intel.com>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH 4.19 STABLE] KVM: x86: introduce is_pae_paging
+Date:   Mon, 11 Nov 2019 14:54:23 -0800
+Message-Id: <20191111225423.29309-1-sean.j.christopherson@intel.com>
+X-Mailer: git-send-email 2.24.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.3.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.3.10-192-g3d4242f0ef80
-Subject: stable-rc/linux-5.3.y boot: 73 boots: 0 failed,
- 73 passed (v5.3.10-192-g3d4242f0ef80)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.3.y boot: 73 boots: 0 failed, 73 passed (v5.3.10-192-g3d4=
-242f0ef80)
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.3.y/kernel/v5.3.10-192-g3d4242f0ef80/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
-/kernel/v5.3.10-192-g3d4242f0ef80/
+Upstream commit bf03d4f9334728bf7c8ffc7de787df48abd6340e.
 
-Tree: stable-rc
-Branch: linux-5.3.y
-Git Describe: v5.3.10-192-g3d4242f0ef80
-Git Commit: 3d4242f0ef80fb4ee50fc92188e71bce32af1a8e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 43 unique boards, 14 SoC families, 10 builds out of 208
+Checking for 32-bit PAE is quite common around code that fiddles with
+the PDPTRs.  Add a function to compress all checks into a single
+invocation.
 
+Moving to the common helper also fixes a subtle bug in kvm_set_cr3()
+where it fails to check is_long_mode() and results in KVM incorrectly
+attempting to load PDPTRs for a 64-bit guest.
+
+Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[sean: backport to 4.x; handle vmx.c split in 5.x, call out the bugfix]
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
 ---
-For more info write to <info@kernelci.org>
+ arch/x86/kvm/vmx.c | 7 +++----
+ arch/x86/kvm/x86.c | 8 ++++----
+ arch/x86/kvm/x86.h | 5 +++++
+ 3 files changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+index 6f7b3acdab26..83acaed244ba 100644
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -5181,7 +5181,7 @@ static void ept_load_pdptrs(struct kvm_vcpu *vcpu)
+ 		      (unsigned long *)&vcpu->arch.regs_dirty))
+ 		return;
+ 
+-	if (is_paging(vcpu) && is_pae(vcpu) && !is_long_mode(vcpu)) {
++	if (is_pae_paging(vcpu)) {
+ 		vmcs_write64(GUEST_PDPTR0, mmu->pdptrs[0]);
+ 		vmcs_write64(GUEST_PDPTR1, mmu->pdptrs[1]);
+ 		vmcs_write64(GUEST_PDPTR2, mmu->pdptrs[2]);
+@@ -5193,7 +5193,7 @@ static void ept_save_pdptrs(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_mmu *mmu = vcpu->arch.walk_mmu;
+ 
+-	if (is_paging(vcpu) && is_pae(vcpu) && !is_long_mode(vcpu)) {
++	if (is_pae_paging(vcpu)) {
+ 		mmu->pdptrs[0] = vmcs_read64(GUEST_PDPTR0);
+ 		mmu->pdptrs[1] = vmcs_read64(GUEST_PDPTR1);
+ 		mmu->pdptrs[2] = vmcs_read64(GUEST_PDPTR2);
+@@ -12021,8 +12021,7 @@ static int nested_vmx_load_cr3(struct kvm_vcpu *vcpu, unsigned long cr3, bool ne
+ 		 * If PAE paging and EPT are both on, CR3 is not used by the CPU and
+ 		 * must not be dereferenced.
+ 		 */
+-		if (!is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu) &&
+-		    !nested_ept) {
++		if (is_pae_paging(vcpu) && !nested_ept) {
+ 			if (!load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3)) {
+ 				*entry_failure_code = ENTRY_FAIL_PDPTE;
+ 				return 1;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 6ae8a013af31..b9b87fb75ac0 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -633,7 +633,7 @@ bool pdptrs_changed(struct kvm_vcpu *vcpu)
+ 	gfn_t gfn;
+ 	int r;
+ 
+-	if (is_long_mode(vcpu) || !is_pae(vcpu) || !is_paging(vcpu))
++	if (!is_pae_paging(vcpu))
+ 		return false;
+ 
+ 	if (!test_bit(VCPU_EXREG_PDPTR,
+@@ -884,8 +884,8 @@ int kvm_set_cr3(struct kvm_vcpu *vcpu, unsigned long cr3)
+ 	if (is_long_mode(vcpu) &&
+ 	    (cr3 & rsvd_bits(cpuid_maxphyaddr(vcpu), 63)))
+ 		return 1;
+-	else if (is_pae(vcpu) && is_paging(vcpu) &&
+-		   !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
++	else if (is_pae_paging(vcpu) &&
++		 !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
+ 		return 1;
+ 
+ 	kvm_mmu_new_cr3(vcpu, cr3, skip_tlb_flush);
+@@ -8312,7 +8312,7 @@ static int __set_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
+ 		kvm_update_cpuid(vcpu);
+ 
+ 	idx = srcu_read_lock(&vcpu->kvm->srcu);
+-	if (!is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu)) {
++	if (is_pae_paging(vcpu)) {
+ 		load_pdptrs(vcpu, vcpu->arch.walk_mmu, kvm_read_cr3(vcpu));
+ 		mmu_reset_needed = 1;
+ 	}
+diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
+index 3a91ea760f07..608e5f8c5d0a 100644
+--- a/arch/x86/kvm/x86.h
++++ b/arch/x86/kvm/x86.h
+@@ -139,6 +139,11 @@ static inline int is_paging(struct kvm_vcpu *vcpu)
+ 	return likely(kvm_read_cr0_bits(vcpu, X86_CR0_PG));
+ }
+ 
++static inline bool is_pae_paging(struct kvm_vcpu *vcpu)
++{
++	return !is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu);
++}
++
+ static inline u32 bit(int bitno)
+ {
+ 	return 1 << (bitno & 31);
+-- 
+2.24.0
+
