@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D970BF7EC9
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07FBBF7E60
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729026AbfKKSjK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:39:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58148 "EHLO mail.kernel.org"
+        id S1729921AbfKKSpw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:45:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728413AbfKKSjI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:39:08 -0500
+        id S1729246AbfKKSpv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:45:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DF6420659;
-        Mon, 11 Nov 2019 18:39:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA12920674;
+        Mon, 11 Nov 2019 18:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497547;
-        bh=Jb15zjS7o1tcaYAB4YaLaRXkZpiyf8Spy2TNxzvDHJA=;
+        s=default; t=1573497950;
+        bh=+Vpmt56nQU9q+fWQ80iwQhJ7ao0djqDkThe4tFknWvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zgYw6DuOQtx5kP2iRxwukBRDqkyqzbrYi4a5dQo33AGpjz4DrVFP+0EmH4e+72pRn
-         kbSxahO5tS5nlbWtx4Ko8V1FIVCRYtmrq9Bqt+GngR+ARdodLBUoxRiLeWscV+Zbrj
-         A2uhOjiLwDE6f25mWANKqIeKaAH8aFH5FugxFdaE=
+        b=mstTC3iAPl7ThYOghBhUf56aAyPnNnpmZ3fl5YFYgwo+71xObBYGqTn5lolJwf6IR
+         inBWdTN1rtHrgRz1Jyt91k5aVAmjxArpITdYHgKb1cV3jqWTHCCeTkul6WTD3QbNfO
+         ZJgIhvjng1Nz1R6pBGSe/mmT+BXY5IWkVDcCRpXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
         Nicolas Waisman <nico@semmle.com>,
         Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 093/105] fjes: Handle workqueue allocation failure
-Date:   Mon, 11 Nov 2019 19:29:03 +0100
-Message-Id: <20191111181448.312613411@linuxfoundation.org>
+Subject: [PATCH 4.19 105/125] fjes: Handle workqueue allocation failure
+Date:   Mon, 11 Nov 2019 19:29:04 +0100
+Message-Id: <20191111181453.950179740@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,7 +64,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/fjes/fjes_main.c b/drivers/net/fjes/fjes_main.c
-index 750954be5a740..14d6579b292a8 100644
+index d3eae12390457..61a9843346ad7 100644
 --- a/drivers/net/fjes/fjes_main.c
 +++ b/drivers/net/fjes/fjes_main.c
 @@ -1252,8 +1252,17 @@ static int fjes_probe(struct platform_device *plat_dev)
