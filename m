@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3494F7D4A
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:55:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08541F7C85
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:47:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729935AbfKKSzV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:55:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52170 "EHLO mail.kernel.org"
+        id S1729379AbfKKSrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:47:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728884AbfKKSzS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:55:18 -0500
+        id S1730050AbfKKSq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:46:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F23EF2173B;
-        Mon, 11 Nov 2019 18:55:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14F9621655;
+        Mon, 11 Nov 2019 18:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498517;
-        bh=Z5CEjgq2ljlTHK2PBa5/v+pJ3uM3+XprsHPKtfcyc7g=;
+        s=default; t=1573498018;
+        bh=xmWQpLT2KJLMmCxIVrT4Qukhiz7jYNjuK8yXyTX1ISM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2GkPkmNwqReNJr9KH5Hv8PjOu6k9wU5nUihiEDyP/GNv3PMfFfASj7A9dtjgnKpH
-         0rFI3bRnzg2qRsxUoWVnq6oZLDqwfSvAHoVVrMLsX+wBlMKTFJSB336oWgEOvmayQK
-         wt4EN5BTNG5iWpdnePl/+coQe4Jgo5XdW8ZutsU8=
+        b=MSXDGjA61GmdkcEB8ZnmHPUVPVIc+93w5FkAwRDdKzYaKpZhZBkWuk6jI4HlIAAwB
+         CxsZC7zdz2J+sVcnwlhCA0f2weoYQm1N/3pxxd6AmEDeTaHOSR3YpQn56GXb5KBSPd
+         /vfaVjBwg15iTmXIeHFghEEOxxSC5xjOs0BRSEeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Navid Emamdoost <navid.emamdoost@gmail.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 141/193] usb: dwc3: pci: prevent memory leak in dwc3_pci_probe
+Subject: [PATCH 4.19 084/125] netfilter: nf_flow_table: set timeout before insertion into hashes
 Date:   Mon, 11 Nov 2019 19:28:43 +0100
-Message-Id: <20191111181511.558159952@linuxfoundation.org>
+Message-Id: <20191111181451.347524746@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Navid Emamdoost <navid.emamdoost@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 9bbfceea12a8f145097a27d7c7267af25893c060 ]
+[ Upstream commit daf61b026f4686250e6afa619e6d7b49edc61df7 ]
 
-In dwc3_pci_probe a call to platform_device_alloc allocates a device
-which is correctly put in case of error except one case: when the call to
-platform_device_add_properties fails it directly returns instead of
-going to error handling. This commit replaces return with the goto.
+Other garbage collector might remove an entry not fully set up yet.
 
-Fixes: 1a7b12f69a94 ("usb: dwc3: pci: Supply device properties via driver data")
-Signed-off-by: Navid Emamdoost <navid.emamdoost@gmail.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+[570953.958293] RIP: 0010:memcmp+0x9/0x50
+[...]
+[570953.958567]  flow_offload_hash_cmp+0x1e/0x30 [nf_flow_table]
+[570953.958585]  flow_offload_lookup+0x8c/0x110 [nf_flow_table]
+[570953.958606]  nf_flow_offload_ip_hook+0x135/0xb30 [nf_flow_table]
+[570953.958624]  nf_flow_offload_inet_hook+0x35/0x37 [nf_flow_table_inet]
+[570953.958646]  nf_hook_slow+0x3c/0xb0
+[570953.958664]  __netif_receive_skb_core+0x90f/0xb10
+[570953.958678]  ? ip_rcv_finish+0x82/0xa0
+[570953.958692]  __netif_receive_skb_one_core+0x3b/0x80
+[570953.958711]  __netif_receive_skb+0x18/0x60
+[570953.958727]  netif_receive_skb_internal+0x45/0xf0
+[570953.958741]  napi_gro_receive+0xcd/0xf0
+[570953.958764]  ixgbe_clean_rx_irq+0x432/0xe00 [ixgbe]
+[570953.958782]  ixgbe_poll+0x27b/0x700 [ixgbe]
+[570953.958796]  net_rx_action+0x284/0x3c0
+[570953.958817]  __do_softirq+0xcc/0x27c
+[570953.959464]  irq_exit+0xe8/0x100
+[570953.960097]  do_IRQ+0x59/0xe0
+[570953.960734]  common_interrupt+0xf/0xf
+
+Fixes: 43c8f131184f ("netfilter: nf_flow_table: fix missing error check for rhashtable_insert_fast")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_flow_table_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-pci.c b/drivers/usb/dwc3/dwc3-pci.c
-index 5e8e18222f922..023f0357efd77 100644
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -258,7 +258,7 @@ static int dwc3_pci_probe(struct pci_dev *pci, const struct pci_device_id *id)
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index 8ade405129444..70bd730ca0597 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -187,6 +187,8 @@ int flow_offload_add(struct nf_flowtable *flow_table, struct flow_offload *flow)
+ {
+ 	int err;
  
- 	ret = platform_device_add_properties(dwc->dwc3, p);
- 	if (ret < 0)
--		return ret;
-+		goto err;
++	flow->timeout = (u32)jiffies + NF_FLOW_TIMEOUT;
++
+ 	err = rhashtable_insert_fast(&flow_table->rhashtable,
+ 				     &flow->tuplehash[0].node,
+ 				     nf_flow_offload_rhash_params);
+@@ -203,7 +205,6 @@ int flow_offload_add(struct nf_flowtable *flow_table, struct flow_offload *flow)
+ 		return err;
+ 	}
  
- 	ret = dwc3_pci_quirks(dwc);
- 	if (ret)
+-	flow->timeout = (u32)jiffies + NF_FLOW_TIMEOUT;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(flow_offload_add);
 -- 
 2.20.1
 
