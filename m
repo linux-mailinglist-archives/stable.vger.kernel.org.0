@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E77BF7F02
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B4D9F7F6A
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729065AbfKKSir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:38:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57682 "EHLO mail.kernel.org"
+        id S1727617AbfKKSbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:31:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729052AbfKKSim (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:38:42 -0500
+        id S1726985AbfKKSbU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:31:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 965B0204FD;
-        Mon, 11 Nov 2019 18:38:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B30FC21872;
+        Mon, 11 Nov 2019 18:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497521;
-        bh=r/zHST7sbQn4HJhL+bHCL92FufqTQL80sDjkQ7/HcAQ=;
+        s=default; t=1573497079;
+        bh=yROh0fTXdNtArS1xmUHquJ+Jv0AlbRBpy+9faOc/SV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pN8Dn4KjZpM5QoE3H7thFbacOHmiPDmVcWUbGbx0EbMbkkMXDh96uEeIR3XVBeums
-         DdWZK4MgTPlkMVQg8BnP2ex0hWaLLP+DfppgAvmOLrzi/U65QZGim7h11laBV8dhk4
-         YDNzQbyOMW+Ue6TTP+1p5pVSgBMF+JD0ifqmNHkQ=
+        b=NfGyIqya0NXqhs81UmXj3wKlaauGL800qwOq21VBCItJIt09y0wLVpRxpglfRTeec
+         fJMl6/9OmjyMLeOLdJq8hHtYi0aKQKP+5CQBv/NZRkjKPQNigMZwmX4zpCNvjsLVAT
+         tYCuZ1qULq08otCr1h2+i80GAOAvWyqdHuY3JAsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 081/105] macsec: fix refcnt leak in module exit routine
+Subject: [PATCH 4.4 37/43] net: hisilicon: Fix "Trying to free already-free IRQ"
 Date:   Mon, 11 Nov 2019 19:28:51 +0100
-Message-Id: <20191111181446.909215798@linuxfoundation.org>
+Message-Id: <20191111181326.777188012@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 
-[ Upstream commit 2bce1ebed17da54c65042ec2b962e3234bad5b47 ]
+[ Upstream commit 63a41746827cb16dc6ad0d4d761ab4e7dda7a0c3 ]
 
-When a macsec interface is created, it increases a refcnt to a lower
-device(real device). when macsec interface is deleted, the refcnt is
-decreased in macsec_free_netdev(), which is ->priv_destructor() of
-macsec interface.
+When rmmod hip04_eth.ko, we can get the following warning:
 
-The problem scenario is this.
-When nested macsec interfaces are exiting, the exit routine of the
-macsec module makes refcnt leaks.
+Task track: rmmod(1623)>bash(1591)>login(1581)>init(1)
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1623 at kernel/irq/manage.c:1557 __free_irq+0xa4/0x2ac()
+Trying to free already-free IRQ 200
+Modules linked in: ping(O) pramdisk(O) cpuinfo(O) rtos_snapshot(O) interrupt_ctrl(O) mtdblock mtd_blkdevrtfs nfs_acl nfs lockd grace sunrpc xt_tcpudp ipt_REJECT iptable_filter ip_tables x_tables nf_reject_ipv
+CPU: 0 PID: 1623 Comm: rmmod Tainted: G           O    4.4.193 #1
+Hardware name: Hisilicon A15
+[<c020b408>] (rtos_unwind_backtrace) from [<c0206624>] (show_stack+0x10/0x14)
+[<c0206624>] (show_stack) from [<c03f2be4>] (dump_stack+0xa0/0xd8)
+[<c03f2be4>] (dump_stack) from [<c021a780>] (warn_slowpath_common+0x84/0xb0)
+[<c021a780>] (warn_slowpath_common) from [<c021a7e8>] (warn_slowpath_fmt+0x3c/0x68)
+[<c021a7e8>] (warn_slowpath_fmt) from [<c026876c>] (__free_irq+0xa4/0x2ac)
+[<c026876c>] (__free_irq) from [<c0268a14>] (free_irq+0x60/0x7c)
+[<c0268a14>] (free_irq) from [<c0469e80>] (release_nodes+0x1c4/0x1ec)
+[<c0469e80>] (release_nodes) from [<c0466924>] (__device_release_driver+0xa8/0x104)
+[<c0466924>] (__device_release_driver) from [<c0466a80>] (driver_detach+0xd0/0xf8)
+[<c0466a80>] (driver_detach) from [<c0465e18>] (bus_remove_driver+0x64/0x8c)
+[<c0465e18>] (bus_remove_driver) from [<c02935b0>] (SyS_delete_module+0x198/0x1e0)
+[<c02935b0>] (SyS_delete_module) from [<c0202ed0>] (__sys_trace_return+0x0/0x10)
+---[ end trace bb25d6123d849b44 ]---
 
-Test commands:
-    ip link add dummy0 type dummy
-    ip link add macsec0 link dummy0 type macsec
-    ip link add macsec1 link macsec0 type macsec
-    modprobe -rv macsec
+Currently "rmmod hip04_eth.ko" call free_irq more than once
+as devres_release_all and hip04_remove both call free_irq.
+This results in a 'Trying to free already-free IRQ' warning.
+To solve the problem free_irq has been moved out of hip04_remove.
 
-[  208.629433] unregister_netdevice: waiting for macsec0 to become free. Usage count = 1
-
-Steps of exit routine of macsec module are below.
-1. Calls ->dellink() in __rtnl_link_unregister().
-2. Checks refcnt and wait refcnt to be 0 if refcnt is not 0 in
-netdev_run_todo().
-3. Calls ->priv_destruvtor() in netdev_run_todo().
-
-Step2 checks refcnt, but step3 decreases refcnt.
-So, step2 waits forever.
-
-This patch makes the macsec module do not hold a refcnt of the lower
-device because it already holds a refcnt of the lower device with
-netdev_upper_dev_link().
-
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index aa204c98af79c..9bcb7c3e879f3 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2993,12 +2993,10 @@ static const struct nla_policy macsec_rtnl_policy[IFLA_MACSEC_MAX + 1] = {
- static void macsec_free_netdev(struct net_device *dev)
- {
- 	struct macsec_dev *macsec = macsec_priv(dev);
--	struct net_device *real_dev = macsec->real_dev;
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index e8b7dc1bcfa6e..2a7dfac205464 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -950,7 +950,6 @@ static int hip04_remove(struct platform_device *pdev)
  
- 	free_percpu(macsec->stats);
- 	free_percpu(macsec->secy.tx_sc.stats);
- 
--	dev_put(real_dev);
- }
- 
- static void macsec_setup(struct net_device *dev)
-@@ -3239,8 +3237,6 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
- 	if (err < 0)
- 		return err;
- 
--	dev_hold(real_dev);
--
- 	macsec->nest_level = dev_get_nest_level(real_dev) + 1;
- 	netdev_lockdep_set_classes(dev);
- 	lockdep_set_class_and_subclass(&dev->addr_list_lock,
+ 	hip04_free_ring(ndev, d);
+ 	unregister_netdev(ndev);
+-	free_irq(ndev->irq, ndev);
+ 	of_node_put(priv->phy_node);
+ 	cancel_work_sync(&priv->tx_timeout_task);
+ 	free_netdev(ndev);
 -- 
 2.20.1
 
