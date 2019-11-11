@@ -2,302 +2,489 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E996F8348
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 00:13:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70A6BF8367
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 00:28:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726939AbfKKXNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 18:13:41 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:34400 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726845AbfKKXNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 18:13:41 -0500
-Received: by mail-wr1-f68.google.com with SMTP id e6so16533204wrw.1
-        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 15:13:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jy5OAAqO9jydb3iNWTvuxDjoTHKLlnaa8GD8zIYTqus=;
-        b=V6BpyaSeptuxn42boHLj86T2YSm6fdz2/tWxh4JkN/73xPLR48fyNwFCrnlx2hc7Ym
-         RTQfRNrsFNqRoA7yVI9GCqaESD5Whyv3a4qcQz4bCyOD2mub9LL2efXknxvIbMGFYGbx
-         ajKW6teficrEd4Ui2uWD61PEf6ywDC9rO+TvqUcpVhkh+3ZUVqQV4u9/am96bnBDdOs3
-         EWCsOsNN7wZyQSDuTOJdIDPdYDMFhp646gQTCgxkLvRY+hTWr8Ua65Q78IfgXjSC12t+
-         6VQ9ScdpusUY212zM6wUiL3MtYNOGTypOYVmOevUNqZDxAEDSUF76LMZQWgH5xfK8dgI
-         AJyQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jy5OAAqO9jydb3iNWTvuxDjoTHKLlnaa8GD8zIYTqus=;
-        b=QZQmlhunmD2cT3Bk3U2h7zBGH6cCn7Zdrqfn0f41v386CP+lIMNO9p11m7m2nVuOLE
-         bdd4k+pK8s6srBMkIWtgAT19A97CRd2QLceoattFgeuHU4CHGMCFFJkLBcgoEWDQLqjU
-         eIt20gSKwG+Ax87DL0Thw0gA8oUbl/CQCs3I0GWQZLieTR56Qcu48Aor/ZmV1w58g9yK
-         FW/YDNwpuV76O4ZHPol0LTWAukaTxJ5QNyLWs9M8017pXgSlrx2phCdMihJh1D8PISMj
-         hWRfrnj+UNZ2gjqhyVU6kXJaKCzfKv/0O9TWRVHFDaSxe6vyvo+ip8oVLSaSlCyR8lAl
-         6+zg==
-X-Gm-Message-State: APjAAAV5hCoHF77YFDUPyUMei8dAZDKb85kQXSCeImtoMwHpoHa1KtbV
-        Ujy/X1AmuV3FenlytXkTRgQwfppXmLariQ==
-X-Google-Smtp-Source: APXvYqynfoyoB3NupRDBeriC3e4pewF6kK8uN0Cnox2yfi95yIO9mxiV3lAZstRWP8qtDelXBLlrXw==
-X-Received: by 2002:adf:f585:: with SMTP id f5mr22579967wro.272.1573514016469;
-        Mon, 11 Nov 2019 15:13:36 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x7sm44834376wrg.63.2019.11.11.15.13.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 Nov 2019 15:13:35 -0800 (PST)
-Message-ID: <5dc9eb1f.1c69fb81.f357e.6344@mx.google.com>
-Date:   Mon, 11 Nov 2019 15:13:35 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1726871AbfKKX15 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 18:27:57 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:22189 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726845AbfKKX14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 18:27:56 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573514874;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=fdwch5sWIkadsIXqHZ3szF6NjuUNRO3ESxr5rpWBlBk=;
+        b=gVmBvpW9P7+wBeAuXRWqskZPgt5XRhnpagS/SpHSYYDF1FzgRgEq77P1hB6S6IHyZTQNwM
+        pu+v94skyaivZr3M/qL7LwqoDWi8zwQAR3mXYAwS+Fta6dWzMFQue5O2tBHeunSZ3blim2
+        p9AXsyM57iFMuwu9vm/zQZM+lScZuro=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-99-2IO3H1RYMjy76hNzZu7xlg-1; Mon, 11 Nov 2019 18:27:53 -0500
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BD2D71005509
+        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 23:27:52 +0000 (UTC)
+Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DFAC25D9CA;
+        Mon, 11 Nov 2019 23:27:49 +0000 (UTC)
 MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Date:   Mon, 11 Nov 2019 23:27:49 -0000
+CC:     Milos Malik <mmalik@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Zhaojuan Guo <zguo@redhat.com>
+Message-ID: <cki.2EEA8EA164.EH4NC25ZWY@redhat.com>
+X-Gitlab-Pipeline-ID: 279139
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/279139
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-MC-Unique: 2IO3H1RYMjy76hNzZu7xlg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.153-104-ga67492b55c53
-Subject: stable-rc/linux-4.14.y boot: 59 boots: 59 failed,
- 0 passed (v4.14.153-104-ga67492b55c53)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 59 boots: 59 failed, 0 passed (v4.14.153-104-g=
-a67492b55c53)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.153-104-ga67492b55c53/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.153-104-ga67492b55c53/
+Hello,
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.153-104-ga67492b55c53
-Git Commit: a67492b55c53045e9c0b9969f04410723448c1ee
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 31 unique boards, 12 SoC families, 9 builds out of 201
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
 
-Boot Regressions Detected:
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 81584694bb70 - Linux 5.3.10
 
-arm:
+The results of these automated tests are provided below.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2836-rpi-2-b:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          bcm2837-rpi-3-b:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-    exynos_defconfig:
-        gcc-8:
-          exynos4412-odroidx2:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          exynos5800-peach-pi:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
+All kernel binaries, config files, and logs are available for download here=
+:
 
-    multi_v7_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: failing since 1 day (last pass: v4.14.151 - fir=
-st fail: v4.14.153-68-g0d12dcf336c6)
-          bcm2836-rpi-2-b:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          exynos4412-odroidx2:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          exynos5800-peach-pi:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          imx6q-sabrelite:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          meson8b-odroidc1:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          omap4-panda:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          rk3288-rock2-square:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          rk3288-veyron-jaq:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          sun5i-a13-olinuxino-micro:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          sun7i-a20-cubieboard2:
-              lab-clabbe: failing since 1 day (last pass: v4.14.153 - first=
- fail: v4.14.153-40-gf7fb2676f8a6)
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          sun8i-h2-plus-orangepi-zero:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          tegra124-jetson-tk1:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          tegra124-nyan-big:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
+  https://artifacts.cki-project.org/pipelines/279139
 
-    omap2plus_defconfig:
-        gcc-8:
-          am335x-boneblack:
-              lab-baylibre: failing since 1 day (last pass: v4.14.151 - fir=
-st fail: v4.14.153-68-g0d12dcf336c6)
-          omap4-panda:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
 
-    sunxi_defconfig:
-        gcc-8:
-          sun5i-a13-olinuxino-micro:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          sun7i-a20-cubieboard2:
-              lab-clabbe: failing since 1 day (last pass: v4.14.153 - first=
- fail: v4.14.153-40-gf7fb2676f8a6)
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          sun8i-a33-olinuxino:
-              lab-clabbe: failing since 1 day (last pass: v4.14.153 - first=
- fail: v4.14.153-40-gf7fb2676f8a6)
-          sun8i-h2-plus-orangepi-zero:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
 
-    tegra_defconfig:
-        gcc-8:
-          tegra124-jetson-tk1:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
-          tegra124-nyan-big:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
+Merge testing
+-------------
 
-arm64:
+We cloned this repository and checked out the following commit:
 
-    defconfig:
-        gcc-8:
-          bcm2837-rpi-3-b:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          meson-gxbb-p200:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          meson-gxl-s905x-khadas-vim:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          meson-gxl-s905x-libretech-cc:
-              lab-clabbe: failing since 1 day (last pass: v4.14.153 - first=
- fail: v4.14.153-40-gf7fb2676f8a6)
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          qemu_arm64-virt-gicv2:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          r8a7795-salvator-x:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          r8a7796-m3ulcb:
-              lab-baylibre: failing since 1 day (last pass: v4.14.153 - fir=
-st fail: v4.14.153-40-gf7fb2676f8a6)
-          sun50i-a64-bananapi-m64:
-              lab-clabbe: failing since 1 day (last pass: v4.14.153 - first=
- fail: v4.14.153-40-gf7fb2676f8a6)
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 81584694bb70 - Linux 5.3.10
 
-x86_64:
 
-    x86_64_defconfig:
-        gcc-8:
-          minnowboard-turbot-E3826:
-              lab-collabora: failing since 1 day (last pass: v4.14.153 - fi=
-rst fail: v4.14.153-40-gf7fb2676f8a6)
+We grabbed the a86abb74709c commit of the stable queue repository.
 
-Boot Failures Detected:
+We then merged the patchset with `git am`:
 
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 2 failed labs
+  bonding-fix-state-transition-issue-in-link-monitoring.patch
+  cdc-ncm-handle-incomplete-transfer-of-mtu.patch
+  ipv4-fix-table-id-reference-in-fib_sync_down_addr.patch
+  net-ethernet-octeon_mgmt-account-for-second-possible-vlan-header.patch
+  net-fix-data-race-in-neigh_event_send.patch
+  net-qualcomm-rmnet-fix-potential-uaf-when-unregistering.patch
+  net-tls-fix-sk_msg-trim-on-fallback-to-copy-mode.patch
+  net-usb-qmi_wwan-add-support-for-dw5821e-with-esim-support.patch
+  nfc-fdp-fix-incorrect-free-object.patch
+  nfc-netlink-fix-double-device-reference-drop.patch
+  nfc-st21nfca-fix-double-free.patch
+  qede-fix-null-pointer-deref-in-__qede_remove.patch
+  net-mscc-ocelot-don-t-handle-netdev-events-for-other-netdevs.patch
+  net-mscc-ocelot-fix-null-pointer-on-lag-slave-removal.patch
+  net-tls-don-t-pay-attention-to-sk_write_pending-when-pushing-partial-reco=
+rds.patch
+  net-tls-add-a-tx-lock.patch
+  selftests-tls-add-test-for-concurrent-recv-and-send.patch
+  ipv6-fixes-rt6_probe-and-fib6_nh-last_probe-init.patch
+  net-hns-fix-the-stray-netpoll-locks-causing-deadlock-in-napi-path.patch
+  net-prevent-load-store-tearing-on-sk-sk_stamp.patch
+  net-sched-prevent-duplicate-flower-rules-from-tcf_proto-destroy-race.patc=
+h
+  net-smc-fix-ethernet-interface-refcounting.patch
+  vsock-virtio-fix-sock-refcnt-holding-during-the-shutdown.patch
+  r8169-fix-page-read-in-r8168g_mdio_read.patch
+  alsa-timer-fix-incorrectly-assigned-timer-instance.patch
+  alsa-bebob-fix-to-detect-configured-source-of-sampling-clock-for-focusrit=
+e-saffire-pro-i-o-series.patch
+  alsa-hda-ca0132-fix-possible-workqueue-stall.patch
+  mm-memcontrol-fix-null-ptr-deref-in-percpu-stats-flush.patch
+  mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
+  mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.pa=
+tch
+  mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
+  mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
+  dump_stack-avoid-the-livelock-of-the-dump_lock.patch
+  mm-slab-make-page_cgroup_ino-to-recognize-non-compound-slab-pages-properl=
+y.patch
+  btrfs-consider-system-chunk-array-size-for-new-system-chunks.patch
+  btrfs-tree-checker-fix-wrong-check-on-max-devid.patch
+  btrfs-save-i_size-to-avoid-double-evaluation-of-i_size_read-in-compress_f=
+ile_range.patch
+  tools-gpio-use-building_out_of_srctree-to-determine-srctree.patch
+  pinctrl-intel-avoid-potential-glitches-if-pin-is-in-gpio-mode.patch
+  perf-tools-fix-time-sorting.patch
+  perf-map-use-zalloc-for-map_groups.patch
+  drm-radeon-fix-si_enable_smc_cac-failed-issue.patch
+  hid-wacom-generic-treat-serial-number-and-related-fields-as-unsigned.patc=
+h
+  mm-khugepaged-fix-might_sleep-warn-with-config_highpte-y.patch
+  soundwire-depend-on-acpi.patch
+  soundwire-depend-on-acpi-of.patch
+  soundwire-bus-set-initial-value-to-port_status.patch
+  blkcg-make-blkcg_print_stat-print-stats-only-for-online-blkgs.patch
+  arm64-do-not-mask-out-pte_rdonly-in-pte_same.patch
+  asoc-rsnd-dma-fix-ssi9-4-5-6-7-busif-dma-address.patch
+  ceph-fix-use-after-free-in-__ceph_remove_cap.patch
+  ceph-fix-rcu-case-handling-in-ceph_d_revalidate.patch
+  ceph-add-missing-check-in-d_revalidate-snapdir-handling.patch
+  ceph-don-t-try-to-handle-hashed-dentries-in-non-o_creat-atomic_open.patch
+  ceph-don-t-allow-copy_file_range-when-stripe_count-1.patch
+  iio-adc-stm32-adc-fix-stopping-dma.patch
+  iio-imu-adis16480-make-sure-provided-frequency-is-positive.patch
+  iio-imu-inv_mpu6050-fix-no-data-on-mpu6050.patch
+  iio-srf04-fix-wrong-limitation-in-distance-measuring.patch
+  arm-sunxi-fix-cpu-powerdown-on-a83t.patch
+  arm-dts-imx6-logicpd-re-enable-snvs-power-key.patch
+  cpufreq-intel_pstate-fix-invalid-epb-setting.patch
+  clone3-validate-stack-arguments.patch
+  netfilter-nf_tables-align-nft_expr-private-data-to-64-bit.patch
+  netfilter-ipset-fix-an-error-code-in-ip_set_sockfn_get.patch
+  intel_th-gth-fix-the-window-switching-sequence.patch
+  intel_th-pci-add-comet-lake-pch-support.patch
+  intel_th-pci-add-jasper-lake-pch-support.patch
+  x86-dumpstack-64-don-t-evaluate-exception-stacks-before-setup.patch
+  x86-apic-32-avoid-bogus-ldr-warnings.patch
+  smb3-fix-persistent-handles-reconnect.patch
+  can-usb_8dev-fix-use-after-free-on-disconnect.patch
+  can-flexcan-disable-completely-the-ecc-mechanism.patch
+  can-c_can-c_can_poll-only-read-status-register-after-status-irq.patch
+  can-peak_usb-fix-a-potential-out-of-sync-while-decoding-packets.patch
+  can-rx-offload-can_rx_offload_queue_sorted-fix-error-handling-avoid-skb-m=
+em-leak.patch
+  can-gs_usb-gs_can_open-prevent-memory-leak.patch
+  can-dev-add-missing-of_node_put-after-calling-of_get_child_by_name.patch
+  can-mcba_usb-fix-use-after-free-on-disconnect.patch
+  can-peak_usb-fix-slab-info-leak.patch
+  configfs-fix-a-deadlock-in-configfs_symlink.patch
+  alsa-usb-audio-more-validations-of-descriptor-units.patch
+  alsa-usb-audio-simplify-parse_audio_unit.patch
+  alsa-usb-audio-unify-the-release-of-usb_mixer_elem_info-objects.patch
+  alsa-usb-audio-remove-superfluous-blength-checks.patch
+  alsa-usb-audio-clean-up-check_input_term.patch
+  alsa-usb-audio-fix-possible-null-dereference-at-create_yamaha_midi_quirk.=
+patch
+  alsa-usb-audio-remove-some-dead-code.patch
+  alsa-usb-audio-fix-copy-paste-error-in-the-validator.patch
+  usbip-implement-sg-support-to-vhci-hcd-and-stub-driver.patch
+  hid-google-add-magnemite-masterball-usb-ids.patch
+  dmaengine-sprd-fix-the-link-list-pointer-register-co.patch
+  bpf-lwtunnel-fix-reroute-supplying-invalid-dst.patch
+  dmaengine-xilinx_dma-fix-64-bit-simple-axidma-transf.patch
+  dmaengine-xilinx_dma-fix-control-reg-update-in-vdma_.patch
+  dmaengine-sprd-fix-the-possible-memory-leak-issue.patch
+  hid-intel-ish-hid-fix-wrong-error-handling-in-ishtp_.patch
+  powerpc-32s-fix-allow-prevent_user_access-when-cross.patch
+  rdma-mlx5-clear-old-rate-limit-when-closing-qp.patch
+  iw_cxgb4-fix-ecn-check-on-the-passive-accept.patch
+  rdma-siw-free-siw_base_qp-in-kref-release-routine.patch
+  rdma-qedr-fix-reported-firmware-version.patch
+  ib-core-use-rdma_read_gid_l2_fields-to-compare-gid-l.patch
+  net-mlx5e-tx-fix-assumption-of-single-wqebb-of-nop-i.patch
+  net-mlx5e-ktls-release-reference-on-dumped-fragments.patch
+  net-mlx5e-tx-fix-consumer-index-of-error-cqe-dump.patch
+  net-mlx5-prevent-memory-leak-in-mlx5_fpga_conn_creat.patch
+  net-mlx5-fix-memory-leak-in-mlx5_fw_fatal_reporter_d.patch
+  selftests-bpf-more-compatible-nc-options-in-test_tc_.patch
+  scsi-qla2xxx-fixup-incorrect-usage-of-host_byte.patch
+  scsi-lpfc-check-queue-pointer-before-use.patch
+  scsi-ufs-bsg-wake-the-device-before-sending-raw-upiu.patch
+  arc-plat-hsdk-enable-on-board-spi-nor-flash-ic.patch
+  rdma-uverbs-prevent-potential-underflow.patch
+  bpf-fix-use-after-free-in-subprog-s-jited-symbol-rem.patch
+  net-stmmac-fix-the-problem-of-tso_xmit.patch
+  net-openvswitch-free-vport-unless-register_netdevice.patch
+  scsi-lpfc-honor-module-parameter-lpfc_use_adisc.patch
+  scsi-qla2xxx-initialized-mailbox-to-prevent-driver-l.patch
+  bpf-fix-use-after-free-in-bpf_get_prog_name.patch
+  iwlwifi-pcie-fix-pci-id-0x2720-configs-that-should-b.patch
+  iwlwifi-pcie-fix-all-9460-entries-for-qnj.patch
+  iwlwifi-pcie-0x2720-is-qu-and-0x30dc-is-not.patch
+  netfilter-nf_flow_table-set-timeout-before-insertion.patch
+  drm-v3d-fix-memory-leak-in-v3d_submit_cl_ioctl.patch
+  xsk-fix-registration-of-rx-only-sockets.patch
+  net-phy-smsc-lan8740-add-phy_rst_after_clk_en-flag.patch
+  ipvs-don-t-ignore-errors-in-case-refcounting-ip_vs-m.patch
+  ipvs-move-old_secure_tcp-into-struct-netns_ipvs.patch
+  netfilter-nft_payload-fix-missing-check-for-matching.patch
+  rdma-nldev-skip-counter-if-port-doesn-t-match.patch
+  bonding-fix-unexpected-iff_bonding-bit-unset.patch
+  bonding-use-dynamic-lockdep-key-instead-of-subclass.patch
+  macsec-fix-refcnt-leak-in-module-exit-routine.patch
+  virt_wifi-fix-refcnt-leak-in-module-exit-routine.patch
+  scsi-sd-define-variable-dif-as-unsigned-int-instead-.patch
+  usb-dwc3-select-config_regmap_mmio.patch
+  usb-fsl-check-memory-resource-before-releasing-it.patch
+  usb-gadget-udc-atmel-fix-interrupt-storm-in-fifo-mod.patch
+  usb-gadget-composite-fix-possible-double-free-memory.patch
+  usb-dwc3-pci-prevent-memory-leak-in-dwc3_pci_probe.patch
+  usb-gadget-configfs-fix-concurrent-issue-between-com.patch
+  usb-dwc3-remove-the-call-trace-of-usbx_gfladj.patch
+  perf-x86-amd-ibs-fix-reading-of-the-ibs-opdata-regis.patch
+  perf-x86-amd-ibs-handle-erratum-420-only-on-the-affe.patch
+  perf-x86-uncore-fix-event-group-support.patch
+  usb-skip-endpoints-with-0-maxpacket-length.patch
+  usb-ldusb-use-unsigned-size-format-specifiers.patch
+  usbip-tools-fix-read_usb_vudc_device-error-path-hand.patch
+  rdma-iw_cxgb4-avoid-freeing-skb-twice-in-arp-failure.patch
+  rdma-hns-prevent-memory-leaks-of-eq-buf_list.patch
+  hwmon-ina3221-fix-read-timeout-issue.patch
+  scsi-qla2xxx-stop-timer-in-shutdown-path.patch
+  sched-topology-don-t-try-to-build-empty-sched-domain.patch
+  sched-topology-allow-sched_asym_cpucapacity-to-be-di.patch
+  nvme-multipath-fix-possible-io-hang-after-ctrl-recon.patch
+  fjes-handle-workqueue-allocation-failure.patch
+  net-hisilicon-fix-trying-to-free-already-free-irq.patch
+  wimax-i2400-fix-memory-leak-in-i2400m_op_rfkill_sw_t.patch
+  net-mscc-ocelot-fix-vlan_filtering-when-enslaving-to.patch
+  net-mscc-ocelot-refuse-to-overwrite-the-port-s-nativ.patch
+  iommu-amd-apply-the-same-ivrs-ioapic-workaround-to-a.patch
+  mt76-dma-fix-buffer-unmap-with-non-linear-skbs.patch
+  drm-amdgpu-sdma5-do-not-execute-0-sized-ibs-v2.patch
+  drm-sched-set-error-to-s_fence-if-hw-job-submission-.patch
+  drm-amdgpu-if-amdgpu_ib_schedule-fails-return-back-t.patch
+  drm-amd-display-do-not-synchronize-drr-displays.patch
+  drm-amd-display-add-50us-buffer-as-wa-for-pstate-swi.patch
+  drm-amd-display-passive-dp-hdmi-dongle-detection-fix.patch
+  dc.c-use-kzalloc-without-test.patch
+  sunrpc-the-tcp-back-channel-mustn-t-disappear-while-.patch
+  sunrpc-the-rdma-back-channel-mustn-t-disappear-while.patch
+  sunrpc-destroy-the-back-channel-when-we-destroy-the-.patch
+  hv_netvsc-fix-error-handling-in-netvsc_attach.patch
+  efi-tpm-return-einval-when-determining-tpm-final-eve.patch
+  efi-libstub-arm-account-for-firmware-reserved-memory.patch
+  x86-efi-never-relocate-kernel-below-lowest-acceptabl.patch
+  arm64-cpufeature-enable-qualcomm-falkor-errata-1009-.patch
+  usb-dwc3-gadget-fix-race-when-disabling-ep-with-canc.patch
+  arm64-apply-arm64_erratum_845719-workaround-for-brah.patch
+  arm64-brahma-b53-is-ssb-and-spectre-v2-safe.patch
+  arm64-apply-arm64_erratum_843419-workaround-for-brah.patch
+  nfsv4-don-t-allow-a-cached-open-with-a-revoked-deleg.patch
+  net-ethernet-arc-add-the-missed-clk_disable_unprepar.patch
+  igb-fix-constant-media-auto-sense-switching-when-no-.patch
+  e1000-fix-memory-leaks.patch
+  gve-fixes-dma-synchronization.patch
+  ocfs2-protect-extent-tree-in-ocfs2_prepare_inode_for.patch
+  pinctrl-cherryview-fix-irq_valid_mask-calculation.patch
+  clk-imx8m-use-sys_pll1_800m-as-intermediate-parent-o.patch
+  timekeeping-vsyscall-update-vdso-data-unconditionall.patch
+  mm-filemap.c-don-t-initiate-writeback-if-mapping-has-no-dirty-pages.patch
+  cgroup-writeback-don-t-switch-wbs-immediately-on-dead-wbs-if-the-memcg-is=
+-dead.patch
 
-arm:
-    tegra_defconfig:
-        gcc-8:
-            tegra124-jetson-tk1: 1 failed lab
-            tegra124-nyan-big: 1 failed lab
+Compile testing
+---------------
 
-    multi_v7_defconfig:
-        gcc-8:
-            am335x-boneblack: 1 failed lab
-            bcm2836-rpi-2-b: 1 failed lab
-            exynos4412-odroidx2: 1 failed lab
-            exynos5422-odroidxu3: 2 failed labs
-            exynos5800-peach-pi: 1 failed lab
-            imx6q-sabrelite: 2 failed labs
-            meson8b-odroidc1: 1 failed lab
-            omap4-panda: 2 failed labs
-            qemu_arm-virt-gicv2: 2 failed labs
-            qemu_arm-virt-gicv3: 2 failed labs
-            rk3288-rock2-square: 1 failed lab
-            rk3288-veyron-jaq: 1 failed lab
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubieboard2: 2 failed labs
-            sun8i-a33-olinuxino: 1 failed lab
-            sun8i-h2-plus-orangepi-zero: 1 failed lab
-            tegra124-jetson-tk1: 1 failed lab
-            tegra124-nyan-big: 1 failed lab
+We compiled the kernel for 3 architectures:
 
-    sunxi_defconfig:
-        gcc-8:
-            sun5i-a13-olinuxino-micro: 1 failed lab
-            sun7i-a20-cubieboard2: 2 failed labs
-            sun8i-a33-olinuxino: 1 failed lab
-            sun8i-h2-plus-orangepi-zero: 1 failed lab
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-    exynos_defconfig:
-        gcc-8:
-            exynos4412-odroidx2: 1 failed lab
-            exynos5422-odroidxu3: 2 failed labs
-            exynos5800-peach-pi: 1 failed lab
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-    bcm2835_defconfig:
-        gcc-8:
-            bcm2836-rpi-2-b: 1 failed lab
-            bcm2837-rpi-3-b: 1 failed lab
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
-    omap2plus_defconfig:
-        gcc-8:
-            am335x-boneblack: 1 failed lab
-            omap4-panda: 2 failed labs
 
-x86_64:
-    x86_64_defconfig:
-        gcc-8:
-            minnowboard-turbot-E3826: 1 failed lab
-            qemu_x86_64: 2 failed labs
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
 
-arm64:
-    defconfig:
-        gcc-8:
-            bcm2837-rpi-3-b: 1 failed lab
-            meson-gxbb-p200: 1 failed lab
-            meson-gxl-s905x-khadas-vim: 1 failed lab
-            meson-gxl-s905x-libretech-cc: 2 failed labs
-            qemu_arm64-virt-gicv2: 2 failed labs
-            qemu_arm64-virt-gicv3: 2 failed labs
-            r8a7795-salvator-x: 1 failed lab
-            r8a7796-m3ulcb: 2 failed labs
-            rk3399-gru-kevin: 1 failed lab
-            sun50i-a64-bananapi-m64: 1 failed lab
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9D=8C selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
 
----
-For more info write to <info@kernelci.org>
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9D=8C selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9D=8C selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+    Host 3:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 /kernel/infiniband/env_setup
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 4:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 /kernel/infiniband/env_setup
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 /kernel/infiniband/sanity
+
+    Host 5:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 /kernel/infiniband/env_setup
+       =F0=9F=9A=A7 =E2=9D=8C /kernel/infiniband/sanity
+
+    Host 6:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 /kernel/infiniband/env_setup
+       =F0=9F=9A=A7 =E2=9D=8C /kernel/infiniband/sanity
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
+
