@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 356C2F7C62
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:47:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0084DF7D9F
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:58:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728235AbfKKSpi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:45:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
+        id S1730562AbfKKS6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:58:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727604AbfKKSph (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:45:37 -0500
+        id S1730969AbfKKS6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:58:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BD3721655;
-        Mon, 11 Nov 2019 18:45:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A4B020659;
+        Mon, 11 Nov 2019 18:58:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497936;
-        bh=QHCAE8wcd+eUWvHI/MkRAuR6ExGyCldnFm1jA+UqBeM=;
+        s=default; t=1573498712;
+        bh=VjBJjGkhxd208KtGX8GJ99gXfwQ8SlxNZiSzPHhRfDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omRrHFcESe4LKiqAzV+tkfE9caY/JiUWw2oCIVvpBgXyhUjCIScv7lp3NH0L3Vre5
-         ale6fTw0MyoseRzdIbTJXHGYwB8LenQyyvLgzmGCtraO+OOOjcvD6AP7IiNKvxS1tk
-         dHfvZn2tCilnRv06HQvWpv4o0p15gV+hNN+tpz/g=
+        b=d8+8j6OFtIeWiqgQ+chEvEGQMhegBSawNaqURyjnkcAb4sMNCGqEQVbU8VwLU3Bm3
+         KDKohEOQzj/4gvse3q931xK4ebjQ4lqJrgfkyexgnZnl7E2U55dbVZUxa8q712AtfI
+         5wrECL1WbORQnCtkjndD0GH9EutuRdIqLRikPmlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dakshaja Uppalapati <dakshaja@chelsio.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Jiangfeng Xiao <xiaojiangfeng@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 101/125] RDMA/iw_cxgb4: Avoid freeing skb twice in arp failure case
+Subject: [PATCH 5.3 158/193] net: hisilicon: Fix "Trying to free already-free IRQ"
 Date:   Mon, 11 Nov 2019 19:29:00 +0100
-Message-Id: <20191111181453.391163410@linuxfoundation.org>
+Message-Id: <20191111181512.788966600@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Potnuri Bharat Teja <bharat@chelsio.com>
+From: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
 
-[ Upstream commit d4934f45693651ea15357dd6c7c36be28b6da884 ]
+[ Upstream commit 63a41746827cb16dc6ad0d4d761ab4e7dda7a0c3 ]
 
-_put_ep_safe() and _put_pass_ep_safe() free the skb before it is freed by
-process_work(). fix double free by freeing the skb only in process_work().
+When rmmod hip04_eth.ko, we can get the following warning:
 
-Fixes: 1dad0ebeea1c ("iw_cxgb4: Avoid touch after free error in ARP failure handlers")
-Link: https://lore.kernel.org/r/1572006880-5800-1-git-send-email-bharat@chelsio.com
-Signed-off-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
-Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Task track: rmmod(1623)>bash(1591)>login(1581)>init(1)
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1623 at kernel/irq/manage.c:1557 __free_irq+0xa4/0x2ac()
+Trying to free already-free IRQ 200
+Modules linked in: ping(O) pramdisk(O) cpuinfo(O) rtos_snapshot(O) interrupt_ctrl(O) mtdblock mtd_blkdevrtfs nfs_acl nfs lockd grace sunrpc xt_tcpudp ipt_REJECT iptable_filter ip_tables x_tables nf_reject_ipv
+CPU: 0 PID: 1623 Comm: rmmod Tainted: G           O    4.4.193 #1
+Hardware name: Hisilicon A15
+[<c020b408>] (rtos_unwind_backtrace) from [<c0206624>] (show_stack+0x10/0x14)
+[<c0206624>] (show_stack) from [<c03f2be4>] (dump_stack+0xa0/0xd8)
+[<c03f2be4>] (dump_stack) from [<c021a780>] (warn_slowpath_common+0x84/0xb0)
+[<c021a780>] (warn_slowpath_common) from [<c021a7e8>] (warn_slowpath_fmt+0x3c/0x68)
+[<c021a7e8>] (warn_slowpath_fmt) from [<c026876c>] (__free_irq+0xa4/0x2ac)
+[<c026876c>] (__free_irq) from [<c0268a14>] (free_irq+0x60/0x7c)
+[<c0268a14>] (free_irq) from [<c0469e80>] (release_nodes+0x1c4/0x1ec)
+[<c0469e80>] (release_nodes) from [<c0466924>] (__device_release_driver+0xa8/0x104)
+[<c0466924>] (__device_release_driver) from [<c0466a80>] (driver_detach+0xd0/0xf8)
+[<c0466a80>] (driver_detach) from [<c0465e18>] (bus_remove_driver+0x64/0x8c)
+[<c0465e18>] (bus_remove_driver) from [<c02935b0>] (SyS_delete_module+0x198/0x1e0)
+[<c02935b0>] (SyS_delete_module) from [<c0202ed0>] (__sys_trace_return+0x0/0x10)
+---[ end trace bb25d6123d849b44 ]---
+
+Currently "rmmod hip04_eth.ko" call free_irq more than once
+as devres_release_all and hip04_remove both call free_irq.
+This results in a 'Trying to free already-free IRQ' warning.
+To solve the problem free_irq has been moved out of hip04_remove.
+
+Signed-off-by: Jiangfeng Xiao <xiaojiangfeng@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hip04_eth.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 566bfcc6add0d..a5ff1f0f2073e 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -493,7 +493,6 @@ static int _put_ep_safe(struct c4iw_dev *dev, struct sk_buff *skb)
+diff --git a/drivers/net/ethernet/hisilicon/hip04_eth.c b/drivers/net/ethernet/hisilicon/hip04_eth.c
+index f51bc0255556f..4606a7e4a6d19 100644
+--- a/drivers/net/ethernet/hisilicon/hip04_eth.c
++++ b/drivers/net/ethernet/hisilicon/hip04_eth.c
+@@ -1041,7 +1041,6 @@ static int hip04_remove(struct platform_device *pdev)
  
- 	ep = *((struct c4iw_ep **)(skb->cb + 2 * sizeof(void *)));
- 	release_ep_resources(ep);
--	kfree_skb(skb);
- 	return 0;
- }
- 
-@@ -504,7 +503,6 @@ static int _put_pass_ep_safe(struct c4iw_dev *dev, struct sk_buff *skb)
- 	ep = *((struct c4iw_ep **)(skb->cb + 2 * sizeof(void *)));
- 	c4iw_put_ep(&ep->parent_ep->com);
- 	release_ep_resources(ep);
--	kfree_skb(skb);
- 	return 0;
- }
- 
+ 	hip04_free_ring(ndev, d);
+ 	unregister_netdev(ndev);
+-	free_irq(ndev->irq, ndev);
+ 	of_node_put(priv->phy_node);
+ 	cancel_work_sync(&priv->tx_timeout_task);
+ 	free_netdev(ndev);
 -- 
 2.20.1
 
