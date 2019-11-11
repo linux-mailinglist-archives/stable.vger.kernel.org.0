@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C7455F7CCD
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:51:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9E00F7CD2
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:51:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729348AbfKKStv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:49:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43268 "EHLO mail.kernel.org"
+        id S1729370AbfKKSuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:50:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728080AbfKKStt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:49:49 -0500
+        id S1727468AbfKKSuG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:50:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27FC32196E;
-        Mon, 11 Nov 2019 18:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF867204FD;
+        Mon, 11 Nov 2019 18:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498189;
-        bh=6aIYRFn4mz/rizev/wF2Fgg4Ky0sLc65bJWXzf+yNH4=;
+        s=default; t=1573498206;
+        bh=bBKoEvnOK/hSzQAhfsYEOcnPvPdetAAXiI9F+EJstDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vIgqyEdbLf18/W2XxBTDSepg/AsIfaQbOH1BBblj5mT+haONzwv7CQU/sRJV1iij/
-         hKuPjb+1aSJFlpsBWCrgOHiBDQ1AslRZfBQfoecuMeFSMcYidIlKTWfVcO+RypfTyq
-         xQ8HpQdBdv7KKi+/D94Mv3Z7yVurl/XXbyJDrgzE=
+        b=HKo/06GBQxRFJUy5ijGNpHuH/tybTJWHOBiIzOyimbh4/tZ9tSj4C9S54hSXQSnd7
+         79eGyVXJYC7e3fwlZmWL+Bmd4SRfmRCh6FV2wHgb2f+LcIFBA35sToY52BF2/ukmER
+         MpeX8nmHzNl4J6V/GeQZqXGGaAdokhenVf4SzlgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Roman Gushchin <guro@fb.com>, Josef Bacik <jbacik@fb.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.3 048/193] blkcg: make blkcg_print_stat() print stats only for online blkgs
-Date:   Mon, 11 Nov 2019 19:27:10 +0100
-Message-Id: <20191111181504.507282441@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 5.3 052/193] ceph: fix RCU case handling in ceph_d_revalidate()
+Date:   Mon, 11 Nov 2019 19:27:14 +0100
+Message-Id: <20191111181504.816035684@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -44,76 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit b0814361a25cba73a224548843ed92d8ea78715a upstream.
+commit aa8dd816732b2bab28c54bc4d2ccf3fc8a6e0892 upstream.
 
-blkcg_print_stat() iterates blkgs under RCU and doesn't test whether
-the blkg is online.  This can call into pd_stat_fn() on a pd which is
-still being initialized leading to an oops.
+For RCU case ->d_revalidate() is called with rcu_read_lock() and
+without pinning the dentry passed to it.  Which means that it
+can't rely upon ->d_inode remaining stable; that's the reason
+for d_inode_rcu(), actually.
 
-The heaviest operation - recursively summing up rwstat counters - is
-already done while holding the queue_lock.  Expand queue_lock to cover
-the other operations and skip the blkg if it isn't online yet.  The
-online state is protected by both blkcg and queue locks, so this
-guarantees that only online blkgs are processed.
+Make sure we don't reload ->d_inode there.
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Roman Gushchin <guro@fb.com>
-Cc: Josef Bacik <jbacik@fb.com>
-Fixes: 903d23f0a354 ("blk-cgroup: allow controllers to output their own stats")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Cc: stable@vger.kernel.org
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/blk-cgroup.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ fs/ceph/dir.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -908,9 +908,14 @@ static int blkcg_print_stat(struct seq_f
- 		int i;
- 		bool has_stats = false;
+--- a/fs/ceph/dir.c
++++ b/fs/ceph/dir.c
+@@ -1553,36 +1553,37 @@ static int ceph_d_revalidate(struct dent
+ {
+ 	int valid = 0;
+ 	struct dentry *parent;
+-	struct inode *dir;
++	struct inode *dir, *inode;
  
-+		spin_lock_irq(&blkg->q->queue_lock);
-+
-+		if (!blkg->online)
-+			goto skip;
-+
- 		dname = blkg_dev_name(blkg);
- 		if (!dname)
--			continue;
-+			goto skip;
- 
- 		/*
- 		 * Hooray string manipulation, count is the size written NOT
-@@ -920,8 +925,6 @@ static int blkcg_print_stat(struct seq_f
- 		 */
- 		off += scnprintf(buf+off, size-off, "%s ", dname);
- 
--		spin_lock_irq(&blkg->q->queue_lock);
--
- 		blkg_rwstat_recursive_sum(blkg, NULL,
- 				offsetof(struct blkcg_gq, stat_bytes), &rwstat);
- 		rbytes = rwstat.cnt[BLKG_RWSTAT_READ];
-@@ -934,8 +937,6 @@ static int blkcg_print_stat(struct seq_f
- 		wios = rwstat.cnt[BLKG_RWSTAT_WRITE];
- 		dios = rwstat.cnt[BLKG_RWSTAT_DISCARD];
- 
--		spin_unlock_irq(&blkg->q->queue_lock);
--
- 		if (rbytes || wbytes || rios || wios) {
- 			has_stats = true;
- 			off += scnprintf(buf+off, size-off,
-@@ -973,6 +974,8 @@ static int blkcg_print_stat(struct seq_f
- 				seq_commit(sf, -1);
- 			}
- 		}
-+	skip:
-+		spin_unlock_irq(&blkg->q->queue_lock);
+ 	if (flags & LOOKUP_RCU) {
+ 		parent = READ_ONCE(dentry->d_parent);
+ 		dir = d_inode_rcu(parent);
+ 		if (!dir)
+ 			return -ECHILD;
++		inode = d_inode_rcu(dentry);
+ 	} else {
+ 		parent = dget_parent(dentry);
+ 		dir = d_inode(parent);
++		inode = d_inode(dentry);
  	}
  
- 	rcu_read_unlock();
+ 	dout("d_revalidate %p '%pd' inode %p offset %lld\n", dentry,
+-	     dentry, d_inode(dentry), ceph_dentry(dentry)->offset);
++	     dentry, inode, ceph_dentry(dentry)->offset);
+ 
+ 	/* always trust cached snapped dentries, snapdir dentry */
+ 	if (ceph_snap(dir) != CEPH_NOSNAP) {
+ 		dout("d_revalidate %p '%pd' inode %p is SNAPPED\n", dentry,
+-		     dentry, d_inode(dentry));
++		     dentry, inode);
+ 		valid = 1;
+-	} else if (d_really_is_positive(dentry) &&
+-		   ceph_snap(d_inode(dentry)) == CEPH_SNAPDIR) {
++	} else if (inode && ceph_snap(inode) == CEPH_SNAPDIR) {
+ 		valid = 1;
+ 	} else {
+ 		valid = dentry_lease_is_valid(dentry, flags);
+ 		if (valid == -ECHILD)
+ 			return valid;
+ 		if (valid || dir_lease_is_valid(dir, dentry)) {
+-			if (d_really_is_positive(dentry))
+-				valid = ceph_is_any_caps(d_inode(dentry));
++			if (inode)
++				valid = ceph_is_any_caps(inode);
+ 			else
+ 				valid = 1;
+ 		}
 
 
