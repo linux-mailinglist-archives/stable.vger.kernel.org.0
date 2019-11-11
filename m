@@ -2,105 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8DE6F7E4C
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21200F7FA9
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728330AbfKKSra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:47:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730116AbfKKSr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:47:26 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3E6621655;
-        Mon, 11 Nov 2019 18:47:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498045;
-        bh=MnjhQlZwaODzj+JadDJkhh9j+AWvo5XL4w5QwgNBMyU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fKtqDXYO46Zt4xBKjMyIG4pswWAUWDAy+HVrb+6kQHgFbUsRkyj/POZ1LcFv6lpkm
-         rQcaqzUodYObG3rGMczr1QHejd35hEdugkABKrEonLFZ0jI08K97Y3aCotUDMeHwbd
-         +WjuFFiInU4x/WM+rhLHS2Em/ytZpmAdhrbowHYo=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.19 125/125] cgroup,writeback: dont switch wbs immediately on dead wbs if the memcg is dead
-Date:   Mon, 11 Nov 2019 19:29:24 +0100
-Message-Id: <20191111181456.356001524@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727210AbfKKTSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 14:18:32 -0500
+Received: from mout.kundenserver.de ([212.227.126.135]:55351 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727178AbfKKTSc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 14:18:32 -0500
+Received: from mail-qt1-f171.google.com ([209.85.160.171]) by
+ mrelayeu.kundenserver.de (mreue009 [212.227.15.129]) with ESMTPSA (Nemesis)
+ id 1M1pk0-1iS3Li26zw-002Fgs; Mon, 11 Nov 2019 20:18:30 +0100
+Received: by mail-qt1-f171.google.com with SMTP id o3so16843234qtj.8;
+        Mon, 11 Nov 2019 11:18:30 -0800 (PST)
+X-Gm-Message-State: APjAAAVTJORSwpc1e4OKZwFVLchsIdcNuDMfZTuGgefWoOz1AQONTcdM
+        vFBrOy04wM36dn+hNS7eofp3pE9aM3Bbwtv6zUk=
+X-Google-Smtp-Source: APXvYqwMVw3H+iof+ix+/L2TJ9lLRKjD4R0tC3c40dtcOhrtVO3sEPmg679ulBD5HjGCDawg+phWJyVcA3g8siZqOAA=
+X-Received: by 2002:ac8:18eb:: with SMTP id o40mr27497636qtk.304.1573499909109;
+ Mon, 11 Nov 2019 11:18:29 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20191108203435.112759-1-arnd@arndb.de> <20191108203435.112759-9-arnd@arndb.de>
+ <20191111182828.GC57214@dtor-ws>
+In-Reply-To: <20191111182828.GC57214@dtor-ws>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Mon, 11 Nov 2019 20:18:12 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a1coj4GpwcCgL0rEvZKb4OvktopjRETCNWEwfaLxgbcHQ@mail.gmail.com>
+Message-ID: <CAK8P3a1coj4GpwcCgL0rEvZKb4OvktopjRETCNWEwfaLxgbcHQ@mail.gmail.com>
+Subject: Re: [PATCH 8/8] Input: input_event: fix struct padding on sparc64
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     y2038 Mailman List <y2038@lists.linaro.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        sparclinux <sparclinux@vger.kernel.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:TxRoHKMo2qW71QlQNSP/PK/SfamwG+mthBc1VrRvIyixftshMpd
+ 5TArJhIk165GPHIEthUQe/I6ZVXC2pyru/7/ZCaj4T6C8Tso3ylqWcuBxUt5DBM3HVRp7Q1
+ wWXAIq1X6PPMliWWQuQP3sipuLlUx6HgowiHw95uAJMAnGkjHfEGQ+aRBhmcIBwgsWX1EUq
+ l/SJ5szI7aA/nsoCH3+pg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:P3jbIN4wk2o=:yu62QjFqdHZLVZCYL1aChf
+ ApgvGBT3NMq6uEL30XfY8BMPTfiHB4RibqozDfMc6OldJ3HHvi6o3y52nKaeq05xNVMWZtBzH
+ P4uhlbYHUn2VlPAsz4Hd2rnjY5/5L+V6gCrwAVFkGz7RSnZbUa7wxOQD1TXFindLQIliJSKVF
+ EkFaZL16HUmpNmkCmgs6PbYPCSMQUO1UGyLz8ziKXdVnGiEPJASMVBa4VgEjMbEbrB8J3el+N
+ yEmQBgcfnw9dG9p961GoCnZOw+oWlg9tZIqYN8ECEsRmvyu8jNXnomPKIZQiLaPMPqFQw4jGG
+ ZC72w4cqrGUuSNB9FnBCW1NYzrvluthYrCiaMK9HyYOphY1AubKDc04t6TBq1tQdsm8Stt3s1
+ aF6KuW+9QwEEYkOLYEUXohjz5J3JboL/4G3NORQJ0wzlf+tTCAWZtBgPmhEhxRBSw4Nbx/xAj
+ cKHdqOXycVZUsK6uWhiYSZo1xh6uE+UbmBWfrF+4jFOK/inrdRdb1+h4O0xeO9j4F+whhywIe
+ CphyX8fq0L2zGV0wmQqbcNBmioMV2pqA4DrNTKryVam1atxJtlSG9aPMz9+DaORDytsjz20yJ
+ eb3HK3Qgd/Ey8HCyxYsL7+1KPyRZM7xkp7CCfELVtu/v7ka6sX7FDwyInq+/xv/+i51ZZvGpa
+ MCnNy80w6nTjDzC85Mqcbl6SaE6ND9Qv09JBT8wjN7JfA1E5NFMd3/00321wc0UaMo58KSjgh
+ mN+wvqUjq5aeJtXO7uowLKlSFrrEq+PCl5BjAUzmLHczeFx+jvAB94wSjoYqa7OA3UZDLZdNk
+ 1546pWVrmvrG0ilFQkKxrdty9y6lUa3+/UzD96ftz0XY8L0aIUmOCbQsuQwhHJmUunzjTJpzY
+ 8vM9nsijd8B+Fa4LaudA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+On Mon, Nov 11, 2019 at 7:28 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
 
-commit 65de03e251382306a4575b1779c57c87889eee49 upstream.
+> I do not like ifdefs here, do you think we could write:
+>
+>                 client->buffer[client->tail] = (struct input_event) {
+>                         .input_event_sec = event->input_event_sec,
+>                         .input_event_usec = event->input_event_usec,
+>                         .type = EV_SYN,
+>                         .code = SYN_DROPPED,
+>                 };
+>
+> to ensure all padded fields are initialized? This is not hot path as we
+> do not expect queue to overfill too often.
 
-cgroup writeback tries to refresh the associated wb immediately if the
-current wb is dead.  This is to avoid keeping issuing IOs on the stale
-wb after memcg - blkcg association has changed (ie. when blkcg got
-disabled / enabled higher up in the hierarchy).
+Good idea, changed both instances now. Thanks for taking a look!
 
-Unfortunately, the logic gets triggered spuriously on inodes which are
-associated with dead cgroups.  When the logic is triggered on dead
-cgroups, the attempt fails only after doing quite a bit of work
-allocating and initializing a new wb.
-
-While c3aab9a0bd91 ("mm/filemap.c: don't initiate writeback if mapping
-has no dirty pages") alleviated the issue significantly as it now only
-triggers when the inode has dirty pages.  However, the condition can
-still be triggered before the inode is switched to a different cgroup
-and the logic simply doesn't make sense.
-
-Skip the immediate switching if the associated memcg is dying.
-
-This is a simplified version of the following two patches:
-
- * https://lore.kernel.org/linux-mm/20190513183053.GA73423@dennisz-mbp/
- * http://lkml.kernel.org/r/156355839560.2063.5265687291430814589.stgit@buzz
-
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Fixes: e8a7abf5a5bd ("writeback: disassociate inodes from dying bdi_writebacks")
-Acked-by: Dennis Zhou <dennis@kernel.org>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- fs/fs-writeback.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -582,10 +582,13 @@ void wbc_attach_and_unlock_inode(struct
- 	spin_unlock(&inode->i_lock);
- 
- 	/*
--	 * A dying wb indicates that the memcg-blkcg mapping has changed
--	 * and a new wb is already serving the memcg.  Switch immediately.
-+	 * A dying wb indicates that either the blkcg associated with the
-+	 * memcg changed or the associated memcg is dying.  In the first
-+	 * case, a replacement wb should already be available and we should
-+	 * refresh the wb immediately.  In the second case, trying to
-+	 * refresh will keep failing.
- 	 */
--	if (unlikely(wb_dying(wbc->wb)))
-+	if (unlikely(wb_dying(wbc->wb) && !css_is_dying(wbc->wb->memcg_css)))
- 		inode_switch_wbs(inode, wbc->wb_id);
- }
- 
-
-
+      Arnd
