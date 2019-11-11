@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A2F5F7EB4
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5E2F7EFF
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728788AbfKKTE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 14:04:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34136 "EHLO mail.kernel.org"
+        id S1727119AbfKKSie (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:38:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727892AbfKKSmz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:42:55 -0500
+        id S1729021AbfKKSie (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:38:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E176E21783;
-        Mon, 11 Nov 2019 18:42:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3380921925;
+        Mon, 11 Nov 2019 18:38:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497773;
-        bh=DF2XagEljl5TZRagMPSj2QJvEvvc3sLNxi3EckVbH7M=;
+        s=default; t=1573497512;
+        bh=LLWwTlzKdjmy5s1VIl+pq4uOGDlreo98Jg/Th1Ac00U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CJ01nVZnogI5o9SEYhlLiihIlopX57aMLAJDKDNs6FeGS1KUZDCMQ3LfjH/v066t2
-         dL0gZRQXOpA14edqlg0K4rj4vjs4WcWl+H5qrYcP3CSJ+kRKt8tgHgxAC8gjwOJZfc
-         KX/CBqNEpr+kflXDJv/RJ9x4HhViuxMXqxm9vFGA=
+        b=RQTPLC/+RbqCGGqzvER6m7/K7ZH0TXIN8Xqpc6ZqlO+UxB6ORDACXvo1PR5THlJp9
+         HUAtya8A8mq16W+0IWghUQzrvyRKw3uSQy/8G8URljNvVuSZ5Sp7oE49pjL0IHZy2G
+         RLo22vSxG6GLX4P1c0fdbieEYtgFPc5CTGgZ1atI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
         Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.19 054/125] configfs: new object reprsenting tree fragments
+Subject: [PATCH 4.14 043/105] configfs: new object reprsenting tree fragments
 Date:   Mon, 11 Nov 2019 19:28:13 +0100
-Message-Id: <20191111181447.508626825@linuxfoundation.org>
+Message-Id: <20191111181440.920131156@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -292,7 +292,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  			d_inode(dentry)->i_flags |= S_DEAD;
 @@ -1260,6 +1296,7 @@ static int configfs_mkdir(struct inode *
  	struct configfs_dirent *sd;
- 	const struct config_item_type *type;
+ 	struct config_item_type *type;
  	struct module *subsys_owner = NULL, *new_item_owner = NULL;
 +	struct configfs_fragment *frag;
  	char *name;
