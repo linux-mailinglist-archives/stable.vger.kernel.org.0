@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24FC1F6E8D
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:30:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FA6F6E8E
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:30:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726780AbfKKGaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:30:11 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:39515 "EHLO
+        id S1726785AbfKKGaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:30:13 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:39661 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726360AbfKKGaL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:30:11 -0500
+        by vger.kernel.org with ESMTP id S1726360AbfKKGaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:30:12 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id D220A60E;
-        Mon, 11 Nov 2019 01:30:09 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:30:10 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 9544C5B8;
+        Mon, 11 Nov 2019 01:30:11 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:30:11 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Eh4Phe
-        6GfyvUqxuBlnaxVqCUgp+t6RDNdg34HVoheeg=; b=d+SHQrEpGueHlylVVr043b
-        ajaXlBVArHSlk0gv90j4gte5ECG0mt7nHigKqK+NjGcLtl7S+fa04ncyehaOYX91
-        k05LWFhzBueU40Y85B5SEZ3b7z/ThxkwoJRP/gi74qQadJPRWsOZ0LUUyTQVd6K4
-        G96r6AAICrsowt7Oj7O2P/VHGDcp2lc888LmZP3kv+Ajxrxx1h4sgMJvB8ey0RD2
-        Cmhtvbub3gOsX8a7UWAY44dabLEnF3M5NmAibMCyMckFftDsbM9yegFRhkdgfxau
-        wlnVESXBeygZdZNbHbgwO9Ta/lcTKBRT9U/Qs7cjUAWwvSFCTl+pojkk47G+hjFw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=p5BCHL
+        H3szLfee2D/M7pOL6zbR8jo8fkA8rWxT44BpU=; b=X+jCbVHc5fJKXGmaUHFwR7
+        TaZeuhsmhIjl9kdOExsIp9Kfpi9zEKGwA+vGb+okaouTKa6qYPslLiqSZ0wI/eS4
+        U7U8Oti3IVYQRWIK6W+fnhAcLKCHXK6azhAHzcNlW5XFT6kgOdRv1W/zaf3/ThVN
+        mvlOH2GFu4dEauAnTO0VYvKhogFaaT24Nlmqs0FBX1RtGxeYqq7PSJzcSMvn7paS
+        yXRz89zsEj1FRu30HpLVznA+QKeo06czDYTQz0nIASOe+hg/PYtLIE5GcTlmeNqi
+        Logmy77HvyU82AUbfU5A6105RyO9CDiilc0UX5hy4/DYYPFxtlWQJjWc0bMxAa/w
         ==
-X-ME-Sender: <xms:8f_IXanOgTUD7YPyaV_VOnYh1Qf8mzLH9BHI7AITiwwbBgSanvgVWw>
+X-ME-Sender: <xms:8__IXfYk7tmN5f6T1sRSg6EwCVR_j02T9gRxBAPmh5XHgviYCTNFyA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,19 +35,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleekucetufdoteggod
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
     ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:8f_IXYT1hoOv-HqwQUc-dkyF4SzKyxgDdCu7EbMlUTEU7Ly-NAJJ2g>
-    <xmx:8f_IXWLVydicIve8IKKFQeukl3i-r3ArblCpxskWX7NCGNO8qEanOQ>
-    <xmx:8f_IXW_0t9QJAIXeXvh0bc53r9sKViA7dmESU0tHphstL-Tzzz22Xg>
-    <xmx:8f_IXYIg_Twz34T-JyrB8-YhYFayuQDVboQfHQ5JMBnzlHaR0XDpFA>
+X-ME-Proxy: <xmx:8__IXem2q1p0LeahfH8992wmBT0-OCQd34slag-fakOLBFAen5BEHA>
+    <xmx:8__IXTyAGLZ7omriGmMON2wvtlDZ2drQs1y8gkna3vpEPReboWhu4w>
+    <xmx:8__IXUP_urT4g3kGYeEaLgf3Dm7MTDVxC1uug70G3yj2GGqHAGHL7Q>
+    <xmx:8__IXZdor0Vlgf2lr5VDjT4HL1lL2SlO2eGbC2TBtb5T04X4dH8DpA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id EF8558006F;
-        Mon, 11 Nov 2019 01:30:08 -0500 (EST)
-Subject: FAILED: patch "[PATCH] x86/apic/32: Avoid bogus LDR warnings" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id CB4023060061;
+        Mon, 11 Nov 2019 01:30:10 -0500 (EST)
+Subject: FAILED: patch "[PATCH] x86/apic/32: Avoid bogus LDR warnings" failed to apply to 4.4-stable tree
 To:     jbeulich@suse.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Nov 2019 07:29:59 +0100
-Message-ID: <1573453799136159@kroah.com>
+Date:   Mon, 11 Nov 2019 07:30:00 +0100
+Message-ID: <157345380012693@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
