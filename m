@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA7EF7BE6
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:41:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C94C5F7CDB
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728534AbfKKSlE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:41:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60192 "EHLO mail.kernel.org"
+        id S1729547AbfKKSuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:50:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727916AbfKKSlB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:41:01 -0500
+        id S1729736AbfKKSue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:50:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B39C8204FD;
-        Mon, 11 Nov 2019 18:40:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A62E20674;
+        Mon, 11 Nov 2019 18:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497660;
-        bh=C5xQkwwGDricWqdA8SR940TB54ZWtqNg32onbdI9kCY=;
+        s=default; t=1573498233;
+        bh=IXQvvTCPAxqp4Jk6jbh0oE46whydmr1vi31H9PbYkYk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LESdrdiHMK0VU1cO4QMHiFe3AmMZ/dDCvWOkNuUv+DnkAgY6OIqTM8xX2qaFQK9ys
-         4tDF+/ulwHoEM5IzpjaNUv62eHVe+SaJYCor4zT8+Au603bdoWAmE24GzTsNk92ZiH
-         pf5BArBS7VmB8YqeKvOe5wtNQQ2Le5CiCHZBoH28=
+        b=zmPiRj9y23XOs7RHWs2G1QW6kA8UlKDveOyVnWqb4qCwa67HXi4Dk/5UFgJX98EFn
+         /CvO5lkdPl1s+Iiq+kyDDG/7oY85tTkWAOD1tCgvwWympBLjYIpY8j87jOjJSe8/zR
+         kPzUSC42eIrPWP+6iWMLcYVuD4xLyzCw85Tksrl0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+0631d878823ce2411636@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 002/125] CDC-NCM: handle incomplete transfer of MTU
-Date:   Mon, 11 Nov 2019 19:27:21 +0100
-Message-Id: <20191111181439.367240413@linuxfoundation.org>
+        stable@vger.kernel.org, Ondrej Jirman <megous@megous.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <mripard@kernel.org>
+Subject: [PATCH 5.3 060/193] ARM: sunxi: Fix CPU powerdown on A83T
+Date:   Mon, 11 Nov 2019 19:27:22 +0100
+Message-Id: <20191111181505.422619195@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Ondrej Jirman <megous@megous.com>
 
-[ Upstream commit 332f989a3b0041b810836c5c3747e59aad7e9d0b ]
+commit e690053e97e7a9c968df9a97cef9089dfa8e6a44 upstream.
 
-A malicious device may give half an answer when asked
-for its MTU. The driver will proceed after this with
-a garbage MTU. Anything but a complete answer must be treated
-as an error.
+PRCM_PWROFF_GATING_REG has CPU0 at bit 4 on A83T. So without this
+patch, instead of gating the CPU0, the whole cluster was power gated,
+when shutting down first CPU in the cluster.
 
-V2: used sizeof as request by Alexander
-
-Reported-and-tested-by: syzbot+0631d878823ce2411636@syzkaller.appspotmail.com
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6961275e72a8c1 ("ARM: sun8i: smp: Add support for A83T")
+Signed-off-by: Ondrej Jirman <megous@megous.com>
+Acked-by: Chen-Yu Tsai <wens@csie.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Maxime Ripard <mripard@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/usb/cdc_ncm.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -578,8 +578,8 @@ static void cdc_ncm_set_dgram_size(struc
- 	/* read current mtu value from device */
- 	err = usbnet_read_cmd(dev, USB_CDC_GET_MAX_DATAGRAM_SIZE,
- 			      USB_TYPE_CLASS | USB_DIR_IN | USB_RECIP_INTERFACE,
--			      0, iface_no, &max_datagram_size, 2);
--	if (err < 0) {
-+			      0, iface_no, &max_datagram_size, sizeof(max_datagram_size));
-+	if (err < sizeof(max_datagram_size)) {
- 		dev_dbg(&dev->intf->dev, "GET_MAX_DATAGRAM_SIZE failed\n");
- 		goto out;
- 	}
-@@ -590,7 +590,7 @@ static void cdc_ncm_set_dgram_size(struc
- 	max_datagram_size = cpu_to_le16(ctx->max_datagram_size);
- 	err = usbnet_write_cmd(dev, USB_CDC_SET_MAX_DATAGRAM_SIZE,
- 			       USB_TYPE_CLASS | USB_DIR_OUT | USB_RECIP_INTERFACE,
--			       0, iface_no, &max_datagram_size, 2);
-+			       0, iface_no, &max_datagram_size, sizeof(max_datagram_size));
- 	if (err < 0)
- 		dev_dbg(&dev->intf->dev, "SET_MAX_DATAGRAM_SIZE failed\n");
+---
+ arch/arm/mach-sunxi/mc_smp.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/arch/arm/mach-sunxi/mc_smp.c
++++ b/arch/arm/mach-sunxi/mc_smp.c
+@@ -481,14 +481,18 @@ static void sunxi_mc_smp_cpu_die(unsigne
+ static int sunxi_cpu_powerdown(unsigned int cpu, unsigned int cluster)
+ {
+ 	u32 reg;
++	int gating_bit = cpu;
+ 
+ 	pr_debug("%s: cluster %u cpu %u\n", __func__, cluster, cpu);
+ 	if (cpu >= SUNXI_CPUS_PER_CLUSTER || cluster >= SUNXI_NR_CLUSTERS)
+ 		return -EINVAL;
+ 
++	if (is_a83t && cpu == 0)
++		gating_bit = 4;
++
+ 	/* gate processor power */
+ 	reg = readl(prcm_base + PRCM_PWROFF_GATING_REG(cluster));
+-	reg |= PRCM_PWROFF_GATING_REG_CORE(cpu);
++	reg |= PRCM_PWROFF_GATING_REG_CORE(gating_bit);
+ 	writel(reg, prcm_base + PRCM_PWROFF_GATING_REG(cluster));
+ 	udelay(20);
  
 
 
