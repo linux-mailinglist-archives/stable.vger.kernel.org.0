@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1BAAF7F56
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7513F7F50
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727517AbfKKSbt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:31:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48510 "EHLO mail.kernel.org"
+        id S1726964AbfKKTKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 14:10:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727503AbfKKSbt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:31:49 -0500
+        id S1727999AbfKKScl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:32:41 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80FEE20656;
-        Mon, 11 Nov 2019 18:31:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A1FA020674;
+        Mon, 11 Nov 2019 18:32:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497108;
-        bh=hRjSS52Bk2f/86Mm6L764w/hdN31rB/1Bp8maYVfs+o=;
+        s=default; t=1573497161;
+        bh=27fDGEpqKQPn9KccCyYX91hENaUtYZICVPP1diLkpYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEYXSb3+G/zCEl74tJvG8v5y3Qvc+J4242Q1Q+BTBuQf5HJdjs7PxBtSHKw6hoq95
-         dJNVL5NsMjS9Nuuh/wWXh6lW0Y7XVMqyQl/jqoNd20XjRC87Rsi3N1OP+gV7Kv+iDM
-         EeSnbxmHAoaSZSW3U4fBo1nAC16DA39ROVxLpw4U=
+        b=1p/5TybSN2SAUm9pg4zGEBEbv/zt0E1HpFD0XAEP9mtl86VQsV1idUtSylTQFegOW
+         J6Z9gc/BcO1/wirGJtd2wSiQHGoAPFrXISnipWUwbA+EMRE2RNQsRKvYtgpYS+JhqQ
+         Ae1dKfH69+NvxPT1OIxTYzXX/NwODUCdp3YDCBn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
-        Waiman Long <longman@redhat.com>, Mel Gorman <mgorman@suse.de>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Rafael Aquini <aquini@redhat.com>,
-        David Rientjes <rientjes@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Hildenbrand <david@redhat.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Roman Gushchin <guro@fb.com>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Jann Horn <jannh@google.com>, Song Liu <songliubraving@fb.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 10/43] mm, vmstat: hide /proc/pagetypeinfo from normal users
+        stable@vger.kernel.org,
+        Stephane Grosjean <s.grosjean@peak-system.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.9 24/65] can: peak_usb: fix a potential out-of-sync while decoding packets
 Date:   Mon, 11 Nov 2019 19:28:24 +0100
-Message-Id: <20191111181259.133933103@linuxfoundation.org>
+Message-Id: <20191111181345.547015472@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,57 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michal Hocko <mhocko@suse.com>
+From: Stephane Grosjean <s.grosjean@peak-system.com>
 
-commit abaed0112c1db08be15a784a2c5c8a8b3063cdd3 upstream.
+commit de280f403f2996679e2607384980703710576fed upstream.
 
-/proc/pagetypeinfo is a debugging tool to examine internal page
-allocator state wrt to fragmentation.  It is not very useful for any
-other use so normal users really do not need to read this file.
+When decoding a buffer received from PCAN-USB, the first timestamp read in
+a packet is a 16-bit coded time base, and the next ones are an 8-bit
+offset to this base, regardless of the type of packet read.
 
-Waiman Long has noticed that reading this file can have negative side
-effects because zone->lock is necessary for gathering data and that a)
-interferes with the page allocator and its users and b) can lead to hard
-lockups on large machines which have very long free_list.
+This patch corrects a potential loss of synchronization by using a
+timestamp index read from the buffer, rather than an index of received
+data packets, to determine on the sizeof the timestamp to be read from the
+packet being decoded.
 
-Reduce both issues by simply not exporting the file to regular users.
-
-Link: http://lkml.kernel.org/r/20191025072610.18526-2-mhocko@kernel.org
-Fixes: 467c996c1e19 ("Print out statistics in relation to fragmentation avoidance to /proc/pagetypeinfo")
-Signed-off-by: Michal Hocko <mhocko@suse.com>
-Reported-by: Waiman Long <longman@redhat.com>
-Acked-by: Mel Gorman <mgorman@suse.de>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Waiman Long <longman@redhat.com>
-Acked-by: Rafael Aquini <aquini@redhat.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Roman Gushchin <guro@fb.com>
-Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Cc: Jann Horn <jannh@google.com>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Stephane Grosjean <s.grosjean@peak-system.com>
+Fixes: 46be265d3388 ("can: usb: PEAK-System Technik PCAN-USB specific part")
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/vmstat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/usb/peak_usb/pcan_usb.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/mm/vmstat.c
-+++ b/mm/vmstat.c
-@@ -1589,7 +1589,7 @@ static int __init setup_vmstat(void)
- #endif
- #ifdef CONFIG_PROC_FS
- 	proc_create("buddyinfo", S_IRUGO, NULL, &fragmentation_file_operations);
--	proc_create("pagetypeinfo", S_IRUGO, NULL, &pagetypeinfo_file_ops);
-+	proc_create("pagetypeinfo", 0400, NULL, &pagetypeinfo_file_ops);
- 	proc_create("vmstat", S_IRUGO, NULL, &proc_vmstat_file_operations);
- 	proc_create("zoneinfo", S_IRUGO, NULL, &proc_zoneinfo_file_operations);
- #endif
+--- a/drivers/net/can/usb/peak_usb/pcan_usb.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb.c
+@@ -108,7 +108,7 @@ struct pcan_usb_msg_context {
+ 	u8 *end;
+ 	u8 rec_cnt;
+ 	u8 rec_idx;
+-	u8 rec_data_idx;
++	u8 rec_ts_idx;
+ 	struct net_device *netdev;
+ 	struct pcan_usb *pdev;
+ };
+@@ -552,10 +552,15 @@ static int pcan_usb_decode_status(struct
+ 	mc->ptr += PCAN_USB_CMD_ARGS;
+ 
+ 	if (status_len & PCAN_USB_STATUSLEN_TIMESTAMP) {
+-		int err = pcan_usb_decode_ts(mc, !mc->rec_idx);
++		int err = pcan_usb_decode_ts(mc, !mc->rec_ts_idx);
+ 
+ 		if (err)
+ 			return err;
++
++		/* Next packet in the buffer will have a timestamp on a single
++		 * byte
++		 */
++		mc->rec_ts_idx++;
+ 	}
+ 
+ 	switch (f) {
+@@ -638,10 +643,13 @@ static int pcan_usb_decode_data(struct p
+ 
+ 	cf->can_dlc = get_can_dlc(rec_len);
+ 
+-	/* first data packet timestamp is a word */
+-	if (pcan_usb_decode_ts(mc, !mc->rec_data_idx))
++	/* Only first packet timestamp is a word */
++	if (pcan_usb_decode_ts(mc, !mc->rec_ts_idx))
+ 		goto decode_failed;
+ 
++	/* Next packet in the buffer will have a timestamp on a single byte */
++	mc->rec_ts_idx++;
++
+ 	/* read data */
+ 	memset(cf->data, 0x0, sizeof(cf->data));
+ 	if (status_len & PCAN_USB_STATUSLEN_RTR) {
+@@ -695,7 +703,6 @@ static int pcan_usb_decode_msg(struct pe
+ 		/* handle normal can frames here */
+ 		} else {
+ 			err = pcan_usb_decode_data(&mc, sl);
+-			mc.rec_data_idx++;
+ 		}
+ 	}
+ 
 
 
