@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A676FF7CDD
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:51:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D0A5F7BFF
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:42:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729127AbfKKSuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:50:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44400 "EHLO mail.kernel.org"
+        id S1727923AbfKKSmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:42:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730370AbfKKSuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:50:37 -0500
+        id S1728404AbfKKSmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:42:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3CFE204FD;
-        Mon, 11 Nov 2019 18:50:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D66102067B;
+        Mon, 11 Nov 2019 18:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498236;
-        bh=54s9gAZ/w4ffu2vVpETxtuTNjxXcA3yNC4esabz2sHk=;
+        s=default; t=1573497719;
+        bh=aLm2FQjWYpVfY++zTL+4IoRhYtP2eFTwLfae6oERYEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nPFiShkVpUwC1oRoUFk5wZ6HJAeXzt29U43QLv9b3NEZmkTPV3/aVylBGKmnhgRFc
-         gUISPLQQtrk+eq/l4d1Doh3xBDgz3L/P/9hnfou4ND6jVmIxAMIBXYDQ58M/jxLyr9
-         Dp0kQ7SYIppSnzmwtFJ1dTqSZxQKWNCBRMtEMVy8=
+        b=MYdV86m5/K71BIoHiuydLO3q8VUECCi/3qFkcviy2TNEhlCajJeM3JpYNjNxtWopo
+         yDfXFhiJgmCI+pKS1hq+ANGEc4a4yjdtke34KQRN92q5DxzJ+yv6Kuf3TCf+5qaVve
+         tLqpB2Lc0nNOuZb+SX4Ynl47AB5MtTK3T1dNtDmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.3 061/193] ARM: dts: imx6-logicpd: Re-enable SNVS power key
-Date:   Mon, 11 Nov 2019 19:27:23 +0100
-Message-Id: <20191111181505.507072829@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 005/125] net: fix data-race in neigh_event_send()
+Date:   Mon, 11 Nov 2019 19:27:24 +0100
+Message-Id: <20191111181440.049305471@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +44,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit cabe5f85e63626c00f3b879a670ec27325056a2d upstream.
+[ Upstream commit 1b53d64435d56902fc234ff2507142d971a09687 ]
 
-The baseboard of the Logic PD i.MX6 development kit has a power
-button routed which can both power down and power up the board.
-It can also wake the board from sleep.  This functionality was
-marked as disabled by default in imx6qdl.dtsi, so it needs to
-be explicitly enabled for each board.
+KCSAN reported the following data-race [1]
 
-This patch enables the snvs power key again.
+The fix will also prevent the compiler from optimizing out
+the condition.
 
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Fixes: 770856f0da5d ("ARM: dts: imx6qdl: Enable SNVS power key according to board design")
-Cc: stable <stable@vger.kernel.org> #5.3+
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+[1]
+
+BUG: KCSAN: data-race in neigh_resolve_output / neigh_resolve_output
+
+write to 0xffff8880a41dba78 of 8 bytes by interrupt on cpu 1:
+ neigh_event_send include/net/neighbour.h:443 [inline]
+ neigh_resolve_output+0x78/0x480 net/core/neighbour.c:1474
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip_finish_output2+0x4af/0xe40 net/ipv4/ip_output.c:228
+ __ip_finish_output net/ipv4/ip_output.c:308 [inline]
+ __ip_finish_output+0x23a/0x490 net/ipv4/ip_output.c:290
+ ip_finish_output+0x41/0x160 net/ipv4/ip_output.c:318
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip_output+0xdf/0x210 net/ipv4/ip_output.c:432
+ dst_output include/net/dst.h:436 [inline]
+ ip_local_out+0x74/0x90 net/ipv4/ip_output.c:125
+ __ip_queue_xmit+0x3a8/0xa40 net/ipv4/ip_output.c:532
+ ip_queue_xmit+0x45/0x60 include/net/ip.h:237
+ __tcp_transmit_skb+0xe81/0x1d60 net/ipv4/tcp_output.c:1169
+ tcp_transmit_skb net/ipv4/tcp_output.c:1185 [inline]
+ __tcp_retransmit_skb+0x4bd/0x15f0 net/ipv4/tcp_output.c:2976
+ tcp_retransmit_skb+0x36/0x1a0 net/ipv4/tcp_output.c:2999
+ tcp_retransmit_timer+0x719/0x16d0 net/ipv4/tcp_timer.c:515
+ tcp_write_timer_handler+0x42d/0x510 net/ipv4/tcp_timer.c:598
+ tcp_write_timer+0xd1/0xf0 net/ipv4/tcp_timer.c:618
+
+read to 0xffff8880a41dba78 of 8 bytes by interrupt on cpu 0:
+ neigh_event_send include/net/neighbour.h:442 [inline]
+ neigh_resolve_output+0x57/0x480 net/core/neighbour.c:1474
+ neigh_output include/net/neighbour.h:511 [inline]
+ ip_finish_output2+0x4af/0xe40 net/ipv4/ip_output.c:228
+ __ip_finish_output net/ipv4/ip_output.c:308 [inline]
+ __ip_finish_output+0x23a/0x490 net/ipv4/ip_output.c:290
+ ip_finish_output+0x41/0x160 net/ipv4/ip_output.c:318
+ NF_HOOK_COND include/linux/netfilter.h:294 [inline]
+ ip_output+0xdf/0x210 net/ipv4/ip_output.c:432
+ dst_output include/net/dst.h:436 [inline]
+ ip_local_out+0x74/0x90 net/ipv4/ip_output.c:125
+ __ip_queue_xmit+0x3a8/0xa40 net/ipv4/ip_output.c:532
+ ip_queue_xmit+0x45/0x60 include/net/ip.h:237
+ __tcp_transmit_skb+0xe81/0x1d60 net/ipv4/tcp_output.c:1169
+ tcp_transmit_skb net/ipv4/tcp_output.c:1185 [inline]
+ __tcp_retransmit_skb+0x4bd/0x15f0 net/ipv4/tcp_output.c:2976
+ tcp_retransmit_skb+0x36/0x1a0 net/ipv4/tcp_output.c:2999
+ tcp_retransmit_timer+0x719/0x16d0 net/ipv4/tcp_timer.c:515
+ tcp_write_timer_handler+0x42d/0x510 net/ipv4/tcp_timer.c:598
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/net/neighbour.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
-+++ b/arch/arm/boot/dts/imx6-logicpd-baseboard.dtsi
-@@ -328,6 +328,10 @@
- 	pinctrl-0 = <&pinctrl_pwm3>;
- };
- 
-+&snvs_pwrkey {
-+	status = "okay";
-+};
-+
- &ssi2 {
- 	status = "okay";
- };
+--- a/include/net/neighbour.h
++++ b/include/net/neighbour.h
+@@ -430,8 +430,8 @@ static inline int neigh_event_send(struc
+ {
+ 	unsigned long now = jiffies;
+ 	
+-	if (neigh->used != now)
+-		neigh->used = now;
++	if (READ_ONCE(neigh->used) != now)
++		WRITE_ONCE(neigh->used, now);
+ 	if (!(neigh->nud_state&(NUD_CONNECTED|NUD_DELAY|NUD_PROBE)))
+ 		return __neigh_event_send(neigh, skb);
+ 	return 0;
 
 
