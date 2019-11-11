@@ -2,174 +2,328 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34785F6E57
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:01:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51772F6E60
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:05:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726823AbfKKGBg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:01:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46760 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725796AbfKKGBg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 01:01:36 -0500
+        id S1726765AbfKKGFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:05:52 -0500
+Received: from new4-smtp.messagingengine.com ([66.111.4.230]:45601 "EHLO
+        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726652AbfKKGFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:05:52 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 85EF74EB5;
+        Mon, 11 Nov 2019 01:05:50 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:05:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=P5TvhZ
+        Wmx4rPAsWRgqqlQANu/UpAMxOFNUKLU1qpRc4=; b=yX98TmaEUyArLsAdTlIBoT
+        HnaTQjiGvjY/t6MIMaIfz/5ktaBh5G61W2lD+e49Qt6IVwrDX5wAb3u+BlDOPvzx
+        mpBO7MImsBVHpICozgQK5ntUbKaDOghhutYsUGyx169zxuhzjWhrZ85TL0FgDX2p
+        hULPmdUH9K9huxBp+JotUEavDLb3t5W6ETv524/1bhTc1c2UglAQjjfksBU2WlGE
+        QEfSR3TPJdEFF6eZmPXTfd8V96G9+pE26DIc/of4MjtrcGyZfXjMyri/1YvrGBPo
+        jyc6U7yJXQu9yngu/Tw+tAB6GRhMytPs0yIvZ/fS2yr5uwuars01WiyYp7xzUDkw
+        ==
+X-ME-Sender: <xms:PfrIXX7RFFDdtpz5wf4Yrem_tUYrADmrmxhQ1uEirScM7zFTTgb12A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:PfrIXZVLqmO7VWTev1ndRbNWWIEo_0Rny9UUZrgH0Rmf3vMrl9ycPw>
+    <xmx:PfrIXdXRJjbFOSeAr1YTwAzrefodVb-90Fd6QR0Sp8SAB4mXGOPR5Q>
+    <xmx:PfrIXeTBsPpHB_3FW9ZCm7vTn85dufkmaXlisacRF_CsZ9W3mlLFcw>
+    <xmx:PvrIXYc8jfGPux7LNvQyqqfFyi1snTxic2jyNe0L_fZ9Gms7egA5Mw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D88320656;
-        Mon, 11 Nov 2019 06:01:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573452094;
-        bh=r2/46Oo7bzlP9QELn0pm6e6LdiAFm+dgs0+pcUxGDOQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=WlVHQzIJM20xcbXlcK1Ol8oaCuqcHpKxgfD4GWSGZ890mzTBiDyJocMWMK/aajIoH
-         zFEHtHcOpa+qWbMSIWCY1uyqCuFSyrpbnu15vhkyvsKgfLDNJC3dtC1zA6XlkMTyNi
-         wFW4EpAhLRmhgJW/gN20IziDGpQejHQXTUTHFvMI=
-Date:   Mon, 11 Nov 2019 07:01:29 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Andres Freund <andres@anarazel.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        John Keeping <john@metanate.com>, Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.3 111/344] perf unwind: Fix libunwind when tid != pid
-Message-ID: <20191111060129.GA3197363@kroah.com>
-References: <20191003154540.062170222@linuxfoundation.org>
- <20191003154551.163214533@linuxfoundation.org>
- <20191110014621.n5yfednqfl7g3atr@alap3.anarazel.de>
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6945F8005B;
+        Mon, 11 Nov 2019 01:05:49 -0500 (EST)
+Subject: FAILED: patch "[PATCH] ocfs2: protect extent tree in ocfs2_prepare_inode_for_write()" failed to apply to 5.3-stable tree
+To:     sunny.s.zhang@oracle.com, akpm@linux-foundation.org,
+        gechangwei@live.cn, ghe@suse.com, jiangqi903@gmail.com,
+        jlbec@evilplan.org, junxiao.bi@oracle.com, mark@fasheh.com,
+        piaojun@huawei.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 11 Nov 2019 07:05:45 +0100
+Message-ID: <15734523452030@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191110014621.n5yfednqfl7g3atr@alap3.anarazel.de>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 09, 2019 at 05:46:21PM -0800, Andres Freund wrote:
-> Hi,
-> 
-> On 2019-10-03 17:51:16 +0200, Greg Kroah-Hartman wrote:
-> > From: John Keeping <john@metanate.com>
-> >
-> > [ Upstream commit e8ba2906f6b9054102ad035ac9cafad9d4168589 ]
-> >
-> > Commit e5adfc3e7e77 ("perf map: Synthesize maps only for thread group
-> > leader") changed the recording side so that we no longer get mmap events
-> > for threads other than the thread group leader (when synthesising these
-> > events for threads which exist before perf is started).
-> >
-> > When a file recorded after this change is loaded, the lack of mmap
-> > records mean that unwinding is not set up for any other threads.
-> >
-> > This can be seen in a simple record/report scenario:
-> >
-> > 	perf record --call-graph=dwarf -t $TID
-> > 	perf report
-> >
-> > If $TID is a process ID then the report will show call graphs, but if
-> > $TID is a secondary thread the output is as if --call-graph=none was
-> > specified.
-> >
-> > Following the rationale in that commit, move the libunwind fields into
-> > struct map_groups and update the libunwind functions to take this
-> > instead of the struct thread.  This is only required for
-> > unwind__finish_access which must now be called from map_groups__delete
-> > and the others are changed for symmetry.
-> >
-> > Note that unwind__get_entries keeps the thread argument since it is
-> > required for symbol lookup and the libdw unwind provider uses the thread
-> > ID.
-> >
-> > Signed-off-by: John Keeping <john@metanate.com>
-> > Reviewed-by: Jiri Olsa <jolsa@kernel.org>
-> > Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> > Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-> > Cc: Namhyung Kim <namhyung@kernel.org>
-> > Cc: Peter Zijlstra <peterz@infradead.org>
-> > Fixes: e5adfc3e7e77 ("perf map: Synthesize maps only for thread group leader")
-> > Link: http://lkml.kernel.org/r/20190815100146.28842-2-john@metanate.com
-> > Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> This unfortunately broke --call-graph dwarf on 5.3 (and presumably older
-> branches), because while this commit has been included in stable, the
-> prerequisite
-> 
-> commit ab6cd0e5276e24403751e0b3b8ed807738a8571f
-> Author:     John Keeping <john@metanate.com>
-> AuthorDate: 2019-08-15 11:01:44 +0100
-> Commit:     Arnaldo Carvalho de Melo <acme@redhat.com>
-> CommitDate: 2019-08-16 12:25:23 -0300
-> 
->     perf map: Use zalloc for map_groups
-> 
->     In the next commit we will add new fields to map_groups and we need
->     these to be null if no value is assigned.  The simplest way to achieve
->     this is to request zeroed memory from the allocator.
-> 
->     Signed-off-by: John Keeping <john@metanate.com>
->     Reviewed-by: Jiri Olsa <jolsa@kernel.org>
->     Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
->     Cc: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
->     Cc: Namhyung Kim <namhyung@kernel.org>
->     Cc: Peter Zijlstra <peterz@infradead.org>
->     Cc: john keeping <john@metanate.com>
->     Link: http://lkml.kernel.org/r/20190815100146.28842-1-john@metanate.com
->     Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-> 
-> has not.
-> 
-> 
-> The crash I get is:
-> 
-> Thread 1 "perf" received signal SIGSEGV, Segmentation fault.
-> 0x0000555555872238 in unwind__flush_access (mg=0x555555c53b50) at util/unwind-libunwind.c:76
-> 76			mg->unwind_libunwind_ops->flush_access(mg);
-> (gdb) bt
-> #0  0x0000555555872238 in unwind__flush_access (mg=0x555555c53b50) at util/unwind-libunwind.c:76
-> #1  0x0000555555800ac4 in ____thread__set_comm (exec=true, timestamp=325096707055731, str=0x7ffff7f96ed8 "sleep", thread=0x555555c53bc0) at util/thread.c:254
-> #2  __thread__set_comm (thread=thread@entry=0x555555c53bc0, str=str@entry=0x7ffff7f96ed8 "sleep", timestamp=325096707055731, exec=exec@entry=true)
->     at util/thread.c:268
-> #3  0x00005555557f132a in machine__process_comm_event (machine=0x555555c4bc68, event=0x7ffff7f96ec8, sample=0x7fffffff8f70) at util/machine.c:600
-> #4  0x00005555557fa93b in perf_session__deliver_event (session=0x555555c4baf0, event=0x7ffff7f96ec8, tool=0x555555acb9a0 <record>, file_offset=73416)
->     at util/session.c:1473
-> #5  0x00005555557feae8 in do_flush (show_progress=true, oe=0x555555c52610) at util/ordered-events.c:243
-> #6  __ordered_events__flush (oe=oe@entry=0x555555c52610, how=how@entry=OE_FLUSH__FINAL, timestamp=timestamp@entry=0) at util/ordered-events.c:322
-> #7  0x00005555557fef45 in __ordered_events__flush (timestamp=<optimized out>, how=<optimized out>, oe=<optimized out>) at util/ordered-events.c:338
-> #8  ordered_events__flush (how=OE_FLUSH__FINAL, oe=0x555555c52610) at util/ordered-events.c:340
-> #9  ordered_events__flush (oe=oe@entry=0x555555c52610, how=how@entry=OE_FLUSH__FINAL) at util/ordered-events.c:338
-> #10 0x00005555557fd17c in __perf_session__process_events (session=0x555555c4baf0) at util/session.c:2152
-> #11 perf_session__process_events (session=session@entry=0x555555c4baf0) at util/session.c:2181
-> #12 0x0000555555729379 in process_buildids (rec=0x555555acb9a0 <record>) at builtin-record.c:829
-> #13 record__finish_output (rec=0x555555acb9a0 <record>) at builtin-record.c:1037
-> #14 0x000055555572c000 in __cmd_record (rec=0x555555acb9a0 <record>, argv=<optimized out>, argc=2) at builtin-record.c:1661
-> #15 cmd_record (argc=2, argv=<optimized out>) at builtin-record.c:2450
-> #16 0x000055555579cd9d in run_builtin (p=0x555555ad4958 <commands+216>, argc=5, argv=0x7fffffffdcc0) at perf.c:304
-> #17 0x0000555555714baa in handle_internal_command (argv=0x7fffffffdcc0, argc=5) at perf.c:356
-> #18 run_argv (argcp=<synthetic pointer>, argv=<synthetic pointer>) at perf.c:400
-> #19 main (argc=5, argv=0x7fffffffdcc0) at perf.c:525
-> 
-> (gdb) p *mg
-> $7 = {maps = {entries = {rb_node = 0x0}, names = {rb_node = 0x0}, lock = {lock = pthread_rwlock_t = {Status = Not acquired, Shared = No,
->         Prefers = Readers}}}, machine = 0x555555c4bc68, refcnt = {refs = {counter = 1}}, addr_space = 0x693f6967632e6775,
->   unwind_libunwind_ops = 0xa32313438313d64}
-> 
-> (gdb) p mg->unwind_libunwind_ops
-> $8 = (struct unwind_libunwind_ops *) 0xa32313438313d64
-> 
-> (gdb) p *mg->unwind_libunwind_ops
-> Cannot access memory at address 0xa32313438313d64
-> 
-> which makes sense, because map_groups__new() allocates the group with
-> malloc, and map_groups__init() only initializes map_groups->{maps,machine,refcnt}
-> 
-> 
-> A bit surprised that nobody complained about this so far...
 
-Thanks, I've queued up the other patch for 5.3.y now.
+The patch below does not apply to the 5.3-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From e74540b285569d2b1e14fe7aee92297078f235ce Mon Sep 17 00:00:00 2001
+From: Shuning Zhang <sunny.s.zhang@oracle.com>
+Date: Tue, 5 Nov 2019 21:16:34 -0800
+Subject: [PATCH] ocfs2: protect extent tree in ocfs2_prepare_inode_for_write()
+
+When the extent tree is modified, it should be protected by inode
+cluster lock and ip_alloc_sem.
+
+The extent tree is accessed and modified in the
+ocfs2_prepare_inode_for_write, but isn't protected by ip_alloc_sem.
+
+The following is a case.  The function ocfs2_fiemap is accessing the
+extent tree, which is modified at the same time.
+
+  kernel BUG at fs/ocfs2/extent_map.c:475!
+  invalid opcode: 0000 [#1] SMP
+  Modules linked in: tun ocfs2 ocfs2_nodemanager configfs ocfs2_stackglue [...]
+  CPU: 16 PID: 14047 Comm: o2info Not tainted 4.1.12-124.23.1.el6uek.x86_64 #2
+  Hardware name: Oracle Corporation ORACLE SERVER X7-2L/ASM, MB MECH, X7-2L, BIOS 42040600 10/19/2018
+  task: ffff88019487e200 ti: ffff88003daa4000 task.ti: ffff88003daa4000
+  RIP: ocfs2_get_clusters_nocache.isra.11+0x390/0x550 [ocfs2]
+  Call Trace:
+    ocfs2_fiemap+0x1e3/0x430 [ocfs2]
+    do_vfs_ioctl+0x155/0x510
+    SyS_ioctl+0x81/0xa0
+    system_call_fastpath+0x18/0xd8
+  Code: 18 48 c7 c6 60 7f 65 a0 31 c0 bb e2 ff ff ff 48 8b 4a 40 48 8b 7a 28 48 c7 c2 78 2d 66 a0 e8 38 4f 05 00 e9 28 fe ff ff 0f 1f 00 <0f> 0b 66 0f 1f 44 00 00 bb 86 ff ff ff e9 13 fe ff ff 66 0f 1f
+  RIP  ocfs2_get_clusters_nocache.isra.11+0x390/0x550 [ocfs2]
+  ---[ end trace c8aa0c8180e869dc ]---
+  Kernel panic - not syncing: Fatal exception
+  Kernel Offset: disabled
+
+This issue can be reproduced every week in a production environment.
+
+This issue is related to the usage mode.  If others use ocfs2 in this
+mode, the kernel will panic frequently.
+
+[akpm@linux-foundation.org: coding style fixes]
+[Fix new warning due to unused function by removing said function - Linus ]
+Link: http://lkml.kernel.org/r/1568772175-2906-2-git-send-email-sunny.s.zhang@oracle.com
+Signed-off-by: Shuning Zhang <sunny.s.zhang@oracle.com>
+Reviewed-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Gang He <ghe@suse.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Joseph Qi <jiangqi903@gmail.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
+index 53939bf9d7d2..9876db52913a 100644
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -2098,53 +2098,89 @@ static int ocfs2_is_io_unaligned(struct inode *inode, size_t count, loff_t pos)
+ 	return 0;
+ }
+ 
+-static int ocfs2_prepare_inode_for_refcount(struct inode *inode,
+-					    struct file *file,
+-					    loff_t pos, size_t count,
+-					    int *meta_level)
++static int ocfs2_inode_lock_for_extent_tree(struct inode *inode,
++					    struct buffer_head **di_bh,
++					    int meta_level,
++					    int overwrite_io,
++					    int write_sem,
++					    int wait)
+ {
+-	int ret;
+-	struct buffer_head *di_bh = NULL;
+-	u32 cpos = pos >> OCFS2_SB(inode->i_sb)->s_clustersize_bits;
+-	u32 clusters =
+-		ocfs2_clusters_for_bytes(inode->i_sb, pos + count) - cpos;
++	int ret = 0;
+ 
+-	ret = ocfs2_inode_lock(inode, &di_bh, 1);
+-	if (ret) {
+-		mlog_errno(ret);
++	if (wait)
++		ret = ocfs2_inode_lock(inode, NULL, meta_level);
++	else
++		ret = ocfs2_try_inode_lock(inode,
++			overwrite_io ? NULL : di_bh, meta_level);
++	if (ret < 0)
+ 		goto out;
++
++	if (wait) {
++		if (write_sem)
++			down_write(&OCFS2_I(inode)->ip_alloc_sem);
++		else
++			down_read(&OCFS2_I(inode)->ip_alloc_sem);
++	} else {
++		if (write_sem)
++			ret = down_write_trylock(&OCFS2_I(inode)->ip_alloc_sem);
++		else
++			ret = down_read_trylock(&OCFS2_I(inode)->ip_alloc_sem);
++
++		if (!ret) {
++			ret = -EAGAIN;
++			goto out_unlock;
++		}
+ 	}
+ 
+-	*meta_level = 1;
++	return ret;
+ 
+-	ret = ocfs2_refcount_cow(inode, di_bh, cpos, clusters, UINT_MAX);
+-	if (ret)
+-		mlog_errno(ret);
++out_unlock:
++	brelse(*di_bh);
++	ocfs2_inode_unlock(inode, meta_level);
+ out:
+-	brelse(di_bh);
+ 	return ret;
+ }
+ 
++static void ocfs2_inode_unlock_for_extent_tree(struct inode *inode,
++					       struct buffer_head **di_bh,
++					       int meta_level,
++					       int write_sem)
++{
++	if (write_sem)
++		up_write(&OCFS2_I(inode)->ip_alloc_sem);
++	else
++		up_read(&OCFS2_I(inode)->ip_alloc_sem);
++
++	brelse(*di_bh);
++	*di_bh = NULL;
++
++	if (meta_level >= 0)
++		ocfs2_inode_unlock(inode, meta_level);
++}
++
+ static int ocfs2_prepare_inode_for_write(struct file *file,
+ 					 loff_t pos, size_t count, int wait)
+ {
+ 	int ret = 0, meta_level = 0, overwrite_io = 0;
++	int write_sem = 0;
+ 	struct dentry *dentry = file->f_path.dentry;
+ 	struct inode *inode = d_inode(dentry);
+ 	struct buffer_head *di_bh = NULL;
++	u32 cpos;
++	u32 clusters;
+ 
+ 	/*
+ 	 * We start with a read level meta lock and only jump to an ex
+ 	 * if we need to make modifications here.
+ 	 */
+ 	for(;;) {
+-		if (wait)
+-			ret = ocfs2_inode_lock(inode, NULL, meta_level);
+-		else
+-			ret = ocfs2_try_inode_lock(inode,
+-				overwrite_io ? NULL : &di_bh, meta_level);
++		ret = ocfs2_inode_lock_for_extent_tree(inode,
++						       &di_bh,
++						       meta_level,
++						       overwrite_io,
++						       write_sem,
++						       wait);
+ 		if (ret < 0) {
+-			meta_level = -1;
+ 			if (ret != -EAGAIN)
+ 				mlog_errno(ret);
+ 			goto out;
+@@ -2156,15 +2192,8 @@ static int ocfs2_prepare_inode_for_write(struct file *file,
+ 		 */
+ 		if (!wait && !overwrite_io) {
+ 			overwrite_io = 1;
+-			if (!down_read_trylock(&OCFS2_I(inode)->ip_alloc_sem)) {
+-				ret = -EAGAIN;
+-				goto out_unlock;
+-			}
+ 
+ 			ret = ocfs2_overwrite_io(inode, di_bh, pos, count);
+-			brelse(di_bh);
+-			di_bh = NULL;
+-			up_read(&OCFS2_I(inode)->ip_alloc_sem);
+ 			if (ret < 0) {
+ 				if (ret != -EAGAIN)
+ 					mlog_errno(ret);
+@@ -2183,7 +2212,10 @@ static int ocfs2_prepare_inode_for_write(struct file *file,
+ 		 * set inode->i_size at the end of a write. */
+ 		if (should_remove_suid(dentry)) {
+ 			if (meta_level == 0) {
+-				ocfs2_inode_unlock(inode, meta_level);
++				ocfs2_inode_unlock_for_extent_tree(inode,
++								   &di_bh,
++								   meta_level,
++								   write_sem);
+ 				meta_level = 1;
+ 				continue;
+ 			}
+@@ -2197,18 +2229,32 @@ static int ocfs2_prepare_inode_for_write(struct file *file,
+ 
+ 		ret = ocfs2_check_range_for_refcount(inode, pos, count);
+ 		if (ret == 1) {
+-			ocfs2_inode_unlock(inode, meta_level);
+-			meta_level = -1;
+-
+-			ret = ocfs2_prepare_inode_for_refcount(inode,
+-							       file,
+-							       pos,
+-							       count,
+-							       &meta_level);
++			ocfs2_inode_unlock_for_extent_tree(inode,
++							   &di_bh,
++							   meta_level,
++							   write_sem);
++			ret = ocfs2_inode_lock_for_extent_tree(inode,
++							       &di_bh,
++							       meta_level,
++							       overwrite_io,
++							       1,
++							       wait);
++			write_sem = 1;
++			if (ret < 0) {
++				if (ret != -EAGAIN)
++					mlog_errno(ret);
++				goto out;
++			}
++
++			cpos = pos >> OCFS2_SB(inode->i_sb)->s_clustersize_bits;
++			clusters =
++				ocfs2_clusters_for_bytes(inode->i_sb, pos + count) - cpos;
++			ret = ocfs2_refcount_cow(inode, di_bh, cpos, clusters, UINT_MAX);
+ 		}
+ 
+ 		if (ret < 0) {
+-			mlog_errno(ret);
++			if (ret != -EAGAIN)
++				mlog_errno(ret);
+ 			goto out_unlock;
+ 		}
+ 
+@@ -2219,10 +2265,10 @@ static int ocfs2_prepare_inode_for_write(struct file *file,
+ 	trace_ocfs2_prepare_inode_for_write(OCFS2_I(inode)->ip_blkno,
+ 					    pos, count, wait);
+ 
+-	brelse(di_bh);
+-
+-	if (meta_level >= 0)
+-		ocfs2_inode_unlock(inode, meta_level);
++	ocfs2_inode_unlock_for_extent_tree(inode,
++					   &di_bh,
++					   meta_level,
++					   write_sem);
+ 
+ out:
+ 	return ret;
+
