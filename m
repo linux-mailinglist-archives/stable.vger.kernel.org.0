@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27791F7EFB
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C05EF7F42
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728991AbfKKSiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:38:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57332 "EHLO mail.kernel.org"
+        id S1727141AbfKKTJg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 14:09:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728989AbfKKSiX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:38:23 -0500
+        id S1728223AbfKKSdw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:33:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA69B21925;
-        Mon, 11 Nov 2019 18:38:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03F9720656;
+        Mon, 11 Nov 2019 18:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497503;
-        bh=/yTxoQdhsdVTBQCLwhVcQgv5+8lzYPyz6uvpfgB+Vy8=;
+        s=default; t=1573497231;
+        bh=tLGNzM1ESzY0AC4R6Ft+QUd5Jg4tuJOTcEn0pW8yYYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gxh3ZjGtLKIEq4EmfiJ8MOsTngAq+9KVjh0cmJC30kz02vnaf8XH7sni6rdPb/G8B
-         9kfdQzXFFwE2m/Ij391Xhcy+PxQ5c9B2hY5lUykKWx71Vt4ZWzdScKzGCrCqjlaqXI
-         iHtnCZz2ejKjcYnVxbYMlc3foy30zTbGsltXRZVQ=
+        b=iMyXX113Q0pArW6498K+QmFj8x1zwtS2r5MkrUWAY6/N8hRwSbGkjZlSchez7zX8v
+         eyziNXRQFiWfWNeCPE0wbVrdLoGA/8nedtqqi7PABYxk8rYhcLWbUWtgBye0ZZXIRo
+         OktbPNmpTtpqqWD1E5xkJurgwKso/tjh88cb+Zcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <james.smart@broadcom.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Daniel Wagner <dwagner@suse.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Chandana Kishori Chiluveru <cchiluve@codeaurora.org>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 076/105] scsi: lpfc: Honor module parameter lpfc_use_adisc
+Subject: [PATCH 4.9 46/65] usb: gadget: composite: Fix possible double free memory bug
 Date:   Mon, 11 Nov 2019 19:28:46 +0100
-Message-Id: <20191111181446.238322297@linuxfoundation.org>
+Message-Id: <20191111181349.413232862@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,63 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Wagner <dwagner@suse.de>
+From: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
 
-[ Upstream commit 0fd103ccfe6a06e40e2d9d8c91d96332cc9e1239 ]
+[ Upstream commit 1c20c89b0421b52b2417bb0f62a611bc669eda1d ]
 
-The initial lpfc_desc_set_adisc implementation in commit
-dea3101e0a5c ("lpfc: add Emulex FC driver version 8.0.28") enabled ADISC if
+composite_dev_cleanup call from the failure of configfs_composite_bind
+frees up the cdev->os_desc_req and cdev->req. If the previous calls of
+bind and unbind is successful these will carry stale values.
 
-	cfg_use_adisc && RSCN_MODE && FCP_2_DEVICE
+Consider the below sequence of function calls:
+configfs_composite_bind()
+        composite_dev_prepare()
+                - Allocate cdev->req, cdev->req->buf
+        composite_os_desc_req_prepare()
+                - Allocate cdev->os_desc_req, cdev->os_desc_req->buf
+configfs_composite_unbind()
+        composite_dev_cleanup()
+                - free the cdev->os_desc_req->buf and cdev->req->buf
+Next composition switch
+configfs_composite_bind()
+        - If it fails goto err_comp_cleanup will call the
+	  composite_dev_cleanup() function
+        composite_dev_cleanup()
+	        - calls kfree up with the stale values of cdev->req->buf and
+		  cdev->os_desc_req from the previous configfs_composite_bind
+		  call. The free call on these stale values leads to double free.
 
-In commit 92d7f7b0cde3 ("[SCSI] lpfc: NPIV: add NPIV support on top of
-SLI-3") this changed to
+Hence, Fix this issue by setting request and buffer pointer to NULL after
+kfree.
 
-	(cfg_use_adisc && RSC_MODE) || FCP_2_DEVICE
-
-and later in commit ffc954936b13 ("[SCSI] lpfc 8.3.13: FC Discovery Fixes
-and enhancements.") to
-
-	(cfg_use_adisc && RSC_MODE) || (FCP_2_DEVICE && FCP_TARGET)
-
-A customer reports that after a devloss, an ADISC failure is logged. It
-turns out the ADISC flag is set even the user explicitly set lpfc_use_adisc
-= 0.
-
-[Sat Dec 22 22:55:58 2018] lpfc 0000:82:00.0: 2:(0):0203 Devloss timeout on WWPN 50:01:43:80:12:8e:40:20 NPort x05df00 Data: x82000000 x8 xa
-[Sat Dec 22 23:08:20 2018] lpfc 0000:82:00.0: 2:(0):2755 ADISC failure DID:05DF00 Status:x9/x70000
-
-[mkp: fixed Hannes' email]
-
-Fixes: 92d7f7b0cde3 ("[SCSI] lpfc: NPIV: add NPIV support on top of SLI-3")
-Cc: Dick Kennedy <dick.kennedy@broadcom.com>
-Cc: James Smart <james.smart@broadcom.com>
-Link: https://lore.kernel.org/r/20191022072112.132268-1-dwagner@suse.de
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Daniel Wagner <dwagner@suse.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nportdisc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/composite.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index 36fb549eb4e86..a0658d1582287 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -809,9 +809,9 @@ lpfc_disc_set_adisc(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
+diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
+index 9fa168af847b5..854c4ec0af2c5 100644
+--- a/drivers/usb/gadget/composite.c
++++ b/drivers/usb/gadget/composite.c
+@@ -2179,14 +2179,18 @@ void composite_dev_cleanup(struct usb_composite_dev *cdev)
+ 			usb_ep_dequeue(cdev->gadget->ep0, cdev->os_desc_req);
  
- 	if (!(vport->fc_flag & FC_PT2PT)) {
- 		/* Check config parameter use-adisc or FCP-2 */
--		if ((vport->cfg_use_adisc && (vport->fc_flag & FC_RSCN_MODE)) ||
-+		if (vport->cfg_use_adisc && ((vport->fc_flag & FC_RSCN_MODE) ||
- 		    ((ndlp->nlp_fcp_info & NLP_FCP_2_DEVICE) &&
--		     (ndlp->nlp_type & NLP_FCP_TARGET))) {
-+		     (ndlp->nlp_type & NLP_FCP_TARGET)))) {
- 			spin_lock_irq(shost->host_lock);
- 			ndlp->nlp_flag |= NLP_NPR_ADISC;
- 			spin_unlock_irq(shost->host_lock);
+ 		kfree(cdev->os_desc_req->buf);
++		cdev->os_desc_req->buf = NULL;
+ 		usb_ep_free_request(cdev->gadget->ep0, cdev->os_desc_req);
++		cdev->os_desc_req = NULL;
+ 	}
+ 	if (cdev->req) {
+ 		if (cdev->setup_pending)
+ 			usb_ep_dequeue(cdev->gadget->ep0, cdev->req);
+ 
+ 		kfree(cdev->req->buf);
++		cdev->req->buf = NULL;
+ 		usb_ep_free_request(cdev->gadget->ep0, cdev->req);
++		cdev->req = NULL;
+ 	}
+ 	cdev->next_string_id = 0;
+ 	device_remove_file(&cdev->gadget->dev, &dev_attr_suspended);
 -- 
 2.20.1
 
