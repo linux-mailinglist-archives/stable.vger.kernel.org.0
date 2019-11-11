@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50727F7D41
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68792F7AE2
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:30:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730119AbfKKSyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:54:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51218 "EHLO mail.kernel.org"
+        id S1727354AbfKKSad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:30:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730590AbfKKSyv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:54:51 -0500
+        id S1727325AbfKKSad (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:30:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8AD6204EC;
-        Mon, 11 Nov 2019 18:54:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3522214E0;
+        Mon, 11 Nov 2019 18:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498490;
-        bh=O41LwHklMQi00bcu3oEIE90jeboup3lfQjnvEm+zojQ=;
+        s=default; t=1573497032;
+        bh=SqRmjZhn94quOQXuKvLtH6KunMbWuCA4q/EJ86b0H+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvqqH/e3sTcuVfPDw97RTMDFVFHTV3ReFmljIWw7BclTxQg6dXuYU1P4HV273Yidj
-         RpwuEx0SlaFIzvWl2vgYCEHxYr3aO5+8oXram8CFOzDMiGrXhc7V2Fve+6qSszpioo
-         Jz8Sxvdg+avTSN6ITnh+JJBzfJzGoGmvdJkhrsHA=
+        b=WvMJPIXLF/nKqXpzDP3leQPrMdrmImaayDFsmH+2RPot/UyScJke0kXZmyzmwhI7x
+         cPvkX5hQZih0yvif2pIeXze9Spy2t/LUMXoVrI76Wc9qzM4WTOVCcCsPdf4sw6w+63
+         CxVz2JFZSfhkxzKJdowkj+IQDDRn8ZBpdFGbAXeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 134/193] macsec: fix refcnt leak in module exit routine
+        stable@vger.kernel.org,
+        syzbot+863724e7128e14b26732@syzkaller.appspotmail.com,
+        Johan Hovold <johan@kernel.org>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.4 22/43] can: peak_usb: fix slab info leak
 Date:   Mon, 11 Nov 2019 19:28:36 +0100
-Message-Id: <20191111181511.052784136@linuxfoundation.org>
+Message-Id: <20191111181312.978024075@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 2bce1ebed17da54c65042ec2b962e3234bad5b47 ]
+commit f7a1337f0d29b98733c8824e165fca3371d7d4fd upstream.
 
-When a macsec interface is created, it increases a refcnt to a lower
-device(real device). when macsec interface is deleted, the refcnt is
-decreased in macsec_free_netdev(), which is ->priv_destructor() of
-macsec interface.
+Fix a small slab info leak due to a failure to clear the command buffer
+at allocation.
 
-The problem scenario is this.
-When nested macsec interfaces are exiting, the exit routine of the
-macsec module makes refcnt leaks.
+The first 16 bytes of the command buffer are always sent to the device
+in pcan_usb_send_cmd() even though only the first two may have been
+initialised in case no argument payload is provided (e.g. when waiting
+for a response).
 
-Test commands:
-    ip link add dummy0 type dummy
-    ip link add macsec0 link dummy0 type macsec
-    ip link add macsec1 link macsec0 type macsec
-    modprobe -rv macsec
+Fixes: bb4785551f64 ("can: usb: PEAK-System Technik USB adapters driver core")
+Cc: stable <stable@vger.kernel.org>     # 3.4
+Reported-by: syzbot+863724e7128e14b26732@syzkaller.appspotmail.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[  208.629433] unregister_netdevice: waiting for macsec0 to become free. Usage count = 1
-
-Steps of exit routine of macsec module are below.
-1. Calls ->dellink() in __rtnl_link_unregister().
-2. Checks refcnt and wait refcnt to be 0 if refcnt is not 0 in
-netdev_run_todo().
-3. Calls ->priv_destruvtor() in netdev_run_todo().
-
-Step2 checks refcnt, but step3 decreases refcnt.
-So, step2 waits forever.
-
-This patch makes the macsec module do not hold a refcnt of the lower
-device because it already holds a refcnt of the lower device with
-netdev_upper_dev_link().
-
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/can/usb/peak_usb/pcan_usb_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index cb7637364b40d..1bd113b142ea7 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -3001,12 +3001,10 @@ static const struct nla_policy macsec_rtnl_policy[IFLA_MACSEC_MAX + 1] = {
- static void macsec_free_netdev(struct net_device *dev)
- {
- 	struct macsec_dev *macsec = macsec_priv(dev);
--	struct net_device *real_dev = macsec->real_dev;
+--- a/drivers/net/can/usb/peak_usb/pcan_usb_core.c
++++ b/drivers/net/can/usb/peak_usb/pcan_usb_core.c
+@@ -776,7 +776,7 @@ static int peak_usb_create_dev(const str
+ 	dev = netdev_priv(netdev);
  
- 	free_percpu(macsec->stats);
- 	free_percpu(macsec->secy.tx_sc.stats);
- 
--	dev_put(real_dev);
- }
- 
- static void macsec_setup(struct net_device *dev)
-@@ -3261,8 +3259,6 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
- 	if (err < 0)
- 		return err;
- 
--	dev_hold(real_dev);
--
- 	macsec->nest_level = dev_get_nest_level(real_dev) + 1;
- 	netdev_lockdep_set_classes(dev);
- 	lockdep_set_class_and_subclass(&dev->addr_list_lock,
--- 
-2.20.1
-
+ 	/* allocate a buffer large enough to send commands */
+-	dev->cmd_buf = kmalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
++	dev->cmd_buf = kzalloc(PCAN_USB_MAX_CMD_LEN, GFP_KERNEL);
+ 	if (!dev->cmd_buf) {
+ 		err = -ENOMEM;
+ 		goto lbl_free_candev;
 
 
