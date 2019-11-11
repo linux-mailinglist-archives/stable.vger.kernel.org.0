@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1FAFF6E66
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C17AF6E72
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726770AbfKKGIJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:08:09 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:56383 "EHLO
+        id S1726780AbfKKGM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:12:28 -0500
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:50519 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726652AbfKKGIJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:08:09 -0500
+        by vger.kernel.org with ESMTP id S1725796AbfKKGM2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:12:28 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 26BA95A8;
-        Mon, 11 Nov 2019 01:08:08 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 525B0568;
+        Mon, 11 Nov 2019 01:12:27 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:08:08 -0500
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:12:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=ISHrQ0
-        t+c6KX3XAZcKnlwrw/Fac26iW2HQQZfI8grPA=; b=cCOWM16WsEEa+Dfcp2vcIu
-        VS8T0XQNuVrHzK78KX4/JZt1uJnB+3VHlbVpmSdWgC33F9Qpzz5U6gM5L6FCzvJ/
-        uS1GdUiqQzGMZmad4whlqYmmZpOZyHQPPYALa+3cxnB6qRAoZrft4tw94vzlIqgB
-        Q6BeVAp65Mw+k0dL601vEKBLdktfWGcGdvyXk+UqRbSuy+14jf5H4fBZsyB9vgua
-        i8zB2tO92/3U08hIrOetZ9gme02V+8Skrndk6c++EHnqfbA0Llw0HMc85bfS36R5
-        K/TuCcSLvcgQwHUv2vZyliRIFqLVRvpMMIMZhIP0ZuelbC0LkZxOGEpwZBRqnD0Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=qRhtAj
+        faD9judxMXR9eAv6eQImdxJJyUU2SPpseE/co=; b=C0HLE5D/S0narO0P7rjBQx
+        KRXHbDpTkkpXLjW3eU89IczqNqBKx7lGL4fgSLu+c/9xJlc0mF7Wzi+r3hr5tYaY
+        CuTSGNPUO0k/r2MtYxjGJ1zSiCP6sl4Si7ub7jKIjk4ZsVZ4KkX8orWbDAldKWl5
+        jkO08vkhcU0AKcj4SgbOOW+6atReivzUoaMDCLh3p50II+z+4U2HvMICygnhOzEc
+        eZAiWy10uavkdUGRYNuGsPjNISZDulHJ8j3+1KUQfFX59di4f9I/Lydliswzl4d7
+        7HYpxHWweQ4rA6IYv02BfUa3BmexqugkVEEXYPlVZ6sk11f+Dyg9aEMuUH0DGW9A
         ==
-X-ME-Sender: <xms:x_rIXabXwqDRnqYbyhA437LVpcvJuXShX0hvip4LgjLf2Rm5qGCyPA>
+X-ME-Sender: <xms:yvvIXRqwhNLFVTU_jDPJ_K6iaRk63CYDK4bfm2zmleKYHbJJH75yaA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:x_rIXWcLL2fyOi1cJzQFXnUjobc1rfzh66A7mdMO7y91qfNsNnjBZQ>
-    <xmx:x_rIXX572_pb7BHxgsYloDY_nxP5GdT4W_MYtQbMeiTbGzfdoEWfXQ>
-    <xmx:x_rIXZvYPH_OHfyjf4B4llyDP7QZq9_NuTv2qpBJ6CsmMpWn2-haOA>
-    <xmx:x_rIXTZ7mZ82W9nQ3FDh2ZMmn0caA7t_bq7O7GQRCyQtDFNnz8PcWA>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:yvvIXcnUdKZwIuoVcIlEVMy4_FEDJ1a6kqIruvPVebvlzbeDzpj7zg>
+    <xmx:yvvIXQIbz-tfp6w6c4K9ngNnH_-JxdyNnZkx9oYqf-L8im7Ti10kUA>
+    <xmx:yvvIXZz-3vZD6HGuEodoslAmcZ4vYpG__SdYng1KCLZA16OGqubBow>
+    <xmx:yvvIXb4RgB-CElqCSPeCL7hhA6mQ7_rLD_WL0mQ9KMgK-2MNcQSCBg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 67C12306005B;
-        Mon, 11 Nov 2019 01:08:07 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: cherryview: Fix irq_valid_mask calculation" failed to apply to 4.19-stable tree
-To:     hdegoede@redhat.com, andriy.shevchenko@linux.intel.com,
-        mika.westerberg@linux.intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 60AE5306005E;
+        Mon, 11 Nov 2019 01:12:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] blkcg: make blkcg_print_stat() print stats only for online" failed to apply to 4.19-stable tree
+To:     tj@kernel.org, axboe@kernel.dk, guro@fb.com, jbacik@fb.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Nov 2019 07:08:06 +0100
-Message-ID: <1573452486251218@kroah.com>
+Date:   Mon, 11 Nov 2019 07:12:24 +0100
+Message-ID: <1573452744205173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,50 +67,74 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 63bdef6cd6941917c823b9cc9aa0219d19fcb716 Mon Sep 17 00:00:00 2001
-From: Hans de Goede <hdegoede@redhat.com>
-Date: Fri, 18 Oct 2019 11:08:42 +0200
-Subject: [PATCH] pinctrl: cherryview: Fix irq_valid_mask calculation
+From b0814361a25cba73a224548843ed92d8ea78715a Mon Sep 17 00:00:00 2001
+From: Tejun Heo <tj@kernel.org>
+Date: Tue, 5 Nov 2019 08:09:51 -0800
+Subject: [PATCH] blkcg: make blkcg_print_stat() print stats only for online
+ blkgs
 
-Commit 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux
-GPIO translation") has made the cherryview gpio numbers sparse, to get
-a 1:1 mapping between ACPI pin numbers and gpio numbers in Linux.
+blkcg_print_stat() iterates blkgs under RCU and doesn't test whether
+the blkg is online.  This can call into pd_stat_fn() on a pd which is
+still being initialized leading to an oops.
 
-This has greatly simplified things, but the code setting the
-irq_valid_mask was not updated for this, so the valid mask is still in
-the old "compressed" numbering with the gaps in the pin numbers skipped,
-which is wrong as irq_valid_mask needs to be expressed in gpio numbers.
+The heaviest operation - recursively summing up rwstat counters - is
+already done while holding the queue_lock.  Expand queue_lock to cover
+the other operations and skip the blkg if it isn't online yet.  The
+online state is protected by both blkcg and queue locks, so this
+guarantees that only online blkgs are processed.
 
-This results in the following error on devices using pin 24 (0x0018) on
-the north GPIO controller as an ACPI event source:
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Roman Gushchin <guro@fb.com>
+Cc: Josef Bacik <jbacik@fb.com>
+Fixes: 903d23f0a354 ("blk-cgroup: allow controllers to output their own stats")
+Cc: stable@vger.kernel.org # v4.19+
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-[    0.422452] cherryview-pinctrl INT33FF:01: Failed to translate GPIO to IRQ
-
-This has been reported (by email) to be happening on a Caterpillar CAT T20
-tablet and I've reproduced this myself on a Medion Akoya e2215t 2-in-1.
-
-This commit uses the pin number instead of the compressed index into
-community->pins to clear the correct bits in irq_valid_mask for GPIOs
-using GPEs for interrupts, fixing these errors and in case of the
-Medion Akoya e2215t also fixing the LID switch not working.
-
-Cc: stable@vger.kernel.org
-Fixes: 03c4749dd6c7 ("gpio / ACPI: Drop unnecessary ACPI GPIO to Linux GPIO translation")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-
-diff --git a/drivers/pinctrl/intel/pinctrl-cherryview.c b/drivers/pinctrl/intel/pinctrl-cherryview.c
-index c6251eac8946..c31266e70559 100644
---- a/drivers/pinctrl/intel/pinctrl-cherryview.c
-+++ b/drivers/pinctrl/intel/pinctrl-cherryview.c
-@@ -1559,7 +1559,7 @@ static void chv_init_irq_valid_mask(struct gpio_chip *chip,
- 		intsel >>= CHV_PADCTRL0_INTSEL_SHIFT;
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 5d21027b1faf..1eb8895be4c6 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -934,9 +934,14 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
+ 		int i;
+ 		bool has_stats = false;
  
- 		if (intsel >= community->nirqs)
--			clear_bit(i, valid_mask);
-+			clear_bit(desc->number, valid_mask);
++		spin_lock_irq(&blkg->q->queue_lock);
++
++		if (!blkg->online)
++			goto skip;
++
+ 		dname = blkg_dev_name(blkg);
+ 		if (!dname)
+-			continue;
++			goto skip;
+ 
+ 		/*
+ 		 * Hooray string manipulation, count is the size written NOT
+@@ -946,8 +951,6 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
+ 		 */
+ 		off += scnprintf(buf+off, size-off, "%s ", dname);
+ 
+-		spin_lock_irq(&blkg->q->queue_lock);
+-
+ 		blkg_rwstat_recursive_sum(blkg, NULL,
+ 				offsetof(struct blkcg_gq, stat_bytes), &rwstat);
+ 		rbytes = rwstat.cnt[BLKG_RWSTAT_READ];
+@@ -960,8 +963,6 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
+ 		wios = rwstat.cnt[BLKG_RWSTAT_WRITE];
+ 		dios = rwstat.cnt[BLKG_RWSTAT_DISCARD];
+ 
+-		spin_unlock_irq(&blkg->q->queue_lock);
+-
+ 		if (rbytes || wbytes || rios || wios) {
+ 			has_stats = true;
+ 			off += scnprintf(buf+off, size-off,
+@@ -999,6 +1000,8 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
+ 				seq_commit(sf, -1);
+ 			}
+ 		}
++	skip:
++		spin_unlock_irq(&blkg->q->queue_lock);
  	}
- }
  
+ 	rcu_read_unlock();
 
