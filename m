@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1319F7E71
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 975F0F7EDB
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728313AbfKKSol (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:44:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36380 "EHLO mail.kernel.org"
+        id S1728612AbfKKSfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:35:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53894 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728429AbfKKSok (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:44:40 -0500
+        id S1728611AbfKKSfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:35:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02109214E0;
-        Mon, 11 Nov 2019 18:44:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A62992173B;
+        Mon, 11 Nov 2019 18:35:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497878;
-        bh=xs/uc3tSF9YOdmddui/dzZ64YJC7ZTdzZFgbGi7P0Yc=;
+        s=default; t=1573497351;
+        bh=ymMzqYQ+VVBlEqzUmugAMn430vp94Z3zOxOl6rrV9RY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Fu8Kju3taitrxBa//Np5pO7SduZFfon7OeJ9GsxAfHfa/ibYcEM/TUGVah5GF03V
-         /7/5x6pn1/DEK7Zo0PPBFuYLa9jBFcKSjYxV4TFWowvSDwW1ty0US4cCVS13/DspsX
-         UQkl151XqfOf3ESo9TYdht2U0GaAaBdiXG1vdp2E=
+        b=I/NgiF4Xisk1gL+fMcsbLqD0elRYFsjxeDrASE4C+u9NrotckwFsBrvvBNnaxy1xH
+         npuus7/vLe0lg2OFAcSjxGI1PLUKj+UmdB7T+jhGc8bhTSJvgxevnb/Upshun+Wxv0
+         MQAYBG17goSu0zEwWzLbU2phBpy83lD+YO7+WapA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Zbyn=C4=9Bk=20Kocur?= <zbynek.kocur@fel.cvut.cz>,
-        Andreas Klinger <ak@it-klinger.de>, Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 035/125] iio: srf04: fix wrong limitation in distance measuring
+        stable@vger.kernel.org, Luis Henriques <lhenriques@suse.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>
+Subject: [PATCH 4.14 024/105] ceph: fix use-after-free in __ceph_remove_cap()
 Date:   Mon, 11 Nov 2019 19:27:54 +0100
-Message-Id: <20191111181445.237917677@linuxfoundation.org>
+Message-Id: <20191111181437.427359229@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,105 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Klinger <ak@it-klinger.de>
+From: Luis Henriques <lhenriques@suse.com>
 
-commit 431f7667bd6889a274913162dfd19cce9d84848e upstream.
+commit ea60ed6fcf29eebc78f2ce91491e6309ee005a01 upstream.
 
-The measured time value in the driver is limited to the maximum distance
-which can be read by the sensor. This limitation was wrong and is fixed
-by this patch.
+KASAN reports a use-after-free when running xfstest generic/531, with the
+following trace:
 
-It also takes into account that we are supporting a variety of sensors
-today and that the recently added sensors have a higher maximum
-distance range.
+[  293.903362]  kasan_report+0xe/0x20
+[  293.903365]  rb_erase+0x1f/0x790
+[  293.903370]  __ceph_remove_cap+0x201/0x370
+[  293.903375]  __ceph_remove_caps+0x4b/0x70
+[  293.903380]  ceph_evict_inode+0x4e/0x360
+[  293.903386]  evict+0x169/0x290
+[  293.903390]  __dentry_kill+0x16f/0x250
+[  293.903394]  dput+0x1c6/0x440
+[  293.903398]  __fput+0x184/0x330
+[  293.903404]  task_work_run+0xb9/0xe0
+[  293.903410]  exit_to_usermode_loop+0xd3/0xe0
+[  293.903413]  do_syscall_64+0x1a0/0x1c0
+[  293.903417]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Changes in v2:
-- Added a Tested-by
+This happens because __ceph_remove_cap() may queue a cap release
+(__ceph_queue_cap_release) which can be scheduled before that cap is
+removed from the inode list with
 
-Suggested-by: Zbyněk Kocur <zbynek.kocur@fel.cvut.cz>
-Tested-by: Zbyněk Kocur <zbynek.kocur@fel.cvut.cz>
-Signed-off-by: Andreas Klinger <ak@it-klinger.de>
-Cc:<Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+	rb_erase(&cap->ci_node, &ci->i_caps);
+
+And, when this finally happens, the use-after-free will occur.
+
+This can be fixed by removing the cap from the inode list before being
+removed from the session list, and thus eliminating the risk of an UAF.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Luis Henriques <lhenriques@suse.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/proximity/srf04.c |   29 +++++++++++++++--------------
- 1 file changed, 15 insertions(+), 14 deletions(-)
+ fs/ceph/caps.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/proximity/srf04.c
-+++ b/drivers/iio/proximity/srf04.c
-@@ -105,7 +105,7 @@ static int srf04_read(struct srf04_data
- 	udelay(10);
- 	gpiod_set_value(data->gpiod_trig, 0);
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -935,6 +935,11 @@ void __ceph_remove_cap(struct ceph_cap *
  
--	/* it cannot take more than 20 ms */
-+	/* it should not take more than 20 ms until echo is rising */
- 	ret = wait_for_completion_killable_timeout(&data->rising, HZ/50);
- 	if (ret < 0) {
- 		mutex_unlock(&data->lock);
-@@ -115,7 +115,8 @@ static int srf04_read(struct srf04_data
- 		return -ETIMEDOUT;
- 	}
+ 	dout("__ceph_remove_cap %p from %p\n", cap, &ci->vfs_inode);
  
--	ret = wait_for_completion_killable_timeout(&data->falling, HZ/50);
-+	/* it cannot take more than 50 ms until echo is falling */
-+	ret = wait_for_completion_killable_timeout(&data->falling, HZ/20);
- 	if (ret < 0) {
- 		mutex_unlock(&data->lock);
- 		return ret;
-@@ -130,19 +131,19 @@ static int srf04_read(struct srf04_data
++	/* remove from inode's cap rbtree, and clear auth cap */
++	rb_erase(&cap->ci_node, &ci->i_caps);
++	if (ci->i_auth_cap == cap)
++		ci->i_auth_cap = NULL;
++
+ 	/* remove from session list */
+ 	spin_lock(&session->s_cap_lock);
+ 	if (session->s_cap_iterator == cap) {
+@@ -970,11 +975,6 @@ void __ceph_remove_cap(struct ceph_cap *
  
- 	dt_ns = ktime_to_ns(ktime_dt);
- 	/*
--	 * measuring more than 3 meters is beyond the capabilities of
--	 * the sensor
-+	 * measuring more than 6,45 meters is beyond the capabilities of
-+	 * the supported sensors
- 	 * ==> filter out invalid results for not measuring echos of
- 	 *     another us sensor
- 	 *
- 	 * formula:
--	 *         distance       3 m
--	 * time = ---------- = --------- = 9404389 ns
--	 *          speed       319 m/s
-+	 *         distance     6,45 * 2 m
-+	 * time = ---------- = ------------ = 40438871 ns
-+	 *          speed         319 m/s
- 	 *
- 	 * using a minimum speed at -20 °C of 319 m/s
- 	 */
--	if (dt_ns > 9404389)
-+	if (dt_ns > 40438871)
- 		return -EIO;
+ 	spin_unlock(&session->s_cap_lock);
  
- 	time_ns = dt_ns;
-@@ -154,20 +155,20 @@ static int srf04_read(struct srf04_data
- 	 *   with Temp in °C
- 	 *   and speed in m/s
- 	 *
--	 * use 343 m/s as ultrasonic speed at 20 °C here in absence of the
-+	 * use 343,5 m/s as ultrasonic speed at 20 °C here in absence of the
- 	 * temperature
- 	 *
- 	 * therefore:
--	 *             time     343
--	 * distance = ------ * -----
--	 *             10^6       2
-+	 *             time     343,5     time * 106
-+	 * distance = ------ * ------- = ------------
-+	 *             10^6         2         617176
- 	 *   with time in ns
- 	 *   and distance in mm (one way)
- 	 *
--	 * because we limit to 3 meters the multiplication with 343 just
-+	 * because we limit to 6,45 meters the multiplication with 106 just
- 	 * fits into 32 bit
- 	 */
--	distance_mm = time_ns * 343 / 2000000;
-+	distance_mm = time_ns * 106 / 617176;
+-	/* remove from inode list */
+-	rb_erase(&cap->ci_node, &ci->i_caps);
+-	if (ci->i_auth_cap == cap)
+-		ci->i_auth_cap = NULL;
+-
+ 	if (removed)
+ 		ceph_put_cap(mdsc, cap);
  
- 	return distance_mm;
- }
 
 
