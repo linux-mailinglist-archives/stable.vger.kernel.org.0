@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64FA6F6E8E
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:30:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25BF8F6E91
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:30:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726785AbfKKGaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:30:13 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:39661 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726360AbfKKGaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:30:12 -0500
+        id S1726847AbfKKGam (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:30:42 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:60449 "EHLO
+        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726834AbfKKGal (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:30:41 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 9544C5B8;
-        Mon, 11 Nov 2019 01:30:11 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:30:11 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 29B6C20F2E;
+        Mon, 11 Nov 2019 01:30:40 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:30:40 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=p5BCHL
-        H3szLfee2D/M7pOL6zbR8jo8fkA8rWxT44BpU=; b=X+jCbVHc5fJKXGmaUHFwR7
-        TaZeuhsmhIjl9kdOExsIp9Kfpi9zEKGwA+vGb+okaouTKa6qYPslLiqSZ0wI/eS4
-        U7U8Oti3IVYQRWIK6W+fnhAcLKCHXK6azhAHzcNlW5XFT6kgOdRv1W/zaf3/ThVN
-        mvlOH2GFu4dEauAnTO0VYvKhogFaaT24Nlmqs0FBX1RtGxeYqq7PSJzcSMvn7paS
-        yXRz89zsEj1FRu30HpLVznA+QKeo06czDYTQz0nIASOe+hg/PYtLIE5GcTlmeNqi
-        Logmy77HvyU82AUbfU5A6105RyO9CDiilc0UX5hy4/DYYPFxtlWQJjWc0bMxAa/w
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=S+c1ZF
+        V5T+xZMfTHCnNll2Yty4VPP/kt9Pj+0JSXwWQ=; b=orHPOzR6LWYsLeJb+eaql4
+        D/59Ils7jrZIAO550/1pDdP9ia42i5zA6Cko80/mAJMfCzLfZuW7LZ71LVsT5JL6
+        m0+rxe2C/tjenGRxbJmW5wGeNp41yEss6CGFjZrYv1c2PzZmHH3ubxPBNdmT78tq
+        jzS0JuoOADsIW86xJfnkXNQB7rFIoN/sGVoYuy0gYRmgB12Q3KLstg7bKuCgnO+0
+        +sp3mTrA4fxtDTBvPgJSsNL3plWHRycyQsBtzm/dDDW+51VfSeOW2vu9qohONiuf
+        ZAKM1tc23m7MRxylJ56T5W379ctPYwBcFgaKI8Agzg0BCtcUDQu0/pDJdZ4ozkNg
         ==
-X-ME-Sender: <xms:8__IXfYk7tmN5f6T1sRSg6EwCVR_j02T9gRxBAPmh5XHgviYCTNFyA>
+X-ME-Sender: <xms:DwDJXSfLpdtbJFjd13rSGs4dTVeqIvlKgR7fLXgzSEcXZ-Y_5AWTGA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:8__IXem2q1p0LeahfH8992wmBT0-OCQd34slag-fakOLBFAen5BEHA>
-    <xmx:8__IXTyAGLZ7omriGmMON2wvtlDZ2drQs1y8gkna3vpEPReboWhu4w>
-    <xmx:8__IXUP_urT4g3kGYeEaLgf3Dm7MTDVxC1uug70G3yj2GGqHAGHL7Q>
-    <xmx:8__IXZdor0Vlgf2lr5VDjT4HL1lL2SlO2eGbC2TBtb5T04X4dH8DpA>
+    ucevlhhushhtvghrufhiiigvpeef
+X-ME-Proxy: <xmx:DwDJXVj5_Xc5vS2ZjVOWMvDpeALcQh_J9wUuyEcoR2rm7Kf-5b112w>
+    <xmx:DwDJXawJvthItaNoejIfHmSHkub11X43lMF8GGnmLyKDYD6aBIZ-gg>
+    <xmx:DwDJXRPFWqdzcXEx-6MLJIqvajdL6d41sTQuQlI5B0P3oFnSKW6j2A>
+    <xmx:EADJXcVY5-gLZbBt-tRnzercuaHBf3_gZfgGB1xvlWysEvKX1thkzw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id CB4023060061;
-        Mon, 11 Nov 2019 01:30:10 -0500 (EST)
-Subject: FAILED: patch "[PATCH] x86/apic/32: Avoid bogus LDR warnings" failed to apply to 4.4-stable tree
-To:     jbeulich@suse.com, tglx@linutronix.de
+        by mail.messagingengine.com (Postfix) with ESMTPA id E80C480063;
+        Mon, 11 Nov 2019 01:30:38 -0500 (EST)
+Subject: FAILED: patch "[PATCH] timekeeping/vsyscall: Update VDSO data unconditionally" failed to apply to 5.3-stable tree
+To:     chenhc@lemote.com, arnd@arndb.de, luto@kernel.org,
+        paul.burton@mips.com, tglx@linutronix.de, vincenzo.frascino@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Nov 2019 07:30:00 +0100
-Message-ID: <157345380012693@kroah.com>
+Date:   Mon, 11 Nov 2019 07:30:37 +0100
+Message-ID: <1573453837131100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,78 +69,125 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fe6f85ca121e9c74e7490fe66b0c5aae38e332c3 Mon Sep 17 00:00:00 2001
-From: Jan Beulich <jbeulich@suse.com>
-Date: Tue, 29 Oct 2019 10:34:19 +0100
-Subject: [PATCH] x86/apic/32: Avoid bogus LDR warnings
+From 52338415cf4d4064ae6b8dd972dadbda841da4fa Mon Sep 17 00:00:00 2001
+From: Huacai Chen <chenhc@lemote.com>
+Date: Thu, 24 Oct 2019 11:28:29 +0800
+Subject: [PATCH] timekeeping/vsyscall: Update VDSO data unconditionally
 
-The removal of the LDR initialization in the bigsmp_32 APIC code unearthed
-a problem in setup_local_APIC().
+The update of the VDSO data is depending on __arch_use_vsyscall() returning
+True. This is a leftover from the attempt to map the features of various
+architectures 1:1 into generic code.
 
-The code checks unconditionally for a mismatch of the logical APIC id by
-comparing the early APIC id which was initialized in get_smp_config() with
-the actual LDR value in the APIC.
+The usage of __arch_use_vsyscall() in the actual vsyscall implementations
+got dropped and replaced by the requirement for the architecture code to
+return U64_MAX if the global clocksource is not usable in the VDSO.
 
-Due to the removal of the bogus LDR initialization the check now can
-trigger on bigsmp_32 APIC systems emitting a warning for every booting
-CPU. This is of course a false positive because the APIC is not using
-logical destination mode.
+But the __arch_use_vsyscall() check in the update code stayed which causes
+the VDSO data to be stale or invalid when an architecture actually
+implements that function and returns False when the current clocksource is
+not usable in the VDSO.
 
-Restrict the check and the possibly resulting fixup to systems which are
-actually using the APIC in logical destination mode.
+As a consequence the VDSO implementations of clock_getres(), time(),
+clock_gettime(CLOCK_.*_COARSE) operate on invalid data and return bogus
+information.
 
-[ tglx: Massaged changelog and added Cc stable ]
+Remove the __arch_use_vsyscall() check from the VDSO update function and
+update the VDSO data unconditionally.
 
-Fixes: bae3a8d3308 ("x86/apic: Do not initialize LDR and DFR for bigsmp")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
+[ tglx: Massaged changelog and removed the now useless implementations in
+  	asm-generic/ARM64/MIPS ]
+
+Fixes: 44f57d788e7deecb50 ("timekeeping: Provide a generic update_vsyscall() implementation")
+Signed-off-by: Huacai Chen <chenhc@lemote.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-arm-kernel@lists.infradead.org
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/666d8f91-b5a8-1afd-7add-821e72a35f03@suse.com
+Link: https://lkml.kernel.org/r/1571887709-11447-1-git-send-email-chenhc@lemote.com
 
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 9e2dd2b296cd..2b0faf86da1b 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -1586,9 +1586,6 @@ static void setup_local_APIC(void)
+diff --git a/arch/arm64/include/asm/vdso/vsyscall.h b/arch/arm64/include/asm/vdso/vsyscall.h
+index 0c731bfc7c8c..0c20a7c1bee5 100644
+--- a/arch/arm64/include/asm/vdso/vsyscall.h
++++ b/arch/arm64/include/asm/vdso/vsyscall.h
+@@ -30,13 +30,6 @@ int __arm64_get_clock_mode(struct timekeeper *tk)
+ }
+ #define __arch_get_clock_mode __arm64_get_clock_mode
+ 
+-static __always_inline
+-int __arm64_use_vsyscall(struct vdso_data *vdata)
+-{
+-	return !vdata[CS_HRES_COARSE].clock_mode;
+-}
+-#define __arch_use_vsyscall __arm64_use_vsyscall
+-
+ static __always_inline
+ void __arm64_update_vsyscall(struct vdso_data *vdata, struct timekeeper *tk)
  {
- 	int cpu = smp_processor_id();
- 	unsigned int value;
--#ifdef CONFIG_X86_32
--	int logical_apicid, ldr_apicid;
--#endif
+diff --git a/arch/mips/include/asm/vdso/vsyscall.h b/arch/mips/include/asm/vdso/vsyscall.h
+index 195314732233..00d41b94ba31 100644
+--- a/arch/mips/include/asm/vdso/vsyscall.h
++++ b/arch/mips/include/asm/vdso/vsyscall.h
+@@ -28,13 +28,6 @@ int __mips_get_clock_mode(struct timekeeper *tk)
+ }
+ #define __arch_get_clock_mode __mips_get_clock_mode
  
- 	if (disable_apic) {
- 		disable_ioapic_support();
-@@ -1626,16 +1623,21 @@ static void setup_local_APIC(void)
- 	apic->init_apic_ldr();
+-static __always_inline
+-int __mips_use_vsyscall(struct vdso_data *vdata)
+-{
+-	return (vdata[CS_HRES_COARSE].clock_mode != VDSO_CLOCK_NONE);
+-}
+-#define __arch_use_vsyscall __mips_use_vsyscall
+-
+ /* The asm-generic header needs to be included after the definitions above */
+ #include <asm-generic/vdso/vsyscall.h>
  
- #ifdef CONFIG_X86_32
--	/*
--	 * APIC LDR is initialized.  If logical_apicid mapping was
--	 * initialized during get_smp_config(), make sure it matches the
--	 * actual value.
--	 */
--	logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
--	ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
--	WARN_ON(logical_apicid != BAD_APICID && logical_apicid != ldr_apicid);
--	/* always use the value from LDR */
--	early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
-+	if (apic->dest_logical) {
-+		int logical_apicid, ldr_apicid;
-+
-+		/*
-+		 * APIC LDR is initialized.  If logical_apicid mapping was
-+		 * initialized during get_smp_config(), make sure it matches
-+		 * the actual value.
-+		 */
-+		logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
-+		ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
-+		if (logical_apicid != BAD_APICID)
-+			WARN_ON(logical_apicid != ldr_apicid);
-+		/* Always use the value from LDR. */
-+		early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
-+	}
- #endif
+diff --git a/include/asm-generic/vdso/vsyscall.h b/include/asm-generic/vdso/vsyscall.h
+index e94b19782c92..ce4103208619 100644
+--- a/include/asm-generic/vdso/vsyscall.h
++++ b/include/asm-generic/vdso/vsyscall.h
+@@ -25,13 +25,6 @@ static __always_inline int __arch_get_clock_mode(struct timekeeper *tk)
+ }
+ #endif /* __arch_get_clock_mode */
  
- 	/*
+-#ifndef __arch_use_vsyscall
+-static __always_inline int __arch_use_vsyscall(struct vdso_data *vdata)
+-{
+-	return 1;
+-}
+-#endif /* __arch_use_vsyscall */
+-
+ #ifndef __arch_update_vsyscall
+ static __always_inline void __arch_update_vsyscall(struct vdso_data *vdata,
+ 						   struct timekeeper *tk)
+diff --git a/kernel/time/vsyscall.c b/kernel/time/vsyscall.c
+index 4bc37ac3bb05..5ee0f7709410 100644
+--- a/kernel/time/vsyscall.c
++++ b/kernel/time/vsyscall.c
+@@ -110,8 +110,7 @@ void update_vsyscall(struct timekeeper *tk)
+ 	nsec		= nsec + tk->wall_to_monotonic.tv_nsec;
+ 	vdso_ts->sec	+= __iter_div_u64_rem(nsec, NSEC_PER_SEC, &vdso_ts->nsec);
+ 
+-	if (__arch_use_vsyscall(vdata))
+-		update_vdso_data(vdata, tk);
++	update_vdso_data(vdata, tk);
+ 
+ 	__arch_update_vsyscall(vdata, tk);
+ 
+@@ -124,10 +123,8 @@ void update_vsyscall_tz(void)
+ {
+ 	struct vdso_data *vdata = __arch_get_k_vdso_data();
+ 
+-	if (__arch_use_vsyscall(vdata)) {
+-		vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
+-		vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
+-	}
++	vdata[CS_HRES_COARSE].tz_minuteswest = sys_tz.tz_minuteswest;
++	vdata[CS_HRES_COARSE].tz_dsttime = sys_tz.tz_dsttime;
+ 
+ 	__arch_sync_vdso_data(vdata);
+ }
 
