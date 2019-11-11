@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BAB2F7F75
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:11:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86507F7F2D
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727414AbfKKSan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:30:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47062 "EHLO mail.kernel.org"
+        id S1728165AbfKKSdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:33:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727411AbfKKSam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:30:42 -0500
+        id S1728158AbfKKSdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:33:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84FE720674;
-        Mon, 11 Nov 2019 18:30:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6ADDE214E0;
+        Mon, 11 Nov 2019 18:33:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497041;
-        bh=xBY9KLAK1d8S4cs3Js4dOxZAJaPz5wbidMGeRJhHRQo=;
+        s=default; t=1573497213;
+        bh=HF4uijMyGzKGfAH1v82FhCnktpAr5PkJtl1aztSZj0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wx7U8tbOEPC/YR5evKeA8SsrUDl3Ggtmi3hUpZXKEDuVNUN3dLxqoF0BCMS+fOhiz
-         7D3d2EKzxBDjgz9QEIK/JpyvlVZCB8tAWCwufNMoX3DgHVQxcl/7EiNjPwT0Ko3xsS
-         tyRggJ2WFZqp5Riwq3VDFJWYJatsEz26OnGsKDTo=
+        b=TLgxAilHg76UxI9oPp3oHUxExrWtsYaLUfhfDCLbmlZKMKwmVoQwJU89L67IyLb3j
+         Q7aAUPwxNhs7ZrSq7pCOkCCw+ENQhh8yN/oVAgtcCt3mM7mI7h0IMjE3pUESQLoATz
+         sjRGfGsQ/JwZknYg4xmdFbGmFFACbXIivCvMlZXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 4.4 25/43] PCI: tegra: Enable Relaxed Ordering only for Tegra20 & Tegra30
-Date:   Mon, 11 Nov 2019 19:28:39 +0100
-Message-Id: <20191111181316.742248806@linuxfoundation.org>
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 40/65] scsi: qla2xxx: fixup incorrect usage of host_byte
+Date:   Mon, 11 Nov 2019 19:28:40 +0100
+Message-Id: <20191111181347.659641041@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,66 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vidya Sagar <vidyas@nvidia.com>
+From: Hannes Reinecke <hare@suse.com>
 
-commit 7be142caabc4780b13a522c485abc806de5c4114 upstream.
+[ Upstream commit 66cf50e65b183c863825f5c28a818e3f47a72e40 ]
 
-The PCI Tegra controller conversion to a device tree configurable
-driver in commit d1523b52bff3 ("PCI: tegra: Move PCIe driver
-to drivers/pci/host") implied that code for the driver can be
-compiled in for a kernel supporting multiple platforms.
+DRIVER_ERROR is a a driver byte setting, not a host byte.  The qla2xxx
+driver should rather return DID_ERROR here to be in line with the other
+drivers.
 
-Unfortunately, a blind move of the code did not check that some of the
-quirks that were applied in arch/arm (eg enabling Relaxed Ordering on
-all PCI devices - since the quirk hook erroneously matches PCI_ANY_ID
-for both Vendor-ID and Device-ID) are now applied in all kernels that
-compile the PCI Tegra controlled driver, DT and ACPI alike.
-
-This is completely wrong, in that enablement of Relaxed Ordering is only
-required by default in Tegra20 platforms as described in the Tegra20
-Technical Reference Manual (available at
-https://developer.nvidia.com/embedded/downloads#?search=tegra%202 in
-Section 34.1, where it is mentioned that Relaxed Ordering bit needs to
-be enabled in its root ports to avoid deadlock in hardware) and in the
-Tegra30 platforms for the same reasons (unfortunately not documented
-in the TRM).
-
-There is no other strict requirement on PCI devices Relaxed Ordering
-enablement on any other Tegra platforms or PCI host bridge driver.
-
-Fix this quite upsetting situation by limiting the vendor and device IDs
-to which the Relaxed Ordering quirk applies to the root ports in
-question, reported above.
-
-Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
-[lorenzo.pieralisi@arm.com: completely rewrote the commit log/fixes tag]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Link: https://lore.kernel.org/r/20191018140458.108278-1-hare@suse.de
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/host/pci-tegra.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/scsi/qla2xxx/qla_bsg.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/host/pci-tegra.c
-+++ b/drivers/pci/host/pci-tegra.c
-@@ -586,12 +586,15 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NV
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_fixup_class);
- DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_fixup_class);
+diff --git a/drivers/scsi/qla2xxx/qla_bsg.c b/drivers/scsi/qla2xxx/qla_bsg.c
+index 4a6e086279f9a..33e4dceb895f2 100644
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -252,7 +252,7 @@ qla2x00_process_els(struct fc_bsg_job *bsg_job)
+ 	srb_t *sp;
+ 	const char *type;
+ 	int req_sg_cnt, rsp_sg_cnt;
+-	int rval =  (DRIVER_ERROR << 16);
++	int rval =  (DID_ERROR << 16);
+ 	uint16_t nextlid = 0;
  
--/* Tegra PCIE requires relaxed ordering */
-+/* Tegra20 and Tegra30 PCIE requires relaxed ordering */
- static void tegra_pcie_relax_enable(struct pci_dev *dev)
- {
- 	pcie_capability_set_word(dev, PCI_EXP_DEVCTL, PCI_EXP_DEVCTL_RELAX_EN);
- }
--DECLARE_PCI_FIXUP_FINAL(PCI_ANY_ID, PCI_ANY_ID, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf0, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0bf1, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1c, tegra_pcie_relax_enable);
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_NVIDIA, 0x0e1d, tegra_pcie_relax_enable);
- 
- static int tegra_pcie_setup(int nr, struct pci_sys_data *sys)
- {
+ 	if (bsg_job->request->msgcode == FC_BSG_RPT_ELS) {
+@@ -426,7 +426,7 @@ qla2x00_process_ct(struct fc_bsg_job *bsg_job)
+ 	struct Scsi_Host *host = bsg_job->shost;
+ 	scsi_qla_host_t *vha = shost_priv(host);
+ 	struct qla_hw_data *ha = vha->hw;
+-	int rval = (DRIVER_ERROR << 16);
++	int rval = (DID_ERROR << 16);
+ 	int req_sg_cnt, rsp_sg_cnt;
+ 	uint16_t loop_id;
+ 	struct fc_port *fcport;
+@@ -1911,7 +1911,7 @@ qlafx00_mgmt_cmd(struct fc_bsg_job *bsg_job)
+ 	struct Scsi_Host *host = bsg_job->shost;
+ 	scsi_qla_host_t *vha = shost_priv(host);
+ 	struct qla_hw_data *ha = vha->hw;
+-	int rval = (DRIVER_ERROR << 16);
++	int rval = (DID_ERROR << 16);
+ 	struct qla_mt_iocb_rqst_fx00 *piocb_rqst;
+ 	srb_t *sp;
+ 	int req_sg_cnt = 0, rsp_sg_cnt = 0;
+-- 
+2.20.1
+
 
 
