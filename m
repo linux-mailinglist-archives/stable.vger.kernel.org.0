@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFB5F7B39
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:34:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A1B3F7C12
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728231AbfKKSdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:33:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51382 "EHLO mail.kernel.org"
+        id S1727520AbfKKSmv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:42:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728229AbfKKSdy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:33:54 -0500
+        id S1727362AbfKKSmu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:42:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 789A821783;
-        Mon, 11 Nov 2019 18:33:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E6A21925;
+        Mon, 11 Nov 2019 18:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497234;
-        bh=O8JqrFNL5fiRfUfBZHt8d/7Bp/awQ18JHCgSuhlLIGE=;
+        s=default; t=1573497770;
+        bh=ZK/ZBjuL36PlHFysUhKmPHj4iSBscDJgj7PWaoy0ufo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2dFJP9a22FQ6OqdD+Gffc5LKriyARm+6U+Le6Sap0q2wzg9P2tI9csP2HtfVeNJdi
-         BxmlzRG3GWqWKzqXnIk3FXFXBU7pa6Z8hPmaUEsahJvobEQyDoQBgwUDIyGgSkPSIt
-         FmSvPPcsSfAB4u83a56MUt90P6RQ5UAeTVM8Hh4I=
+        b=qsLbtlPZleMfPY1ys/ebRQ2UyWrWeSkro0+Qad1Ozm/ihKpQF4F76itXAKmpFuzWK
+         5jMWe4Gjh19Bff29hBu8BkLdhsH8w+imlsxG7qws4ITaGCIXOaMky6tfPff3RMfff4
+         vusf+MbfQC2KrsRWHVdRtnc49KyKUDZJSg8jymRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 11/65] ALSA: hda/ca0132 - Fix possible workqueue stall
-Date:   Mon, 11 Nov 2019 19:28:11 +0100
-Message-Id: <20191111181342.533517089@linuxfoundation.org>
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4.19 053/125] configfs_register_group() shouldnt be (and isnt) called in rmdirable parts
+Date:   Mon, 11 Nov 2019 19:28:12 +0100
+Message-Id: <20191111181447.430082052@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
-References: <20191111181331.917659011@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-commit 15c2b3cc09a31620914955cb2a89c277c18ee999 upstream.
+commit f19e4ed1e1edbfa3c9ccb9fed17759b7d6db24c6 upstream.
 
-The unsolicited event handler for the headphone jack on CA0132 codec
-driver tries to reschedule the another delayed work with
-cancel_delayed_work_sync().  It's no good idea, unfortunately,
-especially after we changed the work queue to the standard global
-one; this may lead to a stall because both works are using the same
-global queue.
+revert cc57c07343bd "configfs: fix registered group removal"
+It was an attempt to handle something that fundamentally doesn't
+work - configfs_register_group() should never be done in a part
+of tree that can be rmdir'ed.  And in mainline it never had been,
+so let's not borrow trouble; the fix was racy anyway, it would take
+a lot more to make that work and desired semantics is not clear.
 
-Fix it by dropping the _sync but does call cancel_delayed_work()
-instead.
-
-Fixes: 993884f6a26c ("ALSA: hda/ca0132 - Delay HP amp turnon.")
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1155836
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191105134316.19294-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/pci/hda/patch_ca0132.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/configfs/dir.c |   11 -----------
+ 1 file changed, 11 deletions(-)
 
---- a/sound/pci/hda/patch_ca0132.c
-+++ b/sound/pci/hda/patch_ca0132.c
-@@ -4440,7 +4440,7 @@ static void hp_callback(struct hda_codec
- 	/* Delay enabling the HP amp, to let the mic-detection
- 	 * state machine run.
- 	 */
--	cancel_delayed_work_sync(&spec->unsol_hp_work);
-+	cancel_delayed_work(&spec->unsol_hp_work);
- 	schedule_delayed_work(&spec->unsol_hp_work, msecs_to_jiffies(500));
- 	tbl = snd_hda_jack_tbl_get(codec, cb->nid);
- 	if (tbl)
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -1782,16 +1782,6 @@ void configfs_unregister_group(struct co
+ 	struct dentry *dentry = group->cg_item.ci_dentry;
+ 	struct dentry *parent = group->cg_item.ci_parent->ci_dentry;
+ 
+-	mutex_lock(&subsys->su_mutex);
+-	if (!group->cg_item.ci_parent->ci_group) {
+-		/*
+-		 * The parent has already been unlinked and detached
+-		 * due to a rmdir.
+-		 */
+-		goto unlink_group;
+-	}
+-	mutex_unlock(&subsys->su_mutex);
+-
+ 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
+ 	spin_lock(&configfs_dirent_lock);
+ 	configfs_detach_prep(dentry, NULL);
+@@ -1806,7 +1796,6 @@ void configfs_unregister_group(struct co
+ 	dput(dentry);
+ 
+ 	mutex_lock(&subsys->su_mutex);
+-unlink_group:
+ 	unlink_group(group);
+ 	mutex_unlock(&subsys->su_mutex);
+ }
 
 
