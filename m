@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC37BF6E4D
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBAB4F6E4F
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:00:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726952AbfKKGAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:00:07 -0500
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37549 "EHLO
+        id S1726954AbfKKGAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:00:11 -0500
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:40863 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726205AbfKKGAH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:00:07 -0500
+        by vger.kernel.org with ESMTP id S1726205AbfKKGAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:00:11 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id ADA3E21BF7;
-        Mon, 11 Nov 2019 01:00:06 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:00:06 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 3865220F24;
+        Mon, 11 Nov 2019 01:00:10 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:00:10 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=nrGa2o
-        /BdsHn3G2+n+WBGoGEp2zeVRkhTvPe9xFnou4=; b=J5rOcL+obZ97J42jONBVD6
-        fa9PNjtwtMjhVdh95YZ1DnBvgwFPTfaF9pHEG5Y/La6YRCUwFCLqVA8CosgXqUIq
-        fPmlDJ+oyeoTnbSMe66aSMAQbmGCQjxIUdpH9x3jPkx/1JFVNUhvMV/Dyeq5o0sn
-        u4opmKS70z/+YYEmVetTnfBnbrN6OS7Q9JsPIJKSHOtu7QU6PEg4Quow1P0+3esd
-        5IxwuTygzJHYHwHWuf6IPetT6ENAdJsR+bqiEsLPo2BzvV0rxLVOcj5x+r8uHLx+
-        PdGfWzGIcIpQRrr+bvdvCHVSeCUe31bEHx/VruyY3Wwgz0mwsM+CJW6/nzf8gICA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Hxb9gy
+        OG3YU60rzLSte04qutIhy7fvxKooK7zkGg2a4=; b=oZXLYj1jJHP2I3t98I9z9j
+        6c6Yi8xjLlNL7RK8rrbQoxLXgvNpzz2L67JyXBZXp35/lv8dlUH+Lso7GL4bbgzH
+        3hAIlPYg9kycojPUExby4uJsd8APdElSMJUWPHTAhF0+xPEYSVT2w4N2t/0d/gQO
+        s8s14VyING/mUYs5p0WeTTLROQ1iHwTvYojwh+fNbGfjfVUKQ+DMUrG6ErusML6c
+        P7+GFHoETazqXCogYmDi+/yTkL1RSe2UnkMGRlzoAR1siBmKq6/YnaxyHzCEQ2T6
+        Loz+eQQRi8NIoE7qTAj8RBtILIw5qwZFZdreYjDbYlrK7fgTek/XpAfTzFrfK3Bw
         ==
-X-ME-Sender: <xms:5vjIXXxj_CDjXeW0f6W0QhWv0RdOay7ml1x0riSx44xHsAhpKombuA>
+X-ME-Sender: <xms:6vjIXf_GCvtz1XoJFsskMB6ykjarqSFRvhVlgqWNsRMnodmpGTtwLA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgledvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:5vjIXT1Xo-0XuK20VzrY7G7XMX6ARZeY440ufIC_duOhU8o2GUGkBA>
-    <xmx:5vjIXedyCYJizlHzeX9cVvqlfuGfgEt_PXxT0ucjo3-_--wzDSD7vQ>
-    <xmx:5vjIXYUH8VyCWJFacUrPWwm5mJZK2CeE9CC7_7pXTOGiZPN12EmGjg>
-    <xmx:5vjIXcKVxBmyhlZfl7n4cfQ5unNfy-fUVe1Hjx9ydO6CR32Ip8wTxw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:6vjIXTSkBX5SUqGGQ8UX1p1WAGxJuIcHI7qUPS4vSwtv5R9vcxyhmg>
+    <xmx:6vjIXcqsiEwALJqpKpM0MlocpPsYYLGcl5FEh1vIH55xMvZD5xRQsg>
+    <xmx:6vjIXYNtWotW1g9nGGX9s-juOtHsE-TVUxtTwt-IgKd592yWxWYA9w>
+    <xmx:6vjIXbKLrLc4_owTm8LGjWkEf66zSgF4j4zVuM1zdeJnPJ0TJqxxTg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4B6A13060064;
-        Mon, 11 Nov 2019 01:00:06 -0500 (EST)
-Subject: FAILED: patch "[PATCH] pinctrl: intel: Avoid potential glitches if pin is in GPIO" failed to apply to 4.14-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id ABDFA80063;
+        Mon, 11 Nov 2019 01:00:09 -0500 (EST)
+Subject: FAILED: patch "[PATCH] pinctrl: intel: Avoid potential glitches if pin is in GPIO" failed to apply to 4.9-stable tree
 To:     andriy.shevchenko@linux.intel.com, malin.jonsson@ericsson.com,
         mika.westerberg@linux.intel.com, oliver.barta@aptiv.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 11 Nov 2019 06:59:53 +0100
-Message-ID: <1573451993230@kroah.com>
+Date:   Mon, 11 Nov 2019 06:59:54 +0100
+Message-ID: <157345199413487@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
