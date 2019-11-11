@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54EA0F7E43
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD5B3F7E42
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729725AbfKKSr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:47:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40950 "EHLO mail.kernel.org"
+        id S1730211AbfKKSsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:48:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729767AbfKKSr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:47:58 -0500
+        id S1730209AbfKKSsE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:48:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7002C20674;
-        Mon, 11 Nov 2019 18:47:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6E2A204FD;
+        Mon, 11 Nov 2019 18:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498077;
-        bh=X1tKbfo/tuQF/XTXNXBwQTDlzsKrcIwpWLfElsYbQXk=;
+        s=default; t=1573498083;
+        bh=Ex4oHg5nWgxmc4RUKJq2fBVsydM59UKF3JY2twpNiB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vkdtYywWrsmy+1FMGcJ57DinMK5b7Wqx5TU55A70hU/EU8z/VLLSnEZzyH3hTdDT+
-         ojEWXlJZsejiW1DVf+lQn7oKeAQCxp268IH8bUNCGAL6M0xDs8PmpXM2tgUW/vXmbO
-         Tu8u49AgefJ1sIilfYj3M9wucTZ21+ocEI3VXSKA=
+        b=CLAcbrfLrnuOhvLFXAMWJOwx4kiKKeNjO0SJi6lOVjN3/YDTxtQj9G1pW3KlVV/Fo
+         TAvnng4hTJsTRPnxLE8VOLZjg0ypOmPwccTzsDXw6AXkkQ5pWGkIVmrqPF3vHReI45
+         uDJppqaPb9BFJHAvYfo9kDEw6DjLGXelKZZ/JuKE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mallesham Jatharakonda <mallesh537@gmail.com>,
-        Pooja Trivedi <poojatrivedi@gmail.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Simon Horman <simon.horman@netronome.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        David Ahern <dsahern@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 016/193] net/tls: add a TX lock
-Date:   Mon, 11 Nov 2019 19:26:38 +0100
-Message-Id: <20191111181501.296176521@linuxfoundation.org>
+Subject: [PATCH 5.3 018/193] ipv6: fixes rt6_probe() and fib6_nh->last_probe init
+Date:   Mon, 11 Nov 2019 19:26:40 +0100
+Message-Id: <20191111181501.498935425@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
 References: <20191111181459.850623879@linuxfoundation.org>
@@ -47,206 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 79ffe6087e9145d2377385cac48d0d6a6b4225a5 ]
+[ Upstream commit 1bef4c223b8588cf50433bdc2c6953d82949b3b3 ]
 
-TLS TX needs to release and re-acquire the socket lock if send buffer
-fills up.
+While looking at a syzbot KCSAN report [1], I found multiple
+issues in this code :
 
-TLS SW TX path currently depends on only allowing one thread to enter
-the function by the abuse of sk_write_pending. If another writer is
-already waiting for memory no new ones are allowed in.
+1) fib6_nh->last_probe has an initial value of 0.
 
-This has two problems:
- - writers don't wake other threads up when they leave the kernel;
-   meaning that this scheme works for single extra thread (second
-   application thread or delayed work) because memory becoming
-   available will send a wake up request, but as Mallesham and
-   Pooja report with larger number of threads it leads to threads
-   being put to sleep indefinitely;
- - the delayed work does not get _scheduled_ but it may _run_ when
-   other writers are present leading to crashes as writers don't
-   expect state to change under their feet (same records get pushed
-   and freed multiple times); it's hard to reliably bail from the
-   work, however, because the mere presence of a writer does not
-   guarantee that the writer will push pending records before exiting.
+   While probably okay on 64bit kernels, this causes an issue
+   on 32bit kernels since the time_after(jiffies, 0 + interval)
+   might be false ~24 days after boot (for HZ=1000)
 
-Ensuring wakeups always happen will make the code basically open
-code a mutex. Just use a mutex.
+2) The data-race found by KCSAN
+   I could use READ_ONCE() and WRITE_ONCE(), but we also can
+   take the opportunity of not piling-up too many rt6_probe_deferred()
+   works by using instead cmpxchg() so that only one cpu wins the race.
 
-The TLS HW TX path does not have any locking (not even the
-sk_write_pending hack), yet it uses a per-socket sg_tx_data
-array to push records.
+[1]
+BUG: KCSAN: data-race in find_match / find_match
 
-Fixes: a42055e8d2c3 ("net/tls: Add support for async encryption of records for performance")
-Reported-by: Mallesham  Jatharakonda <mallesh537@gmail.com>
-Reported-by: Pooja Trivedi <poojatrivedi@gmail.com>
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Simon Horman <simon.horman@netronome.com>
+write to 0xffff8880bb7aabe8 of 8 bytes by interrupt on cpu 1:
+ rt6_probe net/ipv6/route.c:663 [inline]
+ find_match net/ipv6/route.c:757 [inline]
+ find_match+0x5bd/0x790 net/ipv6/route.c:733
+ __find_rr_leaf+0xe3/0x780 net/ipv6/route.c:831
+ find_rr_leaf net/ipv6/route.c:852 [inline]
+ rt6_select net/ipv6/route.c:896 [inline]
+ fib6_table_lookup+0x383/0x650 net/ipv6/route.c:2164
+ ip6_pol_route+0xee/0x5c0 net/ipv6/route.c:2200
+ ip6_pol_route_output+0x48/0x60 net/ipv6/route.c:2452
+ fib6_rule_lookup+0x3d6/0x470 net/ipv6/fib6_rules.c:117
+ ip6_route_output_flags_noref+0x16b/0x230 net/ipv6/route.c:2484
+ ip6_route_output_flags+0x50/0x1a0 net/ipv6/route.c:2497
+ ip6_dst_lookup_tail+0x25d/0xc30 net/ipv6/ip6_output.c:1049
+ ip6_dst_lookup_flow+0x68/0x120 net/ipv6/ip6_output.c:1150
+ inet6_csk_route_socket+0x2f7/0x420 net/ipv6/inet6_connection_sock.c:106
+ inet6_csk_xmit+0x91/0x1f0 net/ipv6/inet6_connection_sock.c:121
+ __tcp_transmit_skb+0xe81/0x1d60 net/ipv4/tcp_output.c:1169
+ tcp_transmit_skb net/ipv4/tcp_output.c:1185 [inline]
+ tcp_xmit_probe_skb+0x19b/0x1d0 net/ipv4/tcp_output.c:3735
+
+read to 0xffff8880bb7aabe8 of 8 bytes by interrupt on cpu 0:
+ rt6_probe net/ipv6/route.c:657 [inline]
+ find_match net/ipv6/route.c:757 [inline]
+ find_match+0x521/0x790 net/ipv6/route.c:733
+ __find_rr_leaf+0xe3/0x780 net/ipv6/route.c:831
+ find_rr_leaf net/ipv6/route.c:852 [inline]
+ rt6_select net/ipv6/route.c:896 [inline]
+ fib6_table_lookup+0x383/0x650 net/ipv6/route.c:2164
+ ip6_pol_route+0xee/0x5c0 net/ipv6/route.c:2200
+ ip6_pol_route_output+0x48/0x60 net/ipv6/route.c:2452
+ fib6_rule_lookup+0x3d6/0x470 net/ipv6/fib6_rules.c:117
+ ip6_route_output_flags_noref+0x16b/0x230 net/ipv6/route.c:2484
+ ip6_route_output_flags+0x50/0x1a0 net/ipv6/route.c:2497
+ ip6_dst_lookup_tail+0x25d/0xc30 net/ipv6/ip6_output.c:1049
+ ip6_dst_lookup_flow+0x68/0x120 net/ipv6/ip6_output.c:1150
+ inet6_csk_route_socket+0x2f7/0x420 net/ipv6/inet6_connection_sock.c:106
+ inet6_csk_xmit+0x91/0x1f0 net/ipv6/inet6_connection_sock.c:121
+ __tcp_transmit_skb+0xe81/0x1d60 net/ipv4/tcp_output.c:1169
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 18894 Comm: udevd Not tainted 5.4.0-rc3+ #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+
+Fixes: cc3a86c802f0 ("ipv6: Change rt6_probe to take a fib6_nh")
+Fixes: f547fac624be ("ipv6: rate-limit probes for neighbourless routes")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/tls.h    |    5 +++++
- net/tls/tls_device.c |    6 ++++++
- net/tls/tls_main.c   |    2 ++
- net/tls/tls_sw.c     |   21 +++++++--------------
- 4 files changed, 20 insertions(+), 14 deletions(-)
+ net/ipv6/route.c |   13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -40,6 +40,7 @@
- #include <linux/socket.h>
- #include <linux/tcp.h>
- #include <linux/skmsg.h>
-+#include <linux/mutex.h>
- #include <linux/netdevice.h>
- 
- #include <net/tcp.h>
-@@ -268,6 +269,10 @@ struct tls_context {
- 
- 	bool in_tcp_sendpages;
- 	bool pending_open_record_frags;
-+
-+	struct mutex tx_lock; /* protects partially_sent_* fields and
-+			       * per-type TX fields
-+			       */
- 	unsigned long flags;
- 
- 	/* cache cold stuff */
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -482,8 +482,10 @@ last_record:
- int tls_device_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -621,6 +621,7 @@ static void rt6_probe(struct fib6_nh *fi
  {
- 	unsigned char record_type = TLS_RECORD_TYPE_DATA;
-+	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	int rc;
+ 	struct __rt6_probe_work *work = NULL;
+ 	const struct in6_addr *nh_gw;
++	unsigned long last_probe;
+ 	struct neighbour *neigh;
+ 	struct net_device *dev;
+ 	struct inet6_dev *idev;
+@@ -639,6 +640,7 @@ static void rt6_probe(struct fib6_nh *fi
+ 	nh_gw = &fib6_nh->fib_nh_gw6;
+ 	dev = fib6_nh->fib_nh_dev;
+ 	rcu_read_lock_bh();
++	last_probe = READ_ONCE(fib6_nh->last_probe);
+ 	idev = __in6_dev_get(dev);
+ 	neigh = __ipv6_neigh_lookup_noref(dev, nh_gw);
+ 	if (neigh) {
+@@ -654,13 +656,15 @@ static void rt6_probe(struct fib6_nh *fi
+ 				__neigh_set_probe_once(neigh);
+ 		}
+ 		write_unlock(&neigh->lock);
+-	} else if (time_after(jiffies, fib6_nh->last_probe +
++	} else if (time_after(jiffies, last_probe +
+ 				       idev->cnf.rtr_probe_interval)) {
+ 		work = kmalloc(sizeof(*work), GFP_ATOMIC);
+ 	}
  
-+	mutex_lock(&tls_ctx->tx_lock);
- 	lock_sock(sk);
+-	if (work) {
+-		fib6_nh->last_probe = jiffies;
++	if (!work || cmpxchg(&fib6_nh->last_probe,
++			     last_probe, jiffies) != last_probe) {
++		kfree(work);
++	} else {
+ 		INIT_WORK(&work->work, rt6_probe_deferred);
+ 		work->target = *nh_gw;
+ 		dev_hold(dev);
+@@ -3385,6 +3389,9 @@ int fib6_nh_init(struct net *net, struct
+ 	int err;
  
- 	if (unlikely(msg->msg_controllen)) {
-@@ -497,12 +499,14 @@ int tls_device_sendmsg(struct sock *sk,
+ 	fib6_nh->fib_nh_family = AF_INET6;
++#ifdef CONFIG_IPV6_ROUTER_PREF
++	fib6_nh->last_probe = jiffies;
++#endif
  
- out:
- 	release_sock(sk);
-+	mutex_unlock(&tls_ctx->tx_lock);
- 	return rc;
- }
- 
- int tls_device_sendpage(struct sock *sk, struct page *page,
- 			int offset, size_t size, int flags)
- {
-+	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	struct iov_iter	msg_iter;
- 	char *kaddr = kmap(page);
- 	struct kvec iov;
-@@ -511,6 +515,7 @@ int tls_device_sendpage(struct sock *sk,
- 	if (flags & MSG_SENDPAGE_NOTLAST)
- 		flags |= MSG_MORE;
- 
-+	mutex_lock(&tls_ctx->tx_lock);
- 	lock_sock(sk);
- 
- 	if (flags & MSG_OOB) {
-@@ -527,6 +532,7 @@ int tls_device_sendpage(struct sock *sk,
- 
- out:
- 	release_sock(sk);
-+	mutex_unlock(&tls_ctx->tx_lock);
- 	return rc;
- }
- 
---- a/net/tls/tls_main.c
-+++ b/net/tls/tls_main.c
-@@ -258,6 +258,7 @@ void tls_ctx_free(struct tls_context *ct
- 
- 	memzero_explicit(&ctx->crypto_send, sizeof(ctx->crypto_send));
- 	memzero_explicit(&ctx->crypto_recv, sizeof(ctx->crypto_recv));
-+	mutex_destroy(&ctx->tx_lock);
- 	kfree(ctx);
- }
- 
-@@ -615,6 +616,7 @@ static struct tls_context *create_ctx(st
- 	ctx->getsockopt = sk->sk_prot->getsockopt;
- 	ctx->sk_proto_close = sk->sk_prot->close;
- 	ctx->unhash = sk->sk_prot->unhash;
-+	mutex_init(&ctx->tx_lock);
- 	return ctx;
- }
- 
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -897,15 +897,9 @@ int tls_sw_sendmsg(struct sock *sk, stru
- 	if (msg->msg_flags & ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL))
- 		return -ENOTSUPP;
- 
-+	mutex_lock(&tls_ctx->tx_lock);
- 	lock_sock(sk);
- 
--	/* Wait till there is any pending write on socket */
--	if (unlikely(sk->sk_write_pending)) {
--		ret = wait_on_pending_writer(sk, &timeo);
--		if (unlikely(ret))
--			goto send_end;
--	}
--
- 	if (unlikely(msg->msg_controllen)) {
- 		ret = tls_proccess_cmsg(sk, msg, &record_type);
- 		if (ret) {
-@@ -1091,6 +1085,7 @@ send_end:
- 	ret = sk_stream_error(sk, msg->msg_flags, ret);
- 
- 	release_sock(sk);
-+	mutex_unlock(&tls_ctx->tx_lock);
- 	return copied ? copied : ret;
- }
- 
-@@ -1114,13 +1109,6 @@ static int tls_sw_do_sendpage(struct soc
- 	eor = !(flags & (MSG_MORE | MSG_SENDPAGE_NOTLAST));
- 	sk_clear_bit(SOCKWQ_ASYNC_NOSPACE, sk);
- 
--	/* Wait till there is any pending write on socket */
--	if (unlikely(sk->sk_write_pending)) {
--		ret = wait_on_pending_writer(sk, &timeo);
--		if (unlikely(ret))
--			goto sendpage_end;
--	}
--
- 	/* Call the sk_stream functions to manage the sndbuf mem. */
- 	while (size > 0) {
- 		size_t copy, required_size;
-@@ -1219,15 +1207,18 @@ sendpage_end:
- int tls_sw_sendpage(struct sock *sk, struct page *page,
- 		    int offset, size_t size, int flags)
- {
-+	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	int ret;
- 
- 	if (flags & ~(MSG_MORE | MSG_DONTWAIT | MSG_NOSIGNAL |
- 		      MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
- 		return -ENOTSUPP;
- 
-+	mutex_lock(&tls_ctx->tx_lock);
- 	lock_sock(sk);
- 	ret = tls_sw_do_sendpage(sk, page, offset, size, flags);
- 	release_sock(sk);
-+	mutex_unlock(&tls_ctx->tx_lock);
- 	return ret;
- }
- 
-@@ -2172,9 +2163,11 @@ static void tx_work_handler(struct work_
- 
- 	if (!test_and_clear_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask))
- 		return;
-+	mutex_lock(&tls_ctx->tx_lock);
- 	lock_sock(sk);
- 	tls_tx_records(sk, -1);
- 	release_sock(sk);
-+	mutex_unlock(&tls_ctx->tx_lock);
- }
- 
- void tls_sw_write_space(struct sock *sk, struct tls_context *ctx)
+ 	err = -ENODEV;
+ 	if (cfg->fc_ifindex) {
 
 
