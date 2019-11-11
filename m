@@ -2,129 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FB3BF6DB0
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 06:00:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3C2DF6DBA
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 06:10:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725860AbfKKFAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 00:00:34 -0500
-Received: from mail-eopbgr740047.outbound.protection.outlook.com ([40.107.74.47]:36483
-        "EHLO NAM01-BN3-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725796AbfKKFAe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 00:00:34 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=loa3sM6WqXPqCh8R5fyRycnSwE0nrOrzvoeqcRIW/iu4+9ZO59WNYaD0qGWr5eSWewTaUJS8/skhzRrH0oT3fYzGW4bBR72rDuKItQ5s7aebiG4J7hoOfgmYBREBRU1pffaik/YCr058EikLNoJgHNVEXWqOrfKaakVqBl8FMB8HKqpvyoZaJPcEA7CjVFk4AH4r9tp8x7HqTOBUAtDbe28wlEWgOpykhyvjTqsBSURygUfWuCq6bUa+mV5qeW08knHumMkoQV/GfdUUKs7ehENbojVUM9QanvmnpdqDJgPEpw+LMsAfdoYsJ7yPfasKfzBCDMdfLllXXvh5vZuOXQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6zpk6RxWm1NOVU5k56xgyXPQa//LIW9EkPJQ91L5hg4=;
- b=BSsGGJ1GStzHR/WssE1IHOSTI858v5LDH8pkKmZzbNxjnotY6coThTWH5aidCC+MFAhuPGBSEFnFdCVZb93vgleyizn6+KS5NFHUi5PdzETohaPoSHicZEzO3YmCWuKj9RWSa8608o/B5YC50bp5YOlL/edSeaZm043x5o3dbVav/MAtmfMqIA5ZTspfdzwwJwHUKlYKeokEJpgiueDFZgCVyVsjrmjLqjh0Yjl0T8kkrWT3fId8kRN0NJi+5HeIGYJE0dlbrOYX+CWwbZTsaogUsfUJrb32FTEEGvOvtHK83bcB2/cTGwT4BXkGcxLifyCUbXsKdTsFGiff1RjmWQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=vmware.com; dmarc=pass action=none header.from=vmware.com;
- dkim=pass header.d=vmware.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6zpk6RxWm1NOVU5k56xgyXPQa//LIW9EkPJQ91L5hg4=;
- b=iqEPS+HestkzW47z8bKkXx8V5ilzHZjBaYXW3M7Uiztrv5nu0Nz+dbsHVNbB9URA7gq37TM9Zc+/OR9j6PGO2sY6baxVUE7ZCxfhvi5cjTKikiCcl9OMWS+6LkjwceskhYerA7LxqfzwqwyN4yQdGDU7sEUU/MaTyl71Z5A5gt8=
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com (20.178.241.91) by
- MN2PR05MB6814.namprd05.prod.outlook.com (52.132.172.91) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2451.16; Mon, 11 Nov 2019 05:00:30 +0000
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::f0a2:e9fe:d312:7470]) by MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::f0a2:e9fe:d312:7470%4]) with mapi id 15.20.2451.018; Mon, 11 Nov 2019
- 05:00:30 +0000
-From:   Ajay Kaher <akaher@vmware.com>
-To:     Vlastimil Babka <vbabka@suse.cz>,
-        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-CC:     "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "punit.agrawal@arm.com" <punit.agrawal@arm.com>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
-        "willy@infradead.org" <willy@infradead.org>,
-        "will.deacon@arm.com" <will.deacon@arm.com>,
-        "mszeredi@redhat.com" <mszeredi@redhat.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Srivatsa Bhat <srivatsab@vmware.com>,
-        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Srinidhi Rao <srinidhir@vmware.com>,
-        Vikash Bansal <bvikas@vmware.com>,
-        Anish Swaminathan <anishs@vmware.com>,
-        Vasavi Sirnapalli <vsirnapalli@vmware.com>,
-        Steven Rostedt <srostedt@vmware.com>,
-        "stable@kernel.org" <stable@kernel.org>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: Re: [PATCH v2 6/8] mm: prevent get_user_pages() from overflowing page
- refcount
-Thread-Topic: [PATCH v2 6/8] mm: prevent get_user_pages() from overflowing
- page refcount
-Thread-Index: AQHVfffGKc9CRR2dekieWi7B72DxaadSSqyAgA0lZICAC+hNgIASq5UAgAf2KoA=
-Date:   Mon, 11 Nov 2019 05:00:29 +0000
-Message-ID: <88E8A78A-6CA3-46C1-A2AA-DFE7A3A52586@vmware.com>
-References: <1570581863-12090-1-git-send-email-akaher@vmware.com>
- <1570581863-12090-7-git-send-email-akaher@vmware.com>
- <f899be71-4bc0-d07b-f650-d85a335cdebb@suse.cz>
- <BF0587E3-D104-4DB2-B972-9BC4FD4CA014@vmware.com>
- <0E5175FB-7058-4211-9AA4-9D5E2F6A30B9@vmware.com>
- <35d74931-2c18-00ff-7622-522a79be9103@suse.cz>
-In-Reply-To: <35d74931-2c18-00ff-7622-522a79be9103@suse.cz>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=akaher@vmware.com; 
-x-originating-ip: [2409:4071:220e:3934:3c2a:8f63:a44f:9055]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: bc85f22b-e9b6-4b57-d853-08d766641366
-x-ms-traffictypediagnostic: MN2PR05MB6814:|MN2PR05MB6814:|MN2PR05MB6814:
-x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <MN2PR05MB6814B219DD57C19FA23F2631BB740@MN2PR05MB6814.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:5516;
-x-forefront-prvs: 0218A015FA
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(376002)(136003)(366004)(39860400002)(396003)(346002)(199004)(189003)(76176011)(33656002)(54906003)(110136005)(102836004)(99286004)(478600001)(66476007)(66556008)(64756008)(66446008)(6116002)(36756003)(6436002)(91956017)(76116006)(66946007)(305945005)(229853002)(7736002)(5660300002)(25786009)(6506007)(7416002)(6486002)(86362001)(4744005)(316002)(71200400001)(71190400001)(53546011)(14454004)(186003)(256004)(46003)(446003)(11346002)(2906002)(81166006)(81156014)(8676002)(6512007)(8936002)(4326008)(6246003)(476003)(2616005)(486006)(2501003);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6814;H:MN2PR05MB6208.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: vmware.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: kA8ESF8+dEws6fJizvSKRDn5/ju4We9vuzfhtmf/kdiN8RoAsAmWvdbhiFsWmVmFaltUl68WyJW9a97Mbg2lIYBucOEcvxESmM8UuSukevSTsksoVCxHPdaTtLC7rQaAJTxT9D4Mt3x8cCv3AqoI5Rf3V6RV0tEXhT8eaoDrfcuws0veAmCGRSkg7YJoz7GUKaMELjy2uCVZH9ImvCK6Xr+2VLpFHLglODjGsXLh4UzQVr/3YvJVaSIaiVXp/7W2GNpj5TFzpFBiibXSMhX1dtfJfz/AWy2hXFF5BpCj9QIYVlTZBmQ+pEvzU84/FsqnoicEm1zgPyZa6WStIOyTg6VQG+6GWQc1s9ZHWxlzObl5O9hZ99Gd7jPjdpUvqfg1SmKe7K5Q7+lBSV/Gbe5PLohqUl8pEm4ck045vzbUYpmeNVEg8tWRJGgiiUasCZxb
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <219FFBD87736E845A639BFC215EF7855@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1725892AbfKKFKw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 00:10:52 -0500
+Received: from mga09.intel.com ([134.134.136.24]:31379 "EHLO mga09.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725860AbfKKFKw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 00:10:52 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga102.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Nov 2019 21:10:51 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,291,1569308400"; 
+   d="scan'208";a="207021996"
+Received: from cqiang-mobl.ccr.corp.intel.com (HELO [10.239.198.110]) ([10.239.198.110])
+  by orsmga006.jf.intel.com with ESMTP; 10 Nov 2019 21:10:49 -0800
+Subject: Re: [PATCH v2] KVM: X86: Fix initialization of MSR
+ lists(msrs_to_save[], emulated_msrs[] and msr_based_features[])
+From:   cqiang <chenyi.qiang@intel.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>,
+        =?UTF-8?B?UmFkaW0gS3LEjW3DocWZ?= <rkrcmar@redhat.com>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>
+Cc:     Xiaoyao Li <xiaoyao.li@intel.com>, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20191106063520.1915-1-chenyi.qiang@intel.com>
+Message-ID: <7a148552-f5d2-2415-c33d-a162e095a3e5@intel.com>
+Date:   Mon, 11 Nov 2019 13:10:49 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.1
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bc85f22b-e9b6-4b57-d853-08d766641366
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Nov 2019 05:00:30.2135
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: i+vsoXlm6h9qxD5hhirEgIRMDjb8xqOf7cjXF4ovWUtCwZAgeujdiCTsTuaeSoC2O867jo8ZLEca6nTGgsIQgw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6814
+In-Reply-To: <20191106063520.1915-1-chenyi.qiang@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQrvu79PbiAwNi8xMS8xOSwgMjoyNSBQTSwgIlZsYXN0aW1pbCBCYWJrYSIgPHZiYWJrYUBzdXNl
-LmN6PiB3cm90ZToNCg0KPiBPbiAxMC8yNS8xOSA4OjE4IEFNLCBBamF5IEthaGVyIHdyb3RlOg0K
-Pj4gT24gMTcvMTAvMTksIDk6NTggUE0sICJBamF5IEthaGVyIiA8YWthaGVyQHZtd2FyZS5jb20+
-IHdyb3RlOg0KPj4gICAgIA0KPj4+ICAgIA0KPj4+IENvdWxkIHdlIGhhbmRsZSBhcmNoLXNwZWNp
-ZmljIGd1cC5jIGluIGRpZmZlcmVudCBwYXRjaCBzZXRzIGFuZCANCj4+PiBsZXQgdGhlc2UgcGF0
-Y2hlcyB0byBtZXJnZSB0byA0LjQueT8NCj4+ICAgDQo+PiBWbGFzdGltaWwsIHBsZWFzZSBzdWdn
-ZXN0IGlmIGl0J3MgZmluZSB0byBtZXJnZSB0aGVzZSBwYXRjaGVzIHRvIDQuNC55DQo+DQo+IEkn
-bSBub3Qgc3VyZSBpZiBpdCBtYWtlcyBtdWNoIHNlbnNlIHRvIG1lcmdlIHRoZW0gd2l0aG91dCB0
-aGUgYXJjaC1zcGVjaWZpYyBndXANCj4gc3VwcG9ydCwgd2hlbiB3ZSdyZSBhd2FyZSB0aGF0IGl0
-J3MgbWlzc2luZy4NCj4NCj4+IGFuZCBoYW5kbGUgYXJjaC1zcGVjaWZpYyBndXAuYyBpbiBkaWZm
-ZXJlbnQgcGF0Y2ggc2V0cyBzdGFydHMgZnJvbSA0LjE5LnksDQo+DQo+IEFjdHVhbGx5IGFyY2gt
-c3BlY2lmaWMgZ3VwLmMgd2VyZSByZW1vdmVkIGluIDQuMTMsIHNvIGl0J3MgZW5vdWdoIHRvIHN0
-YXJ0IGZyb20NCj4gNC45LnksIHdoaWNoIEknbSBnb2luZyB0byBmaW5hbGx5IGxvb2sgaW50by4N
-Cg0KWWVzIHg4NiBndXAuYyBpcyByZW1vdmVkLiBzMzkwIGd1cC5jIGlzIHByZXNlbnQgdGlsbCA0
-LjE5LA0Kc28gaWYgeW91IGFyZSBtYWtpbmcgY2hhbmdlcyBpbiB0aGlzIGZpbGUgZm9yIDQuNC55
-IGFuZCA0LjkueSwgDQp0aGVuIHNhbWUgc2hvdWxkIGJlIGRvbmUgZm9yIDQuMTQueSBhbmQgdjQu
-MTkueS4NCg0KLSBBamF5DQogICAgDQogICAgDQoNCg==
+Ping for comments :)
+
+On 11/6/2019 2:35 PM, Chenyi Qiang wrote:
+> The three MSR lists(msrs_to_save[], emulated_msrs[] and
+> msr_based_features[]) are global arrays of kvm.ko, which are
+> adjusted (copy supported MSRs forward to override the unsupported MSRs)
+> when insmod kvm-{intel,amd}.ko, but it doesn't reset these three arrays
+> to their initial value when rmmod kvm-{intel,amd}.ko. Thus, at the next
+> installation, kvm-{intel,amd}.ko will do operations on the modified
+> arrays with some MSRs lost and some MSRs duplicated.
+> 
+> So define three constant arrays to hold the initial MSR lists and
+> initialize msrs_to_save[], emulated_msrs[] and msr_based_features[]
+> based on the constant arrays.
+> 
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Xiaoyao Li <xiaoyao.li@intel.com>
+> Signed-off-by: Chenyi Qiang <chenyi.qiang@intel.com>
+> ---
+> Changes in v2:
+>   - define initial MSR lists with static const.
+>   - change the dynamic allocation of supported MSR lists to static allocation.
+> 
+>   arch/x86/kvm/x86.c | 51 +++++++++++++++++++++++++---------------------
+>   1 file changed, 28 insertions(+), 23 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 89621025577a..0b4b6db5b13f 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -1138,13 +1138,15 @@ EXPORT_SYMBOL_GPL(kvm_rdpmc);
+>    * List of msr numbers which we expose to userspace through KVM_GET_MSRS
+>    * and KVM_SET_MSRS, and KVM_GET_MSR_INDEX_LIST.
+>    *
+> - * This list is modified at module load time to reflect the
+> + * The three MSR lists(msrs_to_save, emulated_msrs, msr_based_features)
+> + * extract the supported MSRs from the related const lists.
+> + * msrs_to_save is selected from the msrs_to_save_all to reflect the
+>    * capabilities of the host cpu. This capabilities test skips MSRs that are
+> - * kvm-specific. Those are put in emulated_msrs; filtering of emulated_msrs
+> + * kvm-specific. Those are put in emulated_msrs_all; filtering of emulated_msrs
+>    * may depend on host virtualization features rather than host cpu features.
+>    */
+>   
+> -static u32 msrs_to_save[] = {
+> +static const u32 msrs_to_save_all[] = {
+>   	MSR_IA32_SYSENTER_CS, MSR_IA32_SYSENTER_ESP, MSR_IA32_SYSENTER_EIP,
+>   	MSR_STAR,
+>   #ifdef CONFIG_X86_64
+> @@ -1185,9 +1187,10 @@ static u32 msrs_to_save[] = {
+>   	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
+>   };
+>   
+> +static u32 msrs_to_save[ARRAY_SIZE(msrs_to_save_all)];
+>   static unsigned num_msrs_to_save;
+>   
+> -static u32 emulated_msrs[] = {
+> +static const u32 emulated_msrs_all[] = {
+>   	MSR_KVM_SYSTEM_TIME, MSR_KVM_WALL_CLOCK,
+>   	MSR_KVM_SYSTEM_TIME_NEW, MSR_KVM_WALL_CLOCK_NEW,
+>   	HV_X64_MSR_GUEST_OS_ID, HV_X64_MSR_HYPERCALL,
+> @@ -1226,7 +1229,7 @@ static u32 emulated_msrs[] = {
+>   	 * by arch/x86/kvm/vmx/nested.c based on CPUID or other MSRs.
+>   	 * We always support the "true" VMX control MSRs, even if the host
+>   	 * processor does not, so I am putting these registers here rather
+> -	 * than in msrs_to_save.
+> +	 * than in msrs_to_save_all.
+>   	 */
+>   	MSR_IA32_VMX_BASIC,
+>   	MSR_IA32_VMX_TRUE_PINBASED_CTLS,
+> @@ -1245,13 +1248,14 @@ static u32 emulated_msrs[] = {
+>   	MSR_KVM_POLL_CONTROL,
+>   };
+>   
+> +static u32 emulated_msrs[ARRAY_SIZE(emulated_msrs_all)];
+>   static unsigned num_emulated_msrs;
+>   
+>   /*
+>    * List of msr numbers which are used to expose MSR-based features that
+>    * can be used by a hypervisor to validate requested CPU features.
+>    */
+> -static u32 msr_based_features[] = {
+> +static const u32 msr_based_features_all[] = {
+>   	MSR_IA32_VMX_BASIC,
+>   	MSR_IA32_VMX_TRUE_PINBASED_CTLS,
+>   	MSR_IA32_VMX_PINBASED_CTLS,
+> @@ -1276,6 +1280,7 @@ static u32 msr_based_features[] = {
+>   	MSR_IA32_ARCH_CAPABILITIES,
+>   };
+>   
+> +static u32 msr_based_features[ARRAY_SIZE(msr_based_features_all)];
+>   static unsigned int num_msr_based_features;
+>   
+>   static u64 kvm_get_arch_capabilities(void)
+> @@ -5131,19 +5136,19 @@ static void kvm_init_msr_list(void)
+>   	unsigned i, j;
+>   
+>   	BUILD_BUG_ON_MSG(INTEL_PMC_MAX_FIXED != 4,
+> -			 "Please update the fixed PMCs in msrs_to_save[]");
+> +			 "Please update the fixed PMCs in msrs_to_saved_all[]");
+>   
+>   	perf_get_x86_pmu_capability(&x86_pmu);
+>   
+> -	for (i = j = 0; i < ARRAY_SIZE(msrs_to_save); i++) {
+> -		if (rdmsr_safe(msrs_to_save[i], &dummy[0], &dummy[1]) < 0)
+> +	for (i = j = 0; i < ARRAY_SIZE(msrs_to_save_all); i++) {
+> +		if (rdmsr_safe(msrs_to_save_all[i], &dummy[0], &dummy[1]) < 0)
+>   			continue;
+>   
+>   		/*
+>   		 * Even MSRs that are valid in the host may not be exposed
+>   		 * to the guests in some cases.
+>   		 */
+> -		switch (msrs_to_save[i]) {
+> +		switch (msrs_to_save_all[i]) {
+>   		case MSR_IA32_BNDCFGS:
+>   			if (!kvm_mpx_supported())
+>   				continue;
+> @@ -5171,17 +5176,17 @@ static void kvm_init_msr_list(void)
+>   			break;
+>   		case MSR_IA32_RTIT_ADDR0_A ... MSR_IA32_RTIT_ADDR3_B: {
+>   			if (!kvm_x86_ops->pt_supported() ||
+> -				msrs_to_save[i] - MSR_IA32_RTIT_ADDR0_A >=
+> +				msrs_to_save_all[i] - MSR_IA32_RTIT_ADDR0_A >=
+>   				intel_pt_validate_hw_cap(PT_CAP_num_address_ranges) * 2)
+>   				continue;
+>   			break;
+>   		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 17:
+> -			if (msrs_to_save[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
+> +			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
+>   			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
+>   				continue;
+>   			break;
+>   		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 17:
+> -			if (msrs_to_save[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
+> +			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
+>   			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
+>   				continue;
+>   		}
+> @@ -5189,31 +5194,31 @@ static void kvm_init_msr_list(void)
+>   			break;
+>   		}
+>   
+> -		if (j < i)
+> -			msrs_to_save[j] = msrs_to_save[i];
+> +		if (j <= i)
+> +			msrs_to_save[j] = msrs_to_save_all[i];
+>   		j++;
+>   	}
+>   	num_msrs_to_save = j;
+>   
+> -	for (i = j = 0; i < ARRAY_SIZE(emulated_msrs); i++) {
+> -		if (!kvm_x86_ops->has_emulated_msr(emulated_msrs[i]))
+> +	for (i = j = 0; i < ARRAY_SIZE(emulated_msrs_all); i++) {
+> +		if (!kvm_x86_ops->has_emulated_msr(emulated_msrs_all[i]))
+>   			continue;
+>   
+> -		if (j < i)
+> -			emulated_msrs[j] = emulated_msrs[i];
+> +		if (j <= i)
+> +			emulated_msrs[j] = emulated_msrs_all[i];
+>   		j++;
+>   	}
+>   	num_emulated_msrs = j;
+>   
+> -	for (i = j = 0; i < ARRAY_SIZE(msr_based_features); i++) {
+> +	for (i = j = 0; i < ARRAY_SIZE(msr_based_features_all); i++) {
+>   		struct kvm_msr_entry msr;
+>   
+> -		msr.index = msr_based_features[i];
+> +		msr.index = msr_based_features_all[i];
+>   		if (kvm_get_msr_feature(&msr))
+>   			continue;
+>   
+> -		if (j < i)
+> -			msr_based_features[j] = msr_based_features[i];
+> +		if (j <= i)
+> +			msr_based_features[j] = msr_based_features_all[i];
+>   		j++;
+>   	}
+>   	num_msr_based_features = j;
+> 
