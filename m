@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5839F7E50
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7B1EF7E84
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728823AbfKKSqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:46:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38756 "EHLO mail.kernel.org"
+        id S1727814AbfKKSjj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:39:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729984AbfKKSqS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:46:18 -0500
+        id S1728287AbfKKSji (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:39:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52E3921655;
-        Mon, 11 Nov 2019 18:46:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B23C204FD;
+        Mon, 11 Nov 2019 18:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497977;
-        bh=Cy38CBA9w5CE8lj9VSGlg26w/40zREJw3/30CScJPXw=;
+        s=default; t=1573497577;
+        bh=4NAm3x63MqEBoEc1MXh1AeWlJFcd6N+VLDeC6aeUhFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHWchNXDT3MTFeHcYATqeHfYmNKPa95BdsRBIBUyImhwEJIaBNI7zL1dCr1XxN9bn
-         gT/zYdBip8QmyRD3iA3vjI+5sZOIb3cjI4huKjeQ4n04o0JbVkNVzzP9VzEHttsClN
-         2Hvu3vJh7yZgh5rZ9vLfTfzL8oxS0n6GF+zfBvLE=
+        b=n83Kh3CAY90Uu1K8qFrjD16bqNcsq6xeK0z6G4i8VxZvCyw9ZbuU2jlTT3QkGudF+
+         pIhYypFaEouiFnQrSFu17Lv86XB6vsEWkh7El8CSvvwaUH/2aYX6oZ3Ox+C/fC1Xbj
+         MwbTKGw/leMur1voLFD6lH1MmpqTZN1jmWvtV8pg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/125] hv_netvsc: Fix error handling in netvsc_attach()
-Date:   Mon, 11 Nov 2019 19:29:11 +0100
-Message-Id: <20191111181454.792993510@linuxfoundation.org>
+Subject: [PATCH 4.14 102/105] x86/apic/32: Avoid bogus LDR warnings
+Date:   Mon, 11 Nov 2019 19:29:12 +0100
+Message-Id: <20191111181449.454254098@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haiyang Zhang <haiyangz@microsoft.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-[ Upstream commit 719b85c336ed35565d0f3982269d6f684087bb00 ]
+[ Upstream commit fe6f85ca121e9c74e7490fe66b0c5aae38e332c3 ]
 
-If rndis_filter_open() fails, we need to remove the rndis device created
-in earlier steps, before returning an error code. Otherwise, the retry of
-netvsc_attach() from its callers will fail and hang.
+The removal of the LDR initialization in the bigsmp_32 APIC code unearthed
+a problem in setup_local_APIC().
 
-Fixes: 7b2ee50c0cd5 ("hv_netvsc: common detach logic")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The code checks unconditionally for a mismatch of the logical APIC id by
+comparing the early APIC id which was initialized in get_smp_config() with
+the actual LDR value in the APIC.
+
+Due to the removal of the bogus LDR initialization the check now can
+trigger on bigsmp_32 APIC systems emitting a warning for every booting
+CPU. This is of course a false positive because the APIC is not using
+logical destination mode.
+
+Restrict the check and the possibly resulting fixup to systems which are
+actually using the APIC in logical destination mode.
+
+[ tglx: Massaged changelog and added Cc stable ]
+
+Fixes: bae3a8d3308 ("x86/apic: Do not initialize LDR and DFR for bigsmp")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/666d8f91-b5a8-1afd-7add-821e72a35f03@suse.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/hyperv/netvsc_drv.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/x86/kernel/apic/apic.c | 28 +++++++++++++++-------------
+ 1 file changed, 15 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/hyperv/netvsc_drv.c b/drivers/net/hyperv/netvsc_drv.c
-index 6f6c0dbd91fc8..b7a71c203aa37 100644
---- a/drivers/net/hyperv/netvsc_drv.c
-+++ b/drivers/net/hyperv/netvsc_drv.c
-@@ -993,7 +993,7 @@ static int netvsc_attach(struct net_device *ndev,
- 	if (netif_running(ndev)) {
- 		ret = rndis_filter_open(nvdev);
- 		if (ret)
--			return ret;
-+			goto err;
+diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
+index 97d1290d1f0d8..6415b4aead546 100644
+--- a/arch/x86/kernel/apic/apic.c
++++ b/arch/x86/kernel/apic/apic.c
+@@ -1422,9 +1422,6 @@ void setup_local_APIC(void)
+ {
+ 	int cpu = smp_processor_id();
+ 	unsigned int value;
+-#ifdef CONFIG_X86_32
+-	int logical_apicid, ldr_apicid;
+-#endif
  
- 		rdev = nvdev->extension;
- 		if (!rdev->link_state)
-@@ -1001,6 +1001,13 @@ static int netvsc_attach(struct net_device *ndev,
- 	}
  
- 	return 0;
-+
-+err:
-+	netif_device_detach(ndev);
-+
-+	rndis_filter_device_remove(hdev, nvdev);
-+
-+	return ret;
- }
+ 	if (disable_apic) {
+@@ -1465,16 +1462,21 @@ void setup_local_APIC(void)
+ 	apic->init_apic_ldr();
  
- static int netvsc_set_channels(struct net_device *net,
+ #ifdef CONFIG_X86_32
+-	/*
+-	 * APIC LDR is initialized.  If logical_apicid mapping was
+-	 * initialized during get_smp_config(), make sure it matches the
+-	 * actual value.
+-	 */
+-	logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
+-	ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
+-	WARN_ON(logical_apicid != BAD_APICID && logical_apicid != ldr_apicid);
+-	/* always use the value from LDR */
+-	early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
++	if (apic->dest_logical) {
++		int logical_apicid, ldr_apicid;
++
++		/*
++		 * APIC LDR is initialized.  If logical_apicid mapping was
++		 * initialized during get_smp_config(), make sure it matches
++		 * the actual value.
++		 */
++		logical_apicid = early_per_cpu(x86_cpu_to_logical_apicid, cpu);
++		ldr_apicid = GET_APIC_LOGICAL_ID(apic_read(APIC_LDR));
++		if (logical_apicid != BAD_APICID)
++			WARN_ON(logical_apicid != ldr_apicid);
++		/* Always use the value from LDR. */
++		early_per_cpu(x86_cpu_to_logical_apicid, cpu) = ldr_apicid;
++	}
+ #endif
+ 
+ 	/*
 -- 
 2.20.1
 
