@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE49FF7BA3
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:38:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D95F7C81
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:47:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728953AbfKKSiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:38:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57006 "EHLO mail.kernel.org"
+        id S1727521AbfKKSq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:46:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728927AbfKKSiK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:38:10 -0500
+        id S1729372AbfKKSq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:46:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AEC0E214E0;
-        Mon, 11 Nov 2019 18:38:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9560520659;
+        Mon, 11 Nov 2019 18:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497489;
-        bh=fVttVjr+D6cUItgUAufminP6729wf7iFYBif/RxkV9A=;
+        s=default; t=1573498015;
+        bh=x4KlDONvL5gFLEFToGLSxDIpUpyTrEGcLppi2wf6V8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HUBmD/wO1MMQkhU5/fIT0jwJD1+Kzo4H3LHANsI3iEajqYuAVTcxCmzneNTZJtzo2
-         IM6lML6Z8MpscrREtoM1Yxp2wERyOD25WzY7d9E4x6/WqAobelFM+iJWKIrFwwNuZX
-         YX3O5BtqyLWUNu348gWvOYVaIHLblx42brmStLz8=
+        b=p7BOR1OvHuywYlvtZ6ty8cyoGs7q/Z8bQqOXOz5sVzgtNVbHii9UW2nYD/uv5amfQ
+         C2wOK6TB+krvM8L18N2YhwduFvk4NWubdXUQBjhKKL4KY4VbtQ9G+yARFg0IVNRTvl
+         bsTbj7JR+17PMV/gUa2Bo4Ci//WVdaXsVzrfxwlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
-        Doug Ledford <dledford@redhat.com>,
+        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 071/105] RDMA/qedr: Fix reported firmware version
-Date:   Mon, 11 Nov 2019 19:28:41 +0100
-Message-Id: <20191111181445.791561925@linuxfoundation.org>
+Subject: [PATCH 4.19 083/125] scsi: qla2xxx: Initialized mailbox to prevent driver load failure
+Date:   Mon, 11 Nov 2019 19:28:42 +0100
+Message-Id: <20191111181451.235535193@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Himanshu Madhani <hmadhani@marvell.com>
 
-[ Upstream commit b806c94ee44e53233b8ce6c92d9078d9781786a5 ]
+[ Upstream commit c2ff2a36eff60efb5e123c940115216d6bf65684 ]
 
-Remove spaces from the reported firmware version string.
-Actual value:
-$ cat /sys/class/infiniband/qedr0/fw_ver
-8. 37. 7. 0
+This patch fixes issue with Gen7 adapter in a blade environment where one
+of the ports will not be detected by driver. Firmware expects mailbox 11 to
+be set or cleared by driver for newer ISP.
 
-Expected value:
-$ cat /sys/class/infiniband/qedr0/fw_ver
-8.37.7.0
+Following message is seen in the log file:
 
-Fixes: ec72fce401c6 ("qedr: Add support for RoCE HW init")
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
-Link: https://lore.kernel.org/r/20191007210730.7173-1-kamalheib1@gmail.com
-Signed-off-by: Doug Ledford <dledford@redhat.com>
+[   18.810892] qla2xxx [0000:d8:00.0]-1820:1: **** Failed=102 mb[0]=4005 mb[1]=37 mb[2]=20 mb[3]=8
+[   18.819596]  cmd=2 ****
+
+[mkp: typos]
+
+Link: https://lore.kernel.org/r/20191022193643.7076-2-hmadhani@marvell.com
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_mbx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/qedr/main.c b/drivers/infiniband/hw/qedr/main.c
-index ddb05b42e5e6a..3e48ed64760b7 100644
---- a/drivers/infiniband/hw/qedr/main.c
-+++ b/drivers/infiniband/hw/qedr/main.c
-@@ -73,7 +73,7 @@ static void qedr_get_dev_fw_str(struct ib_device *ibdev, char *str)
- 	struct qedr_dev *qedr = get_qedr_dev(ibdev);
- 	u32 fw_ver = (u32)qedr->attr.fw_ver;
+diff --git a/drivers/scsi/qla2xxx/qla_mbx.c b/drivers/scsi/qla2xxx/qla_mbx.c
+index 84f57f075455e..128fcff24f1be 100644
+--- a/drivers/scsi/qla2xxx/qla_mbx.c
++++ b/drivers/scsi/qla2xxx/qla_mbx.c
+@@ -684,6 +684,7 @@ qla2x00_execute_fw(scsi_qla_host_t *vha, uint32_t risc_addr)
+ 		mcp->mb[2] = LSW(risc_addr);
+ 		mcp->mb[3] = 0;
+ 		mcp->mb[4] = 0;
++		mcp->mb[11] = 0;
+ 		ha->flags.using_lr_setting = 0;
+ 		if (IS_QLA25XX(ha) || IS_QLA81XX(ha) || IS_QLA83XX(ha) ||
+ 		    IS_QLA27XX(ha)) {
+@@ -727,7 +728,7 @@ qla2x00_execute_fw(scsi_qla_host_t *vha, uint32_t risc_addr)
+ 		if (ha->flags.exchoffld_enabled)
+ 			mcp->mb[4] |= ENABLE_EXCHANGE_OFFLD;
  
--	snprintf(str, IB_FW_VERSION_NAME_MAX, "%d. %d. %d. %d",
-+	snprintf(str, IB_FW_VERSION_NAME_MAX, "%d.%d.%d.%d",
- 		 (fw_ver >> 24) & 0xFF, (fw_ver >> 16) & 0xFF,
- 		 (fw_ver >> 8) & 0xFF, fw_ver & 0xFF);
- }
+-		mcp->out_mb |= MBX_4|MBX_3|MBX_2|MBX_1;
++		mcp->out_mb |= MBX_4 | MBX_3 | MBX_2 | MBX_1 | MBX_11;
+ 		mcp->in_mb |= MBX_3 | MBX_2 | MBX_1;
+ 	} else {
+ 		mcp->mb[1] = LSW(risc_addr);
 -- 
 2.20.1
 
