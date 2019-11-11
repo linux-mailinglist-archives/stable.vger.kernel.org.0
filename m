@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB217F7E6C
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E77BF7F02
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729804AbfKKSo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:44:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36838 "EHLO mail.kernel.org"
+        id S1729065AbfKKSir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:38:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729801AbfKKSo7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:44:59 -0500
+        id S1729052AbfKKSim (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:38:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13D4420674;
-        Mon, 11 Nov 2019 18:44:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 965B0204FD;
+        Mon, 11 Nov 2019 18:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497899;
-        bh=G8BUvuGqCsCb7yjKvZ8Fd+KEP4P+4gbsycA/xzIZ9ys=;
+        s=default; t=1573497521;
+        bh=r/zHST7sbQn4HJhL+bHCL92FufqTQL80sDjkQ7/HcAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DONU9sxWjjwJRrkP7H7xfK9+9LA7BbfQfUDZvuVjfwNyia4+MacpUmhfyYkZqzOkS
-         9HGr87F1pEpdzXhtT5OciGYmXo1loTjVr73B1UVNP4S4F2rC6dZKdYB/74TBBlkE2e
-         Xs9A9fxyblMcCNtvVnCLyvevOS1SccuRm3ToBMjA=
+        b=pN8Dn4KjZpM5QoE3H7thFbacOHmiPDmVcWUbGbx0EbMbkkMXDh96uEeIR3XVBeums
+         DdWZK4MgTPlkMVQg8BnP2ex0hWaLLP+DfppgAvmOLrzi/U65QZGim7h11laBV8dhk4
+         YDNzQbyOMW+Ue6TTP+1p5pVSgBMF+JD0ifqmNHkQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chandana Kishori Chiluveru <cchiluve@codeaurora.org>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/125] usb: gadget: composite: Fix possible double free memory bug
-Date:   Mon, 11 Nov 2019 19:28:50 +0100
-Message-Id: <20191111181452.115930114@linuxfoundation.org>
+Subject: [PATCH 4.14 081/105] macsec: fix refcnt leak in module exit routine
+Date:   Mon, 11 Nov 2019 19:28:51 +0100
+Message-Id: <20191111181446.909215798@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 1c20c89b0421b52b2417bb0f62a611bc669eda1d ]
+[ Upstream commit 2bce1ebed17da54c65042ec2b962e3234bad5b47 ]
 
-composite_dev_cleanup call from the failure of configfs_composite_bind
-frees up the cdev->os_desc_req and cdev->req. If the previous calls of
-bind and unbind is successful these will carry stale values.
+When a macsec interface is created, it increases a refcnt to a lower
+device(real device). when macsec interface is deleted, the refcnt is
+decreased in macsec_free_netdev(), which is ->priv_destructor() of
+macsec interface.
 
-Consider the below sequence of function calls:
-configfs_composite_bind()
-        composite_dev_prepare()
-                - Allocate cdev->req, cdev->req->buf
-        composite_os_desc_req_prepare()
-                - Allocate cdev->os_desc_req, cdev->os_desc_req->buf
-configfs_composite_unbind()
-        composite_dev_cleanup()
-                - free the cdev->os_desc_req->buf and cdev->req->buf
-Next composition switch
-configfs_composite_bind()
-        - If it fails goto err_comp_cleanup will call the
-	  composite_dev_cleanup() function
-        composite_dev_cleanup()
-	        - calls kfree up with the stale values of cdev->req->buf and
-		  cdev->os_desc_req from the previous configfs_composite_bind
-		  call. The free call on these stale values leads to double free.
+The problem scenario is this.
+When nested macsec interfaces are exiting, the exit routine of the
+macsec module makes refcnt leaks.
 
-Hence, Fix this issue by setting request and buffer pointer to NULL after
-kfree.
+Test commands:
+    ip link add dummy0 type dummy
+    ip link add macsec0 link dummy0 type macsec
+    ip link add macsec1 link macsec0 type macsec
+    modprobe -rv macsec
 
-Signed-off-by: Chandana Kishori Chiluveru <cchiluve@codeaurora.org>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+[  208.629433] unregister_netdevice: waiting for macsec0 to become free. Usage count = 1
+
+Steps of exit routine of macsec module are below.
+1. Calls ->dellink() in __rtnl_link_unregister().
+2. Checks refcnt and wait refcnt to be 0 if refcnt is not 0 in
+netdev_run_todo().
+3. Calls ->priv_destruvtor() in netdev_run_todo().
+
+Step2 checks refcnt, but step3 decreases refcnt.
+So, step2 waits forever.
+
+This patch makes the macsec module do not hold a refcnt of the lower
+device because it already holds a refcnt of the lower device with
+netdev_upper_dev_link().
+
+Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/composite.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/macsec.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/composite.c b/drivers/usb/gadget/composite.c
-index dfcabadeed01b..33115e19756c6 100644
---- a/drivers/usb/gadget/composite.c
-+++ b/drivers/usb/gadget/composite.c
-@@ -2156,14 +2156,18 @@ void composite_dev_cleanup(struct usb_composite_dev *cdev)
- 			usb_ep_dequeue(cdev->gadget->ep0, cdev->os_desc_req);
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index aa204c98af79c..9bcb7c3e879f3 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -2993,12 +2993,10 @@ static const struct nla_policy macsec_rtnl_policy[IFLA_MACSEC_MAX + 1] = {
+ static void macsec_free_netdev(struct net_device *dev)
+ {
+ 	struct macsec_dev *macsec = macsec_priv(dev);
+-	struct net_device *real_dev = macsec->real_dev;
  
- 		kfree(cdev->os_desc_req->buf);
-+		cdev->os_desc_req->buf = NULL;
- 		usb_ep_free_request(cdev->gadget->ep0, cdev->os_desc_req);
-+		cdev->os_desc_req = NULL;
- 	}
- 	if (cdev->req) {
- 		if (cdev->setup_pending)
- 			usb_ep_dequeue(cdev->gadget->ep0, cdev->req);
+ 	free_percpu(macsec->stats);
+ 	free_percpu(macsec->secy.tx_sc.stats);
  
- 		kfree(cdev->req->buf);
-+		cdev->req->buf = NULL;
- 		usb_ep_free_request(cdev->gadget->ep0, cdev->req);
-+		cdev->req = NULL;
- 	}
- 	cdev->next_string_id = 0;
- 	device_remove_file(&cdev->gadget->dev, &dev_attr_suspended);
+-	dev_put(real_dev);
+ }
+ 
+ static void macsec_setup(struct net_device *dev)
+@@ -3239,8 +3237,6 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
+ 	if (err < 0)
+ 		return err;
+ 
+-	dev_hold(real_dev);
+-
+ 	macsec->nest_level = dev_get_nest_level(real_dev) + 1;
+ 	netdev_lockdep_set_classes(dev);
+ 	lockdep_set_class_and_subclass(&dev->addr_list_lock,
 -- 
 2.20.1
 
