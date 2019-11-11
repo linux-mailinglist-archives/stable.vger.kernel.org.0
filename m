@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB4B6F7B7B
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:37:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6BADF7BDD
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:41:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728742AbfKKSgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:36:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55032 "EHLO mail.kernel.org"
+        id S1728454AbfKKSkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:40:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727634AbfKKSgi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:36:38 -0500
+        id S1728468AbfKKSkm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:40:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85BC0214E0;
-        Mon, 11 Nov 2019 18:36:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1887B20659;
+        Mon, 11 Nov 2019 18:40:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497398;
-        bh=hMRhwn6a2PNFdU9J61hyqIu9H40kpYXBCYyEwjl7EGM=;
+        s=default; t=1573497641;
+        bh=kUBUtkFGhTWmRy3K6qas81XFSNfOybMzFRFT3CAK3ck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mrJP7NtZez24e3y7OdntrhWfNapbA38kxf621AaQABOnYId3XLqH9/c08AaCJUozk
-         eKXkbwmhiIo6WaIT3RcIVLKLFQPsP++F1o0NSj7l5Ty26lzRGXqvHlSclb2l2alrIR
-         AaV6YHbBLHPl8PIq1eCg6T5a/gJzKrC29uMlZ0YQ=
+        b=h33zMjtLYXOVdPewq3impcZsRfpUO2g0hHu9fYFkttZ97+oK5iu+ERfGuZWcB1/VS
+         LMrEgpIObdwWr+CRSMpPYXdFdzo+L632bBWIojfWWtAkSgvLYh3PpBdoTff4AZ3oJC
+         V5NxyI9qhfynmCyyvYZ3/wGbY6Vnm5nO7OjAqNqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 004/105] net: ethernet: octeon_mgmt: Account for second possible VLAN header
+        stable@vger.kernel.org, lipeng <lipeng321@huawei.com>,
+        Yisen Zhuang <yisen.zhuang@huawei.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Marc Zyngier <maz@kernel.org>,
+        Salil Mehta <salil.mehta@huawei.com>
+Subject: [PATCH 4.19 015/125] net: hns: Fix the stray netpoll locks causing deadlock in NAPI path
 Date:   Mon, 11 Nov 2019 19:27:34 +0100
-Message-Id: <20191111181423.465740837@linuxfoundation.org>
+Message-Id: <20191111181441.661895796@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +47,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+From: Salil Mehta <salil.mehta@huawei.com>
 
-[ Upstream commit e4dd5608033efe7b6030cde359bfdbaeb73bc22d ]
+[ Upstream commit bf5a6b4c474c589244dc25ee1af2c3c829228ef8 ]
 
-Octeon's input ring-buffer entry has 14 bits-wide size field, so to account
-for second possible VLAN header max_mtu must be further reduced.
+This patch fixes the problem of the spin locks, originally
+meant for the netpoll path of hns driver, causing deadlock in
+the normal NAPI poll path. The issue happened due to the presence
+of the stray leftover spin lock code related to the netpoll,
+whose support was earlier removed from the HNS[1], got activated
+due to enabling of NET_POLL_CONTROLLER switch.
 
-Fixes: 109cc16526c6d ("ethernet/cavium: use core min/max MTU checking")
-Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Earlier background:
+The netpoll handling code originally had this bug(as identified
+by Marc Zyngier[2]) of wrong spin lock API being used which did
+not disable the interrupts and hence could cause locking issues.
+i.e. if the lock were first acquired in context to thread like
+'ip' util and this lock if ever got later acquired again in
+context to the interrupt context like TX/RX (Interrupts could
+always pre-empt the lock holding task and acquire the lock again)
+and hence could cause deadlock.
+
+Proposed Solution:
+1. If the netpoll was enabled in the HNS driver, which is not
+   right now, we could have simply used spin_[un]lock_irqsave()
+2. But as netpoll is disabled, therefore, it is best to get rid
+   of the existing locks and stray code for now. This should
+   solve the problem reported by Marc.
+
+[1] https://git.kernel.org/torvalds/c/4bd2c03be7
+[2] https://patchwork.ozlabs.org/patch/1189139/
+
+Fixes: 4bd2c03be707 ("net: hns: remove ndo_poll_controller")
+Cc: lipeng <lipeng321@huawei.com>
+Cc: Yisen Zhuang <yisen.zhuang@huawei.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: David S. Miller <davem@davemloft.net>
+Reported-by: Marc Zyngier <maz@kernel.org>
+Acked-by: Marc Zyngier <maz@kernel.org>
+Tested-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cavium/octeon/octeon_mgmt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns/hnae.c     |    1 -
+ drivers/net/ethernet/hisilicon/hns/hnae.h     |    3 ---
+ drivers/net/ethernet/hisilicon/hns/hns_enet.c |   22 +---------------------
+ 3 files changed, 1 insertion(+), 25 deletions(-)
 
---- a/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-+++ b/drivers/net/ethernet/cavium/octeon/octeon_mgmt.c
-@@ -1497,7 +1497,7 @@ static int octeon_mgmt_probe(struct plat
- 	netdev->ethtool_ops = &octeon_mgmt_ethtool_ops;
+--- a/drivers/net/ethernet/hisilicon/hns/hnae.c
++++ b/drivers/net/ethernet/hisilicon/hns/hnae.c
+@@ -203,7 +203,6 @@ hnae_init_ring(struct hnae_queue *q, str
  
- 	netdev->min_mtu = 64 - OCTEON_MGMT_RX_HEADROOM;
--	netdev->max_mtu = 16383 - OCTEON_MGMT_RX_HEADROOM;
-+	netdev->max_mtu = 16383 - OCTEON_MGMT_RX_HEADROOM - VLAN_HLEN;
+ 	ring->q = q;
+ 	ring->flags = flags;
+-	spin_lock_init(&ring->lock);
+ 	ring->coal_param = q->handle->coal_param;
+ 	assert(!ring->desc && !ring->desc_cb && !ring->desc_dma_addr);
  
- 	mac = of_get_mac_address(pdev->dev.of_node);
+--- a/drivers/net/ethernet/hisilicon/hns/hnae.h
++++ b/drivers/net/ethernet/hisilicon/hns/hnae.h
+@@ -278,9 +278,6 @@ struct hnae_ring {
+ 	/* statistic */
+ 	struct ring_stats stats;
  
+-	/* ring lock for poll one */
+-	spinlock_t lock;
+-
+ 	dma_addr_t desc_dma_addr;
+ 	u32 buf_size;       /* size for hnae_desc->addr, preset by AE */
+ 	u16 desc_num;       /* total number of desc */
+--- a/drivers/net/ethernet/hisilicon/hns/hns_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns/hns_enet.c
+@@ -947,15 +947,6 @@ static int is_valid_clean_head(struct hn
+ 	return u > c ? (h > c && h <= u) : (h > c || h <= u);
+ }
+ 
+-/* netif_tx_lock will turn down the performance, set only when necessary */
+-#ifdef CONFIG_NET_POLL_CONTROLLER
+-#define NETIF_TX_LOCK(ring) spin_lock(&(ring)->lock)
+-#define NETIF_TX_UNLOCK(ring) spin_unlock(&(ring)->lock)
+-#else
+-#define NETIF_TX_LOCK(ring)
+-#define NETIF_TX_UNLOCK(ring)
+-#endif
+-
+ /* reclaim all desc in one budget
+  * return error or number of desc left
+  */
+@@ -969,21 +960,16 @@ static int hns_nic_tx_poll_one(struct hn
+ 	int head;
+ 	int bytes, pkts;
+ 
+-	NETIF_TX_LOCK(ring);
+-
+ 	head = readl_relaxed(ring->io_base + RCB_REG_HEAD);
+ 	rmb(); /* make sure head is ready before touch any data */
+ 
+-	if (is_ring_empty(ring) || head == ring->next_to_clean) {
+-		NETIF_TX_UNLOCK(ring);
++	if (is_ring_empty(ring) || head == ring->next_to_clean)
+ 		return 0; /* no data to poll */
+-	}
+ 
+ 	if (!is_valid_clean_head(ring, head)) {
+ 		netdev_err(ndev, "wrong head (%d, %d-%d)\n", head,
+ 			   ring->next_to_use, ring->next_to_clean);
+ 		ring->stats.io_err_cnt++;
+-		NETIF_TX_UNLOCK(ring);
+ 		return -EIO;
+ 	}
+ 
+@@ -998,8 +984,6 @@ static int hns_nic_tx_poll_one(struct hn
+ 	ring->stats.tx_pkts += pkts;
+ 	ring->stats.tx_bytes += bytes;
+ 
+-	NETIF_TX_UNLOCK(ring);
+-
+ 	dev_queue = netdev_get_tx_queue(ndev, ring_data->queue_index);
+ 	netdev_tx_completed_queue(dev_queue, pkts, bytes);
+ 
+@@ -1059,16 +1043,12 @@ static void hns_nic_tx_clr_all_bufs(stru
+ 	int head;
+ 	int bytes, pkts;
+ 
+-	NETIF_TX_LOCK(ring);
+-
+ 	head = ring->next_to_use; /* ntu :soft setted ring position*/
+ 	bytes = 0;
+ 	pkts = 0;
+ 	while (head != ring->next_to_clean)
+ 		hns_nic_reclaim_one_desc(ring, &bytes, &pkts);
+ 
+-	NETIF_TX_UNLOCK(ring);
+-
+ 	dev_queue = netdev_get_tx_queue(ndev, ring_data->queue_index);
+ 	netdev_tx_reset_queue(dev_queue);
+ }
 
 
