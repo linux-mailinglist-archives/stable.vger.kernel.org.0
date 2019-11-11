@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E0AF7E51
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B6BF7E85
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729979AbfKKSq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:46:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38896 "EHLO mail.kernel.org"
+        id S1728476AbfKKSjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:39:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729996AbfKKSqZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:46:25 -0500
+        id S1728254AbfKKSjk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:39:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 170D021925;
-        Mon, 11 Nov 2019 18:46:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C1B02196E;
+        Mon, 11 Nov 2019 18:39:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497984;
-        bh=qoJBrkv55Yvx3fUS2dlYaAZ2YK1eLNgX8mG9LyfTzr8=;
+        s=default; t=1573497579;
+        bh=qMniKZ600avFidGQRAxOvWNIc/Fv4rGe7VfVytJg73A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XJafm2i+4gq5Hvf3oxvQEM64ijF8+HI01m8aKxxMiS7HF7D3wqoYPbF4YfUL80cj9
-         MbW8QIOtM8crO0l0AWKOnpUzTOdqQwz/kZ9fWVgglpugWGvC/P0UwNHF3mbB+jjt0Q
-         IaJbXIWIGTLm34jDrOou9lXZxspN9FFaq7eKzBtU=
+        b=MRQnRZSlUtJGHesKKqFljNDheoXWyHT8lWM8DgPEymN3QeTwtSRp4f/DsZibuO4Qo
+         M7+y7CEux/ZQGGflV66AdkVb7qY0JxKXEPTlgujBo3s+lSyFNz5k+fE3HVhArwiXQF
+         QoHU2+aUBxBCBdRTlW6OpcvqoqgKp6sVBgZ0mhc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Joakim Zhang <qiangqing.zhang@nxp.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 114/125] NFSv4: Dont allow a cached open with a revoked delegation
+Subject: [PATCH 4.14 103/105] can: flexcan: disable completely the ECC mechanism
 Date:   Mon, 11 Nov 2019 19:29:13 +0100
-Message-Id: <20191111181455.122357586@linuxfoundation.org>
+Message-Id: <20191111181449.558889091@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Joakim Zhang <qiangqing.zhang@nxp.com>
 
-[ Upstream commit be3df3dd4c70ee020587a943a31b98a0fb4b6424 ]
+[ Upstream commit 5e269324db5adb2f5f6ec9a93a9c7b0672932b47 ]
 
-If the delegation is marked as being revoked, we must not use it
-for cached opens.
+The ECC (memory error detection and correction) mechanism can be
+activated or not, controlled by the ECCDIS bit in CAN_MECR. When
+disabled, updates on indications and reporting registers are stopped.
+So if want to disable ECC completely, had better assert ECCDIS bit, not
+just mask the related interrupts.
 
-Fixes: 869f9dfa4d6d ("NFSv4: Fix races between nfs_remove_bad_delegation() and delegation return")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: cdce844865be ("can: flexcan: add vf610 support for FlexCAN")
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Cc: linux-stable <stable@vger.kernel.org>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 10 ++++++++++
- fs/nfs/delegation.h |  1 +
- fs/nfs/nfs4proc.c   |  7 ++-----
- 3 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/net/can/flexcan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 825a8c52165a2..c5c3394148f72 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -54,6 +54,16 @@ nfs4_is_valid_delegation(const struct nfs_delegation *delegation,
- 	return false;
- }
- 
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode)
-+{
-+	struct nfs_delegation *delegation;
-+
-+	delegation = rcu_dereference(NFS_I(inode)->delegation);
-+	if (nfs4_is_valid_delegation(delegation, 0))
-+		return delegation;
-+	return NULL;
-+}
-+
- static int
- nfs4_do_check_delegation(struct inode *inode, fmode_t flags, bool mark)
- {
-diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
-index c95477823fa6b..dd0f3eed3890d 100644
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -66,6 +66,7 @@ int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state,
- bool nfs4_copy_delegation_stateid(struct inode *inode, fmode_t flags, nfs4_stateid *dst, struct rpc_cred **cred);
- bool nfs4_refresh_delegation_stateid(nfs4_stateid *dst, struct inode *inode);
- 
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode);
- void nfs_mark_delegation_referenced(struct nfs_delegation *delegation);
- int nfs4_have_delegation(struct inode *inode, fmode_t flags);
- int nfs4_check_delegation(struct inode *inode, fmode_t flags);
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 75faef7af22d3..792f8821b5d6b 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1393,8 +1393,6 @@ static int can_open_delegated(struct nfs_delegation *delegation, fmode_t fmode,
- 		return 0;
- 	if ((delegation->type & fmode) != fmode)
- 		return 0;
--	if (test_bit(NFS_DELEGATION_RETURNING, &delegation->flags))
--		return 0;
- 	switch (claim) {
- 	case NFS4_OPEN_CLAIM_NULL:
- 	case NFS4_OPEN_CLAIM_FH:
-@@ -1751,7 +1749,6 @@ static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmo
- static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- {
- 	struct nfs4_state *state = opendata->state;
--	struct nfs_inode *nfsi = NFS_I(state->inode);
- 	struct nfs_delegation *delegation;
- 	int open_mode = opendata->o_arg.open_flags;
- 	fmode_t fmode = opendata->o_arg.fmode;
-@@ -1768,7 +1765,7 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- 		}
- 		spin_unlock(&state->owner->so_lock);
- 		rcu_read_lock();
--		delegation = rcu_dereference(nfsi->delegation);
-+		delegation = nfs4_get_valid_delegation(state->inode);
- 		if (!can_open_delegated(delegation, fmode, claim)) {
- 			rcu_read_unlock();
- 			break;
-@@ -2293,7 +2290,7 @@ static void nfs4_open_prepare(struct rpc_task *task, void *calldata)
- 					data->o_arg.open_flags, claim))
- 			goto out_no_action;
- 		rcu_read_lock();
--		delegation = rcu_dereference(NFS_I(data->state->inode)->delegation);
-+		delegation = nfs4_get_valid_delegation(data->state->inode);
- 		if (can_open_delegated(delegation, data->o_arg.fmode, claim))
- 			goto unlock_no_action;
- 		rcu_read_unlock();
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index 7280f3a8aa041..84dd79041285a 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -1018,6 +1018,7 @@ static int flexcan_chip_start(struct net_device *dev)
+ 		reg_mecr = flexcan_read(&regs->mecr);
+ 		reg_mecr &= ~FLEXCAN_MECR_ECRWRDIS;
+ 		flexcan_write(reg_mecr, &regs->mecr);
++		reg_mecr |= FLEXCAN_MECR_ECCDIS;
+ 		reg_mecr &= ~(FLEXCAN_MECR_NCEFAFRZ | FLEXCAN_MECR_HANCEI_MSK |
+ 			      FLEXCAN_MECR_FANCEI_MSK);
+ 		flexcan_write(reg_mecr, &regs->mecr);
 -- 
 2.20.1
 
