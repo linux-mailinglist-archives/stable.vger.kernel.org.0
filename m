@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51300F7B8A
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:37:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2EB6F7B03
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:32:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728707AbfKKShN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:37:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
+        id S1727729AbfKKSbq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:31:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727812AbfKKShI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:37:08 -0500
+        id S1727745AbfKKSbp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:31:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A3C321925;
-        Mon, 11 Nov 2019 18:37:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73AAB2173B;
+        Mon, 11 Nov 2019 18:31:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497427;
-        bh=71lSMN3s+ULUntBXqkytyqM8Ok4PqSN8px6hPOw24DU=;
+        s=default; t=1573497105;
+        bh=l88qtRzh2s9eP0LIXX+kdrWUNXRyrI4+MbTuRZ3RbKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CM5fV89mreQq2xc9AU4Lz36DfNmJlv4JxfvOYkRKXQZRO/dYylR+svrDt2DTkUMNV
-         E6odhEoY6sdSKjjyeVTa85mJ7pqW97fPXVtxlvjRmm+bmDGMCmPzlCH75e1YF4THbY
-         DaLAI4MNInafVtxZ6qWR9/KbrFWhCI5XweiRsWfw=
+        b=rP9ap3aUSdImARH0+9JVQ1cDCygFTg48ZaZJ7xXToDYQNfEJui3+TXkOhagdRTuYX
+         RzxTMH8q5hegxNgapJieRXgBykAZtOk1OOi1rSYaq1TPXQJpFDndYPJKt6jJ2Ah2yy
+         z520axQNLBRjeRu2adIavfXUHVBe2zrIFRpnjI14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 4.14 051/105] misc: pci_endpoint_test: Prevent some integer overflows
-Date:   Mon, 11 Nov 2019 19:28:21 +0100
-Message-Id: <20191111181442.731528689@linuxfoundation.org>
+        stable@vger.kernel.org, Mel Gorman <mgorman@techsingularity.net>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        David Hildenbrand <david@redhat.com>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>, Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 09/43] mm, meminit: recalculate pcpu batch and high limits after init completes
+Date:   Mon, 11 Nov 2019 19:28:23 +0100
+Message-Id: <20191111181258.365514047@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +50,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Mel Gorman <mgorman@techsingularity.net>
 
-commit 378f79cab12b669928f3a4037f023837ead2ce0c upstream
+commit 3e8fc0075e24338b1117cdff6a79477427b8dbed upstream.
 
-"size + max" can have an arithmetic overflow when we're allocating:
+Deferred memory initialisation updates zone->managed_pages during the
+initialisation phase but before that finishes, the per-cpu page
+allocator (pcpu) calculates the number of pages allocated/freed in
+batches as well as the maximum number of pages allowed on a per-cpu
+list.  As zone->managed_pages is not up to date yet, the pcpu
+initialisation calculates inappropriately low batch and high values.
 
-	orig_src_addr = dma_alloc_coherent(dev, size + alignment, ...
+This increases zone lock contention quite severely in some cases with
+the degree of severity depending on how many CPUs share a local zone and
+the size of the zone.  A private report indicated that kernel build
+times were excessive with extremely high system CPU usage.  A perf
+profile indicated that a large chunk of time was lost on zone->lock
+contention.
 
-I've added a few checks to prevent that.
+This patch recalculates the pcpu batch and high values after deferred
+initialisation completes for every populated zone in the system.  It was
+tested on a 2-socket AMD EPYC 2 machine using a kernel compilation
+workload -- allmodconfig and all available CPUs.
 
-Fixes: 13107c60681f ("misc: pci_endpoint_test: Add support to provide aligned buffer addresses")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+mmtests configuration: config-workload-kernbench-max Configuration was
+modified to build on a fresh XFS partition.
+
+kernbench
+                                5.4.0-rc3              5.4.0-rc3
+                                  vanilla           resetpcpu-v2
+Amean     user-256    13249.50 (   0.00%)    16401.31 * -23.79%*
+Amean     syst-256    14760.30 (   0.00%)     4448.39 *  69.86%*
+Amean     elsp-256      162.42 (   0.00%)      119.13 *  26.65%*
+Stddev    user-256       42.97 (   0.00%)       19.15 (  55.43%)
+Stddev    syst-256      336.87 (   0.00%)        6.71 (  98.01%)
+Stddev    elsp-256        2.46 (   0.00%)        0.39 (  84.03%)
+
+                   5.4.0-rc3    5.4.0-rc3
+                     vanilla resetpcpu-v2
+Duration User       39766.24     49221.79
+Duration System     44298.10     13361.67
+Duration Elapsed      519.11       388.87
+
+The patch reduces system CPU usage by 69.86% and total build time by
+26.65%.  The variance of system CPU usage is also much reduced.
+
+Before, this was the breakdown of batch and high values over all zones
+was:
+
+    256               batch: 1
+    256               batch: 63
+    512               batch: 7
+    256               high:  0
+    256               high:  378
+    512               high:  42
+
+512 pcpu pagesets had a batch limit of 7 and a high limit of 42.  After
+the patch:
+
+    256               batch: 1
+    768               batch: 63
+    256               high:  0
+    768               high:  378
+
+[mgorman@techsingularity.net: fix merge/linkage snafu]
+  Link: http://lkml.kernel.org/r/20191023084705.GD3016@techsingularity.netLink: http://lkml.kernel.org/r/20191021094808.28824-2-mgorman@techsingularity.net
+Signed-off-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Matt Fleming <matt@codeblueprint.co.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Qian Cai <cai@lca.pw>
+Cc: <stable@vger.kernel.org>	[4.1+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/misc/pci_endpoint_test.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ mm/page_alloc.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/pci_endpoint_test.c
-+++ b/drivers/misc/pci_endpoint_test.c
-@@ -226,6 +226,9 @@ static bool pci_endpoint_test_copy(struc
- 	u32 src_crc32;
- 	u32 dst_crc32;
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -2010,6 +2010,14 @@ void drain_all_pages(struct zone *zone)
+ 	int cpu;
  
-+	if (size > SIZE_MAX - alignment)
-+		goto err;
+ 	/*
++	 * The number of managed pages has changed due to the initialisation
++	 * so the pcpu batch and high limits needs to be updated or the limits
++	 * will be artificially small.
++	 */
++	for_each_populated_zone(zone)
++		zone_pcp_update(zone);
 +
- 	orig_src_addr = dma_alloc_coherent(dev, size + alignment,
- 					   &orig_src_phys_addr, GFP_KERNEL);
- 	if (!orig_src_addr) {
-@@ -311,6 +314,9 @@ static bool pci_endpoint_test_write(stru
- 	size_t alignment = test->alignment;
- 	u32 crc32;
++	/*
+ 	 * Allocate in the BSS so we wont require allocation in
+ 	 * direct reclaim path for CONFIG_CPUMASK_OFFSTACK=y
+ 	 */
+@@ -6868,7 +6876,6 @@ void free_contig_range(unsigned long pfn
+ }
+ #endif
  
-+	if (size > SIZE_MAX - alignment)
-+		goto err;
-+
- 	orig_addr = dma_alloc_coherent(dev, size + alignment, &orig_phys_addr,
- 				       GFP_KERNEL);
- 	if (!orig_addr) {
-@@ -369,6 +375,9 @@ static bool pci_endpoint_test_read(struc
- 	size_t alignment = test->alignment;
- 	u32 crc32;
+-#ifdef CONFIG_MEMORY_HOTPLUG
+ /*
+  * The zone indicated has a new number of managed_pages; batch sizes and percpu
+  * page high values need to be recalulated.
+@@ -6882,7 +6889,6 @@ void __meminit zone_pcp_update(struct zo
+ 				per_cpu_ptr(zone->pageset, cpu));
+ 	mutex_unlock(&pcp_batch_high_lock);
+ }
+-#endif
  
-+	if (size > SIZE_MAX - alignment)
-+		goto err;
-+
- 	orig_addr = dma_alloc_coherent(dev, size + alignment, &orig_phys_addr,
- 				       GFP_KERNEL);
- 	if (!orig_addr) {
+ void zone_pcp_reset(struct zone *zone)
+ {
 
 
