@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 134BCF7EC5
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20246F7E5E
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727387AbfKKSjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:39:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58312 "EHLO mail.kernel.org"
+        id S1729476AbfKKSqE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:46:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728593AbfKKSjR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:39:17 -0500
+        id S1729942AbfKKSqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:46:01 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96A5821783;
-        Mon, 11 Nov 2019 18:39:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B089620674;
+        Mon, 11 Nov 2019 18:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497556;
-        bh=n3O4Tors5pVG7Gt53AwRqz+3OL4J8FXG/CeUhrsDvZ8=;
+        s=default; t=1573497960;
+        bh=GPc0qoZpSOwDlAZgLtPpJV1kA3K3Ak5qPJTdixVkS/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Chwm8v9uci7PqwDtgnQ8teWz++sIIGenxW3UYkLb+CDN7tsRg05wy02Dha+OiII2d
-         qetlMOQvpiCR4QF+hOsj2AT/Rdc7aQ2KYMBq/IKmeGSgAXFOs3NpDOqcI500XXUCT9
-         g+mD6ZQK38wK1O6zBHA1zMKVMKD34/DOss5suSpY=
+        b=bHvWUxRfCZYwzsKgBLjsSuECAtI5G/4dbwTQoALV3HgBbWXPqwPXX5KfshuzqqEEK
+         tL1dg6i6xFMiu6kiqzMQALd9urqKn2W7WIiw9oyaCHa4QeyZzqmRMIYStwCeJVVO9a
+         Lcd71kjt53tTLUZ1NPHfNETYydUeiGLawG6zay2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 096/105] NFSv4: Dont allow a cached open with a revoked delegation
+Subject: [PATCH 4.19 107/125] net: mscc: ocelot: fix vlan_filtering when enslaving to bridge before link is up
 Date:   Mon, 11 Nov 2019 19:29:06 +0100
-Message-Id: <20191111181448.708159397@linuxfoundation.org>
+Message-Id: <20191111181454.239381369@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +49,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Vladimir Oltean <olteanv@gmail.com>
 
-[ Upstream commit be3df3dd4c70ee020587a943a31b98a0fb4b6424 ]
+[ Upstream commit 1c44ce560b4de639f237b458be1729489ff44d0a ]
 
-If the delegation is marked as being revoked, we must not use it
-for cached opens.
+Background information: the driver operates the hardware in a mode where
+a single VLAN can be transmitted as untagged on a particular egress
+port. That is the "native VLAN on trunk port" use case. Its value is
+held in port->vid.
 
-Fixes: 869f9dfa4d6d ("NFSv4: Fix races between nfs_remove_bad_delegation() and delegation return")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Consider the following command sequence (no network manager, all
+interfaces are down, debugging prints added by me):
+
+$ ip link add dev br0 type bridge vlan_filtering 1
+$ ip link set dev swp0 master br0
+
+Kernel code path during last command:
+
+br_add_slave -> ocelot_netdevice_port_event (NETDEV_CHANGEUPPER):
+[   21.401901] ocelot_vlan_port_apply: port 0 vlan aware 0 pvid 0 vid 0
+
+br_add_slave -> nbp_vlan_init -> switchdev_port_attr_set -> ocelot_port_attr_set (SWITCHDEV_ATTR_ID_BRIDGE_VLAN_FILTERING):
+[   21.413335] ocelot_vlan_port_apply: port 0 vlan aware 1 pvid 0 vid 0
+
+br_add_slave -> nbp_vlan_init -> nbp_vlan_add -> br_switchdev_port_vlan_add -> switchdev_port_obj_add -> ocelot_port_obj_add -> ocelot_vlan_vid_add
+[   21.667421] ocelot_vlan_port_apply: port 0 vlan aware 1 pvid 1 vid 1
+
+So far so good. The bridge has replaced the driver's default pvid used
+in standalone mode (0) with its own default_pvid (1). The port's vid
+(native VLAN) has also changed from 0 to 1.
+
+$ ip link set dev swp0 up
+
+[   31.722956] 8021q: adding VLAN 0 to HW filter on device swp0
+do_setlink -> dev_change_flags -> vlan_vid_add -> ocelot_vlan_rx_add_vid -> ocelot_vlan_vid_add:
+[   31.728700] ocelot_vlan_port_apply: port 0 vlan aware 1 pvid 1 vid 0
+
+The 8021q module uses the .ndo_vlan_rx_add_vid API on .ndo_open to make
+ports be able to transmit and receive 802.1p-tagged traffic by default.
+This API is supposed to offload a VLAN sub-interface, which for a switch
+port means to add a VLAN that is not a pvid, and tagged on egress.
+
+But the driver implementation of .ndo_vlan_rx_add_vid is wrong: it adds
+back vid 0 as "egress untagged". Now back to the initial paragraph:
+there is a single untagged VID that the driver keeps track of, and that
+has just changed from 1 (the pvid) to 0. So this breaks the bridge
+core's expectation, because it has changed vid 1 from untagged to
+tagged, when what the user sees is.
+
+$ bridge vlan
+port    vlan ids
+swp0     1 PVID Egress Untagged
+
+br0      1 PVID Egress Untagged
+
+But curiously, instead of manifesting itself as "untagged and
+pvid-tagged traffic gets sent as tagged on egress", the bug:
+
+- is hidden when vlan_filtering=0
+- manifests as dropped traffic when vlan_filtering=1, due to this setting:
+
+	if (port->vlan_aware && !port->vid)
+		/* If port is vlan-aware and tagged, drop untagged and priority
+		 * tagged frames.
+		 */
+		val |= ANA_PORT_DROP_CFG_DROP_UNTAGGED_ENA |
+		       ANA_PORT_DROP_CFG_DROP_PRIO_S_TAGGED_ENA |
+		       ANA_PORT_DROP_CFG_DROP_PRIO_C_TAGGED_ENA;
+
+which would have made sense if it weren't for this bug. The setting's
+intention was "this is a trunk port with no native VLAN, so don't accept
+untagged traffic". So the driver was never expecting to set VLAN 0 as
+the value of the native VLAN, 0 was just encoding for "invalid".
+
+So the fix is to not send 802.1p traffic as untagged, because that would
+change the port's native vlan to 0, unbeknownst to the bridge, and
+trigger unexpected code paths in the driver.
+
+Cc: Antoine Tenart <antoine.tenart@bootlin.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: 7142529f1688 ("net: mscc: ocelot: add VLAN filtering")
+Signed-off-by: Vladimir Oltean <olteanv@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Reviewed-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 10 ++++++++++
- fs/nfs/delegation.h |  1 +
- fs/nfs/nfs4proc.c   |  7 ++-----
- 3 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mscc/ocelot.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 606dd3871f66b..61bc0a6ba08b1 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -52,6 +52,16 @@ nfs4_is_valid_delegation(const struct nfs_delegation *delegation,
- 	return false;
+diff --git a/drivers/net/ethernet/mscc/ocelot.c b/drivers/net/ethernet/mscc/ocelot.c
+index e05a59ae9a593..965f13944c76b 100644
+--- a/drivers/net/ethernet/mscc/ocelot.c
++++ b/drivers/net/ethernet/mscc/ocelot.c
+@@ -886,7 +886,7 @@ end:
+ static int ocelot_vlan_rx_add_vid(struct net_device *dev, __be16 proto,
+ 				  u16 vid)
+ {
+-	return ocelot_vlan_vid_add(dev, vid, false, true);
++	return ocelot_vlan_vid_add(dev, vid, false, false);
  }
  
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode)
-+{
-+	struct nfs_delegation *delegation;
-+
-+	delegation = rcu_dereference(NFS_I(inode)->delegation);
-+	if (nfs4_is_valid_delegation(delegation, 0))
-+		return delegation;
-+	return NULL;
-+}
-+
- static int
- nfs4_do_check_delegation(struct inode *inode, fmode_t flags, bool mark)
- {
-diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
-index ddaf2644cf13a..df41d16dc6ab4 100644
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -63,6 +63,7 @@ int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state
- int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state, const nfs4_stateid *stateid);
- bool nfs4_copy_delegation_stateid(struct inode *inode, fmode_t flags, nfs4_stateid *dst, struct rpc_cred **cred);
- 
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode);
- void nfs_mark_delegation_referenced(struct nfs_delegation *delegation);
- int nfs4_have_delegation(struct inode *inode, fmode_t flags);
- int nfs4_check_delegation(struct inode *inode, fmode_t flags);
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index af062e9f45803..f1526f65cc580 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1355,8 +1355,6 @@ static int can_open_delegated(struct nfs_delegation *delegation, fmode_t fmode,
- 		return 0;
- 	if ((delegation->type & fmode) != fmode)
- 		return 0;
--	if (test_bit(NFS_DELEGATION_RETURNING, &delegation->flags))
--		return 0;
- 	switch (claim) {
- 	case NFS4_OPEN_CLAIM_NULL:
- 	case NFS4_OPEN_CLAIM_FH:
-@@ -1615,7 +1613,6 @@ static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmo
- static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- {
- 	struct nfs4_state *state = opendata->state;
--	struct nfs_inode *nfsi = NFS_I(state->inode);
- 	struct nfs_delegation *delegation;
- 	int open_mode = opendata->o_arg.open_flags;
- 	fmode_t fmode = opendata->o_arg.fmode;
-@@ -1632,7 +1629,7 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- 		}
- 		spin_unlock(&state->owner->so_lock);
- 		rcu_read_lock();
--		delegation = rcu_dereference(nfsi->delegation);
-+		delegation = nfs4_get_valid_delegation(state->inode);
- 		if (!can_open_delegated(delegation, fmode, claim)) {
- 			rcu_read_unlock();
- 			break;
-@@ -2153,7 +2150,7 @@ static void nfs4_open_prepare(struct rpc_task *task, void *calldata)
- 					data->o_arg.open_flags, claim))
- 			goto out_no_action;
- 		rcu_read_lock();
--		delegation = rcu_dereference(NFS_I(data->state->inode)->delegation);
-+		delegation = nfs4_get_valid_delegation(data->state->inode);
- 		if (can_open_delegated(delegation, data->o_arg.fmode, claim))
- 			goto unlock_no_action;
- 		rcu_read_unlock();
+ static int ocelot_vlan_rx_kill_vid(struct net_device *dev, __be16 proto,
 -- 
 2.20.1
 
