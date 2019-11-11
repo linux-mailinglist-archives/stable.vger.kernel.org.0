@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D5AF6E93
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5D8F6E92
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 07:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726768AbfKKGb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 01:31:57 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:57751 "EHLO
+        id S1726791AbfKKGbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 01:31:49 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:59313 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726765AbfKKGb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:31:57 -0500
+        by vger.kernel.org with ESMTP id S1726770AbfKKGbt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 01:31:49 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2195E20D12;
-        Mon, 11 Nov 2019 01:31:56 -0500 (EST)
+        by mailout.nyi.internal (Postfix) with ESMTP id A11A4200E3;
+        Mon, 11 Nov 2019 01:31:48 -0500 (EST)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:31:56 -0500
+  by compute6.internal (MEProxy); Mon, 11 Nov 2019 01:31:48 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=yLft/x
-        FLqI3O8ApNS0x3CSbfXOPtnXv/oTBARD+Jw/w=; b=yRh8WbT52XpcKqtQ3NAa44
-        EOr8U0jlayeGMCBSCGZSt2SU4i5lDZ3Rzvk5ok+Ez+5vdRcMQ7AygLybdIW5iYyS
-        eIFaKOn+WvtuIrNXnAtalxw0/e/puTBc/1hcgP/FfA2XRxzjvMToA9LzISYl4D03
-        F62E776yVh2YFPraNhbgFStD7X2HnfaXUIz7WKp/J2/igcOBqihI+idQtQjZHPY4
-        CR1KEGoXaW/xNH/mSRgfm8fqK9hpi9ziIxpOpXgbBsnIvCFCv1iZT6evY6D/IQ2G
-        2OM5OtObZt++830d9sGUEFSvtDamQPOQQkhixZYt0DA5TlmVYbaijPdraiT93r5g
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=JpbBe7
+        JAMEXbE+BVd+hx6dN968A8obzQ1BWfqlD6V1g=; b=Tk1PYCCjgkTvgKGlAr44Cl
+        vPlVmbZV1qzI7fypyXcNMzgarug00KSyUek3znYxnrFqiyqskY86jTB2YU81F9+h
+        EZcfs0vP6ceQyOuSVCEWmnpgHcrDSlb+zB6Hz7BRNQ7KP5UW0JIsDLXWkJ9ZrRtQ
+        Zw/e2Rmmi+qG1A/1KrM0++6CPxCJkRXUSahTgOkLQd+lI2Vrfu60k7RoId+Slf5C
+        Mmq4IgDkRPruj0ajc/lTjyMSz34qGCBoCu5XvsM4pVGwMZXunIYseOQKCRjEBvUK
+        38xTgLOICQxnUkdfdKXlau6Z0hairwjE8RW4utLNSSCPx4+yMwU4rSW7KHx1TUrg
         ==
-X-ME-Sender: <xms:XADJXbniUFQrGeUxPKm4spwKnF7dDeR0dMaw7Xe-OwfselKmT73f4g>
+X-ME-Sender: <xms:UwDJXbR76eBFmrFaJuZGd6wSTIXyWjusgumXOHIQZZ8i5C4r21tOrQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedruddviedgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:XADJXYMKFdQvtotzuWE8cbfBEpWG0SmCX2cCvRlUu4dUmcTMozlahQ>
-    <xmx:XADJXaJpKk9_MPnAaIleZUfm-vqIKEUvHBw130q-auctmpOTSkSxXg>
-    <xmx:XADJXTEEh-kkyoKqZXxfFk7XsY_TTHD_MdETyb3zxoSHFXyuICzEgg>
-    <xmx:XADJXXE5rPAHGHiAfrKF47xBgZZ72baYjCQZAqiuZAv-7UQtpBNnVw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:UwDJXRBZokvqDWxtTq6YwM4N7hNLzWspIdz_ZL3Un_ozl__cy0FNxA>
+    <xmx:UwDJXb04j8xXRJIfLM5uqT3N95HXvgs6EUBv2w11HCHYSedtzTmLng>
+    <xmx:UwDJXfX_LwnHiyCS7U2BZK3mj4_BCrxqLxWLS9nzti35VvbLcl_72w>
+    <xmx:VADJXb2r8t3qh1fH8DawAm8-MdTvyup3LMVdHJ6xd2KRnp3iZ55O6A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id B2F1E3060065;
-        Mon, 11 Nov 2019 01:31:55 -0500 (EST)
-Subject: FAILED: patch "[PATCH] can: flexcan: disable completely the ECC mechanism" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 96E803060064;
+        Mon, 11 Nov 2019 01:31:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] can: flexcan: disable completely the ECC mechanism" failed to apply to 4.14-stable tree
 To:     qiangqing.zhang@nxp.com, mkl@pengutronix.de, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 11 Nov 2019 07:31:46 +0100
-Message-ID: <15734539068048@kroah.com>
+Message-ID: <157345390614177@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
