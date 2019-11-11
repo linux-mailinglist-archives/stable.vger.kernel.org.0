@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E84F7AEA
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:30:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F937F7B33
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:34:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727442AbfKKSas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:30:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47168 "EHLO mail.kernel.org"
+        id S1728173AbfKKSdj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:33:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727420AbfKKSar (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:30:47 -0500
+        id S1727439AbfKKSdh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:33:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6708B214E0;
-        Mon, 11 Nov 2019 18:30:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19DA121655;
+        Mon, 11 Nov 2019 18:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497046;
-        bh=y/EzYc3L6edo1ur9WPq4mwtfpeuypnsd12zZoJ/6Kzw=;
+        s=default; t=1573497216;
+        bh=u2bTk1fuFSWK2W7igBb3oFb4c2ppAh1UEJtkSLG8omw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WBItQIQNOVLJbDHPKo86yzBr+w5A8zdjlYqlMwP2OmjhnLcRTr/FalF1tYCWy40Am
-         6NKY9/lCLtQC8d7LXXQtWHRehriYuLgQZJMEvhZy4XG0JJ4xt95bVLav0sRzWSzZ+Y
-         bIdpsVU6tYHeuryWWbcp8SxT5PbKZ4V4WjZEAmRw=
+        b=uPOxeeo8TB7xF0Ntnvk1RHeaTwYFBtQ+epBDCfB6aeTGxo51upd00HaHZBtIOunaC
+         kHONigmZjelnb9QT1wYkXAgnFFoYWzFJvXIsRBLA+FlniFFnq2/FIbVf+JJcsp4tVP
+         DahuBR0T7R6RkHirE/3buauO1SQg/C0RyFLXRiuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Daniel Wagner <dwagner@suse.de>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 27/43] scsi: lpfc: Honor module parameter lpfc_use_adisc
+Subject: [PATCH 4.9 41/65] scsi: lpfc: Honor module parameter lpfc_use_adisc
 Date:   Mon, 11 Nov 2019 19:28:41 +0100
-Message-Id: <20191111181319.179410245@linuxfoundation.org>
+Message-Id: <20191111181348.129999692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -89,7 +89,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index 193733e8c8235..3a4613f9fb9fc 100644
+index 56a3df4fddb05..21ec7b5b6c85c 100644
 --- a/drivers/scsi/lpfc/lpfc_nportdisc.c
 +++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
 @@ -759,9 +759,9 @@ lpfc_disc_set_adisc(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
