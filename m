@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B16FEF7C73
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:47:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A07E5F7DBE
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:59:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729312AbfKKSqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:46:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38828 "EHLO mail.kernel.org"
+        id S1730758AbfKKS4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:56:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729984AbfKKSqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:46:22 -0500
+        id S1729287AbfKKS4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:56:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96AB02173B;
-        Mon, 11 Nov 2019 18:46:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 903C921783;
+        Mon, 11 Nov 2019 18:56:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497981;
-        bh=c33AECLfdkLw9jMvT37q32hJX80dIXfiA4ZnBHOxKt8=;
+        s=default; t=1573498609;
+        bh=ekbT4M/PN4RaJ9uYvW4D3NCXS6rF2nmfZb2FfG5+pTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pnz+9rZvSoYokpfFvwUgPrU2xdeks/uJR33Ll4AGP0HsNtNaOs277koKX++yA3nVS
-         +TjZBC6A+PUGaSBW5hWx25q4vnqu2bHub/R3i57BS9yw6AxB8Z6iRsYEWC75r4G/tB
-         n6C/xj4wOzUsrCWyUB1Io7fhi/4IS+yeEcSEqXoE=
+        b=ZG1Bb5QPvN1nGMcZmmrHic7163EVC0DId4ZzT36expti8Thy7pRV3Kn+mXMyBWS+N
+         xHn4lsE2uSyIHRxvBkDlRk34coUkF9ol/SywzcnGGYVaP0+2qySEUpKtRd+n/O/dp5
+         tEvOjgOENMpm91wmNAeyzaYDAyUNdGqNG8gMQejk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        zhongshiqi <zhong.shiqi@zte.com.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 113/125] usb: dwc3: gadget: fix race when disabling ep with cancelled xfers
+Subject: [PATCH 5.3 170/193] dc.c:use kzalloc without test
 Date:   Mon, 11 Nov 2019 19:29:12 +0100
-Message-Id: <20191111181454.916507789@linuxfoundation.org>
+Message-Id: <20191111181513.675535590@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felipe Balbi <felipe.balbi@linux.intel.com>
+From: zhongshiqi <zhong.shiqi@zte.com.cn>
 
-[ Upstream commit d8eca64eec7103ab1fbabc0a187dbf6acfb2af93 ]
+[ Upstream commit 364593f3ee5fdefc6efd89475e1804c928b4e6ba ]
 
-When disabling an endpoint which has cancelled requests, we should
-make sure to giveback requests that are currently pending in the
-cancelled list, otherwise we may fall into a situation where command
-completion interrupt fires after endpoint has been disabled, therefore
-causing a splat.
+dc.c:583:null check is needed after using kzalloc function
 
-Fixes: fec9095bdef4 "usb: dwc3: gadget: remove wait_end_transfer"
-Reported-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
-Link: https://lore.kernel.org/r/20191031090713.1452818-1-felipe.balbi@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: zhongshiqi <zhong.shiqi@zte.com.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 54de732550648..8398c33d08e7c 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -698,6 +698,12 @@ static void dwc3_remove_requests(struct dwc3 *dwc, struct dwc3_ep *dep)
- 
- 		dwc3_gadget_giveback(dep, req, -ESHUTDOWN);
- 	}
-+
-+	while (!list_empty(&dep->cancelled_list)) {
-+		req = next_request(&dep->cancelled_list);
-+
-+		dwc3_gadget_giveback(dep, req, -ESHUTDOWN);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 730f97ba8dbbe..dd4731ab935cd 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -566,6 +566,10 @@ static bool construct(struct dc *dc,
+ #ifdef CONFIG_DRM_AMD_DC_DCN2_0
+ 	// Allocate memory for the vm_helper
+ 	dc->vm_helper = kzalloc(sizeof(struct vm_helper), GFP_KERNEL);
++	if (!dc->vm_helper) {
++		dm_error("%s: failed to create dc->vm_helper\n", __func__);
++		goto fail;
 +	}
- }
  
- /**
+ #endif
+ 	memcpy(&dc->bb_overrides, &init_params->bb_overrides, sizeof(dc->bb_overrides));
 -- 
 2.20.1
 
