@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C25C9F7AFA
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:32:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3853DF7D58
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:56:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727312AbfKKSbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:31:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
+        id S1729917AbfKKSzw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:55:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726985AbfKKSbX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:31:23 -0500
+        id S1730670AbfKKSzv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:55:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64B3F21655;
-        Mon, 11 Nov 2019 18:31:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2ADA721783;
+        Mon, 11 Nov 2019 18:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497081;
-        bh=tF8qDHsPVZtXQvwRNh4NG+WoEz3m+Rq0sHb3zs48rVc=;
+        s=default; t=1573498550;
+        bh=N5Y94iEJO5/xbZaziSmMSrfzRjsAshog1+XNa+q9lD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwoxbM/B0FvvgmjEw+t+vM/wu8JPMxn3OkTQjj4RI06fsctyxvS352ukt5ZHMoBjm
-         YhCavbNBiNPBfn4XUAIP92MNdOQo/MalqlFr3eKG+1GIRJfyKpWLOm1RsFplKlpK8E
-         kJPgUce9d7YgT1XDg8ht4KDNCU5bkZ37PenTx7nY=
+        b=PcjFJs5UrMs2Bnb869L9h7MrI6Wfl51IXhxnPkV5NtFyJFlwOExp3hD57VPcUjtxS
+         7FJ3WoNrzuZO29iOExrb/Gwv7uBOLqYSmd/c/wK0LAdME3RPR/TBpEr1hXdDdPp+Qe
+         DbXC4Zz1rlWojnq9DmdFZGQY4zAkTtFTRi6e6vvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Dakshaja Uppalapati <dakshaja@chelsio.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 38/43] NFSv4: Dont allow a cached open with a revoked delegation
+Subject: [PATCH 5.3 150/193] RDMA/iw_cxgb4: Avoid freeing skb twice in arp failure case
 Date:   Mon, 11 Nov 2019 19:28:52 +0100
-Message-Id: <20191111181327.473748962@linuxfoundation.org>
+Message-Id: <20191111181512.215440860@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trondmy@gmail.com>
+From: Potnuri Bharat Teja <bharat@chelsio.com>
 
-[ Upstream commit be3df3dd4c70ee020587a943a31b98a0fb4b6424 ]
+[ Upstream commit d4934f45693651ea15357dd6c7c36be28b6da884 ]
 
-If the delegation is marked as being revoked, we must not use it
-for cached opens.
+_put_ep_safe() and _put_pass_ep_safe() free the skb before it is freed by
+process_work(). fix double free by freeing the skb only in process_work().
 
-Fixes: 869f9dfa4d6d ("NFSv4: Fix races between nfs_remove_bad_delegation() and delegation return")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 1dad0ebeea1c ("iw_cxgb4: Avoid touch after free error in ARP failure handlers")
+Link: https://lore.kernel.org/r/1572006880-5800-1-git-send-email-bharat@chelsio.com
+Signed-off-by: Dakshaja Uppalapati <dakshaja@chelsio.com>
+Signed-off-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Reviewed-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/delegation.c | 10 ++++++++++
- fs/nfs/delegation.h |  1 +
- fs/nfs/nfs4proc.c   |  7 ++-----
- 3 files changed, 13 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
-index 7af5eeabc80e1..5dac3382405ce 100644
---- a/fs/nfs/delegation.c
-+++ b/fs/nfs/delegation.c
-@@ -52,6 +52,16 @@ nfs4_is_valid_delegation(const struct nfs_delegation *delegation,
- 	return false;
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index 9e8eca7b613c0..347dc242fb882 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -495,7 +495,6 @@ static int _put_ep_safe(struct c4iw_dev *dev, struct sk_buff *skb)
+ 
+ 	ep = *((struct c4iw_ep **)(skb->cb + 2 * sizeof(void *)));
+ 	release_ep_resources(ep);
+-	kfree_skb(skb);
+ 	return 0;
  }
  
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode)
-+{
-+	struct nfs_delegation *delegation;
-+
-+	delegation = rcu_dereference(NFS_I(inode)->delegation);
-+	if (nfs4_is_valid_delegation(delegation, 0))
-+		return delegation;
-+	return NULL;
-+}
-+
- static int
- nfs4_do_check_delegation(struct inode *inode, fmode_t flags, bool mark)
- {
-diff --git a/fs/nfs/delegation.h b/fs/nfs/delegation.h
-index 333063e032f01..26a8af7bdca36 100644
---- a/fs/nfs/delegation.h
-+++ b/fs/nfs/delegation.h
-@@ -58,6 +58,7 @@ int nfs4_open_delegation_recall(struct nfs_open_context *ctx, struct nfs4_state
- int nfs4_lock_delegation_recall(struct file_lock *fl, struct nfs4_state *state, const nfs4_stateid *stateid);
- bool nfs4_copy_delegation_stateid(nfs4_stateid *dst, struct inode *inode, fmode_t flags);
+@@ -506,7 +505,6 @@ static int _put_pass_ep_safe(struct c4iw_dev *dev, struct sk_buff *skb)
+ 	ep = *((struct c4iw_ep **)(skb->cb + 2 * sizeof(void *)));
+ 	c4iw_put_ep(&ep->parent_ep->com);
+ 	release_ep_resources(ep);
+-	kfree_skb(skb);
+ 	return 0;
+ }
  
-+struct nfs_delegation *nfs4_get_valid_delegation(const struct inode *inode);
- void nfs_mark_delegation_referenced(struct nfs_delegation *delegation);
- int nfs4_have_delegation(struct inode *inode, fmode_t flags);
- int nfs4_check_delegation(struct inode *inode, fmode_t flags);
-diff --git a/fs/nfs/nfs4proc.c b/fs/nfs/nfs4proc.c
-index 900a62a9ad4e5..08207001d4753 100644
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1243,8 +1243,6 @@ static int can_open_delegated(struct nfs_delegation *delegation, fmode_t fmode,
- 		return 0;
- 	if ((delegation->type & fmode) != fmode)
- 		return 0;
--	if (test_bit(NFS_DELEGATION_RETURNING, &delegation->flags))
--		return 0;
- 	switch (claim) {
- 	case NFS4_OPEN_CLAIM_NULL:
- 	case NFS4_OPEN_CLAIM_FH:
-@@ -1473,7 +1471,6 @@ static void nfs4_return_incompatible_delegation(struct inode *inode, fmode_t fmo
- static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- {
- 	struct nfs4_state *state = opendata->state;
--	struct nfs_inode *nfsi = NFS_I(state->inode);
- 	struct nfs_delegation *delegation;
- 	int open_mode = opendata->o_arg.open_flags;
- 	fmode_t fmode = opendata->o_arg.fmode;
-@@ -1490,7 +1487,7 @@ static struct nfs4_state *nfs4_try_open_cached(struct nfs4_opendata *opendata)
- 		}
- 		spin_unlock(&state->owner->so_lock);
- 		rcu_read_lock();
--		delegation = rcu_dereference(nfsi->delegation);
-+		delegation = nfs4_get_valid_delegation(state->inode);
- 		if (!can_open_delegated(delegation, fmode, claim)) {
- 			rcu_read_unlock();
- 			break;
-@@ -1981,7 +1978,7 @@ static void nfs4_open_prepare(struct rpc_task *task, void *calldata)
- 		if (can_open_cached(data->state, data->o_arg.fmode, data->o_arg.open_flags))
- 			goto out_no_action;
- 		rcu_read_lock();
--		delegation = rcu_dereference(NFS_I(data->state->inode)->delegation);
-+		delegation = nfs4_get_valid_delegation(data->state->inode);
- 		if (can_open_delegated(delegation, data->o_arg.fmode, claim))
- 			goto unlock_no_action;
- 		rcu_read_unlock();
 -- 
 2.20.1
 
