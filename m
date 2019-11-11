@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B837BF7C7D
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:47:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B40F8F7DBC
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730027AbfKKSqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:46:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39314 "EHLO mail.kernel.org"
+        id S1730806AbfKKS5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:57:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730025AbfKKSqp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:46:45 -0500
+        id S1730493AbfKKS5Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:57:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4608D20674;
-        Mon, 11 Nov 2019 18:46:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 803FB21783;
+        Mon, 11 Nov 2019 18:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498003;
-        bh=joAlmJwFdGMLIvio/Y3ktCQ43gYYcMvWGpbSsVHlXnM=;
+        s=default; t=1573498635;
+        bh=9VlzYfDK4xB2zu0xHS/uE7JswxMQCb8hawKUTinRw1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wnCn+ff9guOI3j0ctRgSFEFjbCBYPzHwHtdM/VtqwlpGlGqdFouLvrK5XXR7Wo/cJ
-         QAboxzVBiC6XNrrYgV3rMVNOZv/Uhl8PniERwqLeN+bzXpEPl802tZXRMijI1vL0PL
-         +7YRd+B5tDuuHzjPH1SPQXqlbVN01zhmP2BczHsI=
+        b=dyQYtVuNTfoPQ1lQD8BK7Vd6byFvQ3M+4jUm/e3RQbNLwMdYM7mMEg0ssiHwh1KOZ
+         94BQYWyqgSDCb0bLaEaiBnj0giS2k+yJoiBTROxrqZe7FWhXnjtwhjMfd2JpsEz1U6
+         Voh3E0GvvECCkYpMD4RtBNRwU7ORxAo0643GjQhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, fei.yang@intel.com,
-        Oliver Barta <oliver.barta@aptiv.com>,
-        Malin Jonsson <malin.jonsson@ericsson.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org,
+        Guillaume Gardet <Guillaume.Gardet@arm.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Chester Lin <clin@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 118/125] pinctrl: intel: Avoid potential glitches if pin is in GPIO mode
-Date:   Mon, 11 Nov 2019 19:29:17 +0100
-Message-Id: <20191111181455.539752769@linuxfoundation.org>
+Subject: [PATCH 5.3 176/193] efi: libstub/arm: Account for firmware reserved memory at the base of RAM
+Date:   Mon, 11 Nov 2019 19:29:18 +0100
+Message-Id: <20191111181514.101511069@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,87 +50,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 
-[ Upstream commit 29c2c6aa32405dfee4a29911a51ba133edcedb0f ]
+[ Upstream commit 41cd96fa149b29684ebd38759fefb07f9c7d5276 ]
 
-When consumer requests a pin, in order to be on the safest side,
-we switch it first to GPIO mode followed by immediate transition
-to the input state. Due to posted writes it's luckily to be a single
-I/O transaction.
+The EFI stubloader for ARM starts out by allocating a 32 MB window
+at the base of RAM, in order to ensure that the decompressor (which
+blindly copies the uncompressed kernel into that window) does not
+overwrite other allocations that are made while running in the context
+of the EFI firmware.
 
-However, if firmware or boot loader already configures the pin
-to the GPIO mode, user expects no glitches for the requested pin.
-We may check if the pin is pre-configured and leave it as is
-till the actual consumer toggles its state to avoid glitches.
+In some cases, (e.g., U-Boot running on the Raspberry Pi 2), this is
+causing boot failures because this initial allocation conflicts with
+a page of reserved memory at the base of RAM that contains the SMP spin
+tables and other pieces of firmware data and which was put there by
+the bootloader under the assumption that the TEXT_OFFSET window right
+below the kernel is only used partially during early boot, and will be
+left alone once the memory reservations are processed and taken into
+account.
 
-Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
-Depends-on: f5a26acf0162 ("pinctrl: intel: Initialize GPIO properly when used through irqchip")
-Cc: stable@vger.kernel.org
-Cc: fei.yang@intel.com
-Reported-by: Oliver Barta <oliver.barta@aptiv.com>
-Reported-by: Malin Jonsson <malin.jonsson@ericsson.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+So let's permit reserved memory regions to exist in the region starting
+at the base of RAM, and ending at TEXT_OFFSET - 5 * PAGE_SIZE, which is
+the window below the kernel that is not touched by the early boot code.
+
+Tested-by: Guillaume Gardet <Guillaume.Gardet@arm.com>
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Acked-by: Chester Lin <clin@suse.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-efi@vger.kernel.org
+Link: https://lkml.kernel.org/r/20191029173755.27149-5-ardb@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 21 ++++++++++++++++++++-
- 1 file changed, 20 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/libstub/Makefile     |  1 +
+ drivers/firmware/efi/libstub/arm32-stub.c | 16 +++++++++++++---
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 1ea3438ea67e9..89ff2795a8b55 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -49,6 +49,7 @@
- #define PADCFG0_GPIROUTNMI		BIT(17)
- #define PADCFG0_PMODE_SHIFT		10
- #define PADCFG0_PMODE_MASK		(0xf << PADCFG0_PMODE_SHIFT)
-+#define PADCFG0_PMODE_GPIO		0
- #define PADCFG0_GPIORXDIS		BIT(9)
- #define PADCFG0_GPIOTXDIS		BIT(8)
- #define PADCFG0_GPIORXSTATE		BIT(1)
-@@ -301,7 +302,7 @@ static void intel_pin_dbg_show(struct pinctrl_dev *pctldev, struct seq_file *s,
- 	cfg1 = readl(intel_get_padcfg(pctrl, pin, PADCFG1));
+diff --git a/drivers/firmware/efi/libstub/Makefile b/drivers/firmware/efi/libstub/Makefile
+index 0460c7581220e..ee0661ddb25bb 100644
+--- a/drivers/firmware/efi/libstub/Makefile
++++ b/drivers/firmware/efi/libstub/Makefile
+@@ -52,6 +52,7 @@ lib-$(CONFIG_EFI_ARMSTUB)	+= arm-stub.o fdt.o string.o random.o \
  
- 	mode = (cfg0 & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
--	if (!mode)
-+	if (mode == PADCFG0_PMODE_GPIO)
- 		seq_puts(s, "GPIO ");
- 	else
- 		seq_printf(s, "mode %d ", mode);
-@@ -422,6 +423,11 @@ static void __intel_gpio_set_direction(void __iomem *padcfg0, bool input)
- 	writel(value, padcfg0);
- }
+ lib-$(CONFIG_ARM)		+= arm32-stub.o
+ lib-$(CONFIG_ARM64)		+= arm64-stub.o
++CFLAGS_arm32-stub.o		:= -DTEXT_OFFSET=$(TEXT_OFFSET)
+ CFLAGS_arm64-stub.o		:= -DTEXT_OFFSET=$(TEXT_OFFSET)
  
-+static int intel_gpio_get_gpio_mode(void __iomem *padcfg0)
-+{
-+	return (readl(padcfg0) & PADCFG0_PMODE_MASK) >> PADCFG0_PMODE_SHIFT;
-+}
-+
- static void intel_gpio_set_gpio_mode(void __iomem *padcfg0)
+ #
+diff --git a/drivers/firmware/efi/libstub/arm32-stub.c b/drivers/firmware/efi/libstub/arm32-stub.c
+index e8f7aefb6813d..ffa242ad0a82e 100644
+--- a/drivers/firmware/efi/libstub/arm32-stub.c
++++ b/drivers/firmware/efi/libstub/arm32-stub.c
+@@ -195,6 +195,7 @@ efi_status_t handle_kernel_image(efi_system_table_t *sys_table,
+ 				 unsigned long dram_base,
+ 				 efi_loaded_image_t *image)
  {
- 	u32 value;
-@@ -450,7 +456,20 @@ static int intel_gpio_request_enable(struct pinctrl_dev *pctldev,
- 	}
++	unsigned long kernel_base;
+ 	efi_status_t status;
  
- 	padcfg0 = intel_get_padcfg(pctrl, pin, PADCFG0);
-+
+ 	/*
+@@ -204,9 +205,18 @@ efi_status_t handle_kernel_image(efi_system_table_t *sys_table,
+ 	 * loaded. These assumptions are made by the decompressor,
+ 	 * before any memory map is available.
+ 	 */
+-	dram_base = round_up(dram_base, SZ_128M);
++	kernel_base = round_up(dram_base, SZ_128M);
+ 
+-	status = reserve_kernel_base(sys_table, dram_base, reserve_addr,
 +	/*
-+	 * If pin is already configured in GPIO mode, we assume that
-+	 * firmware provides correct settings. In such case we avoid
-+	 * potential glitches on the pin. Otherwise, for the pin in
-+	 * alternative mode, consumer has to supply respective flags.
++	 * Note that some platforms (notably, the Raspberry Pi 2) put
++	 * spin-tables and other pieces of firmware at the base of RAM,
++	 * abusing the fact that the window of TEXT_OFFSET bytes at the
++	 * base of the kernel image is only partially used at the moment.
++	 * (Up to 5 pages are used for the swapper page tables)
 +	 */
-+	if (intel_gpio_get_gpio_mode(padcfg0) == PADCFG0_PMODE_GPIO) {
-+		raw_spin_unlock_irqrestore(&pctrl->lock, flags);
-+		return 0;
-+	}
++	kernel_base += TEXT_OFFSET - 5 * PAGE_SIZE;
 +
- 	intel_gpio_set_gpio_mode(padcfg0);
-+
- 	/* Disable TX buffer and enable RX (this will be input) */
- 	__intel_gpio_set_direction(padcfg0, true);
- 
++	status = reserve_kernel_base(sys_table, kernel_base, reserve_addr,
+ 				     reserve_size);
+ 	if (status != EFI_SUCCESS) {
+ 		pr_efi_err(sys_table, "Unable to allocate memory for uncompressed kernel.\n");
+@@ -220,7 +230,7 @@ efi_status_t handle_kernel_image(efi_system_table_t *sys_table,
+ 	*image_size = image->image_size;
+ 	status = efi_relocate_kernel(sys_table, image_addr, *image_size,
+ 				     *image_size,
+-				     dram_base + MAX_UNCOMP_KERNEL_SIZE, 0);
++				     kernel_base + MAX_UNCOMP_KERNEL_SIZE, 0);
+ 	if (status != EFI_SUCCESS) {
+ 		pr_efi_err(sys_table, "Failed to relocate kernel.\n");
+ 		efi_free(sys_table, *reserve_size, *reserve_addr);
 -- 
 2.20.1
 
