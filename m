@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77AFDF7DE5
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1564F7F4A
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729823AbfKKSyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:54:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50196 "EHLO mail.kernel.org"
+        id S1728069AbfKKSdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:33:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730557AbfKKSyV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:54:21 -0500
+        id S1728065AbfKKSc7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:32:59 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0DC8621655;
-        Mon, 11 Nov 2019 18:54:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D2CD20856;
+        Mon, 11 Nov 2019 18:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573498460;
-        bh=y5DKw5yfXLhHf/OzhUNTYiVPxLFGGc6JHFsKSap5NbE=;
+        s=default; t=1573497178;
+        bh=ZK/ZBjuL36PlHFysUhKmPHj4iSBscDJgj7PWaoy0ufo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azDzptFGrI0OS1CqpZmLMsGy4pp4gJUKb2TpXSo9vvwiswVB22e0QcTX1NkYXA2q+
-         ef9CwciFWl9qRDLkthauv10NyB2j/yHKTeNeE5UtCoOr3FCMrWLosNP36eNiBZbSsK
-         esIjQmL6P81nqIQ1XcoIwIMBUUAmzWbLFibqbZB8=
+        b=EeFelDZ9cJwfG94u/dZD6Cmc2+FJgMoHSupHeMgqh59dBe5l52H9cCrlmxutimQOu
+         X3ooclmNdUW0NhOFRmgUWx9U2YS5hrTuQCxMJo+8EACYZo+g3dpmzGy8WjY3IeoCA6
+         Auhcldl6UwRLF0RxCeiW1DLJUJ0oDcsOR4z2b848=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.3 127/193] net: phy: smsc: LAN8740: add PHY_RST_AFTER_CLK_EN flag
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Christoph Hellwig <hch@lst.de>
+Subject: [PATCH 4.9 29/65] configfs_register_group() shouldnt be (and isnt) called in rmdirable parts
 Date:   Mon, 11 Nov 2019 19:28:29 +0100
-Message-Id: <20191111181510.552217950@linuxfoundation.org>
+Message-Id: <20191111181346.363794532@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-References: <20191111181459.850623879@linuxfoundation.org>
+In-Reply-To: <20191111181331.917659011@linuxfoundation.org>
+References: <20191111181331.917659011@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Fuzzey <martin.fuzzey@flowbird.group>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 76db2d466f6a929a04775f0f87d837e3bcba44e8 ]
+commit f19e4ed1e1edbfa3c9ccb9fed17759b7d6db24c6 upstream.
 
-The LAN8740, like the 8720, also requires a reset after enabling clock.
-The datasheet [1] 3.8.5.1 says:
-	"During a Hardware reset, an external clock must be supplied
-	to the XTAL1/CLKIN signal."
+revert cc57c07343bd "configfs: fix registered group removal"
+It was an attempt to handle something that fundamentally doesn't
+work - configfs_register_group() should never be done in a part
+of tree that can be rmdir'ed.  And in mainline it never had been,
+so let's not borrow trouble; the fix was racy anyway, it would take
+a lot more to make that work and desired semantics is not clear.
 
-I have observed this issue on a custom i.MX6 based board with
-the LAN8740A.
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[1] http://ww1.microchip.com/downloads/en/DeviceDoc/8740a.pdf
-
-Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/smsc.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/configfs/dir.c |   11 -----------
+ 1 file changed, 11 deletions(-)
 
-diff --git a/drivers/net/phy/smsc.c b/drivers/net/phy/smsc.c
-index dc3d92d340c4d..b732982507939 100644
---- a/drivers/net/phy/smsc.c
-+++ b/drivers/net/phy/smsc.c
-@@ -327,6 +327,7 @@ static struct phy_driver smsc_phy_driver[] = {
- 	.name		= "SMSC LAN8740",
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -1782,16 +1782,6 @@ void configfs_unregister_group(struct co
+ 	struct dentry *dentry = group->cg_item.ci_dentry;
+ 	struct dentry *parent = group->cg_item.ci_parent->ci_dentry;
  
- 	/* PHY_BASIC_FEATURES */
-+	.flags		= PHY_RST_AFTER_CLK_EN,
+-	mutex_lock(&subsys->su_mutex);
+-	if (!group->cg_item.ci_parent->ci_group) {
+-		/*
+-		 * The parent has already been unlinked and detached
+-		 * due to a rmdir.
+-		 */
+-		goto unlink_group;
+-	}
+-	mutex_unlock(&subsys->su_mutex);
+-
+ 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
+ 	spin_lock(&configfs_dirent_lock);
+ 	configfs_detach_prep(dentry, NULL);
+@@ -1806,7 +1796,6 @@ void configfs_unregister_group(struct co
+ 	dput(dentry);
  
- 	.probe		= smsc_phy_probe,
- 
--- 
-2.20.1
-
+ 	mutex_lock(&subsys->su_mutex);
+-unlink_group:
+ 	unlink_group(group);
+ 	mutex_unlock(&subsys->su_mutex);
+ }
 
 
