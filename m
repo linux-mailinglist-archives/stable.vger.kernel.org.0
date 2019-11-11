@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80F8EF7EE3
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:08:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D7FCF7DF7
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728714AbfKKSg0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:36:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54684 "EHLO mail.kernel.org"
+        id S1727543AbfKKTAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 14:00:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727171AbfKKSgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:36:24 -0500
+        id S1728765AbfKKSxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:53:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50EAB214E0;
-        Mon, 11 Nov 2019 18:36:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DB3320818;
+        Mon, 11 Nov 2019 18:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497383;
-        bh=MegO0AW1S5ijek+lrnxfYqx5M+fzH8XtDZcN2iYagM4=;
+        s=default; t=1573498383;
+        bh=H5SJbvDpEOwO7KBrhjXFUAzkdL5m+cNmgK1kxcmnaJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10DBC2dmzbAT9NT0FdCmiBIoimyxLPw7VB4c2Fq729e8AcAMIZgW9hOhJfHbLoCJk
-         68lhpjxH9n1pQfWPsxllvqxsC9+P3WJ6goQsCsZnYRW6UlLKFIq/xNsAWJf7CWhCKw
-         WebAK6Ktn5F0pgEglVBhMFEaOymT+eOvwGIttSk8=
+        b=BZvthkYCqkH29yvK8Gi78loS7xg53FxknFVkC6k5iC/8MqYKC8F9nhsFRxLwrQS6r
+         2uAOhcN0qXg2m22iqP5WxMQ62a3rrF+gKD01wHnpV2tYnYG5nKFc+6L/hlANr3ex7O
+         5q/3P3pzqovAmOiNKCaTCVYWWMPPCeKyNLsv0zxQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
-        Wolfgang Grandegger <wg@grandegger.com>,
-        Joe Burmeister <joe.burmeister@devtank.co.uk>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.14 034/105] can: c_can: c_can_poll(): only read status register after status IRQ
-Date:   Mon, 11 Nov 2019 19:28:04 +0100
-Message-Id: <20191111181438.900753764@linuxfoundation.org>
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 103/193] IB/core: Use rdma_read_gid_l2_fields to compare GID L2 fields
+Date:   Mon, 11 Nov 2019 19:28:05 +0100
+Message-Id: <20191111181508.733193150@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
-References: <20191111181421.390326245@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,93 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
+From: Parav Pandit <parav@mellanox.com>
 
-commit 3cb3eaac52c0f145d895f4b6c22834d5f02b8569 upstream.
+[ Upstream commit 777a8b32bc0f9bb25848a025f72a9febc30d9033 ]
 
-When the status register is read without the status IRQ pending, the
-chip may not raise the interrupt line for an upcoming status interrupt
-and the driver may miss a status interrupt.
+Current code tries to derive VLAN ID and compares it with GID
+attribute for matching entry. This raw search fails on macvlan
+netdevice as its not a VLAN device, but its an upper device of a VLAN
+netdevice.
 
-It is critical that the BUSOFF status interrupt is forwarded to the
-higher layers, since no more interrupts will follow without
-intervention.
+Due to this limitation, incoming QP1 packets fail to match in the
+GID table. Such packets are dropped.
 
-Thanks to Wolfgang and Joe for bringing up the first idea.
+Hence, to support it, use the existing rdma_read_gid_l2_fields()
+that takes care of diffferent device types.
 
-Signed-off-by: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-Cc: Wolfgang Grandegger <wg@grandegger.com>
-Cc: Joe Burmeister <joe.burmeister@devtank.co.uk>
-Fixes: fa39b54ccf28 ("can: c_can: Get rid of pointless interrupts")
-Cc: linux-stable <stable@vger.kernel.org>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: dbf727de7440 ("IB/core: Use GID table in AH creation and dmac resolution")
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Link: https://lore.kernel.org/r/20191002121750.17313-1-leon@kernel.org
+Signed-off-by: Doug Ledford <dledford@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/c_can/c_can.c |   25 ++++++++++++++++++++-----
- drivers/net/can/c_can/c_can.h |    1 +
- 2 files changed, 21 insertions(+), 5 deletions(-)
+ drivers/infiniband/core/verbs.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/net/can/c_can/c_can.c
-+++ b/drivers/net/can/c_can/c_can.c
-@@ -97,6 +97,9 @@
- #define BTR_TSEG2_SHIFT		12
- #define BTR_TSEG2_MASK		(0x7 << BTR_TSEG2_SHIFT)
- 
-+/* interrupt register */
-+#define INT_STS_PENDING		0x8000
-+
- /* brp extension register */
- #define BRP_EXT_BRPE_MASK	0x0f
- #define BRP_EXT_BRPE_SHIFT	0
-@@ -1029,10 +1032,16 @@ static int c_can_poll(struct napi_struct
- 	u16 curr, last = priv->last_status;
- 	int work_done = 0;
- 
--	priv->last_status = curr = priv->read_reg(priv, C_CAN_STS_REG);
--	/* Ack status on C_CAN. D_CAN is self clearing */
--	if (priv->type != BOSCH_D_CAN)
--		priv->write_reg(priv, C_CAN_STS_REG, LEC_UNUSED);
-+	/* Only read the status register if a status interrupt was pending */
-+	if (atomic_xchg(&priv->sie_pending, 0)) {
-+		priv->last_status = curr = priv->read_reg(priv, C_CAN_STS_REG);
-+		/* Ack status on C_CAN. D_CAN is self clearing */
-+		if (priv->type != BOSCH_D_CAN)
-+			priv->write_reg(priv, C_CAN_STS_REG, LEC_UNUSED);
-+	} else {
-+		/* no change detected ... */
-+		curr = last;
-+	}
- 
- 	/* handle state changes */
- 	if ((curr & STATUS_EWARN) && (!(last & STATUS_EWARN))) {
-@@ -1083,10 +1092,16 @@ static irqreturn_t c_can_isr(int irq, vo
+diff --git a/drivers/infiniband/core/verbs.c b/drivers/infiniband/core/verbs.c
+index 92349bf37589f..5b1dc11a72838 100644
+--- a/drivers/infiniband/core/verbs.c
++++ b/drivers/infiniband/core/verbs.c
+@@ -662,16 +662,17 @@ static bool find_gid_index(const union ib_gid *gid,
+ 			   void *context)
  {
- 	struct net_device *dev = (struct net_device *)dev_id;
- 	struct c_can_priv *priv = netdev_priv(dev);
-+	int reg_int;
+ 	struct find_gid_index_context *ctx = context;
++	u16 vlan_id = 0xffff;
++	int ret;
  
--	if (!priv->read_reg(priv, C_CAN_INT_REG))
-+	reg_int = priv->read_reg(priv, C_CAN_INT_REG);
-+	if (!reg_int)
- 		return IRQ_NONE;
+ 	if (ctx->gid_type != gid_attr->gid_type)
+ 		return false;
  
-+	/* save for later use */
-+	if (reg_int & INT_STS_PENDING)
-+		atomic_set(&priv->sie_pending, 1);
-+
- 	/* disable all interrupts and schedule the NAPI */
- 	c_can_irq_control(priv, false);
- 	napi_schedule(&priv->napi);
---- a/drivers/net/can/c_can/c_can.h
-+++ b/drivers/net/can/c_can/c_can.h
-@@ -198,6 +198,7 @@ struct c_can_priv {
- 	struct net_device *dev;
- 	struct device *device;
- 	atomic_t tx_active;
-+	atomic_t sie_pending;
- 	unsigned long tx_dir;
- 	int last_status;
- 	u16 (*read_reg) (const struct c_can_priv *priv, enum reg index);
+-	if ((!!(ctx->vlan_id != 0xffff) == !is_vlan_dev(gid_attr->ndev)) ||
+-	    (is_vlan_dev(gid_attr->ndev) &&
+-	     vlan_dev_vlan_id(gid_attr->ndev) != ctx->vlan_id))
++	ret = rdma_read_gid_l2_fields(gid_attr, &vlan_id, NULL);
++	if (ret)
+ 		return false;
+ 
+-	return true;
++	return ctx->vlan_id == vlan_id;
+ }
+ 
+ static const struct ib_gid_attr *
+-- 
+2.20.1
+
 
 
