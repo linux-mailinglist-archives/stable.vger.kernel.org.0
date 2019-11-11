@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 886F3F7E7C
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:04:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 586F6F7DFD
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:01:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727533AbfKKTEE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 14:04:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34978 "EHLO mail.kernel.org"
+        id S1729410AbfKKSwn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:52:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729644AbfKKSnf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:43:35 -0500
+        id S1730493AbfKKSwh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:52:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B039204FD;
-        Mon, 11 Nov 2019 18:43:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0405F214E0;
+        Mon, 11 Nov 2019 18:52:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497815;
-        bh=q7GsNm40S/DiKtFTZ0JcwUyWixm0EX+jJcNR3wLwS98=;
+        s=default; t=1573498356;
+        bh=X0UsWCc8knCwIbpLLX0WtWSJ5qAx6dFoPruE5QMt/z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hjXxfJ0htm7NpOPbD7vAOBeFUCgk/ItMgCaRYS2y+HT3X/Ddg68PwYhM1/CoRqLCn
-         j8WwcpEG+qb//N2U52xHHTYjbzI7XJQjZ6LwJnlKFl60IIiLcHz06/GlK8usrK9+Ix
-         emVSoMbTmvUjTspNNz3HxnKLvhEhhAdqgVK5+GQs=
+        b=hI4gQ/qGsX6qNSRiwlrDPZxccLNkt+dwrCvZYPYwE6T6DJMSwbZFwjGzBl8C8M52P
+         jwmY6jaL9oClVsP04b+h8KZiu4wU13rUVEp843RubRs1CpGs8ujgvAoamVBAQor+rh
+         uBY6nzqrsLh+mFMdNcBWHEhbUobf9oxMAAk2hThk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Jozsef Kadlecsik <kadlec@netfilter.org>
-Subject: [PATCH 4.19 038/125] netfilter: ipset: Fix an error code in ip_set_sockfn_get()
+        stable@vger.kernel.org,
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 095/193] dmaengine: xilinx_dma: Fix control reg update in vdma_channel_set_config
 Date:   Mon, 11 Nov 2019 19:27:57 +0100
-Message-Id: <20191111181445.637037706@linuxfoundation.org>
+Message-Id: <20191111181508.158970974@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
 
-commit 30b7244d79651460ff114ba8f7987ed94c86b99a upstream.
+[ Upstream commit 6c6de1ddb1be3840f2ed5cc9d009a622720940c9 ]
 
-The copy_to_user() function returns the number of bytes remaining to be
-copied.  In this code, that positive return is checked at the end of the
-function and we return zero/success.  What we should do instead is
-return -EFAULT.
+In vdma_channel_set_config clear the delay, frame count and master mask
+before updating their new values. It avoids programming incorrect state
+when input parameters are different from default.
 
-Fixes: a7b4f989a629 ("netfilter: ipset: IP set core support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jozsef Kadlecsik <kadlec@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Acked-by: Appana Durga Kedareswara rao <appana.durga.rao@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lore.kernel.org/r/1569495060-18117-3-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipset/ip_set_core.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/netfilter/ipset/ip_set_core.c
-+++ b/net/netfilter/ipset/ip_set_core.c
-@@ -1977,8 +1977,9 @@ ip_set_sockfn_get(struct sock *sk, int o
- 		}
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 1fbe0258578b0..5d56f1e4d332c 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -68,6 +68,9 @@
+ #define XILINX_DMA_DMACR_CIRC_EN		BIT(1)
+ #define XILINX_DMA_DMACR_RUNSTOP		BIT(0)
+ #define XILINX_DMA_DMACR_FSYNCSRC_MASK		GENMASK(6, 5)
++#define XILINX_DMA_DMACR_DELAY_MASK		GENMASK(31, 24)
++#define XILINX_DMA_DMACR_FRAME_COUNT_MASK	GENMASK(23, 16)
++#define XILINX_DMA_DMACR_MASTER_MASK		GENMASK(11, 8)
  
- 		req_version->version = IPSET_PROTOCOL;
--		ret = copy_to_user(user, req_version,
--				   sizeof(struct ip_set_req_version));
-+		if (copy_to_user(user, req_version,
-+				 sizeof(struct ip_set_req_version)))
-+			ret = -EFAULT;
- 		goto done;
+ #define XILINX_DMA_REG_DMASR			0x0004
+ #define XILINX_DMA_DMASR_EOL_LATE_ERR		BIT(15)
+@@ -2118,8 +2121,10 @@ int xilinx_vdma_channel_set_config(struct dma_chan *dchan,
+ 	chan->config.gen_lock = cfg->gen_lock;
+ 	chan->config.master = cfg->master;
+ 
++	dmacr &= ~XILINX_DMA_DMACR_GENLOCK_EN;
+ 	if (cfg->gen_lock && chan->genlock) {
+ 		dmacr |= XILINX_DMA_DMACR_GENLOCK_EN;
++		dmacr &= ~XILINX_DMA_DMACR_MASTER_MASK;
+ 		dmacr |= cfg->master << XILINX_DMA_DMACR_MASTER_SHIFT;
  	}
- 	case IP_SET_OP_GET_BYNAME: {
-@@ -2035,7 +2036,8 @@ ip_set_sockfn_get(struct sock *sk, int o
- 	}	/* end of switch(op) */
  
- copy:
--	ret = copy_to_user(user, data, copylen);
-+	if (copy_to_user(user, data, copylen))
-+		ret = -EFAULT;
+@@ -2135,11 +2140,13 @@ int xilinx_vdma_channel_set_config(struct dma_chan *dchan,
+ 	chan->config.delay = cfg->delay;
  
- done:
- 	vfree(data);
+ 	if (cfg->coalesc <= XILINX_DMA_DMACR_FRAME_COUNT_MAX) {
++		dmacr &= ~XILINX_DMA_DMACR_FRAME_COUNT_MASK;
+ 		dmacr |= cfg->coalesc << XILINX_DMA_DMACR_FRAME_COUNT_SHIFT;
+ 		chan->config.coalesc = cfg->coalesc;
+ 	}
+ 
+ 	if (cfg->delay <= XILINX_DMA_DMACR_DELAY_MAX) {
++		dmacr &= ~XILINX_DMA_DMACR_DELAY_MASK;
+ 		dmacr |= cfg->delay << XILINX_DMA_DMACR_DELAY_SHIFT;
+ 		chan->config.delay = cfg->delay;
+ 	}
+-- 
+2.20.1
+
 
 
