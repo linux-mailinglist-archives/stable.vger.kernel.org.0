@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 611BEF7E63
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E742DF7E62
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729016AbfKKSpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:45:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37886 "EHLO mail.kernel.org"
+        id S1728740AbfKKSpp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:45:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729898AbfKKSpk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:45:40 -0500
+        id S1729164AbfKKSpo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:45:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A070B20674;
-        Mon, 11 Nov 2019 18:45:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E32B521655;
+        Mon, 11 Nov 2019 18:45:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497940;
-        bh=IQsZLuuqWUQYHXB821Rg58ODiZKecBYe5xc4iJpdbjk=;
+        s=default; t=1573497943;
+        bh=12//u6Trk77lyuLCaFQo/nahx1rGN8LE0DpZxFfiT6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d/lAl1r790Ezsp17+oT+Soqi1L/fDQzqefmkX4OsYY62pPGec+7HHP27BL1fxMJ8O
-         m2WL63zOFeKst4VJsq2l0uVHsecLBdiHbYLSu6rALRz0f2qgINFcqsBVYtIUBS13UQ
-         t2GJZNPs1XUn7cL0xONuYzmPKc1JXiQs13S5J2sc=
+        b=njBOBGNRkKcIAqldQQO8j+udhYAOULqf7yW43OEd23ZmQzjmxLLixB477qBnz/6cd
+         +x54ETvGgnIOGQf27y/z1t9JwGWGk3PJcJyiPh2a3rE55b2B01QnKbggLV05YbPHen
+         CyGH3Geeaa4joXvlvruqCNBQ/cur3Sf0CjjN9XHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lijun Ou <oulijun@huawei.com>,
-        Weihang Li <liweihang@hisilicon.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/125] RDMA/hns: Prevent memory leaks of eq->buf_list
-Date:   Mon, 11 Nov 2019 19:29:01 +0100
-Message-Id: <20191111181453.499759919@linuxfoundation.org>
+Subject: [PATCH 4.19 103/125] scsi: qla2xxx: stop timer in shutdown path
+Date:   Mon, 11 Nov 2019 19:29:02 +0100
+Message-Id: <20191111181453.607132675@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
 References: <20191111181438.945353076@linuxfoundation.org>
@@ -45,40 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lijun Ou <oulijun@huawei.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit b681a0529968d2261aa15d7a1e78801b2c06bb07 ]
+[ Upstream commit d3566abb1a1e7772116e4d50fb6a58d19c9802e5 ]
 
-eq->buf_list->buf and eq->buf_list should also be freed when eqe_hop_num
-is set to 0, or there will be memory leaks.
+In shutdown/reboot paths, the timer is not stopped:
 
-Fixes: a5073d6054f7 ("RDMA/hns: Add eq support of hip08")
-Link: https://lore.kernel.org/r/1572072995-11277-3-git-send-email-liweihang@hisilicon.com
-Signed-off-by: Lijun Ou <oulijun@huawei.com>
-Signed-off-by: Weihang Li <liweihang@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+  qla2x00_shutdown
+  pci_device_shutdown
+  device_shutdown
+  kernel_restart_prepare
+  kernel_restart
+  sys_reboot
+
+This causes lockups (on powerpc) when firmware config space access calls
+are interrupted by smp_send_stop later in reboot.
+
+Fixes: e30d1756480dc ("[SCSI] qla2xxx: Addition of shutdown callback handler.")
+Link: https://lore.kernel.org/r/20191024063804.14538-1-npiggin@gmail.com
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/qla2xxx/qla_os.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index a442b29e76119..cf878e1b71fc1 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -4572,9 +4572,9 @@ static void hns_roce_v2_free_eq(struct hns_roce_dev *hr_dev,
- 		return;
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 856a7ceb9a041..18ee614fe07f5 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -3496,6 +3496,10 @@ qla2x00_shutdown(struct pci_dev *pdev)
+ 		qla2x00_try_to_stop_firmware(vha);
  	}
  
--	if (eq->buf_list)
--		dma_free_coherent(hr_dev->dev, buf_chk_sz,
--				  eq->buf_list->buf, eq->buf_list->map);
-+	dma_free_coherent(hr_dev->dev, buf_chk_sz, eq->buf_list->buf,
-+			  eq->buf_list->map);
-+	kfree(eq->buf_list);
- }
++	/* Disable timer */
++	if (vha->timer_active)
++		qla2x00_stop_timer(vha);
++
+ 	/* Turn adapter off line */
+ 	vha->flags.online = 0;
  
- static void hns_roce_config_eqc(struct hns_roce_dev *hr_dev,
 -- 
 2.20.1
 
