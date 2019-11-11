@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A41B4F7F5C
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:10:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C61CF7E6B
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727824AbfKKScA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:32:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48748 "EHLO mail.kernel.org"
+        id S1728039AbfKKSp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:45:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727814AbfKKSb5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:31:57 -0500
+        id S1729859AbfKKSpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:45:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC3B22184C;
-        Mon, 11 Nov 2019 18:31:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D1F8221655;
+        Mon, 11 Nov 2019 18:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497116;
-        bh=HNqy7dCWHOAhnEqVQn3eWdl3OjUnIi+Gkos2zhsq6Iw=;
+        s=default; t=1573497923;
+        bh=raTRrfmLpLliBo6BC0N/2uLNLfOJBhAN9HZ3cp3ABxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OpkyrrFztYjYJVi0xOcMLa3JUP7/THSL58dwLg7zIEBSjq+XoDsGYGx5o2KRol+S
-         Ks4C1tpqprmR2+ztII0ssoNzvbnSsVhjb7JaEQTpJPpO3978MPWi2MyLc0Uc/yKbCs
-         Ie4EOGSQ1OXSi4V2+V2dPYFG0MAE9QEc4hJgQ8xc=
+        b=MWrdzemnG1LyaUp7TI5nMr9DFRndQgD07ZT6w0i36K4NaSJdyM+vxPl1sCz04T5Jf
+         nDguRzc20cKUwou93GtBkWJIL5ytyo//5Nk51B3coxpiWs1lIC9l4VR6fXKXJjm3OY
+         Vf6c79ur0qs/hmGDqJmCjymtxfXBeF4LdOkZ3lNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Jan Kara <jack@suse.cz>, Tejun Heo <tj@kernel.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 42/43] mm/filemap.c: dont initiate writeback if mapping has no dirty pages
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        linux-drivers-review@eclists.intel.com,
+        linux-perf@eclists.intel.com, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 097/125] perf/x86/uncore: Fix event group support
 Date:   Mon, 11 Nov 2019 19:28:56 +0100
-Message-Id: <20191111181328.697316041@linuxfoundation.org>
+Message-Id: <20191111181452.768177907@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
-References: <20191111181246.772983347@linuxfoundation.org>
+In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
+References: <20191111181438.945353076@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +55,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-commit c3aab9a0bd91b696a852169479b7db1ece6cbf8c upstream.
+[ Upstream commit 75be6f703a141b048590d659a3954c4fedd30bba ]
 
-Functions like filemap_write_and_wait_range() should do nothing if inode
-has no dirty pages or pages currently under writeback.  But they anyway
-construct struct writeback_control and this does some atomic operations if
-CONFIG_CGROUP_WRITEBACK=y - on fast path it locks inode->i_lock and
-updates state of writeback ownership, on slow path might be more work.
-Current this path is safely avoided only when inode mapping has no pages.
+The events in the same group don't start or stop simultaneously.
+Here is the ftrace when enabling event group for uncore_iio_0:
 
-For example generic_file_read_iter() calls filemap_write_and_wait_range()
-at each O_DIRECT read - pretty hot path.
+  # perf stat -e "{uncore_iio_0/event=0x1/,uncore_iio_0/event=0xe/}"
 
-This patch skips starting new writeback if mapping has no dirty tags set.
-If writeback is already in progress filemap_write_and_wait_range() will
-wait for it.
+            <idle>-0     [000] d.h.  8959.064832: read_msr: a41, value
+  b2b0b030		//Read counter reg of IIO unit0 counter0
+            <idle>-0     [000] d.h.  8959.064835: write_msr: a48, value
+  400001			//Write Ctrl reg of IIO unit0 counter0 to enable
+  counter0. <------ Although counter0 is enabled, Unit Ctrl is still
+  freezed. Nothing will count. We are still good here.
+            <idle>-0     [000] d.h.  8959.064836: read_msr: a40, value
+  30100                   //Read Unit Ctrl reg of IIO unit0
+            <idle>-0     [000] d.h.  8959.064838: write_msr: a40, value
+  30000			//Write Unit Ctrl reg of IIO unit0 to enable all
+  counters in the unit by clear Freeze bit  <------Unit0 is un-freezed.
+  Counter0 has been enabled. Now it starts counting. But counter1 has not
+  been enabled yet. The issue starts here.
+            <idle>-0     [000] d.h.  8959.064846: read_msr: a42, value 0
+			//Read counter reg of IIO unit0 counter1
+            <idle>-0     [000] d.h.  8959.064847: write_msr: a49, value
+  40000e			//Write Ctrl reg of IIO unit0 counter1 to enable
+  counter1.   <------ Now, counter1 just starts to count. Counter0 has
+  been running for a while.
 
-Link: http://lkml.kernel.org/r/156378816804.1087.8607636317907921438.stgit@buzz
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Current code un-freezes the Unit Ctrl right after the first counter is
+enabled. The subsequent group events always loses some counter values.
 
+Implement pmu_enable and pmu_disable support for uncore, which can help
+to batch hardware accesses.
+
+No one uses uncore_enable_box and uncore_disable_box. Remove them.
+
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: linux-drivers-review@eclists.intel.com
+Cc: linux-perf@eclists.intel.com
+Fixes: 087bfbb03269 ("perf/x86: Add generic Intel uncore PMU support")
+Link: https://lkml.kernel.org/r/1572014593-31591-1-git-send-email-kan.liang@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/filemap.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/events/intel/uncore.c | 44 +++++++++++++++++++++++++++++-----
+ arch/x86/events/intel/uncore.h | 12 ----------
+ 2 files changed, 38 insertions(+), 18 deletions(-)
 
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -340,7 +340,8 @@ int __filemap_fdatawrite_range(struct ad
- 		.range_end = end,
- 	};
+diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
+index 2690135bf83f0..7098b9b05d566 100644
+--- a/arch/x86/events/intel/uncore.c
++++ b/arch/x86/events/intel/uncore.c
+@@ -485,10 +485,8 @@ void uncore_pmu_event_start(struct perf_event *event, int flags)
+ 	local64_set(&event->hw.prev_count, uncore_read_counter(box, event));
+ 	uncore_enable_event(box, event);
  
--	if (!mapping_cap_writeback_dirty(mapping))
-+	if (!mapping_cap_writeback_dirty(mapping) ||
-+	    !mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
- 		return 0;
+-	if (box->n_active == 1) {
+-		uncore_enable_box(box);
++	if (box->n_active == 1)
+ 		uncore_pmu_start_hrtimer(box);
+-	}
+ }
  
- 	wbc_attach_fdatawrite_inode(&wbc, mapping->host);
+ void uncore_pmu_event_stop(struct perf_event *event, int flags)
+@@ -512,10 +510,8 @@ void uncore_pmu_event_stop(struct perf_event *event, int flags)
+ 		WARN_ON_ONCE(hwc->state & PERF_HES_STOPPED);
+ 		hwc->state |= PERF_HES_STOPPED;
+ 
+-		if (box->n_active == 0) {
+-			uncore_disable_box(box);
++		if (box->n_active == 0)
+ 			uncore_pmu_cancel_hrtimer(box);
+-		}
+ 	}
+ 
+ 	if ((flags & PERF_EF_UPDATE) && !(hwc->state & PERF_HES_UPTODATE)) {
+@@ -769,6 +765,40 @@ static int uncore_pmu_event_init(struct perf_event *event)
+ 	return ret;
+ }
+ 
++static void uncore_pmu_enable(struct pmu *pmu)
++{
++	struct intel_uncore_pmu *uncore_pmu;
++	struct intel_uncore_box *box;
++
++	uncore_pmu = container_of(pmu, struct intel_uncore_pmu, pmu);
++	if (!uncore_pmu)
++		return;
++
++	box = uncore_pmu_to_box(uncore_pmu, smp_processor_id());
++	if (!box)
++		return;
++
++	if (uncore_pmu->type->ops->enable_box)
++		uncore_pmu->type->ops->enable_box(box);
++}
++
++static void uncore_pmu_disable(struct pmu *pmu)
++{
++	struct intel_uncore_pmu *uncore_pmu;
++	struct intel_uncore_box *box;
++
++	uncore_pmu = container_of(pmu, struct intel_uncore_pmu, pmu);
++	if (!uncore_pmu)
++		return;
++
++	box = uncore_pmu_to_box(uncore_pmu, smp_processor_id());
++	if (!box)
++		return;
++
++	if (uncore_pmu->type->ops->disable_box)
++		uncore_pmu->type->ops->disable_box(box);
++}
++
+ static ssize_t uncore_get_attr_cpumask(struct device *dev,
+ 				struct device_attribute *attr, char *buf)
+ {
+@@ -794,6 +824,8 @@ static int uncore_pmu_register(struct intel_uncore_pmu *pmu)
+ 		pmu->pmu = (struct pmu) {
+ 			.attr_groups	= pmu->type->attr_groups,
+ 			.task_ctx_nr	= perf_invalid_context,
++			.pmu_enable	= uncore_pmu_enable,
++			.pmu_disable	= uncore_pmu_disable,
+ 			.event_init	= uncore_pmu_event_init,
+ 			.add		= uncore_pmu_event_add,
+ 			.del		= uncore_pmu_event_del,
+diff --git a/arch/x86/events/intel/uncore.h b/arch/x86/events/intel/uncore.h
+index 42fa3974c421c..40e040ec31b50 100644
+--- a/arch/x86/events/intel/uncore.h
++++ b/arch/x86/events/intel/uncore.h
+@@ -412,18 +412,6 @@ static inline int uncore_freerunning_hw_config(struct intel_uncore_box *box,
+ 	return -EINVAL;
+ }
+ 
+-static inline void uncore_disable_box(struct intel_uncore_box *box)
+-{
+-	if (box->pmu->type->ops->disable_box)
+-		box->pmu->type->ops->disable_box(box);
+-}
+-
+-static inline void uncore_enable_box(struct intel_uncore_box *box)
+-{
+-	if (box->pmu->type->ops->enable_box)
+-		box->pmu->type->ops->enable_box(box);
+-}
+-
+ static inline void uncore_disable_event(struct intel_uncore_box *box,
+ 				struct perf_event *event)
+ {
+-- 
+2.20.1
+
 
 
