@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C32E3F7E9E
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:06:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F2E9F7F14
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 20:09:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728913AbfKKSln (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:41:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32774 "EHLO mail.kernel.org"
+        id S1728074AbfKKSfi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:35:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729344AbfKKSlk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:41:40 -0500
+        id S1728413AbfKKSff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:35:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 993DE20659;
-        Mon, 11 Nov 2019 18:41:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA079214E0;
+        Mon, 11 Nov 2019 18:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497700;
-        bh=OWJ7KVQesTndgseJLu0omQM+a7vLVTgBhg5gHiP44jY=;
+        s=default; t=1573497335;
+        bh=6VIKjkADuQVWzy7sSUCb36dA36xQEKAE3RYlBg5BnCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQfy4k43hHuMHQswcvwTSyLf7781F5dRZFcFJXW1Mgr7IBmtaIlmsX5iuGLMCPW57
-         OHoe+OjFD8Qj/nM+FFB8VoxhModobGGrXxs4bXty6hrOkeSxRi94fdTLO8mWMGtmCt
-         gVYxwyyGUsRoGlkEwKPsTWyRcFGpY+R+6BeCR4o8=
+        b=uq9S/CcGv/2CbRY1du1SC2fhlfhi13wycmboyNaqpTtNF7u0Oq4dEea+WtKfRf/YK
+         Uqhym80QjLCoJwAtiq1+/Y379t24ClWx+2Iy6ZeF0DX42HKOcJ4nNzROky156SAMvn
+         dR7v3fmjpdAZzlBB/+IgfqdJ0/Pxln8HBj6l8vqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Will Deacon <will@kernel.org>,
-        Steve Capper <steve.capper@arm.com>,
-        John Stultz <john.stultz@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: [PATCH 4.19 030/125] arm64: Do not mask out PTE_RDONLY in pte_same()
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 4.14 019/105] tools: gpio: Use !building_out_of_srctree to determine srctree
 Date:   Mon, 11 Nov 2019 19:27:49 +0100
-Message-Id: <20191111181444.832642671@linuxfoundation.org>
+Message-Id: <20191111181433.608041362@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181421.390326245@linuxfoundation.org>
+References: <20191111181421.390326245@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catalin Marinas <catalin.marinas@arm.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 6767df245f4736d0cf0c6fb7cf9cf94b27414245 upstream.
+commit 4a6a6f5c4aeedb72db871d60bfcca89835f317aa upstream.
 
-Following commit 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out
-of set_pte_at()"), the PTE_RDONLY bit is no longer managed by
-set_pte_at() but built into the PAGE_* attribute definitions.
-Consequently, pte_same() must include this bit when checking two PTEs
-for equality.
+make TARGETS=gpio kselftest fails with:
 
-Remove the arm64-specific pte_same() function, practically reverting
-commit 747a70e60b72 ("arm64: Fix copy-on-write referencing in HugeTLB")
+Makefile:23: tools/build/Makefile.include: No such file or directory
 
-Fixes: 73e86cb03cf2 ("arm64: Move PTE_RDONLY bit handling out of set_pte_at()")
-Cc: <stable@vger.kernel.org> # 4.14.x-
-Cc: Will Deacon <will@kernel.org>
-Cc: Steve Capper <steve.capper@arm.com>
-Reported-by: John Stultz <john.stultz@linaro.org>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Will Deacon <will@kernel.org>
+When the gpio tool make is invoked from tools Makefile, srctree is
+cleared and the current logic check for srctree equals to empty
+string to determine srctree location from CURDIR.
+
+When the build in invoked from selftests/gpio Makefile, the srctree
+is set to "." and the same logic used for srctree equals to empty is
+needed to determine srctree.
+
+Check building_out_of_srctree undefined as the condition for both
+cases to fix "make TARGETS=gpio kselftest" build failure.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/include/asm/pgtable.h |   17 -----------------
- 1 file changed, 17 deletions(-)
+ tools/gpio/Makefile |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -274,23 +274,6 @@ static inline void set_pte_at(struct mm_
- 	set_pte(ptep, pte);
- }
+--- a/tools/gpio/Makefile
++++ b/tools/gpio/Makefile
+@@ -3,7 +3,11 @@ include ../scripts/Makefile.include
  
--#define __HAVE_ARCH_PTE_SAME
--static inline int pte_same(pte_t pte_a, pte_t pte_b)
--{
--	pteval_t lhs, rhs;
--
--	lhs = pte_val(pte_a);
--	rhs = pte_val(pte_b);
--
--	if (pte_present(pte_a))
--		lhs &= ~PTE_RDONLY;
--
--	if (pte_present(pte_b))
--		rhs &= ~PTE_RDONLY;
--
--	return (lhs == rhs);
--}
--
- /*
-  * Huge pte definitions.
-  */
+ bindir ?= /usr/bin
+ 
+-ifeq ($(srctree),)
++# This will work when gpio is built in tools env. where srctree
++# isn't set and when invoked from selftests build, where srctree
++# is set to ".". building_out_of_srctree is undefined for in srctree
++# builds
++ifndef building_out_of_srctree
+ srctree := $(patsubst %/,%,$(dir $(CURDIR)))
+ srctree := $(patsubst %/,%,$(dir $(srctree)))
+ endif
 
 
