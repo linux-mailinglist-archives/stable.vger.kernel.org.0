@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E536F7C16
-	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CBA0F7D5A
+	for <lists+stable@lfdr.de>; Mon, 11 Nov 2019 19:56:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729581AbfKKSnE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 13:43:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34320 "EHLO mail.kernel.org"
+        id S1730164AbfKKSz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 13:55:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729585AbfKKSnE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 13:43:04 -0500
+        id S1727031AbfKKSzy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 11 Nov 2019 13:55:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDD9320659;
-        Mon, 11 Nov 2019 18:43:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DB9A21655;
+        Mon, 11 Nov 2019 18:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573497783;
-        bh=Umhrk4I3/8m4n1PENLs+C//lxigBRjVE7+2A8v6Wleo=;
+        s=default; t=1573498553;
+        bh=NRVQEEOYqmHMZ/IprkdRMMJEbAnjRbByMOHCbnyi9T0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Gb6c34d+2T3MPVjpHgIcNV5SAgNzg0MODKFene1E42x1b/n/DbMm7V/NbcbaQWSy
-         4KxkMhEpunsqaCYCasgjl7W94wHH30oE0BFqb2oX2ggEPZlOJ46WWllsZgpLPCm5tq
-         Gy4aZXW0KZVAPE+ByKU+2h8iUae+d+xScSJELXbo=
+        b=rNCX2XU/AzN5eU68CMYVRuY07i4WYhYGrBY0dztFxAPhH3AiT82bqaZw1LGL5sTZ3
+         dFCPqGB+aPP37q010ZHXzeQ5dvpm5rs2eVB9ngMLmCmggXEWtoJfx0YIZOJVjT48aa
+         HKTdARhIoMqp6tNY/AjQYqCKalZeV6D+BJ9ftFhg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 4.19 056/125] configfs: fix a deadlock in configfs_symlink()
+        stable@vger.kernel.org, Alexey Brodkin <abrodkin@synopsys.com>,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.3 113/193] ARC: [plat-hsdk]: Enable on-board SPI NOR flash IC
 Date:   Mon, 11 Nov 2019 19:28:15 +0100
-Message-Id: <20191111181447.882523259@linuxfoundation.org>
+Message-Id: <20191111181509.460497844@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191111181438.945353076@linuxfoundation.org>
-References: <20191111181438.945353076@linuxfoundation.org>
+In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
+References: <20191111181459.850623879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,81 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-commit 351e5d869e5ac10cb40c78b5f2d7dfc816ad4587 upstream.
+[ Upstream commit 8ca8fa7f22dcb0a3265490a690b0c3e27de681f9 ]
 
-Configfs abuses symlink(2).  Unlike the normal filesystems, it
-wants the target resolved at symlink(2) time, like link(2) would've
-done.  The problem is that ->symlink() is called with the parent
-directory locked exclusive, so resolving the target inside the
-->symlink() is easily deadlocked.
+HSDK board has sst26wf016b SPI NOR flash IC installed, enable it.
 
-Short of really ugly games in sys_symlink() itself, all we can
-do is to unlock the parent before resolving the target and
-relock it after.  However, that invalidates the checks done
-by the caller of ->symlink(), so we have to
-	* check that dentry is still where it used to be
-(it couldn't have been moved, but it could've been unhashed)
-	* recheck that it's still negative (somebody else
-might've successfully created a symlink with the same name
-while we were looking the target up)
-	* recheck the permissions on the parent directory.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Acked-by: Alexey Brodkin <abrodkin@synopsys.com>
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/symlink.c |   33 ++++++++++++++++++++++++++++++++-
- 1 file changed, 32 insertions(+), 1 deletion(-)
+ arch/arc/boot/dts/hsdk.dts      | 8 ++++++++
+ arch/arc/configs/hsdk_defconfig | 2 ++
+ 2 files changed, 10 insertions(+)
 
---- a/fs/configfs/symlink.c
-+++ b/fs/configfs/symlink.c
-@@ -157,11 +157,42 @@ int configfs_symlink(struct inode *dir,
- 	    !type->ct_item_ops->allow_link)
- 		goto out_put;
+diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
+index bfc7f5f5d6f26..9bea5daadd23f 100644
+--- a/arch/arc/boot/dts/hsdk.dts
++++ b/arch/arc/boot/dts/hsdk.dts
+@@ -264,6 +264,14 @@
+ 			clocks = <&input_clk>;
+ 			cs-gpios = <&creg_gpio 0 GPIO_ACTIVE_LOW>,
+ 				   <&creg_gpio 1 GPIO_ACTIVE_LOW>;
++
++			spi-flash@0 {
++				compatible = "sst26wf016b", "jedec,spi-nor";
++				reg = <0>;
++				#address-cells = <1>;
++				#size-cells = <1>;
++				spi-max-frequency = <4000000>;
++			};
+ 		};
  
-+	/*
-+	 * This is really sick.  What they wanted was a hybrid of
-+	 * link(2) and symlink(2) - they wanted the target resolved
-+	 * at syscall time (as link(2) would've done), be a directory
-+	 * (which link(2) would've refused to do) *AND* be a deep
-+	 * fucking magic, making the target busy from rmdir POV.
-+	 * symlink(2) is nothing of that sort, and the locking it
-+	 * gets matches the normal symlink(2) semantics.  Without
-+	 * attempts to resolve the target (which might very well
-+	 * not even exist yet) done prior to locking the parent
-+	 * directory.  This perversion, OTOH, needs to resolve
-+	 * the target, which would lead to obvious deadlocks if
-+	 * attempted with any directories locked.
-+	 *
-+	 * Unfortunately, that garbage is userland ABI and we should've
-+	 * said "no" back in 2005.  Too late now, so we get to
-+	 * play very ugly games with locking.
-+	 *
-+	 * Try *ANYTHING* of that sort in new code, and you will
-+	 * really regret it.  Just ask yourself - what could a BOFH
-+	 * do to me and do I want to find it out first-hand?
-+	 *
-+	 *  AV, a thoroughly annoyed bastard.
-+	 */
-+	inode_unlock(dir);
- 	ret = get_target(symname, &path, &target_item, dentry->d_sb);
-+	inode_lock(dir);
- 	if (ret)
- 		goto out_put;
- 
--	ret = type->ct_item_ops->allow_link(parent_item, target_item);
-+	if (dentry->d_inode || d_unhashed(dentry))
-+		ret = -EEXIST;
-+	else
-+		ret = inode_permission(dir, MAY_WRITE | MAY_EXEC);
-+	if (!ret)
-+		ret = type->ct_item_ops->allow_link(parent_item, target_item);
- 	if (!ret) {
- 		mutex_lock(&configfs_symlink_mutex);
- 		ret = create_link(parent_item, target_item, dentry);
+ 		creg_gpio: gpio@14b0 {
+diff --git a/arch/arc/configs/hsdk_defconfig b/arch/arc/configs/hsdk_defconfig
+index 403125d9c9a34..fe9de80e41ee3 100644
+--- a/arch/arc/configs/hsdk_defconfig
++++ b/arch/arc/configs/hsdk_defconfig
+@@ -31,6 +31,8 @@ CONFIG_INET=y
+ CONFIG_DEVTMPFS=y
+ # CONFIG_STANDALONE is not set
+ # CONFIG_PREVENT_FIRMWARE_BUILD is not set
++CONFIG_MTD=y
++CONFIG_MTD_SPI_NOR=y
+ CONFIG_SCSI=y
+ CONFIG_BLK_DEV_SD=y
+ CONFIG_NETDEVICES=y
+-- 
+2.20.1
+
 
 
