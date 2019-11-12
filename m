@@ -2,112 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B0CF8D07
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 11:40:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BCF4F8D60
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 11:57:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727064AbfKLKkr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 05:40:47 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:42782 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727341AbfKLKkq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 05:40:46 -0500
-Received: by mail-wr1-f68.google.com with SMTP id a15so17900031wrf.9
-        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 02:40:45 -0800 (PST)
+        id S1725874AbfKLK5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 05:57:21 -0500
+Received: from mail-ot1-f68.google.com ([209.85.210.68]:41354 "EHLO
+        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725834AbfKLK5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 05:57:20 -0500
+Received: by mail-ot1-f68.google.com with SMTP id 94so13911544oty.8
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 02:57:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yWNzXKlhZumCYXuzBsEx7JVt+rn1MlZov7MW7LBP6Z8=;
-        b=oPxGYiR9G5nq8ImM6z19dmvMd/lrk2GstUTcAq4D4FUb+tl3S8r5MSaD0HcPPHE8v5
-         wvfEWNC3tYox0MsF/o2Hx2QCxeyJSYVI9kgG6cV5Icf2ZCeGuvqmIhXShsSKeKTJucvp
-         YF/PRCvQrHtTaFW4EfW/ZUKcck2JfqZyjTvq7pis8OTojTlKi/zBfNOSWDSSDIcsR2W2
-         vQA2jj56PV9kZW+cSeWcJ6RAzXkM/FuB7A+8ixpc6BpWZvO3PYuDNEhZFtEPMCSSO7Y3
-         szQ3a55bvvJ/TzuEJens40U2x9OlT4X4ob3w6ns3wwy1WrXHtPaT0r4ADq8Q8GjNI+nX
-         8PLw==
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=RbmZxFFZ7Nn450livDY2ON/taeh+9krVynuqhl80wy4=;
+        b=SbOaHkL3kLOfobV1gHh5SKFiZoMQvl7AVIUHZ6P9j/nfOXdElrRFcB2taS6gSVUz1M
+         5krhhBW6wQoyYWXVK9cambBFS7ErcbDF8XL7uNXmX80HPt01zDREDj7y+28dw02M4YpF
+         13SZABV4GvydKoUfAKts8THd7pVLgCUBkLNjk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yWNzXKlhZumCYXuzBsEx7JVt+rn1MlZov7MW7LBP6Z8=;
-        b=dMQTDalQF5+jvn+Flp0x9qu0P9iSUD/Q+8aDgoDQs4BdUNhqitJ2dqz7aDPeD6Rap+
-         jrr1usJfFssfApRDwCFawar+kjq3K776ifvXIhRgYZwRmWmlqJHlZ4rIrMrKCG+aCwSF
-         xP5AUUvtL3iZUpLW3Vj99m1rX4oOFcnKgtu8vDzLprDAmYqfM9RNm3h+6gvRW+fcxoC2
-         +dXX+Cy5zTX/JjCXeAvSR8BW9ojjarVjaHNNh6a8C9HrlbcFBP0GlzDQCxxBwptdQALv
-         mUzL91svy4q7Y/ygQ1o5AJ5AO6I+lZ/m41nPWipPYH8RFXaLmthaQmHwlu1u6ntphEDV
-         Zcfw==
-X-Gm-Message-State: APjAAAVq2SRt7DZ0nphIAvG/tHj+N2BTcRBShpqv5ahfEK4NR0yHhCR/
-        d1nIP6bKVNi5T4W5LYq0H0xizFnMlvp+2Q==
-X-Google-Smtp-Source: APXvYqxZQ0Bbj7wBSSsWZ/8/DLDY8oC+Mi22wlwSWypY5dQcy6xIK1ZMDU2otELiP9/7ClXKEQjrsQ==
-X-Received: by 2002:adf:fe81:: with SMTP id l1mr9879074wrr.207.1573555244361;
-        Tue, 12 Nov 2019 02:40:44 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id j67sm3200678wmb.43.2019.11.12.02.40.42
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Nov 2019 02:40:42 -0800 (PST)
-Message-ID: <5dca8c2a.1c69fb81.43237.e2aa@mx.google.com>
-Date:   Tue, 12 Nov 2019 02:40:42 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=RbmZxFFZ7Nn450livDY2ON/taeh+9krVynuqhl80wy4=;
+        b=HZhRZnQwbYjvGnqAnAtH+A3KgP9Tv0K1VXZGx+Dh8Pg+RkJoLzp7KXXVYXs8pC9vWE
+         sJwG8pOovAVlw/HBLJDNclKBxoPYjN+lx34Nbjj4EIVyNG95nD1Q/bkRQLDH5B/80bhH
+         FyyWwZlLBUN0owUA2dZt5zBwY5OW/KgTxIUv9DVflZzDJ0sMW5afvw5+jTuoFDbVMgN/
+         HWKAkwbSmBLGmlD8JvgeEYUWSHflBCOw459TydTn3JsasPx7ljb9QnqBOhsVemxmMq5S
+         aBItgeU7NPB1w/RIX2Rz/DdvDDZEb6Ea86ftAucPOHAn7CExOtA9Y3fKclkeyc5oauwP
+         1ooQ==
+X-Gm-Message-State: APjAAAWUV6duu5l3v18hh4L1M4PtyhfFTLnQ2diHM4SFlOWfOAkayM/q
+        sXziDqPHf89rlTQxkxMksx5MHN+DpLSNJ6WxLUukfw==
+X-Google-Smtp-Source: APXvYqxZtkCDZzGY/0t9bL2y5WOpKPyHPq/MZSc2e04/FatRGcqTvFlPVxn99K2PeClhZav0kCRPg/qhwbDQNVlon64=
+X-Received: by 2002:a05:6830:1649:: with SMTP id h9mr26137010otr.281.1573556239713;
+ Tue, 12 Nov 2019 02:57:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.200-43-gca1d1b5f0f2a
-Subject: stable-rc/linux-4.4.y boot: 82 boots: 2 failed,
- 73 passed with 7 offline (v4.4.200-43-gca1d1b5f0f2a)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20190718145407.21352-1-chris@chris-wilson.co.uk>
+ <20190718145407.21352-4-chris@chris-wilson.co.uk> <CAKMK7uEgFS8FAatJBzsEid72sy2_h8x2WsyhsZuyyfaoD1Lg0Q@mail.gmail.com>
+ <157355174344.9322.13853897964725973571@skylake-alporthouse-com>
+In-Reply-To: <157355174344.9322.13853897964725973571@skylake-alporthouse-com>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Tue, 12 Nov 2019 11:57:08 +0100
+Message-ID: <CAKMK7uE8fjc3OXhAnESs-w=fqPhmJUUFOF_n_bKETFaQiQw+GA@mail.gmail.com>
+Subject: Re: [Intel-gfx] [PATCH 4/4] drm/i915: Flush stale cachelines on set-cache-level
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Francisco Jerez <currojerez@riseup.net>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        stable <stable@vger.kernel.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 82 boots: 2 failed, 73 passed with 7 offline (v=
-4.4.200-43-gca1d1b5f0f2a)
+On Tue, Nov 12, 2019 at 10:43 AM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+>
+> Quoting Daniel Vetter (2019-11-12 09:09:06)
+> > On Thu, Jul 18, 2019 at 4:54 PM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+> > >
+> > > Ensure that we flush any cache dirt out to main memory before the user
+> > > changes the cache-level as they may elect to bypass the cache (even after
+> > > declaring their access cache-coherent) via use of unprivileged MOCS.
+> > >
+> > > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> > > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> > > Cc: stable@vger.kernel.org
+> > > ---
+> > >  drivers/gpu/drm/i915/gem/i915_gem_domain.c | 5 +++++
+> > >  1 file changed, 5 insertions(+)
+> > >
+> > > diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+> > > index 2e3ce2a69653..5d41e769a428 100644
+> > > --- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+> > > +++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+> > > @@ -277,6 +277,11 @@ int i915_gem_object_set_cache_level(struct drm_i915_gem_object *obj,
+> > >
+> > >         list_for_each_entry(vma, &obj->vma.list, obj_link)
+> > >                 vma->node.color = cache_level;
+> > > +
+> > > +       /* Flush any previous cache dirt in case of cache bypass */
+> > > +       if (obj->cache_dirty & ~obj->cache_coherent)
+> > > +               i915_gem_clflush_object(obj, I915_CLFLUSH_SYNC);
+> >
+> > I think writing out the bit logic instead of implicitly relying on the
+> > #defines would be much better, i.e. && !(cache_coherent &
+> > COHERENT_FOR_READ). Plus I think we only need to set cache_dirty =
+> > true if we don't flush here already, to avoid double flushing?
+>
+> No. The mask is being updated, so you need to flush before you lose
+> track. The cache is then cleared of the dirty bit so won't be flushed
+> again until dirty and no longer coherent. We need to flag that the page
+> is no longer coherent at the end of its lifetime (passing back to the
+> system) to force the flush then.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.200-43-gca1d1b5f0f2a/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.200-43-gca1d1b5f0f2a/
+Hm I think I overlooked that we only clear cache_dirty in
+i915_gem_clflush_object when it's a coherent mode.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.200-43-gca1d1b5f0f2a
-Git Commit: ca1d1b5f0f2acd3d552c3c74f44d984d06f2d595
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 41 unique boards, 16 SoC families, 13 builds out of 190
-
-Boot Failures Detected:
-
-i386:
-    i386_defconfig:
-        gcc-8:
-            qemu_i386: 2 failed labs
-
-Offline Platforms:
-
-arm:
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+I also spotted more cases for (obj->cache_dirty
+&~obj->cache_coherent), so that obscure/fragile pattern is
+pre-existing :-/ One of them also checks outside of the object lock,
+which I think is how these states are supposed to be protected. Smells
+a bit fishy still, would be good to make a bit clearer.
+-Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
