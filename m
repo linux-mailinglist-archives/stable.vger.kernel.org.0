@@ -2,172 +2,469 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1219F9BCD
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 22:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 564D1F9C44
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 22:28:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727183AbfKLVO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 16:14:29 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:30703 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727419AbfKLVO2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 16:14:28 -0500
+        id S1726376AbfKLV2U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 16:28:20 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:52544 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726718AbfKLV2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 16:28:20 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573593267;
-        h=from:from:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=KhaSq6F0boqwPJebWHU+vS4X8WSartUyEjWwqUHsPz4=;
-        b=BAaOFLc1TJKBdf7dJ1oce3nTXUsLtrjbBtRUCaCTtpZ6vRiNg4nSoA1Jt4sejkZaLkkv1+
-        7R5pjvRgjJzgAGcxUbugDQEoWU1M6Ezir/Y5mQHRJd7StQfoVv8pGNThDAwhIC/Wik5qh2
-        PqMZOgZK5I1z0pW66GEbdVay1hRS0w8=
-Received: from mail-yb1-f198.google.com (mail-yb1-f198.google.com
- [209.85.219.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-426-34ZBrC86PFigkIDTdf3u3A-1; Tue, 12 Nov 2019 16:14:26 -0500
-Received: by mail-yb1-f198.google.com with SMTP id f4so84019yba.22
-        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 13:14:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:reply-to
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to;
-        bh=jB1CQxHZY09v+dVO/IW1sLsxw+s5h/wXvYhyMUh4nd4=;
-        b=cYFCnkR8Tkj7PSAGHLr0ISikgoYo9oBlkYaazhDvY8fZfSiul04oAvd/l+SuXV+fc3
-         lMDjM6wowkuVbm6XFtkU8ZACt0vg3+RSJ+bHNyUNCP8Zd3b34wu6U8t+MUNKSc6TE25B
-         3/WxJp44/QbEYRDCcA0vu4pMPuW99uA0YckSBTryGAyVpIlTiOx3qWPaEDScJYt8iKrn
-         66/weqTst3hkbJ1hHkVXAKrhET7OGEhJklJeQuQVt2/pP1H55KDqB1FR/WsLjGDpz2Nf
-         JWrRWBCDBXxoMAWB3muU5VaBrccqGQaz3MiE+9FDsIMLkfoE+1umGc1Yo0UMejESpGCd
-         cNKQ==
-X-Gm-Message-State: APjAAAX7qpJR/TebMuJ4R4AkCDxhED7eLf+IqGzss08VBLG5tEQnYv1G
-        U0zuODOJ/+L9zQwvHvkARjni27Hy/uudhfi1y3d3crST+l3fm+Y7uAudNOXRpXc/lsqEc4lsQIF
-        fKQ33JjpxFGuw4m1w
-X-Received: by 2002:a81:10d4:: with SMTP id 203mr49036ywq.390.1573593265499;
-        Tue, 12 Nov 2019 13:14:25 -0800 (PST)
-X-Google-Smtp-Source: APXvYqwEcKNvBFCa/Pi9LABko8hxEtyRnZOUme9kRE5c2iBVZmTkmYukiWzYoyB8ZRofsuIDcutGWg==
-X-Received: by 2002:a81:10d4:: with SMTP id 203mr49020ywq.390.1573593265161;
-        Tue, 12 Nov 2019 13:14:25 -0800 (PST)
-Received: from localhost (ip70-163-223-149.ph.ph.cox.net. [70.163.223.149])
-        by smtp.gmail.com with ESMTPSA id v5sm128965ywi.95.2019.11.12.13.14.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Nov 2019 13:14:24 -0800 (PST)
-Date:   Tue, 12 Nov 2019 14:14:23 -0700
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     Jason Gunthorpe <jgg@ziepe.ca>
-Cc:     Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        linux-integrity <linux-integrity@vger.kernel.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        Christian Bundy <christianbundy@fraction.io>
-Subject: Re: [PATCH] tpm_tis: turn on TPM before calling tpm_get_timeouts
-Message-ID: <20191112211423.vgtervfk52txgfmm@cantor>
-Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
-Mail-Followup-To: Jason Gunthorpe <jgg@ziepe.ca>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        linux-integrity <linux-integrity@vger.kernel.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        Christian Bundy <christianbundy@fraction.io>
-References: <20191111233418.17676-1-jsnitsel@redhat.com>
- <20191112200328.GA11213@linux.intel.com>
- <CALzcddtMiSzhgZv5R6xqb1Amyk7cdY4mJdYDS86KRxH4wR_EGA@mail.gmail.com>
- <20191112202623.GB5584@ziepe.ca>
- <CALzcddtse-4bKWaA0+ns-gVKGyQzMrYWS4n1rFpbbhKLb83z7g@mail.gmail.com>
- <CALzcddv2aLQ1krYFeNtWNOxyF3aSD0-p3j_p3CgS2Vx-__sQPA@mail.gmail.com>
- <20191112204623.GG5584@ziepe.ca>
+        s=mimecast20190719; t=1573594098;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=QM2LJs6gtUcpoC0h9nfhkc1bcWGG4UcGHRblkiAnsPU=;
+        b=E5jklMynrCAp7tEmQtKAXfEjB18KBDR8a8+aNq4g8o08clw+ypY37+auEKmKDwrKOa1FVX
+        A/w8Bezpbg7RkaQcq63j/C0GYdfNh+KLMLzbv7iWvEGNzB6obd3B1/cw9ODJQZJEsvNH1W
+        ssVhCrAX8b3bPFp64/9GASzD70dMtHk=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-269-M4ivKRk3Ps-uOZCkyE7b1A-1; Tue, 12 Nov 2019 16:28:16 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6B8C8477
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 21:28:15 +0000 (UTC)
+Received: from [172.54.37.191] (cpt-1013.paas.prod.upshift.rdu2.redhat.com [10.0.19.28])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6F4209F73;
+        Tue, 12 Nov 2019 21:28:12 +0000 (UTC)
 MIME-Version: 1.0
-In-Reply-To: <20191112204623.GG5584@ziepe.ca>
-X-MC-Unique: 34ZBrC86PFigkIDTdf3u3A-1
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.3
+Date:   Tue, 12 Nov 2019 21:28:12 -0000
+CC:     Milos Malik <mmalik@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Message-ID: <cki.D3D66035C2.H3ODIPH2F4@redhat.com>
+X-Gitlab-Pipeline-ID: 281073
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/281073
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-MC-Unique: M4ivKRk3Ps-uOZCkyE7b1A-1
 X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue Nov 12 19, Jason Gunthorpe wrote:
->On Tue, Nov 12, 2019 at 01:31:09PM -0700, Jerry Snitselaar wrote:
->> On Tue, Nov 12, 2019 at 1:28 PM Jerry Snitselaar <jsnitsel@redhat.com> w=
-rote:
->> >
->> > On Tue, Nov 12, 2019 at 1:26 PM Jason Gunthorpe <jgg@ziepe.ca> wrote:
->> > >
->> > > On Tue, Nov 12, 2019 at 01:23:33PM -0700, Jerry Snitselaar wrote:
->> > > > On Tue, Nov 12, 2019 at 1:03 PM Jarkko Sakkinen
->> > > > <jarkko.sakkinen@linux.intel.com> wrote:
->> > > > >
->> > > > > On Mon, Nov 11, 2019 at 04:34:18PM -0700, Jerry Snitselaar wrote=
+
+Hello,
+
+We ran automated tests on a patchset that was proposed for merging into thi=
+s
+kernel tree. The patches were applied to:
+
+       Kernel repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/=
+linux.git
+            Commit: 81584694bb70 - Linux 5.3.10
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+All kernel binaries, config files, and logs are available for download here=
 :
->> > > > > > With power gating moved out of the tpm_transmit code we need
->> > > > > > to power on the TPM prior to calling tpm_get_timeouts.
->> > > > > >
->> > > > > > Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
->> > > > > > Cc: Peter Huewe <peterhuewe@gmx.de>
->> > > > > > Cc: Jason Gunthorpe <jgg@ziepe.ca>
->> > > > > > Cc: linux-kernel@vger.kernel.org
->> > > > > > Cc: linux-stable@vger.kernel.org
->> > > > > > Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of t=
-pm_transmit()")
->> > > > > > Reported-by: Christian Bundy <christianbundy@fraction.io>
->> > > > > > Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
->> > > > > >  drivers/char/tpm/tpm_tis_core.c | 3 ++-
->> > > > > >  1 file changed, 2 insertions(+), 1 deletion(-)
->> > > > > >
->> > > > > > diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tp=
-m/tpm_tis_core.c
->> > > > > > index 270f43acbb77..cb101cec8f8b 100644
->> > > > > > +++ b/drivers/char/tpm/tpm_tis_core.c
->> > > > > > @@ -974,13 +974,14 @@ int tpm_tis_core_init(struct device *dev=
-, struct tpm_tis_data *priv, int irq,
->> > > > > >                * to make sure it works. May as well use that c=
-ommand to set the
->> > > > > >                * proper timeouts for the driver.
->> > > > > >                */
->> > > > > > +             tpm_chip_start(chip);
->> > > > > >               if (tpm_get_timeouts(chip)) {
->> > > > > >                       dev_err(dev, "Could not get TPM timeouts=
- and durations\n");
->> > > > > >                       rc =3D -ENODEV;
->> > > > > > +                     tpm_stop_chip(chip);
->> > > > > >                       goto out_err;
->> > > > > >               }
->> > > > >
->> > > > > Couldn't this call just be removed?
->> > > > >
->> > > > > /Jarkko
->> > > > >
->> > > >
->> > > > Probably. It will eventually get called when tpm_chip_register
->> > > > happens. I don't know what the reason was for trying it prior to t=
-he
->> > > > irq probe.
->> > >
->> > > At least tis once needed the timeouts before registration because it
->> > > was issuing TPM commands to complete its setup.
->> > >
->> > > If timeouts have not been set then no TPM command should be executed=
-.
->> >
->> > Would it function with the timeout values set at the beginning of
->> > tpm_tis_core_init (max values)?
->>
->> I guess that doesn't set the duration values though
->
->There is no reason to use anything but the correct timeouts, as read
->from the device.
->
->Jason
->
 
-Should there be a check in tpm1_get_timeouts and tpm2_get_timeouts:
+  https://artifacts.cki-project.org/pipelines/281073
 
-=09if (chip->flags & TPM_CHIP_FLAG_HAVE_TIMEOUTS)
-=09=09return 0;
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
 
-to skip going through it again in the auto startup code if it was
-already called and set?
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 81584694bb70 - Linux 5.3.10
+
+
+We grabbed the dcb5bae64819 commit of the stable queue repository.
+
+We then merged the patchset with `git am`:
+
+  bonding-fix-state-transition-issue-in-link-monitoring.patch
+  cdc-ncm-handle-incomplete-transfer-of-mtu.patch
+  ipv4-fix-table-id-reference-in-fib_sync_down_addr.patch
+  net-ethernet-octeon_mgmt-account-for-second-possible-vlan-header.patch
+  net-fix-data-race-in-neigh_event_send.patch
+  net-qualcomm-rmnet-fix-potential-uaf-when-unregistering.patch
+  net-tls-fix-sk_msg-trim-on-fallback-to-copy-mode.patch
+  net-usb-qmi_wwan-add-support-for-dw5821e-with-esim-support.patch
+  nfc-fdp-fix-incorrect-free-object.patch
+  nfc-netlink-fix-double-device-reference-drop.patch
+  nfc-st21nfca-fix-double-free.patch
+  qede-fix-null-pointer-deref-in-__qede_remove.patch
+  net-mscc-ocelot-don-t-handle-netdev-events-for-other-netdevs.patch
+  net-mscc-ocelot-fix-null-pointer-on-lag-slave-removal.patch
+  net-tls-don-t-pay-attention-to-sk_write_pending-when-pushing-partial-reco=
+rds.patch
+  net-tls-add-a-tx-lock.patch
+  selftests-tls-add-test-for-concurrent-recv-and-send.patch
+  ipv6-fixes-rt6_probe-and-fib6_nh-last_probe-init.patch
+  net-hns-fix-the-stray-netpoll-locks-causing-deadlock-in-napi-path.patch
+  net-prevent-load-store-tearing-on-sk-sk_stamp.patch
+  net-sched-prevent-duplicate-flower-rules-from-tcf_proto-destroy-race.patc=
+h
+  net-smc-fix-ethernet-interface-refcounting.patch
+  vsock-virtio-fix-sock-refcnt-holding-during-the-shutdown.patch
+  r8169-fix-page-read-in-r8168g_mdio_read.patch
+  alsa-timer-fix-incorrectly-assigned-timer-instance.patch
+  alsa-bebob-fix-to-detect-configured-source-of-sampling-clock-for-focusrit=
+e-saffire-pro-i-o-series.patch
+  alsa-hda-ca0132-fix-possible-workqueue-stall.patch
+  mm-memcontrol-fix-null-ptr-deref-in-percpu-stats-flush.patch
+  mm-memcontrol-fix-network-errors-from-failing-__gfp_atomic-charges.patch
+  mm-meminit-recalculate-pcpu-batch-and-high-limits-after-init-completes.pa=
+tch
+  mm-thp-handle-page-cache-thp-correctly-in-pagetranscompoundmap.patch
+  mm-vmstat-hide-proc-pagetypeinfo-from-normal-users.patch
+  dump_stack-avoid-the-livelock-of-the-dump_lock.patch
+  mm-slab-make-page_cgroup_ino-to-recognize-non-compound-slab-pages-properl=
+y.patch
+  btrfs-consider-system-chunk-array-size-for-new-system-chunks.patch
+  btrfs-tree-checker-fix-wrong-check-on-max-devid.patch
+  btrfs-save-i_size-to-avoid-double-evaluation-of-i_size_read-in-compress_f=
+ile_range.patch
+  tools-gpio-use-building_out_of_srctree-to-determine-srctree.patch
+  pinctrl-intel-avoid-potential-glitches-if-pin-is-in-gpio-mode.patch
+  perf-tools-fix-time-sorting.patch
+  perf-map-use-zalloc-for-map_groups.patch
+  drm-radeon-fix-si_enable_smc_cac-failed-issue.patch
+  hid-wacom-generic-treat-serial-number-and-related-fields-as-unsigned.patc=
+h
+  mm-khugepaged-fix-might_sleep-warn-with-config_highpte-y.patch
+  soundwire-depend-on-acpi.patch
+  soundwire-depend-on-acpi-of.patch
+  soundwire-bus-set-initial-value-to-port_status.patch
+  blkcg-make-blkcg_print_stat-print-stats-only-for-online-blkgs.patch
+  arm64-do-not-mask-out-pte_rdonly-in-pte_same.patch
+  asoc-rsnd-dma-fix-ssi9-4-5-6-7-busif-dma-address.patch
+  ceph-fix-use-after-free-in-__ceph_remove_cap.patch
+  ceph-fix-rcu-case-handling-in-ceph_d_revalidate.patch
+  ceph-add-missing-check-in-d_revalidate-snapdir-handling.patch
+  ceph-don-t-try-to-handle-hashed-dentries-in-non-o_creat-atomic_open.patch
+  ceph-don-t-allow-copy_file_range-when-stripe_count-1.patch
+  iio-adc-stm32-adc-fix-stopping-dma.patch
+  iio-imu-adis16480-make-sure-provided-frequency-is-positive.patch
+  iio-imu-inv_mpu6050-fix-no-data-on-mpu6050.patch
+  iio-srf04-fix-wrong-limitation-in-distance-measuring.patch
+  arm-sunxi-fix-cpu-powerdown-on-a83t.patch
+  arm-dts-imx6-logicpd-re-enable-snvs-power-key.patch
+  cpufreq-intel_pstate-fix-invalid-epb-setting.patch
+  clone3-validate-stack-arguments.patch
+  netfilter-nf_tables-align-nft_expr-private-data-to-64-bit.patch
+  netfilter-ipset-fix-an-error-code-in-ip_set_sockfn_get.patch
+  intel_th-gth-fix-the-window-switching-sequence.patch
+  intel_th-pci-add-comet-lake-pch-support.patch
+  intel_th-pci-add-jasper-lake-pch-support.patch
+  x86-dumpstack-64-don-t-evaluate-exception-stacks-before-setup.patch
+  x86-apic-32-avoid-bogus-ldr-warnings.patch
+  smb3-fix-persistent-handles-reconnect.patch
+  can-usb_8dev-fix-use-after-free-on-disconnect.patch
+  can-flexcan-disable-completely-the-ecc-mechanism.patch
+  can-c_can-c_can_poll-only-read-status-register-after-status-irq.patch
+  can-peak_usb-fix-a-potential-out-of-sync-while-decoding-packets.patch
+  can-rx-offload-can_rx_offload_queue_sorted-fix-error-handling-avoid-skb-m=
+em-leak.patch
+  can-gs_usb-gs_can_open-prevent-memory-leak.patch
+  can-dev-add-missing-of_node_put-after-calling-of_get_child_by_name.patch
+  can-mcba_usb-fix-use-after-free-on-disconnect.patch
+  can-peak_usb-fix-slab-info-leak.patch
+  configfs-fix-a-deadlock-in-configfs_symlink.patch
+  alsa-usb-audio-more-validations-of-descriptor-units.patch
+  alsa-usb-audio-simplify-parse_audio_unit.patch
+  alsa-usb-audio-unify-the-release-of-usb_mixer_elem_info-objects.patch
+  alsa-usb-audio-remove-superfluous-blength-checks.patch
+  alsa-usb-audio-clean-up-check_input_term.patch
+  alsa-usb-audio-fix-possible-null-dereference-at-create_yamaha_midi_quirk.=
+patch
+  alsa-usb-audio-remove-some-dead-code.patch
+  alsa-usb-audio-fix-copy-paste-error-in-the-validator.patch
+  usbip-implement-sg-support-to-vhci-hcd-and-stub-driver.patch
+  hid-google-add-magnemite-masterball-usb-ids.patch
+  dmaengine-sprd-fix-the-link-list-pointer-register-co.patch
+  bpf-lwtunnel-fix-reroute-supplying-invalid-dst.patch
+  dmaengine-xilinx_dma-fix-64-bit-simple-axidma-transf.patch
+  dmaengine-xilinx_dma-fix-control-reg-update-in-vdma_.patch
+  dmaengine-sprd-fix-the-possible-memory-leak-issue.patch
+  hid-intel-ish-hid-fix-wrong-error-handling-in-ishtp_.patch
+  powerpc-32s-fix-allow-prevent_user_access-when-cross.patch
+  rdma-mlx5-clear-old-rate-limit-when-closing-qp.patch
+  iw_cxgb4-fix-ecn-check-on-the-passive-accept.patch
+  rdma-siw-free-siw_base_qp-in-kref-release-routine.patch
+  rdma-qedr-fix-reported-firmware-version.patch
+  ib-core-use-rdma_read_gid_l2_fields-to-compare-gid-l.patch
+  net-mlx5e-tx-fix-assumption-of-single-wqebb-of-nop-i.patch
+  net-mlx5e-ktls-release-reference-on-dumped-fragments.patch
+  net-mlx5e-tx-fix-consumer-index-of-error-cqe-dump.patch
+  net-mlx5-prevent-memory-leak-in-mlx5_fpga_conn_creat.patch
+  net-mlx5-fix-memory-leak-in-mlx5_fw_fatal_reporter_d.patch
+  selftests-bpf-more-compatible-nc-options-in-test_tc_.patch
+  scsi-qla2xxx-fixup-incorrect-usage-of-host_byte.patch
+  scsi-lpfc-check-queue-pointer-before-use.patch
+  scsi-ufs-bsg-wake-the-device-before-sending-raw-upiu.patch
+  arc-plat-hsdk-enable-on-board-spi-nor-flash-ic.patch
+  rdma-uverbs-prevent-potential-underflow.patch
+  bpf-fix-use-after-free-in-subprog-s-jited-symbol-rem.patch
+  net-stmmac-fix-the-problem-of-tso_xmit.patch
+  net-openvswitch-free-vport-unless-register_netdevice.patch
+  scsi-lpfc-honor-module-parameter-lpfc_use_adisc.patch
+  scsi-qla2xxx-initialized-mailbox-to-prevent-driver-l.patch
+  bpf-fix-use-after-free-in-bpf_get_prog_name.patch
+  iwlwifi-pcie-fix-pci-id-0x2720-configs-that-should-b.patch
+  iwlwifi-pcie-fix-all-9460-entries-for-qnj.patch
+  iwlwifi-pcie-0x2720-is-qu-and-0x30dc-is-not.patch
+  netfilter-nf_flow_table-set-timeout-before-insertion.patch
+  drm-v3d-fix-memory-leak-in-v3d_submit_cl_ioctl.patch
+  xsk-fix-registration-of-rx-only-sockets.patch
+  net-phy-smsc-lan8740-add-phy_rst_after_clk_en-flag.patch
+  ipvs-don-t-ignore-errors-in-case-refcounting-ip_vs-m.patch
+  ipvs-move-old_secure_tcp-into-struct-netns_ipvs.patch
+  netfilter-nft_payload-fix-missing-check-for-matching.patch
+  rdma-nldev-skip-counter-if-port-doesn-t-match.patch
+  bonding-fix-unexpected-iff_bonding-bit-unset.patch
+  bonding-use-dynamic-lockdep-key-instead-of-subclass.patch
+  macsec-fix-refcnt-leak-in-module-exit-routine.patch
+  virt_wifi-fix-refcnt-leak-in-module-exit-routine.patch
+  scsi-sd-define-variable-dif-as-unsigned-int-instead-.patch
+  usb-dwc3-select-config_regmap_mmio.patch
+  usb-fsl-check-memory-resource-before-releasing-it.patch
+  usb-gadget-udc-atmel-fix-interrupt-storm-in-fifo-mod.patch
+  usb-gadget-composite-fix-possible-double-free-memory.patch
+  usb-dwc3-pci-prevent-memory-leak-in-dwc3_pci_probe.patch
+  usb-gadget-configfs-fix-concurrent-issue-between-com.patch
+  usb-dwc3-remove-the-call-trace-of-usbx_gfladj.patch
+  perf-x86-amd-ibs-fix-reading-of-the-ibs-opdata-regis.patch
+  perf-x86-amd-ibs-handle-erratum-420-only-on-the-affe.patch
+  perf-x86-uncore-fix-event-group-support.patch
+  usb-skip-endpoints-with-0-maxpacket-length.patch
+  usb-ldusb-use-unsigned-size-format-specifiers.patch
+  usbip-tools-fix-read_usb_vudc_device-error-path-hand.patch
+  rdma-iw_cxgb4-avoid-freeing-skb-twice-in-arp-failure.patch
+  rdma-hns-prevent-memory-leaks-of-eq-buf_list.patch
+  hwmon-ina3221-fix-read-timeout-issue.patch
+  scsi-qla2xxx-stop-timer-in-shutdown-path.patch
+  sched-topology-don-t-try-to-build-empty-sched-domain.patch
+  sched-topology-allow-sched_asym_cpucapacity-to-be-di.patch
+  nvme-multipath-fix-possible-io-hang-after-ctrl-recon.patch
+  fjes-handle-workqueue-allocation-failure.patch
+  net-hisilicon-fix-trying-to-free-already-free-irq.patch
+  wimax-i2400-fix-memory-leak-in-i2400m_op_rfkill_sw_t.patch
+  net-mscc-ocelot-fix-vlan_filtering-when-enslaving-to.patch
+  net-mscc-ocelot-refuse-to-overwrite-the-port-s-nativ.patch
+  iommu-amd-apply-the-same-ivrs-ioapic-workaround-to-a.patch
+  mt76-dma-fix-buffer-unmap-with-non-linear-skbs.patch
+  drm-amdgpu-sdma5-do-not-execute-0-sized-ibs-v2.patch
+  drm-sched-set-error-to-s_fence-if-hw-job-submission-.patch
+  drm-amdgpu-if-amdgpu_ib_schedule-fails-return-back-t.patch
+  drm-amd-display-do-not-synchronize-drr-displays.patch
+  drm-amd-display-add-50us-buffer-as-wa-for-pstate-swi.patch
+  drm-amd-display-passive-dp-hdmi-dongle-detection-fix.patch
+  dc.c-use-kzalloc-without-test.patch
+  sunrpc-the-tcp-back-channel-mustn-t-disappear-while-.patch
+  sunrpc-the-rdma-back-channel-mustn-t-disappear-while.patch
+  sunrpc-destroy-the-back-channel-when-we-destroy-the-.patch
+  hv_netvsc-fix-error-handling-in-netvsc_attach.patch
+  efi-tpm-return-einval-when-determining-tpm-final-eve.patch
+  efi-libstub-arm-account-for-firmware-reserved-memory.patch
+  x86-efi-never-relocate-kernel-below-lowest-acceptabl.patch
+  arm64-cpufeature-enable-qualcomm-falkor-errata-1009-.patch
+  usb-dwc3-gadget-fix-race-when-disabling-ep-with-canc.patch
+  arm64-apply-arm64_erratum_845719-workaround-for-brah.patch
+  arm64-brahma-b53-is-ssb-and-spectre-v2-safe.patch
+  arm64-apply-arm64_erratum_843419-workaround-for-brah.patch
+  nfsv4-don-t-allow-a-cached-open-with-a-revoked-deleg.patch
+  net-ethernet-arc-add-the-missed-clk_disable_unprepar.patch
+  igb-fix-constant-media-auto-sense-switching-when-no-.patch
+  e1000-fix-memory-leaks.patch
+  gve-fixes-dma-synchronization.patch
+  ocfs2-protect-extent-tree-in-ocfs2_prepare_inode_for.patch
+  pinctrl-cherryview-fix-irq_valid_mask-calculation.patch
+  clk-imx8m-use-sys_pll1_800m-as-intermediate-parent-o.patch
+  timekeeping-vsyscall-update-vdso-data-unconditionall.patch
+  mm-filemap.c-don-t-initiate-writeback-if-mapping-has-no-dirty-pages.patch
+  cgroup-writeback-don-t-switch-wbs-immediately-on-dead-wbs-if-the-memcg-is=
+-dead.patch
+  arm-dts-stm32-change-joystick-pinctrl-definition-on-.patch
+  asoc-sof-intel-hda-stream-fix-the-config_-prefix-mis.patch
+  usbip-fix-free-of-unallocated-memory-in-vhci-tx.patch
+  bonding-fix-using-uninitialized-mode_lock.patch
+  netfilter-ipset-copy-the-right-mac-address-in-hash-i.patch
+  arm64-errata-update-stale-comment.patch
+  net-ibmvnic-unlock-rtnl_lock-in-reset-so-linkwatch_e.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+  x86_64:
+    Host 1:
+
+       =E2=9A=A1 Internal infrastructure issues prevented one or more tests=
+ (marked
+       with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+       This is not the fault of the kernel that was tested.
+
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9D=8C selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9A=A1=E2=9A=A1=E2=9A=A1 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
