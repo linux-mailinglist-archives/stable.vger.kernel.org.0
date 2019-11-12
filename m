@@ -2,93 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 545A3F937B
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 16:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D933F9540
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 17:12:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbfKLPAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 10:00:48 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:34644 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726953AbfKLPAs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 10:00:48 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iUXes-00057x-Vi; Tue, 12 Nov 2019 16:00:43 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 9E0FF1C0084;
-        Tue, 12 Nov 2019 16:00:42 +0100 (CET)
-Date:   Tue, 12 Nov 2019 15:00:42 -0000
-From:   "tip-bot2 for Kai-Heng Feng" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/quirks: Disable HPET on Intel Coffe Lake platforms
-Cc:     Feng Tang <feng.tang@intel.com>,
-        "Kai-Heng Feng" <kai.heng.feng@canonical.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20191016103816.30650-1-kai.heng.feng@canonical.com>
-References: <20191016103816.30650-1-kai.heng.feng@canonical.com>
+        id S1726923AbfKLQMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 11:12:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34220 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726008AbfKLQMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 11:12:12 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48F04206BB;
+        Tue, 12 Nov 2019 16:12:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573575130;
+        bh=Tb/IU1NPKoOZlk5QRAsAWeBWIh7wXPztp9Sgjt6EBrY=;
+        h=Subject:To:From:Date:From;
+        b=Kzme8rat4x2pU5phl08KRR7kRI8KjeIoZbSPbibSyGphpg/V+8jCWAnpZb9AakVNY
+         aw8N0Rqzb37zrSafH++CHFax+IRiMUPipveYVrhWbM1h1rFiI5DZlR46RKqrxYZwt0
+         5oxMan045+GsF/lgtCN061yRjGbUCq7iQGDZY7cE=
+Subject: patch "USBIP: add config dependency for SGL_ALLOC" added to usb-testing
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 12 Nov 2019 17:12:08 +0100
+Message-ID: <157357512816890@kroah.com>
 MIME-Version: 1.0
-Message-ID: <157357084220.29376.9594483484255734151.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     fc5db58539b49351e76f19817ed1102bf7c712d0
-Gitweb:        https://git.kernel.org/tip/fc5db58539b49351e76f19817ed1102bf7c712d0
-Author:        Kai-Heng Feng <kai.heng.feng@canonical.com>
-AuthorDate:    Wed, 16 Oct 2019 18:38:16 +08:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Tue, 12 Nov 2019 15:55:20 +01:00
+This is a note to let you know that I've just added the patch titled
 
-x86/quirks: Disable HPET on Intel Coffe Lake platforms
+    USBIP: add config dependency for SGL_ALLOC
 
-Some Coffee Lake platforms have a skewed HPET timer once the SoCs entered
-PC10, which in consequence marks TSC as unstable because HPET is used as
-watchdog clocksource for TSC.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
-Harry Pan tried to work around it in the clocksource watchdog code [1]
-thereby creating a circular dependency between HPET and TSC. This also
-ignores the fact, that HPET is not only unsuitable as watchdog clocksource
-on these systems, it becomes unusable in general.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Disable HPET on affected platforms.
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-Suggested-by: Feng Tang <feng.tang@intel.com>
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203183
-Link: https://lore.kernel.org/lkml/20190516090651.1396-1-harry.pan@intel.com/ [1]
-Link: https://lkml.kernel.org/r/20191016103816.30650-1-kai.heng.feng@canonical.com
+If you have any questions about this process, please let me know.
+
+
+From eaed19addbc9e60062a26b33c79059f5bb74968b Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Tue, 12 Nov 2019 16:49:39 +0100
+Subject: USBIP: add config dependency for SGL_ALLOC
+
+USBIP uses lib/scatterlist.h
+Hence it needs to set CONFIG_SGL_ALLOC
+
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191112154939.21217-1-oneukum@suse.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/early-quirks.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/usbip/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
-index 6f6b1d0..4cba91e 100644
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -710,6 +710,8 @@ static struct chipset early_qrk[] __initdata = {
- 	 */
- 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
- 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
-+	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
-+		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
- 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
- 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
- 	{}
+diff --git a/drivers/usb/usbip/Kconfig b/drivers/usb/usbip/Kconfig
+index 2f86b28fa3da..7bbae7a08642 100644
+--- a/drivers/usb/usbip/Kconfig
++++ b/drivers/usb/usbip/Kconfig
+@@ -4,6 +4,7 @@ config USBIP_CORE
+ 	tristate "USB/IP support"
+ 	depends on NET
+ 	select USB_COMMON
++	select SGL_ALLOC
+ 	---help---
+ 	  This enables pushing USB packets over IP to allow remote
+ 	  machines direct access to USB devices. It provides the
+-- 
+2.24.0
+
+
