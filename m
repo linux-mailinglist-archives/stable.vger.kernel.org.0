@@ -2,78 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DCDF9113
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 14:52:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CB1AF9154
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 15:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726212AbfKLNw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 08:52:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57664 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725985AbfKLNw6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 08:52:58 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 860B021A49;
-        Tue, 12 Nov 2019 13:52:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573566778;
-        bh=YITOsP4LWDYzahOTbwsGymlzWmlajTkv+5UVEfpQMXo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pVOafzYBNJOCkpMIOmJkuA4KbsY0jSY2txplgyFd057sOJP+WR94YOQ5m4MQM70k0
-         rmDslQNoc/GXMdRurSN+HzKXvXmMa+eZVTBKCTOrTEfNQSMNoKzfxYDN0rLSVf2+YF
-         Y48dzrq9pp+bEH/AoXIl5be3wpG7dV5bbwVxkOmU=
-Date:   Tue, 12 Nov 2019 14:52:55 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Subject: Re: [PATCH 5.3 000/193] 5.3.11-stable review
-Message-ID: <20191112135255.GB1331422@kroah.com>
-References: <20191111181459.850623879@linuxfoundation.org>
- <CA+G9fYvBckngrAhc4NEU9G-_UrE9evmJNkCz3ZP7eEZjwyHGKA@mail.gmail.com>
+        id S1727291AbfKLOCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 09:02:00 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:35829 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727420AbfKLOCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 09:02:00 -0500
+Received: by mail-wm1-f65.google.com with SMTP id 8so3101977wmo.0
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 06:01:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=sender:date:from:to:cc:subject:message-id:mail-followup-to
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MrWmg4S4QVjfl7ElzvbNo6Dq6sBDPaTcM04xou8JMbE=;
+        b=ax6nC2UjJtb1u8+MWf7et5sm8f0kIu4FeoVmwb6B7m7QoYHoTqVObl+BovSgMMSj/Y
+         9LZMJ3Q78YAesg8YG9NjW3ZTkADp/BoA9hw5aPkSBeQjZwSPGeuvAWEUC2HqA3ZoZqfo
+         ZkBPnLF64sC+ifwhNdox79S20LdCKzVH6cupY=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :mail-followup-to:references:mime-version:content-disposition
+         :in-reply-to:user-agent;
+        bh=MrWmg4S4QVjfl7ElzvbNo6Dq6sBDPaTcM04xou8JMbE=;
+        b=t0d/l01nmqctRicLMByoL1UjqjiNBf/JpQ2erjDFBdwxzNX2jkWCca1zS0qt/5FWWy
+         VDbp91Q/KexJ7B/nkGzxZhykjaBgHlfelcrtiY3SN8iTTrYOVEK9Uejh/O+V7MRAqkSt
+         avx+90EmNx51ABCL0shInJHvuNvU0ocvgXZ+v0O7J+FfIJRzmgvNhr9B2iipLuHzSxJy
+         8S2YSyO+AAqLGFUJ0vKVdQCxVu3E6K1AkuW9xehoAYUOp8W9v1hn3anKvQ3fNc6nowLE
+         auHDR2nlLGkeoxhVTyvgF5rQN4SypWiycrEJ88osd352we+aa0HW7E6/GoIBuShG/VOR
+         G4nQ==
+X-Gm-Message-State: APjAAAXxnmDn38s9Wni/MwvcYgeS/UeBP3RbGBZscY9HBgZ07UINyqHg
+        vFuKargmuQASlt7QE2Q/L4g52w==
+X-Google-Smtp-Source: APXvYqwg1um6jg+/qODyeIAqZsG4VJkK0RglxJrSmFgE3PAxS7h90PQ/gBE97aZORkW05LcpoYTR5w==
+X-Received: by 2002:a1c:984b:: with SMTP id a72mr4286085wme.78.1573567317930;
+        Tue, 12 Nov 2019 06:01:57 -0800 (PST)
+Received: from phenom.ffwll.local (212-51-149-96.fiber7.init7.net. [212.51.149.96])
+        by smtp.gmail.com with ESMTPSA id l4sm3059222wme.4.2019.11.12.06.01.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Nov 2019 06:01:57 -0800 (PST)
+Date:   Tue, 12 Nov 2019 15:01:55 +0100
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     Johan Hovold <johan@kernel.org>
+Cc:     Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        David Airlie <airlied@linux.ie>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-s390@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Dave Airlie <airlied@gmail.com>
+Subject: Re: [PATCH 1/4] drm/msm: fix memleak on release
+Message-ID: <20191112140155.GJ23790@phenom.ffwll.local>
+Mail-Followup-To: Johan Hovold <johan@kernel.org>,
+        Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
+        David Airlie <airlied@linux.ie>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-s390@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Dave Airlie <airlied@gmail.com>
+References: <20191010131333.23635-1-johan@kernel.org>
+ <20191010131333.23635-2-johan@kernel.org>
+ <20191030100146.GC4691@localhost>
+ <20191112104001.GP11035@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+G9fYvBckngrAhc4NEU9G-_UrE9evmJNkCz3ZP7eEZjwyHGKA@mail.gmail.com>
+In-Reply-To: <20191112104001.GP11035@localhost>
+X-Operating-System: Linux phenom 5.2.0-3-amd64 
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 12, 2019 at 11:12:15AM +0530, Naresh Kamboju wrote:
-> On Tue, 12 Nov 2019 at 00:18, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > This is the start of the stable review cycle for the 5.3.11 release.
-> > There are 193 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Wed, 13 Nov 2019 18:08:44 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.11-rc1.gz
-> > or in the git tree and branch at:
-> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> > and the diffstat can be found below.
-> >
-> > thanks,
-> >
-> > greg k-h
+On Tue, Nov 12, 2019 at 11:40:01AM +0100, Johan Hovold wrote:
+> On Wed, Oct 30, 2019 at 11:01:46AM +0100, Johan Hovold wrote:
+> > On Thu, Oct 10, 2019 at 03:13:30PM +0200, Johan Hovold wrote:
+> > > If a process is interrupted while accessing the "gpu" debugfs file and
+> > > the drm device struct_mutex is contended, release() could return early
+> > > and fail to free related resources.
+> > > 
+> > > Note that the return value from release() is ignored.
+> > > 
+> > > Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
+> > > Cc: stable <stable@vger.kernel.org>     # 4.18
+> > > Cc: Jordan Crouse <jcrouse@codeaurora.org>
+> > > Cc: Rob Clark <robdclark@gmail.com>
+> > > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > > ---
+> > 
+> > Rob, Sean,
+> > 
+> > Sending a reminder about this one, which is not yet in linux-next.
+> > 
+> > Perhaps Daniel can pick it up otherwise?
 > 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> Another two weeks, another reminder. This one is still not in -next.
 
-Thanks for testing all of these and letting me know.
+Well msm is maintained in a separate tree, so the usual group maintainer
+fallback for when patches are stuck doesn't apply.
 
-greg k-h
+Rob, Sean, time to reconsider drm-misc for msm? I think there's some more
+oddball patches that occasionally get stuck for msm ...
+
+Also +Dave.
+-Daniel
+
+> 
+> Johan
+> 
+> > >  drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
+> > >  1 file changed, 1 insertion(+), 5 deletions(-)
+> > > 
+> > > diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
+> > > index 6be879578140..1c74381a4fc9 100644
+> > > --- a/drivers/gpu/drm/msm/msm_debugfs.c
+> > > +++ b/drivers/gpu/drm/msm/msm_debugfs.c
+> > > @@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
+> > >  	struct msm_gpu_show_priv *show_priv = m->private;
+> > >  	struct msm_drm_private *priv = show_priv->dev->dev_private;
+> > >  	struct msm_gpu *gpu = priv->gpu;
+> > > -	int ret;
+> > > -
+> > > -	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
+> > > -	if (ret)
+> > > -		return ret;
+> > >  
+> > > +	mutex_lock(&show_priv->dev->struct_mutex);
+> > >  	gpu->funcs->gpu_state_put(show_priv->state);
+> > >  	mutex_unlock(&show_priv->dev->struct_mutex);
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
