@@ -2,88 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D933F9540
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 17:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9BEF959D
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 17:27:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726923AbfKLQMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 11:12:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34220 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726008AbfKLQMM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 11:12:12 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48F04206BB;
-        Tue, 12 Nov 2019 16:12:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573575130;
-        bh=Tb/IU1NPKoOZlk5QRAsAWeBWIh7wXPztp9Sgjt6EBrY=;
-        h=Subject:To:From:Date:From;
-        b=Kzme8rat4x2pU5phl08KRR7kRI8KjeIoZbSPbibSyGphpg/V+8jCWAnpZb9AakVNY
-         aw8N0Rqzb37zrSafH++CHFax+IRiMUPipveYVrhWbM1h1rFiI5DZlR46RKqrxYZwt0
-         5oxMan045+GsF/lgtCN061yRjGbUCq7iQGDZY7cE=
-Subject: patch "USBIP: add config dependency for SGL_ALLOC" added to usb-testing
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 12 Nov 2019 17:12:08 +0100
-Message-ID: <157357512816890@kroah.com>
+        id S1726962AbfKLQ1J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 11:27:09 -0500
+Received: from mail-il1-f194.google.com ([209.85.166.194]:40867 "EHLO
+        mail-il1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726718AbfKLQ1J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 11:27:09 -0500
+Received: by mail-il1-f194.google.com with SMTP id d83so16083260ilk.7
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 08:27:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
+        b=KNtN0FzYLoBMJ0X9gDuB1Cv7AUKOD/hXiIn+eSQYO+VrDL1GEd/BWLPVvtm6h7wzZo
+         Fd4LhGoCctBYkknRY9CAeX9X+dDryJYCFQvq6ciqSlDGqj8aM8x0RROBFyk3+K5VDMAq
+         D8UyuOj5Qa0wfbvTv68nazGBkaP+DAnW9CMIfj6lJhaw0LAmFWwPDurL4b4QnwQ4nAmP
+         N3Ydn0PKDBosHuMyWp+bn//OvEYwMtReckXT6IL9Dy/PWeMt6dWXt04zhCB5nlzZOcap
+         OMsMA0EIevEs6uaPJbd+A/ecC9EFbXESnea5Ga3FCVqNpYZXYnRyZ+HWBoJgc8YJo2rJ
+         a/dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=KppfXZZpJPEi/CjZSEtvqmbI5qt1QsjN8iLsZFEVchY=;
+        b=H7z5aGhDPLMUSzxfYNTnLLWtCJ5r/7VmhAFMy3mfAGngQIwxpKyOeujYXQcNWKWiZx
+         UDqRD0IcNZnpY1mOyh9mZbDuHFcYJrbGcFw4PQDVvF+fqNH4Dzn6rhKVeGA0gfUqKIC0
+         MHgQaL6SFVQashf0MnB52MwJAuc2piMyVQ/ee/rLSApfJ9m3Df7y4Gk2Xebe2xRK/khl
+         79H34VjuOlj7tzQMkvNIMYaRYSrj5srW68E+l7Ywswl82C4Aru7sRuHIMPDUvrjGfnLT
+         c7BL8k6WyNNU4HCAtIMvYc0mmVB324u5xrCMZhEpCP0rSdD96dN2qpvZxdYKW49dFRM2
+         Jufg==
+X-Gm-Message-State: APjAAAVhYshVn43me7B74NzBt/UDmK15jx3ED1Pb4kQJTk2xppBF0Sdr
+        4zfp7CeftAHAQXHjhKE6N9e92PMmkKnUG9Fkt4c=
+X-Google-Smtp-Source: APXvYqzzV235ZdqeqEmUJ6S/SON1K865dDJ8ckBohJjbFEeeAB3eV+M3AQIalrfiYEwSZhppXfXlCs1+XBMSAGwhz7g=
+X-Received: by 2002:a92:c50c:: with SMTP id r12mr38778788ilg.255.1573576028367;
+ Tue, 12 Nov 2019 08:27:08 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a92:5b84:0:0:0:0:0 with HTTP; Tue, 12 Nov 2019 08:27:08
+ -0800 (PST)
+From:   Mrs Carlsen Monika <carlsen.monika@gmail.com>
+Date:   Tue, 12 Nov 2019 17:27:08 +0100
+X-Google-Sender-Auth: NeGlB1kTxIQuY6mtONmOCBIg1_4
+Message-ID: <CAHR092FScdJRXnPRS3zke3QgQdHRarO2x0V-_9L6nbHRyLB85Q@mail.gmail.com>
+Subject: Greetings My Dear, Please I Need Your Help.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Greetings My Dear,
 
-This is a note to let you know that I've just added the patch titled
+    I sent this mail praying it will found you in a good condition of
+health, since I myself are in a very critical health condition in
+which I  sleep every night without knowing if I may be alive to see
+the next day. I am Mrs. Monika John  Carlsen from Denmark wife of late
+Mr John Carlsen, a widow suffering from long time illness. I have some
+funds I inherited from my late husband, the sum of (eleven million
+dollars) my Doctor told me recently that I have serious sickness which
+is cancer problem. What disturbs me most is my stroke sickness. Having
+known my condition, I decided to donate this fund to a good person
+that will utilize it the way i am going to instruct herein. I need a
+very honest and God fearing person who can claim this money and use it
+for Charity works, for orphanages, widows and also  build schools for
+less privileges that will be named after my late husband if possible
+and to promote the word of God and the effort that the house of God is
+maintained.
 
-    USBIP: add config dependency for SGL_ALLOC
+I do not want a situation where this money will be used in an ungodly
+manner. That's why I'm taking this decision. I'm not afraid of death
+so I know where I'm going. I accept this decision because I do not
+have any child who will inherit this money after I die. Please I want
+your sincerely and urgent answer to know if you will be able to
+execute this project, and I will give you more information on how the
+fund will be transferred to your bank account. I am waiting for your
+reply.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From eaed19addbc9e60062a26b33c79059f5bb74968b Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Tue, 12 Nov 2019 16:49:39 +0100
-Subject: USBIP: add config dependency for SGL_ALLOC
-
-USBIP uses lib/scatterlist.h
-Hence it needs to set CONFIG_SGL_ALLOC
-
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191112154939.21217-1-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/usbip/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/usb/usbip/Kconfig b/drivers/usb/usbip/Kconfig
-index 2f86b28fa3da..7bbae7a08642 100644
---- a/drivers/usb/usbip/Kconfig
-+++ b/drivers/usb/usbip/Kconfig
-@@ -4,6 +4,7 @@ config USBIP_CORE
- 	tristate "USB/IP support"
- 	depends on NET
- 	select USB_COMMON
-+	select SGL_ALLOC
- 	---help---
- 	  This enables pushing USB packets over IP to allow remote
- 	  machines direct access to USB devices. It provides the
--- 
-2.24.0
-
-
+May God Bless you,
+Mrs. Monika John  Carlsen
