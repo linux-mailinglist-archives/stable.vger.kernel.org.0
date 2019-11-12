@@ -2,112 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCF4F8D60
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 11:57:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C56ABF8DAF
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 12:10:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725874AbfKLK5V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 05:57:21 -0500
-Received: from mail-ot1-f68.google.com ([209.85.210.68]:41354 "EHLO
-        mail-ot1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725834AbfKLK5U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 05:57:20 -0500
-Received: by mail-ot1-f68.google.com with SMTP id 94so13911544oty.8
-        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 02:57:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RbmZxFFZ7Nn450livDY2ON/taeh+9krVynuqhl80wy4=;
-        b=SbOaHkL3kLOfobV1gHh5SKFiZoMQvl7AVIUHZ6P9j/nfOXdElrRFcB2taS6gSVUz1M
-         5krhhBW6wQoyYWXVK9cambBFS7ErcbDF8XL7uNXmX80HPt01zDREDj7y+28dw02M4YpF
-         13SZABV4GvydKoUfAKts8THd7pVLgCUBkLNjk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RbmZxFFZ7Nn450livDY2ON/taeh+9krVynuqhl80wy4=;
-        b=HZhRZnQwbYjvGnqAnAtH+A3KgP9Tv0K1VXZGx+Dh8Pg+RkJoLzp7KXXVYXs8pC9vWE
-         sJwG8pOovAVlw/HBLJDNclKBxoPYjN+lx34Nbjj4EIVyNG95nD1Q/bkRQLDH5B/80bhH
-         FyyWwZlLBUN0owUA2dZt5zBwY5OW/KgTxIUv9DVflZzDJ0sMW5afvw5+jTuoFDbVMgN/
-         HWKAkwbSmBLGmlD8JvgeEYUWSHflBCOw459TydTn3JsasPx7ljb9QnqBOhsVemxmMq5S
-         aBItgeU7NPB1w/RIX2Rz/DdvDDZEb6Ea86ftAucPOHAn7CExOtA9Y3fKclkeyc5oauwP
-         1ooQ==
-X-Gm-Message-State: APjAAAWUV6duu5l3v18hh4L1M4PtyhfFTLnQ2diHM4SFlOWfOAkayM/q
-        sXziDqPHf89rlTQxkxMksx5MHN+DpLSNJ6WxLUukfw==
-X-Google-Smtp-Source: APXvYqxZtkCDZzGY/0t9bL2y5WOpKPyHPq/MZSc2e04/FatRGcqTvFlPVxn99K2PeClhZav0kCRPg/qhwbDQNVlon64=
-X-Received: by 2002:a05:6830:1649:: with SMTP id h9mr26137010otr.281.1573556239713;
- Tue, 12 Nov 2019 02:57:19 -0800 (PST)
+        id S1727101AbfKLLKt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 06:10:49 -0500
+Received: from proxmox-new.maurer-it.com ([212.186.127.180]:33524 "EHLO
+        proxmox-new.maurer-it.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727180AbfKLLKp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 06:10:45 -0500
+Received: from proxmox-new.maurer-it.com (localhost.localdomain [127.0.0.1])
+        by proxmox-new.maurer-it.com (Proxmox) with ESMTP id 3B811467A0;
+        Tue, 12 Nov 2019 12:10:44 +0100 (CET)
+Subject: Re: [PATCH 4.19 STABLE] KVM: x86: introduce is_pae_paging
+To:     Sean Christopherson <sean.j.christopherson@intel.com>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org
+References: <20191111225423.29309-1-sean.j.christopherson@intel.com>
+From:   Thomas Lamprecht <t.lamprecht@proxmox.com>
+Message-ID: <4d382b90-34d8-5a4d-1f62-b9dcb479e2ed@proxmox.com>
+Date:   Tue, 12 Nov 2019 12:10:41 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:71.0) Gecko/20100101
+ Thunderbird/71.0
 MIME-Version: 1.0
-References: <20190718145407.21352-1-chris@chris-wilson.co.uk>
- <20190718145407.21352-4-chris@chris-wilson.co.uk> <CAKMK7uEgFS8FAatJBzsEid72sy2_h8x2WsyhsZuyyfaoD1Lg0Q@mail.gmail.com>
- <157355174344.9322.13853897964725973571@skylake-alporthouse-com>
-In-Reply-To: <157355174344.9322.13853897964725973571@skylake-alporthouse-com>
-From:   Daniel Vetter <daniel@ffwll.ch>
-Date:   Tue, 12 Nov 2019 11:57:08 +0100
-Message-ID: <CAKMK7uE8fjc3OXhAnESs-w=fqPhmJUUFOF_n_bKETFaQiQw+GA@mail.gmail.com>
-Subject: Re: [Intel-gfx] [PATCH 4/4] drm/i915: Flush stale cachelines on set-cache-level
-To:     Chris Wilson <chris@chris-wilson.co.uk>
-Cc:     Francisco Jerez <currojerez@riseup.net>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        stable <stable@vger.kernel.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20191111225423.29309-1-sean.j.christopherson@intel.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 12, 2019 at 10:43 AM Chris Wilson <chris@chris-wilson.co.uk> wrote:
->
-> Quoting Daniel Vetter (2019-11-12 09:09:06)
-> > On Thu, Jul 18, 2019 at 4:54 PM Chris Wilson <chris@chris-wilson.co.uk> wrote:
-> > >
-> > > Ensure that we flush any cache dirt out to main memory before the user
-> > > changes the cache-level as they may elect to bypass the cache (even after
-> > > declaring their access cache-coherent) via use of unprivileged MOCS.
-> > >
-> > > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> > > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> > > Cc: stable@vger.kernel.org
-> > > ---
-> > >  drivers/gpu/drm/i915/gem/i915_gem_domain.c | 5 +++++
-> > >  1 file changed, 5 insertions(+)
-> > >
-> > > diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-> > > index 2e3ce2a69653..5d41e769a428 100644
-> > > --- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-> > > +++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-> > > @@ -277,6 +277,11 @@ int i915_gem_object_set_cache_level(struct drm_i915_gem_object *obj,
-> > >
-> > >         list_for_each_entry(vma, &obj->vma.list, obj_link)
-> > >                 vma->node.color = cache_level;
-> > > +
-> > > +       /* Flush any previous cache dirt in case of cache bypass */
-> > > +       if (obj->cache_dirty & ~obj->cache_coherent)
-> > > +               i915_gem_clflush_object(obj, I915_CLFLUSH_SYNC);
-> >
-> > I think writing out the bit logic instead of implicitly relying on the
-> > #defines would be much better, i.e. && !(cache_coherent &
-> > COHERENT_FOR_READ). Plus I think we only need to set cache_dirty =
-> > true if we don't flush here already, to avoid double flushing?
->
-> No. The mask is being updated, so you need to flush before you lose
-> track. The cache is then cleared of the dirty bit so won't be flushed
-> again until dirty and no longer coherent. We need to flag that the page
-> is no longer coherent at the end of its lifetime (passing back to the
-> system) to force the flush then.
+On 11/11/19 11:54 PM, Sean Christopherson wrote:
+> From: Paolo Bonzini <pbonzini@redhat.com>
+> 
+> Upstream commit bf03d4f9334728bf7c8ffc7de787df48abd6340e.
+> 
+> Checking for 32-bit PAE is quite common around code that fiddles with
+> the PDPTRs.  Add a function to compress all checks into a single
+> invocation.
+> 
+> Moving to the common helper also fixes a subtle bug in kvm_set_cr3()
+> where it fails to check is_long_mode() and results in KVM incorrectly
+> attempting to load PDPTRs for a 64-bit guest.
+> 
+> Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> [sean: backport to 4.x; handle vmx.c split in 5.x, call out the bugfix]
+> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+> ---
+>  arch/x86/kvm/vmx.c | 7 +++----
+>  arch/x86/kvm/x86.c | 8 ++++----
+>  arch/x86/kvm/x86.h | 5 +++++
+>  3 files changed, 12 insertions(+), 8 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
+> index 6f7b3acdab26..83acaed244ba 100644
+> --- a/arch/x86/kvm/vmx.c
+> +++ b/arch/x86/kvm/vmx.c
+> @@ -5181,7 +5181,7 @@ static void ept_load_pdptrs(struct kvm_vcpu *vcpu)
+>  		      (unsigned long *)&vcpu->arch.regs_dirty))
+>  		return;
+>  
+> -	if (is_paging(vcpu) && is_pae(vcpu) && !is_long_mode(vcpu)) {
+> +	if (is_pae_paging(vcpu)) {
+>  		vmcs_write64(GUEST_PDPTR0, mmu->pdptrs[0]);
+>  		vmcs_write64(GUEST_PDPTR1, mmu->pdptrs[1]);
+>  		vmcs_write64(GUEST_PDPTR2, mmu->pdptrs[2]);
+> @@ -5193,7 +5193,7 @@ static void ept_save_pdptrs(struct kvm_vcpu *vcpu)
+>  {
+>  	struct kvm_mmu *mmu = vcpu->arch.walk_mmu;
+>  
+> -	if (is_paging(vcpu) && is_pae(vcpu) && !is_long_mode(vcpu)) {
+> +	if (is_pae_paging(vcpu)) {
+>  		mmu->pdptrs[0] = vmcs_read64(GUEST_PDPTR0);
+>  		mmu->pdptrs[1] = vmcs_read64(GUEST_PDPTR1);
+>  		mmu->pdptrs[2] = vmcs_read64(GUEST_PDPTR2);
+> @@ -12021,8 +12021,7 @@ static int nested_vmx_load_cr3(struct kvm_vcpu *vcpu, unsigned long cr3, bool ne
+>  		 * If PAE paging and EPT are both on, CR3 is not used by the CPU and
+>  		 * must not be dereferenced.
+>  		 */
+> -		if (!is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu) &&
+> -		    !nested_ept) {
+> +		if (is_pae_paging(vcpu) && !nested_ept) {
+>  			if (!load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3)) {
+>  				*entry_failure_code = ENTRY_FAIL_PDPTE;
+>  				return 1;
+> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+> index 6ae8a013af31..b9b87fb75ac0 100644
+> --- a/arch/x86/kvm/x86.c
+> +++ b/arch/x86/kvm/x86.c
+> @@ -633,7 +633,7 @@ bool pdptrs_changed(struct kvm_vcpu *vcpu)
+>  	gfn_t gfn;
+>  	int r;
+>  
+> -	if (is_long_mode(vcpu) || !is_pae(vcpu) || !is_paging(vcpu))
+> +	if (!is_pae_paging(vcpu))
+>  		return false;
+>  
+>  	if (!test_bit(VCPU_EXREG_PDPTR,
+> @@ -884,8 +884,8 @@ int kvm_set_cr3(struct kvm_vcpu *vcpu, unsigned long cr3)
+>  	if (is_long_mode(vcpu) &&
+>  	    (cr3 & rsvd_bits(cpuid_maxphyaddr(vcpu), 63)))
+>  		return 1;
+> -	else if (is_pae(vcpu) && is_paging(vcpu) &&
+> -		   !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
+> +	else if (is_pae_paging(vcpu) &&
+> +		 !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
+>  		return 1;
+>  
+>  	kvm_mmu_new_cr3(vcpu, cr3, skip_tlb_flush);
+> @@ -8312,7 +8312,7 @@ static int __set_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
+>  		kvm_update_cpuid(vcpu);
+>  
+>  	idx = srcu_read_lock(&vcpu->kvm->srcu);
+> -	if (!is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu)) {
+> +	if (is_pae_paging(vcpu)) {
+>  		load_pdptrs(vcpu, vcpu->arch.walk_mmu, kvm_read_cr3(vcpu));
+>  		mmu_reset_needed = 1;
+>  	}
+> diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
+> index 3a91ea760f07..608e5f8c5d0a 100644
+> --- a/arch/x86/kvm/x86.h
+> +++ b/arch/x86/kvm/x86.h
+> @@ -139,6 +139,11 @@ static inline int is_paging(struct kvm_vcpu *vcpu)
+>  	return likely(kvm_read_cr0_bits(vcpu, X86_CR0_PG));
+>  }
+>  
+> +static inline bool is_pae_paging(struct kvm_vcpu *vcpu)
+> +{
+> +	return !is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu);
+> +}
+> +
+>  static inline u32 bit(int bitno)
+>  {
+>  	return 1 << (bitno & 31);
+> 
 
-Hm I think I overlooked that we only clear cache_dirty in
-i915_gem_clflush_object when it's a coherent mode.
+Thanks for the fast and good answer and the backport, made things more
+clear here. Cannot reproduce the issues with that patch anymore
 
-I also spotted more cases for (obj->cache_dirty
-&~obj->cache_coherent), so that obscure/fragile pattern is
-pre-existing :-/ One of them also checks outside of the object lock,
-which I think is how these states are supposed to be protected. Smells
-a bit fishy still, would be good to make a bit clearer.
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+Tested-by: Thomas Lamprecht <t.lamprecht@proxmox.com>
+ 
+
