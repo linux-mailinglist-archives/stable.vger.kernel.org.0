@@ -2,105 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B553DF8F0B
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 12:58:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FAF1F8F13
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 13:00:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725944AbfKLL6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 06:58:24 -0500
-Received: from mail-wr1-f48.google.com ([209.85.221.48]:36249 "EHLO
-        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725881AbfKLL6Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 06:58:24 -0500
-Received: by mail-wr1-f48.google.com with SMTP id r10so18235909wrx.3
-        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 03:58:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SnU5u4y1K/VPwTC9oVm/EV0xv4fgHNd3NVhThOYJTdM=;
-        b=Csyvh2jHDt6mfC2QLmHEoCU5MG9qlQLySmiCZ6DWHQma4jJ64PmaOVsrhwCF8n1grk
-         hsThQXq5rKDNP/Y3N9NtJBzjTTU97JhxWFbc5MMs2VfoN05gAydhx6/YKPDTBxFjRm5p
-         zUFyh20IfdH2FKiYHH0JVreP3ouf1na+uYekjE36Xw0Vbc0+PllIX3AiGUCFHogq4zQC
-         d2++BVPGmTQiwCQIgpial9p26PuF+Wun7HQkHJhYUl2+sQyncrMgsPyqc8/EbzSzrHLZ
-         jaGZY2zYKtpZEw6vdr9/RO+p6ywSS+vA52uHL4DgYoicyxJaxikfdj408srcV0xY4swC
-         UZ2g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SnU5u4y1K/VPwTC9oVm/EV0xv4fgHNd3NVhThOYJTdM=;
-        b=QZM1zHhiEbQxGivRClzv+uXLRkCcWiqKtBXHnRMu9KBL59n9nyNPZNdbXo4bzyIvw/
-         2Fv/hhSlq8jjgk1+0tugq/R0LFiipAAmgAAwIxcNcolAddvfwrUyMBKB3e72BbM7kzPQ
-         vwoPx3YNZCpjXgZJxUE7WaDRQqmuOduW8Z/UT2jW/fuB4jHgFa4jI6G5SgeR9dosaT9q
-         fy0Uq8HRGiW53nrVo1TZaifllIzdvndJV7QLPYeWobXiDIojYHszGQpP0p87vQoYadQJ
-         itpzXDeZ6RfNV6/yGIZDC8wodCd6VKpqXDuNUGOVipJ7Bqaf8cnoqF3/qLWZJ6SGpsYr
-         l0AA==
-X-Gm-Message-State: APjAAAX1XUuHIdVmLO8ZvksQIpXUXHDv266DDIAF/8nWH7opS1HnlW+T
-        daH59dTX3C7iZn1IgqZisQK0DYNsF7tDtw==
-X-Google-Smtp-Source: APXvYqwqEZTeHy4+wply+n5WOpvCK2Znx5Nc8EqMq3FbZZDpxjx1Io2JscF+r+5tVOQglKR6TQCV2g==
-X-Received: by 2002:adf:afef:: with SMTP id y47mr24763307wrd.190.1573559901676;
-        Tue, 12 Nov 2019 03:58:21 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id q5sm2567225wmc.27.2019.11.12.03.58.20
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Nov 2019 03:58:21 -0800 (PST)
-Message-ID: <5dca9e5d.1c69fb81.93211.bd65@mx.google.com>
-Date:   Tue, 12 Nov 2019 03:58:21 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1725919AbfKLMAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 07:00:15 -0500
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:18535 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725881AbfKLMAP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 07:00:15 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5dca9ece0000>; Tue, 12 Nov 2019 04:00:14 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Tue, 12 Nov 2019 04:00:14 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Tue, 12 Nov 2019 04:00:14 -0800
+Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 12 Nov
+ 2019 12:00:12 +0000
+Subject: Re: [PATCH 4.4 00/43] 4.4.201-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191111181246.772983347@linuxfoundation.org>
+ <20191112052741.GA1208865@kroah.com>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <4171f826-d86d-6874-928d-c9367453a1fc@nvidia.com>
+Date:   Tue, 12 Nov 2019 12:00:09 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.153-105-gfc7e45ae100f
-Subject: stable-rc/linux-4.14.y boot: 105 boots: 0 failed,
- 98 passed with 7 offline (v4.14.153-105-gfc7e45ae100f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20191112052741.GA1208865@kroah.com>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1573560014; bh=gu3dc92hoJpdj8b6NW2Sia1Ni0nbzufWDxpOPaCWZ8k=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=k+b32ZvZYw4uySPLsO8q1LK2SZ3E6dZchaZbfBdl1WxMghmGSuldpy00dEYddvWUC
+         MQo2/tADaqj7uXHPrtODzjutP67Zh5XtSlYE2UBDXaz7p0qZ39AaMe+CAjmKBL6vYw
+         2f4izzsqNf8wW7e7illy9MJyz0vlRVKaHWGaiEf7wGwSp/RJIcwJgFFiwYPEBtaPjL
+         N2Gn8uG6pqgw6dX0lU4HMki8gygYUdDnHDGHcoHOrw296APp32PlKpyetCO0L/7t//
+         uicGG8RopDn6Y9ApDQK+dL8zVT6QKN7r6Fjkz8jmDSzMywf73YS4VXJ6U0GEibqedl
+         VLsI4bMWXs4GQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 105 boots: 0 failed, 98 passed with 7 offline =
-(v4.14.153-105-gfc7e45ae100f)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.153-105-gfc7e45ae100f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.153-105-gfc7e45ae100f/
+On 12/11/2019 05:27, Greg Kroah-Hartman wrote:
+> On Mon, Nov 11, 2019 at 07:28:14PM +0100, Greg Kroah-Hartman wrote:
+>> This is the start of the stable review cycle for the 4.4.201 release.
+>> There are 43 patches in this series, all will be posted as a response
+>> to this one.  If anyone has any issues with these being applied, please
+>> let me know.
+>>
+>> Responses should be made by Wed, 13 Nov 2019 18:08:44 +0000.
+>> Anything received after that time might be too late.
+>>
+>> The whole patch series can be found in one patch at:
+>> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.201-rc1.gz
+> 
+> -rc2 is out:
+>  	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.201-rc2.gz
+> 
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.153-105-gfc7e45ae100f
-Git Commit: fc7e45ae100f042a6f3e1cb7bf47c487b2d5bf3e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 58 unique boards, 20 SoC families, 13 builds out of 201
 
-Offline Platforms:
+All tests for Tegra are passing ...
 
-arm:
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    19 tests:	19 pass, 0 fail
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
+Linux version:	4.4.201-rc2-gca1d1b5f0f2a
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-    multi_v7_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
+Cheers
+Jon
 
-    davinci_all_defconfig:
-        gcc-8
-            dm365evm,legacy: 1 offline lab
-
-    qcom_defconfig:
-        gcc-8
-            qcom-apq8064-cm-qs600: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+-- 
+nvpublic
