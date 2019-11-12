@@ -2,68 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E75F0F8B07
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 09:51:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8AE1F8B1D
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 09:52:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725825AbfKLIvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 03:51:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34970 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725781AbfKLIvS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 03:51:18 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726960AbfKLIwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 03:52:37 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:63702 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725835AbfKLIwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 03:52:37 -0500
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xAC8la2Z060517
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 03:52:36 -0500
+Received: from e06smtp05.uk.ibm.com (e06smtp05.uk.ibm.com [195.75.94.101])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2w7qefv8tn-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 03:52:35 -0500
+Received: from localhost
+        by e06smtp05.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <ajd@linux.ibm.com>;
+        Tue, 12 Nov 2019 08:52:33 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp05.uk.ibm.com (192.168.101.135) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Tue, 12 Nov 2019 08:52:29 -0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id xAC8qSKA55116014
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 12 Nov 2019 08:52:28 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 43A2E11C04A;
+        Tue, 12 Nov 2019 08:52:28 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id F0B6411C05E;
+        Tue, 12 Nov 2019 08:52:27 +0000 (GMT)
+Received: from ozlabs.au.ibm.com (unknown [9.192.253.14])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 12 Nov 2019 08:52:27 +0000 (GMT)
+Received: from [10.61.2.125] (haven.au.ibm.com [9.192.254.114])
+        (using TLSv1.2 with cipher AES128-SHA (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36C1A21783;
-        Tue, 12 Nov 2019 08:51:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573548677;
-        bh=xVuHsd5FrW/1NBZMS6M5SiG7WySSW1lpvyVcSPVGWQ0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iArFUsk71ZySc9dmetkqDi6AeICtIv7SJuzQdOUKWhI+eSH2JEYqxkq2dpOBEWyLK
-         HFL5qvK1GekzR3x9af/jF6bj5bXwU7wYDMxNfT/GGsOgm/p/1JN+ytdjQOlB2D25l4
-         okpTou/021ud2i7VsqBK7lbyZWf4F4LzD84ZsQqo=
-Date:   Tue, 12 Nov 2019 09:51:14 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Daniel =?iso-8859-1?Q?D=EDaz?= <daniel.diaz@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
-        Dan Rue <dan.rue@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        linux- stable <stable@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: stable-rc 4.14.154-rc1/0d12dcf336c6: regressions detected in
- project stable v.4.14.y on OE - sanity
-Message-ID: <20191112085114.GB1265858@kroah.com>
-References: <0100016e5ae0878e-7b9d1bef-b3be-4350-8823-440929ca4a81-000000@email.amazonses.com>
- <CA+G9fYt=+ymENJg1-m=F3BF8dn7mzxvt5Di34Jw5qFLBHXA5bA@mail.gmail.com>
- <20191111183059.GA1140707@kroah.com>
- <CAEUSe7-d35WPJnx1hduji80_aym53ztQi-EkCkvu7Kf3S0Wjwg@mail.gmail.com>
- <20191112051713.GB1160519@kroah.com>
- <CA+G9fYubrM2Qc9JxnfWkt1n=wYk1hbVL9UGEvQcXtB9kK=C7gg@mail.gmail.com>
+        by ozlabs.au.ibm.com (Postfix) with ESMTPSA id CBCDAA004F;
+        Tue, 12 Nov 2019 19:52:23 +1100 (AEDT)
+To:     stable@vger.kernel.org
+Cc:     linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>
+From:   Andrew Donnellan <ajd@linux.ibm.com>
+Subject: [4.4] Backport request: powerpc: Fix compiling a BE kernel with a
+ powerpc64le toolchain
+Date:   Tue, 12 Nov 2019 19:52:24 +1100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYubrM2Qc9JxnfWkt1n=wYk1hbVL9UGEvQcXtB9kK=C7gg@mail.gmail.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-AU
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+x-cbid: 19111208-0020-0000-0000-000003857138
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19111208-0021-0000-0000-000021DB77DF
+Message-Id: <1a589ec5-7df2-788a-e354-50386ba84ffa@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-11-12_02:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=1 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1910280000 definitions=main-1911120083
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 12, 2019 at 12:50:39PM +0530, Naresh Kamboju wrote:
-> On Tue, 12 Nov 2019 at 11:02, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > > > Any chance you can bisect?
-> > >
-> > > Reverting 61dbb1f20417 ("mm, meminit: recalculate pcpu batch and high
-> > > limits after init completes") got the system working again.
-> >
-> > Yeah, I messed that one up :(
-> >
-> > I'm pushing out a -rc2 now to hopefully fix this up, thanks!
-> 
-> The -rc2 boot pass.
+Dear stable team
 
-Great!
+Please backport the following patches.
+
+Commits:
+
+- 164af597ce945751e2dcd53d0a86e84203a6d117
+   ("powerpc/Makefile: Use cflags-y/aflags-y for setting endian options")
+
+- 4dc831aa88132f835cefe876aa0206977c4d7710
+   ("powerpc: Fix compiling a BE kernel with a powerpc64le toolchain")
+
+Stable tree targeted: 4.4 (applies cleanly)
+
+Justification: This fixes the build when attempting to compile a BE 
+powerpc kernel using a bi-endian toolchain that defaults to LE, which is 
+a common setup.
+
+I have tested that these patches apply cleanly and appear to rectify the 
+build failure on my machine.
+
+
+Thanks,
+-- 
+Andrew Donnellan              OzLabs, ADL Canberra
+ajd@linux.ibm.com             IBM Australia Limited
+
