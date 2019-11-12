@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11023F9E82
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 00:51:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB60CF9E7F
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 00:51:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727485AbfKLXvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 18:51:51 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57316 "EHLO
+        id S1727451AbfKLXvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 18:51:43 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57294 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726977AbfKLXuf (ORCPT
+        by vger.kernel.org with ESMTP id S1726957AbfKLXuf (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 18:50:35 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iUfvc-0008I2-Vv; Tue, 12 Nov 2019 23:50:33 +0000
+        id 1iUfvd-0008I3-4k; Tue, 12 Nov 2019 23:50:33 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iUfvc-00056e-FR; Tue, 12 Nov 2019 23:50:32 +0000
+        id 1iUfvc-00056j-G7; Tue, 12 Nov 2019 23:50:32 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,18 +26,16 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Mark Gross" <mgross@linux.intel.com>,
         "Borislav Petkov" <bp@suse.de>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Neelima Krishnan" <neelima.krishnan@intel.com>,
         "Josh Poimboeuf" <jpoimboe@redhat.com>,
-        "Pawan Gupta" <pawan.kumar.gupta@linux.intel.com>,
-        "Tony Luck" <tony.luck@intel.com>
-Date:   Tue, 12 Nov 2019 23:48:01 +0000
-Message-ID: <lsq.1573602477.233153588@decadent.org.uk>
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Pawan Gupta" <pawan.kumar.gupta@linux.intel.com>
+Date:   Tue, 12 Nov 2019 23:48:02 +0000
+Message-ID: <lsq.1573602477.793604440@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 04/25] x86/cpu: Add a helper function x86_read_arch_cap_msr()
+Subject: [PATCH 3.16 05/25] x86/cpu: Add a "tsx=" cmdline option with TSX
+ disabled  by default
 In-Reply-To: <lsq.1573602477.548403712@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -53,63 +51,262 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 
-commit 286836a70433fb64131d2590f4bf512097c255e1 upstream.
+commit 95c5824f75f3ba4c9e8e5a4b1a623c95390ac266 upstream.
 
-Add a helper function to read the IA32_ARCH_CAPABILITIES MSR.
+Add a kernel cmdline parameter "tsx" to control the Transactional
+Synchronization Extensions (TSX) feature. On CPUs that support TSX
+control, use "tsx=on|off" to enable or disable TSX. Not specifying this
+option is equivalent to "tsx=off". This is because on certain processors
+TSX may be used as a part of a speculative side channel attack.
+
+Carve out the TSX controlling functionality into a separate compilation
+unit because TSX is a CPU feature while the TSX async abort control
+machinery will go to cpu/bugs.c.
+
+ [ bp: - Massage, shorten and clear the arg buffer.
+       - Clarifications of the tsx= possible options - Josh.
+       - Expand on TSX_CTRL availability - Pawan. ]
 
 Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
 Signed-off-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Reviewed-by: Mark Gross <mgross@linux.intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
 Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+[bwh: Backported to 3.16:
+ - Drop __ro_after_init attribute
+ - Adjust filenames, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kernel/cpu/common.c | 15 +++++++++++----
- arch/x86/kernel/cpu/cpu.h    |  2 ++
- 2 files changed, 13 insertions(+), 4 deletions(-)
+ Documentation/kernel-parameters.txt |  26 ++++++
+ arch/x86/kernel/cpu/Makefile        |   2 +-
+ arch/x86/kernel/cpu/common.c        |   2 +
+ arch/x86/kernel/cpu/cpu.h           |  16 ++++
+ arch/x86/kernel/cpu/intel.c         |   5 ++
+ arch/x86/kernel/cpu/tsx.c           | 125 ++++++++++++++++++++++++++++
+ 6 files changed, 175 insertions(+), 1 deletion(-)
+ create mode 100644 arch/x86/kernel/cpu/tsx.c
 
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -3581,6 +3581,32 @@ bytes respectively. Such letter suffixes
+ 			platforms where RDTSC is slow and this accounting
+ 			can add overhead.
+ 
++	tsx=		[X86] Control Transactional Synchronization
++			Extensions (TSX) feature in Intel processors that
++			support TSX control.
++
++			This parameter controls the TSX feature. The options are:
++
++			on	- Enable TSX on the system. Although there are
++				mitigations for all known security vulnerabilities,
++				TSX has been known to be an accelerator for
++				several previous speculation-related CVEs, and
++				so there may be unknown	security risks associated
++				with leaving it enabled.
++
++			off	- Disable TSX on the system. (Note that this
++				option takes effect only on newer CPUs which are
++				not vulnerable to MDS, i.e., have
++				MSR_IA32_ARCH_CAPABILITIES.MDS_NO=1 and which get
++				the new IA32_TSX_CTRL MSR through a microcode
++				update. This new MSR allows for the reliable
++				deactivation of the TSX functionality.)
++
++			Not specifying this option is equivalent to tsx=off.
++
++			See Documentation/hw-vuln/tsx_async_abort.rst
++			for more details.
++
+ 	turbografx.map[2|3]=	[HW,JOY]
+ 			TurboGraFX parallel port interface
+ 			Format:
+--- a/arch/x86/kernel/cpu/Makefile
++++ b/arch/x86/kernel/cpu/Makefile
+@@ -18,7 +18,7 @@ obj-y			+= rdrand.o
+ obj-y			+= match.o
+ obj-y			+= bugs.o
+ 
+-obj-$(CONFIG_CPU_SUP_INTEL)		+= intel.o
++obj-$(CONFIG_CPU_SUP_INTEL)		+= intel.o tsx.o
+ obj-$(CONFIG_CPU_SUP_AMD)		+= amd.o
+ obj-$(CONFIG_CPU_SUP_CYRIX_32)		+= cyrix.o
+ obj-$(CONFIG_CPU_SUP_CENTAUR)		+= centaur.o
 --- a/arch/x86/kernel/cpu/common.c
 +++ b/arch/x86/kernel/cpu/common.c
-@@ -878,19 +878,26 @@ static bool __init cpu_matches(unsigned
- 	return m && !!(m->driver_data & which);
+@@ -1242,6 +1242,8 @@ void __init identify_boot_cpu(void)
+ 	vgetcpu_set_mode();
+ #endif
+ 	cpu_detect_tlb(&boot_cpu_data);
++
++	tsx_init();
  }
  
--static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
-+u64 x86_read_arch_cap_msr(void)
- {
- 	u64 ia32_cap = 0;
+ void identify_secondary_cpu(struct cpuinfo_x86 *c)
+--- a/arch/x86/kernel/cpu/cpu.h
++++ b/arch/x86/kernel/cpu/cpu.h
+@@ -43,6 +43,22 @@ struct _tlb_table {
+ extern const struct cpu_dev *const __x86_cpu_dev_start[],
+ 			    *const __x86_cpu_dev_end[];
  
-+	if (boot_cpu_has(X86_FEATURE_ARCH_CAPABILITIES))
-+		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, ia32_cap);
++#ifdef CONFIG_CPU_SUP_INTEL
++enum tsx_ctrl_states {
++	TSX_CTRL_ENABLE,
++	TSX_CTRL_DISABLE,
++	TSX_CTRL_NOT_SUPPORTED,
++};
 +
-+	return ia32_cap;
++extern enum tsx_ctrl_states tsx_ctrl_state;
++
++extern void __init tsx_init(void);
++extern void tsx_enable(void);
++extern void tsx_disable(void);
++#else
++static inline void tsx_init(void) { }
++#endif /* CONFIG_CPU_SUP_INTEL */
++
+ extern void get_cpu_cap(struct cpuinfo_x86 *c);
+ extern void cpu_detect_cache_sizes(struct cpuinfo_x86 *c);
+  
+--- a/arch/x86/kernel/cpu/intel.c
++++ b/arch/x86/kernel/cpu/intel.c
+@@ -566,6 +566,11 @@ static void init_intel(struct cpuinfo_x8
+ 			wrmsrl(MSR_IA32_ENERGY_PERF_BIAS, epb);
+ 		}
+ 	}
++
++	if (tsx_ctrl_state == TSX_CTRL_ENABLE)
++		tsx_enable();
++	if (tsx_ctrl_state == TSX_CTRL_DISABLE)
++		tsx_disable();
+ }
+ 
+ #ifdef CONFIG_X86_32
+--- /dev/null
++++ b/arch/x86/kernel/cpu/tsx.c
+@@ -0,0 +1,125 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Intel Transactional Synchronization Extensions (TSX) control.
++ *
++ * Copyright (C) 2019 Intel Corporation
++ *
++ * Author:
++ *	Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
++ */
++
++#include <linux/cpufeature.h>
++
++#include <asm/cmdline.h>
++
++#include "cpu.h"
++
++enum tsx_ctrl_states tsx_ctrl_state = TSX_CTRL_NOT_SUPPORTED;
++
++void tsx_disable(void)
++{
++	u64 tsx;
++
++	rdmsrl(MSR_IA32_TSX_CTRL, tsx);
++
++	/* Force all transactions to immediately abort */
++	tsx |= TSX_CTRL_RTM_DISABLE;
++
++	/*
++	 * Ensure TSX support is not enumerated in CPUID.
++	 * This is visible to userspace and will ensure they
++	 * do not waste resources trying TSX transactions that
++	 * will always abort.
++	 */
++	tsx |= TSX_CTRL_CPUID_CLEAR;
++
++	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
 +}
 +
-+static void __init cpu_set_bug_bits(struct cpuinfo_x86 *c)
++void tsx_enable(void)
++{
++	u64 tsx;
++
++	rdmsrl(MSR_IA32_TSX_CTRL, tsx);
++
++	/* Enable the RTM feature in the cpu */
++	tsx &= ~TSX_CTRL_RTM_DISABLE;
++
++	/*
++	 * Ensure TSX support is enumerated in CPUID.
++	 * This is visible to userspace and will ensure they
++	 * can enumerate and use the TSX feature.
++	 */
++	tsx &= ~TSX_CTRL_CPUID_CLEAR;
++
++	wrmsrl(MSR_IA32_TSX_CTRL, tsx);
++}
++
++static bool __init tsx_ctrl_is_supported(void)
 +{
 +	u64 ia32_cap = x86_read_arch_cap_msr();
 +
- 	if (cpu_matches(NO_SPECULATION))
- 		return;
- 
- 	setup_force_cpu_bug(X86_BUG_SPECTRE_V1);
- 	setup_force_cpu_bug(X86_BUG_SPECTRE_V2);
- 
--	if (cpu_has(c, X86_FEATURE_ARCH_CAPABILITIES))
--		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, ia32_cap);
--
- 	if (!cpu_matches(NO_SSB) && !(ia32_cap & ARCH_CAP_SSB_NO) &&
- 	   !cpu_has(c, X86_FEATURE_AMD_SSB_NO))
- 		setup_force_cpu_bug(X86_BUG_SPEC_STORE_BYPASS);
---- a/arch/x86/kernel/cpu/cpu.h
-+++ b/arch/x86/kernel/cpu/cpu.h
-@@ -48,4 +48,6 @@ extern void cpu_detect_cache_sizes(struc
-  
- extern void x86_spec_ctrl_setup_ap(void);
- 
-+extern u64 x86_read_arch_cap_msr(void);
++	/*
++	 * TSX is controlled via MSR_IA32_TSX_CTRL.  However, support for this
++	 * MSR is enumerated by ARCH_CAP_TSX_MSR bit in MSR_IA32_ARCH_CAPABILITIES.
++	 *
++	 * TSX control (aka MSR_IA32_TSX_CTRL) is only available after a
++	 * microcode update on CPUs that have their MSR_IA32_ARCH_CAPABILITIES
++	 * bit MDS_NO=1. CPUs with MDS_NO=0 are not planned to get
++	 * MSR_IA32_TSX_CTRL support even after a microcode update. Thus,
++	 * tsx= cmdline requests will do nothing on CPUs without
++	 * MSR_IA32_TSX_CTRL support.
++	 */
++	return !!(ia32_cap & ARCH_CAP_TSX_CTRL_MSR);
++}
 +
- #endif /* ARCH_X86_CPU_H */
++void __init tsx_init(void)
++{
++	char arg[4] = {};
++	int ret;
++
++	if (!tsx_ctrl_is_supported())
++		return;
++
++	ret = cmdline_find_option(boot_command_line, "tsx", arg, sizeof(arg));
++	if (ret >= 0) {
++		if (!strcmp(arg, "on")) {
++			tsx_ctrl_state = TSX_CTRL_ENABLE;
++		} else if (!strcmp(arg, "off")) {
++			tsx_ctrl_state = TSX_CTRL_DISABLE;
++		} else {
++			tsx_ctrl_state = TSX_CTRL_DISABLE;
++			pr_err("tsx: invalid option, defaulting to off\n");
++		}
++	} else {
++		/* tsx= not provided, defaulting to off */
++		tsx_ctrl_state = TSX_CTRL_DISABLE;
++	}
++
++	if (tsx_ctrl_state == TSX_CTRL_DISABLE) {
++		tsx_disable();
++
++		/*
++		 * tsx_disable() will change the state of the
++		 * RTM CPUID bit.  Clear it here since it is now
++		 * expected to be not set.
++		 */
++		setup_clear_cpu_cap(X86_FEATURE_RTM);
++	} else if (tsx_ctrl_state == TSX_CTRL_ENABLE) {
++
++		/*
++		 * HW defaults TSX to be enabled at bootup.
++		 * We may still need the TSX enable support
++		 * during init for special cases like
++		 * kexec after TSX is disabled.
++		 */
++		tsx_enable();
++
++		/*
++		 * tsx_enable() will change the state of the
++		 * RTM CPUID bit.  Force it here since it is now
++		 * expected to be set.
++		 */
++		setup_force_cpu_cap(X86_FEATURE_RTM);
++	}
++}
 
