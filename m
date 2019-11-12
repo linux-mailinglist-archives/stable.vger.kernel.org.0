@@ -2,74 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 949D1F8527
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 01:25:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD6CBF8538
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 01:32:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726902AbfKLAZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 19:25:33 -0500
-Received: from mga14.intel.com ([192.55.52.115]:58943 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726887AbfKLAZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 19:25:32 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Nov 2019 16:25:31 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.68,294,1569308400"; 
-   d="scan'208";a="229125802"
-Received: from sjchrist-coffee.jf.intel.com (HELO linux.intel.com) ([10.54.74.41])
-  by fmsmga004.fm.intel.com with ESMTP; 11 Nov 2019 16:25:31 -0800
-Date:   Mon, 11 Nov 2019 16:25:31 -0800
-From:   Sean Christopherson <sean.j.christopherson@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Thomas Lamprecht <t.lamprecht@proxmox.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Nadav Amit <nadav.amit@gmail.com>,
-        Doug Reiland <doug.reiland@intel.com>,
-        Peter Xu <peterx@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 4.19 167/211] KVM: x86: Manually calculate reserved bits
- when loading PDPTRS
-Message-ID: <20191112002530.GB7431@linux.intel.com>
-References: <20191003154447.010950442@linuxfoundation.org>
- <20191003154525.870373223@linuxfoundation.org>
- <68d02406-b9cc-2fc1-848c-5d272d9a3350@proxmox.com>
- <20191111173757.GB11805@linux.intel.com>
- <20191111174859.GB1083018@kroah.com>
- <20191111175719.GD11805@linux.intel.com>
- <20191111180820.GB1088065@kroah.com>
+        id S1726902AbfKLAca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 19:32:30 -0500
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:39043 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726887AbfKLAca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 19:32:30 -0500
+Received: by mail-wr1-f49.google.com with SMTP id l7so5014998wrp.6
+        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 16:32:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Y/jVYGtxZg2Ebf4c7TXEDOcUo7LeiKLrXWrF4K3+Nus=;
+        b=gs/tbt6DpFGA5tRP35EDdLr6cxTlTzVVDya/AYeoeGKyJatALD/Z+LIGTZAzJa9ruR
+         cbOupkuTZqzO3xWr6U+nD2OSiInc+OBBYUAx4aju20vFxCtMYAbn/zvDTryeCFqBcZ2s
+         o7vtX6Dz+Ck/T1O63BeUOlxtpqx7+HK3QXpKu0Go5kg8034I0RJKeAgssawfIhTZkoGW
+         u01iOt7xbEbClHclSj8Pd1FlAWPPIwtddpNIGZQaMJeyjLSXzXrvG5ONykydaFiqdN0+
+         cBzzee/CCjzWkYhnkCKCREKXInyTXQgX3yPpy2LmuwmxRxde9Vwd07k12jfPV/oGl/oG
+         mbiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Y/jVYGtxZg2Ebf4c7TXEDOcUo7LeiKLrXWrF4K3+Nus=;
+        b=PMeTavsqIwilLJR1q4ewTm9L3Bb0flbZdVwUMBbEuFGtv74VO6YX6UvgCMDdpC2w9h
+         pjTUAAxPHQVYFkf0qXc3yi+2MXsutdqzwgZ7dtNhuW2xuME1ylEMHZpebr7PZrteKq4h
+         s1SMNvAU3SFsI4wzcIB9GkfdXDaeIf9TVzTCvPuVzFxTQzb2Ut6LeLbdCWOuU//2QhLo
+         dgSBPWE0RI+xZ1nYaqd9xkF52Us5ynWmp4ArTUr7r1ushofhL6bJwyftnm9ZWhRdZOX3
+         xPMiYZici6zgLX6WjdTklLZ9KlIi3+VeCN+/N0jZI0PeJELzZRO1KJpWSHounEjShfQ0
+         0WoQ==
+X-Gm-Message-State: APjAAAX8d70hTnB35RPH/GczFltNRfkQELSSNylmPYsAv9QmuIPYGo1Z
+        zmMHWhEviFDF/rMOp4l8HtrkJFZzCjdMoQ==
+X-Google-Smtp-Source: APXvYqwHssZFOYeJI7jfg1Y3vy1jWoxbJbuYGOKU+Q17rc82HdaU4OeHYW6eywtQeT69EwllZwQuSw==
+X-Received: by 2002:a5d:640b:: with SMTP id z11mr17398724wru.195.1573518746155;
+        Mon, 11 Nov 2019 16:32:26 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id g5sm2106570wmf.37.2019.11.11.16.32.25
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Nov 2019 16:32:25 -0800 (PST)
+Message-ID: <5dc9fd99.1c69fb81.ffbf3.9194@mx.google.com>
+Date:   Mon, 11 Nov 2019 16:32:25 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191111180820.GB1088065@kroah.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.200-66-gc28abeb7953e
+Subject: stable-rc/linux-4.9.y boot: 48 boots: 0 failed,
+ 48 passed (v4.9.200-66-gc28abeb7953e)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 11, 2019 at 07:08:20PM +0100, Greg Kroah-Hartman wrote:
-> On Mon, Nov 11, 2019 at 09:57:19AM -0800, Sean Christopherson wrote:
-> > On Mon, Nov 11, 2019 at 06:48:59PM +0100, Greg Kroah-Hartman wrote:
-> > > Thanks for figuring this out, can you send us a patch that we can apply
-> > > to fix this issue in the stable tree?
-> > 
-> > Can do.  A custom backport will be need for 4.20 and earlier, not 4.19 and
-> > earlier.  I misremembered when we did the VMX refactoring.
-> > 
-> > For 5.0, 5.1 and 5.2, commit bf03d4f93347 can be applied directly.
-> 
-> 5.0, 5.1, and 5.2 are all long end-of-life, they are not getting any
-> updates and no one should be using them, so nothing to worry about
-> there.
+stable-rc/linux-4.9.y boot: 48 boots: 0 failed, 48 passed (v4.9.200-66-gc28=
+abeb7953e)
 
-Backports sent for 4.14 and 4.19.  4.9 and 4.4 aren't affected as the bug
-was introduced in 4.14. by commit d1cd3ce90044 ("KVM: MMU: check guest CR3
-reserved bits based on its physical address width.").
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.200-66-gc28abeb7953e/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.200-66-gc28abeb7953e/
 
-I did send patches for 4.9 and 4.4 for another PAE bug fix that I ran into
-while backporting; commit d35b34a9a70e ("kvm: mmu: Don't read PDPTEs when
-paging is not enabled").  I'm not aware of bug reports, but the patch is
-quite safe and should have been tagged for stable.
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.200-66-gc28abeb7953e
+Git Commit: c28abeb7953e9602995ee83594fa294f54c07a35
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 24 unique boards, 12 SoC families, 9 builds out of 197
+
+---
+For more info write to <info@kernelci.org>
