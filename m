@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3523F8F16
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 13:00:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C97E8F8F1E
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 13:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726738AbfKLMAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 07:00:43 -0500
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:1134 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725947AbfKLMAn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 07:00:43 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5dca9eb20000>; Tue, 12 Nov 2019 03:59:46 -0800
+        id S1726212AbfKLMBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 07:01:07 -0500
+Received: from hqemgate15.nvidia.com ([216.228.121.64]:18574 "EHLO
+        hqemgate15.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725865AbfKLMBH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 07:01:07 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate15.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5dca9f030000>; Tue, 12 Nov 2019 04:01:07 -0800
 Received: from hqmail.nvidia.com ([172.20.161.6])
   by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 12 Nov 2019 04:00:42 -0800
+  Tue, 12 Nov 2019 04:01:07 -0800
 X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 12 Nov 2019 04:00:42 -0800
+        by hqpgpgate101.nvidia.com on Tue, 12 Nov 2019 04:01:07 -0800
 Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
  (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 12 Nov
- 2019 12:00:40 +0000
-Subject: Re: [PATCH 4.9 00/65] 4.9.201-stable review
+ 2019 12:01:04 +0000
+Subject: Re: [PATCH 4.14 000/105] 4.14.154-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <linux-kernel@vger.kernel.org>
 CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
         <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
         <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
         <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191111181331.917659011@linuxfoundation.org>
- <20191112052759.GB1208865@kroah.com>
+References: <20191111181421.390326245@linuxfoundation.org>
+ <20191112052822.GC1208865@kroah.com>
 From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <86212269-c981-3ae8-e45e-b224c3dabfef@nvidia.com>
-Date:   Tue, 12 Nov 2019 12:00:38 +0000
+Message-ID: <3f16154f-018f-1472-1c91-008f1199af7f@nvidia.com>
+Date:   Tue, 12 Nov 2019 12:01:03 +0000
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
  Thunderbird/60.9.0
 MIME-Version: 1.0
-In-Reply-To: <20191112052759.GB1208865@kroah.com>
+In-Reply-To: <20191112052822.GC1208865@kroah.com>
 X-Originating-IP: [10.124.1.5]
 X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
  HQMAIL107.nvidia.com (172.20.187.13)
@@ -44,27 +44,27 @@ Content-Type: text/plain; charset="utf-8"
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1573559987; bh=nXFKULZh/Yle6zIUeyfxJiKLsnU4d4464p84ERTGTbI=;
+        t=1573560067; bh=x1YejANfLygp9k4cHwLPm8ozNQVzst3Fr7hPWIklrCo=;
         h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
          User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
          X-ClientProxiedBy:Content-Type:Content-Language:
          Content-Transfer-Encoding;
-        b=Njh7pBEmbmAZG3bLJBiYz2jIpvKjpusQL1ITqvmYxxH873akDs37N6+mvBCgCCizd
-         01CbCVF60krpWfbPg/jJAadmDCyW7Rk+f8R3zW8fFYJBh5zThouqUjIeQ/214lSuL1
-         vBM/eAslY9MAuKNPIl5BDxfqO28mzZ0kvqNlMUNcurMlhnVF+JOz2jydBA2H2LYSTO
-         ziPiNzLO6iclFmWveiVhojB3Q1ywB3jFHIsSerrecSjemdJjXZzCOmoXsz5v6Qymix
-         3XuzWGmbQ2uGA5BzDWBR3KXITRxjP5fyLNAOFg9AQO0dvC7traRB5qYq9x+1cZw/W6
-         WaXL5mxsMxaCA==
+        b=JnsOXEU6cOVWf+7EBUkf7xT+Fy5PwkcUh/OxFlYdaz1PO1/0BRkg+HjqkF8pC4UKk
+         5xhkslrcu/na/gLVSfaWrdck5HzZFoh2yLYKZl1g9Fk5FYj3iugX/R3Z0x+bl8yzWr
+         Z2QE6mXiYF5W91NsRojoV+rUG9PWqKnUpKo3rIhpIGh9MAoB+R3U6NBBN4qXpQUFFA
+         piuNl23TsbWQETBcn5PWuLvMTkDLoTn2NGuvCtrYRkMx5ufwSH5dEU16RxoYQCoAXI
+         RA9ecZniOnJZw0IrVZHUR+NEEeUPPYt9dp1h6XckM/dsanVT98NXrbjpFycHYmlhaf
+         QQUgmptM0jYzw==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 12/11/2019 05:27, Greg Kroah-Hartman wrote:
-> On Mon, Nov 11, 2019 at 07:28:00PM +0100, Greg Kroah-Hartman wrote:
->> This is the start of the stable review cycle for the 4.9.201 release.
->> There are 65 patches in this series, all will be posted as a response
+On 12/11/2019 05:28, Greg Kroah-Hartman wrote:
+> On Mon, Nov 11, 2019 at 07:27:30PM +0100, Greg Kroah-Hartman wrote:
+>> This is the start of the stable review cycle for the 4.14.154 release.
+>> There are 105 patches in this series, all will be posted as a response
 >> to this one.  If anyone has any issues with these being applied, please
 >> let me know.
 >>
@@ -72,21 +72,20 @@ On 12/11/2019 05:27, Greg Kroah-Hartman wrote:
 >> Anything received after that time might be too late.
 >>
 >> The whole patch series can be found in one patch at:
->> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.201-rc1.gz
+>> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.154-rc1.gz
 > 
-> There is now an -rc2:
->  	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.201-rc2.gz
+> There is now a -rc2 out:
+>  	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.154-rc2.gz
 > 
-
 
 All tests for Tegra are passing ...
 
-Test results for stable-v4.9:
+Test results for stable-v4.14:
     8 builds:	8 pass, 0 fail
     16 boots:	16 pass, 0 fail
     24 tests:	24 pass, 0 fail
 
-Linux version:	4.9.201-rc2-ga3a12cc6ffc1
+Linux version:	4.14.154-rc2-gfc7e45ae100f
 Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
                 tegra210-p2371-2180, tegra30-cardhu-a04
 
