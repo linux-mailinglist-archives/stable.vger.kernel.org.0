@@ -2,119 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 953B3F860A
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 02:26:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 400FDF8685
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 02:39:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726924AbfKLB0V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 11 Nov 2019 20:26:21 -0500
-Received: from mail-eopbgr1410128.outbound.protection.outlook.com ([40.107.141.128]:32692
-        "EHLO JPN01-OS2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726962AbfKLB0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 11 Nov 2019 20:26:21 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MVaorG7zPK+8rXs7fCWSKQVt1ptAcc6eqmJHpVaN4P22uFDrDnLSuKqv5b/vYrX3xUXprL4xFjumlVlnBnxpKyPCvfHV+nrFg9WnWJ8LRuwMG1DoMTOSfbXkATyBe5+Djh14h5aKcLG3gyqeFy9zBEcbn5/H1Qh0k/U4y2ADxtnFfH+K1WUF7ZnaKxGwT1NnABPY8mAD77jPwQV8slqI6Pmgnh4h4L00WEPc0FOft7Xx+5ABLAz9aBEXsYYnGvXRwA4ovIE3u8oldfz67lJ2Q7FNxFwiwe/MflIIkoT4NGxkbYdj3KPCFLSI853Z/0JWK9x+zxmDaLTrdssvlz5FUw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4KgSDd6W1krHnOvkPQK7jY53rjk19lK4eakHDto68XU=;
- b=iBV3RSua6kHLzgYf2r1FmSntBdz5sDU1WxhEek/AZtpU+xtuXsHnKi1bNk+Q8xzbSvh70CfIJyjq+KxQW/m1gkr0XcBmVSELsy8WTAiTedCy6CbKBtQDHSo7+ZCQFZ0dORRCld7cGQI8mwfcWl/d2ECoWgoE5Ic88jL9eX7SsLb9WSr4XAiF3dvKttqQDQ3azettr1s4CyJ96DXEtCJtQJytDc5VDLtkQo1JN43Kwy+keEOSVAZLua3WrlVXcDeqg8rB13twSDVxPPMripln2+j72KxKPMr1d4U5w1eFdhYIRL+qQ1yQz9ji2lbilgptBV7pNraBUKSlSSaoVMMiZQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=renesas.com; dmarc=pass action=none header.from=renesas.com;
- dkim=pass header.d=renesas.com; arc=none
+        id S1727046AbfKLBjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 11 Nov 2019 20:39:05 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:35855 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726908AbfKLBjF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 11 Nov 2019 20:39:05 -0500
+Received: by mail-wr1-f67.google.com with SMTP id r10so16720546wrx.3
+        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 17:39:03 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=renesasgroup.onmicrosoft.com; s=selector2-renesasgroup-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4KgSDd6W1krHnOvkPQK7jY53rjk19lK4eakHDto68XU=;
- b=DbyAbY4wwhfnSBCPpnrfwkhHZG4WwYxWkL+GLtI6cAmQyWtOHVVQpH1y/ZjGPcPEMsFH93dEf7hqNaj88isGd6syyEoMZbJDcmjmG0030sy/AFEdusDBkFNqqwBaze8mmHbygZP32HICzSBpfBA/iVHFFHZoUs0a+F70bvPvjyM=
-Received: from TYAPR01MB4544.jpnprd01.prod.outlook.com (20.179.175.203) by
- TYAPR01MB2862.jpnprd01.prod.outlook.com (20.177.101.78) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2430.24; Tue, 12 Nov 2019 01:26:16 +0000
-Received: from TYAPR01MB4544.jpnprd01.prod.outlook.com
- ([fe80::6998:f6cf:8cf1:2528]) by TYAPR01MB4544.jpnprd01.prod.outlook.com
- ([fe80::6998:f6cf:8cf1:2528%5]) with mapi id 15.20.2430.027; Tue, 12 Nov 2019
- 01:26:16 +0000
-From:   Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-To:     Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-CC:     "marek.vasut+renesas@gmail.com" <marek.vasut+renesas@gmail.com>,
-        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
-        "linux-renesas-soc@vger.kernel.org" 
-        <linux-renesas-soc@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v4 1/2] Revert "PCI: rcar: Fix missing MACCTLR register
- setting in rcar_pcie_hw_init()"
-Thread-Topic: [PATCH v4 1/2] Revert "PCI: rcar: Fix missing MACCTLR register
- setting in rcar_pcie_hw_init()"
-Thread-Index: AQHVk8b8IQkr90MvDUeJ+YAJwjpCjaeGE+yAgAC0k9A=
-Date:   Tue, 12 Nov 2019 01:26:16 +0000
-Message-ID: <TYAPR01MB4544C4D4103EC2C9ACFB672ED8770@TYAPR01MB4544.jpnprd01.prod.outlook.com>
-References: <1572951089-19956-1-git-send-email-yoshihiro.shimoda.uh@renesas.com>
- <1572951089-19956-2-git-send-email-yoshihiro.shimoda.uh@renesas.com>
- <20191111143853.GA9653@e121166-lin.cambridge.arm.com>
-In-Reply-To: <20191111143853.GA9653@e121166-lin.cambridge.arm.com>
-Accept-Language: ja-JP, en-US
-Content-Language: ja-JP
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=yoshihiro.shimoda.uh@renesas.com; 
-x-originating-ip: [150.249.235.54]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 5f84f074-6984-4c45-26a0-08d7670f5052
-x-ms-traffictypediagnostic: TYAPR01MB2862:
-x-microsoft-antispam-prvs: <TYAPR01MB2862F11D38647E962D583F4CD8770@TYAPR01MB2862.jpnprd01.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:2449;
-x-forefront-prvs: 021975AE46
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(4636009)(136003)(396003)(366004)(376002)(39860400002)(346002)(189003)(199004)(66946007)(9686003)(8936002)(55016002)(81156014)(81166006)(8676002)(6436002)(229853002)(71200400001)(256004)(14454004)(7696005)(33656002)(6246003)(74316002)(76116006)(6916009)(52536014)(4326008)(6506007)(102836004)(446003)(11346002)(5660300002)(25786009)(99286004)(186003)(76176011)(26005)(476003)(486006)(478600001)(66066001)(71190400001)(316002)(305945005)(3846002)(6116002)(54906003)(4744005)(7736002)(86362001)(2906002)(66446008)(66476007)(66556008)(64756008);DIR:OUT;SFP:1102;SCL:1;SRVR:TYAPR01MB2862;H:TYAPR01MB4544.jpnprd01.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: renesas.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: jzGjTmFh773FCmK2hA4G+lZnpfCoP5VcPm3JyStEv2ty9FQ6jNf16j1tdmxkOqfUTqL9hjNTxD0e6EFU40leWDU6QudMkyE9OyftYscTaYZNcI34FmzrQak/1nuDX71vLHY+qIL5WWTiG9jFU/EZP11nEWY1ZbeQ/2Y/rUaR64KrpBdDqGnfDqTVZiF6coWpK/JROWAjSf3x10vNCDdv1INkqlbyUhwM+UFsyawhVmoL3AcHFShfpabtms0qIm6LYuNPjYFcGBmgJquzGav6nd/lamTLLlR632wFS2srVOkeIEPAF/95J4iltzm0OezFYChWHIdE6RBbgy00TFFrlQTz5jM2CQdI/RRjWMwPsM+Z7rZK6kmQscoVczNv5GgRu3+vgui5Yl8mhdTdst+/hbw+d5a0IRTwQEaZ43R//VyUX6y89GLwGf3F410C6zWk
-x-ms-exchange-transport-forked: True
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=lp+rjsn167C3lmtCe6z3qS3tIVfXOT/rrM9f7kFPRTI=;
+        b=YZ+8M0RHIzmdHlAGYOAvTxZOoeDVpZHRgZ89hVxKT4t6R+2JdLlah32oH0wl93yfV8
+         R1Rh/dsZc3emYfh4rUjbLHZ/fT5RBbcATgEZ7xSF43idD22qCiLJ/QB4AbK02gTMB7fw
+         cbpFZv2o1nsZAKhyxlaaGxfnYnXFQgW5C6SrrTZS2QQC5g4n6kgoHAaSg0I50hXEcaYG
+         mGNootWCuWZ87DWA9w0B2bLMBryq6UraGt27gmTtKNWkQDYSirLad2jx041GIeQ19jiG
+         nyHHe/PYQvB/Ks73mmlvubBSrwlsUIiuIhlw4Ae+93e2VJfBHZTDEHRiW8S/5g4spmxW
+         1IBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=lp+rjsn167C3lmtCe6z3qS3tIVfXOT/rrM9f7kFPRTI=;
+        b=KRl4onk2ZeWwrxnm9qPxGQCKGSpH0+mEV5OjC1hACxBb7tMB0BVe8Du3bMXsJOpxG1
+         Kzg9TDmb/0i76QVJQU70rLJx5m6QjXiHL0viNv7bR9S0ymHWMla/+gQAmQMcHbV3f8rv
+         m/xyZM4pGjdbxAsBMpeIfxHwffastQbdMW0toJfnk0zH3UETlQNiQXZHCOh78iOjD1SX
+         9oqwSTZmJIwC+lTseps4uwiAs2weREF1WbwjHRsdB6EmCrlE8o48eugZa/ruNCA4euwi
+         S3GGJOmsXF4aj34X0BHo+MeqrIANOdiS0K8IRe0h3zxMi30xDmHOmxDQ0aXPSYSNBxGb
+         SpUQ==
+X-Gm-Message-State: APjAAAWYVmrHlgAWI/ar3d7xkj5MhiGetkJ32qRQp6AsCaKLL4s+R6qE
+        CDUEZ4ZL9UHi47HYz15Wjf4wyQ==
+X-Google-Smtp-Source: APXvYqx5IKJpOyjgqwQIy8+eEzp96ylq9hr4vtUpzWTCHYSiEC/zyz/yKZBSPz5utCMo4QzDLzo6eA==
+X-Received: by 2002:adf:de0a:: with SMTP id b10mr2161236wrm.268.1573522742552;
+        Mon, 11 Nov 2019 17:39:02 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a7sm18766652wrr.89.2019.11.11.17.39.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 Nov 2019 17:39:02 -0800 (PST)
+Message-ID: <5dca0d36.1c69fb81.9d3b3.bf52@mx.google.com>
+Date:   Mon, 11 Nov 2019 17:39:02 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-OriginatorOrg: renesas.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5f84f074-6984-4c45-26a0-08d7670f5052
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Nov 2019 01:26:16.4886
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 53d82571-da19-47e4-9cb4-625a166a4a2a
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: W+IOoZhZToSrnal17WI9zxkJTIjaj0fJDovsGvWxNkHARDhDVAHoMqMsG4aXmXgY5OSeK4mLNxBnbOrsf3uJm7D3aPuOdS7gLWanTLzJrElsVQX0O1k15YG/n5p+xOQ9
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYAPR01MB2862
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.200-44-g92b9901ba23d
+In-Reply-To: <20191111181246.772983347@linuxfoundation.org>
+References: <20191111181246.772983347@linuxfoundation.org>
+Subject: Re: [PATCH 4.4 00/43] 4.4.201-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Lorenzo,
+stable-rc/linux-4.4.y boot: 84 boots: 7 failed, 68 passed with 7 offline, 2=
+ conflicts (v4.4.200-44-g92b9901ba23d)
 
-> From: Lorenzo Pieralisi, Sent: Monday, November 11, 2019 11:39 PM
->=20
-> On Tue, Nov 05, 2019 at 07:51:28PM +0900, Yoshihiro Shimoda wrote:
-> > This reverts commit 175cc093888ee74a17c4dd5f99ba9a6bc86de5be.
-> >
-> > The commit description/code don't follow the manual accurately,
-> > it's difficult to understand. So, this patch reverts the commit.
-> >
-> > Fixes: 175cc093888e ("PCI: rcar: Fix missing MACCTLR register setting i=
-n rcar_pcie_hw_init()"
->=20
-> This patch is not in the mainline, I will just drop it.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.200-44-g92b9901ba23d/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.200-44-g92b9901ba23d/
 
-I got it.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.200-44-g92b9901ba23d
+Git Commit: 92b9901ba23dbd26e916a393e557a5ffec117124
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 42 unique boards, 17 SoC families, 13 builds out of 190
 
-> > Cc: <stable@vger.kernel.org>
->=20
-> This is valid for any fix: there is no reason to send to stable a fix
-> for a patch that is not in the mainline yet.
+Boot Failures Detected:
 
-I understood it. So, I'll drop both tags on v5 patches.
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            exynos4412-odroidx2: 1 failed lab
+            exynos5422-odroidxu3: 2 failed labs
+            rk3288-rock2-square: 1 failed lab
+            rk3288-veyron-jaq: 1 failed lab
+            tegra124-jetson-tk1: 1 failed lab
+            tegra124-nyan-big: 1 failed lab
 
-Best regards,
-Yoshihiro Shimoda
+Offline Platforms:
 
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+Conflicting Boot Failures Detected: (These likely are not failures as other=
+ labs are reporting PASS. Needs review.)
+
+arm:
+    multi_v7_defconfig:
+        exynos5800-peach-pi:
+            lab-collabora: FAIL (gcc-8)
+            lab-baylibre-seattle: PASS (gcc-8)
+
+x86_64:
+    x86_64_defconfig:
+        qemu_x86_64:
+            lab-collabora: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
