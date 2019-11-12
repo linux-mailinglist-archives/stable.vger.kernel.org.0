@@ -2,97 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3634CF8F26
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 13:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9C0F8F4C
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 13:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727083AbfKLMBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 07:01:47 -0500
-Received: from hqemgate14.nvidia.com ([216.228.121.143]:5128 "EHLO
-        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725865AbfKLMBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 07:01:46 -0500
-Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5dca9f2d0000>; Tue, 12 Nov 2019 04:01:49 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate101.nvidia.com (PGP Universal service);
-  Tue, 12 Nov 2019 04:01:46 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate101.nvidia.com on Tue, 12 Nov 2019 04:01:46 -0800
-Received: from [10.21.133.51] (10.124.1.5) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 12 Nov
- 2019 12:01:43 +0000
-Subject: Re: [PATCH 5.3 000/193] 5.3.11-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
-        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
-References: <20191111181459.850623879@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <8a481f9b-251c-5848-bc76-c2d5de635072@nvidia.com>
-Date:   Tue, 12 Nov 2019 12:01:42 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1727224AbfKLMIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 07:08:51 -0500
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:37804 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726979AbfKLMIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 07:08:51 -0500
+Received: by mail-ot1-f67.google.com with SMTP id d5so14089504otp.4
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 04:08:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=OUN6Grlj3r+JUTZHCXOHHAU/NbGv44gvlcRy+k3pSHk=;
+        b=RmGR38IYKbiIxal/+Dz6A8YenRRTKIyPoln3q+lhgdFr1ekEQuJcVQ9k3bSQOFkuQf
+         oAFc66FTa57xnu/Cs4i2MZeh5uaoJ9fzH60cQTeWuRXyF6B1mJOG+bu6f2lZm4gbkUkA
+         uoFAyKBMLxKQI9J7MTMhIzv7Gl0vtAK54eLe0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=OUN6Grlj3r+JUTZHCXOHHAU/NbGv44gvlcRy+k3pSHk=;
+        b=RMcECLnAynPKYRLtPrAUjrW4aRiYp1+VXKJbKN4+SMZM7ygVFk9hZrxsWQjeIMj3Cq
+         6jsDPfVCZzbOJWXkXMXMpGqWRTkP1VSMAPNmNiKpFUk3DLQkKWW1JsgCX0z3BbvR6Zln
+         VLWijJBuZPmmtcIKFDdqFSLZPYIPboH+dnb86W+vFjeGVyUfYZBTTHM0a0jXgC1PDh46
+         4KidwNgVQ+YMIY/0cVWMg79IBrpUuHjk+Z2WxbNAFZf7pR9v67k9oeRjVXO+zeRhJy3I
+         udMO2qrFP0Faw0TzZcyKoIbLjmv/j9Dfp1G0uVvKsIBnwe/uhGtefj/gwxj+U9/7Svbb
+         UHMg==
+X-Gm-Message-State: APjAAAU9BOp8IlZkg6WofpCJV4eCKlhtgE/w8Hy6RMOUIM00CEz9LFVh
+        abIoTMZ0SiJrtPytHl3dRDelE/lD5JVNZlRskm3qqg==
+X-Google-Smtp-Source: APXvYqzEF3E6/uOIEbhv+KGFTcI55Is+WI6005Nr+Xu5QQ5Gr3PG7l8SkEl8TPYqY8kwEVbh9tflH7XeGvXTGu2QDzw=
+X-Received: by 2002:a05:6830:1649:: with SMTP id h9mr26387549otr.281.1573560529975;
+ Tue, 12 Nov 2019 04:08:49 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20191111181459.850623879@linuxfoundation.org>
-X-Originating-IP: [10.124.1.5]
-X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-        t=1573560109; bh=4sVX3fGXx9ZI4Tpo5ODSzCDLZNxcaIl+f6sGUylM5wg=;
-        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
-         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
-         X-ClientProxiedBy:Content-Type:Content-Language:
-         Content-Transfer-Encoding;
-        b=LapDgDhB0aaW5im63yZVvPKYbqy5IRJycT4j4X71+2k4vvjMyUvn5QagW4RUqXIQt
-         isjjC/eJUAQY/wVFDJMFRk3gmqqwquRc0LnD/cE0Hf83GXDhk9zXD0EPjS0RUA4R6J
-         LFZU5FL9L73nM4lt2owgF5W9bopZ9KRbndGJN+rELUY4nvALg1h352tV1EIwwXYcb7
-         c2DzeTVH7dpkcn/+Hwc9FhNmBG/KZzP+/01yDTwfS/tClQE1KOzmdviZwpWP4D+8gY
-         2NtHqVS6Z5AJ8tFyQ3npCU3vZEc14gaatkTyV2JPhxNr7yDl3iY98ZceZZfNPtBRWj
-         LHk/mQalc5d0g==
+References: <20190718145407.21352-1-chris@chris-wilson.co.uk>
+ <20190718145407.21352-4-chris@chris-wilson.co.uk> <CAKMK7uEgFS8FAatJBzsEid72sy2_h8x2WsyhsZuyyfaoD1Lg0Q@mail.gmail.com>
+ <157355174344.9322.13853897964725973571@skylake-alporthouse-com> <CAKMK7uE8fjc3OXhAnESs-w=fqPhmJUUFOF_n_bKETFaQiQw+GA@mail.gmail.com>
+In-Reply-To: <CAKMK7uE8fjc3OXhAnESs-w=fqPhmJUUFOF_n_bKETFaQiQw+GA@mail.gmail.com>
+From:   Daniel Vetter <daniel@ffwll.ch>
+Date:   Tue, 12 Nov 2019 13:08:38 +0100
+Message-ID: <CAKMK7uHwoff5+GHEfswsvgCzSAAnZgtYu0hE_JQU9_86PeTN4Q@mail.gmail.com>
+Subject: Re: [Intel-gfx] [PATCH 4/4] drm/i915: Flush stale cachelines on set-cache-level
+To:     Chris Wilson <chris@chris-wilson.co.uk>
+Cc:     Francisco Jerez <currojerez@riseup.net>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        stable <stable@vger.kernel.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Nov 12, 2019 at 11:57 AM Daniel Vetter <daniel@ffwll.ch> wrote:
+>
+> On Tue, Nov 12, 2019 at 10:43 AM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+> >
+> > Quoting Daniel Vetter (2019-11-12 09:09:06)
+> > > On Thu, Jul 18, 2019 at 4:54 PM Chris Wilson <chris@chris-wilson.co.uk> wrote:
+> > > >
+> > > > Ensure that we flush any cache dirt out to main memory before the user
+> > > > changes the cache-level as they may elect to bypass the cache (even after
+> > > > declaring their access cache-coherent) via use of unprivileged MOCS.
+> > > >
+> > > > Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+> > > > Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+> > > > Cc: stable@vger.kernel.org
+> > > > ---
+> > > >  drivers/gpu/drm/i915/gem/i915_gem_domain.c | 5 +++++
+> > > >  1 file changed, 5 insertions(+)
+> > > >
+> > > > diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+> > > > index 2e3ce2a69653..5d41e769a428 100644
+> > > > --- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+> > > > +++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
+> > > > @@ -277,6 +277,11 @@ int i915_gem_object_set_cache_level(struct drm_i915_gem_object *obj,
+> > > >
+> > > >         list_for_each_entry(vma, &obj->vma.list, obj_link)
+> > > >                 vma->node.color = cache_level;
+> > > > +
+> > > > +       /* Flush any previous cache dirt in case of cache bypass */
+> > > > +       if (obj->cache_dirty & ~obj->cache_coherent)
+> > > > +               i915_gem_clflush_object(obj, I915_CLFLUSH_SYNC);
+> > >
+> > > I think writing out the bit logic instead of implicitly relying on the
+> > > #defines would be much better, i.e. && !(cache_coherent &
+> > > COHERENT_FOR_READ). Plus I think we only need to set cache_dirty =
+> > > true if we don't flush here already, to avoid double flushing?
+> >
+> > No. The mask is being updated, so you need to flush before you lose
+> > track. The cache is then cleared of the dirty bit so won't be flushed
+> > again until dirty and no longer coherent. We need to flag that the page
+> > is no longer coherent at the end of its lifetime (passing back to the
+> > system) to force the flush then.
+>
+> Hm I think I overlooked that we only clear cache_dirty in
+> i915_gem_clflush_object when it's a coherent mode.
 
-On 11/11/2019 18:26, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.3.11 release.
-> There are 193 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 13 Nov 2019 18:08:44 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.3.11-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.3.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Hm, the clear/blt code recently merged doesn't preserve the
+->cache_dirty setting for this case, unlike clfush_object. Do we have
+a bug there?
 
-All tests for Tegra are passing ...
-
-Test results for stable-v5.3:
-    12 builds:	12 pass, 0 fail
-    22 boots:	22 pass, 0 fail
-    38 tests:	38 pass, 0 fail
-
-Linux version:	5.3.11-rc1-gfeeefcbdbfc1
-Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
-                tegra194-p2972-0000, tegra20-ventana,
-                tegra210-p2371-2180, tegra30-cardhu-a04
-
-Cheers
-Jon
-
+> I also spotted more cases for (obj->cache_dirty
+> &~obj->cache_coherent), so that obscure/fragile pattern is
+> pre-existing :-/ One of them also checks outside of the object lock,
+> which I think is how these states are supposed to be protected. Smells
+> a bit fishy still, would be good to make a bit clearer.
+-Daniel
 -- 
-nvpublic
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
