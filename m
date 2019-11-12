@@ -2,86 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28A02F8978
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 08:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF9D7F8993
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 08:20:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725997AbfKLHRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 02:17:01 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:60924 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725283AbfKLHRA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 02:17:00 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iUQQ3-0005Vk-HK; Tue, 12 Nov 2019 08:16:55 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id AEB471C0084;
-        Tue, 12 Nov 2019 08:16:54 +0100 (CET)
-Date:   Tue, 12 Nov 2019 07:16:54 -0000
-From:   "tip-bot2 for Arnd Bergmann" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] ntp/y2038: Remove incorrect time_t truncation
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20191108203435.112759-2-arnd@arndb.de>
-References: <20191108203435.112759-2-arnd@arndb.de>
+        id S1725821AbfKLHUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 02:20:53 -0500
+Received: from mail-lf1-f42.google.com ([209.85.167.42]:38373 "EHLO
+        mail-lf1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725781AbfKLHUx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 02:20:53 -0500
+Received: by mail-lf1-f42.google.com with SMTP id q28so11964416lfa.5
+        for <stable@vger.kernel.org>; Mon, 11 Nov 2019 23:20:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Du/YNqhL0+IJPhD1R9mUXMVQ5rI34kWUejTlm7RxC2Y=;
+        b=odHLQ2L6iOrh0QwukNjVBfVVGZ/n4B8uRPrvCWk2O2Z5vF99bJ66cjXCjDxQvu6k14
+         r4jJM0qib49mhyLZDsH7PiqcIT4Zp48ocracmA9l5z/HFdMfJzVJJv+cv+dKJOheR21s
+         9lYjBS/W7Rx/jZZBIYkGmxhPreP+sJI1INQsgB2xBI/3fcbtQBHD5VUkn67+oJswcYsU
+         QvHpmIPiJO4ym52VvAsSNII3XjP33dt6kSO84i8+HdlLJhrBbYiCaHCDiRirrh7McZbA
+         oeReL6QmQ05xeR+cNIXDe3CStrqzY1b59YsjhhPdr34d+pWIJQM+UAVpwainOmeGNE7m
+         7x8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Du/YNqhL0+IJPhD1R9mUXMVQ5rI34kWUejTlm7RxC2Y=;
+        b=DB1Kc4WMZd0TXxpTDLkv/zXOf6C9uygkrqKDtEk2Xdvj54wZK8iVJJmk7ezubYPwOZ
+         zg+0R1pDopECawDg23SfbRpxggsmc0JjgCSV2IuwF7dF5M1pZ1bMrTylHKyj5NzaoeOs
+         W0sTtU6C8TU6C/HSSN/LvIsgBwC1HGAxykunlx0Pdggx+9ul6zTtRlZDu5EIhGjITfOa
+         lC4OVoAKIQLhd/01ORX/yc9w0qzScUjv9uvg3qaxxFg72rhFKUEZGoyPiGZJOknmOfN4
+         9W6yItEu0TRVpEmiQE4YGaTeJJzRjWq0heytjGkN2Y4YKNwAWdESwXxQ8KpBUW3jImRt
+         Hi1A==
+X-Gm-Message-State: APjAAAVjE//dE4a/E4VZfcOSoe+IqbwCjtHmFOaY80znJlQt2vUSkXtl
+        NWEm/yXtYVSew3v4DuxnSx9r+KEzLQ03nhiBAYmTnQ==
+X-Google-Smtp-Source: APXvYqz7UXqx1DK6mjR0LTQCmCq2MfZDcMGBksjhYpF6K+8RB0fRGYJs616TYhZBGckjr0OxZHTrFm7iH74q63GAOHI=
+X-Received: by 2002:a19:791a:: with SMTP id u26mr2211087lfc.192.1573543251070;
+ Mon, 11 Nov 2019 23:20:51 -0800 (PST)
 MIME-Version: 1.0
-Message-ID: <157354301429.29376.9889491292971482073.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+References: <0100016e5ae0878e-7b9d1bef-b3be-4350-8823-440929ca4a81-000000@email.amazonses.com>
+ <CA+G9fYt=+ymENJg1-m=F3BF8dn7mzxvt5Di34Jw5qFLBHXA5bA@mail.gmail.com>
+ <20191111183059.GA1140707@kroah.com> <CAEUSe7-d35WPJnx1hduji80_aym53ztQi-EkCkvu7Kf3S0Wjwg@mail.gmail.com>
+ <20191112051713.GB1160519@kroah.com>
+In-Reply-To: <20191112051713.GB1160519@kroah.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 12 Nov 2019 12:50:39 +0530
+Message-ID: <CA+G9fYubrM2Qc9JxnfWkt1n=wYk1hbVL9UGEvQcXtB9kK=C7gg@mail.gmail.com>
+Subject: Re: stable-rc 4.14.154-rc1/0d12dcf336c6: regressions detected in
+ project stable v.4.14.y on OE - sanity
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     =?UTF-8?B?RGFuaWVsIETDrWF6?= <daniel.diaz@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, lkft-triage@lists.linaro.org,
+        Dan Rue <dan.rue@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        linux- stable <stable@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+On Tue, 12 Nov 2019 at 11:02, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> > > Any chance you can bisect?
+> >
+> > Reverting 61dbb1f20417 ("mm, meminit: recalculate pcpu batch and high
+> > limits after init completes") got the system working again.
+>
+> Yeah, I messed that one up :(
+>
+> I'm pushing out a -rc2 now to hopefully fix this up, thanks!
 
-Commit-ID:     2f5841349df281ecf8f81cc82d869b8476f0db0b
-Gitweb:        https://git.kernel.org/tip/2f5841349df281ecf8f81cc82d869b8476f0db0b
-Author:        Arnd Bergmann <arnd@arndb.de>
-AuthorDate:    Fri, 08 Nov 2019 21:34:24 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Tue, 12 Nov 2019 08:13:44 +01:00
+The -rc2 boot pass.
+Full functional testing is in progress.
 
-ntp/y2038: Remove incorrect time_t truncation
-
-A cast to 'time_t' was accidentally left in place during the
-conversion of __do_adjtimex() to 64-bit timestamps, so the
-resulting value is incorrectly truncated.
-
-Remove the cast so the 64-bit time gets propagated correctly.
-
-Fixes: ead25417f82e ("timex: use __kernel_timex internally")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191108203435.112759-2-arnd@arndb.de
-
----
- kernel/time/ntp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
-index 65eb796..069ca78 100644
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -771,7 +771,7 @@ int __do_adjtimex(struct __kernel_timex *txc, const struct timespec64 *ts,
- 	/* fill PPS status fields */
- 	pps_fill_timex(txc);
- 
--	txc->time.tv_sec = (time_t)ts->tv_sec;
-+	txc->time.tv_sec = ts->tv_sec;
- 	txc->time.tv_usec = ts->tv_nsec;
- 	if (!(time_status & STA_NANO))
- 		txc->time.tv_usec = ts->tv_nsec / NSEC_PER_USEC;
+- Naresh
