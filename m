@@ -2,115 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F6B0F8D00
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 11:40:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B0CF8D07
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 11:40:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726212AbfKLKj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 05:39:58 -0500
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:34923 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725853AbfKLKj5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 05:39:57 -0500
-Received: by mail-lf1-f66.google.com with SMTP id i26so1356135lfl.2;
-        Tue, 12 Nov 2019 02:39:55 -0800 (PST)
+        id S1727064AbfKLKkr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 05:40:47 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:42782 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727341AbfKLKkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 05:40:46 -0500
+Received: by mail-wr1-f68.google.com with SMTP id a15so17900031wrf.9
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 02:40:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yWNzXKlhZumCYXuzBsEx7JVt+rn1MlZov7MW7LBP6Z8=;
+        b=oPxGYiR9G5nq8ImM6z19dmvMd/lrk2GstUTcAq4D4FUb+tl3S8r5MSaD0HcPPHE8v5
+         wvfEWNC3tYox0MsF/o2Hx2QCxeyJSYVI9kgG6cV5Icf2ZCeGuvqmIhXShsSKeKTJucvp
+         YF/PRCvQrHtTaFW4EfW/ZUKcck2JfqZyjTvq7pis8OTojTlKi/zBfNOSWDSSDIcsR2W2
+         vQA2jj56PV9kZW+cSeWcJ6RAzXkM/FuB7A+8ixpc6BpWZvO3PYuDNEhZFtEPMCSSO7Y3
+         szQ3a55bvvJ/TzuEJens40U2x9OlT4X4ob3w6ns3wwy1WrXHtPaT0r4ADq8Q8GjNI+nX
+         8PLw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=XWXqgjsblbcyWM0h2meBDVZ+XPFRuLEW2MPm0S54S/s=;
-        b=CTVAyYnT5d6NFMoTSwruMSYLoQz31YwMh9f1b2imH4VEgUZqDunjh4OAZ0qiGkpMU4
-         2yyYvSmP/mCBvvzXw6+syV4fitEOKf6Xv29FqALV9M+3YnhzKPOTM5NjSPKaMvmlZJOl
-         H1OVAk3AggiVh8sNvwPUP5fcBb/SCxxC+L1AlFCYp1lMnLMJsa2fZ7HMIaodqMGq8x1R
-         d9mXNlWJXeWyv20bvSUJewbMbg1TnYDJCoo4oz1b21dfWaFvROuCVZF5wXZ5sZ8IQXbH
-         60XoAVLZoVF/zmJ6ohHK7uFPzhP4N5Cq88cl4vPaMVq3Iz31e3vyFdSosmFZz9UHKLM+
-         DFIA==
-X-Gm-Message-State: APjAAAXYPD1CN/dYvjmx9RDiixBwB8WCvp6aiseDojWCHXAgbc9lJZlu
-        4Sz7/vHAlzl8pCjcACPineI=
-X-Google-Smtp-Source: APXvYqxbw5J+tzBKcx+QigjOviaP1PWngnIR6FhtuOsFfYfySEHZWhgInymsNuVEPwxpwVY/mq8xpg==
-X-Received: by 2002:a05:6512:21e:: with SMTP id a30mr8849014lfo.76.1573555194825;
-        Tue, 12 Nov 2019 02:39:54 -0800 (PST)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id d24sm3344144ljg.73.2019.11.12.02.39.53
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yWNzXKlhZumCYXuzBsEx7JVt+rn1MlZov7MW7LBP6Z8=;
+        b=dMQTDalQF5+jvn+Flp0x9qu0P9iSUD/Q+8aDgoDQs4BdUNhqitJ2dqz7aDPeD6Rap+
+         jrr1usJfFssfApRDwCFawar+kjq3K776ifvXIhRgYZwRmWmlqJHlZ4rIrMrKCG+aCwSF
+         xP5AUUvtL3iZUpLW3Vj99m1rX4oOFcnKgtu8vDzLprDAmYqfM9RNm3h+6gvRW+fcxoC2
+         +dXX+Cy5zTX/JjCXeAvSR8BW9ojjarVjaHNNh6a8C9HrlbcFBP0GlzDQCxxBwptdQALv
+         mUzL91svy4q7Y/ygQ1o5AJ5AO6I+lZ/m41nPWipPYH8RFXaLmthaQmHwlu1u6ntphEDV
+         Zcfw==
+X-Gm-Message-State: APjAAAVq2SRt7DZ0nphIAvG/tHj+N2BTcRBShpqv5ahfEK4NR0yHhCR/
+        d1nIP6bKVNi5T4W5LYq0H0xizFnMlvp+2Q==
+X-Google-Smtp-Source: APXvYqxZQ0Bbj7wBSSsWZ/8/DLDY8oC+Mi22wlwSWypY5dQcy6xIK1ZMDU2otELiP9/7ClXKEQjrsQ==
+X-Received: by 2002:adf:fe81:: with SMTP id l1mr9879074wrr.207.1573555244361;
+        Tue, 12 Nov 2019 02:40:44 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id j67sm3200678wmb.43.2019.11.12.02.40.42
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 Nov 2019 02:39:54 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1iUTab-0000IZ-1b; Tue, 12 Nov 2019 11:40:01 +0100
-Date:   Tue, 12 Nov 2019 11:40:01 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
-        Daniel Vetter <daniel@ffwll.ch>
-Cc:     David Airlie <airlied@linux.ie>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-s390@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Johan Hovold <johan@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Jordan Crouse <jcrouse@codeaurora.org>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Fabien Dessenne <fabien.dessenne@st.com>
-Subject: Re: [PATCH 1/4] drm/msm: fix memleak on release
-Message-ID: <20191112104001.GP11035@localhost>
-References: <20191010131333.23635-1-johan@kernel.org>
- <20191010131333.23635-2-johan@kernel.org>
- <20191030100146.GC4691@localhost>
+        Tue, 12 Nov 2019 02:40:42 -0800 (PST)
+Message-ID: <5dca8c2a.1c69fb81.43237.e2aa@mx.google.com>
+Date:   Tue, 12 Nov 2019 02:40:42 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191030100146.GC4691@localhost>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.200-43-gca1d1b5f0f2a
+Subject: stable-rc/linux-4.4.y boot: 82 boots: 2 failed,
+ 73 passed with 7 offline (v4.4.200-43-gca1d1b5f0f2a)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Oct 30, 2019 at 11:01:46AM +0100, Johan Hovold wrote:
-> On Thu, Oct 10, 2019 at 03:13:30PM +0200, Johan Hovold wrote:
-> > If a process is interrupted while accessing the "gpu" debugfs file and
-> > the drm device struct_mutex is contended, release() could return early
-> > and fail to free related resources.
-> > 
-> > Note that the return value from release() is ignored.
-> > 
-> > Fixes: 4f776f4511c7 ("drm/msm/gpu: Convert the GPU show function to use the GPU state")
-> > Cc: stable <stable@vger.kernel.org>     # 4.18
-> > Cc: Jordan Crouse <jcrouse@codeaurora.org>
-> > Cc: Rob Clark <robdclark@gmail.com>
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> 
-> Rob, Sean,
-> 
-> Sending a reminder about this one, which is not yet in linux-next.
-> 
-> Perhaps Daniel can pick it up otherwise?
+stable-rc/linux-4.4.y boot: 82 boots: 2 failed, 73 passed with 7 offline (v=
+4.4.200-43-gca1d1b5f0f2a)
 
-Another two weeks, another reminder. This one is still not in -next.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.200-43-gca1d1b5f0f2a/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.200-43-gca1d1b5f0f2a/
 
-Johan
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.200-43-gca1d1b5f0f2a
+Git Commit: ca1d1b5f0f2acd3d552c3c74f44d984d06f2d595
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 41 unique boards, 16 SoC families, 13 builds out of 190
 
-> >  drivers/gpu/drm/msm/msm_debugfs.c | 6 +-----
-> >  1 file changed, 1 insertion(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/msm/msm_debugfs.c b/drivers/gpu/drm/msm/msm_debugfs.c
-> > index 6be879578140..1c74381a4fc9 100644
-> > --- a/drivers/gpu/drm/msm/msm_debugfs.c
-> > +++ b/drivers/gpu/drm/msm/msm_debugfs.c
-> > @@ -47,12 +47,8 @@ static int msm_gpu_release(struct inode *inode, struct file *file)
-> >  	struct msm_gpu_show_priv *show_priv = m->private;
-> >  	struct msm_drm_private *priv = show_priv->dev->dev_private;
-> >  	struct msm_gpu *gpu = priv->gpu;
-> > -	int ret;
-> > -
-> > -	ret = mutex_lock_interruptible(&show_priv->dev->struct_mutex);
-> > -	if (ret)
-> > -		return ret;
-> >  
-> > +	mutex_lock(&show_priv->dev->struct_mutex);
-> >  	gpu->funcs->gpu_state_put(show_priv->state);
-> >  	mutex_unlock(&show_priv->dev->struct_mutex);
+Boot Failures Detected:
+
+i386:
+    i386_defconfig:
+        gcc-8:
+            qemu_i386: 2 failed labs
+
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
