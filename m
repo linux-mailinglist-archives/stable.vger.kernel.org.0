@@ -2,106 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16518F8B65
-	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 10:09:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C33F8B6C
+	for <lists+stable@lfdr.de>; Tue, 12 Nov 2019 10:11:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725944AbfKLJJT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 04:09:19 -0500
-Received: from mail-ot1-f65.google.com ([209.85.210.65]:39818 "EHLO
-        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726008AbfKLJJT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 04:09:19 -0500
-Received: by mail-ot1-f65.google.com with SMTP id z9so536884otq.6
-        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 01:09:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=oHPKlhKO7XCkjzMpQFqzFclixAEBxx1FP1Cib9aUIt0=;
-        b=dIMZSpm21n4Lvj7LNSVE3iXH8GIQCXuc3mlVLSXlQsySgf7fipjpWs11JR1/RPRcI9
-         N/Ip5mFgfWkRU+kPigYweaN9SrtcqiGMLihWrALL4n4IKxnX0Ct+UuZV1ML5Xg6T3wwf
-         5jcjaq2dc6AUDFu+sgoabnCxikipL9632C0Y8=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=oHPKlhKO7XCkjzMpQFqzFclixAEBxx1FP1Cib9aUIt0=;
-        b=AGD12lNiUiQilQYURzBxRJIWSr+CW9JBujSdtu0UMrMsK+sxzcpzpuyUclP8E4jPV+
-         ymeZpK6cxHflgpEYoJBba8XAOgsOk3Byz0HuAtHlfvG40LgEMJvlh02eKGCXnwEAgniI
-         y2LMctYmR5pfscYFYjkr5fEZ4tdkj3sQ5QI76hdv+LSIp2Ri0VZSTbs1LLj+nOzb5nYs
-         TeEQaup9h7WApsGcTMkhpHlqsaWLR3IloY7eFwxN1EermnJ+df6USBRdoSmB71qNCvaX
-         mKYDmSnnD2KR9n55QsVJEPGyZhYkouPwARvc0cG/b+pbhp+BGg46NzBGexJIrNb9n8D8
-         Ptyg==
-X-Gm-Message-State: APjAAAU++IR9C0+TSBPlDa+INc4pSLayEib+HG4Tb6wnK5dSh1myW/vD
-        RBidk3CvU1HwHGPvjyHJzQ0OsfMcT+c7CAB2N3kqoA==
-X-Google-Smtp-Source: APXvYqxWSUfmQNdvctBvqvm85EKWYdHBsiXYTCfi0ftmMPCvgtA2sF1Cv5gyecUpE0AbnZ8p5aLaaGfCRxKiYiPvMQo=
-X-Received: by 2002:a9d:6649:: with SMTP id q9mr8533283otm.106.1573549758145;
- Tue, 12 Nov 2019 01:09:18 -0800 (PST)
+        id S1726952AbfKLJLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 04:11:36 -0500
+Received: from mga03.intel.com ([134.134.136.65]:33670 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726008AbfKLJLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 04:11:36 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Nov 2019 01:11:36 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,295,1569308400"; 
+   d="scan'208";a="207048672"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by orsmga003.jf.intel.com with ESMTP; 12 Nov 2019 01:11:34 -0800
+Received: from andy by smile with local (Exim 4.93-RC1)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1iUSCz-0005w8-6J; Tue, 12 Nov 2019 11:11:33 +0200
+Date:   Tue, 12 Nov 2019 11:11:33 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     gregkh@linuxfoundation.org, malin.jonsson@ericsson.com,
+        mika.westerberg@linux.intel.com, oliver.barta@aptiv.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] pinctrl: intel: Avoid potential glitches
+ if pin is in GPIO" failed to apply to 4.19-stable tree
+Message-ID: <20191112091133.GQ32742@smile.fi.intel.com>
+References: <157345199314214@kroah.com>
+ <20191111131907.GR4787@sasha-vm>
 MIME-Version: 1.0
-References: <20190718145407.21352-1-chris@chris-wilson.co.uk> <20190718145407.21352-4-chris@chris-wilson.co.uk>
-In-Reply-To: <20190718145407.21352-4-chris@chris-wilson.co.uk>
-From:   Daniel Vetter <daniel@ffwll.ch>
-Date:   Tue, 12 Nov 2019 10:09:06 +0100
-Message-ID: <CAKMK7uEgFS8FAatJBzsEid72sy2_h8x2WsyhsZuyyfaoD1Lg0Q@mail.gmail.com>
-Subject: Re: [Intel-gfx] [PATCH 4/4] drm/i915: Flush stale cachelines on set-cache-level
-To:     Chris Wilson <chris@chris-wilson.co.uk>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Francisco Jerez <currojerez@riseup.net>
-Cc:     intel-gfx <intel-gfx@lists.freedesktop.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191111131907.GR4787@sasha-vm>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jul 18, 2019 at 4:54 PM Chris Wilson <chris@chris-wilson.co.uk> wrote:
->
-> Ensure that we flush any cache dirt out to main memory before the user
-> changes the cache-level as they may elect to bypass the cache (even after
-> declaring their access cache-coherent) via use of unprivileged MOCS.
->
-> Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-> Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/gpu/drm/i915/gem/i915_gem_domain.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_domain.c b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-> index 2e3ce2a69653..5d41e769a428 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_domain.c
-> @@ -277,6 +277,11 @@ int i915_gem_object_set_cache_level(struct drm_i915_gem_object *obj,
->
->         list_for_each_entry(vma, &obj->vma.list, obj_link)
->                 vma->node.color = cache_level;
-> +
-> +       /* Flush any previous cache dirt in case of cache bypass */
-> +       if (obj->cache_dirty & ~obj->cache_coherent)
-> +               i915_gem_clflush_object(obj, I915_CLFLUSH_SYNC);
+On Mon, Nov 11, 2019 at 08:19:07AM -0500, Sasha Levin wrote:
+> On Mon, Nov 11, 2019 at 06:59:53AM +0100, gregkh@linuxfoundation.org wrote:
+> > 
+> > The patch below does not apply to the 4.19-stable tree.
+> > If someone wants it applied there, or to any other stable or longterm
+> > tree, then please email the backport, including the original git commit
+> > id to <stable@vger.kernel.org>.
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
+> > ------------------ original commit in Linus's tree ------------------
+> > 
+> > From 29c2c6aa32405dfee4a29911a51ba133edcedb0f Mon Sep 17 00:00:00 2001
+> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > Date: Mon, 14 Oct 2019 12:51:04 +0300
+> > Subject: [PATCH] pinctrl: intel: Avoid potential glitches if pin is in GPIO
+> > mode
+> > 
+> > When consumer requests a pin, in order to be on the safest side,
+> > we switch it first to GPIO mode followed by immediate transition
+> > to the input state. Due to posted writes it's luckily to be a single
+> > I/O transaction.
+> > 
+> > However, if firmware or boot loader already configures the pin
+> > to the GPIO mode, user expects no glitches for the requested pin.
+> > We may check if the pin is pre-configured and leave it as is
+> > till the actual consumer toggles its state to avoid glitches.
+> 
+> I've queued it up for 4.19, it was just a minor conflict with
+> e58926e781d8 ("pinctrl: intel: Use GENMASK() consistently").
 
-I think writing out the bit logic instead of implicitly relying on the
-#defines would be much better, i.e. && !(cache_coherent &
-COHERENT_FOR_READ). Plus I think we only need to set cache_dirty =
-true if we don't flush here already, to avoid double flushing?
--Daniel
+Thank you!
 
-> +
->         i915_gem_object_set_cache_coherency(obj, cache_level);
->         obj->cache_dirty = true; /* Always invalidate stale cachelines */
->
-> --
-> 2.22.0
->
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+> However, for 4.14 and older:
+> 
+> > Fixes: 7981c0015af2 ("pinctrl: intel: Add Intel Sunrisepoint pin controller and GPIO support")
+> > Depends-on: f5a26acf0162 ("pinctrl: intel: Initialize GPIO properly when used through irqchip")
+> 
+> We need to take this "Depends-on" commit, but in the past we have
+> reverted it:
+> 
+> https://lore.kernel.org/lkml/20180427135732.999030511@linuxfoundation.org/
+
+Yes, as the commit says that we have a lot of dependencies.
+
+> So I didn't do anything with this patch for <=4.14.
+
+So far so good, thanks!
+
+P.S. In case we need it in the future, we will prepare a backport patch
+ourselves.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-
---
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
