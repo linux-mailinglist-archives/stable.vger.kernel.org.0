@@ -2,94 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4F9FA1CB
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A7FFA43C
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728721AbfKMB7c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:59:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54006 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730285AbfKMB72 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:28 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6666122469;
-        Wed, 13 Nov 2019 01:59:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610367;
-        bh=xfiRYlBrrR42DVKHJwACyiYlj/Argp6WATZos1+CRlg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+Mc0UzHtkrMBAn6c3Jv7PHDT6WfiU0tsSI06/y2lXTP/7tWbpkuWrz2EaVH/bQBU
-         PzCrKmtDoIvdR5qC546T0k8atJXspieH2OYIo4wBnQYmIZpDq29aOtfN0T86U52f04
-         6ojYvJvVAsvYPl6LONg9vF0cp96Ty85H7AkY6Eic=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takeshi Saito <takeshi.saito.xv@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 115/115] mmc: tmio: fix SCC error handling to avoid false positive CRC error
-Date:   Tue, 12 Nov 2019 20:56:22 -0500
-Message-Id: <20191113015622.11592-115-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
-References: <20191113015622.11592-1-sashal@kernel.org>
+        id S1728043AbfKMCPY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:15:24 -0500
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:36732 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729608AbfKMB4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 20:56:52 -0500
+Received: by mail-wr1-f45.google.com with SMTP id r10so451735wrx.3
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 17:56:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=x+Vz01mUoaGklNFwGB/fAwsDnbVK6mHRTjpZuhvd4H0=;
+        b=YgEeB6ua2AYcdfQwmRI5MyHABbyV5RuhyOLJpbudQp8OQZBDlow8bhEVY75UsC4U1D
+         VHl9N3JdfLafZdIVAR00Zkk0ZDxJPmgL/nD8Or3lbWep7Avc0YBlKpFVV07tcekR3cyy
+         AKcR4XzgNaS3HCvW0zbxtr2soMpzWf3lmTN5tB94y/dMk/c5rp7LLOuZSLNFpzzRS6hq
+         ZiTW3qGOnJjJomukfh2uTV1tfDLGok1qIu3cQzZhvFdAvevBWGXlHwNrsS2sGsDyJ0fK
+         hwKtkIzTBPqbN0YB/dhlpXM0LeWYperT1xfQNjQXsLFfleayPv7egHcgTM+0KSaRwRkf
+         mF5w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=x+Vz01mUoaGklNFwGB/fAwsDnbVK6mHRTjpZuhvd4H0=;
+        b=sM0T6SKq2bVNJHIPPmE2PQddKvvQk1VbdWNTZyBtjRyyKu4m2zbS3Sk4MLZvyWQRN8
+         c26BPEkwscIJYkTbCZ//F//Z4tBqCSFUhDtJQ+90GOuyvIyiu1rozTsrNLRTOCKnDzru
+         2UzquBnp3CcL/bC3iaPQ/ZB/x14IozcU0i+2y64nF1aHU55GvJoRtFrB4DpA2uB0rks4
+         bZacQhdXbVSRzx1CoQpKD3Rsqn+xW23gWqv53dUmd4TYSwgv6TkcPzKW5BOVg/DZc+kK
+         INwg7I4W7S7WegODatkxNX2ey1jj53ueIgoc72A0vbzWUeMevxjuXf1Oip+PNQ8GYkJR
+         0XHA==
+X-Gm-Message-State: APjAAAVB83AV0xyl9IqZ64zmsqpsMS0B7NNn6Ubl4BnlzXB9kmdS56hD
+        keYopxCZmQbM0uaV+pFx9Fsg4Y6pjDfmYw==
+X-Google-Smtp-Source: APXvYqzH2sPOsjijkoq99ABZiXcpKNS8vb0qh3pY46avx1uk4wlivtZ2NPlVP/oZ/dSV/c4kMST51w==
+X-Received: by 2002:adf:fd4b:: with SMTP id h11mr275230wrs.191.1573610210427;
+        Tue, 12 Nov 2019 17:56:50 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p15sm510764wmb.10.2019.11.12.17.56.49
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Nov 2019 17:56:49 -0800 (PST)
+Message-ID: <5dcb62e1.1c69fb81.aac86.2122@mx.google.com>
+Date:   Tue, 12 Nov 2019 17:56:49 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.201
+Subject: stable/linux-4.9.y boot: 45 boots: 0 failed, 45 passed (v4.9.201)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Saito <takeshi.saito.xv@renesas.com>
+stable/linux-4.9.y boot: 45 boots: 0 failed, 45 passed (v4.9.201)
 
-[ Upstream commit 51b72656bb39fdcb8f3174f4007bcc83ad1d275f ]
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+9.y/kernel/v4.9.201/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.201/
 
-If an SCC error occurs during a read/write command execution, a false
-positive CRC error message is output.
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.201
+Git Commit: 9829ecfd824adba0396cf5fa8dcc813f4c0ff754
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 25 unique boards, 14 SoC families, 10 builds out of 197
 
-mmcblk0: response CRC error sending r/w cmd command, card status 0x900
-
-check_scc_error() checks SCC_RVSREQ.RVSERR bit. RVSERR detects a
-correction error in the next (up or down) delay tap position. However,
-since the command is successful, only retuning needs to be executed.
-This has been confirmed by HW engineers.
-
-Thus, on SCC error, set retuning flag instead of setting an error code.
-
-Fixes: b85fb0a1c8ae ("mmc: tmio: Fix SCC error detection")
-Signed-off-by: Takeshi Saito <takeshi.saito.xv@renesas.com>
-[wsa: updated comment and commit message, removed some braces]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/tmio_mmc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/mmc/host/tmio_mmc_core.c b/drivers/mmc/host/tmio_mmc_core.c
-index 01e51b7945750..2fd862dc97701 100644
---- a/drivers/mmc/host/tmio_mmc_core.c
-+++ b/drivers/mmc/host/tmio_mmc_core.c
-@@ -914,8 +914,9 @@ static void tmio_mmc_finish_request(struct tmio_mmc_host *host)
- 	if (mrq->cmd->error || (mrq->data && mrq->data->error))
- 		tmio_mmc_abort_dma(host);
- 
-+	/* SCC error means retune, but executed command was still successful */
- 	if (host->check_scc_error && host->check_scc_error(host))
--		mrq->cmd->error = -EILSEQ;
-+		mmc_retune_needed(host->mmc);
- 
- 	/* If SET_BLOCK_COUNT, continue with main command */
- 	if (host->mrq && !mrq->cmd->error) {
--- 
-2.20.1
-
+For more info write to <info@kernelci.org>
