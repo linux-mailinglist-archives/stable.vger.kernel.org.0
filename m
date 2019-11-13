@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A445BFA11E
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93211FA122
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:55:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728982AbfKMBy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:54:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46112 "EHLO mail.kernel.org"
+        id S1728989AbfKMBzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728979AbfKMBy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:54:57 -0500
+        id S1727656AbfKMBzA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:55:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4379D222D4;
-        Wed, 13 Nov 2019 01:54:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DD682245C;
+        Wed, 13 Nov 2019 01:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610096;
-        bh=WNzOcSDtG5/ZzPIRNc452Bw+G3KZ9d2AoXandGQy9MM=;
+        s=default; t=1573610099;
+        bh=CISu5P/jMUfzxYshfYe9HfhmQSco0Rm52SQyQxCrb00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O31C+kpZB4sHp8r5M/3LrkKdehhy7EUFcyRVt3+VAkYgcN0Wt9UTWlngUMBaEEBZy
-         aHb7jPt7UsAu3rUzyZZn0divSCl7jrMSuOJBxiDclYytQHMDbN8eFDNdIGoPXbkqJQ
-         KaU4WyjRlhB64NV2kzkIQqNX2rZ0KjHhORyBBHK0=
+        b=oj21XZuTwKEzq0STQXRfd2MISOUDsqDv3Ok0WgbpipNqoO/lsMbisqRcTw/W7hczw
+         QmXUCFxvevxfCSv7RaYlrAa+Wam+qO7Kl8P74+MRHk60KcleQw/05098NSiqtubF45
+         KPGZ1LYpP1TSw2lf26wFzU1l4XtFWHozosdyQw5U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 158/209] s390/kasan: avoid user access code instrumentation
-Date:   Tue, 12 Nov 2019 20:49:34 -0500
-Message-Id: <20191113015025.9685-158-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Lianbo Jiang <lijiang@redhat.com>,
+        x86@kernel.org, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 159/209] proc/vmcore: Fix i386 build error of missing copy_oldmem_page_encrypted()
+Date:   Tue, 12 Nov 2019 20:49:35 -0500
+Message-Id: <20191113015025.9685-159-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -43,46 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit b6cbe3e8bdff6f21f1b58b08a55f479cdcf98282 ]
+[ Upstream commit cf089611f4c446285046fcd426d90c18f37d2905 ]
 
-Kasan instrumentation adds "store" check for variables marked as
-modified by inline assembly. With user pointers containing addresses
-from another address space this produces false positives.
+Lianbo reported a build error with a particular 32-bit config, see Link
+below for details.
 
-static inline unsigned long clear_user_xc(void __user *to, ...)
-{
-	asm volatile(
-	...
-	: "+a" (to) ...
+Provide a weak copy_oldmem_page_encrypted() function which architectures
+can override, in the same manner other functionality in that file is
+supplied.
 
-User space access functions are wrapped by manually instrumented
-functions in kasan common code, which should be sufficient to catch
-errors. So, we just disable uaccess.o instrumentation altogether.
-
-Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reported-by: Lianbo Jiang <lijiang@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+CC: x86@kernel.org
+Link: http://lkml.kernel.org/r/710b9d95-2f70-eadf-c4a1-c3dc80ee4ebb@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/lib/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/proc/vmcore.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/s390/lib/Makefile b/arch/s390/lib/Makefile
-index 57ab40188d4bd..5418d10dc2a81 100644
---- a/arch/s390/lib/Makefile
-+++ b/arch/s390/lib/Makefile
-@@ -9,5 +9,9 @@ lib-$(CONFIG_SMP) += spinlock.o
- lib-$(CONFIG_KPROBES) += probes.o
- lib-$(CONFIG_UPROBES) += probes.o
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index cbde728f8ac60..5c5f161763c8c 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -176,6 +176,16 @@ int __weak remap_oldmem_pfn_range(struct vm_area_struct *vma,
+ 	return remap_pfn_range(vma, from, pfn, size, prot);
+ }
  
-+# Instrumenting memory accesses to __user data (in different address space)
-+# produce false positives
-+KASAN_SANITIZE_uaccess.o := n
++/*
++ * Architectures which support memory encryption override this.
++ */
++ssize_t __weak
++copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
++			   unsigned long offset, int userbuf)
++{
++	return copy_oldmem_page(pfn, buf, csize, offset, userbuf);
++}
 +
- chkbss := mem.o
- include $(srctree)/arch/s390/scripts/Makefile.chkbss
+ /*
+  * Copy to either kernel or user space
+  */
 -- 
 2.20.1
 
