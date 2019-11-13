@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73749FA333
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:08:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECFA5FA330
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730368AbfKMB74 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:59:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54802 "EHLO mail.kernel.org"
+        id S1730374AbfKMB76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:59:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730365AbfKMB7z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:55 -0500
+        id S1730369AbfKMB75 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:59:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98CB122469;
-        Wed, 13 Nov 2019 01:59:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0ED4222CF;
+        Wed, 13 Nov 2019 01:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610395;
-        bh=DFdAjxDKTWhb2noNLW6GfraKQGL6VTYbRx3/xkS64kQ=;
+        s=default; t=1573610396;
+        bh=S42pxMw6/wYTxvLBzsja1ndTqzGbyWY3pPEbYY4F1S4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J2PtGuXyHcJb6s/8rzEfqwt48loLHHZm0HtfES1bgFS16/T3Zo4pSx+3Q0CFsaygC
-         5XB2LnEjUKCPJypkV6oTtNsSqmF8MTjn/Vbyw5rakMyiMnbctrCn5ohHW8aR0BP+sB
-         Lf1AvXAjlE7Uu2sdkgkKBVr+73M/jcIq5EX4YNas=
+        b=UqvpvX4LVU8BZeGVfoSnFpMjTywlm0qAAktL2OBFj1GOPLkOWy6C1S20igHzfwouh
+         bMWSyoaXAzPJelPvXEChAlAHtAvC5kNDMM4qZANxWFtxHinD4TmJZmI9mdzdVwmvfE
+         th5pEdBlim5zNeMHe/ABFhXwBAn+KmTXfrwDl1cs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nathan Chancellor <natechancellor@gmail.com>,
         Nick Desaulniers <ndesaulniers@google.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 14/68] dmaengine: ep93xx: Return proper enum in ep93xx_dma_chan_direction
-Date:   Tue, 12 Nov 2019 20:58:38 -0500
-Message-Id: <20191113015932.12655-14-sashal@kernel.org>
+        dmaengine@vger.kernel.org, clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.9 15/68] dmaengine: timb_dma: Use proper enum in td_prep_slave_sg
+Date:   Tue, 12 Nov 2019 20:58:39 -0500
+Message-Id: <20191113015932.12655-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -46,18 +46,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 9524d6b265f9b2b9a61fceb2ee2ce1c2a83e39ca ]
+[ Upstream commit 5e621f5d538985f010035c6f3e28c22829d36db1 ]
 
 Clang warns when implicitly converting from one enumerated type to
 another. Avoid this by using the equivalent value from the expected
 type.
 
-In file included from drivers/dma/ep93xx_dma.c:30:
-./include/linux/platform_data/dma-ep93xx.h:88:10: warning: implicit
-conversion from enumeration type 'enum dma_data_direction' to different
-enumeration type 'enum dma_transfer_direction' [-Wenum-conversion]
-                return DMA_NONE;
-                ~~~~~~ ^~~~~~~~
+drivers/dma/timb_dma.c:548:27: warning: implicit conversion from
+enumeration type 'enum dma_transfer_direction' to different enumeration
+type 'enum dma_data_direction' [-Wenum-conversion]
+                td_desc->desc_list_len, DMA_MEM_TO_DEV);
+                                        ^~~~~~~~~~~~~~
 1 warning generated.
 
 Reported-by: Nick Desaulniers <ndesaulniers@google.com>
@@ -66,22 +65,22 @@ Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/platform_data/dma-ep93xx.h | 2 +-
+ drivers/dma/timb_dma.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/platform_data/dma-ep93xx.h b/include/linux/platform_data/dma-ep93xx.h
-index e82c642fa53cd..5913be0793a26 100644
---- a/include/linux/platform_data/dma-ep93xx.h
-+++ b/include/linux/platform_data/dma-ep93xx.h
-@@ -84,7 +84,7 @@ static inline enum dma_transfer_direction
- ep93xx_dma_chan_direction(struct dma_chan *chan)
- {
- 	if (!ep93xx_dma_chan_is_m2p(chan))
--		return DMA_NONE;
-+		return DMA_TRANS_NONE;
+diff --git a/drivers/dma/timb_dma.c b/drivers/dma/timb_dma.c
+index 896bafb7a5324..cf6588cc3efdc 100644
+--- a/drivers/dma/timb_dma.c
++++ b/drivers/dma/timb_dma.c
+@@ -545,7 +545,7 @@ static struct dma_async_tx_descriptor *td_prep_slave_sg(struct dma_chan *chan,
+ 	}
  
- 	/* even channels are for TX, odd for RX */
- 	return (chan->chan_id % 2 == 0) ? DMA_MEM_TO_DEV : DMA_DEV_TO_MEM;
+ 	dma_sync_single_for_device(chan2dmadev(chan), td_desc->txd.phys,
+-		td_desc->desc_list_len, DMA_MEM_TO_DEV);
++		td_desc->desc_list_len, DMA_TO_DEVICE);
+ 
+ 	return &td_desc->txd;
+ }
 -- 
 2.20.1
 
