@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF271FA335
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61B37FA1DA
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730350AbfKMB7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:59:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54684 "EHLO mail.kernel.org"
+        id S1729080AbfKMB7x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:59:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54754 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730345AbfKMB7w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:52 -0500
+        id S1729465AbfKMB7x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:59:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE7CE222CF;
-        Wed, 13 Nov 2019 01:59:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDC7222467;
+        Wed, 13 Nov 2019 01:59:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610391;
-        bh=Ezy/2toqxH4vDYuGNzQ7l2KT4KeAUcuyJ9W611bMqB8=;
+        s=default; t=1573610392;
+        bh=LH61V/qzUmWOj7rI6InJebjBB7kMjoSX9nWyR9/yzfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MmX25UcfYYSYOSdEOUwgKKCZ9lxi3E5PZXlTMCb//e7lV9In0mUT58fQhXrQGCcMt
-         YOYxfiAEXA9MHaTLcARxKElUMMAJSHpOgZt/Ce1J3Q/QDnzuqNGYh4iThaBgq7BgGC
-         A5vjs/ROd5LpilDdy6YEO3SHChLUxIfvylo36Lx0=
+        b=w4JdBIPtmwJjG+FaXexDGzF4MGcjbM6qqZBJrotcyeFQ6LP2VBQkgRXUGIFLSHn21
+         5/JLuvp66nOWpxviEETqK3lQMiUun0dGVnAIFSkF6hbpZCBVQtK3HHtrFHPG3ZBHO3
+         8aB1IlBHNredVZntwSUciBVPMBwaRJF5Qtib9z4s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 12/68] usb: gadget: udc: fotg210-udc: Fix a sleep-in-atomic-context bug in fotg210_get_status()
-Date:   Tue, 12 Nov 2019 20:58:36 -0500
-Message-Id: <20191113015932.12655-12-sashal@kernel.org>
+Cc:     Andrew Zaborowski <andrew.zaborowski@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 13/68] nl80211: Fix a GET_KEY reply attribute
+Date:   Tue, 12 Nov 2019 20:58:37 -0500
+Message-Id: <20191113015932.12655-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -43,47 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Andrew Zaborowski <andrew.zaborowski@intel.com>
 
-[ Upstream commit 2337a77c1cc86bc4e504ecf3799f947659c86026 ]
+[ Upstream commit efdfce7270de85a8706d1ea051bef3a7486809ff ]
 
-The driver may sleep in an interrupt handler.
-The function call path (from bottom to top) in Linux-4.17 is:
+Use the NL80211_KEY_IDX attribute inside the NL80211_ATTR_KEY in
+NL80211_CMD_GET_KEY responses to comply with nl80211_key_policy.
+This is unlikely to affect existing userspace.
 
-[FUNC] fotg210_ep_queue(GFP_KERNEL)
-drivers/usb/gadget/udc/fotg210-udc.c, 744:
-	fotg210_ep_queue in fotg210_get_status
-drivers/usb/gadget/udc/fotg210-udc.c, 768:
-	fotg210_get_status in fotg210_setup_packet
-drivers/usb/gadget/udc/fotg210-udc.c, 949:
-	fotg210_setup_packet in fotg210_irq (interrupt handler)
-
-To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
-If possible, spin_unlock() and spin_lock() around fotg210_ep_queue()
-can be also removed.
-
-This bug is found by my static analysis tool DSAC.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Andrew Zaborowski <andrew.zaborowski@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 2 +-
+ net/wireless/nl80211.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index 95df2b3bb6a1a..76e991557116a 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -744,7 +744,7 @@ static void fotg210_get_status(struct fotg210_udc *fotg210,
- 	fotg210->ep0_req->length = 2;
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 060bc0cc82526..bb19be78aed70 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3058,7 +3058,7 @@ static void get_key_callback(void *c, struct key_params *params)
+ 			 params->cipher)))
+ 		goto nla_put_failure;
  
- 	spin_unlock(&fotg210->lock);
--	fotg210_ep_queue(fotg210->gadget.ep0, fotg210->ep0_req, GFP_KERNEL);
-+	fotg210_ep_queue(fotg210->gadget.ep0, fotg210->ep0_req, GFP_ATOMIC);
- 	spin_lock(&fotg210->lock);
- }
+-	if (nla_put_u8(cookie->msg, NL80211_ATTR_KEY_IDX, cookie->idx))
++	if (nla_put_u8(cookie->msg, NL80211_KEY_IDX, cookie->idx))
+ 		goto nla_put_failure;
  
+ 	nla_nest_end(cookie->msg, key);
 -- 
 2.20.1
 
