@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92059FA18E
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:58:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 938F5FA195
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:58:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729941AbfKMB6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:58:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51656 "EHLO mail.kernel.org"
+        id S1729988AbfKMB6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:58:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729936AbfKMB6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:58:06 -0500
+        id S1727952AbfKMB6N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:58:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EC462245C;
-        Wed, 13 Nov 2019 01:58:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CBDB222D3;
+        Wed, 13 Nov 2019 01:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610286;
-        bh=0PiJltGkCCUSn6b6SczZyBlHFzdXyCOaUGSaDBXebiQ=;
+        s=default; t=1573610293;
+        bh=vnj8+xsV7FMyBw4aO08RKTdSzAjFVMYxM+AZ9rLmixM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0NckyA2oJHjZGsXaSmTWpcz0hoyAD0LRcwVnulI5O+ousEUVZl/yzIPXJxYsRMbnU
-         dY4uyxgJGHo+jGJ0K6G8HCwWP88rVz6cQs5xCaeACZp+AXR9zkBfIUvsNlROIOckKP
-         bnB+Fnawq2fvvHGjU6BXkW8zuCH/9KdD4PI2XgNs=
+        b=LQsOZ0UOoZsZGKEWqoVz3b5T23DhoESkk4ZYflVQc+UAbDSKoiWZkGyfDpYXlipjl
+         3xpk1Y57P3w5HItvr58kL0Lqkkyxv9QTNZrVM60kWH/MT8wqEcTQb9IO876hiv54vi
+         f5T7J11iAD/pu0vfySHd00tMWxSSvGKBwH0oRZjA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joonyoung Shim <jy0922.shim@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 063/115] clk: samsung: exynos5420: Define CLK_SECKEY gate clock only or Exynos5420
-Date:   Tue, 12 Nov 2019 20:55:30 -0500
-Message-Id: <20191113015622.11592-63-sashal@kernel.org>
+Cc:     Rami Rosen <ramirose@gmail.com>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 067/115] dmaengine: ioat: fix prototype of ioat_enumerate_channels
+Date:   Tue, 12 Nov 2019 20:55:34 -0500
+Message-Id: <20191113015622.11592-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -44,44 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joonyoung Shim <jy0922.shim@samsung.com>
+From: Rami Rosen <ramirose@gmail.com>
 
-[ Upstream commit d32dd2a1a0f80edad158c9a1ba5f47650d9504a0 ]
+[ Upstream commit f4d34aa8c887a8a2d23ef546da0efa10e3f77241 ]
 
-The bit of GATE_BUS_PERIS1 for CLK_SECKEY is just reserved on
-exynos5422/5800, not exynos5420. Define gate clk for exynos5420 to
-handle the bit only on exynos5420.
-
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-[m.szyprow: rewrote commit subject]
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Sylwester Nawrocki <snawrocki@kernel.org>
+Signed-off-by: Rami Rosen <ramirose@gmail.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-exynos5420.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/dma/ioat/init.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-exynos5420.c b/drivers/clk/samsung/clk-exynos5420.c
-index 500a55415e900..a882f7038bcec 100644
---- a/drivers/clk/samsung/clk-exynos5420.c
-+++ b/drivers/clk/samsung/clk-exynos5420.c
-@@ -633,6 +633,7 @@ static const struct samsung_div_clock exynos5420_div_clks[] __initconst = {
- };
+diff --git a/drivers/dma/ioat/init.c b/drivers/dma/ioat/init.c
+index 68680e4151eaa..9103a0425f752 100644
+--- a/drivers/dma/ioat/init.c
++++ b/drivers/dma/ioat/init.c
+@@ -129,7 +129,7 @@ static void
+ ioat_init_channel(struct ioatdma_device *ioat_dma,
+ 		  struct ioatdma_chan *ioat_chan, int idx);
+ static void ioat_intr_quirk(struct ioatdma_device *ioat_dma);
+-static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma);
++static void ioat_enumerate_channels(struct ioatdma_device *ioat_dma);
+ static int ioat3_dma_self_test(struct ioatdma_device *ioat_dma);
  
- static const struct samsung_gate_clock exynos5420_gate_clks[] __initconst = {
-+	GATE(CLK_SECKEY, "seckey", "aclk66_psgen", GATE_BUS_PERIS1, 1, 0, 0),
- 	GATE(CLK_MAU_EPLL, "mau_epll", "mout_mau_epll_clk",
- 			SRC_MASK_TOP7, 20, CLK_SET_RATE_PARENT, 0),
- };
-@@ -1167,8 +1168,6 @@ static const struct samsung_gate_clock exynos5x_gate_clks[] __initconst = {
- 	GATE(CLK_TMU, "tmu", "aclk66_psgen", GATE_IP_PERIS, 21, 0, 0),
- 	GATE(CLK_TMU_GPU, "tmu_gpu", "aclk66_psgen", GATE_IP_PERIS, 22, 0, 0),
+ static int ioat_dca_enabled = 1;
+@@ -575,7 +575,7 @@ static void ioat_dma_remove(struct ioatdma_device *ioat_dma)
+  * ioat_enumerate_channels - find and initialize the device's channels
+  * @ioat_dma: the ioat dma device to be enumerated
+  */
+-static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
++static void ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
+ {
+ 	struct ioatdma_chan *ioat_chan;
+ 	struct device *dev = &ioat_dma->pdev->dev;
+@@ -594,7 +594,7 @@ static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
+ 	xfercap_log = readb(ioat_dma->reg_base + IOAT_XFERCAP_OFFSET);
+ 	xfercap_log &= 0x1f; /* bits [4:0] valid */
+ 	if (xfercap_log == 0)
+-		return 0;
++		return;
+ 	dev_dbg(dev, "%s: xfercap = %d\n", __func__, 1 << xfercap_log);
  
--	GATE(CLK_SECKEY, "seckey", "aclk66_psgen", GATE_BUS_PERIS1, 1, 0, 0),
--
- 	/* GEN Block */
- 	GATE(CLK_ROTATOR, "rotator", "mout_user_aclk266", GATE_IP_GEN, 1, 0, 0),
- 	GATE(CLK_JPEG, "jpeg", "aclk300_jpeg", GATE_IP_GEN, 2, 0, 0),
+ 	for (i = 0; i < dma->chancnt; i++) {
+@@ -611,7 +611,6 @@ static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
+ 		}
+ 	}
+ 	dma->chancnt = i;
+-	return i;
+ }
+ 
+ /**
 -- 
 2.20.1
 
