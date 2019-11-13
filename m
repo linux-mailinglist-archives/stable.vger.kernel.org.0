@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E0CDFA165
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:57:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A65FA17B
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729654AbfKMB5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:57:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49850 "EHLO mail.kernel.org"
+        id S1729816AbfKMB52 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:57:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729646AbfKMB5B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:57:01 -0500
+        id S1729809AbfKMB52 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:57:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0059122467;
-        Wed, 13 Nov 2019 01:56:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B440222CF;
+        Wed, 13 Nov 2019 01:57:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610219;
-        bh=aFpAA8wU35EfuFHr6Frbd4f3Et0ExszuYiPWOtiTJRg=;
+        s=default; t=1573610247;
+        bh=1QkygwHLgUK427ey0VFiRVmTUIOw5qNV4Wt+zMKwblg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwLWuOuROMSDsnkEVvVu0msXpCxG721LyiIdXnIHXElHIrwLnXwRD1QdUZ9hX65AV
-         iauc9Rb0MmW53CegKzoqjhtdTd2lCtjIZypa6CyGPFAKDtOxnltkq/Ue/WHa6rvYEE
-         9XBAoV+uNUXJEKGSXZP/TO2JxHQ/f3vYaA7Geekw=
+        b=bCTancK6xTTzv4B4WILGeOqBjlaG1U8xbZBSYhow3R/BEKhlCuOmyX7VC/ShgqhFm
+         PDS3yM0DR2PXNj2t2IF7fmCzSe+VCp7glwg3qG7rmGPFweP2z/d8RLVkFjc2o7/ov4
+         11krrfDVquHBFZw3VGmzjUIyTDXO+AbBfioOQsgw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nishanth Menon <nm@ti.com>,
-        Santosh Shilimkar <ssantosh@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 026/115] clk: keystone: Enable TISCI clocks if K3_ARCH
-Date:   Tue, 12 Nov 2019 20:54:53 -0500
-Message-Id: <20191113015622.11592-26-sashal@kernel.org>
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 045/115] IB/mthca: Fix error return code in __mthca_init_one()
+Date:   Tue, 12 Nov 2019 20:55:12 -0500
+Message-Id: <20191113015622.11592-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -44,47 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishanth Menon <nm@ti.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 2f149e6e14bcb5e581e49307b54aafcd6f74a74f ]
+[ Upstream commit 39f2495618c5e980d2873ea3f2d1877dd253e07a ]
 
-K3_ARCH uses TISCI for clocks as well. Enable the same
-for the driver support.
+Fix to return a negative error code from the mthca_cmd_init() error
+handling case instead of 0, as done elsewhere in this function.
 
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Acked-by: Santosh Shilimkar <ssantosh@kernel.org>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 80fd8238734c ("[PATCH] IB/mthca: Encapsulate command interface init")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/Makefile         | 1 +
- drivers/clk/keystone/Kconfig | 2 +-
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mthca/mthca_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/Makefile b/drivers/clk/Makefile
-index f7f761b02beda..8ca03d9d693b0 100644
---- a/drivers/clk/Makefile
-+++ b/drivers/clk/Makefile
-@@ -65,6 +65,7 @@ obj-$(CONFIG_ARCH_HISI)			+= hisilicon/
- obj-y					+= imgtec/
- obj-$(CONFIG_ARCH_MXC)			+= imx/
- obj-$(CONFIG_MACH_INGENIC)		+= ingenic/
-+obj-$(CONFIG_ARCH_K3)			+= keystone/
- obj-$(CONFIG_ARCH_KEYSTONE)		+= keystone/
- obj-$(CONFIG_MACH_LOONGSON32)		+= loongson1/
- obj-$(CONFIG_ARCH_MEDIATEK)		+= mediatek/
-diff --git a/drivers/clk/keystone/Kconfig b/drivers/clk/keystone/Kconfig
-index 7e9f0176578a6..b04927d06cd10 100644
---- a/drivers/clk/keystone/Kconfig
-+++ b/drivers/clk/keystone/Kconfig
-@@ -7,7 +7,7 @@ config COMMON_CLK_KEYSTONE
+diff --git a/drivers/infiniband/hw/mthca/mthca_main.c b/drivers/infiniband/hw/mthca/mthca_main.c
+index e36a9bc52268d..ccf50dafce9ca 100644
+--- a/drivers/infiniband/hw/mthca/mthca_main.c
++++ b/drivers/infiniband/hw/mthca/mthca_main.c
+@@ -986,7 +986,8 @@ static int __mthca_init_one(struct pci_dev *pdev, int hca_type)
+ 		goto err_free_dev;
+ 	}
  
- config TI_SCI_CLK
- 	tristate "TI System Control Interface clock drivers"
--	depends on (ARCH_KEYSTONE || COMPILE_TEST) && OF
-+	depends on (ARCH_KEYSTONE || ARCH_K3 || COMPILE_TEST) && OF
- 	depends on TI_SCI_PROTOCOL
- 	default ARCH_KEYSTONE
- 	---help---
+-	if (mthca_cmd_init(mdev)) {
++	err = mthca_cmd_init(mdev);
++	if (err) {
+ 		mthca_err(mdev, "Failed to init command interface, aborting.\n");
+ 		goto err_free_dev;
+ 	}
 -- 
 2.20.1
 
