@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60228FA403
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E25FA405
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729781AbfKMB5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:57:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50596 "EHLO mail.kernel.org"
+        id S1729791AbfKMB50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:57:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729737AbfKMB5Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:57:24 -0500
+        id S1729782AbfKMB5Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:57:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E738222D3;
-        Wed, 13 Nov 2019 01:57:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 845B4222CF;
+        Wed, 13 Nov 2019 01:57:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610244;
-        bh=kYRv6X1JijuFRXp3cEKnjfaokBgri1XdSpNc8t1YNv4=;
+        s=default; t=1573610245;
+        bh=ZbNF/HOQmAyS7qUPtr8/B5e3AqtF1X/+pA8iO8KsUvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4bJMZED7tfQUe5OM23CpHBIhd6RgsU4i1LGw6HbUZAhW54oZvCTOX5GkYIxGryVy
-         cGz5EcJy2Nna19j8zVCgqFXZMKSmjY0a2H4Yi2dIPJZ8pLPwHGSpWp3Z+K+RyARzM2
-         SoPe0Vhe0+xzkTAR9ysQmluTEopCMmVN3EkNLpxs=
+        b=M6pdmhnoheEkdMLfBMWFWh3jDKr7wA1ZctEMvaQED0cwTZ95HXJd8a8AEVmN54u6z
+         CaQHPkarmvDsoF8Ods18C/4Amo1VQnXJQEw+CMm5K78H0x1bEp+/l1TQ4Hm6BrO15j
+         POWbWXONvYGbgs7zu4tYnK7W1FWP5LVUhG3OQ6d8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+Cc:     Radoslaw Tyl <radoslawx.tyl@intel.com>,
         Andrew Bowers <andrewx.bowers@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 043/115] i40e: Use proper enum in i40e_ndo_set_vf_link_state
-Date:   Tue, 12 Nov 2019 20:55:10 -0500
-Message-Id: <20191113015622.11592-43-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 044/115] ixgbe: Fix crash with VFs and flow director on interface flap
+Date:   Tue, 12 Nov 2019 20:55:11 -0500
+Message-Id: <20191113015622.11592-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -45,47 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Radoslaw Tyl <radoslawx.tyl@intel.com>
 
-[ Upstream commit 43ade6ad18416b8fd5bb3c9e9789faa666527eec ]
+[ Upstream commit 5d826d209164b0752c883607be4cdbbcf7cab494 ]
 
-Clang warns when one enumerated type is converted implicitly to another.
+This patch fix crash when we have restore flow director filters after reset
+adapter. In ixgbe_fdir_filter_restore() filter->action is outside of the
+rx_ring array, as it has a VF identifier in the upper 32 bits.
 
-drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c:4214:42: warning:
-implicit conversion from enumeration type 'enum i40e_aq_link_speed' to
-different enumeration type 'enum virtchnl_link_speed'
-      [-Wenum-conversion]
-                pfe.event_data.link_event.link_speed = I40E_LINK_SPEED_40GB;
-                                                     ~ ^~~~~~~~~~~~~~~~~~~~
-1 warning generated.
-
-Use the proper enum from virtchnl_link_speed, which has the same value
-as I40E_LINK_SPEED_40GB, VIRTCHNL_LINK_SPEED_40GB. This appears to be
-missed by commit ff3f4cc267f6 ("virtchnl: finish conversion to virtchnl
-interface").
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/81
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Radoslaw Tyl <radoslawx.tyl@intel.com>
 Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-index bdb7523216000..ea42240ddace7 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
-@@ -3191,7 +3191,7 @@ int i40e_ndo_set_vf_link_state(struct net_device *netdev, int vf_id, int link)
- 		vf->link_forced = true;
- 		vf->link_up = true;
- 		pfe.event_data.link_event.link_status = true;
--		pfe.event_data.link_event.link_speed = I40E_LINK_SPEED_40GB;
-+		pfe.event_data.link_event.link_speed = VIRTCHNL_LINK_SPEED_40GB;
- 		break;
- 	case IFLA_VF_LINK_STATE_DISABLE:
- 		vf->link_forced = true;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index d1472727ef882..4801d96c4fa91 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -5129,6 +5129,7 @@ static void ixgbe_fdir_filter_restore(struct ixgbe_adapter *adapter)
+ 	struct ixgbe_hw *hw = &adapter->hw;
+ 	struct hlist_node *node2;
+ 	struct ixgbe_fdir_filter *filter;
++	u64 action;
+ 
+ 	spin_lock(&adapter->fdir_perfect_lock);
+ 
+@@ -5137,12 +5138,17 @@ static void ixgbe_fdir_filter_restore(struct ixgbe_adapter *adapter)
+ 
+ 	hlist_for_each_entry_safe(filter, node2,
+ 				  &adapter->fdir_filter_list, fdir_node) {
++		action = filter->action;
++		if (action != IXGBE_FDIR_DROP_QUEUE && action != 0)
++			action =
++			(action >> ETHTOOL_RX_FLOW_SPEC_RING_VF_OFF) - 1;
++
+ 		ixgbe_fdir_write_perfect_filter_82599(hw,
+ 				&filter->filter,
+ 				filter->sw_idx,
+-				(filter->action == IXGBE_FDIR_DROP_QUEUE) ?
++				(action == IXGBE_FDIR_DROP_QUEUE) ?
+ 				IXGBE_FDIR_DROP_QUEUE :
+-				adapter->rx_ring[filter->action]->reg_idx);
++				adapter->rx_ring[action]->reg_idx);
+ 	}
+ 
+ 	spin_unlock(&adapter->fdir_perfect_lock);
 -- 
 2.20.1
 
