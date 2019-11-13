@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B41AFBB02
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 22:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B76EFBB03
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 22:44:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726251AbfKMVoQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 16:44:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40888 "EHLO mail.kernel.org"
+        id S1726291AbfKMVo2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 16:44:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726189AbfKMVoP (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Wed, 13 Nov 2019 16:44:15 -0500
+        id S1726189AbfKMVo2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Nov 2019 16:44:28 -0500
 Received: from localhost (unknown [61.58.47.46])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26280206E5;
-        Wed, 13 Nov 2019 21:44:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2687206EE;
+        Wed, 13 Nov 2019 21:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573681456;
-        bh=3NGfwr4tec0qqpkIdNavDU/NoqajQop8LNXsMNreEOQ=;
+        s=default; t=1573681469;
+        bh=QmsYd+dzk6pjP168Xqtd2Sgqz8qrobVfdAKsIfYSSrk=;
         h=Subject:To:From:Date:From;
-        b=r3rYhUPJD78GHuXtZlhK8omy2dtmKbcznDvrImE1Ny1I1ObecFdPRE1Rl7Agi+8Yx
-         YdF8l/a4ZIhCfBl1fhBveq3B2PR7Q/4/ZSQWVzaTSOkcWPp2kwB9t0VnUatwqJXj2I
-         4sOF8sqg8XdoquwE/rp+CFlfEMAFyelLajDGDA0s=
-Subject: patch "iio: imu: st_lsm6dsx: fix ODR check in st_lsm6dsx_write_raw" added to staging-next
-To:     lorenzo@kernel.org, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=S70z1huuPYZ2t67P9XJinnlBVKxsUcMdrX0odfuDNnOGcdYFyN86M9Thsp7tC2y4M
+         w/HIkNHxD5SGB6cOmEWF55PswBX4axiMvnwPxEvKBp28MfY7xVkjeCamNv+uhTGWLY
+         lg3tbcEXaOMX/1s0glhySMFr3cNPgT22hrjHMNo8=
+Subject: patch "usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()" added to usb-next
+To:     suwan.kim027@gmail.com, dan.carpenter@oracle.com,
+        gregkh@linuxfoundation.org, lkp@intel.com,
+        skhan@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 14 Nov 2019 05:43:33 +0800
-Message-ID: <157368141372196@kroah.com>
+Date:   Thu, 14 Nov 2019 05:43:39 +0800
+Message-ID: <1573681419160131@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -40,11 +41,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: imu: st_lsm6dsx: fix ODR check in st_lsm6dsx_write_raw
+    usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()
 
-to my staging git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
-in the staging-next branch.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -55,52 +56,121 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From fc3f6ad7f5dc6c899fbda0255865737bac88c2e0 Mon Sep 17 00:00:00 2001
-From: Lorenzo Bianconi <lorenzo@kernel.org>
-Date: Sun, 27 Oct 2019 19:02:30 +0100
-Subject: iio: imu: st_lsm6dsx: fix ODR check in st_lsm6dsx_write_raw
+From 2a9125317b247f2cf35c196f968906dcf062ae2d Mon Sep 17 00:00:00 2001
+From: Suwan Kim <suwan.kim027@gmail.com>
+Date: Mon, 11 Nov 2019 23:10:35 +0900
+Subject: usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Since st_lsm6dsx i2c master controller relies on accel device as trigger
-and slave devices can run at different ODRs we must select an accel_odr >=
-slave_odr. Report real accel ODR in st_lsm6dsx_check_odr() in order to
-properly set sensor frequency in st_lsm6dsx_write_raw and avoid to
-report unsupported frequency
+Smatch reported that nents is not initialized and used in
+stub_recv_cmd_submit(). nents is currently initialized by sgl_alloc()
+and used to allocate multiple URBs when host controller doesn't
+support scatter-gather DMA. The use of uninitialized nents means that
+buf_len is zero and use_sg is true. But buffer length should not be
+zero when an URB uses scatter-gather DMA.
 
-Fixes: 6ffb55e5009ff ("iio: imu: st_lsm6dsx: introduce ST_LSM6DSX_ID_EXT sensor ids")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+To prevent this situation, add the conditional that checks buf_len
+and use_sg. And move the use of nents right after the sgl_alloc() to
+avoid the use of uninitialized nents.
+
+If the error occurs, it adds SDEV_EVENT_ERROR_MALLOC and stub_priv
+will be released by stub event handler and connection will be shut
+down.
+
+Fixes: ea44d190764b ("usbip: Implement SG support to vhci-hcd and stub driver")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191111141035.27788-1-suwan.kim027@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/usbip/stub_rx.c | 50 ++++++++++++++++++++++++-------------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index a3333c215339..2f9396745bc8 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -1377,8 +1377,7 @@ int st_lsm6dsx_check_odr(struct st_lsm6dsx_sensor *sensor, u16 odr, u8 *val)
- 		return -EINVAL;
+diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
+index 66edfeea68fe..e2b019532234 100644
+--- a/drivers/usb/usbip/stub_rx.c
++++ b/drivers/usb/usbip/stub_rx.c
+@@ -470,18 +470,50 @@ static void stub_recv_cmd_submit(struct stub_device *sdev,
+ 	if (pipe == -1)
+ 		return;
  
- 	*val = odr_table->odr_avl[i].val;
--
--	return 0;
-+	return odr_table->odr_avl[i].hz;
- }
++	/*
++	 * Smatch reported the error case where use_sg is true and buf_len is 0.
++	 * In this case, It adds SDEV_EVENT_ERROR_MALLOC and stub_priv will be
++	 * released by stub event handler and connection will be shut down.
++	 */
+ 	priv = stub_priv_alloc(sdev, pdu);
+ 	if (!priv)
+ 		return;
  
- static u16 st_lsm6dsx_check_odr_dependency(struct st_lsm6dsx_hw *hw, u16 odr,
-@@ -1542,8 +1541,10 @@ static int st_lsm6dsx_write_raw(struct iio_dev *iio_dev,
- 	case IIO_CHAN_INFO_SAMP_FREQ: {
- 		u8 data;
+ 	buf_len = (unsigned long long)pdu->u.cmd_submit.transfer_buffer_length;
  
--		err = st_lsm6dsx_check_odr(sensor, val, &data);
--		if (!err)
-+		val = st_lsm6dsx_check_odr(sensor, val, &data);
-+		if (val < 0)
-+			err = val;
-+		else
- 			sensor->odr = val;
- 		break;
++	if (use_sg && !buf_len) {
++		dev_err(&udev->dev, "sg buffer with zero length\n");
++		goto err_malloc;
++	}
++
+ 	/* allocate urb transfer buffer, if needed */
+ 	if (buf_len) {
+ 		if (use_sg) {
+ 			sgl = sgl_alloc(buf_len, GFP_KERNEL, &nents);
+ 			if (!sgl)
+ 				goto err_malloc;
++
++			/* Check if the server's HCD supports SG */
++			if (!udev->bus->sg_tablesize) {
++				/*
++				 * If the server's HCD doesn't support SG, break
++				 * a single SG request into several URBs and map
++				 * each SG list entry to corresponding URB
++				 * buffer. The previously allocated SG list is
++				 * stored in priv->sgl (If the server's HCD
++				 * support SG, SG list is stored only in
++				 * urb->sg) and it is used as an indicator that
++				 * the server split single SG request into
++				 * several URBs. Later, priv->sgl is used by
++				 * stub_complete() and stub_send_ret_submit() to
++				 * reassemble the divied URBs.
++				 */
++				support_sg = 0;
++				num_urbs = nents;
++				priv->completed_urbs = 0;
++				pdu->u.cmd_submit.transfer_flags &=
++								~URB_DMA_MAP_SG;
++			}
+ 		} else {
+ 			buffer = kzalloc(buf_len, GFP_KERNEL);
+ 			if (!buffer)
+@@ -489,24 +521,6 @@ static void stub_recv_cmd_submit(struct stub_device *sdev,
+ 		}
  	}
+ 
+-	/* Check if the server's HCD supports SG */
+-	if (use_sg && !udev->bus->sg_tablesize) {
+-		/*
+-		 * If the server's HCD doesn't support SG, break a single SG
+-		 * request into several URBs and map each SG list entry to
+-		 * corresponding URB buffer. The previously allocated SG
+-		 * list is stored in priv->sgl (If the server's HCD support SG,
+-		 * SG list is stored only in urb->sg) and it is used as an
+-		 * indicator that the server split single SG request into
+-		 * several URBs. Later, priv->sgl is used by stub_complete() and
+-		 * stub_send_ret_submit() to reassemble the divied URBs.
+-		 */
+-		support_sg = 0;
+-		num_urbs = nents;
+-		priv->completed_urbs = 0;
+-		pdu->u.cmd_submit.transfer_flags &= ~URB_DMA_MAP_SG;
+-	}
+-
+ 	/* allocate urb array */
+ 	priv->num_urbs = num_urbs;
+ 	priv->urbs = kmalloc_array(num_urbs, sizeof(*priv->urbs), GFP_KERNEL);
 -- 
 2.24.0
 
