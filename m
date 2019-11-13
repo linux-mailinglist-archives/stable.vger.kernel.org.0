@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B87F9FA507
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:21:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E00B7FA513
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:21:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728884AbfKMBy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:54:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45352 "EHLO mail.kernel.org"
+        id S1728393AbfKMCUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:20:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728880AbfKMBy2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:54:28 -0500
+        id S1728886AbfKMBy3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:54:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82D472245A;
-        Wed, 13 Nov 2019 01:54:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB6BE222CD;
+        Wed, 13 Nov 2019 01:54:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610068;
-        bh=iORbwAUQT32YOs7L6orzyi2v9UCPskwpAZJBMgtZrms=;
+        s=default; t=1573610069;
+        bh=sYQwy0mr+/sqRpZnuVp/y88pnLT1G0lmL9bwKXQivFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a0GAc63VHUX7/FwWQ8RrytyNstqOvI6j7VhRaSw2PFSu5kkj6ZZUIVOsz2OO5G05H
-         NGrNVkCnI6ysDoe/hnNomFQwdbS8q9496TkWeHuYyyn8dwbaCCprFT2kkYW4TpJKVf
-         sfj2AMgAsT3nCMtke+hWo/0ZqNve3kTLKOpiS7pI=
+        b=KYPKSFiMwRquy2p5/p3Bju5BikQQ3RecymDJ1KIlnBPTe4enyQ6hPuALICFKAOJBe
+         YMStE1FLzAMvz5TSxVIWwM4sF3a37C/T94N0BO1HKPYzCe2icTMT8hiRU6okpA1hh6
+         ykZ6U+eSKQ0Elx72t0KLv6fGuWED0K8Y3uDPYrtE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Vadim Pasternak <vadimp@mellanox.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 147/209] platform/x86: mlx-platform: Properly use mlxplat_mlxcpld_msn201x_items
-Date:   Tue, 12 Nov 2019 20:49:23 -0500
-Message-Id: <20191113015025.9685-147-sashal@kernel.org>
+Cc:     Rajmohan Mani <rajmohan.mani@intel.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 148/209] media: dw9714: Fix error handling in probe function
+Date:   Tue, 12 Nov 2019 20:49:24 -0500
+Message-Id: <20191113015025.9685-148-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -46,48 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Rajmohan Mani <rajmohan.mani@intel.com>
 
-[ Upstream commit 8289c4b6f2e53750de78bd38cecb6bce4d7a988c ]
+[ Upstream commit f9a0b14240a2d0bd196d35e8aac73df6eabd6382 ]
 
-Clang warns that mlxplat_mlxcpld_msn201x_items is not going to be
-emitted in the final assembly because it's only used in ARRAY_SIZE right
-now, which is a compile time evaluation since the array's size is known.
+Fixed the case where v4l2_async_unregister_subdev()
+is called unnecessarily in the error handling path
+in probe function.
 
-drivers/platform/x86/mlx-platform.c:555:32: warning: variable
-'mlxplat_mlxcpld_msn201x_items' is not needed and will not be emitted
-[-Wunneeded-internal-declaration]
-static struct mlxreg_core_item mlxplat_mlxcpld_msn201x_items[] = {
-                               ^
-1 warning generated.
-
-It appears this was a copy and paste mistake from when this item was
-first added. Use the definition in mlxplat_mlxcpld_msn201x_data so that
-Clang no longer warns.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/141
-Fixes: a49a41482f61 ("platform/x86: mlx-platform: Add support for new msn201x system type")
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Vadim Pasternak <vadimp@mellanox.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rajmohan Mani <rajmohan.mani@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/mlx-platform.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/dw9714.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
-index 742a0c2179256..d17db140cb1fc 100644
---- a/drivers/platform/x86/mlx-platform.c
-+++ b/drivers/platform/x86/mlx-platform.c
-@@ -575,7 +575,7 @@ static struct mlxreg_core_item mlxplat_mlxcpld_msn201x_items[] = {
+diff --git a/drivers/media/i2c/dw9714.c b/drivers/media/i2c/dw9714.c
+index 91fae01d052bf..3dc2100470a1c 100644
+--- a/drivers/media/i2c/dw9714.c
++++ b/drivers/media/i2c/dw9714.c
+@@ -169,7 +169,8 @@ static int dw9714_probe(struct i2c_client *client)
+ 	return 0;
  
- static
- struct mlxreg_core_hotplug_platform_data mlxplat_mlxcpld_msn201x_data = {
--	.items = mlxplat_mlxcpld_msn21xx_items,
-+	.items = mlxplat_mlxcpld_msn201x_items,
- 	.counter = ARRAY_SIZE(mlxplat_mlxcpld_msn201x_items),
- 	.cell = MLXPLAT_CPLD_LPC_REG_AGGR_OFFSET,
- 	.mask = MLXPLAT_CPLD_AGGR_MASK_DEF,
+ err_cleanup:
+-	dw9714_subdev_cleanup(dw9714_dev);
++	v4l2_ctrl_handler_free(&dw9714_dev->ctrls_vcm);
++	media_entity_cleanup(&dw9714_dev->sd.entity);
+ 	dev_err(&client->dev, "Probe failed: %d\n", rval);
+ 	return rval;
+ }
 -- 
 2.20.1
 
