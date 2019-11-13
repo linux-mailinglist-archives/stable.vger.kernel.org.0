@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA996FA40F
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C38FA3E4
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:13:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730297AbfKMCNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:13:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51254 "EHLO mail.kernel.org"
+        id S1728825AbfKMB56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:57:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729878AbfKMB5s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:57:48 -0500
+        id S1729900AbfKMB5y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:57:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B68A42245A;
-        Wed, 13 Nov 2019 01:57:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A965D2245A;
+        Wed, 13 Nov 2019 01:57:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610268;
-        bh=AbhhGJjH9ocIp2u3UGP37MT5HgjAL/lrgf9N9EduUYw=;
+        s=default; t=1573610273;
+        bh=FdIf39HYp99A1BoW7/Xn0oQ/GrnSVyevPFLPkhzblec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+yEkN0bKXLbcE0O7OEJZxC2bbj35wpmI1fNhySI5oyrRIVL7ZZcQOKo/XzqoNuZl
-         OVjbv6diqjqJea23+crHP36+mKbwmmslU5g0t/DBE1sULtRm3BqGSoxSun5C/mVJRu
-         +3hVStrmQmZ81bg4jL5xHDL3irosi8YgaJELhJNI=
+        b=SgciO+HFUPPyDkenwqeLS39EjSduH1KMq1LlOG1Z+Ny3EFLA4hLDwb9Xilgr6vD95
+         pSMOVloAGVY4kb0jZgAkQZf0KgS3AVQHchYNtYJiFJKq5WBZ1Nene0x68YlC29/hW9
+         iMU64gWEaQ6m0eHrdmGN6AuLbjS7McRRWbO/ERFI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
-        Boris Brezillon <boris.brezillon@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 057/115] mtd: physmap_of: Release resources on error
-Date:   Tue, 12 Nov 2019 20:55:24 -0500
-Message-Id: <20191113015622.11592-57-sashal@kernel.org>
+Cc:     Chung-Hsien Hsu <stanley.hsu@cypress.com>,
+        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 059/115] brcmfmac: reduce timeout for action frame scan
+Date:   Tue, 12 Nov 2019 20:55:26 -0500
+Message-Id: <20191113015622.11592-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -43,86 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
 
-[ Upstream commit ef0de747f7ad179c7698a5b0e28db05f18ecbf57 ]
+[ Upstream commit edb6d6885bef82d1eac432dbeca9fbf4ec349d7e ]
 
-During probe, if there was an error the memory region and the memory
-map were not properly released.This can lead a system unusable if
-deferred probe is in use.
+Finding a common channel to send an action frame out is required for
+some action types. Since a loop with several scan retry is used to find
+the channel, a short wait time could be considered for each attempt.
+This patch reduces the wait time from 1500 to 450 msec for each action
+frame scan.
 
-Replace mem_request and map with devm_ioremap_resource
+This patch fixes the WFA p2p certification 5.1.20 failure caused by the
+long action frame send time.
 
-Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/maps/physmap_of_core.c | 27 +++++----------------------
- 1 file changed, 5 insertions(+), 22 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mtd/maps/physmap_of_core.c b/drivers/mtd/maps/physmap_of_core.c
-index b1bd4faecfb25..5d8399742c754 100644
---- a/drivers/mtd/maps/physmap_of_core.c
-+++ b/drivers/mtd/maps/physmap_of_core.c
-@@ -30,7 +30,6 @@
- struct of_flash_list {
- 	struct mtd_info *mtd;
- 	struct map_info map;
--	struct resource *res;
- };
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+index 450f2216fac2d..c9566c9036721 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+@@ -74,7 +74,7 @@
+ #define P2P_AF_MAX_WAIT_TIME		msecs_to_jiffies(2000)
+ #define P2P_INVALID_CHANNEL		-1
+ #define P2P_CHANNEL_SYNC_RETRY		5
+-#define P2P_AF_FRM_SCAN_MAX_WAIT	msecs_to_jiffies(1500)
++#define P2P_AF_FRM_SCAN_MAX_WAIT	msecs_to_jiffies(450)
+ #define P2P_DEFAULT_SLEEP_TIME_VSDB	200
  
- struct of_flash {
-@@ -55,18 +54,10 @@ static int of_flash_remove(struct platform_device *dev)
- 			mtd_concat_destroy(info->cmtd);
- 	}
+ /* WiFi P2P Public Action Frame OUI Subtypes */
+@@ -1139,7 +1139,6 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ {
+ 	struct afx_hdl *afx_hdl = &p2p->afx_hdl;
+ 	struct brcmf_cfg80211_vif *pri_vif;
+-	unsigned long duration;
+ 	s32 retry;
  
--	for (i = 0; i < info->list_size; i++) {
-+	for (i = 0; i < info->list_size; i++)
- 		if (info->list[i].mtd)
- 			map_destroy(info->list[i].mtd);
- 
--		if (info->list[i].map.virt)
--			iounmap(info->list[i].map.virt);
--
--		if (info->list[i].res) {
--			release_resource(info->list[i].res);
--			kfree(info->list[i].res);
--		}
--	}
- 	return 0;
- }
- 
-@@ -214,10 +205,11 @@ static int of_flash_probe(struct platform_device *dev)
- 
- 		err = -EBUSY;
- 		res_size = resource_size(&res);
--		info->list[i].res = request_mem_region(res.start, res_size,
--						       dev_name(&dev->dev));
--		if (!info->list[i].res)
-+		info->list[i].map.virt = devm_ioremap_resource(&dev->dev, &res);
-+		if (IS_ERR(info->list[i].map.virt)) {
-+			err = PTR_ERR(info->list[i].map.virt);
- 			goto err_out;
-+		}
- 
- 		err = -ENXIO;
- 		width = of_get_property(dp, "bank-width", NULL);
-@@ -240,15 +232,6 @@ static int of_flash_probe(struct platform_device *dev)
- 		if (err)
- 			goto err_out;
- 
--		err = -ENOMEM;
--		info->list[i].map.virt = ioremap(info->list[i].map.phys,
--						 info->list[i].map.size);
--		if (!info->list[i].map.virt) {
--			dev_err(&dev->dev, "Failed to ioremap() flash"
--				" region\n");
--			goto err_out;
--		}
--
- 		simple_map_init(&info->list[i].map);
- 
- 		/*
+ 	brcmf_dbg(TRACE, "Enter\n");
+@@ -1155,7 +1154,6 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ 	 * pending action frame tx is cancelled.
+ 	 */
+ 	retry = 0;
+-	duration = msecs_to_jiffies(P2P_AF_FRM_SCAN_MAX_WAIT);
+ 	while ((retry < P2P_CHANNEL_SYNC_RETRY) &&
+ 	       (afx_hdl->peer_chan == P2P_INVALID_CHANNEL)) {
+ 		afx_hdl->is_listen = false;
+@@ -1163,7 +1161,8 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ 			  retry);
+ 		/* search peer on peer's listen channel */
+ 		schedule_work(&afx_hdl->afx_work);
+-		wait_for_completion_timeout(&afx_hdl->act_frm_scan, duration);
++		wait_for_completion_timeout(&afx_hdl->act_frm_scan,
++					    P2P_AF_FRM_SCAN_MAX_WAIT);
+ 		if ((afx_hdl->peer_chan != P2P_INVALID_CHANNEL) ||
+ 		    (!test_bit(BRCMF_P2P_STATUS_FINDING_COMMON_CHANNEL,
+ 			       &p2p->status)))
+@@ -1176,7 +1175,7 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ 			afx_hdl->is_listen = true;
+ 			schedule_work(&afx_hdl->afx_work);
+ 			wait_for_completion_timeout(&afx_hdl->act_frm_scan,
+-						    duration);
++						    P2P_AF_FRM_SCAN_MAX_WAIT);
+ 		}
+ 		if ((afx_hdl->peer_chan != P2P_INVALID_CHANNEL) ||
+ 		    (!test_bit(BRCMF_P2P_STATUS_FINDING_COMMON_CHANNEL,
 -- 
 2.20.1
 
