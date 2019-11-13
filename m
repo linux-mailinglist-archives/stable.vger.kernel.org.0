@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE550FA60F
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:26:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABE25FA60A
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:26:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729054AbfKMC0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:26:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38712 "EHLO mail.kernel.org"
+        id S1730331AbfKMC0W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:26:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727743AbfKMBvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:51:15 -0500
+        id S1727751AbfKMBvQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:51:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B062C222CE;
-        Wed, 13 Nov 2019 01:51:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C048322459;
+        Wed, 13 Nov 2019 01:51:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609874;
-        bh=k5ZRh2ikyUYWBdoD1qh1lHWr6fCnKfqiDBwbD6/ssmo=;
+        s=default; t=1573609875;
+        bh=aR+7IWwqhRZDLaMIVikkwQEGC9EKDQlI50+mJ7hE0ok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PM8t8VvaBwvqguNWkiWag13pgZwRhc25IQYKLbVytz3bSIchgIoiiDAISiUST+ntb
-         5UcsU1I6YQPsIM4iGX0oyi3mnJXXoJImw+qM1XWCW9hzLnmcgvsEGfl7rCHAJSQtiP
-         Z0M5H95GpthOtE0gD+6GvXC6Lun2VswVWQcueIq4=
+        b=iMxKPJstolRhWnDb2BhXxagKYrFQblG9CsKxqlOaqwOZt+5hyda3r1NQcxgrcyfkw
+         L0xO62tdcnXe20T5qlwOkN9dKA/Bp7uu8c0rzWkeCM+3t5+chBsRWP5jx3MtP18Mjf
+         qCrPbnUkmCjwjtrN1a8UZOCa/YaZBAhPsmUYA0pw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 037/209] irqchip/irq-mvebu-icu: Fix wrong private data retrieval
-Date:   Tue, 12 Nov 2019 20:47:33 -0500
-Message-Id: <20191113015025.9685-37-sashal@kernel.org>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Fabrizio Castro <fabrizio.castro@bp.renesas.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 038/209] watchdog: core: fix null pointer dereference when releasing cdev
+Date:   Tue, 12 Nov 2019 20:47:34 -0500
+Message-Id: <20191113015025.9685-38-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -44,44 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit 2b4dab69dcca13c5be2ddaf1337ae4accd087de6 ]
+[ Upstream commit 953b9dd7725bad55a922a35e75bff7bebf7b9978 ]
 
-The irq_domain structure has an host_data pointer that just stores
-private data. It is meant to not be touched by the IRQ core. However,
-when it comes to MSI, the MSI layer adds its own private data there
-with a structure that also has a host_data pointer.
+watchdog_stop() calls watchdog_update_worker() which needs a valid
+wdd->wd_data pointer. So, when unregistering the cdev, clear the
+pointers after we call watchdog_stop(), not before.
 
-Because this IRQ domain is an MSI domain, to access private data we
-should do a d->host_data->host_data, also wrapped as
-'platform_msi_get_host_data()'.
-
-This bug was lying there silently because the 'icu' structure retrieved
-this way was just called by dev_err(), only producing a
-'(NULL device *):' output on the console.
-
-Reviewed-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Fixes: bb292ac1c602 ("watchdog: Introduce watchdog_stop_on_unregister helper")
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Fabrizio Castro <fabrizio.castro@bp.renesas.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-mvebu-icu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/watchdog/watchdog_dev.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/irqchip/irq-mvebu-icu.c b/drivers/irqchip/irq-mvebu-icu.c
-index 13063339b416d..a2a3acd744911 100644
---- a/drivers/irqchip/irq-mvebu-icu.c
-+++ b/drivers/irqchip/irq-mvebu-icu.c
-@@ -105,7 +105,7 @@ static int
- mvebu_icu_irq_domain_translate(struct irq_domain *d, struct irq_fwspec *fwspec,
- 			       unsigned long *hwirq, unsigned int *type)
- {
--	struct mvebu_icu *icu = d->host_data;
-+	struct mvebu_icu *icu = platform_msi_get_host_data(d);
- 	unsigned int icu_group;
+diff --git a/drivers/watchdog/watchdog_dev.c b/drivers/watchdog/watchdog_dev.c
+index ffbdc4642ea55..f6c24b22b37c0 100644
+--- a/drivers/watchdog/watchdog_dev.c
++++ b/drivers/watchdog/watchdog_dev.c
+@@ -1019,16 +1019,16 @@ static void watchdog_cdev_unregister(struct watchdog_device *wdd)
+ 		old_wd_data = NULL;
+ 	}
  
- 	/* Check the count of the parameters in dt */
+-	mutex_lock(&wd_data->lock);
+-	wd_data->wdd = NULL;
+-	wdd->wd_data = NULL;
+-	mutex_unlock(&wd_data->lock);
+-
+ 	if (watchdog_active(wdd) &&
+ 	    test_bit(WDOG_STOP_ON_UNREGISTER, &wdd->status)) {
+ 		watchdog_stop(wdd);
+ 	}
+ 
++	mutex_lock(&wd_data->lock);
++	wd_data->wdd = NULL;
++	wdd->wd_data = NULL;
++	mutex_unlock(&wd_data->lock);
++
+ 	hrtimer_cancel(&wd_data->timer);
+ 	kthread_cancel_work_sync(&wd_data->work);
+ 
 -- 
 2.20.1
 
