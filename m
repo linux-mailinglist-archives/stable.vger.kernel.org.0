@@ -2,101 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6BDF9ED4
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 01:02:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62986F9ED9
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 01:07:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726923AbfKMACw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 19:02:52 -0500
-Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22090 "EHLO
-        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1726910AbfKMACt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 19:02:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573603368;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mFZNYzU4aq8T7KuOOh7683mZkvSGsdedXb2PwJoCtQ4=;
-        b=LwD23NvnG+Lmyq1AXSYQe28KMn5vIDePVlz6QJaw1vl2gNZaHB/tlPZ3ZTu05knWns8GL6
-        veuzD0CmPDGizWIUbCU5y8Nd4mXysdbI8VD2rOK4H67bNHW+202LTJt9JxBESVaNGWq+w7
-        gT8JdYqTl23YKbsPeVQ6DtL16Pe9Iok=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-284-5EKU7PrLP_mDMrmo4DPU2w-1; Tue, 12 Nov 2019 19:02:47 -0500
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C42CA800EB3;
-        Wed, 13 Nov 2019 00:02:45 +0000 (UTC)
-Received: from cantor.redhat.com (ovpn-116-198.phx2.redhat.com [10.3.116.198])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 401CE64020;
-        Wed, 13 Nov 2019 00:02:45 +0000 (UTC)
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Jerry Snitselaar <jsnitsel@redhat.com>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        Christian Bundy <christianbundy@fraction.io>
-Subject: [PATCH v3] tpm_tis: turn on TPM before calling tpm_get_timeouts
-Date:   Tue, 12 Nov 2019 17:02:43 -0700
-Message-Id: <20191113000243.16611-1-jsnitsel@redhat.com>
-In-Reply-To: <20191111233418.17676-1-jsnitsel@redhat.com>
-References: <20191111233418.17676-1-jsnitsel@redhat.com>
+        id S1726973AbfKMAHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 19:07:53 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:40079 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726912AbfKMAHx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 19:07:53 -0500
+Received: by mail-wm1-f68.google.com with SMTP id f3so63247wmc.5
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 16:07:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=49PdPX+moDYC/1LhC15YtUXqFwP2lHjsWXTmAd2Fqtc=;
+        b=kiSnpyGJ9vkLIKnFSvj+lLwZKpvD8Kh/e2LlaQ63MC3I+yGJliDATaBxK4heiKZKtV
+         FALtot4Hb4qLVDwGlDIfu9lRqXHChbP3gC/2kO+OGHDP9w1/Y7jopNkqXcM6vbC1/KFk
+         aUM3CzB5/+QY/qsgC1HSuaFkZmM5aNeCoBZt1Ttn0FWh9e8iofnRI8skX6XSKH5opLwL
+         D8gkDcoEAcRcFTPeOYJRw/ppbYZlvCFxBduT86xjLNQ2gV3ky/tDfRhvfm+OxWzq0UdD
+         1ItcWWIZ6KH62Xlz1Oa6kfLV7GooUu+PUJ9oDePeODwEJj1VmKNrRJ/XACy9GWmTf6zJ
+         1gtA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=49PdPX+moDYC/1LhC15YtUXqFwP2lHjsWXTmAd2Fqtc=;
+        b=N1yJXeqogbV1HU/xZH3xmbBGWTek/83bYxM2i8Foru7PG6j1S8krhInFu0wBEX9EJI
+         kVwgR4HmJp8Kyzhcr0Eq62aqGHGZdEPQAfECw14g/15k3WKpu2pG3/xd/dwg+4LEM0U+
+         56nr+OTJ73jo3tzRfPZe9EYFMngyVygghWFgcr5K1DCsPVPWIZVdo82aUO8zWfMf5m0c
+         +RPpcb+BPBejSLOeTLAD+H3WQ2LHMx6p0Vk37kkckCvm9AO2UH8aeUjBkGIdNvwOSvDx
+         dlz9eh24QREG+c4PsvuGDzE+uChX6+3zi8F5VzHLDiBnPtBxsu0CtJR4wbehKR/F9X0p
+         LlMQ==
+X-Gm-Message-State: APjAAAVFmBInj6NY0YtXISVeV8Ew1ouzLB3FqrqilqfIcJKlc8dNdGro
+        X0slPEa11QprvQZ/GMvwvXFHcqTCTI/bVg==
+X-Google-Smtp-Source: APXvYqyFKH0UbOrsfRU1ickr4Rw5n59lAmfraBPyBDJoZm09HZKsJiZ20MehN8Q3H0zWgwkZ3WTNZQ==
+X-Received: by 2002:a1c:e3d4:: with SMTP id a203mr82341wmh.173.1573603669578;
+        Tue, 12 Nov 2019 16:07:49 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id b14sm396318wmj.18.2019.11.12.16.07.48
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Nov 2019 16:07:49 -0800 (PST)
+Message-ID: <5dcb4955.1c69fb81.e1191.1cad@mx.google.com>
+Date:   Tue, 12 Nov 2019 16:07:49 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-MC-Unique: 5EKU7PrLP_mDMrmo4DPU2w-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.84
+Subject: stable/linux-4.19.y boot: 65 boots: 0 failed,
+ 64 passed with 1 untried/unknown (v4.19.84)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With power gating moved out of the tpm_transmit code we need
-to power on the TPM prior to calling tpm_get_timeouts.
+stable/linux-4.19.y boot: 65 boots: 0 failed, 64 passed with 1 untried/unkn=
+own (v4.19.84)
 
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: Peter Huewe <peterhuewe@gmx.de>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()=
-")
-Reported-by: Christian Bundy <christianbundy@fraction.io>
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+19.y/kernel/v4.19.84/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.84/
+
+Tree: stable
+Branch: linux-4.19.y
+Git Describe: v4.19.84
+Git Commit: c555efaf14026c7751fa68d87403a5eb5ae7dcaf
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 40 unique boards, 15 SoC families, 12 builds out of 206
+
+Boot Regressions Detected:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8:
+          sun8i-h2-plus-orangepi-r1:
+              lab-baylibre: new failure (last pass: v4.19.83)
+
 ---
-v3: call tpm_chip_stop in error path
-v2: fix stable cc to correct address
-
- drivers/char/tpm/tpm_tis_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_cor=
-e.c
-index 270f43acbb77..806acc666696 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -974,13 +974,14 @@ int tpm_tis_core_init(struct device *dev, struct tpm_=
-tis_data *priv, int irq,
- =09=09 * to make sure it works. May as well use that command to set the
- =09=09 * proper timeouts for the driver.
- =09=09 */
-+=09=09tpm_chip_start(chip);
- =09=09if (tpm_get_timeouts(chip)) {
- =09=09=09dev_err(dev, "Could not get TPM timeouts and durations\n");
- =09=09=09rc =3D -ENODEV;
-+=09=09=09tpm_chip_stop(chip);
- =09=09=09goto out_err;
- =09=09}
-=20
--=09=09tpm_chip_start(chip);
- =09=09chip->flags |=3D TPM_CHIP_FLAG_IRQ;
- =09=09if (irq) {
- =09=09=09tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
---=20
-2.24.0
-
+For more info write to <info@kernelci.org>
