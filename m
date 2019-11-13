@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F458FA2DC
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:06:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D83FA2DD
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:07:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730674AbfKMCBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:01:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
+        id S1730677AbfKMCBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:01:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730669AbfKMCBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:01:07 -0500
+        id S1730673AbfKMCBI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:01:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 530AE2247C;
-        Wed, 13 Nov 2019 02:01:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4BBD222476;
+        Wed, 13 Nov 2019 02:01:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610466;
-        bh=DaQLybh/xJL6ICV5KQelju/IXatkVj3q7xwN1oiX+YI=;
+        s=default; t=1573610468;
+        bh=Y5gSmstb9HkkjIeygMwLJ2UsJ94HGuiTlu/bS/iLyic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvSX3VPk7wn/EsX/LssOj3bIKBwyLUpqXlL+9M78EUQ+KsTqr6lwjKpcrHD69bQ4a
-         UM9nhHOTnK479+HWtd4oYq/cCh9RBq2e+eKGdKhVd9ap6n/6D2Z6k7ruDIqc2W0riD
-         qfn7pfKYIxgO6Ael17HAjo07tUESUIPMfbyvYFFg=
+        b=zPtz6PruWH4PBGOytBsKHi1Jwnga9/E6kEH75muLOzjkWdUD29BH8FbvPBp4zMgho
+         TlXyE7nPYmkFiXPkvTJMCZU+TMrTcA3MqYe0Y2PJpHyEzpB6V4GV9Lq+vY9xj19zry
+         snA5LdGHyHEzZOnHlOGecrnlaZJK677naW6E84Ok=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vignesh R <vigneshr@ti.com>, Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 53/68] mfd: ti_am335x_tscadc: Keep ADC interface on if child is wakeup capable
-Date:   Tue, 12 Nov 2019 20:59:17 -0500
-Message-Id: <20191113015932.12655-53-sashal@kernel.org>
+Cc:     He Zhe <zhe.he@windriver.com>, rostedt@goodmis.org,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 54/68] printk: Give error on attempt to set log buffer length to over 2G
+Date:   Tue, 12 Nov 2019 20:59:18 -0500
+Message-Id: <20191113015932.12655-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -42,50 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh R <vigneshr@ti.com>
+From: He Zhe <zhe.he@windriver.com>
 
-[ Upstream commit c974ac771479327b5424f60d58845e31daddadea ]
+[ Upstream commit e6fe3e5b7d16e8f146a4ae7fe481bc6e97acde1e ]
 
-If a child device like touchscreen is wakeup capable, then keep ADC
-interface on, so that a touching resistive screen will generate wakeup
-event to the system.
+The current printk() is ready to handle log buffer size up to 2G.
+Give an explicit error for users who want to use larger log buffer.
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Also fix printk formatting to show the 2G as a positive number.
+
+Link: http://lkml.kernel.org/r/20181008135916.gg4kkmoki5bgtco5@pathway.suse.cz
+Cc: rostedt@goodmis.org
+Cc: linux-kernel@vger.kernel.org
+Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: He Zhe <zhe.he@windriver.com>
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+[pmladek: Fixed to the really safe limit 2GB.]
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/ti_am335x_tscadc.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ kernel/printk/printk.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
-index 60286adbd6a1c..e56f0844b98de 100644
---- a/drivers/mfd/ti_am335x_tscadc.c
-+++ b/drivers/mfd/ti_am335x_tscadc.c
-@@ -295,11 +295,24 @@ static int ti_tscadc_remove(struct platform_device *pdev)
- 	return 0;
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 6607d77afe55a..a0339c458c140 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -383,6 +383,7 @@ static u32 clear_idx;
+ /* record buffer */
+ #define LOG_ALIGN __alignof__(struct printk_log)
+ #define __LOG_BUF_LEN (1 << CONFIG_LOG_BUF_SHIFT)
++#define LOG_BUF_LEN_MAX (u32)(1 << 31)
+ static char __log_buf[__LOG_BUF_LEN] __aligned(LOG_ALIGN);
+ static char *log_buf = __log_buf;
+ static u32 log_buf_len = __LOG_BUF_LEN;
+@@ -983,18 +984,23 @@ void log_buf_kexec_setup(void)
+ static unsigned long __initdata new_log_buf_len;
+ 
+ /* we practice scaling the ring buffer by powers of 2 */
+-static void __init log_buf_len_update(unsigned size)
++static void __init log_buf_len_update(u64 size)
+ {
++	if (size > (u64)LOG_BUF_LEN_MAX) {
++		size = (u64)LOG_BUF_LEN_MAX;
++		pr_err("log_buf over 2G is not supported.\n");
++	}
++
+ 	if (size)
+ 		size = roundup_pow_of_two(size);
+ 	if (size > log_buf_len)
+-		new_log_buf_len = size;
++		new_log_buf_len = (unsigned long)size;
  }
  
-+static int __maybe_unused ti_tscadc_can_wakeup(struct device *dev, void *data)
-+{
-+	return device_may_wakeup(dev);
-+}
-+
- static int __maybe_unused tscadc_suspend(struct device *dev)
+ /* save requested log_buf_len since it's too early to process it */
+ static int __init log_buf_len_setup(char *str)
  {
- 	struct ti_tscadc_dev	*tscadc = dev_get_drvdata(dev);
+-	unsigned int size;
++	u64 size;
  
- 	regmap_write(tscadc->regmap, REG_SE, 0x00);
-+	if (device_for_each_child(dev, NULL, ti_tscadc_can_wakeup)) {
-+		u32 ctrl;
-+
-+		regmap_read(tscadc->regmap, REG_CTRL, &ctrl);
-+		ctrl &= ~(CNTRLREG_POWERDOWN);
-+		ctrl |= CNTRLREG_TSCSSENB;
-+		regmap_write(tscadc->regmap, REG_CTRL, ctrl);
-+	}
- 	pm_runtime_put_sync(dev);
+ 	if (!str)
+ 		return -EINVAL;
+@@ -1064,7 +1070,7 @@ void __init setup_log_buf(int early)
+ 	}
  
- 	return 0;
+ 	if (unlikely(!new_log_buf)) {
+-		pr_err("log_buf_len: %ld bytes not available\n",
++		pr_err("log_buf_len: %lu bytes not available\n",
+ 			new_log_buf_len);
+ 		return;
+ 	}
+@@ -1077,8 +1083,8 @@ void __init setup_log_buf(int early)
+ 	memcpy(log_buf, __log_buf, __LOG_BUF_LEN);
+ 	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
+ 
+-	pr_info("log_buf_len: %d bytes\n", log_buf_len);
+-	pr_info("early log buf free: %d(%d%%)\n",
++	pr_info("log_buf_len: %u bytes\n", log_buf_len);
++	pr_info("early log buf free: %u(%u%%)\n",
+ 		free, (free * 100) / __LOG_BUF_LEN);
+ }
+ 
 -- 
 2.20.1
 
