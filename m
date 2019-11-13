@@ -2,75 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A49FAA14
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 07:15:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61150FAA4F
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 07:39:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726165AbfKMGPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 01:15:24 -0500
-Received: from us03-smtprelay2.synopsys.com ([149.117.87.133]:45616 "EHLO
-        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725866AbfKMGPY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 01:15:24 -0500
-Received: from mailhost.synopsys.com (mdc-mailhost2.synopsys.com [10.225.0.210])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id E4B24C024B;
-        Wed, 13 Nov 2019 06:15:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
-        t=1573625723; bh=4BRmgL3uBKP2LiqEmVn4KEDKMbSdkT8+Abhi1j2aF8E=;
-        h=Date:From:Subject:To:Cc:From;
-        b=XT2FtN7tmZOZy1ODSowODl/dG4b2q4F8uVqJxNja7Hdr+ccJreZew6i3CKtwFjQZu
-         xng9KKEBRmwtxJqwQQF/j6KoQDSrO1i12JCq07rcivJPhU4E4dkYzPyK8Jy8Q1inm6
-         4OFVAySWE4isgwzzo2mCUJFEY2d5u14gmZR4bux7ANYStz+tWD+qQPXUCmlMTXoYcf
-         WBeVXmKodN1WBLqoJAkpD1C0UKh5PU3F+GCnO+5h6Vg2i6zkNgwEjRvFlRZAedUnnl
-         0KS11n0H+5ZFNseZLuy/xDvVT/Pa3I8wMbxO5iIurvTVVh3YenxUjrXY+B48kCn4VN
-         PpqY+1BxCVyLg==
-Received: from tejas-VirtualBox (joglekar-e7480.internal.synopsys.com [10.144.133.44])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mailhost.synopsys.com (Postfix) with ESMTPSA id 160E2A0075;
-        Wed, 13 Nov 2019 06:15:18 +0000 (UTC)
-Received: by tejas-VirtualBox (sSMTP sendmail emulation); Wed, 13 Nov 2019 11:45:16 +0530
-Date:   Wed, 13 Nov 2019 11:45:16 +0530
-Message-Id: <cedf287bd185a5cbe31095d74e75b392f6c5263d.1573624581.git.joglekar@synopsys.com>
-From:   Tejas Joglekar <Tejas.Joglekar@synopsys.com>
-Subject: [PATCH] usb: dwc3: gadget: Fix logical condition
-To:     Felipe Balbi <balbi@kernel.org>, linux-usb@vger.kernel.org
-Cc:     John Youn <John.Youn@synopsys.com>,
-        Tejas Joglekar <Tejas.Joglekar@synopsys.com>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
-        stable@vger.kernel.org
+        id S1725976AbfKMGj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 01:39:56 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:38835 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725858AbfKMGj4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 01:39:56 -0500
+Received: by mail-pf1-f193.google.com with SMTP id c13so952672pfp.5
+        for <stable@vger.kernel.org>; Tue, 12 Nov 2019 22:39:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=IELyr1Q+i9Wzh04c8H0SAI7IsNk+BvT60IddXtdHRsA=;
+        b=cdHKxe2ivVUQXP3tgqePAJnJAKTIOFTiq0Ue0RQuM0c9xltCwwkbpf8ClyNaiQKB8w
+         1Ua0FOunnou5NMAGbL+X7ZH8l2al95C/eARFHR5L2pIjiqLhkRnsn5DK9U9Snc4gTb13
+         Va3iRbhLW6dB0Cto9rwYsDK3cq9X1txvovbVkNPmDddt8mBWQEbw28/ihrkw/GRMYQae
+         4zf07ki5dIYoiaYFvFBhyQ6FP37pDZ/HX76jW41DytvH/XCYdWhgWQXLi21CHsu/X1Z9
+         AQK0HE/xThFicYexuBiBXSL9wTeQRm6i5g5ixqtjU/zlLO2wrMh1e4cKc860ok74WEKp
+         myyw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=IELyr1Q+i9Wzh04c8H0SAI7IsNk+BvT60IddXtdHRsA=;
+        b=SZxSp5Tt8jPiQ5eRo+w+3g+ifXWSRLXK2GpiYjVl810qc4Nt9K193sXXIw9hF1H4XV
+         2/fozizjP27F4jKdSwdus7jlan6sfN6C6hCXJWQX1SZHsml3bkzvwKFvLuuEMvIJ8zSH
+         Sr2Az4ZMWXVNABNaSO3Q7b5DzanppK64AWMPKSKS8Km27gbP++Qza1bIZngfMZgkogJH
+         yiAzWbV0Lc6VuRqSsjf3AeZyNlZcon3EcK4oGkUglwLnF7uGQHT2mC4SnaBlCyQuqaWY
+         bWDUyMlxMl60gjWT4pJoAZf0GrgXE9+Ow7UK3QX8wU8cOTai7J4fqc1fghy/zzYcsCvP
+         LK8g==
+X-Gm-Message-State: APjAAAWLWQNi6tKgUzbzeZut+E7ppzdETe1qoxRaJ/mSAgQPDBpSmlKd
+        M8qUYU0rsJn+Obo+W+4+g0w=
+X-Google-Smtp-Source: APXvYqxvXt7L0XpRhfF5ewQCghKLAnl17TAIXGI5ZVyGyv5u8LsPHcWcFXPPEQOZ5iJY+tggivTo1w==
+X-Received: by 2002:a17:90a:aa96:: with SMTP id l22mr2543270pjq.112.1573627195655;
+        Tue, 12 Nov 2019 22:39:55 -0800 (PST)
+Received: from xplor.waratah.dyndns.org (122-58-182-39-adsl.sparkbb.co.nz. [122.58.182.39])
+        by smtp.gmail.com with ESMTPSA id c12sm1079794pfp.178.2019.11.12.22.39.54
+        (version=TLS1 cipher=AES128-SHA bits=128/128);
+        Tue, 12 Nov 2019 22:39:54 -0800 (PST)
+Received: by xplor.waratah.dyndns.org (Postfix, from userid 1000)
+        id 2446E360079; Wed, 13 Nov 2019 19:39:51 +1300 (NZDT)
+From:   Michael Schmitz <schmitzmic@gmail.com>
+To:     stable@vger.kernel.org
+Cc:     schmitzmic@gmail.com, Finn Thain <fthain@telegraphics.com.au>,
+        Sasha Levin <sashal@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH] scsi: core: Handle drivers which set sg_tablesize to zero
+Date:   Wed, 13 Nov 2019 19:39:41 +1300
+Message-Id: <1573627181-20123-1-git-send-email-schmitzmic@gmail.com>
+X-Mailer: git-send-email 1.7.0.4
+In-Reply-To: <20191113012739.GN8496@sasha-vm>
+References: <20191113012739.GN8496@sasha-vm>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch corrects the condition to kick the transfer without
-giving back the requests when either request has remaining data
-or when there are pending SGs. The && check was introduced during
-spliting up the dwc3_gadget_ep_cleanup_completed_requests() function.
+commit 9393c8de628c upstream
 
-Fixes: f38e35dd84e2 ("usb: dwc3: gadget: split dwc3_gadget_ep_cleanup_completed_requests()")
+In scsi_mq_setup_tags(), cmd_size is calculated based on zero size
+for the scatter-gather list in case the low level driver uses SG_NONE
+in its host template.d, and an empty message aborts the commit.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Tejas Joglekar <joglekar@synopsys.com>
+cmd_size is passed on to the block layer for calculation of the request
+size, and we've seen NULL pointer dereference errors from the block
+layer in drivers where SG_NONE is used and a mq IO scheduler is active,
+apparently as a consequence of this (see commit 68ab2d76e4be for the
+cxflash driver, and a recent patch by Finn Thain converting the three
+m68k NFR5380 drivers to avoid setting SG_NONE).
+
+Try to avoid these errors by accounting for at least one sg list entry
+when caculating cmd_size, regardless of whether the low level driver
+set a zero sg_tablesize.
+
+Tested on 030 m68k with the atari_scsi driver - setting sg_tablesize to
+SG_NONE no longer results in a crash when loading this driver.
+
+Backport of commit 9393c8de628c to stable kernels before 4.19 which lack
+commit 3dccdf53c2f3 ("scsi: core: avoid preallocating big SGL for data"),
+as requestef by Sasha Levin.
+
+Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
+Cc: Finn Thain <fthain@telegraphics.com.au>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- drivers/usb/dwc3/gadget.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/scsi_lib.c |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 86dc1db788a9..e07159e06f9a 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2485,7 +2485,7 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
+diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
+index 0adfb3b..e0a4ad9 100644
+--- a/drivers/scsi/scsi_lib.c
++++ b/drivers/scsi/scsi_lib.c
+@@ -2356,7 +2356,8 @@ int scsi_mq_setup_tags(struct Scsi_Host *shost)
+ {
+ 	unsigned int cmd_size, sgl_size;
  
- 	req->request.actual = req->request.length - req->remaining;
- 
--	if (!dwc3_gadget_ep_request_completed(req) &&
-+	if (!dwc3_gadget_ep_request_completed(req) ||
- 			req->num_pending_sgs) {
- 		__dwc3_gadget_kick_transfer(dep);
- 		goto out;
+-	sgl_size = scsi_mq_sgl_size(shost);
++	sgl_size = max_t(unsigned int, sizeof(struct scatterlist),
++			scsi_mq_sgl_size(shost));
+ 	cmd_size = sizeof(struct scsi_cmnd) + shost->hostt->cmd_size + sgl_size;
+ 	if (scsi_host_get_prot(shost))
+ 		cmd_size += sizeof(struct scsi_data_buffer) + sgl_size;
 -- 
-2.11.0
+1.7.0.4
 
