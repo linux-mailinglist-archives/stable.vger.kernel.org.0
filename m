@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0709FA08A
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:50:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 036D5FA093
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:51:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727534AbfKMBuv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:50:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37868 "EHLO mail.kernel.org"
+        id S1727672AbfKMBvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:51:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727522AbfKMBuu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:50:50 -0500
+        id S1727656AbfKMBvG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:51:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 58CDF22466;
-        Wed, 13 Nov 2019 01:50:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A453222CA;
+        Wed, 13 Nov 2019 01:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609850;
-        bh=I3ZLCnIDcjBuO+pE/ZPwAvwz5deLJv3WIzNphLQ4FDQ=;
+        s=default; t=1573609864;
+        bh=/h7+WxnT0pQCjhRylNYlpEwLKKiUKIyEzlcqA3+++JY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qmz8FHqA7pWushjdnAS2MizU9JmTDQh8wdOjK1cjo2w+JtbFhAkUKp8ahetnMPqeW
-         fqhx8B2bG3OUYn7KAseFhtUaQ2PYEoKtQWKHytslwDSKH27brliV8LBHvlGlPxzFoz
-         JU8hmFH10+yvyKJrdHN2YKOJy0XvJWAA3K4Uyhao=
+        b=xJF0xJB8N7CIABKRJ1RF/rwnjqLS/390yyjrGIWi7xYNNeMgPnfnKMDWFycUcS5UW
+         k5I2+3pR6oQtEwC++duKf8V3ho+BMipzqBuxZpZAJJ1Sg0Yqywe66gcvlMNcJUDzxc
+         7NMhKSILvHZbrvqLrCNjO67C7qTtVecaqm6qxpKk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.19 021/209] iommu/io-pgtable-arm: Fix race handling in split_blk_unmap()
-Date:   Tue, 12 Nov 2019 20:47:17 -0500
-Message-Id: <20191113015025.9685-21-sashal@kernel.org>
+Cc:     Matthias Kaehlcke <mka@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 030/209] PM / devfreq: Fix handling of min/max_freq == 0
+Date:   Tue, 12 Nov 2019 20:47:26 -0500
+Message-Id: <20191113015025.9685-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -44,56 +45,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit 85c7a0f1ef624ef58173ef52ea77780257bdfe04 ]
+[ Upstream commit df5cf4a36178c5d4f2b8b9469cb2f722e64cd102 ]
 
-In removing the pagetable-wide lock, we gained the possibility of the
-vanishingly unlikely case where we have a race between two concurrent
-unmappers splitting the same block entry. The logic to handle this is
-fairly straightforward - whoever loses the race frees their partial
-next-level table and instead dereferences the winner's newly-installed
-entry in order to fall back to a regular unmap, which intentionally
-echoes the pre-existing case of recursively splitting a 1GB block down
-to 4KB pages by installing a full table of 2MB blocks first.
+Commit ab8f58ad72c4 ("PM / devfreq: Set min/max_freq when adding the
+devfreq device") initializes df->min/max_freq with the min/max OPP when
+the device is added. Later commit f1d981eaecf8 ("PM / devfreq: Use the
+available min/max frequency") adds df->scaling_min/max_freq and the
+following to the frequency adjustment code:
 
-Unfortunately, the chump who implemented that logic failed to update the
-condition check for that fallback, meaning that if said race occurs at
-the last level (where the loser's unmap_idx is valid) then the unmap
-won't actually happen. Fix that to properly account for both the race
-and recursive cases.
+  max_freq = MIN(devfreq->scaling_max_freq, devfreq->max_freq);
 
-Fixes: 2c3d273eabe8 ("iommu/io-pgtable-arm: Support lockless operation")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-[will: re-jig control flow to avoid duplicate cmpxchg test]
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+With the current handling of min/max_freq this is incorrect:
+
+Even though df->max_freq is now initialized to a value != 0 user space
+can still set it to 0, in this case max_freq would be 0 instead of
+df->scaling_max_freq as intended. In consequence the frequency adjustment
+is not performed:
+
+  if (max_freq && freq > max_freq) {
+	freq = max_freq;
+
+To fix this set df->min/max freq to the min/max OPP in max/max_freq_store,
+when the user passes a value of 0. This also prevents df->max_freq from
+being set below the min OPP when df->min_freq is 0, and similar for
+min_freq. Since it is now guaranteed that df->min/max_freq can't be 0 the
+checks for this case can be removed.
+
+Fixes: f1d981eaecf8 ("PM / devfreq: Use the available min/max frequency")
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/io-pgtable-arm.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/devfreq/devfreq.c | 42 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 30 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/iommu/io-pgtable-arm.c b/drivers/iommu/io-pgtable-arm.c
-index 88641b4560bc8..2f79efd16a052 100644
---- a/drivers/iommu/io-pgtable-arm.c
-+++ b/drivers/iommu/io-pgtable-arm.c
-@@ -574,13 +574,12 @@ static size_t arm_lpae_split_blk_unmap(struct arm_lpae_io_pgtable *data,
- 			return 0;
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index 62ead442a8721..8e21bedc74c38 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -327,11 +327,11 @@ int update_devfreq(struct devfreq *devfreq)
+ 	max_freq = MIN(devfreq->scaling_max_freq, devfreq->max_freq);
+ 	min_freq = MAX(devfreq->scaling_min_freq, devfreq->min_freq);
  
- 		tablep = iopte_deref(pte, data);
-+	} else if (unmap_idx >= 0) {
-+		io_pgtable_tlb_add_flush(&data->iop, iova, size, size, true);
-+		return size;
+-	if (min_freq && freq < min_freq) {
++	if (freq < min_freq) {
+ 		freq = min_freq;
+ 		flags &= ~DEVFREQ_FLAG_LEAST_UPPER_BOUND; /* Use GLB */
+ 	}
+-	if (max_freq && freq > max_freq) {
++	if (freq > max_freq) {
+ 		freq = max_freq;
+ 		flags |= DEVFREQ_FLAG_LEAST_UPPER_BOUND; /* Use LUB */
+ 	}
+@@ -1171,17 +1171,26 @@ static ssize_t min_freq_store(struct device *dev, struct device_attribute *attr,
+ 	struct devfreq *df = to_devfreq(dev);
+ 	unsigned long value;
+ 	int ret;
+-	unsigned long max;
+ 
+ 	ret = sscanf(buf, "%lu", &value);
+ 	if (ret != 1)
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&df->lock);
+-	max = df->max_freq;
+-	if (value && max && value > max) {
+-		ret = -EINVAL;
+-		goto unlock;
++
++	if (value) {
++		if (value > df->max_freq) {
++			ret = -EINVAL;
++			goto unlock;
++		}
++	} else {
++		unsigned long *freq_table = df->profile->freq_table;
++
++		/* Get minimum frequency according to sorting order */
++		if (freq_table[0] < freq_table[df->profile->max_state - 1])
++			value = freq_table[0];
++		else
++			value = freq_table[df->profile->max_state - 1];
  	}
  
--	if (unmap_idx < 0)
--		return __arm_lpae_unmap(data, iova, size, lvl, tablep);
--
--	io_pgtable_tlb_add_flush(&data->iop, iova, size, size, true);
--	return size;
-+	return __arm_lpae_unmap(data, iova, size, lvl, tablep);
- }
+ 	df->min_freq = value;
+@@ -1206,17 +1215,26 @@ static ssize_t max_freq_store(struct device *dev, struct device_attribute *attr,
+ 	struct devfreq *df = to_devfreq(dev);
+ 	unsigned long value;
+ 	int ret;
+-	unsigned long min;
  
- static size_t __arm_lpae_unmap(struct arm_lpae_io_pgtable *data,
+ 	ret = sscanf(buf, "%lu", &value);
+ 	if (ret != 1)
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&df->lock);
+-	min = df->min_freq;
+-	if (value && min && value < min) {
+-		ret = -EINVAL;
+-		goto unlock;
++
++	if (value) {
++		if (value < df->min_freq) {
++			ret = -EINVAL;
++			goto unlock;
++		}
++	} else {
++		unsigned long *freq_table = df->profile->freq_table;
++
++		/* Get maximum frequency according to sorting order */
++		if (freq_table[0] < freq_table[df->profile->max_state - 1])
++			value = freq_table[df->profile->max_state - 1];
++		else
++			value = freq_table[0];
+ 	}
+ 
+ 	df->max_freq = value;
 -- 
 2.20.1
 
