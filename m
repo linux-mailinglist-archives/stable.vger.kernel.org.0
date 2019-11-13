@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 587F5FA2F5
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:07:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4208AFA2F7
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:07:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730594AbfKMCAw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:00:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56340 "EHLO mail.kernel.org"
+        id S1730611AbfKMCAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:00:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730589AbfKMCAv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:00:51 -0500
+        id S1730604AbfKMCAz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:00:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C0982246D;
-        Wed, 13 Nov 2019 02:00:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6A8A222CF;
+        Wed, 13 Nov 2019 02:00:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610450;
-        bh=oIuPZIKjSWr+B1tN15q/Yf7G/jszH9poscu1Os74aYY=;
+        s=default; t=1573610453;
+        bh=sRrLkyUGgCKpwty94eVo3szlNVzGQWCr0iIWSeGW3dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Px5sp0gjSHsWymfPJ7wNOSPrN9lOsaPM1En4xJdMQeQzs3fqoDsrLVKIA6peoBb0h
-         0hmPp3Pxi/5xCi7QTCC8UhFH0hZvf7nphB51H9CohUbsCkJ1cQJsJLZoH7ZrYag9S6
-         Rf0rwTzK07BnjJWvbr5v1mjltgAWzWs+6gFLrwzY=
+        b=QFHCuNtvPexOkIlbI/zSog56+qYgpKx1kPrVmbA1W/s5tLoTeaZMXg7UTdF2VOFBz
+         jFYdbu0b1j6jugRRRFk9q+Uzy/XrCDiOgr0Enko9EwXPHKHE3lekF/+eNG5PD0IsH1
+         tlzrq797ipEhxgSdwY4k/ATAXRgGghZs1wxYtOg0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sara Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Mathieu Malaterre <malat@debian.org>,
+        Peter Malone <peter.malone@gmail.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 45/68] iwlwifi: mvm: don't send keys when entering D3
-Date:   Tue, 12 Nov 2019 20:59:09 -0500
-Message-Id: <20191113015932.12655-45-sashal@kernel.org>
+        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 46/68] fbdev: sbuslib: use checked version of put_user()
+Date:   Tue, 12 Nov 2019 20:59:10 -0500
+Message-Id: <20191113015932.12655-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -44,40 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sara Sharon <sara.sharon@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8c7fd6a365eb5b2647b2c01918730d0a485b9f85 ]
+[ Upstream commit d8bad911e5e55e228d59c0606ff7e6b8131ca7bf ]
 
-In the past, we needed to program the keys when entering D3. This was
-since we replaced the image. However, now that there is a single
-image, this is no longer needed.  Note that RSC is sent separately in
-a new command.  This solves issues with newer devices that support PN
-offload. Since driver re-sent the keys, the PN got zeroed and the
-receiver dropped the next packets, until PN caught up again.
+I'm not sure why the code assumes that only the first put_user() needs
+an access_ok() check.  I have made all the put_user() and get_user()
+calls checked.
 
-Signed-off-by: Sara Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Peter Malone <peter.malone@gmail.com>,
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/d3.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/sbuslib.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-index 207d8ae1e1160..19052efe53f12 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/d3.c
-@@ -935,8 +935,10 @@ int iwl_mvm_wowlan_config_key_params(struct iwl_mvm *mvm,
- {
- 	struct iwl_wowlan_kek_kck_material_cmd kek_kck_cmd = {};
- 	struct iwl_wowlan_tkip_params_cmd tkip_cmd = {};
-+	bool unified = fw_has_capa(&mvm->fw->ucode_capa,
-+				   IWL_UCODE_TLV_CAPA_CNSLDTD_D3_D0_IMG);
- 	struct wowlan_key_data key_data = {
--		.configure_keys = !d0i3,
-+		.configure_keys = !d0i3 && !unified,
- 		.use_rsc_tsc = false,
- 		.tkip = &tkip_cmd,
- 		.use_tkip = false,
+diff --git a/drivers/video/fbdev/sbuslib.c b/drivers/video/fbdev/sbuslib.c
+index 31c301d6be621..b425718925c01 100644
+--- a/drivers/video/fbdev/sbuslib.c
++++ b/drivers/video/fbdev/sbuslib.c
+@@ -105,11 +105,11 @@ int sbusfb_ioctl_helper(unsigned long cmd, unsigned long arg,
+ 		struct fbtype __user *f = (struct fbtype __user *) arg;
+ 
+ 		if (put_user(type, &f->fb_type) ||
+-		    __put_user(info->var.yres, &f->fb_height) ||
+-		    __put_user(info->var.xres, &f->fb_width) ||
+-		    __put_user(fb_depth, &f->fb_depth) ||
+-		    __put_user(0, &f->fb_cmsize) ||
+-		    __put_user(fb_size, &f->fb_cmsize))
++		    put_user(info->var.yres, &f->fb_height) ||
++		    put_user(info->var.xres, &f->fb_width) ||
++		    put_user(fb_depth, &f->fb_depth) ||
++		    put_user(0, &f->fb_cmsize) ||
++		    put_user(fb_size, &f->fb_cmsize))
+ 			return -EFAULT;
+ 		return 0;
+ 	}
+@@ -124,10 +124,10 @@ int sbusfb_ioctl_helper(unsigned long cmd, unsigned long arg,
+ 		unsigned int index, count, i;
+ 
+ 		if (get_user(index, &c->index) ||
+-		    __get_user(count, &c->count) ||
+-		    __get_user(ured, &c->red) ||
+-		    __get_user(ugreen, &c->green) ||
+-		    __get_user(ublue, &c->blue))
++		    get_user(count, &c->count) ||
++		    get_user(ured, &c->red) ||
++		    get_user(ugreen, &c->green) ||
++		    get_user(ublue, &c->blue))
+ 			return -EFAULT;
+ 
+ 		cmap.len = 1;
+@@ -164,10 +164,10 @@ int sbusfb_ioctl_helper(unsigned long cmd, unsigned long arg,
+ 		u8 red, green, blue;
+ 
+ 		if (get_user(index, &c->index) ||
+-		    __get_user(count, &c->count) ||
+-		    __get_user(ured, &c->red) ||
+-		    __get_user(ugreen, &c->green) ||
+-		    __get_user(ublue, &c->blue))
++		    get_user(count, &c->count) ||
++		    get_user(ured, &c->red) ||
++		    get_user(ugreen, &c->green) ||
++		    get_user(ublue, &c->blue))
+ 			return -EFAULT;
+ 
+ 		if (index + count > cmap->len)
 -- 
 2.20.1
 
