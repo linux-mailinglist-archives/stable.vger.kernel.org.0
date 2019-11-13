@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A979FA4F5
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:20:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E59CFA4F1
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:20:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727995AbfKMByz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:54:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46052 "EHLO mail.kernel.org"
+        id S1728986AbfKMBzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:55:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727904AbfKMByz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:54:55 -0500
+        id S1728025AbfKMBzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:55:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 208A9222CD;
-        Wed, 13 Nov 2019 01:54:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01DFA204EC;
+        Wed, 13 Nov 2019 01:55:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610094;
-        bh=+cr+gRA2SshBODWMDln8Yq9d8VynUPdCUo4G0OSVzV0=;
+        s=default; t=1573610101;
+        bh=oucbaIwMQWF2MuPnamtCAdOmq+gx0EtrQoYGxAWcjzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=olVpVziFrRhsD/nBWh0lkvUCYcNuttzc46OWNo/8ew6USyPgumgK5s2rA/gQ4kvn9
-         PS6Qw7tPNxEZxUs9uXunNa4xzuNKY9pZYLvdUITh31GKPtvzGzbRrctj5weDkioaby
-         ri5YhGR2I2msvr6XcA/ib5M18LFEYAaGk0l3zzVI=
+        b=XXniWUelPEApte45GoiVyDAn3SggPhXUO4Z5kwxehzpU7Gkm2qfB7Vu73pNEBqmL4
+         BD/o4NjZWOgeSNP9m9DwX+zIyAe/JPfmoKOkgUhQWP0exPrfhyGZ59FH/YPtS5bb/4
+         1RLC7Jjv3Isblackm1ZEuhVUF/UtGYN9VXfWc6WA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 157/209] s390/kasan: avoid instrumentation of early C code
-Date:   Tue, 12 Nov 2019 20:49:33 -0500
-Message-Id: <20191113015025.9685-157-sashal@kernel.org>
+Cc:     Vignesh R <vigneshr@ti.com>, Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 161/209] mfd: ti_am335x_tscadc: Keep ADC interface on if child is wakeup capable
+Date:   Tue, 12 Nov 2019 20:49:37 -0500
+Message-Id: <20191113015025.9685-161-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -43,74 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit 0a9b40911baffac6fc9cc2d88e893585870a97f7 ]
+[ Upstream commit c974ac771479327b5424f60d58845e31daddadea ]
 
-Instrumented C code cannot run without the kasan shadow area. Exempt
-source code files from kasan which are running before / used during
-kasan initialization.
+If a child device like touchscreen is wakeup capable, then keep ADC
+interface on, so that a touching resistive screen will generate wakeup
+event to the system.
 
-Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/Makefile            | 1 +
- arch/s390/boot/compressed/Makefile | 1 +
- arch/s390/kernel/Makefile          | 2 ++
- drivers/s390/char/Makefile         | 1 +
- 4 files changed, 5 insertions(+)
+ drivers/mfd/ti_am335x_tscadc.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
-index 9e6668ee93de8..f6a9b0c203553 100644
---- a/arch/s390/boot/Makefile
-+++ b/arch/s390/boot/Makefile
-@@ -6,6 +6,7 @@
- KCOV_INSTRUMENT := n
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index fe8d335a4d74d..4660ad90ef556 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -295,11 +295,24 @@ static int ti_tscadc_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
- KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
- KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
-diff --git a/arch/s390/boot/compressed/Makefile b/arch/s390/boot/compressed/Makefile
-index b375c6c5ae7b1..9b3d821e5b46e 100644
---- a/arch/s390/boot/compressed/Makefile
-+++ b/arch/s390/boot/compressed/Makefile
-@@ -8,6 +8,7 @@
- KCOV_INSTRUMENT := n
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
- 
- obj-y	:= $(if $(CONFIG_KERNEL_UNCOMPRESSED),,head.o misc.o) piggy.o
- targets	:= vmlinux.lds vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2
-diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
-index b205c0ff0b220..762fc45376ffd 100644
---- a/arch/s390/kernel/Makefile
-+++ b/arch/s390/kernel/Makefile
-@@ -23,6 +23,8 @@ KCOV_INSTRUMENT_early_nobss.o	:= n
- UBSAN_SANITIZE_early.o		:= n
- UBSAN_SANITIZE_early_nobss.o	:= n
- 
-+KASAN_SANITIZE_early_nobss.o	:= n
++static int __maybe_unused ti_tscadc_can_wakeup(struct device *dev, void *data)
++{
++	return device_may_wakeup(dev);
++}
 +
- #
- # Passing null pointers is ok for smp code, since we access the lowcore here.
- #
-diff --git a/drivers/s390/char/Makefile b/drivers/s390/char/Makefile
-index c6ab34f94b1b5..3072b89785ddf 100644
---- a/drivers/s390/char/Makefile
-+++ b/drivers/s390/char/Makefile
-@@ -11,6 +11,7 @@ endif
- GCOV_PROFILE_sclp_early_core.o		:= n
- KCOV_INSTRUMENT_sclp_early_core.o	:= n
- UBSAN_SANITIZE_sclp_early_core.o	:= n
-+KASAN_SANITIZE_sclp_early_core.o	:= n
+ static int __maybe_unused tscadc_suspend(struct device *dev)
+ {
+ 	struct ti_tscadc_dev	*tscadc = dev_get_drvdata(dev);
  
- CFLAGS_sclp_early_core.o		+= -D__NO_FORTIFY
+ 	regmap_write(tscadc->regmap, REG_SE, 0x00);
++	if (device_for_each_child(dev, NULL, ti_tscadc_can_wakeup)) {
++		u32 ctrl;
++
++		regmap_read(tscadc->regmap, REG_CTRL, &ctrl);
++		ctrl &= ~(CNTRLREG_POWERDOWN);
++		ctrl |= CNTRLREG_TSCSSENB;
++		regmap_write(tscadc->regmap, REG_CTRL, ctrl);
++	}
+ 	pm_runtime_put_sync(dev);
  
+ 	return 0;
 -- 
 2.20.1
 
