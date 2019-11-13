@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9138EFA371
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC777FA356
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730017AbfKMCJe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:09:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54280 "EHLO mail.kernel.org"
+        id S1729433AbfKMB7k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:59:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730295AbfKMB7h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:37 -0500
+        id S1727677AbfKMB7j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:59:39 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5D8A2246A;
-        Wed, 13 Nov 2019 01:59:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7C5622473;
+        Wed, 13 Nov 2019 01:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610377;
-        bh=YoAQqpCpMdIlQ80ZmYkZIXm+v4XVPdSGfske2Le15so=;
+        s=default; t=1573610378;
+        bh=prXEgeBzUWkQNvhLuQjaWuLFvngDSuk8BMs3Vtu2gTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PFBqHNEJyfG4EDpuxLck4T0tUrtFtB3qFKXYr8RkNJNaG2px7bWZMaq/G9AK7yXRS
-         nnEoD4JrROLvC0y6av1jy5IWqCdWLJxXveoDc2Tp1fyujgeRV4EjlKW5ojtc3Mz14N
-         OSl6zGbxmfdU2bTR+afiq66RX4H69wUXVVtGuKjI=
+        b=zoy50IepG3OdXZOC3HjnwKNoNKW+BU6jc7wPLrUHrQjwKjIGFYSvPB+mV78ds2N93
+         RLIilza2o2k/WnDF3GWlXTDTx9Doj9b7QpK9f093hffKuh7pMA0UQIPRi63v4vaVTi
+         Au9V3DuNqkfUrwXL8PD4ImH+SnpShG/C0GSgmGtw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Wei Liu <wei.liu2@citrix.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 02/68] net: xen-netback: fix return type of ndo_start_xmit function
-Date:   Tue, 12 Nov 2019 20:58:26 -0500
-Message-Id: <20191113015932.12655-2-sashal@kernel.org>
+Cc:     "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Roger Quadros <rogerq@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 03/68] ARM: dts: omap5: enable OTG role for DWC3 controller
+Date:   Tue, 12 Nov 2019 20:58:27 -0500
+Message-Id: <20191113015932.12655-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -43,39 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
 
-[ Upstream commit a9ca7f17c6d240e269a24cbcd76abf9a940309dd ]
+[ Upstream commit 656c1a65ab555ee5c7cd0d6aee8ab82ca3c1795f ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+Since SMPS10 and OTG cable detection extcon are described here, and
+work to enable OTG power when an OTG cable is plugged in, we can
+define OTG mode in the controller (which is disabled by default in
+omap5.dtsi).
 
-Found by coccinelle.
+Tested on OMAP5EVM and Pyra.
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Wei Liu <wei.liu2@citrix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Suggested-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/interface.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/omap5-board-common.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index e1f47b6ea3b76..46008f2845502 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -171,7 +171,8 @@ static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
- 	return vif->hash.mapping[skb_get_hash_raw(skb) % size];
- }
+diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
+index 4caadb2532497..3e9e3d90f2b4f 100644
+--- a/arch/arm/boot/dts/omap5-board-common.dtsi
++++ b/arch/arm/boot/dts/omap5-board-common.dtsi
+@@ -694,6 +694,10 @@
+ 	vbus-supply = <&smps10_out1_reg>;
+ };
  
--static int xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct xenvif *vif = netdev_priv(dev);
- 	struct xenvif_queue *queue = NULL;
++&dwc3 {
++	dr_mode = "otg";
++};
++
+ &mcspi1 {
+ 
+ };
 -- 
 2.20.1
 
