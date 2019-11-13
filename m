@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45E78FA4C9
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 834F4FA4A3
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728255AbfKMCSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:18:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47306 "EHLO mail.kernel.org"
+        id S1729211AbfKMBzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:55:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729187AbfKMBzj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:55:39 -0500
+        id S1729159AbfKMBzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:55:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73C3522467;
-        Wed, 13 Nov 2019 01:55:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 070D622467;
+        Wed, 13 Nov 2019 01:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610138;
-        bh=0heLWYa1fdiA1uuMdun/a5Epn3QCmKknV7kBb7keeDo=;
+        s=default; t=1573610140;
+        bh=0KIFf+yZ8C/VuVjVmiu3e3orCWGVm8Ohdi7wNMRPvMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nd4qgrkmPsezNRS2S6pyx8yw/MxPuhwVN3ytOovDJY824CumNarhvg1ZbIDN8ME3F
-         HepG5hfpm0HpHqmpClIm9h7DNBW+x+NEqEIxg854SYfPQqTiZYQUdC7mc06ONG++5h
-         sBs0YHJtMxWFA2ACQh4HQE21CrU8WLTAfcwtBuCA=
+        b=nH/4MsQP9iPsxr401Z0CGTsHrKNXAaaGuKuWkwT2WMJu5nJz9pievVHqKzmunT1U4
+         tboidR6AQ0xEMnfPaE/yH7TPaRb38F5jc1nk8cO1Ebwt99d4JKq+4ZjHtelGekYObx
+         Sm5QdH+PormihcK0KzNjb7dXXmTFZsZA9bvq9RQ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 186/209] pinctrl: gemini: Fix up TVC clock group
-Date:   Tue, 12 Nov 2019 20:50:02 -0500
-Message-Id: <20191113015025.9685-186-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Ching Huang <ching2048@areca.com.tw>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.19 187/209] scsi: arcmsr: clean up clang warning on extraneous parentheses
+Date:   Tue, 12 Nov 2019 20:50:03 -0500
+Message-Id: <20191113015025.9685-187-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -42,149 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit a85c928f6a7856a09e47d9b37faa3407c7ac6a8e ]
+[ Upstream commit ca2ade24157693b4e533ccec69df00ef719d4aad ]
 
-The previous fix made the TVC clock get muxed in on the
-D-Link DIR-685 instead of giving nagging warnings of this
-not working. Not good. We didn't want that, as it breaks
-video.
+There are extraneous parantheses that are causing clang to produce a
+warning so remove these.
 
-Create a specific group for the TVC CLK, and break out
-a specific GPIO group for it on the SL3516 so we can use
-that line as GPIO if we don't need the TVC CLK.
+Clean up 3 clang warnings:
+equality comparison with extraneous parentheses [-Wparentheses-equality]
 
-Fixes: d17f477c5bc6 ("pinctrl: gemini: Mask and set properly")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Ching Huang <ching2048@areca.com.tw>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-gemini.c | 44 ++++++++++++++++++++++++++------
- 1 file changed, 36 insertions(+), 8 deletions(-)
+ drivers/scsi/arcmsr/arcmsr_hba.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-gemini.c b/drivers/pinctrl/pinctrl-gemini.c
-index 1e484a36ff07e..3535f98418615 100644
---- a/drivers/pinctrl/pinctrl-gemini.c
-+++ b/drivers/pinctrl/pinctrl-gemini.c
-@@ -591,13 +591,16 @@ static const unsigned int tvc_3512_pins[] = {
- 	319, /* TVC_DATA[1] */
- 	301, /* TVC_DATA[2] */
- 	283, /* TVC_DATA[3] */
--	265, /* TVC_CLK */
- 	320, /* TVC_DATA[4] */
- 	302, /* TVC_DATA[5] */
- 	284, /* TVC_DATA[6] */
- 	266, /* TVC_DATA[7] */
- };
- 
-+static const unsigned int tvc_clk_3512_pins[] = {
-+	265, /* TVC_CLK */
-+};
-+
- /* NAND flash pins */
- static const unsigned int nflash_3512_pins[] = {
- 	199, 200, 201, 202, 216, 217, 218, 219, 220, 234, 235, 236, 237, 252,
-@@ -629,7 +632,7 @@ static const unsigned int pflash_3512_pins_extended[] = {
- /* Serial flash pins CE0, CE1, DI, DO, CK */
- static const unsigned int sflash_3512_pins[] = { 230, 231, 232, 233, 211 };
- 
--/* The GPIO0A (0) pin overlap with TVC and extended parallel flash */
-+/* The GPIO0A (0) pin overlap with TVC CLK and extended parallel flash */
- static const unsigned int gpio0a_3512_pins[] = { 265 };
- 
- /* The GPIO0B (1-4) pins overlap with TVC and ICE */
-@@ -823,7 +826,13 @@ static const struct gemini_pin_group gemini_3512_pin_groups[] = {
- 		.num_pins = ARRAY_SIZE(tvc_3512_pins),
- 		/* Conflict with character LCD and ICE */
- 		.mask = LCD_PADS_ENABLE,
--		.value = TVC_PADS_ENABLE | TVC_CLK_PAD_ENABLE,
-+		.value = TVC_PADS_ENABLE,
-+	},
-+	{
-+		.name = "tvcclkgrp",
-+		.pins = tvc_clk_3512_pins,
-+		.num_pins = ARRAY_SIZE(tvc_clk_3512_pins),
-+		.value = TVC_CLK_PAD_ENABLE,
- 	},
- 	/*
- 	 * The construction is done such that it is possible to use a serial
-@@ -860,8 +869,8 @@ static const struct gemini_pin_group gemini_3512_pin_groups[] = {
- 		.name = "gpio0agrp",
- 		.pins = gpio0a_3512_pins,
- 		.num_pins = ARRAY_SIZE(gpio0a_3512_pins),
--		/* Conflict with TVC */
--		.mask = TVC_PADS_ENABLE,
-+		/* Conflict with TVC CLK */
-+		.mask = TVC_CLK_PAD_ENABLE,
- 	},
- 	{
- 		.name = "gpio0bgrp",
-@@ -1531,13 +1540,16 @@ static const unsigned int tvc_3516_pins[] = {
- 	311, /* TVC_DATA[1] */
- 	394, /* TVC_DATA[2] */
- 	374, /* TVC_DATA[3] */
--	333, /* TVC_CLK */
- 	354, /* TVC_DATA[4] */
- 	395, /* TVC_DATA[5] */
- 	312, /* TVC_DATA[6] */
- 	334, /* TVC_DATA[7] */
- };
- 
-+static const unsigned int tvc_clk_3516_pins[] = {
-+	333, /* TVC_CLK */
-+};
-+
- /* NAND flash pins */
- static const unsigned int nflash_3516_pins[] = {
- 	243, 260, 261, 224, 280, 262, 281, 264, 300, 263, 282, 301, 320, 283,
-@@ -1570,7 +1582,7 @@ static const unsigned int pflash_3516_pins_extended[] = {
- static const unsigned int sflash_3516_pins[] = { 296, 338, 295, 359, 339 };
- 
- /* The GPIO0A (0-4) pins overlap with TVC and extended parallel flash */
--static const unsigned int gpio0a_3516_pins[] = { 333, 354, 395, 312, 334 };
-+static const unsigned int gpio0a_3516_pins[] = { 354, 395, 312, 334 };
- 
- /* The GPIO0B (5-7) pins overlap with ICE */
- static const unsigned int gpio0b_3516_pins[] = { 375, 396, 376 };
-@@ -1602,6 +1614,9 @@ static const unsigned int gpio0j_3516_pins[] = { 359, 339 };
- /* The GPIO0K (30,31) pins overlap with NAND flash */
- static const unsigned int gpio0k_3516_pins[] = { 275, 298 };
- 
-+/* The GPIO0L (0) pins overlap with TVC_CLK */
-+static const unsigned int gpio0l_3516_pins[] = { 333 };
-+
- /* The GPIO1A (0-4) pins that overlap with IDE and parallel flash */
- static const unsigned int gpio1a_3516_pins[] = { 221, 200, 222, 201, 220 };
- 
-@@ -1761,7 +1776,13 @@ static const struct gemini_pin_group gemini_3516_pin_groups[] = {
- 		.num_pins = ARRAY_SIZE(tvc_3516_pins),
- 		/* Conflict with character LCD */
- 		.mask = LCD_PADS_ENABLE,
--		.value = TVC_PADS_ENABLE | TVC_CLK_PAD_ENABLE,
-+		.value = TVC_PADS_ENABLE,
-+	},
-+	{
-+		.name = "tvcclkgrp",
-+		.pins = tvc_clk_3516_pins,
-+		.num_pins = ARRAY_SIZE(tvc_clk_3516_pins),
-+		.value = TVC_CLK_PAD_ENABLE,
- 	},
- 	/*
- 	 * The construction is done such that it is possible to use a serial
-@@ -1872,6 +1893,13 @@ static const struct gemini_pin_group gemini_3516_pin_groups[] = {
- 		/* Conflict with parallel and NAND flash */
- 		.value = PFLASH_PADS_DISABLE | NAND_PADS_DISABLE,
- 	},
-+	{
-+		.name = "gpio0lgrp",
-+		.pins = gpio0l_3516_pins,
-+		.num_pins = ARRAY_SIZE(gpio0l_3516_pins),
-+		/* Conflict with TVE CLK */
-+		.mask = TVC_CLK_PAD_ENABLE,
-+	},
- 	{
- 		.name = "gpio1agrp",
- 		.pins = gpio1a_3516_pins,
+diff --git a/drivers/scsi/arcmsr/arcmsr_hba.c b/drivers/scsi/arcmsr/arcmsr_hba.c
+index 12316ef4c8931..c75d4695f9828 100644
+--- a/drivers/scsi/arcmsr/arcmsr_hba.c
++++ b/drivers/scsi/arcmsr/arcmsr_hba.c
+@@ -4135,9 +4135,9 @@ static void arcmsr_hardware_reset(struct AdapterControlBlock *acb)
+ 		pci_read_config_byte(acb->pdev, i, &value[i]);
+ 	}
+ 	/* hardware reset signal */
+-	if ((acb->dev_id == 0x1680)) {
++	if (acb->dev_id == 0x1680) {
+ 		writel(ARCMSR_ARC1680_BUS_RESET, &pmuA->reserved1[0]);
+-	} else if ((acb->dev_id == 0x1880)) {
++	} else if (acb->dev_id == 0x1880) {
+ 		do {
+ 			count++;
+ 			writel(0xF, &pmuC->write_sequence);
+@@ -4161,7 +4161,7 @@ static void arcmsr_hardware_reset(struct AdapterControlBlock *acb)
+ 		} while (((readl(&pmuE->host_diagnostic_3xxx) &
+ 			ARCMSR_ARC1884_DiagWrite_ENABLE) == 0) && (count < 5));
+ 		writel(ARCMSR_ARC188X_RESET_ADAPTER, &pmuE->host_diagnostic_3xxx);
+-	} else if ((acb->dev_id == 0x1214)) {
++	} else if (acb->dev_id == 0x1214) {
+ 		writel(0x20, pmuD->reset_request);
+ 	} else {
+ 		pci_write_config_byte(acb->pdev, 0x84, 0x20);
 -- 
 2.20.1
 
