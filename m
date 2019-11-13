@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6E5FA457
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A944FA451
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729512AbfKMB4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:56:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
+        id S1729970AbfKMCQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:16:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727895AbfKMB4c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:56:32 -0500
+        id S1729539AbfKMB4h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:56:37 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 757E42245D;
-        Wed, 13 Nov 2019 01:56:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01F732245A;
+        Wed, 13 Nov 2019 01:56:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610192;
-        bh=pLLO6uKtr+5rSm4ZgjYB/EnjSBT/h0uJQvYaoDcbTdU=;
+        s=default; t=1573610196;
+        bh=gZnYs58YiVe5TChW7bml8wRKh6KmwgwD+XgFFTEa1qk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTIHY0CKPOyaxJ9wC/dnMFcuzUg20OAuynEBQYpHnFnaMwqUyzpivcfb6zaU/lsDY
-         M6+qmlH7U39a7h+SSbJ92LctTbKmBSWFXBi2aM59qnfV4ZbXSkJlvPtPrhNxnvsvEo
-         ch4DKhhOhMUQ+TkZnFIphvUKX81JH/uKWHr99Kbg=
+        b=Qbg5xJFc4p2cUe/WAHxmj3wKuL9VaT9b7wz59uUQzvqLlkQ8BYSbkx4o9VCM6kPgk
+         UvMYp6khjkkKaqnRV/xbFHxqoJF/RWXlXI16QjAp7aV0UC8dsULANMVRDPFsLFTm70
+         Y7S9NP6OFIvz23A1ckTDuNnimzMOXY/atizqmtWA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
         Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 006/115] f2fs: return correct errno in f2fs_gc
-Date:   Tue, 12 Nov 2019 20:54:33 -0500
-Message-Id: <20191113015622.11592-6-sashal@kernel.org>
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.14 010/115] iommu/io-pgtable-arm: Fix race handling in split_blk_unmap()
+Date:   Tue, 12 Nov 2019 20:54:37 -0500
+Message-Id: <20191113015622.11592-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -43,32 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 61f7725aa148ee870436a29d3a24d5c00ab7e9af ]
+[ Upstream commit 85c7a0f1ef624ef58173ef52ea77780257bdfe04 ]
 
-This fixes overriding error number in f2fs_gc.
+In removing the pagetable-wide lock, we gained the possibility of the
+vanishingly unlikely case where we have a race between two concurrent
+unmappers splitting the same block entry. The logic to handle this is
+fairly straightforward - whoever loses the race frees their partial
+next-level table and instead dereferences the winner's newly-installed
+entry in order to fall back to a regular unmap, which intentionally
+echoes the pre-existing case of recursively splitting a 1GB block down
+to 4KB pages by installing a full table of 2MB blocks first.
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Unfortunately, the chump who implemented that logic failed to update the
+condition check for that fallback, meaning that if said race occurs at
+the last level (where the loser's unmap_idx is valid) then the unmap
+won't actually happen. Fix that to properly account for both the race
+and recursive cases.
+
+Fixes: 2c3d273eabe8 ("iommu/io-pgtable-arm: Support lockless operation")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+[will: re-jig control flow to avoid duplicate cmpxchg test]
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/io-pgtable-arm.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index ceb6023786bdf..67120181dc2af 100644
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1091,7 +1091,7 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
+diff --git a/drivers/iommu/io-pgtable-arm.c b/drivers/iommu/io-pgtable-arm.c
+index e8018a308868e..17a9225283dd1 100644
+--- a/drivers/iommu/io-pgtable-arm.c
++++ b/drivers/iommu/io-pgtable-arm.c
+@@ -551,13 +551,12 @@ static int arm_lpae_split_blk_unmap(struct arm_lpae_io_pgtable *data,
+ 			return 0;
  
- 	put_gc_inode(&gc_list);
+ 		tablep = iopte_deref(pte, data);
++	} else if (unmap_idx >= 0) {
++		io_pgtable_tlb_add_flush(&data->iop, iova, size, size, true);
++		return size;
+ 	}
  
--	if (sync)
-+	if (sync && !ret)
- 		ret = sec_freed ? 0 : -EAGAIN;
- 	return ret;
+-	if (unmap_idx < 0)
+-		return __arm_lpae_unmap(data, iova, size, lvl, tablep);
+-
+-	io_pgtable_tlb_add_flush(&data->iop, iova, size, size, true);
+-	return size;
++	return __arm_lpae_unmap(data, iova, size, lvl, tablep);
  }
+ 
+ static int __arm_lpae_unmap(struct arm_lpae_io_pgtable *data,
 -- 
 2.20.1
 
