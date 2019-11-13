@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7133AFA4BA
+	by mail.lfdr.de (Postfix) with ESMTP id 0841FFA4B9
 	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729329AbfKMCRk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:17:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47974 "EHLO mail.kernel.org"
+        id S1728370AbfKMB4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:56:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729277AbfKMBz7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:55:59 -0500
+        id S1729349AbfKMB4B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:56:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DEBE22474;
-        Wed, 13 Nov 2019 01:55:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 980832247C;
+        Wed, 13 Nov 2019 01:55:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610159;
-        bh=Yk0BthtfhCwG5HdWsol18bF1E9VmSioqlac3A/a++5w=;
+        s=default; t=1573610160;
+        bh=Pa9IDB6Fd3A8IIm+kJX6e40chC4y0g1zGgVAP5mCn/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mNuzEANb/wLXvvYEq5GZfdOuVahIyEmuZDTqn+VsJRG/n2gXrkiCPqfuGHxkJFeCr
-         De4BMUO7r8zgOB8MHpy1hWGhKl79b9w1dlDRdnb6mimXP442YEq0zaXaEnvazFjMKQ
-         kTKV8pTEM2ngM9KEN4AK/Lhe+JlntUUp2rOcIvnY=
+        b=huwAjqkPIMGYVEMdFklJgIADNpowjtEotdgqm3dJYhmFkVeknMHe66bqJAm8yyEW+
+         Fh3+l2zxHL+Z6JpPFxYXKgWbtniYtiCoA3QCI26RvDGDOGXrzABDXfCQpy+2VXBASq
+         d4XaGSC59MRGuAAJYQ/L7OrRUonUqFHlZjljhQ0s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roger Quadros <rogerq@ti.com>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 202/209] ARM: dts: omap5: Fix dual-role mode on Super-Speed port
-Date:   Tue, 12 Nov 2019 20:50:18 -0500
-Message-Id: <20191113015025.9685-202-sashal@kernel.org>
+Cc:     Yuchung Cheng <ycheng@google.com>, Wei Wang <weiwan@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 203/209] tcp: start receiver buffer autotuning sooner
+Date:   Tue, 12 Nov 2019 20:50:19 -0500
+Message-Id: <20191113015025.9685-203-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -45,37 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Yuchung Cheng <ycheng@google.com>
 
-[ Upstream commit a763ecc15d0e37c3a15ff6825183061209832685 ]
+[ Upstream commit 041a14d2671573611ffd6412bc16e2f64469f7fb ]
 
-OMAP5's Super-Speed USB port has a software mailbox register
-that needs to be fed with VBUS and ID events from an external
-VBUS/ID comparator.
+Previously receiver buffer auto-tuning starts after receiving
+one advertised window amount of data. After the initial receiver
+buffer was raised by patch a337531b942b ("tcp: up initial rmem to
+128KB and SYN rwin to around 64KB"), the reciver buffer may take
+too long to start raising. To address this issue, this patch lowers
+the initial bytes expected to receive roughly the expected sender's
+initial window.
 
-Without this, Host role will not work correctly.
-
-Fixes: 656c1a65ab55 ("ARM: dts: omap5: enable OTG role for DWC3 controller")
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Wei Wang <weiwan@google.com>
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap5-board-common.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
-index c2dc4199b4ec2..61a06f6add3ca 100644
---- a/arch/arm/boot/dts/omap5-board-common.dtsi
-+++ b/arch/arm/boot/dts/omap5-board-common.dtsi
-@@ -704,6 +704,7 @@
- };
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 0e2b07be08585..57e8dad956ec4 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -438,7 +438,7 @@ void tcp_init_buffer_space(struct sock *sk)
+ 	if (!(sk->sk_userlocks & SOCK_SNDBUF_LOCK))
+ 		tcp_sndbuf_expand(sk);
  
- &dwc3 {
-+	extcon = <&extcon_usb3>;
- 	dr_mode = "otg";
- };
- 
+-	tp->rcvq_space.space = tp->rcv_wnd;
++	tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
+ 	tcp_mstamp_refresh(tp);
+ 	tp->rcvq_space.time = tp->tcp_mstamp;
+ 	tp->rcvq_space.seq = tp->copied_seq;
 -- 
 2.20.1
 
