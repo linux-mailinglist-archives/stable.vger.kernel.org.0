@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA5AAFA213
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:02:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6142FFA2D5
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730509AbfKMCBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:01:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57088 "EHLO mail.kernel.org"
+        id S1729081AbfKMCGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:06:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730652AbfKMCBT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:01:19 -0500
+        id S1730729AbfKMCBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:01:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A809722467;
-        Wed, 13 Nov 2019 02:01:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02D0822474;
+        Wed, 13 Nov 2019 02:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610478;
-        bh=jBnr4IXGRdr3EgGfoNNpKX0LS2x7SiFPDYi49r8gSlE=;
+        s=default; t=1573610480;
+        bh=njXyVfjBG0LIkr/kk7vRsRBmHRAmpy7aAcVwBzyjTw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1035hz7i/4nKkUNq63rnSh2Va8HTxtv0pfQ9XtWfH7EzSDcyKZCbHqVFb6HbjVgC
-         TxBrcz908ElbOEDbndywwGaHtuB0PidLMkd7890S+SMwYz3El6NzubdI7elVA/J4WO
-         lOG6XD+mjNw95aNQZ0o6eGIHGfYAGKARInrvEn94=
+        b=X3cjhSXConKbRyDMujFnsaY0k2t10rYYKVBTiT9QuhtucinrbDDjeBpuqthSutvpm
+         dhEwiOV+ger2w9PSpx0xqMGHdeA/VzHTTuoL7lgHlnMlNvswyuRTRdoLif81OliDqg
+         Cujf/OPDXFIw60S380dOKKmhZvXUlAK5VVEZjw/Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Trent Piepho <tpiepho@impinj.com>,
-        =?UTF-8?q?Jan=20Kundr=C3=83=C2=A1t?= <jan.kundrat@cesnet.cz>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 60/68] spi: spidev: Fix OF tree warning logic
-Date:   Tue, 12 Nov 2019 20:59:24 -0500
-Message-Id: <20191113015932.12655-60-sashal@kernel.org>
+Cc:     Timothy E Baldwin <T.E.Baldwin99@members.leeds.ac.uk>,
+        Eugene Syromyatnikov <evgsyr@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 61/68] ARM: 8802/1: Call syscall_trace_exit even when system call skipped
+Date:   Tue, 12 Nov 2019 20:59:25 -0500
+Message-Id: <20191113015932.12655-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,50 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trent Piepho <tpiepho@impinj.com>
+From: Timothy E Baldwin <T.E.Baldwin99@members.leeds.ac.uk>
 
-[ Upstream commit 605b3bec73cbd74b4ac937b580cd0b47d1300484 ]
+[ Upstream commit f18aef742c8fbd68e280dff0a63ba0ca6ee8ad85 ]
 
-spidev will make a big fuss if a device tree node binds a device by
-using "spidev" as the node's compatible property.
+On at least x86 and ARM64, and as documented in the ptrace man page
+a skipped system call will still cause a syscall exit ptrace stop.
 
-However, the logic for this isn't looking for "spidev" in the
-compatible, but rather checking that the device is NOT compatible with
-spidev's list of devices.
+Previous to this commit 32-bit ARM did not, resulting in strace
+being confused when seccomp skips system calls.
 
-This causes a false positive if a device not named "rohm,dh2228fv", etc.
-binds to spidev, even if a means other than putting "spidev" in the
-device tree was used.  E.g., the sysfs driver_override attribute.
+This change also impacts programs that use ptrace to skip system calls.
 
-Signed-off-by: Trent Piepho <tpiepho@impinj.com>
-Reviewed-by: Jan KundrÃ¡t <jan.kundrat@cesnet.cz>
-Tested-by: Jan KundrÃ¡t <jan.kundrat@cesnet.cz>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: ad75b51459ae ("ARM: 7579/1: arch/allow a scno of -1 to not cause a SIGILL")
+Signed-off-by: Timothy E Baldwin <T.E.Baldwin99@members.leeds.ac.uk>
+Signed-off-by: Eugene Syromyatnikov <evgsyr@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Kees Cook <keescook@chromium.org>
+Tested-by: Eugene Syromyatnikov <evgsyr@gmail.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/arm/kernel/entry-common.S | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index 2e05046f866bd..f4ea286b0121e 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -751,11 +751,9 @@ static int spidev_probe(struct spi_device *spi)
- 	 * compatible string, it is a Linux implementation thing
- 	 * rather than a description of the hardware.
- 	 */
--	if (spi->dev.of_node && !of_match_device(spidev_dt_ids, &spi->dev)) {
--		dev_err(&spi->dev, "buggy DT: spidev listed directly in DT\n");
--		WARN_ON(spi->dev.of_node &&
--			!of_match_device(spidev_dt_ids, &spi->dev));
--	}
-+	WARN(spi->dev.of_node &&
-+	     of_device_is_compatible(spi->dev.of_node, "spidev"),
-+	     "%pOF: buggy DT: spidev listed directly in DT\n", spi->dev.of_node);
+diff --git a/arch/arm/kernel/entry-common.S b/arch/arm/kernel/entry-common.S
+index d69adfb3d79e6..178a2a9606595 100644
+--- a/arch/arm/kernel/entry-common.S
++++ b/arch/arm/kernel/entry-common.S
+@@ -263,16 +263,15 @@ __sys_trace:
+ 	cmp	scno, #-1			@ skip the syscall?
+ 	bne	2b
+ 	add	sp, sp, #S_OFF			@ restore stack
+-	b	ret_slow_syscall
  
- 	spidev_probe_acpi(spi);
+-__sys_trace_return:
+-	str	r0, [sp, #S_R0 + S_OFF]!	@ save returned r0
++__sys_trace_return_nosave:
++	enable_irq_notrace
+ 	mov	r0, sp
+ 	bl	syscall_trace_exit
+ 	b	ret_slow_syscall
  
+-__sys_trace_return_nosave:
+-	enable_irq_notrace
++__sys_trace_return:
++	str	r0, [sp, #S_R0 + S_OFF]!	@ save returned r0
+ 	mov	r0, sp
+ 	bl	syscall_trace_exit
+ 	b	ret_slow_syscall
 -- 
 2.20.1
 
