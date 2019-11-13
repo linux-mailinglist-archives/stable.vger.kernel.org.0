@@ -2,159 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7710F9FE7
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:10:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B66CFF9FEF
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:13:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727141AbfKMBKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:10:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43868 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726979AbfKMBKy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:10:54 -0500
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B7BC21A49;
-        Wed, 13 Nov 2019 01:10:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573607452;
-        bh=UHojKoHJkSEXKX2pCIHTRX25I6EJIfI6hK+0Q8psVrY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=DzoCk/LEjfy/7ut5nKnxEQq7QeB7s//h6mMkiYHXigi2Qe+mtvTPQlKD/xYiEjoA+
-         kcbKq3J2tjphzECfvFU/8c6aBJN1YRBe4nTWHWPvXcTWAkFRfQdQmulqsmTMKeC7Ww
-         KKujlcFDotf3FJEAXhmL4esuTG/xQ0GE8CzblrAg=
-Date:   Tue, 12 Nov 2019 20:10:51 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     Sean Christopherson <sean.j.christopherson@intel.com>,
-        stable@vger.kernel.org,
+        id S1727036AbfKMBNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:13:07 -0500
+Received: from szxga06-in.huawei.com ([45.249.212.32]:53604 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726979AbfKMBNH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:13:07 -0500
+Received: from DGGEMS409-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 4192FDD1EFD836803095;
+        Wed, 13 Nov 2019 09:13:05 +0800 (CST)
+Received: from [127.0.0.1] (10.133.217.137) by DGGEMS409-HUB.china.huawei.com
+ (10.3.19.209) with Microsoft SMTP Server id 14.3.439.0; Wed, 13 Nov 2019
+ 09:12:57 +0800
+Subject: Re: [PATCH stable 4.4] tracing: Have trace_buffer_unlock_commit()
+ call the _regs version with NULL
+To:     Steven Rostedt <rostedt@goodmis.org>
+CC:     <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4.19 STABLE] KVM: x86: introduce is_pae_paging
-Message-ID: <20191113011051.GJ8496@sasha-vm>
-References: <20191111225423.29309-1-sean.j.christopherson@intel.com>
- <aecfcc9e-dcab-2b52-ebdb-373a416a4951@redhat.com>
+        wangkefeng wang <wangkefeng.wang@huawei.com>
+References: <20191112061850.71600-1-wangkefeng.wang@huawei.com>
+ <20191112093010.380d3f3e@gandalf.local.home>
+From:   Kefeng Wang <wangkefeng.wang@huawei.com>
+Message-ID: <c099742a-5927-e3f5-e862-0bfd154fbdd4@huawei.com>
+Date:   Wed, 13 Nov 2019 09:12:56 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <aecfcc9e-dcab-2b52-ebdb-373a416a4951@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191112093010.380d3f3e@gandalf.local.home>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.133.217.137]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 12, 2019 at 12:05:44AM +0100, Paolo Bonzini wrote:
->On 11/11/19 23:54, Sean Christopherson wrote:
->> From: Paolo Bonzini <pbonzini@redhat.com>
+
+
+On 2019/11/12 22:30, Steven Rostedt wrote:
+> On Tue, 12 Nov 2019 14:18:50 +0800
+> Kefeng Wang <wangkefeng.wang@huawei.com> wrote:
+> 
+>> From: "Steven Rostedt (Red Hat)" <rostedt@goodmis.org>
 >>
->> Upstream commit bf03d4f9334728bf7c8ffc7de787df48abd6340e.
+>> Commit 33fddff24d05d71f97722cb7deec4964d39d10dc upstream
 >>
->> Checking for 32-bit PAE is quite common around code that fiddles with
->> the PDPTRs.  Add a function to compress all checks into a single
->> invocation.
+>> There's no real difference between trace_buffer_unlock_commit() and
+>> trace_buffer_unlock_commit_regs() except that the former passes NULL to
+>> ftrace_stack_trace() instead of regs. Have the former be a static inline of
+>> the latter which passes NULL for regs.
 >>
->> Moving to the common helper also fixes a subtle bug in kvm_set_cr3()
->> where it fails to check is_long_mode() and results in KVM incorrectly
->> attempting to load PDPTRs for a 64-bit guest.
->>
->> Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
->> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
->> [sean: backport to 4.x; handle vmx.c split in 5.x, call out the bugfix]
->> Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+>> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+>> [backport: modify trace_buffer_unlock_commit() in include/linux/trace_events.h]
+>> Fixes: c5e0535fe67b ("tracing: Skip more functions when doing stack tracing of events")
+          ^^^^^^^^^^^^
+should be 70b3d6c5aa71 in v4.4.x, I will resend a new one if no objection.
+
+
+>> Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
 >> ---
->>  arch/x86/kvm/vmx.c | 7 +++----
->>  arch/x86/kvm/x86.c | 8 ++++----
->>  arch/x86/kvm/x86.h | 5 +++++
->>  3 files changed, 12 insertions(+), 8 deletions(-)
->>
->> diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
->> index 6f7b3acdab26..83acaed244ba 100644
->> --- a/arch/x86/kvm/vmx.c
->> +++ b/arch/x86/kvm/vmx.c
->> @@ -5181,7 +5181,7 @@ static void ept_load_pdptrs(struct kvm_vcpu *vcpu)
->>  		      (unsigned long *)&vcpu->arch.regs_dirty))
->>  		return;
->>
->> -	if (is_paging(vcpu) && is_pae(vcpu) && !is_long_mode(vcpu)) {
->> +	if (is_pae_paging(vcpu)) {
->>  		vmcs_write64(GUEST_PDPTR0, mmu->pdptrs[0]);
->>  		vmcs_write64(GUEST_PDPTR1, mmu->pdptrs[1]);
->>  		vmcs_write64(GUEST_PDPTR2, mmu->pdptrs[2]);
->> @@ -5193,7 +5193,7 @@ static void ept_save_pdptrs(struct kvm_vcpu *vcpu)
->>  {
->>  	struct kvm_mmu *mmu = vcpu->arch.walk_mmu;
->>
->> -	if (is_paging(vcpu) && is_pae(vcpu) && !is_long_mode(vcpu)) {
->> +	if (is_pae_paging(vcpu)) {
->>  		mmu->pdptrs[0] = vmcs_read64(GUEST_PDPTR0);
->>  		mmu->pdptrs[1] = vmcs_read64(GUEST_PDPTR1);
->>  		mmu->pdptrs[2] = vmcs_read64(GUEST_PDPTR2);
->> @@ -12021,8 +12021,7 @@ static int nested_vmx_load_cr3(struct kvm_vcpu *vcpu, unsigned long cr3, bool ne
->>  		 * If PAE paging and EPT are both on, CR3 is not used by the CPU and
->>  		 * must not be dereferenced.
->>  		 */
->> -		if (!is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu) &&
->> -		    !nested_ept) {
->> +		if (is_pae_paging(vcpu) && !nested_ept) {
->>  			if (!load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3)) {
->>  				*entry_failure_code = ENTRY_FAIL_PDPTE;
->>  				return 1;
->> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
->> index 6ae8a013af31..b9b87fb75ac0 100644
->> --- a/arch/x86/kvm/x86.c
->> +++ b/arch/x86/kvm/x86.c
->> @@ -633,7 +633,7 @@ bool pdptrs_changed(struct kvm_vcpu *vcpu)
->>  	gfn_t gfn;
->>  	int r;
->>
->> -	if (is_long_mode(vcpu) || !is_pae(vcpu) || !is_paging(vcpu))
->> +	if (!is_pae_paging(vcpu))
->>  		return false;
->>
->>  	if (!test_bit(VCPU_EXREG_PDPTR,
->> @@ -884,8 +884,8 @@ int kvm_set_cr3(struct kvm_vcpu *vcpu, unsigned long cr3)
->>  	if (is_long_mode(vcpu) &&
->>  	    (cr3 & rsvd_bits(cpuid_maxphyaddr(vcpu), 63)))
->>  		return 1;
->> -	else if (is_pae(vcpu) && is_paging(vcpu) &&
->> -		   !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
->> +	else if (is_pae_paging(vcpu) &&
->> +		 !load_pdptrs(vcpu, vcpu->arch.walk_mmu, cr3))
->>  		return 1;
->>
->>  	kvm_mmu_new_cr3(vcpu, cr3, skip_tlb_flush);
->> @@ -8312,7 +8312,7 @@ static int __set_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
->>  		kvm_update_cpuid(vcpu);
->>
->>  	idx = srcu_read_lock(&vcpu->kvm->srcu);
->> -	if (!is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu)) {
->> +	if (is_pae_paging(vcpu)) {
->>  		load_pdptrs(vcpu, vcpu->arch.walk_mmu, kvm_read_cr3(vcpu));
->>  		mmu_reset_needed = 1;
->>  	}
->> diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
->> index 3a91ea760f07..608e5f8c5d0a 100644
->> --- a/arch/x86/kvm/x86.h
->> +++ b/arch/x86/kvm/x86.h
->> @@ -139,6 +139,11 @@ static inline int is_paging(struct kvm_vcpu *vcpu)
->>  	return likely(kvm_read_cr0_bits(vcpu, X86_CR0_PG));
->>  }
->>
->> +static inline bool is_pae_paging(struct kvm_vcpu *vcpu)
->> +{
->> +	return !is_long_mode(vcpu) && is_pae(vcpu) && is_paging(vcpu);
->> +}
->> +
->>  static inline u32 bit(int bitno)
->>  {
->>  	return 1 << (bitno & 31);
->>
->
->Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+> 
+> I'm not against this backport, but I'd like to know more why you feel
+> this is a stable fix. Just to get a better backtrace? Can you show some
+> examples of the issue you have and how this fixes it?
 
-Queued up for 4.19, thank you.
+PATCH1: "tracing: Skip more functions when doing stack tracing of events" from v4.8-rc1~111^2~9
+PATCH2: "tracing: Have trace_buffer_unlock_commit() call the _regs version with NULL" from tags/v4.7-rc1~72^2~8
+PATCH1 is after PATCH2, the "skip" of ftrace_trace_stack() called by trace_buffer_unlock_commit_regs()
+and trace_buffer_unlock_commit() is all changed. but we only have PATCH1 in 4.4.x, I found this when
+using stacktrace on arm64,
 
--- 
-Thanks,
-Sasha
+cd /sys/kernel/debug/tracing
+echo 1 > options/stacktrace
+echo 1 > events/kmem/mm_page_alloc/enable
+cat trace
+
+before
+---
+
+              sh-781   [004] ...1    31.300106: mm_page_alloc: page=ffffffbdc0246380 pfn=299406 order=0 migratetype=1 gfp_flags=GFP_HIGHUSER_MOVABLE
+              sh-781   [004] ...1    31.301373: <stack trace>
+ => do_page_fault
+ => do_translation_fault
+ => do_mem_abort
+ => el0_da
+              sh-781   [004] ...1    31.303494: mm_page_alloc: page=ffffffbdc021cf00 pfn=296764 order=2 migratetype=0 gfp_flags=GFP_USER|GFP_ZERO|GFP_NOTRACK
+              sh-781   [004] ...1    31.303508: <stack trace>
+ => copy_process.isra.8
+ => _do_fork
+ => SyS_clone
+ => el0_svc_naked
+              sh-781   [004] ...1    31.303975: mm_page_alloc: page=ffffffbdc021cd40 pfn=296757 order=0 migratetype=0 gfp_flags=GFP_USER|GFP_REPEAT|GFP_ZERO|GFP_NOTRACK
+              sh-781   [004] ...1    31.303987: <stack trace>
+ => pgd_alloc
+ => mm_init.isra.4
+ => copy_process.isra.8
+ => _do_fork
+ => SyS_clone
+ => el0_svc_naked
+after
+---
+            sh-780   [002] ...1    14.728783: mm_page_alloc: page=ffffffbdc2e86200 pfn=1024392 order=0 migratetype=1 gfp_flags=GFP_HIGHUSER_MOVABLE
+              sh-780   [002] ...1    14.729985: <stack trace>
+ => __alloc_pages_nodemask
+ => handle_mm_fault
+ => do_page_fault
+ => do_translation_fault
+ => do_mem_abort
+ => el0_da
+              sh-780   [002] ...1    14.731854: mm_page_alloc: page=ffffffbdc021dc00 pfn=296816 order=2 migratetype=0 gfp_flags=GFP_USER|GFP_ZERO|GFP_NOTRACK
+              sh-780   [002] ...1    14.731867: <stack trace>
+ => __alloc_pages_nodemask
+ => alloc_kmem_pages_node
+ => copy_process.isra.8
+ => _do_fork
+ => SyS_clone
+ => el0_svc_naked
+              sh-780   [002] ...1    14.732069: mm_page_alloc: page=ffffffbdc021d600 pfn=296792 order=0 migratetype=0 gfp_flags=GFP_USER|GFP_REPEAT|GFP_ZERO|GFP_NOTRACK
+              sh-780   [002] ...1    14.732079: <stack trace>
+ => __alloc_pages_nodemask
+ => __get_free_pages
+ => pgd_alloc
+ => mm_init.isra.4
+ => copy_process.isra.8
+ => _do_fork
+ => SyS_clone
+ => el0_svc_naked
+
+
+
+> 
+> Thanks!
+> 
+> -- Steve
+> 
+> .
+> 
+
