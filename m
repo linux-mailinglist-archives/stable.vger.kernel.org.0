@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91D9CFA22B
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE1C9FA28B
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730960AbfKMCCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:02:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58518 "EHLO mail.kernel.org"
+        id S1730968AbfKMCCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:02:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730003AbfKMCCJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:02:09 -0500
+        id S1730003AbfKMCCN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:02:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B31A8206B6;
-        Wed, 13 Nov 2019 02:02:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B06FD204EC;
+        Wed, 13 Nov 2019 02:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610528;
-        bh=BfsY3M/4bqCtzOYH+rqzQMH+VaQOEdNiiE1gHRZMQnU=;
+        s=default; t=1573610532;
+        bh=NpbV87MbFdzgksay7uQciuMhgTrAH0Ty1w4P1B34b8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCM1y+QwsS4Ep0NlAmZbcljpGvja4Vl0l4JmQXE+YyhH0g0MJvgZR7lKjjIthgCvu
-         popRuI0DgWJXtHM4onCIeWn9ZglgTASH0h/h9VA6e032aGWIFRwpUF2Z119MzhaVHj
-         qpdNWB2h4wEAR3AqUmvtBigMvkDw4KXzQlZJf75o=
+        b=rq+jCFzL3fSxgm9UAsv+Nbx+UaDiyN/HyLEaC8O0ZpbtMlAvJstJpfO4S2wE9lte4
+         IYt+iSWCNDk7mkChSUGLDedsf6fsqrlGwXgxA99PEcn+gq55JGd6o6x+g3/LCmJcY5
+         sld2i6Os4lfTaiOJK721HxrVrA4lQ4G9cMA8wlVk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
-        Boris Brezillon <boris.brezillon@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.4 23/48] mtd: physmap_of: Release resources on error
-Date:   Tue, 12 Nov 2019 21:01:06 -0500
-Message-Id: <20191113020131.13356-23-sashal@kernel.org>
+Cc:     Chung-Hsien Hsu <stanley.hsu@cypress.com>,
+        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 24/48] brcmfmac: fix full timeout waiting for action frame on-channel tx
+Date:   Tue, 12 Nov 2019 21:01:07 -0500
+Message-Id: <20191113020131.13356-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113020131.13356-1-sashal@kernel.org>
 References: <20191113020131.13356-1-sashal@kernel.org>
@@ -43,86 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
 
-[ Upstream commit ef0de747f7ad179c7698a5b0e28db05f18ecbf57 ]
+[ Upstream commit fbf07000960d9c8a13fdc17c6de0230d681c7543 ]
 
-During probe, if there was an error the memory region and the memory
-map were not properly released.This can lead a system unusable if
-deferred probe is in use.
+The driver sends an action frame down and waits for a completion signal
+triggered by the received BRCMF_E_ACTION_FRAME_OFF_CHAN_COMPLETE event
+to continue the process. However, the action frame could be transmitted
+either on the current channel or on an off channel. For the on-channel
+case, only BRCMF_E_ACTION_FRAME_COMPLETE event will be received when
+the frame is transmitted, which make the driver always wait a full
+timeout duration. This patch has the completion signal be triggered by
+receiving the BRCMF_E_ACTION_FRAME_COMPLETE event for the on-channel
+case.
 
-Replace mem_request and map with devm_ioremap_resource
+This change fixes WFA p2p certification 5.1.19 failure.
 
-Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/maps/physmap_of.c | 27 +++++----------------------
- 1 file changed, 5 insertions(+), 22 deletions(-)
+ drivers/net/wireless/brcm80211/brcmfmac/p2p.c | 17 +++++++++++++++--
+ drivers/net/wireless/brcm80211/brcmfmac/p2p.h |  2 ++
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/maps/physmap_of.c b/drivers/mtd/maps/physmap_of.c
-index e46b4e9836668..77e7542fa8e42 100644
---- a/drivers/mtd/maps/physmap_of.c
-+++ b/drivers/mtd/maps/physmap_of.c
-@@ -28,7 +28,6 @@
- struct of_flash_list {
- 	struct mtd_info *mtd;
- 	struct map_info map;
--	struct resource *res;
+diff --git a/drivers/net/wireless/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/brcm80211/brcmfmac/p2p.c
+index e6c8b0d5afe06..7dae935701a72 100644
+--- a/drivers/net/wireless/brcm80211/brcmfmac/p2p.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/p2p.c
+@@ -1469,10 +1469,12 @@ int brcmf_p2p_notify_action_tx_complete(struct brcmf_if *ifp,
+ 		return 0;
+ 
+ 	if (e->event_code == BRCMF_E_ACTION_FRAME_COMPLETE) {
+-		if (e->status == BRCMF_E_STATUS_SUCCESS)
++		if (e->status == BRCMF_E_STATUS_SUCCESS) {
+ 			set_bit(BRCMF_P2P_STATUS_ACTION_TX_COMPLETED,
+ 				&p2p->status);
+-		else {
++			if (!p2p->wait_for_offchan_complete)
++				complete(&p2p->send_af_done);
++		} else {
+ 			set_bit(BRCMF_P2P_STATUS_ACTION_TX_NOACK, &p2p->status);
+ 			/* If there is no ack, we don't need to wait for
+ 			 * WLC_E_ACTION_FRAME_OFFCHAN_COMPLETE event
+@@ -1523,6 +1525,17 @@ static s32 brcmf_p2p_tx_action_frame(struct brcmf_p2p_info *p2p,
+ 	p2p->af_sent_channel = le32_to_cpu(af_params->channel);
+ 	p2p->af_tx_sent_jiffies = jiffies;
+ 
++	if (test_bit(BRCMF_P2P_STATUS_DISCOVER_LISTEN, &p2p->status) &&
++	    p2p->af_sent_channel ==
++	    ieee80211_frequency_to_channel(p2p->remain_on_channel.center_freq))
++		p2p->wait_for_offchan_complete = false;
++	else
++		p2p->wait_for_offchan_complete = true;
++
++	brcmf_dbg(TRACE, "Waiting for %s tx completion event\n",
++		  (p2p->wait_for_offchan_complete) ?
++		   "off-channel" : "on-channel");
++
+ 	timeout = wait_for_completion_timeout(&p2p->send_af_done,
+ 					msecs_to_jiffies(P2P_AF_MAX_WAIT_TIME));
+ 
+diff --git a/drivers/net/wireless/brcm80211/brcmfmac/p2p.h b/drivers/net/wireless/brcm80211/brcmfmac/p2p.h
+index 5d49059021a9f..59e902adfc087 100644
+--- a/drivers/net/wireless/brcm80211/brcmfmac/p2p.h
++++ b/drivers/net/wireless/brcm80211/brcmfmac/p2p.h
+@@ -125,6 +125,7 @@ struct afx_hdl {
+  * @gon_req_action: about to send go negotiation requets frame.
+  * @block_gon_req_tx: drop tx go negotiation requets frame.
+  * @p2pdev_dynamically: is p2p device if created by module param or supplicant.
++ * @wait_for_offchan_complete: wait for off-channel tx completion event.
+  */
+ struct brcmf_p2p_info {
+ 	struct brcmf_cfg80211_info *cfg;
+@@ -146,6 +147,7 @@ struct brcmf_p2p_info {
+ 	bool gon_req_action;
+ 	bool block_gon_req_tx;
+ 	bool p2pdev_dynamically;
++	bool wait_for_offchan_complete;
  };
  
- struct of_flash {
-@@ -53,18 +52,10 @@ static int of_flash_remove(struct platform_device *dev)
- 			mtd_concat_destroy(info->cmtd);
- 	}
- 
--	for (i = 0; i < info->list_size; i++) {
-+	for (i = 0; i < info->list_size; i++)
- 		if (info->list[i].mtd)
- 			map_destroy(info->list[i].mtd);
- 
--		if (info->list[i].map.virt)
--			iounmap(info->list[i].map.virt);
--
--		if (info->list[i].res) {
--			release_resource(info->list[i].res);
--			kfree(info->list[i].res);
--		}
--	}
- 	return 0;
- }
- 
-@@ -223,10 +214,11 @@ static int of_flash_probe(struct platform_device *dev)
- 
- 		err = -EBUSY;
- 		res_size = resource_size(&res);
--		info->list[i].res = request_mem_region(res.start, res_size,
--						       dev_name(&dev->dev));
--		if (!info->list[i].res)
-+		info->list[i].map.virt = devm_ioremap_resource(&dev->dev, &res);
-+		if (IS_ERR(info->list[i].map.virt)) {
-+			err = PTR_ERR(info->list[i].map.virt);
- 			goto err_out;
-+		}
- 
- 		err = -ENXIO;
- 		width = of_get_property(dp, "bank-width", NULL);
-@@ -242,15 +234,6 @@ static int of_flash_probe(struct platform_device *dev)
- 		info->list[i].map.bankwidth = be32_to_cpup(width);
- 		info->list[i].map.device_node = dp;
- 
--		err = -ENOMEM;
--		info->list[i].map.virt = ioremap(info->list[i].map.phys,
--						 info->list[i].map.size);
--		if (!info->list[i].map.virt) {
--			dev_err(&dev->dev, "Failed to ioremap() flash"
--				" region\n");
--			goto err_out;
--		}
--
- 		simple_map_init(&info->list[i].map);
- 
- 		/*
+ s32 brcmf_p2p_attach(struct brcmf_cfg80211_info *cfg, bool p2pdev_forced);
 -- 
 2.20.1
 
