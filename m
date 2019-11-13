@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8416DFA5D9
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:25:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A32CFA5D7
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:25:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727957AbfKMBvk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:51:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39614 "EHLO mail.kernel.org"
+        id S1728021AbfKMCZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:25:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727953AbfKMBvj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:51:39 -0500
+        id S1727968AbfKMBvq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:51:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C681222CE;
-        Wed, 13 Nov 2019 01:51:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 549F6222CA;
+        Wed, 13 Nov 2019 01:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609899;
-        bh=/kUxBZofQMik3Dzfcnk3DamI5JTvSzhgcjGK39WSwNI=;
+        s=default; t=1573609906;
+        bh=8OznHZtnyeuyoa0ykOvMSTWxOaJVdKSRPp8ZeapPiWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j0WON8iwEszHVmmI9NGs3lf2sM3WFknCVniXmjkCBo/ElHCstDB0hs8j5FLd6F+Ti
-         epA3CqJvWsiZjr8JEMYILjF6/ThhyDA2WgizgGoXkkt36skOktaBrttpdkEGNOi+J0
-         21GZXn1uToE0WdwAV4bqIgehp92w18JZ9wtbW16M=
+        b=uj0RSs9XuIVRP7q2bMKCOdR3bkkVmZ7rnV0HUBJZMAK1nANR/opiCnF1oIg+tF18W
+         dlzIdQnM75jzJ6llPm7qy6FMM2ghrC8EP3XgeY0BwvbZhhSV36tSsxLRWvMxtV0NcY
+         mS89atsdcuYlam6B6hUG+mrhEiP41FA73JcbzjiQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 054/209] cxgb4: Use proper enum in IEEE_FAUX_SYNC
-Date:   Tue, 12 Nov 2019 20:47:50 -0500
-Message-Id: <20191113015025.9685-54-sashal@kernel.org>
+Cc:     zhong jiang <zhongjiang@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 057/209] powerpc/xive: Move a dereference below a NULL test
+Date:   Tue, 12 Nov 2019 20:47:53 -0500
+Message-Id: <20191113015025.9685-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -45,48 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: zhong jiang <zhongjiang@huawei.com>
 
-[ Upstream commit 258b6d141878530ba1f8fc44db683822389de914 ]
+[ Upstream commit cd5ff94577e004e0a4457e70d0ef3a030f4010b8 ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+Move the dereference of xc below the NULL test.
 
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c:390:4: warning: implicit
-conversion from enumeration type 'enum cxgb4_dcb_state' to different
-enumeration type 'enum cxgb4_dcb_state_input' [-Wenum-conversion]
-                        IEEE_FAUX_SYNC(dev, dcb);
-                        ^~~~~~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h:70:10: note: expanded
-from macro 'IEEE_FAUX_SYNC'
-                                            CXGB4_DCB_STATE_FW_ALLSYNCED);
-                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Use the equivalent value of the expected type to silence Clang while
-resulting in no functional change.
-
-CXGB4_DCB_STATE_FW_ALLSYNCED = CXGB4_DCB_INPUT_FW_ALLSYNCED = 3
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/sysdev/xive/common.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
-index 02040b99c78a0..484ee82900903 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
-@@ -67,7 +67,7 @@
- 	do { \
- 		if ((__dcb)->dcb_version == FW_PORT_DCB_VER_IEEE) \
- 			cxgb4_dcb_state_fsm((__dev), \
--					    CXGB4_DCB_STATE_FW_ALLSYNCED); \
-+					    CXGB4_DCB_INPUT_FW_ALLSYNCED); \
- 	} while (0)
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index 0b24b10312213..f3af53abd40fb 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -1009,12 +1009,13 @@ static void xive_ipi_eoi(struct irq_data *d)
+ {
+ 	struct xive_cpu *xc = __this_cpu_read(xive_cpu);
  
- /* States we can be in for a port's Data Center Bridging.
+-	DBG_VERBOSE("IPI eoi: irq=%d [0x%lx] (HW IRQ 0x%x) pending=%02x\n",
+-		    d->irq, irqd_to_hwirq(d), xc->hw_ipi, xc->pending_prio);
+-
+ 	/* Handle possible race with unplug and drop stale IPIs */
+ 	if (!xc)
+ 		return;
++
++	DBG_VERBOSE("IPI eoi: irq=%d [0x%lx] (HW IRQ 0x%x) pending=%02x\n",
++		    d->irq, irqd_to_hwirq(d), xc->hw_ipi, xc->pending_prio);
++
+ 	xive_do_source_eoi(xc->hw_ipi, &xc->ipi_data);
+ 	xive_do_queue_eoi(xc);
+ }
 -- 
 2.20.1
 
