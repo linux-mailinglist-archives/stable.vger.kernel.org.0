@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC40FA0B3
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:51:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE585FA0C4
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728069AbfKMBv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:51:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40238 "EHLO mail.kernel.org"
+        id S1728226AbfKMBwS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:52:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728066AbfKMBv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:51:57 -0500
+        id S1728220AbfKMBwS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:52:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2EAA204EC;
-        Wed, 13 Nov 2019 01:51:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8D55222CD;
+        Wed, 13 Nov 2019 01:52:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609916;
-        bh=sZyurtuWXFYsgOUj80/7yxV09L1SNtY4gxeDxJst5wo=;
+        s=default; t=1573609937;
+        bh=0+tj+ChrT6Rg6cUA04EqBppN5Cmg4xlFOYO8ZyoCzEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HwtpX5b7Vl5k7e8EowXbw2IZYcjXEe94QEEmRyiP2ElI89mQS/9oxNCKMj2znRHqT
-         gLStmrmppsGFp6xfIDdh0qwOkDC8ZC/Pzd+kLKspmpOwpbdEbqsEZM9I/FnfH0vF8e
-         LDzSUcAK9JuIgRlxZGxSpRv2d+QdLudFBZEJghDA=
+        b=YDPcyBhVgEOAgz+WglplywxKuam7xvENL4xyezbIhxJoXbpY7fsHgfCP3lRxa62y7
+         IyF51fAoh8F3lDZVIg8x27M0k5mF+93YfiL3n7/x4fCyAppBk2iBTv0U9QkhoVc+lz
+         yAdl/T5rAPDo5u/zULXTcWmpXgJFiylDkI4ln7So=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 065/209] clocksource/drivers/sh_cmt: Fix clocksource width for 32-bit machines
-Date:   Tue, 12 Nov 2019 20:48:01 -0500
-Message-Id: <20191113015025.9685-65-sashal@kernel.org>
+Cc:     Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 080/209] OPP: Return error on error from dev_pm_opp_get_opp_count()
+Date:   Tue, 12 Nov 2019 20:48:16 -0500
+Message-Id: <20191113015025.9685-80-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -46,58 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit 37e7742c55ba856eaec7e35673ee370f36eb17f3 ]
+[ Upstream commit 09f662f95306f3e3d47ab6842bc4b0bb868a80ad ]
 
-The driver seems to abuse *unsigned long* not only for the (32-bit)
-register values but also for the 'sh_cmt_channel::total_cycles' which
-needs to always be 64-bit -- as a result, the clocksource's mask is
-needlessly clamped down to 32-bits on the 32-bit machines...
+Return error number instead of 0 on failures.
 
-Fixes: 19bdc9d061bc ("clocksource: sh_cmt clocksource support")
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Fixes: a1e8c13600bf ("PM / OPP: "opp-hz" is optional for power domains")
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clocksource/sh_cmt.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/opp/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
-index 49302086f36fd..cec90a4c79b34 100644
---- a/drivers/clocksource/sh_cmt.c
-+++ b/drivers/clocksource/sh_cmt.c
-@@ -108,7 +108,7 @@ struct sh_cmt_channel {
- 	raw_spinlock_t lock;
- 	struct clock_event_device ced;
- 	struct clocksource cs;
--	unsigned long total_cycles;
-+	u64 total_cycles;
- 	bool cs_enabled;
- };
+diff --git a/drivers/opp/core.c b/drivers/opp/core.c
+index f3433bf47b100..1e80f9ec1aa6a 100644
+--- a/drivers/opp/core.c
++++ b/drivers/opp/core.c
+@@ -313,7 +313,7 @@ int dev_pm_opp_get_opp_count(struct device *dev)
+ 		count = PTR_ERR(opp_table);
+ 		dev_dbg(dev, "%s: OPP table not found (%d)\n",
+ 			__func__, count);
+-		return 0;
++		return count;
+ 	}
  
-@@ -613,8 +613,8 @@ static u64 sh_cmt_clocksource_read(struct clocksource *cs)
- {
- 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
- 	unsigned long flags;
--	unsigned long value;
- 	u32 has_wrapped;
-+	u64 value;
- 	u32 raw;
- 
- 	raw_spin_lock_irqsave(&ch->lock, flags);
-@@ -688,7 +688,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
- 	cs->disable = sh_cmt_clocksource_disable;
- 	cs->suspend = sh_cmt_clocksource_suspend;
- 	cs->resume = sh_cmt_clocksource_resume;
--	cs->mask = CLOCKSOURCE_MASK(sizeof(unsigned long) * 8);
-+	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
- 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
- 
- 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
+ 	count = _get_opp_count(opp_table);
 -- 
 2.20.1
 
