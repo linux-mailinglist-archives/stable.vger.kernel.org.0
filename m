@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A378FA559
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:22:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7036AFA551
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:22:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727409AbfKMCW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:22:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43202 "EHLO mail.kernel.org"
+        id S1729352AbfKMCWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:22:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727440AbfKMBxa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:53:30 -0500
+        id S1727571AbfKMBxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:53:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01F4D222CD;
-        Wed, 13 Nov 2019 01:53:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6832245D;
+        Wed, 13 Nov 2019 01:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610009;
-        bh=dVNRZUOppbIJs5ql/gl9Dfu+yySfO+0rBHt2dBpyjbo=;
+        s=default; t=1573610010;
+        bh=j7hhSDZ7CtrD2nv5ImgbrakypO9BBw85VDk4h55n7J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YH/Ct24kvlkeGoRV4FcQPbHgieEzYyf9DV4wTLI5Pum4uu7P+lUK45V0vooigDCFr
-         K0NGvu29OxHjHFQtuaYv6yETpCAfSgojkcoPGFAe0HL75l9rC/gugtkpq84sh3fCS2
-         MD+53ymf3wGufBDs189dKXVQPL5IzJ+cKlsPdjKM=
+        b=VPM1M3+YgPbBv0tJ5e8rTbvxni9ua3rl9XBW6WUH5PgTooUkla15MnFQguqDriWxk
+         QjMmu8oyJ+p1T8pw8WPNdMx1fR48MBCY8uLJPAHSFSK/hq9EikekN6fjGG9Fn/lUnm
+         2BagWEMWqj5aHllov6BqH7e09Q0dPB0v2ykkIo+Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 114/209] media: cec-gpio: select correct Signal Free Time
-Date:   Tue, 12 Nov 2019 20:48:50 -0500
-Message-Id: <20191113015025.9685-114-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.19 115/209] gfs2: slow the deluge of io error messages
+Date:   Tue, 12 Nov 2019 20:48:51 -0500
+Message-Id: <20191113015025.9685-115-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -43,61 +42,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit c439d5c1e13dbf66cff53455432f21d4d0536c51 ]
+[ Upstream commit b524abcc01483b2ac093cc6a8a2a7375558d2b64 ]
 
-If a receive is in progress or starts before the transmit has
-a chance, then lower the Signal Free Time of the upcoming transmit
-to no more than CEC_SIGNAL_FREE_TIME_NEW_INITIATOR.
+When an io error is hit, it calls gfs2_io_error_bh_i for every
+journal buffer it can't write. Since we changed gfs2_io_error_bh_i
+recently to withdraw later in the cycle, it sends a flood of
+errors to the console. This patch checks for the file system already
+being withdrawn, and if so, doesn't send more messages. It doesn't
+stop the flood of messages, but it slows it down and keeps it more
+reasonable.
 
-This is per the specification requirements.
-
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/cec-pin.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ fs/gfs2/incore.h |  1 +
+ fs/gfs2/log.c    |  7 +++++--
+ fs/gfs2/util.c   | 13 +++++++------
+ 3 files changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/cec/cec-pin.c b/drivers/media/cec/cec-pin.c
-index 0496d93b2b8fa..8f987bc0dd883 100644
---- a/drivers/media/cec/cec-pin.c
-+++ b/drivers/media/cec/cec-pin.c
-@@ -936,6 +936,17 @@ static enum hrtimer_restart cec_pin_timer(struct hrtimer *timer)
- 			/* Start bit, switch to receive state */
- 			pin->ts = ts;
- 			pin->state = CEC_ST_RX_START_BIT_LOW;
-+			/*
-+			 * If a transmit is pending, then that transmit should
-+			 * use a signal free time of no more than
-+			 * CEC_SIGNAL_FREE_TIME_NEW_INITIATOR since it will
-+			 * have a new initiator due to the receive that is now
-+			 * starting.
-+			 */
-+			if (pin->tx_msg.len && pin->tx_signal_free_time >
-+			    CEC_SIGNAL_FREE_TIME_NEW_INITIATOR)
-+				pin->tx_signal_free_time =
-+					CEC_SIGNAL_FREE_TIME_NEW_INITIATOR;
- 			break;
- 		}
- 		if (ktime_to_ns(pin->ts) == 0)
-@@ -1158,6 +1169,15 @@ static int cec_pin_adap_transmit(struct cec_adapter *adap, u8 attempts,
- {
- 	struct cec_pin *pin = adap->pin;
+diff --git a/fs/gfs2/incore.h b/fs/gfs2/incore.h
+index b96d39c28e17c..5d72e8b66a269 100644
+--- a/fs/gfs2/incore.h
++++ b/fs/gfs2/incore.h
+@@ -623,6 +623,7 @@ enum {
+ 	SDF_RORECOVERY		= 7, /* read only recovery */
+ 	SDF_SKIP_DLM_UNLOCK	= 8,
+ 	SDF_FORCE_AIL_FLUSH     = 9,
++	SDF_AIL1_IO_ERROR	= 10,
+ };
  
-+	/*
-+	 * If a receive is in progress, then this transmit should use
-+	 * a signal free time of max CEC_SIGNAL_FREE_TIME_NEW_INITIATOR
-+	 * since when it starts transmitting it will have a new initiator.
-+	 */
-+	if (pin->state != CEC_ST_IDLE &&
-+	    signal_free_time > CEC_SIGNAL_FREE_TIME_NEW_INITIATOR)
-+		signal_free_time = CEC_SIGNAL_FREE_TIME_NEW_INITIATOR;
-+
- 	pin->tx_signal_free_time = signal_free_time;
- 	pin->tx_extra_bytes = 0;
- 	pin->tx_msg = *msg;
+ enum gfs2_freeze_state {
+diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+index cd85092723dea..90b5c8d0c56ac 100644
+--- a/fs/gfs2/log.c
++++ b/fs/gfs2/log.c
+@@ -108,7 +108,9 @@ __acquires(&sdp->sd_ail_lock)
+ 		gfs2_assert(sdp, bd->bd_tr == tr);
+ 
+ 		if (!buffer_busy(bh)) {
+-			if (!buffer_uptodate(bh)) {
++			if (!buffer_uptodate(bh) &&
++			    !test_and_set_bit(SDF_AIL1_IO_ERROR,
++					      &sdp->sd_flags)) {
+ 				gfs2_io_error_bh(sdp, bh);
+ 				*withdraw = true;
+ 			}
+@@ -206,7 +208,8 @@ static void gfs2_ail1_empty_one(struct gfs2_sbd *sdp, struct gfs2_trans *tr,
+ 		gfs2_assert(sdp, bd->bd_tr == tr);
+ 		if (buffer_busy(bh))
+ 			continue;
+-		if (!buffer_uptodate(bh)) {
++		if (!buffer_uptodate(bh) &&
++		    !test_and_set_bit(SDF_AIL1_IO_ERROR, &sdp->sd_flags)) {
+ 			gfs2_io_error_bh(sdp, bh);
+ 			*withdraw = true;
+ 		}
+diff --git a/fs/gfs2/util.c b/fs/gfs2/util.c
+index 59c811de0dc7a..6a02cc890daf9 100644
+--- a/fs/gfs2/util.c
++++ b/fs/gfs2/util.c
+@@ -256,12 +256,13 @@ void gfs2_io_error_bh_i(struct gfs2_sbd *sdp, struct buffer_head *bh,
+ 			const char *function, char *file, unsigned int line,
+ 			bool withdraw)
+ {
+-	fs_err(sdp,
+-	       "fatal: I/O error\n"
+-	       "  block = %llu\n"
+-	       "  function = %s, file = %s, line = %u\n",
+-	       (unsigned long long)bh->b_blocknr,
+-	       function, file, line);
++	if (!test_bit(SDF_SHUTDOWN, &sdp->sd_flags))
++		fs_err(sdp,
++		       "fatal: I/O error\n"
++		       "  block = %llu\n"
++		       "  function = %s, file = %s, line = %u\n",
++		       (unsigned long long)bh->b_blocknr,
++		       function, file, line);
+ 	if (withdraw)
+ 		gfs2_lm_withdraw(sdp, NULL);
+ }
 -- 
 2.20.1
 
