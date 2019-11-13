@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C36FA45B
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D082FA45C
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729482AbfKMB41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:56:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48678 "EHLO mail.kernel.org"
+        id S1728684AbfKMCQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:16:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729465AbfKMB40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:56:26 -0500
+        id S1727725AbfKMB41 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:56:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1283D222D4;
-        Wed, 13 Nov 2019 01:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 362E52245C;
+        Wed, 13 Nov 2019 01:56:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610185;
-        bh=H4FtUxAgb8VUgFh06eAzC1WMy5cEloH2ZAE49aqsZR4=;
+        s=default; t=1573610187;
+        bh=t0LGKsLAIPhyIH2YHKRCrKEsmfB6YyBV3i4SCbgDs0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V28np0netUby84/QT82iP8ZlZoMkJ8hghta9tkIDILqhaBGm5E2602c7SJ0yw2u4T
-         su30i0XktpfIeygHxZ7kVzv17kQV2s0LvTer4JuvvPovHk2w7ANcpsYgVuOp+hd8G7
-         0KygEX+/c4J0xkzDViUf6QQY5gXNy0ZIbYZyLifw=
+        b=JfeUayxg1T72Nxabgp03UhBlY2d6feFqhJfVay7ycnCQHKt45qeImd0Sp0sj8nFe6
+         ECVnT85OmyDHv+Tw6eGosEiU1G91zWMWo0FgDgZFmo+Pa6cEuJfP+KGqDuk1rX+35Z
+         mrPS01GryQvwcYLNBcYUdWvvUxtAPpNmOmsAdmA4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Wei Liu <wei.liu2@citrix.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 002/115] net: xen-netback: fix return type of ndo_start_xmit function
-Date:   Tue, 12 Nov 2019 20:54:29 -0500
-Message-Id: <20191113015622.11592-2-sashal@kernel.org>
+Cc:     Vignesh R <vigneshr@ti.com>, Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 003/115] ARM: dts: dra7: Enable workaround for errata i870 in PCIe host mode
+Date:   Tue, 12 Nov 2019 20:54:30 -0500
+Message-Id: <20191113015622.11592-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -43,39 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit a9ca7f17c6d240e269a24cbcd76abf9a940309dd ]
+[ Upstream commit b830526f304764753fcb8b4a563a94080e982a6c ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+Add ti,syscon-unaligned-access property to PCIe RC nodes to set
+appropriate bits in CTRL_CORE_SMA_SW_7 register to enable workaround for
+errata i870.
 
-Found by coccinelle.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Wei Liu <wei.liu2@citrix.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/xen-netback/interface.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/dra7.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
-index 2641e76d03d9d..b5fa910b47b70 100644
---- a/drivers/net/xen-netback/interface.c
-+++ b/drivers/net/xen-netback/interface.c
-@@ -172,7 +172,8 @@ static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
- 	return vif->hash.mapping[skb_get_hash_raw(skb) % size];
- }
- 
--static int xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct xenvif *vif = netdev_priv(dev);
- 	struct xenvif_queue *queue = NULL;
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index 0bf354024ef55..3af1aa7a3213d 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -314,6 +314,7 @@
+ 						<0 0 0 2 &pcie1_intc 2>,
+ 						<0 0 0 3 &pcie1_intc 3>,
+ 						<0 0 0 4 &pcie1_intc 4>;
++				ti,syscon-unaligned-access = <&scm_conf1 0x14 1>;
+ 				status = "disabled";
+ 				pcie1_intc: interrupt-controller {
+ 					interrupt-controller;
+@@ -367,6 +368,7 @@
+ 						<0 0 0 2 &pcie2_intc 2>,
+ 						<0 0 0 3 &pcie2_intc 3>,
+ 						<0 0 0 4 &pcie2_intc 4>;
++				ti,syscon-unaligned-access = <&scm_conf1 0x14 2>;
+ 				pcie2_intc: interrupt-controller {
+ 					interrupt-controller;
+ 					#address-cells = <0>;
 -- 
 2.20.1
 
