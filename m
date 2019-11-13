@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14755FA088
+	by mail.lfdr.de (Postfix) with ESMTP id F0709FA08A
 	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:50:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727507AbfKMBuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:50:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37696 "EHLO mail.kernel.org"
+        id S1727534AbfKMBuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:50:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727498AbfKMBuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:50:46 -0500
+        id S1727522AbfKMBuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:50:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 136502245B;
-        Wed, 13 Nov 2019 01:50:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58CDF22466;
+        Wed, 13 Nov 2019 01:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609845;
-        bh=ag3Pt1+cczd014vnvka/WOIYakAcbIlIgSnRJhqISu0=;
+        s=default; t=1573609850;
+        bh=I3ZLCnIDcjBuO+pE/ZPwAvwz5deLJv3WIzNphLQ4FDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CA9YIf0q6W0Y4izY11kM0aMFCd3tZc+GjjNxUa9V6uWyPhkEPWxwFSBlQfBKG/1LP
-         HNcwjFzTYYojgZWw8njq/GQvPyy5otPMeAYj/IRPk7/07m5FQxtIa5OG6y1Q0SeW6l
-         owjJ+rcwQJ8DbpVH1jLMaxp3iIX6GdjqtW8UuSnw=
+        b=qmz8FHqA7pWushjdnAS2MizU9JmTDQh8wdOjK1cjo2w+JtbFhAkUKp8ahetnMPqeW
+         fqhx8B2bG3OUYn7KAseFhtUaQ2PYEoKtQWKHytslwDSKH27brliV8LBHvlGlPxzFoz
+         JU8hmFH10+yvyKJrdHN2YKOJy0XvJWAA3K4Uyhao=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 017/209] IB/hfi1: Ensure ucast_dlid access doesnt exceed bounds
-Date:   Tue, 12 Nov 2019 20:47:13 -0500
-Message-Id: <20191113015025.9685-17-sashal@kernel.org>
+Cc:     Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 021/209] iommu/io-pgtable-arm: Fix race handling in split_blk_unmap()
+Date:   Tue, 12 Nov 2019 20:47:17 -0500
+Message-Id: <20191113015025.9685-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -43,36 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dennis Dalessandro <dennis.dalessandro@intel.com>
+From: Robin Murphy <robin.murphy@arm.com>
 
-[ Upstream commit 3144533bf667c8e53bb20656b78295960073e57b ]
+[ Upstream commit 85c7a0f1ef624ef58173ef52ea77780257bdfe04 ]
 
-The dlid assignment made by looking into the u_ucast_dlid array does not
-do an explicit check for the size of the array. The code path to arrive at
-def_port, the index value is long and complicated so its best to just have
-an explicit check here.
+In removing the pagetable-wide lock, we gained the possibility of the
+vanishingly unlikely case where we have a race between two concurrent
+unmappers splitting the same block entry. The logic to handle this is
+fairly straightforward - whoever loses the race frees their partial
+next-level table and instead dereferences the winner's newly-installed
+entry in order to fall back to a regular unmap, which intentionally
+echoes the pre-existing case of recursively splitting a 1GB block down
+to 4KB pages by installing a full table of 2MB blocks first.
 
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Unfortunately, the chump who implemented that logic failed to update the
+condition check for that fallback, meaning that if said race occurs at
+the last level (where the loser's unmap_idx is valid) then the unmap
+won't actually happen. Fix that to properly account for both the race
+and recursive cases.
+
+Fixes: 2c3d273eabe8 ("iommu/io-pgtable-arm: Support lockless operation")
+Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+[will: re-jig control flow to avoid duplicate cmpxchg test]
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/opa_vnic/opa_vnic_encap.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iommu/io-pgtable-arm.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/opa_vnic/opa_vnic_encap.c b/drivers/infiniband/ulp/opa_vnic/opa_vnic_encap.c
-index 267da8215e08f..31cd361416ac9 100644
---- a/drivers/infiniband/ulp/opa_vnic/opa_vnic_encap.c
-+++ b/drivers/infiniband/ulp/opa_vnic/opa_vnic_encap.c
-@@ -351,7 +351,8 @@ static uint32_t opa_vnic_get_dlid(struct opa_vnic_adapter *adapter,
- 			if (unlikely(!dlid))
- 				v_warn("Null dlid in MAC address\n");
- 		} else if (def_port != OPA_VNIC_INVALID_PORT) {
--			dlid = info->vesw.u_ucast_dlid[def_port];
-+			if (def_port < OPA_VESW_MAX_NUM_DEF_PORT)
-+				dlid = info->vesw.u_ucast_dlid[def_port];
- 		}
+diff --git a/drivers/iommu/io-pgtable-arm.c b/drivers/iommu/io-pgtable-arm.c
+index 88641b4560bc8..2f79efd16a052 100644
+--- a/drivers/iommu/io-pgtable-arm.c
++++ b/drivers/iommu/io-pgtable-arm.c
+@@ -574,13 +574,12 @@ static size_t arm_lpae_split_blk_unmap(struct arm_lpae_io_pgtable *data,
+ 			return 0;
+ 
+ 		tablep = iopte_deref(pte, data);
++	} else if (unmap_idx >= 0) {
++		io_pgtable_tlb_add_flush(&data->iop, iova, size, size, true);
++		return size;
  	}
  
+-	if (unmap_idx < 0)
+-		return __arm_lpae_unmap(data, iova, size, lvl, tablep);
+-
+-	io_pgtable_tlb_add_flush(&data->iop, iova, size, size, true);
+-	return size;
++	return __arm_lpae_unmap(data, iova, size, lvl, tablep);
+ }
+ 
+ static size_t __arm_lpae_unmap(struct arm_lpae_io_pgtable *data,
 -- 
 2.20.1
 
