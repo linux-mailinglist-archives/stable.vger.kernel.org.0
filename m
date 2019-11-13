@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96FC9FA1C6
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C401FA1C9
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727976AbfKMB7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:59:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53784 "EHLO mail.kernel.org"
+        id S1730283AbfKMB71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:59:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730255AbfKMB7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:20 -0500
+        id S1727741AbfKMB7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:59:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D5E722470;
-        Wed, 13 Nov 2019 01:59:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99CE322490;
+        Wed, 13 Nov 2019 01:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610360;
-        bh=mHyJix8TS0iTdx7zM4Zt5aMG7j8CE7oo13sYuj57jpA=;
+        s=default; t=1573610361;
+        bh=SUtoJuBQ0kWFqFHCogcPBI0EufRGC1iwfMg31fJcoOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0GBtaj6VmbJC7djbiQjuuPbCS0E+IGRRotLEwrYqxHS2HWNT0e9YmR51veSTTsiK
-         kV4lyftXvKXjKuH8fW6zJ5vbSw/fG1A699QjSqBbKaS50IBkJe1TWmvGXwS8yrtidA
-         Z/2uXqUzCzThBWOy0ytHmIZ+9U99zOqKJz0AzZDo=
+        b=JlhNHwoKn0CHEhCjZzql2GLWeqXxxoch/YxB8/c/YIhBUf2CSlJrNT8LOvekQUQsr
+         kEsb/33qBJSm0QUXOoSAXAJ0WsdKAzllw1yJL2EgaLxA1bhX/Q4nIs0Y6cCWp6nlcG
+         WQIKlkdj2KbzoBgSPOwDaweS8iRQFOLhtVFvaBW4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huibin Hong <huibin.hong@rock-chips.com>,
-        Emil Renner Berthing <kernel@esmil.dk>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 110/115] spi: rockchip: initialize dma_slave_config properly
-Date:   Tue, 12 Nov 2019 20:56:17 -0500
-Message-Id: <20191113015622.11592-110-sashal@kernel.org>
+Cc:     Ido Schimmel <idosch@mellanox.com>,
+        Petr Machata <petrm@mellanox.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 111/115] mlxsw: spectrum_switchdev: Check notification relevance based on upper device
+Date:   Tue, 12 Nov 2019 20:56:18 -0500
+Message-Id: <20191113015622.11592-111-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -45,36 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huibin Hong <huibin.hong@rock-chips.com>
+From: Ido Schimmel <idosch@mellanox.com>
 
-[ Upstream commit dd8fd2cbc73f8650f651da71fc61a6e4f30c1566 ]
+[ Upstream commit 5050f6ae253ad1307af3486c26fc4f94287078b7 ]
 
-The rxconf and txconf structs are allocated on the
-stack, so make sure we zero them before filling out
-the relevant fields.
+VxLAN FDB updates are sent with the VxLAN device which is not our upper
+and will therefore be ignored by current code.
 
-Signed-off-by: Huibin Hong <huibin.hong@rock-chips.com>
-Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Solve this by checking whether the upper device (bridge) is our upper.
+
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Petr Machata <petrm@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rockchip.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
-index fdcf3076681b5..185bbdce62b14 100644
---- a/drivers/spi/spi-rockchip.c
-+++ b/drivers/spi/spi-rockchip.c
-@@ -445,6 +445,9 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs)
- 	struct dma_slave_config rxconf, txconf;
- 	struct dma_async_tx_descriptor *rxdesc, *txdesc;
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+index 8a1788108f52a..698de51b3fef0 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
+@@ -1939,8 +1939,15 @@ static int mlxsw_sp_switchdev_event(struct notifier_block *unused,
+ 	struct net_device *dev = switchdev_notifier_info_to_dev(ptr);
+ 	struct mlxsw_sp_switchdev_event_work *switchdev_work;
+ 	struct switchdev_notifier_fdb_info *fdb_info = ptr;
++	struct net_device *br_dev;
  
-+	memset(&rxconf, 0, sizeof(rxconf));
-+	memset(&txconf, 0, sizeof(txconf));
-+
- 	spin_lock_irqsave(&rs->lock, flags);
- 	rs->state &= ~RXBUSY;
- 	rs->state &= ~TXBUSY;
+-	if (!mlxsw_sp_port_dev_lower_find_rcu(dev))
++	/* Tunnel devices are not our uppers, so check their master instead */
++	br_dev = netdev_master_upper_dev_get_rcu(dev);
++	if (!br_dev)
++		return NOTIFY_DONE;
++	if (!netif_is_bridge_master(br_dev))
++		return NOTIFY_DONE;
++	if (!mlxsw_sp_port_dev_lower_find_rcu(br_dev))
+ 		return NOTIFY_DONE;
+ 
+ 	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
 -- 
 2.20.1
 
