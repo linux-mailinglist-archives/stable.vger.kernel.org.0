@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 939D4FA4B8
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7133AFA4BA
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729340AbfKMBz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:55:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47938 "EHLO mail.kernel.org"
+        id S1729329AbfKMCRk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:17:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728227AbfKMBz6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:55:58 -0500
+        id S1729277AbfKMBz7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:55:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3798F2245D;
-        Wed, 13 Nov 2019 01:55:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DEBE22474;
+        Wed, 13 Nov 2019 01:55:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610158;
-        bh=QpPlVOH8XrovDhe/giG6zh7Ap7H68BvM/SfG639B8S8=;
+        s=default; t=1573610159;
+        bh=Yk0BthtfhCwG5HdWsol18bF1E9VmSioqlac3A/a++5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZOk3xHc/X5d7ILqffD2mpzCjE+vTJj2nJlMZam/93rE0iR+fAZ8CMbHgfZGbfSmD
-         j1feuHGcDr972lhJyuiMKNDp5v+aZ81tXENho//xY2Eqt/FaJAz+zysjQnQ2A3SqET
-         BomrkcoKo8PHVwAKDkL7pvRPoiJHr1vxzfYOZNVo=
+        b=mNuzEANb/wLXvvYEq5GZfdOuVahIyEmuZDTqn+VsJRG/n2gXrkiCPqfuGHxkJFeCr
+         De4BMUO7r8zgOB8MHpy1hWGhKl79b9w1dlDRdnb6mimXP442YEq0zaXaEnvazFjMKQ
+         kTKV8pTEM2ngM9KEN4AK/Lhe+JlntUUp2rOcIvnY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ido Schimmel <idosch@mellanox.com>,
-        Petr Machata <petrm@mellanox.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 201/209] mlxsw: spectrum_switchdev: Check notification relevance based on upper device
-Date:   Tue, 12 Nov 2019 20:50:17 -0500
-Message-Id: <20191113015025.9685-201-sashal@kernel.org>
+Cc:     Roger Quadros <rogerq@ti.com>,
+        "H . Nikolaus Schaller" <hns@goldelico.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 202/209] ARM: dts: omap5: Fix dual-role mode on Super-Speed port
+Date:   Tue, 12 Nov 2019 20:50:18 -0500
+Message-Id: <20191113015025.9685-202-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -44,44 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Roger Quadros <rogerq@ti.com>
 
-[ Upstream commit 5050f6ae253ad1307af3486c26fc4f94287078b7 ]
+[ Upstream commit a763ecc15d0e37c3a15ff6825183061209832685 ]
 
-VxLAN FDB updates are sent with the VxLAN device which is not our upper
-and will therefore be ignored by current code.
+OMAP5's Super-Speed USB port has a software mailbox register
+that needs to be fed with VBUS and ID events from an external
+VBUS/ID comparator.
 
-Solve this by checking whether the upper device (bridge) is our upper.
+Without this, Host role will not work correctly.
 
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 656c1a65ab55 ("ARM: dts: omap5: enable OTG role for DWC3 controller")
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/omap5-board-common.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index a4f237f815d1a..8d556eb37b7aa 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -2324,8 +2324,15 @@ static int mlxsw_sp_switchdev_event(struct notifier_block *unused,
- 	struct net_device *dev = switchdev_notifier_info_to_dev(ptr);
- 	struct mlxsw_sp_switchdev_event_work *switchdev_work;
- 	struct switchdev_notifier_fdb_info *fdb_info = ptr;
-+	struct net_device *br_dev;
+diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
+index c2dc4199b4ec2..61a06f6add3ca 100644
+--- a/arch/arm/boot/dts/omap5-board-common.dtsi
++++ b/arch/arm/boot/dts/omap5-board-common.dtsi
+@@ -704,6 +704,7 @@
+ };
  
--	if (!mlxsw_sp_port_dev_lower_find_rcu(dev))
-+	/* Tunnel devices are not our uppers, so check their master instead */
-+	br_dev = netdev_master_upper_dev_get_rcu(dev);
-+	if (!br_dev)
-+		return NOTIFY_DONE;
-+	if (!netif_is_bridge_master(br_dev))
-+		return NOTIFY_DONE;
-+	if (!mlxsw_sp_port_dev_lower_find_rcu(br_dev))
- 		return NOTIFY_DONE;
+ &dwc3 {
++	extcon = <&extcon_usb3>;
+ 	dr_mode = "otg";
+ };
  
- 	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
 -- 
 2.20.1
 
