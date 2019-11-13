@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAA07FA1EA
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB08FA30D
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:07:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730487AbfKMCA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:00:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
+        id S1729589AbfKMCA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:00:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730482AbfKMCAZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:00:25 -0500
+        id S1730489AbfKMCA3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:00:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46789222CF;
-        Wed, 13 Nov 2019 02:00:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1025B2053B;
+        Wed, 13 Nov 2019 02:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610425;
-        bh=Odq0AFSMrFz8mb2BtUQkzhgEYqONjnc9v8r91dR/gXE=;
+        s=default; t=1573610428;
+        bh=cAjZ586zGlwwEAc6mS6QatfsCBkzzwO45shjpQ2vYxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zwQWS83bXOmBSN6VF4XlvG3A1OtxZlYuQE7s+yaWNfPOPE3PML/FveBoUzAKE7ygb
-         Q1zlX7qER24V8zop8JO7pVdLkYz8D4LN+xs8+c7uZlLkm0f4/eoWEKzwfPdhXNpSXu
-         5wsjXpCX2m/bANAplwKSTh5f0OAgRdd7T/bEVZJs=
+        b=UdBPZ8cSSYS2MPbmwZV5l8iLO2jRGslmd9kGwzYU2WTmwZFFxnhpVhIsxoYPfxFiB
+         KRwiYgUFnUllg5TmmA79y6dcvrP3lRonXkPwrG3yU/iRLKmcg6D5XvdaeFMKXflxjl
+         9Fo5CGTgr+15RMjTAj3jLVC9sbAml657s2M/aB0U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 32/68] cpu/SMT: State SMT is disabled even with nosmt and without "=force"
-Date:   Tue, 12 Nov 2019 20:58:56 -0500
-Message-Id: <20191113015932.12655-32-sashal@kernel.org>
+Cc:     Chung-Hsien Hsu <stanley.hsu@cypress.com>,
+        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 33/68] brcmfmac: reduce timeout for action frame scan
+Date:   Tue, 12 Nov 2019 20:58:57 -0500
+Message-Id: <20191113015932.12655-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -45,39 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Chung-Hsien Hsu <stanley.hsu@cypress.com>
 
-[ Upstream commit d0e7d14455d41163126afecd0fcce935463cc512 ]
+[ Upstream commit edb6d6885bef82d1eac432dbeca9fbf4ec349d7e ]
 
-When booting with "nosmt=force" a message is issued into dmesg to
-confirm that SMT has been force-disabled but such a message is not
-issued when only "nosmt" is on the kernel command line.
+Finding a common channel to send an action frame out is required for
+some action types. Since a loop with several scan retry is used to find
+the channel, a short wait time could be considered for each attempt.
+This patch reduces the wait time from 1500 to 450 msec for each action
+frame scan.
 
-Fix that.
+This patch fixes the WFA p2p certification 5.1.20 failure caused by the
+long action frame send time.
 
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20181004172227.10094-1-bp@alien8.de
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Chung-Hsien Hsu <stanley.hsu@cypress.com>
+Signed-off-by: Chi-Hsien Lin <chi-hsien.lin@cypress.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cpu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index c947bb35b89ff..a24566eb1c1c1 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -379,6 +379,7 @@ void __init cpu_smt_disable(bool force)
- 		pr_info("SMT: Force disabled\n");
- 		cpu_smt_control = CPU_SMT_FORCE_DISABLED;
- 	} else {
-+		pr_info("SMT: disabled\n");
- 		cpu_smt_control = CPU_SMT_DISABLED;
- 	}
- }
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+index f78d91b692871..c91f5ef0be7c3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/p2p.c
+@@ -74,7 +74,7 @@
+ #define P2P_AF_MAX_WAIT_TIME		msecs_to_jiffies(2000)
+ #define P2P_INVALID_CHANNEL		-1
+ #define P2P_CHANNEL_SYNC_RETRY		5
+-#define P2P_AF_FRM_SCAN_MAX_WAIT	msecs_to_jiffies(1500)
++#define P2P_AF_FRM_SCAN_MAX_WAIT	msecs_to_jiffies(450)
+ #define P2P_DEFAULT_SLEEP_TIME_VSDB	200
+ 
+ /* WiFi P2P Public Action Frame OUI Subtypes */
+@@ -1139,7 +1139,6 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ {
+ 	struct afx_hdl *afx_hdl = &p2p->afx_hdl;
+ 	struct brcmf_cfg80211_vif *pri_vif;
+-	unsigned long duration;
+ 	s32 retry;
+ 
+ 	brcmf_dbg(TRACE, "Enter\n");
+@@ -1155,7 +1154,6 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ 	 * pending action frame tx is cancelled.
+ 	 */
+ 	retry = 0;
+-	duration = msecs_to_jiffies(P2P_AF_FRM_SCAN_MAX_WAIT);
+ 	while ((retry < P2P_CHANNEL_SYNC_RETRY) &&
+ 	       (afx_hdl->peer_chan == P2P_INVALID_CHANNEL)) {
+ 		afx_hdl->is_listen = false;
+@@ -1163,7 +1161,8 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ 			  retry);
+ 		/* search peer on peer's listen channel */
+ 		schedule_work(&afx_hdl->afx_work);
+-		wait_for_completion_timeout(&afx_hdl->act_frm_scan, duration);
++		wait_for_completion_timeout(&afx_hdl->act_frm_scan,
++					    P2P_AF_FRM_SCAN_MAX_WAIT);
+ 		if ((afx_hdl->peer_chan != P2P_INVALID_CHANNEL) ||
+ 		    (!test_bit(BRCMF_P2P_STATUS_FINDING_COMMON_CHANNEL,
+ 			       &p2p->status)))
+@@ -1176,7 +1175,7 @@ static s32 brcmf_p2p_af_searching_channel(struct brcmf_p2p_info *p2p)
+ 			afx_hdl->is_listen = true;
+ 			schedule_work(&afx_hdl->afx_work);
+ 			wait_for_completion_timeout(&afx_hdl->act_frm_scan,
+-						    duration);
++						    P2P_AF_FRM_SCAN_MAX_WAIT);
+ 		}
+ 		if ((afx_hdl->peer_chan != P2P_INVALID_CHANNEL) ||
+ 		    (!test_bit(BRCMF_P2P_STATUS_FINDING_COMMON_CHANNEL,
 -- 
 2.20.1
 
