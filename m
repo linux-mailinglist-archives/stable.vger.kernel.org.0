@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D641FA319
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:08:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAA07FA1EA
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730483AbfKMCAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:00:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55548 "EHLO mail.kernel.org"
+        id S1730487AbfKMCA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:00:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730457AbfKMCAX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:00:23 -0500
+        id S1730482AbfKMCAZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:00:25 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 151B222469;
-        Wed, 13 Nov 2019 02:00:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46789222CF;
+        Wed, 13 Nov 2019 02:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610422;
-        bh=Z0bJMnUiULIar3u4GSZxW0PS+omYKWonl1kytRe6kjo=;
+        s=default; t=1573610425;
+        bh=Odq0AFSMrFz8mb2BtUQkzhgEYqONjnc9v8r91dR/gXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0cnFCIbty/94E3agiKsjeEcf2sWk39AlTCIvZomV9yCGod6708D2wloRRkoNS5Jyk
-         0tIg8Cz4wd6VDmIAHAyLTPPprceld9SaJXxfMpgRrTrXkFC8hAj0MLEMo+bdoFbgdw
-         2Ve1EY2CM7s/NtJsesDgQN+RTfSe/nGmhTE9/v7s=
+        b=zwQWS83bXOmBSN6VF4XlvG3A1OtxZlYuQE7s+yaWNfPOPE3PML/FveBoUzAKE7ygb
+         Q1zlX7qER24V8zop8JO7pVdLkYz8D4LN+xs8+c7uZlLkm0f4/eoWEKzwfPdhXNpSXu
+         5wsjXpCX2m/bANAplwKSTh5f0OAgRdd7T/bEVZJs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
-        Boris Brezillon <boris.brezillon@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 31/68] mtd: physmap_of: Release resources on error
-Date:   Tue, 12 Nov 2019 20:58:55 -0500
-Message-Id: <20191113015932.12655-31-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 32/68] cpu/SMT: State SMT is disabled even with nosmt and without "=force"
+Date:   Tue, 12 Nov 2019 20:58:56 -0500
+Message-Id: <20191113015932.12655-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -43,86 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit ef0de747f7ad179c7698a5b0e28db05f18ecbf57 ]
+[ Upstream commit d0e7d14455d41163126afecd0fcce935463cc512 ]
 
-During probe, if there was an error the memory region and the memory
-map were not properly released.This can lead a system unusable if
-deferred probe is in use.
+When booting with "nosmt=force" a message is issued into dmesg to
+confirm that SMT has been force-disabled but such a message is not
+issued when only "nosmt" is on the kernel command line.
 
-Replace mem_request and map with devm_ioremap_resource
+Fix that.
 
-Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20181004172227.10094-1-bp@alien8.de
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/maps/physmap_of.c | 27 +++++----------------------
- 1 file changed, 5 insertions(+), 22 deletions(-)
+ kernel/cpu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mtd/maps/physmap_of.c b/drivers/mtd/maps/physmap_of.c
-index 3fad35942895c..7a716bed11580 100644
---- a/drivers/mtd/maps/physmap_of.c
-+++ b/drivers/mtd/maps/physmap_of.c
-@@ -29,7 +29,6 @@
- struct of_flash_list {
- 	struct mtd_info *mtd;
- 	struct map_info map;
--	struct resource *res;
- };
- 
- struct of_flash {
-@@ -54,18 +53,10 @@ static int of_flash_remove(struct platform_device *dev)
- 			mtd_concat_destroy(info->cmtd);
+diff --git a/kernel/cpu.c b/kernel/cpu.c
+index c947bb35b89ff..a24566eb1c1c1 100644
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -379,6 +379,7 @@ void __init cpu_smt_disable(bool force)
+ 		pr_info("SMT: Force disabled\n");
+ 		cpu_smt_control = CPU_SMT_FORCE_DISABLED;
+ 	} else {
++		pr_info("SMT: disabled\n");
+ 		cpu_smt_control = CPU_SMT_DISABLED;
  	}
- 
--	for (i = 0; i < info->list_size; i++) {
-+	for (i = 0; i < info->list_size; i++)
- 		if (info->list[i].mtd)
- 			map_destroy(info->list[i].mtd);
- 
--		if (info->list[i].map.virt)
--			iounmap(info->list[i].map.virt);
--
--		if (info->list[i].res) {
--			release_resource(info->list[i].res);
--			kfree(info->list[i].res);
--		}
--	}
- 	return 0;
  }
- 
-@@ -223,10 +214,11 @@ static int of_flash_probe(struct platform_device *dev)
- 
- 		err = -EBUSY;
- 		res_size = resource_size(&res);
--		info->list[i].res = request_mem_region(res.start, res_size,
--						       dev_name(&dev->dev));
--		if (!info->list[i].res)
-+		info->list[i].map.virt = devm_ioremap_resource(&dev->dev, &res);
-+		if (IS_ERR(info->list[i].map.virt)) {
-+			err = PTR_ERR(info->list[i].map.virt);
- 			goto err_out;
-+		}
- 
- 		err = -ENXIO;
- 		width = of_get_property(dp, "bank-width", NULL);
-@@ -247,15 +239,6 @@ static int of_flash_probe(struct platform_device *dev)
- 			return err;
- 		}
- 
--		err = -ENOMEM;
--		info->list[i].map.virt = ioremap(info->list[i].map.phys,
--						 info->list[i].map.size);
--		if (!info->list[i].map.virt) {
--			dev_err(&dev->dev, "Failed to ioremap() flash"
--				" region\n");
--			goto err_out;
--		}
--
- 		simple_map_init(&info->list[i].map);
- 
- 		/*
 -- 
 2.20.1
 
