@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 852ADFA415
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7158BFA40C
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730665AbfKMCN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:13:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51060 "EHLO mail.kernel.org"
+        id S1729867AbfKMB5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:57:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729862AbfKMB5m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:57:42 -0500
+        id S1728795AbfKMB5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:57:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3CBC222D3;
-        Wed, 13 Nov 2019 01:57:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 410A22245C;
+        Wed, 13 Nov 2019 01:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610261;
-        bh=EhcSo8vNuwqG/106wsz1akokDZbbuDP/sd69P+FeMeQ=;
+        s=default; t=1573610263;
+        bh=cps95J12ZBs95Tga0IarAZLjU6eKhhQzMyHwqKsN98Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MP0IolqtWgfKorV91kn2s8HIIHe28tKrwZlcxawHV1bM8/shsH4ISJrqavta0jkst
-         qPhHz+sTGimbAR97aPTRoC4WFBeHzQA6D4lzKsV7h+B7P5sy1S5hWN9YdVA4lUxivQ
-         F1qiQebYHpbh4GUuSx5g0RVrmMpBAIJXaMMZZLN8=
+        b=LVprY+VXfPD7XOshl1Xd4+LtF2Ur+tVgGTfsLUdH4sn+Hp8Mvh37unRM6cfGSOhuu
+         NwNeQ3NABOjd8n+xJnU0OX+4nFGJ/4/TwXRn2vHd7I/WywIyTw9q/7m+95RAIJ7LGA
+         UGR16jTxOygqM64KxVmFyShxa8KWLkIkqP/mlbio=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 053/115] media: i2c: adv748x: Support probing a single output
-Date:   Tue, 12 Nov 2019 20:55:20 -0500
-Message-Id: <20191113015622.11592-53-sashal@kernel.org>
+Cc:     Michael Pobega <mpobega@neverware.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 054/115] ALSA: hda/sigmatel - Disable automute for Elo VuPoint
+Date:   Tue, 12 Nov 2019 20:55:21 -0500
+Message-Id: <20191113015622.11592-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -46,149 +42,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jacopo Mondi <jacopo+renesas@jmondi.org>
+From: Michael Pobega <mpobega@neverware.com>
 
-[ Upstream commit eccf442ce156ec2b4e06b1239d5fdcb0c732f63f ]
+[ Upstream commit d153135e93a50cdb6f1b52e238909e9965b56056 ]
 
-Currently the adv748x driver will fail to probe unless both of its
-output endpoints (TXA and TXB) are connected.
+The Elo VuPoint 15MX has two headphone jacks of which neither work by
+default. Disabling automute allows ALSA to work normally with the
+speakers & left headphone jack.
 
-Make the driver support probing provided that there is at least one
-input, and one output connected and protect the clean-up function from
-accessing un-initialized fields.
+Future pin configuration changes may be required in the future to get
+the right headphone jack working in tandem.
 
-Following patches will fix other uses of un-initialized TXs in the driver,
-such as power management functions.
-
-Tested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Michael Pobega <mpobega@neverware.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv748x/adv748x-core.c | 25 +++++++++++++++++++++---
- drivers/media/i2c/adv748x/adv748x-csi2.c | 18 ++++++-----------
- drivers/media/i2c/adv748x/adv748x.h      |  2 ++
- 3 files changed, 30 insertions(+), 15 deletions(-)
+ sound/pci/hda/patch_sigmatel.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/media/i2c/adv748x/adv748x-core.c b/drivers/media/i2c/adv748x/adv748x-core.c
-index 5ee14f2c27478..cfec08593ac88 100644
---- a/drivers/media/i2c/adv748x/adv748x-core.c
-+++ b/drivers/media/i2c/adv748x/adv748x-core.c
-@@ -642,7 +642,8 @@ static int adv748x_parse_dt(struct adv748x_state *state)
- {
- 	struct device_node *ep_np = NULL;
- 	struct of_endpoint ep;
--	bool found = false;
-+	bool out_found = false;
-+	bool in_found = false;
- 
- 	for_each_endpoint_of_node(state->dev->of_node, ep_np) {
- 		of_graph_parse_endpoint(ep_np, &ep);
-@@ -667,10 +668,17 @@ static int adv748x_parse_dt(struct adv748x_state *state)
- 		of_node_get(ep_np);
- 		state->endpoints[ep.port] = ep_np;
- 
--		found = true;
-+		/*
-+		 * At least one input endpoint and one output endpoint shall
-+		 * be defined.
-+		 */
-+		if (ep.port < ADV748X_PORT_TXA)
-+			in_found = true;
-+		else
-+			out_found = true;
- 	}
- 
--	return found ? 0 : -ENODEV;
-+	return in_found && out_found ? 0 : -ENODEV;
+diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
+index 63d15b545b333..7cd147411b22d 100644
+--- a/sound/pci/hda/patch_sigmatel.c
++++ b/sound/pci/hda/patch_sigmatel.c
+@@ -77,6 +77,7 @@ enum {
+ 	STAC_DELL_M6_BOTH,
+ 	STAC_DELL_EQ,
+ 	STAC_ALIENWARE_M17X,
++	STAC_ELO_VUPOINT_15MX,
+ 	STAC_92HD89XX_HP_FRONT_JACK,
+ 	STAC_92HD89XX_HP_Z1_G2_RIGHT_MIC_JACK,
+ 	STAC_92HD73XX_ASUS_MOBO,
+@@ -1897,6 +1898,18 @@ static void stac92hd73xx_fixup_no_jd(struct hda_codec *codec,
+ 		codec->no_jack_detect = 1;
  }
  
- static void adv748x_dt_cleanup(struct adv748x_state *state)
-@@ -702,6 +710,17 @@ static int adv748x_probe(struct i2c_client *client,
- 	state->i2c_clients[ADV748X_PAGE_IO] = client;
- 	i2c_set_clientdata(client, state);
- 
-+	/*
-+	 * We can not use container_of to get back to the state with two TXs;
-+	 * Initialize the TXs's fields unconditionally on the endpoint
-+	 * presence to access them later.
-+	 */
-+	state->txa.state = state->txb.state = state;
-+	state->txa.page = ADV748X_PAGE_TXA;
-+	state->txb.page = ADV748X_PAGE_TXB;
-+	state->txa.port = ADV748X_PORT_TXA;
-+	state->txb.port = ADV748X_PORT_TXB;
 +
- 	/* Discover and process ports declared by the Device tree endpoints */
- 	ret = adv748x_parse_dt(state);
- 	if (ret) {
-diff --git a/drivers/media/i2c/adv748x/adv748x-csi2.c b/drivers/media/i2c/adv748x/adv748x-csi2.c
-index 979825d4a419b..0953ba0bcc09b 100644
---- a/drivers/media/i2c/adv748x/adv748x-csi2.c
-+++ b/drivers/media/i2c/adv748x/adv748x-csi2.c
-@@ -265,19 +265,10 @@ static int adv748x_csi2_init_controls(struct adv748x_csi2 *tx)
- 
- int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
- {
--	struct device_node *ep;
- 	int ret;
- 
--	/* We can not use container_of to get back to the state with two TXs */
--	tx->state = state;
--	tx->page = is_txa(tx) ? ADV748X_PAGE_TXA : ADV748X_PAGE_TXB;
--
--	ep = state->endpoints[is_txa(tx) ? ADV748X_PORT_TXA : ADV748X_PORT_TXB];
--	if (!ep) {
--		adv_err(state, "No endpoint found for %s\n",
--				is_txa(tx) ? "txa" : "txb");
--		return -ENODEV;
--	}
-+	if (!is_tx_enabled(tx))
-+		return 0;
- 
- 	/* Initialise the virtual channel */
- 	adv748x_csi2_set_virtual_channel(tx, 0);
-@@ -287,7 +278,7 @@ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
- 			    is_txa(tx) ? "txa" : "txb");
- 
- 	/* Ensure that matching is based upon the endpoint fwnodes */
--	tx->sd.fwnode = of_fwnode_handle(ep);
-+	tx->sd.fwnode = of_fwnode_handle(state->endpoints[tx->port]);
- 
- 	/* Register internal ops for incremental subdev registration */
- 	tx->sd.internal_ops = &adv748x_csi2_internal_ops;
-@@ -320,6 +311,9 @@ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
- 
- void adv748x_csi2_cleanup(struct adv748x_csi2 *tx)
- {
-+	if (!is_tx_enabled(tx))
++static void stac92hd73xx_disable_automute(struct hda_codec *codec,
++				     const struct hda_fixup *fix, int action)
++{
++	struct sigmatel_spec *spec = codec->spec;
++
++	if (action != HDA_FIXUP_ACT_PRE_PROBE)
 +		return;
 +
- 	v4l2_async_unregister_subdev(&tx->sd);
- 	media_entity_cleanup(&tx->sd.entity);
- 	v4l2_ctrl_handler_free(&tx->ctrl_hdl);
-diff --git a/drivers/media/i2c/adv748x/adv748x.h b/drivers/media/i2c/adv748x/adv748x.h
-index cc4151b5b31e2..296c5f8a8c633 100644
---- a/drivers/media/i2c/adv748x/adv748x.h
-+++ b/drivers/media/i2c/adv748x/adv748x.h
-@@ -94,6 +94,7 @@ struct adv748x_csi2 {
- 	struct adv748x_state *state;
- 	struct v4l2_mbus_framefmt format;
- 	unsigned int page;
-+	unsigned int port;
- 
- 	struct media_pad pads[ADV748X_CSI2_NR_PADS];
- 	struct v4l2_ctrl_handler ctrl_hdl;
-@@ -102,6 +103,7 @@ struct adv748x_csi2 {
- 
- #define notifier_to_csi2(n) container_of(n, struct adv748x_csi2, notifier)
- #define adv748x_sd_to_csi2(sd) container_of(sd, struct adv748x_csi2, sd)
-+#define is_tx_enabled(_tx) ((_tx)->state->endpoints[(_tx)->port] != NULL)
- 
- enum adv748x_hdmi_pads {
- 	ADV748X_HDMI_SINK,
++	spec->gen.suppress_auto_mute = 1;
++}
++
+ static const struct hda_fixup stac92hd73xx_fixups[] = {
+ 	[STAC_92HD73XX_REF] = {
+ 		.type = HDA_FIXUP_FUNC,
+@@ -1922,6 +1935,10 @@ static const struct hda_fixup stac92hd73xx_fixups[] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = stac92hd73xx_fixup_alienware_m17x,
+ 	},
++	[STAC_ELO_VUPOINT_15MX] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = stac92hd73xx_disable_automute,
++	},
+ 	[STAC_92HD73XX_INTEL] = {
+ 		.type = HDA_FIXUP_PINS,
+ 		.v.pins = intel_dg45id_pin_configs,
+@@ -1960,6 +1977,7 @@ static const struct hda_model_fixup stac92hd73xx_models[] = {
+ 	{ .id = STAC_DELL_M6_BOTH, .name = "dell-m6" },
+ 	{ .id = STAC_DELL_EQ, .name = "dell-eq" },
+ 	{ .id = STAC_ALIENWARE_M17X, .name = "alienware" },
++	{ .id = STAC_ELO_VUPOINT_15MX, .name = "elo-vupoint-15mx" },
+ 	{ .id = STAC_92HD73XX_ASUS_MOBO, .name = "asus-mobo" },
+ 	{}
+ };
+@@ -2009,6 +2027,8 @@ static const struct snd_pci_quirk stac92hd73xx_fixup_tbl[] = {
+ 		      "Alienware M17x", STAC_ALIENWARE_M17X),
+ 	SND_PCI_QUIRK(PCI_VENDOR_ID_DELL, 0x0490,
+ 		      "Alienware M17x R3", STAC_DELL_EQ),
++	SND_PCI_QUIRK(0x1059, 0x1011,
++		      "ELO VuPoint 15MX", STAC_ELO_VUPOINT_15MX),
+ 	SND_PCI_QUIRK(PCI_VENDOR_ID_HP, 0x1927,
+ 				"HP Z1 G2", STAC_92HD89XX_HP_Z1_G2_RIGHT_MIC_JACK),
+ 	SND_PCI_QUIRK(PCI_VENDOR_ID_HP, 0x2b17,
 -- 
 2.20.1
 
