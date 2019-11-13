@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE05FA617
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:27:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C414EFA608
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:26:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727597AbfKMC0u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:26:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38616 "EHLO mail.kernel.org"
+        id S1727665AbfKMBvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:51:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727722AbfKMBvL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:51:11 -0500
+        id S1727730AbfKMBvN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:51:13 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6494D222CE;
-        Wed, 13 Nov 2019 01:51:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 722D0222D4;
+        Wed, 13 Nov 2019 01:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609871;
-        bh=aINBe0j896dO0o/clmYn1WdFrDDx1W1Boi3TVHdmbmg=;
+        s=default; t=1573609872;
+        bh=+uoGzZI/z0s4GyKCeNi42jJRSmAhENwPFVh+s/rBrDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05L/aJJ8a9GE7G+LgNsBGgOZSf7fYAmBBCPGsa8wOQhd+Vq7XovQ9u7PazDd71yJi
-         vIa0R74eXhbmmeRZh9QHeCHoYTQyXwq72BIgsQTME4OReuVui3p5pHnhvktXY1t5EA
-         X9G6BwwW7iupSoGHfiPiYgKv6TTRocRBeUNApxUI=
+        b=wPK3kl9mTOyfjMNYioXgtxPxheqCr8W/tWTPLn6B3MGIssooNSPjxQFqGdisAwljj
+         FXl+pP7Ew+UbNf0+KozL9GiX8JGjZ/S38wxALnKVovYzv+AhH8+krsPksOwxTBzDYk
+         /RHOSiC8VbSd+nwqXTYLWKXah46Auj2xBYIXpfaI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+Cc:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Thinh Nguyen <thinhn@synopsys.com>,
         Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 034/209] usb: gadget: udc: fotg210-udc: Fix a sleep-in-atomic-context bug in fotg210_get_status()
-Date:   Tue, 12 Nov 2019 20:47:30 -0500
-Message-Id: <20191113015025.9685-34-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 035/209] usb: dwc3: gadget: Check ENBLSLPM before sending ep command
+Date:   Tue, 12 Nov 2019 20:47:31 -0500
+Message-Id: <20191113015025.9685-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -43,46 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 2337a77c1cc86bc4e504ecf3799f947659c86026 ]
+[ Upstream commit 87dd96111b0bb8e616fcbd74dbf4bb4182f2c596 ]
 
-The driver may sleep in an interrupt handler.
-The function call path (from bottom to top) in Linux-4.17 is:
+When operating in USB 2.0 speeds (HS/FS), if GUSB2PHYCFG.ENBLSLPM or
+GUSB2PHYCFG.SUSPHY is set, it must be cleared before issuing an endpoint
+command.
 
-[FUNC] fotg210_ep_queue(GFP_KERNEL)
-drivers/usb/gadget/udc/fotg210-udc.c, 744:
-	fotg210_ep_queue in fotg210_get_status
-drivers/usb/gadget/udc/fotg210-udc.c, 768:
-	fotg210_get_status in fotg210_setup_packet
-drivers/usb/gadget/udc/fotg210-udc.c, 949:
-	fotg210_setup_packet in fotg210_irq (interrupt handler)
+Current implementation only save and restore GUSB2PHYCFG.SUSPHY
+configuration. We must save and clear both GUSB2PHYCFG.ENBLSLPM and
+GUSB2PHYCFG.SUSPHY settings. Restore them after the command is
+completed.
 
-To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
-If possible, spin_unlock() and spin_lock() around fotg210_ep_queue()
-can be also removed.
+DWC_usb3 3.30a and DWC_usb31 1.90a programming guide section 3.2.2
 
-This bug is found by my static analysis tool DSAC.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
 Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index 587c5037ff079..bc6abaea907d8 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -741,7 +741,7 @@ static void fotg210_get_status(struct fotg210_udc *fotg210,
- 	fotg210->ep0_req->length = 2;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 54de732550648..a56448eccd2eb 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -271,27 +271,36 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
+ 	const struct usb_endpoint_descriptor *desc = dep->endpoint.desc;
+ 	struct dwc3		*dwc = dep->dwc;
+ 	u32			timeout = 1000;
++	u32			saved_config = 0;
+ 	u32			reg;
  
- 	spin_unlock(&fotg210->lock);
--	fotg210_ep_queue(fotg210->gadget.ep0, fotg210->ep0_req, GFP_KERNEL);
-+	fotg210_ep_queue(fotg210->gadget.ep0, fotg210->ep0_req, GFP_ATOMIC);
- 	spin_lock(&fotg210->lock);
- }
+ 	int			cmd_status = 0;
+-	int			susphy = false;
+ 	int			ret = -EINVAL;
+ 
+ 	/*
+-	 * Synopsys Databook 2.60a states, on section 6.3.2.5.[1-8], that if
+-	 * we're issuing an endpoint command, we must check if
+-	 * GUSB2PHYCFG.SUSPHY bit is set. If it is, then we need to clear it.
++	 * When operating in USB 2.0 speeds (HS/FS), if GUSB2PHYCFG.ENBLSLPM or
++	 * GUSB2PHYCFG.SUSPHY is set, it must be cleared before issuing an
++	 * endpoint command.
+ 	 *
+-	 * We will also set SUSPHY bit to what it was before returning as stated
+-	 * by the same section on Synopsys databook.
++	 * Save and clear both GUSB2PHYCFG.ENBLSLPM and GUSB2PHYCFG.SUSPHY
++	 * settings. Restore them after the command is completed.
++	 *
++	 * DWC_usb3 3.30a and DWC_usb31 1.90a programming guide section 3.2.2
+ 	 */
+ 	if (dwc->gadget.speed <= USB_SPEED_HIGH) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+ 		if (unlikely(reg & DWC3_GUSB2PHYCFG_SUSPHY)) {
+-			susphy = true;
++			saved_config |= DWC3_GUSB2PHYCFG_SUSPHY;
+ 			reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+-			dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+ 		}
++
++		if (reg & DWC3_GUSB2PHYCFG_ENBLSLPM) {
++			saved_config |= DWC3_GUSB2PHYCFG_ENBLSLPM;
++			reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
++		}
++
++		if (saved_config)
++			dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+ 	}
+ 
+ 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
+@@ -380,9 +389,9 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
+ 		dwc3_gadget_ep_get_transfer_index(dep);
+ 	}
+ 
+-	if (unlikely(susphy)) {
++	if (saved_config) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+-		reg |= DWC3_GUSB2PHYCFG_SUSPHY;
++		reg |= saved_config;
+ 		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+ 	}
  
 -- 
 2.20.1
