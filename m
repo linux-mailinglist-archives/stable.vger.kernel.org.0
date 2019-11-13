@@ -2,176 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53093FAF04
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 11:53:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A14D0FAF1C
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 11:57:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727145AbfKMKxy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 05:53:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47246 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726340AbfKMKxy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Nov 2019 05:53:54 -0500
-Received: from localhost (unknown [61.58.47.46])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94820222BD;
-        Wed, 13 Nov 2019 10:53:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573642432;
-        bh=Ay/OMBMowdTFXdcYe3oeRSJlDTq4tHqrVPT5YfrpA08=;
-        h=Subject:To:From:Date:From;
-        b=jgQ5vPooRO96UlR+Xqa8frl8if9PMG4Ki9JOKw8V/bljKU7pIhCk749Rgl2hhkONq
-         X8nCpZeaRWXjEPjHuNSl+FFErfNaG1Y6xXDoRYGhs6QR1kojXDpC1JisTCWsogMU3m
-         9a6/g/vZSyvQC5UjdJAm+R+E28xaIdw3CEr2Myd0=
-Subject: patch "usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()" added to usb-testing
-To:     suwan.kim027@gmail.com, dan.carpenter@oracle.com,
-        gregkh@linuxfoundation.org, lkp@intel.com,
-        skhan@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 13 Nov 2019 18:53:49 +0800
-Message-ID: <157364242978130@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S1727787AbfKMK5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 05:57:08 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:42984 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727731AbfKMK5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 05:57:07 -0500
+Received: by mail-pf1-f196.google.com with SMTP id s5so1403634pfh.9
+        for <stable@vger.kernel.org>; Wed, 13 Nov 2019 02:57:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id;
+        bh=G6fU2jiu3dJQMWc2Snrc3nEuYdUb5v2i1mbF7lHdPNU=;
+        b=XdZ3aHbilosw1Qsmp4yqJ+GmOMAbQVH+tVENp3MjPPL80sv2o3z5tTxLQ9ckWYbqJP
+         hcnxH4Vnqli+myYeygELQV5Pb652UM1bQk2ozJjZB7+7zLydeVty+2n2tR2XSL0w8IoT
+         kF0OKA0bGUzWO7HtQRe9i6EETFmBrtOYfvc7gfeRhB3RUB2igCusAjtjfGlVGOxPu+2d
+         3sB0DU8yr4n7xA21iyM4XOkNRN9beZKVueto7SK8AySqOJ7YeFa+wbwI9SVYjZx6MXfZ
+         BmBEFZC1jrjouNFnGb3CXLaWZisYgVIhqZSn8peZxR+oZcYQTDQGVukmibyZIGv7Bq90
+         hgHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=G6fU2jiu3dJQMWc2Snrc3nEuYdUb5v2i1mbF7lHdPNU=;
+        b=r+pGnbYUGvIaZvobFuLbYZ8DBgwe25D/RNipSLZvtYJ75UKqYEb5Ffwmo8R72uPSH0
+         JweD3NLl6pcAuwvNNUGRzFHsx6LRXCNQF7VvjYRn2/BxXBZs9m1jVFqigZTcLEXgROD0
+         BIVwY5C7lc7fynlnBxsWnapVIOhi6iiGkIyfj0jFz+stFESC5gstdzK6LvCmelsZrUXG
+         +lmpL7lavdMLb2KyMCbrO5lCV3P8CH9oq/PWnIPkh7uHWxZ6xDG1dsP4+1a/9QfFWnig
+         qFuHQ/NdEN+nmYa/Q0DjLZ7tFChx+bbnjkWkpVXFUY12KCdfJxu9AeVhDkjyxdRvwL9Z
+         tAJQ==
+X-Gm-Message-State: APjAAAWJ97FPdcE+Vi7xYvLlVL9lyqwYRWE29dRsf7RUG40cjdIlYjZQ
+        7nWNxdK20SRwgEKUIadyYe/DtQ==
+X-Google-Smtp-Source: APXvYqxzzZMvRbWf2vVOoMM2l2M3qf4AXN/5TO45rWHTPABWPBMfwNT9I+LVXwWv9RLyGzpyqaNtzg==
+X-Received: by 2002:a65:62d2:: with SMTP id m18mr2941029pgv.117.1573642626289;
+        Wed, 13 Nov 2019 02:57:06 -0800 (PST)
+Received: from localhost.localdomain ([49.207.52.194])
+        by smtp.gmail.com with ESMTPSA id u24sm1931009pgf.6.2019.11.13.02.57.02
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-SHA bits=128/128);
+        Wed, 13 Nov 2019 02:57:05 -0800 (PST)
+From:   Amit Pundir <amit.pundir@linaro.org>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Lee Jones <lee.jones@linaro.org>
+Cc:     Stable <stable@vger.kernel.org>,
+        Jonas Gorski <jonas.gorski@gmail.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH] MIPS: BCM63XX: fix switch core reset on BCM6368
+Date:   Wed, 13 Nov 2019 16:27:00 +0530
+Message-Id: <1573642620-31192-1-git-send-email-amit.pundir@linaro.org>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Jonas Gorski <jonas.gorski@gmail.com>
 
-This is a note to let you know that I've just added the patch titled
+commit 8a38dacf87180738d42b058334c951eba15d2d47 upstream.
 
-    usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()
+The Ethernet Switch core mask was set to 0, causing the switch core to
+be not reset on BCM6368 on boot. Provide the proper mask so the switch
+core gets reset to a known good state.
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-testing branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will be merged to the usb-next branch sometime soon,
-after it passes testing, and the merge window is open.
-
-If you have any questions about this process, please let me know.
-
-
-From 2a9125317b247f2cf35c196f968906dcf062ae2d Mon Sep 17 00:00:00 2001
-From: Suwan Kim <suwan.kim027@gmail.com>
-Date: Mon, 11 Nov 2019 23:10:35 +0900
-Subject: usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Smatch reported that nents is not initialized and used in
-stub_recv_cmd_submit(). nents is currently initialized by sgl_alloc()
-and used to allocate multiple URBs when host controller doesn't
-support scatter-gather DMA. The use of uninitialized nents means that
-buf_len is zero and use_sg is true. But buffer length should not be
-zero when an URB uses scatter-gather DMA.
-
-To prevent this situation, add the conditional that checks buf_len
-and use_sg. And move the use of nents right after the sgl_alloc() to
-avoid the use of uninitialized nents.
-
-If the error occurs, it adds SDEV_EVENT_ERROR_MALLOC and stub_priv
-will be released by stub event handler and connection will be shut
-down.
-
-Fixes: ea44d190764b ("usbip: Implement SG support to vhci-hcd and stub driver")
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
-Acked-by: Shuah Khan <skhan@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191111141035.27788-1-suwan.kim027@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 799faa626c71 ("MIPS: BCM63XX: add core reset helper")
+Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Amit Pundir <amit.pundir@linaro.org>
 ---
- drivers/usb/usbip/stub_rx.c | 50 ++++++++++++++++++++++++-------------
- 1 file changed, 32 insertions(+), 18 deletions(-)
+Cherry-picked from lede/openwrt https://git.lede-project.org/?p=source.git.
+Build tested on v4.{19,14,9,4}.y and v3.18.y for ARCH=mips bcm63xx_defconfig.
 
-diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
-index 66edfeea68fe..e2b019532234 100644
---- a/drivers/usb/usbip/stub_rx.c
-+++ b/drivers/usb/usbip/stub_rx.c
-@@ -470,18 +470,50 @@ static void stub_recv_cmd_submit(struct stub_device *sdev,
- 	if (pipe == -1)
- 		return;
- 
-+	/*
-+	 * Smatch reported the error case where use_sg is true and buf_len is 0.
-+	 * In this case, It adds SDEV_EVENT_ERROR_MALLOC and stub_priv will be
-+	 * released by stub event handler and connection will be shut down.
-+	 */
- 	priv = stub_priv_alloc(sdev, pdu);
- 	if (!priv)
- 		return;
- 
- 	buf_len = (unsigned long long)pdu->u.cmd_submit.transfer_buffer_length;
- 
-+	if (use_sg && !buf_len) {
-+		dev_err(&udev->dev, "sg buffer with zero length\n");
-+		goto err_malloc;
-+	}
-+
- 	/* allocate urb transfer buffer, if needed */
- 	if (buf_len) {
- 		if (use_sg) {
- 			sgl = sgl_alloc(buf_len, GFP_KERNEL, &nents);
- 			if (!sgl)
- 				goto err_malloc;
-+
-+			/* Check if the server's HCD supports SG */
-+			if (!udev->bus->sg_tablesize) {
-+				/*
-+				 * If the server's HCD doesn't support SG, break
-+				 * a single SG request into several URBs and map
-+				 * each SG list entry to corresponding URB
-+				 * buffer. The previously allocated SG list is
-+				 * stored in priv->sgl (If the server's HCD
-+				 * support SG, SG list is stored only in
-+				 * urb->sg) and it is used as an indicator that
-+				 * the server split single SG request into
-+				 * several URBs. Later, priv->sgl is used by
-+				 * stub_complete() and stub_send_ret_submit() to
-+				 * reassemble the divied URBs.
-+				 */
-+				support_sg = 0;
-+				num_urbs = nents;
-+				priv->completed_urbs = 0;
-+				pdu->u.cmd_submit.transfer_flags &=
-+								~URB_DMA_MAP_SG;
-+			}
- 		} else {
- 			buffer = kzalloc(buf_len, GFP_KERNEL);
- 			if (!buffer)
-@@ -489,24 +521,6 @@ static void stub_recv_cmd_submit(struct stub_device *sdev,
- 		}
- 	}
- 
--	/* Check if the server's HCD supports SG */
--	if (use_sg && !udev->bus->sg_tablesize) {
--		/*
--		 * If the server's HCD doesn't support SG, break a single SG
--		 * request into several URBs and map each SG list entry to
--		 * corresponding URB buffer. The previously allocated SG
--		 * list is stored in priv->sgl (If the server's HCD support SG,
--		 * SG list is stored only in urb->sg) and it is used as an
--		 * indicator that the server split single SG request into
--		 * several URBs. Later, priv->sgl is used by stub_complete() and
--		 * stub_send_ret_submit() to reassemble the divied URBs.
--		 */
--		support_sg = 0;
--		num_urbs = nents;
--		priv->completed_urbs = 0;
--		pdu->u.cmd_submit.transfer_flags &= ~URB_DMA_MAP_SG;
--	}
--
- 	/* allocate urb array */
- 	priv->num_urbs = num_urbs;
- 	priv->urbs = kmalloc_array(num_urbs, sizeof(*priv->urbs), GFP_KERNEL);
+ arch/mips/bcm63xx/reset.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/mips/bcm63xx/reset.c b/arch/mips/bcm63xx/reset.c
+index a2af38cf28a7..64574e74cb23 100644
+--- a/arch/mips/bcm63xx/reset.c
++++ b/arch/mips/bcm63xx/reset.c
+@@ -120,7 +120,7 @@
+ #define BCM6368_RESET_DSL	0
+ #define BCM6368_RESET_SAR	SOFTRESET_6368_SAR_MASK
+ #define BCM6368_RESET_EPHY	SOFTRESET_6368_EPHY_MASK
+-#define BCM6368_RESET_ENETSW	0
++#define BCM6368_RESET_ENETSW	SOFTRESET_6368_ENETSW_MASK
+ #define BCM6368_RESET_PCM	SOFTRESET_6368_PCM_MASK
+ #define BCM6368_RESET_MPI	SOFTRESET_6368_MPI_MASK
+ #define BCM6368_RESET_PCIE	0
 -- 
-2.24.0
-
+2.7.4
 
