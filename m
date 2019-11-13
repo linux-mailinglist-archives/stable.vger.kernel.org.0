@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D605FA19C
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:58:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7929FA65C
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:28:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730040AbfKMB6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:58:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52312 "EHLO mail.kernel.org"
+        id S1727206AbfKMBu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:50:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730035AbfKMB6a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:58:30 -0500
+        id S1727153AbfKMBu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:50:27 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E0752245A;
-        Wed, 13 Nov 2019 01:58:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6EF95222D4;
+        Wed, 13 Nov 2019 01:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610309;
-        bh=h/qoJpUfQOrBJEA7qGpILdqu+csxqNFYDokiCl2xkys=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARhzSHX+lQqDU5clERzwZMHukXpPTl+AFdubf7kR9qCaXB0lw2VpKTmfsJeyrpMkI
-         3X1n91XIpoKJbFR4xcKQ9wbpEo6OcCos1F0PeX6S/yXWag8hxqJVIUofXsNYwZyNuT
-         kzTBVfKWwxO4lzMIsHUscn3K/BaeAs5qvwJdsIiM=
+        s=default; t=1573609827;
+        bh=O8hnV0HjL6bpZAbFcTkXNiepzz3vCAUXgGlEN6H5cok=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LA30rk63hIorAblitrismbgjES8RQR1WQfw36UK7WJCLqKgpkNagh6sY3U/ur9D9W
+         zlfN+P6tSlfiCfvY8oDYbgIGn7j8waqLLtIo5FX2F0VV7a0n8jCHGMyr3OqjcsPjeE
+         iQHpU+Idqx4pvT60s9otMcBr5ZQE7w+zmt6k8Ik4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ronald=20Tschal=C3=A4r?= <ronald@innovation.ch>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 078/115] ACPI / SBS: Fix rare oops when removing modules
-Date:   Tue, 12 Nov 2019 20:55:45 -0500
-Message-Id: <20191113015622.11592-78-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        dev@openvswitch.org
+Subject: [PATCH AUTOSEL 4.19 001/209] net: ovs: fix return type of ndo_start_xmit function
+Date:   Tue, 12 Nov 2019 20:46:57 -0500
+Message-Id: <20191113015025.9685-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
-References: <20191113015622.11592-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,61 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronald Tschalär <ronald@innovation.ch>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 757c968c442397f1249bb775a7c8c03842e3e0c7 ]
+[ Upstream commit eddf11e18dff0e8671e06ce54e64cfc843303ab9 ]
 
-There was a small race when removing the sbshc module where
-smbus_alarm() had queued acpi_smbus_callback() for deferred execution
-but it hadn't been run yet, so that when it did run hc had been freed
-and the module unloaded, resulting in an invalid paging request.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-A similar race existed when removing the sbs module with regards to
-acpi_sbs_callback() (which is called from acpi_smbus_callback()).
+Found by coccinelle.
 
-We therefore need to ensure no callbacks are pending or executing before
-the cleanups are done and the modules are removed.
-
-Signed-off-by: Ronald TschalÃ¤r <ronald@innovation.ch>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/osl.c   | 1 +
- drivers/acpi/sbshc.c | 2 ++
- 2 files changed, 3 insertions(+)
+ net/openvswitch/vport-internal_dev.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/osl.c b/drivers/acpi/osl.c
-index 191e86c62037a..9da7e7d874bd8 100644
---- a/drivers/acpi/osl.c
-+++ b/drivers/acpi/osl.c
-@@ -1116,6 +1116,7 @@ void acpi_os_wait_events_complete(void)
- 	flush_workqueue(kacpid_wq);
- 	flush_workqueue(kacpi_notify_wq);
- }
-+EXPORT_SYMBOL(acpi_os_wait_events_complete);
- 
- struct acpi_hp_work {
- 	struct work_struct work;
-diff --git a/drivers/acpi/sbshc.c b/drivers/acpi/sbshc.c
-index 7a3431018e0ab..5008ead4609a4 100644
---- a/drivers/acpi/sbshc.c
-+++ b/drivers/acpi/sbshc.c
-@@ -196,6 +196,7 @@ int acpi_smbus_unregister_callback(struct acpi_smb_hc *hc)
- 	hc->callback = NULL;
- 	hc->context = NULL;
- 	mutex_unlock(&hc->lock);
-+	acpi_os_wait_events_complete();
- 	return 0;
+diff --git a/net/openvswitch/vport-internal_dev.c b/net/openvswitch/vport-internal_dev.c
+index 5a304cfc84233..5993405c25c12 100644
+--- a/net/openvswitch/vport-internal_dev.c
++++ b/net/openvswitch/vport-internal_dev.c
+@@ -43,7 +43,8 @@ static struct internal_dev *internal_dev_priv(struct net_device *netdev)
  }
  
-@@ -292,6 +293,7 @@ static int acpi_smbus_hc_remove(struct acpi_device *device)
+ /* Called with rcu_read_lock_bh. */
+-static int internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
++static netdev_tx_t
++internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	int len, err;
  
- 	hc = acpi_driver_data(device);
- 	acpi_ec_remove_query_handler(hc->ec, hc->query_bit);
-+	acpi_os_wait_events_complete();
- 	kfree(hc);
- 	device->driver_data = NULL;
- 	return 0;
+@@ -62,7 +63,7 @@ static int internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 	} else {
+ 		netdev->stats.tx_errors++;
+ 	}
+-	return 0;
++	return NETDEV_TX_OK;
+ }
+ 
+ static int internal_dev_open(struct net_device *netdev)
 -- 
 2.20.1
 
