@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12AD9FA54A
+	by mail.lfdr.de (Postfix) with ESMTP id 83E66FA54B
 	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728606AbfKMBxe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:53:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43342 "EHLO mail.kernel.org"
+        id S1729125AbfKMCWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:22:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727561AbfKMBxd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:53:33 -0500
+        id S1728618AbfKMBxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:53:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F9F02245A;
-        Wed, 13 Nov 2019 01:53:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBA12222CD;
+        Wed, 13 Nov 2019 01:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610013;
-        bh=tWMoYBDBxFN95d0VknL5vepaomjR5eoKtzCaE7yb/NY=;
+        s=default; t=1573610015;
+        bh=8Gh9QFWIcV8gouhNwtcnLmaTG574i/mtCXf99Tt1wrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IO9op3sTdcQ8pHwZrBBSlRXH3zPUkk4OmwuEgyfT+LeKOpAv2JtfrkFZe/yJkBis6
-         Wdn+Et5Ee3d83A0p6JGAgz5SUnRVBCX11Ym1cyeUDLyt3kGPSnnb7shcTX7JfNGGuO
-         y4qeIMLq+QW6aXPSmh3c5fh2tNd+zoh6tue3qvzo=
+        b=K4P6fxedszWsIDD8EyeS8KZy/1YujwT4JHV5+sWUMN9u5UQWaRgyvoU400Yg9AIu3
+         Oda59DeRppznecPn1V3ye4HC4m3b8vqN0NgfkYBrDXmyxvQJk934VrAWOdHPt2Ofze
+         C65lkAKLF86SPOz5+gKcPpNM3YE4SF699wFLjMlQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andy Gross <andy.gross@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>,
         Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 117/209] i2c: qup: use core to detect 'no zero length' quirk
-Date:   Tue, 12 Nov 2019 20:48:53 -0500
-Message-Id: <20191113015025.9685-117-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 119/209] i2c: zx2967: use core to detect 'no zero length' quirk
+Date:   Tue, 12 Nov 2019 20:48:55 -0500
+Message-Id: <20191113015025.9685-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -47,67 +46,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit de82bb431855580ad659bfed3e858bd9dd12efd0 ]
+[ Upstream commit e2115ace4196bcd2126446fb874bcfc90cba79be ]
 
 And don't reimplement in the driver.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Andy Gross <andy.gross@linaro.org>
+Acked-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-qup.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-zx2967.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index c86c3ae1318f2..e09cd0775ae91 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -1088,11 +1088,6 @@ static int qup_i2c_xfer(struct i2c_adapter *adap,
- 	writel(I2C_MINI_CORE | I2C_N_VAL, qup->base + QUP_CONFIG);
+diff --git a/drivers/i2c/busses/i2c-zx2967.c b/drivers/i2c/busses/i2c-zx2967.c
+index 48281c1b30c6d..b8f9e020d80e6 100644
+--- a/drivers/i2c/busses/i2c-zx2967.c
++++ b/drivers/i2c/busses/i2c-zx2967.c
+@@ -281,9 +281,6 @@ static int zx2967_i2c_xfer_msg(struct zx2967_i2c *i2c,
+ 	int ret;
+ 	int i;
  
- 	for (idx = 0; idx < num; idx++) {
--		if (msgs[idx].len == 0) {
--			ret = -EINVAL;
--			goto out;
--		}
+-	if (msg->len == 0)
+-		return -EINVAL;
 -
- 		if (qup_i2c_poll_state_i2c_master(qup)) {
- 			ret = -EIO;
- 			goto out;
-@@ -1520,9 +1515,6 @@ qup_i2c_determine_mode_v2(struct qup_i2c_dev *qup,
+ 	zx2967_i2c_flush_fifos(i2c);
  
- 	/* All i2c_msgs should be transferred using either dma or cpu */
- 	for (idx = 0; idx < num; idx++) {
--		if (msgs[idx].len == 0)
--			return -EINVAL;
--
- 		if (msgs[idx].flags & I2C_M_RD)
- 			max_rx_len = max_t(unsigned int, max_rx_len,
- 					   msgs[idx].len);
-@@ -1636,9 +1628,14 @@ static const struct i2c_algorithm qup_i2c_algo_v2 = {
-  * which limits the possible read to 256 (QUP_READ_LIMIT) bytes.
-  */
- static const struct i2c_adapter_quirks qup_i2c_quirks = {
-+	.flags = I2C_AQ_NO_ZERO_LEN,
- 	.max_read_len = QUP_READ_LIMIT,
+ 	i2c->cur_trans = msg->buf;
+@@ -498,6 +495,10 @@ static const struct i2c_algorithm zx2967_i2c_algo = {
+ 	.functionality = zx2967_i2c_func,
  };
  
-+static const struct i2c_adapter_quirks qup_i2c_quirks_v2 = {
++static const struct i2c_adapter_quirks zx2967_i2c_quirks = {
 +	.flags = I2C_AQ_NO_ZERO_LEN,
 +};
 +
- static void qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
- {
- 	clk_prepare_enable(qup->clk);
-@@ -1701,6 +1698,7 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 		is_qup_v1 = true;
- 	} else {
- 		qup->adap.algo = &qup_i2c_algo_v2;
-+		qup->adap.quirks = &qup_i2c_quirks_v2;
- 		is_qup_v1 = false;
- 		if (acpi_match_device(qup_i2c_acpi_match, qup->dev))
- 			goto nodma;
+ static const struct of_device_id zx2967_i2c_of_match[] = {
+ 	{ .compatible = "zte,zx296718-i2c", },
+ 	{ },
+@@ -568,6 +569,7 @@ static int zx2967_i2c_probe(struct platform_device *pdev)
+ 	strlcpy(i2c->adap.name, "zx2967 i2c adapter",
+ 		sizeof(i2c->adap.name));
+ 	i2c->adap.algo = &zx2967_i2c_algo;
++	i2c->adap.quirks = &zx2967_i2c_quirks;
+ 	i2c->adap.nr = pdev->id;
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
 -- 
 2.20.1
 
