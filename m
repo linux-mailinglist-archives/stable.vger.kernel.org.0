@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC47EFA42E
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4E5FA3F2
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729503AbfKMCOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:14:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49976 "EHLO mail.kernel.org"
+        id S1729670AbfKMB5G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:57:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729659AbfKMB5E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:57:04 -0500
+        id S1729663AbfKMB5F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:57:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0E1F2053B;
-        Wed, 13 Nov 2019 01:57:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C96A42247C;
+        Wed, 13 Nov 2019 01:57:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610223;
-        bh=/ocGoJgUZnU/MR4jKC+MPYAL4fHXHIMop3CtzsQDJYY=;
+        s=default; t=1573610224;
+        bh=AxvpmB2Sb0ryC9UrYM1Dehg4vu0x0EADb0FbcdB7REY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dYTPdzmtdtJXREuRpenS+1uj/OWtt0B8yyzHCQTPYiiyt/Qc44289qIzZd5aUv51/
-         8Fg+YSkuto5eFk5/WUQDlOz8iCz5oXWNI9WhzvXA1A1M4ELD2WhF+56HrgLzyD3DGH
-         zGCEqjIOYkrc2+7N9fFRw3NEdoC8S7YkyU/XO/eQ=
+        b=GzHtAv5vwMiRz/4o6uBUpjArcJV2bkVuVDP5deO48JrAUs+KqON6f7RweECWxNu44
+         TFZFeAntHgPH7Vg2AtEJ8T0g1jpKj50r4eYCSNzvxjKpU7H+FcAKuQOi81gYKzpyqp
+         F7bA1cdwA8zWqU4FDDOM1fYFEQL9KUwnPVUW2cE0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 028/115] mei: samples: fix a signedness bug in amt_host_if_call()
-Date:   Tue, 12 Nov 2019 20:54:55 -0500
-Message-Id: <20191113015622.11592-28-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 029/115] cxgb4: Use proper enum in cxgb4_dcb_handle_fw_update
+Date:   Tue, 12 Nov 2019 20:54:56 -0500
+Message-Id: <20191113015622.11592-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -43,32 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 185647813cac080453cb73a2e034a8821049f2a7 ]
+[ Upstream commit 3b0b8f0d9a259f6a428af63e7a77547325f8e081 ]
 
-"out_buf_sz" needs to be signed for the error handling to work.
+Clang warns when one enumerated type is implicitly converted to another.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c:303:7: warning: implicit
+conversion from enumeration type 'enum cxgb4_dcb_state' to different
+enumeration type 'enum cxgb4_dcb_state_input' [-Wenum-conversion]
+                         ? CXGB4_DCB_STATE_FW_ALLSYNCED
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c:304:7: warning: implicit
+conversion from enumeration type 'enum cxgb4_dcb_state' to different
+enumeration type 'enum cxgb4_dcb_state_input' [-Wenum-conversion]
+                         : CXGB4_DCB_STATE_FW_INCOMPLETE);
+                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+2 warnings generated.
+
+Use the equivalent value of the expected type to silence Clang while
+resulting in no functional change.
+
+CXGB4_DCB_STATE_FW_INCOMPLETE = CXGB4_DCB_INPUT_FW_INCOMPLETE = 2
+CXGB4_DCB_STATE_FW_ALLSYNCED = CXGB4_DCB_INPUT_FW_ALLSYNCED = 3
+
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/mei/mei-amt-version.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/samples/mei/mei-amt-version.c b/samples/mei/mei-amt-version.c
-index bb9988914a563..32234481ad7db 100644
---- a/samples/mei/mei-amt-version.c
-+++ b/samples/mei/mei-amt-version.c
-@@ -370,7 +370,7 @@ static uint32_t amt_host_if_call(struct amt_host_if *acmd,
- 			unsigned int expected_sz)
- {
- 	uint32_t in_buf_sz;
--	uint32_t out_buf_sz;
-+	ssize_t out_buf_sz;
- 	ssize_t written;
- 	uint32_t status;
- 	struct amt_host_if_resp_header *msg_hdr;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c
+index 6ee2ed30626bf..306b4b3206168 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c
+@@ -266,8 +266,8 @@ void cxgb4_dcb_handle_fw_update(struct adapter *adap,
+ 		enum cxgb4_dcb_state_input input =
+ 			((pcmd->u.dcb.control.all_syncd_pkd &
+ 			  FW_PORT_CMD_ALL_SYNCD_F)
+-			 ? CXGB4_DCB_STATE_FW_ALLSYNCED
+-			 : CXGB4_DCB_STATE_FW_INCOMPLETE);
++			 ? CXGB4_DCB_INPUT_FW_ALLSYNCED
++			 : CXGB4_DCB_INPUT_FW_INCOMPLETE);
+ 
+ 		if (dcb->dcb_version != FW_PORT_DCB_VER_UNKNOWN) {
+ 			dcb_running_version = FW_PORT_CMD_DCB_VERSION_G(
 -- 
 2.20.1
 
