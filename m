@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1664FA4AD
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88448FA4C5
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729215AbfKMBzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:55:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47654 "EHLO mail.kernel.org"
+        id S1728327AbfKMCSK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:18:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729253AbfKMBzt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:55:49 -0500
+        id S1729264AbfKMBzu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:55:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C19F122473;
-        Wed, 13 Nov 2019 01:55:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04E822247D;
+        Wed, 13 Nov 2019 01:55:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610148;
-        bh=Nbm+0sMkxlk6HRLaRQOFwTLW1an+JMQpxxCNSerK81o=;
+        s=default; t=1573610149;
+        bh=UOl0yxohjGVB5kn0B0kvKXhbib289mdwk/+Id492Zgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bVXUZWaE5NnLDtRveSoXvK0b6E6YR7GMvmQKCCpS6ObUIfVxEdm8SABdP/DacKF6y
-         oWon788sJI32rtvCC8xqtHLhpsbfqF8JwL7fw/6T1jnc9PDUWKFM+QXbyk/t0TXdna
-         mCqOF1+6UPyEw0G+uNFGXaUDosRPzYlvdfW+NGd8=
+        b=1AO4fSVfrdxw/o3ms0W7AS739XhpAXG80qJzaUqvnMDFHtnd+Xvf/rwFFz+shT5wb
+         wlKzJDvqBsTDJOpwF0Gc9L7lDlkBO09izYuIOpbGToayzBOMMVoOaDf7fCTd/0/QVS
+         ctQ2b3w78RO5n2CpsqS5j+d+6PHxbVTqmJdhCO1A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Petr Machata <petrm@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+Cc:     Eric Dumazet <edumazet@google.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 193/209] selftests: forwarding: Have lldpad_app_wait_set() wait for unknown, too
-Date:   Tue, 12 Nov 2019 20:50:09 -0500
-Message-Id: <20191113015025.9685-193-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 194/209] net: sched: avoid writing on noop_qdisc
+Date:   Tue, 12 Nov 2019 20:50:10 -0500
+Message-Id: <20191113015025.9685-194-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -45,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 372809055f6c830ff978564e09f58bcb9e9b937c ]
+[ Upstream commit f98ebd47fd0da1717267ce1583a105d8cc29a16a ]
 
-Immediately after mlxsw module is probed and lldpad started, added APP
-entries are briefly in "unknown" state before becoming "pending". That's
-the state that lldpad_app_wait_set() typically sees, and since there are
-no pending entries at that time, it bails out. However the entries have
-not been pushed to the kernel yet at that point, and thus the test case
-fails.
+While noop_qdisc.gso_skb and noop_qdisc.skb_bad_txq are not used
+in other places, it seems not correct to overwrite their fields
+in dev_init_scheduler_queue().
 
-Fix by waiting for both unknown and pending entries to disappear before
-proceeding.
+noop_qdisc is essentially a shared and read-only object, even if
+it is not marked as const because of some implementation detail.
 
-Fixes: d159261f3662 ("selftests: mlxsw: Add test for trust-DSCP")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sched/sch_generic.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index ca53b539aa2d1..08bac6cf1bb3a 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -251,7 +251,7 @@ lldpad_app_wait_set()
- {
- 	local dev=$1; shift
+diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
+index 30e32df5f84a7..8a4d01e427a22 100644
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -577,6 +577,18 @@ struct Qdisc noop_qdisc = {
+ 	.dev_queue	=	&noop_netdev_queue,
+ 	.running	=	SEQCNT_ZERO(noop_qdisc.running),
+ 	.busylock	=	__SPIN_LOCK_UNLOCKED(noop_qdisc.busylock),
++	.gso_skb = {
++		.next = (struct sk_buff *)&noop_qdisc.gso_skb,
++		.prev = (struct sk_buff *)&noop_qdisc.gso_skb,
++		.qlen = 0,
++		.lock = __SPIN_LOCK_UNLOCKED(noop_qdisc.gso_skb.lock),
++	},
++	.skb_bad_txq = {
++		.next = (struct sk_buff *)&noop_qdisc.skb_bad_txq,
++		.prev = (struct sk_buff *)&noop_qdisc.skb_bad_txq,
++		.qlen = 0,
++		.lock = __SPIN_LOCK_UNLOCKED(noop_qdisc.skb_bad_txq.lock),
++	},
+ };
+ EXPORT_SYMBOL(noop_qdisc);
  
--	while lldptool -t -i $dev -V APP -c app | grep -q pending; do
-+	while lldptool -t -i $dev -V APP -c app | grep -Eq "pending|unknown"; do
- 		echo "$dev: waiting for lldpad to push pending APP updates"
- 		sleep 5
- 	done
+@@ -1253,8 +1265,6 @@ static void dev_init_scheduler_queue(struct net_device *dev,
+ 
+ 	rcu_assign_pointer(dev_queue->qdisc, qdisc);
+ 	dev_queue->qdisc_sleeping = qdisc;
+-	__skb_queue_head_init(&qdisc->gso_skb);
+-	__skb_queue_head_init(&qdisc->skb_bad_txq);
+ }
+ 
+ void dev_init_scheduler(struct net_device *dev)
 -- 
 2.20.1
 
