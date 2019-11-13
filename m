@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B3E5AFA255
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:03:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0004CFA24F
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729665AbfKMCDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:03:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59710 "EHLO mail.kernel.org"
+        id S1728093AbfKMCDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:03:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731074AbfKMCCs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:02:48 -0500
+        id S1731078AbfKMCCt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:02:49 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 746BD222CA;
-        Wed, 13 Nov 2019 02:02:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F77320674;
+        Wed, 13 Nov 2019 02:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610568;
-        bh=laoqNmJBfeOHo+/xTivya8pe9YZR3Jiai/QAOQi7MCY=;
+        s=default; t=1573610569;
+        bh=1hd1YxdqOSmo/ZPMrdo8EiQzXs7O4BTVZC1l95ZHnf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G5V/oAr+pOk2kfyTBD11dGJafpJ8ugxZmAXt7/lvVkIP75ndji8ZuAXrPoDf7Lcko
-         oML9g9QSaWTVp5ngsR0rTsScGPb6NbJB4wPPK3eh2izaYBUMKaj/AYiDoatCIlhazu
-         H6DXB7LXETpMtrr7qd+kU5QcOlzhnWkPTXqO7ndY=
+        b=WFFw3HLity9zsdqOHfa0t7NwGr70zUjfD9ZD3hdvlJudwV83iNJKPBgLhUBNxft34
+         kW2PKnvaE9FoAJiyWRT6B3idw1tVfVOBfqzOnhlXj+fSGsfqDhT70dpZxulQNo+EkL
+         9+ePwTuaH/CEyHiPzZ0Sgl3FTsIJLK4jPN8jLp+g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 45/48] hwmon: (pwm-fan) Silence error on probe deferral
-Date:   Tue, 12 Nov 2019 21:01:28 -0500
-Message-Id: <20191113020131.13356-45-sashal@kernel.org>
+Cc:     Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 46/48] mac80211: minstrel: fix CCK rate group streams value
+Date:   Tue, 12 Nov 2019 21:01:29 -0500
+Message-Id: <20191113020131.13356-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113020131.13356-1-sashal@kernel.org>
 References: <20191113020131.13356-1-sashal@kernel.org>
@@ -43,39 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 9f67f7583e77fe5dc57aab3a6159c2642544eaad ]
+[ Upstream commit 80df9be67c44cb636bbc92caeddad8caf334c53c ]
 
-Probe deferrals aren't actual errors, so silence the error message in
-case the PWM cannot yet be acquired.
+Fixes a harmless underflow issue when CCK rates are actively being used
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pwm-fan.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/mac80211/rc80211_minstrel_ht.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
-index 3e23003f78b01..993c61e95d30c 100644
---- a/drivers/hwmon/pwm-fan.c
-+++ b/drivers/hwmon/pwm-fan.c
-@@ -227,8 +227,12 @@ static int pwm_fan_probe(struct platform_device *pdev)
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 239ed6e92b89d..ff3b28e7dbce8 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -128,7 +128,7 @@
  
- 	ctx->pwm = devm_of_pwm_get(&pdev->dev, pdev->dev.of_node, NULL);
- 	if (IS_ERR(ctx->pwm)) {
--		dev_err(&pdev->dev, "Could not get PWM\n");
--		return PTR_ERR(ctx->pwm);
-+		ret = PTR_ERR(ctx->pwm);
-+
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Could not get PWM: %d\n", ret);
-+
-+		return ret;
- 	}
- 
- 	platform_set_drvdata(pdev, ctx);
+ #define CCK_GROUP					\
+ 	[MINSTREL_CCK_GROUP] = {			\
+-		.streams = 0,				\
++		.streams = 1,				\
+ 		.flags = 0,				\
+ 		.duration = {				\
+ 			CCK_DURATION_LIST(false),	\
 -- 
 2.20.1
 
