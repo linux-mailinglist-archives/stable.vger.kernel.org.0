@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 642A0FA631
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:27:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AECE7FA62B
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:27:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727544AbfKMBux (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:50:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37930 "EHLO mail.kernel.org"
+        id S1727582AbfKMBu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:50:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727540AbfKMBuw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:50:52 -0500
+        id S1727568AbfKMBu4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:50:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69F76222D4;
-        Wed, 13 Nov 2019 01:50:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50EEF222D3;
+        Wed, 13 Nov 2019 01:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609852;
-        bh=5MH6Ax/vtJQFiVkOpwSaJoxC1Gi53ZAWxPTk71j1TkI=;
+        s=default; t=1573609856;
+        bh=X2bHHl2RcPZJlk2yD2hIgmtodJF2T9sbh3u768snjnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRalSq6xDrOAOY9TTVmrh+LRoJeRmd/RDXpUKf9cFYXLKOyM4H1nK33nkcW/K24Pv
-         EDXec48ZPqLe3+tlg06K0cBFzWcF76fTBEq+na11wfA+WNiEOqSB9GqNIECiZKjGag
-         JRmaocdhQmc2OrD/X2eEthhU1006749opT3GSOEc=
+        b=HxGYF7N6T823ix//K5F9tGTv4aDkysfaux11/o5U1bisnASR2Hx1lVGwCwA0y9oa3
+         8fRX8liRYrUuqJdbSaXgKJiW6iCIyFsiMWdO4LwkSu0i0b1i6FjBkmdmjqum/Yo4n/
+         RMPoKHoRGQBRsDhjxRolWrW0E7Zq7emr2tYeDfUs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Christoffer Dall <cdall@kernel.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvmarm@lists.cs.columbia.edu
-Subject: [PATCH AUTOSEL 4.19 023/209] kvm: arm/arm64: Fix stage2_flush_memslot for 4 level page table
-Date:   Tue, 12 Nov 2019 20:47:19 -0500
-Message-Id: <20191113015025.9685-23-sashal@kernel.org>
+Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
+        Punit Agrawal <punit.agrawal@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 024/209] arm64/numa: Report correct memblock range for the dummy node
+Date:   Tue, 12 Nov 2019 20:47:20 -0500
+Message-Id: <20191113015025.9685-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -45,39 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Anshuman Khandual <anshuman.khandual@arm.com>
 
-[ Upstream commit d2db7773ba864df6b4e19643dfc54838550d8049 ]
+[ Upstream commit 77cfe950901e5c13aca2df6437a05f39dd9a929b ]
 
-So far we have only supported 3 level page table with fixed IPA of
-40bits, where PUD is folded. With 4 level page tables, we need
-to check if the PUD entry is valid or not. Fix stage2_flush_memslot()
-to do this check, before walking down the table.
+The dummy node ID is marked into all memory ranges on the system. So the
+dummy node really extends the entire memblock.memory. Hence report correct
+extent information for the dummy node using memblock range helper functions
+instead of the range [0LLU, PFN_PHYS(max_pfn) - 1)].
 
-Acked-by: Christoffer Dall <cdall@kernel.org>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Fixes: 1a2db30034 ("arm64, numa: Add NUMA support for arm64 platforms")
+Acked-by: Punit Agrawal <punit.agrawal@arm.com>
+Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/arm/mmu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/mm/numa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/virt/kvm/arm/mmu.c b/virt/kvm/arm/mmu.c
-index 1344557a70852..bf330b493c1e7 100644
---- a/virt/kvm/arm/mmu.c
-+++ b/virt/kvm/arm/mmu.c
-@@ -412,7 +412,8 @@ static void stage2_flush_memslot(struct kvm *kvm,
- 	pgd = kvm->arch.pgd + stage2_pgd_index(addr);
- 	do {
- 		next = stage2_pgd_addr_end(addr, end);
--		stage2_flush_puds(kvm, pgd, addr, next);
-+		if (!stage2_pgd_none(*pgd))
-+			stage2_flush_puds(kvm, pgd, addr, next);
- 	} while (pgd++, addr = next, addr != end);
- }
+diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
+index 146c04ceaa514..54529b4ed5130 100644
+--- a/arch/arm64/mm/numa.c
++++ b/arch/arm64/mm/numa.c
+@@ -432,7 +432,7 @@ static int __init dummy_numa_init(void)
+ 	if (numa_off)
+ 		pr_info("NUMA disabled\n"); /* Forced off on command line. */
+ 	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n",
+-		0LLU, PFN_PHYS(max_pfn) - 1);
++		memblock_start_of_DRAM(), memblock_end_of_DRAM() - 1);
  
+ 	for_each_memblock(memory, mblk) {
+ 		ret = numa_add_memblk(0, mblk->base, mblk->base + mblk->size);
 -- 
 2.20.1
 
