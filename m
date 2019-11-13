@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E16FA223
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84BACFA29F
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:05:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730894AbfKMCBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:01:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58082 "EHLO mail.kernel.org"
+        id S1729198AbfKMCEv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:04:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729369AbfKMCBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:01:52 -0500
+        id S1730898AbfKMCBy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:01:54 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94C8F20674;
-        Wed, 13 Nov 2019 02:01:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EBAD8206B6;
+        Wed, 13 Nov 2019 02:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610511;
-        bh=TpNyeSDmfELcoGLhQcP1ky6+6+Aylb/u+dAmwQSzoVg=;
+        s=default; t=1573610513;
+        bh=HbgVx4qjb6kTQShWNZlxWmMuVhrxfteiZTihwmQgvoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CYoAIfxHAIAin81Fme/DR+WN135lOKD0oQt21+BN9sTsRM9WKvGiCKu7TtmjB301
-         aNItXeH1grnlUn5HVHuwWiYBnt3gRtu1mykO8+U/8EMLLrHruqI1pFD54b1PCpqDzJ
-         /DziqCxPpgYQrEQ4AQm4vukZYZ11lxgZ3gResphE=
+        b=MQob1MLGFs+sm/rAN5DH+KEon33YHT7TNl3wcVOmjGukIADEL29gE3lG3xpVsaBYO
+         uvGyAl61gRW3O0M5NJ7YNwGcsRGIwXdN42M/+vEFwSDTFPTfWO5cAQJXljg6DpBYfc
+         dtESrDZ5aTXLBu2O2E7eNd5aB0o4ZrnuOMFEHQX8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.4 13/48] cxgb4: Use proper enum in IEEE_FAUX_SYNC
-Date:   Tue, 12 Nov 2019 21:00:56 -0500
-Message-Id: <20191113020131.13356-13-sashal@kernel.org>
+Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.4 14/48] powerpc/pseries: Fix DTL buffer registration
+Date:   Tue, 12 Nov 2019 21:00:57 -0500
+Message-Id: <20191113020131.13356-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113020131.13356-1-sashal@kernel.org>
 References: <20191113020131.13356-1-sashal@kernel.org>
@@ -45,48 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 258b6d141878530ba1f8fc44db683822389de914 ]
+[ Upstream commit db787af1b8a6b4be428ee2ea7d409dafcaa4a43c ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we register the DTL
+buffer for a cpu when the associated file under powerpc/dtl in debugfs
+is opened. When doing so, we need to set the size of the buffer being
+registered in the second u32 word of the buffer. This needs to be in big
+endian, but we are not doing the conversion resulting in the below error
+showing up in dmesg:
 
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c:390:4: warning: implicit
-conversion from enumeration type 'enum cxgb4_dcb_state' to different
-enumeration type 'enum cxgb4_dcb_state_input' [-Wenum-conversion]
-                        IEEE_FAUX_SYNC(dev, dcb);
-                        ^~~~~~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h:70:10: note: expanded
-from macro 'IEEE_FAUX_SYNC'
-                                            CXGB4_DCB_STATE_FW_ALLSYNCED);
-                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	dtl_start: DTL registration for cpu 0 (hw 0) failed with -4
 
-Use the equivalent value of the expected type to silence Clang while
-resulting in no functional change.
+Fix this in the obvious manner.
 
-CXGB4_DCB_STATE_FW_ALLSYNCED = CXGB4_DCB_INPUT_FW_ALLSYNCED = 3
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7c105b63bd98 ("powerpc: Add CONFIG_CPU_LITTLE_ENDIAN kernel config option.")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h | 2 +-
+ arch/powerpc/platforms/pseries/dtl.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
-index ccf24d3dc9824..2c418c405c508 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
-@@ -67,7 +67,7 @@
- 	do { \
- 		if ((__dcb)->dcb_version == FW_PORT_DCB_VER_IEEE) \
- 			cxgb4_dcb_state_fsm((__dev), \
--					    CXGB4_DCB_STATE_FW_ALLSYNCED); \
-+					    CXGB4_DCB_INPUT_FW_ALLSYNCED); \
- 	} while (0)
+diff --git a/arch/powerpc/platforms/pseries/dtl.c b/arch/powerpc/platforms/pseries/dtl.c
+index 39049e4884fbd..37de83c5ef172 100644
+--- a/arch/powerpc/platforms/pseries/dtl.c
++++ b/arch/powerpc/platforms/pseries/dtl.c
+@@ -150,7 +150,7 @@ static int dtl_start(struct dtl *dtl)
  
- /* States we can be in for a port's Data Center Bridging.
+ 	/* Register our dtl buffer with the hypervisor. The HV expects the
+ 	 * buffer size to be passed in the second word of the buffer */
+-	((u32 *)dtl->buf)[1] = DISPATCH_LOG_BYTES;
++	((u32 *)dtl->buf)[1] = cpu_to_be32(DISPATCH_LOG_BYTES);
+ 
+ 	hwcpu = get_hard_smp_processor_id(dtl->cpu);
+ 	addr = __pa(dtl->buf);
 -- 
 2.20.1
 
