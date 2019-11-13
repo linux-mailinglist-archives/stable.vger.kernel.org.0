@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AFFAFA458
+	by mail.lfdr.de (Postfix) with ESMTP id 1C6E5FA457
 	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729509AbfKMB4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:56:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48852 "EHLO mail.kernel.org"
+        id S1729512AbfKMB4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:56:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728400AbfKMB4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:56:31 -0500
+        id S1727895AbfKMB4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:56:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38FF92245C;
-        Wed, 13 Nov 2019 01:56:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 757E42245D;
+        Wed, 13 Nov 2019 01:56:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610191;
-        bh=LAacLFUZ6peFqOHVPLbtujVYQS0liVSdAa/0Z18JY+8=;
+        s=default; t=1573610192;
+        bh=pLLO6uKtr+5rSm4ZgjYB/EnjSBT/h0uJQvYaoDcbTdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8jgC5Gmqpr7vT3GHqaOlB+SIPzKq1yHuZ/86J8PAZMe/8OwTGRn7xFiE4XrdNG77
-         sK1oqEW482st85/6YHCxqQbbTn9BjHNczi7ILrmyndGKH54IUPvxxzE/OU0kUntzc7
-         2X/5vbYERpVuW1CEUczIt6CguVevur85euc3XPuA=
+        b=cTIHY0CKPOyaxJ9wC/dnMFcuzUg20OAuynEBQYpHnFnaMwqUyzpivcfb6zaU/lsDY
+         M6+qmlH7U39a7h+SSbJ92LctTbKmBSWFXBi2aM59qnfV4ZbXSkJlvPtPrhNxnvsvEo
+         ch4DKhhOhMUQ+TkZnFIphvUKX81JH/uKWHr99Kbg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yunsheng Lin <linyunsheng@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Salil Mehta <salil.mehta@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 005/115] net: hns3: Fix for netdev not up problem when setting mtu
-Date:   Tue, 12 Nov 2019 20:54:32 -0500
-Message-Id: <20191113015622.11592-5-sashal@kernel.org>
+Cc:     Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <yuchao0@huawei.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 006/115] f2fs: return correct errno in f2fs_gc
+Date:   Tue, 12 Nov 2019 20:54:33 -0500
+Message-Id: <20191113015622.11592-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -45,47 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 93d8daf460183871a965dae339839d9e35d44309 ]
+[ Upstream commit 61f7725aa148ee870436a29d3a24d5c00ab7e9af ]
 
-Currently hns3_nic_change_mtu will try to down the netdev before
-setting mtu, and it does not up the netdev when the setting fails,
-which causes netdev not up problem.
+This fixes overriding error number in f2fs_gc.
 
-This patch fixes it by not returning when the setting fails.
-
-Fixes: a8e8b7ff3517 ("net: hns3: Add support to change MTU in HNS3 hardware")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ fs/f2fs/gc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c
-index 69726908e72c4..5483cb23c08a3 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c
-@@ -1307,13 +1307,11 @@ static int hns3_nic_change_mtu(struct net_device *netdev, int new_mtu)
- 	}
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index ceb6023786bdf..67120181dc2af 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1091,7 +1091,7 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
  
- 	ret = h->ae_algo->ops->set_mtu(h, new_mtu);
--	if (ret) {
-+	if (ret)
- 		netdev_err(netdev, "failed to change MTU in hardware %d\n",
- 			   ret);
--		return ret;
--	}
--
--	netdev->mtu = new_mtu;
-+	else
-+		netdev->mtu = new_mtu;
+ 	put_gc_inode(&gc_list);
  
- 	/* if the netdev was running earlier, bring it up again */
- 	if (if_running && hns3_nic_net_open(netdev))
+-	if (sync)
++	if (sync && !ret)
+ 		ret = sec_freed ? 0 : -EAGAIN;
+ 	return ret;
+ }
 -- 
 2.20.1
 
