@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D36FA120
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFE8DFA129
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:55:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728979AbfKMBzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:55:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46258 "EHLO mail.kernel.org"
+        id S1729036AbfKMBzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:55:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727721AbfKMBzB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:55:01 -0500
+        id S1728176AbfKMBzV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:55:21 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4F89222D4;
-        Wed, 13 Nov 2019 01:54:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7C21222D3;
+        Wed, 13 Nov 2019 01:55:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610100;
-        bh=julWjBlCYWiwOVW4slF5Jvmglxdu1fcIEx8uEPF98IM=;
+        s=default; t=1573610120;
+        bh=84uaRIPv5X8QlnjzO78ZiN4sPge0T8QMfyyMtrZ2xiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sT4XnQ3ZxZiqbTVuIXxw8uHMd0zx9Kg/d4r/sTSud9K6MXFYmxjOWrIh+GK8wov3t
-         OcmERI6WdSt/4EEyGxsP8aUak0MgTGI2VTtN2d+XDVwraqvE8+CQiLsVAb2OSighcm
-         nRTL4SPKUZZJv+I9RtGla5+M4olK/CZJs2WkCBz4=
+        b=Q5wJmubxEpB+tNULJnuEZ4FCvsQOZJKKzxGsYvN2IMHiWokj7CY1NXKaqRMNn3q7V
+         0KpDTyYOVJfugSw35bN4oswOJUzQhc3ecW6DIn5wDp8Xtoi9SnDyClGexIpXnUXv3D
+         N8x0H+WvfcETweo6iYlhyHl2BcUzhmSZjErgBUcI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 160/209] backlight: lm3639: Unconditionally call led_classdev_unregister
-Date:   Tue, 12 Nov 2019 20:49:36 -0500
-Message-Id: <20191113015025.9685-160-sashal@kernel.org>
+Cc:     Zhoujie Wu <zjwu@marvell.com>,
+        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@cnexlabs.com>,
+        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 175/209] lightnvm: pblk: consider max hw sectors supported for max_write_pgs
+Date:   Tue, 12 Nov 2019 20:49:51 -0500
+Message-Id: <20191113015025.9685-175-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,57 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Zhoujie Wu <zjwu@marvell.com>
 
-[ Upstream commit 7cea645ae9c5a54aa7904fddb2cdf250acd63a6c ]
+[ Upstream commit 8a57fc3823d08edb1661a06d9e0a8c2365ac561e ]
 
-Clang warns that the address of a pointer will always evaluated as true
-in a boolean context.
+When do GC, the number of read/write sectors are determined
+by max_write_pgs(see gc_rq preparation in pblk_gc_line_prepare_ws).
 
-drivers/video/backlight/lm3639_bl.c:403:14: warning: address of
-'pchip->cdev_torch' will always evaluate to 'true'
-[-Wpointer-bool-conversion]
-        if (&pchip->cdev_torch)
-        ~~   ~~~~~~~^~~~~~~~~~
-drivers/video/backlight/lm3639_bl.c:405:14: warning: address of
-'pchip->cdev_flash' will always evaluate to 'true'
-[-Wpointer-bool-conversion]
-        if (&pchip->cdev_flash)
-        ~~   ~~~~~~~^~~~~~~~~~
-2 warnings generated.
+Due to max_write_pgs doesn't consider max hw sectors
+supported by nvme controller(128K), which leads to GC
+tries to read 64 * 4K in one command, and see below error
+caused by pblk_bio_map_addr in function pblk_submit_read_gc.
 
-These statements have been present since 2012, introduced by
-commit 0f59858d5119 ("backlight: add new lm3639 backlight
-driver"). Given that they have been called unconditionally since
-then presumably without any issues, removing the always true if
-statements to fix the warnings without any real world changes.
+[ 2923.005376] pblk: could not add page to bio
+[ 2923.005377] pblk: could not allocate GC bio (18446744073709551604)
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/119
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Zhoujie Wu <zjwu@marvell.com>
+Reviewed-by: Javier González <javier@cnexlabs.com>
+Signed-off-by: Matias Bjørling <mb@lightnvm.io>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/lm3639_bl.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/lightnvm/pblk-init.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/backlight/lm3639_bl.c b/drivers/video/backlight/lm3639_bl.c
-index cd50df5807ead..086611c7bc03c 100644
---- a/drivers/video/backlight/lm3639_bl.c
-+++ b/drivers/video/backlight/lm3639_bl.c
-@@ -400,10 +400,8 @@ static int lm3639_remove(struct i2c_client *client)
+diff --git a/drivers/lightnvm/pblk-init.c b/drivers/lightnvm/pblk-init.c
+index 91fd2b291db91..88b632787abd6 100644
+--- a/drivers/lightnvm/pblk-init.c
++++ b/drivers/lightnvm/pblk-init.c
+@@ -375,6 +375,8 @@ static int pblk_core_init(struct pblk *pblk)
+ 	pblk->min_write_pgs = geo->ws_opt;
+ 	max_write_ppas = pblk->min_write_pgs * geo->all_luns;
+ 	pblk->max_write_pgs = min_t(int, max_write_ppas, NVM_MAX_VLBA);
++	pblk->max_write_pgs = min_t(int, pblk->max_write_pgs,
++		queue_max_hw_sectors(dev->q) / (geo->csecs >> SECTOR_SHIFT));
+ 	pblk_set_sec_per_write(pblk, pblk->min_write_pgs);
  
- 	regmap_write(pchip->regmap, REG_ENABLE, 0x00);
- 
--	if (&pchip->cdev_torch)
--		led_classdev_unregister(&pchip->cdev_torch);
--	if (&pchip->cdev_flash)
--		led_classdev_unregister(&pchip->cdev_flash);
-+	led_classdev_unregister(&pchip->cdev_torch);
-+	led_classdev_unregister(&pchip->cdev_flash);
- 	if (pchip->bled)
- 		device_remove_file(&(pchip->bled->dev), &dev_attr_bled_mode);
- 	return 0;
+ 	if (pblk->max_write_pgs > PBLK_MAX_REQ_ADDRS) {
 -- 
 2.20.1
 
