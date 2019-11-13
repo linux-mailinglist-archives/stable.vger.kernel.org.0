@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F485FA383
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D64E1FA374
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730182AbfKMCKB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:10:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53896 "EHLO mail.kernel.org"
+        id S1729834AbfKMCJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:09:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729334AbfKMB7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:23 -0500
+        id S1729249AbfKMB7Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:59:24 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C33B02053B;
-        Wed, 13 Nov 2019 01:59:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07BB922469;
+        Wed, 13 Nov 2019 01:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610362;
-        bh=E4c7E0E0gF6jfSVz2Pxox2hy9Q5loNqXt/ABscsuXqo=;
+        s=default; t=1573610363;
+        bh=1/VSmpTTU9BsP9TQjL/wDX5Ico+dlFB6FyvPaSDKljY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VmhTo7oCvF9kuqbfNwxhFs07tOqgavvAwn6N2hPHjlmBiHOzXOsgqYYCaIFiCkNOM
-         69QO99HyEDEYz2J46Xzgy9rzypPrkf9lCAICAtkyoeWFAKCeZNfiM7zF4a4YdVU4d0
-         F791Rv7IpU9MN3RXXB4sRIHqHgoqDi8uLkmawFzw=
+        b=iKDHe5Zzb5ePFPsMdMurmLTeDVYW2eEmas/0+dR+ZTp6psIaDaXFXn9cTdUM6peFL
+         cL7GwkYW7Pc4iDZFAmbLK0GkGVKq2Dmr+76gjB9C/rc7qre26D7wG9bSxnYZY51ITM
+         ncIthJY7aNZnArS5N9N9i11hPZxpRr2IOeVK4j1Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roger Quadros <rogerq@ti.com>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 112/115] ARM: dts: omap5: Fix dual-role mode on Super-Speed port
-Date:   Tue, 12 Nov 2019 20:56:19 -0500
-Message-Id: <20191113015622.11592-112-sashal@kernel.org>
+Cc:     Alan Mikhak <alan.mikhak@sifive.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 113/115] tools: PCI: Fix broken pcitest compilation
+Date:   Tue, 12 Nov 2019 20:56:20 -0500
+Message-Id: <20191113015622.11592-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -45,37 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Alan Mikhak <alan.mikhak@sifive.com>
 
-[ Upstream commit a763ecc15d0e37c3a15ff6825183061209832685 ]
+[ Upstream commit 8a5e0af240e07dd3d4897eb8ff52aab757da7fab ]
 
-OMAP5's Super-Speed USB port has a software mailbox register
-that needs to be fed with VBUS and ID events from an external
-VBUS/ID comparator.
+pcitest is currently broken due to the following compiler error
+and related warning. Fix by changing the run_test() function
+signature to return an integer result.
 
-Without this, Host role will not work correctly.
+pcitest.c: In function run_test:
+pcitest.c:143:9: warning: return with a value, in function
+returning void
+  return (ret < 0) ? ret : 1 - ret; /* return 0 if test succeeded */
 
-Fixes: 656c1a65ab55 ("ARM: dts: omap5: enable OTG role for DWC3 controller")
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+pcitest.c: In function main:
+pcitest.c:232:9: error: void value not ignored as it ought to be
+  return run_test(test);
+
+Fixes: fef31ecaaf2c ("tools: PCI: Fix compilation warnings")
+Signed-off-by: Alan Mikhak <alan.mikhak@sifive.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap5-board-common.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ tools/pci/pcitest.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
-index f65343f8e1d69..c58f14de01451 100644
---- a/arch/arm/boot/dts/omap5-board-common.dtsi
-+++ b/arch/arm/boot/dts/omap5-board-common.dtsi
-@@ -695,6 +695,7 @@
+diff --git a/tools/pci/pcitest.c b/tools/pci/pcitest.c
+index 8ca1c62bc06db..7002df55826f4 100644
+--- a/tools/pci/pcitest.c
++++ b/tools/pci/pcitest.c
+@@ -42,15 +42,15 @@ struct pci_test {
+ 	unsigned long	size;
  };
  
- &dwc3 {
-+	extcon = <&extcon_usb3>;
- 	dr_mode = "otg";
- };
+-static void run_test(struct pci_test *test)
++static int run_test(struct pci_test *test)
+ {
+-	long ret;
++	int ret = -EINVAL;
+ 	int fd;
  
+ 	fd = open(test->device, O_RDWR);
+ 	if (fd < 0) {
+ 		perror("can't open PCI Endpoint Test device");
+-		return;
++		return -ENODEV;
+ 	}
+ 
+ 	if (test->barnum >= 0 && test->barnum <= 5) {
 -- 
 2.20.1
 
