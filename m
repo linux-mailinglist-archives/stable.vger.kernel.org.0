@@ -2,143 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 206C2FB495
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 17:03:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E20F5FB556
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 17:40:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728255AbfKMQDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 11:03:33 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:33254 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726074AbfKMQDd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 11:03:33 -0500
-Received: by mail-lf1-f67.google.com with SMTP id d6so2426286lfc.0;
-        Wed, 13 Nov 2019 08:03:32 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=Gfy5KxCnLCEyuV8EWhYYDNn9loPT0q/WSL5LOF/F6ic=;
-        b=mqRqgdVR7v2n6dUoIUcPvwZADZ2CucJLNqO1GTFwDsQ+WEZWUXtq3LBrgXCiwujSmx
-         PXH+xr0G1tKCb7kkhb3eHhtVf8oj1rHwNSmmaD2pgPLD8qNDb2yfjiLqvb20V3EkCV5X
-         HFoPnRPS+wPGDLMHOzvujuyyNYa/lpUVHDUq0snQqS7gX/D+ryzWNYiGgKGPc5DggNUN
-         Cwm2GLfvwmfwvlbTp4ShGofImJNAhV+k7D+ZaurhvG1E/tN5IugAtmxX7bTykVKQpwfH
-         BXxuDgHIIFjFsWqcj5MaAB3VE57cojOdj4ckG0WlZf6fAka95mTTfidNsfwHFMQlwFcP
-         P0ug==
-X-Gm-Message-State: APjAAAW+LaLswR0GiGhadFZv7P83jRkY81mBrwen9KgLApD6DFwdMODC
-        97dPPDrg/oEDVcxT3osAhMA=
-X-Google-Smtp-Source: APXvYqxmMrumdAtvQO7iALK86Izaa9ATYjWqG1jIuSuPXuai5OKfFaUN4JUcdm3x7N9qr3tCgNIwog==
-X-Received: by 2002:ac2:5503:: with SMTP id j3mr1985425lfk.8.1573661011352;
-        Wed, 13 Nov 2019 08:03:31 -0800 (PST)
-Received: from xi.terra (c-51f1e055.07-184-6d6c6d4.bbcust.telenor.se. [85.224.241.81])
-        by smtp.gmail.com with ESMTPSA id t16sm1082094ljc.106.2019.11.13.08.03.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 Nov 2019 08:03:30 -0800 (PST)
-Received: from johan by xi.terra with local (Exim 4.92.3)
-        (envelope-from <johan@kernel.org>)
-        id 1iUv7L-0000BG-Dd; Wed, 13 Nov 2019 17:03:39 +0100
-Date:   Wed, 13 Nov 2019 17:03:39 +0100
-From:   Johan Hovold <johan@kernel.org>
-To:     Aleksander Morgado <aleksander@aleksander.es>
-Cc:     johan@kernel.org, gregkh@linuxfoundation.org,
-        linux-usb@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] USB: serial: option: add support for Foxconn T77W968 LTE
- modules
-Message-ID: <20191113160339.GX11035@localhost>
-References: <20191113101405.496557-1-aleksander@aleksander.es>
+        id S1727779AbfKMQkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 11:40:00 -0500
+Received: from vern.gendns.com ([98.142.107.122]:33890 "EHLO vern.gendns.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727578AbfKMQkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Nov 2019 11:40:00 -0500
+X-Greylist: delayed 1780 seconds by postgrey-1.27 at vger.kernel.org; Wed, 13 Nov 2019 11:39:59 EST
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=lechnology.com; s=default; h=Content-Transfer-Encoding:Content-Type:
+        In-Reply-To:MIME-Version:Date:Message-ID:From:References:Cc:To:Subject:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=1barl4LpDu79nPCoSjjU5D0XU/aFzdp/OvRiRUJvuu4=; b=CHKMbtWjUEP5Z9HxUTK44zytaD
+        GeMuIzYEjve7YUvU0+Gj+e+pYUpxXtnhSxCapF5tTdiRZM0mmjGx39ZDbaKcjLqBUzlkNB0JtsOdq
+        w5XE2Nr1h41pxvtjDRUm34LDSzeyWLxCJomyoC9Cyuqq/Tj35cCoy0mEqDNyTsQuUsiTJTAw12YoG
+        SWPpnJ68Yudfjqe7WM2gPuItES8UZ/ljmzsIJKuZgRHZBT46CdFEvuJaomoqtSb2ELeckXaWOzyP/
+        kQgcfLvzPBuLLFKnIwtaLZGrw2jo6NPEw15alM4nXN8hUBgv3z9L1jzkbgbI41CTkLFvVGJvASRmT
+        s5XDUEAQ==;
+Received: from [2600:1700:4830:165f::fb2] (port=42824)
+        by vern.gendns.com with esmtpsa (TLSv1.2:ECDHE-RSA-AES128-GCM-SHA256:128)
+        (Exim 4.92)
+        (envelope-from <david@lechnology.com>)
+        id 1iUvDm-0004Fk-9d; Wed, 13 Nov 2019 11:10:18 -0500
+Subject: Re: [PATCH AUTOSEL 4.14 050/115] ARM: dts: da850-lego-ev3: slow down
+ A/DC as much as possible
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Sekhar Nori <nsekhar@ti.com>, devicetree@vger.kernel.org
+References: <20191113015622.11592-1-sashal@kernel.org>
+ <20191113015622.11592-50-sashal@kernel.org>
+From:   David Lechner <david@lechnology.com>
+Message-ID: <a1b3b613-8b70-56a3-dee6-264bd5fa5049@lechnology.com>
+Date:   Wed, 13 Nov 2019 10:10:17 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191113101405.496557-1-aleksander@aleksander.es>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191113015622.11592-50-sashal@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - vern.gendns.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - lechnology.com
+X-Get-Message-Sender-Via: vern.gendns.com: authenticated_id: davidmain+lechnology.com/only user confirmed/virtual account not confirmed
+X-Authenticated-Sender: vern.gendns.com: davidmain@lechnology.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 13, 2019 at 11:14:05AM +0100, Aleksander Morgado wrote:
-> These are the Foxconn-branded variants of the Dell DW5821e modules,
-> same USB layout as those. The device exposes AT, NMEA and DIAG ports
-> in both USB configurations.
+On 11/12/19 7:55 PM, Sasha Levin wrote:
+> From: David Lechner <david@lechnology.com>
 > 
-> P:  Vendor=0489 ProdID=e0b4 Rev=03.18
-> S:  Manufacturer=FII
-> S:  Product=T77W968 LTE
-> S:  SerialNumber=0123456789ABCDEF
-> C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-> I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
-> I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
-> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+> [ Upstream commit aea4762fb46e048c059ff49565ee33da07c8aeb3 ]
 > 
-> P:  Vendor=0489 ProdID=e0b4 Rev=03.18
-> S:  Manufacturer=FII
-> S:  Product=T77W968 LTE
-> S:  SerialNumber=0123456789ABCDEF
-> C:  #Ifs= 7 Cfg#= 2 Atr=a0 MxPwr=500mA
-> I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=0e Prot=00 Driver=cdc_mbim
-> I:  If#=0x1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-> I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-> I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-> I:  If#=0x6 Alt= 0 #EPs= 1 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+> Due to the electrical design of the A/DC circuits on LEGO MINDSTORMS EV3,
+> if we are reading analog values as fast as possible (i.e. using DMA to
+> service the SPI) the A/DC chip will read incorrect values - as much as
+> 0.1V off when the SPI is running at 10MHz. (This has to do with the
+> capacitor charge time when channels are muxed in the A/DC.)
 > 
-> Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
-> ---
->  drivers/usb/serial/option.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
+> This patch slows down the SPI as much as possible (if CPU is at 456MHz,
+> SPI runs at 1/2 of that, so 228MHz and has a max prescalar of 256, so
+> we could get ~891kHz, but we're just rounding it to 1MHz). We also use
+> the max allowable value for WDELAY to slow things down even more.
 > 
-> diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-> index 2023f1f4edaf..787f004f24fc 100644
-> --- a/drivers/usb/serial/option.c
-> +++ b/drivers/usb/serial/option.c
-> @@ -555,6 +555,11 @@ static void option_instat_callback(struct urb *urb);
->  #define WETELECOM_PRODUCT_6802			0x6802
->  #define WETELECOM_PRODUCT_WMD300		0x6803
->  
-> +/* Foxconn products */
-> +#define FOXCONN_VENDOR_ID			0x0489
-> +#define FOXCONN_PRODUCT_T77W968			0xe0b4
-> +#define FOXCONN_PRODUCT_T77W968_ESIM		0xe0b5
-> +
+> These changes reduce the error of the analog values to about 5mV, which
+> is tolerable.
+> 
+> Commits a3762b13a596 ("spi: spi-davinci: Add support for SPI_CS_WORD")
+> and e2540da86ef8 ("iio: adc: ti-ads7950: use SPI_CS_WORD to reduce
+> CPU usage") introduce changes that allow DMA transfers to be used, so
+> this slow down is needed now.
+> 
 
-I dropped these new defines in favour of using numerical constants
-before applying:
-
-diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
-index 2023f1f4edaf..e9491d400a24 100644
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -1993,6 +1993,10 @@ static const struct usb_device_id option_ids[] = {
-        { USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0xa31d, 0xff, 0x06, 0x13) },
-        { USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0xa31d, 0xff, 0x06, 0x14) },
-        { USB_DEVICE_AND_INTERFACE_INFO(0x03f0, 0xa31d, 0xff, 0x06, 0x1b) },
-+       { USB_DEVICE(0x0489, 0xe0b4),                                           /* Foxconn T77W968 */
-+         .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-+       { USB_DEVICE(0x0489, 0xe0b5),                                           /* Foxconn T77W968 ESIM */
-+         .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-        { USB_DEVICE(0x1508, 0x1001),                                           /* Fibocom NL668 */
-          .driver_info = RSVD(4) | RSVD(5) | RSVD(6) },
-        { USB_DEVICE(0x2cb7, 0x0104),                                           /* Fibocom NL678 series */
-
->  /* Device flags */
->  
-> @@ -1999,6 +2004,10 @@ static const struct usb_device_id option_ids[] = {
->  	  .driver_info = RSVD(4) | RSVD(5) },
->  	{ USB_DEVICE_INTERFACE_CLASS(0x2cb7, 0x0105, 0xff),			/* Fibocom NL678 series */
->  	  .driver_info = RSVD(6) },
-> +	{ USB_DEVICE(FOXCONN_VENDOR_ID, FOXCONN_PRODUCT_T77W968),
-> +	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
-> +	{ USB_DEVICE(FOXCONN_VENDOR_ID, FOXCONN_PRODUCT_T77W968_ESIM),
-> +	  .driver_info = RSVD(0) | RSVD(1) | RSVD(6) },
->  	{ } /* Terminating entry */
->  };
->  MODULE_DEVICE_TABLE(usb, option_ids);
-
-I'm trying to avoid adding new defines, but sometimes make exceptions
-when when we already have related entries in place.
-
-Thanks,
-Johan
+I doubt that the commits above would be backported, so it does not
+make sense to backport this patch.
