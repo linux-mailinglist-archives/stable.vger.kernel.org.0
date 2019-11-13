@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1261FA2E5
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:07:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F458FA2DC
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729316AbfKMCGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:06:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56782 "EHLO mail.kernel.org"
+        id S1730674AbfKMCBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:01:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727486AbfKMCBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:01:06 -0500
+        id S1730669AbfKMCBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:01:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07CCB2247B;
-        Wed, 13 Nov 2019 02:01:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 530AE2247C;
+        Wed, 13 Nov 2019 02:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610465;
-        bh=julWjBlCYWiwOVW4slF5Jvmglxdu1fcIEx8uEPF98IM=;
+        s=default; t=1573610466;
+        bh=DaQLybh/xJL6ICV5KQelju/IXatkVj3q7xwN1oiX+YI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ObDn8rqLneBkJYBleh0/jwlMK17Yo3wPp0F3usIh1vGfLL0v778Aalv4FunyvXE7d
-         /wP0/djAx7p7nhAdXjGTBWJQT3P4QJGqIPkrBZacVlSv4vHPFqxIJkq2uBTBmZJTbq
-         UkiXPTdTwLiS/uo3WoAIemTDzFT4deRhGiazq95k=
+        b=IvSX3VPk7wn/EsX/LssOj3bIKBwyLUpqXlL+9M78EUQ+KsTqr6lwjKpcrHD69bQ4a
+         UM9nhHOTnK479+HWtd4oYq/cCh9RBq2e+eKGdKhVd9ap6n/6D2Z6k7ruDIqc2W0riD
+         qfn7pfKYIxgO6Ael17HAjo07tUESUIPMfbyvYFFg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.9 52/68] backlight: lm3639: Unconditionally call led_classdev_unregister
-Date:   Tue, 12 Nov 2019 20:59:16 -0500
-Message-Id: <20191113015932.12655-52-sashal@kernel.org>
+Cc:     Vignesh R <vigneshr@ti.com>, Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 53/68] mfd: ti_am335x_tscadc: Keep ADC interface on if child is wakeup capable
+Date:   Tue, 12 Nov 2019 20:59:17 -0500
+Message-Id: <20191113015932.12655-53-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -46,56 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit 7cea645ae9c5a54aa7904fddb2cdf250acd63a6c ]
+[ Upstream commit c974ac771479327b5424f60d58845e31daddadea ]
 
-Clang warns that the address of a pointer will always evaluated as true
-in a boolean context.
+If a child device like touchscreen is wakeup capable, then keep ADC
+interface on, so that a touching resistive screen will generate wakeup
+event to the system.
 
-drivers/video/backlight/lm3639_bl.c:403:14: warning: address of
-'pchip->cdev_torch' will always evaluate to 'true'
-[-Wpointer-bool-conversion]
-        if (&pchip->cdev_torch)
-        ~~   ~~~~~~~^~~~~~~~~~
-drivers/video/backlight/lm3639_bl.c:405:14: warning: address of
-'pchip->cdev_flash' will always evaluate to 'true'
-[-Wpointer-bool-conversion]
-        if (&pchip->cdev_flash)
-        ~~   ~~~~~~~^~~~~~~~~~
-2 warnings generated.
-
-These statements have been present since 2012, introduced by
-commit 0f59858d5119 ("backlight: add new lm3639 backlight
-driver"). Given that they have been called unconditionally since
-then presumably without any issues, removing the always true if
-statements to fix the warnings without any real world changes.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/119
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/backlight/lm3639_bl.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/mfd/ti_am335x_tscadc.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/drivers/video/backlight/lm3639_bl.c b/drivers/video/backlight/lm3639_bl.c
-index cd50df5807ead..086611c7bc03c 100644
---- a/drivers/video/backlight/lm3639_bl.c
-+++ b/drivers/video/backlight/lm3639_bl.c
-@@ -400,10 +400,8 @@ static int lm3639_remove(struct i2c_client *client)
+diff --git a/drivers/mfd/ti_am335x_tscadc.c b/drivers/mfd/ti_am335x_tscadc.c
+index 60286adbd6a1c..e56f0844b98de 100644
+--- a/drivers/mfd/ti_am335x_tscadc.c
++++ b/drivers/mfd/ti_am335x_tscadc.c
+@@ -295,11 +295,24 @@ static int ti_tscadc_remove(struct platform_device *pdev)
+ 	return 0;
+ }
  
- 	regmap_write(pchip->regmap, REG_ENABLE, 0x00);
++static int __maybe_unused ti_tscadc_can_wakeup(struct device *dev, void *data)
++{
++	return device_may_wakeup(dev);
++}
++
+ static int __maybe_unused tscadc_suspend(struct device *dev)
+ {
+ 	struct ti_tscadc_dev	*tscadc = dev_get_drvdata(dev);
  
--	if (&pchip->cdev_torch)
--		led_classdev_unregister(&pchip->cdev_torch);
--	if (&pchip->cdev_flash)
--		led_classdev_unregister(&pchip->cdev_flash);
-+	led_classdev_unregister(&pchip->cdev_torch);
-+	led_classdev_unregister(&pchip->cdev_flash);
- 	if (pchip->bled)
- 		device_remove_file(&(pchip->bled->dev), &dev_attr_bled_mode);
+ 	regmap_write(tscadc->regmap, REG_SE, 0x00);
++	if (device_for_each_child(dev, NULL, ti_tscadc_can_wakeup)) {
++		u32 ctrl;
++
++		regmap_read(tscadc->regmap, REG_CTRL, &ctrl);
++		ctrl &= ~(CNTRLREG_POWERDOWN);
++		ctrl |= CNTRLREG_TSCSSENB;
++		regmap_write(tscadc->regmap, REG_CTRL, ctrl);
++	}
+ 	pm_runtime_put_sync(dev);
+ 
  	return 0;
 -- 
 2.20.1
