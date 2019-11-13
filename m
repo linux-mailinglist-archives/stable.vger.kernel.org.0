@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AECE7FA62B
+	by mail.lfdr.de (Postfix) with ESMTP id 3E0D6FA62A
 	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:27:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727582AbfKMBu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:50:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38054 "EHLO mail.kernel.org"
+        id S1727606AbfKMBvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:51:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727568AbfKMBu4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:50:56 -0500
+        id S1727588AbfKMBu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:50:58 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50EEF222D3;
-        Wed, 13 Nov 2019 01:50:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 771CB222CE;
+        Wed, 13 Nov 2019 01:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609856;
-        bh=X2bHHl2RcPZJlk2yD2hIgmtodJF2T9sbh3u768snjnI=;
+        s=default; t=1573609857;
+        bh=/n033tAcWZldeMXOsgVbpUniNKRtBHljCjRdA4VUUMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HxGYF7N6T823ix//K5F9tGTv4aDkysfaux11/o5U1bisnASR2Hx1lVGwCwA0y9oa3
-         8fRX8liRYrUuqJdbSaXgKJiW6iCIyFsiMWdO4LwkSu0i0b1i6FjBkmdmjqum/Yo4n/
-         RMPoKHoRGQBRsDhjxRolWrW0E7Zq7emr2tYeDfUs=
+        b=RPfb/Pk1qi9BCsQPj0vgquF6OTQk7L/lD16SXZN+jwtl+yh0L+o2tyzWreSDVJi5S
+         ToPzXwcCzhjI56GjT7B5jKS8QYc/e+7igfe6YwMEgwiLSVzgIi56lq9jXuV2CgbvtT
+         eYtXFEIiTu3M+hiMJDnRaYi9qEcVq/eQb6y4WNt8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anshuman Khandual <anshuman.khandual@arm.com>,
-        Punit Agrawal <punit.agrawal@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 024/209] arm64/numa: Report correct memblock range for the dummy node
-Date:   Tue, 12 Nov 2019 20:47:20 -0500
-Message-Id: <20191113015025.9685-24-sashal@kernel.org>
+Cc:     Ben Greear <greearb@candelatech.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 025/209] ath10k: fix vdev-start timeout on error
+Date:   Tue, 12 Nov 2019 20:47:21 -0500
+Message-Id: <20191113015025.9685-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -44,37 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Ben Greear <greearb@candelatech.com>
 
-[ Upstream commit 77cfe950901e5c13aca2df6437a05f39dd9a929b ]
+[ Upstream commit 833fd34d743c728afe6d127ef7bee67e7d9199a8 ]
 
-The dummy node ID is marked into all memory ranges on the system. So the
-dummy node really extends the entire memblock.memory. Hence report correct
-extent information for the dummy node using memblock range helper functions
-instead of the range [0LLU, PFN_PHYS(max_pfn) - 1)].
+The vdev-start-response message should cause the
+completion to fire, even in the error case.  Otherwise,
+the user still gets no useful information and everything
+is blocked until the timeout period.
 
-Fixes: 1a2db30034 ("arm64, numa: Add NUMA support for arm64 platforms")
-Acked-by: Punit Agrawal <punit.agrawal@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Add some warning text to print out the invalid status
+code to aid debugging, and propagate failure code.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/numa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/core.h |  1 +
+ drivers/net/wireless/ath/ath10k/mac.c  |  2 +-
+ drivers/net/wireless/ath/ath10k/wmi.c  | 19 ++++++++++++++++---
+ drivers/net/wireless/ath/ath10k/wmi.h  |  8 +++++++-
+ 4 files changed, 25 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index 146c04ceaa514..54529b4ed5130 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -432,7 +432,7 @@ static int __init dummy_numa_init(void)
- 	if (numa_off)
- 		pr_info("NUMA disabled\n"); /* Forced off on command line. */
- 	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n",
--		0LLU, PFN_PHYS(max_pfn) - 1);
-+		memblock_start_of_DRAM(), memblock_end_of_DRAM() - 1);
+diff --git a/drivers/net/wireless/ath/ath10k/core.h b/drivers/net/wireless/ath/ath10k/core.h
+index 9feea02e7d373..5c9fc4070fd24 100644
+--- a/drivers/net/wireless/ath/ath10k/core.h
++++ b/drivers/net/wireless/ath/ath10k/core.h
+@@ -1003,6 +1003,7 @@ struct ath10k {
  
- 	for_each_memblock(memory, mblk) {
- 		ret = numa_add_memblk(0, mblk->base, mblk->base + mblk->size);
+ 	struct completion install_key_done;
+ 
++	int last_wmi_vdev_start_status;
+ 	struct completion vdev_setup_done;
+ 
+ 	struct workqueue_struct *workqueue;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 1419f9d1505fe..e95bb397e1c96 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -967,7 +967,7 @@ static inline int ath10k_vdev_setup_sync(struct ath10k *ar)
+ 	if (time_left == 0)
+ 		return -ETIMEDOUT;
+ 
+-	return 0;
++	return ar->last_wmi_vdev_start_status;
+ }
+ 
+ static int ath10k_monitor_vdev_start(struct ath10k *ar, int vdev_id)
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index 9f31b9a108507..bf74aff9510be 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -3247,18 +3247,31 @@ void ath10k_wmi_event_vdev_start_resp(struct ath10k *ar, struct sk_buff *skb)
+ {
+ 	struct wmi_vdev_start_ev_arg arg = {};
+ 	int ret;
++	u32 status;
+ 
+ 	ath10k_dbg(ar, ATH10K_DBG_WMI, "WMI_VDEV_START_RESP_EVENTID\n");
+ 
++	ar->last_wmi_vdev_start_status = 0;
++
+ 	ret = ath10k_wmi_pull_vdev_start(ar, skb, &arg);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to parse vdev start event: %d\n", ret);
+-		return;
++		ar->last_wmi_vdev_start_status = ret;
++		goto out;
+ 	}
+ 
+-	if (WARN_ON(__le32_to_cpu(arg.status)))
+-		return;
++	status = __le32_to_cpu(arg.status);
++	if (WARN_ON_ONCE(status)) {
++		ath10k_warn(ar, "vdev-start-response reports status error: %d (%s)\n",
++			    status, (status == WMI_VDEV_START_CHAN_INVALID) ?
++			    "chan-invalid" : "unknown");
++		/* Setup is done one way or another though, so we should still
++		 * do the completion, so don't return here.
++		 */
++		ar->last_wmi_vdev_start_status = -EINVAL;
++	}
+ 
++out:
+ 	complete(&ar->vdev_setup_done);
+ }
+ 
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index 36220258e3c7e..e341cfb3fcc26 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -6642,11 +6642,17 @@ struct wmi_ch_info_ev_arg {
+ 	__le32 rx_frame_count;
+ };
+ 
++/* From 10.4 firmware, not sure all have the same values. */
++enum wmi_vdev_start_status {
++	WMI_VDEV_START_OK = 0,
++	WMI_VDEV_START_CHAN_INVALID,
++};
++
+ struct wmi_vdev_start_ev_arg {
+ 	__le32 vdev_id;
+ 	__le32 req_id;
+ 	__le32 resp_type; /* %WMI_VDEV_RESP_ */
+-	__le32 status;
++	__le32 status; /* See wmi_vdev_start_status enum above */
+ };
+ 
+ struct wmi_peer_kick_ev_arg {
 -- 
 2.20.1
 
