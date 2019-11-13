@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46353FA327
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:08:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9135CFA1E1
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729058AbfKMCIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:08:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55004 "EHLO mail.kernel.org"
+        id S1730420AbfKMCAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:00:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730345AbfKMCAC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:00:02 -0500
+        id S1730417AbfKMCAF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:00:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 94098222CF;
-        Wed, 13 Nov 2019 02:00:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB5412053B;
+        Wed, 13 Nov 2019 02:00:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610402;
-        bh=HbgVx4qjb6kTQShWNZlxWmMuVhrxfteiZTihwmQgvoo=;
+        s=default; t=1573610404;
+        bh=ZxkIgG+Oa+kY1HAulN5VVJ7/HOzwWg4gtRjfk+JdGC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aadU0IQIT+HLt1mKlF9BASIMVAVA5teMW71EQJO79ZBICyyAprVPfxXuMBvoYMTZA
-         Ze0Oxh2GeqqMIJZIXtuQkz9mDOFyQegUPkzWPtokwGaFmFiqGxko2x7745en4RZ/hA
-         I9XvUCRzyUReXKR45zbWBmPJSJkgO3Tn+VuxElDQ=
+        b=mUx/Twj8ujOA6mNG/pcQLbUGk5gN2SJsuym/ZqF6pTeCZHSGIgFFrs+kingUFarnY
+         WG0wN7X5WL1+EeEUjcilB/SPq4pT9m8C7uLze+ble7xF5uu32b0D7oaJXv3rxwgVZc
+         awo7EQUN4WaItWj8tgdO0vGNTMASi8vu6sN8kZts=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.9 19/68] powerpc/pseries: Fix DTL buffer registration
-Date:   Tue, 12 Nov 2019 20:58:43 -0500
-Message-Id: <20191113015932.12655-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 20/68] powerpc/pseries: Fix how we iterate over the DTL entries
+Date:   Tue, 12 Nov 2019 20:58:44 -0500
+Message-Id: <20191113015932.12655-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -45,18 +45,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit db787af1b8a6b4be428ee2ea7d409dafcaa4a43c ]
+[ Upstream commit 9258227e9dd1da8feddb07ad9702845546a581c9 ]
 
-When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we register the DTL
-buffer for a cpu when the associated file under powerpc/dtl in debugfs
-is opened. When doing so, we need to set the size of the buffer being
-registered in the second u32 word of the buffer. This needs to be in big
-endian, but we are not doing the conversion resulting in the below error
-showing up in dmesg:
-
-	dtl_start: DTL registration for cpu 0 (hw 0) failed with -4
-
-Fix this in the obvious manner.
+When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we look up dtl_idx in
+the lppaca to determine the number of entries in the buffer. Since
+lppaca is in big endian, we need to do an endian conversion before using
+this in our calculation to determine the number of entries in the
+buffer. Without this, we do not iterate over the existing entries in the
+DTL buffer properly.
 
 Fixes: 7c105b63bd98 ("powerpc: Add CONFIG_CPU_LITTLE_ENDIAN kernel config option.")
 Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
@@ -67,18 +63,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/powerpc/platforms/pseries/dtl.c b/arch/powerpc/platforms/pseries/dtl.c
-index 39049e4884fbd..37de83c5ef172 100644
+index 37de83c5ef172..7a4d172c93765 100644
 --- a/arch/powerpc/platforms/pseries/dtl.c
 +++ b/arch/powerpc/platforms/pseries/dtl.c
-@@ -150,7 +150,7 @@ static int dtl_start(struct dtl *dtl)
+@@ -185,7 +185,7 @@ static void dtl_stop(struct dtl *dtl)
  
- 	/* Register our dtl buffer with the hypervisor. The HV expects the
- 	 * buffer size to be passed in the second word of the buffer */
--	((u32 *)dtl->buf)[1] = DISPATCH_LOG_BYTES;
-+	((u32 *)dtl->buf)[1] = cpu_to_be32(DISPATCH_LOG_BYTES);
+ static u64 dtl_current_index(struct dtl *dtl)
+ {
+-	return lppaca_of(dtl->cpu).dtl_idx;
++	return be64_to_cpu(lppaca_of(dtl->cpu).dtl_idx);
+ }
+ #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
  
- 	hwcpu = get_hard_smp_processor_id(dtl->cpu);
- 	addr = __pa(dtl->buf);
 -- 
 2.20.1
 
