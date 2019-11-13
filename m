@@ -2,119 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC2D4FAB91
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 09:01:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12110FABB7
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 09:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726086AbfKMIA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 03:00:59 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:54096 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1725993AbfKMIA6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 03:00:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573632057;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=CMk5IBNgQTUKXm1UH2KRTJi2cKWC2WnWXM6M0NEqON4=;
-        b=MzAhovt2G9YZSZ4XyffpYNPH7JlP+a4cFlsASdV0KMV7v9dmcjvmT1rireMSLTzoN5aI5M
-        4IjFOSEJRMqZi4GBTQuy8dGcFCnKU0dPEhCr2cqbVQqOR8y4zuMmPWat+3zYkR6wqw10Gg
-        U/zC+B9DQqd0LNbWhBwMbjYL7fdwCwM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-332-DZfi_6wuNua0lcrnQv12BA-1; Wed, 13 Nov 2019 03:00:54 -0500
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9C5D118B5F6A;
-        Wed, 13 Nov 2019 08:00:52 +0000 (UTC)
-Received: from cantor.redhat.com (ovpn-116-198.phx2.redhat.com [10.3.116.198])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 42F5C5D9E5;
-        Wed, 13 Nov 2019 08:00:52 +0000 (UTC)
-From:   Jerry Snitselaar <jsnitsel@redhat.com>
-To:     linux-integrity@vger.kernel.org
-Cc:     Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] tpm: move TPM_CHIP_FLAG_HAVE_TIMEOUTS check
-Date:   Wed, 13 Nov 2019 01:00:02 -0700
-Message-Id: <20191113080002.14932-1-jsnitsel@redhat.com>
+        id S1726449AbfKMIFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 03:05:49 -0500
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:42570 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726303AbfKMIFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 03:05:49 -0500
+Received: by mail-wr1-f45.google.com with SMTP id a15so1170113wrf.9
+        for <stable@vger.kernel.org>; Wed, 13 Nov 2019 00:05:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OB2WE++pG6+uxorsmiwQmRHESEGIF8p+pQV79eHXVbM=;
+        b=1zg02gQe0Ksx7PSRElZxJCaoZVqnhqdRoUDjpPD4DwfXal70hQA1nsQdJGD0fPhiIL
+         JAD/8/xCRw5h1rlvZRk8v3XgEUVYMshi9EnXelcSMVJZYC0dUmWVrLSu1XMIwGrf8FGv
+         x2kcX5lWPPUA8SSkeum2V91M7I6SQsOpOflxFu7arrrnS2RH0NIr7+KQtwFtUXOUOXmr
+         RueD5okIsn31DgamCfh1p3myZfmfKDaA2R6xVKy0kKThcPNwwS2gx+AZA9Et7EaM/APE
+         hAcjaPm1weNHaPUHy27OvRtXZgQ3qWlNlVKNwAghpiJuymWl/vDvvQkaa8nJSTqALdVi
+         EkKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OB2WE++pG6+uxorsmiwQmRHESEGIF8p+pQV79eHXVbM=;
+        b=O/36Ptj0/lNqLiYPaniIB5HaKwR0SEYOVDPYuBe8DjQXc1K03sy88egO709vxFYyy/
+         6liQEvYekL4lsYj7ICVmqE2Q3coly2NUIF3WB6aswrGr9OoeFqfD1Qtl1c1nIjymvYS8
+         5u2z3V/94T9BRs8q+MNlz7inagkIz4nu+/BX03GDOpS76xGVAu68XT84zB0h280mlPwx
+         UjMTEd4IW1pTwyFuvCgELt9PLxcqi3qssZDDveW40GKi0x0jNPq9U8eV10ZvBFGr1Ek6
+         SUV8rmdkLhgEnGRDrdSLJim8OUfajrGCNuyGhr1mhGZzcqHUtmAQTfvg1nVPj+2fVD5G
+         GlHg==
+X-Gm-Message-State: APjAAAUay2MnIWjthF+cX83X8MP7a0ysHe2zN928hj5TpKoX32T1fwgy
+        f7EZoxHm0rko3yCHifd/yDzmHmnffP7cJg==
+X-Google-Smtp-Source: APXvYqzsLTKGGa2lWw0r3VNlwUrIfdqjL73hJW7e8aZygaE/OttBCn3l3kARTeZ8+gRCNg0JuLmVIg==
+X-Received: by 2002:adf:f10d:: with SMTP id r13mr1376001wro.173.1573632347401;
+        Wed, 13 Nov 2019 00:05:47 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id j7sm2029380wro.54.2019.11.13.00.05.46
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Nov 2019 00:05:46 -0800 (PST)
+Message-ID: <5dcbb95a.1c69fb81.31832.870a@mx.google.com>
+Date:   Wed, 13 Nov 2019 00:05:46 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-MC-Unique: DZfi_6wuNua0lcrnQv12BA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.11
+Subject: stable-rc/linux-5.3.y boot: 127 boots: 0 failed,
+ 119 passed with 7 offline, 1 untried/unknown (v5.3.11)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since tpm1_get_timeouts and tpm2_get_timeouts are now called directly
-by the auto startup code in addition to being called by
-tpm_get_timeouts, push the flag check down into the individual
-functions to avoid going through them again if they've already set the
-TPM_CHIP_FLAG_HAVE_TIMEOUTS flag.
+stable-rc/linux-5.3.y boot: 127 boots: 0 failed, 119 passed with 7 offline,=
+ 1 untried/unknown (v5.3.11)
 
-Cc: Peter Huewe <peterhuewe@gmx.de>
-Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Fixes: d4a317563207 ("tpm: move tpm 1.x selftest code from tpm-interface.c =
-tpm1-cmd.c")
-Fixes: 9db7fe187c54 ("tpm: factor out tpm_startup function")
-Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.11/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.11/
+
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.11
+Git Commit: dada86c5aaa8f2305bf8a8bf9014b60603f9f013
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 77 unique boards, 23 SoC families, 16 builds out of 208
+
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            dm365evm,legacy: 1 offline lab
+
+    qcom_defconfig:
+        gcc-8
+            qcom-apq8064-cm-qs600: 1 offline lab
+
 ---
- drivers/char/tpm/tpm-interface.c | 3 ---
- drivers/char/tpm/tpm1-cmd.c      | 3 +++
- drivers/char/tpm/tpm2-cmd.c      | 3 +++
- 3 files changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/char/tpm/tpm-interface.c b/drivers/char/tpm/tpm-interf=
-ace.c
-index d7a3888ad80f..3c9e14981ce6 100644
---- a/drivers/char/tpm/tpm-interface.c
-+++ b/drivers/char/tpm/tpm-interface.c
-@@ -237,9 +237,6 @@ EXPORT_SYMBOL_GPL(tpm_transmit_cmd);
-=20
- int tpm_get_timeouts(struct tpm_chip *chip)
- {
--=09if (chip->flags & TPM_CHIP_FLAG_HAVE_TIMEOUTS)
--=09=09return 0;
--
- =09if (chip->flags & TPM_CHIP_FLAG_TPM2)
- =09=09return tpm2_get_timeouts(chip);
- =09else
-diff --git a/drivers/char/tpm/tpm1-cmd.c b/drivers/char/tpm/tpm1-cmd.c
-index 149e953ca369..5330b32d1469 100644
---- a/drivers/char/tpm/tpm1-cmd.c
-+++ b/drivers/char/tpm/tpm1-cmd.c
-@@ -345,6 +345,9 @@ int tpm1_get_timeouts(struct tpm_chip *chip)
- =09unsigned long timeout_old[4], timeout_chip[4], timeout_eff[4];
- =09ssize_t rc;
-=20
-+=09if (chip->flags & TPM_CHIP_FLAG_HAVE_TIMEOUTS)
-+=09=09return 0;
-+
- =09rc =3D tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, NULL,
- =09=09=09 sizeof(cap.timeout));
- =09if (rc =3D=3D TPM_ERR_INVALID_POSTINIT) {
-diff --git a/drivers/char/tpm/tpm2-cmd.c b/drivers/char/tpm/tpm2-cmd.c
-index ba9acae83bff..55d96be86ed8 100644
---- a/drivers/char/tpm/tpm2-cmd.c
-+++ b/drivers/char/tpm/tpm2-cmd.c
-@@ -38,6 +38,9 @@ static struct tpm2_hash tpm2_hash_map[] =3D {
-=20
- int tpm2_get_timeouts(struct tpm_chip *chip)
- {
-+=09if (chip->flags & TPM_CHIP_FLAG_HAVE_TIMEOUTS)
-+=09=09return 0;
-+
- =09/* Fixed timeouts for TPM2 */
- =09chip->timeout_a =3D msecs_to_jiffies(TPM2_TIMEOUT_A);
- =09chip->timeout_b =3D msecs_to_jiffies(TPM2_TIMEOUT_B);
---=20
-2.24.0
-
+For more info write to <info@kernelci.org>
