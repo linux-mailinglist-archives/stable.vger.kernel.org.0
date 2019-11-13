@@ -2,112 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0C4FAEC9
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 11:47:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53093FAF04
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 11:53:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726339AbfKMKr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 05:47:26 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:50828 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726138AbfKMKr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 05:47:26 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id A1F421C122C; Wed, 13 Nov 2019 11:47:24 +0100 (CET)
-Date:   Wed, 13 Nov 2019 11:47:24 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        Aaron Armstrong Skomra <aaron.skomra@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: Re: [PATCH 4.19 027/125] HID: wacom: generic: Treat serial number
- and related fields as unsigned
-Message-ID: <20191113104724.GD32553@amd>
-References: <20191111181438.945353076@linuxfoundation.org>
- <20191111181444.186103315@linuxfoundation.org>
+        id S1727145AbfKMKxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 05:53:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47246 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726340AbfKMKxy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 13 Nov 2019 05:53:54 -0500
+Received: from localhost (unknown [61.58.47.46])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94820222BD;
+        Wed, 13 Nov 2019 10:53:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573642432;
+        bh=Ay/OMBMowdTFXdcYe3oeRSJlDTq4tHqrVPT5YfrpA08=;
+        h=Subject:To:From:Date:From;
+        b=jgQ5vPooRO96UlR+Xqa8frl8if9PMG4Ki9JOKw8V/bljKU7pIhCk749Rgl2hhkONq
+         X8nCpZeaRWXjEPjHuNSl+FFErfNaG1Y6xXDoRYGhs6QR1kojXDpC1JisTCWsogMU3m
+         9a6/g/vZSyvQC5UjdJAm+R+E28xaIdw3CEr2Myd0=
+Subject: patch "usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()" added to usb-testing
+To:     suwan.kim027@gmail.com, dan.carpenter@oracle.com,
+        gregkh@linuxfoundation.org, lkp@intel.com,
+        skhan@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 13 Nov 2019 18:53:49 +0800
+Message-ID: <157364242978130@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
-Content-Disposition: inline
-In-Reply-To: <20191111181444.186103315@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---bajzpZikUji1w+G9
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This is a note to let you know that I've just added the patch titled
 
-Hi!
+    usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()
 
-> From: Jason Gerecke <killertofu@gmail.com>
->=20
-> commit ff479731c3859609530416a18ddb3db5db019b66 upstream.
->=20
-> The HID descriptors for most Wacom devices oddly declare the serial
-> number and other related fields as signed integers. When these numbers
-> are ingested by the HID subsystem, they are automatically sign-extended
-> into 32-bit integers. We treat the fields as unsigned elsewhere in the
-> kernel and userspace, however, so this sign-extension causes problems.
-> In particular, the sign-extended tool ID sent to userspace as ABS_MISC
-> does not properly match unsigned IDs used by xf86-input-wacom and libwaco=
-m.
->=20
-> We introduce a function 'wacom_s32tou' that can undo the automatic sign
-> extension performed by 'hid_snto32'. We call this function when processing
-> the serial number and related fields to ensure that we are dealing with
-> and reporting the unsigned form. We opt to use this method rather than
-> adding a descriptor fixup in 'wacom_hid_usage_quirk' since it should be
-> more robust in the face of future devices.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
-> +++ b/drivers/hid/wacom.h
-> @@ -205,6 +205,21 @@ static inline void wacom_schedule_work(s
->  	}
->  }
-> =20
-> +/*
-> + * Convert a signed 32-bit integer to an unsigned n-bit integer. Undoes
-> + * the normally-helpful work of 'hid_snto32' for fields that use signed
-> + * ranges for questionable reasons.
-> + */
-> +static inline __u32 wacom_s32tou(s32 value, __u8 n)
-> +{
-> +	switch (n) {
-> +	case 8:  return ((__u8)value);
-> +	case 16: return ((__u16)value);
-> +	case 32: return ((__u32)value);
-> +	}
-> +	return value & (1 << (n - 1)) ? value & (~(~0U << n)) : value;
-> +}
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-Can we do something like:
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-    BUG_ON(n>32);
-    if (n=3D=3D32) return ((__u32)value);
-    return value & ((1 << n) - 1);
+If you have any questions about this process, please let me know.
 
-instead?
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+From 2a9125317b247f2cf35c196f968906dcf062ae2d Mon Sep 17 00:00:00 2001
+From: Suwan Kim <suwan.kim027@gmail.com>
+Date: Mon, 11 Nov 2019 23:10:35 +0900
+Subject: usbip: Fix uninitialized symbol 'nents' in stub_recv_cmd_submit()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
---bajzpZikUji1w+G9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Smatch reported that nents is not initialized and used in
+stub_recv_cmd_submit(). nents is currently initialized by sgl_alloc()
+and used to allocate multiple URBs when host controller doesn't
+support scatter-gather DMA. The use of uninitialized nents means that
+buf_len is zero and use_sg is true. But buffer length should not be
+zero when an URB uses scatter-gather DMA.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+To prevent this situation, add the conditional that checks buf_len
+and use_sg. And move the use of nents right after the sgl_alloc() to
+avoid the use of uninitialized nents.
 
-iEYEARECAAYFAl3L3zsACgkQMOfwapXb+vL8/QCgiIe5oadhm4mIYIdDv4aDxKpc
-7xAAoKcXIlCR+wWD6Y3I/GPxZDGSo9KG
-=sUjw
------END PGP SIGNATURE-----
+If the error occurs, it adds SDEV_EVENT_ERROR_MALLOC and stub_priv
+will be released by stub event handler and connection will be shut
+down.
 
---bajzpZikUji1w+G9--
+Fixes: ea44d190764b ("usbip: Implement SG support to vhci-hcd and stub driver")
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Suwan Kim <suwan.kim027@gmail.com>
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191111141035.27788-1-suwan.kim027@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/usbip/stub_rx.c | 50 ++++++++++++++++++++++++-------------
+ 1 file changed, 32 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/usb/usbip/stub_rx.c b/drivers/usb/usbip/stub_rx.c
+index 66edfeea68fe..e2b019532234 100644
+--- a/drivers/usb/usbip/stub_rx.c
++++ b/drivers/usb/usbip/stub_rx.c
+@@ -470,18 +470,50 @@ static void stub_recv_cmd_submit(struct stub_device *sdev,
+ 	if (pipe == -1)
+ 		return;
+ 
++	/*
++	 * Smatch reported the error case where use_sg is true and buf_len is 0.
++	 * In this case, It adds SDEV_EVENT_ERROR_MALLOC and stub_priv will be
++	 * released by stub event handler and connection will be shut down.
++	 */
+ 	priv = stub_priv_alloc(sdev, pdu);
+ 	if (!priv)
+ 		return;
+ 
+ 	buf_len = (unsigned long long)pdu->u.cmd_submit.transfer_buffer_length;
+ 
++	if (use_sg && !buf_len) {
++		dev_err(&udev->dev, "sg buffer with zero length\n");
++		goto err_malloc;
++	}
++
+ 	/* allocate urb transfer buffer, if needed */
+ 	if (buf_len) {
+ 		if (use_sg) {
+ 			sgl = sgl_alloc(buf_len, GFP_KERNEL, &nents);
+ 			if (!sgl)
+ 				goto err_malloc;
++
++			/* Check if the server's HCD supports SG */
++			if (!udev->bus->sg_tablesize) {
++				/*
++				 * If the server's HCD doesn't support SG, break
++				 * a single SG request into several URBs and map
++				 * each SG list entry to corresponding URB
++				 * buffer. The previously allocated SG list is
++				 * stored in priv->sgl (If the server's HCD
++				 * support SG, SG list is stored only in
++				 * urb->sg) and it is used as an indicator that
++				 * the server split single SG request into
++				 * several URBs. Later, priv->sgl is used by
++				 * stub_complete() and stub_send_ret_submit() to
++				 * reassemble the divied URBs.
++				 */
++				support_sg = 0;
++				num_urbs = nents;
++				priv->completed_urbs = 0;
++				pdu->u.cmd_submit.transfer_flags &=
++								~URB_DMA_MAP_SG;
++			}
+ 		} else {
+ 			buffer = kzalloc(buf_len, GFP_KERNEL);
+ 			if (!buffer)
+@@ -489,24 +521,6 @@ static void stub_recv_cmd_submit(struct stub_device *sdev,
+ 		}
+ 	}
+ 
+-	/* Check if the server's HCD supports SG */
+-	if (use_sg && !udev->bus->sg_tablesize) {
+-		/*
+-		 * If the server's HCD doesn't support SG, break a single SG
+-		 * request into several URBs and map each SG list entry to
+-		 * corresponding URB buffer. The previously allocated SG
+-		 * list is stored in priv->sgl (If the server's HCD support SG,
+-		 * SG list is stored only in urb->sg) and it is used as an
+-		 * indicator that the server split single SG request into
+-		 * several URBs. Later, priv->sgl is used by stub_complete() and
+-		 * stub_send_ret_submit() to reassemble the divied URBs.
+-		 */
+-		support_sg = 0;
+-		num_urbs = nents;
+-		priv->completed_urbs = 0;
+-		pdu->u.cmd_submit.transfer_flags &= ~URB_DMA_MAP_SG;
+-	}
+-
+ 	/* allocate urb array */
+ 	priv->num_urbs = num_urbs;
+ 	priv->urbs = kmalloc_array(num_urbs, sizeof(*priv->urbs), GFP_KERNEL);
+-- 
+2.24.0
+
+
