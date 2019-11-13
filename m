@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F55FA47D
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F53EFA47B
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729375AbfKMB4F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:56:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48112 "EHLO mail.kernel.org"
+        id S1729404AbfKMCRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:17:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729367AbfKMB4F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:56:05 -0500
+        id S1727412AbfKMB4G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:56:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71A8E22473;
-        Wed, 13 Nov 2019 01:56:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4307222CF;
+        Wed, 13 Nov 2019 01:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610164;
-        bh=o2JFch+A6p3gmn/4HgcsJDUv94dfZLgFB7wi3AqrSk8=;
+        s=default; t=1573610166;
+        bh=ETy3/oLlODMF6IqyyikE3r7NS0VCBoZzrTvaSa//SfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybtBZJmkqSLBjs1wYr6uHzEIYNRIdTI9+9PM0uiEiYJWRw1xHUtG+va8CLFdUYiX1
-         lZIKOX/U6wq28gkFLEsj+GBfAM0Isv1caaA8kIjNUeJXgmZYUVuOIMqlfLyPhR+xlf
-         GPuYFMsL92opni2m4yBCW0mtsiC2hidhowqc03eU=
+        b=EavFTl58i4xagNZZMB5z3YiC1bALAzr29wT70OVM2lXTG0Lju8QyNSzw0jnilS7FO
+         W5rUSAOUOfAFd3Dv4yDW5HFXkVCNlIfVJynqHiqZO2tfwrKADUnTjFVAcWZ5JxNe6A
+         Kb/AVhHxk1qh+QTyuCdf5+bE2A+7sxu6VWte0+p0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alan Mikhak <alan.mikhak@sifive.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 206/209] tools: PCI: Fix broken pcitest compilation
-Date:   Tue, 12 Nov 2019 20:50:22 -0500
-Message-Id: <20191113015025.9685-206-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 207/209] powerpc/time: Fix clockevent_decrementer initalisation for PR KVM
+Date:   Tue, 12 Nov 2019 20:50:23 -0500
+Message-Id: <20191113015025.9685-207-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -44,55 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Mikhak <alan.mikhak@sifive.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 8a5e0af240e07dd3d4897eb8ff52aab757da7fab ]
+[ Upstream commit b4d16ab58c41ff0125822464bdff074cebd0fe47 ]
 
-pcitest is currently broken due to the following compiler error
-and related warning. Fix by changing the run_test() function
-signature to return an integer result.
+In the recent commit 8b78fdb045de ("powerpc/time: Use
+clockevents_register_device(), fixing an issue with large
+decrementer") we changed the way we initialise the decrementer
+clockevent(s).
 
-pcitest.c: In function run_test:
-pcitest.c:143:9: warning: return with a value, in function
-returning void
-  return (ret < 0) ? ret : 1 - ret; /* return 0 if test succeeded */
+We no longer initialise the mult & shift values of
+decrementer_clockevent itself.
 
-pcitest.c: In function main:
-pcitest.c:232:9: error: void value not ignored as it ought to be
-  return run_test(test);
+This has the effect of breaking PR KVM, because it uses those values
+in kvmppc_emulate_dec(). The symptom is guest kernels spin forever
+mid-way through boot.
 
-Fixes: fef31ecaaf2c ("tools: PCI: Fix compilation warnings")
-Signed-off-by: Alan Mikhak <alan.mikhak@sifive.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
+For now fix it by assigning back to decrementer_clockevent the mult
+and shift values.
+
+Fixes: 8b78fdb045de ("powerpc/time: Use clockevents_register_device(), fixing an issue with large decrementer")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/pci/pcitest.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/time.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/pci/pcitest.c b/tools/pci/pcitest.c
-index ec4d51f3308b8..4c5be77c211f0 100644
---- a/tools/pci/pcitest.c
-+++ b/tools/pci/pcitest.c
-@@ -47,15 +47,15 @@ struct pci_test {
- 	unsigned long	size;
- };
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index 6a1f0a084ca35..7707990c4c169 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -988,6 +988,10 @@ static void register_decrementer_clockevent(int cpu)
  
--static void run_test(struct pci_test *test)
-+static int run_test(struct pci_test *test)
- {
--	long ret;
-+	int ret = -EINVAL;
- 	int fd;
+ 	printk_once(KERN_DEBUG "clockevent: %s mult[%x] shift[%d] cpu[%d]\n",
+ 		    dec->name, dec->mult, dec->shift, cpu);
++
++	/* Set values for KVM, see kvm_emulate_dec() */
++	decrementer_clockevent.mult = dec->mult;
++	decrementer_clockevent.shift = dec->shift;
+ }
  
- 	fd = open(test->device, O_RDWR);
- 	if (fd < 0) {
- 		perror("can't open PCI Endpoint Test device");
--		return;
-+		return -ENODEV;
- 	}
- 
- 	if (test->barnum >= 0 && test->barnum <= 5) {
+ static void enable_large_decrementer(void)
 -- 
 2.20.1
 
