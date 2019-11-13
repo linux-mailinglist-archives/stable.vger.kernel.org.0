@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14D88FA3AA
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD330FA343
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728195AbfKMCLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:11:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52816 "EHLO mail.kernel.org"
+        id S1730134AbfKMB6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:58:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730123AbfKMB6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:58:49 -0500
+        id S1729090AbfKMB6v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:58:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A67B32053B;
-        Wed, 13 Nov 2019 01:58:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD3552245A;
+        Wed, 13 Nov 2019 01:58:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610328;
-        bh=SGlEMGtMG096loXgaMD0JkGrovumKL9ByZfXDWAIQkg=;
+        s=default; t=1573610330;
+        bh=BS6rKx4QK1VTGB6Ow00xYvFJ4tektkmDu92Gqm0uiNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbQSqM5bcs0h9vN7LsyOBs6J+fHmquRML/5UEV2YEP10E7V8kSWCxdDM8ExVtiGvB
-         2DSrMM1z/2v3YUpVSoc9GQOBbg4WVcO4uCNW0snPQJOV7mMAwfC+i62X9VvgkIbzmT
-         aMYrUB3eQ+LCUm9vMy2RS9fIzDJaDonvDiUqAEts=
+        b=eVvLYY4nybhgtak+2M11OTyUpwSObuZJIzX5aob0+7TrnPI0KxTNNSFEktAjL8YgN
+         Vp4kjI4f8lbVsds2EliWsL9ooJSaOFLKC3RDMyru7Y4gJYK7rZ+UYEWyyFA/K+fGf3
+         n+uOX0EH2eBC146o8quUQH3xMAcOEdgpEgHVqeLA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasily Gorbik <gor@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 087/115] s390/kasan: avoid vdso instrumentation
-Date:   Tue, 12 Nov 2019 20:55:54 -0500
-Message-Id: <20191113015622.11592-87-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Lianbo Jiang <lijiang@redhat.com>,
+        x86@kernel.org, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 088/115] proc/vmcore: Fix i386 build error of missing copy_oldmem_page_encrypted()
+Date:   Tue, 12 Nov 2019 20:55:55 -0500
+Message-Id: <20191113015622.11592-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -43,54 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 348498458505e202df41b6b9a78da448d39298b7 ]
+[ Upstream commit cf089611f4c446285046fcd426d90c18f37d2905 ]
 
-vdso is mapped into user space processes, which won't have kasan
-shodow mapped.
+Lianbo reported a build error with a particular 32-bit config, see Link
+below for details.
 
-Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Provide a weak copy_oldmem_page_encrypted() function which architectures
+can override, in the same manner other functionality in that file is
+supplied.
+
+Reported-by: Lianbo Jiang <lijiang@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+CC: x86@kernel.org
+Link: http://lkml.kernel.org/r/710b9d95-2f70-eadf-c4a1-c3dc80ee4ebb@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vdso32/Makefile | 3 ++-
- arch/s390/kernel/vdso64/Makefile | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ fs/proc/vmcore.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-index 101cadabfc89e..6d87f800b4f2c 100644
---- a/arch/s390/kernel/vdso32/Makefile
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -25,9 +25,10 @@ obj-y += vdso32_wrapper.o
- extra-y += vdso32.lds
- CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 885d445afa0d9..ce400f97370d3 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -164,6 +164,16 @@ int __weak remap_oldmem_pfn_range(struct vm_area_struct *vma,
+ 	return remap_pfn_range(vma, from, pfn, size, prot);
+ }
  
--# Disable gcov profiling and ubsan for VDSO code
-+# Disable gcov profiling, ubsan and kasan for VDSO code
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
- 
- # Force dependency (incbin is bad)
- $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index 36bbafcf4a770..4bc166b8c0cbd 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -25,9 +25,10 @@ obj-y += vdso64_wrapper.o
- extra-y += vdso64.lds
- CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
- 
--# Disable gcov profiling and ubsan for VDSO code
-+# Disable gcov profiling, ubsan and kasan for VDSO code
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
- 
- # Force dependency (incbin is bad)
- $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
++/*
++ * Architectures which support memory encryption override this.
++ */
++ssize_t __weak
++copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
++			   unsigned long offset, int userbuf)
++{
++	return copy_oldmem_page(pfn, buf, csize, offset, userbuf);
++}
++
+ /*
+  * Copy to either kernel or user space
+  */
 -- 
 2.20.1
 
