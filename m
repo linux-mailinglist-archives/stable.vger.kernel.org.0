@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E35FA0DF
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:53:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0AFFA0E1
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 02:53:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728528AbfKMBxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:53:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42838 "EHLO mail.kernel.org"
+        id S1728554AbfKMBxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:53:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728520AbfKMBxS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:53:18 -0500
+        id S1727527AbfKMBxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:53:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0524F222CD;
-        Wed, 13 Nov 2019 01:53:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05C4B222CD;
+        Wed, 13 Nov 2019 01:53:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609997;
-        bh=t/kBS8ZyburwAEd/tWcHp44RfmpPV30AzLZAShq5ZZk=;
+        s=default; t=1573610002;
+        bh=nn7wuo1qLQGHzAKEC4nO1MUzJUASpsgxIwya/ME3rxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ckoux5DLtGj81GLTtHgJg79eDwDZDUjiIRdlKDcwYDTwG8QIuBwZXnw2ZU2gObCmO
-         OvIDPwlCZwgWEH09k1W1SEir/mBrqevNUSqGsj4QoLlyGhv4AEFSQzWpanIgW0oUj5
-         FZV1hxAjfNnzCRu5MZT5oZ/83ekYeUO9WUFbWYvg=
+        b=za+aWDN884a9VARfLObYhCo/v4wHvc31yUgGXprRpcnjWFIEeuo3xgpI9KxkQht7R
+         ub6EoEEDTDoNYK1zdsKedvG/vyTwowpPV+35WnkAgH2GNLrACvHv6JhBingGfJe/yZ
+         sH6kT8CkwNUpYOOfQw5QYfXGyqeESkKrv33FxHIs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 106/209] clk: samsung: Use NOIRQ stage for Exynos5433 clocks suspend/resume
-Date:   Tue, 12 Nov 2019 20:48:42 -0500
-Message-Id: <20191113015025.9685-106-sashal@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 109/209] i2c: brcmstb: Allow enabling the driver on DSL SoCs
+Date:   Tue, 12 Nov 2019 20:48:45 -0500
+Message-Id: <20191113015025.9685-109-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -45,39 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 70da9ee80228e6d98fd68e3c1db124c4461d283c ]
+[ Upstream commit e1eba2ea54a2de0e4c58d87270d25706bb77b844 ]
 
-SoC clock drivers should suspend after every other drivers in the system,
-which are using clocks and resume before them. The last stage for calling
-suspend device callbacks is NOIRQ stage and there exists driver, which use
-that state (dwmmc-exynos), so Exynos5433 clocks driver should also use it.
-During the same stage, clocks driver will be always suspended after its
-clients as a direct result of proper device probe order (deferred probe
-reorders the suspend call sequence).
+ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
+same controller, make it possible to select the STB driver and update
+the Kconfig and help text a bit.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Sylwester Nawrocki <snawrocki@kernel.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-exynos5433.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/Kconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-exynos5433.c b/drivers/clk/samsung/clk-exynos5433.c
-index 162de44df099b..426980514e679 100644
---- a/drivers/clk/samsung/clk-exynos5433.c
-+++ b/drivers/clk/samsung/clk-exynos5433.c
-@@ -5630,7 +5630,7 @@ static const struct of_device_id exynos5433_cmu_of_match[] = {
- static const struct dev_pm_ops exynos5433_cmu_pm_ops = {
- 	SET_RUNTIME_PM_OPS(exynos5433_cmu_suspend, exynos5433_cmu_resume,
- 			   NULL)
--	SET_LATE_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
- 				     pm_runtime_force_resume)
- };
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 8f803812ea244..ee6dd1b84fac8 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -433,12 +433,13 @@ config I2C_BCM_KONA
+ 	  If you do not need KONA I2C interface, say N.
+ 
+ config I2C_BRCMSTB
+-	tristate "BRCM Settop I2C controller"
+-	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
++	tristate "BRCM Settop/DSL I2C controller"
++	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_63XX || \
++		   COMPILE_TEST
+ 	default y
+ 	help
+ 	  If you say yes to this option, support will be included for the
+-	  I2C interface on the Broadcom Settop SoCs.
++	  I2C interface on the Broadcom Settop/DSL SoCs.
+ 
+ 	  If you do not need I2C interface, say N.
  
 -- 
 2.20.1
