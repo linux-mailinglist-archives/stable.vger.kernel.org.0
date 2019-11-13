@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53006FA620
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:27:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 979F7FA62D
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:27:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727612AbfKMBvC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:51:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38214 "EHLO mail.kernel.org"
+        id S1728171AbfKMC1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:27:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727505AbfKMBvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727556AbfKMBvB (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 12 Nov 2019 20:51:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78F85222D3;
-        Wed, 13 Nov 2019 01:50:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8D53222D4;
+        Wed, 13 Nov 2019 01:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609860;
-        bh=cSP2I36sgXizIVf9FnNRZCxT9E+EkRMfG2cJCSFnRmw=;
+        s=default; t=1573609861;
+        bh=jYO8D5McdN9+Q6vkHg8beGmm5RMdUchnT+uUGGGrN10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzXlZLa4mt9tPTQ8oeWRy2OuwyuWhUIBSfNH9qg4j0r8ZvVbveBKhp/8zFivbHQsp
-         /dKCnaz9YFOg0YMJ5JQm5BJeQ7MGXCYHhxRqP1cip53o/M6VbCvKfOjViywct74foT
-         Qg9PodwtuDWjH9FSz4uLYhLJpId0qoox+ztAczOE=
+        b=vdBdfcVM25lQu/N6Yxc8LvAv5JoS4YNsSSR+Ibpb4WMok98PQtREMYw4+LOFgeBG9
+         6iukE57fRr2fuF4q+zLFZ/6Am8q9zxZcmn13BI3IffL4vuVUjwafPE3RuuG1qKH16f
+         GZGBrwXH8J/IoaxtH59SGoxC89seVJYT6B9mP8lQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 026/209] rtlwifi: btcoex: Use proper enumerated types for Wi-Fi only interface
-Date:   Tue, 12 Nov 2019 20:47:22 -0500
-Message-Id: <20191113015025.9685-26-sashal@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-ide@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 027/209] ata: ahci_brcm: Match BCM63138 compatible strings
+Date:   Tue, 12 Nov 2019 20:47:23 -0500
+Message-Id: <20191113015025.9685-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -46,68 +43,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 31138a827d1b3d6e4855bddb5a1e44e7b32309c0 ]
+[ Upstream commit fb8506f15f2e394f5f648575cf48a26e8744390c ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+Match the "brcm,bcm63138-ahci" compatible string in order to allow this
+driver to probe on such platforms.
 
-drivers/net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c:1327:34:
-warning: implicit conversion from enumeration type 'enum
-btc_chip_interface' to different enumeration type 'enum
-wifionly_chip_interface' [-Wenum-conversion]
-                wifionly_cfg->chip_interface = BTC_INTF_PCI;
-                                             ~ ^~~~~~~~~~~~
-drivers/net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c:1330:34:
-warning: implicit conversion from enumeration type 'enum
-btc_chip_interface' to different enumeration type 'enum
-wifionly_chip_interface' [-Wenum-conversion]
-                wifionly_cfg->chip_interface = BTC_INTF_USB;
-                                             ~ ^~~~~~~~~~~~
-drivers/net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c:1333:34:
-warning: implicit conversion from enumeration type 'enum
-btc_chip_interface' to different enumeration type 'enum
-wifionly_chip_interface' [-Wenum-conversion]
-                wifionly_cfg->chip_interface = BTC_INTF_UNKNOWN;
-                                             ~ ^~~~~~~~~~~~~~~~
-3 warnings generated.
-
-Use the values from the correct enumerated type, wifionly_chip_interface.
-
-BTC_INTF_UNKNOWN = WIFIONLY_INTF_UNKNOWN = 0
-BTC_INTF_PCI = WIFIONLY_INTF_PCI = 1
-BTC_INTF_USB = WIFIONLY_INTF_USB = 2
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/135
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c   | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/ata/ahci_brcm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c b/drivers/net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c
-index b026e80940a4d..6fbf8845a2ab6 100644
---- a/drivers/net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/btcoexist/halbtcoutsrc.c
-@@ -1324,13 +1324,13 @@ bool exhalbtc_initlize_variables_wifi_only(struct rtl_priv *rtlpriv)
- 
- 	switch (rtlpriv->rtlhal.interface) {
- 	case INTF_PCI:
--		wifionly_cfg->chip_interface = BTC_INTF_PCI;
-+		wifionly_cfg->chip_interface = WIFIONLY_INTF_PCI;
- 		break;
- 	case INTF_USB:
--		wifionly_cfg->chip_interface = BTC_INTF_USB;
-+		wifionly_cfg->chip_interface = WIFIONLY_INTF_USB;
- 		break;
- 	default:
--		wifionly_cfg->chip_interface = BTC_INTF_UNKNOWN;
-+		wifionly_cfg->chip_interface = WIFIONLY_INTF_UNKNOWN;
- 		break;
- 	}
- 
+diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
+index f3d557777d829..898792d661e56 100644
+--- a/drivers/ata/ahci_brcm.c
++++ b/drivers/ata/ahci_brcm.c
+@@ -381,6 +381,7 @@ static struct scsi_host_template ahci_platform_sht = {
+ static const struct of_device_id ahci_of_match[] = {
+ 	{.compatible = "brcm,bcm7425-ahci", .data = (void *)BRCM_SATA_BCM7425},
+ 	{.compatible = "brcm,bcm7445-ahci", .data = (void *)BRCM_SATA_BCM7445},
++	{.compatible = "brcm,bcm63138-ahci", .data = (void *)BRCM_SATA_BCM7445},
+ 	{.compatible = "brcm,bcm-nsp-ahci", .data = (void *)BRCM_SATA_NSP},
+ 	{},
+ };
 -- 
 2.20.1
 
