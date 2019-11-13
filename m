@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72659FA52D
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD44FFA524
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:21:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728686AbfKMCVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:21:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44148 "EHLO mail.kernel.org"
+        id S1728734AbfKMByB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:54:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728715AbfKMBx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:53:57 -0500
+        id S1728723AbfKMBx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:53:59 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C30D222CD;
-        Wed, 13 Nov 2019 01:53:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 055A2222D3;
+        Wed, 13 Nov 2019 01:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610036;
-        bh=O9BZEa+lLR5bwZmlseIeh3+YuqfpBsd14SJ2ClPgozA=;
+        s=default; t=1573610038;
+        bh=VIMaAfth/Y/IlP5VCI9SmKGkfzw3jp29bSCwyGKtv9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TCK9Vopcrepn1iPOCYiQAgfKTLXaWj0bBFjuqQx0tFN47mXSbOSlVMWZqGsBeEFQJ
-         y22H2ww7gYSy0hEDhdF4fRPxRs5rQ9DNWhg6R0Yn89M5MRxC7bQj5vTujQpsmbwpCo
-         qLGhlhC3M8jpET39hJzbJInPCVzSAGTD0M+ih/KU=
+        b=aA1WK4Rb58OUNhbf7EMJf2C2Ese6+fN7mLNb9xld28a+8zOj+yyq0J/HL7pnp1+FW
+         ZE1aaE9ItotUpNvAiD+1u4ZmWKXeyIYQkRzW7QfXrFt+fVD4ybyGv2sc7LMbGtDK9o
+         I4Dl75lxaMooSr4AvJ/4ZLZcGOckDc2py+azmQDE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Lubomir Rintel <lkundrak@v3.sk>,
-        x86@kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 128/209] x86/olpc: Fix build error with CONFIG_MFD_CS5535=m
-Date:   Tue, 12 Nov 2019 20:49:04 -0500
-Message-Id: <20191113015025.9685-128-sashal@kernel.org>
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 129/209] dmaengine: rcar-dmac: set scatter/gather max segment size
+Date:   Tue, 12 Nov 2019 20:49:05 -0500
+Message-Id: <20191113015025.9685-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -42,45 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit fa112cf1e8bc693d5a666b1c479a2859c8b6e0f1 ]
+[ Upstream commit 97d49c59e219acac576e16293a6b8cb99302f62f ]
 
-When building a 32-bit config which has the above MFD item as module
-but OLPC_XO1_PM is enabled =y - which is bool, btw - the kernel fails
-building with:
+Fix warning when running with CONFIG_DMA_API_DEBUG_SG=y by allocating a
+device_dma_parameters structure and filling in the max segment size.
 
-  ld: arch/x86/platform/olpc/olpc-xo1-pm.o: in function `xo1_pm_remove':
-  /home/boris/kernel/linux/arch/x86/platform/olpc/olpc-xo1-pm.c:159: undefined reference to `mfd_cell_disable'
-  ld: arch/x86/platform/olpc/olpc-xo1-pm.o: in function `xo1_pm_probe':
-  /home/boris/kernel/linux/arch/x86/platform/olpc/olpc-xo1-pm.c:133: undefined reference to `mfd_cell_enable'
-  make: *** [Makefile:1030: vmlinux] Error 1
-
-Force MFD_CS5535 to y if OLPC_XO1_PM is enabled.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Lubomir Rintel <lkundrak@v3.sk>
-Cc: x86@kernel.org
-Link: http://lkml.kernel.org/r/20181005131750.GA5366@zn.tnic
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Kconfig | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/dma/sh/rcar-dmac.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index e76d16ac27764..d7bcc9f702bea 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -2726,8 +2726,7 @@ config OLPC
+diff --git a/drivers/dma/sh/rcar-dmac.c b/drivers/dma/sh/rcar-dmac.c
+index 041ce864097e4..80ff95f75199f 100644
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -198,6 +198,7 @@ struct rcar_dmac {
+ 	struct dma_device engine;
+ 	struct device *dev;
+ 	void __iomem *iomem;
++	struct device_dma_parameters parms;
  
- config OLPC_XO1_PM
- 	bool "OLPC XO-1 Power Management"
--	depends on OLPC && MFD_CS5535 && PM_SLEEP
--	select MFD_CORE
-+	depends on OLPC && MFD_CS5535=y && PM_SLEEP
- 	---help---
- 	  Add support for poweroff and suspend of the OLPC XO-1 laptop.
+ 	unsigned int n_channels;
+ 	struct rcar_dmac_chan *channels;
+@@ -1814,6 +1815,8 @@ static int rcar_dmac_probe(struct platform_device *pdev)
  
+ 	dmac->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, dmac);
++	dmac->dev->dma_parms = &dmac->parms;
++	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
+ 	dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
+ 
+ 	ret = rcar_dmac_parse_of(&pdev->dev, dmac);
 -- 
 2.20.1
 
