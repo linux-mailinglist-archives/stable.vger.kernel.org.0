@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AF08FA29C
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:05:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4808FA28F
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:04:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728336AbfKMCEd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:04:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58386 "EHLO mail.kernel.org"
+        id S1729118AbfKMCE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:04:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730936AbfKMCCE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:02:04 -0500
+        id S1730923AbfKMCCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:02:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 407CF206B6;
-        Wed, 13 Nov 2019 02:02:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C67420674;
+        Wed, 13 Nov 2019 02:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610523;
-        bh=iufa2eP/TUMfHuSqsOfMqcEWWdjpkgEBSDuAnm64Qv0=;
+        s=default; t=1573610525;
+        bh=pWTdI8S1UQ1b52XHBqdaoaV7qebei0fVVdclrYBmvxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbzZne8QIhXb6SuhMkxZ74u6PL3p7Xx/bv8GoVcEqr10desssU3egoJfw4UrI1d8N
-         nHmRPeYRIH/9aRpZHpGGd2/SsDcR3GACF4pVM4kLI0K771bpzjChDOsiRQcE+7css7
-         ZFEK0rkBnGR/A44bp3PFbV717EsPng0MjbdtvxV4=
+        b=J074b9V+bldrNc4O7WXyBtecnzUrKEXPvCvMyIN1eZo/KkS6LngU56MoaCQ9podGs
+         C0nxHzjUf+vGLLYKSzpkOK6Y//8t9VCoKz43mVHxUrYnHcZppMnZ1Yxi2XFu8u7mJ2
+         oFEiA89oSqzF9g/wHLG23E9CNP12k3621T7sCWnY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Pobega <mpobega@neverware.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 20/48] ALSA: hda/sigmatel - Disable automute for Elo VuPoint
-Date:   Tue, 12 Nov 2019 21:01:03 -0500
-Message-Id: <20191113020131.13356-20-sashal@kernel.org>
+Cc:     Cameron Kaiser <spectre@floodgap.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.4 21/48] KVM: PPC: Book3S PR: Exiting split hack mode needs to fixup both PC and LR
+Date:   Tue, 12 Nov 2019 21:01:04 -0500
+Message-Id: <20191113020131.13356-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113020131.13356-1-sashal@kernel.org>
 References: <20191113020131.13356-1-sashal@kernel.org>
@@ -42,83 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Pobega <mpobega@neverware.com>
+From: Cameron Kaiser <spectre@floodgap.com>
 
-[ Upstream commit d153135e93a50cdb6f1b52e238909e9965b56056 ]
+[ Upstream commit 1006284c5e411872333967b1970c2ca46a9e225f ]
 
-The Elo VuPoint 15MX has two headphone jacks of which neither work by
-default. Disabling automute allows ALSA to work normally with the
-speakers & left headphone jack.
+When an OS (currently only classic Mac OS) is running in KVM-PR and makes a
+linked jump from code with split hack addressing enabled into code that does
+not, LR is not correctly updated and reflects the previously munged PC.
 
-Future pin configuration changes may be required in the future to get
-the right headphone jack working in tandem.
+To fix this, this patch undoes the address munge when exiting split
+hack mode so that code relying on LR being a proper address will now
+execute. This does not affect OS X or other operating systems running
+on KVM-PR.
 
-Signed-off-by: Michael Pobega <mpobega@neverware.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Cameron Kaiser <spectre@floodgap.com>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_sigmatel.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ arch/powerpc/kvm/book3s.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/pci/hda/patch_sigmatel.c b/sound/pci/hda/patch_sigmatel.c
-index 0abab7926dca3..d1a6d20ace0da 100644
---- a/sound/pci/hda/patch_sigmatel.c
-+++ b/sound/pci/hda/patch_sigmatel.c
-@@ -77,6 +77,7 @@ enum {
- 	STAC_DELL_M6_BOTH,
- 	STAC_DELL_EQ,
- 	STAC_ALIENWARE_M17X,
-+	STAC_ELO_VUPOINT_15MX,
- 	STAC_92HD89XX_HP_FRONT_JACK,
- 	STAC_92HD89XX_HP_Z1_G2_RIGHT_MIC_JACK,
- 	STAC_92HD73XX_ASUS_MOBO,
-@@ -1875,6 +1876,18 @@ static void stac92hd73xx_fixup_no_jd(struct hda_codec *codec,
- 		codec->no_jack_detect = 1;
+diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
+index 4aab1c9c83e1a..41ac54bfdfdd9 100644
+--- a/arch/powerpc/kvm/book3s.c
++++ b/arch/powerpc/kvm/book3s.c
+@@ -70,8 +70,11 @@ void kvmppc_unfixup_split_real(struct kvm_vcpu *vcpu)
+ {
+ 	if (vcpu->arch.hflags & BOOK3S_HFLAG_SPLIT_HACK) {
+ 		ulong pc = kvmppc_get_pc(vcpu);
++		ulong lr = kvmppc_get_lr(vcpu);
+ 		if ((pc & SPLIT_HACK_MASK) == SPLIT_HACK_OFFS)
+ 			kvmppc_set_pc(vcpu, pc & ~SPLIT_HACK_MASK);
++		if ((lr & SPLIT_HACK_MASK) == SPLIT_HACK_OFFS)
++			kvmppc_set_lr(vcpu, lr & ~SPLIT_HACK_MASK);
+ 		vcpu->arch.hflags &= ~BOOK3S_HFLAG_SPLIT_HACK;
+ 	}
  }
- 
-+
-+static void stac92hd73xx_disable_automute(struct hda_codec *codec,
-+				     const struct hda_fixup *fix, int action)
-+{
-+	struct sigmatel_spec *spec = codec->spec;
-+
-+	if (action != HDA_FIXUP_ACT_PRE_PROBE)
-+		return;
-+
-+	spec->gen.suppress_auto_mute = 1;
-+}
-+
- static const struct hda_fixup stac92hd73xx_fixups[] = {
- 	[STAC_92HD73XX_REF] = {
- 		.type = HDA_FIXUP_FUNC,
-@@ -1900,6 +1913,10 @@ static const struct hda_fixup stac92hd73xx_fixups[] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = stac92hd73xx_fixup_alienware_m17x,
- 	},
-+	[STAC_ELO_VUPOINT_15MX] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = stac92hd73xx_disable_automute,
-+	},
- 	[STAC_92HD73XX_INTEL] = {
- 		.type = HDA_FIXUP_PINS,
- 		.v.pins = intel_dg45id_pin_configs,
-@@ -1938,6 +1955,7 @@ static const struct hda_model_fixup stac92hd73xx_models[] = {
- 	{ .id = STAC_DELL_M6_BOTH, .name = "dell-m6" },
- 	{ .id = STAC_DELL_EQ, .name = "dell-eq" },
- 	{ .id = STAC_ALIENWARE_M17X, .name = "alienware" },
-+	{ .id = STAC_ELO_VUPOINT_15MX, .name = "elo-vupoint-15mx" },
- 	{ .id = STAC_92HD73XX_ASUS_MOBO, .name = "asus-mobo" },
- 	{}
- };
-@@ -1987,6 +2005,8 @@ static const struct snd_pci_quirk stac92hd73xx_fixup_tbl[] = {
- 		      "Alienware M17x", STAC_ALIENWARE_M17X),
- 	SND_PCI_QUIRK(PCI_VENDOR_ID_DELL, 0x0490,
- 		      "Alienware M17x R3", STAC_DELL_EQ),
-+	SND_PCI_QUIRK(0x1059, 0x1011,
-+		      "ELO VuPoint 15MX", STAC_ELO_VUPOINT_15MX),
- 	SND_PCI_QUIRK(PCI_VENDOR_ID_HP, 0x1927,
- 				"HP Z1 G2", STAC_92HD89XX_HP_Z1_G2_RIGHT_MIC_JACK),
- 	SND_PCI_QUIRK(PCI_VENDOR_ID_HP, 0x2b17,
 -- 
 2.20.1
 
