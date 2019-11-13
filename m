@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A9BC2FA540
+	by mail.lfdr.de (Postfix) with ESMTP id 3FE2BFA53F
 	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:22:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728656AbfKMBxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:53:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43666 "EHLO mail.kernel.org"
+        id S1728662AbfKMBxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:53:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728652AbfKMBxm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:53:42 -0500
+        id S1727561AbfKMBxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:53:44 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F383222CD;
-        Wed, 13 Nov 2019 01:53:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82062222D3;
+        Wed, 13 Nov 2019 01:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610022;
-        bh=NouXRorkRrtpgDixB7XImri5OC4Rykp1q93l1bDDyYU=;
+        s=default; t=1573610023;
+        bh=j1xtx9yjAgRktUtejvRwP+MnUo+B8NrgqFSuVJrAbdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pcg1bHC1Z2DASpuAe678wbG2I95Unqb1w9un7phbNKO6BxJc1VJDvUtmilQLwuDWa
-         VrXdwHKfg6tVDkQFCw+w0ww9bZvtEyqxZW28/RW4xNoTZ6d5Cnhc9myoO6V86E3cuF
-         vIMp9VR0FulJ4JVnAx8J54XQbn0vdmZbF/kWBLOM=
+        b=e+kOh8iElHlaNSAc/FSBbT4fvsRwcnb3WKbOk9UIEDL6BRFDr2KhYBMDsRaGT3ndh
+         Bi2fiZcPKWnWQoBEBmVCa0qm7O4/ezsB64zFqCePCrYbl6ot/qKSGq/B1hsR6Rg78C
+         /mZrpHVCaMD7d14s+3bqhxmOX891TWDHHIMg630Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Laurentiu Tudor <laurentiu.tudor@nxp.com>,
-        Li Yang <leoyang.li@nxp.com>, Sasha Levin <sashal@kernel.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 122/209] soc: fsl: bman_portals: defer probe after bman's probe
-Date:   Tue, 12 Nov 2019 20:48:58 -0500
-Message-Id: <20191113015025.9685-122-sashal@kernel.org>
+Cc:     Jian Shen <shenjian15@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 123/209] net: hns3: Fix for rx vlan id handle to support Rev 0x21 hardware
+Date:   Tue, 12 Nov 2019 20:48:59 -0500
+Message-Id: <20191113015025.9685-123-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -43,46 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurentiu Tudor <laurentiu.tudor@nxp.com>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit e0940b34c40e95d1879691d2474d182c57aae0de ]
+[ Upstream commit 701a6d6ac78c76083ddb7c6581fdbedd95093e11 ]
 
-A crash in bman portal probing could not be triggered (as is the case
-with qman portals) but it does make calls [1] into the bman driver so
-lets make sure the bman portal probing happens after bman's.
+In revision 0x20, we use vlan id != 0 to check whether a vlan tag
+has been offloaded, so vlan id 0 is not supported.
 
-[1]  bman_p_irqsource_add() (in bman) called by:
-       init_pcfg() called by:
-         bman_portal_probe()
+In revision 0x21, rx buffer descriptor adds two bits to indicate
+whether one or more vlan tags have been offloaded, so vlan id 0
+is valid now.
 
-Signed-off-by: Laurentiu Tudor <laurentiu.tudor@nxp.com>
-Signed-off-by: Li Yang <leoyang.li@nxp.com>
+This patch seperates the handle for vlan id 0, add vlan id 0 support
+for revision 0x21.
+
+Fixes: 5b5455a9ed5a ("net: hns3: Add STRP_TAGP field support for hardware revision 0x21")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/fsl/qbman/bman_portal.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 30 ++++++++-----------
+ 1 file changed, 13 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/soc/fsl/qbman/bman_portal.c b/drivers/soc/fsl/qbman/bman_portal.c
-index 2f71f7df3465a..f9edd28894fda 100644
---- a/drivers/soc/fsl/qbman/bman_portal.c
-+++ b/drivers/soc/fsl/qbman/bman_portal.c
-@@ -91,7 +91,15 @@ static int bman_portal_probe(struct platform_device *pdev)
- 	struct device_node *node = dev->of_node;
- 	struct bm_portal_config *pcfg;
- 	struct resource *addr_phys[2];
--	int irq, cpu;
-+	int irq, cpu, err;
-+
-+	err = bman_is_probed();
-+	if (!err)
-+		return -EPROBE_DEFER;
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "failing probe due to bman probe error\n");
-+		return -ENODEV;
-+	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 15030df574a8b..e11a7de20b8f4 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -2124,18 +2124,18 @@ static void hns3_rx_skb(struct hns3_enet_ring *ring, struct sk_buff *skb)
+ 	napi_gro_receive(&ring->tqp_vector->napi, skb);
+ }
  
- 	pcfg = devm_kmalloc(dev, sizeof(*pcfg), GFP_KERNEL);
- 	if (!pcfg)
+-static u16 hns3_parse_vlan_tag(struct hns3_enet_ring *ring,
+-			       struct hns3_desc *desc, u32 l234info)
++static bool hns3_parse_vlan_tag(struct hns3_enet_ring *ring,
++				struct hns3_desc *desc, u32 l234info,
++				u16 *vlan_tag)
+ {
+ 	struct pci_dev *pdev = ring->tqp->handle->pdev;
+-	u16 vlan_tag;
+ 
+ 	if (pdev->revision == 0x20) {
+-		vlan_tag = le16_to_cpu(desc->rx.ot_vlan_tag);
+-		if (!(vlan_tag & VLAN_VID_MASK))
+-			vlan_tag = le16_to_cpu(desc->rx.vlan_tag);
++		*vlan_tag = le16_to_cpu(desc->rx.ot_vlan_tag);
++		if (!(*vlan_tag & VLAN_VID_MASK))
++			*vlan_tag = le16_to_cpu(desc->rx.vlan_tag);
+ 
+-		return vlan_tag;
++		return (*vlan_tag != 0);
+ 	}
+ 
+ #define HNS3_STRP_OUTER_VLAN	0x1
+@@ -2144,17 +2144,14 @@ static u16 hns3_parse_vlan_tag(struct hns3_enet_ring *ring,
+ 	switch (hnae3_get_field(l234info, HNS3_RXD_STRP_TAGP_M,
+ 				HNS3_RXD_STRP_TAGP_S)) {
+ 	case HNS3_STRP_OUTER_VLAN:
+-		vlan_tag = le16_to_cpu(desc->rx.ot_vlan_tag);
+-		break;
++		*vlan_tag = le16_to_cpu(desc->rx.ot_vlan_tag);
++		return true;
+ 	case HNS3_STRP_INNER_VLAN:
+-		vlan_tag = le16_to_cpu(desc->rx.vlan_tag);
+-		break;
++		*vlan_tag = le16_to_cpu(desc->rx.vlan_tag);
++		return true;
+ 	default:
+-		vlan_tag = 0;
+-		break;
++		return false;
+ 	}
+-
+-	return vlan_tag;
+ }
+ 
+ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring,
+@@ -2256,8 +2253,7 @@ static int hns3_handle_rx_bd(struct hns3_enet_ring *ring,
+ 	if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX) {
+ 		u16 vlan_tag;
+ 
+-		vlan_tag = hns3_parse_vlan_tag(ring, desc, l234info);
+-		if (vlan_tag & VLAN_VID_MASK)
++		if (hns3_parse_vlan_tag(ring, desc, l234info, &vlan_tag))
+ 			__vlan_hwaccel_put_tag(skb,
+ 					       htons(ETH_P_8021Q),
+ 					       vlan_tag);
 -- 
 2.20.1
 
