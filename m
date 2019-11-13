@@ -2,175 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52C89FBA23
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 21:43:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACA1DFBAEC
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 22:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726210AbfKMUnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 15:43:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55116 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726162AbfKMUnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 13 Nov 2019 15:43:13 -0500
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76FB2206E6;
-        Wed, 13 Nov 2019 20:43:12 +0000 (UTC)
-Date:   Wed, 13 Nov 2019 15:43:09 -0500
-From:   Steven Rostedt <rostedt@goodmis.org>
-To:     "Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <Alexander.Levin@microsoft.com>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] ARM: ftrace/recordmcount: filter relocation types
-Message-ID: <20191113154309.5d333f8c@gandalf.local.home>
-In-Reply-To: <20191106154209.118919-1-alexander.sverdlin@nokia.com>
-References: <20191106154209.118919-1-alexander.sverdlin@nokia.com>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        id S1726291AbfKMViM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 16:38:12 -0500
+Received: from mail-qv1-f67.google.com ([209.85.219.67]:37662 "EHLO
+        mail-qv1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726251AbfKMViM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 16:38:12 -0500
+Received: by mail-qv1-f67.google.com with SMTP id s18so1488373qvr.4
+        for <stable@vger.kernel.org>; Wed, 13 Nov 2019 13:38:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rajagiritech-edu-in.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=1jdNYztEtxc8SfImaEzyFgaa9SQwFgVwrspdhS4uESk=;
+        b=TPR3K/r6XvAteM0JaP1KBWpEhwecRZn365xgRo1ztlHHa9PEx2ccIhE0TiFliRhSjH
+         KIQEYNuzL4kpccd5YK/E+EuSgRU/FHPNGINMda/SoLoCn31bprYoJ8rUYMUp/+sSmPyy
+         IaYC7/Was/5vsDwGWDBCa01+/LDhIIBnrZfouRADWLT4xEq72wQcBF6RKtbzTPOsaMxL
+         cY4FELOeE4rCvgZFGzox3YZbmNp+D8AGSPnOoZvMohgJcRSv9NIY5pn886ctjgaIC3Su
+         XU8UGnWIty+CbanQSLN3Npb4xcYtxlidFhqspHOlg2BfCmM1Qt2JWHQiVqOc6q8dq3oO
+         LIQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=1jdNYztEtxc8SfImaEzyFgaa9SQwFgVwrspdhS4uESk=;
+        b=YKvgQA8TV/LIwYYirILwjPqyHSuBG+fLO5Mtqv93WMeIY3X8oOlVT2YWH9s3DsaCGu
+         D9qbaAMcFIDIt1XDK3v0rG51GVIgHldRFxvTz5+3jJNWVo7O5+EKxfPMZ+4S6hNzjYqv
+         G+9zbtFWTo8AbLXNxB4/z/QtDunufxqCcqz0rmOzoCcWle28/+NqPDj7ajYdfQGJ0mCS
+         u3LJXPLWL5i24hZclX5d70g0+5yRKjBnZeSUwLtO7MaVCmAjc6q8qKW51lZiw0TfvXhp
+         tDIqgaIe9q3Ty3+s7XiNcwpd24ibOlFwLR4Vj2TrspzthestkXMHxkVf9asOGtGE2RG3
+         AyjQ==
+X-Gm-Message-State: APjAAAUsvCumEKpJPmutXqqdm6LVrj9f0jtWPD1/estYDDKYmEK68lgc
+        C73X2+0Gax1iomGyIBPxN6qtNI4Vl1PUh3W2on4l8Q==
+X-Google-Smtp-Source: APXvYqzBPtxmCxOGVmM3ecLjmVJEpWoL2fFkW94ZVkNcjD0QBsupbILPe/9QBBSkDQZNDqOl0hwctTXuQqReOk0/sII=
+X-Received: by 2002:a0c:9637:: with SMTP id 52mr4897544qvx.174.1573681091430;
+ Wed, 13 Nov 2019 13:38:11 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20191112223300.GA17891@debian> <20191113013026.GO8496@sasha-vm>
+In-Reply-To: <20191113013026.GO8496@sasha-vm>
+From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
+Date:   Thu, 14 Nov 2019 03:07:35 +0530
+Message-ID: <CAG=yYwnJKcriaHcZFFrznxq1V9-ZcLzC-O=fAhQ6Skmn4eFPAg@mail.gmail.com>
+Subject: Re: PROBLEM: objtool: __x64_sys_exit_group()+0x14: unreachable instruction
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>, oleg@redhat.com,
+        christian@brauner.io, tj@kernel.org, peterz@infradead.org,
+        prsood@codeaurora.org, avagin@gmail.com, aarcange@redhat.com,
+        lkml <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        "Mr. Jeffrin Jose" <jeffrin@rajagiritech.edu.in>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 6 Nov 2019 15:42:24 +0000
-"Sverdlin, Alexander (Nokia - DE/Ulm)" <alexander.sverdlin@nokia.com>
-wrote:
+On Wed, Nov 13, 2019 at 7:00 AM Sasha Levin <sashal@kernel.org> wrote:
+> Could you bisect it please? I'm not seeing the warning here, and
+> kernel/exit.c wasn't touched during the life of the 5.3 stable tree.
 
-> From: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-> 
-> Scenario 1, ARMv7
-> =================
-> 
-> If code in arch/arm/kernel/ftrace.c would operate on mcount() pointer
-> the following may be generated:
-> 
-> 00000230 <prealloc_fixed_plts>:
->  230:   b5f8            push    {r3, r4, r5, r6, r7, lr}
->  232:   b500            push    {lr}
->  234:   f7ff fffe       bl      0 <__gnu_mcount_nc>
->                         234: R_ARM_THM_CALL     __gnu_mcount_nc
->  238:   f240 0600       movw    r6, #0
->                         238: R_ARM_THM_MOVW_ABS_NC      __gnu_mcount_nc
->  23c:   f8d0 1180       ldr.w   r1, [r0, #384]  ; 0x180
-> 
-> FTRACE currently is not able to deal with it:
-> 
-> WARNING: CPU: 0 PID: 0 at .../kernel/trace/ftrace.c:1979 ftrace_bug+0x1ad/0x230()
-> ...
-> CPU: 0 PID: 0 Comm: swapper/0 Not tainted 4.4.116-... #1
-> ...
-> [<c0314e3d>] (unwind_backtrace) from [<c03115e9>] (show_stack+0x11/0x14)
-> [<c03115e9>] (show_stack) from [<c051a7f1>] (dump_stack+0x81/0xa8)
-> [<c051a7f1>] (dump_stack) from [<c0321c5d>] (warn_slowpath_common+0x69/0x90)
-> [<c0321c5d>] (warn_slowpath_common) from [<c0321cf3>] (warn_slowpath_null+0x17/0x1c)
-> [<c0321cf3>] (warn_slowpath_null) from [<c038ee9d>] (ftrace_bug+0x1ad/0x230)
-> [<c038ee9d>] (ftrace_bug) from [<c038f1f9>] (ftrace_process_locs+0x27d/0x444)
-> [<c038f1f9>] (ftrace_process_locs) from [<c08915bd>] (ftrace_init+0x91/0xe8)
-> [<c08915bd>] (ftrace_init) from [<c0885a67>] (start_kernel+0x34b/0x358)
-> [<c0885a67>] (start_kernel) from [<00308095>] (0x308095)
-> ---[ end trace cb88537fdc8fa200 ]---
-> ftrace failed to modify [<c031266c>] prealloc_fixed_plts+0x8/0x60
->  actual: 44:f2:e1:36
-> ftrace record flags: 0
->  (0)   expected tramp: c03143e9
-> 
-> Scenario 2, ARMv4T
-> ==================
-> 
-> ftrace: allocating 14435 entries in 43 pages
-> ------------[ cut here ]------------
-> WARNING: CPU: 0 PID: 0 at kernel/trace/ftrace.c:2029 ftrace_bug+0x204/0x310
-> CPU: 0 PID: 0 Comm: swapper Not tainted 4.19.5 #1
-> Hardware name: Cirrus Logic EDB9302 Evaluation Board
-> [<c0010a24>] (unwind_backtrace) from [<c000ecb0>] (show_stack+0x20/0x2c)
-> [<c000ecb0>] (show_stack) from [<c03c72e8>] (dump_stack+0x20/0x30)
-> [<c03c72e8>] (dump_stack) from [<c0021c18>] (__warn+0xdc/0x104)
-> [<c0021c18>] (__warn) from [<c0021d7c>] (warn_slowpath_null+0x4c/0x5c)
-> [<c0021d7c>] (warn_slowpath_null) from [<c0095360>] (ftrace_bug+0x204/0x310)
-> [<c0095360>] (ftrace_bug) from [<c04dabac>] (ftrace_init+0x3b4/0x4d4)
-> [<c04dabac>] (ftrace_init) from [<c04cef4c>] (start_kernel+0x20c/0x410)
-> [<c04cef4c>] (start_kernel) from [<00000000>] (  (null))
-> ---[ end trace 0506a2f5dae6b341 ]---
-> ftrace failed to modify
-> [<c000c350>] perf_trace_sys_exit+0x5c/0xe8
->  actual:   1e:ff:2f:e1
-> Initializing ftrace call sites
-> ftrace record flags: 0
->  (0)
->  expected tramp: c000fb24
-> 
-> The analysis for this problem has been already performed previously,
-> refer to the link below.
-> 
-> Fix the above problems by allowing only selected reloc types in
-> __mcount_loc. The list itself comes from the legacy recordmcount.pl
-> script.
-> 
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/lkml/56961010.6000806@pengutronix.de/
-> Fixes: ed60453fa8 ("ARM: 6511/1: ftrace: add ARM support for C version of recordmcount")
-> Signed-off-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
 
-Acked-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+I tried  using related to  "git bisect"  and managed to  check based
+on kernel revision related. The warning existed even on 5.3.5 and
+may be even back . i think may be it  is a compiler issue which creates
+the warning and not the kernel.
 
-Feel free to take this in whatever tree you want.
 
--- Steve
-
-> 
-> ---
-> Changelog:
-> v2: Rebased
-> 
->  scripts/recordmcount.c | 17 +++++++++++++++++
->  1 file changed, 17 insertions(+)
-> 
-> diff --git a/scripts/recordmcount.c b/scripts/recordmcount.c
-> index 612268e..6872d26 100644
-> --- a/scripts/recordmcount.c
-> +++ b/scripts/recordmcount.c
-> @@ -38,6 +38,10 @@
->  #define R_AARCH64_ABS64	257
->  #endif
->  
-> +#define R_ARM_PC24		1
-> +#define R_ARM_THM_CALL		10
-> +#define R_ARM_CALL		28
-> +
->  static int fd_map;	/* File descriptor for file being modified. */
->  static int mmap_failed; /* Boolean flag. */
->  static char gpfx;	/* prefix for global symbol name (sometimes '_') */
-> @@ -418,6 +422,18 @@ static char const *already_has_rel_mcount = "success"; /* our work here is done!
->  #define RECORD_MCOUNT_64
->  #include "recordmcount.h"
->  
-> +static int arm_is_fake_mcount(Elf32_Rel const *rp)
-> +{
-> +	switch (ELF32_R_TYPE(w(rp->r_info))) {
-> +	case R_ARM_THM_CALL:
-> +	case R_ARM_CALL:
-> +	case R_ARM_PC24:
-> +		return 0;
-> +	}
-> +
-> +	return 1;
-> +}
-> +
->  /* 64-bit EM_MIPS has weird ELF64_Rela.r_info.
->   * http://techpubs.sgi.com/library/manuals/4000/007-4658-001/pdf/007-4658-001.pdf
->   * We interpret Table 29 Relocation Operation (Elf64_Rel, Elf64_Rela) [p.40]
-> @@ -523,6 +539,7 @@ static int do_file(char const *const fname)
->  		altmcount = "__gnu_mcount_nc";
->  		make_nop = make_nop_arm;
->  		rel_type_nop = R_ARM_NONE;
-> +		is_fake_mcount32 = arm_is_fake_mcount;
->  		gpfx = 0;
->  		break;
->  	case EM_AARCH64:
-
+-- 
+software engineer
+rajagiri school of engineering and technology
