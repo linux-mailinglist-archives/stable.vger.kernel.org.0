@@ -2,207 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51352FB546
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 17:37:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1AB8FB585
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 17:46:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727493AbfKMQho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 13 Nov 2019 11:37:44 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:23450 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726410AbfKMQho (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 11:37:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1573663062;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-        bh=ElVWHe0E2GsnNdVieMJ9C/aI719WWsQzksx8uzxZwi8=;
-        b=OkOzVU8L/ykOVT+cAL6lyn+Mmxe0jyAKIcR675WMCB9i9ug0eYuNq+wuYqJaagk7F4yKln
-        lJO96D7CT7i2YQZ3CcoTdNR0286AQO5UpJVG/KZsj6dngIZb/Hs6WASGjJX7n7gLWbSP1l
-        vAT2ebsWvmxArEp90iwwHikthVp/PEE=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-71-jLDv7rF7OlWr1KL5gY8GiA-1; Wed, 13 Nov 2019 11:37:40 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7210B18C6E8E;
-        Wed, 13 Nov 2019 16:37:39 +0000 (UTC)
-Received: from [10.36.117.236] (ovpn-117-236.ams2.redhat.com [10.36.117.236])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3ADA460C88;
-        Wed, 13 Nov 2019 16:37:35 +0000 (UTC)
-Subject: Re: [PATCH v2] virtio_console: allocate inbufs in add_port() only if
- it is needed
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Amit Shah <amit@kernel.org>,
-        virtualization@lists.linux-foundation.org, stable@vger.kernel.org
-References: <20191113150056.9990-1-lvivier@redhat.com>
- <20191113101929-mutt-send-email-mst@kernel.org>
- <20191113102126-mutt-send-email-mst@kernel.org>
-From:   Laurent Vivier <lvivier@redhat.com>
-Autocrypt: addr=lvivier@redhat.com; prefer-encrypt=mutual; keydata=
- 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
- D+Ofp0T3KOr1RUHvCZoLURfFhSQ=
-Message-ID: <7bd34d61-146f-8edb-d82d-7285a83437b4@redhat.com>
-Date:   Wed, 13 Nov 2019 17:37:34 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.0
+        id S1727550AbfKMQqZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 13 Nov 2019 11:46:25 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:1690 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727557AbfKMQqX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 13 Nov 2019 11:46:23 -0500
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id xADGTfg8180922
+        for <stable@vger.kernel.org>; Wed, 13 Nov 2019 11:46:21 -0500
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2w8ms9aqg4-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Wed, 13 Nov 2019 11:46:21 -0500
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <groug@kaod.org>;
+        Wed, 13 Nov 2019 16:46:18 -0000
+Received: from b06cxnps3074.portsmouth.uk.ibm.com (9.149.109.194)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Wed, 13 Nov 2019 16:46:15 -0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id xADGkEVo46203060
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 13 Nov 2019 16:46:14 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 48D984C050;
+        Wed, 13 Nov 2019 16:46:14 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id CFA974C044;
+        Wed, 13 Nov 2019 16:46:13 +0000 (GMT)
+Received: from bahia.lan (unknown [9.145.184.11])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 13 Nov 2019 16:46:13 +0000 (GMT)
+Subject: [PATCH v2 1/2] KVM: PPC: Book3S HV: XIVE: Free previous EQ page
+ when setting up a new one
+From:   Greg Kurz <groug@kaod.org>
+To:     Paul Mackerras <paulus@ozlabs.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        =?utf-8?q?C=C3=A9dric?= Le Goater <clg@kaod.org>,
+        David Gibson <david@gibson.dropbear.id.au>,
+        Lijun Pan <ljp@linux.ibm.com>,
+        Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>,
+        Laurent Vivier <lvivier@redhat.com>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Date:   Wed, 13 Nov 2019 17:46:13 +0100
+User-Agent: StGit/unknown-version
 MIME-Version: 1.0
-In-Reply-To: <20191113102126-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-MC-Unique: jLDv7rF7OlWr1KL5gY8GiA-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+x-cbid: 19111316-0008-0000-0000-0000032EBB32
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19111316-0009-0000-0000-00004A4DC604
+Message-Id: <157366357346.1026356.14522564753643067538.stgit@bahia.lan>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-11-13_04:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1034 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1910280000 definitions=main-1911130146
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 13/11/2019 16:22, Michael S. Tsirkin wrote:
-> On Wed, Nov 13, 2019 at 10:21:11AM -0500, Michael S. Tsirkin wrote:
->> On Wed, Nov 13, 2019 at 04:00:56PM +0100, Laurent Vivier wrote:
->>> When we hot unplug a virtserialport and then try to hot plug again,
->>> it fails:
->>>
->>> (qemu) chardev-add socket,id=3Dserial0,path=3D/tmp/serial0,server,nowai=
-t
->>> (qemu) device_add virtserialport,bus=3Dvirtio-serial0.0,nr=3D2,\
->>>                   chardev=3Dserial0,id=3Dserial0,name=3Dserial0
->>> (qemu) device_del serial0
->>> (qemu) device_add virtserialport,bus=3Dvirtio-serial0.0,nr=3D2,\
->>>                   chardev=3Dserial0,id=3Dserial0,name=3Dserial0
->>> kernel error:
->>>   virtio-ports vport2p2: Error allocating inbufs
->>> qemu error:
->>>   virtio-serial-bus: Guest failure in adding port 2 for device \
->>>                      virtio-serial0.0
->>>
->>> This happens because buffers for the in_vq are allocated when the port =
-is
->>> added but are not released when the port is unplugged.
->>>
->>> They are only released when virtconsole is removed (see a7a69ec0d8e4)
->>>
->>> To avoid the problem and to be symmetric, we could allocate all the buf=
-fers
->>> in init_vqs() as they are released in remove_vqs(), but it sounds like
->>> a waste of memory.
->>>
->>> Rather than that, this patch changes add_port() logic to ignore ENOSPC
->>> error in fill_queue(), which means queue has already been filled.
->>>
->>> Fixes: a7a69ec0d8e4 ("virtio_console: free buffers after reset")
->>> Cc: mst@redhat.com
->>> Cc: stable@vger.kernel.org
->>> Signed-off-by: Laurent Vivier <lvivier@redhat.com>
->>> ---
->>>
->>> Notes:
->>>     v2: making fill_queue return int and testing return code for -ENOSP=
-C
->>>
->>>  drivers/char/virtio_console.c | 24 +++++++++---------------
->>>  1 file changed, 9 insertions(+), 15 deletions(-)
->>>
->>> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_consol=
-e.c
->>> index 7270e7b69262..9e6534fd1aa4 100644
->>> --- a/drivers/char/virtio_console.c
->>> +++ b/drivers/char/virtio_console.c
->>> @@ -1325,24 +1325,24 @@ static void set_console_size(struct port *port,=
- u16 rows, u16 cols)
->>>  =09port->cons.ws.ws_col =3D cols;
->>>  }
->>> =20
->>> -static unsigned int fill_queue(struct virtqueue *vq, spinlock_t *lock)
->>> +static int fill_queue(struct virtqueue *vq, spinlock_t *lock)
->>>  {
->>>  =09struct port_buffer *buf;
->>> -=09unsigned int nr_added_bufs;
->>> +=09int nr_added_bufs;
->>>  =09int ret;
->>> =20
->>>  =09nr_added_bufs =3D 0;
->>>  =09do {
->>>  =09=09buf =3D alloc_buf(vq->vdev, PAGE_SIZE, 0);
->>>  =09=09if (!buf)
->>> -=09=09=09break;
->>> +=09=09=09return -ENOMEM;
->>> =20
->>>  =09=09spin_lock_irq(lock);
->>>  =09=09ret =3D add_inbuf(vq, buf);
->>>  =09=09if (ret < 0) {
->>>  =09=09=09spin_unlock_irq(lock);
->>>  =09=09=09free_buf(buf, true);
->>> -=09=09=09break;
->>> +=09=09=09return ret;
->>>  =09=09}
->>>  =09=09nr_added_bufs++;
->>>  =09=09spin_unlock_irq(lock);
->=20
-> So actually, how about handling ENOSPC specially here, and
-> returning success? After all queue is full as requested ...
+The EQ page is allocated by the guest and then passed to the hypervisor
+with the H_INT_SET_QUEUE_CONFIG hcall. A reference is taken on the page
+before handing it over to the HW. This reference is dropped either when
+the guest issues the H_INT_RESET hcall or when the KVM device is released.
+But, the guest can legitimately call H_INT_SET_QUEUE_CONFIG several times,
+either to reset the EQ (vCPU hot unplug) or to set a new EQ (guest reboot).
+In both cases the existing EQ page reference is leaked because we simply
+overwrite it in the XIVE queue structure without calling put_page().
 
-I think it's interesting to return -ENOSPC to manage it as a real error
-in virtcons_probe() as in this function the queue should not be already
-full (is this right?) and to return the real error code.
+This is especially visible when the guest memory is backed with huge pages:
+start a VM up to the guest userspace, either reboot it or unplug a vCPU,
+quit QEMU. The leak is observed by comparing the value of HugePages_Free in
+/proc/meminfo before and after the VM is run.
 
-Thanks,
-Laurent
+Ideally we'd want the XIVE code to handle the EQ page de-allocation at the
+platform level. This isn't the case right now because the various XIVE
+drivers have different allocation needs. It could maybe worth introducing
+hooks for this purpose instead of exposing XIVE internals to the drivers,
+but this is certainly a huge work to be done later.
+
+In the meantime, for easier backport, fix both vCPU unplug and guest reboot
+leaks by introducing a wrapper around xive_native_configure_queue() that
+does the necessary cleanup.
+
+Reported-by: Satheesh Rajendran <sathnaga@linux.vnet.ibm.com>
+Cc: stable@vger.kernel.org # v5.2
+Fixes: 13ce3297c576 ("KVM: PPC: Book3S HV: XIVE: Add controls for the EQ configuration")
+Signed-off-by: Cédric Le Goater <clg@kaod.org>
+Signed-off-by: Greg Kurz <groug@kaod.org>
+---
+v2: use wrapper as suggested by Cedric
+---
+ arch/powerpc/kvm/book3s_xive_native.c |   31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
+
+diff --git a/arch/powerpc/kvm/book3s_xive_native.c b/arch/powerpc/kvm/book3s_xive_native.c
+index 34bd123fa024..0e1fc5a16729 100644
+--- a/arch/powerpc/kvm/book3s_xive_native.c
++++ b/arch/powerpc/kvm/book3s_xive_native.c
+@@ -50,6 +50,24 @@ static void kvmppc_xive_native_cleanup_queue(struct kvm_vcpu *vcpu, int prio)
+ 	}
+ }
+ 
++static int kvmppc_xive_native_configure_queue(u32 vp_id, struct xive_q *q,
++					      u8 prio, __be32 *qpage,
++					      u32 order, bool can_escalate)
++{
++	int rc;
++	__be32 *qpage_prev = q->qpage;
++
++	rc = xive_native_configure_queue(vp_id, q, prio, qpage, order,
++					 can_escalate);
++	if (rc)
++		return rc;
++
++	if (qpage_prev)
++		put_page(virt_to_page(qpage_prev));
++
++	return rc;
++}
++
+ void kvmppc_xive_native_cleanup_vcpu(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvmppc_xive_vcpu *xc = vcpu->arch.xive_vcpu;
+@@ -575,19 +593,14 @@ static int kvmppc_xive_native_set_queue_config(struct kvmppc_xive *xive,
+ 		q->guest_qaddr  = 0;
+ 		q->guest_qshift = 0;
+ 
+-		rc = xive_native_configure_queue(xc->vp_id, q, priority,
+-						 NULL, 0, true);
++		rc = kvmppc_xive_native_configure_queue(xc->vp_id, q, priority,
++							NULL, 0, true);
+ 		if (rc) {
+ 			pr_err("Failed to reset queue %d for VCPU %d: %d\n",
+ 			       priority, xc->server_num, rc);
+ 			return rc;
+ 		}
+ 
+-		if (q->qpage) {
+-			put_page(virt_to_page(q->qpage));
+-			q->qpage = NULL;
+-		}
+-
+ 		return 0;
+ 	}
+ 
+@@ -646,8 +659,8 @@ static int kvmppc_xive_native_set_queue_config(struct kvmppc_xive *xive,
+ 	  * OPAL level because the use of END ESBs is not supported by
+ 	  * Linux.
+ 	  */
+-	rc = xive_native_configure_queue(xc->vp_id, q, priority,
+-					 (__be32 *) qaddr, kvm_eq.qshift, true);
++	rc = kvmppc_xive_native_configure_queue(xc->vp_id, q, priority,
++					(__be32 *) qaddr, kvm_eq.qshift, true);
+ 	if (rc) {
+ 		pr_err("Failed to configure queue %d for VCPU %d: %d\n",
+ 		       priority, xc->server_num, rc);
 
