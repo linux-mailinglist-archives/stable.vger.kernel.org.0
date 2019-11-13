@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C2DFA58B
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16D49FA586
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728612AbfKMCXc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:23:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41670 "EHLO mail.kernel.org"
+        id S1728386AbfKMCX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:23:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728351AbfKMBwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:52:39 -0500
+        id S1728354AbfKMBwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:52:41 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0E4322459;
-        Wed, 13 Nov 2019 01:52:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 357A4222CA;
+        Wed, 13 Nov 2019 01:52:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609958;
-        bh=tXZk9214sgJzo8KjHLglNwAtrSjYARemGMUZSBxff4Q=;
+        s=default; t=1573609960;
+        bh=xLo8An/GGtaYvQusuEEVTAK6bx26bpriaCZTP8Q7WCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ge6dWYaMV8mar/DvWjuENnr+5+/YyoNZ51Zo4ZOltUIreUypXOuHvEeMA7i2l2CQ8
-         ajQQodDBvTzawvVPvnOnGs1FXFDvXgdPnNGuZCr96Y/Jm/dZGNec0zg/ziskQe/bfR
-         PQ/T4BeJUp/bngt22DpXj2gzVUSY61J3t/BCCoR8=
+        b=FZNCL2IMOexpRiGkCaEiZ9eSVScHdTPH+tGXp1rFt1L8yofgCiR0WivoPKQmSIf3h
+         7bF3oUqkDIzseIPbr/wZ+1vXE6pW9PE1ZvS9zgPUqHQG2WXN4dAk1gicYZcAyaiuGt
+         HWexPLj5w+bygCuuUzRnU+LnJmbQ4Z2+SjIg3g3U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+Cc:     Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
         Hans Verkuil <hans.verkuil@cisco.com>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 091/209] media: rcar-vin: fix redeclaration of symbol
-Date:   Tue, 12 Nov 2019 20:48:27 -0500
-Message-Id: <20191113015025.9685-91-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 092/209] media: i2c: adv748x: Support probing a single output
+Date:   Tue, 12 Nov 2019 20:48:28 -0500
+Message-Id: <20191113015025.9685-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,41 +46,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-[ Upstream commit 4e673ed4e2bfac00b3c3043a84e007874c17c84d ]
+[ Upstream commit eccf442ce156ec2b4e06b1239d5fdcb0c732f63f ]
 
-When adding support for parallel subdev for Gen3 it was missed that the
-symbol 'i' in rvin_group_link_notify() was already declared, remove the
-dupe as it's only used as a loop variable this have no functional
-change. This fixes warning:
+Currently the adv748x driver will fail to probe unless both of its
+output endpoints (TXA and TXB) are connected.
 
-    rcar-core.c:117:52: originally declared here
-    rcar-core.c:173:30: warning: symbol 'i' shadows an earlier one
+Make the driver support probing provided that there is at least one
+input, and one output connected and protect the clean-up function from
+accessing un-initialized fields.
 
-Fixes: 1284605dc821cebd ("media: rcar-vin: Handle parallel subdev in link_notify")
+Following patches will fix other uses of un-initialized TXs in the driver,
+such as power management functions.
 
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Acked-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Tested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar-vin/rcar-core.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/i2c/adv748x/adv748x-core.c | 25 +++++++++++++++++++++---
+ drivers/media/i2c/adv748x/adv748x-csi2.c | 18 ++++++-----------
+ drivers/media/i2c/adv748x/adv748x.h      |  2 ++
+ 3 files changed, 30 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
-index e1085e3ab3cc6..485fa3fa8b49a 100644
---- a/drivers/media/platform/rcar-vin/rcar-core.c
-+++ b/drivers/media/platform/rcar-vin/rcar-core.c
-@@ -174,7 +174,6 @@ static int rvin_group_link_notify(struct media_link *link, u32 flags,
+diff --git a/drivers/media/i2c/adv748x/adv748x-core.c b/drivers/media/i2c/adv748x/adv748x-core.c
+index 6ca88daa0ecd7..65c3024c5f76f 100644
+--- a/drivers/media/i2c/adv748x/adv748x-core.c
++++ b/drivers/media/i2c/adv748x/adv748x-core.c
+@@ -569,7 +569,8 @@ static int adv748x_parse_dt(struct adv748x_state *state)
+ {
+ 	struct device_node *ep_np = NULL;
+ 	struct of_endpoint ep;
+-	bool found = false;
++	bool out_found = false;
++	bool in_found = false;
  
- 	if (csi_id == -ENODEV) {
- 		struct v4l2_subdev *sd;
--		unsigned int i;
+ 	for_each_endpoint_of_node(state->dev->of_node, ep_np) {
+ 		of_graph_parse_endpoint(ep_np, &ep);
+@@ -592,10 +593,17 @@ static int adv748x_parse_dt(struct adv748x_state *state)
+ 		of_node_get(ep_np);
+ 		state->endpoints[ep.port] = ep_np;
  
- 		/*
- 		 * Make sure the source entity subdevice is registered as
+-		found = true;
++		/*
++		 * At least one input endpoint and one output endpoint shall
++		 * be defined.
++		 */
++		if (ep.port < ADV748X_PORT_TXA)
++			in_found = true;
++		else
++			out_found = true;
+ 	}
+ 
+-	return found ? 0 : -ENODEV;
++	return in_found && out_found ? 0 : -ENODEV;
+ }
+ 
+ static void adv748x_dt_cleanup(struct adv748x_state *state)
+@@ -627,6 +635,17 @@ static int adv748x_probe(struct i2c_client *client,
+ 	state->i2c_clients[ADV748X_PAGE_IO] = client;
+ 	i2c_set_clientdata(client, state);
+ 
++	/*
++	 * We can not use container_of to get back to the state with two TXs;
++	 * Initialize the TXs's fields unconditionally on the endpoint
++	 * presence to access them later.
++	 */
++	state->txa.state = state->txb.state = state;
++	state->txa.page = ADV748X_PAGE_TXA;
++	state->txb.page = ADV748X_PAGE_TXB;
++	state->txa.port = ADV748X_PORT_TXA;
++	state->txb.port = ADV748X_PORT_TXB;
++
+ 	/* Discover and process ports declared by the Device tree endpoints */
+ 	ret = adv748x_parse_dt(state);
+ 	if (ret) {
+diff --git a/drivers/media/i2c/adv748x/adv748x-csi2.c b/drivers/media/i2c/adv748x/adv748x-csi2.c
+index 469be87a3761f..556e13c911a62 100644
+--- a/drivers/media/i2c/adv748x/adv748x-csi2.c
++++ b/drivers/media/i2c/adv748x/adv748x-csi2.c
+@@ -266,19 +266,10 @@ static int adv748x_csi2_init_controls(struct adv748x_csi2 *tx)
+ 
+ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
+ {
+-	struct device_node *ep;
+ 	int ret;
+ 
+-	/* We can not use container_of to get back to the state with two TXs */
+-	tx->state = state;
+-	tx->page = is_txa(tx) ? ADV748X_PAGE_TXA : ADV748X_PAGE_TXB;
+-
+-	ep = state->endpoints[is_txa(tx) ? ADV748X_PORT_TXA : ADV748X_PORT_TXB];
+-	if (!ep) {
+-		adv_err(state, "No endpoint found for %s\n",
+-				is_txa(tx) ? "txa" : "txb");
+-		return -ENODEV;
+-	}
++	if (!is_tx_enabled(tx))
++		return 0;
+ 
+ 	/* Initialise the virtual channel */
+ 	adv748x_csi2_set_virtual_channel(tx, 0);
+@@ -288,7 +279,7 @@ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
+ 			    is_txa(tx) ? "txa" : "txb");
+ 
+ 	/* Ensure that matching is based upon the endpoint fwnodes */
+-	tx->sd.fwnode = of_fwnode_handle(ep);
++	tx->sd.fwnode = of_fwnode_handle(state->endpoints[tx->port]);
+ 
+ 	/* Register internal ops for incremental subdev registration */
+ 	tx->sd.internal_ops = &adv748x_csi2_internal_ops;
+@@ -321,6 +312,9 @@ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
+ 
+ void adv748x_csi2_cleanup(struct adv748x_csi2 *tx)
+ {
++	if (!is_tx_enabled(tx))
++		return;
++
+ 	v4l2_async_unregister_subdev(&tx->sd);
+ 	media_entity_cleanup(&tx->sd.entity);
+ 	v4l2_ctrl_handler_free(&tx->ctrl_hdl);
+diff --git a/drivers/media/i2c/adv748x/adv748x.h b/drivers/media/i2c/adv748x/adv748x.h
+index 65f83741277e1..1cf46c401664d 100644
+--- a/drivers/media/i2c/adv748x/adv748x.h
++++ b/drivers/media/i2c/adv748x/adv748x.h
+@@ -82,6 +82,7 @@ struct adv748x_csi2 {
+ 	struct adv748x_state *state;
+ 	struct v4l2_mbus_framefmt format;
+ 	unsigned int page;
++	unsigned int port;
+ 
+ 	struct media_pad pads[ADV748X_CSI2_NR_PADS];
+ 	struct v4l2_ctrl_handler ctrl_hdl;
+@@ -91,6 +92,7 @@ struct adv748x_csi2 {
+ 
+ #define notifier_to_csi2(n) container_of(n, struct adv748x_csi2, notifier)
+ #define adv748x_sd_to_csi2(sd) container_of(sd, struct adv748x_csi2, sd)
++#define is_tx_enabled(_tx) ((_tx)->state->endpoints[(_tx)->port] != NULL)
+ 
+ enum adv748x_hdmi_pads {
+ 	ADV748X_HDMI_SINK,
 -- 
 2.20.1
 
