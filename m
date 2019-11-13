@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C99FA4D8
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:20:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17676FA48D
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728987AbfKMCTT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:19:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46818 "EHLO mail.kernel.org"
+        id S1729073AbfKMBzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:55:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729068AbfKMBzS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:55:18 -0500
+        id S1728192AbfKMBzU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:55:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C303222CD;
-        Wed, 13 Nov 2019 01:55:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF7C522459;
+        Wed, 13 Nov 2019 01:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610118;
-        bh=RgYw0oBSLwQBhdw3WvYdr72j1tYCT0JVBwh8M+A/DAk=;
+        s=default; t=1573610119;
+        bh=m5hJaHVZrLSf1mJK7b9kB9bQlJxzbNzPsHf/khSsGYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N97tgouPjOSxzfN4UN0nTKCAT9du+rcWrRRmpcai3ZbRFl/TvOw/CyoLtkXVm0Ora
-         EFMZK3wP5fyC/lyC+y9ngx/uLqfpxQqhUW705csK2v1dqEwjwgxmkC+6xYkz7Lu0Jk
-         9euYKpAbhuZ69+KMILBOkvpPpi/Z9ktxQt4uh32I=
+        b=tknK1Y175UjN4Bp6DkunMod6WVv5KmGe/ZCsxGjoSr5HlXjvZWupQtAntXc0VM3/w
+         PynHgwI5KApOh8nZaoVsIqXyQEtJXNmSFlsoVQzEK1cAPF5NBcF/1vC5bXic1gcTsB
+         CFf3DOFKca/aS0dTDu4kn4NLlpf1hWYWO4Q+PrHM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@javigon.com>,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@cnexlabs.com>,
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+        Hans Holmberg <hans.holmberg@cnexlabs.com>,
         =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 173/209] lightnvm: do no update csecs and sos on 1.2
-Date:   Tue, 12 Nov 2019 20:49:49 -0500
-Message-Id: <20191113015025.9685-173-sashal@kernel.org>
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 174/209] lightnvm: pblk: fix error handling of pblk_lines_init()
+Date:   Tue, 12 Nov 2019 20:49:50 -0500
+Message-Id: <20191113015025.9685-174-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -46,36 +46,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier González <javier@javigon.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 6fd05cad5ee1290b276dd8ed90a1e019b1fa577a ]
+[ Upstream commit a70985f83c625a5eaf618be81621e5e4521a66c6 ]
 
-1.2 devices exposes their data and metadata size through the separate
-identify command. Make sure that the NVMe LBA format does not override
-these values.
+In the too many bad blocks error handling case, we should release all
+the allocated resources, otherwise it will cause memory leak.
 
-Signed-off-by: Javier González <javier@cnexlabs.com>
+Fixes: 2deeefc02dff ("lightnvm: pblk: fail gracefully on line alloc. failure")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Reviewed-by: Hans Holmberg <hans.holmberg@cnexlabs.com>
 Signed-off-by: Matias Bjørling <mb@lightnvm.io>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/lightnvm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/lightnvm/pblk-init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/lightnvm.c b/drivers/nvme/host/lightnvm.c
-index 6fe5923c95d4a..a69553e75f38e 100644
---- a/drivers/nvme/host/lightnvm.c
-+++ b/drivers/nvme/host/lightnvm.c
-@@ -968,6 +968,9 @@ void nvme_nvm_update_nvm_info(struct nvme_ns *ns)
- 	struct nvm_dev *ndev = ns->ndev;
- 	struct nvm_geo *geo = &ndev->geo;
+diff --git a/drivers/lightnvm/pblk-init.c b/drivers/lightnvm/pblk-init.c
+index dc32274881b2f..91fd2b291db91 100644
+--- a/drivers/lightnvm/pblk-init.c
++++ b/drivers/lightnvm/pblk-init.c
+@@ -1084,7 +1084,8 @@ static int pblk_lines_init(struct pblk *pblk)
  
-+	if (geo->version == NVM_OCSSD_SPEC_12)
-+		return;
-+
- 	geo->csecs = 1 << ns->lba_shift;
- 	geo->sos = ns->ms;
- }
+ 	if (!nr_free_chks) {
+ 		pblk_err(pblk, "too many bad blocks prevent for sane instance\n");
+-		return -EINTR;
++		ret = -EINTR;
++		goto fail_free_lines;
+ 	}
+ 
+ 	pblk_set_provision(pblk, nr_free_chks);
 -- 
 2.20.1
 
