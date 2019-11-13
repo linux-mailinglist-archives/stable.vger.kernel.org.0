@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 939FFFA5B6
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:24:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52228FA5BC
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728081AbfKMBv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:51:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40348 "EHLO mail.kernel.org"
+        id S1728097AbfKMBwB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:52:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40378 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728074AbfKMBv7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:51:59 -0500
+        id S1728093AbfKMBwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:52:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49C592245A;
-        Wed, 13 Nov 2019 01:51:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7952820674;
+        Wed, 13 Nov 2019 01:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573609919;
-        bh=SLDHED6xIDXCXATD9sFjZPXRCps2xfzuuQ0qam3yhVM=;
+        s=default; t=1573609920;
+        bh=r8hnijHJ0SYL+qyAwyuyhR0Z1cWediu4nKfrfBcM7Z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zlvXKzqN32yGjlLNZYgAgTBdKaQzUlcxlT8sYbdA0Pr2RKy37JIDJLyZbdi3X5iX8
-         bSKE6igJuh/wgRFfIe7ipI5NrSSJS/yME1aaTH63NAFIYwSwTtqe6QiY3IuQbTt8pw
-         ZAo2Un6RP6O9CRwhdHGcsStZauVBRZRzN1gpCFqY=
+        b=Gfjo+XwXI8EUxKXfZzQHNGqxBUUE+Wcj1PkXPC3YJ2rFzdVk4whajbR0Z1x9jJE7w
+         DoVSkMyvoBuSth2/D6DEzkqZeSNC5VH3QiT0S3dE3jJZAxezA8j3PBrbjyWfl4D2ZW
+         vD76y9kK0oCvSF607PBjxSIk5oSsIZN5veTV9GeU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     NeilBrown <neilb@suse.com>, Jeff Mahoney <jeffm@suse.com>,
-        Shaohua Li <shli@fb.com>, Sasha Levin <sashal@kernel.org>,
-        linux-raid@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 067/209] md: allow metadata updates while suspending an array - fix
-Date:   Tue, 12 Nov 2019 20:48:03 -0500
-Message-Id: <20191113015025.9685-67-sashal@kernel.org>
+Cc:     Radoslaw Tyl <radoslawx.tyl@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 068/209] ixgbe: Fix ixgbe TX hangs with XDP_TX beyond queue limit
+Date:   Tue, 12 Nov 2019 20:48:04 -0500
+Message-Id: <20191113015025.9685-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -43,72 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.com>
+From: Radoslaw Tyl <radoslawx.tyl@intel.com>
 
-[ Upstream commit 059421e041eb461fb2b3e81c9adaec18ef03ca3c ]
+[ Upstream commit 8d7179b1e2d64b3493c0114916486fe92e6109a9 ]
 
-Commit 35bfc52187f6 ("md: allow metadata update while suspending.")
-added support for allowing md_check_recovery() to still perform
-metadata updates while the array is entering the 'suspended' state.
-This is needed to allow the processes of entering the state to
-complete.
+We have Tx hang when number Tx and XDP queues are more than 64.
+In XDP always is MTQC == 0x0 (64TxQs). We need more space for Tx queues.
 
-Unfortunately, the patch doesn't really work.  The test for
-"mddev->suspended" at the start of md_check_recovery() means that the
-function doesn't try to do anything at all while entering suspend.
-
-This patch moves the code of updating the metadata while suspending to
-*before* the test on mddev->suspended.
-
-Reported-by: Jeff Mahoney <jeffm@suse.com>
-Fixes: 35bfc52187f6 ("md: allow metadata update while suspending.")
-Signed-off-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Shaohua Li <shli@fb.com>
+Signed-off-by: Radoslaw Tyl <radoslawx.tyl@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index a8fbaa384e9ae..2fe4f93d1d7d4 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -8778,6 +8778,18 @@ static void md_start_sync(struct work_struct *ws)
-  */
- void md_check_recovery(struct mddev *mddev)
- {
-+	if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags) && mddev->sb_flags) {
-+		/* Write superblock - thread that called mddev_suspend()
-+		 * holds reconfig_mutex for us.
-+		 */
-+		set_bit(MD_UPDATING_SB, &mddev->flags);
-+		smp_mb__after_atomic();
-+		if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags))
-+			md_update_sb(mddev, 0);
-+		clear_bit_unlock(MD_UPDATING_SB, &mddev->flags);
-+		wake_up(&mddev->sb_wait);
-+	}
-+
- 	if (mddev->suspended)
- 		return;
- 
-@@ -8938,16 +8950,6 @@ void md_check_recovery(struct mddev *mddev)
- 	unlock:
- 		wake_up(&mddev->sb_wait);
- 		mddev_unlock(mddev);
--	} else if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags) && mddev->sb_flags) {
--		/* Write superblock - thread that called mddev_suspend()
--		 * holds reconfig_mutex for us.
--		 */
--		set_bit(MD_UPDATING_SB, &mddev->flags);
--		smp_mb__after_atomic();
--		if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags))
--			md_update_sb(mddev, 0);
--		clear_bit_unlock(MD_UPDATING_SB, &mddev->flags);
--		wake_up(&mddev->sb_wait);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 85280765d793d..f3e21de3b1f0b 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -3582,12 +3582,18 @@ static void ixgbe_setup_mtqc(struct ixgbe_adapter *adapter)
+ 		else
+ 			mtqc |= IXGBE_MTQC_64VF;
+ 	} else {
+-		if (tcs > 4)
++		if (tcs > 4) {
+ 			mtqc = IXGBE_MTQC_RT_ENA | IXGBE_MTQC_8TC_8TQ;
+-		else if (tcs > 1)
++		} else if (tcs > 1) {
+ 			mtqc = IXGBE_MTQC_RT_ENA | IXGBE_MTQC_4TC_4TQ;
+-		else
+-			mtqc = IXGBE_MTQC_64Q_1PB;
++		} else {
++			u8 max_txq = adapter->num_tx_queues +
++				adapter->num_xdp_queues;
++			if (max_txq > 63)
++				mtqc = IXGBE_MTQC_RT_ENA | IXGBE_MTQC_4TC_4TQ;
++			else
++				mtqc = IXGBE_MTQC_64Q_1PB;
++		}
  	}
- }
- EXPORT_SYMBOL(md_check_recovery);
+ 
+ 	IXGBE_WRITE_REG(hw, IXGBE_MTQC, mtqc);
 -- 
 2.20.1
 
