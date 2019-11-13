@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54353FA398
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30389FA393
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729728AbfKMCKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:10:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53584 "EHLO mail.kernel.org"
+        id S1728961AbfKMCK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:10:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730178AbfKMB7N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:13 -0500
+        id S1730233AbfKMB7O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:59:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BF4C22474;
-        Wed, 13 Nov 2019 01:59:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78050222CF;
+        Wed, 13 Nov 2019 01:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610353;
-        bh=km4X5vKqo7Inc5aIAMHNteD9crBieiW9GgVbiAH/MyE=;
+        s=default; t=1573610354;
+        bh=Xly+WwSRVQd4TwyrC8/aeq8ryWsEK+3hHMKmq1lem7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UqOA7cT77gwFvbgtLVlipbbM5hCaRHHtUKh1bGP4YVg9x+F0PclPyiezcWZZ/ok/H
-         IWJUYhzStcLl5aHdG215YgSftRG4uIVDI2aDr7LBoj3rpbSrxC8vHVgCNvIG2R/Djn
-         0gaYLjsfcnhF/fRE0+CEgFYRzmZHmfJf24f4gRvw=
+        b=BaMbxQUS+aWo/ETNqLXoUxieVBBQ9w97AafH120BPcI0ILccwHRMLvXqRZRcpbdY5
+         KxuLcaHBAPSsvPCm9uu3rGbtCX6RxFU/tVONytOO4k6Vy4LJeLpxuk4zphHiAN8IRT
+         RBRlrsD6VrJzQWF7G2H4+Pd2GyUxPD6lZMkgRuZw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicolin Chen <nicoleotsuka@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>, linux-hwmon@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 104/115] hwmon: (ina3221) Fix INA3221_CONFIG_MODE macros
-Date:   Tue, 12 Nov 2019 20:56:11 -0500
-Message-Id: <20191113015622.11592-104-sashal@kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Florian Westphal <fw@strlen.de>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 105/115] netfilter: nft_compat: do not dump private area
+Date:   Tue, 12 Nov 2019 20:56:12 -0500
+Message-Id: <20191113015622.11592-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -43,41 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolin Chen <nicoleotsuka@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 791ebc9d34e9d212fc03742c31654b017d385926 ]
+[ Upstream commit d701d8117200399d85e63a737d2e4e897932f3b6 ]
 
-The three INA3221_CONFIG_MODE macros are not correctly defined here.
-The MODE3-1 bits are located at BIT 2-0 according to the datasheet.
+Zero pad private area, otherwise we expose private kernel pointer to
+userspace. This patch also zeroes the tail area after the ->matchsize
+and ->targetsize that results from XT_ALIGN().
 
-So this patch just fixes them by shifting all of them with a correct
-offset. However, this isn't a crital bug fix as the driver does not
-use any of them at this point.
-
-Signed-off-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: 0ca743a55991 ("netfilter: nf_tables: add compatibility layer for x_tables")
+Reported-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/ina3221.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/netfilter/nft_compat.c | 24 ++++++++++++++++++++++--
+ 1 file changed, 22 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/ina3221.c b/drivers/hwmon/ina3221.c
-index e6b49500c52ae..8c9555313fc3d 100644
---- a/drivers/hwmon/ina3221.c
-+++ b/drivers/hwmon/ina3221.c
-@@ -38,9 +38,9 @@
- #define INA3221_WARN3			0x0c
- #define INA3221_MASK_ENABLE		0x0f
+diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
+index 7344ec7fff2a7..8281656808aee 100644
+--- a/net/netfilter/nft_compat.c
++++ b/net/netfilter/nft_compat.c
+@@ -291,6 +291,24 @@ nft_target_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr)
+ 		module_put(me);
+ }
  
--#define INA3221_CONFIG_MODE_SHUNT	BIT(1)
--#define INA3221_CONFIG_MODE_BUS		BIT(2)
--#define INA3221_CONFIG_MODE_CONTINUOUS	BIT(3)
-+#define INA3221_CONFIG_MODE_SHUNT	BIT(0)
-+#define INA3221_CONFIG_MODE_BUS		BIT(1)
-+#define INA3221_CONFIG_MODE_CONTINUOUS	BIT(2)
++static int nft_extension_dump_info(struct sk_buff *skb, int attr,
++				   const void *info,
++				   unsigned int size, unsigned int user_size)
++{
++	unsigned int info_size, aligned_size = XT_ALIGN(size);
++	struct nlattr *nla;
++
++	nla = nla_reserve(skb, attr, aligned_size);
++	if (!nla)
++		return -1;
++
++	info_size = user_size ? : size;
++	memcpy(nla_data(nla), info, info_size);
++	memset(nla_data(nla) + info_size, 0, aligned_size - info_size);
++
++	return 0;
++}
++
+ static int nft_target_dump(struct sk_buff *skb, const struct nft_expr *expr)
+ {
+ 	const struct xt_target *target = expr->ops->data;
+@@ -298,7 +316,8 @@ static int nft_target_dump(struct sk_buff *skb, const struct nft_expr *expr)
  
- #define INA3221_RSHUNT_DEFAULT		10000
+ 	if (nla_put_string(skb, NFTA_TARGET_NAME, target->name) ||
+ 	    nla_put_be32(skb, NFTA_TARGET_REV, htonl(target->revision)) ||
+-	    nla_put(skb, NFTA_TARGET_INFO, XT_ALIGN(target->targetsize), info))
++	    nft_extension_dump_info(skb, NFTA_TARGET_INFO, info,
++				    target->targetsize, target->usersize))
+ 		goto nla_put_failure;
  
+ 	return 0;
+@@ -534,7 +553,8 @@ static int __nft_match_dump(struct sk_buff *skb, const struct nft_expr *expr,
+ 
+ 	if (nla_put_string(skb, NFTA_MATCH_NAME, match->name) ||
+ 	    nla_put_be32(skb, NFTA_MATCH_REV, htonl(match->revision)) ||
+-	    nla_put(skb, NFTA_MATCH_INFO, XT_ALIGN(match->matchsize), info))
++	    nft_extension_dump_info(skb, NFTA_MATCH_INFO, info,
++				    match->matchsize, match->usersize))
+ 		goto nla_put_failure;
+ 
+ 	return 0;
 -- 
 2.20.1
 
