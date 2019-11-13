@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8C0FA23C
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECC75FA266
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:04:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731031AbfKMCCb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:02:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
+        id S1731036AbfKMCCd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:02:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730121AbfKMCCa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:02:30 -0500
+        id S1731035AbfKMCCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:02:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11F4A21783;
-        Wed, 13 Nov 2019 02:02:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52357204EC;
+        Wed, 13 Nov 2019 02:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610549;
-        bh=jRkMy5qS/eVIHEWYR98ab5sYmGj8XzK7xyoKH2bdxUc=;
+        s=default; t=1573610552;
+        bh=JdrTXh+ixgefAJIjHzB9L7T40uj7SjS+wb8WCtZ8x34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VvIAPzEsbQZA7BA2P0FfRc1yCM60+xNShCyCihyTIuurMEQCRGeS57YitDJNHGRmg
-         Hk8ZBOioQak6HQLIp62d9snhM2SJt8tnugikXLZIJJiYLLmkY9Iatu4c+r/TSKTwzB
-         dZiaBxMHhE0TQi9s978G7FRzXXlKBdvGIA6yIp7g=
+        b=Ni4YZxlwU1oUPKzkaS8b3i8nu1+kVr2D6UQFqU8Icyp06SjNdnRKhXIttc21E+Qng
+         Celjxynpsro+MifHLktpY4H6SXLvQwWWqFSG9fc5K21XwT/IjDc3aCgJ1eV3mLBYGh
+         etTpcVXY3bsCxxupBsDrw9MQpUFXyycqMeqSiU74=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shenghui Wang <shhuiw@foxmail.com>, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 34/48] bcache: recal cached_dev_sectors on detach
-Date:   Tue, 12 Nov 2019 21:01:17 -0500
-Message-Id: <20191113020131.13356-34-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Lianbo Jiang <lijiang@redhat.com>,
+        x86@kernel.org, Sasha Levin <sashal@kernel.org>,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 35/48] proc/vmcore: Fix i386 build error of missing copy_oldmem_page_encrypted()
+Date:   Tue, 12 Nov 2019 21:01:18 -0500
+Message-Id: <20191113020131.13356-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113020131.13356-1-sashal@kernel.org>
 References: <20191113020131.13356-1-sashal@kernel.org>
@@ -43,36 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shenghui Wang <shhuiw@foxmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 46010141da6677b81cc77f9b47f8ac62bd1cbfd3 ]
+[ Upstream commit cf089611f4c446285046fcd426d90c18f37d2905 ]
 
-Recal cached_dev_sectors on cached_dev detached, as recal done on
-cached_dev attached.
+Lianbo reported a build error with a particular 32-bit config, see Link
+below for details.
 
-Update the cached_dev_sectors before bcache_device_detach called
-as bcache_device_detach will set bcache_device->c to NULL.
+Provide a weak copy_oldmem_page_encrypted() function which architectures
+can override, in the same manner other functionality in that file is
+supplied.
 
-Signed-off-by: Shenghui Wang <shhuiw@foxmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Lianbo Jiang <lijiang@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+CC: x86@kernel.org
+Link: http://lkml.kernel.org/r/710b9d95-2f70-eadf-c4a1-c3dc80ee4ebb@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/proc/vmcore.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index e420921460836..df8f1e69077f6 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -902,6 +902,7 @@ static void cached_dev_detach_finish(struct work_struct *w)
- 	bch_write_bdev_super(dc, &cl);
- 	closure_sync(&cl);
+diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
+index 4e61388ec03d2..08143139b65a7 100644
+--- a/fs/proc/vmcore.c
++++ b/fs/proc/vmcore.c
+@@ -164,6 +164,16 @@ int __weak remap_oldmem_pfn_range(struct vm_area_struct *vma,
+ 	return remap_pfn_range(vma, from, pfn, size, prot);
+ }
  
-+	calc_cached_dev_sectors(dc->disk.c);
- 	bcache_device_detach(&dc->disk);
- 	list_move(&dc->list, &uncached_devices);
- 
++/*
++ * Architectures which support memory encryption override this.
++ */
++ssize_t __weak
++copy_oldmem_page_encrypted(unsigned long pfn, char *buf, size_t csize,
++			   unsigned long offset, int userbuf)
++{
++	return copy_oldmem_page(pfn, buf, csize, offset, userbuf);
++}
++
+ /*
+  * Copy to either kernel or user space
+  */
 -- 
 2.20.1
 
