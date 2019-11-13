@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D26A0FA2BD
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4809FA2C5
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:06:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730755AbfKMCB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:01:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57316 "EHLO mail.kernel.org"
+        id S1730035AbfKMCFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:05:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729479AbfKMCB0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:01:26 -0500
+        id S1730754AbfKMCB2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:01:28 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8122D222C9;
-        Wed, 13 Nov 2019 02:01:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A351C2247F;
+        Wed, 13 Nov 2019 02:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610486;
-        bh=j9Zcp3P2qjbCbgdGS8uBWmnp7vlhR4j9Ra7HKixGESQ=;
+        s=default; t=1573610487;
+        bh=sVtcO+U1juXAv6eN2pXeaR+Df+VAxnRnido9Jj2MtyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xkg6OPbAWgpomszfXGx7uVmRBqg4DhWzi/bRv3ExA2ub+itK+2WnJ49cD64+HsPSu
-         /QRJ2gW4Sj3Q3gy0x70YbhEKOtedsNLvOKV2VbvcPg+IW1IQEb1+z3UIz9y9aZMl1G
-         0Q0pu/i+LcJnLuD3sPwsNAnhnfjAV0YA2iEw6DcU=
+        b=Kx4fivb9d/iUh4xwxZaUId03ADa9IGgjRQDy+goZPv8DmH5GLN9TVPj6qNg7kD6vw
+         fpNbRkZ63jtAVHM+37ADLZx6j0gdOCvw2NlmYGni35RHjs8tmQNiB3bGckSFSsF/vM
+         1Bg6W+tU6hBMopsOP2c6iIXrbsdIT+P0VvuqWZZs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 66/68] mac80211: minstrel: fix CCK rate group streams value
-Date:   Tue, 12 Nov 2019 20:59:30 -0500
-Message-Id: <20191113015932.12655-66-sashal@kernel.org>
+Cc:     Huibin Hong <huibin.hong@rock-chips.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 67/68] spi: rockchip: initialize dma_slave_config properly
+Date:   Tue, 12 Nov 2019 20:59:31 -0500
+Message-Id: <20191113015932.12655-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015932.12655-1-sashal@kernel.org>
 References: <20191113015932.12655-1-sashal@kernel.org>
@@ -44,32 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Huibin Hong <huibin.hong@rock-chips.com>
 
-[ Upstream commit 80df9be67c44cb636bbc92caeddad8caf334c53c ]
+[ Upstream commit dd8fd2cbc73f8650f651da71fc61a6e4f30c1566 ]
 
-Fixes a harmless underflow issue when CCK rates are actively being used
+The rxconf and txconf structs are allocated on the
+stack, so make sure we zero them before filling out
+the relevant fields.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Huibin Hong <huibin.hong@rock-chips.com>
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/rc80211_minstrel_ht.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-rockchip.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
-index 30fbabf4bcbc1..593184d14b3ef 100644
---- a/net/mac80211/rc80211_minstrel_ht.c
-+++ b/net/mac80211/rc80211_minstrel_ht.c
-@@ -128,7 +128,7 @@
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index 0f89c2169c244..3a94f465e8e05 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -443,6 +443,9 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs)
+ 	struct dma_slave_config rxconf, txconf;
+ 	struct dma_async_tx_descriptor *rxdesc, *txdesc;
  
- #define CCK_GROUP					\
- 	[MINSTREL_CCK_GROUP] = {			\
--		.streams = 0,				\
-+		.streams = 1,				\
- 		.flags = 0,				\
- 		.duration = {				\
- 			CCK_DURATION_LIST(false),	\
++	memset(&rxconf, 0, sizeof(rxconf));
++	memset(&txconf, 0, sizeof(txconf));
++
+ 	spin_lock_irqsave(&rs->lock, flags);
+ 	rs->state &= ~RXBUSY;
+ 	rs->state &= ~TXBUSY;
 -- 
 2.20.1
 
