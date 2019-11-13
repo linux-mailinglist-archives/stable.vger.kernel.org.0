@@ -2,90 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5609FF9E5F
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 00:50:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6BDF9ED4
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 01:02:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727159AbfKLXuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 18:50:37 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:57502 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727137AbfKLXuh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 18:50:37 -0500
-Received: from [167.98.27.226] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iUfvf-0008JO-57; Tue, 12 Nov 2019 23:50:35 +0000
-Received: from ben by deadeye with local (Exim 4.93-RC1)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iUfvd-00058L-V7; Tue, 12 Nov 2019 23:50:33 +0000
-Content-Type: text/plain; charset="UTF-8"
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+        id S1726923AbfKMACw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 19:02:52 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([205.139.110.120]:22090 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726910AbfKMACt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 12 Nov 2019 19:02:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573603368;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mFZNYzU4aq8T7KuOOh7683mZkvSGsdedXb2PwJoCtQ4=;
+        b=LwD23NvnG+Lmyq1AXSYQe28KMn5vIDePVlz6QJaw1vl2gNZaHB/tlPZ3ZTu05knWns8GL6
+        veuzD0CmPDGizWIUbCU5y8Nd4mXysdbI8VD2rOK4H67bNHW+202LTJt9JxBESVaNGWq+w7
+        gT8JdYqTl23YKbsPeVQ6DtL16Pe9Iok=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-284-5EKU7PrLP_mDMrmo4DPU2w-1; Tue, 12 Nov 2019 19:02:47 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C42CA800EB3;
+        Wed, 13 Nov 2019 00:02:45 +0000 (UTC)
+Received: from cantor.redhat.com (ovpn-116-198.phx2.redhat.com [10.3.116.198])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 401CE64020;
+        Wed, 13 Nov 2019 00:02:45 +0000 (UTC)
+From:   Jerry Snitselaar <jsnitsel@redhat.com>
+To:     linux-integrity@vger.kernel.org
+Cc:     Jerry Snitselaar <jsnitsel@redhat.com>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Christian Bundy <christianbundy@fraction.io>
+Subject: [PATCH v3] tpm_tis: turn on TPM before calling tpm_get_timeouts
+Date:   Tue, 12 Nov 2019 17:02:43 -0700
+Message-Id: <20191113000243.16611-1-jsnitsel@redhat.com>
+In-Reply-To: <20191111233418.17676-1-jsnitsel@redhat.com>
+References: <20191111233418.17676-1-jsnitsel@redhat.com>
 MIME-Version: 1.0
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ping-Ke Shih" <pkshih@realtek.com>,
-        "Laura Abbott" <labbott@redhat.com>,
-        "Kalle Valo" <kvalo@codeaurora.org>,
-        "Nicolas Waisman" <nico@semmle.com>
-Date:   Tue, 12 Nov 2019 23:48:22 +0000
-Message-ID: <lsq.1573602477.292188943@decadent.org.uk>
-X-Mailer: LinuxStableQueue (scripts by bwh)
-X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 25/25] rtlwifi: Fix potential overflow on P2P code
-In-Reply-To: <lsq.1573602477.548403712@decadent.org.uk>
-X-SA-Exim-Connect-IP: 167.98.27.226
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: 5EKU7PrLP_mDMrmo4DPU2w-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-3.16.77-rc1 review patch.  If anyone has any objections, please let me know.
+With power gating moved out of the tpm_transmit code we need
+to power on the TPM prior to calling tpm_get_timeouts.
 
-------------------
-
-From: Laura Abbott <labbott@redhat.com>
-
-commit 8c55dedb795be8ec0cf488f98c03a1c2176f7fb1 upstream.
-
-Nicolas Waisman noticed that even though noa_len is checked for
-a compatible length it's still possible to overrun the buffers
-of p2pinfo since there's no check on the upper bound of noa_num.
-Bound noa_num against P2P_MAX_NOA_NUM.
-
-Reported-by: Nicolas Waisman <nico@semmle.com>
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+Cc: Peter Huewe <peterhuewe@gmx.de>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()=
+")
+Reported-by: Christian Bundy <christianbundy@fraction.io>
+Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
 ---
- drivers/net/wireless/rtlwifi/ps.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+v3: call tpm_chip_stop in error path
+v2: fix stable cc to correct address
 
---- a/drivers/net/wireless/rtlwifi/ps.c
-+++ b/drivers/net/wireless/rtlwifi/ps.c
-@@ -801,6 +801,9 @@ static void rtl_p2p_noa_ie(struct ieee80
- 				return;
- 			} else {
- 				noa_num = (noa_len - 2) / 13;
-+				if (noa_num > P2P_MAX_NOA_NUM)
-+					noa_num = P2P_MAX_NOA_NUM;
-+
- 			}
- 			noa_index = ie[3];
- 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
-@@ -895,6 +898,9 @@ static void rtl_p2p_action_ie(struct iee
- 				return;
- 			} else {
- 				noa_num = (noa_len - 2) / 13;
-+				if (noa_num > P2P_MAX_NOA_NUM)
-+					noa_num = P2P_MAX_NOA_NUM;
-+
- 			}
- 			noa_index = ie[3];
- 			if (rtlpriv->psc.p2p_ps_info.p2p_ps_mode ==
+ drivers/char/tpm/tpm_tis_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_cor=
+e.c
+index 270f43acbb77..806acc666696 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -974,13 +974,14 @@ int tpm_tis_core_init(struct device *dev, struct tpm_=
+tis_data *priv, int irq,
+ =09=09 * to make sure it works. May as well use that command to set the
+ =09=09 * proper timeouts for the driver.
+ =09=09 */
++=09=09tpm_chip_start(chip);
+ =09=09if (tpm_get_timeouts(chip)) {
+ =09=09=09dev_err(dev, "Could not get TPM timeouts and durations\n");
+ =09=09=09rc =3D -ENODEV;
++=09=09=09tpm_chip_stop(chip);
+ =09=09=09goto out_err;
+ =09=09}
+=20
+-=09=09tpm_chip_start(chip);
+ =09=09chip->flags |=3D TPM_CHIP_FLAG_IRQ;
+ =09=09if (irq) {
+ =09=09=09tpm_tis_probe_irq_single(chip, intmask, IRQF_SHARED,
+--=20
+2.24.0
 
