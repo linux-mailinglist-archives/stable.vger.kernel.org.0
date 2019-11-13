@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0841FFA4B9
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:19:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8226FA47E
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:17:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728370AbfKMB4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729358AbfKMB4C (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Nov 2019 20:56:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729349AbfKMB4B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:56:01 -0500
+        id S1729307AbfKMB4C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:56:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 980832247C;
-        Wed, 13 Nov 2019 01:55:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13AFB222CF;
+        Wed, 13 Nov 2019 01:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610160;
-        bh=Pa9IDB6Fd3A8IIm+kJX6e40chC4y0g1zGgVAP5mCn/o=;
+        s=default; t=1573610161;
+        bh=eO+zh+1hDJrf6kovEjttSsvpTV1BbphILcEKLCmqexY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=huwAjqkPIMGYVEMdFklJgIADNpowjtEotdgqm3dJYhmFkVeknMHe66bqJAm8yyEW+
-         Fh3+l2zxHL+Z6JpPFxYXKgWbtniYtiCoA3QCI26RvDGDOGXrzABDXfCQpy+2VXBASq
-         d4XaGSC59MRGuAAJYQ/L7OrRUonUqFHlZjljhQ0s=
+        b=kQmw5lFI75CTde7M5OHUJ4vMBvBFR9+cRLJbanIXgWQOfl+Zt74vFKlsIEU/i1QJV
+         Dtm+Caq71lQQAyff7Nez4neYUOBvAmhkO9mvyEg4LzXaESqxHZc3FVG7iJx9g8iEK7
+         REs2aF2SR4mGtOfzD/hIigiQl2JUinmo4XAY5Jdk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yuchung Cheng <ycheng@google.com>, Wei Wang <weiwan@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Soheil Hassas Yeganeh <soheil@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 203/209] tcp: start receiver buffer autotuning sooner
-Date:   Tue, 12 Nov 2019 20:50:19 -0500
-Message-Id: <20191113015025.9685-203-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 204/209] ACPI / LPSS: Use acpi_lpss_* instead of acpi_subsys_* functions for hibernate
+Date:   Tue, 12 Nov 2019 20:50:20 -0500
+Message-Id: <20191113015025.9685-204-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -46,43 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchung Cheng <ycheng@google.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 041a14d2671573611ffd6412bc16e2f64469f7fb ]
+[ Upstream commit c8afd03486c26accdda4846e5561aa3f8e862a9d ]
 
-Previously receiver buffer auto-tuning starts after receiving
-one advertised window amount of data. After the initial receiver
-buffer was raised by patch a337531b942b ("tcp: up initial rmem to
-128KB and SYN rwin to around 64KB"), the reciver buffer may take
-too long to start raising. To address this issue, this patch lowers
-the initial bytes expected to receive roughly the expected sender's
-initial window.
+Commit 48402cee6889 ("ACPI / LPSS: Resume BYT/CHT I2C controllers from
+resume_noirq") makes acpi_lpss_{suspend_late,resume_early}() bail early
+on BYT/CHT as resume_from_noirq is set.
 
-Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
-Signed-off-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Soheil Hassas Yeganeh <soheil@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This means that on resume from hibernate dw_i2c_plat_resume() doesn't get
+called by the restore_early callback, acpi_lpss_resume_early(). Instead it
+should be called by the restore_noirq callback matching how things are done
+when resume_from_noirq is set and we are doing a regular resume.
+
+Change the restore_noirq callback to acpi_lpss_resume_noirq so that
+dw_i2c_plat_resume() gets properly called when resume_from_noirq is set
+and we are resuming from hibernate.
+
+Likewise also change the poweroff_noirq callback so that
+dw_i2c_plat_suspend gets called properly.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=202139
+Fixes: 48402cee6889 ("ACPI / LPSS: Resume BYT/CHT I2C controllers from resume_noirq")
+Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Cc: 4.20+ <stable@vger.kernel.org> # 4.20+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp_input.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpi_lpss.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
-index 0e2b07be08585..57e8dad956ec4 100644
---- a/net/ipv4/tcp_input.c
-+++ b/net/ipv4/tcp_input.c
-@@ -438,7 +438,7 @@ void tcp_init_buffer_space(struct sock *sk)
- 	if (!(sk->sk_userlocks & SOCK_SNDBUF_LOCK))
- 		tcp_sndbuf_expand(sk);
- 
--	tp->rcvq_space.space = tp->rcv_wnd;
-+	tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
- 	tcp_mstamp_refresh(tp);
- 	tp->rcvq_space.time = tp->tcp_mstamp;
- 	tp->rcvq_space.seq = tp->copied_seq;
+diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
+index c47bc6c7f4b91..a63285f9cbca1 100644
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -1121,8 +1121,8 @@ static struct dev_pm_domain acpi_lpss_pm_domain = {
+ 		.thaw_noirq = acpi_subsys_thaw_noirq,
+ 		.poweroff = acpi_subsys_suspend,
+ 		.poweroff_late = acpi_lpss_suspend_late,
+-		.poweroff_noirq = acpi_subsys_suspend_noirq,
+-		.restore_noirq = acpi_subsys_resume_noirq,
++		.poweroff_noirq = acpi_lpss_suspend_noirq,
++		.restore_noirq = acpi_lpss_resume_noirq,
+ 		.restore_early = acpi_lpss_resume_early,
+ #endif
+ 		.runtime_suspend = acpi_lpss_runtime_suspend,
 -- 
 2.20.1
 
