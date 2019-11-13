@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4A1FA427
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D68FA429
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728280AbfKMCO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727818AbfKMCO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 12 Nov 2019 21:14:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50224 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727577AbfKMB5N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:57:13 -0500
+        id S1728681AbfKMB5O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:57:14 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2B5E22469;
-        Wed, 13 Nov 2019 01:57:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E19B52246A;
+        Wed, 13 Nov 2019 01:57:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610232;
-        bh=HSeu81ZhvvwV6IqE4gBPPXBakWr3J/9nmvn+yNdGt48=;
+        s=default; t=1573610233;
+        bh=Ws/++C/6yz3D2eqU9vCnRueTeOtZH2HVRq3VtWoVuao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrgtWJ912rclita6SWeMSRhb7BQx7SMk58yTD/vL5ivtMegO34p5my+4zCdTpblNQ
-         pZy1NJqOrdR3zu3eJe0raM8LqnEJePYOej2ibhfuwCeah4tuDI2+0UPwZRhPq1YHuL
-         pF8sT+3TlYGUfL22DjN67/10kH1ShdpC/V/HGBwc=
+        b=EjmjxWS9FHiepmxVxJXyumXaSCzgU0irvvC6CCtgsk8bgETNP5bsNBn1k4lhMbkrg
+         cHsJS+EBGMIx8eWAP8Ea9rjtIG0gE41DE+ogwchnPvflyq+pcvCbqP5nBxexdoD/RY
+         h9YLOy6eQNOEHCvv+UxHHo+AeTb655Iq400MWRCo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhong jiang <zhongjiang@huawei.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 033/115] powerpc/xive: Move a dereference below a NULL test
-Date:   Tue, 12 Nov 2019 20:55:00 -0500
-Message-Id: <20191113015622.11592-33-sashal@kernel.org>
+Cc:     Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 034/115] ARM: dts: at91: sama5d4_xplained: fix addressable nand flash size
+Date:   Tue, 12 Nov 2019 20:55:01 -0500
+Message-Id: <20191113015622.11592-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -43,40 +43,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit cd5ff94577e004e0a4457e70d0ef3a030f4010b8 ]
+[ Upstream commit df90fc64367ffdb6f1b5c0f0c4940d44832b0174 ]
 
-Move the dereference of xc below the NULL test.
+sama5d4_xplained comes with a 4Gb NAND flash. Increase the rootfs
+size to match this limit.
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/sysdev/xive/common.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/at91-sama5d4_xplained.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
-index 818fc5351591c..110d8bb16ebbb 100644
---- a/arch/powerpc/sysdev/xive/common.c
-+++ b/arch/powerpc/sysdev/xive/common.c
-@@ -1008,12 +1008,13 @@ static void xive_ipi_eoi(struct irq_data *d)
- {
- 	struct xive_cpu *xc = __this_cpu_read(xive_cpu);
+diff --git a/arch/arm/boot/dts/at91-sama5d4_xplained.dts b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+index cf712444b2c2c..10f2fb9e0ea61 100644
+--- a/arch/arm/boot/dts/at91-sama5d4_xplained.dts
++++ b/arch/arm/boot/dts/at91-sama5d4_xplained.dts
+@@ -240,7 +240,7 @@
  
--	DBG_VERBOSE("IPI eoi: irq=%d [0x%lx] (HW IRQ 0x%x) pending=%02x\n",
--		    d->irq, irqd_to_hwirq(d), xc->hw_ipi, xc->pending_prio);
--
- 	/* Handle possible race with unplug and drop stale IPIs */
- 	if (!xc)
- 		return;
-+
-+	DBG_VERBOSE("IPI eoi: irq=%d [0x%lx] (HW IRQ 0x%x) pending=%02x\n",
-+		    d->irq, irqd_to_hwirq(d), xc->hw_ipi, xc->pending_prio);
-+
- 	xive_do_source_eoi(xc->hw_ipi, &xc->ipi_data);
- 	xive_do_queue_eoi(xc);
- }
+ 						rootfs@800000 {
+ 							label = "rootfs";
+-							reg = <0x800000 0x0f800000>;
++							reg = <0x800000 0x1f800000>;
+ 						};
+ 					};
+ 				};
 -- 
 2.20.1
 
