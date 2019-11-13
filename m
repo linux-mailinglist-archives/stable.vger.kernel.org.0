@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E44FA3DB
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1688FA3DA
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729944AbfKMB6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:58:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51636 "EHLO mail.kernel.org"
+        id S1729953AbfKMCMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:12:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729940AbfKMB6F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:58:05 -0500
+        id S1729877AbfKMB6I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:58:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 74200222D3;
-        Wed, 13 Nov 2019 01:58:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7ED222469;
+        Wed, 13 Nov 2019 01:58:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610285;
-        bh=xd9MmByD4kgF02UVppLESgoSj9OQHcqjVex2lFwXvoI=;
+        s=default; t=1573610287;
+        bh=mBWSYqzntZrRXyv64akBAkmmXnttEMUiQhS1mPu6nLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DT2CaiDuuKNuxXx7s62+FakCPZMprTPX7bWJgYNitiQAqSBv1+L+mWyC/zPCBsOJ7
-         zSSQkReJ5k5CMqsGZv13Sf5YY12ZuHxX1nQcv7njSynLPWfcJE2zr35XcDKUASbsOH
-         ov3b+vr9Q9pH5ZI6HscEnhe/uk3q894ocnyCMCeg=
+        b=MHQFd/rtLLZEnub21a//nLXqjNIG72/YNTOsCzvKcEaFJSR8Fpeu+BlcvBp0A0Bsi
+         U97cdimEFj+tQFRrrmebOfZCo1QCjaIcqVEcu9+VSMuTf1KBblCGWT2mj8gBuF6GEo
+         aa5O/hhhAlDbxwtx98lJf8xs5LmJ2y/pey28M5ZM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 062/115] qtnfmac: drop error reports for out-of-bounds key indexes
-Date:   Tue, 12 Nov 2019 20:55:29 -0500
-Message-Id: <20191113015622.11592-62-sashal@kernel.org>
+Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
+        Sylwester Nawrocki <snawrocki@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 064/115] clk: samsung: Use clk_hw API for calling clk framework from clk notifiers
+Date:   Tue, 12 Nov 2019 20:55:31 -0500
+Message-Id: <20191113015622.11592-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -44,46 +43,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 35da3fe63b8647ce3cc52fccdf186a60710815fb ]
+[ Upstream commit 1da220e3a5d22fccda0bc8542997abc1d1741268 ]
 
-On disconnect wireless core attempts to remove all the supported keys.
-Following cfg80211_ops conventions, firmware returns -ENOENT code
-for the out-of-bound key indexes. This is a normal behavior,
-so no need to report errors for this case.
+clk_notifier_register() documentation states, that the provided notifier
+callbacks associated with the notifier must not re-enter into the clk
+framework by calling any top-level clk APIs. Fix this by replacing
+clk_get_rate() calls with clk_hw_get_rate(), which is safe in this
+context.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Sylwester Nawrocki <snawrocki@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/quantenna/qtnfmac/cfg80211.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/clk/samsung/clk-cpu.c | 6 +++---
+ drivers/clk/samsung/clk-cpu.h | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c b/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c
-index a450bc6bc7745..d02f68792ce41 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c
-@@ -509,9 +509,16 @@ static int qtnf_del_key(struct wiphy *wiphy, struct net_device *dev,
- 	int ret;
+diff --git a/drivers/clk/samsung/clk-cpu.c b/drivers/clk/samsung/clk-cpu.c
+index 6686e8ba61f9f..82f023f29a61f 100644
+--- a/drivers/clk/samsung/clk-cpu.c
++++ b/drivers/clk/samsung/clk-cpu.c
+@@ -152,7 +152,7 @@ static int exynos_cpuclk_pre_rate_change(struct clk_notifier_data *ndata,
+ 			struct exynos_cpuclk *cpuclk, void __iomem *base)
+ {
+ 	const struct exynos_cpuclk_cfg_data *cfg_data = cpuclk->cfg;
+-	unsigned long alt_prate = clk_get_rate(cpuclk->alt_parent);
++	unsigned long alt_prate = clk_hw_get_rate(cpuclk->alt_parent);
+ 	unsigned long alt_div = 0, alt_div_mask = DIV_MASK;
+ 	unsigned long div0, div1 = 0, mux_reg;
+ 	unsigned long flags;
+@@ -280,7 +280,7 @@ static int exynos5433_cpuclk_pre_rate_change(struct clk_notifier_data *ndata,
+ 			struct exynos_cpuclk *cpuclk, void __iomem *base)
+ {
+ 	const struct exynos_cpuclk_cfg_data *cfg_data = cpuclk->cfg;
+-	unsigned long alt_prate = clk_get_rate(cpuclk->alt_parent);
++	unsigned long alt_prate = clk_hw_get_rate(cpuclk->alt_parent);
+ 	unsigned long alt_div = 0, alt_div_mask = DIV_MASK;
+ 	unsigned long div0, div1 = 0, mux_reg;
+ 	unsigned long flags;
+@@ -432,7 +432,7 @@ int __init exynos_register_cpu_clock(struct samsung_clk_provider *ctx,
+ 	else
+ 		cpuclk->clk_nb.notifier_call = exynos_cpuclk_notifier_cb;
  
- 	ret = qtnf_cmd_send_del_key(vif, key_index, pairwise, mac_addr);
--	if (ret)
--		pr_err("VIF%u.%u: failed to delete key: idx=%u pw=%u\n",
--		       vif->mac->macid, vif->vifid, key_index, pairwise);
-+	if (ret) {
-+		if (ret == -ENOENT) {
-+			pr_debug("VIF%u.%u: key index %d out of bounds\n",
-+				 vif->mac->macid, vif->vifid, key_index);
-+		} else {
-+			pr_err("VIF%u.%u: failed to delete key: idx=%u pw=%u\n",
-+			       vif->mac->macid, vif->vifid,
-+			       key_index, pairwise);
-+		}
-+	}
- 
- 	return ret;
- }
+-	cpuclk->alt_parent = __clk_lookup(alt_parent);
++	cpuclk->alt_parent = __clk_get_hw(__clk_lookup(alt_parent));
+ 	if (!cpuclk->alt_parent) {
+ 		pr_err("%s: could not lookup alternate parent %s\n",
+ 				__func__, alt_parent);
+diff --git a/drivers/clk/samsung/clk-cpu.h b/drivers/clk/samsung/clk-cpu.h
+index d4b6b517fe1b4..bd38c6aa38970 100644
+--- a/drivers/clk/samsung/clk-cpu.h
++++ b/drivers/clk/samsung/clk-cpu.h
+@@ -49,7 +49,7 @@ struct exynos_cpuclk_cfg_data {
+  */
+ struct exynos_cpuclk {
+ 	struct clk_hw				hw;
+-	struct clk				*alt_parent;
++	struct clk_hw				*alt_parent;
+ 	void __iomem				*ctrl_base;
+ 	spinlock_t				*lock;
+ 	const struct exynos_cpuclk_cfg_data	*cfg;
 -- 
 2.20.1
 
