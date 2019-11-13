@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 30389FA393
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD708FA1C4
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:00:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728961AbfKMCK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:10:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53622 "EHLO mail.kernel.org"
+        id S1730238AbfKMB7R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:59:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730233AbfKMB7O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:59:14 -0500
+        id S1727741AbfKMB7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:59:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78050222CF;
-        Wed, 13 Nov 2019 01:59:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B10662247B;
+        Wed, 13 Nov 2019 01:59:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610354;
-        bh=Xly+WwSRVQd4TwyrC8/aeq8ryWsEK+3hHMKmq1lem7w=;
+        s=default; t=1573610355;
+        bh=+ugDS3NL4mHHN24G7VTK1jmCHcSW7yZCBs8zU+QAsHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BaMbxQUS+aWo/ETNqLXoUxieVBBQ9w97AafH120BPcI0ILccwHRMLvXqRZRcpbdY5
-         KxuLcaHBAPSsvPCm9uu3rGbtCX6RxFU/tVONytOO4k6Vy4LJeLpxuk4zphHiAN8IRT
-         RBRlrsD6VrJzQWF7G2H4+Pd2GyUxPD6lZMkgRuZw=
+        b=2PAhrods90GicdI5HmNtd1bdwteDNfcausMoJLJXtmCtClgLAq0IW2nQboV0nQG82
+         oVr79EIdhZjgAndkCzQmEceVe3LzXfWr1eZ39sUoYhhrSOixAGnvV9+GhoFhAKF48f
+         AZYjAATptynnlW727TtZAQjKtEBzCRgvgNwJ49Xc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
-        Florian Westphal <fw@strlen.de>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 105/115] netfilter: nft_compat: do not dump private area
-Date:   Tue, 12 Nov 2019 20:56:12 -0500
-Message-Id: <20191113015622.11592-105-sashal@kernel.org>
+Cc:     zhong jiang <zhongjiang@huawei.com>,
+        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 106/115] misc: cxl: Fix possible null pointer dereference
+Date:   Tue, 12 Nov 2019 20:56:13 -0500
+Message-Id: <20191113015622.11592-106-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -45,71 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: zhong jiang <zhongjiang@huawei.com>
 
-[ Upstream commit d701d8117200399d85e63a737d2e4e897932f3b6 ]
+[ Upstream commit 3dac3583bf1a61db6aaf31dfd752c677a4400afd ]
 
-Zero pad private area, otherwise we expose private kernel pointer to
-userspace. This patch also zeroes the tail area after the ->matchsize
-and ->targetsize that results from XT_ALIGN().
+It is not safe to dereference an object before a null test. It is
+not needed and just remove them. Ftrace can be used instead.
 
-Fixes: 0ca743a55991 ("netfilter: nf_tables: add compatibility layer for x_tables")
-Reported-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+Acked-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_compat.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ drivers/misc/cxl/guest.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/net/netfilter/nft_compat.c b/net/netfilter/nft_compat.c
-index 7344ec7fff2a7..8281656808aee 100644
---- a/net/netfilter/nft_compat.c
-+++ b/net/netfilter/nft_compat.c
-@@ -291,6 +291,24 @@ nft_target_destroy(const struct nft_ctx *ctx, const struct nft_expr *expr)
- 		module_put(me);
- }
+diff --git a/drivers/misc/cxl/guest.c b/drivers/misc/cxl/guest.c
+index 1a64eb185cfd5..de2ce55395454 100644
+--- a/drivers/misc/cxl/guest.c
++++ b/drivers/misc/cxl/guest.c
+@@ -1028,8 +1028,6 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
  
-+static int nft_extension_dump_info(struct sk_buff *skb, int attr,
-+				   const void *info,
-+				   unsigned int size, unsigned int user_size)
-+{
-+	unsigned int info_size, aligned_size = XT_ALIGN(size);
-+	struct nlattr *nla;
-+
-+	nla = nla_reserve(skb, attr, aligned_size);
-+	if (!nla)
-+		return -1;
-+
-+	info_size = user_size ? : size;
-+	memcpy(nla_data(nla), info, info_size);
-+	memset(nla_data(nla) + info_size, 0, aligned_size - info_size);
-+
-+	return 0;
-+}
-+
- static int nft_target_dump(struct sk_buff *skb, const struct nft_expr *expr)
+ void cxl_guest_remove_afu(struct cxl_afu *afu)
  {
- 	const struct xt_target *target = expr->ops->data;
-@@ -298,7 +316,8 @@ static int nft_target_dump(struct sk_buff *skb, const struct nft_expr *expr)
+-	pr_devel("in %s - AFU(%d)\n", __func__, afu->slice);
+-
+ 	if (!afu)
+ 		return;
  
- 	if (nla_put_string(skb, NFTA_TARGET_NAME, target->name) ||
- 	    nla_put_be32(skb, NFTA_TARGET_REV, htonl(target->revision)) ||
--	    nla_put(skb, NFTA_TARGET_INFO, XT_ALIGN(target->targetsize), info))
-+	    nft_extension_dump_info(skb, NFTA_TARGET_INFO, info,
-+				    target->targetsize, target->usersize))
- 		goto nla_put_failure;
- 
- 	return 0;
-@@ -534,7 +553,8 @@ static int __nft_match_dump(struct sk_buff *skb, const struct nft_expr *expr,
- 
- 	if (nla_put_string(skb, NFTA_MATCH_NAME, match->name) ||
- 	    nla_put_be32(skb, NFTA_MATCH_REV, htonl(match->revision)) ||
--	    nla_put(skb, NFTA_MATCH_INFO, XT_ALIGN(match->matchsize), info))
-+	    nft_extension_dump_info(skb, NFTA_MATCH_INFO, info,
-+				    match->matchsize, match->usersize))
- 		goto nla_put_failure;
- 
- 	return 0;
 -- 
 2.20.1
 
