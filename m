@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E35FA3CB
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89314FA3C9
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729982AbfKMB6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 20:58:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51968 "EHLO mail.kernel.org"
+        id S1730005AbfKMB6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 20:58:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728959AbfKMB6T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:58:19 -0500
+        id S1728471AbfKMB6W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:58:22 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28D0B222CF;
-        Wed, 13 Nov 2019 01:58:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6979222D4;
+        Wed, 13 Nov 2019 01:58:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610298;
-        bh=mVeXe/oLVm/UKSIJ1sNGQhVuu2K8tzzVlbBA6ZHxeuw=;
+        s=default; t=1573610301;
+        bh=YM+20L3XfJDfQla675w1xo0yGmW/B4bzJN2PdZ3ouaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iddatUHQySqaYqPKnq3+lYJFpEW/vsoUp2oOHcIMtdUPRnAfOTXPYparycpkCG6BK
-         zBTudqG9QZGEJgGaJyZkGcVIscWeMhLGZpDd/PzOxHOYBi9dd5WnP3rVhr3HHQQFra
-         V1goB+5JL1xfMBN1hxUkjtJhdeTC/JSB/mW1j9PU=
+        b=0KD7tweOMDaV+O9vgcUjwbm0pm7uRK1/i1lWDoAqgcgBHwy8V8MDgS387/eSp8pns
+         GkzSJG24WgQTQsN1aOd6LMITexG/ub72PqUk0ZELVAuOmPrbEFcLXHjUYY707XsjCr
+         KSYbISU++79U3E6Did7/GzuO9wTebE5cyOPyPX1Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Sax <jsbc@gmx.de>, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 070/115] Input: silead - try firmware reload after unsuccessful resume
-Date:   Tue, 12 Nov 2019 20:55:37 -0500
-Message-Id: <20191113015622.11592-70-sashal@kernel.org>
+Cc:     Lianbo Jiang <lijiang@redhat.com>, Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        kexec@lists.infradead.org, tglx@linutronix.de, mingo@redhat.com,
+        hpa@zytor.com, akpm@linux-foundation.org, dan.j.williams@intel.com,
+        bhelgaas@google.com, baiyaowei@cmss.chinamobile.com, tiwai@suse.de,
+        brijesh.singh@amd.com, dyoung@redhat.com, bhe@redhat.com,
+        jroedel@suse.de, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 072/115] kexec: Allocate decrypted control pages for kdump if SME is enabled
+Date:   Tue, 12 Nov 2019 20:55:39 -0500
+Message-Id: <20191113015622.11592-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015622.11592-1-sashal@kernel.org>
 References: <20191113015622.11592-1-sashal@kernel.org>
@@ -44,60 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sax <jsbc@gmx.de>
+From: Lianbo Jiang <lijiang@redhat.com>
 
-[ Upstream commit dde27443211062e841806feaf690674b7c3a599f ]
+[ Upstream commit 9cf38d5559e813cccdba8b44c82cc46ba48d0896 ]
 
-A certain silead controller (Chip ID: 0x56810000) loses its firmware
-after suspend, causing the resume to fail. This patch tries to load
-the firmware, should a resume error occur and retries the resuming.
+When SME is enabled in the first kernel, it needs to allocate decrypted
+pages for kdump because when the kdump kernel boots, these pages need to
+be accessed decrypted in the initial boot stage, before SME is enabled.
 
-Signed-off-by: Julian Sax <jsbc@gmx.de>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+ [ bp: clean up text. ]
+
+Signed-off-by: Lianbo Jiang <lijiang@redhat.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: kexec@lists.infradead.org
+Cc: tglx@linutronix.de
+Cc: mingo@redhat.com
+Cc: hpa@zytor.com
+Cc: akpm@linux-foundation.org
+Cc: dan.j.williams@intel.com
+Cc: bhelgaas@google.com
+Cc: baiyaowei@cmss.chinamobile.com
+Cc: tiwai@suse.de
+Cc: brijesh.singh@amd.com
+Cc: dyoung@redhat.com
+Cc: bhe@redhat.com
+Cc: jroedel@suse.de
+Link: https://lkml.kernel.org/r/20180930031033.22110-3-lijiang@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/silead.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ kernel/kexec_core.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 0dbcf105f7db3..7c0eeef29b3cb 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -534,20 +534,33 @@ static int __maybe_unused silead_ts_suspend(struct device *dev)
- static int __maybe_unused silead_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	bool second_try = false;
- 	int error, status;
- 
- 	silead_ts_set_power(client, SILEAD_POWER_ON);
- 
-+ retry:
- 	error = silead_ts_reset(client);
- 	if (error)
- 		return error;
- 
-+	if (second_try) {
-+		error = silead_ts_load_fw(client);
-+		if (error)
-+			return error;
-+	}
-+
- 	error = silead_ts_startup(client);
- 	if (error)
- 		return error;
- 
- 	status = silead_ts_get_status(client);
- 	if (status != SILEAD_STATUS_OK) {
-+		if (!second_try) {
-+			second_try = true;
-+			dev_dbg(dev, "Reloading firmware after unsuccessful resume\n");
-+			goto retry;
-+		}
- 		dev_err(dev, "Resume error, status: 0x%02x\n", status);
- 		return -ENODEV;
+diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
+index 8f15665ab6167..27cf24e285e0c 100644
+--- a/kernel/kexec_core.c
++++ b/kernel/kexec_core.c
+@@ -473,6 +473,10 @@ static struct page *kimage_alloc_crash_control_pages(struct kimage *image,
+ 		}
  	}
+ 
++	/* Ensure that these pages are decrypted if SME is enabled. */
++	if (pages)
++		arch_kexec_post_alloc_pages(page_address(pages), 1 << order, 0);
++
+ 	return pages;
+ }
+ 
+@@ -867,6 +871,7 @@ static int kimage_load_crash_segment(struct kimage *image,
+ 			result  = -ENOMEM;
+ 			goto out;
+ 		}
++		arch_kexec_post_alloc_pages(page_address(page), 1, 0);
+ 		ptr = kmap(page);
+ 		ptr += maddr & ~PAGE_MASK;
+ 		mchunk = min_t(size_t, mbytes,
+@@ -884,6 +889,7 @@ static int kimage_load_crash_segment(struct kimage *image,
+ 			result = copy_from_user(ptr, buf, uchunk);
+ 		kexec_flush_icache_page(page);
+ 		kunmap(page);
++		arch_kexec_pre_free_pages(page_address(page), 1);
+ 		if (result) {
+ 			result = -EFAULT;
+ 			goto out;
 -- 
 2.20.1
 
