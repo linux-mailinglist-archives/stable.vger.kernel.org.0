@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD501FA297
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:05:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A499BFA29D
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730908AbfKMCB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:01:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58180 "EHLO mail.kernel.org"
+        id S1728784AbfKMCEp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:04:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729402AbfKMCB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 21:01:56 -0500
+        id S1728585AbfKMCB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 21:01:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2680120674;
-        Wed, 13 Nov 2019 02:01:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31F66222CA;
+        Wed, 13 Nov 2019 02:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610515;
-        bh=ZxkIgG+Oa+kY1HAulN5VVJ7/HOzwWg4gtRjfk+JdGC0=;
+        s=default; t=1573610517;
+        bh=u2HPfRf/Kr1Qq6s8M6REfzpCPG/qBcR8on1BXqhMHJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pztfyV+TcSJfpsiAB8f4iGY6Y60T4X+R1vuZ0s6l2nioJbeDKmKcRFYSs1dt5gbtS
-         Q9SvxJT4iqByO9PyEnaGle+Iq83t36qu8lyoK4YMwtJXXMVZiv7tVjNgrqbas2cJmJ
-         ZVd4tneK6hqHT5L3oL461EszcfVzifim8j2yqA1c=
+        b=v06lANdtncHlAYR4rZTxb5gEvisqmkl65CHuORZHZmhFCCvV9JAYXIecwcJZjtGa9
+         sUySp91pd/8ZrK1bvZRRK8EqJGppce6c3FsPmh1d2DU9Bgz1hcscPs2lkSFs/FNdQb
+         gHWCVzn5YY/yeHGiDrjdIBddUBkmrT9ab77QjEkw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 15/48] powerpc/pseries: Fix how we iterate over the DTL entries
-Date:   Tue, 12 Nov 2019 21:00:58 -0500
-Message-Id: <20191113020131.13356-15-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.4 16/48] mtd: rawnand: sh_flctl: Use proper enum for flctl_dma_fifo0_transfer
+Date:   Tue, 12 Nov 2019 21:00:59 -0500
+Message-Id: <20191113020131.13356-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113020131.13356-1-sashal@kernel.org>
 References: <20191113020131.13356-1-sashal@kernel.org>
@@ -43,38 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 9258227e9dd1da8feddb07ad9702845546a581c9 ]
+[ Upstream commit e2bfa4ca23d9b5a7bdfcf21319fad9b59e38a05c ]
 
-When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we look up dtl_idx in
-the lppaca to determine the number of entries in the buffer. Since
-lppaca is in big endian, we need to do an endian conversion before using
-this in our calculation to determine the number of entries in the
-buffer. Without this, we do not iterate over the existing entries in the
-DTL buffer properly.
+Clang warns when one enumerated type is converted implicitly to another:
 
-Fixes: 7c105b63bd98 ("powerpc: Add CONFIG_CPU_LITTLE_ENDIAN kernel config option.")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+drivers/mtd/nand/raw/sh_flctl.c:483:46: warning: implicit conversion
+from enumeration type 'enum dma_transfer_direction' to different
+enumeration type 'enum dma_data_direction' [-Wenum-conversion]
+                flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_DEV_TO_MEM) > 0)
+                ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+drivers/mtd/nand/raw/sh_flctl.c:542:46: warning: implicit conversion
+from enumeration type 'enum dma_transfer_direction' to different
+enumeration type 'enum dma_data_direction' [-Wenum-conversion]
+                flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_MEM_TO_DEV) > 0)
+                ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+2 warnings generated.
+
+Use the proper enums from dma_data_direction to satisfy Clang.
+
+DMA_MEM_TO_DEV = DMA_TO_DEVICE = 1
+DMA_DEV_TO_MEM = DMA_FROM_DEVICE = 2
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/dtl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/sh_flctl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/dtl.c b/arch/powerpc/platforms/pseries/dtl.c
-index 37de83c5ef172..7a4d172c93765 100644
---- a/arch/powerpc/platforms/pseries/dtl.c
-+++ b/arch/powerpc/platforms/pseries/dtl.c
-@@ -185,7 +185,7 @@ static void dtl_stop(struct dtl *dtl)
+diff --git a/drivers/mtd/nand/sh_flctl.c b/drivers/mtd/nand/sh_flctl.c
+index 1f2785ee909fe..c00a180306e50 100644
+--- a/drivers/mtd/nand/sh_flctl.c
++++ b/drivers/mtd/nand/sh_flctl.c
+@@ -428,7 +428,7 @@ static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
  
- static u64 dtl_current_index(struct dtl *dtl)
- {
--	return lppaca_of(dtl->cpu).dtl_idx;
-+	return be64_to_cpu(lppaca_of(dtl->cpu).dtl_idx);
- }
- #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
+ 	/* initiate DMA transfer */
+ 	if (flctl->chan_fifo0_rx && rlen >= 32 &&
+-		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_DEV_TO_MEM) > 0)
++		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE) > 0)
+ 			goto convert;	/* DMA success */
  
+ 	/* do polling transfer */
+@@ -487,7 +487,7 @@ static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
+ 
+ 	/* initiate DMA transfer */
+ 	if (flctl->chan_fifo0_tx && rlen >= 32 &&
+-		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_MEM_TO_DEV) > 0)
++		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE) > 0)
+ 			return;	/* DMA success */
+ 
+ 	/* do polling transfer */
 -- 
 2.20.1
 
