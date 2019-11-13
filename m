@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F86AFA50F
-	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:21:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCFE8FA50C
+	for <lists+stable@lfdr.de>; Wed, 13 Nov 2019 03:21:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729417AbfKMCUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 12 Nov 2019 21:20:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45450 "EHLO mail.kernel.org"
+        id S1728930AbfKMCUP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 12 Nov 2019 21:20:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728899AbfKMByc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 12 Nov 2019 20:54:32 -0500
+        id S1728909AbfKMByd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 12 Nov 2019 20:54:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA5EB222CD;
-        Wed, 13 Nov 2019 01:54:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42FE9222D4;
+        Wed, 13 Nov 2019 01:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573610071;
-        bh=8xNOoACWH3K2CUyjJCpoBhrHykxp+H3DVrmXt4ZVvNI=;
+        s=default; t=1573610073;
+        bh=KTkvUQEH+MTZwMLJGI6O1q79iMJJn6gCBtjwVFifjm4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNs1MPhNN9HgucHAddXGYtRHm3njOh3B2HgPpnHqZAh5vlew3mFjkftkM9O32KTyN
-         vW/OPY4rWePQVGTySZW5FiFdDcrLtYVVBFKiNhlNQIxS/KN+OiiRpuWwz/IUgce3tA
-         DOKHyVUHBIxRXmC+CrU2CCJdVyEtwaI4AhMI2/gQ=
+        b=RY93mNUVDjKuF5UyHDNJtndzLkDZHwJirf+dOM+t7DbXmmy586O5a5KBotbirqVOT
+         v481YYUyEAtNpuHz0MI0PX7FguczU9LyWTTgjJyll1VHjvsT+xtproq6AT2+CEbNst
+         p3sNOi5UkuVepSuNWuAIz5UeP14Q+55wxnt0kilU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org,
         clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 150/209] media: cx18: Don't check for address of video_dev
-Date:   Tue, 12 Nov 2019 20:49:26 -0500
-Message-Id: <20191113015025.9685-150-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 151/209] mtd: spi-nor: cadence-quadspi: Use proper enum for dma_[un]map_single
+Date:   Tue, 12 Nov 2019 20:49:27 -0500
+Message-Id: <20191113015025.9685-151-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191113015025.9685-1-sashal@kernel.org>
 References: <20191113015025.9685-1-sashal@kernel.org>
@@ -48,46 +46,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit eb1ca9a428fdc3f98be4898f6cd8bcb803878619 ]
+[ Upstream commit 900f5e0d8c9edc5dacc57873d22aee2ae699a8e1 ]
 
-Clang warns that the address of a pointer will always evaluated as true
-in a boolean context.
+Clang warns when one enumerated type is converted implicitly to another.
 
-drivers/media/pci/cx18/cx18-driver.c:1255:23: warning: address of
-'cx->streams[i].video_dev' will always evaluate to 'true'
-[-Wpointer-bool-conversion]
-                if (&cx->streams[i].video_dev)
-                ~~   ~~~~~~~~~~~~~~~^~~~~~~~~
-1 warning generated.
+drivers/mtd/spi-nor/cadence-quadspi.c:962:47: warning: implicit
+conversion from enumeration type 'enum dma_transfer_direction' to
+different enumeration type 'enum dma_data_direction' [-Wenum-conversion]
+        dma_dst = dma_map_single(nor->dev, buf, len, DMA_DEV_TO_MEM);
+                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+./include/linux/dma-mapping.h:428:66: note: expanded from macro
+'dma_map_single'
+                                   ~~~~~~~~~~~~~~~~~~~~          ^
+drivers/mtd/spi-nor/cadence-quadspi.c:997:43: warning: implicit
+conversion from enumeration type 'enum dma_transfer_direction' to
+different enumeration type 'enum dma_data_direction' [-Wenum-conversion]
+        dma_unmap_single(nor->dev, dma_dst, len, DMA_DEV_TO_MEM);
+        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~
+./include/linux/dma-mapping.h:429:70: note: expanded from macro
+'dma_unmap_single'
+                                     ~~~~~~~~~~~~~~~~~~~~~~          ^
+2 warnings generated.
 
-Check whether v4l2_dev is null, not the address, so that the statement
-doesn't fire all the time. This check has been present since 2009,
-introduced by commit 21a278b85d3c ("V4L/DVB (11619): cx18: Simplify the
-work handler for outgoing mailbox commands")
+Use the proper enums from dma_data_direction to satisfy Clang.
 
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+DMA_FROM_DEVICE = DMA_DEV_TO_MEM = 2
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/108
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx18/cx18-driver.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/spi-nor/cadence-quadspi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/cx18/cx18-driver.c b/drivers/media/pci/cx18/cx18-driver.c
-index 0c389a3fb4e5f..e64f9093cd6d3 100644
---- a/drivers/media/pci/cx18/cx18-driver.c
-+++ b/drivers/media/pci/cx18/cx18-driver.c
-@@ -1252,7 +1252,7 @@ static void cx18_cancel_out_work_orders(struct cx18 *cx)
- {
- 	int i;
- 	for (i = 0; i < CX18_MAX_STREAMS; i++)
--		if (&cx->streams[i].video_dev)
-+		if (cx->streams[i].video_dev.v4l2_dev)
- 			cancel_work_sync(&cx->streams[i].out_work_order);
- }
+diff --git a/drivers/mtd/spi-nor/cadence-quadspi.c b/drivers/mtd/spi-nor/cadence-quadspi.c
+index 0806c7a81c0f7..04cedd3a2bf66 100644
+--- a/drivers/mtd/spi-nor/cadence-quadspi.c
++++ b/drivers/mtd/spi-nor/cadence-quadspi.c
+@@ -972,7 +972,7 @@ static int cqspi_direct_read_execute(struct spi_nor *nor, u_char *buf,
+ 		return 0;
+ 	}
  
+-	dma_dst = dma_map_single(nor->dev, buf, len, DMA_DEV_TO_MEM);
++	dma_dst = dma_map_single(nor->dev, buf, len, DMA_FROM_DEVICE);
+ 	if (dma_mapping_error(nor->dev, dma_dst)) {
+ 		dev_err(nor->dev, "dma mapping failed\n");
+ 		return -ENOMEM;
+@@ -1007,7 +1007,7 @@ static int cqspi_direct_read_execute(struct spi_nor *nor, u_char *buf,
+ 	}
+ 
+ err_unmap:
+-	dma_unmap_single(nor->dev, dma_dst, len, DMA_DEV_TO_MEM);
++	dma_unmap_single(nor->dev, dma_dst, len, DMA_FROM_DEVICE);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
