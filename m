@@ -2,105 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 232BBFC001
-	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 07:02:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54ADFFC03E
+	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 07:37:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726318AbfKNGCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Nov 2019 01:02:40 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58933 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725601AbfKNGCk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Nov 2019 01:02:40 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1360C21C39;
-        Thu, 14 Nov 2019 01:02:39 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 14 Nov 2019 01:02:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=QwzVKI6tbra34TY6z9msluLBFLL
-        DyCMl9KOPaMBmeK8=; b=OLJ+O93w/O7Wp5kWCE+tvkvr2WFCNVT5+nBYEaDSHQ4
-        /ox/ufRmWDzcrokhj76Wnxwjid/BeRG1XLBGHslRwElaWBsZ/mn6LjoJAQtkml2c
-        SH2sLydouvS5C0HsvbdYeZLkHjTmcFf4a/jt7H2sg9WMZjZEB55gXf/lsyFdJvni
-        Uf4OlfVHuxAKcZdyh9IwS7dIi6z9BHbYJt2cOtsnVBT1atWLSDPNMdHg7sPD989N
-        82PetVNqe8NNEacSYxXFLN/vFhEb+fQ9udUsolp5pZUACCZjMDgd5yXippMXU3HH
-        zLwf2gKj1oadM22rckdgPvgpXGm9oV5WEB6wUfO2uHA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=QwzVKI
-        6tbra34TY6z9msluLBFLLDyCMl9KOPaMBmeK8=; b=OVL3/BdKpNr5udch4gDTyu
-        0aIqgJpBFPMfbV++7uwtRL9RyeURuSz8QCv7ZetiHOU8yDDZBfmTm7eHod1rf7cL
-        CXZa+6nTnofYMOgw21ZsNhlT1OFu2LnvYNo++GM/16ngkzXTOv+096ffY3izP0Yj
-        KSwFKjeeT5X7nFHejSJvjrvBPHgkvZ+Ze2pxiz4bbgRRVKBInQ8/u4FCy2STC4/t
-        YfY7xlT3zcCsQQmJ+5rUQA+eVvTuArYu0P1bI7nFSx3XmxOd7F4KceURu3jyDD9k
-        AZlIZfSRmJqUxjsSbubtZRDhewU4az1s4tJQ7HGbea48QHexAFBEBWfx3KA+nXWw
-        ==
-X-ME-Sender: <xms:_u3MXUx5LkVzmiDz2KSWQRGojs1i6UrSeanc2L1teh4qVBvLgyTkVQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudefvddgleefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeduvdegrddvudelrdefud
-    drleefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:_u3MXfWDL7CWnv13zTr92-2piKG7RUXgt6PwEV0DDm8qAdVrIDkynw>
-    <xmx:_u3MXeBub9qSdK5Q8FoVCJ9tRsDzh3OGqSAu09wpSaVX_8RmWKlibA>
-    <xmx:_u3MXY4pnl_EUh6cB1XDE6FVRtMe3RDC2nOnw2FOkJrd6fJHorw5Xw>
-    <xmx:_-3MXQ9nm12lyg17MUMbm1TFor1dsaE8s_DdB7uVi4A8ITf5p6gfDA>
-Received: from localhost (unknown [124.219.31.93])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5772A3060062;
-        Thu, 14 Nov 2019 01:02:38 -0500 (EST)
-Date:   Thu, 14 Nov 2019 14:02:36 +0800
-From:   Greg KH <greg@kroah.com>
-To:     Andrew Donnellan <ajd@linux.ibm.com>
-Cc:     stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        npiggin@gmail.com, mpe@ellerman.id.au,
-        Anton Blanchard <anton@samba.org>
-Subject: Re: [PATCH stable 4.4] powerpc/boot: Request no dynamic linker for
- boot wrapper
-Message-ID: <20191114060236.GD353293@kroah.com>
-References: <20191112065941.9548-1-ajd@linux.ibm.com>
+        id S1726002AbfKNGhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Nov 2019 01:37:31 -0500
+Received: from mail-pf1-f196.google.com ([209.85.210.196]:38192 "EHLO
+        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725965AbfKNGhb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Nov 2019 01:37:31 -0500
+Received: by mail-pf1-f196.google.com with SMTP id c13so3469748pfp.5
+        for <stable@vger.kernel.org>; Wed, 13 Nov 2019 22:37:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:references:cc:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding;
+        bh=8lQHQcNPbuMFQ0EQz27AnnoTfjTcciitO13KnmFwEu0=;
+        b=tGJQGwCIZ0KR/UPBY0PoQh+AsCndB3U+ngT5/qO+pUnElhvGc994CwkcM3l853W/b6
+         htOBPEBt20d7KbR7tsyGfMg6wGpywAsmjy9FnSMOb9dy0lRGwIaIYztEAreeTX5aTU43
+         JI9Q1Aj5RBf4RmUhmNtM3VArT3cNpR3tnYlJ6ZQ+8hvQVwiOY2p71gQF5ieT+K3pq8vJ
+         qQxcMX8ci+pZ25BQShCMLheHYSfGT0EFq7v9KBdKArLThO8zwdLLrxAzp+EQ+xRPAA4a
+         h01HHWIgGZWsJfOC/zkVA4dymmasipYnfqkHj6D9APSw2WY59YSjCsjjEd3C9gz4jqRT
+         eNIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:references:cc:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding;
+        bh=8lQHQcNPbuMFQ0EQz27AnnoTfjTcciitO13KnmFwEu0=;
+        b=jymbsKkVKw3TBvbQJOaMyHis2nXiAiuvzqfl6wAOzy2r0SpBKVPGPx/491nD/Bgqyh
+         bQPD3qBYYDSAzVvemActk4XrltRG524NPvIwCFN+ZeB8Dx9DiH7s4tjZe2bwbZfJcpp+
+         0rjViArGB5K1BxmMhxRFeyW0YW4qMtaaso58T67JVFGh2y12KrkAgqcc1S1FyXupWsaU
+         Xky/uN4v1QxRSpenKJmJMvyK/hrtFlymsXNX0WtOJwVqxYuLM1z0AuapZN+jCh/x06I6
+         TZg4cuPX8x2/pE9Gvb3nH1inUx6ADvuP7uGRh9ApmaSWuz1ZkaFarCuwQmFA4E/NniAA
+         45OA==
+X-Gm-Message-State: APjAAAUIl4nGrKSllV+fqkpVVrRW0nLhCGr/093RBSNrrknoaqcJ3ewl
+        FiRPCs/a7JMD4bv3fcjhhd8=
+X-Google-Smtp-Source: APXvYqxLdLAi4yYOYq3ZsgFiWt+Hc4osdj2aV+ceaEi/dNyTUR1Uj3aGTs2r/0QnirAG/qrNjSKwYQ==
+X-Received: by 2002:a63:8c07:: with SMTP id m7mr8457014pgd.317.1573713450706;
+        Wed, 13 Nov 2019 22:37:30 -0800 (PST)
+Received: from [192.168.1.101] (122-58-182-39-adsl.sparkbb.co.nz. [122.58.182.39])
+        by smtp.gmail.com with ESMTPSA id o15sm8927902pgf.2.2019.11.13.22.37.26
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 13 Nov 2019 22:37:29 -0800 (PST)
+Subject: Re: [PATCH] scsi: core: Handle drivers which set sg_tablesize to zero
+To:     Greg KH <greg@kroah.com>
+References: <20191113012739.GN8496@sasha-vm>
+ <1573627181-20123-1-git-send-email-schmitzmic@gmail.com>
+ <20191114060014.GB353293@kroah.com>
+Cc:     stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
+        Sasha Levin <sashal@kernel.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+From:   Michael Schmitz <schmitzmic@gmail.com>
+Message-ID: <730f79ec-136c-9549-4453-4f977604408d@gmail.com>
+Date:   Thu, 14 Nov 2019 19:37:24 +1300
+User-Agent: Mozilla/5.0 (X11; Linux ppc; rv:45.0) Gecko/20100101
+ Icedove/45.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191112065941.9548-1-ajd@linux.ibm.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191114060014.GB353293@kroah.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 12, 2019 at 05:59:41PM +1100, Andrew Donnellan wrote:
-> From: Nicholas Piggin <npiggin@gmail.com>
-> 
-> Commit ff45000fcb56b5b0f1a14a865d3541746d838a0a upstream.
-> 
-> The boot wrapper performs its own relocations and does not require
-> PT_INTERP segment. However currently we don't tell the linker that.
-> 
-> Prior to binutils 2.28 that works OK. But since binutils commit
-> 1a9ccd70f9a7 ("Fix the linker so that it will not silently generate ELF
-> binaries with invalid program headers. Fix readelf to report such
-> invalid binaries.") binutils tries to create a program header segment
-> due to PT_INTERP, and the link fails because there is no space for it:
-> 
->   ld: arch/powerpc/boot/zImage.pseries: Not enough room for program headers, try linking with -N
->   ld: final link failed: Bad value
-> 
-> So tell the linker not to do that, by passing --no-dynamic-linker.
-> 
-> Cc: stable@vger.kernel.org
-> Reported-by: Anton Blanchard <anton@samba.org>
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> [mpe: Drop dependency on ld-version.sh and massage change log]
-> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> [ajd: backport to v4.4 (resolve conflict with a comment line)]
-> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
-> ---
->  arch/powerpc/boot/wrapper | 24 +++++++++++++++++++++++-
->  1 file changed, 23 insertions(+), 1 deletion(-)
+Thanks Greg!
 
-Now queud up, thanks.
+On further thought - the bug will only be triggered prior to 5.x if 
+use_blk_mq=y is set for the SCSI midlevel, Quite unlikely actually.
 
-greg k-h
+Cheers,
+
+	Michael
+
+Am 14.11.2019 um 19:00 schrieb Greg KH:
+> On Wed, Nov 13, 2019 at 07:39:41PM +1300, Michael Schmitz wrote:
+>> commit 9393c8de628c upstream
+>
+> <snip>
+>
+> Thanks for this, now queued up.
+>
+> greg k-h
+>
