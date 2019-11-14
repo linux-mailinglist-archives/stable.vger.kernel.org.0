@@ -2,74 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 409E5FCACF
-	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 17:35:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC408FCB38
+	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 17:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbfKNQfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Nov 2019 11:35:18 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:37374 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726444AbfKNQfR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Nov 2019 11:35:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1573749314; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:references; bh=2hOlbk6iAq+UU7QhjPD6XaltGVEyMEJe7yJQLIlOvew=;
-        b=S0ZW2Hues0ig2tyT7NeZj8q1wLhYZ/X+RXFEzcthF1fpv/26gO0tH68SPpkz7sHt+AQ6O8
-        BHXYKJfX3Ker3OxsEp58hDfGRjHXhsstPzIkWSMOptDoNWczciO+l+GKudjzwQj8EQnZ+x
-        O5bugp3OAcvQBL4J/Ag3qbHGT4n4nf4=
-From:   Paul Cercueil <paul@crapouillou.net>
-To:     Sebastian Reichel <sre@kernel.org>,
-        Artur Rojek <contact@artur-rojek.eu>, linux-pm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
-Subject: [PATCH v2] power/supply: ingenic-battery: Don't change scale if there's only one
-Date:   Thu, 14 Nov 2019 17:35:00 +0100
-Message-Id: <20191114163500.57384-1-paul@crapouillou.net>
+        id S1726592AbfKNQ7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Nov 2019 11:59:33 -0500
+Received: from mga02.intel.com ([134.134.136.20]:8587 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726516AbfKNQ7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Nov 2019 11:59:33 -0500
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Nov 2019 08:59:31 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.68,304,1569308400"; 
+   d="scan'208";a="235745047"
+Received: from pkamlakx-mobl1.gar.corp.intel.com (HELO localhost) ([10.252.10.73])
+  by fmsmga002.fm.intel.com with ESMTP; 14 Nov 2019 08:59:28 -0800
+Date:   Thu, 14 Nov 2019 18:59:27 +0200
+From:   Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+To:     Jerry Snitselaar <jsnitsel@redhat.com>
+Cc:     linux-integrity@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org,
+        Christian Bundy <christianbundy@fraction.io>
+Subject: Re: [PATCH v3] tpm_tis: turn on TPM before calling tpm_get_timeouts
+Message-ID: <20191114165927.GB11107@linux.intel.com>
+References: <20191111233418.17676-1-jsnitsel@redhat.com>
+ <20191113000243.16611-1-jsnitsel@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191113000243.16611-1-jsnitsel@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The ADC in the JZ4740 can work either in high-precision mode with a 2.5V
-range, or in low-precision mode with a 7.5V range. The code in place in
-this driver will select the proper scale according to the maximum
-voltage of the battery.
+On Tue, Nov 12, 2019 at 05:02:43PM -0700, Jerry Snitselaar wrote:
+> With power gating moved out of the tpm_transmit code we need
+> to power on the TPM prior to calling tpm_get_timeouts.
+> 
+> Cc: Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>
+> Cc: Peter Huewe <peterhuewe@gmx.de>
+> Cc: Jason Gunthorpe <jgg@ziepe.ca>
+> Cc: linux-kernel@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
+> Reported-by: Christian Bundy <christianbundy@fraction.io>
+> Signed-off-by: Jerry Snitselaar <jsnitsel@redhat.com>
+> ---
+> v3: call tpm_chip_stop in error path
+> v2: fix stable cc to correct address
+> 
+>  drivers/char/tpm/tpm_tis_core.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+> index 270f43acbb77..806acc666696 100644
+> --- a/drivers/char/tpm/tpm_tis_core.c
+> +++ b/drivers/char/tpm/tpm_tis_core.c
+> @@ -974,13 +974,14 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
+>  		 * to make sure it works. May as well use that command to set the
+>  		 * proper timeouts for the driver.
+>  		 */
+> +		tpm_chip_start(chip);
+>  		if (tpm_get_timeouts(chip)) {
+>  			dev_err(dev, "Could not get TPM timeouts and durations\n");
+>  			rc = -ENODEV;
+> +			tpm_chip_stop(chip);
+>  			goto out_err;
+>  		}
+>  
+> -		tpm_chip_start(chip);
 
-The JZ4770 however only has one mode, with a 6.6V range. If only one
-scale is available, there's no need to change it (and nothing to change
-it to), and trying to do so will fail with -EINVAL.
+As the commit describes the call is not there for any other reason than
+pinging the TPM.
 
-Fixes: fb24ccfbe1e0 ("power: supply: add Ingenic JZ47xx battery driver.")
-
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Cc: stable@vger.kernel.org
----
-
-Notes:
-    v2: Rebased on v5.4-rc7
-
- drivers/power/supply/ingenic-battery.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/power/supply/ingenic-battery.c b/drivers/power/supply/ingenic-battery.c
-index 35816d4b3012..5a53057b4f64 100644
---- a/drivers/power/supply/ingenic-battery.c
-+++ b/drivers/power/supply/ingenic-battery.c
-@@ -80,6 +80,10 @@ static int ingenic_battery_set_scale(struct ingenic_battery *bat)
- 	if (ret != IIO_AVAIL_LIST || scale_type != IIO_VAL_FRACTIONAL_LOG2)
- 		return -EINVAL;
- 
-+	/* Only one (fractional) entry - nothing to change */
-+	if (scale_len == 2)
-+		return 0;
-+
- 	max_mV = bat->info.voltage_max_design_uv / 1000;
- 
- 	for (i = 0; i < scale_len; i += 2) {
--- 
-2.24.0
-
+/Jarkko
