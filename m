@@ -2,98 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91DA0FBFF7
-	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 07:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 232BBFC001
+	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 07:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725977AbfKNGBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Nov 2019 01:01:54 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:44411 "EHLO
+        id S1726318AbfKNGCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Nov 2019 01:02:40 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:58933 "EHLO
         out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725601AbfKNGBy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 14 Nov 2019 01:01:54 -0500
+        by vger.kernel.org with ESMTP id S1725601AbfKNGCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 14 Nov 2019 01:02:40 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 8665321C7D;
-        Thu, 14 Nov 2019 01:01:53 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 14 Nov 2019 01:01:53 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 1360C21C39;
+        Thu, 14 Nov 2019 01:02:39 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 14 Nov 2019 01:02:39 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=P34i8Vk22fZh5W87Zhn2aJDzg9L
-        3ER9bQFHPFDXr/e0=; b=VgztDA7/XKCAAQkDgAq4Lv+Jtjy/nfjKoTxhxmdvMQj
-        dQ+Xzb2WI9Wq9NXBmFM1TG9HANUpOgqS420E+EFlA85gk2AJkcmLTkOnpYBR2lrG
-        fAeU2/7q6hZS1tAP3IcrPjDvA5uH+SgMOups9Z6C0zde90rkkhuchkezdgcr6Kot
-        a9ANPu/TRDEj8NoGaZogzodycRnO3CPhGJdqRcDGwBXNZM9TFPTRWzq85QpQAXQC
-        n6bXGJR4l5jojaHXZxzByUC0D8cRRpZkHmWR0G0usX+OR8A6/q+Y66UKVjaymFET
-        jVyoCl6ifbMxOt8m6s7Ztmd+aKwvOhM4OTWIPR62IWg==
+        :content-type:in-reply-to; s=fm2; bh=QwzVKI6tbra34TY6z9msluLBFLL
+        DyCMl9KOPaMBmeK8=; b=OLJ+O93w/O7Wp5kWCE+tvkvr2WFCNVT5+nBYEaDSHQ4
+        /ox/ufRmWDzcrokhj76Wnxwjid/BeRG1XLBGHslRwElaWBsZ/mn6LjoJAQtkml2c
+        SH2sLydouvS5C0HsvbdYeZLkHjTmcFf4a/jt7H2sg9WMZjZEB55gXf/lsyFdJvni
+        Uf4OlfVHuxAKcZdyh9IwS7dIi6z9BHbYJt2cOtsnVBT1atWLSDPNMdHg7sPD989N
+        82PetVNqe8NNEacSYxXFLN/vFhEb+fQ9udUsolp5pZUACCZjMDgd5yXippMXU3HH
+        zLwf2gKj1oadM22rckdgPvgpXGm9oV5WEB6wUfO2uHA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-type:date:from:in-reply-to
         :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=P34i8V
-        k22fZh5W87Zhn2aJDzg9L3ER9bQFHPFDXr/e0=; b=Z8ISBTB6u8RFjk65DmhH1s
-        86rTOS45V6oVlxnAterMJESNp6ZNMA3Qrf+2LtLcMoEihtj9j/0npUtsG9U6Wtbo
-        3eEr44MNi4Nn0aLrc2cp+yVGVyqHHC4E+2J+5Mhsw0idZDrrvIhyttK5yFEQtOa5
-        WBoiLu66eQb5QkLZIshU4i6k2XrFCJFyn4lLlKRHJC0iDyOKISyI44/OcCw6VKpa
-        KqWHtkBQaEky6YS082FZS4ozH8rI6p4lCWk1r2Iz0kBmt2SoZKN95hyxsjEB73Bv
-        HlAxBomMXEQEOitrxvwEpqqz37LaqAZec3ZPsVxpHmE0izvbvA1n4C/pyujPWRyQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=QwzVKI
+        6tbra34TY6z9msluLBFLLDyCMl9KOPaMBmeK8=; b=OVL3/BdKpNr5udch4gDTyu
+        0aIqgJpBFPMfbV++7uwtRL9RyeURuSz8QCv7ZetiHOU8yDDZBfmTm7eHod1rf7cL
+        CXZa+6nTnofYMOgw21ZsNhlT1OFu2LnvYNo++GM/16ngkzXTOv+096ffY3izP0Yj
+        KSwFKjeeT5X7nFHejSJvjrvBPHgkvZ+Ze2pxiz4bbgRRVKBInQ8/u4FCy2STC4/t
+        YfY7xlT3zcCsQQmJ+5rUQA+eVvTuArYu0P1bI7nFSx3XmxOd7F4KceURu3jyDD9k
+        AZlIZfSRmJqUxjsSbubtZRDhewU4az1s4tJQ7HGbea48QHexAFBEBWfx3KA+nXWw
         ==
-X-ME-Sender: <xms:0O3MXcInk08wZGy0Yhv85fVUU57N0_cSQXIaQCnjkyZw-57TFVXFKw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudefvddgledvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:_u3MXUx5LkVzmiDz2KSWQRGojs1i6UrSeanc2L1teh4qVBvLgyTkVQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudefvddgleefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
     ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeduvdegrddvudelrdefud
     drleefnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:0O3MXQK0gBKs1Q2FQ5keR3Fa47iQsewiFHKQA1o5zHwToxZlNZvMRw>
-    <xmx:0O3MXbynfy0g4LAdWSPTZfMS1jCp6O9w_wSsJwq3BiKliBY7Ek3kEg>
-    <xmx:0O3MXbLJP1SBKL2p0SAaE7BWktbE3uhUivvwMt-8dk4L2fgB_xY6hw>
-    <xmx:0e3MXUloFcuC1QOT0kcboo37s_3-CkF0vnKQ84iWBZ_I8T9jsqYyuA>
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:_u3MXfWDL7CWnv13zTr92-2piKG7RUXgt6PwEV0DDm8qAdVrIDkynw>
+    <xmx:_u3MXeBub9qSdK5Q8FoVCJ9tRsDzh3OGqSAu09wpSaVX_8RmWKlibA>
+    <xmx:_u3MXY4pnl_EUh6cB1XDE6FVRtMe3RDC2nOnw2FOkJrd6fJHorw5Xw>
+    <xmx:_-3MXQ9nm12lyg17MUMbm1TFor1dsaE8s_DdB7uVi4A8ITf5p6gfDA>
 Received: from localhost (unknown [124.219.31.93])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C8B1E8005A;
-        Thu, 14 Nov 2019 01:01:51 -0500 (EST)
-Date:   Thu, 14 Nov 2019 14:01:49 +0800
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5772A3060062;
+        Thu, 14 Nov 2019 01:02:38 -0500 (EST)
+Date:   Thu, 14 Nov 2019 14:02:36 +0800
 From:   Greg KH <greg@kroah.com>
 To:     Andrew Donnellan <ajd@linux.ibm.com>
-Cc:     stable@vger.kernel.org,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [4.4] Backport request: powerpc: Fix compiling a BE kernel with
- a powerpc64le toolchain
-Message-ID: <20191114060149.GC353293@kroah.com>
-References: <1a589ec5-7df2-788a-e354-50386ba84ffa@linux.ibm.com>
+Cc:     stable@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        npiggin@gmail.com, mpe@ellerman.id.au,
+        Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH stable 4.4] powerpc/boot: Request no dynamic linker for
+ boot wrapper
+Message-ID: <20191114060236.GD353293@kroah.com>
+References: <20191112065941.9548-1-ajd@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1a589ec5-7df2-788a-e354-50386ba84ffa@linux.ibm.com>
+In-Reply-To: <20191112065941.9548-1-ajd@linux.ibm.com>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 12, 2019 at 07:52:24PM +1100, Andrew Donnellan wrote:
-> Dear stable team
+On Tue, Nov 12, 2019 at 05:59:41PM +1100, Andrew Donnellan wrote:
+> From: Nicholas Piggin <npiggin@gmail.com>
 > 
-> Please backport the following patches.
+> Commit ff45000fcb56b5b0f1a14a865d3541746d838a0a upstream.
 > 
-> Commits:
+> The boot wrapper performs its own relocations and does not require
+> PT_INTERP segment. However currently we don't tell the linker that.
 > 
-> - 164af597ce945751e2dcd53d0a86e84203a6d117
->   ("powerpc/Makefile: Use cflags-y/aflags-y for setting endian options")
+> Prior to binutils 2.28 that works OK. But since binutils commit
+> 1a9ccd70f9a7 ("Fix the linker so that it will not silently generate ELF
+> binaries with invalid program headers. Fix readelf to report such
+> invalid binaries.") binutils tries to create a program header segment
+> due to PT_INTERP, and the link fails because there is no space for it:
 > 
-> - 4dc831aa88132f835cefe876aa0206977c4d7710
->   ("powerpc: Fix compiling a BE kernel with a powerpc64le toolchain")
+>   ld: arch/powerpc/boot/zImage.pseries: Not enough room for program headers, try linking with -N
+>   ld: final link failed: Bad value
 > 
-> Stable tree targeted: 4.4 (applies cleanly)
+> So tell the linker not to do that, by passing --no-dynamic-linker.
 > 
-> Justification: This fixes the build when attempting to compile a BE powerpc
-> kernel using a bi-endian toolchain that defaults to LE, which is a common
-> setup.
-> 
-> I have tested that these patches apply cleanly and appear to rectify the
-> build failure on my machine.
+> Cc: stable@vger.kernel.org
+> Reported-by: Anton Blanchard <anton@samba.org>
+> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> [mpe: Drop dependency on ld-version.sh and massage change log]
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> [ajd: backport to v4.4 (resolve conflict with a comment line)]
+> Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+> ---
+>  arch/powerpc/boot/wrapper | 24 +++++++++++++++++++++++-
+>  1 file changed, 23 insertions(+), 1 deletion(-)
 
-Now queued up, thanks.
+Now queud up, thanks.
 
 greg k-h
