@@ -2,188 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BDC1FC72D
-	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 14:18:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DB5EFC82B
+	for <lists+stable@lfdr.de>; Thu, 14 Nov 2019 14:54:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726409AbfKNNSE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 14 Nov 2019 08:18:04 -0500
-Received: from foss.arm.com ([217.140.110.172]:43042 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726139AbfKNNSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 14 Nov 2019 08:18:03 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id E20E731B;
-        Thu, 14 Nov 2019 05:18:02 -0800 (PST)
-Received: from [192.168.0.21] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CF30B3F52E;
-        Thu, 14 Nov 2019 05:18:00 -0800 (PST)
+        id S1726307AbfKNNyo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 14 Nov 2019 08:54:44 -0500
+Received: from mail-eopbgr150042.outbound.protection.outlook.com ([40.107.15.42]:61207
+        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726254AbfKNNyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 14 Nov 2019 08:54:44 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=mxOY6Rg84cp2mNyNYe5DgQMD7fBqeYSMFUelR+377EZPBaGRy2lWoLvRTjBk1b+7O8xGNJNlSLCXPlMBI1XPmYISGxrgMCoiSYP6TV/O2fBm+SK9gjy5DLVvkyBtiSgT4Z8NAeOdSsm2nF0neVQCN3IC4ttECGfoqqUjfNcInRHvKwqJuToTvTVt5XPqc0MC+Gx/aBH39tlTAW1yWAkepOL4flLW+EqX/dKIQD7UluFrEabaVdGVWR8HSWAeXbLKqOPTVUqdMlX3LJ7zpko00Y00I1U+UiR79ToqxzvN3ExRwE8Q181nFIR/W99Pl32DOeFNf6i4DhpbVBfD4PKB5g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2NrOv0znuVIkF41QXRr6d4ayL/TTTNPze19Cw70Rr+g=;
+ b=XCqxFI6dTINBKss+3tPLPMcjdirLG8cxY232uYTaiYOxVVwAAVutXC4UgUqUu8HIIM8UxUNBs/EacWOpXLOf1KBT+TElWe3tz89EKO0j0UXfY9JuvdO727LtNbM/snH6ThXIMFL0/8PaGF6UCNAPxKP5L86nmh/8hz4o1NCpfI6aYfbgW+k4/eATs5TTon/dQ1rbX9IsZe4EBRUvxc5Gtdb05PTyxa9QcdB60R790cQrJrnT4CNeDQya0N70/q2zEPFZqoGyDXFCFgs5MHgZk6Kt/i5HjQW7v6UxN6A1fNVrL8QHRz6YLAPWG8Ro1ZD5kQ3riV5rE8aLZ/gQS4bzZw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=mellanox.com; dmarc=pass action=none header.from=mellanox.com;
+ dkim=pass header.d=mellanox.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2NrOv0znuVIkF41QXRr6d4ayL/TTTNPze19Cw70Rr+g=;
+ b=f2w2YgBGe9pVLOeKHZ98dV2WqFaw4t1SK3jucIpnsbXJ6mNuTcGnK/cPzL8PETvhc/jJH3dkB0vMxrCYD4P284Cc2x1AwrWtIOrhn3CoRyE2oYovZYtUHzqyZ3P1+AYrdzb7JxEr21mI2VfdUntJLRofAWOX9QeJVt78+0bFPBI=
+Received: from DB7PR05MB5338.eurprd05.prod.outlook.com (20.178.41.21) by
+ DB7PR05MB6202.eurprd05.prod.outlook.com (20.178.106.94) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.2430.24; Thu, 14 Nov 2019 13:54:41 +0000
+Received: from DB7PR05MB5338.eurprd05.prod.outlook.com
+ ([fe80::3c5a:1339:33db:2df3]) by DB7PR05MB5338.eurprd05.prod.outlook.com
+ ([fe80::3c5a:1339:33db:2df3%5]) with mapi id 15.20.2430.027; Thu, 14 Nov 2019
+ 13:54:41 +0000
+From:   Ido Schimmel <idosch@mellanox.com>
+To:     Lukasz Luba <lukasz.luba@arm.com>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        "wvw@google.com" <wvw@google.com>
 Subject: Re: [PATCH 5.3 113/148] thermal: Fix use-after-free when
  unregistering thermal zone device
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Sasha Levin <sashal@kernel.org>, wvw@google.com,
-        lukasz.luba@arm.com
+Thread-Topic: [PATCH 5.3 113/148] thermal: Fix use-after-free when
+ unregistering thermal zone device
+Thread-Index: AQHVf0aszjDzBkRVak64VD2aSjHdS6eK/tOA///ovIA=
+Date:   Thu, 14 Nov 2019 13:54:41 +0000
+Message-ID: <20191114135439.GA3448@splinter>
 References: <20191010083609.660878383@linuxfoundation.org>
  <20191010083617.967244655@linuxfoundation.org>
-From:   Lukasz Luba <lukasz.luba@arm.com>
-Message-ID: <905e26d4-76c7-555f-3b33-51fa3cf7a470@arm.com>
-Date:   Thu, 14 Nov 2019 13:17:55 +0000
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
-MIME-Version: 1.0
-In-Reply-To: <20191010083617.967244655@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+ <905e26d4-76c7-555f-3b33-51fa3cf7a470@arm.com>
+In-Reply-To: <905e26d4-76c7-555f-3b33-51fa3cf7a470@arm.com>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: AM0PR0102CA0011.eurprd01.prod.exchangelabs.com
+ (2603:10a6:208:14::24) To DB7PR05MB5338.eurprd05.prod.outlook.com
+ (2603:10a6:10:64::21)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=idosch@mellanox.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [193.47.165.251]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 8e7b9cab-74db-45ae-cf37-08d7690a3272
+x-ms-traffictypediagnostic: DB7PR05MB6202:|DB7PR05MB6202:
+x-ms-exchange-purlcount: 1
+x-ms-exchange-transport-forked: True
+x-microsoft-antispam-prvs: <DB7PR05MB620252D52D378EC35E82585BBF710@DB7PR05MB6202.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:5236;
+x-forefront-prvs: 02213C82F8
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(7916004)(4636009)(136003)(396003)(346002)(376002)(39860400002)(366004)(189003)(199004)(76176011)(11346002)(66946007)(6506007)(99286004)(66556008)(64756008)(102836004)(66476007)(66446008)(1076003)(6306002)(4326008)(386003)(9686003)(6512007)(54906003)(316002)(26005)(6916009)(4744005)(186003)(256004)(3846002)(5660300002)(6116002)(6246003)(6436002)(71200400001)(71190400001)(478600001)(966005)(7736002)(25786009)(14454004)(6486002)(66066001)(2906002)(305945005)(33656002)(476003)(8936002)(52116002)(446003)(81156014)(8676002)(229853002)(81166006)(33716001)(86362001)(486006);DIR:OUT;SFP:1101;SCL:1;SRVR:DB7PR05MB6202;H:DB7PR05MB5338.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: mellanox.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 6VYvAxJUd8vwQ0D5H1nt5lMcD77dSHVNuaGz/D7p42XctqdZdE99KG2G2UGu+hRCDpOSfLo02b23XOilud2x5mqFq0vKcIBbbDyjxRNFS3O+Rj2hfQuvCknKbRCX48coQttyZOhjYuQzfRbYJ5EZBphEkaiUqn6spdkswwoiuKz2QrAKfLS3j2dX5HFZSM90hBH/ftM1j4O8uPPFLlHBVs94BURWc4mc+xDnsM8j0sUgMjxbWavQzEpQQ3dA+o/UhAjDCf9f2lJ3TKeqD6Za6sNfHxQTc7NNosFuMWDny1XASsdNJOe5b980y6HAKEH6VneUYCisbTIl297Xebs2WTDVHbdt+jFx5gbzdJd9ZPmUlHB+q8U8HCLPTOSXTScy1+XwT2HmObl8JcZvMK71z9uQFWUI8xW6nGxMldUZYFDwn26GQ+aTa0Eg5DqhSZD31yCOM5com3Qn8+SGtEoTIy/8mJ6bgj93qXfdw4Sdvx4=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <8E6AC4D9A779084F837631E6E7FFFC4D@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8e7b9cab-74db-45ae-cf37-08d7690a3272
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Nov 2019 13:54:41.4408
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: U1iiTAFnCEu4R5of2m5zYoOgw14On8ViWT9b0A1M8nOUiM9XwqES91fGMFPFALl+XMK/HuAjMGT8JpY26ranaw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB7PR05MB6202
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Thu, Nov 14, 2019 at 01:17:55PM +0000, Lukasz Luba wrote:
+> Hi Greg,
+>=20
+> This patch causes a deadlock, the thermal framework stops. Please check
+> this fix (I found it before posting exactly the same solution):
+> https://lkml.org/lkml/2019/11/12/1075
 
-This patch causes a deadlock, the thermal framework stops. Please check
-this fix (I found it before posting exactly the same solution):
-https://lkml.org/lkml/2019/11/12/1075
+Sorry about that.
 
-I have verified it on OdroidXU4 and it works. It needs some cleaning in
-the commit message, though.
-I have added to CC the author: Wei Wang
+> I have verified it on OdroidXU4 and it works. It needs some cleaning in
+> the commit message, though.
+> I have added to CC the author: Wei Wang
+>=20
+> I don't know in how many stable trees it was applied, but should be fix
+> there also.
 
-I don't know in how many stable trees it was applied, but should be fix
-there also.
+I checked my mailbox and it seems it was backported to: 4.4, 4.9, 4.14,
+4.19, 5.2 (EOL) and 5.3
 
-Regards,
-Lukasz Luba
-
-On 10/10/19 9:36 AM, Greg Kroah-Hartman wrote:
-> From: Ido Schimmel <idosch@mellanox.com>
-> 
-> [ Upstream commit 1851799e1d2978f68eea5d9dff322e121dcf59c1 ]
-> 
-> thermal_zone_device_unregister() cancels the delayed work that polls the
-> thermal zone, but it does not wait for it to finish. This is racy with
-> respect to the freeing of the thermal zone device, which can result in a
-> use-after-free [1].
-> 
-> Fix this by waiting for the delayed work to finish before freeing the
-> thermal zone device. Note that thermal_zone_device_set_polling() is
-> never invoked from an atomic context, so it is safe to call
-> cancel_delayed_work_sync() that can block.
-> 
-> [1]
-> [  +0.002221] ==================================================================
-> [  +0.000064] BUG: KASAN: use-after-free in __mutex_lock+0x1076/0x11c0
-> [  +0.000016] Read of size 8 at addr ffff8881e48e0450 by task kworker/1:0/17
-> 
-> [  +0.000023] CPU: 1 PID: 17 Comm: kworker/1:0 Not tainted 5.2.0-rc6-custom-02495-g8e73ca3be4af #1701
-> [  +0.000010] Hardware name: Mellanox Technologies Ltd. MSN2100-CB2FO/SA001017, BIOS 5.6.5 06/07/2016
-> [  +0.000016] Workqueue: events_freezable_power_ thermal_zone_device_check
-> [  +0.000012] Call Trace:
-> [  +0.000021]  dump_stack+0xa9/0x10e
-> [  +0.000020]  print_address_description.cold.2+0x9/0x25e
-> [  +0.000018]  __kasan_report.cold.3+0x78/0x9d
-> [  +0.000016]  kasan_report+0xe/0x20
-> [  +0.000016]  __mutex_lock+0x1076/0x11c0
-> [  +0.000014]  step_wise_throttle+0x72/0x150
-> [  +0.000018]  handle_thermal_trip+0x167/0x760
-> [  +0.000019]  thermal_zone_device_update+0x19e/0x5f0
-> [  +0.000019]  process_one_work+0x969/0x16f0
-> [  +0.000017]  worker_thread+0x91/0xc40
-> [  +0.000014]  kthread+0x33d/0x400
-> [  +0.000015]  ret_from_fork+0x3a/0x50
-> 
-> [  +0.000020] Allocated by task 1:
-> [  +0.000015]  save_stack+0x19/0x80
-> [  +0.000015]  __kasan_kmalloc.constprop.4+0xc1/0xd0
-> [  +0.000014]  kmem_cache_alloc_trace+0x152/0x320
-> [  +0.000015]  thermal_zone_device_register+0x1b4/0x13a0
-> [  +0.000015]  mlxsw_thermal_init+0xc92/0x23d0
-> [  +0.000014]  __mlxsw_core_bus_device_register+0x659/0x11b0
-> [  +0.000013]  mlxsw_core_bus_device_register+0x3d/0x90
-> [  +0.000013]  mlxsw_pci_probe+0x355/0x4b0
-> [  +0.000014]  local_pci_probe+0xc3/0x150
-> [  +0.000013]  pci_device_probe+0x280/0x410
-> [  +0.000013]  really_probe+0x26a/0xbb0
-> [  +0.000013]  driver_probe_device+0x208/0x2e0
-> [  +0.000013]  device_driver_attach+0xfe/0x140
-> [  +0.000013]  __driver_attach+0x110/0x310
-> [  +0.000013]  bus_for_each_dev+0x14b/0x1d0
-> [  +0.000013]  driver_register+0x1c0/0x400
-> [  +0.000015]  mlxsw_sp_module_init+0x5d/0xd3
-> [  +0.000014]  do_one_initcall+0x239/0x4dd
-> [  +0.000013]  kernel_init_freeable+0x42b/0x4e8
-> [  +0.000012]  kernel_init+0x11/0x18b
-> [  +0.000013]  ret_from_fork+0x3a/0x50
-> 
-> [  +0.000015] Freed by task 581:
-> [  +0.000013]  save_stack+0x19/0x80
-> [  +0.000014]  __kasan_slab_free+0x125/0x170
-> [  +0.000013]  kfree+0xf3/0x310
-> [  +0.000013]  thermal_release+0xc7/0xf0
-> [  +0.000014]  device_release+0x77/0x200
-> [  +0.000014]  kobject_put+0x1a8/0x4c0
-> [  +0.000014]  device_unregister+0x38/0xc0
-> [  +0.000014]  thermal_zone_device_unregister+0x54e/0x6a0
-> [  +0.000014]  mlxsw_thermal_fini+0x184/0x35a
-> [  +0.000014]  mlxsw_core_bus_device_unregister+0x10a/0x640
-> [  +0.000013]  mlxsw_devlink_core_bus_device_reload+0x92/0x210
-> [  +0.000015]  devlink_nl_cmd_reload+0x113/0x1f0
-> [  +0.000014]  genl_family_rcv_msg+0x700/0xee0
-> [  +0.000013]  genl_rcv_msg+0xca/0x170
-> [  +0.000013]  netlink_rcv_skb+0x137/0x3a0
-> [  +0.000012]  genl_rcv+0x29/0x40
-> [  +0.000013]  netlink_unicast+0x49b/0x660
-> [  +0.000013]  netlink_sendmsg+0x755/0xc90
-> [  +0.000013]  __sys_sendto+0x3de/0x430
-> [  +0.000013]  __x64_sys_sendto+0xe2/0x1b0
-> [  +0.000013]  do_syscall_64+0xa4/0x4d0
-> [  +0.000013]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> 
-> [  +0.000017] The buggy address belongs to the object at ffff8881e48e0008
->                 which belongs to the cache kmalloc-2k of size 2048
-> [  +0.000012] The buggy address is located 1096 bytes inside of
->                 2048-byte region [ffff8881e48e0008, ffff8881e48e0808)
-> [  +0.000007] The buggy address belongs to the page:
-> [  +0.000012] page:ffffea0007923800 refcount:1 mapcount:0 mapping:ffff88823680d0c0 index:0x0 compound_mapcount: 0
-> [  +0.000020] flags: 0x200000000010200(slab|head)
-> [  +0.000019] raw: 0200000000010200 ffffea0007682008 ffffea00076ab808 ffff88823680d0c0
-> [  +0.000016] raw: 0000000000000000 00000000000d000d 00000001ffffffff 0000000000000000
-> [  +0.000007] page dumped because: kasan: bad access detected
-> 
-> [  +0.000012] Memory state around the buggy address:
-> [  +0.000012]  ffff8881e48e0300: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  +0.000012]  ffff8881e48e0380: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  +0.000012] >ffff8881e48e0400: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  +0.000008]                                                  ^
-> [  +0.000012]  ffff8881e48e0480: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  +0.000012]  ffff8881e48e0500: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> [  +0.000007] ==================================================================
-> 
-> Fixes: b1569e99c795 ("ACPI: move thermal trip handling to generic thermal layer")
-> Reported-by: Jiri Pirko <jiri@mellanox.com>
-> Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-> Acked-by: Jiri Pirko <jiri@mellanox.com>
-> Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   drivers/thermal/thermal_core.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-> index 6bab66e84eb58..ebe15f2cf7fc3 100644
-> --- a/drivers/thermal/thermal_core.c
-> +++ b/drivers/thermal/thermal_core.c
-> @@ -304,7 +304,7 @@ static void thermal_zone_device_set_polling(struct thermal_zone_device *tz,
->   				 &tz->poll_queue,
->   				 msecs_to_jiffies(delay));
->   	else
-> -		cancel_delayed_work(&tz->poll_queue);
-> +		cancel_delayed_work_sync(&tz->poll_queue);
->   }
->   
->   static void monitor_thermal_zone(struct thermal_zone_device *tz)
-> 
+Thanks
