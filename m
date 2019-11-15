@@ -2,140 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 545FFFE256
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 17:10:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4F41FE266
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 17:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727461AbfKOQKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 11:10:32 -0500
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:37519 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727520AbfKOQKc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 11:10:32 -0500
-Received: by mail-qk1-f196.google.com with SMTP id e187so8522497qkf.4
-        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 08:10:31 -0800 (PST)
+        id S1727620AbfKOQMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 11:12:40 -0500
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:45025 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727543AbfKOQMk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 11:12:40 -0500
+Received: by mail-ed1-f67.google.com with SMTP id a67so7732465edf.11
+        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 08:12:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=QXQnsuzIdBD4R7XwRkiLdL633g5N2HlkyOWWAExgJGo=;
-        b=udqLCFcds+MJ2Y/juBQ9HAl4utewCmMZfse7vGLAKZuboTmXzCedLxYEXt/DXXTZC4
-         cl2y/Mf8bkDabGez0Kf6FAWqIKLKrNkIFoTFyKjMjiDUBHqHZy7lV72ftLWBpa1NKv9O
-         VmkZ79DKNubg//mSi9AMOyHnOAG6WxSurIJGRzaOuguYmeIWAhyG5WHJIrLyIfIoH13v
-         /Qdm2YO9qLLoxV8Iv8g9DYFb1yGQbh6RmUHTm6D5XNMrVWcjJ+Mgeu9/TsklEBdHnXHg
-         PE5hYh5xNmiN5EdT/d+5FJlH+v0QwKW0DULKZVFGKU1lo1AIZQ3sNg0MkPJZKBfT52sI
-         8A1A==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=y2ARf6pJxGhgpmPLlFvjzE8ZMjA3hEhatIYkvEw5wII=;
+        b=CqwHHiRpA9yr/vGEiaRSLktHyIYTnEVKUgw9FQyHhqbqsXF8RxcF3/pPLWKGaUE34p
+         jWeIgzSAnJrafQecCaie67ivQ0iJpkZL/5dSREC/M2tzSOHuHkQ9CDfl582gxSKJ7d9v
+         23kQQEEMff1IZE/G9MdYkmsq7Hpw6ybWKXZjk1LTiApZTM0uYjEYjUt6Yjq6xonNYJrp
+         Hwn6Q6bobIKDZnv21URSary0C5V0TZefjYPJiTk96KZsjqdSotUiU/z/EX0pwciLff0s
+         oIUkimka9Ze2uMFvDT7HSoeZ4Dikwv7vkTdhuJjg5G4f1CZkTdOpKQ4Y4RjaHPq5GFOL
+         aHnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=QXQnsuzIdBD4R7XwRkiLdL633g5N2HlkyOWWAExgJGo=;
-        b=YWQPOf2vKHbByceKvUjWVUqP/CKqhwwIr4OlBfDuGZO5nMiP51QJFTPL74poZz4hGt
-         IeQoI0sTpmsqEJamHC5LeCbvhPXGYDKONGcaMYK9gTUFCunf5ZxwQTcIzRwchY08HjqG
-         TbsyrYCoGkbj9BfZYC7zBQHbNsskh3WNaouWBGUrG2I15c+KHcVVgDm4zGtwVXD6whGo
-         4YhN4YV4hPw/DttcmxonVALpRvSIdKOQLq1wVLmKiyDsR3yyClur6ORHwNYFLDmYRQGS
-         OJBWG75wigMvAuXsCuC8ipzTVM2rkjYFm7QQhxOjL89MJd/s/VrKkCp1yVBN9PANIxHU
-         xL7g==
-X-Gm-Message-State: APjAAAXmThE2vjSnfNp8u4lOdq50nSTchJW+ju41H6Q0JFQbQaEoPtnJ
-        WVq1h5ithny2VAEoYTosFk24Fw==
-X-Google-Smtp-Source: APXvYqzpikIUfpamKtvZpl4aOMTDjuDVakJhUx8VpGxQ7emrsC+EYMZ4sVhQZWenOPg5pF/S+NpI1w==
-X-Received: by 2002:a37:4e03:: with SMTP id c3mr8749809qkb.6.1573834231034;
-        Fri, 15 Nov 2019 08:10:31 -0800 (PST)
-Received: from localhost (rfs.netwinder.org. [206.248.184.2])
-        by smtp.gmail.com with ESMTPSA id 70sm4236561qkj.48.2019.11.15.08.10.29
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 15 Nov 2019 08:10:30 -0800 (PST)
-Date:   Fri, 15 Nov 2019 11:10:29 -0500
-From:   Ralph Siemsen <ralph.siemsen@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Jeremy Cline <jcline@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH 4.9 02/31] Bluetooth: hci_ldisc: Postpone
- HCI_UART_PROTO_READY bit set in hci_uart_set_proto()
-Message-ID: <20191115161029.GA32365@maple.netwinder.org>
-References: <20191115062009.813108457@linuxfoundation.org>
- <20191115062010.682028342@linuxfoundation.org>
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=y2ARf6pJxGhgpmPLlFvjzE8ZMjA3hEhatIYkvEw5wII=;
+        b=TYhqPNrtKtYF/qb3LXLIqswIt1sGNaw+3EPLcpJbNc5zt6W/cXl4qGAuwgZJ0VCHMt
+         8fILicM9zMlsiUDs64b20obltc32bE0dxFOcddzheTJk6VCezcGwTxX4nGFp8lYl2FUd
+         HyVKZi49UPXWgdFZtGZGc71WH5T561Qj33xHQEvopyuiDvszMHJwO3l8wzoWKs+vIHst
+         GoAAGIsRvrKLtob0gsRkhqbGTZt5nRatREJsSMFQuw4ZvNYs8ss60DLs5LVqAmLlBGIs
+         9lJSFlXD0T2GSeBRM8WaxrA0KGCpBzXV7W9wGGXqB3Ruj4ifna5Pv40bZzlWwlLhi3cd
+         FwYw==
+X-Gm-Message-State: APjAAAWbReqqJmXQhVaXSLuexcG8Rms25uhCxzwj4KhdhysJYGU+PR6M
+        UolZ5ZZa5deMiOFuyZad1TDLkr+WfV1f8JwvExI=
+X-Google-Smtp-Source: APXvYqyen4bh7t2DbbE6HkFAEmM8MMDeCwgEvsczzzOf0aEtaRgqfmjryfe5FgN/BhWo4j9cf4r3YrTEghmdhSOcsDM=
+X-Received: by 2002:a17:906:bce5:: with SMTP id op5mr1900729ejb.325.1573834358832;
+ Fri, 15 Nov 2019 08:12:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20191115062010.682028342@linuxfoundation.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Received: by 2002:a17:906:b84f:0:0:0:0 with HTTP; Fri, 15 Nov 2019 08:12:38
+ -0800 (PST)
+Reply-To: moneygram.1820@outlook.fr
+From:   "Ms.Mary Coster" <currency1000000@gmail.com>
+Date:   Fri, 15 Nov 2019 17:12:38 +0100
+Message-ID: <CAPqfnSH+aaVjaAXyhepP++MnJ77kB9vSe8dpkZ0ZBCF_xHoZXA@mail.gmail.com>
+Subject: Goodnews, I have sent you $5000.00 this morning by Money Gram out of
+ your payment funds total amount US$4.8million Dollars.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Attn, Dear
+Goodnews, I have sent you $5000.00 this morning by Money Gram out of
+your payment funds total amount US$4.8million Dollars.
+Contact Mr. John Dave Director, Money Gram International
+Remittance-Benin to give you the pick up information for your first
+payment transfer $5000.00 today.
+Contact Person; Mr. John Dave Director, Money Gram
+Email; moneygram.1820@outlook.fr
+Telephone; +229 62619517
 
-On Fri, Nov 15, 2019 at 02:20:31PM +0800, Greg Kroah-Hartman wrote:
->From: Kefeng Wang <wangkefeng.wang@huawei.com>
->
->commit 56897b217a1d0a91c9920cb418d6b3fe922f590a upstream.
->
->task A:                                task B:
->hci_uart_set_proto                     flush_to_ldisc
-> - p->open(hu) -> h5_open  //alloc h5  - receive_buf
-> - set_bit HCI_UART_PROTO_READY         - tty_port_default_receive_buf
-> - hci_uart_register_dev                 - tty_ldisc_receive_buf
->                                          - hci_uart_tty_receive
->				           - test_bit HCI_UART_PROTO_READY
->				            - h5_recv
-> - clear_bit HCI_UART_PROTO_READY             while() {
-> - p->open(hu) -> h5_close //free h5
->				              - h5_rx_3wire_hdr
->				               - h5_reset()  //use-after-free
->                                              }
->
->It could use ioctl to set hci uart proto, but there is
->a use-after-free issue when hci_uart_register_dev() fail in
->hci_uart_set_proto(), see stack above, fix this by setting
->HCI_UART_PROTO_READY bit only when hci_uart_register_dev()
->return success.
->
->Reported-by: syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com
->Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
->Reviewed-by: Jeremy Cline <jcline@redhat.com>
->Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
->Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Please re-confirm your address to him once again such as listed below.
+Your Full Name____________
+Address___________
+Country____________
+Sex____________
+Occupation_____________
+Copy of your ID_____________
 
-I was just about to ask why this had not been merged into 4.9. Spent a 
-while searching archives for any discussion to explain its absence, but 
-couldn't find anything. Also watched your kernel-recipes talk...
+This is to avoid sending your funds to wrong person.
+He is waiting to hear from you urgent today.
+Let me know once you pick up your transfer $5000.00 today.
+Finally, Note I have paid for the service fees, but only money will
+send to him is $90.00 transfer fee before you can pick up the transfer
+today.
+Ask, Mr. John Dave Director, Money Gram to give you direction where to
+send the fee to Him Immediately today.
 
-BTW, this also seems to be missing from 4.4 branch, although it was 
-merged for 3.16 (per https://lore.kernel.org/stable/?q=Postpone+HCI).
-
-I gather that the usual rule is that a fix must be in newer versions 
-before it can go into older ones. Or at least, some patches were 
-rejected on that basis. If this is in fact the policy, perhaps it could 
-be added to stable-kernel-rules.rst ?
-
--Ralph
-
->---
-> drivers/bluetooth/hci_ldisc.c |    3 +--
-> 1 file changed, 1 insertion(+), 2 deletions(-)
->
->--- a/drivers/bluetooth/hci_ldisc.c
->+++ b/drivers/bluetooth/hci_ldisc.c
->@@ -653,15 +653,14 @@ static int hci_uart_set_proto(struct hci
-> 		return err;
->
-> 	hu->proto = p;
->-	set_bit(HCI_UART_PROTO_READY, &hu->flags);
->
-> 	err = hci_uart_register_dev(hu);
-> 	if (err) {
->-		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
-> 		p->close(hu);
-> 		return err;
-> 	}
->
->+	set_bit(HCI_UART_PROTO_READY, &hu->flags);
-> 	return 0;
-> }
->
->
->
+Thanks for undrstanding.
+Mary Coster
+m.coster@aol.com
