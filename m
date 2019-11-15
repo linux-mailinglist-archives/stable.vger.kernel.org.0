@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D2E7FD632
+	by mail.lfdr.de (Postfix) with ESMTP id 76949FD633
 	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727683AbfKOGWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 01:22:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51670 "EHLO mail.kernel.org"
+        id S1727661AbfKOGWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 01:22:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727677AbfKOGWV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Nov 2019 01:22:21 -0500
+        id S1727685AbfKOGWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Nov 2019 01:22:23 -0500
 Received: from localhost (unknown [104.132.150.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 702952053B;
-        Fri, 15 Nov 2019 06:22:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DDD62081E;
+        Fri, 15 Nov 2019 06:22:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573798940;
-        bh=9V/Jv9iwum/k13rXvp2YhjrwQhGErFX5C09t020cIFI=;
+        s=default; t=1573798943;
+        bh=q1GF1yG6zWlTOILmKVCGAMY9CFw+S/DW18hdKZTr1yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b65ZE/AHW72VH5981itB4SIQc+9SuAiRjYrtC8lLxmtRMwSRG2YTDqGweru2OjZuy
-         qp2ciJHGUuadTHeciw28Xfkyri0zVpbjA3p+jPeKDZ8MHXzBvVxByrxMQVj+l+U08A
-         r4xQsNbau0OtHNvudy9Gtwe1cKu0ew4FlkzwU2dQ=
+        b=P5yP8UhLVDj/7VQLlEgGvcSB9+k7gNN9+iSckviiDlU1kaa8VT7ZptfwMjUVWHVVO
+         2GlSfUbAkpOh9SqXpdOAamfZWSBTWL1HU0JU7qR4oavcELZWPgFaNEvhFK/EVHWqvG
+         Zcl9PaxB7evCUE+Z9W+M+rl5szFNcVnjqnX/GP60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 20/31] KVM: x86: make FNAME(fetch) and __direct_map more similar
-Date:   Fri, 15 Nov 2019 14:20:49 +0800
-Message-Id: <20191115062017.765973205@linuxfoundation.org>
+Subject: [PATCH 4.9 21/31] KVM: x86: remove now unneeded hugepage gfn adjustment
+Date:   Fri, 15 Nov 2019 14:20:50 +0800
+Message-Id: <20191115062017.892821068@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191115062009.813108457@linuxfoundation.org>
 References: <20191115062009.813108457@linuxfoundation.org>
@@ -45,171 +45,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 3fcf2d1bdeb6a513523cb2c77012a6b047aa859c upstream.
+commit d679b32611c0102ce33b9e1a4e4b94854ed1812a upstream.
 
-These two functions are basically doing the same thing through
-kvm_mmu_get_page, link_shadow_page and mmu_set_spte; yet, for historical
-reasons, their code looks very different.  This patch tries to take the
-best of each and make them very similar, so that it is easy to understand
-changes that apply to both of them.
+After the previous patch, the low bits of the gfn are masked in
+both FNAME(fetch) and __direct_map, so we do not need to clear them
+in transparent_hugepage_adjust.
 
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[bwh: Backported to 4.9: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu.c         |   53 +++++++++++++++++++++------------------------
- arch/x86/kvm/paging_tmpl.h |   30 +++++++++++--------------
- 2 files changed, 39 insertions(+), 44 deletions(-)
+ arch/x86/kvm/mmu.c         |    9 +++------
+ arch/x86/kvm/paging_tmpl.h |    2 +-
+ 2 files changed, 4 insertions(+), 7 deletions(-)
 
 --- a/arch/x86/kvm/mmu.c
 +++ b/arch/x86/kvm/mmu.c
-@@ -2757,40 +2757,39 @@ static void direct_pte_prefetch(struct k
- 	__direct_pte_prefetch(vcpu, sp, sptep);
+@@ -2824,11 +2824,10 @@ static int kvm_handle_bad_page(struct kv
  }
  
--static int __direct_map(struct kvm_vcpu *vcpu, int write, int map_writable,
--			int level, gfn_t gfn, kvm_pfn_t pfn, bool prefault)
-+static int __direct_map(struct kvm_vcpu *vcpu, gpa_t gpa, int write,
-+			int map_writable, int level, kvm_pfn_t pfn,
-+			bool prefault)
+ static void transparent_hugepage_adjust(struct kvm_vcpu *vcpu,
+-					gfn_t *gfnp, kvm_pfn_t *pfnp,
++					gfn_t gfn, kvm_pfn_t *pfnp,
+ 					int *levelp)
  {
--	struct kvm_shadow_walk_iterator iterator;
-+	struct kvm_shadow_walk_iterator it;
- 	struct kvm_mmu_page *sp;
--	int emulate = 0;
--	gfn_t pseudo_gfn;
-+	int ret;
-+	gfn_t gfn = gpa >> PAGE_SHIFT;
-+	gfn_t base_gfn = gfn;
+ 	kvm_pfn_t pfn = *pfnp;
+-	gfn_t gfn = *gfnp;
+ 	int level = *levelp;
  
- 	if (!VALID_PAGE(vcpu->arch.mmu.root_hpa))
--		return 0;
-+		return RET_PF_RETRY;
- 
--	for_each_shadow_entry(vcpu, (u64)gfn << PAGE_SHIFT, iterator) {
--		if (iterator.level == level) {
--			emulate = mmu_set_spte(vcpu, iterator.sptep, ACC_ALL,
--					       write, level, gfn, pfn, prefault,
--					       map_writable);
--			direct_pte_prefetch(vcpu, iterator.sptep);
--			++vcpu->stat.pf_fixed;
-+	for_each_shadow_entry(vcpu, gpa, it) {
-+		base_gfn = gfn & ~(KVM_PAGES_PER_HPAGE(it.level) - 1);
-+		if (it.level == level)
- 			break;
--		}
- 
--		drop_large_spte(vcpu, iterator.sptep);
--		if (!is_shadow_present_pte(*iterator.sptep)) {
--			u64 base_addr = iterator.addr;
--
--			base_addr &= PT64_LVL_ADDR_MASK(iterator.level);
--			pseudo_gfn = base_addr >> PAGE_SHIFT;
--			sp = kvm_mmu_get_page(vcpu, pseudo_gfn, iterator.addr,
--					      iterator.level - 1, 1, ACC_ALL);
-+		drop_large_spte(vcpu, it.sptep);
-+		if (!is_shadow_present_pte(*it.sptep)) {
-+			sp = kvm_mmu_get_page(vcpu, base_gfn, it.addr,
-+					      it.level - 1, true, ACC_ALL);
- 
--			link_shadow_page(vcpu, iterator.sptep, sp);
-+			link_shadow_page(vcpu, it.sptep, sp);
- 		}
- 	}
--	return emulate;
-+
-+	ret = mmu_set_spte(vcpu, it.sptep, ACC_ALL,
-+			   write, level, base_gfn, pfn, prefault,
-+			   map_writable);
-+	direct_pte_prefetch(vcpu, it.sptep);
-+	++vcpu->stat.pf_fixed;
-+	return ret;
- }
- 
- static void kvm_send_hwpoison_signal(unsigned long address, struct task_struct *tsk)
-@@ -3062,8 +3061,7 @@ static int nonpaging_map(struct kvm_vcpu
+ 	/*
+@@ -2855,8 +2854,6 @@ static void transparent_hugepage_adjust(
+ 		mask = KVM_PAGES_PER_HPAGE(level) - 1;
+ 		VM_BUG_ON((gfn & mask) != (pfn & mask));
+ 		if (pfn & mask) {
+-			gfn &= ~mask;
+-			*gfnp = gfn;
+ 			kvm_release_pfn_clean(pfn);
+ 			pfn &= ~mask;
+ 			kvm_get_pfn(pfn);
+@@ -3060,7 +3057,7 @@ static int nonpaging_map(struct kvm_vcpu
+ 		goto out_unlock;
  	make_mmu_pages_available(vcpu);
  	if (likely(!force_pt_level))
- 		transparent_hugepage_adjust(vcpu, &gfn, &pfn, &level);
--	r = __direct_map(vcpu, write, map_writable, level, gfn, pfn, prefault);
--
-+	r = __direct_map(vcpu, v, write, map_writable, level, pfn, prefault);
+-		transparent_hugepage_adjust(vcpu, &gfn, &pfn, &level);
++		transparent_hugepage_adjust(vcpu, gfn, &pfn, &level);
+ 	r = __direct_map(vcpu, v, write, map_writable, level, pfn, prefault);
  out_unlock:
  	spin_unlock(&vcpu->kvm->mmu_lock);
- 	kvm_release_pfn_clean(pfn);
-@@ -3598,8 +3596,7 @@ static int tdp_page_fault(struct kvm_vcp
+@@ -3595,7 +3592,7 @@ static int tdp_page_fault(struct kvm_vcp
+ 		goto out_unlock;
  	make_mmu_pages_available(vcpu);
  	if (likely(!force_pt_level))
- 		transparent_hugepage_adjust(vcpu, &gfn, &pfn, &level);
--	r = __direct_map(vcpu, write, map_writable, level, gfn, pfn, prefault);
--
-+	r = __direct_map(vcpu, gpa, write, map_writable, level, pfn, prefault);
+-		transparent_hugepage_adjust(vcpu, &gfn, &pfn, &level);
++		transparent_hugepage_adjust(vcpu, gfn, &pfn, &level);
+ 	r = __direct_map(vcpu, gpa, write, map_writable, level, pfn, prefault);
  out_unlock:
  	spin_unlock(&vcpu->kvm->mmu_lock);
- 	kvm_release_pfn_clean(pfn);
 --- a/arch/x86/kvm/paging_tmpl.h
 +++ b/arch/x86/kvm/paging_tmpl.h
-@@ -579,6 +579,7 @@ static int FNAME(fetch)(struct kvm_vcpu
- 	struct kvm_shadow_walk_iterator it;
- 	unsigned direct_access, access = gw->pt_access;
- 	int top_level, ret;
-+	gfn_t base_gfn;
- 
- 	direct_access = gw->pte_access;
- 
-@@ -623,31 +624,29 @@ static int FNAME(fetch)(struct kvm_vcpu
- 			link_shadow_page(vcpu, it.sptep, sp);
- 	}
- 
--	for (;
--	     shadow_walk_okay(&it) && it.level > hlevel;
--	     shadow_walk_next(&it)) {
--		gfn_t direct_gfn;
-+	base_gfn = gw->gfn;
- 
-+	for (; shadow_walk_okay(&it); shadow_walk_next(&it)) {
- 		clear_sp_write_flooding_count(it.sptep);
-+		base_gfn = gw->gfn & ~(KVM_PAGES_PER_HPAGE(it.level) - 1);
-+		if (it.level == hlevel)
-+			break;
-+
- 		validate_direct_spte(vcpu, it.sptep, direct_access);
- 
- 		drop_large_spte(vcpu, it.sptep);
- 
--		if (is_shadow_present_pte(*it.sptep))
--			continue;
--
--		direct_gfn = gw->gfn & ~(KVM_PAGES_PER_HPAGE(it.level) - 1);
--
--		sp = kvm_mmu_get_page(vcpu, direct_gfn, addr, it.level-1,
--				      true, direct_access);
--		link_shadow_page(vcpu, it.sptep, sp);
-+		if (!is_shadow_present_pte(*it.sptep)) {
-+			sp = kvm_mmu_get_page(vcpu, base_gfn, addr,
-+					      it.level - 1, true, direct_access);
-+			link_shadow_page(vcpu, it.sptep, sp);
-+		}
- 	}
- 
--	clear_sp_write_flooding_count(it.sptep);
- 	ret = mmu_set_spte(vcpu, it.sptep, gw->pte_access, write_fault,
--			   it.level, gw->gfn, pfn, prefault, map_writable);
-+			   it.level, base_gfn, pfn, prefault, map_writable);
- 	FNAME(pte_prefetch)(vcpu, gw, it.sptep);
--
-+	++vcpu->stat.pf_fixed;
- 	return ret;
- 
- out_gpte_changed:
-@@ -810,7 +809,6 @@ static int FNAME(page_fault)(struct kvm_
- 		transparent_hugepage_adjust(vcpu, &walker.gfn, &pfn, &level);
+@@ -806,7 +806,7 @@ static int FNAME(page_fault)(struct kvm_
+ 	kvm_mmu_audit(vcpu, AUDIT_PRE_PAGE_FAULT);
+ 	make_mmu_pages_available(vcpu);
+ 	if (!force_pt_level)
+-		transparent_hugepage_adjust(vcpu, &walker.gfn, &pfn, &level);
++		transparent_hugepage_adjust(vcpu, walker.gfn, &pfn, &level);
  	r = FNAME(fetch)(vcpu, addr, &walker, write_fault,
  			 level, pfn, map_writable, prefault);
--	++vcpu->stat.pf_fixed;
  	kvm_mmu_audit(vcpu, AUDIT_POST_PAGE_FAULT);
- 
- out_unlock:
 
 
