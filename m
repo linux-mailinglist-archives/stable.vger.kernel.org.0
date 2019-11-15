@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE2EFD636
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:24:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7155FD606
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:21:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727749AbfKOGWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 01:22:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51934 "EHLO mail.kernel.org"
+        id S1727429AbfKOGVq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 01:21:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727388AbfKOGWc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Nov 2019 01:22:32 -0500
+        id S1727421AbfKOGVo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Nov 2019 01:21:44 -0500
 Received: from localhost (unknown [104.132.150.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D2922077B;
-        Fri, 15 Nov 2019 06:22:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49D3A2053B;
+        Fri, 15 Nov 2019 06:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573798951;
-        bh=dP40GUeDd2fr9i4/K8ECYQMVSiLkcnTWieOXC8HVUjQ=;
+        s=default; t=1573798903;
+        bh=ckjz2sH+WQCTRB2ZN/hdfAWhy/glRwsrLRvWIaMcn+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I0cPj1HAC3pxx/TzUHdn/Jrw9Lig1EQFgx9bDgBvd+ctyB1AF+qrfeH36hR76sVVf
-         DHVggck8TY4xeGXmf0Njatx3AUhnJnpYTNZIOXi0G97f2JJ3z68nWz6f13TLUQirtW
-         azhDupF6n6tzojtoDErWsa6vjFGcmUIQh3/uRqYs=
+        b=U4vsBGFUGZ/EcLdkvRVdsSanz1CpHAYiTsKmhJ9BJJAeVgj6KVeMRRk7VmTd9Vrxj
+         2EecfbaaJRQ6b4kXz4M0S1m/3Stl2WydSWmXYKv+ruFcLCa+o3knRSFNSmgUipzHiR
+         N5bfx0x44U5ZxIUUE9k8J2mm7Jd8/J/P/MYS2v20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 05/31] KVM: x86: use Intel speculation bugs and features as derived in generic x86 code
-Date:   Fri, 15 Nov 2019 14:20:34 +0800
-Message-Id: <20191115062011.276619370@linuxfoundation.org>
+        stable@vger.kernel.org, Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 06/20] KVM: Introduce kvm_get_arch_capabilities()
+Date:   Fri, 15 Nov 2019 14:20:35 +0800
+Message-Id: <20191115062010.043596165@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191115062009.813108457@linuxfoundation.org>
-References: <20191115062009.813108457@linuxfoundation.org>
+In-Reply-To: <20191115062006.854443935@linuxfoundation.org>
+References: <20191115062006.854443935@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-commit 0c54914d0c52a15db9954a76ce80fee32cf318f4 upstream.
+Extracted from commit 5b76a3cff011 "KVM: VMX: Tell the nested
+hypervisor to skip L1D flush on vmentry".  We will need this to let a
+nested hypervisor know that we have applied the mitigation for TAA.
 
-Similar to AMD bits, set the Intel bits from the vendor-independent
-feature and bug flags, because KVM_GET_SUPPORTED_CPUID does not care
-about the vendor and they should be set on AMD processors as well.
-
-Suggested-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/cpuid.c |    8 ++++++++
- arch/x86/kvm/x86.c   |    8 ++++++++
- 2 files changed, 16 insertions(+)
+ arch/x86/include/asm/kvm_host.h |    1 +
+ arch/x86/kvm/vmx.c              |    3 +--
+ arch/x86/kvm/x86.c              |   10 ++++++++++
+ 3 files changed, 12 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/cpuid.c
-+++ b/arch/x86/kvm/cpuid.c
-@@ -466,8 +466,16 @@ static inline int __do_cpuid_ent(struct
- 			/* PKU is not yet implemented for shadow paging. */
- 			if (!tdp_enabled || !boot_cpu_has(X86_FEATURE_OSPKE))
- 				entry->ecx &= ~F(PKU);
-+
- 			entry->edx &= kvm_cpuid_7_0_edx_x86_features;
- 			cpuid_mask(&entry->edx, CPUID_7_EDX);
-+			if (boot_cpu_has(X86_FEATURE_IBPB) &&
-+			    boot_cpu_has(X86_FEATURE_IBRS))
-+				entry->edx |= F(SPEC_CTRL);
-+			if (boot_cpu_has(X86_FEATURE_STIBP))
-+				entry->edx |= F(INTEL_STIBP);
-+			if (boot_cpu_has(X86_FEATURE_SSBD))
-+				entry->edx |= F(SPEC_CTRL_SSBD);
- 			/*
- 			 * We emulate ARCH_CAPABILITIES in software even
- 			 * if the host doesn't support it.
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1226,6 +1226,7 @@ void kvm_vcpu_reload_apic_access_page(st
+ void kvm_arch_mmu_notifier_invalidate_page(struct kvm *kvm,
+ 					   unsigned long address);
+ 
++u64 kvm_get_arch_capabilities(void);
+ void kvm_define_shared_msr(unsigned index, u32 msr);
+ int kvm_set_shared_msr(unsigned index, u64 val, u64 mask);
+ 
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -5079,8 +5079,7 @@ static int vmx_vcpu_setup(struct vcpu_vm
+ 		++vmx->nmsrs;
+ 	}
+ 
+-	if (boot_cpu_has(X86_FEATURE_ARCH_CAPABILITIES))
+-		rdmsrl(MSR_IA32_ARCH_CAPABILITIES, vmx->arch_capabilities);
++	vmx->arch_capabilities = kvm_get_arch_capabilities();
+ 
+ 	vm_exit_controls_init(vmx, vmcs_config.vmexit_ctrl);
+ 
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -1043,8 +1043,16 @@ u64 kvm_get_arch_capabilities(void)
- 	if (l1tf_vmx_mitigation != VMENTER_L1D_FLUSH_NEVER)
- 		data |= ARCH_CAP_SKIP_VMENTRY_L1DFLUSH;
+@@ -995,6 +995,16 @@ static u32 emulated_msrs[] = {
  
-+	if (!boot_cpu_has_bug(X86_BUG_CPU_MELTDOWN))
-+		data |= ARCH_CAP_RDCL_NO;
-+	if (!boot_cpu_has_bug(X86_BUG_SPEC_STORE_BYPASS))
-+		data |= ARCH_CAP_SSB_NO;
-+	if (!boot_cpu_has_bug(X86_BUG_MDS))
-+		data |= ARCH_CAP_MDS_NO;
-+
- 	return data;
- }
-+
- EXPORT_SYMBOL_GPL(kvm_get_arch_capabilities);
+ static unsigned num_emulated_msrs;
  
- static int kvm_get_msr_feature(struct kvm_msr_entry *msr)
++u64 kvm_get_arch_capabilities(void)
++{
++	u64 data;
++
++	rdmsrl_safe(MSR_IA32_ARCH_CAPABILITIES, &data);
++
++	return data;
++}
++EXPORT_SYMBOL_GPL(kvm_get_arch_capabilities);
++
+ static bool __kvm_valid_efer(struct kvm_vcpu *vcpu, u64 efer)
+ {
+ 	if (efer & EFER_FFXSR) {
 
 
