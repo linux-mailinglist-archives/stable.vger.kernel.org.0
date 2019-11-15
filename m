@@ -2,181 +2,393 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4CDFE4B5
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 19:15:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB9EFE4D2
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 19:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726131AbfKOSPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 13:15:09 -0500
-Received: from mx0a-00082601.pphosted.com ([67.231.145.42]:24456 "EHLO
-        mx0a-00082601.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726075AbfKOSPJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 13:15:09 -0500
-Received: from pps.filterd (m0109334.ppops.net [127.0.0.1])
-        by mx0a-00082601.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id xAFIDcn4011973;
-        Fri, 15 Nov 2019 10:13:43 -0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.com; h=from : to : cc : subject
- : date : message-id : references : in-reply-to : content-type : content-id
- : content-transfer-encoding : mime-version; s=facebook;
- bh=NRVDovbvhpiU9C+OIZfCA3YxDopu2PTSb96qrOixXKk=;
- b=T7kYZWzepBwsLq0yS0ii14A6q0z/wSbgf9yJlgPcTOzpPCMxSHt7pJKWb72oPWQj3Vtn
- DazGr3RWPakiTH2TyxmyPKsThZpnNLh3VGp35BKK6eLMPbWaf1xH6hjWLJo+baXdZN7Z
- YvJf/fLbjrd9rP4grdyjGcIWsnpGXaRKyO8= 
-Received: from mail.thefacebook.com (mailout.thefacebook.com [199.201.64.23])
-        by mx0a-00082601.pphosted.com with ESMTP id 2w8rge5kd7-6
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Fri, 15 Nov 2019 10:13:42 -0800
-Received: from prn-mbx01.TheFacebook.com (2620:10d:c081:6::15) by
- prn-hub06.TheFacebook.com (2620:10d:c081:35::130) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.1.1713.5; Fri, 15 Nov 2019 10:13:35 -0800
-Received: from prn-hub03.TheFacebook.com (2620:10d:c081:35::127) by
- prn-mbx01.TheFacebook.com (2620:10d:c081:6::15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.1.1713.5; Fri, 15 Nov 2019 10:13:35 -0800
-Received: from NAM03-DM3-obe.outbound.protection.outlook.com (192.168.54.28)
- by o365-in.thefacebook.com (192.168.16.27) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.1.1713.5
- via Frontend Transport; Fri, 15 Nov 2019 10:13:35 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DmZY34D58yk7se1AtCLc1F2YYnZ63dIxSKRpudD6HO8kxrYdRgp1IFFjkOuNNirNIXn0scgtw7eFMicT30OfY1vvoA+XMY0i1uvy7m1hzAQ4VrK4JFLPgi404CQPBE0n1wqZAn7d+oMshlzCocafcjBL77H9AsIoM6oy101j4ojv7Vc3S/l7fiBV+yWrvr4CiP4sWcqgh0/Z/ekoO1KxAbTi8MFmNlUgNUf3BHqJ7OB0IemAY0Lm3K3Xng9xFoSKbDstFeMOQcR70kE2RQUy75MALnVbp2VOaAE9VzasFf7lyciiQ5z+4K1yxNSeUpKbblHyiWGXz38t7HvYBWRKcQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NRVDovbvhpiU9C+OIZfCA3YxDopu2PTSb96qrOixXKk=;
- b=lFTohck2iyWltuftbcft2V75E2jJ2Id4/0tbk7GnfneWvSmaHTBrB5LJqDcXBU0MttZJxFkFRn9XpbhGQ93CzfKr8zIwgCLf0Ul/Bw7f3JRXPewarxtLjV8JPF3/287Fj2+853ZDtvQCvvHZh5UGPldFibLZ4UsVftInfH0PaF2HGX9KChSAyTo4kupb7LUIAhHhLjD1nmNmtXHqaqdfpQ8Z5pAmk9SnpycHoFsD8SVrIHrgq3a2d9edws4d47kAhX//qmsFIxv4AbZiUDFq+hH2YlMao0rS3fR/sYByoS3PxNDFUwk8PpSWukLjy0KgjMrgXA16cWpD+8hmkoQBpg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=fb.com; dmarc=pass action=none header.from=fb.com; dkim=pass
- header.d=fb.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fb.onmicrosoft.com;
- s=selector2-fb-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NRVDovbvhpiU9C+OIZfCA3YxDopu2PTSb96qrOixXKk=;
- b=Mepz/1+0FOCSulgrmhi5Buo3BPm2dbi83Neq+NUVkS1XNki+cRvQmee6lwnfgBBkdF+gv7zwYatm7j5eq6Rb9gJZdF7W3yIFE5gojRVSvuXy9T5X7nMsGP4JdGjvDU1Kbh803WJjJlQSUmFKfjc5RbK1OIh67lVQAiW0oHAUtOY=
-Received: from BN8PR15MB2626.namprd15.prod.outlook.com (20.179.137.220) by
- BN8PR15MB2835.namprd15.prod.outlook.com (20.178.219.16) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2430.25; Fri, 15 Nov 2019 18:13:32 +0000
-Received: from BN8PR15MB2626.namprd15.prod.outlook.com
- ([fe80::7cae:3a15:917d:83c0]) by BN8PR15MB2626.namprd15.prod.outlook.com
- ([fe80::7cae:3a15:917d:83c0%4]) with mapi id 15.20.2451.027; Fri, 15 Nov 2019
- 18:13:32 +0000
-From:   Roman Gushchin <guro@fb.com>
-To:     Michal Hocko <mhocko@kernel.org>
-CC:     =?iso-8859-1?Q?Michal_Koutn=FD?= <mkoutny@suse.com>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        "Johannes Weiner" <hannes@cmpxchg.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Kernel Team <Kernel-team@fb.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Tejun Heo <tj@kernel.org>
-Subject: Re: [PATCH 1/2] mm: memcg: switch to css_tryget() in
- get_mem_cgroup_from_mm()
-Thread-Topic: [PATCH 1/2] mm: memcg: switch to css_tryget() in
- get_mem_cgroup_from_mm()
-Thread-Index: AQHVlPTSqR6tDyqEq0WgIBYYtGCX/KeJVScAgAAK2ICAAbZBgIABgJEA
-Date:   Fri, 15 Nov 2019 18:13:31 +0000
-Message-ID: <20191115181322.GB27385@localhost.localdomain>
-References: <20191106225131.3543616-1-guro@fb.com>
- <20191113162934.GF19372@blackbody.suse.cz>
- <20191113170823.GA12464@castle.DHCP.thefacebook.com>
- <20191114191657.GN20866@dhcp22.suse.cz>
-In-Reply-To: <20191114191657.GN20866@dhcp22.suse.cz>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: CO2PR05CA0079.namprd05.prod.outlook.com
- (2603:10b6:102:2::47) To BN8PR15MB2626.namprd15.prod.outlook.com
- (2603:10b6:408:c7::28)
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [2620:10d:c090:180::9012]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: fd24e0f2-756f-4783-2ff3-08d769f78517
-x-ms-traffictypediagnostic: BN8PR15MB2835:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <BN8PR15MB2835D0E5C0C2878E8949801BBE700@BN8PR15MB2835.namprd15.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-forefront-prvs: 02229A4115
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(979002)(346002)(376002)(39860400002)(396003)(366004)(136003)(189003)(199004)(66556008)(102836004)(46003)(4326008)(6116002)(33656002)(9686003)(478600001)(8936002)(25786009)(86362001)(229853002)(6246003)(2906002)(66946007)(81166006)(316002)(446003)(5660300002)(6916009)(14454004)(476003)(71190400001)(486006)(305945005)(6436002)(8676002)(6486002)(99286004)(11346002)(6512007)(66446008)(7736002)(54906003)(76176011)(1076003)(71200400001)(6506007)(386003)(64756008)(52116002)(14444005)(186003)(256004)(66476007)(81156014)(969003)(989001)(999001)(1009001)(1019001);DIR:OUT;SFP:1102;SCL:1;SRVR:BN8PR15MB2835;H:BN8PR15MB2626.namprd15.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: fb.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: MMzRDd2MniFjPuRsPcc06dGjrqtouk7UAd52XBjwwfy+Hjp2bCIwkKJiczqGsyU/fZ3TcW2ofsULRY8KvMtAihB8t/pooO/cyMcHlWkz4eDP52lyVSar8+oh2PLU5X3jCglgJZq/u1sN0OgRHW7v7YvTYV9KJ8F/9Av0mGp4f8osNbTWgK8kiHyg0cpBB410NvDJHk8deHKo2LOJ9nbIGpcHuCjZU17W5P+Cx0YzhsplW+fWcAf112sYnpagGdSuinNHpuffCAt+uRKJayI/FDppX7UX66IAFiFAzN2eSQ1bBxlEfQSJP0G5MZSi+Btux/FJVfYa3w9ZdetrJVIWn6PaHgSZX5tqOQxWxt6zBREVqj/CLaWSt0zfDJ1RLK3C2P4rNykoyEHtOFo6Ok0tpGDxjN3hAASOmBqdOYKCVeeaazn1z44RhNVXJzG9le+4
-Content-Type: text/plain; charset="iso-8859-1"
-Content-ID: <6F24FB96FF5A3F4A9DB8C549060B5F60@namprd15.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1727065AbfKOST0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 13:19:26 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:44312 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726466AbfKOST0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 13:19:26 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iVgBj-00059O-GP; Fri, 15 Nov 2019 19:19:19 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 2C4011C08AC;
+        Fri, 15 Nov 2019 19:19:19 +0100 (CET)
+Date:   Fri, 15 Nov 2019 18:19:19 -0000
+From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: locking/core] futex: Prevent exit livelock
+Cc:     Oleg Nesterov <oleg@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Stable Team <stable@vger.kernel.org>,
+        Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20191106224557.041676471@linutronix.de>
+References: <20191106224557.041676471@linutronix.de>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: fd24e0f2-756f-4783-2ff3-08d769f78517
-X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Nov 2019 18:13:31.9395
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 8ae927fe-1255-47a7-a2af-5f3a069daaa2
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 95RVB9UMi25S3QnxNG90rkpqM0afh/qRRhlNwbU6QTHSNC8lIv7uQcEG8+PzivdD
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR15MB2835
-X-OriginatorOrg: fb.com
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.95,18.0.572
- definitions=2019-11-15_05:2019-11-15,2019-11-15 signatures=0
-X-Proofpoint-Spam-Details: rule=fb_default_notspam policy=fb_default score=0 lowpriorityscore=0
- mlxlogscore=999 mlxscore=0 suspectscore=0 clxscore=1015 priorityscore=1501
- phishscore=0 spamscore=0 bulkscore=0 adultscore=0 malwarescore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-1910280000 definitions=main-1911150162
-X-FB-Internal: deliver
+Message-ID: <157384195905.12247.15590511877873998094.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 14, 2019 at 08:16:57PM +0100, Michal Hocko wrote:
-> On Wed 13-11-19 17:08:29, Roman Gushchin wrote:
-> > On Wed, Nov 13, 2019 at 05:29:34PM +0100, Michal Koutn=FD wrote:
-> > > Hi.
-> > >=20
-> > > On Wed, Nov 06, 2019 at 02:51:30PM -0800, Roman Gushchin <guro@fb.com=
-> wrote:
-> > > > Let's fix it by switching from css_tryget_online() to css_tryget().
-> > > Is this a safe thing to do? The stack captures a kmem charge path, wi=
-th
-> > > css_tryget() it may happen it gets an offlined memcg and carry out
-> > > charge into it. What happens when e.g. memcg_deactivate_kmem_caches i=
-s
-> > > skipped as a consequence?
-> >=20
-> > The thing here is that css_tryget_online() cannot pin the online state,
-> > so even if returned true, the cgroup can be offline at the return from
-> > the function. So if we rely somewhere on it, it's already broken.
->=20
-> Then what is the point of this function and what about all other users?
->=20
-> > Generally speaking, it's better to reduce it's usage to the bare minimu=
-m.
->=20
-> If it doesn't have any sensible semantic then I would argue it should go
-> altogether otherwise we are going to chase new users again and aagain?
+The following commit has been merged into the locking/core branch of tip:
 
-That's the plan: to audit all use cases and get rid of it where it's possib=
-le.
+Commit-ID:     3e0fe4f0ac713a156b96638aa6c1fb3d2c548e5a
+Gitweb:        https://git.kernel.org/tip/3e0fe4f0ac713a156b96638aa6c1fb3d2c548e5a
+Author:        Thomas Gleixner <tglx@linutronix.de>
+AuthorDate:    Wed, 06 Nov 2019 22:55:46 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Fri, 15 Nov 2019 19:11:27 +01:00
 
-> =20
-> > > > The problem is caused by an exiting task which is associated with
-> > > > an offline memcg. We're iterating over and over in the
-> > > > do {} while (!css_tryget_online()) loop, but obviously the memcg wo=
-n't
-> > > > become online and the exiting task won't be migrated to a live memc=
-g.
-> > > As discussed in other replies, the task is not yet exiting. However, =
-the
-> > > access to memcg isn't through `current` but `mm->owner`, i.e. another
-> > > task of a threadgroup may have got stuck in an offlined memcg (I don'=
-t
-> > > have a good explanation for that though).
->=20
-> The trace however points to current->mm or current->active_memcg. Is it
-> possible that we have a stale active_memcg?
+futex: Prevent exit livelock
 
-It wouldn't cause a rcu stall.
+Oleg provided the following test case:
 
-Thanks!
+int main(void)
+{
+	struct sched_param sp = {};
+
+	sp.sched_priority = 2;
+	assert(sched_setscheduler(0, SCHED_FIFO, &sp) == 0);
+
+	int lock = vfork();
+	if (!lock) {
+		sp.sched_priority = 1;
+		assert(sched_setscheduler(0, SCHED_FIFO, &sp) == 0);
+		_exit(0);
+	}
+
+	syscall(__NR_futex, &lock, FUTEX_LOCK_PI, 0,0,0);
+	return 0;
+}
+
+This creates an unkillable RT process spinning in futex_lock_pi() on a UP
+machine or if the process is affine to a single CPU. The reason is:
+
+ parent	    	    			child
+
+  set FIFO prio 2
+
+  vfork()			->	set FIFO prio 1
+   implies wait_for_child()	 	sched_setscheduler(...)
+ 			   		exit()
+					do_exit()
+ 					....
+					mm_release()
+					  tsk->futex_state = FUTEX_STATE_EXITING;
+					  exit_futex(); (NOOP in this case)
+					  complete() --> wakes parent
+  sys_futex()
+    loop infinite because
+    tsk->futex_state == FUTEX_STATE_EXITING
+
+The same problem can happen just by regular preemption as well:
+
+  task holds futex
+  ...
+  do_exit()
+    tsk->futex_state = FUTEX_STATE_EXITING;
+
+  --> preemption (unrelated wakeup of some other higher prio task, e.g. timer)
+
+  switch_to(other_task)
+
+  return to user
+  sys_futex()
+	loop infinite as above
+
+Just for the fun of it the futex exit cleanup could trigger the wakeup
+itself before the task sets its futex state to DEAD.
+
+To cure this, the handling of the exiting owner is changed so:
+
+   - A refcount is held on the task
+
+   - The task pointer is stored in a caller visible location
+
+   - The caller drops all locks (hash bucket, mmap_sem) and blocks
+     on task::futex_exit_mutex. When the mutex is acquired then
+     the exiting task has completed the cleanup and the state
+     is consistent and can be reevaluated.
+
+This is not a pretty solution, but there is no choice other than returning
+an error code to user space, which would break the state consistency
+guarantee and open another can of problems including regressions.
+
+For stable backports the preparatory commits 01e06025a2f8 .. 8d4da5b197dc
+are required as well, but for anything older than 5.3.y the backports are
+going to be provided when this hits mainline as the other dependencies for
+those kernels are definitely not stable material.
+
+Fixes: 778e9a9c3e71 ("pi-futex: fix exit races and locking problems")
+Reported-by: Oleg Nesterov <oleg@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Ingo Molnar <mingo@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Stable Team <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20191106224557.041676471@linutronix.de
+---
+ kernel/futex.c | 106 +++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 91 insertions(+), 15 deletions(-)
+
+diff --git a/kernel/futex.c b/kernel/futex.c
+index 4f9d7a4..03c518e 100644
+--- a/kernel/futex.c
++++ b/kernel/futex.c
+@@ -1176,6 +1176,36 @@ out_error:
+ 	return ret;
+ }
+ 
++/**
++ * wait_for_owner_exiting - Block until the owner has exited
++ * @exiting:	Pointer to the exiting task
++ *
++ * Caller must hold a refcount on @exiting.
++ */
++static void wait_for_owner_exiting(int ret, struct task_struct *exiting)
++{
++	if (ret != -EBUSY) {
++		WARN_ON_ONCE(exiting);
++		return;
++	}
++
++	if (WARN_ON_ONCE(ret == -EBUSY && !exiting))
++		return;
++
++	mutex_lock(&exiting->futex_exit_mutex);
++	/*
++	 * No point in doing state checking here. If the waiter got here
++	 * while the task was in exec()->exec_futex_release() then it can
++	 * have any FUTEX_STATE_* value when the waiter has acquired the
++	 * mutex. OK, if running, EXITING or DEAD if it reached exit()
++	 * already. Highly unlikely and not a problem. Just one more round
++	 * through the futex maze.
++	 */
++	mutex_unlock(&exiting->futex_exit_mutex);
++
++	put_task_struct(exiting);
++}
++
+ static int handle_exit_race(u32 __user *uaddr, u32 uval,
+ 			    struct task_struct *tsk)
+ {
+@@ -1237,7 +1267,8 @@ static int handle_exit_race(u32 __user *uaddr, u32 uval,
+  * it after doing proper sanity checks.
+  */
+ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
+-			      struct futex_pi_state **ps)
++			      struct futex_pi_state **ps,
++			      struct task_struct **exiting)
+ {
+ 	pid_t pid = uval & FUTEX_TID_MASK;
+ 	struct futex_pi_state *pi_state;
+@@ -1276,7 +1307,19 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
+ 		int ret = handle_exit_race(uaddr, uval, p);
+ 
+ 		raw_spin_unlock_irq(&p->pi_lock);
+-		put_task_struct(p);
++		/*
++		 * If the owner task is between FUTEX_STATE_EXITING and
++		 * FUTEX_STATE_DEAD then store the task pointer and keep
++		 * the reference on the task struct. The calling code will
++		 * drop all locks, wait for the task to reach
++		 * FUTEX_STATE_DEAD and then drop the refcount. This is
++		 * required to prevent a live lock when the current task
++		 * preempted the exiting task between the two states.
++		 */
++		if (ret == -EBUSY)
++			*exiting = p;
++		else
++			put_task_struct(p);
+ 		return ret;
+ 	}
+ 
+@@ -1315,7 +1358,8 @@ static int attach_to_pi_owner(u32 __user *uaddr, u32 uval, union futex_key *key,
+ 
+ static int lookup_pi_state(u32 __user *uaddr, u32 uval,
+ 			   struct futex_hash_bucket *hb,
+-			   union futex_key *key, struct futex_pi_state **ps)
++			   union futex_key *key, struct futex_pi_state **ps,
++			   struct task_struct **exiting)
+ {
+ 	struct futex_q *top_waiter = futex_top_waiter(hb, key);
+ 
+@@ -1330,7 +1374,7 @@ static int lookup_pi_state(u32 __user *uaddr, u32 uval,
+ 	 * We are the first waiter - try to look up the owner based on
+ 	 * @uval and attach to it.
+ 	 */
+-	return attach_to_pi_owner(uaddr, uval, key, ps);
++	return attach_to_pi_owner(uaddr, uval, key, ps, exiting);
+ }
+ 
+ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+@@ -1358,6 +1402,8 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+  *			lookup
+  * @task:		the task to perform the atomic lock work for.  This will
+  *			be "current" except in the case of requeue pi.
++ * @exiting:		Pointer to store the task pointer of the owner task
++ *			which is in the middle of exiting
+  * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
+  *
+  * Return:
+@@ -1366,11 +1412,17 @@ static int lock_pi_update_atomic(u32 __user *uaddr, u32 uval, u32 newval)
+  *  - <0 - error
+  *
+  * The hb->lock and futex_key refs shall be held by the caller.
++ *
++ * @exiting is only set when the return value is -EBUSY. If so, this holds
++ * a refcount on the exiting task on return and the caller needs to drop it
++ * after waiting for the exit to complete.
+  */
+ static int futex_lock_pi_atomic(u32 __user *uaddr, struct futex_hash_bucket *hb,
+ 				union futex_key *key,
+ 				struct futex_pi_state **ps,
+-				struct task_struct *task, int set_waiters)
++				struct task_struct *task,
++				struct task_struct **exiting,
++				int set_waiters)
+ {
+ 	u32 uval, newval, vpid = task_pid_vnr(task);
+ 	struct futex_q *top_waiter;
+@@ -1440,7 +1492,7 @@ static int futex_lock_pi_atomic(u32 __user *uaddr, struct futex_hash_bucket *hb,
+ 	 * attach to the owner. If that fails, no harm done, we only
+ 	 * set the FUTEX_WAITERS bit in the user space variable.
+ 	 */
+-	return attach_to_pi_owner(uaddr, newval, key, ps);
++	return attach_to_pi_owner(uaddr, newval, key, ps, exiting);
+ }
+ 
+ /**
+@@ -1858,6 +1910,8 @@ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
+  * @key1:		the from futex key
+  * @key2:		the to futex key
+  * @ps:			address to store the pi_state pointer
++ * @exiting:		Pointer to store the task pointer of the owner task
++ *			which is in the middle of exiting
+  * @set_waiters:	force setting the FUTEX_WAITERS bit (1) or not (0)
+  *
+  * Try and get the lock on behalf of the top waiter if we can do it atomically.
+@@ -1865,16 +1919,20 @@ void requeue_pi_wake_futex(struct futex_q *q, union futex_key *key,
+  * then direct futex_lock_pi_atomic() to force setting the FUTEX_WAITERS bit.
+  * hb1 and hb2 must be held by the caller.
+  *
++ * @exiting is only set when the return value is -EBUSY. If so, this holds
++ * a refcount on the exiting task on return and the caller needs to drop it
++ * after waiting for the exit to complete.
++ *
+  * Return:
+  *  -  0 - failed to acquire the lock atomically;
+  *  - >0 - acquired the lock, return value is vpid of the top_waiter
+  *  - <0 - error
+  */
+-static int futex_proxy_trylock_atomic(u32 __user *pifutex,
+-				 struct futex_hash_bucket *hb1,
+-				 struct futex_hash_bucket *hb2,
+-				 union futex_key *key1, union futex_key *key2,
+-				 struct futex_pi_state **ps, int set_waiters)
++static int
++futex_proxy_trylock_atomic(u32 __user *pifutex, struct futex_hash_bucket *hb1,
++			   struct futex_hash_bucket *hb2, union futex_key *key1,
++			   union futex_key *key2, struct futex_pi_state **ps,
++			   struct task_struct **exiting, int set_waiters)
+ {
+ 	struct futex_q *top_waiter = NULL;
+ 	u32 curval;
+@@ -1911,7 +1969,7 @@ static int futex_proxy_trylock_atomic(u32 __user *pifutex,
+ 	 */
+ 	vpid = task_pid_vnr(top_waiter->task);
+ 	ret = futex_lock_pi_atomic(pifutex, hb2, key2, ps, top_waiter->task,
+-				   set_waiters);
++				   exiting, set_waiters);
+ 	if (ret == 1) {
+ 		requeue_pi_wake_futex(top_waiter, key2, hb2);
+ 		return vpid;
+@@ -2040,6 +2098,8 @@ retry_private:
+ 	}
+ 
+ 	if (requeue_pi && (task_count - nr_wake < nr_requeue)) {
++		struct task_struct *exiting = NULL;
++
+ 		/*
+ 		 * Attempt to acquire uaddr2 and wake the top waiter. If we
+ 		 * intend to requeue waiters, force setting the FUTEX_WAITERS
+@@ -2047,7 +2107,8 @@ retry_private:
+ 		 * faults rather in the requeue loop below.
+ 		 */
+ 		ret = futex_proxy_trylock_atomic(uaddr2, hb1, hb2, &key1,
+-						 &key2, &pi_state, nr_requeue);
++						 &key2, &pi_state,
++						 &exiting, nr_requeue);
+ 
+ 		/*
+ 		 * At this point the top_waiter has either taken uaddr2 or is
+@@ -2074,7 +2135,8 @@ retry_private:
+ 			 * If that call succeeds then we have pi_state and an
+ 			 * initial refcount on it.
+ 			 */
+-			ret = lookup_pi_state(uaddr2, ret, hb2, &key2, &pi_state);
++			ret = lookup_pi_state(uaddr2, ret, hb2, &key2,
++					      &pi_state, &exiting);
+ 		}
+ 
+ 		switch (ret) {
+@@ -2104,6 +2166,12 @@ retry_private:
+ 			hb_waiters_dec(hb2);
+ 			put_futex_key(&key2);
+ 			put_futex_key(&key1);
++			/*
++			 * Handle the case where the owner is in the middle of
++			 * exiting. Wait for the exit to complete otherwise
++			 * this task might loop forever, aka. live lock.
++			 */
++			wait_for_owner_exiting(ret, exiting);
+ 			cond_resched();
+ 			goto retry;
+ 		default:
+@@ -2810,6 +2878,7 @@ static int futex_lock_pi(u32 __user *uaddr, unsigned int flags,
+ {
+ 	struct hrtimer_sleeper timeout, *to;
+ 	struct futex_pi_state *pi_state = NULL;
++	struct task_struct *exiting = NULL;
+ 	struct rt_mutex_waiter rt_waiter;
+ 	struct futex_hash_bucket *hb;
+ 	struct futex_q q = futex_q_init;
+@@ -2831,7 +2900,8 @@ retry:
+ retry_private:
+ 	hb = queue_lock(&q);
+ 
+-	ret = futex_lock_pi_atomic(uaddr, hb, &q.key, &q.pi_state, current, 0);
++	ret = futex_lock_pi_atomic(uaddr, hb, &q.key, &q.pi_state, current,
++				   &exiting, 0);
+ 	if (unlikely(ret)) {
+ 		/*
+ 		 * Atomic work succeeded and we got the lock,
+@@ -2854,6 +2924,12 @@ retry_private:
+ 			 */
+ 			queue_unlock(hb);
+ 			put_futex_key(&q.key);
++			/*
++			 * Handle the case where the owner is in the middle of
++			 * exiting. Wait for the exit to complete otherwise
++			 * this task might loop forever, aka. live lock.
++			 */
++			wait_for_owner_exiting(ret, exiting);
+ 			cond_resched();
+ 			goto retry;
+ 		default:
