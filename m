@@ -2,92 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C11FDFE7D6
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 23:34:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E753EFE7D9
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 23:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727100AbfKOWd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 17:33:59 -0500
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:35511 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727020AbfKOWd7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 17:33:59 -0500
-Received: by mail-pg1-f193.google.com with SMTP id k32so917882pgl.2
-        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 14:33:58 -0800 (PST)
+        id S1727183AbfKOWeB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 17:34:01 -0500
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:38397 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727080AbfKOWeB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 17:34:01 -0500
+Received: by mail-pl1-f194.google.com with SMTP id q18so1926155pls.5
+        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 14:33:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=Tc+IEmTbMBJCj4EiVIkUr9PV2atSgJthk3up+qVhyOE=;
-        b=BoaaaX8RsyTJpotwcaZaTD6Tyhn833MOIIDHMWr3NTNPT5Mmx71uuoUUG3DF6Dup9s
-         lAeMeISC4gG/92nA7AyPgTb37ys0iuHbAxbDO3MU0OERSfxWYFUPDT113kahRoqHbacV
-         1t2mCpDH0ZffJLXrG8zehsSd086kaA621p1+yYiMxgHdxcG5EAUKq3YCqy6MmqrI/Es/
-         jcnzhcv9t4AopOYTO8EQg53V68MNnuwplarZG6y/N4NId2Rw73Yj2+YdKFtJGEvW7J+1
-         VuZbzXMxe1W0aqKbfqGyJgz/TEKm+UhMbJtGGZ6czxRqmh5bNfZmhSfjIiVFZ/z7ZgGU
-         1VrA==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=2t2lfkYvCG1qZ4zH71UsZZVKevqEX7pyTohdYU3/dDg=;
+        b=TSxkLjjusnWyOxYQuwJ0yeo2qVuacsTryAzYn0nABmfZ+giChdSbiAlTILiu0av+QY
+         jkWKBo4DLgZtHrpz+tdF+VlAgQsfA3OdIm5fhLhv9vSP8EAGtXSK+OSQOTBRtAQcct2g
+         QR0Sglw0sLDa8vkUzDJ7iwCPgDCjEiKh+VvE3qSkwQesXq0iaKdptZvJJxiDYbc1N+j4
+         xaT/k5+AjeJLF9P+ANrQoOWHWCa16LHqeI0KGWEjIvKKArK5TYv/F94+FbsrOhMSzjwN
+         nH0qNcPvGaUtYtZ3JDYIjIjaFjXf66XE2kFG4WMS8hUVt2ONxPzvC68OWC0+AqOf4NGA
+         wEtw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=Tc+IEmTbMBJCj4EiVIkUr9PV2atSgJthk3up+qVhyOE=;
-        b=XjATz8fO2khgMR8eEhbQc6/fpLqPOLgE95HWgVc8Hs9sNddbG/cDtZwnJec4Xuab1u
-         sh8u71QEa7jcMYjdbTamfraBYIHYzLeIHhhScx6S7dVfQP7GY4EELwmuEEvdZmFc5Suq
-         6yuj41qLmqOUydmEhNgggJEbV1buah8ki8ABXklH9dVRu7giSc/nnx8zw8/8eUPPDtHt
-         gIRPrRKutCdmmbB8+CpBOx+ze8olSEWCWSp4ZmPcWDcPGiX+0fFsyRm7ARqUJAxn1Ii4
-         fqrKXGZRRo6FApGawdNQjRicJavyUN8ZwMwVUeyNM98ngXuhDx+yG7d1aH2OS9Xx9BDD
-         F54Q==
-X-Gm-Message-State: APjAAAWTvDK5WivP50iSWlSmNjJ1ZsVJTi0Jnf5/XurwMvLM7W2UIL1u
-        eqbB4e95Om63G3JMkW4XTQJKjkp9NCE=
-X-Google-Smtp-Source: APXvYqzUrFqYWdMgMuMww+ixzlV+FmQouQrALIgHfRTCaefzB7ScRo91nDaA8H/KKozVPoI12PkkMQ==
-X-Received: by 2002:aa7:870c:: with SMTP id b12mr20357084pfo.30.1573857238096;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=2t2lfkYvCG1qZ4zH71UsZZVKevqEX7pyTohdYU3/dDg=;
+        b=gnV30p4F2VFX5wwXWpfmtY79OoA4ZAC2hj/FDfihSiOs9HSS6vSrKf2FeK+rSDT+J8
+         7sOznzFXB/H7L37jgFv9V+i7R0RZUjtomZA5yimw4Nwbml4W1XkyU1OcMsA6cgy32m7Z
+         jr/MrDVK1ONDhrn/tTE1FPZj7zWBpCgavfNxdz7V7zB2YJbzeu27HHw7Jl28iYlMb0Bd
+         MpH2eq6tHz2vKdMnlFZUWeqja7rDhxtGL49MbikNrR+0/WTf4sAKs/QC6dMuwt/Q13UR
+         u0/FVLNykdlCXUq2rdrF+kRiowXCD9cakHYdxOxOm71paM08Vk21O0oY+DI3NDyqwdAI
+         CKzQ==
+X-Gm-Message-State: APjAAAVYOE5P2LSmQ6sGmlr/p1iyFUsQaugBRlT0Hlus8VD2uy/w2cE9
+        mMf2IQOD5Si/kDnkj89pbsEvMKosOPg=
+X-Google-Smtp-Source: APXvYqyCcGnCxpjNDXnOlQ5PDU1yc/iIX1FpvG9yax85c887grRTZSpLNG9/CAqWEFTR/yqC0+Ui1Q==
+X-Received: by 2002:a17:902:9a47:: with SMTP id x7mr3791386plv.84.1573857238838;
         Fri, 15 Nov 2019 14:33:58 -0800 (PST)
 Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
-        by smtp.gmail.com with ESMTPSA id m15sm11699724pfh.19.2019.11.15.14.33.57
+        by smtp.gmail.com with ESMTPSA id m15sm11699724pfh.19.2019.11.15.14.33.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Nov 2019 14:33:57 -0800 (PST)
+        Fri, 15 Nov 2019 14:33:58 -0800 (PST)
 From:   Mathieu Poirier <mathieu.poirier@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [stable 4.19+][PATCH 01/20] i2c: stm32f7: fix first byte to send in slave mode
-Date:   Fri, 15 Nov 2019 15:33:37 -0700
-Message-Id: <20191115223356.27675-1-mathieu.poirier@linaro.org>
+Subject: [stable 4.19+][PATCH 02/20] ARM: dts: stm32: relax qspi pins slew-rate for stm32mp157
+Date:   Fri, 15 Nov 2019 15:33:38 -0700
+Message-Id: <20191115223356.27675-2-mathieu.poirier@linaro.org>
 X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20191115223356.27675-1-mathieu.poirier@linaro.org>
+References: <20191115223356.27675-1-mathieu.poirier@linaro.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
+From: Patrice Chotard <patrice.chotard@st.com>
 
-commit 915da2b794ce4fc98b1acf64d64354f22a5e4931 upstream
+commit 86ec2e1739aa1d6565888b4b2059fa47354e1a89 upstream
 
-The slave-interface documentation [1] states "the bus driver should
-transmit the first byte" upon I2C_SLAVE_READ_REQUESTED slave event:
-- 'val': backend returns first byte to be sent
-The driver currently ignores the 1st byte to send on this event.
+Relax qspi pins slew-rate to minimize peak currents.
 
-[1] https://www.kernel.org/doc/Documentation/i2c/slave-interface
+Fixes: 844030057339 ("ARM: dts: stm32: add flash nor support on stm32mp157c eval board")
 
-Fixes: 60d609f30de2 ("i2c: i2c-stm32f7: Add slave support")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Reviewed-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Link: https://lore.kernel.org/r/20191025130122.11407-1-alexandre.torgue@st.com
+Signed-off-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Cc: stable <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/i2c/busses/i2c-stm32f7.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/stm32mp157-pinctrl.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index ac9c9486b834..48521bc8a4d2 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -1177,6 +1177,8 @@ static void stm32f7_i2c_slave_start(struct stm32f7_i2c_dev *i2c_dev)
- 			STM32F7_I2C_CR1_TXIE;
- 		stm32f7_i2c_set_bits(base + STM32F7_I2C_CR1, mask);
+diff --git a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+index c4851271e810..d9dce0c804e1 100644
+--- a/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
++++ b/arch/arm/boot/dts/stm32mp157-pinctrl.dtsi
+@@ -290,13 +290,13 @@
+ 						 <STM32_PINMUX('F', 6, AF9)>; /* QSPI_BK1_IO3 */
+ 					bias-disable;
+ 					drive-push-pull;
+-					slew-rate = <3>;
++					slew-rate = <1>;
+ 				};
+ 				pins2 {
+ 					pinmux = <STM32_PINMUX('B', 6, AF10)>; /* QSPI_BK1_NCS */
+ 					bias-pull-up;
+ 					drive-push-pull;
+-					slew-rate = <3>;
++					slew-rate = <1>;
+ 				};
+ 			};
  
-+		/* Write 1st data byte */
-+		writel_relaxed(value, base + STM32F7_I2C_TXDR);
- 	} else {
- 		/* Notify i2c slave that new write transfer is starting */
- 		i2c_slave_event(slave, I2C_SLAVE_WRITE_REQUESTED, &value);
+@@ -308,13 +308,13 @@
+ 						 <STM32_PINMUX('G', 7, AF11)>; /* QSPI_BK2_IO3 */
+ 					bias-disable;
+ 					drive-push-pull;
+-					slew-rate = <3>;
++					slew-rate = <1>;
+ 				};
+ 				pins2 {
+ 					pinmux = <STM32_PINMUX('C', 0, AF10)>; /* QSPI_BK2_NCS */
+ 					bias-pull-up;
+ 					drive-push-pull;
+-					slew-rate = <3>;
++					slew-rate = <1>;
+ 				};
+ 			};
+ 
 -- 
 2.17.1
 
