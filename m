@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04A49FD63D
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E75CFD63C
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727846AbfKOGWt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 01:22:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52266 "EHLO mail.kernel.org"
+        id S1727498AbfKOGWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 01:22:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727827AbfKOGWq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Nov 2019 01:22:46 -0500
+        id S1727842AbfKOGWr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Nov 2019 01:22:47 -0500
 Received: from localhost (unknown [104.132.150.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21E4B20803;
-        Fri, 15 Nov 2019 06:22:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D90320740;
+        Fri, 15 Nov 2019 06:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573798964;
-        bh=Rysc8aNVLGSoiLq482DmDiyQNFDDX2b34w7VFmJZhHM=;
+        s=default; t=1573798966;
+        bh=mkLJIs9ecrxNE7DnRoualZWks1FmwOQshK2BMx4ylBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=niJvySUipHYsK4DdzUuuzW7b9IygjRNNiTZdpbkKh6ad5GP+K8XuYmDoDg771+/Ud
-         pteCjMVWU/nvBuJJKUA11J6S6ipjqnNPQsAOJRoZDUk3a2OgbUaFBk9VbBpX9dkC5M
-         oQXVZP5ycv0+IB7D0qpix87262rgZtBSo0yqV/VE=
+        b=GA/qNxovIkfj0z+lW5Gn/kYLYWrORilK167UQpqVnTqVo3fQ0k+W/btJMM+jgc0D4
+         +JtzR/Lk7cV+Qad1T4V/99lmLaFN0CgsV37/OlgptIGymUQjlEvS5886GOtPsjH5gS
+         S5zTNjpEeYBWuBKL9Zs9n/a2Pt8PoUYNycFG4Vvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 24/31] KVM: x86: add tracepoints around __direct_map and FNAME(fetch)
-Date:   Fri, 15 Nov 2019 14:20:53 +0800
-Message-Id: <20191115062018.688564690@linuxfoundation.org>
+Subject: [PATCH 4.9 25/31] KVM: vmx, svm: always run with EFER.NXE=1 when shadow paging is active
+Date:   Fri, 15 Nov 2019 14:20:54 +0800
+Message-Id: <20191115062018.977683813@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191115062009.813108457@linuxfoundation.org>
 References: <20191115062009.813108457@linuxfoundation.org>
@@ -45,145 +46,69 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 335e192a3fa415e1202c8b9ecdaaecd643f823cc upstream.
+commit 9167ab79936206118cc60e47dcb926c3489f3bd5 upstream.
 
-These are useful in debugging shadow paging.
+VMX already does so if the host has SMEP, in order to support the combination of
+CR0.WP=1 and CR4.SMEP=1.  However, it is perfectly safe to always do so, and in
+fact VMX already ends up running with EFER.NXE=1 on old processors that lack the
+"load EFER" controls, because it may help avoiding a slow MSR write.  Removing
+all the conditionals simplifies the code.
 
+SVM does not have similar code, but it should since recent AMD processors do
+support SMEP.  So this patch also makes the code for the two vendors more similar
+while fixing NPT=0, CR0.WP=1 and CR4.SMEP=1 on AMD processors.
+
+Cc: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[bwh: Backported to 4.9:
- - Keep using PT_PRESENT_MASK to test page write permission
- - Adjust context]
+[bwh: Backported to 4.9: adjust filename]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu.c         |   13 ++++-----
- arch/x86/kvm/mmutrace.h    |   59 +++++++++++++++++++++++++++++++++++++++++++++
- arch/x86/kvm/paging_tmpl.h |    2 +
- 3 files changed, 67 insertions(+), 7 deletions(-)
+ arch/x86/kvm/svm.c |   10 ++++++++--
+ arch/x86/kvm/vmx.c |   14 +++-----------
+ 2 files changed, 11 insertions(+), 13 deletions(-)
 
---- a/arch/x86/kvm/mmu.c
-+++ b/arch/x86/kvm/mmu.c
-@@ -131,9 +131,6 @@ module_param(dbg, bool, 0644);
- 
- #include <trace/events/kvm.h>
- 
--#define CREATE_TRACE_POINTS
--#include "mmutrace.h"
--
- #define SPTE_HOST_WRITEABLE	(1ULL << PT_FIRST_AVAIL_BITS_SHIFT)
- #define SPTE_MMU_WRITEABLE	(1ULL << (PT_FIRST_AVAIL_BITS_SHIFT + 1))
- 
-@@ -193,8 +190,12 @@ static u64 __read_mostly shadow_mmio_mas
- static u64 __read_mostly shadow_present_mask;
- 
- static void mmu_spte_set(u64 *sptep, u64 spte);
-+static bool is_executable_pte(u64 spte);
- static void mmu_free_roots(struct kvm_vcpu *vcpu);
- 
-+#define CREATE_TRACE_POINTS
-+#include "mmutrace.h"
-+
- void kvm_mmu_set_mmio_spte_mask(u64 mmio_mask)
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -590,8 +590,14 @@ static int get_npt_level(void)
+ static void svm_set_efer(struct kvm_vcpu *vcpu, u64 efer)
  {
- 	shadow_mmio_mask = mmio_mask;
-@@ -2667,10 +2668,7 @@ static int mmu_set_spte(struct kvm_vcpu
- 		ret = RET_PF_EMULATE;
+ 	vcpu->arch.efer = efer;
+-	if (!npt_enabled && !(efer & EFER_LMA))
+-		efer &= ~EFER_LME;
++
++	if (!npt_enabled) {
++		/* Shadow paging assumes NX to be available.  */
++		efer |= EFER_NX;
++
++		if (!(efer & EFER_LMA))
++			efer &= ~EFER_LME;
++	}
  
- 	pgprintk("%s: setting spte %llx\n", __func__, *sptep);
--	pgprintk("instantiating %s PTE (%s) at %llx (%llx) addr %p\n",
--		 is_large_pte(*sptep)? "2MB" : "4kB",
--		 *sptep & PT_PRESENT_MASK ?"RW":"R", gfn,
--		 *sptep, sptep);
-+	trace_kvm_mmu_set_spte(level, gfn, sptep);
- 	if (!was_rmapped && is_large_pte(*sptep))
- 		++vcpu->kvm->stat.lpages;
+ 	to_svm(vcpu)->vmcb->save.efer = efer | EFER_SVME;
+ 	mark_dirty(to_svm(vcpu)->vmcb, VMCB_CR);
+--- a/arch/x86/kvm/vmx.c
++++ b/arch/x86/kvm/vmx.c
+@@ -2219,17 +2219,9 @@ static bool update_transition_efer(struc
+ 	u64 guest_efer = vmx->vcpu.arch.efer;
+ 	u64 ignore_bits = 0;
  
-@@ -2781,6 +2779,7 @@ static int __direct_map(struct kvm_vcpu
- 	if (!VALID_PAGE(vcpu->arch.mmu.root_hpa))
- 		return RET_PF_RETRY;
+-	if (!enable_ept) {
+-		/*
+-		 * NX is needed to handle CR0.WP=1, CR4.SMEP=1.  Testing
+-		 * host CPUID is more efficient than testing guest CPUID
+-		 * or CR4.  Host SMEP is anyway a requirement for guest SMEP.
+-		 */
+-		if (boot_cpu_has(X86_FEATURE_SMEP))
+-			guest_efer |= EFER_NX;
+-		else if (!(guest_efer & EFER_NX))
+-			ignore_bits |= EFER_NX;
+-	}
++	/* Shadow paging assumes NX to be available.  */
++	if (!enable_ept)
++		guest_efer |= EFER_NX;
  
-+	trace_kvm_mmu_spte_requested(gpa, level, pfn);
- 	for_each_shadow_entry(vcpu, gpa, it) {
- 		base_gfn = gfn & ~(KVM_PAGES_PER_HPAGE(it.level) - 1);
- 		if (it.level == level)
---- a/arch/x86/kvm/mmutrace.h
-+++ b/arch/x86/kvm/mmutrace.h
-@@ -322,6 +322,65 @@ TRACE_EVENT(
- 		  __entry->kvm_gen == __entry->spte_gen
- 	)
- );
-+
-+TRACE_EVENT(
-+	kvm_mmu_set_spte,
-+	TP_PROTO(int level, gfn_t gfn, u64 *sptep),
-+	TP_ARGS(level, gfn, sptep),
-+
-+	TP_STRUCT__entry(
-+		__field(u64, gfn)
-+		__field(u64, spte)
-+		__field(u64, sptep)
-+		__field(u8, level)
-+		/* These depend on page entry type, so compute them now.  */
-+		__field(bool, r)
-+		__field(bool, x)
-+		__field(u8, u)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->gfn = gfn;
-+		__entry->spte = *sptep;
-+		__entry->sptep = virt_to_phys(sptep);
-+		__entry->level = level;
-+		__entry->r = shadow_present_mask || (__entry->spte & PT_PRESENT_MASK);
-+		__entry->x = is_executable_pte(__entry->spte);
-+		__entry->u = shadow_user_mask ? !!(__entry->spte & shadow_user_mask) : -1;
-+	),
-+
-+	TP_printk("gfn %llx spte %llx (%s%s%s%s) level %d at %llx",
-+		  __entry->gfn, __entry->spte,
-+		  __entry->r ? "r" : "-",
-+		  __entry->spte & PT_PRESENT_MASK ? "w" : "-",
-+		  __entry->x ? "x" : "-",
-+		  __entry->u == -1 ? "" : (__entry->u ? "u" : "-"),
-+		  __entry->level, __entry->sptep
-+	)
-+);
-+
-+TRACE_EVENT(
-+	kvm_mmu_spte_requested,
-+	TP_PROTO(gpa_t addr, int level, kvm_pfn_t pfn),
-+	TP_ARGS(addr, level, pfn),
-+
-+	TP_STRUCT__entry(
-+		__field(u64, gfn)
-+		__field(u64, pfn)
-+		__field(u8, level)
-+	),
-+
-+	TP_fast_assign(
-+		__entry->gfn = addr >> PAGE_SHIFT;
-+		__entry->pfn = pfn | (__entry->gfn & (KVM_PAGES_PER_HPAGE(level) - 1));
-+		__entry->level = level;
-+	),
-+
-+	TP_printk("gfn %llx pfn %llx level %d",
-+		  __entry->gfn, __entry->pfn, __entry->level
-+	)
-+);
-+
- #endif /* _TRACE_KVMMMU_H */
- 
- #undef TRACE_INCLUDE_PATH
---- a/arch/x86/kvm/paging_tmpl.h
-+++ b/arch/x86/kvm/paging_tmpl.h
-@@ -626,6 +626,8 @@ static int FNAME(fetch)(struct kvm_vcpu
- 
- 	base_gfn = gw->gfn;
- 
-+	trace_kvm_mmu_spte_requested(addr, gw->level, pfn);
-+
- 	for (; shadow_walk_okay(&it); shadow_walk_next(&it)) {
- 		clear_sp_write_flooding_count(it.sptep);
- 		base_gfn = gw->gfn & ~(KVM_PAGES_PER_HPAGE(it.level) - 1);
+ 	/*
+ 	 * LMA and LME handled by hardware; SCE meaningless outside long mode.
 
 
