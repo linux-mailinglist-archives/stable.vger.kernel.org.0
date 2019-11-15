@@ -2,112 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 440B3FE7E1
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 23:34:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41951FE855
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 23:57:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727474AbfKOWeS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 17:34:18 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:40557 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727452AbfKOWeS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 17:34:18 -0500
-Received: by mail-pl1-f196.google.com with SMTP id e3so5627228plt.7
-        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 14:34:16 -0800 (PST)
+        id S1727077AbfKOW5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 17:57:30 -0500
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:37556 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726973AbfKOW5a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 17:57:30 -0500
+Received: by mail-pf1-f193.google.com with SMTP id p24so7362912pfn.4;
+        Fri, 15 Nov 2019 14:57:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=FlA/WYoLeRABK4x8leOELB1KpW2VXeE/7KRkjFeheIs=;
-        b=EuCYF29XK/mB/F3BxjT3sWX6z88YjtNqs+w5TNJQP6w08JiRou935ewYfWNAW/g3Eg
-         FYlTO4DtoNdOTwlSxUFfeQtM32HB8UD4XiO9OLyVfO071D1lvVGMwJJWMxV7DW959l9H
-         3cEwLuybSJy5RgNBVbsk3HFrKrWbg+s5SFLxWWx6v5gjbraobv8BFodgs84RA1TUiybx
-         8wvlY+DBrzz7i+IYZ/fG8vjyNWly48fh5ZQWjCLhzQuBoYMt+ckcnb/GiIKLPGqHmTMR
-         H6s2ATHNqRlbPvsQBZJwh0jEIKkumM1yU/gS+DXe538ozDU9zHQll5wun9QYpe4w15+l
-         ifVg==
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=enZ7Qi/SyTxVExugp5p095tNoDvQ3FGNLtSzXeoV+l0=;
+        b=IseQopMywi72QKbY6yp0IHyT0I+JUBoyvgl8AZTQRv4I9Rxtpv763WWjrgWrwgPYHz
+         d+/mh2Y+Cnbne3wW8DLJCD0hjJuiRK2rY7Nl46yK3EAKg5F9X9qYmATNwzce/aE4fK7d
+         3MH/suadReznkLWUA5Wynd09oXF/r8cOm2CwshEec65J+0YbhdL55r2R/ue/9fCF3BIb
+         MZGffPQWyyL7h7zUmbeuIXA4T6K79DS39M/QhM2rFFZkI1fnlEv/zD8f1DW4vFsz0LCH
+         w7XJ3vED2ay5oQAMgY2YV1vA92yfdi/RoSIHp+gwnoe5RTSivCMRHwaqOXNV4fmJ9c6c
+         B7AA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=FlA/WYoLeRABK4x8leOELB1KpW2VXeE/7KRkjFeheIs=;
-        b=V6bnBjNb2K0wCHcXhNLmWZL6KaG4NHkwvpVZ+IvveIbefmJCyWfM20/INm6UKSP7/T
-         rlKRHthYl8euhK1MgCuF5jJ69nCF7HwsFhhgYo2U4iiYZn3WxCjVm8YNWI92wL12IjZF
-         gRW5Dpa18hrhDN+fg0GxIHTM+bT/wZkOnbbajqxc8Ee2d1JQ/1li9fgi7ygv/6ggKNlk
-         bVIxdE+PP4d/mA7Dd+5lQXzl5rjWEtgqavWJR8stqmUp6ataDrAmo/3rL3mqO/MXdsbd
-         K/je7wEKY9Qgz8KrODhIcb6piAdjoJ/ZSlNRIRYGzi44ubK8cgEB4W/Jjn0mr9SdEbge
-         z7Fw==
-X-Gm-Message-State: APjAAAWCnTHsQmKCNBBKgyl1ijx0Vsw/32rEn/TVTJ+nOGkQO5R9oEXR
-        PDxJjhCd5Ha+woVK6vcEEu45Z7zINbM=
-X-Google-Smtp-Source: APXvYqwrPgGdAOCHvG+Dr9yqtqFxSjTdBheEMm1jF9StVEaJaadS7qR9/JmFNyQStGJT1dxmYiuHuQ==
-X-Received: by 2002:a17:90a:2385:: with SMTP id g5mr22958192pje.117.1573857255728;
-        Fri, 15 Nov 2019 14:34:15 -0800 (PST)
-Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
-        by smtp.gmail.com with ESMTPSA id m15sm11699724pfh.19.2019.11.15.14.34.14
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=enZ7Qi/SyTxVExugp5p095tNoDvQ3FGNLtSzXeoV+l0=;
+        b=aj0ZfBa6xK22OJ/vi2oxPXJGNAhJj/xyPItjSsGjv8LJc7TlHoBiiwH1QVaIrJQduD
+         q71eoi+F8WTKYmYvYCWszouaXw6Mg7T0rtMTbVDRHybOroyAI1VvidoRa9Ffk7JPWobc
+         UilWXkAutzyT/3zULIaGf13o8HDR6uEGZMyMgHHpMha34TyJ9G7heYu2BfnKz6yi6NZw
+         2tnWhC+u+pNiZkrUPIixj1mVsqGPWooSC2FfUhSv6L8r1EvUrPC1bt6wqSWOu0+JyRKo
+         QVxmoITMeC40omlwRB0awUSBfGJ1qwa4kfXm5sFhF63RrKO2Sp29MlbLL91qgDuDNqb+
+         ZFIw==
+X-Gm-Message-State: APjAAAUlKHVVzRfQ3auRlpIkBoW/X1J+nZGUm7Ttw5/ABXZMbLI6/fa1
+        JZ3z4kXuBkj1pgf2xY70VDA=
+X-Google-Smtp-Source: APXvYqzBHMokFgazeXvVhlIsGNQptxp7MlVQCOY71io8dzJfxvHYVNf76XwBhNKBAZIJc2efUzGahw==
+X-Received: by 2002:a63:8a4a:: with SMTP id y71mr18680151pgd.396.1573858648980;
+        Fri, 15 Nov 2019 14:57:28 -0800 (PST)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id v64sm11214629pgv.67.2019.11.15.14.57.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Nov 2019 14:34:15 -0800 (PST)
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [stable 4.19+][PATCH 20/20] dmaengine: stm32-dma: check whether length is aligned on FIFO threshold
-Date:   Fri, 15 Nov 2019 15:33:56 -0700
-Message-Id: <20191115223356.27675-20-mathieu.poirier@linaro.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191115223356.27675-1-mathieu.poirier@linaro.org>
-References: <20191115223356.27675-1-mathieu.poirier@linaro.org>
+        Fri, 15 Nov 2019 14:57:27 -0800 (PST)
+Date:   Fri, 15 Nov 2019 14:57:25 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     linux-input@vger.kernel.org, stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Cole Rogers <colerogers@disroot.org>,
+        Joe Perches <joe@perches.com>, Teika Kazura <teika@gmx.com>,
+        Alexander Mikhaylenko <exalm7659@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics - enable RMI mode for X1 Extreme 2nd
+ Generation
+Message-ID: <20191115225725.GA251795@dtor-ws>
+References: <20191115221814.31903-1-lyude@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191115221814.31903-1-lyude@redhat.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+On Fri, Nov 15, 2019 at 05:18:13PM -0500, Lyude Paul wrote:
+> Just got one of these for debugging some unrelated issues, and noticed
+> that Lenovo seems to have gone back to using RMI4 over smbus with
+> Synaptics touchpads on some of their new systems, particularly this one.
+> So, let's enable RMI mode for the X1 Extreme 2nd Generation.
+> 
+> Signed-off-by: Lyude Paul <lyude@redhat.com>
+> Cc: stable@vger.kernel.org
 
-commit cc832dc8e32785a730ba07c3a357e17c201a5df8 upstream
+Applied, thank you.
 
-When a period length is not multiple of FIFO some data may be stuck
-within FIFO.
+> ---
+>  drivers/input/mouse/synaptics.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index 56fae3472114..704558d449a2 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -177,6 +177,7 @@ static const char * const smbus_pnp_ids[] = {
+>  	"LEN0096", /* X280 */
+>  	"LEN0097", /* X280 -> ALPS trackpoint */
+>  	"LEN009b", /* T580 */
+> +	"LEN0402", /* X1 Extreme 2nd Generation */
+>  	"LEN200f", /* T450s */
+>  	"LEN2054", /* E480 */
+>  	"LEN2055", /* E580 */
+> -- 
+> 2.21.0
+> 
 
-Burst/FIFO Threshold/Period or buffer length check has to be hardened
-
-In any case DMA will grant any request from client but will degraded
-any parameters whether awkward.
-
-Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Cc: stable <stable@vger.kernel.org> # 4.19+
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
----
- drivers/dma/stm32-dma.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
-index 379e8d534e61..4903a408fc14 100644
---- a/drivers/dma/stm32-dma.c
-+++ b/drivers/dma/stm32-dma.c
-@@ -308,20 +308,12 @@ static bool stm32_dma_fifo_threshold_is_allowed(u32 burst, u32 threshold,
- 
- static bool stm32_dma_is_burst_possible(u32 buf_len, u32 threshold)
- {
--	switch (threshold) {
--	case STM32_DMA_FIFO_THRESHOLD_FULL:
--		if (buf_len >= STM32_DMA_MAX_BURST)
--			return true;
--		else
--			return false;
--	case STM32_DMA_FIFO_THRESHOLD_HALFFULL:
--		if (buf_len >= STM32_DMA_MAX_BURST / 2)
--			return true;
--		else
--			return false;
--	default:
--		return false;
--	}
-+	/*
-+	 * Buffer or period length has to be aligned on FIFO depth.
-+	 * Otherwise bytes may be stuck within FIFO at buffer or period
-+	 * length.
-+	 */
-+	return ((buf_len % ((threshold + 1) * 4)) == 0);
- }
- 
- static u32 stm32_dma_get_best_burst(u32 buf_len, u32 max_burst, u32 threshold,
 -- 
-2.17.1
-
+Dmitry
