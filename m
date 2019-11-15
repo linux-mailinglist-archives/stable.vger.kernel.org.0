@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBD8EFD5FD
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22531FD630
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727223AbfKOGVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 01:21:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50124 "EHLO mail.kernel.org"
+        id S1727605AbfKOGWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 01:22:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727206AbfKOGVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Nov 2019 01:21:22 -0500
+        id S1727589AbfKOGWI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Nov 2019 01:22:08 -0500
 Received: from localhost (unknown [104.132.150.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49A022073A;
-        Fri, 15 Nov 2019 06:21:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4D5A12053B;
+        Fri, 15 Nov 2019 06:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573798881;
-        bh=qYyzXt7umkf9Q1uRUWIFOcGRA0/84gaxMKeaYozMFVQ=;
+        s=default; t=1573798927;
+        bh=Orqr9LTQN31Ulk/Xwr8DMzLW3c8uf3Dv7yqSNnA+dV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enSfNf5O00CqqQQfAukEpUPhhLX8be30OhnsiNaZ11zuBE5uESVn9Zw5bFrEXRYTZ
-         ogfTEu0Hsf4UcmCZohdk6ka2No/dTw3G5QDmUT45DfaHZCRk2gkMW8SpR6+xgQo0tJ
-         tcWommAEqMQfcLCJOmqwHPc227Ony3klDClDCZJQ=
+        b=rWku8QT2ckumJeuA3amNZrFMfw8bctzX+UPsipRW7Gea1101Ki+gScWf1YlPVxw7k
+         jSZxxpL92c3G7genxPdLvIKPe078dE9I1+cGYuVbk1vviX4DJ3pwv1So+dKFGXflP1
+         USy6DZgk89IEPuycPGyWomXOkcym2/RoomzOEQYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Neelima Krishnan <neelima.krishnan@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Tyler Hicks <tyhicks@canonical.com>,
+        Borislav Petkov <bp@suse.de>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.4 15/20] kvm/x86: Export MDS_NO=0 to guests when TSX is enabled
+Subject: [PATCH 4.9 15/31] x86/speculation/taa: Fix printing of TAA_MSG_SMT on IBRS_ALL CPUs
 Date:   Fri, 15 Nov 2019 14:20:44 +0800
-Message-Id: <20191115062013.337413821@linuxfoundation.org>
+Message-Id: <20191115062016.618489685@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191115062006.854443935@linuxfoundation.org>
-References: <20191115062006.854443935@linuxfoundation.org>
+In-Reply-To: <20191115062009.813108457@linuxfoundation.org>
+References: <20191115062009.813108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,65 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-commit e1d38b63acd843cfdd4222bf19a26700fd5c699e upstream.
+commit 012206a822a8b6ac09125bfaa210a95b9eb8f1c1 upstream.
 
-Export the IA32_ARCH_CAPABILITIES MSR bit MDS_NO=0 to guests on TSX
-Async Abort(TAA) affected hosts that have TSX enabled and updated
-microcode. This is required so that the guests don't complain,
+For new IBRS_ALL CPUs, the Enhanced IBRS check at the beginning of
+cpu_bugs_smt_update() causes the function to return early, unintentionally
+skipping the MDS and TAA logic.
 
-  "Vulnerable: Clear CPU buffers attempted, no microcode"
+This is not a problem for MDS, because there appears to be no overlap
+between IBRS_ALL and MDS-affected CPUs.  So the MDS mitigation would be
+disabled and nothing would need to be done in this function anyway.
 
-when the host has the updated microcode to clear CPU buffers.
+But for TAA, the TAA_MSG_SMT string will never get printed on Cascade
+Lake and newer.
 
-Microcode update also adds support for MSR_IA32_TSX_CTRL which is
-enumerated by the ARCH_CAP_TSX_CTRL bit in IA32_ARCH_CAPABILITIES MSR.
-Guests can't do this check themselves when the ARCH_CAP_TSX_CTRL bit is
-not exported to the guests.
+The check is superfluous anyway: when 'spectre_v2_enabled' is
+SPECTRE_V2_IBRS_ENHANCED, 'spectre_v2_user' is always
+SPECTRE_V2_USER_NONE, and so the 'spectre_v2_user' switch statement
+handles it appropriately by doing nothing.  So just remove the check.
 
-In this case export MDS_NO=0 to the guests. When guests have
-CPUID.MD_CLEAR=1, they deploy MDS mitigation which also mitigates TAA.
-
-Signed-off-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+Fixes: 1b42f017415b ("x86/speculation/taa: Add mitigation for TSX Async Abort")
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Neelima Krishnan <neelima.krishnan@intel.com>
-Reviewed-by: Tony Luck <tony.luck@intel.com>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Reviewed-by: Tyler Hicks <tyhicks@canonical.com>
+Reviewed-by: Borislav Petkov <bp@suse.de>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ arch/x86/kernel/cpu/bugs.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1008,6 +1008,25 @@ u64 kvm_get_arch_capabilities(void)
- 	if (!boot_cpu_has_bug(X86_BUG_MDS))
- 		data |= ARCH_CAP_MDS_NO;
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -882,10 +882,6 @@ static void update_mds_branch_idle(void)
  
-+	/*
-+	 * On TAA affected systems, export MDS_NO=0 when:
-+	 *	- TSX is enabled on the host, i.e. X86_FEATURE_RTM=1.
-+	 *	- Updated microcode is present. This is detected by
-+	 *	  the presence of ARCH_CAP_TSX_CTRL_MSR and ensures
-+	 *	  that VERW clears CPU buffers.
-+	 *
-+	 * When MDS_NO=0 is exported, guests deploy clear CPU buffer
-+	 * mitigation and don't complain:
-+	 *
-+	 *	"Vulnerable: Clear CPU buffers attempted, no microcode"
-+	 *
-+	 * If TSX is disabled on the system, guests are also mitigated against
-+	 * TAA and clear CPU buffer mitigation is not required for guests.
-+	 */
-+	if (boot_cpu_has_bug(X86_BUG_TAA) && boot_cpu_has(X86_FEATURE_RTM) &&
-+	    (data & ARCH_CAP_TSX_CTRL_MSR))
-+		data &= ~ARCH_CAP_MDS_NO;
-+
- 	return data;
- }
+ void arch_smt_update(void)
+ {
+-	/* Enhanced IBRS implies STIBP. No update required. */
+-	if (spectre_v2_enabled == SPECTRE_V2_IBRS_ENHANCED)
+-		return;
+-
+ 	mutex_lock(&spec_ctrl_mutex);
  
+ 	switch (spectre_v2_user) {
 
 
