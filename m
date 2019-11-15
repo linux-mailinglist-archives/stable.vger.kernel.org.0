@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37331FE7EC
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 23:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 440B3FE7E1
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 23:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727509AbfKOWec (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 17:34:32 -0500
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:38428 "EHLO
+        id S1727474AbfKOWeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 17:34:18 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:40557 "EHLO
         mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727421AbfKOWeP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 17:34:15 -0500
-Received: by mail-pl1-f196.google.com with SMTP id q18so1926518pls.5
-        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 14:34:15 -0800 (PST)
+        with ESMTP id S1727452AbfKOWeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 17:34:18 -0500
+Received: by mail-pl1-f196.google.com with SMTP id e3so5627228plt.7
+        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 14:34:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=r1ouRyNa+k6U3bqzEPdoAfpCVsnWSnRUjkxZ+vQnSI0=;
-        b=AkA2Dg+SrHTn4/EJ8QynEGN7oPoQ/Aw5fRHMyXpEW6Y6keS6gO6VdGp+FDJ81HaCck
-         LfkmYzBp8QrNwaymjk9ee0qPdxlC88qX2CcJuOT+KoHhzb0ptMpflS2O2yk9g1xcwj+i
-         OsUJI152IuEDboSfUp+G5xjZAwG1t7A0XU/A7qB4I1ptcuIK1x3v8NMEcAQoZZq4bi4E
-         Be+sv3Xu57IO52n36rJiyMgg2w2e6EQhjAwLZeheDCHSoe140YiXAwaGdpXT8hHFrlti
-         FWcDYu761P26xKgxM27ycYqxbciEuu1T6zlil6sWl1pcyhuIHyDlPl4vUH/r7fLTJUmm
-         52MA==
+        bh=FlA/WYoLeRABK4x8leOELB1KpW2VXeE/7KRkjFeheIs=;
+        b=EuCYF29XK/mB/F3BxjT3sWX6z88YjtNqs+w5TNJQP6w08JiRou935ewYfWNAW/g3Eg
+         FYlTO4DtoNdOTwlSxUFfeQtM32HB8UD4XiO9OLyVfO071D1lvVGMwJJWMxV7DW959l9H
+         3cEwLuybSJy5RgNBVbsk3HFrKrWbg+s5SFLxWWx6v5gjbraobv8BFodgs84RA1TUiybx
+         8wvlY+DBrzz7i+IYZ/fG8vjyNWly48fh5ZQWjCLhzQuBoYMt+ckcnb/GiIKLPGqHmTMR
+         H6s2ATHNqRlbPvsQBZJwh0jEIKkumM1yU/gS+DXe538ozDU9zHQll5wun9QYpe4w15+l
+         ifVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references;
-        bh=r1ouRyNa+k6U3bqzEPdoAfpCVsnWSnRUjkxZ+vQnSI0=;
-        b=C3fxECH1kFd807UNa0MjhtZq4tUlVBF0tXC3aO70FjOW97q0gp/BTnq+9t4S/u+vaS
-         VmxJqpApcUYDOvktKJzUYR80CHTCLFzTinsX7B9iblxbsRO/XMb38/WRC0LOmRcWILuw
-         SMEySDDfmLp15puJYI8+9e2162u3upPVF6zlqiL0rhNZunDPW6AqBz9kwuD4NgLSZVEl
-         5G4w4TizEjOrG3z+MMNFSJgKkvTaUEmkwYkIuJDPd8pv8YWmEJz8bsWrZ7RZ6NuiCp5k
-         VZ6w5pfViW+hkXlVPSrmjoiF29SPLRg9jtHa6IHjaxwnnytF9kAfjJLPKG8tOY4pTU4C
-         YK6g==
-X-Gm-Message-State: APjAAAWjxGg4q6VKuZT0WcsEPCQcfXfR0HVQFX+spSP5lkWcm9maHuRq
-        c74r4DY15EVylX5HsBhpS1J9uHF0Pao=
-X-Google-Smtp-Source: APXvYqxC58jH+YVSM8IOmV0kV1VyZBdQVm7yePJM+Y2/BxjPAGsb3xhTH2/dY5iUX2I2iGcgQm94xQ==
-X-Received: by 2002:a17:90a:9705:: with SMTP id x5mr22110495pjo.37.1573857254692;
-        Fri, 15 Nov 2019 14:34:14 -0800 (PST)
+        bh=FlA/WYoLeRABK4x8leOELB1KpW2VXeE/7KRkjFeheIs=;
+        b=V6bnBjNb2K0wCHcXhNLmWZL6KaG4NHkwvpVZ+IvveIbefmJCyWfM20/INm6UKSP7/T
+         rlKRHthYl8euhK1MgCuF5jJ69nCF7HwsFhhgYo2U4iiYZn3WxCjVm8YNWI92wL12IjZF
+         gRW5Dpa18hrhDN+fg0GxIHTM+bT/wZkOnbbajqxc8Ee2d1JQ/1li9fgi7ygv/6ggKNlk
+         bVIxdE+PP4d/mA7Dd+5lQXzl5rjWEtgqavWJR8stqmUp6ataDrAmo/3rL3mqO/MXdsbd
+         K/je7wEKY9Qgz8KrODhIcb6piAdjoJ/ZSlNRIRYGzi44ubK8cgEB4W/Jjn0mr9SdEbge
+         z7Fw==
+X-Gm-Message-State: APjAAAWCnTHsQmKCNBBKgyl1ijx0Vsw/32rEn/TVTJ+nOGkQO5R9oEXR
+        PDxJjhCd5Ha+woVK6vcEEu45Z7zINbM=
+X-Google-Smtp-Source: APXvYqwrPgGdAOCHvG+Dr9yqtqFxSjTdBheEMm1jF9StVEaJaadS7qR9/JmFNyQStGJT1dxmYiuHuQ==
+X-Received: by 2002:a17:90a:2385:: with SMTP id g5mr22958192pje.117.1573857255728;
+        Fri, 15 Nov 2019 14:34:15 -0800 (PST)
 Received: from xps15.cg.shawcable.net (S0106002369de4dac.cg.shawcable.net. [68.147.8.254])
-        by smtp.gmail.com with ESMTPSA id m15sm11699724pfh.19.2019.11.15.14.34.13
+        by smtp.gmail.com with ESMTPSA id m15sm11699724pfh.19.2019.11.15.14.34.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Nov 2019 14:34:14 -0800 (PST)
+        Fri, 15 Nov 2019 14:34:15 -0800 (PST)
 From:   Mathieu Poirier <mathieu.poirier@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [stable 4.19+][PATCH 19/20] media: ov5640: fix framerate update
-Date:   Fri, 15 Nov 2019 15:33:55 -0700
-Message-Id: <20191115223356.27675-19-mathieu.poirier@linaro.org>
+Subject: [stable 4.19+][PATCH 20/20] dmaengine: stm32-dma: check whether length is aligned on FIFO threshold
+Date:   Fri, 15 Nov 2019 15:33:56 -0700
+Message-Id: <20191115223356.27675-20-mathieu.poirier@linaro.org>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20191115223356.27675-1-mathieu.poirier@linaro.org>
 References: <20191115223356.27675-1-mathieu.poirier@linaro.org>
@@ -57,48 +57,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hugues Fruchet <hugues.fruchet@st.com>
+From: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
 
-commit 0929983e49c81c1d413702cd9b83bb06c4a2555c upstream
+commit cc832dc8e32785a730ba07c3a357e17c201a5df8 upstream
 
-Changing framerate right before streamon had no effect,
-the new framerate value was taken into account only at
-next streamon, fix this.
+When a period length is not multiple of FIFO some data may be stuck
+within FIFO.
 
-Signed-off-by: Hugues Fruchet <hugues.fruchet@st.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Burst/FIFO Threshold/Period or buffer length check has to be hardened
+
+In any case DMA will grant any request from client but will degraded
+any parameters whether awkward.
+
+Signed-off-by: Pierre-Yves MORDRET <pierre-yves.mordret@st.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Cc: stable <stable@vger.kernel.org> # 4.19+
 Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 ---
- drivers/media/i2c/ov5640.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/dma/stm32-dma.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/media/i2c/ov5640.c b/drivers/media/i2c/ov5640.c
-index a3bbef682fb8..2023df14f828 100644
---- a/drivers/media/i2c/ov5640.c
-+++ b/drivers/media/i2c/ov5640.c
-@@ -2572,8 +2572,6 @@ static int ov5640_s_frame_interval(struct v4l2_subdev *sd,
- 	if (frame_rate < 0)
- 		frame_rate = OV5640_15_FPS;
+diff --git a/drivers/dma/stm32-dma.c b/drivers/dma/stm32-dma.c
+index 379e8d534e61..4903a408fc14 100644
+--- a/drivers/dma/stm32-dma.c
++++ b/drivers/dma/stm32-dma.c
+@@ -308,20 +308,12 @@ static bool stm32_dma_fifo_threshold_is_allowed(u32 burst, u32 threshold,
  
--	sensor->current_fr = frame_rate;
--	sensor->frame_interval = fi->interval;
- 	mode = ov5640_find_mode(sensor, frame_rate, mode->hact,
- 				mode->vact, true);
- 	if (!mode) {
-@@ -2581,7 +2579,10 @@ static int ov5640_s_frame_interval(struct v4l2_subdev *sd,
- 		goto out;
- 	}
+ static bool stm32_dma_is_burst_possible(u32 buf_len, u32 threshold)
+ {
+-	switch (threshold) {
+-	case STM32_DMA_FIFO_THRESHOLD_FULL:
+-		if (buf_len >= STM32_DMA_MAX_BURST)
+-			return true;
+-		else
+-			return false;
+-	case STM32_DMA_FIFO_THRESHOLD_HALFFULL:
+-		if (buf_len >= STM32_DMA_MAX_BURST / 2)
+-			return true;
+-		else
+-			return false;
+-	default:
+-		return false;
+-	}
++	/*
++	 * Buffer or period length has to be aligned on FIFO depth.
++	 * Otherwise bytes may be stuck within FIFO at buffer or period
++	 * length.
++	 */
++	return ((buf_len % ((threshold + 1) * 4)) == 0);
+ }
  
--	if (mode != sensor->current_mode) {
-+	if (mode != sensor->current_mode ||
-+	    frame_rate != sensor->current_fr) {
-+		sensor->current_fr = frame_rate;
-+		sensor->frame_interval = fi->interval;
- 		sensor->current_mode = mode;
- 		sensor->pending_mode_change = true;
- 	}
+ static u32 stm32_dma_get_best_burst(u32 buf_len, u32 max_burst, u32 threshold,
 -- 
 2.17.1
 
