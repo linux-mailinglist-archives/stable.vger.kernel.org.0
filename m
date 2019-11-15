@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F65FD653
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE2EFD636
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 07:24:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727412AbfKOGVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 01:21:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50638 "EHLO mail.kernel.org"
+        id S1727749AbfKOGWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 01:22:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727274AbfKOGVm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Nov 2019 01:21:42 -0500
+        id S1727388AbfKOGWc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Nov 2019 01:22:32 -0500
 Received: from localhost (unknown [104.132.150.99])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F93E20637;
-        Fri, 15 Nov 2019 06:21:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D2922077B;
+        Fri, 15 Nov 2019 06:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573798901;
-        bh=yVJGv9t7sCYlVFIiE0CQuIFyDDiIizjCpMePLyQhcJk=;
+        s=default; t=1573798951;
+        bh=dP40GUeDd2fr9i4/K8ECYQMVSiLkcnTWieOXC8HVUjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aYSK5CguyM4/2s5Dr2mUIcKNiutOvfo2WZNMrGJOqlxxFl3bUcpThnI5Vr9+wdz0s
-         2P0givgK8V1nWyZlOeLXc+dW/gnU8QqALDFcPoU8aDRP9INOR0CHBUFGgh+YO6GR6s
-         so8QUa27evxOl7BG2gba2xSaeaagXV8c4qAAmlHg=
+        b=I0cPj1HAC3pxx/TzUHdn/Jrw9Lig1EQFgx9bDgBvd+ctyB1AF+qrfeH36hR76sVVf
+         DHVggck8TY4xeGXmf0Njatx3AUhnJnpYTNZIOXi0G97f2JJ3z68nWz6f13TLUQirtW
+         azhDupF6n6tzojtoDErWsa6vjFGcmUIQh3/uRqYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Blanchard <anton@samba.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Andrew Donnellan <ajd@linux.ibm.com>
-Subject: [PATCH 4.4 05/20] powerpc/boot: Request no dynamic linker for boot wrapper
+        stable@vger.kernel.org, Jim Mattson <jmattson@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 05/31] KVM: x86: use Intel speculation bugs and features as derived in generic x86 code
 Date:   Fri, 15 Nov 2019 14:20:34 +0800
-Message-Id: <20191115062009.709977680@linuxfoundation.org>
+Message-Id: <20191115062011.276619370@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191115062006.854443935@linuxfoundation.org>
-References: <20191115062006.854443935@linuxfoundation.org>
+In-Reply-To: <20191115062009.813108457@linuxfoundation.org>
+References: <20191115062009.813108457@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit ff45000fcb56b5b0f1a14a865d3541746d838a0a upstream.
+commit 0c54914d0c52a15db9954a76ce80fee32cf318f4 upstream.
 
-The boot wrapper performs its own relocations and does not require
-PT_INTERP segment. However currently we don't tell the linker that.
+Similar to AMD bits, set the Intel bits from the vendor-independent
+feature and bug flags, because KVM_GET_SUPPORTED_CPUID does not care
+about the vendor and they should be set on AMD processors as well.
 
-Prior to binutils 2.28 that works OK. But since binutils commit
-1a9ccd70f9a7 ("Fix the linker so that it will not silently generate ELF
-binaries with invalid program headers. Fix readelf to report such
-invalid binaries.") binutils tries to create a program header segment
-due to PT_INTERP, and the link fails because there is no space for it:
-
-  ld: arch/powerpc/boot/zImage.pseries: Not enough room for program headers, try linking with -N
-  ld: final link failed: Bad value
-
-So tell the linker not to do that, by passing --no-dynamic-linker.
-
-Cc: stable@vger.kernel.org
-Reported-by: Anton Blanchard <anton@samba.org>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-[mpe: Drop dependency on ld-version.sh and massage change log]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-[ajd: backport to v4.4 (resolve conflict with a comment line)]
-Signed-off-by: Andrew Donnellan <ajd@linux.ibm.com>
+Suggested-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/powerpc/boot/wrapper |   24 +++++++++++++++++++++++-
- 1 file changed, 23 insertions(+), 1 deletion(-)
+ arch/x86/kvm/cpuid.c |    8 ++++++++
+ arch/x86/kvm/x86.c   |    8 ++++++++
+ 2 files changed, 16 insertions(+)
 
---- a/arch/powerpc/boot/wrapper
-+++ b/arch/powerpc/boot/wrapper
-@@ -161,6 +161,28 @@ case "$elfformat" in
-     elf32-powerpc)	format=elf32ppc	;;
- esac
- 
-+ld_version()
-+{
-+    # Poached from scripts/ld-version.sh, but we don't want to call that because
-+    # this script (wrapper) is distributed separately from the kernel source.
-+    # Extract linker version number from stdin and turn into single number.
-+    awk '{
-+	gsub(".*\\)", "");
-+	gsub(".*version ", "");
-+	gsub("-.*", "");
-+	split($1,a, ".");
-+	print a[1]*100000000 + a[2]*1000000 + a[3]*10000;
-+	exit
-+    }'
-+}
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -466,8 +466,16 @@ static inline int __do_cpuid_ent(struct
+ 			/* PKU is not yet implemented for shadow paging. */
+ 			if (!tdp_enabled || !boot_cpu_has(X86_FEATURE_OSPKE))
+ 				entry->ecx &= ~F(PKU);
 +
-+# Do not include PT_INTERP segment when linking pie. Non-pie linking
-+# just ignores this option.
-+LD_VERSION=$(${CROSS}ld --version | ld_version)
-+LD_NO_DL_MIN_VERSION=$(echo 2.26 | ld_version)
-+if [ "$LD_VERSION" -ge "$LD_NO_DL_MIN_VERSION" ] ; then
-+	nodl="--no-dynamic-linker"
-+fi
+ 			entry->edx &= kvm_cpuid_7_0_edx_x86_features;
+ 			cpuid_mask(&entry->edx, CPUID_7_EDX);
++			if (boot_cpu_has(X86_FEATURE_IBPB) &&
++			    boot_cpu_has(X86_FEATURE_IBRS))
++				entry->edx |= F(SPEC_CTRL);
++			if (boot_cpu_has(X86_FEATURE_STIBP))
++				entry->edx |= F(INTEL_STIBP);
++			if (boot_cpu_has(X86_FEATURE_SSBD))
++				entry->edx |= F(SPEC_CTRL_SSBD);
+ 			/*
+ 			 * We emulate ARCH_CAPABILITIES in software even
+ 			 * if the host doesn't support it.
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1043,8 +1043,16 @@ u64 kvm_get_arch_capabilities(void)
+ 	if (l1tf_vmx_mitigation != VMENTER_L1D_FLUSH_NEVER)
+ 		data |= ARCH_CAP_SKIP_VMENTRY_L1DFLUSH;
  
- platformo=$object/"$platform".o
- lds=$object/zImage.lds
-@@ -412,7 +434,7 @@ if [ "$platform" != "miboot" ]; then
-     if [ -n "$link_address" ] ; then
-         text_start="-Ttext $link_address"
-     fi
--    ${CROSS}ld -m $format -T $lds $text_start $pie -o "$ofile" \
-+    ${CROSS}ld -m $format -T $lds $text_start $pie $nodl -o "$ofile" \
- 	$platformo $tmp $object/wrapper.a
-     rm $tmp
- fi
++	if (!boot_cpu_has_bug(X86_BUG_CPU_MELTDOWN))
++		data |= ARCH_CAP_RDCL_NO;
++	if (!boot_cpu_has_bug(X86_BUG_SPEC_STORE_BYPASS))
++		data |= ARCH_CAP_SSB_NO;
++	if (!boot_cpu_has_bug(X86_BUG_MDS))
++		data |= ARCH_CAP_MDS_NO;
++
+ 	return data;
+ }
++
+ EXPORT_SYMBOL_GPL(kvm_get_arch_capabilities);
+ 
+ static int kvm_get_msr_feature(struct kvm_msr_entry *msr)
 
 
