@@ -2,73 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC3B8FE21C
-	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 16:58:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 545FFFE256
+	for <lists+stable@lfdr.de>; Fri, 15 Nov 2019 17:10:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727443AbfKOP6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 10:58:16 -0500
-Received: from relay2-d.mail.gandi.net ([217.70.183.194]:39511 "EHLO
-        relay2-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727505AbfKOP6Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 10:58:16 -0500
-X-Originating-IP: 90.66.177.178
-Received: from localhost (lfbn-1-2888-178.w90-66.abo.wanadoo.fr [90.66.177.178])
-        (Authenticated sender: gregory.clement@bootlin.com)
-        by relay2-d.mail.gandi.net (Postfix) with ESMTPSA id 515674000B;
-        Fri, 15 Nov 2019 15:58:13 +0000 (UTC)
-From:   Gregory CLEMENT <gregory.clement@bootlin.com>
-To:     Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Jason Cooper <jason@lakedaemon.net>, Andrew Lunn <andrew@lunn.ch>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        Russell King <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH] pinctrl: armada-37xx: Fix irq mask access in armada_37xx_irq_set_type()
-Date:   Fri, 15 Nov 2019 16:57:52 +0100
-Message-Id: <20191115155752.2562-1-gregory.clement@bootlin.com>
-X-Mailer: git-send-email 2.24.0
+        id S1727461AbfKOQKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 11:10:32 -0500
+Received: from mail-qk1-f196.google.com ([209.85.222.196]:37519 "EHLO
+        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727520AbfKOQKc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 15 Nov 2019 11:10:32 -0500
+Received: by mail-qk1-f196.google.com with SMTP id e187so8522497qkf.4
+        for <stable@vger.kernel.org>; Fri, 15 Nov 2019 08:10:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=QXQnsuzIdBD4R7XwRkiLdL633g5N2HlkyOWWAExgJGo=;
+        b=udqLCFcds+MJ2Y/juBQ9HAl4utewCmMZfse7vGLAKZuboTmXzCedLxYEXt/DXXTZC4
+         cl2y/Mf8bkDabGez0Kf6FAWqIKLKrNkIFoTFyKjMjiDUBHqHZy7lV72ftLWBpa1NKv9O
+         VmkZ79DKNubg//mSi9AMOyHnOAG6WxSurIJGRzaOuguYmeIWAhyG5WHJIrLyIfIoH13v
+         /Qdm2YO9qLLoxV8Iv8g9DYFb1yGQbh6RmUHTm6D5XNMrVWcjJ+Mgeu9/TsklEBdHnXHg
+         PE5hYh5xNmiN5EdT/d+5FJlH+v0QwKW0DULKZVFGKU1lo1AIZQ3sNg0MkPJZKBfT52sI
+         8A1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=QXQnsuzIdBD4R7XwRkiLdL633g5N2HlkyOWWAExgJGo=;
+        b=YWQPOf2vKHbByceKvUjWVUqP/CKqhwwIr4OlBfDuGZO5nMiP51QJFTPL74poZz4hGt
+         IeQoI0sTpmsqEJamHC5LeCbvhPXGYDKONGcaMYK9gTUFCunf5ZxwQTcIzRwchY08HjqG
+         TbsyrYCoGkbj9BfZYC7zBQHbNsskh3WNaouWBGUrG2I15c+KHcVVgDm4zGtwVXD6whGo
+         4YhN4YV4hPw/DttcmxonVALpRvSIdKOQLq1wVLmKiyDsR3yyClur6ORHwNYFLDmYRQGS
+         OJBWG75wigMvAuXsCuC8ipzTVM2rkjYFm7QQhxOjL89MJd/s/VrKkCp1yVBN9PANIxHU
+         xL7g==
+X-Gm-Message-State: APjAAAXmThE2vjSnfNp8u4lOdq50nSTchJW+ju41H6Q0JFQbQaEoPtnJ
+        WVq1h5ithny2VAEoYTosFk24Fw==
+X-Google-Smtp-Source: APXvYqzpikIUfpamKtvZpl4aOMTDjuDVakJhUx8VpGxQ7emrsC+EYMZ4sVhQZWenOPg5pF/S+NpI1w==
+X-Received: by 2002:a37:4e03:: with SMTP id c3mr8749809qkb.6.1573834231034;
+        Fri, 15 Nov 2019 08:10:31 -0800 (PST)
+Received: from localhost (rfs.netwinder.org. [206.248.184.2])
+        by smtp.gmail.com with ESMTPSA id 70sm4236561qkj.48.2019.11.15.08.10.29
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 15 Nov 2019 08:10:30 -0800 (PST)
+Date:   Fri, 15 Nov 2019 11:10:29 -0500
+From:   Ralph Siemsen <ralph.siemsen@linaro.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Jeremy Cline <jcline@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH 4.9 02/31] Bluetooth: hci_ldisc: Postpone
+ HCI_UART_PROTO_READY bit set in hci_uart_set_proto()
+Message-ID: <20191115161029.GA32365@maple.netwinder.org>
+References: <20191115062009.813108457@linuxfoundation.org>
+ <20191115062010.682028342@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20191115062010.682028342@linuxfoundation.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-As explained in the following commit a9a1a4833613 ("pinctrl:
-armada-37xx: Fix gpio interrupt setup") the armada_37xx_irq_set_type()
-function can be called before the initialization of the mask field.
+Hi Greg,
 
-That means that we can't use this field in this function and need to
-workaround it using hwirq.
+On Fri, Nov 15, 2019 at 02:20:31PM +0800, Greg Kroah-Hartman wrote:
+>From: Kefeng Wang <wangkefeng.wang@huawei.com>
+>
+>commit 56897b217a1d0a91c9920cb418d6b3fe922f590a upstream.
+>
+>task A:                                task B:
+>hci_uart_set_proto                     flush_to_ldisc
+> - p->open(hu) -> h5_open  //alloc h5  - receive_buf
+> - set_bit HCI_UART_PROTO_READY         - tty_port_default_receive_buf
+> - hci_uart_register_dev                 - tty_ldisc_receive_buf
+>                                          - hci_uart_tty_receive
+>				           - test_bit HCI_UART_PROTO_READY
+>				            - h5_recv
+> - clear_bit HCI_UART_PROTO_READY             while() {
+> - p->open(hu) -> h5_close //free h5
+>				              - h5_rx_3wire_hdr
+>				               - h5_reset()  //use-after-free
+>                                              }
+>
+>It could use ioctl to set hci uart proto, but there is
+>a use-after-free issue when hci_uart_register_dev() fail in
+>hci_uart_set_proto(), see stack above, fix this by setting
+>HCI_UART_PROTO_READY bit only when hci_uart_register_dev()
+>return success.
+>
+>Reported-by: syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com
+>Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+>Reviewed-by: Jeremy Cline <jcline@redhat.com>
+>Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+>Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 30ac0d3b0702 ("pinctrl: armada-37xx: Add edge both type gpio irq support")
-Cc: stable@vger.kernel.org
-Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
----
- drivers/pinctrl/mvebu/pinctrl-armada-37xx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+I was just about to ask why this had not been merged into 4.9. Spent a 
+while searching archives for any discussion to explain its absence, but 
+couldn't find anything. Also watched your kernel-recipes talk...
 
-diff --git a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-index 9df4277a16be..aa9dcde0f069 100644
---- a/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-+++ b/drivers/pinctrl/mvebu/pinctrl-armada-37xx.c
-@@ -595,10 +595,10 @@ static int armada_37xx_irq_set_type(struct irq_data *d, unsigned int type)
- 		regmap_read(info->regmap, in_reg, &in_val);
- 
- 		/* Set initial polarity based on current input level. */
--		if (in_val & d->mask)
--			val |= d->mask;		/* falling */
-+		if (in_val & BIT(d->hwirq % GPIO_PER_REG))
-+			val |= BIT(d->hwirq % GPIO_PER_REG);	/* falling */
- 		else
--			val &= ~d->mask;	/* rising */
-+			val &= ~(BIT(d->hwirq % GPIO_PER_REG));	/* rising */
- 		break;
- 	}
- 	default:
--- 
-2.24.0
+BTW, this also seems to be missing from 4.4 branch, although it was 
+merged for 3.16 (per https://lore.kernel.org/stable/?q=Postpone+HCI).
 
+I gather that the usual rule is that a fix must be in newer versions 
+before it can go into older ones. Or at least, some patches were 
+rejected on that basis. If this is in fact the policy, perhaps it could 
+be added to stable-kernel-rules.rst ?
+
+-Ralph
+
+>---
+> drivers/bluetooth/hci_ldisc.c |    3 +--
+> 1 file changed, 1 insertion(+), 2 deletions(-)
+>
+>--- a/drivers/bluetooth/hci_ldisc.c
+>+++ b/drivers/bluetooth/hci_ldisc.c
+>@@ -653,15 +653,14 @@ static int hci_uart_set_proto(struct hci
+> 		return err;
+>
+> 	hu->proto = p;
+>-	set_bit(HCI_UART_PROTO_READY, &hu->flags);
+>
+> 	err = hci_uart_register_dev(hu);
+> 	if (err) {
+>-		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
+> 		p->close(hu);
+> 		return err;
+> 	}
+>
+>+	set_bit(HCI_UART_PROTO_READY, &hu->flags);
+> 	return 0;
+> }
+>
+>
+>
