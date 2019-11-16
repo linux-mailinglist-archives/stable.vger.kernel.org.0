@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D64B1FEDFF
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:48:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55A43FEE00
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:48:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729992AbfKPPsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1730001AbfKPPsS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 16 Nov 2019 10:48:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55192 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729971AbfKPPsN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:13 -0500
+        id S1728581AbfKPPsR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:48:17 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B4CF20891;
-        Sat, 16 Nov 2019 15:48:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 343BA2086A;
+        Sat, 16 Nov 2019 15:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919293;
-        bh=+MSac9lGQ3g4tukeHIJJKFOOP18cM1X5Kz249xwJKOY=;
+        s=default; t=1573919296;
+        bh=ZbZQWLNVEAwI0OA//as0xFt12U2YZ+kzigbVogJ9SX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kCKfKUvK/zTfxANLue9tFMR2mZTJsZdaIKIuIcVPucXup+/ef7ieIJDcJ7cPe8jKf
-         fayyKjwOjqhaML/9LXuBdWc5EmtvTPPrIzJnwaJkDbGqpqhGYWWN2eeVJXSea/yDKL
-         KQeEh3BaR8OUm8MC+fTacBYqXyQiy0Ek9MZFTvfw=
+        b=vMfXWQSX/Vb/q5DhvB/5UtWvxEZ5b9VaMwnGBZ0VK+vf1cQJJqy+AcstF6aL3pxdx
+         aWQPEOAMNhNDctYYMpORkXwIIelNda3mSRiTJ/YpODoCiXXrNVeT3H+Kxj8wi4Q38R
+         Atcx7X1iQsmG+YZMzjhnFQlvYu9mLd03ZSq3jqh4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, dc395x@twibble.org,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 040/150] scsi: dc395x: fix DMA API usage in sg_update_list
-Date:   Sat, 16 Nov 2019 10:45:38 -0500
-Message-Id: <20191116154729.9573-40-sashal@kernel.org>
+Cc:     Netanel Belgazal <netanel@amazon.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 043/150] net: ena: Fix Kconfig dependency on X86
+Date:   Sat, 16 Nov 2019 10:45:41 -0500
+Message-Id: <20191116154729.9573-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -44,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Netanel Belgazal <netanel@amazon.com>
 
-[ Upstream commit 6c404a68bf83b4135a8a9aa1c388ebdf98e8ba7f ]
+[ Upstream commit 8c590f9776386b8f697fd0b7ed6142ae6e3de79e ]
 
-We need to transfer device ownership to the CPU before we can manipulate
-the mapped data.
+The Kconfig limitation of X86 is to too wide.
+The ENA driver only requires a little endian dependency.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Change the dependency to be on little endian CPU.
+
+Signed-off-by: Netanel Belgazal <netanel@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/dc395x.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/amazon/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/dc395x.c b/drivers/scsi/dc395x.c
-index 9da0ac360848f..830b2d2dcf206 100644
---- a/drivers/scsi/dc395x.c
-+++ b/drivers/scsi/dc395x.c
-@@ -1972,6 +1972,11 @@ static void sg_update_list(struct ScsiReqBlk *srb, u32 left)
- 			xferred -= psge->length;
- 		} else {
- 			/* Partial SG entry done */
-+			pci_dma_sync_single_for_cpu(srb->dcb->
-+					    acb->dev,
-+					    srb->sg_bus_addr,
-+					    SEGMENTX_LEN,
-+					    PCI_DMA_TODEVICE);
- 			psge->length -= xferred;
- 			psge->address += xferred;
- 			srb->sg_index = idx;
+diff --git a/drivers/net/ethernet/amazon/Kconfig b/drivers/net/ethernet/amazon/Kconfig
+index 99b30353541ab..9e87d7b8360f5 100644
+--- a/drivers/net/ethernet/amazon/Kconfig
++++ b/drivers/net/ethernet/amazon/Kconfig
+@@ -17,7 +17,7 @@ if NET_VENDOR_AMAZON
+ 
+ config ENA_ETHERNET
+ 	tristate "Elastic Network Adapter (ENA) support"
+-	depends on (PCI_MSI && X86)
++	depends on PCI_MSI && !CPU_BIG_ENDIAN
+ 	---help---
+ 	  This driver supports Elastic Network Adapter (ENA)"
+ 
 -- 
 2.20.1
 
