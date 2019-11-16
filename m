@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 839ECFEFC8
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D538FEFB8
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728866AbfKPQAs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:00:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34402 "EHLO mail.kernel.org"
+        id S1731227AbfKPPxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:53:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731179AbfKPPxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1731225AbfKPPxX (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 16 Nov 2019 10:53:23 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52FDC2186D;
+        by mail.kernel.org (Postfix) with ESMTPSA id F31C321823;
         Sat, 16 Nov 2019 15:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919602;
-        bh=7uYu+MMlCNmBEbBpUQj6ynnp2NogCNvOF+xUmo/Srx0=;
+        s=default; t=1573919603;
+        bh=abH4x+9MZ3/D0pXtSns+gc+XEx6c8NeH1+bgO/WAKRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gIdNfytyzYS0Ej6AUWL9p0EGrghFs73NtMw9RYW7E7lxPyBtwMwWmAfsIFIguX3RO
-         3hDZ3+SLvH9Y0muVs+5/gYxAGkY41KcTIT/s/JpxI3Q+Mo6ka8KYW2twwKF35NRyXN
-         EkBdn0yfJoZNS9r20cK8XdZ9Hmnz1pgM/PKBjoYs=
+        b=iC1/hgJ1Dl+qiyPusldOSvPD74xM98horgF492168lLTaVnx/WlWTqmEQxX8vs7wq
+         EVcWZSD1GTDFv8Zd9L4Au1YHypQC3HOc/6TdfKMpKsVe+ngHmKIauXM5yVKGU3/ikB
+         YneNThWBHNt4IbIk1MyVqsuHysvcJvORsKRnENSc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Erik Schmauss <erik.schmauss@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 4.9 90/99] ACPICA: Use %d for signed int print formatting instead of %u
-Date:   Sat, 16 Nov 2019 10:50:53 -0500
-Message-Id: <20191116155103.10971-90-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 91/99] net: bcmgenet: return correct value 'ret' from bcmgenet_power_down
+Date:   Sat, 16 Nov 2019 10:50:54 -0500
+Message-Id: <20191116155103.10971-91-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
 References: <20191116155103.10971-1-sashal@kernel.org>
@@ -45,34 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit f8ddf49b420112e28bdd23d7ad52d7991a0ccbe3 ]
+[ Upstream commit 0db55093b56618088b9a1d445eb6e43b311bea33 ]
 
-Fix warnings found using static analysis with cppcheck, use %d printf
-format specifier for signed ints rather than %u
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+drivers/net/ethernet/broadcom/genet/bcmgenet.c: In function 'bcmgenet_power_down':
+drivers/net/ethernet/broadcom/genet/bcmgenet.c:1136:6: warning:
+ variable 'ret' set but not used [-Wunused-but-set-variable]
+
+bcmgenet_power_down should return 'ret' instead of 0.
+
+Fixes: ca8cf341903f ("net: bcmgenet: propagate errors from bcmgenet_power_down")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/acpi/tools/acpidump/apmain.c | 2 +-
+ drivers/net/ethernet/broadcom/genet/bcmgenet.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/power/acpi/tools/acpidump/apmain.c b/tools/power/acpi/tools/acpidump/apmain.c
-index 7ff46be908f0b..d426fec3b1d34 100644
---- a/tools/power/acpi/tools/acpidump/apmain.c
-+++ b/tools/power/acpi/tools/acpidump/apmain.c
-@@ -139,7 +139,7 @@ static int ap_insert_action(char *argument, u32 to_be_done)
- 
- 	current_action++;
- 	if (current_action > AP_MAX_ACTIONS) {
--		fprintf(stderr, "Too many table options (max %u)\n",
-+		fprintf(stderr, "Too many table options (max %d)\n",
- 			AP_MAX_ACTIONS);
- 		return (-1);
+diff --git a/drivers/net/ethernet/broadcom/genet/bcmgenet.c b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+index 4a4782b3cc1b1..a234044805977 100644
+--- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
++++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
+@@ -1078,7 +1078,7 @@ static int bcmgenet_power_down(struct bcmgenet_priv *priv,
+ 		break;
  	}
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static void bcmgenet_power_up(struct bcmgenet_priv *priv,
 -- 
 2.20.1
 
