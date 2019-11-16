@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00E84FED69
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 909F8FED6F
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728880AbfKPPnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:43:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48182 "EHLO mail.kernel.org"
+        id S1727968AbfKPPoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:44:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727857AbfKPPnw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:43:52 -0500
+        id S1727948AbfKPPoN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:44:13 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B506620815;
-        Sat, 16 Nov 2019 15:43:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E242072D;
+        Sat, 16 Nov 2019 15:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919031;
-        bh=HsPWwmDEIMEtsZTabfg0H5Vjz9voDV9fpRM5MsHpzpw=;
+        s=default; t=1573919053;
+        bh=d9nxKcst+qQU3OV1rFInKjs+FqAyZY6FfLLPYATbVhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SJsNLAOK8oEzNN8ww8BGKl/RiEUr3Np96FZFyR/TEnBg1lvIaUyZPEe5+qZmMYi4N
-         3SSdBioC2M6mnficfExdfzUEv7A5L7Nr8MCzyHZe1K0qzv3wNngldT5/FL7n9gby3n
-         UyTDYbiRmJrFfXtAXVKcgmAyUInagOM/C1KbAhj0=
+        b=MJpahdwDRw4kEcMdqPMtCEcOKt8Ht5zr6xxmKknL4uXHA0RSHw8igCIHJCGaOMHL/
+         ItDQtdDBgVALVxqoCRw1fVRL/uxWseic0YTgcrZeljprCA4vcpLpgbeRP9Z5lTSmjF
+         3jtbTBc2ZcmWOGM3J4MhoSzx2cuYUbW5YCDJmfxk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 127/237] sparc64: Rework xchg() definition to avoid warnings.
-Date:   Sat, 16 Nov 2019 10:39:22 -0500
-Message-Id: <20191116154113.7417-127-sashal@kernel.org>
+Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <jiangqi903@gmail.com>,
+        Changwei Ge <ge.changwei@h3c.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 129/237] fs/ocfs2/dlm/dlmdebug.c: fix a sleep-in-atomic-context bug in dlm_print_one_mle()
+Date:   Sat, 16 Nov 2019 10:39:24 -0500
+Message-Id: <20191116154113.7417-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,46 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "David S. Miller" <davem@davemloft.net>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 6c2fc9cddc1ffdef8ada1dc8404e5affae849953 ]
+[ Upstream commit 999865764f5f128896402572b439269acb471022 ]
 
-Such as:
+The kernel module may sleep with holding a spinlock.
 
-fs/ocfs2/file.c: In function ‘ocfs2_file_write_iter’:
-./arch/sparc/include/asm/cmpxchg_64.h:55:22: warning: value computed is not used [-Wunused-value]
- #define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
+The function call paths (from bottom to top) in Linux-4.16 are:
 
-and
+[FUNC] get_zeroed_page(GFP_NOFS)
+fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
+fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
+fs/ocfs2/dlm/dlmmaster.c, 255: __dlm_put_mle in dlm_put_mle
+fs/ocfs2/dlm/dlmmaster.c, 254: spin_lock in dlm_put_ml
 
-drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c: In function ‘ixgbevf_xdp_setup’:
-./arch/sparc/include/asm/cmpxchg_64.h:55:22: warning: value computed is not used [-Wunused-value]
- #define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
+[FUNC] get_zeroed_page(GFP_NOFS)
+fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
+fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
+fs/ocfs2/dlm/dlmmaster.c, 222: __dlm_put_mle in dlm_put_mle_inuse
+fs/ocfs2/dlm/dlmmaster.c, 219: spin_lock in dlm_put_mle_inuse
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To fix this bug, GFP_NOFS is replaced with GFP_ATOMIC.
+
+This bug is found by my static analysis tool DSAC.
+
+Link: http://lkml.kernel.org/r/20180901112528.27025-1-baijiaju1990@gmail.com
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Joseph Qi <jiangqi903@gmail.com>
+Cc: Changwei Ge <ge.changwei@h3c.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/include/asm/cmpxchg_64.h | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/ocfs2/dlm/dlmdebug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/sparc/include/asm/cmpxchg_64.h b/arch/sparc/include/asm/cmpxchg_64.h
-index f71ef3729888f..316faa0130bab 100644
---- a/arch/sparc/include/asm/cmpxchg_64.h
-+++ b/arch/sparc/include/asm/cmpxchg_64.h
-@@ -52,7 +52,12 @@ static inline unsigned long xchg64(__volatile__ unsigned long *m, unsigned long
- 	return val;
- }
+diff --git a/fs/ocfs2/dlm/dlmdebug.c b/fs/ocfs2/dlm/dlmdebug.c
+index 9b984cae4c4e0..1d6dc8422899b 100644
+--- a/fs/ocfs2/dlm/dlmdebug.c
++++ b/fs/ocfs2/dlm/dlmdebug.c
+@@ -329,7 +329,7 @@ void dlm_print_one_mle(struct dlm_master_list_entry *mle)
+ {
+ 	char *buf;
  
--#define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
-+#define xchg(ptr,x)							\
-+({	__typeof__(*(ptr)) __ret;					\
-+	__ret = (__typeof__(*(ptr)))					\
-+		__xchg((unsigned long)(x), (ptr), sizeof(*(ptr)));	\
-+	__ret;								\
-+})
- 
- void __xchg_called_with_bad_pointer(void);
- 
+-	buf = (char *) get_zeroed_page(GFP_NOFS);
++	buf = (char *) get_zeroed_page(GFP_ATOMIC);
+ 	if (buf) {
+ 		dump_mle(mle, buf, PAGE_SIZE - 1);
+ 		free_page((unsigned long)buf);
 -- 
 2.20.1
 
