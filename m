@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79C8AFF123
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:10:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64383FF125
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729188AbfKPPtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:49:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56830 "EHLO mail.kernel.org"
+        id S1730308AbfKPPtY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:49:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730279AbfKPPtS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:49:18 -0500
+        id S1730279AbfKPPtW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:49:22 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D2CF2081E;
-        Sat, 16 Nov 2019 15:49:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 977EA20857;
+        Sat, 16 Nov 2019 15:49:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919357;
-        bh=iEFg2OgAmaWRd0RDYXvJ8JsJ2QGa+NeD4y94Xt9Om80=;
+        s=default; t=1573919362;
+        bh=yBjFzhPXopZMDn2CcBcQl8G9pKCxB5RUD8DZ79AQZmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ToROOiu1zTbO08vu3xRDSYK7FzREfvYlI9KWtsFUUKs4nqUNBUiBtz9COuuuJU4aM
-         ShL2st/s/fSzW1PjDgViUPl1KI72T/26Lb52hvzR196jWGzzI2rSpaO2h7t1q9SBNr
-         7zHH+s7fOCVVbF9I2+vLzG2/QFypYjLW9MX5GdDk=
+        b=AhL3rrtcDktA195x+pyZ0dEFPrIKj5tdFLbqIig0V2ECVwvop+8OetK973Op5XF2W
+         7rkeoSR3glt0rc0uwsS4Uo4ug8zgFDayWfRUJRM8QwGMLgqLnyFlW16rZJDWDhxVhS
+         X2gV+ybgOwQ05E+KpmbOZcYyUJ1KfIF8GRpRjzz8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sabrina Dubroca <sd@queasysnail.net>,
-        Radu Rendec <radu.rendec@gmail.com>,
-        Patrick Talbert <ptalbert@redhat.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 081/150] macsec: update operstate when lower device changes
-Date:   Sat, 16 Nov 2019 10:46:19 -0500
-Message-Id: <20191116154729.9573-81-sashal@kernel.org>
+Cc:     Jianchao Wang <jianchao.w.wang@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 083/150] block: fix the DISCARD request merge
+Date:   Sat, 16 Nov 2019 10:46:21 -0500
+Message-Id: <20191116154729.9573-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -45,68 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Jianchao Wang <jianchao.w.wang@oracle.com>
 
-[ Upstream commit e6ac075882b2afcdf2d5ab328ce4ab42a1eb9593 ]
+[ Upstream commit 69840466086d2248898020a08dda52732686c4e6 ]
 
-Like all other virtual devices (macvlan, vlan), the operstate of a
-macsec device should match the state of its lower device. This is done
-by calling netif_stacked_transfer_operstate from its netdevice notifier.
+There are two cases when handle DISCARD merge.
+If max_discard_segments == 1, the bios/requests need to be contiguous
+to merge. If max_discard_segments > 1, it takes every bio as a range
+and different range needn't to be contiguous.
 
-We also need to call netif_stacked_transfer_operstate when a new macsec
-device is created, so that its operstate is set properly. This is only
-relevant when we try to bring the device up directly when we create it.
+But now, attempt_merge screws this up. It always consider contiguity
+for DISCARD for the case max_discard_segments > 1 and cannot merge
+contiguous DISCARD for the case max_discard_segments == 1, because
+rq_attempt_discard_merge always returns false in this case.
+This patch fixes both of the two cases above.
 
-Radu Rendec proposed a similar patch, inspired from the 802.1q driver,
-that included changing the administrative state of the macsec device,
-instead of just the operstate. This version is similar to what the
-macvlan driver does, and updates only the operstate.
-
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Reported-by: Radu Rendec <radu.rendec@gmail.com>
-Reported-by: Patrick Talbert <ptalbert@redhat.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jianchao Wang <jianchao.w.wang@oracle.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ block/blk-merge.c | 46 ++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 36 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 9bcb7c3e879f3..40e8f11f20cbf 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -3273,6 +3273,9 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
- 	if (err < 0)
- 		goto del_dev;
- 
-+	netif_stacked_transfer_operstate(real_dev, dev);
-+	linkwatch_fire_event(dev);
+diff --git a/block/blk-merge.c b/block/blk-merge.c
+index 8d60a5bbcef93..94650cdf2924b 100644
+--- a/block/blk-merge.c
++++ b/block/blk-merge.c
+@@ -659,6 +659,31 @@ static void blk_account_io_merge(struct request *req)
+ 		part_stat_unlock();
+ 	}
+ }
++/*
++ * Two cases of handling DISCARD merge:
++ * If max_discard_segments > 1, the driver takes every bio
++ * as a range and send them to controller together. The ranges
++ * needn't to be contiguous.
++ * Otherwise, the bios/requests will be handled as same as
++ * others which should be contiguous.
++ */
++static inline bool blk_discard_mergable(struct request *req)
++{
++	if (req_op(req) == REQ_OP_DISCARD &&
++	    queue_max_discard_segments(req->q) > 1)
++		return true;
++	return false;
++}
 +
- 	macsec_generation++;
- 
- 	return 0;
-@@ -3444,6 +3447,20 @@ static int macsec_notify(struct notifier_block *this, unsigned long event,
- 		return NOTIFY_DONE;
- 
- 	switch (event) {
-+	case NETDEV_DOWN:
-+	case NETDEV_UP:
-+	case NETDEV_CHANGE: {
-+		struct macsec_dev *m, *n;
-+		struct macsec_rxh_data *rxd;
++enum elv_merge blk_try_req_merge(struct request *req, struct request *next)
++{
++	if (blk_discard_mergable(req))
++		return ELEVATOR_DISCARD_MERGE;
++	else if (blk_rq_pos(req) + blk_rq_sectors(req) == blk_rq_pos(next))
++		return ELEVATOR_BACK_MERGE;
 +
-+		rxd = macsec_data_rtnl(real_dev);
-+		list_for_each_entry_safe(m, n, &rxd->secys, secys) {
-+			struct net_device *dev = m->secy.netdev;
++	return ELEVATOR_NO_MERGE;
++}
+ 
+ /*
+  * For non-mq, this has to be called with the request spinlock acquired.
+@@ -676,12 +701,6 @@ static struct request *attempt_merge(struct request_queue *q,
+ 	if (req_op(req) != req_op(next))
+ 		return NULL;
+ 
+-	/*
+-	 * not contiguous
+-	 */
+-	if (blk_rq_pos(req) + blk_rq_sectors(req) != blk_rq_pos(next))
+-		return NULL;
+-
+ 	if (rq_data_dir(req) != rq_data_dir(next)
+ 	    || req->rq_disk != next->rq_disk
+ 	    || req_no_special_merge(next))
+@@ -705,11 +724,19 @@ static struct request *attempt_merge(struct request_queue *q,
+ 	 * counts here. Handle DISCARDs separately, as they
+ 	 * have separate settings.
+ 	 */
+-	if (req_op(req) == REQ_OP_DISCARD) {
 +
-+			netif_stacked_transfer_operstate(real_dev, dev);
-+		}
++	switch (blk_try_req_merge(req, next)) {
++	case ELEVATOR_DISCARD_MERGE:
+ 		if (!req_attempt_discard_merge(q, req, next))
+ 			return NULL;
+-	} else if (!ll_merge_requests_fn(q, req, next))
 +		break;
++	case ELEVATOR_BACK_MERGE:
++		if (!ll_merge_requests_fn(q, req, next))
++			return NULL;
++		break;
++	default:
+ 		return NULL;
 +	}
- 	case NETDEV_UNREGISTER: {
- 		struct macsec_dev *m, *n;
- 		struct macsec_rxh_data *rxd;
+ 
+ 	/*
+ 	 * If failfast settings disagree or any of the two is already
+@@ -834,8 +861,7 @@ bool blk_rq_merge_ok(struct request *rq, struct bio *bio)
+ 
+ enum elv_merge blk_try_merge(struct request *rq, struct bio *bio)
+ {
+-	if (req_op(rq) == REQ_OP_DISCARD &&
+-	    queue_max_discard_segments(rq->q) > 1)
++	if (blk_discard_mergable(rq))
+ 		return ELEVATOR_DISCARD_MERGE;
+ 	else if (blk_rq_pos(rq) + blk_rq_sectors(rq) == bio->bi_iter.bi_sector)
+ 		return ELEVATOR_BACK_MERGE;
 -- 
 2.20.1
 
