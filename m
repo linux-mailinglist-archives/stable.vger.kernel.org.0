@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74A16FEDD6
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F6CFEDE0
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:47:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729652AbfKPPrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:47:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53854 "EHLO mail.kernel.org"
+        id S1729717AbfKPPrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:47:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728873AbfKPPrL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:47:11 -0500
+        id S1729716AbfKPPrc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:47:32 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DB672084F;
-        Sat, 16 Nov 2019 15:47:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3378E20740;
+        Sat, 16 Nov 2019 15:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919231;
-        bh=AiDrupa0ElEL9BkwztZdJMc2ifNPMRDNGjY+TvtGWtg=;
+        s=default; t=1573919252;
+        bh=RaNGM1avCn0CsYb25GEAmkLbFlfaWLEdupcDrqeT2dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L1vuHA5iGl2VusWw1xB2iY7A6eR7ZR5Jt7GQNm9jwmvwg8z+jRdHQW23oyTkECq9i
-         6B5KVnBrejixsfqFlmCTG9OlSOT5wEGVnRIvY5vBf3weIEd7oof1ri8Jskm3wqciZQ
-         NqkDxMVePrNWM7BkkEuVmI57DH0DbR7bYR8vMIDM=
+        b=0Y/1BU0qr8KT+r3NoDcW8j435MdZYbyNsSLJJuK1KICCr3TVSjc6i6a98XKRstHN3
+         KkMHaBnlQEtR0SQ2PdH5+yf8GTbzcSbcFRhYSrAKKsMF2dveYKkVAcRybuGZ0cZdWK
+         JFMJZVn55P8Oa/4tYBHPFi1glHnVDVbQKOvmSMeM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Ahern <dsahern@gmail.com>,
-        Donald Sharp <sharpd@cumulusnetworks.com>,
-        Mike Manning <mmanning@vyatta.att-mail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 236/237] ipv6: Fix handling of LLA with VRF and sockets bound to VRF
-Date:   Sat, 16 Nov 2019 10:41:11 -0500
-Message-Id: <20191116154113.7417-236-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 005/150] synclink_gt(): fix compat_ioctl()
+Date:   Sat, 16 Nov 2019 10:45:03 -0500
+Message-Id: <20191116154729.9573-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
-References: <20191116154113.7417-1-sashal@kernel.org>
+In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
+References: <20191116154729.9573-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -45,48 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit c2027d1e17582903e368abf5d4838b22a98f2b7b ]
+[ Upstream commit 27230e51349fde075598c1b59d15e1ff802f3f6e ]
 
-A recent commit allows sockets bound to a VRF to receive ipv6 link local
-packets. However, it only works for UDP and worse TCP connection attempts
-to the LLA with the only listener bound to the VRF just hang where as
-before the client gets a reset and connection refused. Fix by adjusting
-ir_iif for LL addresses and packets received through a device enslaved
-to a VRF.
+compat_ptr() for pointer-taking ones...
 
-Fixes: 6f12fa775530 ("vrf: mark skb for multicast or link-local as enslaved to VRF")
-Reported-by: Donald Sharp <sharpd@cumulusnetworks.com>
-Cc: Mike Manning <mmanning@vyatta.att-mail.com>
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/tcp_ipv6.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/tty/synclink_gt.c | 16 ++++------------
+ 1 file changed, 4 insertions(+), 12 deletions(-)
 
-diff --git a/net/ipv6/tcp_ipv6.c b/net/ipv6/tcp_ipv6.c
-index e7cdfa92c3820..9a117a79af659 100644
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -734,6 +734,7 @@ static void tcp_v6_init_req(struct request_sock *req,
- 			    const struct sock *sk_listener,
- 			    struct sk_buff *skb)
+diff --git a/drivers/tty/synclink_gt.c b/drivers/tty/synclink_gt.c
+index 636b8ae29b465..344e8c427c7e2 100644
+--- a/drivers/tty/synclink_gt.c
++++ b/drivers/tty/synclink_gt.c
+@@ -1187,14 +1187,13 @@ static long slgt_compat_ioctl(struct tty_struct *tty,
+ 			 unsigned int cmd, unsigned long arg)
  {
-+	bool l3_slave = ipv6_l3mdev_skb(TCP_SKB_CB(skb)->header.h6.flags);
- 	struct inet_request_sock *ireq = inet_rsk(req);
- 	const struct ipv6_pinfo *np = inet6_sk(sk_listener);
+ 	struct slgt_info *info = tty->driver_data;
+-	int rc = -ENOIOCTLCMD;
++	int rc;
  
-@@ -741,7 +742,7 @@ static void tcp_v6_init_req(struct request_sock *req,
- 	ireq->ir_v6_loc_addr = ipv6_hdr(skb)->daddr;
+ 	if (sanity_check(info, tty->name, "compat_ioctl"))
+ 		return -ENODEV;
+ 	DBGINFO(("%s compat_ioctl() cmd=%08X\n", info->device_name, cmd));
  
- 	/* So that link locals have meaning */
--	if (!sk_listener->sk_bound_dev_if &&
-+	if ((!sk_listener->sk_bound_dev_if || l3_slave) &&
- 	    ipv6_addr_type(&ireq->ir_v6_rmt_addr) & IPV6_ADDR_LINKLOCAL)
- 		ireq->ir_iif = tcp_v6_iif(skb);
- 
+ 	switch (cmd) {
+-
+ 	case MGSL_IOCSPARAMS32:
+ 		rc = set_params32(info, compat_ptr(arg));
+ 		break;
+@@ -1214,18 +1213,11 @@ static long slgt_compat_ioctl(struct tty_struct *tty,
+ 	case MGSL_IOCWAITGPIO:
+ 	case MGSL_IOCGXSYNC:
+ 	case MGSL_IOCGXCTRL:
+-	case MGSL_IOCSTXIDLE:
+-	case MGSL_IOCTXENABLE:
+-	case MGSL_IOCRXENABLE:
+-	case MGSL_IOCTXABORT:
+-	case TIOCMIWAIT:
+-	case MGSL_IOCSIF:
+-	case MGSL_IOCSXSYNC:
+-	case MGSL_IOCSXCTRL:
+-		rc = ioctl(tty, cmd, arg);
++		rc = ioctl(tty, cmd, (unsigned long)compat_ptr(arg));
+ 		break;
++	default:
++		rc = ioctl(tty, cmd, arg);
+ 	}
+-
+ 	DBGINFO(("%s compat_ioctl() cmd=%08X rc=%d\n", info->device_name, cmd, rc));
+ 	return rc;
+ }
 -- 
 2.20.1
 
