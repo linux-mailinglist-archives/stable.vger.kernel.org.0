@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7380BFF32D
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:24:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C736CFF322
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728370AbfKPPmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:42:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
+        id S1728423AbfKPPmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:42:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728368AbfKPPmh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:37 -0500
+        id S1728408AbfKPPmo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:42:44 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E8C72086A;
-        Sat, 16 Nov 2019 15:42:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11D9C2084E;
+        Sat, 16 Nov 2019 15:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918956;
-        bh=jTWzCOQwRiWhKbKWMLAjSFDku8KDuyLw1gEEl2r4qbs=;
+        s=default; t=1573918963;
+        bh=Dj2rTLwWDO1pOTVTST4jx2q+awzIqfqNPlMUZC3OWqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gC2B32sO2rm4bVWXVglD9ZTSsKM+8S4L2WIeSa4ErNGULl5u/gMJMIoJ7DXB3WeKP
-         47YF245JtUfBNOqVjcptJjWkMWXyycFehbQ89UuznyHoloJjVWYzARmwkUQC7faXSj
-         gxlDb0YhK8ys52poQti3F2IA2yiFNi8/qSyNuw/E=
+        b=YWSwGJDYb0S1qe158zQ5AN5ZFUc5s+vMe4qlzglMtPiQfXg7OmMf6hfWTPINHx/gY
+         FkIBKZAPOxqz7ziL1MEON0X3SPKXO4RcGoqPHsdX+RIITzSg6V0Qfyo7xGFCuREECu
+         eYFgCC5a+GprUrPgxSCt5x5gJXZASEnge1V2EW/g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 075/237] macintosh/windfarm_smu_sat: Fix debug output
-Date:   Sat, 16 Nov 2019 10:38:30 -0500
-Message-Id: <20191116154113.7417-75-sashal@kernel.org>
+Cc:     Xin Long <lucien.xin@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-sctp@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 079/237] sctp: use sk_wmem_queued to check for writable space
+Date:   Sat, 16 Nov 2019 10:38:34 -0500
+Message-Id: <20191116154113.7417-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,77 +44,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit fc0c8b36d379a046525eacb9c3323ca635283757 ]
+[ Upstream commit cd305c74b0f8b49748a79a8f67fc8e5e3e0c4794 ]
 
-There's some antiquated debug output that's trying
-to do a hand-made hexdump and turning into horrible
-1-byte-per-line output these days.
+sk->sk_wmem_queued is used to count the size of chunks in out queue
+while sk->sk_wmem_alloc is for counting the size of chunks has been
+sent. sctp is increasing both of them before enqueuing the chunks,
+and using sk->sk_wmem_alloc to check for writable space.
 
-Use print_hex_dump() instead
+However, sk_wmem_alloc is also increased by 1 for the skb allocked
+for sending in sctp_packet_transmit() but it will not wake up the
+waiters when sk_wmem_alloc is decreased in this skb's destructor.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+If msg size is equal to sk_sndbuf and sendmsg is waiting for sndbuf,
+the check 'msg_len <= sctp_wspace(asoc)' in sctp_wait_for_sndbuf()
+will keep waiting if there's a skb allocked in sctp_packet_transmit,
+and later even if this skb got freed, the waiting thread will never
+get waked up.
+
+This issue has been there since very beginning, so we change to use
+sk->sk_wmem_queued to check for writable space as sk_wmem_queued is
+not increased for the skb allocked for sending, also as TCP does.
+
+SOCK_SNDBUF_LOCK check is also removed here as it's for tx buf auto
+tuning which I will add in another patch.
+
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/macintosh/windfarm_smu_sat.c | 25 +++++++------------------
- 1 file changed, 7 insertions(+), 18 deletions(-)
+ net/sctp/socket.c | 38 +++++++++-----------------------------
+ 1 file changed, 9 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/macintosh/windfarm_smu_sat.c b/drivers/macintosh/windfarm_smu_sat.c
-index da7f4fc1a51d1..a0f61eb853c55 100644
---- a/drivers/macintosh/windfarm_smu_sat.c
-+++ b/drivers/macintosh/windfarm_smu_sat.c
-@@ -22,14 +22,6 @@
+diff --git a/net/sctp/socket.c b/net/sctp/socket.c
+index c766315527226..e7a11cd7633f5 100644
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -83,7 +83,7 @@
+ #include <net/sctp/stream_sched.h>
  
- #define VERSION "1.0"
+ /* Forward declarations for internal helper functions. */
+-static int sctp_writeable(struct sock *sk);
++static bool sctp_writeable(struct sock *sk);
+ static void sctp_wfree(struct sk_buff *skb);
+ static int sctp_wait_for_sndbuf(struct sctp_association *asoc, long *timeo_p,
+ 				size_t msg_len);
+@@ -119,25 +119,10 @@ static void sctp_enter_memory_pressure(struct sock *sk)
+ /* Get the sndbuf space available at the time on the association.  */
+ static inline int sctp_wspace(struct sctp_association *asoc)
+ {
+-	int amt;
++	struct sock *sk = asoc->base.sk;
  
--#define DEBUG
+-	if (asoc->ep->sndbuf_policy)
+-		amt = asoc->sndbuf_used;
+-	else
+-		amt = sk_wmem_alloc_get(asoc->base.sk);
 -
--#ifdef DEBUG
--#define DBG(args...)	printk(args)
--#else
--#define DBG(args...)	do { } while(0)
--#endif
+-	if (amt >= asoc->base.sk->sk_sndbuf) {
+-		if (asoc->base.sk->sk_userlocks & SOCK_SNDBUF_LOCK)
+-			amt = 0;
+-		else {
+-			amt = sk_stream_wspace(asoc->base.sk);
+-			if (amt < 0)
+-				amt = 0;
+-		}
+-	} else {
+-		amt = asoc->base.sk->sk_sndbuf - amt;
+-	}
+-	return amt;
++	return asoc->ep->sndbuf_policy ? sk->sk_sndbuf - asoc->sndbuf_used
++				       : sk_stream_wspace(sk);
+ }
+ 
+ /* Increment the used sndbuf space count of the corresponding association by
+@@ -1928,10 +1913,10 @@ static int sctp_sendmsg_to_asoc(struct sctp_association *asoc,
+ 		asoc->pmtu_pending = 0;
+ 	}
+ 
+-	if (sctp_wspace(asoc) < msg_len)
++	if (sctp_wspace(asoc) < (int)msg_len)
+ 		sctp_prsctp_prune(asoc, sinfo, msg_len - sctp_wspace(asoc));
+ 
+-	if (!sctp_wspace(asoc)) {
++	if (sctp_wspace(asoc) <= 0) {
+ 		timeo = sock_sndtimeo(sk, msg->msg_flags & MSG_DONTWAIT);
+ 		err = sctp_wait_for_sndbuf(asoc, &timeo, msg_len);
+ 		if (err)
+@@ -8516,7 +8501,7 @@ static int sctp_wait_for_sndbuf(struct sctp_association *asoc, long *timeo_p,
+ 			goto do_error;
+ 		if (signal_pending(current))
+ 			goto do_interrupted;
+-		if (msg_len <= sctp_wspace(asoc))
++		if ((int)msg_len <= sctp_wspace(asoc))
+ 			break;
+ 
+ 		/* Let another process have a go.  Since we are going
+@@ -8591,14 +8576,9 @@ void sctp_write_space(struct sock *sk)
+  * UDP-style sockets or TCP-style sockets, this code should work.
+  *  - Daisy
+  */
+-static int sctp_writeable(struct sock *sk)
++static bool sctp_writeable(struct sock *sk)
+ {
+-	int amt = 0;
 -
- /* If the cache is older than 800ms we'll refetch it */
- #define MAX_AGE		msecs_to_jiffies(800)
+-	amt = sk->sk_sndbuf - sk_wmem_alloc_get(sk);
+-	if (amt < 0)
+-		amt = 0;
+-	return amt;
++	return sk->sk_sndbuf > sk->sk_wmem_queued;
+ }
  
-@@ -106,13 +98,10 @@ struct smu_sdbp_header *smu_sat_get_sdb_partition(unsigned int sat_id, int id,
- 		buf[i+2] = data[3];
- 		buf[i+3] = data[2];
- 	}
--#ifdef DEBUG
--	DBG(KERN_DEBUG "sat %d partition %x:", sat_id, id);
--	for (i = 0; i < len; ++i)
--		DBG(" %x", buf[i]);
--	DBG("\n");
--#endif
- 
-+	printk(KERN_DEBUG "sat %d partition %x:", sat_id, id);
-+	print_hex_dump(KERN_DEBUG, "  ", DUMP_PREFIX_OFFSET,
-+		       16, 1, buf, len, false);
- 	if (size)
- 		*size = len;
- 	return (struct smu_sdbp_header *) buf;
-@@ -132,13 +121,13 @@ static int wf_sat_read_cache(struct wf_sat *sat)
- 	if (err < 0)
- 		return err;
- 	sat->last_read = jiffies;
-+
- #ifdef LOTSA_DEBUG
- 	{
- 		int i;
--		DBG(KERN_DEBUG "wf_sat_get: data is");
--		for (i = 0; i < 16; ++i)
--			DBG(" %.2x", sat->cache[i]);
--		DBG("\n");
-+		printk(KERN_DEBUG "wf_sat_get: data is");
-+		print_hex_dump(KERN_DEBUG, "  ", DUMP_PREFIX_OFFSET,
-+			       16, 1, sat->cache, 16, false);
- 	}
- #endif
- 	return 0;
+ /* Wait for an association to go into ESTABLISHED state. If timeout is 0,
 -- 
 2.20.1
 
