@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18B68FF385
+	by mail.lfdr.de (Postfix) with ESMTP id 88006FF386
 	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:26:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728078AbfKPPl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728072AbfKPPl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 16 Nov 2019 10:41:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45354 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728060AbfKPPl6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728064AbfKPPl6 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 16 Nov 2019 10:41:58 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 82519207FA;
-        Sat, 16 Nov 2019 15:41:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B42820854;
+        Sat, 16 Nov 2019 15:41:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918916;
-        bh=exWk14fngb1BXqFLHVNg9jbsZqzBTXvvlD/nSx7Ny2Q=;
+        s=default; t=1573918917;
+        bh=AFXHZLOietu/5Qoi+Zd8KLI2EG/uE9+32R3/Z1FPs5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iz9PEi7qdmdwtuwhN0lZ+WHlQTyuqPmOa++f+/qyhAaaavri2V9ZuQolue7uT57gD
-         2rTnepnwz5dDKSNunsMVcOMMiYJ+WfyPAJ9RFZRaNTxvWOgJwX+QryLH4yFvK2RRGe
-         ZLh0PR0NF2OaYAgTCiPvRqFBXzrWCIXe0ssA4dkA=
+        b=tU2GYp3LbtiPNvimtfHI/QdGk+N9ABAxi78f2U2oYQnEKQGzb/Ju1CZT1RssAfhfx
+         NKQpI/45diwdSkrJF10dRtvDsK8WFFcwAPYXtPTO9qgzob7kmkdIjHrIdLQZ4oxf+i
+         wflhf2tGkoECL0g5yP0SV74a7gV7aYW//W/+2acY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 040/237] RDMA/bnxt_re: Avoid resource leak in case the NQ registration fails
-Date:   Sat, 16 Nov 2019 10:37:55 -0500
-Message-Id: <20191116154113.7417-40-sashal@kernel.org>
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 041/237] pinctrl: sunxi: Fix a memory leak in 'sunxi_pinctrl_build_state()'
+Date:   Sat, 16 Nov 2019 10:37:56 -0500
+Message-Id: <20191116154113.7417-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,141 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Selvin Xavier <selvin.xavier@broadcom.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 5df950994934814a8b91f0cf9f653842d2ba082d ]
+[ Upstream commit a93a676b079144009f55fff2ab0e34c3b7258c8a ]
 
-In case the NQ alloc/enable fails, free up the already allocated/enabled
-NQ before reporting failure. Also, track the alloc/enable using proper
-state checking.
+If 'krealloc()' fails, 'pctl->functions' is set to NULL.
+We should instead use a temp variable in order to be able to free the
+previously allocated memeory, in case of OOM.
 
-Signed-off-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/bnxt_re.h |  2 ++
- drivers/infiniband/hw/bnxt_re/main.c    | 31 ++++++++++++++++++-------
- 2 files changed, 24 insertions(+), 9 deletions(-)
+ drivers/pinctrl/sunxi/pinctrl-sunxi.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/bnxt_re.h b/drivers/infiniband/hw/bnxt_re/bnxt_re.h
-index 96f76896488da..802942adea8e8 100644
---- a/drivers/infiniband/hw/bnxt_re/bnxt_re.h
-+++ b/drivers/infiniband/hw/bnxt_re/bnxt_re.h
-@@ -120,6 +120,8 @@ struct bnxt_re_dev {
- #define BNXT_RE_FLAG_HAVE_L2_REF		3
- #define BNXT_RE_FLAG_RCFW_CHANNEL_EN		4
- #define BNXT_RE_FLAG_QOS_WORK_REG		5
-+#define BNXT_RE_FLAG_RESOURCES_ALLOCATED	7
-+#define BNXT_RE_FLAG_RESOURCES_INITIALIZED	8
- #define BNXT_RE_FLAG_ISSUE_ROCE_STATS          29
- 	struct net_device		*netdev;
- 	unsigned int			version, major, minor;
-diff --git a/drivers/infiniband/hw/bnxt_re/main.c b/drivers/infiniband/hw/bnxt_re/main.c
-index 7ffad368c5fa1..589b0d4677d52 100644
---- a/drivers/infiniband/hw/bnxt_re/main.c
-+++ b/drivers/infiniband/hw/bnxt_re/main.c
-@@ -864,10 +864,8 @@ static void bnxt_re_cleanup_res(struct bnxt_re_dev *rdev)
+diff --git a/drivers/pinctrl/sunxi/pinctrl-sunxi.c b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+index 26ebedc1f6d31..61aaaf58c5993 100644
+--- a/drivers/pinctrl/sunxi/pinctrl-sunxi.c
++++ b/drivers/pinctrl/sunxi/pinctrl-sunxi.c
+@@ -1042,6 +1042,7 @@ static int sunxi_pinctrl_add_function(struct sunxi_pinctrl *pctl,
+ static int sunxi_pinctrl_build_state(struct platform_device *pdev)
  {
+ 	struct sunxi_pinctrl *pctl = platform_get_drvdata(pdev);
++	void *ptr;
  	int i;
  
--	if (rdev->nq[0].hwq.max_elements) {
--		for (i = 1; i < rdev->num_msix; i++)
--			bnxt_qplib_disable_nq(&rdev->nq[i - 1]);
--	}
-+	for (i = 1; i < rdev->num_msix; i++)
-+		bnxt_qplib_disable_nq(&rdev->nq[i - 1]);
- 
- 	if (rdev->qplib_res.rcfw)
- 		bnxt_qplib_cleanup_res(&rdev->qplib_res);
-@@ -876,6 +874,7 @@ static void bnxt_re_cleanup_res(struct bnxt_re_dev *rdev)
- static int bnxt_re_init_res(struct bnxt_re_dev *rdev)
- {
- 	int rc = 0, i;
-+	int num_vec_enabled = 0;
- 
- 	bnxt_qplib_init_res(&rdev->qplib_res);
- 
-@@ -891,9 +890,13 @@ static int bnxt_re_init_res(struct bnxt_re_dev *rdev)
- 				"Failed to enable NQ with rc = 0x%x", rc);
- 			goto fail;
- 		}
-+		num_vec_enabled++;
- 	}
- 	return 0;
- fail:
-+	for (i = num_vec_enabled; i >= 0; i--)
-+		bnxt_qplib_disable_nq(&rdev->nq[i]);
-+
- 	return rc;
- }
- 
-@@ -925,6 +928,7 @@ static void bnxt_re_free_res(struct bnxt_re_dev *rdev)
- static int bnxt_re_alloc_res(struct bnxt_re_dev *rdev)
- {
- 	int rc = 0, i;
-+	int num_vec_created = 0;
- 
- 	/* Configure and allocate resources for qplib */
- 	rdev->qplib_res.rcfw = &rdev->rcfw;
-@@ -951,7 +955,7 @@ static int bnxt_re_alloc_res(struct bnxt_re_dev *rdev)
- 		if (rc) {
- 			dev_err(rdev_to_dev(rdev), "Alloc Failed NQ%d rc:%#x",
- 				i, rc);
--			goto dealloc_dpi;
-+			goto free_nq;
- 		}
- 		rc = bnxt_re_net_ring_alloc
- 			(rdev, rdev->nq[i].hwq.pbl[PBL_LVL_0].pg_map_arr,
-@@ -964,14 +968,17 @@ static int bnxt_re_alloc_res(struct bnxt_re_dev *rdev)
- 			dev_err(rdev_to_dev(rdev),
- 				"Failed to allocate NQ fw id with rc = 0x%x",
- 				rc);
-+			bnxt_qplib_free_nq(&rdev->nq[i]);
- 			goto free_nq;
- 		}
-+		num_vec_created++;
- 	}
- 	return 0;
- free_nq:
--	for (i = 0; i < rdev->num_msix - 1; i++)
-+	for (i = num_vec_created; i >= 0; i--) {
-+		bnxt_re_net_ring_free(rdev, rdev->nq[i].ring_id);
- 		bnxt_qplib_free_nq(&rdev->nq[i]);
--dealloc_dpi:
-+	}
- 	bnxt_qplib_dealloc_dpi(&rdev->qplib_res,
- 			       &rdev->qplib_res.dpi_tbl,
- 			       &rdev->dpi_privileged);
-@@ -1206,8 +1213,11 @@ static void bnxt_re_ib_unreg(struct bnxt_re_dev *rdev)
- 	if (test_and_clear_bit(BNXT_RE_FLAG_QOS_WORK_REG, &rdev->flags))
- 		cancel_delayed_work(&rdev->worker);
- 
--	bnxt_re_cleanup_res(rdev);
--	bnxt_re_free_res(rdev);
-+	if (test_and_clear_bit(BNXT_RE_FLAG_RESOURCES_INITIALIZED,
-+			       &rdev->flags))
-+		bnxt_re_cleanup_res(rdev);
-+	if (test_and_clear_bit(BNXT_RE_FLAG_RESOURCES_ALLOCATED, &rdev->flags))
-+		bnxt_re_free_res(rdev);
- 
- 	if (test_and_clear_bit(BNXT_RE_FLAG_RCFW_CHANNEL_EN, &rdev->flags)) {
- 		rc = bnxt_qplib_deinit_rcfw(&rdev->rcfw);
-@@ -1337,12 +1347,15 @@ static int bnxt_re_ib_reg(struct bnxt_re_dev *rdev)
- 		pr_err("Failed to allocate resources: %#x\n", rc);
- 		goto fail;
- 	}
-+	set_bit(BNXT_RE_FLAG_RESOURCES_ALLOCATED, &rdev->flags);
- 	rc = bnxt_re_init_res(rdev);
- 	if (rc) {
- 		pr_err("Failed to initialize resources: %#x\n", rc);
- 		goto fail;
+ 	/*
+@@ -1108,13 +1109,15 @@ static int sunxi_pinctrl_build_state(struct platform_device *pdev)
  	}
  
-+	set_bit(BNXT_RE_FLAG_RESOURCES_INITIALIZED, &rdev->flags);
-+
- 	if (!rdev->is_virtfn) {
- 		rc = bnxt_re_setup_qos(rdev);
- 		if (rc)
+ 	/* And now allocated and fill the array for real */
+-	pctl->functions = krealloc(pctl->functions,
+-				   pctl->nfunctions * sizeof(*pctl->functions),
+-				   GFP_KERNEL);
+-	if (!pctl->functions) {
++	ptr = krealloc(pctl->functions,
++		       pctl->nfunctions * sizeof(*pctl->functions),
++		       GFP_KERNEL);
++	if (!ptr) {
+ 		kfree(pctl->functions);
++		pctl->functions = NULL;
+ 		return -ENOMEM;
+ 	}
++	pctl->functions = ptr;
+ 
+ 	for (i = 0; i < pctl->desc->npins; i++) {
+ 		const struct sunxi_desc_pin *pin = pctl->desc->pins + i;
 -- 
 2.20.1
 
