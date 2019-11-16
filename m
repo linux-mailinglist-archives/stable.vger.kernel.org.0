@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 747BCFEFFC
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8A68FEFFF
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729220AbfKPPww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:52:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33608 "EHLO mail.kernel.org"
+        id S1730421AbfKPQCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:02:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727915AbfKPPwt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:52:49 -0500
+        id S1729162AbfKPPwv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:52:51 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00DBD20859;
-        Sat, 16 Nov 2019 15:52:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 053F020859;
+        Sat, 16 Nov 2019 15:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919569;
-        bh=WUThvF9W9hZ6QkLoXYTN4dKMA1CVvi/8L81mNQpwBHA=;
+        s=default; t=1573919571;
+        bh=8Kv7niCE8O2wh2JRY/jGBmWd1SUqQ/uG75wLCFEuY+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+hiUl7HTHQWqFDY/oTpVKNNebqwUaUpeVtZu9F75FQyCZwVvtjn9hc4gf46YtN3l
-         A541Wp8nrKxladTGes3fqla9CSCa96437iOgVyGpYmoIfw2bJ5NpgUr1BA29aivydG
-         y8GioKdBRRfLHNseg7zjuFab85PMJ4HcxErYJFlc=
+        b=F0rjAnV2C+Ow0lJnUvOE4dMESgSp2BkVFfXLmy3HTenra/rE33d9xXDC20kVb+iJl
+         eg/uNyzp43ntMe992YsrTjFSdOH6LdKnsL6kct24LLvKRdGr4OJeYSf1o8Wks4mv9b
+         GMbzmVmsYon9VfmeUIrszBdXcXrut4diOwOlpPpI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Ernesto=20A=2E=20Fern=C3=A1ndez?= 
@@ -31,9 +31,9 @@ Cc:     =?UTF-8?q?Ernesto=20A=2E=20Fern=C3=A1ndez?=
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 65/99] hfsplus: update timestamps on truncate()
-Date:   Sat, 16 Nov 2019 10:50:28 -0500
-Message-Id: <20191116155103.10971-65-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 66/99] hfs: update timestamp on truncate()
+Date:   Sat, 16 Nov 2019 10:50:29 -0500
+Message-Id: <20191116155103.10971-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
 References: <20191116155103.10971-1-sashal@kernel.org>
@@ -49,32 +49,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
 
-[ Upstream commit dc8844aada735890a6de109bef327f5df36a982e ]
+[ Upstream commit 8cd3cb5061730af085a3f9890a3352f162b4e20c ]
 
-The vfs takes care of updating ctime and mtime on ftruncate(), but on
-truncate() it must be done by the module.
+The vfs takes care of updating mtime on ftruncate(), but on truncate() it
+must be done by the module.
 
-This patch can be tested with xfstests generic/313.
-
-Link: http://lkml.kernel.org/r/9beb0913eea37288599e8e1b7cec8768fb52d1b8.1539316825.git.ernesto.mnd.fernandez@gmail.com
+Link: http://lkml.kernel.org/r/e1611eda2985b672ed2d8677350b4ad8c2d07e8a.1539316825.git.ernesto.mnd.fernandez@gmail.com
 Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
 Reviewed-by: Vyacheslav Dubeyko <slava@dubeyko.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/hfs/inode.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/hfsplus/inode.c b/fs/hfsplus/inode.c
-index 2e796f8302ffa..cfd380e2743d1 100644
---- a/fs/hfsplus/inode.c
-+++ b/fs/hfsplus/inode.c
-@@ -260,6 +260,7 @@ static int hfsplus_setattr(struct dentry *dentry, struct iattr *attr)
- 		}
+diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
+index f776acf2378a1..de0d6d4c46b68 100644
+--- a/fs/hfs/inode.c
++++ b/fs/hfs/inode.c
+@@ -641,6 +641,8 @@ int hfs_inode_setattr(struct dentry *dentry, struct iattr * attr)
+ 
  		truncate_setsize(inode, attr->ia_size);
- 		hfsplus_file_truncate(inode);
-+		inode->i_mtime = inode->i_ctime = current_time(inode);
+ 		hfs_file_truncate(inode);
++		inode->i_atime = inode->i_mtime = inode->i_ctime =
++						  current_time(inode);
  	}
  
  	setattr_copy(inode, attr);
