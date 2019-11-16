@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E28FF257
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:18:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 640EBFF24F
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:18:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729737AbfKPQSd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:18:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52796 "EHLO mail.kernel.org"
+        id S1729402AbfKPPq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:46:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729395AbfKPPq2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729398AbfKPPq2 (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 16 Nov 2019 10:46:28 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0530D207FA;
-        Sat, 16 Nov 2019 15:46:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A061220836;
+        Sat, 16 Nov 2019 15:46:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919187;
-        bh=QvQ27XNzzcAgPS7U8JGTJIggurF2PvKbrINkZNsf99U=;
+        s=default; t=1573919188;
+        bh=LeuDf/I7ZPQA6VJiMkvQSsm3CQHvloLielawHcYlLlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RoDAhUpTQON7kOHyf1AC47HQmsNg5P1WWQjQrsf1o/wiQEJGxoJQeK+NihQJPka0k
-         I11Kiv6G5qQl5REDJurfZ7B6bmkYShIDn8N7V9ew578sOyACFGqg55LGjN3QX83zuP
-         8i3FdbOh//0WJcENcLVK7qfsxr5y+vRo0u9D9ls0=
+        b=VgwZr/nWC7flsPOneMaoASDjPI+6hmiWW5VfWJJyD8v16YL1IKJ+BeLQ2D1iafctW
+         Ht+XK4jv/HZO4qGbX50vAdkvJb7fGZ2BX1bRlo7zpto5Ks4oCUelszj4vDbvhNAajL
+         osaHi8L1DDlrM0OlH49TfQyJeFwFlzSDVy6YgoWY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Nikolay Borisov <nborisov@suse.com>,
-        Changbin Du <changbin.du@gmail.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 195/237] btrfs: avoid link error with CONFIG_NO_AUTO_INLINE
-Date:   Sat, 16 Nov 2019 10:40:30 -0500
-Message-Id: <20191116154113.7417-195-sashal@kernel.org>
+Cc:     Ahmad Masri <amasri@codeaurora.org>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, wil6210@qti.qualcomm.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 196/237] wil6210: fix debugfs memory access alignment
+Date:   Sat, 16 Nov 2019 10:40:31 -0500
+Message-Id: <20191116154113.7417-196-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,70 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ahmad Masri <amasri@codeaurora.org>
 
-[ Upstream commit 7e17916b35797396f681a3270245fd29c1e4c250 ]
+[ Upstream commit 84ec040d0fb25197584d28a0dedc355503cd19b9 ]
 
-Note: this patch fixes a problem in a feature outside of btrfs ("kernel
-hacking: add a config option to disable compiler auto-inlining") and is
-applied ahead of time due to cross-subsystem dependencies.
+All wil6210 device memory access should be 4 bytes aligned. In io
+blob wil6210 did not force alignment for read function, this caused
+alignment fault on some platforms.
+Fixing that by accessing all 4 lower bytes and return to host the
+requested data.
 
-On 32-bit ARM with gcc-8, I see a link error with the addition of the
-CONFIG_NO_AUTO_INLINE option:
-
-fs/btrfs/super.o: In function `btrfs_statfs':
-super.c:(.text+0x67b8): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x67fc): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x6858): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x6920): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x693c): undefined reference to `__aeabi_uldivmod'
-fs/btrfs/super.o:super.c:(.text+0x6958): more undefined references to `__aeabi_uldivmod' follow
-
-So far this is the only file that shows the behavior, so I'd propose
-to just work around it by marking the functions as 'static inline'
-that normally get inlined here.
-
-The reference to __aeabi_uldivmod comes from a div_u64() which has an
-optimization for a constant division that uses a straight '/' operator
-when the result should be known to the compiler. My interpretation is
-that as we turn off inlining, gcc still expects the result to be constant
-but fails to use that constant value.
-
-Link: https://lkml.kernel.org/r/20181103153941.1881966-1-arnd@arndb.de
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-[ add the note ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Ahmad Masri <amasri@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/super.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/wil6210/debugfs.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 8888337a95b64..ddbad8d509490 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -1919,7 +1919,7 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
- }
+diff --git a/drivers/net/wireless/ath/wil6210/debugfs.c b/drivers/net/wireless/ath/wil6210/debugfs.c
+index 51c3330bc316f..12b8cb698f64d 100644
+--- a/drivers/net/wireless/ath/wil6210/debugfs.c
++++ b/drivers/net/wireless/ath/wil6210/debugfs.c
+@@ -662,10 +662,10 @@ static ssize_t wil_read_file_ioblob(struct file *file, char __user *user_buf,
+ 	enum { max_count = 4096 };
+ 	struct wil_blob_wrapper *wil_blob = file->private_data;
+ 	struct wil6210_priv *wil = wil_blob->wil;
+-	loff_t pos = *ppos;
++	loff_t aligned_pos, pos = *ppos;
+ 	size_t available = wil_blob->blob.size;
+ 	void *buf;
+-	size_t ret;
++	size_t unaligned_bytes, aligned_count, ret;
+ 	int rc;
  
- /* Used to sort the devices by max_avail(descending sort) */
--static int btrfs_cmp_device_free_bytes(const void *dev_info1,
-+static inline int btrfs_cmp_device_free_bytes(const void *dev_info1,
- 				       const void *dev_info2)
- {
- 	if (((struct btrfs_device_info *)dev_info1)->max_avail >
-@@ -1948,8 +1948,8 @@ static inline void btrfs_descending_sort_devices(
-  * The helper to calc the free space on the devices that can be used to store
-  * file data.
-  */
--static int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
--				       u64 *free_bytes)
-+static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
-+					      u64 *free_bytes)
- {
- 	struct btrfs_device_info *devices_info;
- 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
+ 	if (test_bit(wil_status_suspending, wil_blob->wil->status) ||
+@@ -683,7 +683,12 @@ static ssize_t wil_read_file_ioblob(struct file *file, char __user *user_buf,
+ 	if (count > max_count)
+ 		count = max_count;
+ 
+-	buf = kmalloc(count, GFP_KERNEL);
++	/* set pos to 4 bytes aligned */
++	unaligned_bytes = pos % 4;
++	aligned_pos = pos - unaligned_bytes;
++	aligned_count = count + unaligned_bytes;
++
++	buf = kmalloc(aligned_count, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+@@ -694,9 +699,9 @@ static ssize_t wil_read_file_ioblob(struct file *file, char __user *user_buf,
+ 	}
+ 
+ 	wil_memcpy_fromio_32(buf, (const void __iomem *)
+-			     wil_blob->blob.data + pos, count);
++			     wil_blob->blob.data + aligned_pos, aligned_count);
+ 
+-	ret = copy_to_user(user_buf, buf, count);
++	ret = copy_to_user(user_buf, buf + unaligned_bytes, count);
+ 
+ 	wil_pm_runtime_put(wil);
+ 
 -- 
 2.20.1
 
