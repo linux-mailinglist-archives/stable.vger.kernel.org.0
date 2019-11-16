@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3657BFF28E
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:20:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C793FF28C
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:20:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727963AbfKPPpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:45:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49896 "EHLO mail.kernel.org"
+        id S1729070AbfKPPpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:45:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729067AbfKPPos (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:44:48 -0500
+        id S1727937AbfKPPpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:45:21 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB405207FA;
-        Sat, 16 Nov 2019 15:44:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAA5C20729;
+        Sat, 16 Nov 2019 15:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919087;
-        bh=/X42qqck8nkLc0mAmS/qSEjM3OBOAqD15gc7gZhyWjE=;
+        s=default; t=1573919120;
+        bh=slZTOhlyqjasJpTbVi55r4txrjzJIMdUmbvdIWCy1xA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ue3wTW4bGDhHFAl9i7h2KsOf0DL2XOD9FxydrFnJyTLMWSbbnzwemvB4ZpL8cbVIT
-         KhR4xBB2tLr1URar4G4MAkU5bAoT7tAaeuWpWCzen7NzDu89gPpQUXV2fMWClYpKA5
-         +4aUMv0IlQTg70zxLxKNSE+K5RAdMa2Zns8D1Y+Q=
+        b=DvUJBVcw3J2V7FImq2lzDwbJiDx1GXWq0nYbTn9Fi5/QzcMp62n1fNcEdyt7OzD7I
+         gDVm+lW6OixSKFdI5iMkCRV8vGB15DtlwS3NnB1LdMxFlEbiyOQryEU1GT7t3PRmMl
+         KAPb2II3Py132w9LIseJblVP6esH7Qhn0DvXEpU0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+Cc:     =?UTF-8?q?Ernesto=20A=2E=20Fern=C3=A1ndez?= 
+        <ernesto.mnd.fernandez@gmail.com>, Christoph Hellwig <hch@lst.de>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Keith Busch <keith.busch@intel.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        YueHaibing <yuehaibing@huawei.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.19 149/237] mm/gup_benchmark.c: prevent integer overflow in ioctl
-Date:   Sat, 16 Nov 2019 10:39:44 -0500
-Message-Id: <20191116154113.7417-149-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 156/237] hfs: prevent btree data loss on ENOSPC
+Date:   Sat, 16 Nov 2019 10:39:51 -0500
+Message-Id: <20191116154113.7417-156-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,45 +46,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
 
-[ Upstream commit 4b408c74ee5a0b74fc9265c2fe39b0e7dec7c056 ]
+[ Upstream commit 54640c7502e5ed41fbf4eedd499e85f9acc9698f ]
 
-The concern here is that "gup->size" is a u64 and "nr_pages" is unsigned
-long.  On 32 bit systems we could trick the kernel into allocating fewer
-pages than expected.
+Inserting a new record in a btree may require splitting several of its
+nodes.  If we hit ENOSPC halfway through, the new nodes will be left
+orphaned and their records will be lost.  This could mean lost inodes or
+extents.
 
-Link: http://lkml.kernel.org/r/20181025061546.hnhkv33diogf2uis@kili.mountain
-Fixes: 64c349f4ae78 ("mm: add infrastructure for get_user_pages_fast() benchmarking")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Keith Busch <keith.busch@intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: YueHaibing <yuehaibing@huawei.com>
+Henceforth, check the available disk space before making any changes.
+This still leaves the potential problem of corruption on ENOMEM.
+
+There is no need to reserve space before deleting a catalog record, as we
+do for hfsplus.  This difference is because hfs index nodes have fixed
+length keys.
+
+Link: http://lkml.kernel.org/r/ab5fc8a7d5ffccfd5f27b1cf2cb4ceb6c110da74.1536269131.git.ernesto.mnd.fernandez@gmail.com
+Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+Cc: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/gup_benchmark.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/hfs/btree.c   | 41 +++++++++++++++++++++++++----------------
+ fs/hfs/btree.h   |  1 +
+ fs/hfs/catalog.c | 16 ++++++++++++++++
+ fs/hfs/extent.c  |  4 ++++
+ 4 files changed, 46 insertions(+), 16 deletions(-)
 
-diff --git a/mm/gup_benchmark.c b/mm/gup_benchmark.c
-index 7405c9d89d651..7e6f2d2dafb55 100644
---- a/mm/gup_benchmark.c
-+++ b/mm/gup_benchmark.c
-@@ -23,6 +23,9 @@ static int __gup_benchmark_ioctl(unsigned int cmd,
- 	int nr;
- 	struct page **pages;
+diff --git a/fs/hfs/btree.c b/fs/hfs/btree.c
+index 9bdff5e406261..19017d2961734 100644
+--- a/fs/hfs/btree.c
++++ b/fs/hfs/btree.c
+@@ -220,25 +220,17 @@ static struct hfs_bnode *hfs_bmap_new_bmap(struct hfs_bnode *prev, u32 idx)
+ 	return node;
+ }
  
-+	if (gup->size > ULONG_MAX)
-+		return -EINVAL;
+-struct hfs_bnode *hfs_bmap_alloc(struct hfs_btree *tree)
++/* Make sure @tree has enough space for the @rsvd_nodes */
++int hfs_bmap_reserve(struct hfs_btree *tree, int rsvd_nodes)
+ {
+-	struct hfs_bnode *node, *next_node;
+-	struct page **pagep;
+-	u32 nidx, idx;
+-	unsigned off;
+-	u16 off16;
+-	u16 len;
+-	u8 *data, byte, m;
+-	int i;
+-
+-	while (!tree->free_nodes) {
+-		struct inode *inode = tree->inode;
+-		u32 count;
+-		int res;
++	struct inode *inode = tree->inode;
++	u32 count;
++	int res;
+ 
++	while (tree->free_nodes < rsvd_nodes) {
+ 		res = hfs_extend_file(inode);
+ 		if (res)
+-			return ERR_PTR(res);
++			return res;
+ 		HFS_I(inode)->phys_size = inode->i_size =
+ 				(loff_t)HFS_I(inode)->alloc_blocks *
+ 				HFS_SB(tree->sb)->alloc_blksz;
+@@ -246,9 +238,26 @@ struct hfs_bnode *hfs_bmap_alloc(struct hfs_btree *tree)
+ 					  tree->sb->s_blocksize_bits;
+ 		inode_set_bytes(inode, inode->i_size);
+ 		count = inode->i_size >> tree->node_size_shift;
+-		tree->free_nodes = count - tree->node_count;
++		tree->free_nodes += count - tree->node_count;
+ 		tree->node_count = count;
+ 	}
++	return 0;
++}
 +
- 	nr_pages = gup->size / PAGE_SIZE;
- 	pages = kvcalloc(nr_pages, sizeof(void *), GFP_KERNEL);
- 	if (!pages)
++struct hfs_bnode *hfs_bmap_alloc(struct hfs_btree *tree)
++{
++	struct hfs_bnode *node, *next_node;
++	struct page **pagep;
++	u32 nidx, idx;
++	unsigned off;
++	u16 off16;
++	u16 len;
++	u8 *data, byte, m;
++	int i, res;
++
++	res = hfs_bmap_reserve(tree, 1);
++	if (res)
++		return ERR_PTR(res);
+ 
+ 	nidx = 0;
+ 	node = hfs_bnode_find(tree, nidx);
+diff --git a/fs/hfs/btree.h b/fs/hfs/btree.h
+index c8b252dbb26c0..dcc2aab1b2c43 100644
+--- a/fs/hfs/btree.h
++++ b/fs/hfs/btree.h
+@@ -82,6 +82,7 @@ struct hfs_find_data {
+ extern struct hfs_btree *hfs_btree_open(struct super_block *, u32, btree_keycmp);
+ extern void hfs_btree_close(struct hfs_btree *);
+ extern void hfs_btree_write(struct hfs_btree *);
++extern int hfs_bmap_reserve(struct hfs_btree *, int);
+ extern struct hfs_bnode * hfs_bmap_alloc(struct hfs_btree *);
+ extern void hfs_bmap_free(struct hfs_bnode *node);
+ 
+diff --git a/fs/hfs/catalog.c b/fs/hfs/catalog.c
+index 8a66405b0f8b5..d365bf0b8c77d 100644
+--- a/fs/hfs/catalog.c
++++ b/fs/hfs/catalog.c
+@@ -97,6 +97,14 @@ int hfs_cat_create(u32 cnid, struct inode *dir, const struct qstr *str, struct i
+ 	if (err)
+ 		return err;
+ 
++	/*
++	 * Fail early and avoid ENOSPC during the btree operations. We may
++	 * have to split the root node at most once.
++	 */
++	err = hfs_bmap_reserve(fd.tree, 2 * fd.tree->depth);
++	if (err)
++		goto err2;
++
+ 	hfs_cat_build_key(sb, fd.search_key, cnid, NULL);
+ 	entry_size = hfs_cat_build_thread(sb, &entry, S_ISDIR(inode->i_mode) ?
+ 			HFS_CDR_THD : HFS_CDR_FTH,
+@@ -295,6 +303,14 @@ int hfs_cat_move(u32 cnid, struct inode *src_dir, const struct qstr *src_name,
+ 		return err;
+ 	dst_fd = src_fd;
+ 
++	/*
++	 * Fail early and avoid ENOSPC during the btree operations. We may
++	 * have to split the root node at most once.
++	 */
++	err = hfs_bmap_reserve(src_fd.tree, 2 * src_fd.tree->depth);
++	if (err)
++		goto out;
++
+ 	/* find the old dir entry and read the data */
+ 	hfs_cat_build_key(sb, src_fd.search_key, src_dir->i_ino, src_name);
+ 	err = hfs_brec_find(&src_fd);
+diff --git a/fs/hfs/extent.c b/fs/hfs/extent.c
+index 5d01826545809..0c638c6121526 100644
+--- a/fs/hfs/extent.c
++++ b/fs/hfs/extent.c
+@@ -117,6 +117,10 @@ static int __hfs_ext_write_extent(struct inode *inode, struct hfs_find_data *fd)
+ 	if (HFS_I(inode)->flags & HFS_FLG_EXT_NEW) {
+ 		if (res != -ENOENT)
+ 			return res;
++		/* Fail early and avoid ENOSPC during the btree operation */
++		res = hfs_bmap_reserve(fd->tree, fd->tree->depth + 1);
++		if (res)
++			return res;
+ 		hfs_brec_insert(fd, HFS_I(inode)->cached_extents, sizeof(hfs_extent_rec));
+ 		HFS_I(inode)->flags &= ~(HFS_FLG_EXT_DIRTY|HFS_FLG_EXT_NEW);
+ 	} else {
 -- 
 2.20.1
 
