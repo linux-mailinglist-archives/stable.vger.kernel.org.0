@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BB2FF231
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5124EFF237
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:17:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729484AbfKPPqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:46:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53218 "EHLO mail.kernel.org"
+        id S1729502AbfKPQRl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:17:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729479AbfKPPqn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:43 -0500
+        id S1729461AbfKPPqo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:44 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC5AA20898;
-        Sat, 16 Nov 2019 15:46:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FC932089D;
+        Sat, 16 Nov 2019 15:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919203;
-        bh=K6SV6E2fk/vQUx9u9jTQu3pwQlpbEddX+FJVxsoihFk=;
+        bh=9uyfzauE58ZzV9qho2Uq/YQRYCXqOI53XmSwiLS9fDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kj9CzMvuWmhBftY5IqK3UZ9YpI+dLLh6HbgER8AhjRfBHY4txgrK7N2FndyqY0cI6
-         cU98V9K/u/GN4+gNrCiIMTPYjxHzGHNFvEWSq6XTYA5k0K04CfTwe7sOgfWjB3KI/h
-         QjKqrLa9qhnVvUOETmg6BwPR81qME7qXQ1glZfEI=
+        b=sYkZsYT1FG72hrdW9PICtjdz27y0ivASTwI5YdACbG7yH4erdo4pMWz9yujNO3LYO
+         cX6lx9lUSVCbgcpcbPAwYYRASLd6fCRhVEehJsR22PKsAKxFbHQ8YdfaQ4mqYA+6i2
+         5XWNiaNPs5WtK5VKki4WVt1kVZgwlao07YsbaITA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 205/237] rtlwifi: rtl8192de: Fix misleading REG_MCUFWDL information
-Date:   Sat, 16 Nov 2019 10:40:40 -0500
-Message-Id: <20191116154113.7417-205-sashal@kernel.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 206/237] net: dsa: bcm_sf2: Turn on PHY to allow successful registration
+Date:   Sat, 16 Nov 2019 10:40:41 -0500
+Message-Id: <20191116154113.7417-206-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -45,38 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaokun Zhang <zhangshaokun@hisilicon.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 7d129adff3afbd3a449bc3593f2064ac546d58d3 ]
+[ Upstream commit c04a17d2a9ccf1eaba1c5a56f83e997540a70556 ]
 
-RT_TRACE shows REG_MCUFWDL value as a decimal value with a '0x'
-prefix, which is somewhat misleading.
+We are binding to the PHY using the SF2 slave MDIO bus that we create,
+binding involves reading the PHY's MII_PHYSID1/2 which won't be possible
+if the PHY is turned off. Temporarily turn it on/off for the bus probing
+to succeeed. This fixes unbind/bind problems where the port connecting
+to that PHY would be in error since it could not connect to it.
 
-Fix it to print hexadecimal, as was intended.
-
-Cc: Ping-Ke Shih <pkshih@realtek.com>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Acked-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/bcm_sf2.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c
-index 85cedd083d2b8..75bfa9dfef4aa 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c
-@@ -173,7 +173,7 @@ static int _rtl92d_fw_init(struct ieee80211_hw *hw)
- 			 rtl_read_byte(rtlpriv, FW_MAC1_READY));
+diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
+index ca3655d28e00f..17cec68e56b4f 100644
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -1099,12 +1099,16 @@ static int bcm_sf2_sw_probe(struct platform_device *pdev)
+ 		return ret;
  	}
- 	RT_TRACE(rtlpriv, COMP_FW, DBG_DMESG,
--		 "Polling FW ready fail!! REG_MCUFWDL:0x%08ul\n",
-+		 "Polling FW ready fail!! REG_MCUFWDL:0x%08x\n",
- 		 rtl_read_dword(rtlpriv, REG_MCUFWDL));
- 	return -1;
- }
+ 
++	bcm_sf2_gphy_enable_set(priv->dev->ds, true);
++
+ 	ret = bcm_sf2_mdio_register(ds);
+ 	if (ret) {
+ 		pr_err("failed to register MDIO bus\n");
+ 		return ret;
+ 	}
+ 
++	bcm_sf2_gphy_enable_set(priv->dev->ds, false);
++
+ 	ret = bcm_sf2_cfp_rst(priv);
+ 	if (ret) {
+ 		pr_err("failed to reset CFP\n");
 -- 
 2.20.1
 
