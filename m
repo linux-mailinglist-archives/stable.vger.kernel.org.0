@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CDF18FF018
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:03:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93601FF011
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728793AbfKPQDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:03:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32810 "EHLO mail.kernel.org"
+        id S1729387AbfKPPwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:52:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730978AbfKPPwI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:52:08 -0500
+        id S1730984AbfKPPwK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:52:10 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5C26620B7C;
-        Sat, 16 Nov 2019 15:52:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A3C62077B;
+        Sat, 16 Nov 2019 15:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919527;
-        bh=Dr/MgV0CT6e61/f8fbdA16ZEvfZhrv4OxigPBFLptW0=;
+        s=default; t=1573919529;
+        bh=mDMQRLefT1wXgAOc2ntoJDLCRHpGLUSN9tXIFTlyFbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQvemwozWZKKdlNQ82WUwPOEOGwQy9LLSrx6d+v9irWNQXI07XFx2Mogn67XKCCmX
-         bJ11/uOnZFrIXK0RCBtYhxIKiOwGbaTAvgKI3q3mnU8F20CXGsyVvwnYrbrcvBSa0k
-         s/SZUKjH9IbQXHXungo3ODz/SZAVwfuKRNtUTDzI=
+        b=cmF2G6RGP+aGbTEPyO/qhyA1K+Cjk/Ox3uofs57Tp2obI+K5aF56U+bTCCLQll1mB
+         wQE/0/BKN1JA2qSvYsxa89uPuaOmPanDyaknQAj0m4iQpaPi6/7rbhcKR6zT5bb5oT
+         X4gLTOR+Vtb/dplZSlTOeCBkJ4X30owXE2eAcEnc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 49/99] thermal: rcar_thermal: Prevent hardware access during system suspend
-Date:   Sat, 16 Nov 2019 10:50:12 -0500
-Message-Id: <20191116155103.10971-49-sashal@kernel.org>
+Cc:     Felipe Rechia <felipe.rechia@datacom.com.br>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.9 50/99] powerpc/process: Fix flush_all_to_thread for SPE
+Date:   Sat, 16 Nov 2019 10:50:13 -0500
+Message-Id: <20191116155103.10971-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
 References: <20191116155103.10971-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,44 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Felipe Rechia <felipe.rechia@datacom.com.br>
 
-[ Upstream commit 3a31386217628ffe2491695be2db933c25dde785 ]
+[ Upstream commit e901378578c62202594cba0f6c076f3df365ec91 ]
 
-On r8a7791/koelsch, sometimes the following message is printed during
-system suspend:
+Fix a bug introduced by the creation of flush_all_to_thread() for
+processors that have SPE (Signal Processing Engine) and use it to
+compute floating-point operations.
 
-    rcar_thermal e61f0000.thermal: thermal sensor was broken
+>From userspace perspective, the problem was seen in attempts of
+computing floating-point operations which should generate exceptions.
+For example:
 
-This happens if the workqueue runs while the device is already
-suspended.  Fix this by using the freezable system workqueue instead,
-cfr. commit 51e20d0e3a60cf46 ("thermal: Prevent polling from happening
-during system suspend").
+  fork();
+  float x = 0.0 / 0.0;
+  isnan(x);           // forked process returns False (should be True)
 
-Fixes: e0a5172e9eec7f0d ("thermal: rcar: add interrupt support")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+The operation above also should always cause the SPEFSCR FINV bit to
+be set. However, the SPE floating-point exceptions were turned off
+after a fork().
+
+Kernel versions prior to the bug used flush_spe_to_thread(), which
+first saves SPEFSCR register values in tsk->thread and then calls
+giveup_spe(tsk).
+
+After commit 579e633e764e, the save_all() function was called first
+to giveup_spe(), and then the SPEFSCR register values were saved in
+tsk->thread. This would save the SPEFSCR register values after
+disabling SPE for that thread, causing the bug described above.
+
+Fixes 579e633e764e ("powerpc: create flush_all_to_thread()")
+Signed-off-by: Felipe Rechia <felipe.rechia@datacom.com.br>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/rcar_thermal.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/process.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/thermal/rcar_thermal.c b/drivers/thermal/rcar_thermal.c
-index 73e5fee6cf1d5..83126e2dce36d 100644
---- a/drivers/thermal/rcar_thermal.c
-+++ b/drivers/thermal/rcar_thermal.c
-@@ -401,8 +401,8 @@ static irqreturn_t rcar_thermal_irq(int irq, void *data)
- 	rcar_thermal_for_each_priv(priv, common) {
- 		if (rcar_thermal_had_changed(priv, status)) {
- 			rcar_thermal_irq_disable(priv);
--			schedule_delayed_work(&priv->work,
--					      msecs_to_jiffies(300));
-+			queue_delayed_work(system_freezable_wq, &priv->work,
-+					   msecs_to_jiffies(300));
- 		}
- 	}
+diff --git a/arch/powerpc/kernel/process.c b/arch/powerpc/kernel/process.c
+index 47c6c0401b3a2..54c95e7c74cce 100644
+--- a/arch/powerpc/kernel/process.c
++++ b/arch/powerpc/kernel/process.c
+@@ -576,12 +576,11 @@ void flush_all_to_thread(struct task_struct *tsk)
+ 	if (tsk->thread.regs) {
+ 		preempt_disable();
+ 		BUG_ON(tsk != current);
+-		save_all(tsk);
+-
+ #ifdef CONFIG_SPE
+ 		if (tsk->thread.regs->msr & MSR_SPE)
+ 			tsk->thread.spefscr = mfspr(SPRN_SPEFSCR);
+ #endif
++		save_all(tsk);
  
+ 		preempt_enable();
+ 	}
 -- 
 2.20.1
 
