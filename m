@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 524BAFF0DC
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:08:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D578FF0D5
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730536AbfKPQII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:08:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58244 "EHLO mail.kernel.org"
+        id S1730471AbfKPPuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:50:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730466AbfKPPuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729080AbfKPPuR (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 16 Nov 2019 10:50:17 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B0DF208A1;
+        by mail.kernel.org (Postfix) with ESMTPSA id F2C8F21823;
         Sat, 16 Nov 2019 15:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919416;
-        bh=EbbfNz2ZlOjuyLlZQPVnXYerkBR9NFHbNmfKODEnyRs=;
+        s=default; t=1573919417;
+        bh=Y4lAoQyQxZwgpe8S14AlWKNoT/13S/b0oclnwxddKWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VaLC2NuGIdgFIsLfVWqIWLQNeLFL0K2giLvTHwHfO+sixA01V1SNOT+1lHLiEI3HF
-         W0oMKAVLM4HBPYSJjOipiZzQOtrxh3jGXupLYVMGU9qkG+Q2qlq4aLoaEys8ukjYOL
-         ISVYkWSh5iOF84ShcY/Tim3fuv7OjxZbq2TW19Os=
+        b=pQ3qO/z4rrg30wuzjmUYSqC0QrBFPUCQAQ1Cgf0H5ZMqsJNDhP8iGni0fPIhFj/i5
+         RcTTviVlr+LUZXfhA4+iRbdDhqls4NjgHydm8Ef6Fnz/oKfFh7wgM00wRGr1uxz+FN
+         ePavOa9wtirMlMA0PhPcrhHEoIYBwF8HiUB2HF08=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valentin Schneider <valentin.schneider@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dietmar.Eggemann@arm.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, patrick.bellasi@arm.com,
-        vincent.guittot@linaro.org, Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 115/150] sched/fair: Don't increase sd->balance_interval on newidle balance
-Date:   Sat, 16 Nov 2019 10:46:53 -0500
-Message-Id: <20191116154729.9573-115-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        dev@openvswitch.org
+Subject: [PATCH AUTOSEL 4.14 116/150] openvswitch: fix linking without CONFIG_NF_CONNTRACK_LABELS
+Date:   Sat, 16 Nov 2019 10:46:54 -0500
+Message-Id: <20191116154729.9573-116-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -47,75 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3f130a37c442d5c4d66531b240ebe9abfef426b5 ]
+[ Upstream commit a277d516de5f498c91d91189717ef7e01102ad27 ]
 
-When load_balance() fails to move some load because of task affinity,
-we end up increasing sd->balance_interval to delay the next periodic
-balance in the hopes that next time we look, that annoying pinned
-task(s) will be gone.
+When CONFIG_CC_OPTIMIZE_FOR_DEBUGGING is enabled, the compiler
+fails to optimize out a dead code path, which leads to a link failure:
 
-However, idle_balance() pays no attention to sd->balance_interval, yet
-it will still lead to an increase in balance_interval in case of
-pinned tasks.
+net/openvswitch/conntrack.o: In function `ovs_ct_set_labels':
+conntrack.c:(.text+0x2e60): undefined reference to `nf_connlabels_replace'
 
-If we're going through several newidle balances (e.g. we have a
-periodic task), this can lead to a huge increase of the
-balance_interval in a very small amount of time.
+In this configuration, we can take a shortcut, and completely
+remove the contrack label code. This may also help the regular
+optimization.
 
-To prevent that, don't increase the balance interval when going
-through a newidle balance.
-
-This is a similar approach to what is done in commit 58b26c4c0257
-("sched: Increment cache_nice_tries only on periodic lb"), where we
-disregard newidle balance and rely on periodic balance for more stable
-results.
-
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Dietmar.Eggemann@arm.com
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: patrick.bellasi@arm.com
-Cc: vincent.guittot@linaro.org
-Link: http://lkml.kernel.org/r/1537974727-30788-2-git-send-email-valentin.schneider@arm.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ net/openvswitch/conntrack.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index feeb52880d353..67433fbdcb5a4 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -8319,13 +8319,22 @@ static int load_balance(int this_cpu, struct rq *this_rq,
- 	sd->nr_balance_failed = 0;
- 
- out_one_pinned:
-+	ld_moved = 0;
-+
-+	/*
-+	 * idle_balance() disregards balance intervals, so we could repeatedly
-+	 * reach this code, which would lead to balance_interval skyrocketting
-+	 * in a short amount of time. Skip the balance_interval increase logic
-+	 * to avoid that.
-+	 */
-+	if (env.idle == CPU_NEWLY_IDLE)
-+		goto out;
-+
- 	/* tune up the balancing interval */
- 	if (((env.flags & LBF_ALL_PINNED) &&
- 			sd->balance_interval < MAX_PINNED_INTERVAL) ||
- 			(sd->balance_interval < sd->max_interval))
- 		sd->balance_interval *= 2;
--
--	ld_moved = 0;
- out:
- 	return ld_moved;
- }
+diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
+index 0171b27a2b81b..48d81857961ca 100644
+--- a/net/openvswitch/conntrack.c
++++ b/net/openvswitch/conntrack.c
+@@ -1083,7 +1083,8 @@ static int ovs_ct_commit(struct net *net, struct sw_flow_key *key,
+ 					 &info->labels.mask);
+ 		if (err)
+ 			return err;
+-	} else if (labels_nonzero(&info->labels.mask)) {
++	} else if (IS_ENABLED(CONFIG_NF_CONNTRACK_LABELS) &&
++		   labels_nonzero(&info->labels.mask)) {
+ 		err = ovs_ct_set_labels(ct, key, &info->labels.value,
+ 					&info->labels.mask);
+ 		if (err)
 -- 
 2.20.1
 
