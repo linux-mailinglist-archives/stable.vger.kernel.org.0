@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83443FF11A
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D043FF117
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:10:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730330AbfKPQJs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:09:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57114 "EHLO mail.kernel.org"
+        id S1729196AbfKPQJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:09:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727984AbfKPPt2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:49:28 -0500
+        id S1730330AbfKPPta (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:49:30 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E62FA208C0;
-        Sat, 16 Nov 2019 15:49:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD6B1207FA;
+        Sat, 16 Nov 2019 15:49:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919368;
-        bh=pal9hfN4N0D5eIJxzhWWfFKR/tR1Zz4LVav7/9eRo0Y=;
+        s=default; t=1573919370;
+        bh=+jRBefN1uwEbzARKvRxsl294CfyeOzMo4klRHllFCY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=enja6y6OcGBSvRgzpE8XZxGyy63XoxhZnbUOxnsVusMGB/6DkRUv7kRutvKyywXWt
-         X53DWb3MFMrKSd/PMuJdpwgCfvp0ZCZz4lduhli822GjK9qaKxK7Txc+ksq2r0uClZ
-         Eo+R6ExDLtoVTWudnIhaWUmJAUyUboubz2rfSNTM=
+        b=0TG4qG6vsZsAsITgjhxwf+A5gfZSWzwTToeymjPGDZ3YRQQ1mRSxgmHdPd0Cp0yo2
+         EIevT5BwwIcd89CmwS2h1JyroUfTpICBaL1OrPr5c/zqISvdhRot654bu5mAjn28ra
+         KMGFyz0+DnBgtt70+YrgYBCnTxBU6BITW179qKvg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Joel Stanley <joel@jms.id.au>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 089/150] powerpc/xmon: Relax frame size for clang
-Date:   Sat, 16 Nov 2019 10:46:27 -0500
-Message-Id: <20191116154729.9573-89-sashal@kernel.org>
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 090/150] selftests/powerpc/signal: Fix out-of-tree build
+Date:   Sat, 16 Nov 2019 10:46:28 -0500
+Message-Id: <20191116154729.9573-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -46,45 +46,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 9c87156cce5a63735d1218f0096a65c50a7a32aa ]
+[ Upstream commit 27825349d7b238533a47e3d98b8bb0efd886b752 ]
 
-When building with clang (8 trunk, 7.0 release) the frame size limit is
-hit:
+We should use TEST_GEN_PROGS, not TEST_PROGS. That tells the selftests
+makefile (lib.mk) that those tests are generated (built), and so it
+adds the $(OUTPUT) prefix for us, making the out-of-tree build work
+correctly.
 
- arch/powerpc/xmon/xmon.c:452:12: warning: stack frame size of 2576
- bytes in function 'xmon_core' [-Wframe-larger-than=]
+It also means we don't need our own clean rule, lib.mk does it.
 
-Some investigation by Naveen indicates this is due to clang saving the
-addresses to printf format strings on the stack.
+We also have to update the signal_tm rule to use $(OUTPUT).
 
-While this issue is investigated, bump up the frame size limit for xmon
-when building with clang.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/252
 Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/xmon/Makefile | 6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/powerpc/signal/Makefile | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/arch/powerpc/xmon/Makefile b/arch/powerpc/xmon/Makefile
-index 549e99e71112b..ac5ee067aa512 100644
---- a/arch/powerpc/xmon/Makefile
-+++ b/arch/powerpc/xmon/Makefile
-@@ -13,6 +13,12 @@ UBSAN_SANITIZE := n
- ORIG_CFLAGS := $(KBUILD_CFLAGS)
- KBUILD_CFLAGS = $(subst -mno-sched-epilog,,$(subst $(CC_FLAGS_FTRACE),,$(ORIG_CFLAGS)))
+diff --git a/tools/testing/selftests/powerpc/signal/Makefile b/tools/testing/selftests/powerpc/signal/Makefile
+index a7cbd5082e271..4213978f3ee2c 100644
+--- a/tools/testing/selftests/powerpc/signal/Makefile
++++ b/tools/testing/selftests/powerpc/signal/Makefile
+@@ -1,14 +1,9 @@
+ # SPDX-License-Identifier: GPL-2.0
+-TEST_PROGS := signal signal_tm
+-
+-all: $(TEST_PROGS)
+-
+-$(TEST_PROGS): ../harness.c ../utils.c signal.S
++TEST_GEN_PROGS := signal signal_tm
  
-+ifdef CONFIG_CC_IS_CLANG
-+# clang stores addresses on the stack causing the frame size to blow
-+# out. See https://github.com/ClangBuiltLinux/linux/issues/252
-+KBUILD_CFLAGS += -Wframe-larger-than=4096
-+endif
-+
- ccflags-$(CONFIG_PPC64) := $(NO_MINIMAL_TOC)
+ CFLAGS += -maltivec
+-signal_tm: CFLAGS += -mhtm
++$(OUTPUT)/signal_tm: CFLAGS += -mhtm
  
- obj-y			+= xmon.o nonstdio.o spr_access.o
+ include ../../lib.mk
+ 
+-clean:
+-	rm -f $(TEST_PROGS) *.o
++$(TEST_GEN_PROGS): ../harness.c ../utils.c signal.S
 -- 
 2.20.1
 
