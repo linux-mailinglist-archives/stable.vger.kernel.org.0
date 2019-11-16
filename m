@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B5FFF29F
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48668FF2AB
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728978AbfKPPoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:44:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49344 "EHLO mail.kernel.org"
+        id S1729023AbfKPQUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:20:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727880AbfKPPo3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:44:29 -0500
+        id S1728022AbfKPPoa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:44:30 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F52020803;
-        Sat, 16 Nov 2019 15:44:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 255BA20833;
+        Sat, 16 Nov 2019 15:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919068;
-        bh=DYDeOGRcI4kuQWrRA6hmaepxNa+IRLppnQKcvt38DBs=;
+        s=default; t=1573919069;
+        bh=MY8vZzJfXFISQSXwE+EqUf4Dqx3adqhs2Rjdk7fKzSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2TsweSq3Q7NI+TkM2IrnEvvf6i4gWnfpimWLbLTZZ3uVSwfe8yRDoQy6TCMS0opo
-         y/h6DXcMF2/wXSEHUKLnEH3X0ONxRv8BedLNDd1GGV4d4vv99fgqom0WuSBAMh+NO9
-         T2oSO4UvnLNGKq40MePp9C6nosrY0Kx8qd0a47is=
+        b=NjtAR7kejMkINgjjxZrU5xqhUox7rIGCUTn25PQQYCpQSq60nsLSIDMovxgC2eT6W
+         8L4YXr4/g2K9Jxd+MucEFpzYqLPAqojGYcHl5waDu2IQh8WhQGga1a0ECeCwFD6Q51
+         NktbZBi+u6A0MZZ3vVGymNIMtMfSnkgaDT5eTgy8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 140/237] um: Make line/tty semantics use true write IRQ
-Date:   Sat, 16 Nov 2019 10:39:35 -0500
-Message-Id: <20191116154113.7417-140-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <david@fromorbit.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 141/237] vfs: avoid problematic remapping requests into partial EOF block
+Date:   Sat, 16 Nov 2019 10:39:36 -0500
+Message-Id: <20191116154113.7417-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,48 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit 917e2fd2c53eb3c4162f5397555cbd394390d4bc ]
+[ Upstream commit 07d19dc9fbe9128378b9e226abe886fd8fd473df ]
 
-This fixes a long standing bug where large amounts of output
-could freeze the tty (most commonly seen on stdio console).
-While the bug has always been there it became more pronounced
-after moving to the new interrupt controller.
+A deduplication data corruption is exposed in XFS and btrfs. It is
+caused by extending the block match range to include the partial EOF
+block, but then allowing unknown data beyond EOF to be considered a
+"match" to data in the destination file because the comparison is only
+made to the end of the source file. This corrupts the destination file
+when the source extent is shared with it.
 
-The line semantics are now changed to have true IRQ write
-semantics which should further improve the tty/line subsystem
-stability and performance
+The VFS remapping prep functions  only support whole block dedupe, but
+we still need to appear to support whole file dedupe correctly.  Hence
+if the dedupe request includes the last block of the souce file, don't
+include it in the actual dedupe operation. If the rest of the range
+dedupes successfully, then reject the entire request.  A subsequent
+patch will enable us to shorten dedupe requests correctly.
 
-Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+When reflinking sub-file ranges, a data corruption can occur when the
+source file range includes a partial EOF block. This shares the unknown
+data beyond EOF into the second file at a position inside EOF, exposing
+stale data in the second file.
+
+If the reflink request includes the last block of the souce file, only
+proceed with the reflink operation if it lands at or past the
+destination file's current EOF. If it lands within the destination file
+EOF, reject the entire request with -EINVAL and make the caller go the
+hard way.  A subsequent patch will enable us to shorten reflink requests
+correctly.
+
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/line.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/read_write.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
-index 8d80b27502e6a..7e524efed5848 100644
---- a/arch/um/drivers/line.c
-+++ b/arch/um/drivers/line.c
-@@ -261,7 +261,7 @@ static irqreturn_t line_write_interrupt(int irq, void *data)
- 	if (err == 0) {
- 		spin_unlock(&line->lock);
- 		return IRQ_NONE;
--	} else if (err < 0) {
-+	} else if ((err < 0) && (err != -EAGAIN)) {
- 		line->head = line->buffer;
- 		line->tail = line->buffer;
+diff --git a/fs/read_write.c b/fs/read_write.c
+index 5fb5ee5b8cd70..2195380620d02 100644
+--- a/fs/read_write.c
++++ b/fs/read_write.c
+@@ -1715,6 +1715,34 @@ static int clone_verify_area(struct file *file, loff_t pos, u64 len, bool write)
+ 
+ 	return security_file_permission(file, write ? MAY_WRITE : MAY_READ);
+ }
++/*
++ * Ensure that we don't remap a partial EOF block in the middle of something
++ * else.  Assume that the offsets have already been checked for block
++ * alignment.
++ *
++ * For deduplication we always scale down to the previous block because we
++ * can't meaningfully compare post-EOF contents.
++ *
++ * For clone we only link a partial EOF block above the destination file's EOF.
++ */
++static int generic_remap_check_len(struct inode *inode_in,
++				   struct inode *inode_out,
++				   loff_t pos_out,
++				   u64 *len,
++				   bool is_dedupe)
++{
++	u64 blkmask = i_blocksize(inode_in) - 1;
++
++	if ((*len & blkmask) == 0)
++		return 0;
++
++	if (is_dedupe)
++		*len &= ~blkmask;
++	else if (pos_out + *len < i_size_read(inode_out))
++		return -EINVAL;
++
++	return 0;
++}
+ 
+ /*
+  * Check that the two inodes are eligible for cloning, the ranges make
+@@ -1821,6 +1849,11 @@ int vfs_clone_file_prep_inodes(struct inode *inode_in, loff_t pos_in,
+ 			return -EBADE;
  	}
-@@ -284,7 +284,7 @@ int line_setup_irq(int fd, int input, int output, struct line *line, void *data)
- 	if (err)
- 		return err;
- 	if (output)
--		err = um_request_irq(driver->write_irq, fd, IRQ_NONE,
-+		err = um_request_irq(driver->write_irq, fd, IRQ_WRITE,
- 				     line_write_interrupt, IRQF_SHARED,
- 				     driver->write_irq_name, data);
- 	return err;
+ 
++	ret = generic_remap_check_len(inode_in, inode_out, pos_out, len,
++			is_dedupe);
++	if (ret)
++		return ret;
++
+ 	return 1;
+ }
+ EXPORT_SYMBOL(vfs_clone_file_prep_inodes);
 -- 
 2.20.1
 
