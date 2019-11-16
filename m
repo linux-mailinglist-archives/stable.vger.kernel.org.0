@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B2BBFF263
+	by mail.lfdr.de (Postfix) with ESMTP id 83D6CFF264
 	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:19:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729242AbfKPPpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:45:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51874 "EHLO mail.kernel.org"
+        id S1729251AbfKPPp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:45:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728488AbfKPPpx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:45:53 -0500
+        id S1729229AbfKPPpy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:45:54 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7198920857;
-        Sat, 16 Nov 2019 15:45:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F7472082E;
+        Sat, 16 Nov 2019 15:45:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919153;
-        bh=IX6ejNhOzqzCr1fBgCEaKvxLcJCK6m+OsCxX9zF9tQ0=;
+        bh=iPFtIhlFnF1IDIP9CFvA7qpSv6U66EhbaLGNIWWMfT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXv7DaEQ/db2b0Np8a9HAYPwkfxOh3XQAp9GQu/ISPcJTy4j1AZZmZEmNGOOv1WMF
-         DaN3Zm0KjL42r6kuHaCz7TGf/rGSgv4UlkEleyY48j4Qh9Y317AJQ/iKgRSPE9qCMv
-         vaGR3Ie1xCmgPp/IRxlrDrsx7z1IedDHzRdwRMPQ=
+        b=BoJRBeju/nJ44CVuVGiHxtCPks3AVzVdmfXm5WxK8X3RCjDf4I0fuOxepBY3omLbg
+         zdl9YBBnRkMq3kVBBB/pAMovISTqSQ1aV8fuKC9+8A0dQeUTVKaLdRmvBpKS3eL47j
+         2HKH5j8OpHxQ+opfjaZ4nn0A7uiBi86Gvi/v2URY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Aaron Brown <aaron.f.brown@intel.com>,
+Cc:     Jacob Keller <jacob.e.keller@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 166/237] igb: shorten maximum PHC timecounter update interval
-Date:   Sat, 16 Nov 2019 10:40:01 -0500
-Message-Id: <20191116154113.7417-166-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 167/237] fm10k: ensure completer aborts are marked as non-fatal after a resume
+Date:   Sat, 16 Nov 2019 10:40:02 -0500
+Message-Id: <20191116154113.7417-167-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -47,54 +43,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Jacob Keller <jacob.e.keller@intel.com>
 
-[ Upstream commit 094bf4d0e9657f6ea1ee3d7e07ce3970796949ce ]
+[ Upstream commit e330af788998b0de4da4f5bd7ddd087507999800 ]
 
-The timecounter needs to be updated at least once per ~550 seconds in
-order to avoid a 40-bit SYSTIM timestamp to be misinterpreted as an old
-timestamp.
+VF drivers can trigger PCIe completer aborts any time they read a queue
+that they don't own. Even in nominal circumstances, it is not possible
+to prevent the VF driver from reading queues it doesn't own. VF drivers
+may attempt to read queues it previously owned, but which it no longer
+does due to a PF reset.
 
-Since commit 500462a9d ("timers: Switch to a non-cascading wheel"),
-scheduling of delayed work seems to be less accurate and a requested
-delay of 540 seconds may actually be longer than 550 seconds. Shorten
-the delay to 480 seconds to be sure the timecounter is updated in time.
+Normally these completer aborts aren't an issue. However, on some
+platforms these trigger machine check errors. This is true even if we
+lower their severity from fatal to non-fatal. Indeed, we already have
+code for lowering the severity.
 
-This fixes an issue with HW timestamps on 82580/I350/I354 being off by
-~1100 seconds for few seconds every ~9 minutes.
+We could attempt to mask these errors conditionally around resets, which
+is the most common time they would occur. However this would essentially
+be a race between the PF and VF drivers, and we may still occasionally
+see machine check exceptions on these strictly configured platforms.
 
-Cc: Jacob Keller <jacob.e.keller@intel.com>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Instead, mask the errors entirely any time we resume VFs. By doing so,
+we prevent the completer aborts from being sent to the parent PCIe
+device, and thus these strict platforms will not upgrade them into
+machine check errors.
+
+Additionally, we don't lose any information by masking these errors,
+because we'll still report VFs which attempt to access queues via the
+FUM_BAD_VF_QACCESS errors.
+
+Without this change, on platforms where completer aborts cause machine
+check exceptions, the VF reading queues it doesn't own could crash the
+host system. Masking the completer abort prevents this, so we should
+mask it for good, and not just around a PCIe reset. Otherwise malicious
+or misconfigured VFs could cause the host system to crash.
+
+Because we are masking the error entirely, there is little reason to
+also keep setting the severity bit, so that code is also removed.
+
+Signed-off-by: Jacob Keller <jacob.e.keller@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_ptp.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/fm10k/fm10k_iov.c | 48 ++++++++++++--------
+ 1 file changed, 28 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_ptp.c b/drivers/net/ethernet/intel/igb/igb_ptp.c
-index 9f4d700e09df3..29ced6b74d364 100644
---- a/drivers/net/ethernet/intel/igb/igb_ptp.c
-+++ b/drivers/net/ethernet/intel/igb/igb_ptp.c
-@@ -51,9 +51,15 @@
-  *
-  * The 40 bit 82580 SYSTIM overflows every
-  *   2^40 * 10^-9 /  60  = 18.3 minutes.
-+ *
-+ * SYSTIM is converted to real time using a timecounter. As
-+ * timecounter_cyc2time() allows old timestamps, the timecounter
-+ * needs to be updated at least once per half of the SYSTIM interval.
-+ * Scheduling of delayed work is not very accurate, so we aim for 8
-+ * minutes to be sure the actual interval is shorter than 9.16 minutes.
-  */
+diff --git a/drivers/net/ethernet/intel/fm10k/fm10k_iov.c b/drivers/net/ethernet/intel/fm10k/fm10k_iov.c
+index e707d717012fa..618032612f52d 100644
+--- a/drivers/net/ethernet/intel/fm10k/fm10k_iov.c
++++ b/drivers/net/ethernet/intel/fm10k/fm10k_iov.c
+@@ -302,6 +302,28 @@ void fm10k_iov_suspend(struct pci_dev *pdev)
+ 	}
+ }
  
--#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 9)
-+#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 8)
- #define IGB_PTP_TX_TIMEOUT		(HZ * 15)
- #define INCPERIOD_82576			BIT(E1000_TIMINCA_16NS_SHIFT)
- #define INCVALUE_82576_MASK		GENMASK(E1000_TIMINCA_16NS_SHIFT - 1, 0)
++static void fm10k_mask_aer_comp_abort(struct pci_dev *pdev)
++{
++	u32 err_mask;
++	int pos;
++
++	pos = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ERR);
++	if (!pos)
++		return;
++
++	/* Mask the completion abort bit in the ERR_UNCOR_MASK register,
++	 * preventing the device from reporting these errors to the upstream
++	 * PCIe root device. This avoids bringing down platforms which upgrade
++	 * non-fatal completer aborts into machine check exceptions. Completer
++	 * aborts can occur whenever a VF reads a queue it doesn't own.
++	 */
++	pci_read_config_dword(pdev, pos + PCI_ERR_UNCOR_MASK, &err_mask);
++	err_mask |= PCI_ERR_UNC_COMP_ABORT;
++	pci_write_config_dword(pdev, pos + PCI_ERR_UNCOR_MASK, err_mask);
++
++	mmiowb();
++}
++
+ int fm10k_iov_resume(struct pci_dev *pdev)
+ {
+ 	struct fm10k_intfc *interface = pci_get_drvdata(pdev);
+@@ -317,6 +339,12 @@ int fm10k_iov_resume(struct pci_dev *pdev)
+ 	if (!iov_data)
+ 		return -ENOMEM;
+ 
++	/* Lower severity of completer abort error reporting as
++	 * the VFs can trigger this any time they read a queue
++	 * that they don't own.
++	 */
++	fm10k_mask_aer_comp_abort(pdev);
++
+ 	/* allocate hardware resources for the VFs */
+ 	hw->iov.ops.assign_resources(hw, num_vfs, num_vfs);
+ 
+@@ -460,20 +488,6 @@ void fm10k_iov_disable(struct pci_dev *pdev)
+ 	fm10k_iov_free_data(pdev);
+ }
+ 
+-static void fm10k_disable_aer_comp_abort(struct pci_dev *pdev)
+-{
+-	u32 err_sev;
+-	int pos;
+-
+-	pos = pci_find_ext_capability(pdev, PCI_EXT_CAP_ID_ERR);
+-	if (!pos)
+-		return;
+-
+-	pci_read_config_dword(pdev, pos + PCI_ERR_UNCOR_SEVER, &err_sev);
+-	err_sev &= ~PCI_ERR_UNC_COMP_ABORT;
+-	pci_write_config_dword(pdev, pos + PCI_ERR_UNCOR_SEVER, err_sev);
+-}
+-
+ int fm10k_iov_configure(struct pci_dev *pdev, int num_vfs)
+ {
+ 	int current_vfs = pci_num_vf(pdev);
+@@ -495,12 +509,6 @@ int fm10k_iov_configure(struct pci_dev *pdev, int num_vfs)
+ 
+ 	/* allocate VFs if not already allocated */
+ 	if (num_vfs && num_vfs != current_vfs) {
+-		/* Disable completer abort error reporting as
+-		 * the VFs can trigger this any time they read a queue
+-		 * that they don't own.
+-		 */
+-		fm10k_disable_aer_comp_abort(pdev);
+-
+ 		err = pci_enable_sriov(pdev, num_vfs);
+ 		if (err) {
+ 			dev_err(&pdev->dev,
 -- 
 2.20.1
 
