@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5124EFF237
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85883FF226
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:17:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729502AbfKPQRl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:17:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53230 "EHLO mail.kernel.org"
+        id S1729503AbfKPPqq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:46:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729461AbfKPPqo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:44 -0500
+        id S1729495AbfKPPqp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:45 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FC932089D;
-        Sat, 16 Nov 2019 15:46:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BC734208A3;
+        Sat, 16 Nov 2019 15:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919203;
-        bh=9uyfzauE58ZzV9qho2Uq/YQRYCXqOI53XmSwiLS9fDE=;
+        s=default; t=1573919205;
+        bh=cfIdG14Q63GQOlkA/hZ9JJgBBsfr+CPkNd3cO7cwUs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYkZsYT1FG72hrdW9PICtjdz27y0ivASTwI5YdACbG7yH4erdo4pMWz9yujNO3LYO
-         cX6lx9lUSVCbgcpcbPAwYYRASLd6fCRhVEehJsR22PKsAKxFbHQ8YdfaQ4mqYA+6i2
-         5XWNiaNPs5WtK5VKki4WVt1kVZgwlao07YsbaITA=
+        b=UG/UxkDKlkRdLb8YRVqGxp5/XFnl3kx/0PlTTkmRHTVDDhM+pKtalUWb/h2LWzBbr
+         yqpfSKND/AAYg2cO+wV/sg7lAHaPtxORZg0aKC4aMpdfUfYRdWIe8H4fxdF9Oq1wuM
+         GxKApZMymQGIDQoRx8wNcXEFAKwORhaaZSQ97ecs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 206/237] net: dsa: bcm_sf2: Turn on PHY to allow successful registration
-Date:   Sat, 16 Nov 2019 10:40:41 -0500
-Message-Id: <20191116154113.7417-206-sashal@kernel.org>
+Cc:     Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 208/237] scsi: mpt3sas: Don't modify EEDPTagMode field setting on SAS3.5 HBA devices
+Date:   Sat, 16 Nov 2019 10:40:43 -0500
+Message-Id: <20191116154113.7417-208-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,44 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit c04a17d2a9ccf1eaba1c5a56f83e997540a70556 ]
+[ Upstream commit 6cd1bc7b9b5075d395ba0120923903873fc7ea0e ]
 
-We are binding to the PHY using the SF2 slave MDIO bus that we create,
-binding involves reading the PHY's MII_PHYSID1/2 which won't be possible
-if the PHY is turned off. Temporarily turn it on/off for the bus probing
-to succeeed. This fixes unbind/bind problems where the port connecting
-to that PHY would be in error since it could not connect to it.
+If EEDPTagMode field in manufacturing page11 is set then unset it. This is
+needed to fix a hardware bug only in SAS3/SAS2 cards. So, skipping
+EEDPTagMode changes in Manufacturing page11 for SAS 3.5 controllers.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/bcm_sf2.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/mpt3sas/mpt3sas_base.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/bcm_sf2.c b/drivers/net/dsa/bcm_sf2.c
-index ca3655d28e00f..17cec68e56b4f 100644
---- a/drivers/net/dsa/bcm_sf2.c
-+++ b/drivers/net/dsa/bcm_sf2.c
-@@ -1099,12 +1099,16 @@ static int bcm_sf2_sw_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	bcm_sf2_gphy_enable_set(priv->dev->ds, true);
-+
- 	ret = bcm_sf2_mdio_register(ds);
- 	if (ret) {
- 		pr_err("failed to register MDIO bus\n");
- 		return ret;
- 	}
- 
-+	bcm_sf2_gphy_enable_set(priv->dev->ds, false);
-+
- 	ret = bcm_sf2_cfp_rst(priv);
- 	if (ret) {
- 		pr_err("failed to reset CFP\n");
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_base.c b/drivers/scsi/mpt3sas/mpt3sas_base.c
+index d2ab52026014f..2c556c7fcf0dc 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_base.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_base.c
+@@ -4117,7 +4117,7 @@ _base_static_config_pages(struct MPT3SAS_ADAPTER *ioc)
+ 	 * flag unset in NVDATA.
+ 	 */
+ 	mpt3sas_config_get_manufacturing_pg11(ioc, &mpi_reply, &ioc->manu_pg11);
+-	if (ioc->manu_pg11.EEDPTagMode == 0) {
++	if (!ioc->is_gen35_ioc && ioc->manu_pg11.EEDPTagMode == 0) {
+ 		pr_err("%s: overriding NVDATA EEDPTagMode setting\n",
+ 		    ioc->name);
+ 		ioc->manu_pg11.EEDPTagMode &= ~0x3;
 -- 
 2.20.1
 
