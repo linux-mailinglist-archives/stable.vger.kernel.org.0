@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57029FEED9
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E0FFEEDF
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:55:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731487AbfKPPyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:54:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36562 "EHLO mail.kernel.org"
+        id S1731497AbfKPPyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:54:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730273AbfKPPyp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:54:45 -0500
+        id S1730766AbfKPPyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:54:47 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF0B021844;
-        Sat, 16 Nov 2019 15:54:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F81F21843;
+        Sat, 16 Nov 2019 15:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919684;
-        bh=99+ozqhw15jcn46i8tnsS5mRIbqSjBnEL4IOQNmNxSk=;
+        s=default; t=1573919686;
+        bh=XGeaBPaoTRyL12hk8l8n/RDBwwRN4upaOnS/zIqnn14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f16t7rGe5YDPOxH9LaGmi6DJT+xeFjKNAWMY37OeyXT+BR/spsmRuEN27VQEKLVbv
-         EuSNT/2ejx1I6WyWHkcQvcHMVravGVpME0+9YKpSYm+tDexzoi7T/hlUoIfegg9Had
-         wLcBWCSFFTYnUoUntv6l9tU3uV9NQnI4mQm/Ek7k=
+        b=09jArj8lKTTtNWk9v+RodUV+uLWn3o3hNgxvm0GkGk/yHJg+uAaonkp6NVWp6BaWx
+         TooIuv3TfQbg7SvryZvztUJksK6O1m0IJabKJOL7/wVpovGFGSC6HLT4BkT/Rz2R/W
+         QBzrH/aPnrhF3kS/0q9zVH68uCwDmeZKjgnsKB8E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Ernesto=20A=2E=20Fern=C3=A1ndez?= 
         <ernesto.mnd.fernandez@gmail.com>,
-        Christoph Hellwig <hch@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 46/77] hfsplus: fix BUG on bnode parent update
-Date:   Sat, 16 Nov 2019 10:53:08 -0500
-Message-Id: <20191116155339.11909-46-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 47/77] hfs: fix BUG on bnode parent update
+Date:   Sat, 16 Nov 2019 10:53:09 -0500
+Message-Id: <20191116155339.11909-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155339.11909-1-sashal@kernel.org>
 References: <20191116155339.11909-1-sashal@kernel.org>
@@ -49,45 +50,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
 
-[ Upstream commit 19a9d0f1acf75e8be8cfba19c1a34e941846fa2b ]
+[ Upstream commit ef75bcc5763d130451a99825f247d301088b790b ]
 
-Creating, renaming or deleting a file may hit BUG_ON() if the first
-record of both a leaf node and its parent are changed, and if this
-forces the parent to be split.  This bug is triggered by xfstests
-generic/027, somewhat rarely; here is a more reliable reproducer:
+hfs_brec_update_parent() may hit BUG_ON() if the first record of both a
+leaf node and its parent are changed, and if this forces the parent to
+be split.  It is not possible for this to happen on a valid hfs
+filesystem because the index nodes have fixed length keys.
 
-  truncate -s 50M fs.iso
-  mkfs.hfsplus fs.iso
-  mount fs.iso /mnt
-  i=1000
-  while [ $i -le 2400 ]; do
-    touch /mnt/$i &>/dev/null
-    ((++i))
-  done
-  i=2400
-  while [ $i -ge 1000 ]; do
-    mv /mnt/$i /mnt/$(perl -e "print $i x61") &>/dev/null
-    ((--i))
-  done
+For reasons I ignore, the hfs module does have support for a number of
+hfsplus features.  A corrupt btree header may report variable length
+keys and trigger this BUG, so it's better to fix it.
 
-The issue is that a newly created bnode is being put twice.  Reset
-new_node to NULL in hfs_brec_update_parent() before reaching goto again.
-
-Link: http://lkml.kernel.org/r/5ee1db09b60373a15890f6a7c835d00e76bf601d.1535682461.git.ernesto.mnd.fernandez@gmail.com
+Link: http://lkml.kernel.org/r/cf9b02d57f806217a2b1bf5db8c3e39730d8f603.1535682463.git.ernesto.mnd.fernandez@gmail.com
 Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
 Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/brec.c | 1 +
+ fs/hfs/brec.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/fs/hfsplus/brec.c b/fs/hfsplus/brec.c
-index 1002a0c08319b..20ce698251ad1 100644
---- a/fs/hfsplus/brec.c
-+++ b/fs/hfsplus/brec.c
-@@ -447,6 +447,7 @@ static int hfs_brec_update_parent(struct hfs_find_data *fd)
+diff --git a/fs/hfs/brec.c b/fs/hfs/brec.c
+index 2e713673df42f..85dab71bee74f 100644
+--- a/fs/hfs/brec.c
++++ b/fs/hfs/brec.c
+@@ -444,6 +444,7 @@ static int hfs_brec_update_parent(struct hfs_find_data *fd)
  			/* restore search_key */
  			hfs_bnode_read_key(node, fd->search_key, 14);
  		}
