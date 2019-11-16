@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69B53FF235
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:17:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18BB2FF231
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728379AbfKPPqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:46:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53162 "EHLO mail.kernel.org"
+        id S1729484AbfKPPqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:46:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729464AbfKPPql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:41 -0500
+        id S1729479AbfKPPqn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:43 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3CCC6206D9;
-        Sat, 16 Nov 2019 15:46:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC5AA20898;
+        Sat, 16 Nov 2019 15:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919200;
-        bh=f3p0+OOe1ibP/2Z3UThvNrX9bE05ArFaE5ezJvS5zgA=;
+        s=default; t=1573919203;
+        bh=K6SV6E2fk/vQUx9u9jTQu3pwQlpbEddX+FJVxsoihFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u1eVSjqk9NJisoAVq8fbRJH4scFnMt2x2hTQoHDLgRtzLRuOvBaZDLLfW5ECPiu4N
-         TAG/GC4f63D6uC4DfsaBcrm0I5FiCwfBb1VZzRosGtMhZYkgPJhQ28BL5ddkSr7uAg
-         VGl7WY7r3souUtpWcNFbwMYeJiNtqepdq/JwnP+M=
+        b=kj9CzMvuWmhBftY5IqK3UZ9YpI+dLLh6HbgER8AhjRfBHY4txgrK7N2FndyqY0cI6
+         cU98V9K/u/GN4+gNrCiIMTPYjxHzGHNFvEWSq6XTYA5k0K04CfTwe7sOgfWjB3KI/h
+         QjKqrLa9qhnVvUOETmg6BwPR81qME7qXQ1glZfEI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+Cc:     Shaokun Zhang <zhangshaokun@hisilicon.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 204/237] wireless: airo: potential buffer overflow in sprintf()
-Date:   Sat, 16 Nov 2019 10:40:39 -0500
-Message-Id: <20191116154113.7417-204-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 205/237] rtlwifi: rtl8192de: Fix misleading REG_MCUFWDL information
+Date:   Sat, 16 Nov 2019 10:40:40 -0500
+Message-Id: <20191116154113.7417-205-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,38 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Shaokun Zhang <zhangshaokun@hisilicon.com>
 
-[ Upstream commit 3d39e1bb1c88f32820c5f9271f2c8c2fb9a52bac ]
+[ Upstream commit 7d129adff3afbd3a449bc3593f2064ac546d58d3 ]
 
-It looks like we wanted to print a maximum of BSSList_rid.ssidLen bytes
-of the ssid, but we accidentally use "%*s" (width) instead of "%.*s"
-(precision) so if the ssid doesn't have a NUL terminator this could lead
-to an overflow.
+RT_TRACE shows REG_MCUFWDL value as a decimal value with a '0x'
+prefix, which is somewhat misleading.
 
-Static analysis.  Not tested.
+Fix it to print hexadecimal, as was intended.
 
-Fixes: e174961ca1a0 ("net: convert print_mac to %pM")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Ping-Ke Shih <pkshih@realtek.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
+Acked-by: Ping-Ke Shih <pkshih@realtek.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/cisco/airo.c | 2 +-
+ drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/cisco/airo.c b/drivers/net/wireless/cisco/airo.c
-index 04dd7a9365938..5512c7f73fce8 100644
---- a/drivers/net/wireless/cisco/airo.c
-+++ b/drivers/net/wireless/cisco/airo.c
-@@ -5462,7 +5462,7 @@ static int proc_BSSList_open( struct inode *inode, struct file *file ) {
-            we have to add a spin lock... */
- 	rc = readBSSListRid(ai, doLoseSync, &BSSList_rid);
- 	while(rc == 0 && BSSList_rid.index != cpu_to_le16(0xffff)) {
--		ptr += sprintf(ptr, "%pM %*s rssi = %d",
-+		ptr += sprintf(ptr, "%pM %.*s rssi = %d",
- 			       BSSList_rid.bssid,
- 				(int)BSSList_rid.ssidLen,
- 				BSSList_rid.ssid,
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c
+index 85cedd083d2b8..75bfa9dfef4aa 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192de/fw.c
+@@ -173,7 +173,7 @@ static int _rtl92d_fw_init(struct ieee80211_hw *hw)
+ 			 rtl_read_byte(rtlpriv, FW_MAC1_READY));
+ 	}
+ 	RT_TRACE(rtlpriv, COMP_FW, DBG_DMESG,
+-		 "Polling FW ready fail!! REG_MCUFWDL:0x%08ul\n",
++		 "Polling FW ready fail!! REG_MCUFWDL:0x%08x\n",
+ 		 rtl_read_dword(rtlpriv, REG_MCUFWDL));
+ 	return -1;
+ }
 -- 
 2.20.1
 
