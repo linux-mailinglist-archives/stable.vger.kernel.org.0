@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF617FED90
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4925FED80
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728153AbfKPPor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:44:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49870 "EHLO mail.kernel.org"
+        id S1728130AbfKPPox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:44:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729064AbfKPPor (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:44:47 -0500
+        id S1729079AbfKPPou (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:44:50 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8EF82072D;
-        Sat, 16 Nov 2019 15:44:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92C622073B;
+        Sat, 16 Nov 2019 15:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919086;
-        bh=w0/xY84kePr1FeSz8bEq9jbc2HkpuXp4oF3+DxCx8oU=;
+        s=default; t=1573919090;
+        bh=t6h2MdHKYMubMCHj2hQ1lpKMgX+mo2ybIpeMq9ud7/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDTTG/aZIq2/5jXH/1DudVwjMVsMUooueRqkQzOkN+sL5hXqZQcx+bjQTmxgj+E7j
-         6xz22EChGC+83GY242U9NdHXRyPvWS/lvASRyko4ff4fTAH8wkoFj4A7GJJXxX5xkg
-         T53KgIDPsNdncgF7UOTvznHWLSR3BoTXMy4pPFC0=
+        b=cU+8BEq6qUyV3CbG8xn0gb5AfXUPLovrAe+rSkrRyYrWP1PDyzLMyuLuYmFWsXZlO
+         01ckk2tTZRTXMzNNEymaWmhOJnirlPmDL6dgspTFrVpwuh4UhdVC5bovVVZegHMYRN
+         ucV/7Ey1ujTm2AZjhR8Kzbrv/KKpIw6zZ732tZ3A=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ming Lei <ming.lei@redhat.com>, Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 148/237] block: call rq_qos_exit() after queue is frozen
-Date:   Sat, 16 Nov 2019 10:39:43 -0500
-Message-Id: <20191116154113.7417-148-sashal@kernel.org>
+Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Yury Norov <ynorov@caviumnetworks.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 150/237] linux/bitmap.h: handle constant zero-size bitmaps correctly
+Date:   Sat, 16 Nov 2019 10:39:45 -0500
+Message-Id: <20191116154113.7417-150-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,52 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit c57cdf7a9e51d97a43e29b8f4a04157875104000 ]
+[ Upstream commit 7275b097851a5e2e0dd4da039c7e96b59ac5314e ]
 
-rq_qos_exit() removes the current q->rq_qos, this action has to be
-done after queue is frozen, otherwise the IO queue path may never
-be waken up, then IO hang is caused.
+The static inlines in bitmap.h do not handle a compile-time constant
+nbits==0 correctly (they dereference the passed src or dst pointers,
+despite only 0 words being valid to access).  I had the 0-day buildbot
+chew on a patch [1] that would cause build failures for such cases without
+complaining, suggesting that we don't have any such users currently, at
+least for the 70 .config/arch combinations that was built.  Should any
+turn up, make sure they use the out-of-line versions, which do handle
+nbits==0 correctly.
 
-So fixes this issue by moving rq_qos_exit() after queue is frozen.
+This is of course not the most efficient, but it's much less churn than
+teaching all the static inlines an "if (zero_const_nbits())", and since we
+don't have any current instances, this doesn't affect existing code at
+all.
 
-Cc: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[1] lkml.kernel.org/r/20180815085539.27485-1-linux@rasmusvillemoes.dk
+
+Link: http://lkml.kernel.org/r/20180818131623.8755-3-linux@rasmusvillemoes.dk
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: Yury Norov <ynorov@caviumnetworks.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Cc: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-core.c  | 3 +++
- block/blk-sysfs.c | 2 --
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ include/linux/bitmap.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 074ae9376189b..ea33d6abdcfc9 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -784,6 +784,9 @@ void blk_cleanup_queue(struct request_queue *q)
- 	 * prevent that q->request_fn() gets invoked after draining finished.
- 	 */
- 	blk_freeze_queue(q);
-+
-+	rq_qos_exit(q);
-+
- 	spin_lock_irq(lock);
- 	queue_flag_set(QUEUE_FLAG_DEAD, q);
- 	spin_unlock_irq(lock);
-diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
-index bab47a17b96f4..8286640d4d663 100644
---- a/block/blk-sysfs.c
-+++ b/block/blk-sysfs.c
-@@ -997,8 +997,6 @@ void blk_unregister_queue(struct gendisk *disk)
- 	kobject_del(&q->kobj);
- 	blk_trace_remove_sysfs(disk_to_dev(disk));
+diff --git a/include/linux/bitmap.h b/include/linux/bitmap.h
+index acf5e8df3504f..a9805bacbd7ca 100644
+--- a/include/linux/bitmap.h
++++ b/include/linux/bitmap.h
+@@ -204,8 +204,13 @@ extern int bitmap_print_to_pagebuf(bool list, char *buf,
+ #define BITMAP_FIRST_WORD_MASK(start) (~0UL << ((start) & (BITS_PER_LONG - 1)))
+ #define BITMAP_LAST_WORD_MASK(nbits) (~0UL >> (-(nbits) & (BITS_PER_LONG - 1)))
  
--	rq_qos_exit(q);
--
- 	mutex_lock(&q->sysfs_lock);
- 	if (q->request_fn || (q->mq_ops && q->elevator))
- 		elv_unregister_queue(q);
++/*
++ * The static inlines below do not handle constant nbits==0 correctly,
++ * so make such users (should any ever turn up) call the out-of-line
++ * versions.
++ */
+ #define small_const_nbits(nbits) \
+-	(__builtin_constant_p(nbits) && (nbits) <= BITS_PER_LONG)
++	(__builtin_constant_p(nbits) && (nbits) <= BITS_PER_LONG && (nbits) > 0)
+ 
+ static inline void bitmap_zero(unsigned long *dst, unsigned int nbits)
+ {
 -- 
 2.20.1
 
