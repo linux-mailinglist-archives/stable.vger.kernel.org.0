@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB367FED29
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B5E4FED2C
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728295AbfKPPma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:42:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46038 "EHLO mail.kernel.org"
+        id S1728349AbfKPPmf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:42:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728293AbfKPPm2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:28 -0500
+        id S1728338AbfKPPme (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:42:34 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 02FF120862;
-        Sat, 16 Nov 2019 15:42:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A9E320700;
+        Sat, 16 Nov 2019 15:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918947;
-        bh=1AEe6262HdcOwAQh2tB2daek/J3BYWc1JBiEqovCau0=;
+        s=default; t=1573918954;
+        bh=d5aN0u3+tlQOnw6rz7zLvdGW+WvOSXR1GFhj+QuTke8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pdia8rTMfu193BXbZ2S6Ta4gYRCgTMDZMHgOF8TranHZ6X9ISAnK6TCAkoAumDw0I
-         D18ty/t6Fc0LnQ/MPtj09QrB/JVGP/OmXwEduMG3gUr0TCxmUC5o0IWrFhm4mw+tcz
-         dJni9hE843HpcGKDH+oL09qjXdYq+aYArgC8T3Ck=
+        b=TNlyaeq9MZlFWAZXzbVdra6q2EgrIMUf7/in/qBsGzGOmHsoZpoIUa9ZaXYYTiTpO
+         g34/CLyl34016zx3N6OE2NTHTEAxwrbuFLq9O+X2DYagcQN2DCl5/vRrvaXBHeCdgs
+         UKdR+b5t8ZTzUz16EBqjVBcHmbzSFzlGlvkSeppA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Chinner <dchinner@redhat.com>,
-        Brian Foster <bfoster@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 069/237] xfs: fix use-after-free race in xfs_buf_rele
-Date:   Sat, 16 Nov 2019 10:38:24 -0500
-Message-Id: <20191116154113.7417-69-sashal@kernel.org>
+Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
+        Lina Iyer <ilina@codeaurora.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 073/237] PM / Domains: Deal with multiple states but no governor in genpd
+Date:   Sat, 16 Nov 2019 10:38:28 -0500
+Message-Id: <20191116154113.7417-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,121 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit 37fd1678245f7a5898c1b05128bc481fb403c290 ]
+[ Upstream commit 2c9b7f8772033cc8bafbd4eefe2ca605bf3eb094 ]
 
-When looking at a 4.18 based KASAN use after free report, I noticed
-that racing xfs_buf_rele() may race on dropping the last reference
-to the buffer and taking the buffer lock. This was the symptom
-displayed by the KASAN report, but the actual issue that was
-reported had already been fixed in 4.19-rc1 by commit e339dd8d8b04
-("xfs: use sync buffer I/O for sync delwri queue submission").
+A caller of pm_genpd_init() that provides some states for the genpd via the
+->states pointer in the struct generic_pm_domain, should also provide a
+governor. This because it's the job of the governor to pick a state that
+satisfies the constraints.
 
-Despite this, I think there is still an issue with xfs_buf_rele()
-in this code:
+Therefore, let's print a warning to inform the user about such bogus
+configuration and avoid to bail out, by instead picking the shallowest
+state before genpd invokes the ->power_off() callback.
 
-        release = atomic_dec_and_lock(&bp->b_hold, &pag->pag_buf_lock);
-        spin_lock(&bp->b_lock);
-        if (!release) {
-.....
-
-If two threads race on the b_lock after both dropping a reference
-and one getting dropping the last reference so release = true, we
-end up with:
-
-CPU 0				CPU 1
-atomic_dec_and_lock()
-				atomic_dec_and_lock()
-				spin_lock(&bp->b_lock)
-spin_lock(&bp->b_lock)
-<spins>
-				<release = true bp->b_lru_ref = 0>
-				<remove from lists>
-				freebuf = true
-				spin_unlock(&bp->b_lock)
-				xfs_buf_free(bp)
-<gets lock, reading and writing freed memory>
-<accesses freed memory>
-spin_unlock(&bp->b_lock) <reads/writes freed memory>
-
-IOWs, we can't safely take bp->b_lock after dropping the hold
-reference because the buffer may go away at any time after we
-drop that reference. However, this can be fixed simply by taking the
-bp->b_lock before we drop the reference.
-
-It is safe to nest the pag_buf_lock inside bp->b_lock as the
-pag_buf_lock is only used to serialise against lookup in
-xfs_buf_find() and no other locks are held over or under the
-pag_buf_lock there. Make this clear by documenting the buffer lock
-orders at the top of the file.
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Carlos Maiolino <cmaiolino@redhat.com
-Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Lina Iyer <ilina@codeaurora.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_buf.c | 38 +++++++++++++++++++++++++++++++++++++-
- 1 file changed, 37 insertions(+), 1 deletion(-)
+ drivers/base/power/domain.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
-index e839907e8492f..f4a89c94c931b 100644
---- a/fs/xfs/xfs_buf.c
-+++ b/fs/xfs/xfs_buf.c
-@@ -37,6 +37,32 @@ static kmem_zone_t *xfs_buf_zone;
- #define xb_to_gfp(flags) \
- 	((((flags) & XBF_READ_AHEAD) ? __GFP_NORETRY : GFP_NOFS) | __GFP_NOWARN)
+diff --git a/drivers/base/power/domain.c b/drivers/base/power/domain.c
+index bf5be0bfaf773..52c292d0908a2 100644
+--- a/drivers/base/power/domain.c
++++ b/drivers/base/power/domain.c
+@@ -467,6 +467,10 @@ static int genpd_power_off(struct generic_pm_domain *genpd, bool one_dev_on,
+ 			return -EAGAIN;
+ 	}
  
-+/*
-+ * Locking orders
-+ *
-+ * xfs_buf_ioacct_inc:
-+ * xfs_buf_ioacct_dec:
-+ *	b_sema (caller holds)
-+ *	  b_lock
-+ *
-+ * xfs_buf_stale:
-+ *	b_sema (caller holds)
-+ *	  b_lock
-+ *	    lru_lock
-+ *
-+ * xfs_buf_rele:
-+ *	b_lock
-+ *	  pag_buf_lock
-+ *	    lru_lock
-+ *
-+ * xfs_buftarg_wait_rele
-+ *	lru_lock
-+ *	  b_lock (trylock due to inversion)
-+ *
-+ * xfs_buftarg_isolate
-+ *	lru_lock
-+ *	  b_lock (trylock due to inversion)
-+ */
++	/* Default to shallowest state. */
++	if (!genpd->gov)
++		genpd->state_idx = 0;
++
+ 	if (genpd->power_off) {
+ 		int ret;
  
- static inline int
- xfs_buf_is_vmapped(
-@@ -1006,8 +1032,18 @@ xfs_buf_rele(
+@@ -1686,6 +1690,8 @@ int pm_genpd_init(struct generic_pm_domain *genpd,
+ 		ret = genpd_set_default_power_state(genpd);
+ 		if (ret)
+ 			return ret;
++	} else if (!gov) {
++		pr_warn("%s : no governor for states\n", genpd->name);
+ 	}
  
- 	ASSERT(atomic_read(&bp->b_hold) > 0);
- 
--	release = atomic_dec_and_lock(&bp->b_hold, &pag->pag_buf_lock);
-+	/*
-+	 * We grab the b_lock here first to serialise racing xfs_buf_rele()
-+	 * calls. The pag_buf_lock being taken on the last reference only
-+	 * serialises against racing lookups in xfs_buf_find(). IOWs, the second
-+	 * to last reference we drop here is not serialised against the last
-+	 * reference until we take bp->b_lock. Hence if we don't grab b_lock
-+	 * first, the last "release" reference can win the race to the lock and
-+	 * free the buffer before the second-to-last reference is processed,
-+	 * leading to a use-after-free scenario.
-+	 */
- 	spin_lock(&bp->b_lock);
-+	release = atomic_dec_and_lock(&bp->b_hold, &pag->pag_buf_lock);
- 	if (!release) {
- 		/*
- 		 * Drop the in-flight state if the buffer is already on the LRU
+ 	device_initialize(&genpd->dev);
 -- 
 2.20.1
 
