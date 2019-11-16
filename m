@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 562C0FED45
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DF6EFED43
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728497AbfKPPmx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728494AbfKPPmx (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 16 Nov 2019 10:42:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46626 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728477AbfKPPmv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728485AbfKPPmv (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 16 Nov 2019 10:42:51 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2658620740;
+        by mail.kernel.org (Postfix) with ESMTPSA id C39B420733;
         Sat, 16 Nov 2019 15:42:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918970;
-        bh=gjuzvXyhWRsXKjSOSgKr4qFWVX5/LvmJynn27rqTZCU=;
+        s=default; t=1573918971;
+        bh=sgtYBds0vlLgYVSZg75gyqmnkTu5AZWC7qxCtXuwRSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KST8cLQvvEOeTaMOFk0K1Jy/FOLdYYZSfxSgNn+K3KO794RZa9ThxnmSlKoCeE+bR
-         LSWu6d5ul6GgOhFtH4dYTkKhL0mxEHSRkAP5xFBuiPiNrxdtH2F6ywemPSbUk/4B7e
-         uOrWAxcPirZOFuxr5jRBDCJfZpQC8L51Yolsv43A=
+        b=ehl8uc5HXzzkhqib2b5a6Ok3+AHhCerbVuEIeaPkqtm1iCDAfLrYoi4A4k1CIBvPz
+         XSI9UphBFB2TkD0zb7hgVXqc2H6kEdKj7kuv+cdaAZ1srl/O7oiIuR/2Bs7cLIbQvv
+         AbW685RxwhSDYnQe/kd9UswjfU6HVkfxBDU5PmGU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 085/237] s390/perf: Return error when debug_register fails
-Date:   Sat, 16 Nov 2019 10:38:40 -0500
-Message-Id: <20191116154113.7417-85-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 086/237] swiotlb: do not panic on mapping failures
+Date:   Sat, 16 Nov 2019 10:38:41 -0500
+Message-Id: <20191116154113.7417-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,54 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit ec0c0bb489727de0d4dca6a00be6970ab8a3b30a ]
+[ Upstream commit 8088546832aa2c0d8f99dd56edf6384f8a9b63b3 ]
 
-Return an error when the function debug_register() fails allocating
-the debug handle.
-Also remove the registered debug handle when the initialization fails
-later on.
+All properly written drivers now have error handling in the
+dma_map_single / dma_map_page callers.  As swiotlb_tbl_map_single already
+prints a useful warning when running out of swiotlb pool space we can
+also remove swiotlb_full entirely as it serves no purpose now.
 
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/perf_cpum_sf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/dma/swiotlb.c | 33 +--------------------------------
+ 1 file changed, 1 insertion(+), 32 deletions(-)
 
-diff --git a/arch/s390/kernel/perf_cpum_sf.c b/arch/s390/kernel/perf_cpum_sf.c
-index 44404836e9d11..df92c2af99b69 100644
---- a/arch/s390/kernel/perf_cpum_sf.c
-+++ b/arch/s390/kernel/perf_cpum_sf.c
-@@ -2045,14 +2045,17 @@ static int __init init_cpum_sampling_pmu(void)
- 	}
+diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
+index 4f8a6dbf0b609..2a8c41f12d450 100644
+--- a/kernel/dma/swiotlb.c
++++ b/kernel/dma/swiotlb.c
+@@ -761,34 +761,6 @@ static bool swiotlb_free_buffer(struct device *dev, size_t size,
+ 	return true;
+ }
  
- 	sfdbg = debug_register(KMSG_COMPONENT, 2, 1, 80);
--	if (!sfdbg)
-+	if (!sfdbg) {
- 		pr_err("Registering for s390dbf failed\n");
-+		return -ENOMEM;
-+	}
- 	debug_register_view(sfdbg, &debug_sprintf_view);
+-static void
+-swiotlb_full(struct device *dev, size_t size, enum dma_data_direction dir,
+-	     int do_panic)
+-{
+-	if (swiotlb_force == SWIOTLB_NO_FORCE)
+-		return;
+-
+-	/*
+-	 * Ran out of IOMMU space for this operation. This is very bad.
+-	 * Unfortunately the drivers cannot handle this operation properly.
+-	 * unless they check for dma_mapping_error (most don't)
+-	 * When the mapping is small enough return a static buffer to limit
+-	 * the damage, or panic when the transfer is too big.
+-	 */
+-	dev_err_ratelimited(dev, "DMA: Out of SW-IOMMU space for %zu bytes\n",
+-			    size);
+-
+-	if (size <= io_tlb_overflow || !do_panic)
+-		return;
+-
+-	if (dir == DMA_BIDIRECTIONAL)
+-		panic("DMA: Random memory could be DMA accessed\n");
+-	if (dir == DMA_FROM_DEVICE)
+-		panic("DMA: Random memory could be DMA written\n");
+-	if (dir == DMA_TO_DEVICE)
+-		panic("DMA: Random memory could be DMA read\n");
+-}
+-
+ /*
+  * Map a single buffer of the indicated size for DMA in streaming mode.  The
+  * physical address to use is returned.
+@@ -817,10 +789,8 @@ dma_addr_t swiotlb_map_page(struct device *dev, struct page *page,
  
- 	err = register_external_irq(EXT_IRQ_MEASURE_ALERT,
- 				    cpumf_measurement_alert);
- 	if (err) {
- 		pr_cpumsf_err(RS_INIT_FAILURE_ALRT);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
+ 	/* Oh well, have to allocate and map a bounce buffer. */
+ 	map = map_single(dev, phys, size, dir, attrs);
+-	if (map == SWIOTLB_MAP_ERROR) {
+-		swiotlb_full(dev, size, dir, 1);
++	if (map == SWIOTLB_MAP_ERROR)
+ 		return __phys_to_dma(dev, io_tlb_overflow_buffer);
+-	}
  
-@@ -2061,6 +2064,7 @@ static int __init init_cpum_sampling_pmu(void)
- 		pr_cpumsf_err(RS_INIT_FAILURE_PERF);
- 		unregister_external_irq(EXT_IRQ_MEASURE_ALERT,
- 					cpumf_measurement_alert);
-+		debug_unregister(sfdbg);
- 		goto out;
- 	}
+ 	dev_addr = __phys_to_dma(dev, map);
  
+@@ -954,7 +924,6 @@ swiotlb_map_sg_attrs(struct device *hwdev, struct scatterlist *sgl, int nelems,
+ 			if (map == SWIOTLB_MAP_ERROR) {
+ 				/* Don't panic here, we expect map_sg users
+ 				   to do proper error handling. */
+-				swiotlb_full(hwdev, sg->length, dir, 0);
+ 				attrs |= DMA_ATTR_SKIP_CPU_SYNC;
+ 				swiotlb_unmap_sg_attrs(hwdev, sgl, i, dir,
+ 						       attrs);
 -- 
 2.20.1
 
