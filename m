@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 739FFFED4C
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBB0FED52
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728612AbfKPPnM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:43:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47044 "EHLO mail.kernel.org"
+        id S1727743AbfKPPn0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:43:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728594AbfKPPnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:43:10 -0500
+        id S1728702AbfKPPnX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:43:23 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 254E02072D;
-        Sat, 16 Nov 2019 15:43:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 253FE20833;
+        Sat, 16 Nov 2019 15:43:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918989;
-        bh=xSTAfSAwQlR+mw6DZnVx2dvVH4DuAFNoVR9OKpY6MwA=;
+        s=default; t=1573919003;
+        bh=QGsz8Ks1Tojt059lcycjgRGYNsiZ059yMmZcprWBtGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wZHhtcwsaQodyOzZDIbL4eA2D1A7AyfR5dOdQM74sdjWX+OsOXxxRzo4zeyIYUKPd
-         LVAnGniTq8AHZ8LOTEeJYJwW9LtGuFCxbKWwzrYW2m4+7ShNobcSKQvx6IfOi/fC29
-         suo/kfW5xu1t30Hjx98BfiunKrvVvG/w89ZWY0cI=
+        b=ZoCLRx8n4/uUk8vPx22f7HT00O15SdXJ/xrAN+84EoiLUMY0x5ihjCjLUhSV+0QdS
+         HBG+0gANwbdSMB5tZ4AUsQaptb+OW/de2wKNDElvbSTqsxN1KcsBKcgzWTt9/OOsiI
+         sV4zmvZTHqoQKSPvwAClUTEfmZFfXajaQJBbZHNc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 094/237] powerpc/mm/radix: Fix small page at boundary when splitting
-Date:   Sat, 16 Nov 2019 10:38:49 -0500
-Message-Id: <20191116154113.7417-94-sashal@kernel.org>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 107/237] qlcnic: fix a return in qlcnic_dcb_get_capability()
+Date:   Sat, 16 Nov 2019 10:39:02 -0500
+Message-Id: <20191116154113.7417-107-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -42,58 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 81d1b54dec95209ab5e5be2cf37182885f998753 ]
+[ Upstream commit c94f026fb742b2d3199422751dbc4f6fc0e753d8 ]
 
-When we have CONFIG_STRICT_KERNEL_RWX enabled, we want to split the
-linear mapping at the text/data boundary so we can map the kernel
-text read only.
+These functions are supposed to return one on failure and zero on
+success.  Returning a zero here could cause uninitialized variable
+bugs in several of the callers.  For example:
 
-Currently we always use a small page at the text/data boundary, even
-when that's not necessary:
+    drivers/scsi/cxgbi/cxgb4i/cxgb4i.c:1660 get_iscsi_dcb_priority()
+    error: uninitialized symbol 'caps'.
 
-  Mapped 0x0000000000000000-0x0000000000e00000 with 2.00 MiB pages
-  Mapped 0x0000000000e00000-0x0000000001000000 with 64.0 KiB pages
-  Mapped 0x0000000001000000-0x0000000040000000 with 2.00 MiB pages
-
-This is because the check that the mapping crosses the __init_begin
-boundary is too strict, it also returns true when we map exactly up to
-the boundary.
-
-So fix it to check that the mapping would actually map past
-__init_begin, and with that we see:
-
-  Mapped 0x0000000000000000-0x0000000040000000 with 2.00 MiB pages
-  Mapped 0x0000000040000000-0x0000000100000000 with 1.00 GiB pages
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: 48365e485275 ("qlcnic: dcb: Add support for CEE Netlink interface.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/pgtable-radix.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/pgtable-radix.c b/arch/powerpc/mm/pgtable-radix.c
-index b387c7b917b7e..69caeb5bccb21 100644
---- a/arch/powerpc/mm/pgtable-radix.c
-+++ b/arch/powerpc/mm/pgtable-radix.c
-@@ -295,14 +295,14 @@ static int __meminit create_physical_mapping(unsigned long start,
+diff --git a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.c b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.c
+index 4b76c69fe86d2..834208e55f7b8 100644
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_dcb.c
+@@ -883,7 +883,7 @@ static u8 qlcnic_dcb_get_capability(struct net_device *netdev, int capid,
+ 	struct qlcnic_adapter *adapter = netdev_priv(netdev);
  
- 		if (split_text_mapping && (mapping_size == PUD_SIZE) &&
- 			(addr < __pa_symbol(__init_begin)) &&
--			(addr + mapping_size) >= __pa_symbol(__init_begin)) {
-+			(addr + mapping_size) > __pa_symbol(__init_begin)) {
- 			max_mapping_size = PMD_SIZE;
- 			goto retry;
- 		}
+ 	if (!test_bit(QLCNIC_DCB_STATE, &adapter->dcb->state))
+-		return 0;
++		return 1;
  
- 		if (split_text_mapping && (mapping_size == PMD_SIZE) &&
- 		    (addr < __pa_symbol(__init_begin)) &&
--		    (addr + mapping_size) >= __pa_symbol(__init_begin)) {
-+		    (addr + mapping_size) > __pa_symbol(__init_begin)) {
- 			mapping_size = PAGE_SIZE;
- 			psize = mmu_virtual_psize;
- 		}
+ 	switch (capid) {
+ 	case DCB_CAP_ATTR_PG:
 -- 
 2.20.1
 
