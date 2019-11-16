@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA14FEF38
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:57:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4AECFEF25
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:57:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730319AbfKPPzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:55:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36964 "EHLO mail.kernel.org"
+        id S1731545AbfKPPzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:55:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731533AbfKPPzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:55:06 -0500
+        id S1731544AbfKPPzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:55:09 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2D0121844;
-        Sat, 16 Nov 2019 15:55:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E957221844;
+        Sat, 16 Nov 2019 15:55:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919706;
-        bh=4s8e4vFMSbvxkOqzZBgfRHrA0gBMSbB8WI/S0IuJjVM=;
+        s=default; t=1573919708;
+        bh=Ubzdtado8qpF9VSRmYdGAtTkvjECdbzj1U/T/2pUfco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OlTd+arADrDgfsDYu9P7ZZaf5Kos0YvFk5n5YvRMBmkWCoVOb73PkMlc6qJ3feeLw
-         oml9ZYZSGgT++AHtvqr2UD45oQJdK93H/HsMT0uDvlTbx/M16BEJ9PNqMW9HU11MJe
-         1sPmeNEo46nzICvIoWA/1f3K7TxeLbXrQai7iC5g=
+        b=hHG0NUiTJ1xrmpQQ0fJIsWs8VItESlLIMEL1wkBie9Fy3kxEWwdfB8zzXovAuI6il
+         MfljrMve3XnpN9kHppJgaDk+vxQoeXXhh6Ci1dQRZciPF6gUDlFAO7BgCZ9JC6AEqw
+         u0NcDrZUOIUaKpLhByqXOhcRy66bB+i4y4+VPocs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ernesto=20A=2E=20Fern=C3=A1ndez?= 
-        <ernesto.mnd.fernandez@gmail.com>,
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        "Ernesto A . Fernndez" <ernesto.mnd.fernandez@gmail.com>,
+        David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Hin-Tak Leung <htl10@users.sourceforge.net>,
         Vyacheslav Dubeyko <slava@dubeyko.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 51/77] hfs: fix return value of hfs_get_block()
-Date:   Sat, 16 Nov 2019 10:53:13 -0500
-Message-Id: <20191116155339.11909-51-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 52/77] fs/hfs/extent.c: fix array out of bounds read of array extent
+Date:   Sat, 16 Nov 2019 10:53:14 -0500
+Message-Id: <20191116155339.11909-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155339.11909-1-sashal@kernel.org>
 References: <20191116155339.11909-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,43 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 1267a07be5ebbff2d2739290f3d043ae137c15b4 ]
+[ Upstream commit 6c9a3f843a29d6894dfc40df338b91dbd78f0ae3 ]
 
-Direct writes to empty inodes fail with EIO.  The generic direct-io code
-is in part to blame (a patch has been submitted as "direct-io: allow
-direct writes to empty inodes"), but hfs is worse affected than the other
-filesystems because the fallback to buffered I/O doesn't happen.
+Currently extent and index i are both being incremented causing an array
+out of bounds read on extent[i].  Fix this by removing the extraneous
+increment of extent.
 
-The problem is the return value of hfs_get_block() when called with
-!create.  Change it to be more consistent with the other modules.
+Ernesto said:
 
-Link: http://lkml.kernel.org/r/4538ab8c35ea37338490525f0f24cbc37227528c.1539195310.git.ernesto.mnd.fernandez@gmail.com
-Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
-Reviewed-by: Vyacheslav Dubeyko <slava@dubeyko.com>
+: This is only triggered when deleting a file with a resource fork.  I
+: may be wrong because the documentation isn't clear, but I don't think
+: you can create those under linux.  So I guess nobody was testing them.
+:
+: > A disk space leak, perhaps?
+:
+: That's what it looks like in general.  hfs_free_extents() won't do
+: anything if the block count doesn't add up, and the error will be
+: ignored.  Now, if the block count randomly does add up, we could see
+: some corruption.
+
+Detected by CoverityScan, CID#711541 ("Out of bounds read")
+
+Link: http://lkml.kernel.org/r/20180831140538.31566-1-colin.king@canonical.com
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Ernesto A. Fernndez <ernesto.mnd.fernandez@gmail.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Hin-Tak Leung <htl10@users.sourceforge.net>
+Cc: Vyacheslav Dubeyko <slava@dubeyko.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/extent.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/hfs/extent.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/hfs/extent.c b/fs/hfs/extent.c
-index 1bd1afefe2538..16819d2a978b4 100644
+index 16819d2a978b4..cbe4fca96378a 100644
 --- a/fs/hfs/extent.c
 +++ b/fs/hfs/extent.c
-@@ -345,7 +345,9 @@ int hfs_get_block(struct inode *inode, sector_t block,
- 	ablock = (u32)block / HFS_SB(sb)->fs_div;
+@@ -304,7 +304,7 @@ int hfs_free_fork(struct super_block *sb, struct hfs_cat_file *file, int type)
+ 		return 0;
  
- 	if (block >= HFS_I(inode)->fs_blocks) {
--		if (block > HFS_I(inode)->fs_blocks || !create)
-+		if (!create)
-+			return 0;
-+		if (block > HFS_I(inode)->fs_blocks)
- 			return -EIO;
- 		if (ablock >= HFS_I(inode)->alloc_blocks) {
- 			res = hfs_extend_file(inode);
+ 	blocks = 0;
+-	for (i = 0; i < 3; extent++, i++)
++	for (i = 0; i < 3; i++)
+ 		blocks += be16_to_cpu(extent[i].count);
+ 
+ 	res = hfs_free_extents(sb, extent, blocks, blocks);
 -- 
 2.20.1
 
