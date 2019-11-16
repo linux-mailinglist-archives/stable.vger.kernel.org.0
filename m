@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC79FF0D2
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:08:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4316FF0D1
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:07:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730484AbfKPPuU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:50:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58306 "EHLO mail.kernel.org"
+        id S1728964AbfKPQHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:07:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730478AbfKPPuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:19 -0500
+        id S1730486AbfKPPuU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:20 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C56F721479;
-        Sat, 16 Nov 2019 15:50:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6AFCB21783;
+        Sat, 16 Nov 2019 15:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919419;
-        bh=e0kwQxqjl/q5q36XpJycaaUijSZMetJRcSRLw0P4rkw=;
+        bh=ZdfIT4acldax/0aBpIDoPq29X7aqh95wXh2ik/TGRMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uKZsLnD/VAwJx4hUiSHppjgNQbwApeS3I6NUzsJoPuKio490EvPchnD5YSkBST3Fj
-         eQ6N/LfLMo2WpI5Wp89b5MtX1j1bMEqGZKKGgxgJNj23OO357jsG50Su8H05li23el
-         z4NfPFlqDPZMiagkMZQ4pZhRx4kyE4MlDgpZz2VI=
+        b=gMlxn9gIUIyRYJ3Oc21pqsMJjn9Sq4KrfL/iJunzISbyRR/kAShXXaq029vnBLKAk
+         Qm6gNEYzIOFjq33TI9VSACyts/LYvS26BqwVmHZtnLfBzfNF9Ij5iALyzEUP9wjE0D
+         BfN33oKqYN6t63kyJaeu9pSwE3i/Ns8XkCQkDHsY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, Nikolay Borisov <nborisov@suse.com>,
-        Changbin Du <changbin.du@gmail.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 119/150] btrfs: avoid link error with CONFIG_NO_AUTO_INLINE
-Date:   Sat, 16 Nov 2019 10:46:57 -0500
-Message-Id: <20191116154729.9573-119-sashal@kernel.org>
+Cc:     Lior David <liord@codeaurora.org>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, wil6210@qti.qualcomm.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 120/150] wil6210: fix locking in wmi_call
+Date:   Sat, 16 Nov 2019 10:46:58 -0500
+Message-Id: <20191116154729.9573-120-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -44,70 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Lior David <liord@codeaurora.org>
 
-[ Upstream commit 7e17916b35797396f681a3270245fd29c1e4c250 ]
+[ Upstream commit dc57731dbd535880fe6ced31c229262c34df7d64 ]
 
-Note: this patch fixes a problem in a feature outside of btrfs ("kernel
-hacking: add a config option to disable compiler auto-inlining") and is
-applied ahead of time due to cross-subsystem dependencies.
+Switch from spin_lock to spin_lock_irqsave, because
+wmi_ev_lock is used inside interrupt handler.
 
-On 32-bit ARM with gcc-8, I see a link error with the addition of the
-CONFIG_NO_AUTO_INLINE option:
-
-fs/btrfs/super.o: In function `btrfs_statfs':
-super.c:(.text+0x67b8): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x67fc): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x6858): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x6920): undefined reference to `__aeabi_uldivmod'
-super.c:(.text+0x693c): undefined reference to `__aeabi_uldivmod'
-fs/btrfs/super.o:super.c:(.text+0x6958): more undefined references to `__aeabi_uldivmod' follow
-
-So far this is the only file that shows the behavior, so I'd propose
-to just work around it by marking the functions as 'static inline'
-that normally get inlined here.
-
-The reference to __aeabi_uldivmod comes from a div_u64() which has an
-optimization for a constant division that uses a straight '/' operator
-when the result should be known to the compiler. My interpretation is
-that as we turn off inlining, gcc still expects the result to be constant
-but fails to use that constant value.
-
-Link: https://lkml.kernel.org/r/20181103153941.1881966-1-arnd@arndb.de
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: Changbin Du <changbin.du@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-[ add the note ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Lior David <liord@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/super.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/wil6210/wmi.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/super.c b/fs/btrfs/super.c
-index 49a02bf091aea..204d585e012a8 100644
---- a/fs/btrfs/super.c
-+++ b/fs/btrfs/super.c
-@@ -1863,7 +1863,7 @@ static int btrfs_remount(struct super_block *sb, int *flags, char *data)
- }
+diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
+index d63d7c3268018..798516f42f2f9 100644
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -1002,15 +1002,16 @@ int wmi_call(struct wil6210_priv *wil, u16 cmdid, void *buf, u16 len,
+ {
+ 	int rc;
+ 	unsigned long remain;
++	ulong flags;
  
- /* Used to sort the devices by max_avail(descending sort) */
--static int btrfs_cmp_device_free_bytes(const void *dev_info1,
-+static inline int btrfs_cmp_device_free_bytes(const void *dev_info1,
- 				       const void *dev_info2)
- {
- 	if (((struct btrfs_device_info *)dev_info1)->max_avail >
-@@ -1892,8 +1892,8 @@ static inline void btrfs_descending_sort_devices(
-  * The helper to calc the free space on the devices that can be used to store
-  * file data.
-  */
--static int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
--				       u64 *free_bytes)
-+static inline int btrfs_calc_avail_data_space(struct btrfs_fs_info *fs_info,
-+					      u64 *free_bytes)
- {
- 	struct btrfs_device_info *devices_info;
- 	struct btrfs_fs_devices *fs_devices = fs_info->fs_devices;
+ 	mutex_lock(&wil->wmi_mutex);
+ 
+-	spin_lock(&wil->wmi_ev_lock);
++	spin_lock_irqsave(&wil->wmi_ev_lock, flags);
+ 	wil->reply_id = reply_id;
+ 	wil->reply_buf = reply;
+ 	wil->reply_size = reply_size;
+ 	reinit_completion(&wil->wmi_call);
+-	spin_unlock(&wil->wmi_ev_lock);
++	spin_unlock_irqrestore(&wil->wmi_ev_lock, flags);
+ 
+ 	rc = __wmi_send(wil, cmdid, buf, len);
+ 	if (rc)
+@@ -1030,11 +1031,11 @@ int wmi_call(struct wil6210_priv *wil, u16 cmdid, void *buf, u16 len,
+ 	}
+ 
+ out:
+-	spin_lock(&wil->wmi_ev_lock);
++	spin_lock_irqsave(&wil->wmi_ev_lock, flags);
+ 	wil->reply_id = 0;
+ 	wil->reply_buf = NULL;
+ 	wil->reply_size = 0;
+-	spin_unlock(&wil->wmi_ev_lock);
++	spin_unlock_irqrestore(&wil->wmi_ev_lock, flags);
+ 
+ 	mutex_unlock(&wil->wmi_mutex);
+ 
 -- 
 2.20.1
 
