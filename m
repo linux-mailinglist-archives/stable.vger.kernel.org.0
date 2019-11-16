@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D85BFEE13
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:49:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 541BDFEE15
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:49:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730153AbfKPPsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:48:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55962 "EHLO mail.kernel.org"
+        id S1730182AbfKPPsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:48:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728774AbfKPPsm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:42 -0500
+        id S1730177AbfKPPsq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:48:46 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72C4C208E3;
-        Sat, 16 Nov 2019 15:48:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C774020729;
+        Sat, 16 Nov 2019 15:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919322;
-        bh=dP+PCoNwoOWfPuFe01TtS/TXqgxB3zZdYBB2ROF1FZs=;
+        s=default; t=1573919326;
+        bh=vm84ASlpradK3YRp36649IF0WvfGXEHeTtm8gY3B1AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WRQkIddXCKvEt4risY8XLJwDMeq93FTF55IRTYPXvvoGwFERmd7uWFciNAN9TDpI/
-         jzWeI/7DeDUkrtL8OICb2lFsCpL9oKdsFEsFaIZq3m0dJ95iQ+MOH8zmJNyfA6qn6B
-         M28pCK2UOsJclRSENAnXVICoOcuatbC9uIaVOjhc=
+        b=K6q0zvd9GqAsgtnTX7L30hSkLGakCElKsmoNQhPl6krOdoSZ0ll98Q8+I/5uaUnb9
+         h4kxEmH+fGbe2W4uOFo3o5zqxNmSqNuuRK/ibvmsHJF80AvCqpm3i/27d9FNyBP4gr
+         jwtga3XPdB0qnzEE+9q96R6clvqUi7FqgRZ/iGf8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.14 064/150] mISDN: Fix type of switch control variable in ctrl_teimanager
-Date:   Sat, 16 Nov 2019 10:46:02 -0500
-Message-Id: <20191116154729.9573-64-sashal@kernel.org>
+Cc:     Fabio Estevam <fabio.estevam@nxp.com>,
+        Chris Healy <cphealy@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 068/150] mfd: mc13xxx-core: Fix PMIC shutdown when reading ADC values
+Date:   Sat, 16 Nov 2019 10:46:06 -0500
+Message-Id: <20191116154729.9573-68-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -44,68 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Fabio Estevam <fabio.estevam@nxp.com>
 
-[ Upstream commit aeb5e02aca91522733eb1db595ac607d30c87767 ]
+[ Upstream commit 55143439b7b501882bea9d95a54adfe00ffc79a3 ]
 
-Clang warns (trimmed for brevity):
+When trying to read any MC13892 ADC channel on a imx51-babbage board:
 
-drivers/isdn/mISDN/tei.c:1193:7: warning: overflow converting case value
-to switch condition type (2147764552 to 18446744071562348872) [-Wswitch]
-        case IMHOLD_L1:
-             ^
-drivers/isdn/mISDN/tei.c:1187:7: warning: overflow converting case value
-to switch condition type (2147764550 to 18446744071562348870) [-Wswitch]
-        case IMCLEAR_L2:
-             ^
-2 warnings generated.
+The MC13892 PMIC shutdowns completely.
 
-The root cause is that the _IOC macro can generate really large numbers,
-which don't find into type int. My research into how GCC and Clang are
-handling this at a low level didn't prove fruitful and surveying the
-kernel tree shows that aside from here and a few places in the scsi
-subsystem, everything that uses _IOC is at least of type 'unsigned int'.
-Make that change here because as nothing in this function cares about
-the signedness of the variable and it removes ambiguity, which is never
-good when dealing with compilers.
+After debugging this issue and comparing the MC13892 and MC13783
+initializations done in the vendor kernel, it was noticed that the
+CHRGRAWDIV bit of the ADC0 register was not being set.
 
-While we're here, remove the unnecessary local variable ret (just return
--EINVAL and 0 directly).
+This bit is set by default after power on, but the driver was
+clearing it.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/67
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+After setting this bit it is possible to read the ADC values correctly.
+
+Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
+Tested-by: Chris Healy <cphealy@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/mISDN/tei.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/mfd/mc13xxx-core.c  | 3 ++-
+ include/linux/mfd/mc13xxx.h | 1 +
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/mISDN/tei.c b/drivers/isdn/mISDN/tei.c
-index 12d9e5f4beb1f..58635b5f296f0 100644
---- a/drivers/isdn/mISDN/tei.c
-+++ b/drivers/isdn/mISDN/tei.c
-@@ -1180,8 +1180,7 @@ static int
- ctrl_teimanager(struct manager *mgr, void *arg)
- {
- 	/* currently we only have one option */
--	int	*val = (int *)arg;
--	int	ret = 0;
-+	unsigned int *val = (unsigned int *)arg;
+diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
+index 6c16f170529f5..75d52034f89da 100644
+--- a/drivers/mfd/mc13xxx-core.c
++++ b/drivers/mfd/mc13xxx-core.c
+@@ -278,7 +278,8 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
+ 	if (ret)
+ 		goto out;
  
- 	switch (val[0]) {
- 	case IMCLEAR_L2:
-@@ -1197,9 +1196,9 @@ ctrl_teimanager(struct manager *mgr, void *arg)
- 			test_and_clear_bit(OPTION_L1_HOLD, &mgr->options);
- 		break;
- 	default:
--		ret = -EINVAL;
-+		return -EINVAL;
- 	}
--	return ret;
-+	return 0;
- }
+-	adc0 = MC13XXX_ADC0_ADINC1 | MC13XXX_ADC0_ADINC2;
++	adc0 = MC13XXX_ADC0_ADINC1 | MC13XXX_ADC0_ADINC2 |
++	       MC13XXX_ADC0_CHRGRAWDIV;
+ 	adc1 = MC13XXX_ADC1_ADEN | MC13XXX_ADC1_ADTRIGIGN | MC13XXX_ADC1_ASC;
  
- /* This function does create a L2 for fixed TEI in NT Mode */
+ 	if (channel > 7)
+diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
+index 638222e43e489..93011c61aafd2 100644
+--- a/include/linux/mfd/mc13xxx.h
++++ b/include/linux/mfd/mc13xxx.h
+@@ -247,6 +247,7 @@ struct mc13xxx_platform_data {
+ #define MC13XXX_ADC0_TSMOD0		(1 << 12)
+ #define MC13XXX_ADC0_TSMOD1		(1 << 13)
+ #define MC13XXX_ADC0_TSMOD2		(1 << 14)
++#define MC13XXX_ADC0_CHRGRAWDIV		(1 << 15)
+ #define MC13XXX_ADC0_ADINC1		(1 << 16)
+ #define MC13XXX_ADC0_ADINC2		(1 << 17)
+ 
 -- 
 2.20.1
 
