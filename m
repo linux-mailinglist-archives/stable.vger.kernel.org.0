@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 190A1FF1E4
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0385FF1EE
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:16:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729639AbfKPPrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:47:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
+        id S1730006AbfKPQP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:15:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728902AbfKPPrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729635AbfKPPrI (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 16 Nov 2019 10:47:08 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 422E12084F;
+        by mail.kernel.org (Postfix) with ESMTPSA id DD3072083E;
         Sat, 16 Nov 2019 15:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919227;
-        bh=9OXAevLG4BgzRbZksXQkB08q/O8Khxr4GuRBGW5lZdM=;
+        s=default; t=1573919228;
+        bh=PV75VkIsQLSgJfMJKGoDxgGY1yV4axR33hw/nS5ls3w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LyT3NY6+3F1hZwqRMEPTh3fVnV+2VOYr0hNxZva2zE0l9iT5r1ogX+v3h8n/Sm7GX
-         aiVX9uluQ8ctFuV1huFLFP2KlDfCHAZcMpPufocgRNauIW6vdlQjQSLnB3QzmVu3po
-         qq3Dar/3fWROFFHgZSfPZcfR7c+pmDxxaTOFtlU4=
+        b=r+99ikYBG5FC64ak8lYuHubAWuli8KXEGLoHwOHONxLvx6m6QjkF+PzGuVutGKO0M
+         2Gc3CPC6gt7drOKg3hHrhHg8Aeiare6n+EmxD51zAMObRAxh6L0vTeUsFalGMeWwUt
+         6TkbyiWAnr7bmLU8/FcmIkrmdEylJxNvfuFVm2MY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 231/237] PCI: keystone: Use quirk to limit MRRS for K2G
-Date:   Sat, 16 Nov 2019 10:41:06 -0500
-Message-Id: <20191116154113.7417-231-sashal@kernel.org>
+Cc:     Igor Konopko <igor.j.konopko@intel.com>,
+        Keith Busch <keith.busch@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 232/237] nvme-pci: fix surprise removal
+Date:   Sat, 16 Nov 2019 10:41:07 -0500
+Message-Id: <20191116154113.7417-232-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,42 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kishon Vijay Abraham I <kishon@ti.com>
+From: Igor Konopko <igor.j.konopko@intel.com>
 
-[ Upstream commit 148e340c0696369fadbbddc8f4bef801ed247d71 ]
+[ Upstream commit 751a0cc0cd3a0d51e6aaf6fd3b8bd31f4ecfaf3e ]
 
-PCI controller in K2G also has a limitation that memory read request
-size (MRRS) must not exceed 256 bytes. Use the quirk to limit MRRS
-(added for K2HK, K2L and K2E) for K2G as well.
+When a PCIe NVMe device is not present, nvme_dev_remove_admin() calls
+blk_cleanup_queue() on the admin queue, which frees the hctx for that
+queue.  Moments later, on the same path nvme_kill_queues() calls
+blk_mq_unquiesce_queue() on admin queue and tries to access hctx of it,
+which leads to following OOPS:
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Oops: 0000 [#1] SMP PTI
+RIP: 0010:sbitmap_any_bit_set+0xb/0x40
+Call Trace:
+ blk_mq_run_hw_queue+0xd5/0x150
+ blk_mq_run_hw_queues+0x3a/0x50
+ nvme_kill_queues+0x26/0x50
+ nvme_remove_namespaces+0xb2/0xc0
+ nvme_remove+0x60/0x140
+ pci_device_remove+0x3b/0xb0
+
+Fixes: cb4bfda62afa2 ("nvme-pci: fix hot removal during error handling")
+Signed-off-by: Igor Konopko <igor.j.konopko@intel.com>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-keystone.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/nvme/host/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index 5e199e7d2d4fd..765357b87ff69 100644
---- a/drivers/pci/controller/dwc/pci-keystone.c
-+++ b/drivers/pci/controller/dwc/pci-keystone.c
-@@ -36,6 +36,7 @@
- #define PCIE_RC_K2HK		0xb008
- #define PCIE_RC_K2E		0xb009
- #define PCIE_RC_K2L		0xb00a
-+#define PCIE_RC_K2G		0xb00b
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 5d0f99bcc987f..44da9fe5b27b8 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3647,7 +3647,7 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl)
+ 	down_read(&ctrl->namespaces_rwsem);
  
- #define to_keystone_pcie(x)	dev_get_drvdata((x)->dev)
+ 	/* Forcibly unquiesce queues to avoid blocking dispatch */
+-	if (ctrl->admin_q)
++	if (ctrl->admin_q && !blk_queue_dying(ctrl->admin_q))
+ 		blk_mq_unquiesce_queue(ctrl->admin_q);
  
-@@ -50,6 +51,8 @@ static void quirk_limit_mrrs(struct pci_dev *dev)
- 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
- 		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2L),
- 		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
-+		{ PCI_DEVICE(PCI_VENDOR_ID_TI, PCIE_RC_K2G),
-+		 .class = PCI_CLASS_BRIDGE_PCI << 8, .class_mask = ~0, },
- 		{ 0, },
- 	};
- 
+ 	list_for_each_entry(ns, &ctrl->namespaces, list)
 -- 
 2.20.1
 
