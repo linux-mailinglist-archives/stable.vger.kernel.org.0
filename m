@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F94FF12D
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:10:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79C8AFF123
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:10:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729189AbfKPPtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:49:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56684 "EHLO mail.kernel.org"
+        id S1729188AbfKPPtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:49:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbfKPPtO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:49:14 -0500
+        id S1730279AbfKPPtS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:49:18 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3367120729;
-        Sat, 16 Nov 2019 15:49:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D2CF2081E;
+        Sat, 16 Nov 2019 15:49:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919353;
-        bh=d9nxKcst+qQU3OV1rFInKjs+FqAyZY6FfLLPYATbVhY=;
+        s=default; t=1573919357;
+        bh=iEFg2OgAmaWRd0RDYXvJ8JsJ2QGa+NeD4y94Xt9Om80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ob4PYnxUVAgOBua7y69qsoy0bpFZw8aNCDS4+oTxN/u7pgMDFa7Oqzk8vclyhtLc5
-         1WEUvq8LEeUXY3axIvgi/QmiOJ4HFialrwjRriLVGR5dWIm7uiVVkRmd3XmusxediF
-         G7i6KexGXmq17gsHN2NwRXslCmSHPGJJ2vGUNucc=
+        b=ToROOiu1zTbO08vu3xRDSYK7FzREfvYlI9KWtsFUUKs4nqUNBUiBtz9COuuuJU4aM
+         ShL2st/s/fSzW1PjDgViUPl1KI72T/26Lb52hvzR196jWGzzI2rSpaO2h7t1q9SBNr
+         7zHH+s7fOCVVbF9I2+vLzG2/QFypYjLW9MX5GdDk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <jiangqi903@gmail.com>,
-        Changwei Ge <ge.changwei@h3c.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 079/150] fs/ocfs2/dlm/dlmdebug.c: fix a sleep-in-atomic-context bug in dlm_print_one_mle()
-Date:   Sat, 16 Nov 2019 10:46:17 -0500
-Message-Id: <20191116154729.9573-79-sashal@kernel.org>
+Cc:     Sabrina Dubroca <sd@queasysnail.net>,
+        Radu Rendec <radu.rendec@gmail.com>,
+        Patrick Talbert <ptalbert@redhat.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 081/150] macsec: update operstate when lower device changes
+Date:   Sat, 16 Nov 2019 10:46:19 -0500
+Message-Id: <20191116154729.9573-81-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -49,58 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-[ Upstream commit 999865764f5f128896402572b439269acb471022 ]
+[ Upstream commit e6ac075882b2afcdf2d5ab328ce4ab42a1eb9593 ]
 
-The kernel module may sleep with holding a spinlock.
+Like all other virtual devices (macvlan, vlan), the operstate of a
+macsec device should match the state of its lower device. This is done
+by calling netif_stacked_transfer_operstate from its netdevice notifier.
 
-The function call paths (from bottom to top) in Linux-4.16 are:
+We also need to call netif_stacked_transfer_operstate when a new macsec
+device is created, so that its operstate is set properly. This is only
+relevant when we try to bring the device up directly when we create it.
 
-[FUNC] get_zeroed_page(GFP_NOFS)
-fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
-fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 255: __dlm_put_mle in dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 254: spin_lock in dlm_put_ml
+Radu Rendec proposed a similar patch, inspired from the 802.1q driver,
+that included changing the administrative state of the macsec device,
+instead of just the operstate. This version is similar to what the
+macvlan driver does, and updates only the operstate.
 
-[FUNC] get_zeroed_page(GFP_NOFS)
-fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
-fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 222: __dlm_put_mle in dlm_put_mle_inuse
-fs/ocfs2/dlm/dlmmaster.c, 219: spin_lock in dlm_put_mle_inuse
-
-To fix this bug, GFP_NOFS is replaced with GFP_ATOMIC.
-
-This bug is found by my static analysis tool DSAC.
-
-Link: http://lkml.kernel.org/r/20180901112528.27025-1-baijiaju1990@gmail.com
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Joseph Qi <jiangqi903@gmail.com>
-Cc: Changwei Ge <ge.changwei@h3c.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
+Reported-by: Radu Rendec <radu.rendec@gmail.com>
+Reported-by: Patrick Talbert <ptalbert@redhat.com>
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dlm/dlmdebug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/macsec.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/fs/ocfs2/dlm/dlmdebug.c b/fs/ocfs2/dlm/dlmdebug.c
-index 9b984cae4c4e0..1d6dc8422899b 100644
---- a/fs/ocfs2/dlm/dlmdebug.c
-+++ b/fs/ocfs2/dlm/dlmdebug.c
-@@ -329,7 +329,7 @@ void dlm_print_one_mle(struct dlm_master_list_entry *mle)
- {
- 	char *buf;
+diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
+index 9bcb7c3e879f3..40e8f11f20cbf 100644
+--- a/drivers/net/macsec.c
++++ b/drivers/net/macsec.c
+@@ -3273,6 +3273,9 @@ static int macsec_newlink(struct net *net, struct net_device *dev,
+ 	if (err < 0)
+ 		goto del_dev;
  
--	buf = (char *) get_zeroed_page(GFP_NOFS);
-+	buf = (char *) get_zeroed_page(GFP_ATOMIC);
- 	if (buf) {
- 		dump_mle(mle, buf, PAGE_SIZE - 1);
- 		free_page((unsigned long)buf);
++	netif_stacked_transfer_operstate(real_dev, dev);
++	linkwatch_fire_event(dev);
++
+ 	macsec_generation++;
+ 
+ 	return 0;
+@@ -3444,6 +3447,20 @@ static int macsec_notify(struct notifier_block *this, unsigned long event,
+ 		return NOTIFY_DONE;
+ 
+ 	switch (event) {
++	case NETDEV_DOWN:
++	case NETDEV_UP:
++	case NETDEV_CHANGE: {
++		struct macsec_dev *m, *n;
++		struct macsec_rxh_data *rxd;
++
++		rxd = macsec_data_rtnl(real_dev);
++		list_for_each_entry_safe(m, n, &rxd->secys, secys) {
++			struct net_device *dev = m->secy.netdev;
++
++			netif_stacked_transfer_operstate(real_dev, dev);
++		}
++		break;
++	}
+ 	case NETDEV_UNREGISTER: {
+ 		struct macsec_dev *m, *n;
+ 		struct macsec_rxh_data *rxd;
 -- 
 2.20.1
 
