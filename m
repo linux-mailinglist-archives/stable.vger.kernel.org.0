@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E549FF2D7
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AA9BFF2D1
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730441AbfKPQVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:21:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47500 "EHLO mail.kernel.org"
+        id S1729789AbfKPQVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:21:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728750AbfKPPna (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:43:30 -0500
+        id S1728754AbfKPPnb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:43:31 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 977D32072D;
-        Sat, 16 Nov 2019 15:43:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A5372082E;
+        Sat, 16 Nov 2019 15:43:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919009;
-        bh=9bch6VTDVZgwC2rRZU7Zqnz8hEruZA8tajpvcVynNb4=;
+        s=default; t=1573919010;
+        bh=kvrgsIZ8Gymbi6c4WYY9shIxHq3UQvTGVVPm6yj3KAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lugkCPPQuZi/h79ebvk+Iy2gYUhyR17jZqbOHyu0ooEC748c7E45A0uNUN6fRxCCr
-         K6cxl5L6a0rl2or2sOzak87uE98iO5LXyx0AG7awloFID0KjmHo0Qenxe1WzVA4E+i
-         q2CPHA5ww2I2XvKVMeKuoTV1Axl8rhSF6oABYkv8=
+        b=hFR+Gcfon30PiINYsSwpeLOzQbG21u3OMBhJDEUijVfpQ2OYhqtR1nYiDzM11JZei
+         CDwbF+IUIWaeopifCJdO4KX6gBlvCXBDYGXIgwnLUqFJVcxaXCQ5Ih2OjjIKMBhTqg
+         A7BQPGzIa+SRcmscVPG/qxXOtVRgNuCAzGY10JTA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahisa Kojima <masahisa.kojima@linaro.org>,
-        Yoshitoyo Osaki <osaki.yoshitoyo@socionext.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 113/237] net: socionext: Stop PHY before resetting netsec
-Date:   Sat, 16 Nov 2019 10:39:08 -0500
-Message-Id: <20191116154113.7417-113-sashal@kernel.org>
+Cc:     Garry McNulty <garrmcnu@gmail.com>,
+        Steve French <stfrench@microsoft.com>,
+        Aurelien Aptel <aaptel@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 114/237] fs/cifs: fix uninitialised variable warnings
+Date:   Sat, 16 Nov 2019 10:39:09 -0500
+Message-Id: <20191116154113.7417-114-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,112 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahisa Kojima <masahisa.kojima@linaro.org>
+From: Garry McNulty <garrmcnu@gmail.com>
 
-[ Upstream commit 8e850f25b5812aefedec6732732eb10e7b47cb5c ]
+[ Upstream commit ef2298a06d012973bbc592b86fe5ff730d4d0c63 ]
 
-In ndo_stop, driver resets the netsec ethernet controller IP.
-When the netsec IP is reset, HW running mode turns to NRM mode
-and driver has to wait until this mode transition completes.
+In some error conditions, resp_buftype can be passed uninitialised to
+free_rsp_buf(), potentially resulting in a spurious debug message.
+If resp_buftype randomly had the value 1 (CIFS_SMALL_BUFFER) then this
+would log a debug message.
+The rsp pointer is initialised to NULL so there is no other side-effect.
 
-But mode transition to NRM will not complete if the PHY is
-in normal operation state. Netsec IP requires PHY is in
-power down state when it is reset.
+Detected by CoverityScan, CID 1438585 ("Uninitialized scalar variable")
+Detected by CoverityScan, CID 1438667 ("Uninitialized scalar variable")
+Detected by CoverityScan, CID 1438764 ("Uninitialized scalar variable")
 
-This modification stops the PHY before resetting netsec.
-
-Together with this modification, phy_addr is stored in netsec_priv
-structure because ndev->phydev is not yet ready in ndo_init.
-
-Fixes: 533dd11a12f6 ("net: socionext: Add Synquacer NetSec driver")
-Signed-off-by: Masahisa Kojima <masahisa.kojima@linaro.org>
-Signed-off-by: Yoshitoyo Osaki <osaki.yoshitoyo@socionext.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Garry McNulty <garrmcnu@gmail.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reviewed-by: Aurelien Aptel <aaptel@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/socionext/netsec.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ fs/cifs/smb2pdu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
-index d2caeb9edc044..28d582c18afb9 100644
---- a/drivers/net/ethernet/socionext/netsec.c
-+++ b/drivers/net/ethernet/socionext/netsec.c
-@@ -274,6 +274,7 @@ struct netsec_priv {
- 	struct clk *clk;
- 	u32 msg_enable;
- 	u32 freq;
-+	u32 phy_addr;
- 	bool rx_cksum_offload_flag;
- };
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index b1f5d0d28335a..9194f17675c89 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2283,7 +2283,7 @@ SMB2_open(const unsigned int xid, struct cifs_open_parms *oparms, __le16 *path,
+ 	struct cifs_ses *ses = tcon->ses;
+ 	struct kvec iov[SMB2_CREATE_IOV_SIZE];
+ 	struct kvec rsp_iov = {NULL, 0};
+-	int resp_buftype;
++	int resp_buftype = CIFS_NO_BUFFER;
+ 	int rc = 0;
+ 	int flags = 0;
  
-@@ -1346,11 +1347,11 @@ static int netsec_netdev_stop(struct net_device *ndev)
- 	netsec_uninit_pkt_dring(priv, NETSEC_RING_TX);
- 	netsec_uninit_pkt_dring(priv, NETSEC_RING_RX);
+@@ -2570,7 +2570,7 @@ SMB2_close_flags(const unsigned int xid, struct cifs_tcon *tcon,
+ 	struct cifs_ses *ses = tcon->ses;
+ 	struct kvec iov[1];
+ 	struct kvec rsp_iov;
+-	int resp_buftype;
++	int resp_buftype = CIFS_NO_BUFFER;
+ 	int rc = 0;
  
--	ret = netsec_reset_hardware(priv, false);
--
- 	phy_stop(ndev->phydev);
- 	phy_disconnect(ndev->phydev);
+ 	cifs_dbg(FYI, "Close\n");
+@@ -2723,7 +2723,7 @@ query_info(const unsigned int xid, struct cifs_tcon *tcon,
+ 	struct kvec iov[1];
+ 	struct kvec rsp_iov;
+ 	int rc = 0;
+-	int resp_buftype;
++	int resp_buftype = CIFS_NO_BUFFER;
+ 	struct cifs_ses *ses = tcon->ses;
+ 	int flags = 0;
  
-+	ret = netsec_reset_hardware(priv, false);
-+
- 	pm_runtime_put_sync(priv->dev);
- 
- 	return ret;
-@@ -1360,6 +1361,7 @@ static int netsec_netdev_init(struct net_device *ndev)
- {
- 	struct netsec_priv *priv = netdev_priv(ndev);
- 	int ret;
-+	u16 data;
- 
- 	ret = netsec_alloc_dring(priv, NETSEC_RING_TX);
- 	if (ret)
-@@ -1369,6 +1371,11 @@ static int netsec_netdev_init(struct net_device *ndev)
- 	if (ret)
- 		goto err1;
- 
-+	/* set phy power down */
-+	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR) |
-+		BMCR_PDOWN;
-+	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
-+
- 	ret = netsec_reset_hardware(priv, true);
- 	if (ret)
- 		goto err2;
-@@ -1418,7 +1425,7 @@ static const struct net_device_ops netsec_netdev_ops = {
- };
- 
- static int netsec_of_probe(struct platform_device *pdev,
--			   struct netsec_priv *priv)
-+			   struct netsec_priv *priv, u32 *phy_addr)
- {
- 	priv->phy_np = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
- 	if (!priv->phy_np) {
-@@ -1426,6 +1433,8 @@ static int netsec_of_probe(struct platform_device *pdev,
- 		return -EINVAL;
- 	}
- 
-+	*phy_addr = of_mdio_parse_addr(&pdev->dev, priv->phy_np);
-+
- 	priv->clk = devm_clk_get(&pdev->dev, NULL); /* get by 'phy_ref_clk' */
- 	if (IS_ERR(priv->clk)) {
- 		dev_err(&pdev->dev, "phy_ref_clk not found\n");
-@@ -1626,12 +1635,14 @@ static int netsec_probe(struct platform_device *pdev)
- 	}
- 
- 	if (dev_of_node(&pdev->dev))
--		ret = netsec_of_probe(pdev, priv);
-+		ret = netsec_of_probe(pdev, priv, &phy_addr);
- 	else
- 		ret = netsec_acpi_probe(pdev, priv, &phy_addr);
- 	if (ret)
- 		goto free_ndev;
- 
-+	priv->phy_addr = phy_addr;
-+
- 	if (!priv->freq) {
- 		dev_err(&pdev->dev, "missing PHY reference clock frequency\n");
- 		ret = -ENODEV;
 -- 
 2.20.1
 
