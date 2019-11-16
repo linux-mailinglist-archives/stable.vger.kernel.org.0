@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A48FF282
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:20:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9861FF267
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:19:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730298AbfKPQTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:19:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
+        id S1729281AbfKPPqH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:46:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729267AbfKPPp7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:45:59 -0500
+        id S1729271AbfKPPqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:02 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6B4762077B;
-        Sat, 16 Nov 2019 15:45:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B63EE207FA;
+        Sat, 16 Nov 2019 15:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919158;
-        bh=T93k57TIsenFOGGX58LNq3dynzwqIM/Y3j3qkoXDZw4=;
+        s=default; t=1573919162;
+        bh=2Luct6aeUchWiuAqbQk8IOpLZN3/QWd0Ogx29N2hSO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DDacVGEKW2bE1GynioaYrgaxcUiMcjHWOM3bLxFXnOuaq84u5cxtp9/3YmgD1fy72
-         uGVZwKC3tqv2qej+RKEnaRYeqYIv37+0DP3Bz6knyu0ayrFTMnSEk/dBoK+P2JI4jO
-         0SOgraUPRm2rhGNG38fVnq354oJTWfkbe07jBhaQ=
+        b=LlUBYgEeOXCtKO5CzykNtpRewz3OGoFKeNqp84A/2hRKeI2rbbe4oygBOzo1F8sqZ
+         bJfisXzb3GZ4apRM/UrRScQR8Z+JthNhWFuN70UtDU/jgBnEJUBWgkYkdMspVE3Bqy
+         sfNFf/HULlvXk3YQSVY+S2Q2KR3M2ckdojKfbZqM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
         "David S . Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 169/237] net: hns3: bugfix for reporting unknown vector0 interrupt repeatly problem
-Date:   Sat, 16 Nov 2019 10:40:04 -0500
-Message-Id: <20191116154113.7417-169-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 170/237] net: hns3: bugfix for is_valid_csq_clean_head()
+Date:   Sat, 16 Nov 2019 10:40:05 -0500
+Message-Id: <20191116154113.7417-170-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -45,38 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Huazhong Tan <tanhuazhong@huawei.com>
 
-[ Upstream commit 0d4411408a7fb9aad0645f23911d9bfdd2ce3177 ]
+[ Upstream commit 6d71ec6cbf74ac9c2823ef751b1baa5b889bb3ac ]
 
-The current driver supports handling two vector0 interrupts, reset and
-mailbox. When the hardware reports an interrupt of another type of
-interrupt source, if the driver does not process the interrupt, but
-enables the interrupt, the hardware will repeatedly report the unknown
-interrupt.
+The HEAD pointer of the hardware command queue maybe equal to the command
+queue's next_to_use in the driver, so that does not belong to the invalid
+HEAD pointer, since the hardware may not process the command in time,
+causing the HEAD pointer to be too late to update. The variables' name
+in this function is unreadable, so give them a more readable one.
 
-Therefore, the driver enables the vector0 interrupt after clearing the
-known type of interrupt source. Other conditions are not enabled.
-
-Fixes: cd8c5c269b1d ("net: hns3: Fix for hclge_reset running repeatly problem")
+Fixes: 3ff504908f95 ("net: hns3: fix a dead loop in hclge_cmd_csq_clean")
 Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c   | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 89ca69fa2b97b..0b622d20cd305 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -2574,7 +2574,7 @@ static irqreturn_t hclge_misc_irq_handle(int irq, void *data)
- 	}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+index 68026a5ad7e77..690f62ed87dca 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_cmd.c
+@@ -24,15 +24,15 @@ static int hclge_ring_space(struct hclge_cmq_ring *ring)
+ 	return ring->desc_num - used - 1;
+ }
  
- 	/* clear the source of interrupt if it is not cause by reset */
--	if (event_cause != HCLGE_VECTOR0_EVENT_RST) {
-+	if (event_cause == HCLGE_VECTOR0_EVENT_MBX) {
- 		hclge_clear_event_cause(hdev, event_cause, clearval);
- 		hclge_enable_vector(&hdev->misc_vector, true);
- 	}
+-static int is_valid_csq_clean_head(struct hclge_cmq_ring *ring, int h)
++static int is_valid_csq_clean_head(struct hclge_cmq_ring *ring, int head)
+ {
+-	int u = ring->next_to_use;
+-	int c = ring->next_to_clean;
++	int ntu = ring->next_to_use;
++	int ntc = ring->next_to_clean;
+ 
+-	if (unlikely(h >= ring->desc_num))
+-		return 0;
++	if (ntu > ntc)
++		return head >= ntc && head <= ntu;
+ 
+-	return u > c ? (h > c && h <= u) : (h > c || h <= u);
++	return head >= ntc || head <= ntu;
+ }
+ 
+ static int hclge_alloc_cmd_desc(struct hclge_cmq_ring *ring)
 -- 
 2.20.1
 
