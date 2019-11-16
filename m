@@ -2,180 +2,263 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83096FEA20
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 02:34:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F090FEA22
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 02:35:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727343AbfKPBey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 20:34:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45992 "EHLO mail.kernel.org"
+        id S1727357AbfKPBfB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 15 Nov 2019 20:35:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbfKPBex (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Nov 2019 20:34:53 -0500
+        id S1727089AbfKPBfB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 15 Nov 2019 20:35:01 -0500
 Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CDAC2073B;
-        Sat, 16 Nov 2019 01:34:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A59712073B;
+        Sat, 16 Nov 2019 01:34:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573868091;
-        bh=pojWmjPBTXkLV2mY4A+mNWXidGLvr1Xxx/udjqu7MX4=;
+        s=default; t=1573868098;
+        bh=Qp0PhJ1pt1LbGaQyYYCyDtNrHLA7DdB6JMWscHAULnY=;
         h=Date:From:To:Subject:From;
-        b=XpTnyBKcPYz2A+M4e4Ru84ZogYNX20ZgeWrnCKjQEG+8bM1NqKSTq7LiKPWz/OZE/
-         fDmvOosWh7bTnEXv5VHCBmYuMf6+uwmi9RztQuJ996LYOa7j8pdCC7IXjn/1Zznxh3
-         yM4sDjTe7vTqE8l4Vu6zjIwPrZIKEXGoX5cEgApU=
-Date:   Fri, 15 Nov 2019 17:34:50 -0800
+        b=mCJ93VeJwY4yyZ7sdYUk8oj4szHW9DX/746SfGtLQacOua6UfO7zjUpqVt4Gw4tqA
+         PyAut0FqRpuNF2PNEMPCtnNoGuH/B9MYrvXODDl/HeJQGlsq4WnBWFV7sOgqywDArr
+         28/3iM8xUEO7H+5qlRxP0L2AHL9xi2SMrkWnfMcE=
+Date:   Fri, 15 Nov 2019 17:34:57 -0800
 From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, cl@linux.com, clipos@ssi.gouv.fr,
-        davem@davemloft.net, glider@google.com, iamjoonsoo.kim@lge.com,
-        keescook@chromium.org, labbott@redhat.com, linux-mm@kvack.org,
-        mm-commits@vger.kernel.org, penberg@kernel.org,
-        rientjes@google.com, stable@vger.kernel.org,
-        thibaut.sautereau@clip-os.org, torvalds@linux-foundation.org,
-        vbabka@suse.cz
-Subject:  [patch 06/11] mm: slub: really fix slab walking for
- init_on_free
-Message-ID: <20191116013450.ZHhyfnPTD%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, dan.j.williams@intel.com,
+        david@redhat.com, gregkh@linuxfoundation.org,
+        jani.nikula@intel.com, jolsa@kernel.org, keith.busch@intel.com,
+        linux-mm@kvack.org, m.mizuma@jp.fujitsu.com, mhocko@suse.com,
+        mm-commits@vger.kernel.org, nayna@linux.ibm.com, osalvador@suse.de,
+        pasha.tatashin@soleen.com, peterz@infradead.org, rafael@kernel.org,
+        sfr@canb.auug.org.au, stable@vger.kernel.org,
+        tangchen@cn.fujitsu.com, torvalds@linux-foundation.org
+Subject:  [patch 08/11] mm/memory_hotplug: fix try_offline_node()
+Message-ID: <20191116013457.Lxx9T0gIH%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
-Subject: mm: slub: really fix slab walking for init_on_free
+From: David Hildenbrand <david@redhat.com>
+Subject: mm/memory_hotplug: fix try_offline_node()
 
-Commit 1b7e816fc80e ("mm: slub: Fix slab walking for init_on_free") fixed
-one problem with the slab walking but missed a key detail: When walking
-the list, the head and tail pointers need to be updated since we end up
-reversing the list as a result.  Without doing this, bulk free is broken. 
-One way this is exposed is a NULL pointer with slub_debug=F:
+try_offline_node() is pretty much broken right now:
 
-=============================================================================
-BUG skbuff_head_cache (Tainted: G                T): Object already free
------------------------------------------------------------------------------
+- The node span is updated when onlining memory, not when adding it.  We
+  ignore memory that was mever onlined.  Bad.
 
-INFO: Slab 0x000000000d2d2f8f objects=16 used=3 fp=0x0000000064309071 flags=0x3fff00000000201
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 0 P4D 0
-Oops: 0000 [#1] PREEMPT SMP PTI
-CPU: 0 PID: 0 Comm: swapper/0 Tainted: G    B           T 5.3.8 #1
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-RIP: 0010:print_trailer+0x70/0x1d5
-Code: 28 4d 8b 4d 00 4d 8b 45 20 81 e2 ff 7f 00 00 e8 86 ce ef ff 8b 4b 20 48 89 ea 48 89 ee 4c 29 e2 48 c7 c7 90 6f d4 89 48 01 e9 <48> 33 09 48 33 8b 70 01 00 00 e8 61 ce ef ff f6 43 09 04 74 35 8b
-RSP: 0018:ffffbf7680003d58 EFLAGS: 00010046
-RAX: 000000000000005d RBX: ffffa3d2bb08e540 RCX: 0000000000000000
-RDX: 00005c2d8fdc2000 RSI: 0000000000000000 RDI: ffffffff89d46f90
-RBP: 0000000000000000 R08: 0000000000000242 R09: 000000000000006c
-R10: 0000000000000000 R11: 0000000000000030 R12: ffffa3d27023e000
-R13: fffff11080c08f80 R14: ffffa3d2bb047a80 R15: 0000000000000002
-FS:  0000000000000000(0000) GS:ffffa3d2be400000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000000 CR3: 000000007a6c4000 CR4: 00000000000006f0
-Call Trace:
- <IRQ>
- free_debug_processing.cold.37+0xc9/0x149
- ? __kfree_skb_flush+0x30/0x40
- ? __kfree_skb_flush+0x30/0x40
- __slab_free+0x22a/0x3d0
- ? tcp_wfree+0x2a/0x140
- ? __sock_wfree+0x1b/0x30
- kmem_cache_free_bulk+0x415/0x420
- ? __kfree_skb_flush+0x30/0x40
- __kfree_skb_flush+0x30/0x40
- net_rx_action+0x2dd/0x480
- __do_softirq+0xf0/0x246
- irq_exit+0x93/0xb0
- do_IRQ+0xa0/0x110
- common_interrupt+0xf/0xf
- </IRQ>
+- We touch possible garbage memmaps.  The pfn_to_nid(pfn) can easily
+  trigger a kernel panic.  Bad for memory that is offline but also bad for
+  subsection hotadd with ZONE_DEVICE, whereby the memmap of the first PFN
+  of a section might contain garbage.
 
-Given we're now almost identical to the existing debugging code which
-correctly walks the list, combine with that.
+- Sections belonging to mixed nodes are not properly considered.
 
-Link: https://lkml.kernel.org/r/20191104170303.GA50361@gandi.net
-Link: http://lkml.kernel.org/r/20191106222208.26815-1-labbott@redhat.com
-Fixes: 1b7e816fc80e ("mm: slub: Fix slab walking for init_on_free")
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Reported-by: Thibaut Sautereau <thibaut.sautereau@clip-os.org>
-Acked-by: David Rientjes <rientjes@google.com>
-Tested-by: Alexander Potapenko <glider@google.com>
-Acked-by: Alexander Potapenko <glider@google.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: <clipos@ssi.gouv.fr>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+As memory blocks might belong to multiple nodes, we would have to walk all
+pageblocks (or at least subsections) within present sections.  However, we
+don't have a way to identify whether a memmap that is not online was
+initialized (relevant for ZONE_DEVICE).  This makes things more
+complicated.
+
+Luckily, we can piggy pack on the node span and the nid stored in memory
+blocks.  Currently, the node span is grown when calling
+move_pfn_range_to_zone() - e.g., when onlining memory, and shrunk when
+removing memory, before calling try_offline_node().  Sysfs links are
+created via link_mem_sections(), e.g., during boot or when adding memory.
+
+If the node still spans memory or if any memory block belongs to the nid,
+we don't set the node offline.  As memory blocks that span multiple nodes
+cannot get offlined, the nid stored in memory blocks is reliable enough
+(for such online memory blocks, the node still spans the memory).
+
+Introduce for_each_memory_block() to efficiently walk all memory blocks.
+
+Note: We will soon stop shrinking the ZONE_DEVICE zone and the node span
+when removing ZONE_DEVICE memory to fix similar issues (access of garbage
+memmaps) - until we have a reliable way to identify whether these memmaps
+were properly initialized.  This implies later, that once a node had
+ZONE_DEVICE memory, we won't be able to set a node offline - which should
+be acceptable.
+
+Since commit f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded
+memory to zones until online") memory that is added is not assoziated with
+a zone/node (memmap not initialized).  The introducing commit 60a5a19e7419
+("memory-hotplug: remove sysfs file of node") already missed that we could
+have multiple nodes for a section and that the zone/node span is updated
+when onlining pages, not when adding them.
+
+I tested this by hotplugging two DIMMs to a memory-less and cpu-less NUMA
+node.  The node is properly onlined when adding the DIMMs.  When removing
+the DIMMs, the node is properly offlined.
+
+Masayoshi Mizuma reported:
+
+: Without this patch, memory hotplug fails as panic:
+: 
+:  BUG: kernel NULL pointer dereference, address: 0000000000000000
+:  ...
+:  Call Trace:
+:   remove_memory_block_devices+0x81/0xc0
+:   try_remove_memory+0xb4/0x130
+:   ? walk_memory_blocks+0x75/0xa0
+:   __remove_memory+0xa/0x20
+:   acpi_memory_device_remove+0x84/0x100
+:   acpi_bus_trim+0x57/0x90
+:   acpi_bus_trim+0x2e/0x90
+:   acpi_device_hotplug+0x2b2/0x4d0
+:   acpi_hotplug_work_fn+0x1a/0x30
+:   process_one_work+0x171/0x380
+:   worker_thread+0x49/0x3f0
+:   kthread+0xf8/0x130
+:   ? max_active_store+0x80/0x80
+:   ? kthread_bind+0x10/0x10
+:   ret_from_fork+0x35/0x40
+
+[david@redhat.com: v3]
+  Link: http://lkml.kernel.org/r/20191102120221.7553-1-david@redhat.com
+Link: http://lkml.kernel.org/r/20191028105458.28320-1-david@redhat.com
+Fixes: 60a5a19e7419 ("memory-hotplug: remove sysfs file of node")
+Fixes: f1dd2cd13c4b ("mm, memory_hotplug: do not associate hotadded memory to zones until online") # visiable after d0dc12e86b319
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Tested-by: Masayoshi Mizuma <m.mizuma@jp.fujitsu.com>
+Cc: Tang Chen <tangchen@cn.fujitsu.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Keith Busch <keith.busch@intel.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Nayna Jain <nayna@linux.ibm.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/slub.c |   39 +++++++++------------------------------
- 1 file changed, 9 insertions(+), 30 deletions(-)
+ drivers/base/memory.c  |   36 +++++++++++++++++++++++++++++
+ include/linux/memory.h |    1 
+ mm/memory_hotplug.c    |   47 ++++++++++++++++++++++++---------------
+ 3 files changed, 66 insertions(+), 18 deletions(-)
 
---- a/mm/slub.c~mm-slub-really-fix-slab-walking-for-init_on_free
-+++ a/mm/slub.c
-@@ -1433,12 +1433,15 @@ static inline bool slab_free_freelist_ho
- 	void *old_tail = *tail ? *tail : *head;
- 	int rsize;
- 
--	if (slab_want_init_on_free(s)) {
--		void *p = NULL;
-+	/* Head and tail of the reconstructed freelist */
-+	*head = NULL;
-+	*tail = NULL;
+--- a/drivers/base/memory.c~mm-memory_hotplug-fix-try_offline_node
++++ a/drivers/base/memory.c
+@@ -872,3 +872,39 @@ int walk_memory_blocks(unsigned long sta
+ 	}
+ 	return ret;
+ }
 +
-+	do {
-+		object = next;
-+		next = get_freepointer(s, object);
++struct for_each_memory_block_cb_data {
++	walk_memory_blocks_func_t func;
++	void *arg;
++};
++
++static int for_each_memory_block_cb(struct device *dev, void *data)
++{
++	struct memory_block *mem = to_memory_block(dev);
++	struct for_each_memory_block_cb_data *cb_data = data;
++
++	return cb_data->func(mem, cb_data->arg);
++}
++
++/**
++ * for_each_memory_block - walk through all present memory blocks
++ *
++ * @arg: argument passed to func
++ * @func: callback for each memory block walked
++ *
++ * This function walks through all present memory blocks, calling func on
++ * each memory block.
++ *
++ * In case func() returns an error, walking is aborted and the error is
++ * returned.
++ */
++int for_each_memory_block(void *arg, walk_memory_blocks_func_t func)
++{
++	struct for_each_memory_block_cb_data cb_data = {
++		.func = func,
++		.arg = arg,
++	};
++
++	return bus_for_each_dev(&memory_subsys, NULL, &cb_data,
++				for_each_memory_block_cb);
++}
+--- a/include/linux/memory.h~mm-memory_hotplug-fix-try_offline_node
++++ a/include/linux/memory.h
+@@ -119,6 +119,7 @@ extern struct memory_block *find_memory_
+ typedef int (*walk_memory_blocks_func_t)(struct memory_block *, void *);
+ extern int walk_memory_blocks(unsigned long start, unsigned long size,
+ 			      void *arg, walk_memory_blocks_func_t func);
++extern int for_each_memory_block(void *arg, walk_memory_blocks_func_t func);
+ #define CONFIG_MEM_BLOCK_SIZE	(PAGES_PER_SECTION<<PAGE_SHIFT)
+ #endif /* CONFIG_MEMORY_HOTPLUG_SPARSE */
  
--		do {
--			object = next;
--			next = get_freepointer(s, object);
-+		if (slab_want_init_on_free(s)) {
- 			/*
- 			 * Clear the object and the metadata, but don't touch
- 			 * the redzone.
-@@ -1448,29 +1451,8 @@ static inline bool slab_free_freelist_ho
- 							   : 0;
- 			memset((char *)object + s->inuse, 0,
- 			       s->size - s->inuse - rsize);
--			set_freepointer(s, object, p);
--			p = object;
--		} while (object != old_tail);
--	}
--
--/*
-- * Compiler cannot detect this function can be removed if slab_free_hook()
-- * evaluates to nothing.  Thus, catch all relevant config debug options here.
-- */
--#if defined(CONFIG_LOCKDEP)	||		\
--	defined(CONFIG_DEBUG_KMEMLEAK) ||	\
--	defined(CONFIG_DEBUG_OBJECTS_FREE) ||	\
--	defined(CONFIG_KASAN)
--
--	next = *head;
- 
--	/* Head and tail of the reconstructed freelist */
--	*head = NULL;
--	*tail = NULL;
--
--	do {
--		object = next;
--		next = get_freepointer(s, object);
-+		}
- 		/* If object's reuse doesn't have to be delayed */
- 		if (!slab_free_hook(s, object)) {
- 			/* Move object to the new freelist */
-@@ -1485,9 +1467,6 @@ static inline bool slab_free_freelist_ho
- 		*tail = NULL;
- 
- 	return *head != NULL;
--#else
--	return true;
--#endif
+--- a/mm/memory_hotplug.c~mm-memory_hotplug-fix-try_offline_node
++++ a/mm/memory_hotplug.c
+@@ -1646,6 +1646,18 @@ static int check_cpu_on_node(pg_data_t *
+ 	return 0;
  }
  
- static void *setup_object(struct kmem_cache *s, struct page *page,
++static int check_no_memblock_for_node_cb(struct memory_block *mem, void *arg)
++{
++	int nid = *(int *)arg;
++
++	/*
++	 * If a memory block belongs to multiple nodes, the stored nid is not
++	 * reliable. However, such blocks are always online (e.g., cannot get
++	 * offlined) and, therefore, are still spanned by the node.
++	 */
++	return mem->nid == nid ? -EEXIST : 0;
++}
++
+ /**
+  * try_offline_node
+  * @nid: the node ID
+@@ -1658,25 +1670,24 @@ static int check_cpu_on_node(pg_data_t *
+ void try_offline_node(int nid)
+ {
+ 	pg_data_t *pgdat = NODE_DATA(nid);
+-	unsigned long start_pfn = pgdat->node_start_pfn;
+-	unsigned long end_pfn = start_pfn + pgdat->node_spanned_pages;
+-	unsigned long pfn;
+-
+-	for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
+-		unsigned long section_nr = pfn_to_section_nr(pfn);
+-
+-		if (!present_section_nr(section_nr))
+-			continue;
+-
+-		if (pfn_to_nid(pfn) != nid)
+-			continue;
+-
+-		/*
+-		 * some memory sections of this node are not removed, and we
+-		 * can't offline node now.
+-		 */
++	int rc;
++
++	/*
++	 * If the node still spans pages (especially ZONE_DEVICE), don't
++	 * offline it. A node spans memory after move_pfn_range_to_zone(),
++	 * e.g., after the memory block was onlined.
++	 */
++	if (pgdat->node_spanned_pages)
++		return;
++
++	/*
++	 * Especially offline memory blocks might not be spanned by the
++	 * node. They will get spanned by the node once they get onlined.
++	 * However, they link to the node in sysfs and can get onlined later.
++	 */
++	rc = for_each_memory_block(&nid, check_no_memblock_for_node_cb);
++	if (rc)
+ 		return;
+-	}
+ 
+ 	if (check_cpu_on_node(pgdat))
+ 		return;
 _
