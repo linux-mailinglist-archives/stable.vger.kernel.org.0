@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F060FF337
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:24:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7380BFF32D
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728342AbfKPPme (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:42:34 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46212 "EHLO mail.kernel.org"
+        id S1728370AbfKPPmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:42:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728335AbfKPPmd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:33 -0500
+        id S1728368AbfKPPmh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:42:37 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73350207DD;
-        Sat, 16 Nov 2019 15:42:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E8C72086A;
+        Sat, 16 Nov 2019 15:42:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918953;
-        bh=IlqYNJRUsp5l1H4ncdmRJk//1Dze8Md5GZIQm0/u8Tc=;
+        s=default; t=1573918956;
+        bh=jTWzCOQwRiWhKbKWMLAjSFDku8KDuyLw1gEEl2r4qbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKZl7ILVdiRfY/Fn0NrUw71ayZ7yTFPJg5Spu1IZFyNQkGb4NRBIBk7PPrDsfTPcF
-         WpjMs9N3kzyLsilQTFs8MQoQmIS7EajAZ96mybh0i3B+FzFz2vV629+kbQARzh0PwF
-         qXICMR2NtLBa4+MQmNzaw8sTFf27GVnzEEiTGrhI=
+        b=gC2B32sO2rm4bVWXVglD9ZTSsKM+8S4L2WIeSa4ErNGULl5u/gMJMIoJ7DXB3WeKP
+         47YF245JtUfBNOqVjcptJjWkMWXyycFehbQ89UuznyHoloJjVWYzARmwkUQC7faXSj
+         gxlDb0YhK8ys52poQti3F2IA2yiFNi8/qSyNuw/E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Alexander Meiler <alex.meiler@protonmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 072/237] ACPI / scan: Create platform device for INT33FE ACPI nodes
-Date:   Sat, 16 Nov 2019 10:38:27 -0500
-Message-Id: <20191116154113.7417-72-sashal@kernel.org>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 075/237] macintosh/windfarm_smu_sat: Fix debug output
+Date:   Sat, 16 Nov 2019 10:38:30 -0500
+Message-Id: <20191116154113.7417-75-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -46,147 +43,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 
-[ Upstream commit 589edb56b424876cbbf61547b987a1f57d7ea99d ]
+[ Upstream commit fc0c8b36d379a046525eacb9c3323ca635283757 ]
 
-Bay and Cherry Trail devices with a Dollar Cove or Whiskey Cove PMIC
-have an ACPI node with a HID of INT33FE which is a "virtual" battery
-device implementing a standard ACPI battery interface which depends upon
-a proprietary, undocument OpRegion called BMOP. Since we do have docs
-for the actual fuel-gauges used on these boards we instead use native
-fuel-gauge drivers talking directly to the fuel-gauge ICs on boards which
-rely on this INT33FE device for their battery monitoring.
+There's some antiquated debug output that's trying
+to do a hand-made hexdump and turning into horrible
+1-byte-per-line output these days.
 
-On boards with a Dollar Cove PMIC the INT33FE device's resources (_CRS)
-describe a non-existing I2C client at address 0x6b with a bus-speed of
-100KHz. This is a problem on some boards since there are actual devices
-on that same bus which need a speed of 400KHz to function properly.
+Use print_hex_dump() instead
 
-This commit adds the INT33FE HID to the list of devices with I2C resources
-which should be enumerated as a platform-device rather then letting the
-i2c-core instantiate an i2c-client matching the first I2C resource,
-so that its bus-speed will not influence the max speed of the I2C bus.
-This fixes e.g. the touchscreen not working on the Teclast X98 II Plus.
-
-The INT33FE device on boards with a Whiskey Cove PMIC is somewhat special.
-Its first I2C resource is for a secondary I2C address of the PMIC itself,
-which is already described in an ACPI device with an INT34D3 HID.
-
-But it has 3 more I2C resources describing 3 other chips for which we do
-need to instantiate I2C clients and which need device-connections added
-between them for things to work properly. This special case is handled by
-the drivers/platform/x86/intel_cht_int33fe.c code.
-
-Before this commit that code was binding to the i2c-client instantiated
-for the secondary I2C address of the PMIC, since we now instantiate a
-platform device for the INT33FE device instead, this commit also changes
-the intel_cht_int33fe driver from an i2c driver to a platform driver.
-
-This also brings the intel_cht_int33fe drv inline with how we instantiate
-multiple i2c clients from a single ACPI device in other cases, as done
-by the drivers/platform/x86/i2c-multi-instantiate.c code.
-
-Reported-and-tested-by: Alexander Meiler <alex.meiler@protonmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c                      |  1 +
- drivers/platform/x86/intel_cht_int33fe.c | 24 +++++++++---------------
- 2 files changed, 10 insertions(+), 15 deletions(-)
+ drivers/macintosh/windfarm_smu_sat.c | 25 +++++++------------------
+ 1 file changed, 7 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index e1b6231cfa1c5..1dcc48b9d33c9 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -1550,6 +1550,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
- 	 */
- 	static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
- 		{"BSG1160", },
-+		{"INT33FE", },
- 		{}
- 	};
+diff --git a/drivers/macintosh/windfarm_smu_sat.c b/drivers/macintosh/windfarm_smu_sat.c
+index da7f4fc1a51d1..a0f61eb853c55 100644
+--- a/drivers/macintosh/windfarm_smu_sat.c
++++ b/drivers/macintosh/windfarm_smu_sat.c
+@@ -22,14 +22,6 @@
  
-diff --git a/drivers/platform/x86/intel_cht_int33fe.c b/drivers/platform/x86/intel_cht_int33fe.c
-index a26f410800c21..f40b1c1921064 100644
---- a/drivers/platform/x86/intel_cht_int33fe.c
-+++ b/drivers/platform/x86/intel_cht_int33fe.c
-@@ -24,6 +24,7 @@
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
-+#include <linux/platform_device.h>
- #include <linux/regulator/consumer.h>
- #include <linux/slab.h>
+ #define VERSION "1.0"
  
-@@ -88,9 +89,9 @@ static const struct property_entry fusb302_props[] = {
- 	{ }
- };
- 
--static int cht_int33fe_probe(struct i2c_client *client)
-+static int cht_int33fe_probe(struct platform_device *pdev)
- {
--	struct device *dev = &client->dev;
-+	struct device *dev = &pdev->dev;
- 	struct i2c_board_info board_info;
- 	struct cht_int33fe_data *data;
- 	struct i2c_client *max17047;
-@@ -207,7 +208,7 @@ static int cht_int33fe_probe(struct i2c_client *client)
- 	if (!data->pi3usb30532)
- 		goto out_unregister_fusb302;
- 
--	i2c_set_clientdata(client, data);
-+	platform_set_drvdata(pdev, data);
- 
- 	return 0;
- 
-@@ -223,9 +224,9 @@ static int cht_int33fe_probe(struct i2c_client *client)
- 	return -EPROBE_DEFER; /* Wait for the i2c-adapter to load */
- }
- 
--static int cht_int33fe_remove(struct i2c_client *i2c)
-+static int cht_int33fe_remove(struct platform_device *pdev)
- {
--	struct cht_int33fe_data *data = i2c_get_clientdata(i2c);
-+	struct cht_int33fe_data *data = platform_get_drvdata(pdev);
- 
- 	i2c_unregister_device(data->pi3usb30532);
- 	i2c_unregister_device(data->fusb302);
-@@ -237,29 +238,22 @@ static int cht_int33fe_remove(struct i2c_client *i2c)
- 	return 0;
- }
- 
--static const struct i2c_device_id cht_int33fe_i2c_id[] = {
--	{ }
--};
--MODULE_DEVICE_TABLE(i2c, cht_int33fe_i2c_id);
+-#define DEBUG
 -
- static const struct acpi_device_id cht_int33fe_acpi_ids[] = {
- 	{ "INT33FE", },
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, cht_int33fe_acpi_ids);
+-#ifdef DEBUG
+-#define DBG(args...)	printk(args)
+-#else
+-#define DBG(args...)	do { } while(0)
+-#endif
+-
+ /* If the cache is older than 800ms we'll refetch it */
+ #define MAX_AGE		msecs_to_jiffies(800)
  
--static struct i2c_driver cht_int33fe_driver = {
-+static struct platform_driver cht_int33fe_driver = {
- 	.driver	= {
- 		.name = "Intel Cherry Trail ACPI INT33FE driver",
- 		.acpi_match_table = ACPI_PTR(cht_int33fe_acpi_ids),
- 	},
--	.probe_new = cht_int33fe_probe,
-+	.probe = cht_int33fe_probe,
- 	.remove = cht_int33fe_remove,
--	.id_table = cht_int33fe_i2c_id,
--	.disable_i2c_core_irq_mapping = true,
- };
+@@ -106,13 +98,10 @@ struct smu_sdbp_header *smu_sat_get_sdb_partition(unsigned int sat_id, int id,
+ 		buf[i+2] = data[3];
+ 		buf[i+3] = data[2];
+ 	}
+-#ifdef DEBUG
+-	DBG(KERN_DEBUG "sat %d partition %x:", sat_id, id);
+-	for (i = 0; i < len; ++i)
+-		DBG(" %x", buf[i]);
+-	DBG("\n");
+-#endif
  
--module_i2c_driver(cht_int33fe_driver);
-+module_platform_driver(cht_int33fe_driver);
- 
- MODULE_DESCRIPTION("Intel Cherry Trail ACPI INT33FE pseudo device driver");
- MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
++	printk(KERN_DEBUG "sat %d partition %x:", sat_id, id);
++	print_hex_dump(KERN_DEBUG, "  ", DUMP_PREFIX_OFFSET,
++		       16, 1, buf, len, false);
+ 	if (size)
+ 		*size = len;
+ 	return (struct smu_sdbp_header *) buf;
+@@ -132,13 +121,13 @@ static int wf_sat_read_cache(struct wf_sat *sat)
+ 	if (err < 0)
+ 		return err;
+ 	sat->last_read = jiffies;
++
+ #ifdef LOTSA_DEBUG
+ 	{
+ 		int i;
+-		DBG(KERN_DEBUG "wf_sat_get: data is");
+-		for (i = 0; i < 16; ++i)
+-			DBG(" %.2x", sat->cache[i]);
+-		DBG("\n");
++		printk(KERN_DEBUG "wf_sat_get: data is");
++		print_hex_dump(KERN_DEBUG, "  ", DUMP_PREFIX_OFFSET,
++			       16, 1, sat->cache, 16, false);
+ 	}
+ #endif
+ 	return 0;
 -- 
 2.20.1
 
