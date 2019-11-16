@@ -2,106 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB056FEA21
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 02:35:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12561FEB34
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 08:56:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727365AbfKPBfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 15 Nov 2019 20:35:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46200 "EHLO mail.kernel.org"
+        id S1726166AbfKPH4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 02:56:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727089AbfKPBfC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 15 Nov 2019 20:35:02 -0500
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        id S1726034AbfKPH4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 02:56:20 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4837820815;
-        Sat, 16 Nov 2019 01:35:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5A0020723;
+        Sat, 16 Nov 2019 07:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573868101;
-        bh=Kv1yug5QUnHpKv2L6ZJuYSuJkNFgsyaXFiTSn61696s=;
-        h=Date:From:To:Subject:From;
-        b=ulW2qUbzXU+hkBZG8iumBZIngX+2AsIu8MFJQRZgrbIrYJcSyz8Nonp32scefcPZF
-         qCa4jvygr6f7Y0oul4xV95FUdKSxqo1o/m6qlSBzrUWAngoERBC8BpwkhC+FAjBXbx
-         QEqmp4WUZKmzgZzBjteu2Wl7NXUGzOY0gYVkgnEY=
-Date:   Fri, 15 Nov 2019 17:35:00 -0800
-From:   akpm@linux-foundation.org
-To:     akpm@linux-foundation.org, hughd@google.com, linux-mm@kvack.org,
-        mhocko@suse.com, minchan@google.com, minchan@kernel.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vinmenon@codeaurora.org
-Subject:  [patch 09/11] mm/page_io.c: do not free shared swap slots
-Message-ID: <20191116013500.fmyyvsUau%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        s=default; t=1573890978;
+        bh=2wuPYtSRWEpaZWXXk8Wv1MDnvuT4G2441OtiHG4Osp8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Qel294XHanRT6L9XAiRbI9/NrXtxHrTkCvqa9WM+vXPgc5IIWXofjl9TYKEGy65EC
+         eBTGL+7IaC4Hx8wuxHIvvEXo3PmNObmw5QGHu2vO7ey0MxeCPdXYEPNlfzhMd7kvVl
+         zeTTpYlIwj07jTRQRbnwP8a5Cur0UAdTOfjNKJ5Y=
+Date:   Sat, 16 Nov 2019 15:56:14 +0800
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ralph Siemsen <ralph.siemsen@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Jeremy Cline <jcline@redhat.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [PATCH 4.9 02/31] Bluetooth: hci_ldisc: Postpone
+ HCI_UART_PROTO_READY bit set in hci_uart_set_proto()
+Message-ID: <20191116075614.GB381281@kroah.com>
+References: <20191115062009.813108457@linuxfoundation.org>
+ <20191115062010.682028342@linuxfoundation.org>
+ <20191115161029.GA32365@maple.netwinder.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191115161029.GA32365@maple.netwinder.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinayak Menon <vinmenon@codeaurora.org>
-Subject: mm/page_io.c: do not free shared swap slots
+On Fri, Nov 15, 2019 at 11:10:29AM -0500, Ralph Siemsen wrote:
+> Hi Greg,
+> 
+> On Fri, Nov 15, 2019 at 02:20:31PM +0800, Greg Kroah-Hartman wrote:
+> > From: Kefeng Wang <wangkefeng.wang@huawei.com>
+> > 
+> > commit 56897b217a1d0a91c9920cb418d6b3fe922f590a upstream.
+> > 
+> > task A:                                task B:
+> > hci_uart_set_proto                     flush_to_ldisc
+> > - p->open(hu) -> h5_open  //alloc h5  - receive_buf
+> > - set_bit HCI_UART_PROTO_READY         - tty_port_default_receive_buf
+> > - hci_uart_register_dev                 - tty_ldisc_receive_buf
+> >                                          - hci_uart_tty_receive
+> > 				           - test_bit HCI_UART_PROTO_READY
+> > 				            - h5_recv
+> > - clear_bit HCI_UART_PROTO_READY             while() {
+> > - p->open(hu) -> h5_close //free h5
+> > 				              - h5_rx_3wire_hdr
+> > 				               - h5_reset()  //use-after-free
+> >                                              }
+> > 
+> > It could use ioctl to set hci uart proto, but there is
+> > a use-after-free issue when hci_uart_register_dev() fail in
+> > hci_uart_set_proto(), see stack above, fix this by setting
+> > HCI_UART_PROTO_READY bit only when hci_uart_register_dev()
+> > return success.
+> > 
+> > Reported-by: syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com
+> > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+> > Reviewed-by: Jeremy Cline <jcline@redhat.com>
+> > Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> 
+> I was just about to ask why this had not been merged into 4.9. Spent a while
+> searching archives for any discussion to explain its absence, but couldn't
+> find anything. Also watched your kernel-recipes talk...
+> 
+> BTW, this also seems to be missing from 4.4 branch, although it was merged
+> for 3.16 (per https://lore.kernel.org/stable/?q=Postpone+HCI).
 
-The following race is observed due to which a processes faulting on a swap
-entry, finds the page neither in swapcache nor swap.  This causes zram to
-give a zero filled page that gets mapped to the process, resulting in a
-user space crash later.
+Odd that it was merged into 3.16, perhaps it was done there because some
+earlier patch added the problem?  I say this as I do not think this is
+relevant for the 4.4.y kernel, do you?  Have you tried to apply this
+patch there?
 
-Consider parent and child processes Pa and Pb sharing the same swap slot
-with swap_count 2.  Swap is on zram with SWP_SYNCHRONOUS_IO set.  Virtual
-address 'VA' of Pa and Pb points to the shared swap entry.
+> I gather that the usual rule is that a fix must be in newer versions before
+> it can go into older ones. Or at least, some patches were rejected on that
+> basis. If this is in fact the policy, perhaps it could be added to
+> stable-kernel-rules.rst ?
 
-Pa                                       Pb
+No, that's not why this was rejected.  I don't know why it didn't end up
+in 4.9.y earlier, but for 4.4.y, it was not added there as I do not
+think it actually is relevant (see above.)
 
-fault on VA                              fault on VA
-do_swap_page                             do_swap_page
-lookup_swap_cache fails                  lookup_swap_cache fails
-                                         Pb scheduled out
-swapin_readahead (deletes zram entry)
-swap_free (makes swap_count 1)
-                                         Pb scheduled in
-                                         swap_readpage (swap_count == 1)
-                                         Takes SWP_SYNCHRONOUS_IO path
-                                         zram enrty absent
-                                         zram gives a zero filled page
+thanks,
 
-Fix this by making sure that swap slot is freed only when swap count drops
-down to one.
-
-Link: http://lkml.kernel.org/r/1571743294-14285-1-git-send-email-vinmenon@codeaurora.org
-Fixes: aa8d22a11da9 ("mm: swap: SWP_SYNCHRONOUS_IO: skip swapcache only if swapped page has no other reference")
-Signed-off-by: Vinayak Menon <vinmenon@codeaurora.org>
-Suggested-by: Minchan Kim <minchan@google.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/page_io.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
---- a/mm/page_io.c~mm-do-not-free-shared-swap-slots
-+++ a/mm/page_io.c
-@@ -73,6 +73,7 @@ static void swap_slot_free_notify(struct
- {
- 	struct swap_info_struct *sis;
- 	struct gendisk *disk;
-+	swp_entry_t entry;
- 
- 	/*
- 	 * There is no guarantee that the page is in swap cache - the software
-@@ -104,11 +105,10 @@ static void swap_slot_free_notify(struct
- 	 * we again wish to reclaim it.
- 	 */
- 	disk = sis->bdev->bd_disk;
--	if (disk->fops->swap_slot_free_notify) {
--		swp_entry_t entry;
-+	entry.val = page_private(page);
-+	if (disk->fops->swap_slot_free_notify && __swap_count(entry) == 1) {
- 		unsigned long offset;
- 
--		entry.val = page_private(page);
- 		offset = swp_offset(entry);
- 
- 		SetPageDirty(page);
-_
+greg k-h
