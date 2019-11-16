@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B0D2FEF44
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:58:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9D6FEED1
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:54:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729637AbfKPP5w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:57:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36232 "EHLO mail.kernel.org"
+        id S1730695AbfKPPyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:54:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729433AbfKPPyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:54:33 -0500
+        id S1730675AbfKPPye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:54:34 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 377F820854;
-        Sat, 16 Nov 2019 15:54:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 544E721882;
+        Sat, 16 Nov 2019 15:54:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919672;
-        bh=ww/oRhqwCYwuB7+eq3xYbcJjFM5tGkRXV22rrkSL5+s=;
+        s=default; t=1573919673;
+        bh=dqfazqWnHU4CeyxaocVCzYw+NmrRYHVwx9tDFQUB2mo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kKUc77HzMKycluJYfSYf6ceIQ0xdRKJnpRHJfnGNTK5dYQkGZbOmzPs10qim8aKqt
-         0VlV6S3AV2gENd9WSm6NPzQyjNA0RKJ3JKf92b6VoqszOrVskKUICiki4BZdyBdlhn
-         JCkGqXs4cYKK8ozEJiK3YMyVwGFObd/e1wOXv9Pw=
+        b=L5XwBXga++PNLePqpGM81ww5PzGTkYQC0JqEhJL+vaYA+UqrmhUgsBxPuTyQ102N5
+         U0+P0AK67lblU1war4Ds6ZOZ5CiEXQtkZBaVQEBRfqy++RqN4n6cmUtHOV/tA4Tuwk
+         39xpYRQawYbew2WjU5UPVmn/MR3z75uErR5xA5/U=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+Cc:     Dave Chinner <dchinner@redhat.com>, Jan Kara <jack@suse.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <jiangqi903@gmail.com>,
-        Changwei Ge <ge.changwei@h3c.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 41/77] fs/ocfs2/dlm/dlmdebug.c: fix a sleep-in-atomic-context bug in dlm_print_one_mle()
-Date:   Sat, 16 Nov 2019 10:53:03 -0500
-Message-Id: <20191116155339.11909-41-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.4 42/77] mm/page-writeback.c: fix range_cyclic writeback vs writepages deadlock
+Date:   Sat, 16 Nov 2019 10:53:04 -0500
+Message-Id: <20191116155339.11909-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155339.11909-1-sashal@kernel.org>
 References: <20191116155339.11909-1-sashal@kernel.org>
@@ -49,58 +45,245 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit 999865764f5f128896402572b439269acb471022 ]
+[ Upstream commit 64081362e8ff4587b4554087f3cfc73d3e0a4cd7 ]
 
-The kernel module may sleep with holding a spinlock.
+We've recently seen a workload on XFS filesystems with a repeatable
+deadlock between background writeback and a multi-process application
+doing concurrent writes and fsyncs to a small range of a file.
 
-The function call paths (from bottom to top) in Linux-4.16 are:
+range_cyclic
+writeback		Process 1		Process 2
 
-[FUNC] get_zeroed_page(GFP_NOFS)
-fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
-fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 255: __dlm_put_mle in dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 254: spin_lock in dlm_put_ml
+xfs_vm_writepages
+  write_cache_pages
+    writeback_index = 2
+    cycled = 0
+    ....
+    find page 2 dirty
+    lock Page 2
+    ->writepage
+      page 2 writeback
+      page 2 clean
+      page 2 added to bio
+    no more pages
+			write()
+			locks page 1
+			dirties page 1
+			locks page 2
+			dirties page 1
+			fsync()
+			....
+			xfs_vm_writepages
+			write_cache_pages
+			  start index 0
+			  find page 1 towrite
+			  lock Page 1
+			  ->writepage
+			    page 1 writeback
+			    page 1 clean
+			    page 1 added to bio
+			  find page 2 towrite
+			  lock Page 2
+			  page 2 is writeback
+			  <blocks>
+						write()
+						locks page 1
+						dirties page 1
+						fsync()
+						....
+						xfs_vm_writepages
+						write_cache_pages
+						  start index 0
 
-[FUNC] get_zeroed_page(GFP_NOFS)
-fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
-fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 222: __dlm_put_mle in dlm_put_mle_inuse
-fs/ocfs2/dlm/dlmmaster.c, 219: spin_lock in dlm_put_mle_inuse
+    !done && !cycled
+      sets index to 0, restarts lookup
+    find page 1 dirty
+						  find page 1 towrite
+						  lock Page 1
+						  page 1 is writeback
+						  <blocks>
 
-To fix this bug, GFP_NOFS is replaced with GFP_ATOMIC.
+    lock Page 1
+    <blocks>
 
-This bug is found by my static analysis tool DSAC.
+DEADLOCK because:
 
-Link: http://lkml.kernel.org/r/20180901112528.27025-1-baijiaju1990@gmail.com
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Joseph Qi <jiangqi903@gmail.com>
-Cc: Changwei Ge <ge.changwei@h3c.com>
+	- process 1 needs page 2 writeback to complete to make
+	  enough progress to issue IO pending for page 1
+	- writeback needs page 1 writeback to complete so process 2
+	  can progress and unlock the page it is blocked on, then it
+	  can issue the IO pending for page 2
+	- process 2 can't make progress until process 1 issues IO
+	  for page 1
+
+The underlying cause of the problem here is that range_cyclic writeback is
+processing pages in descending index order as we hold higher index pages
+in a structure controlled from above write_cache_pages().  The
+write_cache_pages() caller needs to be able to submit these pages for IO
+before write_cache_pages restarts writeback at mapping index 0 to avoid
+wcp inverting the page lock/writeback wait order.
+
+generic_writepages() is not susceptible to this bug as it has no private
+context held across write_cache_pages() - filesystems using this
+infrastructure always submit pages in ->writepage immediately and so there
+is no problem with range_cyclic going back to mapping index 0.
+
+However:
+	mpage_writepages() has a private bio context,
+	exofs_writepages() has page_collect
+	fuse_writepages() has fuse_fill_wb_data
+	nfs_writepages() has nfs_pageio_descriptor
+	xfs_vm_writepages() has xfs_writepage_ctx
+
+All of these ->writepages implementations can hold pages under writeback
+in their private structures until write_cache_pages() returns, and hence
+they are all susceptible to this deadlock.
+
+Also worth noting is that ext4 has it's own bastardised version of
+write_cache_pages() and so it /may/ have an equivalent deadlock.  I looked
+at the code long enough to understand that it has a similar retry loop for
+range_cyclic writeback reaching the end of the file and then promptly ran
+away before my eyes bled too much.  I'll leave it for the ext4 developers
+to determine if their code is actually has this deadlock and how to fix it
+if it has.
+
+There's a few ways I can see avoid this deadlock.  There's probably more,
+but these are the first I've though of:
+
+1. get rid of range_cyclic altogether
+
+2. range_cyclic always stops at EOF, and we start again from
+writeback index 0 on the next call into write_cache_pages()
+
+2a. wcp also returns EAGAIN to ->writepages implementations to
+indicate range cyclic has hit EOF. writepages implementations can
+then flush the current context and call wpc again to continue. i.e.
+lift the retry into the ->writepages implementation
+
+3. range_cyclic uses trylock_page() rather than lock_page(), and it
+skips pages it can't lock without blocking. It will already do this
+for pages under writeback, so this seems like a no-brainer
+
+3a. all non-WB_SYNC_ALL writeback uses trylock_page() to avoid
+blocking as per pages under writeback.
+
+I don't think #1 is an option - range_cyclic prevents frequently
+dirtied lower file offset from starving background writeback of
+rarely touched higher file offsets.
+
+#2 is simple, and I don't think it will have any impact on
+performance as going back to the start of the file implies an
+immediate seek. We'll have exactly the same number of seeks if we
+switch writeback to another inode, and then come back to this one
+later and restart from index 0.
+
+#2a is pretty much "status quo without the deadlock". Moving the
+retry loop up into the wcp caller means we can issue IO on the
+pending pages before calling wcp again, and so avoid locking or
+waiting on pages in the wrong order. I'm not convinced we need to do
+this given that we get the same thing from #2 on the next writeback
+call from the writeback infrastructure.
+
+#3 is really just a band-aid - it doesn't fix the access/wait
+inversion problem, just prevents it from becoming a deadlock
+situation. I'd prefer we fix the inversion, not sweep it under the
+carpet like this.
+
+#3a is really an optimisation that just so happens to include the
+band-aid fix of #3.
+
+So it seems that the simplest way to fix this issue is to implement
+solution #2
+
+Link: http://lkml.kernel.org/r/20181005054526.21507-1-david@fromorbit.com
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Jan Kara <jack@suse.de>
+Cc: Nicholas Piggin <npiggin@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dlm/dlmdebug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/page-writeback.c | 33 +++++++++++++++------------------
+ 1 file changed, 15 insertions(+), 18 deletions(-)
 
-diff --git a/fs/ocfs2/dlm/dlmdebug.c b/fs/ocfs2/dlm/dlmdebug.c
-index 825136070d2c1..73eaccea09b98 100644
---- a/fs/ocfs2/dlm/dlmdebug.c
-+++ b/fs/ocfs2/dlm/dlmdebug.c
-@@ -329,7 +329,7 @@ void dlm_print_one_mle(struct dlm_master_list_entry *mle)
- {
- 	char *buf;
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index 0bc7fa21db854..d2211e42b7792 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -2144,6 +2144,13 @@ EXPORT_SYMBOL(tag_pages_for_writeback);
+  * not miss some pages (e.g., because some other process has cleared TOWRITE
+  * tag we set). The rule we follow is that TOWRITE tag can be cleared only
+  * by the process clearing the DIRTY tag (and submitting the page for IO).
++ *
++ * To avoid deadlocks between range_cyclic writeback and callers that hold
++ * pages in PageWriteback to aggregate IO until write_cache_pages() returns,
++ * we do not loop back to the start of the file. Doing so causes a page
++ * lock/page writeback access order inversion - we should only ever lock
++ * multiple pages in ascending page->index order, and looping back to the start
++ * of the file violates that rule and causes deadlocks.
+  */
+ int write_cache_pages(struct address_space *mapping,
+ 		      struct writeback_control *wbc, writepage_t writepage,
+@@ -2158,7 +2165,6 @@ int write_cache_pages(struct address_space *mapping,
+ 	pgoff_t index;
+ 	pgoff_t end;		/* Inclusive */
+ 	pgoff_t done_index;
+-	int cycled;
+ 	int range_whole = 0;
+ 	int tag;
  
--	buf = (char *) get_zeroed_page(GFP_NOFS);
-+	buf = (char *) get_zeroed_page(GFP_ATOMIC);
- 	if (buf) {
- 		dump_mle(mle, buf, PAGE_SIZE - 1);
- 		free_page((unsigned long)buf);
+@@ -2166,23 +2172,17 @@ int write_cache_pages(struct address_space *mapping,
+ 	if (wbc->range_cyclic) {
+ 		writeback_index = mapping->writeback_index; /* prev offset */
+ 		index = writeback_index;
+-		if (index == 0)
+-			cycled = 1;
+-		else
+-			cycled = 0;
+ 		end = -1;
+ 	} else {
+ 		index = wbc->range_start >> PAGE_CACHE_SHIFT;
+ 		end = wbc->range_end >> PAGE_CACHE_SHIFT;
+ 		if (wbc->range_start == 0 && wbc->range_end == LLONG_MAX)
+ 			range_whole = 1;
+-		cycled = 1; /* ignore range_cyclic tests */
+ 	}
+ 	if (wbc->sync_mode == WB_SYNC_ALL || wbc->tagged_writepages)
+ 		tag = PAGECACHE_TAG_TOWRITE;
+ 	else
+ 		tag = PAGECACHE_TAG_DIRTY;
+-retry:
+ 	if (wbc->sync_mode == WB_SYNC_ALL || wbc->tagged_writepages)
+ 		tag_pages_for_writeback(mapping, index, end);
+ 	done_index = index;
+@@ -2290,17 +2290,14 @@ int write_cache_pages(struct address_space *mapping,
+ 		pagevec_release(&pvec);
+ 		cond_resched();
+ 	}
+-	if (!cycled && !done) {
+-		/*
+-		 * range_cyclic:
+-		 * We hit the last page and there is more work to be done: wrap
+-		 * back to the start of the file
+-		 */
+-		cycled = 1;
+-		index = 0;
+-		end = writeback_index - 1;
+-		goto retry;
+-	}
++
++	/*
++	 * If we hit the last page and there is more work to be done: wrap
++	 * back the index back to the start of the file for the next
++	 * time we are called.
++	 */
++	if (wbc->range_cyclic && !done)
++		done_index = 0;
+ 	if (wbc->range_cyclic || (range_whole && wbc->nr_to_write > 0))
+ 		mapping->writeback_index = done_index;
+ 
 -- 
 2.20.1
 
