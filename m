@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D19DFF18C
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:13:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8E45FF189
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729249AbfKPQMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:12:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55092 "EHLO mail.kernel.org"
+        id S1729717AbfKPQMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:12:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729942AbfKPPsH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:07 -0500
+        id S1729249AbfKPPsK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:48:10 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F8582086A;
-        Sat, 16 Nov 2019 15:48:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A17B520729;
+        Sat, 16 Nov 2019 15:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919286;
-        bh=3wMnnIJXfnWk142yJD3BMJNJy478q2HaJSDSh7be0mA=;
+        s=default; t=1573919289;
+        bh=oMoPkCwY6kDzGS2Li0xLQGa17DHyFG0V1ZNnzIwiQfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZNNoQJlSwclmqV8l1fpbYM1yCAnmuDdeaj8aOgxhqSyDPI6J5UzmS0UrRYP/E6mvD
-         mS+lgM5GSg82LMFCQbE2NhQZxID2H4UxUxpGdpNXrQErFgoWBOfqt8myIUyB8rA83f
-         leBrflJzGUcWTqx5xzD3PwepET+DtTnx/Y3be6Gs=
+        b=k12CItOjUV08dsTgrMxl0bqZicoE59VSvymxEZHFwwIqYdTY4neJ6ZkzKr6qhTulP
+         9MHPMLAGhp60Y8qZfK/ZZ1SCC7K26pDRNxdsQuFwHHdBk/JkMRRLD9pCrutwFmriOP
+         YJIFX9y+s1qmURo/WzqhPXFV5zV/AGR8tUu+DszA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lubomir Rintel <lkundrak@v3.sk>, Stephen Boyd <sboyd@kernel.org>,
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 036/150] clk: mmp2: fix the clock id for sdh2_clk and sdh3_clk
-Date:   Sat, 16 Nov 2019 10:45:34 -0500
-Message-Id: <20191116154729.9573-36-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 037/150] clk: at91: audio-pll: fix audio pmc type
+Date:   Sat, 16 Nov 2019 10:45:35 -0500
+Message-Id: <20191116154729.9573-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -42,36 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lubomir Rintel <lkundrak@v3.sk>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 4917fb90eec7c26dac1497ada3bd4a325f670fcc ]
+[ Upstream commit 7fa75007b7d7421aea59ff2b12ab1bd65a5abfa6 ]
 
-A typo that makes it impossible to get the correct clocks for
-MMP2_CLK_SDH2 and MMP2_CLK_SDH3.
+The allocation for the audio pmc is using the size of struct clk_audio_pad
+instead of struct clk_audio_pmc. This works fine because the former is
+larger than the latter but it is safer to be correct.
 
-Signed-off-by: Lubomir Rintel <lkundrak@v3.sk>
-Fixes: 1ec770d92a62 ("clk: mmp: add mmp2 DT support for clock driver")
+Fixes: ("0865805d82d4 clk: at91: add audio pll clock drivers")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mmp/clk-of-mmp2.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/clk/at91/clk-audio-pll.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/mmp/clk-of-mmp2.c b/drivers/clk/mmp/clk-of-mmp2.c
-index 0fc75c3959570..d083b860f0833 100644
---- a/drivers/clk/mmp/clk-of-mmp2.c
-+++ b/drivers/clk/mmp/clk-of-mmp2.c
-@@ -227,8 +227,8 @@ static struct mmp_param_gate_clk apmu_gate_clks[] = {
- 	/* The gate clocks has mux parent. */
- 	{MMP2_CLK_SDH0, "sdh0_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH0, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
- 	{MMP2_CLK_SDH1, "sdh1_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH1, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
--	{MMP2_CLK_SDH1, "sdh2_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH2, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
--	{MMP2_CLK_SDH1, "sdh3_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH3, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
-+	{MMP2_CLK_SDH2, "sdh2_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH2, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
-+	{MMP2_CLK_SDH3, "sdh3_clk", "sdh_mix_clk", CLK_SET_RATE_PARENT, APMU_SDH3, 0x1b, 0x1b, 0x0, 0, &sdh_lock},
- 	{MMP2_CLK_DISP0, "disp0_clk", "disp0_div", CLK_SET_RATE_PARENT, APMU_DISP0, 0x1b, 0x1b, 0x0, 0, &disp0_lock},
- 	{MMP2_CLK_DISP0_SPHY, "disp0_sphy_clk", "disp0_sphy_div", CLK_SET_RATE_PARENT, APMU_DISP0, 0x1024, 0x1024, 0x0, 0, &disp0_lock},
- 	{MMP2_CLK_DISP1, "disp1_clk", "disp1_div", CLK_SET_RATE_PARENT, APMU_DISP1, 0x1b, 0x1b, 0x0, 0, &disp1_lock},
+diff --git a/drivers/clk/at91/clk-audio-pll.c b/drivers/clk/at91/clk-audio-pll.c
+index da7bafcfbe706..b3eaf654fac98 100644
+--- a/drivers/clk/at91/clk-audio-pll.c
++++ b/drivers/clk/at91/clk-audio-pll.c
+@@ -509,7 +509,7 @@ static void __init of_sama5d2_clk_audio_pll_pad_setup(struct device_node *np)
+ 
+ static void __init of_sama5d2_clk_audio_pll_pmc_setup(struct device_node *np)
+ {
+-	struct clk_audio_pad *apmc_ck;
++	struct clk_audio_pmc *apmc_ck;
+ 	struct clk_init_data init = {};
+ 
+ 	apmc_ck = kzalloc(sizeof(*apmc_ck), GFP_KERNEL);
 -- 
 2.20.1
 
