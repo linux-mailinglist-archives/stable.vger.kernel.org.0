@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 088B3FF00C
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3588EFF009
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731022AbfKPPwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:52:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33120 "EHLO mail.kernel.org"
+        id S1731042AbfKPPw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:52:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730999AbfKPPwU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:52:20 -0500
+        id S1731007AbfKPPwV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:52:21 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E53520842;
-        Sat, 16 Nov 2019 15:52:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42E9020728;
+        Sat, 16 Nov 2019 15:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919539;
-        bh=pm4J433S+H+C6Sxgui/dBAeNPiQ5Rk3ZCpsfCJCntLg=;
+        s=default; t=1573919541;
+        bh=dvvlDb/+0VMhtBKkl1moFhh/et82E8jtpyGoaFbPt7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=df6Wy+u+lH+AHD8WLcpze6Ao25lqDOVjcIqc9Ch2aj2yaghl5AHCS+xyEkTC0lhsi
-         yst4R9IYy698YTTCNyfKjUvTDIrTk5R+va+ydr2Pn02FNR1ERWfZUmW472bkwFVyxA
-         TldPTWI+a2zpic9NqOYUNFOOJoy1+vMcfZdkrU9Y=
+        b=O7dVi7VI6xUFGv7gJYMn0cvHgj6rKot0LCfaaEfKKpAAEDSOYNdtrHN4ufrI6mITe
+         dMDiIlt0g8iRoEfZ4TmAHjN5MlZKwDCr4m++3H+0qHK6rLJw+2xLr8hWudVSP0CO/P
+         I1QmPk7cu79HQHcFJqBDgnqD5FXHVTF70zdM9xSo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sabrina Dubroca <sd@queasysnail.net>,
-        Radu Rendec <radu.rendec@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 55/99] macsec: let the administrator set UP state even if lowerdev is down
-Date:   Sat, 16 Nov 2019 10:50:18 -0500
-Message-Id: <20191116155103.10971-55-sashal@kernel.org>
+Cc:     Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 56/99] um: Make line/tty semantics use true write IRQ
+Date:   Sat, 16 Nov 2019 10:50:19 -0500
+Message-Id: <20191116155103.10971-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
 References: <20191116155103.10971-1-sashal@kernel.org>
@@ -44,41 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-[ Upstream commit 07bddef9839378bd6f95b393cf24c420529b4ef1 ]
+[ Upstream commit 917e2fd2c53eb3c4162f5397555cbd394390d4bc ]
 
-Currently, the kernel doesn't let the administrator set a macsec device
-up unless its lower device is currently up. This is inconsistent, as a
-macsec device that is up won't automatically go down when its lower
-device goes down.
+This fixes a long standing bug where large amounts of output
+could freeze the tty (most commonly seen on stdio console).
+While the bug has always been there it became more pronounced
+after moving to the new interrupt controller.
 
-Now that linkstate propagation works, there's really no reason for this
-limitation, so let's remove it.
+The line semantics are now changed to have true IRQ write
+semantics which should further improve the tty/line subsystem
+stability and performance
 
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Reported-by: Radu Rendec <radu.rendec@gmail.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/um/drivers/line.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index d2a3825376be5..a48ed0873cc72 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2798,9 +2798,6 @@ static int macsec_dev_open(struct net_device *dev)
- 	struct net_device *real_dev = macsec->real_dev;
- 	int err;
- 
--	if (!(real_dev->flags & IFF_UP))
--		return -ENETDOWN;
--
- 	err = dev_uc_add(real_dev, dev->dev_addr);
- 	if (err < 0)
- 		return err;
+diff --git a/arch/um/drivers/line.c b/arch/um/drivers/line.c
+index 62087028a9ce1..d2ad45c101137 100644
+--- a/arch/um/drivers/line.c
++++ b/arch/um/drivers/line.c
+@@ -260,7 +260,7 @@ static irqreturn_t line_write_interrupt(int irq, void *data)
+ 	if (err == 0) {
+ 		spin_unlock(&line->lock);
+ 		return IRQ_NONE;
+-	} else if (err < 0) {
++	} else if ((err < 0) && (err != -EAGAIN)) {
+ 		line->head = line->buffer;
+ 		line->tail = line->buffer;
+ 	}
 -- 
 2.20.1
 
