@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7173EFF3CF
+	by mail.lfdr.de (Postfix) with ESMTP id 02975FF3CE
 	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:28:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727843AbfKPPlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:41:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44308 "EHLO mail.kernel.org"
+        id S1727862AbfKPPlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:41:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727830AbfKPPlU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:41:20 -0500
+        id S1727856AbfKPPlY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:41:24 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C33820730;
-        Sat, 16 Nov 2019 15:41:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2926020730;
+        Sat, 16 Nov 2019 15:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918879;
-        bh=uWZClTrsqmEFx8byq1mK09fgpItzYGHhc8KLTIkX/1U=;
+        s=default; t=1573918884;
+        bh=wtjYU+nHjHQOYZA/U7nBjkeTi8Gils3V5XygPliyQmI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HE/rOSQzwYjhIJpIj6M2ykxTXZuh5t+0d8DsU4R1oH8lifnaJ5J8nrSOhr5ifxBo/
-         sLlciVkJtFvRGa7vy07LaqaIbxPww3lkZ0YGFTNkbBHme/LouxZTyyeTj6m+piSODK
-         +QCVt51DRL2/wDmH3DrFf/48dcCou/MugiEOnXc4=
+        b=Cb/ebQ3/iq8YDPq0YyQJ2O13Qa9Z9BCZJmzux4/sdWYA2aP6/ZXPVZ1akdAfewA3R
+         gL1OwiIJ4Xe6lrgkL9Tx8LbjAK8XN00Xl82HTIAwV1gPhwiPRaeBRUhwFXtGcAmdWl
+         MmP5+EqnlDO+7pBxZRDzvKxJJ/UUJivjIiFGOEWk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Geoff Levand <geoff@infradead.org>,
+Cc:     Joel Stanley <joel@jms.id.au>,
         Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 010/237] powerpc: Fix signedness bug in update_flash_db()
-Date:   Sat, 16 Nov 2019 10:37:25 -0500
-Message-Id: <20191116154113.7417-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 012/237] powerpc/boot: Disable vector instructions
+Date:   Sat, 16 Nov 2019 10:37:27 -0500
+Message-Id: <20191116154113.7417-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,38 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 014704e6f54189a203cc14c7c0bb411b940241bc ]
+[ Upstream commit e8e132e6885962582784b6fa16a80d07ea739c0f ]
 
-The "count < sizeof(struct os_area_db)" comparison is type promoted to
-size_t so negative values of "count" are treated as very high values
-and we accidentally return success instead of a negative error code.
+This will avoid auto-vectorisation when building with higher
+optimisation levels.
 
-This doesn't really change runtime much but it fixes a static checker
-warning.
+We don't know if the machine can support VSX and even if it's present
+it's probably not going to be enabled at this point in boot.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Geoff Levand <geoff@infradead.org>
+These flag were both added prior to GCC 4.6 which is the minimum
+compiler version supported by upstream, thanks to Segher for the
+details.
+
+Signed-off-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/ps3/os-area.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/boot/Makefile | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/ps3/os-area.c b/arch/powerpc/platforms/ps3/os-area.c
-index cdbfc5cfd6f38..f5387ad822798 100644
---- a/arch/powerpc/platforms/ps3/os-area.c
-+++ b/arch/powerpc/platforms/ps3/os-area.c
-@@ -664,7 +664,7 @@ static int update_flash_db(void)
- 	db_set_64(db, &os_area_db_id_rtc_diff, saved_params.rtc_diff);
+diff --git a/arch/powerpc/boot/Makefile b/arch/powerpc/boot/Makefile
+index 25e3184f11f78..7d5ddf53750ce 100644
+--- a/arch/powerpc/boot/Makefile
++++ b/arch/powerpc/boot/Makefile
+@@ -32,8 +32,8 @@ else
+ endif
  
- 	count = os_area_flash_write(db, sizeof(struct os_area_db), pos);
--	if (count < sizeof(struct os_area_db)) {
-+	if (count < 0 || count < sizeof(struct os_area_db)) {
- 		pr_debug("%s: os_area_flash_write failed %zd\n", __func__,
- 			 count);
- 		error = count < 0 ? count : -EIO;
+ BOOTCFLAGS    := -Wall -Wundef -Wstrict-prototypes -Wno-trigraphs \
+-		 -fno-strict-aliasing -Os -msoft-float -pipe \
+-		 -fomit-frame-pointer -fno-builtin -fPIC -nostdinc \
++		 -fno-strict-aliasing -Os -msoft-float -mno-altivec -mno-vsx \
++		 -pipe -fomit-frame-pointer -fno-builtin -fPIC -nostdinc \
+ 		 -D$(compress-y)
+ 
+ ifdef CONFIG_PPC64_BOOT_WRAPPER
 -- 
 2.20.1
 
