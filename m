@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74546FF0B0
+	by mail.lfdr.de (Postfix) with ESMTP id 88F72FF0B2
 	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730549AbfKPPud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:50:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58652 "EHLO mail.kernel.org"
+        id S1730557AbfKPPuf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:50:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730542AbfKPPuc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:32 -0500
+        id S1729125AbfKPPue (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:34 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3E1D214E0;
-        Sat, 16 Nov 2019 15:50:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22EAC2182A;
+        Sat, 16 Nov 2019 15:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919432;
-        bh=uDcN+zJQIqDGXr9Kza332+ObxD3mF/nXCieJBCiZ5Ww=;
+        s=default; t=1573919433;
+        bh=zeMmqN91T1U6t+tXj7rn0j1WvBUUfrtvQg+SMNngmbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v318CU1VmTV6atnPgpfxJ8rYNZ1F2ayVEJ3iCVUCSGIjKF0X+IDjfZ0uJoLz2D/yr
-         lEErgkvj0X3K8dL4ixU8Iqn1TwkgNF9lvxWF7OShgnE6cgGIJjZeOvFsfFaMg1skL0
-         fi8lvsn+IEvVRs1CNFRjsBRP1VxlBvq3X/279Csk=
+        b=PBrO+m/zxFbVZFEx750BD5VW7e1l4QEjcWafz2O3E19WaK4on0AMAURtb42hf3bfv
+         ABuZ/nGGUE2jFfeGbHFS5wWLkJx25SuDA55kW4cRyrPKdiGAeMvwd5RxeNvZitbH9B
+         VPk4/+ceokReaaMJcWGBo6JTP3hBqFd+rulZqJRY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
+Cc:     Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>,
-        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 129/150] scsi: mpt3sas: Fix driver modifying persistent data in Manufacturing page11
-Date:   Sat, 16 Nov 2019 10:47:07 -0500
-Message-Id: <20191116154729.9573-129-sashal@kernel.org>
+        megaraidlinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 131/150] scsi: megaraid_sas: Fix goto labels in error handling
+Date:   Sat, 16 Nov 2019 10:47:09 -0500
+Message-Id: <20191116154729.9573-131-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -46,41 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+From: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 
-[ Upstream commit 97f35194093362a63b33caba2485521ddabe2c95 ]
+[ Upstream commit 8a25fa17b6ed6e6c8101e9c68a10ae68a9025f2c ]
 
-Currently driver is modifying both current & NVRAM/persistent data in
-Manufacturing page11. Driver should change only current copy of
-Manufacturing page11. It should not modify the persistent data.
+During init, if pci_alloc_irq_vectors() fails, the driver has not yet setup
+the IRQs. Fix the goto labels and error handling for this case.
 
-So removed the section of code where driver is modifying the persistent
-data of Manufacturing page11.
-
-Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
-Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Shivasharan S <shivasharan.srikanteshwara@broadcom.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/mpt3sas/mpt3sas_config.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/scsi/megaraid/megaraid_sas_base.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/mpt3sas/mpt3sas_config.c b/drivers/scsi/mpt3sas/mpt3sas_config.c
-index dd62701256142..58acbff40abc8 100644
---- a/drivers/scsi/mpt3sas/mpt3sas_config.c
-+++ b/drivers/scsi/mpt3sas/mpt3sas_config.c
-@@ -674,10 +674,6 @@ mpt3sas_config_set_manufacturing_pg11(struct MPT3SAS_ADAPTER *ioc,
- 	r = _config_request(ioc, &mpi_request, mpi_reply,
- 	    MPT3_CONFIG_PAGE_DEFAULT_TIMEOUT, config_page,
- 	    sizeof(*config_page));
--	mpi_request.Action = MPI2_CONFIG_ACTION_PAGE_WRITE_NVRAM;
--	r = _config_request(ioc, &mpi_request, mpi_reply,
--	    MPT3_CONFIG_PAGE_DEFAULT_TIMEOUT, config_page,
--	    sizeof(*config_page));
-  out:
- 	return r;
- }
+diff --git a/drivers/scsi/megaraid/megaraid_sas_base.c b/drivers/scsi/megaraid/megaraid_sas_base.c
+index 23a9f0777fa62..577513649afbe 100644
+--- a/drivers/scsi/megaraid/megaraid_sas_base.c
++++ b/drivers/scsi/megaraid/megaraid_sas_base.c
+@@ -5324,7 +5324,7 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 	if (!instance->msix_vectors) {
+ 		i = pci_alloc_irq_vectors(instance->pdev, 1, 1, PCI_IRQ_LEGACY);
+ 		if (i < 0)
+-			goto fail_setup_irqs;
++			goto fail_init_adapter;
+ 	}
+ 
+ 	megasas_setup_reply_map(instance);
+@@ -5541,9 +5541,8 @@ static int megasas_init_fw(struct megasas_instance *instance)
+ 
+ fail_get_ld_pd_list:
+ 	instance->instancet->disable_intr(instance);
+-fail_init_adapter:
+ 	megasas_destroy_irqs(instance);
+-fail_setup_irqs:
++fail_init_adapter:
+ 	if (instance->msix_vectors)
+ 		pci_free_irq_vectors(instance->pdev);
+ 	instance->msix_vectors = 0;
 -- 
 2.20.1
 
