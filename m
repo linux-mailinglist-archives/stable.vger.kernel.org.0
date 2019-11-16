@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0385FF1EE
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:16:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 491F7FF1EB
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730006AbfKPQP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:15:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53758 "EHLO mail.kernel.org"
+        id S1729109AbfKPQPx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:15:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729635AbfKPPrI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:47:08 -0500
+        id S1729638AbfKPPrJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:47:09 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD3072083E;
-        Sat, 16 Nov 2019 15:47:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8574320815;
+        Sat, 16 Nov 2019 15:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919228;
-        bh=PV75VkIsQLSgJfMJKGoDxgGY1yV4axR33hw/nS5ls3w=;
+        bh=k+aeY3djTXrMWJV296qj1JOi9SAAWVq/Vc2rki06J+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+99ikYBG5FC64ak8lYuHubAWuli8KXEGLoHwOHONxLvx6m6QjkF+PzGuVutGKO0M
-         2Gc3CPC6gt7drOKg3hHrhHg8Aeiare6n+EmxD51zAMObRAxh6L0vTeUsFalGMeWwUt
-         6TkbyiWAnr7bmLU8/FcmIkrmdEylJxNvfuFVm2MY=
+        b=AoTcALhZnUU6DHdBVsWu+BOuEHBIWz/OrXI4Xq81riGUc/PSu4YcZYA6G+ebiKvOX
+         ucdVY3OZpZIZclRAWIeo3d7zQrsJQ5qs72xdYRKxj1AU65/CasT1mCTrqSnEOSvn8Z
+         TEIVxpNElNVc5G2fLlTTLCoxQJhpnqGYRuvN/HJI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Igor Konopko <igor.j.konopko@intel.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 232/237] nvme-pci: fix surprise removal
-Date:   Sat, 16 Nov 2019 10:41:07 -0500
-Message-Id: <20191116154113.7417-232-sashal@kernel.org>
+Cc:     Vignesh R <vigneshr@ti.com>, David Lechner <david@lechnology.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 233/237] spi: omap2-mcspi: Fix DMA and FIFO event trigger size mismatch
+Date:   Sat, 16 Nov 2019 10:41:08 -0500
+Message-Id: <20191116154113.7417-233-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,48 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Igor Konopko <igor.j.konopko@intel.com>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit 751a0cc0cd3a0d51e6aaf6fd3b8bd31f4ecfaf3e ]
+[ Upstream commit baf8b9f8d260c55a86405f70a384c29cda888476 ]
 
-When a PCIe NVMe device is not present, nvme_dev_remove_admin() calls
-blk_cleanup_queue() on the admin queue, which frees the hctx for that
-queue.  Moments later, on the same path nvme_kill_queues() calls
-blk_mq_unquiesce_queue() on admin queue and tries to access hctx of it,
-which leads to following OOPS:
+Commit b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
+broke SPI transfers where bits_per_word != 8. This is because of
+mimsatch between McSPI FIFO level event trigger size (SPI word length) and
+DMA request size(word length * maxburst). This leads to data
+corruption, lockup and errors like:
 
-Oops: 0000 [#1] SMP PTI
-RIP: 0010:sbitmap_any_bit_set+0xb/0x40
-Call Trace:
- blk_mq_run_hw_queue+0xd5/0x150
- blk_mq_run_hw_queues+0x3a/0x50
- nvme_kill_queues+0x26/0x50
- nvme_remove_namespaces+0xb2/0xc0
- nvme_remove+0x60/0x140
- pci_device_remove+0x3b/0xb0
+	spi1.0: EOW timed out
 
-Fixes: cb4bfda62afa2 ("nvme-pci: fix hot removal during error handling")
-Signed-off-by: Igor Konopko <igor.j.konopko@intel.com>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fix this by setting DMA maxburst size to 1 so that
+McSPI FIFO level event trigger size matches DMA request size.
+
+Fixes: b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
+Cc: stable@vger.kernel.org
+Reported-by: David Lechner <david@lechnology.com>
+Tested-by: David Lechner <david@lechnology.com>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-omap2-mcspi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 5d0f99bcc987f..44da9fe5b27b8 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -3647,7 +3647,7 @@ void nvme_kill_queues(struct nvme_ctrl *ctrl)
- 	down_read(&ctrl->namespaces_rwsem);
+diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
+index f50cb8a4b4138..eb2d2de172af3 100644
+--- a/drivers/spi/spi-omap2-mcspi.c
++++ b/drivers/spi/spi-omap2-mcspi.c
+@@ -607,8 +607,8 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
+ 	cfg.dst_addr = cs->phys + OMAP2_MCSPI_TX0;
+ 	cfg.src_addr_width = width;
+ 	cfg.dst_addr_width = width;
+-	cfg.src_maxburst = es;
+-	cfg.dst_maxburst = es;
++	cfg.src_maxburst = 1;
++	cfg.dst_maxburst = 1;
  
- 	/* Forcibly unquiesce queues to avoid blocking dispatch */
--	if (ctrl->admin_q)
-+	if (ctrl->admin_q && !blk_queue_dying(ctrl->admin_q))
- 		blk_mq_unquiesce_queue(ctrl->admin_q);
- 
- 	list_for_each_entry(ns, &ctrl->namespaces, list)
+ 	rx = xfer->rx_buf;
+ 	tx = xfer->tx_buf;
 -- 
 2.20.1
 
