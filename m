@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D47FF246
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:18:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C111FF243
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:18:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729277AbfKPPqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:46:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52888 "EHLO mail.kernel.org"
+        id S1729522AbfKPQR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:17:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729419AbfKPPqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:31 -0500
+        id S1728764AbfKPPqd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:33 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B52C820833;
-        Sat, 16 Nov 2019 15:46:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9B3E20862;
+        Sat, 16 Nov 2019 15:46:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919191;
-        bh=YRIoyCqFbllyk9Rbao0HAflYjxyFvS7VSLfoVAW4XKI=;
+        s=default; t=1573919193;
+        bh=0/v6sglde6ETDy/cKQP12kRzT3Ku99PNjbTwDK6rlkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ut1MxyLUNChfpP4BvrP2Xvxu5N7SydHrf6lLioKOmoSsG0n6lIdhUDsTulS7RSZkZ
-         TGUeJmKR6EDHpWpypHG8bSgAuu3vp+6bYTBhlOYW144KeFUI7Ktb3ipECW0Z3ajGtY
-         Tsp9mB+x48+7Wu1EyUEC0tIZU8vSl5ek/QrflQ5M=
+        b=wnsM+9T6493SapgfKsWAS1hR9uyOHGy+kd6Zng+8oBER9SNZkw2pxYqzPnl6XShzZ
+         FN39pSfznh/yexuPNaKwMOMZ2UGLBKLinXG/Ym61qyqSW6Y3nT/0Y6dv5ndodMNHXM
+         aEWTTgFyoyMY/c5qHe96+S9pOe/LQmKfoJuZZepA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Norris <briannorris@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
+Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, ath10k@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 200/237] ath10k: snoc: fix unbalanced clock error handling
-Date:   Sat, 16 Nov 2019 10:40:35 -0500
-Message-Id: <20191116154113.7417-200-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 201/237] wlcore: Fix the return value in case of error in 'wlcore_vendor_cmd_smart_config_start()'
+Date:   Sat, 16 Nov 2019 10:40:36 -0500
+Message-Id: <20191116154113.7417-201-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -45,37 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 82e60d920e8ad70cd9a280ab156566755f1fe4aa ]
+[ Upstream commit 3419348a97bcc256238101129d69b600ceb5cc70 ]
 
-Similar to regulator error handling, we should only start tearing down
-the 'i - 1' clock when clock 'i' fails to enable. Otherwise, we might
-end up with an unbalanced clock, where we never successfully enabled the
-clock, but we try to disable it anyway.
+We return 0 unconditionally at the end of
+'wlcore_vendor_cmd_smart_config_start()'.
+However, 'ret' is set to some error codes in several error handling paths
+and we already return some error codes at the beginning of the function.
 
-Fixes: a6a793f98786 ("ath10k: vote for hardware resources for WCN3990")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Return 'ret' instead to propagate the error code.
+
+Fixes: 80ff8063e87c ("wlcore: handle smart config vendor commands")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/snoc.c | 2 +-
+ drivers/net/wireless/ti/wlcore/vendor_cmd.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/snoc.c b/drivers/net/wireless/ath/ath10k/snoc.c
-index fa1843a7e0fda..e2d78f77edb70 100644
---- a/drivers/net/wireless/ath/ath10k/snoc.c
-+++ b/drivers/net/wireless/ath/ath10k/snoc.c
-@@ -1190,7 +1190,7 @@ static int ath10k_wcn3990_clk_init(struct ath10k *ar)
- 	return 0;
+diff --git a/drivers/net/wireless/ti/wlcore/vendor_cmd.c b/drivers/net/wireless/ti/wlcore/vendor_cmd.c
+index dbe78d8491eff..7f34ec077ee57 100644
+--- a/drivers/net/wireless/ti/wlcore/vendor_cmd.c
++++ b/drivers/net/wireless/ti/wlcore/vendor_cmd.c
+@@ -70,7 +70,7 @@ wlcore_vendor_cmd_smart_config_start(struct wiphy *wiphy,
+ out:
+ 	mutex_unlock(&wl->mutex);
  
- err_clock_config:
--	for (; i >= 0; i--) {
-+	for (i = i - 1; i >= 0; i--) {
- 		clk_info = &ar_snoc->clk[i];
+-	return 0;
++	return ret;
+ }
  
- 		if (!clk_info->handle)
+ static int
 -- 
 2.20.1
 
