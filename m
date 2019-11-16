@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3981AFF0A1
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:06:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A383FF097
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:06:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730833AbfKPQGv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:06:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58984 "EHLO mail.kernel.org"
+        id S1731313AbfKPQGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:06:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730605AbfKPPun (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:43 -0500
+        id S1729233AbfKPPuo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:44 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C44DC208E3;
-        Sat, 16 Nov 2019 15:50:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54D59217D6;
+        Sat, 16 Nov 2019 15:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919443;
-        bh=CsVoL3NyfiNt7Eogn47IcWHjO7uZLP+evt4RF0CnHnQ=;
+        bh=d9y+8teIU6Z3Uw7Gq33J3Sg7jR+MWOtnLwmYSK1PHvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gg1/GxgkcL/MHlGAyXG7ebEAEH6ZR6aUh80Nsvb0a48t59Ckx3NJEg15a5/dOwFYZ
-         i9cY7/Bk9hB1hvBepyHu5ixbGELejPM4g2HC7llADl2mv+1jnsg+1whLfgocpTwp0v
-         N7HmHk97M3KBpgqILY1w0zUBJC9YlPoSWcjaY/bM=
+        b=vyMthJq5dXHmb49hbOXBFli7WpdTE0Z2JRnZ3PD1DGS0OTGhykqqF4s0zrFHAu8lh
+         jyaKRwUzegPX7rRKk53IHNdjjLUyW2JQTTM9v9n4dOPQHUcIDHe5LCYeo5Qj+mYI5H
+         hWHPE5WavQK+0A6ZlGldKXobTEriJOi1wCNfJtww=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Frank Rowand <frank.rowand@sony.com>, Alan Tull <atull@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 140/150] of: unittest: allow base devicetree to have symbol metadata
-Date:   Sat, 16 Nov 2019 10:47:18 -0500
-Message-Id: <20191116154729.9573-140-sashal@kernel.org>
+Cc:     Sriram R <srirrama@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 141/150] cfg80211: Prevent regulatory restore during STA disconnect in concurrent interfaces
+Date:   Sat, 16 Nov 2019 10:47:19 -0500
+Message-Id: <20191116154729.9573-141-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -42,115 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Rowand <frank.rowand@sony.com>
+From: Sriram R <srirrama@codeaurora.org>
 
-[ Upstream commit 5babefb7f7ab1f23861336d511cc666fa45ede82 ]
+[ Upstream commit 113f3aaa81bd56aba02659786ed65cbd9cb9a6fc ]
 
-The overlay metadata nodes in the FDT created from testcases.dts
-are not handled properly.
+Currently when an AP and STA interfaces are active in the same or different
+radios, regulatory settings are restored whenever the STA disconnects. This
+restores all channel information including dfs states in all radios.
+For example, if an AP interface is active in one radio and STA in another,
+when radar is detected on the AP interface, the dfs state of the channel
+will be changed to UNAVAILABLE. But when the STA interface disconnects,
+this issues a regulatory disconnect hint which restores all regulatory
+settings in all the radios attached and thereby losing the stored dfs
+state on the other radio where the channel was marked as unavailable
+earlier. Hence prevent such regulatory restore whenever another active
+beaconing interface is present in the same or other radios.
 
-The __fixups__ and __local_fixups__ node were added to the live
-devicetree, but should not be.
-
-Only the first property in the /__symbols__ node was added to the
-live devicetree if the live devicetree already contained a
-/__symbols node.  All of the node's properties must be added.
-
-Tested-by: Alan Tull <atull@kernel.org>
-Signed-off-by: Frank Rowand <frank.rowand@sony.com>
+Signed-off-by: Sriram R <srirrama@codeaurora.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/unittest.c | 43 +++++++++++++++++++++++++++++++++++--------
- 1 file changed, 35 insertions(+), 8 deletions(-)
+ net/wireless/sme.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index 87650d42682fc..9d204649c963c 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -910,20 +910,44 @@ static void __init of_unittest_platform_populate(void)
-  *	of np into dup node (present in live tree) and
-  *	updates parent of children of np to dup.
-  *
-- *	@np:	node already present in live tree
-+ *	@np:	node whose properties are being added to the live tree
-  *	@dup:	node present in live tree to be updated
-  */
- static void update_node_properties(struct device_node *np,
- 					struct device_node *dup)
- {
- 	struct property *prop;
-+	struct property *save_next;
- 	struct device_node *child;
--
--	for_each_property_of_node(np, prop)
--		of_add_property(dup, prop);
-+	int ret;
- 
- 	for_each_child_of_node(np, child)
- 		child->parent = dup;
-+
-+	/*
-+	 * "unittest internal error: unable to add testdata property"
-+	 *
-+	 *    If this message reports a property in node '/__symbols__' then
-+	 *    the respective unittest overlay contains a label that has the
-+	 *    same name as a label in the live devicetree.  The label will
-+	 *    be in the live devicetree only if the devicetree source was
-+	 *    compiled with the '-@' option.  If you encounter this error,
-+	 *    please consider renaming __all__ of the labels in the unittest
-+	 *    overlay dts files with an odd prefix that is unlikely to be
-+	 *    used in a real devicetree.
-+	 */
-+
-+	/*
-+	 * open code for_each_property_of_node() because of_add_property()
-+	 * sets prop->next to NULL
-+	 */
-+	for (prop = np->properties; prop != NULL; prop = save_next) {
-+		save_next = prop->next;
-+		ret = of_add_property(dup, prop);
-+		if (ret)
-+			pr_err("unittest internal error: unable to add testdata property %pOF/%s",
-+			       np, prop->name);
-+	}
- }
- 
- /**
-@@ -932,18 +956,23 @@ static void update_node_properties(struct device_node *np,
-  *
-  *	@np:	Node to attach to live tree
-  */
--static int attach_node_and_children(struct device_node *np)
-+static void attach_node_and_children(struct device_node *np)
- {
- 	struct device_node *next, *dup, *child;
- 	unsigned long flags;
- 	const char *full_name;
- 
- 	full_name = kasprintf(GFP_KERNEL, "%pOF", np);
-+
-+	if (!strcmp(full_name, "/__local_fixups__") ||
-+	    !strcmp(full_name, "/__fixups__"))
-+		return;
-+
- 	dup = of_find_node_by_path(full_name);
- 	kfree(full_name);
- 	if (dup) {
- 		update_node_properties(np, dup);
--		return 0;
-+		return;
- 	}
- 
- 	child = np->child;
-@@ -964,8 +993,6 @@ static int attach_node_and_children(struct device_node *np)
- 		attach_node_and_children(child);
- 		child = next;
- 	}
--
--	return 0;
- }
- 
- /**
+diff --git a/net/wireless/sme.c b/net/wireless/sme.c
+index d014aea07160c..66cccd16c24af 100644
+--- a/net/wireless/sme.c
++++ b/net/wireless/sme.c
+@@ -642,11 +642,15 @@ static bool cfg80211_is_all_idle(void)
+ 	 * All devices must be idle as otherwise if you are actively
+ 	 * scanning some new beacon hints could be learned and would
+ 	 * count as new regulatory hints.
++	 * Also if there is any other active beaconing interface we
++	 * need not issue a disconnect hint and reset any info such
++	 * as chan dfs state, etc.
+ 	 */
+ 	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
+ 		list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
+ 			wdev_lock(wdev);
+-			if (wdev->conn || wdev->current_bss)
++			if (wdev->conn || wdev->current_bss ||
++			    cfg80211_beaconing_iface_active(wdev))
+ 				is_all_idle = false;
+ 			wdev_unlock(wdev);
+ 		}
 -- 
 2.20.1
 
