@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3D3FEF75
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:59:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF089FEF73
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:59:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729783AbfKPP7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:59:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35564 "EHLO mail.kernel.org"
+        id S1730596AbfKPP7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:59:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731382AbfKPPyG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:54:06 -0500
+        id S1730025AbfKPPyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:54:08 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 904382184B;
-        Sat, 16 Nov 2019 15:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7DDF7218AE;
+        Sat, 16 Nov 2019 15:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919645;
-        bh=D8mCsiEzR6izmi+hn6DAU5ElQOyy8Jel0fWiOlabNYg=;
+        s=default; t=1573919647;
+        bh=pz831w1FYuAKytC2tJGnO7bVucvEVuEDHUgUhpkzv/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3lE1OWo9YXtP7CW2jqMKU6E6F0Gix8H5oThQZzRnNcyEI5kk/UQL8Jyrm5WKPNth
-         W9dZkym4Td3z+bI1Z2bVVlmNTQjNmcM1vrSK3qommqSVByc8K7nHb471iTZyIIlAmc
-         /uvDkP5CPg8Yc5v14GLzyzXB2Ih85u888CGWXQyI=
+        b=y4EUKcjG4ZgLTz9HDhFCMeOkzGB+C9IaYkOkz13K3xKrzTnH7U2VtiJ4waQE62Oz5
+         9LoAr/YRaGaMjRnL/jNOUZzYMlcOx2vwwzSmGD8e3mXKPAVVX9KGuSRXzK6SACdCru
+         8dqj6dxiV+Vm/nntH552lzLyCQwu77bSL1J0zQCE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 23/77] kprobes, x86/ptrace.h: Make regs_get_kernel_stack_nth() not fault on bad stack
-Date:   Sat, 16 Nov 2019 10:52:45 -0500
-Message-Id: <20191116155339.11909-23-sashal@kernel.org>
+Cc:     Philipp Klocke <philipp97kl@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.4 24/77] ALSA: i2c/cs8427: Fix int to char conversion
+Date:   Sat, 16 Nov 2019 10:52:46 -0500
+Message-Id: <20191116155339.11909-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155339.11909-1-sashal@kernel.org>
 References: <20191116155339.11909-1-sashal@kernel.org>
@@ -50,100 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+From: Philipp Klocke <philipp97kl@gmail.com>
 
-[ Upstream commit c2712b858187f5bcd7b042fe4daa3ba3a12635c0 ]
+[ Upstream commit eb7ebfa3c1989aa8e59d5e68ab3cddd7df1bfb27 ]
 
-Andy had some concerns about using regs_get_kernel_stack_nth() in a new
-function regs_get_kernel_argument() as if there's any error in the stack
-code, it could cause a bad memory access. To be on the safe side, call
-probe_kernel_read() on the stack address to be extra careful in accessing
-the memory. A helper function, regs_get_kernel_stack_nth_addr(), was added
-to just return the stack address (or NULL if not on the stack), that will be
-used to find the address (and could be used by other functions) and read the
-address with kernel_probe_read().
+Compiling with clang yields the following warning:
 
-Requested-by: Andy Lutomirski <luto@amacapital.net>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20181017165951.09119177@gandalf.local.home
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+sound/i2c/cs8427.c:140:31: warning: implicit conversion from 'int'
+to 'char' changes value from 160 to -96 [-Wconstant-conversion]
+    data[0] = CS8427_REG_AUTOINC | CS8427_REG_CORU_DATABUF;
+            ~ ~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~
+
+Because CS8427_REG_AUTOINC is defined as 128, it is too big for a
+char field.
+So change data from char to unsigned char, that it can hold the value.
+
+This patch does not change the generated code.
+
+Signed-off-by: Philipp Klocke <philipp97kl@gmail.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/ptrace.h | 42 +++++++++++++++++++++++++++++------
- 1 file changed, 35 insertions(+), 7 deletions(-)
+ sound/i2c/cs8427.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
-index 0d8e0831b1a07..3daec418c822f 100644
---- a/arch/x86/include/asm/ptrace.h
-+++ b/arch/x86/include/asm/ptrace.h
-@@ -205,24 +205,52 @@ static inline int regs_within_kernel_stack(struct pt_regs *regs,
- 		(kernel_stack_pointer(regs) & ~(THREAD_SIZE - 1)));
- }
+diff --git a/sound/i2c/cs8427.c b/sound/i2c/cs8427.c
+index 7e21621e492a4..7fd1b40008838 100644
+--- a/sound/i2c/cs8427.c
++++ b/sound/i2c/cs8427.c
+@@ -118,7 +118,7 @@ static int snd_cs8427_send_corudata(struct snd_i2c_device *device,
+ 	struct cs8427 *chip = device->private_data;
+ 	char *hw_data = udata ?
+ 		chip->playback.hw_udata : chip->playback.hw_status;
+-	char data[32];
++	unsigned char data[32];
+ 	int err, idx;
  
-+/**
-+ * regs_get_kernel_stack_nth_addr() - get the address of the Nth entry on stack
-+ * @regs:	pt_regs which contains kernel stack pointer.
-+ * @n:		stack entry number.
-+ *
-+ * regs_get_kernel_stack_nth() returns the address of the @n th entry of the
-+ * kernel stack which is specified by @regs. If the @n th entry is NOT in
-+ * the kernel stack, this returns NULL.
-+ */
-+static inline unsigned long *regs_get_kernel_stack_nth_addr(struct pt_regs *regs, unsigned int n)
-+{
-+	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
-+
-+	addr += n;
-+	if (regs_within_kernel_stack(regs, (unsigned long)addr))
-+		return addr;
-+	else
-+		return NULL;
-+}
-+
-+/* To avoid include hell, we can't include uaccess.h */
-+extern long probe_kernel_read(void *dst, const void *src, size_t size);
-+
- /**
-  * regs_get_kernel_stack_nth() - get Nth entry of the stack
-  * @regs:	pt_regs which contains kernel stack pointer.
-  * @n:		stack entry number.
-  *
-  * regs_get_kernel_stack_nth() returns @n th entry of the kernel stack which
-- * is specified by @regs. If the @n th entry is NOT in the kernel stack,
-+ * is specified by @regs. If the @n th entry is NOT in the kernel stack
-  * this returns 0.
-  */
- static inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
- 						      unsigned int n)
- {
--	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
--	addr += n;
--	if (regs_within_kernel_stack(regs, (unsigned long)addr))
--		return *addr;
--	else
--		return 0;
-+	unsigned long *addr;
-+	unsigned long val;
-+	long ret;
-+
-+	addr = regs_get_kernel_stack_nth_addr(regs, n);
-+	if (addr) {
-+		ret = probe_kernel_read(&val, addr, sizeof(val));
-+		if (!ret)
-+			return val;
-+	}
-+	return 0;
- }
- 
- #define arch_has_single_step()	(1)
+ 	if (!memcmp(hw_data, ndata, count))
 -- 
 2.20.1
 
