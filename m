@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8074FF025
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C777FF026
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:03:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730023AbfKPPwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728153AbfKPPwC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 16 Nov 2019 10:52:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60854 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730887AbfKPPv7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:51:59 -0500
+        id S1730898AbfKPPwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:52:00 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2612320854;
+        by mail.kernel.org (Postfix) with ESMTPSA id B844A2168B;
         Sat, 16 Nov 2019 15:51:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919519;
-        bh=yMANsvQR7BaNAKga85VnyLz+nzo9WorfhVnnC6PD6AA=;
+        s=default; t=1573919520;
+        bh=krZDS5Xres+b4gBKMkpeIRgF9Ij2mTybHD+luW0D7ys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0a88smUh47QQk4z2Whyvlbr2tD7zEDQlRKw57UNrATu0FRmZRGuwBSbILtJSibVbK
-         t8+4hUGSHk1SVyXBowy95/NSg5K1NSFefXnk55iyUf/D3iWDvU0s2Nyya6f44uRe9I
-         +xv0nHpe4DYJok2Fb6h5LVoxB08ShjGcw1mGF4jk=
+        b=zsw5+hD2ZKDeMdelTtYdqmcCRTkpWg3lHu4m8fVm7Omd5GKLUbo/FZVi5knCOujlF
+         0eMYr9LIFBTLh0+ZbwAV4DJPiRz4PdekWaIczXO9m3pTwIV+bzt22+Edxs4ljn00Fm
+         O9FJKab7qq0i+tVxbQ2RoczoOxxoqdZDn2AGHHcw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Weichao Guo <guoweichao@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.9 41/99] f2fs: fix to spread clear_cold_data()
-Date:   Sat, 16 Nov 2019 10:50:04 -0500
-Message-Id: <20191116155103.10971-41-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.9 42/99] mISDN: Fix type of switch control variable in ctrl_teimanager
+Date:   Sat, 16 Nov 2019 10:50:05 -0500
+Message-Id: <20191116155103.10971-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
 References: <20191116155103.10971-1-sashal@kernel.org>
@@ -44,92 +44,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 2baf07818549c8bb8d7b3437e889b86eab56d38e ]
+[ Upstream commit aeb5e02aca91522733eb1db595ac607d30c87767 ]
 
-We need to drop PG_checked flag on page as well when we clear PG_uptodate
-flag, in order to avoid treating the page as GCing one later.
+Clang warns (trimmed for brevity):
 
-Signed-off-by: Weichao Guo <guoweichao@huawei.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+drivers/isdn/mISDN/tei.c:1193:7: warning: overflow converting case value
+to switch condition type (2147764552 to 18446744071562348872) [-Wswitch]
+        case IMHOLD_L1:
+             ^
+drivers/isdn/mISDN/tei.c:1187:7: warning: overflow converting case value
+to switch condition type (2147764550 to 18446744071562348870) [-Wswitch]
+        case IMCLEAR_L2:
+             ^
+2 warnings generated.
+
+The root cause is that the _IOC macro can generate really large numbers,
+which don't find into type int. My research into how GCC and Clang are
+handling this at a low level didn't prove fruitful and surveying the
+kernel tree shows that aside from here and a few places in the scsi
+subsystem, everything that uses _IOC is at least of type 'unsigned int'.
+Make that change here because as nothing in this function cares about
+the signedness of the variable and it removes ambiguity, which is never
+good when dealing with compilers.
+
+While we're here, remove the unnecessary local variable ret (just return
+-EINVAL and 0 directly).
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/67
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/data.c    | 8 +++++++-
- fs/f2fs/dir.c     | 1 +
- fs/f2fs/segment.c | 4 +++-
- 3 files changed, 11 insertions(+), 2 deletions(-)
+ drivers/isdn/mISDN/tei.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 9041805096e0c..0206c8c20784c 100644
---- a/fs/f2fs/data.c
-+++ b/fs/f2fs/data.c
-@@ -1201,6 +1201,7 @@ int do_write_data_page(struct f2fs_io_info *fio)
- 	/* This page is already truncated */
- 	if (fio->old_blkaddr == NULL_ADDR) {
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
- 		goto out_writepage;
+diff --git a/drivers/isdn/mISDN/tei.c b/drivers/isdn/mISDN/tei.c
+index 592f597d89518..8261afbbafb05 100644
+--- a/drivers/isdn/mISDN/tei.c
++++ b/drivers/isdn/mISDN/tei.c
+@@ -1180,8 +1180,7 @@ static int
+ ctrl_teimanager(struct manager *mgr, void *arg)
+ {
+ 	/* currently we only have one option */
+-	int	*val = (int *)arg;
+-	int	ret = 0;
++	unsigned int *val = (unsigned int *)arg;
+ 
+ 	switch (val[0]) {
+ 	case IMCLEAR_L2:
+@@ -1197,9 +1196,9 @@ ctrl_teimanager(struct manager *mgr, void *arg)
+ 			test_and_clear_bit(OPTION_L1_HOLD, &mgr->options);
+ 		break;
+ 	default:
+-		ret = -EINVAL;
++		return -EINVAL;
  	}
+-	return ret;
++	return 0;
+ }
  
-@@ -1337,8 +1338,10 @@ static int f2fs_write_data_page(struct page *page,
- 	clear_cold_data(page);
- out:
- 	inode_dec_dirty_pages(inode);
--	if (err)
-+	if (err) {
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
-+	}
- 
- 	if (wbc->for_reclaim) {
- 		f2fs_submit_merged_bio_cond(sbi, NULL, page, 0, DATA, WRITE);
-@@ -1821,6 +1824,8 @@ void f2fs_invalidate_page(struct page *page, unsigned int offset,
- 			inode_dec_dirty_pages(inode);
- 	}
- 
-+	clear_cold_data(page);
-+
- 	/* This is atomic written page, keep Private */
- 	if (IS_ATOMIC_WRITTEN_PAGE(page))
- 		return;
-@@ -1839,6 +1844,7 @@ int f2fs_release_page(struct page *page, gfp_t wait)
- 	if (IS_ATOMIC_WRITTEN_PAGE(page))
- 		return 0;
- 
-+	clear_cold_data(page);
- 	set_page_private(page, 0);
- 	ClearPagePrivate(page);
- 	return 1;
-diff --git a/fs/f2fs/dir.c b/fs/f2fs/dir.c
-index af719d93507e8..b414892be08b7 100644
---- a/fs/f2fs/dir.c
-+++ b/fs/f2fs/dir.c
-@@ -772,6 +772,7 @@ void f2fs_delete_entry(struct f2fs_dir_entry *dentry, struct page *page,
- 		clear_page_dirty_for_io(page);
- 		ClearPagePrivate(page);
- 		ClearPageUptodate(page);
-+		clear_cold_data(page);
- 		inode_dec_dirty_pages(dir);
- 	}
- 	f2fs_put_page(page, 1);
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 1d5a352138109..c4c84af1ec17a 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -227,8 +227,10 @@ static int __revoke_inmem_pages(struct inode *inode,
- 		}
- next:
- 		/* we don't need to invalidate this in the sccessful status */
--		if (drop || recover)
-+		if (drop || recover) {
- 			ClearPageUptodate(page);
-+			clear_cold_data(page);
-+		}
- 		set_page_private(page, 0);
- 		ClearPagePrivate(page);
- 		f2fs_put_page(page, 1);
+ /* This function does create a L2 for fixed TEI in NT Mode */
 -- 
 2.20.1
 
