@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D84CAFF316
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:23:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33AEEFF319
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:23:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728462AbfKPPmu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:42:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46608 "EHLO mail.kernel.org"
+        id S1728709AbfKPQX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:23:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728454AbfKPPmt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:49 -0500
+        id S1728489AbfKPPmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:42:52 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF9612083B;
-        Sat, 16 Nov 2019 15:42:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69E222083B;
+        Sat, 16 Nov 2019 15:42:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918968;
-        bh=3r/wVgar0X1hDws2ckKF3k8I2j9Pr3YO8n4G0JXdbJo=;
+        s=default; t=1573918971;
+        bh=Mr7tKvRZ502cywgXVcx/jiSQvnfQj4wn5VzQkntfH5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QEPP+RIVJ5xisdBRnXvlq/bjvgWIp08D1/cfxcrl5B4KHVz4GFiUMwP/hFFl4D75H
-         yp5UCPEaJCz+B9NhkF2x+Orujyzbo6z6lPjfOsxYEtAHPJg5eGcQWXwxTlJsOLZSrx
-         Bju5PXcKYGmu8LaoUBvBgE3TK4ZRWA6dF7BG/njM=
+        b=Z/RWTECYg/NG/Xf5dj/3oRZNxHSraP4rpttLTcqSGgkFsAwlDssWnUyPgmmo2ONuz
+         k4cO4mvGfzs+UorOhgldLWSxDZYMjGgIl7uwf4YxFWc/6BfwEGEhH9UvuPeMgXILvL
+         c6Msf2/mbKGmJHDnrIrvGUWFV9uK9qPEpXXqRUQ0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nathan Chancellor <natechancellor@gmail.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        clang-built-linux@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 084/237] atm: zatm: Fix empty body Clang warnings
-Date:   Sat, 16 Nov 2019 10:38:39 -0500
-Message-Id: <20191116154113.7417-84-sashal@kernel.org>
+Cc:     Vignesh R <vigneshr@ti.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 087/237] spi: omap2-mcspi: Set FIFO DMA trigger level to word length
+Date:   Sat, 16 Nov 2019 10:38:42 -0500
+Message-Id: <20191116154113.7417-87-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -45,173 +42,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit 64b9d16e2d02ca6e5dc8fcd30cfd52b0ecaaa8f4 ]
+[ Upstream commit b682cffa3ac6d9d9e16e9b413c45caee3b391fab ]
 
-Clang warns:
+McSPI has 32 byte FIFO in Transmit-Receive mode. Current code tries to
+configuration FIFO watermark level for DMA trigger to be GCD of transfer
+length and max FIFO size which would mean trigger level may be set to 32
+for transmit-receive mode if length is aligned. This does not work in
+case of SPI slave mode where FIFO always needs to have data ready
+whenever master starts the clock. With DMA trigger size of 32 there will
+be a small window during slave TX where DMA is still putting data into
+FIFO but master would have started clock for next byte, resulting in
+shifting out of stale data. Similarly, on Slave RX side there may be RX
+FIFO overflow
+Fix this by setting FIFO watermark for DMA trigger to word
+length. This means DMA is triggered as soon as FIFO has space for word
+length bytes and DMA would make sure FIFO is almost always full
+therefore improving FIFO occupancy in both master and slave mode.
 
-drivers/atm/zatm.c:513:7: error: while loop has empty body
-[-Werror,-Wempty-body]
-        zwait;
-             ^
-drivers/atm/zatm.c:513:7: note: put the semicolon on a separate line to
-silence this warning
-
-Get rid of this warning by using an empty do-while loop. While we're at
-it, add parentheses to make it clear that this is a function-like macro.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/42
-Suggested-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/atm/zatm.c | 42 +++++++++++++++++++++---------------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
+ drivers/spi/spi-omap2-mcspi.c | 26 +++++++-------------------
+ 1 file changed, 7 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/atm/zatm.c b/drivers/atm/zatm.c
-index e89146ddede69..d5c76b50d3575 100644
---- a/drivers/atm/zatm.c
-+++ b/drivers/atm/zatm.c
-@@ -126,7 +126,7 @@ static unsigned long dummy[2] = {0,0};
- #define zin_n(r) inl(zatm_dev->base+r*4)
- #define zin(r) inl(zatm_dev->base+uPD98401_##r*4)
- #define zout(v,r) outl(v,zatm_dev->base+uPD98401_##r*4)
--#define zwait while (zin(CMR) & uPD98401_BUSY)
-+#define zwait() do {} while (zin(CMR) & uPD98401_BUSY)
+diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
+index e2be7da743438..f50cb8a4b4138 100644
+--- a/drivers/spi/spi-omap2-mcspi.c
++++ b/drivers/spi/spi-omap2-mcspi.c
+@@ -299,7 +299,7 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
+ 	struct omap2_mcspi_cs *cs = spi->controller_state;
+ 	struct omap2_mcspi *mcspi;
+ 	unsigned int wcnt;
+-	int max_fifo_depth, fifo_depth, bytes_per_word;
++	int max_fifo_depth, bytes_per_word;
+ 	u32 chconf, xferlevel;
  
- /* RX0, RX1, TX0, TX1 */
- static const int mbx_entries[NR_MBX] = { 1024,1024,1024,1024 };
-@@ -140,7 +140,7 @@ static const int mbx_esize[NR_MBX] = { 16,16,4,4 }; /* entry size in bytes */
+ 	mcspi = spi_master_get_devdata(master);
+@@ -315,10 +315,6 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
+ 		else
+ 			max_fifo_depth = OMAP2_MCSPI_MAX_FIFODEPTH;
  
- static void zpokel(struct zatm_dev *zatm_dev,u32 value,u32 addr)
- {
--	zwait;
-+	zwait();
- 	zout(value,CER);
- 	zout(uPD98401_IND_ACC | uPD98401_IA_BALL |
- 	    (uPD98401_IA_TGT_CM << uPD98401_IA_TGT_SHIFT) | addr,CMR);
-@@ -149,10 +149,10 @@ static void zpokel(struct zatm_dev *zatm_dev,u32 value,u32 addr)
+-		fifo_depth = gcd(t->len, max_fifo_depth);
+-		if (fifo_depth < 2 || fifo_depth % bytes_per_word != 0)
+-			goto disable_fifo;
+-
+ 		wcnt = t->len / bytes_per_word;
+ 		if (wcnt > OMAP2_MCSPI_MAX_FIFOWCNT)
+ 			goto disable_fifo;
+@@ -326,16 +322,17 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
+ 		xferlevel = wcnt << 16;
+ 		if (t->rx_buf != NULL) {
+ 			chconf |= OMAP2_MCSPI_CHCONF_FFER;
+-			xferlevel |= (fifo_depth - 1) << 8;
++			xferlevel |= (bytes_per_word - 1) << 8;
+ 		}
++
+ 		if (t->tx_buf != NULL) {
+ 			chconf |= OMAP2_MCSPI_CHCONF_FFET;
+-			xferlevel |= fifo_depth - 1;
++			xferlevel |= bytes_per_word - 1;
+ 		}
  
- static u32 zpeekl(struct zatm_dev *zatm_dev,u32 addr)
- {
--	zwait;
-+	zwait();
- 	zout(uPD98401_IND_ACC | uPD98401_IA_BALL | uPD98401_IA_RW |
- 	  (uPD98401_IA_TGT_CM << uPD98401_IA_TGT_SHIFT) | addr,CMR);
--	zwait;
-+	zwait();
- 	return zin(CER);
- }
+ 		mcspi_write_reg(master, OMAP2_MCSPI_XFERLEVEL, xferlevel);
+ 		mcspi_write_chconf0(spi, chconf);
+-		mcspi->fifo_depth = fifo_depth;
++		mcspi->fifo_depth = max_fifo_depth;
  
-@@ -241,7 +241,7 @@ static void refill_pool(struct atm_dev *dev,int pool)
+ 		return;
  	}
- 	if (first) {
- 		spin_lock_irqsave(&zatm_dev->lock, flags);
--		zwait;
-+		zwait();
- 		zout(virt_to_bus(first),CER);
- 		zout(uPD98401_ADD_BAT | (pool << uPD98401_POOL_SHIFT) | count,
- 		    CMR);
-@@ -508,9 +508,9 @@ static int open_rx_first(struct atm_vcc *vcc)
+@@ -585,7 +582,6 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
+ 	struct dma_slave_config	cfg;
+ 	enum dma_slave_buswidth width;
+ 	unsigned es;
+-	u32			burst;
+ 	void __iomem		*chstat_reg;
+ 	void __iomem            *irqstat_reg;
+ 	int			wait_res;
+@@ -605,22 +601,14 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
  	}
- 	if (zatm_vcc->pool < 0) return -EMSGSIZE;
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
--	zwait;
-+	zwait();
- 	zout(uPD98401_OPEN_CHAN,CMR);
--	zwait;
-+	zwait();
- 	DPRINTK("0x%x 0x%x\n",zin(CMR),zin(CER));
- 	chan = (zin(CMR) & uPD98401_CHAN_ADDR) >> uPD98401_CHAN_ADDR_SHIFT;
- 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
-@@ -571,21 +571,21 @@ static void close_rx(struct atm_vcc *vcc)
- 		pos = vcc->vci >> 1;
- 		shift = (1-(vcc->vci & 1)) << 4;
- 		zpokel(zatm_dev,zpeekl(zatm_dev,pos) & ~(0xffff << shift),pos);
--		zwait;
-+		zwait();
- 		zout(uPD98401_NOP,CMR);
--		zwait;
-+		zwait();
- 		zout(uPD98401_NOP,CMR);
- 		spin_unlock_irqrestore(&zatm_dev->lock, flags);
- 	}
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
--	zwait;
-+	zwait();
- 	zout(uPD98401_DEACT_CHAN | uPD98401_CHAN_RT | (zatm_vcc->rx_chan <<
- 	    uPD98401_CHAN_ADDR_SHIFT),CMR);
--	zwait;
-+	zwait();
- 	udelay(10); /* why oh why ... ? */
- 	zout(uPD98401_CLOSE_CHAN | uPD98401_CHAN_RT | (zatm_vcc->rx_chan <<
- 	    uPD98401_CHAN_ADDR_SHIFT),CMR);
--	zwait;
-+	zwait();
- 	if (!(zin(CMR) & uPD98401_CHAN_ADDR))
- 		printk(KERN_CRIT DEV_LABEL "(itf %d): can't close RX channel "
- 		    "%d\n",vcc->dev->number,zatm_vcc->rx_chan);
-@@ -699,7 +699,7 @@ printk("NONONONOO!!!!\n");
- 	skb_queue_tail(&zatm_vcc->tx_queue,skb);
- 	DPRINTK("QRP=0x%08lx\n",zpeekl(zatm_dev,zatm_vcc->tx_chan*VC_SIZE/4+
- 	  uPD98401_TXVC_QRP));
--	zwait;
-+	zwait();
- 	zout(uPD98401_TX_READY | (zatm_vcc->tx_chan <<
- 	    uPD98401_CHAN_ADDR_SHIFT),CMR);
- 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
-@@ -891,12 +891,12 @@ static void close_tx(struct atm_vcc *vcc)
- 	}
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
- #if 0
--	zwait;
-+	zwait();
- 	zout(uPD98401_DEACT_CHAN | (chan << uPD98401_CHAN_ADDR_SHIFT),CMR);
- #endif
--	zwait;
-+	zwait();
- 	zout(uPD98401_CLOSE_CHAN | (chan << uPD98401_CHAN_ADDR_SHIFT),CMR);
--	zwait;
-+	zwait();
- 	if (!(zin(CMR) & uPD98401_CHAN_ADDR))
- 		printk(KERN_CRIT DEV_LABEL "(itf %d): can't close TX channel "
- 		    "%d\n",vcc->dev->number,chan);
-@@ -926,9 +926,9 @@ static int open_tx_first(struct atm_vcc *vcc)
- 	zatm_vcc->tx_chan = 0;
- 	if (vcc->qos.txtp.traffic_class == ATM_NONE) return 0;
- 	spin_lock_irqsave(&zatm_dev->lock, flags);
--	zwait;
-+	zwait();
- 	zout(uPD98401_OPEN_CHAN,CMR);
--	zwait;
-+	zwait();
- 	DPRINTK("0x%x 0x%x\n",zin(CMR),zin(CER));
- 	chan = (zin(CMR) & uPD98401_CHAN_ADDR) >> uPD98401_CHAN_ADDR_SHIFT;
- 	spin_unlock_irqrestore(&zatm_dev->lock, flags);
-@@ -1557,7 +1557,7 @@ static void zatm_phy_put(struct atm_dev *dev,unsigned char value,
- 	struct zatm_dev *zatm_dev;
  
- 	zatm_dev = ZATM_DEV(dev);
--	zwait;
-+	zwait();
- 	zout(value,CER);
- 	zout(uPD98401_IND_ACC | uPD98401_IA_B0 |
- 	    (uPD98401_IA_TGT_PHY << uPD98401_IA_TGT_SHIFT) | addr,CMR);
-@@ -1569,10 +1569,10 @@ static unsigned char zatm_phy_get(struct atm_dev *dev,unsigned long addr)
- 	struct zatm_dev *zatm_dev;
+ 	count = xfer->len;
+-	burst = 1;
+-
+-	if (mcspi->fifo_depth > 0) {
+-		if (count > mcspi->fifo_depth)
+-			burst = mcspi->fifo_depth / es;
+-		else
+-			burst = count / es;
+-	}
  
- 	zatm_dev = ZATM_DEV(dev);
--	zwait;
-+	zwait();
- 	zout(uPD98401_IND_ACC | uPD98401_IA_B0 | uPD98401_IA_RW |
- 	  (uPD98401_IA_TGT_PHY << uPD98401_IA_TGT_SHIFT) | addr,CMR);
--	zwait;
-+	zwait();
- 	return zin(CER) & 0xff;
- }
+ 	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.src_addr = cs->phys + OMAP2_MCSPI_RX0;
+ 	cfg.dst_addr = cs->phys + OMAP2_MCSPI_TX0;
+ 	cfg.src_addr_width = width;
+ 	cfg.dst_addr_width = width;
+-	cfg.src_maxburst = burst;
+-	cfg.dst_maxburst = burst;
++	cfg.src_maxburst = es;
++	cfg.dst_maxburst = es;
  
+ 	rx = xfer->rx_buf;
+ 	tx = xfer->tx_buf;
 -- 
 2.20.1
 
