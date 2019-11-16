@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AD5AFF27A
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:20:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E905AFF270
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:19:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728301AbfKPQTQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:19:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52570 "EHLO mail.kernel.org"
+        id S1729344AbfKPPqS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:46:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728338AbfKPPqQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:16 -0500
+        id S1728631AbfKPPqR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:17 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB43220836;
-        Sat, 16 Nov 2019 15:46:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B6A020830;
+        Sat, 16 Nov 2019 15:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919176;
-        bh=tgII95yNo67R1JXOG2XCEJcU+1k6nHpaACezIMZWUnM=;
+        s=default; t=1573919177;
+        bh=g5JG3N6L0NyVvDNzIuGXVjudP/DJfzVs1xq1Vs9a7Kg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MOfMFv/XkscGIVagn1YQoi657CteZjGKR1tLyRnQ4fCf66A+TJoyrLz+4JO4h7H+7
-         9QzPhqql2WIoEy+2RcnpKvPOqcmVGPubSH8sRfV7Qb2dkgw+Ip3IXFFpyqp05GbBP+
-         so3zacnmetEOp9CiEsElZSExkFGERuOKPiFYOsNI=
+        b=GLFGHRj7cueGZGQY/IG5zfJVyshenXHqQSDHOOtexa6LeoOw6l3J+OfNQsRZpWWVH
+         EGa3GZLBoBbOc7DbjDaqS1s2JhwweUcwN3BOQ2yoP2suHhRs9hTDj2pr+ac4BBBQRD
+         myVo0+DLu4bsdFAyAOZGqguKKrKjKKUFs70dKKew=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
+Cc:     Valentin Schneider <valentin.schneider@arm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Dietmar.Eggemann@arm.com,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 184/237] sched/topology: Fix off by one bug
-Date:   Sat, 16 Nov 2019 10:40:19 -0500
-Message-Id: <20191116154113.7417-184-sashal@kernel.org>
+        Thomas Gleixner <tglx@linutronix.de>, patrick.bellasi@arm.com,
+        vincent.guittot@linaro.org, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 185/237] sched/fair: Don't increase sd->balance_interval on newidle balance
+Date:   Sat, 16 Nov 2019 10:40:20 -0500
+Message-Id: <20191116154113.7417-185-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,38 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Valentin Schneider <valentin.schneider@arm.com>
 
-[ Upstream commit 993f0b0510dad98b4e6e39506834dab0d13fd539 ]
+[ Upstream commit 3f130a37c442d5c4d66531b240ebe9abfef426b5 ]
 
-With the addition of the NUMA identity level, we increased @level by
-one and will run off the end of the array in the distance sort loop.
+When load_balance() fails to move some load because of task affinity,
+we end up increasing sd->balance_interval to delay the next periodic
+balance in the hopes that next time we look, that annoying pinned
+task(s) will be gone.
 
-Fixed: 051f3ca02e46 ("sched/topology: Introduce NUMA identity node sched domain")
+However, idle_balance() pays no attention to sd->balance_interval, yet
+it will still lead to an increase in balance_interval in case of
+pinned tasks.
+
+If we're going through several newidle balances (e.g. we have a
+periodic task), this can lead to a huge increase of the
+balance_interval in a very small amount of time.
+
+To prevent that, don't increase the balance interval when going
+through a newidle balance.
+
+This is a similar approach to what is done in commit 58b26c4c0257
+("sched: Increment cache_nice_tries only on periodic lb"), where we
+disregard newidle balance and rely on periodic balance for more stable
+results.
+
+Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Dietmar.Eggemann@arm.com
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
+Cc: patrick.bellasi@arm.com
+Cc: vincent.guittot@linaro.org
+Link: http://lkml.kernel.org/r/1537974727-30788-2-git-send-email-valentin.schneider@arm.com
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/topology.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/topology.c b/kernel/sched/topology.c
-index c0a7514649715..74b694392f2fd 100644
---- a/kernel/sched/topology.c
-+++ b/kernel/sched/topology.c
-@@ -1329,7 +1329,7 @@ void sched_init_numa(void)
- 	int level = 0;
- 	int i, j, k;
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index e5e8f67218728..f77fcd37b226f 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -8819,13 +8819,22 @@ static int load_balance(int this_cpu, struct rq *this_rq,
+ 	sd->nr_balance_failed = 0;
  
--	sched_domains_numa_distance = kzalloc(sizeof(int) * nr_node_ids, GFP_KERNEL);
-+	sched_domains_numa_distance = kzalloc(sizeof(int) * (nr_node_ids + 1), GFP_KERNEL);
- 	if (!sched_domains_numa_distance)
- 		return;
- 
+ out_one_pinned:
++	ld_moved = 0;
++
++	/*
++	 * idle_balance() disregards balance intervals, so we could repeatedly
++	 * reach this code, which would lead to balance_interval skyrocketting
++	 * in a short amount of time. Skip the balance_interval increase logic
++	 * to avoid that.
++	 */
++	if (env.idle == CPU_NEWLY_IDLE)
++		goto out;
++
+ 	/* tune up the balancing interval */
+ 	if (((env.flags & LBF_ALL_PINNED) &&
+ 			sd->balance_interval < MAX_PINNED_INTERVAL) ||
+ 			(sd->balance_interval < sd->max_interval))
+ 		sd->balance_interval *= 2;
+-
+-	ld_moved = 0;
+ out:
+ 	return ld_moved;
+ }
 -- 
 2.20.1
 
