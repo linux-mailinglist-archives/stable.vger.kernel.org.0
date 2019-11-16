@@ -2,106 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12561FEB34
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 08:56:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FAFDFEB37
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 09:02:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726166AbfKPH4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 02:56:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
+        id S1726217AbfKPICy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 03:02:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726034AbfKPH4U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 02:56:20 -0500
+        id S1726166AbfKPICy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 03:02:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C5A0020723;
-        Sat, 16 Nov 2019 07:56:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7ED720723;
+        Sat, 16 Nov 2019 08:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573890978;
-        bh=2wuPYtSRWEpaZWXXk8Wv1MDnvuT4G2441OtiHG4Osp8=;
+        s=default; t=1573891372;
+        bh=mZ+hytdzCGkJw7I5H/sEbKT1SIz3VTZLSucUoyHDZj0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Qel294XHanRT6L9XAiRbI9/NrXtxHrTkCvqa9WM+vXPgc5IIWXofjl9TYKEGy65EC
-         eBTGL+7IaC4Hx8wuxHIvvEXo3PmNObmw5QGHu2vO7ey0MxeCPdXYEPNlfzhMd7kvVl
-         zeTTpYlIwj07jTRQRbnwP8a5Cur0UAdTOfjNKJ5Y=
-Date:   Sat, 16 Nov 2019 15:56:14 +0800
+        b=uje3YqkFj+vLcOVATrNAW2A3QoaDK93eycJiwUR3ROhvKkEwnEGaThikyfeL2QIsa
+         NaHKd0bd2KsZJSH9itue2xTREvDzoiQXTdtKHetcpQD3FY3f2Q7YvMPrN7ACHYcNYL
+         4BbuxNPJvMr3gMmZ17I0nX+2YJzs3Pu0h2UN1/hs=
+Date:   Sat, 16 Nov 2019 16:02:49 +0800
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ralph Siemsen <ralph.siemsen@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Jeremy Cline <jcline@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH 4.9 02/31] Bluetooth: hci_ldisc: Postpone
- HCI_UART_PROTO_READY bit set in hci_uart_set_proto()
-Message-ID: <20191116075614.GB381281@kroah.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Subject: Re: [PATCH 4.9 00/31] 4.9.202-stable review
+Message-ID: <20191116080249.GA382536@kroah.com>
 References: <20191115062009.813108457@linuxfoundation.org>
- <20191115062010.682028342@linuxfoundation.org>
- <20191115161029.GA32365@maple.netwinder.org>
+ <CA+G9fYt-y23nfB1gU_e8JoTU+n973QgJCtMcqGrugRQ7sVHUMg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20191115161029.GA32365@maple.netwinder.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYt-y23nfB1gU_e8JoTU+n973QgJCtMcqGrugRQ7sVHUMg@mail.gmail.com>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 15, 2019 at 11:10:29AM -0500, Ralph Siemsen wrote:
-> Hi Greg,
+On Fri, Nov 15, 2019 at 09:22:05PM +0530, Naresh Kamboju wrote:
+> On Fri, 15 Nov 2019 at 11:52, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 4.9.202 release.
+> > There are 31 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun, 17 Nov 2019 06:18:35 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.202-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> On Fri, Nov 15, 2019 at 02:20:31PM +0800, Greg Kroah-Hartman wrote:
-> > From: Kefeng Wang <wangkefeng.wang@huawei.com>
-> > 
-> > commit 56897b217a1d0a91c9920cb418d6b3fe922f590a upstream.
-> > 
-> > task A:                                task B:
-> > hci_uart_set_proto                     flush_to_ldisc
-> > - p->open(hu) -> h5_open  //alloc h5  - receive_buf
-> > - set_bit HCI_UART_PROTO_READY         - tty_port_default_receive_buf
-> > - hci_uart_register_dev                 - tty_ldisc_receive_buf
-> >                                          - hci_uart_tty_receive
-> > 				           - test_bit HCI_UART_PROTO_READY
-> > 				            - h5_recv
-> > - clear_bit HCI_UART_PROTO_READY             while() {
-> > - p->open(hu) -> h5_close //free h5
-> > 				              - h5_rx_3wire_hdr
-> > 				               - h5_reset()  //use-after-free
-> >                                              }
-> > 
-> > It could use ioctl to set hci uart proto, but there is
-> > a use-after-free issue when hci_uart_register_dev() fail in
-> > hci_uart_set_proto(), see stack above, fix this by setting
-> > HCI_UART_PROTO_READY bit only when hci_uart_register_dev()
-> > return success.
-> > 
-> > Reported-by: syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com
-> > Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-> > Reviewed-by: Jeremy Cline <jcline@redhat.com>
-> > Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> I was just about to ask why this had not been merged into 4.9. Spent a while
-> searching archives for any discussion to explain its absence, but couldn't
-> find anything. Also watched your kernel-recipes talk...
-> 
-> BTW, this also seems to be missing from 4.4 branch, although it was merged
-> for 3.16 (per https://lore.kernel.org/stable/?q=Postpone+HCI).
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-Odd that it was merged into 3.16, perhaps it was done there because some
-earlier patch added the problem?  I say this as I do not think this is
-relevant for the 4.4.y kernel, do you?  Have you tried to apply this
-patch there?
-
-> I gather that the usual rule is that a fix must be in newer versions before
-> it can go into older ones. Or at least, some patches were rejected on that
-> basis. If this is in fact the policy, perhaps it could be added to
-> stable-kernel-rules.rst ?
-
-No, that's not why this was rejected.  I don't know why it didn't end up
-in 4.9.y earlier, but for 4.4.y, it was not added there as I do not
-think it actually is relevant (see above.)
-
-thanks,
+THanks for testing both of these and letting me know.
 
 greg k-h
