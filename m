@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D578FF0D5
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:08:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79E63FF0D8
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:08:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730471AbfKPPuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:50:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58266 "EHLO mail.kernel.org"
+        id S1730894AbfKPQIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:08:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58288 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729080AbfKPPuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:17 -0500
+        id S1730470AbfKPPuS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:18 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2C8F21823;
-        Sat, 16 Nov 2019 15:50:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADEDB21739;
+        Sat, 16 Nov 2019 15:50:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919417;
-        bh=Y4lAoQyQxZwgpe8S14AlWKNoT/13S/b0oclnwxddKWY=;
+        s=default; t=1573919418;
+        bh=L9YHeN7DCGEZ+iGnvQLvZwPgOC6kkntnCWZ1Zw5ZInw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pQ3qO/z4rrg30wuzjmUYSqC0QrBFPUCQAQ1Cgf0H5ZMqsJNDhP8iGni0fPIhFj/i5
-         RcTTviVlr+LUZXfhA4+iRbdDhqls4NjgHydm8Ef6Fnz/oKfFh7wgM00wRGr1uxz+FN
-         ePavOa9wtirMlMA0PhPcrhHEoIYBwF8HiUB2HF08=
+        b=cR1jL8vNBJCL/RNzGqQrXt+qD9zgV81ESUicAmg8cjM3ArbIqsZq5Dahq24c1tnL1
+         gMCGig9xL8bFq8MBnCgEzRIJLLFSLUI1qnIkOsUvbT8gE7VxVy6EkR99mMG0VVOSgt
+         UBJkPddkVtQoZ6EoF8s0UiRltZAjGy1iD5HW+UE4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        dev@openvswitch.org
-Subject: [PATCH AUTOSEL 4.14 116/150] openvswitch: fix linking without CONFIG_NF_CONNTRACK_LABELS
-Date:   Sat, 16 Nov 2019 10:46:54 -0500
-Message-Id: <20191116154729.9573-116-sashal@kernel.org>
+Cc:     Icenowy Zheng <icenowy@aosc.io>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 117/150] clk: sunxi-ng: enable so-said LDOs for A64 SoC's pll-mipi clock
+Date:   Sat, 16 Nov 2019 10:46:55 -0500
+Message-Id: <20191116154729.9573-117-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -44,41 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Icenowy Zheng <icenowy@aosc.io>
 
-[ Upstream commit a277d516de5f498c91d91189717ef7e01102ad27 ]
+[ Upstream commit 859783d1390035e29ba850963bded2b4ffdf43b5 ]
 
-When CONFIG_CC_OPTIMIZE_FOR_DEBUGGING is enabled, the compiler
-fails to optimize out a dead code path, which leads to a link failure:
+In the user manual of A64 SoC, the bit 22 and 23 of pll-mipi control
+register is called "LDO{1,2}_EN", and according to the BSP source code
+from Allwinner , the LDOs are enabled during the clock's enabling
+process.
 
-net/openvswitch/conntrack.o: In function `ovs_ct_set_labels':
-conntrack.c:(.text+0x2e60): undefined reference to `nf_connlabels_replace'
+The clock failed to generate output if the two LDOs are not enabled.
 
-In this configuration, we can take a shortcut, and completely
-remove the contrack label code. This may also help the regular
-optimization.
+Add the two bits to the clock's gate bits, so that the LDOs are enabled
+when the PLL is enabled.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c6a0637460c2 ("clk: sunxi-ng: Add A64 clocks")
+Signed-off-by: Icenowy Zheng <icenowy@aosc.io>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/conntrack.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/clk/sunxi-ng/ccu-sun50i-a64.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/openvswitch/conntrack.c b/net/openvswitch/conntrack.c
-index 0171b27a2b81b..48d81857961ca 100644
---- a/net/openvswitch/conntrack.c
-+++ b/net/openvswitch/conntrack.c
-@@ -1083,7 +1083,8 @@ static int ovs_ct_commit(struct net *net, struct sw_flow_key *key,
- 					 &info->labels.mask);
- 		if (err)
- 			return err;
--	} else if (labels_nonzero(&info->labels.mask)) {
-+	} else if (IS_ENABLED(CONFIG_NF_CONNTRACK_LABELS) &&
-+		   labels_nonzero(&info->labels.mask)) {
- 		err = ovs_ct_set_labels(ct, key, &info->labels.value,
- 					&info->labels.mask);
- 		if (err)
+diff --git a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+index 2bb4cabf802f0..36a30a3cfad71 100644
+--- a/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
++++ b/drivers/clk/sunxi-ng/ccu-sun50i-a64.c
+@@ -158,7 +158,12 @@ static SUNXI_CCU_NM_WITH_FRAC_GATE_LOCK(pll_gpu_clk, "pll-gpu",
+ #define SUN50I_A64_PLL_MIPI_REG		0x040
+ 
+ static struct ccu_nkm pll_mipi_clk = {
+-	.enable		= BIT(31),
++	/*
++	 * The bit 23 and 22 are called "LDO{1,2}_EN" on the SoC's
++	 * user manual, and by experiments the PLL doesn't work without
++	 * these bits toggled.
++	 */
++	.enable		= BIT(31) | BIT(23) | BIT(22),
+ 	.lock		= BIT(28),
+ 	.n		= _SUNXI_CCU_MULT(8, 4),
+ 	.k		= _SUNXI_CCU_MULT_MIN(4, 2, 2),
 -- 
 2.20.1
 
