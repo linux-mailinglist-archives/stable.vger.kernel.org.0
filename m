@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 072A5FF0F9
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:09:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B94AEFF0F1
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728280AbfKPPuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:50:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57738 "EHLO mail.kernel.org"
+        id S1730403AbfKPPuI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:50:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728865AbfKPPuA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:00 -0500
+        id S1730415AbfKPPuH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:07 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA2CF20729;
-        Sat, 16 Nov 2019 15:49:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25DE1208A1;
+        Sat, 16 Nov 2019 15:50:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919400;
-        bh=vf9NyO1jwL7+plQ/TeTCa2N+JhzY6AVedPGnUsDRKW0=;
+        s=default; t=1573919406;
+        bh=J0/R4Z5BY+02R0pbRuvu0OdHWnNZFRHfN+3UcXMO7bk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HLC82lgocl46u1gvfADlHfxQkdbLY2x3GLl9cfTNQMyTT2kHm5P7pX3+2gG85D7lH
-         HCuVKrNs3bfkgGhjJarCA9WN5fML1hJQqh/Nr1+mwrhvdwexSFKHCIq0uHzh9Ag+CT
-         IWDiVg7f8mbZyLWEtZd5J4iqEj7YZ2HOOrQD4w0Y=
+        b=LJr7BlBgL0W2gVGZwGVazD5NIZY5Hk5p9iamJESK+q2umdDF02kJdlH72BTW5Paug
+         5FApyGPoJIOEnq3G1NfxNjCITOZx/mm4mzoZpk0T4HCGsK0NUNO4J0fIYNEdThYPEp
+         ELZQmGA3j+EYFi70KKC2MbAO6+ZII5xS2kEem4oQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Ernesto=20A=2E=20Fern=C3=A1ndez?= 
-        <ernesto.mnd.fernandez@gmail.com>,
-        Vyacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 102/150] hfs: update timestamp on truncate()
-Date:   Sat, 16 Nov 2019 10:46:40 -0500
-Message-Id: <20191116154729.9573-102-sashal@kernel.org>
+Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Aaron Brown <aaron.f.brown@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 105/150] igb: shorten maximum PHC timecounter update interval
+Date:   Sat, 16 Nov 2019 10:46:43 -0500
+Message-Id: <20191116154729.9573-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,36 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
+From: Miroslav Lichvar <mlichvar@redhat.com>
 
-[ Upstream commit 8cd3cb5061730af085a3f9890a3352f162b4e20c ]
+[ Upstream commit 094bf4d0e9657f6ea1ee3d7e07ce3970796949ce ]
 
-The vfs takes care of updating mtime on ftruncate(), but on truncate() it
-must be done by the module.
+The timecounter needs to be updated at least once per ~550 seconds in
+order to avoid a 40-bit SYSTIM timestamp to be misinterpreted as an old
+timestamp.
 
-Link: http://lkml.kernel.org/r/e1611eda2985b672ed2d8677350b4ad8c2d07e8a.1539316825.git.ernesto.mnd.fernandez@gmail.com
-Signed-off-by: Ernesto A. Fernández <ernesto.mnd.fernandez@gmail.com>
-Reviewed-by: Vyacheslav Dubeyko <slava@dubeyko.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Since commit 500462a9d ("timers: Switch to a non-cascading wheel"),
+scheduling of delayed work seems to be less accurate and a requested
+delay of 540 seconds may actually be longer than 550 seconds. Shorten
+the delay to 480 seconds to be sure the timecounter is updated in time.
+
+This fixes an issue with HW timestamps on 82580/I350/I354 being off by
+~1100 seconds for few seconds every ~9 minutes.
+
+Cc: Jacob Keller <jacob.e.keller@intel.com>
+Cc: Richard Cochran <richardcochran@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Tested-by: Aaron Brown <aaron.f.brown@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfs/inode.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/intel/igb/igb_ptp.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/fs/hfs/inode.c b/fs/hfs/inode.c
-index 2538b49cc349e..350afd67bd69e 100644
---- a/fs/hfs/inode.c
-+++ b/fs/hfs/inode.c
-@@ -642,6 +642,8 @@ int hfs_inode_setattr(struct dentry *dentry, struct iattr * attr)
+diff --git a/drivers/net/ethernet/intel/igb/igb_ptp.c b/drivers/net/ethernet/intel/igb/igb_ptp.c
+index 0746b19ec6d37..295d27f331042 100644
+--- a/drivers/net/ethernet/intel/igb/igb_ptp.c
++++ b/drivers/net/ethernet/intel/igb/igb_ptp.c
+@@ -65,9 +65,15 @@
+  *
+  * The 40 bit 82580 SYSTIM overflows every
+  *   2^40 * 10^-9 /  60  = 18.3 minutes.
++ *
++ * SYSTIM is converted to real time using a timecounter. As
++ * timecounter_cyc2time() allows old timestamps, the timecounter
++ * needs to be updated at least once per half of the SYSTIM interval.
++ * Scheduling of delayed work is not very accurate, so we aim for 8
++ * minutes to be sure the actual interval is shorter than 9.16 minutes.
+  */
  
- 		truncate_setsize(inode, attr->ia_size);
- 		hfs_file_truncate(inode);
-+		inode->i_atime = inode->i_mtime = inode->i_ctime =
-+						  current_time(inode);
- 	}
- 
- 	setattr_copy(inode, attr);
+-#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 9)
++#define IGB_SYSTIM_OVERFLOW_PERIOD	(HZ * 60 * 8)
+ #define IGB_PTP_TX_TIMEOUT		(HZ * 15)
+ #define INCPERIOD_82576			BIT(E1000_TIMINCA_16NS_SHIFT)
+ #define INCVALUE_82576_MASK		GENMASK(E1000_TIMINCA_16NS_SHIFT - 1, 0)
 -- 
 2.20.1
 
