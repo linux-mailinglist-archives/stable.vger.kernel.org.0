@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F26E3FEE06
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13FD0FEE0E
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:49:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730050AbfKPPs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:48:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55584 "EHLO mail.kernel.org"
+        id S1728245AbfKPPsg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:48:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729967AbfKPPs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:27 -0500
+        id S1730101AbfKPPsf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:48:35 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C73282086A;
-        Sat, 16 Nov 2019 15:48:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D5C020885;
+        Sat, 16 Nov 2019 15:48:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919307;
-        bh=EAxCQth2ZKk/kGjhKRAbSAUj7vT5Dv3HrY5a2a8j1CI=;
+        s=default; t=1573919314;
+        bh=Adeqws/vbvbbgwO/qw2tFv0F8t6Gf2n3CMXRD7k9Ijg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F0pmk9HOa1QWcwzEW/U34jHBn98cZAU0FRjUmCvYoDFhdR3bVHgRtc8wGkFbAUu/Q
-         zF69HSKHD03ghfDFZ45Sbb2qCT9ZITWykx7daQ93UE1MAnM3ceo8akHzoMR5xw9MCj
-         1db1s5NoUUilBI5rnavhEBOKH2+5I92m2q0pJg8k=
+        b=T5vDQQPCE0Gi3DyyomYZnx9QfTKHacI8QOCOCA4pMKirux0dqdZqXL4j9TMjkrGy2
+         iEFJXC/A8Nx7w51JaXwjOoFOhn/F3ilxRGuA26JP7nJCOSpieQ+rm2TCh9KOKzshcj
+         XrX2I8SDiwff0j0JgwA0W8HAqN/zwFdKsXm9G0Gs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mattias Jacobsson <2pi@mok.nu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 050/150] USB: misc: appledisplay: fix backlight update_status return code
-Date:   Sat, 16 Nov 2019 10:45:48 -0500
-Message-Id: <20191116154729.9573-50-sashal@kernel.org>
+Cc:     Vignesh R <vigneshr@ti.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 057/150] spi: omap2-mcspi: Set FIFO DMA trigger level to word length
+Date:   Sat, 16 Nov 2019 10:45:55 -0500
+Message-Id: <20191116154729.9573-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -43,48 +42,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mattias Jacobsson <2pi@mok.nu>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit 090158555ff8d194a98616034100b16697dd80d0 ]
+[ Upstream commit b682cffa3ac6d9d9e16e9b413c45caee3b391fab ]
 
-Upon success the update_status handler returns a positive number
-corresponding to the number of bytes transferred by usb_control_msg.
-However the return code of the update_status handler should indicate if
-an error occurred(negative) or how many bytes of the user's input to sysfs
-that was consumed. Return code zero indicates all bytes were consumed.
+McSPI has 32 byte FIFO in Transmit-Receive mode. Current code tries to
+configuration FIFO watermark level for DMA trigger to be GCD of transfer
+length and max FIFO size which would mean trigger level may be set to 32
+for transmit-receive mode if length is aligned. This does not work in
+case of SPI slave mode where FIFO always needs to have data ready
+whenever master starts the clock. With DMA trigger size of 32 there will
+be a small window during slave TX where DMA is still putting data into
+FIFO but master would have started clock for next byte, resulting in
+shifting out of stale data. Similarly, on Slave RX side there may be RX
+FIFO overflow
+Fix this by setting FIFO watermark for DMA trigger to word
+length. This means DMA is triggered as soon as FIFO has space for word
+length bytes and DMA would make sure FIFO is almost always full
+therefore improving FIFO occupancy in both master and slave mode.
 
-The bug can for example result in the update_status handler being called
-twice, the second time with only the "unconsumed" part of the user's input
-to sysfs. Effectively setting an incorrect brightness.
-
-Change the update_status handler to return zero for all successful
-transactions and forward usb_control_msg's error code upon failure.
-
-Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/appledisplay.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/spi/spi-omap2-mcspi.c | 26 +++++++-------------------
+ 1 file changed, 7 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/usb/misc/appledisplay.c b/drivers/usb/misc/appledisplay.c
-index 03be7c75c5be7..3b59eaf81eefc 100644
---- a/drivers/usb/misc/appledisplay.c
-+++ b/drivers/usb/misc/appledisplay.c
-@@ -160,8 +160,11 @@ static int appledisplay_bl_update_status(struct backlight_device *bd)
- 		pdata->msgdata, 2,
- 		ACD_USB_TIMEOUT);
- 	mutex_unlock(&pdata->sysfslock);
--	
--	return retval;
-+
-+	if (retval < 0)
-+		return retval;
-+	else
-+		return 0;
- }
+diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
+index 9bf64e6eca9ba..517d0ade586bd 100644
+--- a/drivers/spi/spi-omap2-mcspi.c
++++ b/drivers/spi/spi-omap2-mcspi.c
+@@ -298,7 +298,7 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
+ 	struct omap2_mcspi_cs *cs = spi->controller_state;
+ 	struct omap2_mcspi *mcspi;
+ 	unsigned int wcnt;
+-	int max_fifo_depth, fifo_depth, bytes_per_word;
++	int max_fifo_depth, bytes_per_word;
+ 	u32 chconf, xferlevel;
  
- static int appledisplay_bl_get_brightness(struct backlight_device *bd)
+ 	mcspi = spi_master_get_devdata(master);
+@@ -314,10 +314,6 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
+ 		else
+ 			max_fifo_depth = OMAP2_MCSPI_MAX_FIFODEPTH;
+ 
+-		fifo_depth = gcd(t->len, max_fifo_depth);
+-		if (fifo_depth < 2 || fifo_depth % bytes_per_word != 0)
+-			goto disable_fifo;
+-
+ 		wcnt = t->len / bytes_per_word;
+ 		if (wcnt > OMAP2_MCSPI_MAX_FIFOWCNT)
+ 			goto disable_fifo;
+@@ -325,16 +321,17 @@ static void omap2_mcspi_set_fifo(const struct spi_device *spi,
+ 		xferlevel = wcnt << 16;
+ 		if (t->rx_buf != NULL) {
+ 			chconf |= OMAP2_MCSPI_CHCONF_FFER;
+-			xferlevel |= (fifo_depth - 1) << 8;
++			xferlevel |= (bytes_per_word - 1) << 8;
+ 		}
++
+ 		if (t->tx_buf != NULL) {
+ 			chconf |= OMAP2_MCSPI_CHCONF_FFET;
+-			xferlevel |= fifo_depth - 1;
++			xferlevel |= bytes_per_word - 1;
+ 		}
+ 
+ 		mcspi_write_reg(master, OMAP2_MCSPI_XFERLEVEL, xferlevel);
+ 		mcspi_write_chconf0(spi, chconf);
+-		mcspi->fifo_depth = fifo_depth;
++		mcspi->fifo_depth = max_fifo_depth;
+ 
+ 		return;
+ 	}
+@@ -601,7 +598,6 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
+ 	struct dma_slave_config	cfg;
+ 	enum dma_slave_buswidth width;
+ 	unsigned es;
+-	u32			burst;
+ 	void __iomem		*chstat_reg;
+ 	void __iomem            *irqstat_reg;
+ 	int			wait_res;
+@@ -623,22 +619,14 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
+ 	}
+ 
+ 	count = xfer->len;
+-	burst = 1;
+-
+-	if (mcspi->fifo_depth > 0) {
+-		if (count > mcspi->fifo_depth)
+-			burst = mcspi->fifo_depth / es;
+-		else
+-			burst = count / es;
+-	}
+ 
+ 	memset(&cfg, 0, sizeof(cfg));
+ 	cfg.src_addr = cs->phys + OMAP2_MCSPI_RX0;
+ 	cfg.dst_addr = cs->phys + OMAP2_MCSPI_TX0;
+ 	cfg.src_addr_width = width;
+ 	cfg.dst_addr_width = width;
+-	cfg.src_maxburst = burst;
+-	cfg.dst_maxburst = burst;
++	cfg.src_maxburst = es;
++	cfg.dst_maxburst = es;
+ 
+ 	rx = xfer->rx_buf;
+ 	tx = xfer->tx_buf;
 -- 
 2.20.1
 
