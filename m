@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FEA5FED30
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72BCBFED31
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:42:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728380AbfKPPmi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:42:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46344 "EHLO mail.kernel.org"
+        id S1728401AbfKPPml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:42:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728374AbfKPPmi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:38 -0500
+        id S1728394AbfKPPml (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:42:41 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 455FF207DD;
-        Sat, 16 Nov 2019 15:42:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45E7B20733;
+        Sat, 16 Nov 2019 15:42:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918957;
-        bh=omppKKnMzlwMUO/lGjPYMr5FWF7KOGGvHMhEJD4Ko/A=;
+        s=default; t=1573918960;
+        bh=FsvQRTDHzkmyfaLsTy8u40CfgdoIRfi8ccBGcX4mt+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Aw2TMS6s/4lnKh+mMRRIBqj2uBDvEkNbne/B+xhXm974eBM3O22Y8C2IHtM0DDXo
-         bdxBOd1WmXVgA31fwJS16M6gzyai6PGGjho4mrcFmFyr2tn5bpGLOIW33v6HHWEEuM
-         skYN26IUtYRmkVB4vzNLMpMc+5kSZYzJZHIYB8Yo=
+        b=MLhbhzue7t/GpDkcejpU+B/Wq4Qs5LpyUwOT9d7kASgTXPr7GIwUGcyE0ezfxab5J
+         W/EXIYBwueTElW/etUSlv/aqCz04A1iDA6PbhCM8ZS5JgCu1gYPIMGm87dYhvVvRdV
+         /YESeWkhzDeMFaZVepgJZI37ktUuNS0Uw4eWws9g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jon Derrick <jonathan.derrick@intel.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 076/237] PCI: vmd: Detach resources after stopping root bus
-Date:   Sat, 16 Nov 2019 10:38:31 -0500
-Message-Id: <20191116154113.7417-76-sashal@kernel.org>
+Cc:     Mattias Jacobsson <2pi@mok.nu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 077/237] USB: misc: appledisplay: fix backlight update_status return code
+Date:   Sat, 16 Nov 2019 10:38:32 -0500
+Message-Id: <20191116154113.7417-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,54 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Derrick <jonathan.derrick@intel.com>
+From: Mattias Jacobsson <2pi@mok.nu>
 
-[ Upstream commit dc8af3a827df6d4bb925d3b81b7ec94a7cce9482 ]
+[ Upstream commit 090158555ff8d194a98616034100b16697dd80d0 ]
 
-The VMD removal path calls pci_stop_root_busi(), which tears down the pcie
-tree, including detaching all of the attached drivers. During driver
-detachment, devices may use pci_release_region() to release resources.
-This path relies on the resource being accessible in resource tree.
+Upon success the update_status handler returns a positive number
+corresponding to the number of bytes transferred by usb_control_msg.
+However the return code of the update_status handler should indicate if
+an error occurred(negative) or how many bytes of the user's input to sysfs
+that was consumed. Return code zero indicates all bytes were consumed.
 
-By detaching the child domain from the parent resource domain prior to
-stopping the bus, we are preventing the list traversal from finding the
-resource to be freed. If we instead detach the resource after stopping
-the bus, we will have properly freed the resource and detaching is
-simply accounting at that point.
+The bug can for example result in the update_status handler being called
+twice, the second time with only the "unconsumed" part of the user's input
+to sysfs. Effectively setting an incorrect brightness.
 
-Without this order, the resource is never freed and is orphaned on VMD
-removal, leading to a warning:
+Change the update_status handler to return zero for all successful
+transactions and forward usb_control_msg's error code upon failure.
 
-[  181.940162] Trying to free nonexistent resource <e5a10000-e5a13fff>
-
-Fixes: 2c2c5c5cd213 ("x86/PCI: VMD: Attach VMD resources to parent domain's resource tree")
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-[lorenzo.pieralisi@arm.com: updated commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Mattias Jacobsson <2pi@mok.nu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/vmd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/misc/appledisplay.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
-index 65eaa6b618685..ab36e5ca1aca3 100644
---- a/drivers/pci/controller/vmd.c
-+++ b/drivers/pci/controller/vmd.c
-@@ -818,12 +818,12 @@ static void vmd_remove(struct pci_dev *dev)
- {
- 	struct vmd_dev *vmd = pci_get_drvdata(dev);
- 
--	vmd_detach_resources(vmd);
- 	sysfs_remove_link(&vmd->dev->dev.kobj, "domain");
- 	pci_stop_root_bus(vmd->bus);
- 	pci_remove_root_bus(vmd->bus);
- 	vmd_cleanup_srcu(vmd);
- 	vmd_teardown_dma_ops(vmd);
-+	vmd_detach_resources(vmd);
- 	irq_domain_remove(vmd->irq_domain);
+diff --git a/drivers/usb/misc/appledisplay.c b/drivers/usb/misc/appledisplay.c
+index 1c6da8d6cccf8..39ca31b4de466 100644
+--- a/drivers/usb/misc/appledisplay.c
++++ b/drivers/usb/misc/appledisplay.c
+@@ -148,8 +148,11 @@ static int appledisplay_bl_update_status(struct backlight_device *bd)
+ 		pdata->msgdata, 2,
+ 		ACD_USB_TIMEOUT);
+ 	mutex_unlock(&pdata->sysfslock);
+-	
+-	return retval;
++
++	if (retval < 0)
++		return retval;
++	else
++		return 0;
  }
  
+ static int appledisplay_bl_get_brightness(struct backlight_device *bd)
 -- 
 2.20.1
 
