@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 016C3FF0A8
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:07:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEE73FF0A5
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730009AbfKPQHG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:07:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58882 "EHLO mail.kernel.org"
+        id S1729162AbfKPQG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:06:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730579AbfKPPuj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:39 -0500
+        id S1730009AbfKPPun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:43 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C2FA21843;
-        Sat, 16 Nov 2019 15:50:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3353820729;
+        Sat, 16 Nov 2019 15:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919439;
-        bh=GL2BxTNj0E0U6b50Cgt11UhBHTzZtJbYm0AmbFQSoMI=;
+        s=default; t=1573919442;
+        bh=5dEbdlruILwkWbOUiIwYdpi3k5zAZe2wyIRORJgY8cw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MxYwTQkOdEXYrns8wj+NBIdq9aLEm3fxnNHnBzznvwG/afSdN0jYt/D5qdlYyoqkG
-         FIjYOY/uezWX56rcJ2sOp/cMBmZuNQECmADN2pNj0mjW5/3b1dDT30ZYXjPSmxnYns
-         1ESG1kfc2Iq+WmnKHtS3A/GVMv0PeriD7i5tEE4Q=
+        b=SmSIDmoYRnkTnrIpK7G8EIU5TUuQEKPqlK2iVaNIoV2Xf3qZUexqno4FjrIFclF7q
+         S82c4mlr2WnP4UGF3t/1kzWbUYbevqK549qUxd4lHAKkMcd1VBzO3AYHSWHWF1pLwh
+         jELPB9HqWNp8ckiIfWfpv+FYg7W7WHiPTBks5Td0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Colin Ian King <colin.king@canonical.com>,
-        Erik Schmauss <erik.schmauss@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 4.14 137/150] ACPICA: Use %d for signed int print formatting instead of %u
-Date:   Sat, 16 Nov 2019 10:47:15 -0500
-Message-Id: <20191116154729.9573-137-sashal@kernel.org>
+Cc:     David Barmann <david.barmann@stackpath.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 139/150] sock: Reset dst when changing sk_mark via setsockopt
+Date:   Sat, 16 Nov 2019 10:47:17 -0500
+Message-Id: <20191116154729.9573-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -45,34 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: David Barmann <david.barmann@stackpath.com>
 
-[ Upstream commit f8ddf49b420112e28bdd23d7ad52d7991a0ccbe3 ]
+[ Upstream commit 50254256f382c56bde87d970f3d0d02fdb76ec70 ]
 
-Fix warnings found using static analysis with cppcheck, use %d printf
-format specifier for signed ints rather than %u
+When setting the SO_MARK socket option, if the mark changes, the dst
+needs to be reset so that a new route lookup is performed.
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This fixes the case where an application wants to change routing by
+setting a new sk_mark.  If this is done after some packets have already
+been sent, the dst is cached and has no effect.
+
+Signed-off-by: David Barmann <david.barmann@stackpath.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/acpi/tools/acpidump/apmain.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/sock.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/tools/power/acpi/tools/acpidump/apmain.c b/tools/power/acpi/tools/acpidump/apmain.c
-index 943b6b6146834..bed0794e3295f 100644
---- a/tools/power/acpi/tools/acpidump/apmain.c
-+++ b/tools/power/acpi/tools/acpidump/apmain.c
-@@ -139,7 +139,7 @@ static int ap_insert_action(char *argument, u32 to_be_done)
+diff --git a/net/core/sock.c b/net/core/sock.c
+index 7ccbcd853cbce..78c9aa310ce6b 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -985,10 +985,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
+ 			clear_bit(SOCK_PASSSEC, &sock->flags);
+ 		break;
+ 	case SO_MARK:
+-		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
++		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
+ 			ret = -EPERM;
+-		else
++		} else if (val != sk->sk_mark) {
+ 			sk->sk_mark = val;
++			sk_dst_reset(sk);
++		}
+ 		break;
  
- 	current_action++;
- 	if (current_action > AP_MAX_ACTIONS) {
--		fprintf(stderr, "Too many table options (max %u)\n",
-+		fprintf(stderr, "Too many table options (max %d)\n",
- 			AP_MAX_ACTIONS);
- 		return (-1);
- 	}
+ 	case SO_RXQ_OVFL:
 -- 
 2.20.1
 
