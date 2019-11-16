@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C1CFF26D
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:19:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 481F8FF268
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:19:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727952AbfKPPqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:46:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52184 "EHLO mail.kernel.org"
+        id S1729299AbfKPPqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:46:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729277AbfKPPqE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:04 -0500
+        id S1729229AbfKPPqF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:05 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3DCC20833;
-        Sat, 16 Nov 2019 15:46:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BB4220857;
+        Sat, 16 Nov 2019 15:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919164;
-        bh=0ptIyz2rwTGU2srGHJGqVEpxkJkoXMIW8fkoSVCQ1YI=;
+        bh=HUmds+9b5PGZVPdZ+yxdGP7APAcPSnss65fij7jLvqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WkOjB+FkjbZcSnJuSCV3ZaylgPrPkD6cbvzVyPPzUZv1IcS+zxsGK+ejVu07MLxA
-         i286l6d4B4Jo5e1iGVPfpJ4mNfv0bhcZa1iYcbVCEsC19TUtAmU0wx+3uR/fKE9wu4
-         QiNNNBUsF2zKocpTog1pVPlOcNOTcFn7yTkWezdI=
+        b=DYpt+74JiTYRynxon1wbtIkFhcyv3BLIvkjfSXasGF2O+5uXQgqRMumtE256O/Yv/
+         tF2FdVzI4jgiEQjpo2GgW7P5fOFEf19MDddRgIRpYME6qvIrA7Nv2+d7scDNAZ42PW
+         gDYMLBfypECepKOBEsxFSx0Gst5aViR8c7ACw67g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 171/237] net: hns3: bugfix for hclge_mdio_write and hclge_mdio_read
-Date:   Sat, 16 Nov 2019 10:40:06 -0500
-Message-Id: <20191116154113.7417-171-sashal@kernel.org>
+Cc:     Jon Mason <jdmason@kudzu.us>,
+        "Gerd W . Haeussler" <gerd.haeussler@cesys-it.com>,
+        Dave Jiang <dave.jiang@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-ntb@googlegroups.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 172/237] ntb_netdev: fix sleep time mismatch
+Date:   Sat, 16 Nov 2019 10:40:07 -0500
+Message-Id: <20191116154113.7417-172-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,45 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huazhong Tan <tanhuazhong@huawei.com>
+From: Jon Mason <jdmason@kudzu.us>
 
-[ Upstream commit 1c12493809924deda6c0834cb2f2c5a6dc786390 ]
+[ Upstream commit a861594b1b7ffd630f335b351c4e9f938feadb8e ]
 
-When there is a PHY, the driver needs to complete some operations through
-MDIO during reset reinitialization, so HCLGE_STATE_CMD_DISABLE is more
-suitable than HCLGE_STATE_RST_HANDLING to prevent the MDIO operation from
-being sent during the hardware reset.
+The tx_time should be in usecs (according to the comment above the
+variable), but the setting of the timer during the rearming is done in
+msecs.  Change it to match the expected units.
 
-Fixes: b50ae26c57cb ("net: hns3: never send command queue message to IMP when reset)
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e74bfeedad08 ("NTB: Add flow control to the ntb_netdev")
+Suggested-by: Gerd W. Haeussler <gerd.haeussler@cesys-it.com>
+Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Acked-by: Dave Jiang <dave.jiang@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ntb_netdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
-index 398971a062f47..03491e8ebb730 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mdio.c
-@@ -54,7 +54,7 @@ static int hclge_mdio_write(struct mii_bus *bus, int phyid, int regnum,
- 	struct hclge_desc desc;
- 	int ret;
+diff --git a/drivers/net/ntb_netdev.c b/drivers/net/ntb_netdev.c
+index b12023bc2cab5..df8d49ad48c38 100644
+--- a/drivers/net/ntb_netdev.c
++++ b/drivers/net/ntb_netdev.c
+@@ -236,7 +236,7 @@ static void ntb_netdev_tx_timer(struct timer_list *t)
+ 	struct net_device *ndev = dev->ndev;
  
--	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state))
-+	if (test_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state))
- 		return 0;
- 
- 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_MDIO_CONFIG, false);
-@@ -92,7 +92,7 @@ static int hclge_mdio_read(struct mii_bus *bus, int phyid, int regnum)
- 	struct hclge_desc desc;
- 	int ret;
- 
--	if (test_bit(HCLGE_STATE_RST_HANDLING, &hdev->state))
-+	if (test_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state))
- 		return 0;
- 
- 	hclge_cmd_setup_basic_desc(&desc, HCLGE_OPC_MDIO_CONFIG, true);
+ 	if (ntb_transport_tx_free_entry(dev->qp) < tx_stop) {
+-		mod_timer(&dev->tx_timer, jiffies + msecs_to_jiffies(tx_time));
++		mod_timer(&dev->tx_timer, jiffies + usecs_to_jiffies(tx_time));
+ 	} else {
+ 		/* Make sure anybody stopping the queue after this sees the new
+ 		 * value of ntb_transport_tx_free_entry()
 -- 
 2.20.1
 
