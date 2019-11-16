@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7940EFF33F
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD95FF33E
 	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728298AbfKPPma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728303AbfKPPma (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 16 Nov 2019 10:42:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46074 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728294AbfKPPm3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:29 -0500
+        id S1728289AbfKPPma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:42:30 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C005C2083E;
-        Sat, 16 Nov 2019 15:42:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67B8F2077B;
+        Sat, 16 Nov 2019 15:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918948;
-        bh=xgT6/wLTWKXsDD6APvpdQh4mC3zZ6KWe9rFCgZs52iM=;
+        s=default; t=1573918949;
+        bh=tU1Y2b+GPi4XWwAl76MIU7DlHKBpL0erqN5yzCh2sGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnnbDDuSv22DRx7P0cu16SGAoztPqwDutOdl0VhmJ4Eh3ytSWo20XJv9o7cQZAmky
-         Nvs6s+RZY0oJwRYsc4GfYtZErUwtgylBdEzQMfci2vXO/00qRyPIwwf2oLrt+oatDp
-         xcTnHIcdS6Gf4uB4+0iVRszM/sRhdhAQ/RXgKndo=
+        b=tEpM0gCK6sce4is3DZZ1pQOWT2HGidHNIwOZrpNgesNGsbtit8m5ubsAoWI/0gEzS
+         MR66bPwG2C5a1DtaJGVYWkhK6Arp9vkfd5PrNOlGPAmmdWGIg7wlleEmJsNZZ1TZfC
+         3X++1RAt7C5+HOsu3vqZ2AALnDEBzKJIyQU5SA9E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Foster <bfoster@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 070/237] xfs: clear ail delwri queued bufs on unmount of shutdown fs
-Date:   Sat, 16 Nov 2019 10:38:25 -0500
-Message-Id: <20191116154113.7417-70-sashal@kernel.org>
+Cc:     "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 071/237] kprobes, x86/ptrace.h: Make regs_get_kernel_stack_nth() not fault on bad stack
+Date:   Sat, 16 Nov 2019 10:38:26 -0500
+Message-Id: <20191116154113.7417-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,116 +50,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Foster <bfoster@redhat.com>
+From: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
 
-[ Upstream commit efc3289cf8d39c34502a7cc9695ca2fa125aad0c ]
+[ Upstream commit c2712b858187f5bcd7b042fe4daa3ba3a12635c0 ]
 
-In the typical unmount case, the AIL is forced out by the unmount
-sequence before the xfsaild task is stopped. Since AIL items are
-removed on writeback completion, this means that the AIL
-->ail_buf_list delwri queue has been drained. This is not always
-true in the shutdown case, however.
+Andy had some concerns about using regs_get_kernel_stack_nth() in a new
+function regs_get_kernel_argument() as if there's any error in the stack
+code, it could cause a bad memory access. To be on the safe side, call
+probe_kernel_read() on the stack address to be extra careful in accessing
+the memory. A helper function, regs_get_kernel_stack_nth_addr(), was added
+to just return the stack address (or NULL if not on the stack), that will be
+used to find the address (and could be used by other functions) and read the
+address with kernel_probe_read().
 
-It's possible for buffers to sit on a delwri queue for a period of
-time across submission attempts if said items are locked or have
-been relogged and pinned since first added to the queue. If the
-attempt to log such an item results in a log I/O error, the error
-processing can shutdown the fs, remove the item from the AIL, stale
-the buffer (dropping the LRU reference) and clear its delwri queue
-state. The latter bit means the buffer will be released from a
-delwri queue on the next submission attempt, but this might never
-occur if the filesystem has shutdown and the AIL is empty.
-
-This means that such buffers are held indefinitely by the AIL delwri
-queue across destruction of the AIL. Aside from being a memory leak,
-these buffers can also hold references to in-core perag structures.
-The latter problem manifests as a generic/475 failure, reproducing
-the following asserts at unmount time:
-
-  XFS: Assertion failed: atomic_read(&pag->pag_ref) == 0,
-	file: fs/xfs/xfs_mount.c, line: 151
-  XFS: Assertion failed: atomic_read(&pag->pag_ref) == 0,
-	file: fs/xfs/xfs_mount.c, line: 132
-
-To prevent this problem, clear the AIL delwri queue as a final step
-before xfsaild() exit. The !empty state should never occur in the
-normal case, so add an assert to catch unexpected problems going
-forward.
-
-[dgc: add comment explaining need for xfs_buf_delwri_cancel() after
- calling xfs_buf_delwri_submit_nowait().]
-
-Signed-off-by: Brian Foster <bfoster@redhat.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Dave Chinner <david@fromorbit.com>
+Requested-by: Andy Lutomirski <luto@amacapital.net>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20181017165951.09119177@gandalf.local.home
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_buf.c       |  7 +++++++
- fs/xfs/xfs_trans_ail.c | 28 ++++++++++++++++++++++------
- 2 files changed, 29 insertions(+), 6 deletions(-)
+ arch/x86/include/asm/ptrace.h | 42 +++++++++++++++++++++++++++++------
+ 1 file changed, 35 insertions(+), 7 deletions(-)
 
-diff --git a/fs/xfs/xfs_buf.c b/fs/xfs/xfs_buf.c
-index f4a89c94c931b..e36124546d0db 100644
---- a/fs/xfs/xfs_buf.c
-+++ b/fs/xfs/xfs_buf.c
-@@ -2025,6 +2025,13 @@ xfs_buf_delwri_submit_buffers(
-  * is only safely useable for callers that can track I/O completion by higher
-  * level means, e.g. AIL pushing as the @buffer_list is consumed in this
-  * function.
+diff --git a/arch/x86/include/asm/ptrace.h b/arch/x86/include/asm/ptrace.h
+index 6de1fd3d00974..ee696efec99fd 100644
+--- a/arch/x86/include/asm/ptrace.h
++++ b/arch/x86/include/asm/ptrace.h
+@@ -236,24 +236,52 @@ static inline int regs_within_kernel_stack(struct pt_regs *regs,
+ 		(kernel_stack_pointer(regs) & ~(THREAD_SIZE - 1)));
+ }
+ 
++/**
++ * regs_get_kernel_stack_nth_addr() - get the address of the Nth entry on stack
++ * @regs:	pt_regs which contains kernel stack pointer.
++ * @n:		stack entry number.
 + *
-+ * Note: this function will skip buffers it would block on, and in doing so
-+ * leaves them on @buffer_list so they can be retried on a later pass. As such,
-+ * it is up to the caller to ensure that the buffer list is fully submitted or
-+ * cancelled appropriately when they are finished with the list. Failure to
-+ * cancel or resubmit the list until it is empty will result in leaked buffers
-+ * at unmount time.
-  */
- int
- xfs_buf_delwri_submit_nowait(
-diff --git a/fs/xfs/xfs_trans_ail.c b/fs/xfs/xfs_trans_ail.c
-index 55326f971cb36..d3a4e89bf4a0d 100644
---- a/fs/xfs/xfs_trans_ail.c
-+++ b/fs/xfs/xfs_trans_ail.c
-@@ -531,17 +531,33 @@ xfsaild(
- 			set_current_state(TASK_INTERRUPTIBLE);
- 
- 		/*
--		 * Check kthread_should_stop() after we set the task state
--		 * to guarantee that we either see the stop bit and exit or
--		 * the task state is reset to runnable such that it's not
--		 * scheduled out indefinitely and detects the stop bit at
--		 * next iteration.
--		 *
-+		 * Check kthread_should_stop() after we set the task state to
-+		 * guarantee that we either see the stop bit and exit or the
-+		 * task state is reset to runnable such that it's not scheduled
-+		 * out indefinitely and detects the stop bit at next iteration.
- 		 * A memory barrier is included in above task state set to
- 		 * serialize again kthread_stop().
- 		 */
- 		if (kthread_should_stop()) {
- 			__set_current_state(TASK_RUNNING);
++ * regs_get_kernel_stack_nth() returns the address of the @n th entry of the
++ * kernel stack which is specified by @regs. If the @n th entry is NOT in
++ * the kernel stack, this returns NULL.
++ */
++static inline unsigned long *regs_get_kernel_stack_nth_addr(struct pt_regs *regs, unsigned int n)
++{
++	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
 +
-+			/*
-+			 * The caller forces out the AIL before stopping the
-+			 * thread in the common case, which means the delwri
-+			 * queue is drained. In the shutdown case, the queue may
-+			 * still hold relogged buffers that haven't been
-+			 * submitted because they were pinned since added to the
-+			 * queue.
-+			 *
-+			 * Log I/O error processing stales the underlying buffer
-+			 * and clears the delwri state, expecting the buf to be
-+			 * removed on the next submission attempt. That won't
-+			 * happen if we're shutting down, so this is the last
-+			 * opportunity to release such buffers from the queue.
-+			 */
-+			ASSERT(list_empty(&ailp->ail_buf_list) ||
-+			       XFS_FORCED_SHUTDOWN(ailp->ail_mount));
-+			xfs_buf_delwri_cancel(&ailp->ail_buf_list);
- 			break;
- 		}
++	addr += n;
++	if (regs_within_kernel_stack(regs, (unsigned long)addr))
++		return addr;
++	else
++		return NULL;
++}
++
++/* To avoid include hell, we can't include uaccess.h */
++extern long probe_kernel_read(void *dst, const void *src, size_t size);
++
+ /**
+  * regs_get_kernel_stack_nth() - get Nth entry of the stack
+  * @regs:	pt_regs which contains kernel stack pointer.
+  * @n:		stack entry number.
+  *
+  * regs_get_kernel_stack_nth() returns @n th entry of the kernel stack which
+- * is specified by @regs. If the @n th entry is NOT in the kernel stack,
++ * is specified by @regs. If the @n th entry is NOT in the kernel stack
+  * this returns 0.
+  */
+ static inline unsigned long regs_get_kernel_stack_nth(struct pt_regs *regs,
+ 						      unsigned int n)
+ {
+-	unsigned long *addr = (unsigned long *)kernel_stack_pointer(regs);
+-	addr += n;
+-	if (regs_within_kernel_stack(regs, (unsigned long)addr))
+-		return *addr;
+-	else
+-		return 0;
++	unsigned long *addr;
++	unsigned long val;
++	long ret;
++
++	addr = regs_get_kernel_stack_nth_addr(regs, n);
++	if (addr) {
++		ret = probe_kernel_read(&val, addr, sizeof(val));
++		if (!ret)
++			return val;
++	}
++	return 0;
+ }
  
+ #define arch_has_single_step()	(1)
 -- 
 2.20.1
 
