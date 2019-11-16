@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F17F1FF0AB
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 016C3FF0A8
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:07:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729141AbfKPPuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:50:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58784 "EHLO mail.kernel.org"
+        id S1730009AbfKPQHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:07:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730570AbfKPPug (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:36 -0500
+        id S1730579AbfKPPuj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:39 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CE94E20729;
-        Sat, 16 Nov 2019 15:50:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7C2FA21843;
+        Sat, 16 Nov 2019 15:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919436;
-        bh=XRbu216x41VlCbMrwQejgg8e7awRwMdwlAm6BBlFN/k=;
+        s=default; t=1573919439;
+        bh=GL2BxTNj0E0U6b50Cgt11UhBHTzZtJbYm0AmbFQSoMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/9olmtIKOjkubydXzt6BJlDFyVJV7M8d5wpgBBKTYuo+4yPPP7txi4I5kyVv74I4
-         YkeGtTXiDR5I4KrCY67d2aI4oEZ15j4uOf3hI1bnrEqYqOhLqGQRlmfD/PWbiNOfiy
-         fa4+fAnZ9jQoxszc51+Y4lueYT+kCoGOzF/lXy6k=
+        b=MxYwTQkOdEXYrns8wj+NBIdq9aLEm3fxnNHnBzznvwG/afSdN0jYt/D5qdlYyoqkG
+         FIjYOY/uezWX56rcJ2sOp/cMBmZuNQECmADN2pNj0mjW5/3b1dDT30ZYXjPSmxnYns
+         1ESG1kfc2Iq+WmnKHtS3A/GVMv0PeriD7i5tEE4Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tycho Andersen <tycho@tycho.ws>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.14 135/150] dlm: don't leak kernel pointer to userspace
-Date:   Sat, 16 Nov 2019 10:47:13 -0500
-Message-Id: <20191116154729.9573-135-sashal@kernel.org>
+Cc:     Colin Ian King <colin.king@canonical.com>,
+        Erik Schmauss <erik.schmauss@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
+        devel@acpica.org
+Subject: [PATCH AUTOSEL 4.14 137/150] ACPICA: Use %d for signed int print formatting instead of %u
+Date:   Sat, 16 Nov 2019 10:47:15 -0500
+Message-Id: <20191116154729.9573-137-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -43,42 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tycho Andersen <tycho@tycho.ws>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 9de30f3f7f4d31037cfbb7c787e1089c1944b3a7 ]
+[ Upstream commit f8ddf49b420112e28bdd23d7ad52d7991a0ccbe3 ]
 
-In copy_result_to_user(), we first create a struct dlm_lock_result, which
-contains a struct dlm_lksb, the last member of which is a pointer to the
-lvb. Unfortunately, we copy the entire struct dlm_lksb to the result
-struct, which is then copied to userspace at the end of the function,
-leaking the contents of sb_lvbptr, which is a valid kernel pointer in some
-cases (indeed, later in the same function the data it points to is copied
-to userspace).
+Fix warnings found using static analysis with cppcheck, use %d printf
+format specifier for signed ints rather than %u
 
-It is an error to leak kernel pointers to userspace, as it undermines KASLR
-protections (see e.g. 65eea8edc31 ("floppy: Do not copy a kernel pointer to
-user memory in FDGETPRM ioctl") for another example of this).
-
-Signed-off-by: Tycho Andersen <tycho@tycho.ws>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/user.c | 2 +-
+ tools/power/acpi/tools/acpidump/apmain.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/dlm/user.c b/fs/dlm/user.c
-index d18e7a539f116..1f0c071d4a861 100644
---- a/fs/dlm/user.c
-+++ b/fs/dlm/user.c
-@@ -702,7 +702,7 @@ static int copy_result_to_user(struct dlm_user_args *ua, int compat,
- 	result.version[0] = DLM_DEVICE_VERSION_MAJOR;
- 	result.version[1] = DLM_DEVICE_VERSION_MINOR;
- 	result.version[2] = DLM_DEVICE_VERSION_PATCH;
--	memcpy(&result.lksb, &ua->lksb, sizeof(struct dlm_lksb));
-+	memcpy(&result.lksb, &ua->lksb, offsetof(struct dlm_lksb, sb_lvbptr));
- 	result.user_lksb = ua->user_lksb;
+diff --git a/tools/power/acpi/tools/acpidump/apmain.c b/tools/power/acpi/tools/acpidump/apmain.c
+index 943b6b6146834..bed0794e3295f 100644
+--- a/tools/power/acpi/tools/acpidump/apmain.c
++++ b/tools/power/acpi/tools/acpidump/apmain.c
+@@ -139,7 +139,7 @@ static int ap_insert_action(char *argument, u32 to_be_done)
  
- 	/* FIXME: dlm1 provides for the user's bastparam/addr to not be updated
+ 	current_action++;
+ 	if (current_action > AP_MAX_ACTIONS) {
+-		fprintf(stderr, "Too many table options (max %u)\n",
++		fprintf(stderr, "Too many table options (max %d)\n",
+ 			AP_MAX_ACTIONS);
+ 		return (-1);
+ 	}
 -- 
 2.20.1
 
