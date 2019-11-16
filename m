@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 170E5FEFEF
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E884FEFEC
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731110AbfKPPxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:53:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33910 "EHLO mail.kernel.org"
+        id S1729723AbfKPPxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:53:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731102AbfKPPxB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:53:01 -0500
+        id S1731114AbfKPPxD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:53:03 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E8A3521826;
-        Sat, 16 Nov 2019 15:52:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68AE121845;
+        Sat, 16 Nov 2019 15:53:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919580;
-        bh=XfDiQjvwi/dxFwd5jdxe7CZGUs6C2zCSTVXvUAaR0ic=;
+        s=default; t=1573919582;
+        bh=RfNt5H0u5JixeIom6TwwaUehdoBhx0+rcH2DGPQH2iY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoOcClXjnMWEtsPBLiqlzl5Qv8W930ea5NOuetNCTk9jeUxrDOUfwW7BvPLMwrLl6
-         m3354RIOJDR0J9bynW4edyhBbHxCIjLnWT8ycva7D2yrL3lJk8X2/m1La7hEhFLDee
-         LxXvDrUglU3fiTFdfnJobmV9BiaDUvj8yHe4cFpY=
+        b=dpDaxiT6ajuAsJTHkW2sSJ+xZmbw2QE1qx0S6HTrvJmJVXiRmjewxgPjCa/TKvBRN
+         xkFRWZNCRDN3syQLOPz9tOFEXBPfypYxN9A8a+ffqY/nUv5LFEqdwchFkDt64i1Vhk
+         Iug2mCpW+wuKbiTT9nsXOVkWEQ0Lt3eQI00hA6Us=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Victor Kamensky <kamensky@cisco.com>,
-        Kevin Brodsky <kevin.brodsky@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+Cc:     Larry Chen <lchen@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <jiangqi903@gmail.com>,
+        Changwei Ge <ge.changwei@h3c.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 72/99] arm64: makefile fix build of .i file in external module case
-Date:   Sat, 16 Nov 2019 10:50:35 -0500
-Message-Id: <20191116155103.10971-72-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 74/99] ocfs2: fix clusters leak in ocfs2_defrag_extent()
+Date:   Sat, 16 Nov 2019 10:50:37 -0500
+Message-Id: <20191116155103.10971-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
 References: <20191116155103.10971-1-sashal@kernel.org>
@@ -44,55 +49,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Kamensky <kamensky@cisco.com>
+From: Larry Chen <lchen@suse.com>
 
-[ Upstream commit 98356eb0ae499c63e78073ccedd9a5fc5c563288 ]
+[ Upstream commit 6194ae4242dec0c9d604bc05df83aa9260a899e4 ]
 
-After 'a66649dab350 arm64: fix vdso-offsets.h dependency' if
-one will try to build .i file in case of external kernel module,
-build fails complaining that prepare0 target is missing. This
-issue came up with SystemTap when it tries to build variety
-of .i files for its own generated kernel modules trying to
-figure given kernel features/capabilities.
+ocfs2_defrag_extent() might leak allocated clusters.  When the file
+system has insufficient space, the number of claimed clusters might be
+less than the caller wants.  If that happens, the original code might
+directly commit the transaction without returning clusters.
 
-The issue is that prepare0 is defined in top level Makefile
-only if KBUILD_EXTMOD is not defined. .i file rule depends
-on prepare and in case KBUILD_EXTMOD defined top level Makefile
-contains empty rule for prepare. But after mentioned commit
-arch/arm64/Makefile would introduce dependency on prepare0
-through its own prepare target.
+This patch is based on code in ocfs2_add_clusters_in_btree().
 
-Fix it to put proper ifdef KBUILD_EXTMOD around code introduced
-by mentioned commit. It matches what top level Makefile does.
-
-Acked-by: Kevin Brodsky <kevin.brodsky@arm.com>
-Signed-off-by: Victor Kamensky <kamensky@cisco.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[akpm@linux-foundation.org: include localalloc.h, reduce scope of data_ac]
+Link: http://lkml.kernel.org/r/20180904041621.16874-3-lchen@suse.com
+Signed-off-by: Larry Chen <lchen@suse.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Joseph Qi <jiangqi903@gmail.com>
+Cc: Changwei Ge <ge.changwei@h3c.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/Makefile | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ocfs2/move_extents.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/arch/arm64/Makefile b/arch/arm64/Makefile
-index ee94597773fab..8d469aa5fc987 100644
---- a/arch/arm64/Makefile
-+++ b/arch/arm64/Makefile
-@@ -134,6 +134,7 @@ archclean:
- 	$(Q)$(MAKE) $(clean)=$(boot)
- 	$(Q)$(MAKE) $(clean)=$(boot)/dts
+diff --git a/fs/ocfs2/move_extents.c b/fs/ocfs2/move_extents.c
+index c179afd0051a0..afaa044f5f6bd 100644
+--- a/fs/ocfs2/move_extents.c
++++ b/fs/ocfs2/move_extents.c
+@@ -25,6 +25,7 @@
+ #include "ocfs2_ioctl.h"
  
-+ifeq ($(KBUILD_EXTMOD),)
- # We need to generate vdso-offsets.h before compiling certain files in kernel/.
- # In order to do that, we should use the archprepare target, but we can't since
- # asm-offsets.h is included in some files used to generate vdso-offsets.h, and
-@@ -143,6 +144,7 @@ archclean:
- prepare: vdso_prepare
- vdso_prepare: prepare0
- 	$(Q)$(MAKE) $(build)=arch/arm64/kernel/vdso include/generated/vdso-offsets.h
-+endif
+ #include "alloc.h"
++#include "localalloc.h"
+ #include "aops.h"
+ #include "dlmglue.h"
+ #include "extent_map.h"
+@@ -222,6 +223,7 @@ static int ocfs2_defrag_extent(struct ocfs2_move_extents_context *context,
+ 	struct ocfs2_refcount_tree *ref_tree = NULL;
+ 	u32 new_phys_cpos, new_len;
+ 	u64 phys_blkno = ocfs2_clusters_to_blocks(inode->i_sb, phys_cpos);
++	int need_free = 0;
  
- define archhelp
-   echo  '* Image.gz      - Compressed kernel image (arch/$(ARCH)/boot/Image.gz)'
+ 	if ((ext_flags & OCFS2_EXT_REFCOUNTED) && *len) {
+ 
+@@ -315,6 +317,7 @@ static int ocfs2_defrag_extent(struct ocfs2_move_extents_context *context,
+ 		if (!partial) {
+ 			context->range->me_flags &= ~OCFS2_MOVE_EXT_FL_COMPLETE;
+ 			ret = -ENOSPC;
++			need_free = 1;
+ 			goto out_commit;
+ 		}
+ 	}
+@@ -339,6 +342,20 @@ static int ocfs2_defrag_extent(struct ocfs2_move_extents_context *context,
+ 		mlog_errno(ret);
+ 
+ out_commit:
++	if (need_free && context->data_ac) {
++		struct ocfs2_alloc_context *data_ac = context->data_ac;
++
++		if (context->data_ac->ac_which == OCFS2_AC_USE_LOCAL)
++			ocfs2_free_local_alloc_bits(osb, handle, data_ac,
++					new_phys_cpos, new_len);
++		else
++			ocfs2_free_clusters(handle,
++					data_ac->ac_inode,
++					data_ac->ac_bh,
++					ocfs2_clusters_to_blocks(osb->sb, new_phys_cpos),
++					new_len);
++	}
++
+ 	ocfs2_commit_trans(osb, handle);
+ 
+ out_unlock_mutex:
 -- 
 2.20.1
 
