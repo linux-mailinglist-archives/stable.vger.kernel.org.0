@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8393BFF142
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03F57FF143
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:11:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730179AbfKPPsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:48:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56044 "EHLO mail.kernel.org"
+        id S1729683AbfKPQK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:10:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730171AbfKPPsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:46 -0500
+        id S1730178AbfKPPsr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:48:47 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29D1A2086A;
-        Sat, 16 Nov 2019 15:48:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F5F220891;
+        Sat, 16 Nov 2019 15:48:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919325;
-        bh=KwhayJfvVXO1VVoCQrUPX1fidenkw2bHYQcKqslR7Xs=;
+        s=default; t=1573919326;
+        bh=rh03igqzqmJ/spz57UkA4AWPIpnxHGzKIwHeAdn90AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFBjE6HwKxfOHmwp5YLqPBH60Je/gEvsVYe06uE8gP3OorvWKwLHCkcOu+lVQs/uB
-         NqLfcoC0vBHcaLw1yXvyeXKZ60/QBfpAsdmQ4LVXm2tG1PBL3rdzpQEg3wFLh7nH8Q
-         RSTYNtCCLCUv9x5LePdnT1Fyq4j81Q0dRwL6mA70=
+        b=CxAlSTNrYFfP1ONT7cbn4x4kYoZNbyh0KlGoR9V3wnK7JJE8KsGWOO55xMh3mzWKD
+         SZxAyr/90TNtpRG+Jxmo8b8rV0y6SJdhnxtd3yIIe2QsBCXQEnu0DGTj1jVrBrA3VA
+         gPccRkwISCoTuiLxZY20/YiHI1P0/mmom0vwnsjQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sapthagiri Baratam <sapthagiri.baratam@cirrus.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, patches@opensource.cirrus.com
-Subject: [PATCH AUTOSEL 4.14 067/150] mfd: arizona: Correct calling of runtime_put_sync
-Date:   Sat, 16 Nov 2019 10:46:05 -0500
-Message-Id: <20191116154729.9573-67-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 069/150] mfd: intel_soc_pmic_bxtwc: Chain power button IRQs as well
+Date:   Sat, 16 Nov 2019 10:46:07 -0500
+Message-Id: <20191116154729.9573-69-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -44,52 +44,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sapthagiri Baratam <sapthagiri.baratam@cirrus.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 6b269a41a4520f7eb639e61a45ebbb9c9267d5e0 ]
+[ Upstream commit 9f8ddee1dab836ca758ca8fc555ab5a3aaa5d3fd ]
 
-Don't call runtime_put_sync when clk32k_ref is ARIZONA_32KZ_MCLK2
-as there is no corresponding runtime_get_sync call.
+Power button IRQ actually has a second level of interrupts to
+distinguish between UI and POWER buttons. Moreover, current
+implementation looks awkward in approach to handle second level IRQs by
+first level related IRQ chip.
 
-MCLK1 is not in the AoD power domain so if it is used as 32kHz clock
-source we need to hold a runtime PM reference to keep the device from
-going into low power mode.
+To address above issues, split power button IRQ to be chained as well.
 
-Fixes: cdd8da8cc66b ("mfd: arizona: Add gating of external MCLKn clocks")
-Signed-off-by: Sapthagiri Baratam <sapthagiri.baratam@cirrus.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/arizona-core.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/mfd/intel_soc_pmic_bxtwc.c | 41 ++++++++++++++++++++++--------
+ include/linux/mfd/intel_soc_pmic.h |  1 +
+ 2 files changed, 32 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
-index d8e3184bd27ca..ad8a5296c50ba 100644
---- a/drivers/mfd/arizona-core.c
-+++ b/drivers/mfd/arizona-core.c
-@@ -52,8 +52,10 @@ int arizona_clk32k_enable(struct arizona *arizona)
- 			if (ret != 0)
- 				goto err_ref;
- 			ret = clk_prepare_enable(arizona->mclk[ARIZONA_MCLK1]);
--			if (ret != 0)
--				goto err_pm;
-+			if (ret != 0) {
-+				pm_runtime_put_sync(arizona->dev);
-+				goto err_ref;
-+			}
- 			break;
- 		case ARIZONA_32KZ_MCLK2:
- 			ret = clk_prepare_enable(arizona->mclk[ARIZONA_MCLK2]);
-@@ -67,8 +69,6 @@ int arizona_clk32k_enable(struct arizona *arizona)
- 					 ARIZONA_CLK_32K_ENA);
+diff --git a/drivers/mfd/intel_soc_pmic_bxtwc.c b/drivers/mfd/intel_soc_pmic_bxtwc.c
+index 15bc052704a6d..9ca1f8c015de9 100644
+--- a/drivers/mfd/intel_soc_pmic_bxtwc.c
++++ b/drivers/mfd/intel_soc_pmic_bxtwc.c
+@@ -31,8 +31,8 @@
+ 
+ /* Interrupt Status Registers */
+ #define BXTWC_IRQLVL1		0x4E02
+-#define BXTWC_PWRBTNIRQ		0x4E03
+ 
++#define BXTWC_PWRBTNIRQ		0x4E03
+ #define BXTWC_THRM0IRQ		0x4E04
+ #define BXTWC_THRM1IRQ		0x4E05
+ #define BXTWC_THRM2IRQ		0x4E06
+@@ -47,10 +47,9 @@
+ 
+ /* Interrupt MASK Registers */
+ #define BXTWC_MIRQLVL1		0x4E0E
+-#define BXTWC_MPWRTNIRQ		0x4E0F
+-
+ #define BXTWC_MIRQLVL1_MCHGR	BIT(5)
+ 
++#define BXTWC_MPWRBTNIRQ	0x4E0F
+ #define BXTWC_MTHRM0IRQ		0x4E12
+ #define BXTWC_MTHRM1IRQ		0x4E13
+ #define BXTWC_MTHRM2IRQ		0x4E14
+@@ -66,9 +65,7 @@
+ /* Whiskey Cove PMIC share same ACPI ID between different platforms */
+ #define BROXTON_PMIC_WC_HRV	4
+ 
+-/* Manage in two IRQ chips since mask registers are not consecutive */
+ enum bxtwc_irqs {
+-	/* Level 1 */
+ 	BXTWC_PWRBTN_LVL1_IRQ = 0,
+ 	BXTWC_TMU_LVL1_IRQ,
+ 	BXTWC_THRM_LVL1_IRQ,
+@@ -77,9 +74,11 @@ enum bxtwc_irqs {
+ 	BXTWC_CHGR_LVL1_IRQ,
+ 	BXTWC_GPIO_LVL1_IRQ,
+ 	BXTWC_CRIT_LVL1_IRQ,
++};
+ 
+-	/* Level 2 */
+-	BXTWC_PWRBTN_IRQ,
++enum bxtwc_irqs_pwrbtn {
++	BXTWC_PWRBTN_IRQ = 0,
++	BXTWC_UIBTN_IRQ,
+ };
+ 
+ enum bxtwc_irqs_bcu {
+@@ -113,7 +112,10 @@ static const struct regmap_irq bxtwc_regmap_irqs[] = {
+ 	REGMAP_IRQ_REG(BXTWC_CHGR_LVL1_IRQ, 0, BIT(5)),
+ 	REGMAP_IRQ_REG(BXTWC_GPIO_LVL1_IRQ, 0, BIT(6)),
+ 	REGMAP_IRQ_REG(BXTWC_CRIT_LVL1_IRQ, 0, BIT(7)),
+-	REGMAP_IRQ_REG(BXTWC_PWRBTN_IRQ, 1, 0x03),
++};
++
++static const struct regmap_irq bxtwc_regmap_irqs_pwrbtn[] = {
++	REGMAP_IRQ_REG(BXTWC_PWRBTN_IRQ, 0, 0x01),
+ };
+ 
+ static const struct regmap_irq bxtwc_regmap_irqs_bcu[] = {
+@@ -125,7 +127,7 @@ static const struct regmap_irq bxtwc_regmap_irqs_adc[] = {
+ };
+ 
+ static const struct regmap_irq bxtwc_regmap_irqs_chgr[] = {
+-	REGMAP_IRQ_REG(BXTWC_USBC_IRQ, 0, BIT(5)),
++	REGMAP_IRQ_REG(BXTWC_USBC_IRQ, 0, 0x20),
+ 	REGMAP_IRQ_REG(BXTWC_CHGR0_IRQ, 0, 0x1f),
+ 	REGMAP_IRQ_REG(BXTWC_CHGR1_IRQ, 1, 0x1f),
+ };
+@@ -144,7 +146,16 @@ static struct regmap_irq_chip bxtwc_regmap_irq_chip = {
+ 	.mask_base = BXTWC_MIRQLVL1,
+ 	.irqs = bxtwc_regmap_irqs,
+ 	.num_irqs = ARRAY_SIZE(bxtwc_regmap_irqs),
+-	.num_regs = 2,
++	.num_regs = 1,
++};
++
++static struct regmap_irq_chip bxtwc_regmap_irq_chip_pwrbtn = {
++	.name = "bxtwc_irq_chip_pwrbtn",
++	.status_base = BXTWC_PWRBTNIRQ,
++	.mask_base = BXTWC_MPWRBTNIRQ,
++	.irqs = bxtwc_regmap_irqs_pwrbtn,
++	.num_irqs = ARRAY_SIZE(bxtwc_regmap_irqs_pwrbtn),
++	.num_regs = 1,
+ };
+ 
+ static struct regmap_irq_chip bxtwc_regmap_irq_chip_tmu = {
+@@ -472,6 +483,16 @@ static int bxtwc_probe(struct platform_device *pdev)
+ 		return ret;
  	}
  
--err_pm:
--	pm_runtime_put_sync(arizona->dev);
- err_ref:
- 	if (ret != 0)
- 		arizona->clk32k_ref--;
++	ret = bxtwc_add_chained_irq_chip(pmic, pmic->irq_chip_data,
++					 BXTWC_PWRBTN_LVL1_IRQ,
++					 IRQF_ONESHOT,
++					 &bxtwc_regmap_irq_chip_pwrbtn,
++					 &pmic->irq_chip_data_pwrbtn);
++	if (ret) {
++		dev_err(&pdev->dev, "Failed to add PWRBTN IRQ chip\n");
++		return ret;
++	}
++
+ 	ret = bxtwc_add_chained_irq_chip(pmic, pmic->irq_chip_data,
+ 					 BXTWC_TMU_LVL1_IRQ,
+ 					 IRQF_ONESHOT,
+diff --git a/include/linux/mfd/intel_soc_pmic.h b/include/linux/mfd/intel_soc_pmic.h
+index 5aacdb017a9f6..806a4f095312b 100644
+--- a/include/linux/mfd/intel_soc_pmic.h
++++ b/include/linux/mfd/intel_soc_pmic.h
+@@ -25,6 +25,7 @@ struct intel_soc_pmic {
+ 	int irq;
+ 	struct regmap *regmap;
+ 	struct regmap_irq_chip_data *irq_chip_data;
++	struct regmap_irq_chip_data *irq_chip_data_pwrbtn;
+ 	struct regmap_irq_chip_data *irq_chip_data_tmu;
+ 	struct regmap_irq_chip_data *irq_chip_data_bcu;
+ 	struct regmap_irq_chip_data *irq_chip_data_adc;
 -- 
 2.20.1
 
