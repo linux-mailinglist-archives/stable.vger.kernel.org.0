@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E1C8FEEAC
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A92BFEEB2
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731240AbfKPPx1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:53:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34480 "EHLO mail.kernel.org"
+        id S1729904AbfKPPxl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:53:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731230AbfKPPx0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:53:26 -0500
+        id S1728890AbfKPPxk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:53:40 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20DCC2186D;
-        Sat, 16 Nov 2019 15:53:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F34432168B;
+        Sat, 16 Nov 2019 15:53:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919605;
-        bh=6Kd/tfrrNhSL81XqFWKVL0xFPS9h+4dt6mIGsLvIxQY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WpogaeNoEuPxSsx3g8WxhygJ3MLkqF7rGGRY19XgOxJPWv7pskGZleGjobj+bbJ27
-         EgLoaKIEg2xWe3Vn79xSB8i6luMtd03UARYU5Ko/IpiuKZzhl2wb9sNx5aGI3dghEr
-         eD8ZeQAzgHl20k45dmTwS2wmyaqVpGgb6s44SrLs=
+        s=default; t=1573919620;
+        bh=yaJoh/7AyG+itmJ2dxC94svgjgemr1sqw9xtDGBeWVA=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PQw2vjzRD9Z+Oe1/0zm+kjvCBNv9vwZvHKOoOiJPL6trhgGM8nsd0EcZO6obRV9IK
+         RN4EC+DHIrc6QH39+274v/WN5TRkKd6uJnRfrX0hfGnyR4njQd4NnGLTqRtldFMnSt
+         RWSlo43c691qDpVsAuUUMsiRPoA/oHDeb92KKmeA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Barmann <david.barmann@stackpath.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 92/99] sock: Reset dst when changing sk_mark via setsockopt
-Date:   Sat, 16 Nov 2019 10:50:55 -0500
-Message-Id: <20191116155103.10971-92-sashal@kernel.org>
+Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 01/77] ALSA: isight: fix leak of reference to firewire unit in error path of .probe callback
+Date:   Sat, 16 Nov 2019 10:52:23 -0500
+Message-Id: <20191116155339.11909-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
-References: <20191116155103.10971-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,44 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Barmann <david.barmann@stackpath.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 50254256f382c56bde87d970f3d0d02fdb76ec70 ]
+[ Upstream commit 51e68fb0929c29e47e9074ca3e99ffd6021a1c5a ]
 
-When setting the SO_MARK socket option, if the mark changes, the dst
-needs to be reset so that a new route lookup is performed.
+In some error paths, reference count of firewire unit is not decreased.
+This commit fixes the bug.
 
-This fixes the case where an application wants to change routing by
-setting a new sk_mark.  If this is done after some packets have already
-been sent, the dst is cached and has no effect.
-
-Signed-off-by: David Barmann <david.barmann@stackpath.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5b14ec25a79b('ALSA: firewire: release reference count of firewire unit in .remove callback of bus driver')
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ sound/firewire/isight.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index d224933514074..9178c16543758 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -945,10 +945,12 @@ int sock_setsockopt(struct socket *sock, int level, int optname,
- 			clear_bit(SOCK_PASSSEC, &sock->flags);
- 		break;
- 	case SO_MARK:
--		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN))
-+		if (!ns_capable(sock_net(sk)->user_ns, CAP_NET_ADMIN)) {
- 			ret = -EPERM;
--		else
-+		} else if (val != sk->sk_mark) {
- 			sk->sk_mark = val;
-+			sk_dst_reset(sk);
-+		}
- 		break;
+diff --git a/sound/firewire/isight.c b/sound/firewire/isight.c
+index 48d6dca471c6b..6c8daf5b391ff 100644
+--- a/sound/firewire/isight.c
++++ b/sound/firewire/isight.c
+@@ -639,7 +639,7 @@ static int isight_probe(struct fw_unit *unit,
+ 	if (!isight->audio_base) {
+ 		dev_err(&unit->device, "audio unit base not found\n");
+ 		err = -ENXIO;
+-		goto err_unit;
++		goto error;
+ 	}
+ 	fw_iso_resources_init(&isight->resources, unit);
  
- 	case SO_RXQ_OVFL:
+@@ -668,12 +668,12 @@ static int isight_probe(struct fw_unit *unit,
+ 	dev_set_drvdata(&unit->device, isight);
+ 
+ 	return 0;
+-
+-err_unit:
+-	fw_unit_put(isight->unit);
+-	mutex_destroy(&isight->mutex);
+ error:
+ 	snd_card_free(card);
++
++	mutex_destroy(&isight->mutex);
++	fw_unit_put(isight->unit);
++
+ 	return err;
+ }
+ 
 -- 
 2.20.1
 
