@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E256DFECFB
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:41:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBA87FECFF
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727654AbfKPPlR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:41:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44238 "EHLO mail.kernel.org"
+        id S1727723AbfKPPlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:41:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727597AbfKPPlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:41:16 -0500
+        id S1727702AbfKPPlW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:41:22 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0903C2073B;
-        Sat, 16 Nov 2019 15:41:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B09A20718;
+        Sat, 16 Nov 2019 15:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918876;
-        bh=Pc43BIn6SNyTHbunCDkaxTycG2IXVgbB1qnuJmsoS0s=;
+        s=default; t=1573918882;
+        bh=4Bq9zUx7ceP48+ET5OQc8d7++KgI10SHReEseY/1MN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/zZyBeLZVwu5hMwLCPl9TkSojEDipX9cZy+2bDAT2sUCzTmzFatsUcHbwI1PraAn
-         N9RId0aZyw8SalpWJnD4qxdSXsLEn+XMs5lUtOpZrvfk4ZnagqeOb9QpWq58pYLpj5
-         HBtkNZwDWZtwWWHlnkMfT6lpTwBftmWCfkFqikYE=
+        b=zNB9pdymWpuqxlvMM9lJqPF/6bnqxMSuAy9ChSpKhfjvxWoxILX1LJr8RzFGm3o2a
+         w8IDnc1E7QYSMPGXxrJDFJ46kO+DXB6DwXkrjGIW2Tcmysc2bQ8dNdnwPYlI7dpxav
+         7SvgqZfDvVVKoxmAwZJjFvgRImzMVG/qFjG7bKnY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>,
-        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 004/237] printk: fix integer overflow in setup_log_buf()
-Date:   Sat, 16 Nov 2019 10:37:19 -0500
-Message-Id: <20191116154113.7417-4-sashal@kernel.org>
+Cc:     Joel Stanley <joel@jms.id.au>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 011/237] powerpc/boot: Fix opal console in boot wrapper
+Date:   Sat, 16 Nov 2019 10:37:26 -0500
+Message-Id: <20191116154113.7417-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,59 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit d2130e82e9454304e9b91ba9da551b5989af8c27 ]
+[ Upstream commit 1a855eaccf353f7ed1d51a3d4b3af727ccbd81ca ]
 
-The way we calculate logbuf free space percentage overflows signed
-integer:
+As of commit 10c77dba40ff ("powerpc/boot: Fix build failure in 32-bit
+boot wrapper") the opal code is hidden behind CONFIG_PPC64_BOOT_WRAPPER,
+but the boot wrapper avoids include/linux, so it does not get the normal
+Kconfig flags.
 
-	int free;
+We can drop the guard entirely as in commit f8e8e69cea49 ("powerpc/boot:
+Only build OPAL code when necessary") the makefile only includes opal.c
+in the build if CONFIG_PPC64_BOOT_WRAPPER is set.
 
-	free = __LOG_BUF_LEN - log_next_idx;
-	pr_info("early log buf free: %u(%u%%)\n",
-		free, (free * 100) / __LOG_BUF_LEN);
-
-We support LOG_BUF_LEN of up to 1<<25 bytes. Since setup_log_buf() is
-called during early init, logbuf is mostly empty, so
-
-	__LOG_BUF_LEN - log_next_idx
-
-is close to 1<<25. Thus when we multiply it by 100, we overflow signed
-integer value range: 100 is 2^6 + 2^5 + 2^2.
-
-Example, booting with LOG_BUF_LEN 1<<25 and log_buf_len=2G
-boot param:
-
-[    0.075317] log_buf_len: -2147483648 bytes
-[    0.075319] early log buf free: 33549896(-28%)
-
-Make "free" unsigned integer and use appropriate printk() specifier.
-
-Link: http://lkml.kernel.org/r/20181010113308.9337-1-sergey.senozhatsky@gmail.com
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org
-Cc: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+Fixes: 10c77dba40ff ("powerpc/boot: Fix build failure in 32-bit boot wrapper")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/boot/opal.c | 8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 9ee6016a19fc8..5bafd633b4027 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -1098,7 +1098,7 @@ void __init setup_log_buf(int early)
- {
- 	unsigned long flags;
- 	char *new_log_buf;
--	int free;
-+	unsigned int free;
+diff --git a/arch/powerpc/boot/opal.c b/arch/powerpc/boot/opal.c
+index 0272570d02de1..dfb199ef5b949 100644
+--- a/arch/powerpc/boot/opal.c
++++ b/arch/powerpc/boot/opal.c
+@@ -13,8 +13,6 @@
+ #include <libfdt.h>
+ #include "../include/asm/opal-api.h"
  
- 	if (log_buf != __log_buf)
- 		return;
+-#ifdef CONFIG_PPC64_BOOT_WRAPPER
+-
+ /* Global OPAL struct used by opal-call.S */
+ struct opal {
+ 	u64 base;
+@@ -101,9 +99,3 @@ int opal_console_init(void *devp, struct serial_console_data *scdp)
+ 
+ 	return 0;
+ }
+-#else
+-int opal_console_init(void *devp, struct serial_console_data *scdp)
+-{
+-	return -1;
+-}
+-#endif /* __powerpc64__ */
 -- 
 2.20.1
 
