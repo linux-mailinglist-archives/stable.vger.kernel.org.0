@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7D2FF269
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:19:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AFB5FF26A
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:19:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729295AbfKPPqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729292AbfKPPqI (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 16 Nov 2019 10:46:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52214 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729279AbfKPPqF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:05 -0500
+        id S1728548AbfKPPqH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:07 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0782A2083B;
-        Sat, 16 Nov 2019 15:46:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E72120866;
+        Sat, 16 Nov 2019 15:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919165;
-        bh=wX4O2JHToNm4AF5thow3+D7uWZoA5jbNZGRyT/NCEgo=;
+        s=default; t=1573919166;
+        bh=fD3i4LF56F5nF67qI1WpmKo+F44vFHcpbntZ+Ul8q2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbpCe8VRKY17xsavJd4m44nlQy754bLocd9UzlTA3NMndehqt3Ql5FrgJfUCmfQZD
-         reJS2CxX4X+nhr9RoiUjARbfc+wXd0OtIWGFYZ0iKTslJXc9w5RFSSWwEMKrdSDBZ1
-         8BncWmHIX2njIb/CxLQZWc+8fP171aEeZVfGRukc=
+        b=uKbt2XdhBqj/7jGhRFEreBXGE5yimXIBF2JqH3pYAvAsNeQwrMVr2oVLdIKqo3nEH
+         lh6nDvPKnKWZtluygno4xWEuENnpuPorue1UpELD6C0Ntei/n4yjB2p5LqcewhQHo8
+         EOumWeiQm/BJStF6ucjZbLeU6n9oW9j8axSfgu0M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Jiang <dave.jiang@intel.com>, Lucas Van <lucas.van@intel.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>,
-        linux-ntb@googlegroups.com
-Subject: [PATCH AUTOSEL 4.19 173/237] ntb: intel: fix return value for ndev_vec_mask()
-Date:   Sat, 16 Nov 2019 10:40:08 -0500
-Message-Id: <20191116154113.7417-173-sashal@kernel.org>
+Cc:     Keith Busch <keith.busch@intel.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 175/237] nvme-pci: fix conflicting p2p resource adds
+Date:   Sat, 16 Nov 2019 10:40:10 -0500
+Message-Id: <20191116154113.7417-175-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,37 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Jiang <dave.jiang@intel.com>
+From: Keith Busch <keith.busch@intel.com>
 
-[ Upstream commit 7756e2b5d68c36e170a111dceea22f7365f83256 ]
+[ Upstream commit 9fe5c59ff6a1e5e26a39b75489a1420e7eaaf0b1 ]
 
-ndev_vec_mask() should be returning u64 mask value instead of int.
-Otherwise the mask value returned can be incorrect for larger
-vectors.
+The nvme pci driver had been adding its CMB resource to the P2P DMA
+subsystem everytime on on a controller reset. This results in the
+following warning:
 
-Fixes: e26a5843f7f5 ("NTB: Split ntb_hw_intel and ntb_transport drivers")
+    ------------[ cut here ]------------
+    nvme 0000:00:03.0: Conflicting mapping in same section
+    WARNING: CPU: 7 PID: 81 at kernel/memremap.c:155 devm_memremap_pages+0xa6/0x380
+    ...
+    Call Trace:
+     pci_p2pdma_add_resource+0x153/0x370
+     nvme_reset_work+0x28c/0x17b1 [nvme]
+     ? add_timer+0x107/0x1e0
+     ? dequeue_entity+0x81/0x660
+     ? dequeue_entity+0x3b0/0x660
+     ? pick_next_task_fair+0xaf/0x610
+     ? __switch_to+0xbc/0x410
+     process_one_work+0x1cf/0x350
+     worker_thread+0x215/0x3d0
+     ? process_one_work+0x350/0x350
+     kthread+0x107/0x120
+     ? kthread_park+0x80/0x80
+     ret_from_fork+0x1f/0x30
+    ---[ end trace f7ea76ac6ee72727 ]---
+    nvme nvme0: failed to register the CMB
 
-Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Tested-by: Lucas Van <lucas.van@intel.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+This patch fixes this by registering the CMB with P2P only once.
+
+Signed-off-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/hw/intel/ntb_hw_gen1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/pci.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ntb/hw/intel/ntb_hw_gen1.c b/drivers/ntb/hw/intel/ntb_hw_gen1.c
-index 6aa5732272791..2ad263f708da7 100644
---- a/drivers/ntb/hw/intel/ntb_hw_gen1.c
-+++ b/drivers/ntb/hw/intel/ntb_hw_gen1.c
-@@ -265,7 +265,7 @@ static inline int ndev_db_clear_mask(struct intel_ntb_dev *ndev, u64 db_bits,
- 	return 0;
- }
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 9479c0db08f62..124f41157173e 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1652,6 +1652,9 @@ static void nvme_map_cmb(struct nvme_dev *dev)
+ 	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	int bar;
  
--static inline int ndev_vec_mask(struct intel_ntb_dev *ndev, int db_vector)
-+static inline u64 ndev_vec_mask(struct intel_ntb_dev *ndev, int db_vector)
++	if (dev->cmb_size)
++		return;
++
+ 	dev->cmbsz = readl(dev->bar + NVME_REG_CMBSZ);
+ 	if (!dev->cmbsz)
+ 		return;
+@@ -2136,7 +2139,6 @@ static void nvme_pci_disable(struct nvme_dev *dev)
  {
- 	u64 shift, mask;
+ 	struct pci_dev *pdev = to_pci_dev(dev->dev);
  
+-	nvme_release_cmb(dev);
+ 	pci_free_irq_vectors(pdev);
+ 
+ 	if (pci_is_enabled(pdev)) {
+@@ -2595,6 +2597,7 @@ static void nvme_remove(struct pci_dev *pdev)
+ 	nvme_stop_ctrl(&dev->ctrl);
+ 	nvme_remove_namespaces(&dev->ctrl);
+ 	nvme_dev_disable(dev, true);
++	nvme_release_cmb(dev);
+ 	nvme_free_host_mem(dev);
+ 	nvme_dev_remove_admin(dev);
+ 	nvme_free_queues(dev, 0);
 -- 
 2.20.1
 
