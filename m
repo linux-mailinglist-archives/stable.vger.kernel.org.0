@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2C8FF15C
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:11:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37BC2FF15A
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728479AbfKPQLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:11:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55766 "EHLO mail.kernel.org"
+        id S1730118AbfKPQLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:11:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727817AbfKPPsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:37 -0500
+        id S1729967AbfKPPsi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:48:38 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F203207FA;
-        Sat, 16 Nov 2019 15:48:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 024102086A;
+        Sat, 16 Nov 2019 15:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919316;
-        bh=G198HjGEWxt/kMMfYKLq7qrRGUBrAdqtBeP+Wdaj69s=;
+        s=default; t=1573919318;
+        bh=4BQXjHM/0DWtFo2HhpXrBkKVLPTEKmgwg598UQ4Nidk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJRc5Rayqs2OSboV3JKZ1GkaWLKEraomrsmwqkhiH7MhKk6XAwXn51cRxSo7014OE
-         bLZ1kmTfsIFxEUJZEYh6IT8DC6j/GlQSvAG4aADqBmsYdlna0C71/bK2McF6b3GbHe
-         WxzFPQ6KL/Wh86yOXp6bQF1ctgdyp9kIjLKwbEzo=
+        b=wShjuPUHB01VPK0OSvz8C4MiGDnL2IuvG8n9ZTYKY3s/dhZ6n48Uuta4LOKtfngf0
+         QIYp4pzF9fYm8lusxUoiO7Oo97em/Q3G+KN8bEIifz1Slgz7PsZqyWeDXfme5gw99c
+         qOF/8+mWo2x3yIbEC9MUc0yfCIlhRt554tPz2iE8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 058/150] sparc: Fix parport build warnings.
-Date:   Sat, 16 Nov 2019 10:45:56 -0500
-Message-Id: <20191116154729.9573-58-sashal@kernel.org>
+Cc:     Aravinda Prasad <aravinda@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 059/150] powerpc/pseries: Export raw per-CPU VPA data via debugfs
+Date:   Sat, 16 Nov 2019 10:45:57 -0500
+Message-Id: <20191116154729.9573-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,45 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "David S. Miller" <davem@davemloft.net>
+From: Aravinda Prasad <aravinda@linux.vnet.ibm.com>
 
-[ Upstream commit 46b8306480fb424abd525acc1763da1c63a27d8a ]
+[ Upstream commit c6c26fb55e8e4b3fc376be5611685990a17de27a ]
 
-If PARPORT_PC_FIFO is not enabled, do not provide the dma lock
-macros and lock definition.  Otherwise:
+This patch exports the raw per-CPU VPA data via debugfs.
+A per-CPU file is created which exports the VPA data of
+that CPU to help debug some of the VPA related issues or
+to analyze the per-CPU VPA related statistics.
 
-./arch/sparc/include/asm/parport.h:24:24: warning: ‘dma_spin_lock’ defined but not used [-Wunused-variable]
- static DEFINE_SPINLOCK(dma_spin_lock);
-                        ^~~~~~~~~~~~~
-./include/linux/spinlock_types.h:81:39: note: in definition of macro ‘DEFINE_SPINLOCK’
- #define DEFINE_SPINLOCK(x) spinlock_t x = __SPIN_LOCK_UNLOCKED(x)
+v3: Removed offline CPU check.
 
-Signed-off-by: David S. Miller <davem@davemloft.net>
+v2: Included offline CPU check and other review comments.
+
+Signed-off-by: Aravinda Prasad <aravinda@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/include/asm/parport.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/platforms/pseries/lpar.c | 54 +++++++++++++++++++++++++++
+ 1 file changed, 54 insertions(+)
 
-diff --git a/arch/sparc/include/asm/parport.h b/arch/sparc/include/asm/parport.h
-index 05df5f0430535..3c5a1c620f0f7 100644
---- a/arch/sparc/include/asm/parport.h
-+++ b/arch/sparc/include/asm/parport.h
-@@ -21,6 +21,7 @@
-  */
- #define HAS_DMA
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index eb738ef577926..c0ae3847b8db5 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -48,6 +48,7 @@
+ #include <asm/kexec.h>
+ #include <asm/fadump.h>
+ #include <asm/asm-prototypes.h>
++#include <asm/debugfs.h>
  
-+#ifdef CONFIG_PARPORT_PC_FIFO
- static DEFINE_SPINLOCK(dma_spin_lock);
+ #include "pseries.h"
  
- #define claim_dma_lock() \
-@@ -31,6 +32,7 @@ static DEFINE_SPINLOCK(dma_spin_lock);
- 
- #define release_dma_lock(__flags) \
- 	spin_unlock_irqrestore(&dma_spin_lock, __flags);
-+#endif
- 
- static struct sparc_ebus_info {
- 	struct ebus_dma_info info;
+@@ -1036,3 +1037,56 @@ static int __init reserve_vrma_context_id(void)
+ 	return 0;
+ }
+ machine_device_initcall(pseries, reserve_vrma_context_id);
++
++#ifdef CONFIG_DEBUG_FS
++/* debugfs file interface for vpa data */
++static ssize_t vpa_file_read(struct file *filp, char __user *buf, size_t len,
++			      loff_t *pos)
++{
++	int cpu = (long)filp->private_data;
++	struct lppaca *lppaca = &lppaca_of(cpu);
++
++	return simple_read_from_buffer(buf, len, pos, lppaca,
++				sizeof(struct lppaca));
++}
++
++static const struct file_operations vpa_fops = {
++	.open		= simple_open,
++	.read		= vpa_file_read,
++	.llseek		= default_llseek,
++};
++
++static int __init vpa_debugfs_init(void)
++{
++	char name[16];
++	long i;
++	static struct dentry *vpa_dir;
++
++	if (!firmware_has_feature(FW_FEATURE_SPLPAR))
++		return 0;
++
++	vpa_dir = debugfs_create_dir("vpa", powerpc_debugfs_root);
++	if (!vpa_dir) {
++		pr_warn("%s: can't create vpa root dir\n", __func__);
++		return -ENOMEM;
++	}
++
++	/* set up the per-cpu vpa file*/
++	for_each_possible_cpu(i) {
++		struct dentry *d;
++
++		sprintf(name, "cpu-%ld", i);
++
++		d = debugfs_create_file(name, 0400, vpa_dir, (void *)i,
++					&vpa_fops);
++		if (!d) {
++			pr_warn("%s: can't create per-cpu vpa file\n",
++					__func__);
++			return -ENOMEM;
++		}
++	}
++
++	return 0;
++}
++machine_arch_initcall(pseries, vpa_debugfs_init);
++#endif /* CONFIG_DEBUG_FS */
 -- 
 2.20.1
 
