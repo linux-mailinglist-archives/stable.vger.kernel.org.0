@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99B62FEF29
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:57:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFBD6FEF2E
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:57:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730859AbfKPPzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:55:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37298 "EHLO mail.kernel.org"
+        id S1728847AbfKPP5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:57:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731562AbfKPPzQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:55:16 -0500
+        id S1730871AbfKPPzR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:55:17 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C80021903;
-        Sat, 16 Nov 2019 15:55:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DF4821934;
+        Sat, 16 Nov 2019 15:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919716;
-        bh=s3CGvjS4iv6lqtw9qf0dsHz4Mb21EKg5poi6xwHyv1c=;
+        bh=N39DXQqu1coMpy96kBMWYb+Sz85DeuZUx59EONJN3I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cxeUJ5V0Kos5FFqUwWsYyW02c7EzPcpcw2fVxYhSkT1w4WOr3cNjbSg++XntUfS3b
-         dH8d9IcDhskrFPqm7qLycEcE/aGr3jcupY9plccBbLxUTW+7tkhU4aXyWWUg4uFfoX
-         WKjQ35OvjMjfCCh7Js/aIWxEX6vbbPJDe32eRIcQ=
+        b=aDq5AQUktus54OJy4Tm5zb+WqXhOsFwZAvxot6T42LOEt/Vd3vou3eOIomiyfOR8l
+         3oXCkJygBS8vldCJiHoSkcLD3F75HHVe1WQFbUQc8wzneXU5Qg+YV0UTUtU4qIhXEX
+         L5qMYJWzIamL/sxjwe88CR/sglztl98Ta1zTdoMU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Valentin Schneider <valentin.schneider@arm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dietmar.Eggemann@arm.com,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, patrick.bellasi@arm.com,
-        vincent.guittot@linaro.org, Ingo Molnar <mingo@kernel.org>,
+Cc:     Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 59/77] sched/fair: Don't increase sd->balance_interval on newidle balance
-Date:   Sat, 16 Nov 2019 10:53:21 -0500
-Message-Id: <20191116155339.11909-59-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 60/77] audit: print empty EXECVE args
+Date:   Sat, 16 Nov 2019 10:53:22 -0500
+Message-Id: <20191116155339.11909-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155339.11909-1-sashal@kernel.org>
 References: <20191116155339.11909-1-sashal@kernel.org>
@@ -47,75 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Schneider <valentin.schneider@arm.com>
+From: Richard Guy Briggs <rgb@redhat.com>
 
-[ Upstream commit 3f130a37c442d5c4d66531b240ebe9abfef426b5 ]
+[ Upstream commit ea956d8be91edc702a98b7fe1f9463e7ca8c42ab ]
 
-When load_balance() fails to move some load because of task affinity,
-we end up increasing sd->balance_interval to delay the next periodic
-balance in the hopes that next time we look, that annoying pinned
-task(s) will be gone.
+Empty executable arguments were being skipped when printing out the list
+of arguments in an EXECVE record, making it appear they were somehow
+lost.  Include empty arguments as an itemized empty string.
 
-However, idle_balance() pays no attention to sd->balance_interval, yet
-it will still lead to an increase in balance_interval in case of
-pinned tasks.
+Reproducer:
+	autrace /bin/ls "" "/etc"
+	ausearch --start recent -m execve -i | grep EXECVE
+	type=EXECVE msg=audit(10/03/2018 13:04:03.208:1391) : argc=3 a0=/bin/ls a2=/etc
 
-If we're going through several newidle balances (e.g. we have a
-periodic task), this can lead to a huge increase of the
-balance_interval in a very small amount of time.
+With fix:
+	type=EXECVE msg=audit(10/03/2018 21:51:38.290:194) : argc=3 a0=/bin/ls a1= a2=/etc
+	type=EXECVE msg=audit(1538617898.290:194): argc=3 a0="/bin/ls" a1="" a2="/etc"
 
-To prevent that, don't increase the balance interval when going
-through a newidle balance.
+Passes audit-testsuite.  GH issue tracker at
+https://github.com/linux-audit/audit-kernel/issues/99
 
-This is a similar approach to what is done in commit 58b26c4c0257
-("sched: Increment cache_nice_tries only on periodic lb"), where we
-disregard newidle balance and rely on periodic balance for more stable
-results.
-
-Signed-off-by: Valentin Schneider <valentin.schneider@arm.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Dietmar.Eggemann@arm.com
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: patrick.bellasi@arm.com
-Cc: vincent.guittot@linaro.org
-Link: http://lkml.kernel.org/r/1537974727-30788-2-git-send-email-valentin.schneider@arm.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Richard Guy Briggs <rgb@redhat.com>
+[PM: cleaned up the commit metadata]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ kernel/auditsc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index cd2fb8384fbe3..d012681fb1abd 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -7334,13 +7334,22 @@ static int load_balance(int this_cpu, struct rq *this_rq,
- 	sd->nr_balance_failed = 0;
+diff --git a/kernel/auditsc.c b/kernel/auditsc.c
+index 0fe8b337291a3..87c43c92fb7d8 100644
+--- a/kernel/auditsc.c
++++ b/kernel/auditsc.c
+@@ -1093,7 +1093,7 @@ static void audit_log_execve_info(struct audit_context *context,
+ 		}
  
- out_one_pinned:
-+	ld_moved = 0;
-+
-+	/*
-+	 * idle_balance() disregards balance intervals, so we could repeatedly
-+	 * reach this code, which would lead to balance_interval skyrocketting
-+	 * in a short amount of time. Skip the balance_interval increase logic
-+	 * to avoid that.
-+	 */
-+	if (env.idle == CPU_NEWLY_IDLE)
-+		goto out;
-+
- 	/* tune up the balancing interval */
- 	if (((env.flags & LBF_ALL_PINNED) &&
- 			sd->balance_interval < MAX_PINNED_INTERVAL) ||
- 			(sd->balance_interval < sd->max_interval))
- 		sd->balance_interval *= 2;
--
--	ld_moved = 0;
- out:
- 	return ld_moved;
- }
+ 		/* write as much as we can to the audit log */
+-		if (len_buf > 0) {
++		if (len_buf >= 0) {
+ 			/* NOTE: some magic numbers here - basically if we
+ 			 *       can't fit a reasonable amount of data into the
+ 			 *       existing audit buffer, flush it and start with
 -- 
 2.20.1
 
