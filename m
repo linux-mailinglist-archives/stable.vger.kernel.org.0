@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49134FF3B0
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E775FF3B7
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:28:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727885AbfKPPlj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:41:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44854 "EHLO mail.kernel.org"
+        id S1732095AbfKPQ1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:27:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727953AbfKPPli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:41:38 -0500
+        id S1727958AbfKPPlj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:41:39 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDDF42081E;
-        Sat, 16 Nov 2019 15:41:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77BEC207DD;
+        Sat, 16 Nov 2019 15:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573918898;
-        bh=0dbdYLGTq2BVs9/jCLHYxBB0RMEi4AQzMdhJs3x8hd0=;
+        bh=UO3XCC42t0obPxpUMFWs3bkB7qRjPJ5pyIs/hvKqYnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I4wSMHd7dNVqCjNotxgLaH6TGYqb3MuTDTud179jHbTw1/JAwyJ7UIP+9Lqlk1Zq0
-         dL1H64nxjcD0w7rpDSWLheq/0jZegrAqPJjDBYdsc96uEug5yLuNJ2+BEDfG7EH6oG
-         G4zsMJmIOfdsLnpBKVSWQfKCX0wfmRzgjevQUDUA=
+        b=eaUvNw3DnqYaGrVa1BUAq+bmllDgryEb8i3ElSHsFgXYS64R8ehJ9kVwLUdBljVmR
+         htc0M8d65fIa3buSHa4T5IrJUiozRw5dANK6Wsfsya7QTVdfvVWLHQ6l2dtFMvHSHs
+         i+aEO0wA+NnDkuDrJGITHGXikaIRzcG585me9k0I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chaotian Jing <chaotian.jing@mediatek.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 025/237] mmc: mediatek: fix cannot receive new request when msdc_cmd_is_ready fail
-Date:   Sat, 16 Nov 2019 10:37:40 -0500
-Message-Id: <20191116154113.7417-25-sashal@kernel.org>
+Cc:     Honghui Zhang <honghui.zhang@mediatek.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Ryder Lee <ryder.lee@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 026/237] PCI: mediatek: Fix class type for MT7622 to PCI_CLASS_BRIDGE_PCI
+Date:   Sat, 16 Nov 2019 10:37:41 -0500
+Message-Id: <20191116154113.7417-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -43,43 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaotian Jing <chaotian.jing@mediatek.com>
+From: Honghui Zhang <honghui.zhang@mediatek.com>
 
-[ Upstream commit f38a9774ddde9d79b3487dd888edd8b8623552af ]
+[ Upstream commit a7f172ab6a8e755e60311f27512034b0441ef421 ]
 
-when msdc_cmd_is_ready return fail, the req_timeout work has not been
-inited and cancel_delayed_work() will return false, then, the request
-return directly and never call mmc_request_done().
+commit 101c92dc80c8 ("PCI: mediatek: Set up vendor ID and class
+type for MT7622") erroneously set the class type for MT7622 to
+PCI_CLASS_BRIDGE_HOST.
 
-so need call mod_delayed_work() before msdc_cmd_is_ready()
+The PCIe controller of MT7622 integrates a Root Port that has type 1
+configuration space header and related bridge windows.
 
-Signed-off-by: Chaotian Jing <chaotian.jing@mediatek.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+The HW default value of this bridge's class type is invalid.
+
+Fix its class type and set it to PCI_CLASS_BRIDGE_PCI to
+match the hardware implementation.
+
+Fixes: 101c92dc80c8 ("PCI: mediatek: Set up vendor ID and class type for MT7622")
+Signed-off-by: Honghui Zhang <honghui.zhang@mediatek.com>
+[lorenzo.pieralisi@arm.com: reworked the commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Ryder Lee <ryder.lee@mediatek.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mtk-sd.c | 2 +-
+ drivers/pci/controller/pcie-mediatek.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 621c914dc5c01..673f6a9616cd9 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -1056,6 +1056,7 @@ static void msdc_start_command(struct msdc_host *host,
- 	WARN_ON(host->cmd);
- 	host->cmd = cmd;
+diff --git a/drivers/pci/controller/pcie-mediatek.c b/drivers/pci/controller/pcie-mediatek.c
+index c5ff6ca65eab2..abedf8ec11bba 100644
+--- a/drivers/pci/controller/pcie-mediatek.c
++++ b/drivers/pci/controller/pcie-mediatek.c
+@@ -432,7 +432,7 @@ static int mtk_pcie_startup_port_v2(struct mtk_pcie_port *port)
+ 		val = PCI_VENDOR_ID_MEDIATEK;
+ 		writew(val, port->base + PCIE_CONF_VEND_ID);
  
-+	mod_delayed_work(system_wq, &host->req_timeout, DAT_TIMEOUT);
- 	if (!msdc_cmd_is_ready(host, mrq, cmd))
- 		return;
+-		val = PCI_CLASS_BRIDGE_HOST;
++		val = PCI_CLASS_BRIDGE_PCI;
+ 		writew(val, port->base + PCIE_CONF_CLASS_ID);
+ 	}
  
-@@ -1067,7 +1068,6 @@ static void msdc_start_command(struct msdc_host *host,
- 
- 	cmd->error = 0;
- 	rawcmd = msdc_cmd_prepare_raw_cmd(host, mrq, cmd);
--	mod_delayed_work(system_wq, &host->req_timeout, DAT_TIMEOUT);
- 
- 	sdr_set_bits(host->base + MSDC_INTEN, cmd_ints_mask);
- 	writel(cmd->arg, host->base + SDC_ARG);
 -- 
 2.20.1
 
