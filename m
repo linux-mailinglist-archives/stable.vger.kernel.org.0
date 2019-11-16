@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0820FEE3B
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:50:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60DFBFEE44
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:50:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730441AbfKPPuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:50:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58104 "EHLO mail.kernel.org"
+        id S1730539AbfKPPub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:50:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728118AbfKPPuL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:50:11 -0500
+        id S1730009AbfKPPub (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:50:31 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 611EA216F4;
-        Sat, 16 Nov 2019 15:50:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CCF5217D6;
+        Sat, 16 Nov 2019 15:50:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919410;
-        bh=iSQuWSmQqaWR/fDuDtLQOvdfWS2yJE5pw+hTI+ELux8=;
+        s=default; t=1573919430;
+        bh=p6TVB7m8UPJaDVQp43MW63MiIcuG/GbRpd+rHfbiTTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hN8JCHBzz9eordbnYtLjY5cCdMYvd7O6vyJOgRd/t6J/9pZISRJN4R2C9HQQEv+y4
-         5PPHMzkeJQMtWWlpfq0Ilb7nxTM31ca0mHTrKCYqV0eH1Qe0XyXjeHRpt/t57xqpQx
-         BNxrueEOxTQlqe9DMXX5nUfa9RhUS04KQ3dAmMOY=
+        b=jCQMojGT5MhTdrDmGQEWnkA6oQunxBPwBQ4qQyDHnIwRhTC/tLpFF6VeJcWsQO0ZU
+         SJUZLt2KcdMYLzU+q9h+kWW/2BCAlSxCRfa00oo4uP+SaMfEUyYtGa/N2eJ4zk1hAx
+         8pLVPKMDreAjT7U4LIWfP5imhaOx3ggId0ZHCxzY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <keith.busch@intel.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 109/150] nvme-pci: fix conflicting p2p resource adds
-Date:   Sat, 16 Nov 2019 10:46:47 -0500
-Message-Id: <20191116154729.9573-109-sashal@kernel.org>
+Cc:     Suganath Prabu <suganath-prabu.subramani@broadcom.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        MPT-FusionLinux.pdl@broadcom.com, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 127/150] scsi: mpt3sas: Fix Sync cache command failure during driver unload
+Date:   Sat, 16 Nov 2019 10:47:05 -0500
+Message-Id: <20191116154729.9573-127-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
@@ -44,76 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <keith.busch@intel.com>
+From: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
 
-[ Upstream commit 9fe5c59ff6a1e5e26a39b75489a1420e7eaaf0b1 ]
+[ Upstream commit 9029a72500b95578a35877a43473b82cb0386c53 ]
 
-The nvme pci driver had been adding its CMB resource to the P2P DMA
-subsystem everytime on on a controller reset. This results in the
-following warning:
+This is to fix SYNC CACHE and START STOP command failures with
+DID_NO_CONNECT during driver unload.
 
-    ------------[ cut here ]------------
-    nvme 0000:00:03.0: Conflicting mapping in same section
-    WARNING: CPU: 7 PID: 81 at kernel/memremap.c:155 devm_memremap_pages+0xa6/0x380
-    ...
-    Call Trace:
-     pci_p2pdma_add_resource+0x153/0x370
-     nvme_reset_work+0x28c/0x17b1 [nvme]
-     ? add_timer+0x107/0x1e0
-     ? dequeue_entity+0x81/0x660
-     ? dequeue_entity+0x3b0/0x660
-     ? pick_next_task_fair+0xaf/0x610
-     ? __switch_to+0xbc/0x410
-     process_one_work+0x1cf/0x350
-     worker_thread+0x215/0x3d0
-     ? process_one_work+0x350/0x350
-     kthread+0x107/0x120
-     ? kthread_park+0x80/0x80
-     ret_from_fork+0x1f/0x30
-    ---[ end trace f7ea76ac6ee72727 ]---
-    nvme nvme0: failed to register the CMB
+In driver's IO submission patch (i.e. in driver's .queuecommand()) driver
+won't allow any SCSI commands to the IOC when ioc->remove_host flag is set
+and hence SYNC CACHE commands which are issued to the target drives (where
+write cache is enabled) during driver unload time is failed with
+DID_NO_CONNECT status.
 
-This patch fixes this by registering the CMB with P2P only once.
+Now modified the driver to allow SYNC CACHE and START STOP commands to IOC,
+even when remove_host flag is set.
 
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Suganath Prabu <suganath-prabu.subramani@broadcom.com>
+Reviewed-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c | 36 +++++++++++++++++++++++++++-
+ 1 file changed, 35 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index cd11cced36781..5f820c784a7e8 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -1546,6 +1546,9 @@ static void __iomem *nvme_map_cmb(struct nvme_dev *dev)
- 	void __iomem *cmb;
- 	int bar;
+diff --git a/drivers/scsi/mpt3sas/mpt3sas_scsih.c b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+index b28efddab7b1a..9ef0c6265cd2b 100644
+--- a/drivers/scsi/mpt3sas/mpt3sas_scsih.c
++++ b/drivers/scsi/mpt3sas/mpt3sas_scsih.c
+@@ -3328,6 +3328,40 @@ _scsih_tm_tr_complete(struct MPT3SAS_ADAPTER *ioc, u16 smid, u8 msix_index,
+ 	return _scsih_check_for_pending_tm(ioc, smid);
+ }
  
-+	if (dev->cmb_size)
-+		return;
++/** _scsih_allow_scmd_to_device - check whether scmd needs to
++ *				 issue to IOC or not.
++ * @ioc: per adapter object
++ * @scmd: pointer to scsi command object
++ *
++ * Returns true if scmd can be issued to IOC otherwise returns false.
++ */
++inline bool _scsih_allow_scmd_to_device(struct MPT3SAS_ADAPTER *ioc,
++	struct scsi_cmnd *scmd)
++{
 +
- 	dev->cmbsz = readl(dev->bar + NVME_REG_CMBSZ);
- 	if (!(NVME_CMB_SZ(dev->cmbsz)))
- 		return NULL;
-@@ -2034,7 +2037,6 @@ static void nvme_pci_disable(struct nvme_dev *dev)
- {
- 	struct pci_dev *pdev = to_pci_dev(dev->dev);
++	if (ioc->pci_error_recovery)
++		return false;
++
++	if (ioc->hba_mpi_version_belonged == MPI2_VERSION) {
++		if (ioc->remove_host)
++			return false;
++
++		return true;
++	}
++
++	if (ioc->remove_host) {
++
++		switch (scmd->cmnd[0]) {
++		case SYNCHRONIZE_CACHE:
++		case START_STOP:
++			return true;
++		default:
++			return false;
++		}
++	}
++
++	return true;
++}
  
--	nvme_release_cmb(dev);
- 	pci_free_irq_vectors(pdev);
+ /**
+  * _scsih_sas_control_complete - completion routine
+@@ -4100,7 +4134,7 @@ scsih_qcmd(struct Scsi_Host *shost, struct scsi_cmnd *scmd)
+ 		return 0;
+ 	}
  
- 	if (pci_is_enabled(pdev)) {
-@@ -2437,6 +2439,7 @@ static void nvme_remove(struct pci_dev *pdev)
- 	nvme_stop_ctrl(&dev->ctrl);
- 	nvme_remove_namespaces(&dev->ctrl);
- 	nvme_dev_disable(dev, true);
-+	nvme_release_cmb(dev);
- 	nvme_free_host_mem(dev);
- 	nvme_dev_remove_admin(dev);
- 	nvme_free_queues(dev, 0);
+-	if (ioc->pci_error_recovery || ioc->remove_host) {
++	if (!(_scsih_allow_scmd_to_device(ioc, scmd))) {
+ 		scmd->result = DID_NO_CONNECT << 16;
+ 		scmd->scsi_done(scmd);
+ 		return 0;
 -- 
 2.20.1
 
