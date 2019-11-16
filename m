@@ -2,93 +2,309 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E36FFEC56
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 13:52:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1C6FEC72
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 14:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727561AbfKPMws (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 07:52:48 -0500
-Received: from verein.lst.de ([213.95.11.211]:48776 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727510AbfKPMwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 07:52:47 -0500
-Received: by verein.lst.de (Postfix, from userid 107)
-        id AC45E68BFE; Sat, 16 Nov 2019 13:52:44 +0100 (CET)
-X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on verein.lst.de
-X-Spam-Level: *
-X-Spam-Status: No, score=1.3 required=5.0 tests=ALL_TRUSTED,BAYES_50,
-        FAKE_REPLY_C autolearn=disabled version=3.3.1
-Received: from lst.de (p5B0D82C7.dip0.t-ipconnect.de [91.13.130.199])
-        by verein.lst.de (Postfix) with ESMTPSA id 8EC4068AFE;
-        Sat, 16 Nov 2019 13:52:39 +0100 (CET)
-Date:   Sat, 16 Nov 2019 13:52:33 +0100
-From:   Torsten Duwe <duwe@lst.de>
-To:     Mark Brown <broonie@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] regulator: Defer init completion for a while after
- late_initcall
-Message-ID: <20191116125233.GA5570@lst.de>
+        id S1727556AbfKPNdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 08:33:07 -0500
+Received: from us-smtp-1.mimecast.com ([205.139.110.61]:48822 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727550AbfKPNdH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 16 Nov 2019 08:33:07 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1573911186;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=YlkpHumOK8iuI0ueQXUgxdCLEINKdMjbZrrLBwJBOt0=;
+        b=FHKJiVoCRZWUxuZ3GbxpkaRSVlvgOFxCHBbymtPqCM4LIefeefzQUR9Cb83ZCYo8DLZJ+q
+        Wr0cywjKIA59MOIQedfFYljoG0HcWSUPEusGbPsz/9jxWoDBLJCiKDJ2ExOu67iOk/3fdG
+        QTaBmjxC7LczhdlzPneIBH8hrJhWm94=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-240-ilgERQVSONiGpQIBvU1Etw-1; Sat, 16 Nov 2019 08:33:03 -0500
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1B36E1883521;
+        Sat, 16 Nov 2019 13:33:02 +0000 (UTC)
+Received: from [172.54.30.180] (cpt-1008.paas.prod.upshift.rdu2.redhat.com [10.0.19.15])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C1D435D6D6;
+        Sat, 16 Nov 2019 13:32:56 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190904124250.25844-1-broonie@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2M?= FAIL: Test report for kernel 5.4.0-rc7-e1918f0.cki
+ (stable-next)
+Date:   Sat, 16 Nov 2019 13:32:56 -0000
+CC:     Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>,
+        Rachel Sibley <rasibley@redhat.com>
+Message-ID: <cki.FB80424DEC.V1BSM19IWA@redhat.com>
+X-Gitlab-Pipeline-ID: 288750
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/288750
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-MC-Unique: ilgERQVSONiGpQIBvU1Etw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi all,
 
-On Wed, 4 Sep 2019 13:42:50 +0100 Mark Brown <broonie@kernel.org> wrote:
-[...]
-> with Arm laptops coming on the market it's becoming more of an issue so
-> let's do something about it.
+Hello,
 
-For the record: I try to run a stock distribution kernel (lots of modules)
-on an Olimex Teres-I. The PMIC driver is of course a module.
+We ran automated tests on a recent commit from this kernel tree:
 
-> In the absence of any better idea just defer the powering off for 30s
-> after late_initcall(), this is obviously a hack but it should mask the
-> issue for now and it's no more arbitrary than late_initcall() itself.
-> Ideally we'd have some heuristics to detect if we're on an affected
-> system and tune or skip the delay appropriately, and there may be some
-> need for a command line option to be added.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/sashal/li=
+nux-stable.git
+            Commit: e1918f0cc92b - kcov: remote coverage support
 
-Am I the only one having problems with this change? I get
+The results of these automated tests are provided below.
 
-[   11.917136] anx6345 0-0038: 0-0038 supply dvdd12-supply not found, using dummy regulator
-[   11.917174] axp20x-rsb sunxi-rsb-3a3: AXP20x variant AXP803 found
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
-Despite being loaded as a very early module, PMIC init ^^^ only starts now.
+All kernel binaries, config files, and logs are available for download here=
+:
 
-[   11.928664] hub 1-0:1.0: 1 port detected
-[   11.943230] anx6345 0-0038: 0-0038 supply dvdd25-supply not found, using dummy regulator
+  https://artifacts.cki-project.org/pipelines/288750
 
-So far, so bad, but lucky me has an U-Boot which already enabled the display
-along with the relevant voltages in the proper sequence.
+One or more kernel tests failed:
 
-[   11.981316] [drm] Found ANX6345 (ver. 170) eDP Transmitter
+    x86_64:
+     =E2=9D=8C LTP lite
 
-But much later on
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this messa=
+ge.
 
-[   38.248573] dcdc4: disabling
-[   38.268493] vcc-pd: disabling
-[   38.288446] vdd-edp: disabling
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
 
-screen goes dark and stays dark. Use count of the regulators is 0. I guess
-this is because the driver code had been returned the dummy instead?
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
 
-It's a mobile device so in principle there is nothing wrong with powering
-down unused circuitry, and always-on is not an option.
-Am I correct to perceive this solution as not 100% mature yet? The anx6345
-driver in particular needs to do a little "voltage dance" with specific
-timing on the real regulators should the device come up really unpowered,
-so IMHO it's probably neccessary to return EPROBE_DEFER at least in this
-particular case and prepare the driver for it? Or what would be the real
-solution in this case?
+Compile testing
+---------------
 
-	Torsten
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
 
 
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  ppc64le:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9C=85 LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+  x86_64:
+    Host 1:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Podman system integration test (as root)
+       =E2=9C=85 Podman system integration test (as user)
+       =E2=9D=8C LTP lite
+       =E2=9C=85 Loopdev Sanity
+       =E2=9C=85 jvm test suite
+       =E2=9C=85 Memory function: memfd_create
+       =E2=9C=85 Memory function: kaslr
+       =E2=9C=85 AMTU (Abstract Machine Test Utility)
+       =E2=9C=85 LTP: openposix test suite
+       =E2=9C=85 Networking bridge: sanity
+       =E2=9C=85 Ethernet drivers sanity
+       =E2=9C=85 Networking MACsec: sanity
+       =E2=9C=85 Networking socket: fuzz
+       =E2=9C=85 Networking sctp-auth: sockopts test
+       =E2=9C=85 Networking: igmp conformance test
+       =E2=9C=85 Networking route: pmtu
+       =E2=9C=85 Networking route_func: local
+       =E2=9C=85 Networking route_func: forward
+       =E2=9C=85 Networking TCP: keepalive test
+       =E2=9C=85 Networking UDP: socket
+       =E2=9C=85 Networking tunnel: geneve basic test
+       =E2=9C=85 Networking tunnel: gre basic
+       =E2=9C=85 L2TP basic test
+       =E2=9C=85 Networking tunnel: vxlan basic
+       =E2=9C=85 Networking ipsec: basic netns transport
+       =E2=9C=85 Networking ipsec: basic netns tunnel
+       =E2=9C=85 audit: audit testsuite test
+       =E2=9C=85 httpd: mod_ssl smoke sanity
+       =E2=9C=85 iotop: sanity
+       =E2=9C=85 tuned: tune-processes-through-perf
+       =E2=9C=85 pciutils: sanity smoke test
+       =E2=9C=85 ALSA PCM loopback test
+       =E2=9C=85 ALSA Control (mixer) Userspace Element test
+       =E2=9C=85 Usex - version 1.9-29
+       =E2=9C=85 storage: SCSI VPD
+       =E2=9C=85 stress: stress-ng
+       =E2=9C=85 trace: ftrace/tracer
+       =F0=9F=9A=A7 =E2=9C=85 CIFS Connectathon
+       =F0=9F=9A=A7 =E2=9C=85 POSIX pjd-fstest suites
+       =F0=9F=9A=A7 =E2=9C=85 Networking vnic: ipvlan/basic
+       =F0=9F=9A=A7 =E2=9C=85 storage: dm/common
+
+    Host 2:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - megaraid_sas
+
+    Host 3:
+       =E2=9C=85 Boot test
+       =F0=9F=9A=A7 =E2=9C=85 IPMI driver test
+       =F0=9F=9A=A7 =E2=9D=8C IPMItool loop stress test
+
+    Host 4:
+       =E2=9C=85 Boot test
+       =E2=9C=85 xfstests: ext4
+       =E2=9C=85 xfstests: xfs
+       =E2=9C=85 lvm thinp sanity
+       =E2=9C=85 storage: software RAID testing
+       =F0=9F=9A=A7 =E2=9C=85 IOMMU boot test
+       =F0=9F=9A=A7 =E2=9C=85 selinux-policy: serge-testsuite
+       =F0=9F=9A=A7 =E2=9C=85 Storage blktests
+
+    Host 5:
+       =E2=9C=85 Boot test
+       =E2=9C=85 Storage SAN device stress - mpt3sas driver
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
 
