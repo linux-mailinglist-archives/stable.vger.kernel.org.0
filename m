@@ -2,76 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F3FFEF59
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C469FECF7
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:41:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731146AbfKPP61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:58:27 -0500
-Received: from 50-87-157-213.static.tentacle.fi ([213.157.87.50]:44405 "EHLO
-        bitmer.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731335AbfKPP60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:58:26 -0500
-X-Greylist: delayed 2480 seconds by postgrey-1.27 at vger.kernel.org; Sat, 16 Nov 2019 10:58:25 EST
-Received: from dsl-hkibng31-54faf1-87.dhcp.inet.fi ([84.250.241.87] helo=localhost.localdomain)
-        by bitmer.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.84_2)
-        (envelope-from <jarkko.nikula@bitmer.com>)
-        id 1iVzon-00077d-37; Sat, 16 Nov 2019 17:16:57 +0200
-From:   Jarkko Nikula <jarkko.nikula@bitmer.com>
-To:     devicetree@vger.kernel.org
-Cc:     linux-omap@vger.kernel.org,
-        =?UTF-8?q?Beno=C3=AEt=20Cousson?= <bcousson@baylibre.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>, Stefan Roese <sr@denx.de>,
-        Jarkko Nikula <jarkko.nikula@bitmer.com>,
-        linux-stable <stable@vger.kernel.org>
-Subject: [PATCH] ARM: dts: omap3-tao3530: Fix incorrect MMC card detection GPIO polarity
-Date:   Sat, 16 Nov 2019 17:16:51 +0200
-Message-Id: <20191116151651.7042-1-jarkko.nikula@bitmer.com>
-X-Mailer: git-send-email 2.24.0
+        id S1727709AbfKPPlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:41:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44170 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727655AbfKPPlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:41:14 -0500
+Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id F191320718;
+        Sat, 16 Nov 2019 15:41:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1573918874;
+        bh=8bxpyTayDO1IguOcBDdmMf7HebvpmIjmrxBF6bdJCP0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YHOUJwzorfLw24mP6SidXkWtgdFaY2rXYWahL5v2AMLebtLbsJjtZmCu8e7WU0XKI
+         9qqLjQHLyH5e4/KRiRKwbDAVAZo7vNg3gWdGW4G8x6bikHllFbj9ppHv1WBWi615OA
+         +5ZrLZ52h7tgqAwgDsLnDUX7dcCMWTVPz9BPd0eA=
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 001/237] ALSA: isight: fix leak of reference to firewire unit in error path of .probe callback
+Date:   Sat, 16 Nov 2019 10:37:16 -0500
+Message-Id: <20191116154113.7417-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The MMC card detection GPIO polarity is active low on TAO3530, like in many
-other similar boards. Now the card is not detected and it is unable to
-mount rootfs from an SD card.
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-Fix this by using the correct polarity.
+[ Upstream commit 51e68fb0929c29e47e9074ca3e99ffd6021a1c5a ]
 
-This incorrect polarity was defined already in the commit 30d95c6d7092
-("ARM: dts: omap3: Add Technexion TAO3530 SOM omap3-tao3530.dtsi") in v3.18
-kernel and later changed to use defined GPIO constants in v4.4 kernel by
-the commit 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags
-cell for OMAP2+ boards").
+In some error paths, reference count of firewire unit is not decreased.
+This commit fixes the bug.
 
-While the latter commit did not introduce the issue I'm marking it with
-Fixes tag due the v4.4 kernels still being maintained.
-
-Fixes: 3a637e008e54 ("ARM: dts: Use defined GPIO constants in flags cell for OMAP2+ boards")
-Cc: linux-stable <stable@vger.kernel.org> # 4.4+
-Signed-off-by: Jarkko Nikula <jarkko.nikula@bitmer.com>
+Fixes: 5b14ec25a79b('ALSA: firewire: release reference count of firewire unit in .remove callback of bus driver')
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-tao3530.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/firewire/isight.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap3-tao3530.dtsi b/arch/arm/boot/dts/omap3-tao3530.dtsi
-index a7a04d78deeb..f24e2326cfa7 100644
---- a/arch/arm/boot/dts/omap3-tao3530.dtsi
-+++ b/arch/arm/boot/dts/omap3-tao3530.dtsi
-@@ -222,7 +222,7 @@
- 	pinctrl-0 = <&mmc1_pins>;
- 	vmmc-supply = <&vmmc1>;
- 	vqmmc-supply = <&vsim>;
--	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_HIGH>;
-+	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
- 	bus-width = <8>;
- };
+diff --git a/sound/firewire/isight.c b/sound/firewire/isight.c
+index 30957477e005e..0717ab9e48e3b 100644
+--- a/sound/firewire/isight.c
++++ b/sound/firewire/isight.c
+@@ -640,7 +640,7 @@ static int isight_probe(struct fw_unit *unit,
+ 	if (!isight->audio_base) {
+ 		dev_err(&unit->device, "audio unit base not found\n");
+ 		err = -ENXIO;
+-		goto err_unit;
++		goto error;
+ 	}
+ 	fw_iso_resources_init(&isight->resources, unit);
+ 
+@@ -669,12 +669,12 @@ static int isight_probe(struct fw_unit *unit,
+ 	dev_set_drvdata(&unit->device, isight);
+ 
+ 	return 0;
+-
+-err_unit:
+-	fw_unit_put(isight->unit);
+-	mutex_destroy(&isight->mutex);
+ error:
+ 	snd_card_free(card);
++
++	mutex_destroy(&isight->mutex);
++	fw_unit_put(isight->unit);
++
+ 	return err;
+ }
  
 -- 
-2.24.0
+2.20.1
 
