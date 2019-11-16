@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DF6EFED43
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F01DFED47
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728494AbfKPPmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:42:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46648 "EHLO mail.kernel.org"
+        id S1728536AbfKPPm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:42:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728485AbfKPPmv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:42:51 -0500
+        id S1728528AbfKPPm7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:42:59 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C39B420733;
-        Sat, 16 Nov 2019 15:42:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E152A2073B;
+        Sat, 16 Nov 2019 15:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573918971;
-        bh=sgtYBds0vlLgYVSZg75gyqmnkTu5AZWC7qxCtXuwRSU=;
+        s=default; t=1573918978;
+        bh=GSCFckh0COSe5QATUp9lJMLCywara0keVaTL3MvZHLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehl8uc5HXzzkhqib2b5a6Ok3+AHhCerbVuEIeaPkqtm1iCDAfLrYoi4A4k1CIBvPz
-         XSI9UphBFB2TkD0zb7hgVXqc2H6kEdKj7kuv+cdaAZ1srl/O7oiIuR/2Bs7cLIbQvv
-         AbW685RxwhSDYnQe/kd9UswjfU6HVkfxBDU5PmGU=
+        b=L9W0+BN2mcfL/1zBZdOJZS20GqAjPoDKuQInrf4N0yDTWmrL9HZQ9NKzDQZGhIlJU
+         X7cFsPG9cFqfX5Uz8AnvwsB2Z7xUVlc2vjrIxR4vLnVeOfHb/xT5gi7Alz1I69VKmU
+         b/gkbjKReWpKBMa7cph4Sn1imKVodnsndX4mp3Jk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.19 086/237] swiotlb: do not panic on mapping failures
-Date:   Sat, 16 Nov 2019 10:38:41 -0500
-Message-Id: <20191116154113.7417-86-sashal@kernel.org>
+Cc:     Jithu Joseph <jithu.joseph@intel.com>,
+        Reinette Chatre <reinette.chatre@intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>, fenghua.yu@intel.com,
+        tony.luck@intel.com, gavin.hindman@intel.com, hpa@zytor.com,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 088/237] x86/intel_rdt: Prevent pseudo-locking from using stale pointers
+Date:   Sat, 16 Nov 2019 10:38:43 -0500
+Message-Id: <20191116154113.7417-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,81 +45,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Jithu Joseph <jithu.joseph@intel.com>
 
-[ Upstream commit 8088546832aa2c0d8f99dd56edf6384f8a9b63b3 ]
+[ Upstream commit b61b8bba18fe2b63d38fdaf9b83de25e2d787dfe ]
 
-All properly written drivers now have error handling in the
-dma_map_single / dma_map_page callers.  As swiotlb_tbl_map_single already
-prints a useful warning when running out of swiotlb pool space we can
-also remove swiotlb_full entirely as it serves no purpose now.
+When the last CPU in an rdt_domain goes offline, its rdt_domain struct gets
+freed. Current pseudo-locking code is unaware of this scenario and tries to
+dereference the freed structure in a few places.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Add checks to prevent pseudo-locking code from doing this.
+
+While further work is needed to seamlessly restore resource groups (not
+just pseudo-locking) to their configuration when the domain is brought back
+online, the immediate issue of invalid pointers is addressed here.
+
+Fixes: f4e80d67a5274 ("x86/intel_rdt: Resctrl files reflect pseudo-locked information")
+Fixes: 443810fe61605 ("x86/intel_rdt: Create debugfs files for pseudo-locking testing")
+Fixes: 746e08590b864 ("x86/intel_rdt: Create character device exposing pseudo-locked region")
+Fixes: 33dc3e410a0d9 ("x86/intel_rdt: Make CPU information accessible for pseudo-locked regions")
+Signed-off-by: Jithu Joseph <jithu.joseph@intel.com>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: fenghua.yu@intel.com
+Cc: tony.luck@intel.com
+Cc: gavin.hindman@intel.com
+Cc: hpa@zytor.com
+Link: https://lkml.kernel.org/r/231f742dbb7b00a31cc104416860e27dba6b072d.1539384145.git.reinette.chatre@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/dma/swiotlb.c | 33 +--------------------------------
- 1 file changed, 1 insertion(+), 32 deletions(-)
+ arch/x86/kernel/cpu/intel_rdt.c             |  7 ++++
+ arch/x86/kernel/cpu/intel_rdt_ctrlmondata.c | 12 +++++--
+ arch/x86/kernel/cpu/intel_rdt_pseudo_lock.c | 10 ++++++
+ arch/x86/kernel/cpu/intel_rdt_rdtgroup.c    | 38 +++++++++++++++------
+ 4 files changed, 55 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/dma/swiotlb.c b/kernel/dma/swiotlb.c
-index 4f8a6dbf0b609..2a8c41f12d450 100644
---- a/kernel/dma/swiotlb.c
-+++ b/kernel/dma/swiotlb.c
-@@ -761,34 +761,6 @@ static bool swiotlb_free_buffer(struct device *dev, size_t size,
- 	return true;
+diff --git a/arch/x86/kernel/cpu/intel_rdt.c b/arch/x86/kernel/cpu/intel_rdt.c
+index abb71ac704433..4025fc6dd8f62 100644
+--- a/arch/x86/kernel/cpu/intel_rdt.c
++++ b/arch/x86/kernel/cpu/intel_rdt.c
+@@ -610,6 +610,13 @@ static void domain_remove_cpu(int cpu, struct rdt_resource *r)
+ 			cancel_delayed_work(&d->cqm_limbo);
+ 		}
+ 
++		/*
++		 * rdt_domain "d" is going to be freed below, so clear
++		 * its pointer from pseudo_lock_region struct.
++		 */
++		if (d->plr)
++			d->plr->d = NULL;
++
+ 		kfree(d->ctrl_val);
+ 		kfree(d->mbps_val);
+ 		kfree(d->rmid_busy_llc);
+diff --git a/arch/x86/kernel/cpu/intel_rdt_ctrlmondata.c b/arch/x86/kernel/cpu/intel_rdt_ctrlmondata.c
+index 627e5c809b33d..efa4a519f5e55 100644
+--- a/arch/x86/kernel/cpu/intel_rdt_ctrlmondata.c
++++ b/arch/x86/kernel/cpu/intel_rdt_ctrlmondata.c
+@@ -408,8 +408,16 @@ int rdtgroup_schemata_show(struct kernfs_open_file *of,
+ 			for_each_alloc_enabled_rdt_resource(r)
+ 				seq_printf(s, "%s:uninitialized\n", r->name);
+ 		} else if (rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED) {
+-			seq_printf(s, "%s:%d=%x\n", rdtgrp->plr->r->name,
+-				   rdtgrp->plr->d->id, rdtgrp->plr->cbm);
++			if (!rdtgrp->plr->d) {
++				rdt_last_cmd_clear();
++				rdt_last_cmd_puts("Cache domain offline\n");
++				ret = -ENODEV;
++			} else {
++				seq_printf(s, "%s:%d=%x\n",
++					   rdtgrp->plr->r->name,
++					   rdtgrp->plr->d->id,
++					   rdtgrp->plr->cbm);
++			}
+ 		} else {
+ 			closid = rdtgrp->closid;
+ 			for_each_alloc_enabled_rdt_resource(r) {
+diff --git a/arch/x86/kernel/cpu/intel_rdt_pseudo_lock.c b/arch/x86/kernel/cpu/intel_rdt_pseudo_lock.c
+index 912d53939f4f4..a999a58ca3318 100644
+--- a/arch/x86/kernel/cpu/intel_rdt_pseudo_lock.c
++++ b/arch/x86/kernel/cpu/intel_rdt_pseudo_lock.c
+@@ -1116,6 +1116,11 @@ static int pseudo_lock_measure_cycles(struct rdtgroup *rdtgrp, int sel)
+ 		goto out;
+ 	}
+ 
++	if (!plr->d) {
++		ret = -ENODEV;
++		goto out;
++	}
++
+ 	plr->thread_done = 0;
+ 	cpu = cpumask_first(&plr->d->cpu_mask);
+ 	if (!cpu_online(cpu)) {
+@@ -1429,6 +1434,11 @@ static int pseudo_lock_dev_mmap(struct file *filp, struct vm_area_struct *vma)
+ 
+ 	plr = rdtgrp->plr;
+ 
++	if (!plr->d) {
++		mutex_unlock(&rdtgroup_mutex);
++		return -ENODEV;
++	}
++
+ 	/*
+ 	 * Task is required to run with affinity to the cpus associated
+ 	 * with the pseudo-locked region. If this is not the case the task
+diff --git a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+index 2013699a5c54a..4f099b48d1ece 100644
+--- a/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
++++ b/arch/x86/kernel/cpu/intel_rdt_rdtgroup.c
+@@ -268,17 +268,27 @@ static int rdtgroup_cpus_show(struct kernfs_open_file *of,
+ 			      struct seq_file *s, void *v)
+ {
+ 	struct rdtgroup *rdtgrp;
++	struct cpumask *mask;
+ 	int ret = 0;
+ 
+ 	rdtgrp = rdtgroup_kn_lock_live(of->kn);
+ 
+ 	if (rdtgrp) {
+-		if (rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED)
+-			seq_printf(s, is_cpu_list(of) ? "%*pbl\n" : "%*pb\n",
+-				   cpumask_pr_args(&rdtgrp->plr->d->cpu_mask));
+-		else
++		if (rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED) {
++			if (!rdtgrp->plr->d) {
++				rdt_last_cmd_clear();
++				rdt_last_cmd_puts("Cache domain offline\n");
++				ret = -ENODEV;
++			} else {
++				mask = &rdtgrp->plr->d->cpu_mask;
++				seq_printf(s, is_cpu_list(of) ?
++					   "%*pbl\n" : "%*pb\n",
++					   cpumask_pr_args(mask));
++			}
++		} else {
+ 			seq_printf(s, is_cpu_list(of) ? "%*pbl\n" : "%*pb\n",
+ 				   cpumask_pr_args(&rdtgrp->cpu_mask));
++		}
+ 	} else {
+ 		ret = -ENOENT;
+ 	}
+@@ -1180,6 +1190,7 @@ static int rdtgroup_size_show(struct kernfs_open_file *of,
+ 	struct rdt_resource *r;
+ 	struct rdt_domain *d;
+ 	unsigned int size;
++	int ret = 0;
+ 	bool sep;
+ 	u32 ctrl;
+ 
+@@ -1190,11 +1201,18 @@ static int rdtgroup_size_show(struct kernfs_open_file *of,
+ 	}
+ 
+ 	if (rdtgrp->mode == RDT_MODE_PSEUDO_LOCKED) {
+-		seq_printf(s, "%*s:", max_name_width, rdtgrp->plr->r->name);
+-		size = rdtgroup_cbm_to_size(rdtgrp->plr->r,
+-					    rdtgrp->plr->d,
+-					    rdtgrp->plr->cbm);
+-		seq_printf(s, "%d=%u\n", rdtgrp->plr->d->id, size);
++		if (!rdtgrp->plr->d) {
++			rdt_last_cmd_clear();
++			rdt_last_cmd_puts("Cache domain offline\n");
++			ret = -ENODEV;
++		} else {
++			seq_printf(s, "%*s:", max_name_width,
++				   rdtgrp->plr->r->name);
++			size = rdtgroup_cbm_to_size(rdtgrp->plr->r,
++						    rdtgrp->plr->d,
++						    rdtgrp->plr->cbm);
++			seq_printf(s, "%d=%u\n", rdtgrp->plr->d->id, size);
++		}
+ 		goto out;
+ 	}
+ 
+@@ -1224,7 +1242,7 @@ static int rdtgroup_size_show(struct kernfs_open_file *of,
+ out:
+ 	rdtgroup_kn_unlock(of->kn);
+ 
+-	return 0;
++	return ret;
  }
  
--static void
--swiotlb_full(struct device *dev, size_t size, enum dma_data_direction dir,
--	     int do_panic)
--{
--	if (swiotlb_force == SWIOTLB_NO_FORCE)
--		return;
--
--	/*
--	 * Ran out of IOMMU space for this operation. This is very bad.
--	 * Unfortunately the drivers cannot handle this operation properly.
--	 * unless they check for dma_mapping_error (most don't)
--	 * When the mapping is small enough return a static buffer to limit
--	 * the damage, or panic when the transfer is too big.
--	 */
--	dev_err_ratelimited(dev, "DMA: Out of SW-IOMMU space for %zu bytes\n",
--			    size);
--
--	if (size <= io_tlb_overflow || !do_panic)
--		return;
--
--	if (dir == DMA_BIDIRECTIONAL)
--		panic("DMA: Random memory could be DMA accessed\n");
--	if (dir == DMA_FROM_DEVICE)
--		panic("DMA: Random memory could be DMA written\n");
--	if (dir == DMA_TO_DEVICE)
--		panic("DMA: Random memory could be DMA read\n");
--}
--
- /*
-  * Map a single buffer of the indicated size for DMA in streaming mode.  The
-  * physical address to use is returned.
-@@ -817,10 +789,8 @@ dma_addr_t swiotlb_map_page(struct device *dev, struct page *page,
- 
- 	/* Oh well, have to allocate and map a bounce buffer. */
- 	map = map_single(dev, phys, size, dir, attrs);
--	if (map == SWIOTLB_MAP_ERROR) {
--		swiotlb_full(dev, size, dir, 1);
-+	if (map == SWIOTLB_MAP_ERROR)
- 		return __phys_to_dma(dev, io_tlb_overflow_buffer);
--	}
- 
- 	dev_addr = __phys_to_dma(dev, map);
- 
-@@ -954,7 +924,6 @@ swiotlb_map_sg_attrs(struct device *hwdev, struct scatterlist *sgl, int nelems,
- 			if (map == SWIOTLB_MAP_ERROR) {
- 				/* Don't panic here, we expect map_sg users
- 				   to do proper error handling. */
--				swiotlb_full(hwdev, sg->length, dir, 0);
- 				attrs |= DMA_ATTR_SKIP_CPU_SYNC;
- 				swiotlb_unmap_sg_attrs(hwdev, sgl, i, dir,
- 						       attrs);
+ /* rdtgroup information files for one cache resource. */
 -- 
 2.20.1
 
