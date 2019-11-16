@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCD5FF25C
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:18:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B81FFF25B
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729367AbfKPPqY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:46:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52706 "EHLO mail.kernel.org"
+        id S1729055AbfKPQSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:18:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729358AbfKPPqX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:46:23 -0500
+        id S1728733AbfKPPq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:46:26 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E28F4207FA;
-        Sat, 16 Nov 2019 15:46:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A970A2077B;
+        Sat, 16 Nov 2019 15:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919183;
-        bh=RFeDsKAaoKwlp4/tSmQK0sxDKUceFFliSMPVIObqmk0=;
+        s=default; t=1573919185;
+        bh=xdFKgEX7Pl/f6BxecuW2mYaqqpQDVVagDCzXcf2Qhhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiXUAvgmoWkSYjqNBGKMI1i5Y5ouvx5XB10UEoAnMToRtmxxazVJEJb3leDwY+hMX
-         cPQqafRlNd/LGShMw9iJj+sEYsHCKxzkCdTZxD7IZsg8Mc8XbYqRM6L+RHzJJSeT7w
-         5To9CE1jLcrCj7dRiXuZOVdApvmLz4v56Lxi0JpI=
+        b=GpT5NiT8iRaA1/QPLJzQ/Yt+B3gnhAFSRhFS2xa9A5kx562G7/LbwCaXTnyGfhCab
+         aaC71vb9w8vTpRz5VTAMCLnymMXSOX9Yw/MB4CAU0GBowkBQgsypJBgm8Po+TONX28
+         6Q+8W0Zz3e9jqsJY0KBXOfItei47tr9dpPLD4B2s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrei Vagin <avagin@gmail.com>,
-        Cyrill Gorcunov <gorcunov@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 191/237] sock_diag: fix autoloading of the raw_diag module
-Date:   Sat, 16 Nov 2019 10:40:26 -0500
-Message-Id: <20191116154113.7417-191-sashal@kernel.org>
+Cc:     Nickhu <nickhu@andestech.com>,
+        Greentime Hu <greentime@andestech.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 193/237] nds32: Fix bug in bitfield.h
+Date:   Sat, 16 Nov 2019 10:40:28 -0500
+Message-Id: <20191116154113.7417-193-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -45,36 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Vagin <avagin@gmail.com>
+From: Nickhu <nickhu@andestech.com>
 
-[ Upstream commit c34c1287778b080ed692c0a46a8e345206cc29e6 ]
+[ Upstream commit 9aaafac8cffa1c1edb66e19a63841b7c86be07ca ]
 
-IPPROTO_RAW isn't registred as an inet protocol, so
-inet_protos[protocol] is always NULL for it.
+There two bitfield bug for perfomance counter
+in bitfield.h:
 
-Cc: Cyrill Gorcunov <gorcunov@gmail.com>
-Cc: Xin Long <lucien.xin@gmail.com>
-Fixes: bf2ae2e4bf93 ("sock_diag: request _diag module only when the family or proto has been registered")
-Signed-off-by: Andrei Vagin <avagin@gmail.com>
-Reviewed-by: Cyrill Gorcunov <gorcunov@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+	PFM_CTL_offSEL1		21 --> 16
+	PFM_CTL_offSEL2		27 --> 22
+
+This commit fix it.
+
+Signed-off-by: Nickhu <nickhu@andestech.com>
+Acked-by: Greentime Hu <greentime@andestech.com>
+Signed-off-by: Greentime Hu <greentime@andestech.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/sock.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/nds32/include/asm/bitfield.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/sock.c b/net/core/sock.c
-index 6c11078217769..ba4f843cdd1d1 100644
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -3347,6 +3347,7 @@ int sock_load_diag_module(int family, int protocol)
+diff --git a/arch/nds32/include/asm/bitfield.h b/arch/nds32/include/asm/bitfield.h
+index 8e84fc385b946..19b2841219adf 100644
+--- a/arch/nds32/include/asm/bitfield.h
++++ b/arch/nds32/include/asm/bitfield.h
+@@ -692,8 +692,8 @@
+ #define PFM_CTL_offKU1		13	/* Enable user mode event counting for PFMC1 */
+ #define PFM_CTL_offKU2		14	/* Enable user mode event counting for PFMC2 */
+ #define PFM_CTL_offSEL0		15	/* The event selection for PFMC0 */
+-#define PFM_CTL_offSEL1		21	/* The event selection for PFMC1 */
+-#define PFM_CTL_offSEL2		27	/* The event selection for PFMC2 */
++#define PFM_CTL_offSEL1		16	/* The event selection for PFMC1 */
++#define PFM_CTL_offSEL2		22	/* The event selection for PFMC2 */
+ /* bit 28:31 reserved */
  
- #ifdef CONFIG_INET
- 	if (family == AF_INET &&
-+	    protocol != IPPROTO_RAW &&
- 	    !rcu_access_pointer(inet_protos[protocol]))
- 		return -ENOENT;
- #endif
+ #define PFM_CTL_mskEN0		( 0x01  << PFM_CTL_offEN0 )
 -- 
 2.20.1
 
