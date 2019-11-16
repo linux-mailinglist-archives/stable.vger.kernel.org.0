@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ECD8FEFA6
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:00:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93E23FEFA5
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:00:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730513AbfKPQAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 11:00:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34594 "EHLO mail.kernel.org"
+        id S1729057AbfKPPxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:53:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731254AbfKPPxb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:53:31 -0500
+        id S1730507AbfKPPxc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:53:32 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99F1E21882;
-        Sat, 16 Nov 2019 15:53:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50DB3218A3;
+        Sat, 16 Nov 2019 15:53:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919610;
-        bh=1obXavLzHsCeZUAaQ/cIka7JXtrr6Qjcv2jjQ2VJJkw=;
+        s=default; t=1573919611;
+        bh=SD1+ZK9OmCUCUovyv9SYJ8BesDSNpcNeA9aYJoHtpTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SS/gvfnI1VU2qi7F8Jg1XMgKd1aiN/fHw6g3dNNCx+hwMJKxFO89v+z0WYqO1Ru5b
-         N5sAWWBfQQU5dFiyze3lJm+myG/CH5BAY2pGIBLU4EvP1kg6AUxRpQHqMbcOU1Kqd3
-         fzdP8K+OI1ESFoeJNEVluXWuvM2KYyhXvweXcgOI=
+        b=rwJtf+A1puAUUoh4+J9RzbuPUGDK3eDg5Y8SdBwV2rJFdcBAlVNiCOddWHrSDpc+A
+         v2DI9NMNUpnGmy8+TajxWsdZuqr6txCRxxBBZVOZplsAyfpc97Eb0J80iZSpRNXhAA
+         D67V778dvkoOIaJIco5H0nXeVjTyaEw9DW02Mc0E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vignesh R <vigneshr@ti.com>, David Lechner <david@lechnology.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 97/99] spi: omap2-mcspi: Fix DMA and FIFO event trigger size mismatch
-Date:   Sat, 16 Nov 2019 10:51:00 -0500
-Message-Id: <20191116155103.10971-97-sashal@kernel.org>
+Cc:     zhong jiang <zhongjiang@huawei.com>,
+        Yang yingliang <yangyingliang@huawei.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 98/99] mm/memory_hotplug: Do not unlock when fails to take the device_hotplug_lock
+Date:   Sat, 16 Nov 2019 10:51:01 -0500
+Message-Id: <20191116155103.10971-98-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116155103.10971-1-sashal@kernel.org>
 References: <20191116155103.10971-1-sashal@kernel.org>
@@ -43,47 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh R <vigneshr@ti.com>
+From: zhong jiang <zhongjiang@huawei.com>
 
-[ Upstream commit baf8b9f8d260c55a86405f70a384c29cda888476 ]
+[ Upstream commit d2ab99403ee00d8014e651728a4702ea1ae5e52c ]
 
-Commit b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
-broke SPI transfers where bits_per_word != 8. This is because of
-mimsatch between McSPI FIFO level event trigger size (SPI word length) and
-DMA request size(word length * maxburst). This leads to data
-corruption, lockup and errors like:
+When adding the memory by probing memory block in sysfs interface, there is an
+obvious issue that we will unlock the device_hotplug_lock when fails to takes it.
 
-	spi1.0: EOW timed out
+That issue was introduced in Commit 8df1d0e4a265
+("mm/memory_hotplug: make add_memory() take the device_hotplug_lock")
 
-Fix this by setting DMA maxburst size to 1 so that
-McSPI FIFO level event trigger size matches DMA request size.
+We should drop out in time when fails to take the device_hotplug_lock.
 
-Fixes: b682cffa3ac6 ("spi: omap2-mcspi: Set FIFO DMA trigger level to word length")
-Cc: stable@vger.kernel.org
-Reported-by: David Lechner <david@lechnology.com>
-Tested-by: David Lechner <david@lechnology.com>
-Signed-off-by: Vignesh R <vigneshr@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 8df1d0e4a265 ("mm/memory_hotplug: make add_memory() take the device_hotplug_lock")
+Reported-by: Yang yingliang <yangyingliang@huawei.com>
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-omap2-mcspi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spi-omap2-mcspi.c b/drivers/spi/spi-omap2-mcspi.c
-index bc136fe3a2829..ccb6f98550da4 100644
---- a/drivers/spi/spi-omap2-mcspi.c
-+++ b/drivers/spi/spi-omap2-mcspi.c
-@@ -625,8 +625,8 @@ omap2_mcspi_txrx_dma(struct spi_device *spi, struct spi_transfer *xfer)
- 	cfg.dst_addr = cs->phys + OMAP2_MCSPI_TX0;
- 	cfg.src_addr_width = width;
- 	cfg.dst_addr_width = width;
--	cfg.src_maxburst = es;
--	cfg.dst_maxburst = es;
-+	cfg.src_maxburst = 1;
-+	cfg.dst_maxburst = 1;
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 9f96f1b43c15f..6a3694a4843f8 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -502,7 +502,7 @@ memory_probe_store(struct device *dev, struct device_attribute *attr,
  
- 	rx = xfer->rx_buf;
- 	tx = xfer->tx_buf;
+ 	ret = lock_device_hotplug_sysfs();
+ 	if (ret)
+-		goto out;
++		return ret;
+ 
+ 	nid = memory_add_physaddr_to_nid(phys_addr);
+ 	ret = __add_memory(nid, phys_addr,
 -- 
 2.20.1
 
