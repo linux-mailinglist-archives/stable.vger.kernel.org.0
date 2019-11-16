@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA01FED73
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CF89FED77
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728949AbfKPPoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:44:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49152 "EHLO mail.kernel.org"
+        id S1728981AbfKPPoa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:44:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727880AbfKPPoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:44:24 -0500
+        id S1728965AbfKPPo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:44:27 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60A832072D;
-        Sat, 16 Nov 2019 15:44:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81C4D20830;
+        Sat, 16 Nov 2019 15:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919063;
-        bh=cgHiA7DDTWxGxz5X7SG64ZBTuO5N5bph52IcLJ9ZLyI=;
+        s=default; t=1573919065;
+        bh=aTkknpA7PYRoAKFfak6Ht2aOudN4LbMl57GR686Cthc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhIRfMLC+U4vkLRgXNKPXrJZIiXYt3XEWFpZLNCpYaRheOTIvGn2C715vTwbCXVd1
-         ehwOITNUKqCdaOh+MuOy1KiOHxS7PAQvr+PlOfsZTopYzYIvHek8trJSsbg3keSbAO
-         SGd/bIJEN/IOoN/Cy/Liw0LkJSrKAN7CZSDQoP0Y=
+        b=cyMi7xwC+ArbgkVl/taspXf/T26GpXpec1xaF/tIdPFCdaokS4UczxStwdBCo37ad
+         3lzMGSTC8V2auZ4wLqhKCmmJPku/NkU3KaFX8EoDB/+tNWJ7D+sTDuoVBiZ28LQVrt
+         cbZHUszIkT3G7rETTj6lbwMxnFVXZ5pbBM3XQhDk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sabrina Dubroca <sd@queasysnail.net>,
-        Radu Rendec <radu.rendec@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 135/237] macsec: let the administrator set UP state even if lowerdev is down
-Date:   Sat, 16 Nov 2019 10:39:30 -0500
-Message-Id: <20191116154113.7417-135-sashal@kernel.org>
+Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 138/237] i2c: uniphier-f: fix occasional timeout error
+Date:   Sat, 16 Nov 2019 10:39:33 -0500
+Message-Id: <20191116154113.7417-138-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,41 +43,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sabrina Dubroca <sd@queasysnail.net>
+From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit 07bddef9839378bd6f95b393cf24c420529b4ef1 ]
+[ Upstream commit 39226aaa85f002d695e3cafade3309e12ffdaecd ]
 
-Currently, the kernel doesn't let the administrator set a macsec device
-up unless its lower device is currently up. This is inconsistent, as a
-macsec device that is up won't automatically go down when its lower
-device goes down.
+Currently, a timeout error could happen at a repeated START condition.
 
-Now that linkstate propagation works, there's really no reason for this
-limitation, so let's remove it.
+For a (non-repeated) START condition, the controller starts sending
+data when the UNIPHIER_FI2C_CR_STA bit is set. However, for a repeated
+START condition, the hardware starts running when the slave address is
+written to the TX FIFO - the write to the UNIPHIER_FI2C_CR register is
+actually unneeded.
 
-Fixes: c09440f7dcb3 ("macsec: introduce IEEE 802.1AE driver")
-Reported-by: Radu Rendec <radu.rendec@gmail.com>
-Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Because the hardware is already running before the IRQ is enabled for
+a repeated START, the driver may miss the IRQ event. In most cases,
+this problem does not show up since modern CPUs are much faster than
+the I2C transfer. However, it is still possible that a context switch
+happens after the controller starts, but before the IRQ register is
+set up.
+
+To fix this,
+
+ - Do not write UNIPHIER_FI2C_CR for repeated START conditions.
+
+ - Enable IRQ *before* writing the slave address to the TX FIFO.
+
+ - Disable IRQ for the current CPU while queuing up the TX FIFO;
+   If the CPU is interrupted by some task, the interrupt handler
+   might be invoked due to the empty TX FIFO before completing the
+   setup.
+
+Fixes: 6a62974b667f ("i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver")
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/macsec.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/i2c/busses/i2c-uniphier-f.c | 33 ++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/macsec.c b/drivers/net/macsec.c
-index 50acd8c9d7f53..10a8ef2d025a1 100644
---- a/drivers/net/macsec.c
-+++ b/drivers/net/macsec.c
-@@ -2813,9 +2813,6 @@ static int macsec_dev_open(struct net_device *dev)
- 	struct net_device *real_dev = macsec->real_dev;
- 	int err;
+diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
+index b9a0690b4fd73..bbd5b137aa216 100644
+--- a/drivers/i2c/busses/i2c-uniphier-f.c
++++ b/drivers/i2c/busses/i2c-uniphier-f.c
+@@ -260,6 +260,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ static void uniphier_fi2c_tx_init(struct uniphier_fi2c_priv *priv, u16 addr)
+ {
+ 	priv->enabled_irqs |= UNIPHIER_FI2C_INT_TE;
++	uniphier_fi2c_set_irqs(priv);
++
+ 	/* do not use TX byte counter */
+ 	writel(0, priv->membase + UNIPHIER_FI2C_TBC);
+ 	/* set slave address */
+@@ -292,6 +294,8 @@ static void uniphier_fi2c_rx_init(struct uniphier_fi2c_priv *priv, u16 addr)
+ 		priv->enabled_irqs |= UNIPHIER_FI2C_INT_RF;
+ 	}
  
--	if (!(real_dev->flags & IFF_UP))
--		return -ENETDOWN;
++	uniphier_fi2c_set_irqs(priv);
++
+ 	/* set slave address with RD bit */
+ 	writel(UNIPHIER_FI2C_DTTX_CMD | UNIPHIER_FI2C_DTTX_RD | addr << 1,
+ 	       priv->membase + UNIPHIER_FI2C_DTTX);
+@@ -315,14 +319,16 @@ static void uniphier_fi2c_recover(struct uniphier_fi2c_priv *priv)
+ }
+ 
+ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+-					 struct i2c_msg *msg, bool stop)
++					 struct i2c_msg *msg, bool repeat,
++					 bool stop)
+ {
+ 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
+ 	bool is_read = msg->flags & I2C_M_RD;
+ 	unsigned long time_left, flags;
+ 
+-	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
+-		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
++	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, repeat=%d, stop=%d\n",
++		is_read ? "receive" : "transmit", msg->addr, msg->len,
++		repeat, stop);
+ 
+ 	priv->len = msg->len;
+ 	priv->buf = msg->buf;
+@@ -338,16 +344,24 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+ 	writel(UNIPHIER_FI2C_RST_TBRST | UNIPHIER_FI2C_RST_RBRST,
+ 	       priv->membase + UNIPHIER_FI2C_RST);	/* reset TX/RX FIFO */
+ 
++	spin_lock_irqsave(&priv->lock, flags);
++
+ 	if (is_read)
+ 		uniphier_fi2c_rx_init(priv, msg->addr);
+ 	else
+ 		uniphier_fi2c_tx_init(priv, msg->addr);
+ 
+-	uniphier_fi2c_set_irqs(priv);
 -
- 	err = dev_uc_add(real_dev, dev->dev_addr);
- 	if (err < 0)
- 		return err;
+ 	dev_dbg(&adap->dev, "start condition\n");
+-	writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STA,
+-	       priv->membase + UNIPHIER_FI2C_CR);
++	/*
++	 * For a repeated START condition, writing a slave address to the FIFO
++	 * kicks the controller. So, the UNIPHIER_FI2C_CR register should be
++	 * written only for a non-repeated START condition.
++	 */
++	if (!repeat)
++		writel(UNIPHIER_FI2C_CR_MST | UNIPHIER_FI2C_CR_STA,
++		       priv->membase + UNIPHIER_FI2C_CR);
++
++	spin_unlock_irqrestore(&priv->lock, flags);
+ 
+ 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
+ 
+@@ -408,6 +422,7 @@ static int uniphier_fi2c_master_xfer(struct i2c_adapter *adap,
+ 				     struct i2c_msg *msgs, int num)
+ {
+ 	struct i2c_msg *msg, *emsg = msgs + num;
++	bool repeat = false;
+ 	int ret;
+ 
+ 	ret = uniphier_fi2c_check_bus_busy(adap);
+@@ -418,9 +433,11 @@ static int uniphier_fi2c_master_xfer(struct i2c_adapter *adap,
+ 		/* Emit STOP if it is the last message or I2C_M_STOP is set. */
+ 		bool stop = (msg + 1 == emsg) || (msg->flags & I2C_M_STOP);
+ 
+-		ret = uniphier_fi2c_master_xfer_one(adap, msg, stop);
++		ret = uniphier_fi2c_master_xfer_one(adap, msg, repeat, stop);
+ 		if (ret)
+ 			return ret;
++
++		repeat = !stop;
+ 	}
+ 
+ 	return num;
 -- 
 2.20.1
 
