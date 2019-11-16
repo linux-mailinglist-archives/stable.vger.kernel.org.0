@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F96FF2D4
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E549FF2D7
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728756AbfKPPna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:43:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47490 "EHLO mail.kernel.org"
+        id S1730441AbfKPQVj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 11:21:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728748AbfKPPn3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:43:29 -0500
+        id S1728750AbfKPPna (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:43:30 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 040422075B;
-        Sat, 16 Nov 2019 15:43:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 977D32072D;
+        Sat, 16 Nov 2019 15:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1573919009;
-        bh=Wux2/6xePSbFE+QWcjf/7uQCjFGCFXhh9IaB2o/078A=;
+        bh=9bch6VTDVZgwC2rRZU7Zqnz8hEruZA8tajpvcVynNb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qF07+Y2GztU7x7RZw2z1b9eAXOiCK7/uurqGcpaLXfYMKhKHosQ6s7xQrv7hkzzNP
-         U2Z832t9C3ij7UuewRPRzOij3r2JLc2Uy/pn9yfMbBvGXAEKQBbBHt21NGgLFf7yrW
-         p2OXi+eXD7SEQyGrwxBFRNi+HssAJ+uzNYWJCugg=
+        b=lugkCPPQuZi/h79ebvk+Iy2gYUhyR17jZqbOHyu0ooEC748c7E45A0uNUN6fRxCCr
+         K6cxl5L6a0rl2or2sOzak87uE98iO5LXyx0AG7awloFID0KjmHo0Qenxe1WzVA4E+i
+         q2CPHA5ww2I2XvKVMeKuoTV1Axl8rhSF6oABYkv8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 112/237] mfd: max8997: Enale irq-wakeup unconditionally
-Date:   Sat, 16 Nov 2019 10:39:07 -0500
-Message-Id: <20191116154113.7417-112-sashal@kernel.org>
+Cc:     Masahisa Kojima <masahisa.kojima@linaro.org>,
+        Yoshitoyo Osaki <osaki.yoshitoyo@socionext.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 113/237] net: socionext: Stop PHY before resetting netsec
+Date:   Sat, 16 Nov 2019 10:39:08 -0500
+Message-Id: <20191116154113.7417-113-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,64 +44,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Masahisa Kojima <masahisa.kojima@linaro.org>
 
-[ Upstream commit efddff27c886e729a7f84a7205bd84d7d4af7336 ]
+[ Upstream commit 8e850f25b5812aefedec6732732eb10e7b47cb5c ]
 
-IRQ wake up support for MAX8997 driver was initially configured by
-respective property in pdata. However, after the driver conversion to
-device-tree, setting it was left as 'todo'. Nowadays most of other PMIC MFD
-drivers initialized from device-tree assume that they can be an irq wakeup
-source, so enable it also for MAX8997. This fixes support for wakeup from
-MAX8997 RTC alarm.
+In ndo_stop, driver resets the netsec ethernet controller IP.
+When the netsec IP is reset, HW running mode turns to NRM mode
+and driver has to wait until this mode transition completes.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+But mode transition to NRM will not complete if the PHY is
+in normal operation state. Netsec IP requires PHY is in
+power down state when it is reset.
+
+This modification stops the PHY before resetting netsec.
+
+Together with this modification, phy_addr is stored in netsec_priv
+structure because ndev->phydev is not yet ready in ndo_init.
+
+Fixes: 533dd11a12f6 ("net: socionext: Add Synquacer NetSec driver")
+Signed-off-by: Masahisa Kojima <masahisa.kojima@linaro.org>
+Signed-off-by: Yoshitoyo Osaki <osaki.yoshitoyo@socionext.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/max8997.c       | 8 +-------
- include/linux/mfd/max8997.h | 1 -
- 2 files changed, 1 insertion(+), 8 deletions(-)
+ drivers/net/ethernet/socionext/netsec.c | 19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mfd/max8997.c b/drivers/mfd/max8997.c
-index 3f554c4475218..d1495d76bf2c3 100644
---- a/drivers/mfd/max8997.c
-+++ b/drivers/mfd/max8997.c
-@@ -153,12 +153,6 @@ static struct max8997_platform_data *max8997_i2c_parse_dt_pdata(
+diff --git a/drivers/net/ethernet/socionext/netsec.c b/drivers/net/ethernet/socionext/netsec.c
+index d2caeb9edc044..28d582c18afb9 100644
+--- a/drivers/net/ethernet/socionext/netsec.c
++++ b/drivers/net/ethernet/socionext/netsec.c
+@@ -274,6 +274,7 @@ struct netsec_priv {
+ 	struct clk *clk;
+ 	u32 msg_enable;
+ 	u32 freq;
++	u32 phy_addr;
+ 	bool rx_cksum_offload_flag;
+ };
  
- 	pd->ono = irq_of_parse_and_map(dev->of_node, 1);
+@@ -1346,11 +1347,11 @@ static int netsec_netdev_stop(struct net_device *ndev)
+ 	netsec_uninit_pkt_dring(priv, NETSEC_RING_TX);
+ 	netsec_uninit_pkt_dring(priv, NETSEC_RING_RX);
  
--	/*
--	 * ToDo: the 'wakeup' member in the platform data is more of a linux
--	 * specfic information. Hence, there is no binding for that yet and
--	 * not parsed here.
--	 */
+-	ret = netsec_reset_hardware(priv, false);
 -
- 	return pd;
- }
+ 	phy_stop(ndev->phydev);
+ 	phy_disconnect(ndev->phydev);
  
-@@ -246,7 +240,7 @@ static int max8997_i2c_probe(struct i2c_client *i2c,
- 	 */
- 
- 	/* MAX8997 has a power button input. */
--	device_init_wakeup(max8997->dev, pdata->wakeup);
-+	device_init_wakeup(max8997->dev, true);
++	ret = netsec_reset_hardware(priv, false);
++
+ 	pm_runtime_put_sync(priv->dev);
  
  	return ret;
+@@ -1360,6 +1361,7 @@ static int netsec_netdev_init(struct net_device *ndev)
+ {
+ 	struct netsec_priv *priv = netdev_priv(ndev);
+ 	int ret;
++	u16 data;
  
-diff --git a/include/linux/mfd/max8997.h b/include/linux/mfd/max8997.h
-index cf815577bd686..3ae1fe743bc34 100644
---- a/include/linux/mfd/max8997.h
-+++ b/include/linux/mfd/max8997.h
-@@ -178,7 +178,6 @@ struct max8997_led_platform_data {
- struct max8997_platform_data {
- 	/* IRQ */
- 	int ono;
--	int wakeup;
+ 	ret = netsec_alloc_dring(priv, NETSEC_RING_TX);
+ 	if (ret)
+@@ -1369,6 +1371,11 @@ static int netsec_netdev_init(struct net_device *ndev)
+ 	if (ret)
+ 		goto err1;
  
- 	/* ---- PMIC ---- */
- 	struct max8997_regulator_data *regulators;
++	/* set phy power down */
++	data = netsec_phy_read(priv->mii_bus, priv->phy_addr, MII_BMCR) |
++		BMCR_PDOWN;
++	netsec_phy_write(priv->mii_bus, priv->phy_addr, MII_BMCR, data);
++
+ 	ret = netsec_reset_hardware(priv, true);
+ 	if (ret)
+ 		goto err2;
+@@ -1418,7 +1425,7 @@ static const struct net_device_ops netsec_netdev_ops = {
+ };
+ 
+ static int netsec_of_probe(struct platform_device *pdev,
+-			   struct netsec_priv *priv)
++			   struct netsec_priv *priv, u32 *phy_addr)
+ {
+ 	priv->phy_np = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
+ 	if (!priv->phy_np) {
+@@ -1426,6 +1433,8 @@ static int netsec_of_probe(struct platform_device *pdev,
+ 		return -EINVAL;
+ 	}
+ 
++	*phy_addr = of_mdio_parse_addr(&pdev->dev, priv->phy_np);
++
+ 	priv->clk = devm_clk_get(&pdev->dev, NULL); /* get by 'phy_ref_clk' */
+ 	if (IS_ERR(priv->clk)) {
+ 		dev_err(&pdev->dev, "phy_ref_clk not found\n");
+@@ -1626,12 +1635,14 @@ static int netsec_probe(struct platform_device *pdev)
+ 	}
+ 
+ 	if (dev_of_node(&pdev->dev))
+-		ret = netsec_of_probe(pdev, priv);
++		ret = netsec_of_probe(pdev, priv, &phy_addr);
+ 	else
+ 		ret = netsec_acpi_probe(pdev, priv, &phy_addr);
+ 	if (ret)
+ 		goto free_ndev;
+ 
++	priv->phy_addr = phy_addr;
++
+ 	if (!priv->freq) {
+ 		dev_err(&pdev->dev, "missing PHY reference clock frequency\n");
+ 		ret = -ENODEV;
 -- 
 2.20.1
 
