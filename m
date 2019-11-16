@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBDDFFF2A3
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D29FF2A4
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 17:21:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728989AbfKPPob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728986AbfKPPob (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 16 Nov 2019 10:44:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49212 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:49264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728957AbfKPPo0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:44:26 -0500
+        id S1728968AbfKPPo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:44:27 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4EDC2073B;
-        Sat, 16 Nov 2019 15:44:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 30A5C2072D;
+        Sat, 16 Nov 2019 15:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919065;
-        bh=NjWy5znEkoWXqsJzxRB5cmvhQBP3xr8ifrgF/0d3lR8=;
+        s=default; t=1573919066;
+        bh=by66fafWIkFfkatStvHYRKlIhFEru2T56686wGJEHj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gxz7qg6n6QYXX2uVIzYXvXOEGOON53WCavqmKLZljIal9eujDJJK9X6mT5aaz1EA0
-         wiFwp8VMOzXlMtbZ4ZmiySiBrvDLBHc2OQrYUQpJ7Ce6INL2bnuAllE1Z0rq06bQJn
-         qXYLrTwMYEpqAVE9YEntroOmG3+ssmy/2h4GoA3Y=
+        b=M732/L/InWX7ylwULntQBASo+DgSH3XomiCAHcmyr97R9JNQEdk7qD6Me17SY+jV0
+         r9cCzuogJeDc9NGJlQL2l3jrYCzheWRV8CxTnuBxzithYgUFZnCym8KGaJ6/H1AoEs
+         SYvVsANqyWreL6WckIA9RMwrVtYzD9cBb//coQ0I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
         Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 137/237] i2c: uniphier-f: make driver robust against concurrency
-Date:   Sat, 16 Nov 2019 10:39:32 -0500
-Message-Id: <20191116154113.7417-137-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 139/237] i2c: uniphier-f: fix race condition when IRQ is cleared
+Date:   Sat, 16 Nov 2019 10:39:34 -0500
+Message-Id: <20191116154113.7417-139-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -45,95 +45,68 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit f1fdcbbdf45d9609f3d4063b67e9ea941ba3a58f ]
+[ Upstream commit eaba68785c2d24ebf1f0d46c24e11b79cc2f94c7 ]
 
-This is unlikely to happen, but it is possible for a CPU to enter
-the interrupt handler just after wait_for_completion_timeout() has
-expired. If this happens, the hardware is accessed from multiple
-contexts concurrently.
+The current IRQ handler clears all the IRQ status bits when it bails
+out. This is dangerous because it might clear away the status bits
+that have just been set while processing the current handler. If this
+happens, the IRQ event for the latest transfer is lost forever.
 
-Disable the IRQ after wait_for_completion_timeout(), and do nothing
-from the handler when the IRQ is disabled.
+The IRQ status bits must be cleared *before* the next transfer is
+kicked.
 
 Fixes: 6a62974b667f ("i2c: uniphier_f: add UniPhier FIFO-builtin I2C driver")
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-uniphier-f.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-uniphier-f.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-uniphier-f.c b/drivers/i2c/busses/i2c-uniphier-f.c
-index bc26ec822e268..b9a0690b4fd73 100644
+index bbd5b137aa216..928ea9930d17e 100644
 --- a/drivers/i2c/busses/i2c-uniphier-f.c
 +++ b/drivers/i2c/busses/i2c-uniphier-f.c
-@@ -98,6 +98,7 @@ struct uniphier_fi2c_priv {
- 	unsigned int flags;
- 	unsigned int busy_cnt;
- 	unsigned int clk_cycle;
-+	spinlock_t lock;	/* IRQ synchronization */
- };
- 
- static void uniphier_fi2c_fill_txfifo(struct uniphier_fi2c_priv *priv,
-@@ -162,7 +163,10 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 	struct uniphier_fi2c_priv *priv = dev_id;
- 	u32 irq_status;
- 
-+	spin_lock(&priv->lock);
-+
- 	irq_status = readl(priv->membase + UNIPHIER_FI2C_INT);
-+	irq_status &= priv->enabled_irqs;
- 
- 	dev_dbg(&priv->adap.dev,
- 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
-@@ -230,6 +234,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- 		goto handled;
- 	}
- 
-+	spin_unlock(&priv->lock);
-+
- 	return IRQ_NONE;
- 
- data_done:
-@@ -246,6 +252,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
- handled:
- 	uniphier_fi2c_clear_irqs(priv);
- 
-+	spin_unlock(&priv->lock);
-+
- 	return IRQ_HANDLED;
+@@ -143,9 +143,10 @@ static void uniphier_fi2c_set_irqs(struct uniphier_fi2c_priv *priv)
+ 	writel(priv->enabled_irqs, priv->membase + UNIPHIER_FI2C_IE);
  }
  
-@@ -311,7 +319,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+-static void uniphier_fi2c_clear_irqs(struct uniphier_fi2c_priv *priv)
++static void uniphier_fi2c_clear_irqs(struct uniphier_fi2c_priv *priv,
++				     u32 mask)
  {
- 	struct uniphier_fi2c_priv *priv = i2c_get_adapdata(adap);
- 	bool is_read = msg->flags & I2C_M_RD;
--	unsigned long time_left;
-+	unsigned long time_left, flags;
+-	writel(-1, priv->membase + UNIPHIER_FI2C_IC);
++	writel(mask, priv->membase + UNIPHIER_FI2C_IC);
+ }
  
- 	dev_dbg(&adap->dev, "%s: addr=0x%02x, len=%d, stop=%d\n",
- 		is_read ? "receive" : "transmit", msg->addr, msg->len, stop);
-@@ -342,6 +350,12 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
- 	       priv->membase + UNIPHIER_FI2C_CR);
+ static void uniphier_fi2c_stop(struct uniphier_fi2c_priv *priv)
+@@ -172,6 +173,8 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ 		"interrupt: enabled_irqs=%04x, irq_status=%04x\n",
+ 		priv->enabled_irqs, irq_status);
  
- 	time_left = wait_for_completion_timeout(&priv->comp, adap->timeout);
++	uniphier_fi2c_clear_irqs(priv, irq_status);
 +
-+	spin_lock_irqsave(&priv->lock, flags);
-+	priv->enabled_irqs = 0;
-+	uniphier_fi2c_set_irqs(priv);
-+	spin_unlock_irqrestore(&priv->lock, flags);
-+
- 	if (!time_left) {
- 		dev_err(&adap->dev, "transaction timeout.\n");
- 		uniphier_fi2c_recover(priv);
-@@ -546,6 +560,7 @@ static int uniphier_fi2c_probe(struct platform_device *pdev)
+ 	if (irq_status & UNIPHIER_FI2C_INT_STOP)
+ 		goto complete;
  
- 	priv->clk_cycle = clk_rate / bus_speed;
- 	init_completion(&priv->comp);
-+	spin_lock_init(&priv->lock);
- 	priv->adap.owner = THIS_MODULE;
- 	priv->adap.algo = &uniphier_fi2c_algo;
- 	priv->adap.dev.parent = dev;
+@@ -250,8 +253,6 @@ static irqreturn_t uniphier_fi2c_interrupt(int irq, void *dev_id)
+ 	}
+ 
+ handled:
+-	uniphier_fi2c_clear_irqs(priv);
+-
+ 	spin_unlock(&priv->lock);
+ 
+ 	return IRQ_HANDLED;
+@@ -340,7 +341,7 @@ static int uniphier_fi2c_master_xfer_one(struct i2c_adapter *adap,
+ 		priv->flags |= UNIPHIER_FI2C_STOP;
+ 
+ 	reinit_completion(&priv->comp);
+-	uniphier_fi2c_clear_irqs(priv);
++	uniphier_fi2c_clear_irqs(priv, U32_MAX);
+ 	writel(UNIPHIER_FI2C_RST_TBRST | UNIPHIER_FI2C_RST_RBRST,
+ 	       priv->membase + UNIPHIER_FI2C_RST);	/* reset TX/RX FIFO */
+ 
 -- 
 2.20.1
 
