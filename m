@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 541BDFEE15
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:49:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D26FEE20
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:49:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730182AbfKPPsr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:48:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56084 "EHLO mail.kernel.org"
+        id S1730240AbfKPPs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:48:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730177AbfKPPsq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:48:46 -0500
+        id S1730236AbfKPPs6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:48:58 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C774020729;
-        Sat, 16 Nov 2019 15:48:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E7022086A;
+        Sat, 16 Nov 2019 15:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919326;
-        bh=vm84ASlpradK3YRp36649IF0WvfGXEHeTtm8gY3B1AY=;
+        s=default; t=1573919337;
+        bh=HsPWwmDEIMEtsZTabfg0H5Vjz9voDV9fpRM5MsHpzpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K6q0zvd9GqAsgtnTX7L30hSkLGakCElKsmoNQhPl6krOdoSZ0ll98Q8+I/5uaUnb9
-         h4kxEmH+fGbe2W4uOFo3o5zqxNmSqNuuRK/ibvmsHJF80AvCqpm3i/27d9FNyBP4gr
-         jwtga3XPdB0qnzEE+9q96R6clvqUi7FqgRZ/iGf8=
+        b=qPkZ0RWBlRmZUlrCMs1PzBx6T3OLoSPeotxvUx3fcuBCzhr5gSQ+xGqyziWvON3OV
+         E14ZCzt04i2IcCuP5LX6eeVFNasEZfM6TycsKHMAH6s5LQPrpX1sGQbsmlyxuOhFIj
+         6p7MIzPfvFr3V6C60tMTNsTG1/aGPc3YvzVlEyGw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabio Estevam <fabio.estevam@nxp.com>,
-        Chris Healy <cphealy@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 068/150] mfd: mc13xxx-core: Fix PMIC shutdown when reading ADC values
-Date:   Sat, 16 Nov 2019 10:46:06 -0500
-Message-Id: <20191116154729.9573-68-sashal@kernel.org>
+Cc:     "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 077/150] sparc64: Rework xchg() definition to avoid warnings.
+Date:   Sat, 16 Nov 2019 10:46:15 -0500
+Message-Id: <20191116154729.9573-77-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154729.9573-1-sashal@kernel.org>
 References: <20191116154729.9573-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,57 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <fabio.estevam@nxp.com>
+From: "David S. Miller" <davem@davemloft.net>
 
-[ Upstream commit 55143439b7b501882bea9d95a54adfe00ffc79a3 ]
+[ Upstream commit 6c2fc9cddc1ffdef8ada1dc8404e5affae849953 ]
 
-When trying to read any MC13892 ADC channel on a imx51-babbage board:
+Such as:
 
-The MC13892 PMIC shutdowns completely.
+fs/ocfs2/file.c: In function ‘ocfs2_file_write_iter’:
+./arch/sparc/include/asm/cmpxchg_64.h:55:22: warning: value computed is not used [-Wunused-value]
+ #define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
 
-After debugging this issue and comparing the MC13892 and MC13783
-initializations done in the vendor kernel, it was noticed that the
-CHRGRAWDIV bit of the ADC0 register was not being set.
+and
 
-This bit is set by default after power on, but the driver was
-clearing it.
+drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c: In function ‘ixgbevf_xdp_setup’:
+./arch/sparc/include/asm/cmpxchg_64.h:55:22: warning: value computed is not used [-Wunused-value]
+ #define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
 
-After setting this bit it is possible to read the ADC values correctly.
-
-Signed-off-by: Fabio Estevam <fabio.estevam@nxp.com>
-Tested-by: Chris Healy <cphealy@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/mc13xxx-core.c  | 3 ++-
- include/linux/mfd/mc13xxx.h | 1 +
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ arch/sparc/include/asm/cmpxchg_64.h | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/mc13xxx-core.c b/drivers/mfd/mc13xxx-core.c
-index 6c16f170529f5..75d52034f89da 100644
---- a/drivers/mfd/mc13xxx-core.c
-+++ b/drivers/mfd/mc13xxx-core.c
-@@ -278,7 +278,8 @@ int mc13xxx_adc_do_conversion(struct mc13xxx *mc13xxx, unsigned int mode,
- 	if (ret)
- 		goto out;
+diff --git a/arch/sparc/include/asm/cmpxchg_64.h b/arch/sparc/include/asm/cmpxchg_64.h
+index f71ef3729888f..316faa0130bab 100644
+--- a/arch/sparc/include/asm/cmpxchg_64.h
++++ b/arch/sparc/include/asm/cmpxchg_64.h
+@@ -52,7 +52,12 @@ static inline unsigned long xchg64(__volatile__ unsigned long *m, unsigned long
+ 	return val;
+ }
  
--	adc0 = MC13XXX_ADC0_ADINC1 | MC13XXX_ADC0_ADINC2;
-+	adc0 = MC13XXX_ADC0_ADINC1 | MC13XXX_ADC0_ADINC2 |
-+	       MC13XXX_ADC0_CHRGRAWDIV;
- 	adc1 = MC13XXX_ADC1_ADEN | MC13XXX_ADC1_ADTRIGIGN | MC13XXX_ADC1_ASC;
+-#define xchg(ptr,x) ((__typeof__(*(ptr)))__xchg((unsigned long)(x),(ptr),sizeof(*(ptr))))
++#define xchg(ptr,x)							\
++({	__typeof__(*(ptr)) __ret;					\
++	__ret = (__typeof__(*(ptr)))					\
++		__xchg((unsigned long)(x), (ptr), sizeof(*(ptr)));	\
++	__ret;								\
++})
  
- 	if (channel > 7)
-diff --git a/include/linux/mfd/mc13xxx.h b/include/linux/mfd/mc13xxx.h
-index 638222e43e489..93011c61aafd2 100644
---- a/include/linux/mfd/mc13xxx.h
-+++ b/include/linux/mfd/mc13xxx.h
-@@ -247,6 +247,7 @@ struct mc13xxx_platform_data {
- #define MC13XXX_ADC0_TSMOD0		(1 << 12)
- #define MC13XXX_ADC0_TSMOD1		(1 << 13)
- #define MC13XXX_ADC0_TSMOD2		(1 << 14)
-+#define MC13XXX_ADC0_CHRGRAWDIV		(1 << 15)
- #define MC13XXX_ADC0_ADINC1		(1 << 16)
- #define MC13XXX_ADC0_ADINC2		(1 << 17)
+ void __xchg_called_with_bad_pointer(void);
  
 -- 
 2.20.1
