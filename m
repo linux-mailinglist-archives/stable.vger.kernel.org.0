@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1203FED54
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E5E3FED58
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728753AbfKPPna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:43:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47500 "EHLO mail.kernel.org"
+        id S1728697AbfKPPnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:43:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47724 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728697AbfKPPn3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:43:29 -0500
+        id S1728789AbfKPPni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:43:38 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5436D2072D;
-        Sat, 16 Nov 2019 15:43:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7484720729;
+        Sat, 16 Nov 2019 15:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919008;
-        bh=rh03igqzqmJ/spz57UkA4AWPIpnxHGzKIwHeAdn90AY=;
+        s=default; t=1573919017;
+        bh=ArEb2f18QmJygKaaZnogCTVHbEhcpUrues3qVydbb7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EHzk+czqRZQEJvNraXnIwfIyte+A04FBpHsU3XSVvBAyHWWZVxH7k1dLrsXpAo/zV
-         bg6VsygGvqMScPoDy/zJgLg7Oj158cvuW4VfT7EFyxc7t3lCuTuwpk2N9lty9y1caC
-         Ei1xUy60ZAOpJNyq2BVZheJ5A6/8wNEO02mMOlkU=
+        b=ycKyvITvVNx/zDBeRhONbJWhg5P9wKivGiWnUmiGN3iAdJUJNpl4IWdsaWFMMm1n5
+         9AUBnaQSqV2zkZi/jwUu/KJr2M+Vip7Dvz82qm8nVFfUcn/i2JlLomNiPlu8fEErsu
+         OSp9yv1y18pxvQZvSpRXOKhsWj895rCA+xAKPQVQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 111/237] mfd: intel_soc_pmic_bxtwc: Chain power button IRQs as well
-Date:   Sat, 16 Nov 2019 10:39:06 -0500
-Message-Id: <20191116154113.7417-111-sashal@kernel.org>
+Cc:     Jerry Hoemann <jerry.hoemann@hpe.com>,
+        Shuah Khan <shuah@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 118/237] selftests: watchdog: Fix error message.
+Date:   Sat, 16 Nov 2019 10:39:13 -0500
+Message-Id: <20191116154113.7417-118-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -44,144 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Jerry Hoemann <jerry.hoemann@hpe.com>
 
-[ Upstream commit 9f8ddee1dab836ca758ca8fc555ab5a3aaa5d3fd ]
+[ Upstream commit 04d5e4bd37516ad60854eb74592c7dbddd75d277 ]
 
-Power button IRQ actually has a second level of interrupts to
-distinguish between UI and POWER buttons. Moreover, current
-implementation looks awkward in approach to handle second level IRQs by
-first level related IRQ chip.
+Printf's say errno but print the string version of error.
+Make consistent.
 
-To address above issues, split power button IRQ to be chained as well.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Jerry Hoemann <jerry.hoemann@hpe.com>
+Signed-off-by: Shuah Khan (Samsung OSG) <shuah@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel_soc_pmic_bxtwc.c | 41 ++++++++++++++++++++++--------
- include/linux/mfd/intel_soc_pmic.h |  1 +
- 2 files changed, 32 insertions(+), 10 deletions(-)
+ tools/testing/selftests/watchdog/watchdog-test.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mfd/intel_soc_pmic_bxtwc.c b/drivers/mfd/intel_soc_pmic_bxtwc.c
-index 15bc052704a6d..9ca1f8c015de9 100644
---- a/drivers/mfd/intel_soc_pmic_bxtwc.c
-+++ b/drivers/mfd/intel_soc_pmic_bxtwc.c
-@@ -31,8 +31,8 @@
- 
- /* Interrupt Status Registers */
- #define BXTWC_IRQLVL1		0x4E02
--#define BXTWC_PWRBTNIRQ		0x4E03
- 
-+#define BXTWC_PWRBTNIRQ		0x4E03
- #define BXTWC_THRM0IRQ		0x4E04
- #define BXTWC_THRM1IRQ		0x4E05
- #define BXTWC_THRM2IRQ		0x4E06
-@@ -47,10 +47,9 @@
- 
- /* Interrupt MASK Registers */
- #define BXTWC_MIRQLVL1		0x4E0E
--#define BXTWC_MPWRTNIRQ		0x4E0F
--
- #define BXTWC_MIRQLVL1_MCHGR	BIT(5)
- 
-+#define BXTWC_MPWRBTNIRQ	0x4E0F
- #define BXTWC_MTHRM0IRQ		0x4E12
- #define BXTWC_MTHRM1IRQ		0x4E13
- #define BXTWC_MTHRM2IRQ		0x4E14
-@@ -66,9 +65,7 @@
- /* Whiskey Cove PMIC share same ACPI ID between different platforms */
- #define BROXTON_PMIC_WC_HRV	4
- 
--/* Manage in two IRQ chips since mask registers are not consecutive */
- enum bxtwc_irqs {
--	/* Level 1 */
- 	BXTWC_PWRBTN_LVL1_IRQ = 0,
- 	BXTWC_TMU_LVL1_IRQ,
- 	BXTWC_THRM_LVL1_IRQ,
-@@ -77,9 +74,11 @@ enum bxtwc_irqs {
- 	BXTWC_CHGR_LVL1_IRQ,
- 	BXTWC_GPIO_LVL1_IRQ,
- 	BXTWC_CRIT_LVL1_IRQ,
-+};
- 
--	/* Level 2 */
--	BXTWC_PWRBTN_IRQ,
-+enum bxtwc_irqs_pwrbtn {
-+	BXTWC_PWRBTN_IRQ = 0,
-+	BXTWC_UIBTN_IRQ,
- };
- 
- enum bxtwc_irqs_bcu {
-@@ -113,7 +112,10 @@ static const struct regmap_irq bxtwc_regmap_irqs[] = {
- 	REGMAP_IRQ_REG(BXTWC_CHGR_LVL1_IRQ, 0, BIT(5)),
- 	REGMAP_IRQ_REG(BXTWC_GPIO_LVL1_IRQ, 0, BIT(6)),
- 	REGMAP_IRQ_REG(BXTWC_CRIT_LVL1_IRQ, 0, BIT(7)),
--	REGMAP_IRQ_REG(BXTWC_PWRBTN_IRQ, 1, 0x03),
-+};
-+
-+static const struct regmap_irq bxtwc_regmap_irqs_pwrbtn[] = {
-+	REGMAP_IRQ_REG(BXTWC_PWRBTN_IRQ, 0, 0x01),
- };
- 
- static const struct regmap_irq bxtwc_regmap_irqs_bcu[] = {
-@@ -125,7 +127,7 @@ static const struct regmap_irq bxtwc_regmap_irqs_adc[] = {
- };
- 
- static const struct regmap_irq bxtwc_regmap_irqs_chgr[] = {
--	REGMAP_IRQ_REG(BXTWC_USBC_IRQ, 0, BIT(5)),
-+	REGMAP_IRQ_REG(BXTWC_USBC_IRQ, 0, 0x20),
- 	REGMAP_IRQ_REG(BXTWC_CHGR0_IRQ, 0, 0x1f),
- 	REGMAP_IRQ_REG(BXTWC_CHGR1_IRQ, 1, 0x1f),
- };
-@@ -144,7 +146,16 @@ static struct regmap_irq_chip bxtwc_regmap_irq_chip = {
- 	.mask_base = BXTWC_MIRQLVL1,
- 	.irqs = bxtwc_regmap_irqs,
- 	.num_irqs = ARRAY_SIZE(bxtwc_regmap_irqs),
--	.num_regs = 2,
-+	.num_regs = 1,
-+};
-+
-+static struct regmap_irq_chip bxtwc_regmap_irq_chip_pwrbtn = {
-+	.name = "bxtwc_irq_chip_pwrbtn",
-+	.status_base = BXTWC_PWRBTNIRQ,
-+	.mask_base = BXTWC_MPWRBTNIRQ,
-+	.irqs = bxtwc_regmap_irqs_pwrbtn,
-+	.num_irqs = ARRAY_SIZE(bxtwc_regmap_irqs_pwrbtn),
-+	.num_regs = 1,
- };
- 
- static struct regmap_irq_chip bxtwc_regmap_irq_chip_tmu = {
-@@ -472,6 +483,16 @@ static int bxtwc_probe(struct platform_device *pdev)
- 		return ret;
- 	}
- 
-+	ret = bxtwc_add_chained_irq_chip(pmic, pmic->irq_chip_data,
-+					 BXTWC_PWRBTN_LVL1_IRQ,
-+					 IRQF_ONESHOT,
-+					 &bxtwc_regmap_irq_chip_pwrbtn,
-+					 &pmic->irq_chip_data_pwrbtn);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Failed to add PWRBTN IRQ chip\n");
-+		return ret;
-+	}
-+
- 	ret = bxtwc_add_chained_irq_chip(pmic, pmic->irq_chip_data,
- 					 BXTWC_TMU_LVL1_IRQ,
- 					 IRQF_ONESHOT,
-diff --git a/include/linux/mfd/intel_soc_pmic.h b/include/linux/mfd/intel_soc_pmic.h
-index 5aacdb017a9f6..806a4f095312b 100644
---- a/include/linux/mfd/intel_soc_pmic.h
-+++ b/include/linux/mfd/intel_soc_pmic.h
-@@ -25,6 +25,7 @@ struct intel_soc_pmic {
- 	int irq;
- 	struct regmap *regmap;
- 	struct regmap_irq_chip_data *irq_chip_data;
-+	struct regmap_irq_chip_data *irq_chip_data_pwrbtn;
- 	struct regmap_irq_chip_data *irq_chip_data_tmu;
- 	struct regmap_irq_chip_data *irq_chip_data_bcu;
- 	struct regmap_irq_chip_data *irq_chip_data_adc;
+diff --git a/tools/testing/selftests/watchdog/watchdog-test.c b/tools/testing/selftests/watchdog/watchdog-test.c
+index e029e2017280f..f1c6e025cbe54 100644
+--- a/tools/testing/selftests/watchdog/watchdog-test.c
++++ b/tools/testing/selftests/watchdog/watchdog-test.c
+@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
+ 				printf("Last boot is caused by: %s.\n", (flags != 0) ?
+ 					"Watchdog" : "Power-On-Reset");
+ 			else
+-				printf("WDIOC_GETBOOTSTATUS errno '%s'\n", strerror(errno));
++				printf("WDIOC_GETBOOTSTATUS error '%s'\n", strerror(errno));
+ 			break;
+ 		case 'd':
+ 			flags = WDIOS_DISABLECARD;
+@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
+ 			if (!ret)
+ 				printf("Watchdog card disabled.\n");
+ 			else
+-				printf("WDIOS_DISABLECARD errno '%s'\n", strerror(errno));
++				printf("WDIOS_DISABLECARD error '%s'\n", strerror(errno));
+ 			break;
+ 		case 'e':
+ 			flags = WDIOS_ENABLECARD;
+@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
+ 			if (!ret)
+ 				printf("Watchdog card enabled.\n");
+ 			else
+-				printf("WDIOS_ENABLECARD errno '%s'\n", strerror(errno));
++				printf("WDIOS_ENABLECARD error '%s'\n", strerror(errno));
+ 			break;
+ 		case 'p':
+ 			ping_rate = strtoul(optarg, NULL, 0);
+@@ -139,7 +139,7 @@ int main(int argc, char *argv[])
+ 			if (!ret)
+ 				printf("Watchdog timeout set to %u seconds.\n", flags);
+ 			else
+-				printf("WDIOC_SETTIMEOUT errno '%s'\n", strerror(errno));
++				printf("WDIOC_SETTIMEOUT error '%s'\n", strerror(errno));
+ 			break;
+ 		default:
+ 			usage(argv[0]);
 -- 
 2.20.1
 
