@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 909F8FED6F
-	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F3AFED72
+	for <lists+stable@lfdr.de>; Sat, 16 Nov 2019 16:45:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727968AbfKPPoO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 16 Nov 2019 10:44:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48698 "EHLO mail.kernel.org"
+        id S1727982AbfKPPoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 16 Nov 2019 10:44:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727948AbfKPPoN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 16 Nov 2019 10:44:13 -0500
+        id S1727948AbfKPPoS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 16 Nov 2019 10:44:18 -0500
 Received: from sasha-vm.mshome.net (unknown [50.234.116.4])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5E242072D;
-        Sat, 16 Nov 2019 15:44:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAEFE2073B;
+        Sat, 16 Nov 2019 15:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1573919053;
-        bh=d9nxKcst+qQU3OV1rFInKjs+FqAyZY6FfLLPYATbVhY=;
+        s=default; t=1573919057;
+        bh=RgYEdoLQTvVEYewfCzVEnGtA8NhBcnTFTDtXu/wCQdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MJpahdwDRw4kEcMdqPMtCEcOKt8Ht5zr6xxmKknL4uXHA0RSHw8igCIHJCGaOMHL/
-         ItDQtdDBgVALVxqoCRw1fVRL/uxWseic0YTgcrZeljprCA4vcpLpgbeRP9Z5lTSmjF
-         3jtbTBc2ZcmWOGM3J4MhoSzx2cuYUbW5YCDJmfxk=
+        b=RIAv5qQFnYxeCYYcp06+RAjuu3NyY2yOs1Wc5XBBztIPF/rEzFPda6XRjFylPm8hI
+         exSFU54/xbgMff8l+7dRFQr20jNZvtiR/cXfxWVL4L+5zvsex1VLsxN2QYt4oi06HZ
+         MXSpaneh3b3Ap39E1Uo0M4Afj+bcrYgIxIe7auaE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
+Cc:     Andrea Arcangeli <aarcange@redhat.com>,
+        Aaron Tomlin <atomlin@redhat.com>,
+        Mel Gorman <mgorman@suse.de>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Jerome Glisse <jglisse@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <jiangqi903@gmail.com>,
-        Changwei Ge <ge.changwei@h3c.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 129/237] fs/ocfs2/dlm/dlmdebug.c: fix a sleep-in-atomic-context bug in dlm_print_one_mle()
-Date:   Sat, 16 Nov 2019 10:39:24 -0500
-Message-Id: <20191116154113.7417-129-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.19 132/237] mm: thp: fix MADV_DONTNEED vs migrate_misplaced_transhuge_page race condition
+Date:   Sat, 16 Nov 2019 10:39:27 -0500
+Message-Id: <20191116154113.7417-132-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191116154113.7417-1-sashal@kernel.org>
 References: <20191116154113.7417-1-sashal@kernel.org>
@@ -49,58 +48,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Andrea Arcangeli <aarcange@redhat.com>
 
-[ Upstream commit 999865764f5f128896402572b439269acb471022 ]
+[ Upstream commit d7c3393413fe7e7dc54498ea200ea94742d61e18 ]
 
-The kernel module may sleep with holding a spinlock.
+Patch series "migrate_misplaced_transhuge_page race conditions".
 
-The function call paths (from bottom to top) in Linux-4.16 are:
+Aaron found a new instance of the THP MADV_DONTNEED race against
+pmdp_clear_flush* variants, that was apparently left unfixed.
 
-[FUNC] get_zeroed_page(GFP_NOFS)
-fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
-fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 255: __dlm_put_mle in dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 254: spin_lock in dlm_put_ml
+While looking into the race found by Aaron, I may have found two more
+issues in migrate_misplaced_transhuge_page.
 
-[FUNC] get_zeroed_page(GFP_NOFS)
-fs/ocfs2/dlm/dlmdebug.c, 332: get_zeroed_page in dlm_print_one_mle
-fs/ocfs2/dlm/dlmmaster.c, 240: dlm_print_one_mle in __dlm_put_mle
-fs/ocfs2/dlm/dlmmaster.c, 222: __dlm_put_mle in dlm_put_mle_inuse
-fs/ocfs2/dlm/dlmmaster.c, 219: spin_lock in dlm_put_mle_inuse
+These race conditions would not cause kernel instability, but they'd
+corrupt userland data or leave data non zero after MADV_DONTNEED.
 
-To fix this bug, GFP_NOFS is replaced with GFP_ATOMIC.
+I did only minor testing, and I don't expect to be able to reproduce this
+(especially the lack of ->invalidate_range before migrate_page_copy,
+requires the latest iommu hardware or infiniband to reproduce).  The last
+patch is noop for x86 and it needs further review from maintainers of
+archs that implement flush_cache_range() (not in CC yet).
 
-This bug is found by my static analysis tool DSAC.
+To avoid confusion, it's not the first patch that introduces the bug fixed
+in the second patch, even before removing the
+pmdp_huge_clear_flush_notify, that _notify suffix was called after
+migrate_page_copy already run.
 
-Link: http://lkml.kernel.org/r/20180901112528.27025-1-baijiaju1990@gmail.com
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Joseph Qi <jiangqi903@gmail.com>
-Cc: Changwei Ge <ge.changwei@h3c.com>
+This patch (of 3):
+
+This is a corollary of ced108037c2aa ("thp: fix MADV_DONTNEED vs.  numa
+balancing race"), 58ceeb6bec8 ("thp: fix MADV_DONTNEED vs.  MADV_FREE
+race") and 5b7abeae3af8c ("thp: fix MADV_DONTNEED vs clear soft dirty
+race).
+
+When the above three fixes where posted Dave asked
+https://lkml.kernel.org/r/929b3844-aec2-0111-fef7-8002f9d4e2b9@intel.com
+but apparently this was missed.
+
+The pmdp_clear_flush* in migrate_misplaced_transhuge_page() was introduced
+in a54a407fbf7 ("mm: Close races between THP migration and PMD numa
+clearing").
+
+The important part of such commit is only the part where the page lock is
+not released until the first do_huge_pmd_numa_page() finished disarming
+the pagenuma/protnone.
+
+The addition of pmdp_clear_flush() wasn't beneficial to such commit and
+there's no commentary about such an addition either.
+
+I guess the pmdp_clear_flush() in such commit was added just in case for
+safety, but it ended up introducing the MADV_DONTNEED race condition found
+by Aaron.
+
+At that point in time nobody thought of such kind of MADV_DONTNEED race
+conditions yet (they were fixed later) so the code may have looked more
+robust by adding the pmdp_clear_flush().
+
+This specific race condition won't destabilize the kernel, but it can
+confuse userland because after MADV_DONTNEED the memory won't be zeroed
+out.
+
+This also optimizes the code and removes a superfluous TLB flush.
+
+[akpm@linux-foundation.org: reflow comment to 80 cols, fix grammar and typo (beacuse)]
+Link: http://lkml.kernel.org/r/20181013002430.698-2-aarcange@redhat.com
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Reported-by: Aaron Tomlin <atomlin@redhat.com>
+Acked-by: Mel Gorman <mgorman@suse.de>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/dlm/dlmdebug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/migrate.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/fs/ocfs2/dlm/dlmdebug.c b/fs/ocfs2/dlm/dlmdebug.c
-index 9b984cae4c4e0..1d6dc8422899b 100644
---- a/fs/ocfs2/dlm/dlmdebug.c
-+++ b/fs/ocfs2/dlm/dlmdebug.c
-@@ -329,7 +329,7 @@ void dlm_print_one_mle(struct dlm_master_list_entry *mle)
- {
- 	char *buf;
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 0c48191a90368..4d3588c012034 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -2048,15 +2048,26 @@ int migrate_misplaced_transhuge_page(struct mm_struct *mm,
+ 	entry = maybe_pmd_mkwrite(pmd_mkdirty(entry), vma);
  
--	buf = (char *) get_zeroed_page(GFP_NOFS);
-+	buf = (char *) get_zeroed_page(GFP_ATOMIC);
- 	if (buf) {
- 		dump_mle(mle, buf, PAGE_SIZE - 1);
- 		free_page((unsigned long)buf);
+ 	/*
+-	 * Clear the old entry under pagetable lock and establish the new PTE.
+-	 * Any parallel GUP will either observe the old page blocking on the
+-	 * page lock, block on the page table lock or observe the new page.
+-	 * The SetPageUptodate on the new page and page_add_new_anon_rmap
+-	 * guarantee the copy is visible before the pagetable update.
++	 * Overwrite the old entry under pagetable lock and establish
++	 * the new PTE. Any parallel GUP will either observe the old
++	 * page blocking on the page lock, block on the page table
++	 * lock or observe the new page. The SetPageUptodate on the
++	 * new page and page_add_new_anon_rmap guarantee the copy is
++	 * visible before the pagetable update.
+ 	 */
+ 	flush_cache_range(vma, mmun_start, mmun_end);
+ 	page_add_anon_rmap(new_page, vma, mmun_start, true);
+-	pmdp_huge_clear_flush_notify(vma, mmun_start, pmd);
++	/*
++	 * At this point the pmd is numa/protnone (i.e. non present) and the TLB
++	 * has already been flushed globally.  So no TLB can be currently
++	 * caching this non present pmd mapping.  There's no need to clear the
++	 * pmd before doing set_pmd_at(), nor to flush the TLB after
++	 * set_pmd_at().  Clearing the pmd here would introduce a race
++	 * condition against MADV_DONTNEED, because MADV_DONTNEED only holds the
++	 * mmap_sem for reading.  If the pmd is set to NULL at any given time,
++	 * MADV_DONTNEED won't wait on the pmd lock and it'll skip clearing this
++	 * pmd.
++	 */
+ 	set_pmd_at(mm, mmun_start, pmd, entry);
+ 	update_mmu_cache_pmd(vma, address, &entry);
+ 
+@@ -2070,7 +2081,7 @@ int migrate_misplaced_transhuge_page(struct mm_struct *mm,
+ 	 * No need to double call mmu_notifier->invalidate_range() callback as
+ 	 * the above pmdp_huge_clear_flush_notify() did already call it.
+ 	 */
+-	mmu_notifier_invalidate_range_only_end(mm, mmun_start, mmun_end);
++	mmu_notifier_invalidate_range_end(mm, mmun_start, mmun_end);
+ 
+ 	/* Take an "isolate" reference and put new page on the LRU. */
+ 	get_page(new_page);
 -- 
 2.20.1
 
