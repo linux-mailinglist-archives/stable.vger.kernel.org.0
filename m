@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE8D100807
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C26E10080A
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:22:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727310AbfKRPT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 10:19:26 -0500
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:50197 "EHLO
-        wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727122AbfKRPT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:19:26 -0500
+        id S1726909AbfKRPWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 10:22:24 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:52487 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726748AbfKRPWX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:22:23 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 29F276A2;
-        Mon, 18 Nov 2019 10:19:25 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 18 Nov 2019 10:19:25 -0500
+        by mailout.west.internal (Postfix) with ESMTP id 6396B68A;
+        Mon, 18 Nov 2019 10:22:22 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 18 Nov 2019 10:22:22 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=rUOoyn
-        CnVDa92qEemK8MqdK3mn3tWZbNAfsYHiLEKNs=; b=KAS1ZvcbcXAfU9x/JRPbGM
-        rI9A1R8s6m+qr7XrKbcmVfigRQBeQTfR2CPCHwQXsmAoLmKNnkuQ036IunhcpTUW
-        jPFUbMQdzuafVt54YZwaXQ2z/xJmgwXkS8QQyRk6k7pWFYlcVRUL2yaYm9uKuur3
-        NHvYZAs+nmCcMABMxUSfwCGBMNi9FZVl22KHPlsnc6GregP0Ym6ThWAkIFyQKrTq
-        OMPwNqrRkALU8ByA8/B0igufGQZ6JUi27LHgL611Ak1o24/CMe2cL+cZJpJI3Ssi
-        JGzmDchPUH35/C/HkPVlqRPaGnSi2DKH46hJzD1KqnJAVY9heHljtOhvr+HW1N+A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=Q0coIN
+        pHBzVAH70uPDDTTZedqjrozSal2zSl1akfEYU=; b=OqPxzU2AivaIMT4FNLcd6m
+        F9EPdRn+Uub8wdQnUzQjb1pPeoRGHe0V7rbeICuN+FtMuWzuBJzjP6CKStzRjdXZ
+        4+B31EpUkP9rfjiu1Mnij/Ql0M3DDb6eLYR66b8prN6lCkiMkktVRR3mXtP0uTzN
+        guXjuwlCqDGaf6MvbbtlX32+jEa7mgznWH0mHPP8cUG17WEDc1TPYFIXlcG9vTrS
+        F3aV8jTRdwx7hXLU8dG6RatR3fNOQLQ8tai/hqzlv0uPqWnIlYttidxu80YnJua1
+        KZBpStsNrnVrLaEE5wS2VM/CRy1VTIXTQTiEUuJiJds6nk5FYI/1jWOgw2jn84xQ
         ==
-X-ME-Sender: <xms:fLbSXag5j0evI4JXFJWbzZ3YW_dxFdzK15nYNUTcuHarkdDfQAP6Og>
+X-ME-Sender: <xms:LbfSXZCnbvP1amR1TzVU5L4m0hh9PpvdrlxODeQ9koUrVwL0gY5BXA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudegiedghedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehqvghmuhdrohhrghenucfkphepkeefrdekiedrkeelrddutd
-    ejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhenucev
-    lhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:fLbSXVaR3YNIjzY8p2gflYCeR7PHMasgJlCRDjpzz1dUuiNeWcRCJQ>
-    <xmx:fLbSXYPF-HHQ41qoT6ifTKiV9x6t0d3wsLvWentKx_A5_FO1pSKSZw>
-    <xmx:fLbSXebuitICL_WD04c1ruOwnIJrQ8_cZ6mc_vnc4ltfCsAcKOctgA>
-    <xmx:fLbSXR9XzX6ZVBhTYouuMkO6J3bJno9cHZ8WyUOJF0fDwtVEmCo-Sg>
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:LrfSXRLwSi-wbK2t6tOvDY00W5drmPpP7WEwZxAuK9QHpLkSrZny1w>
+    <xmx:LrfSXRQ39PKabZts6BG9E6PyQYzt5APaGRagP1nUvjoy1w_q3WtgWQ>
+    <xmx:LrfSXVQrGD2XlsuHSL2V6oI2yBFhGLQXK9NkzsJY8DljHjBAFn6kxQ>
+    <xmx:LrfSXUtPl9iXYM48YWdLXqrPQcCC25ui21OuHmZNwWOq1AwojE91Dw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E76873060061;
-        Mon, 18 Nov 2019 10:19:23 -0500 (EST)
-Subject: FAILED: patch "[PATCH] Btrfs: fix log context list corruption after rename exchange" failed to apply to 4.14-stable tree
-To:     fdmanana@suse.com, Damenly_Su@gmx.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 96EF28005B;
+        Mon, 18 Nov 2019 10:22:21 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: X86: Fix initialization of MSR lists" failed to apply to 4.19-stable tree
+To:     chenyi.qiang@intel.com, pbonzini@redhat.com, xiaoyao.li@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Nov 2019 16:19:22 +0100
-Message-ID: <1574090362101119@kroah.com>
+Date:   Mon, 18 Nov 2019 16:22:18 +0100
+Message-ID: <1574090538179169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,117 +67,186 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e6c617102c7e4ac1398cb0b98ff1f0727755b520 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Fri, 8 Nov 2019 16:11:56 +0000
-Subject: [PATCH] Btrfs: fix log context list corruption after rename exchange
- operation
+From 7a5ee6edb42e0bb487954806d34877995b6b8d59 Mon Sep 17 00:00:00 2001
+From: Chenyi Qiang <chenyi.qiang@intel.com>
+Date: Wed, 6 Nov 2019 14:35:20 +0800
+Subject: [PATCH] KVM: X86: Fix initialization of MSR lists
 
-During rename exchange we might have successfully log the new name in the
-source root's log tree, in which case we leave our log context (allocated
-on stack) in the root's list of log contextes. However we might fail to
-log the new name in the destination root, in which case we fallback to
-a transaction commit later and never sync the log of the source root,
-which causes the source root log context to remain in the list of log
-contextes. This later causes invalid memory accesses because the context
-was allocated on stack and after rename exchange finishes the stack gets
-reused and overwritten for other purposes.
+The three MSR lists(msrs_to_save[], emulated_msrs[] and
+msr_based_features[]) are global arrays of kvm.ko, which are
+adjusted (copy supported MSRs forward to override the unsupported MSRs)
+when insmod kvm-{intel,amd}.ko, but it doesn't reset these three arrays
+to their initial value when rmmod kvm-{intel,amd}.ko. Thus, at the next
+installation, kvm-{intel,amd}.ko will do operations on the modified
+arrays with some MSRs lost and some MSRs duplicated.
 
-The kernel's linked list corruption detector (CONFIG_DEBUG_LIST=y) can
-detect this and report something like the following:
+So define three constant arrays to hold the initial MSR lists and
+initialize msrs_to_save[], emulated_msrs[] and msr_based_features[]
+based on the constant arrays.
 
-  [  691.489929] ------------[ cut here ]------------
-  [  691.489947] list_add corruption. prev->next should be next (ffff88819c944530), but was ffff8881c23f7be4. (prev=ffff8881c23f7a38).
-  [  691.489967] WARNING: CPU: 2 PID: 28933 at lib/list_debug.c:28 __list_add_valid+0x95/0xe0
-  (...)
-  [  691.489998] CPU: 2 PID: 28933 Comm: fsstress Not tainted 5.4.0-rc6-btrfs-next-62 #1
-  [  691.490001] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  [  691.490003] RIP: 0010:__list_add_valid+0x95/0xe0
-  (...)
-  [  691.490007] RSP: 0018:ffff8881f0b3faf8 EFLAGS: 00010282
-  [  691.490010] RAX: 0000000000000000 RBX: ffff88819c944530 RCX: 0000000000000000
-  [  691.490011] RDX: 0000000000000001 RSI: 0000000000000008 RDI: ffffffffa2c497e0
-  [  691.490013] RBP: ffff8881f0b3fe68 R08: ffffed103eaa4115 R09: ffffed103eaa4114
-  [  691.490015] R10: ffff88819c944000 R11: ffffed103eaa4115 R12: 7fffffffffffffff
-  [  691.490016] R13: ffff8881b4035610 R14: ffff8881e7b84728 R15: 1ffff1103e167f7b
-  [  691.490019] FS:  00007f4b25ea2e80(0000) GS:ffff8881f5500000(0000) knlGS:0000000000000000
-  [  691.490021] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [  691.490022] CR2: 00007fffbb2d4eec CR3: 00000001f2a4a004 CR4: 00000000003606e0
-  [  691.490025] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [  691.490027] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [  691.490029] Call Trace:
-  [  691.490058]  btrfs_log_inode_parent+0x667/0x2730 [btrfs]
-  [  691.490083]  ? join_transaction+0x24a/0xce0 [btrfs]
-  [  691.490107]  ? btrfs_end_log_trans+0x80/0x80 [btrfs]
-  [  691.490111]  ? dget_parent+0xb8/0x460
-  [  691.490116]  ? lock_downgrade+0x6b0/0x6b0
-  [  691.490121]  ? rwlock_bug.part.0+0x90/0x90
-  [  691.490127]  ? do_raw_spin_unlock+0x142/0x220
-  [  691.490151]  btrfs_log_dentry_safe+0x65/0x90 [btrfs]
-  [  691.490172]  btrfs_sync_file+0x9f1/0xc00 [btrfs]
-  [  691.490195]  ? btrfs_file_write_iter+0x1800/0x1800 [btrfs]
-  [  691.490198]  ? rcu_read_lock_any_held.part.11+0x20/0x20
-  [  691.490204]  ? __do_sys_newstat+0x88/0xd0
-  [  691.490207]  ? cp_new_stat+0x5d0/0x5d0
-  [  691.490218]  ? do_fsync+0x38/0x60
-  [  691.490220]  do_fsync+0x38/0x60
-  [  691.490224]  __x64_sys_fdatasync+0x32/0x40
-  [  691.490228]  do_syscall_64+0x9f/0x540
-  [  691.490233]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  [  691.490235] RIP: 0033:0x7f4b253ad5f0
-  (...)
-  [  691.490239] RSP: 002b:00007fffbb2d6078 EFLAGS: 00000246 ORIG_RAX: 000000000000004b
-  [  691.490242] RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007f4b253ad5f0
-  [  691.490244] RDX: 00007fffbb2d5fe0 RSI: 00007fffbb2d5fe0 RDI: 0000000000000003
-  [  691.490245] RBP: 000000000000000d R08: 0000000000000001 R09: 00007fffbb2d608c
-  [  691.490247] R10: 00000000000002e8 R11: 0000000000000246 R12: 00000000000001f4
-  [  691.490248] R13: 0000000051eb851f R14: 00007fffbb2d6120 R15: 00005635a498bda0
+Cc: stable@vger.kernel.org
+Reviewed-by: Xiaoyao Li <xiaoyao.li@intel.com>
+Signed-off-by: Chenyi Qiang <chenyi.qiang@intel.com>
+[Remove now useless conditionals. - Paolo]
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-This started happening recently when running some test cases from fstests
-like btrfs/004 for example, because support for rename exchange was added
-last week to fsstress from fstests.
-
-So fix this by deleting the log context for the source root from the list
-if we have logged the new name in the source root.
-
-Reported-by: Su Yue <Damenly_Su@gmx.com>
-Fixes: d4682ba03ef618 ("Btrfs: sync log after logging new name")
-CC: stable@vger.kernel.org # 4.19+
-Tested-by: Su Yue <Damenly_Su@gmx.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index c6dc4dd16cf7..015910079e73 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9744,6 +9744,18 @@ static int btrfs_rename_exchange(struct inode *old_dir,
- 			commit_transaction = true;
- 	}
- 	if (commit_transaction) {
-+		/*
-+		 * We may have set commit_transaction when logging the new name
-+		 * in the destination root, in which case we left the source
-+		 * root context in the list of log contextes. So make sure we
-+		 * remove it to avoid invalid memory accesses, since the context
-+		 * was allocated in our stack frame.
-+		 */
-+		if (sync_log_root) {
-+			mutex_lock(&root->log_mutex);
-+			list_del_init(&ctx_root.list);
-+			mutex_unlock(&root->log_mutex);
-+		}
- 		ret = btrfs_commit_transaction(trans);
- 	} else {
- 		int ret2;
-@@ -9757,6 +9769,9 @@ static int btrfs_rename_exchange(struct inode *old_dir,
- 	if (old_ino == BTRFS_FIRST_FREE_OBJECTID)
- 		up_read(&fs_info->subvol_sem);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index ff395f812719..8c8a5e20ea06 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1132,13 +1132,15 @@ EXPORT_SYMBOL_GPL(kvm_rdpmc);
+  * List of msr numbers which we expose to userspace through KVM_GET_MSRS
+  * and KVM_SET_MSRS, and KVM_GET_MSR_INDEX_LIST.
+  *
+- * This list is modified at module load time to reflect the
++ * The three MSR lists(msrs_to_save, emulated_msrs, msr_based_features)
++ * extract the supported MSRs from the related const lists.
++ * msrs_to_save is selected from the msrs_to_save_all to reflect the
+  * capabilities of the host cpu. This capabilities test skips MSRs that are
+- * kvm-specific. Those are put in emulated_msrs; filtering of emulated_msrs
++ * kvm-specific. Those are put in emulated_msrs_all; filtering of emulated_msrs
+  * may depend on host virtualization features rather than host cpu features.
+  */
  
-+	ASSERT(list_empty(&ctx_root.list));
-+	ASSERT(list_empty(&ctx_dest.list));
-+
- 	return ret;
+-static u32 msrs_to_save[] = {
++static const u32 msrs_to_save_all[] = {
+ 	MSR_IA32_SYSENTER_CS, MSR_IA32_SYSENTER_ESP, MSR_IA32_SYSENTER_EIP,
+ 	MSR_STAR,
+ #ifdef CONFIG_X86_64
+@@ -1179,9 +1181,10 @@ static u32 msrs_to_save[] = {
+ 	MSR_ARCH_PERFMON_EVENTSEL0 + 16, MSR_ARCH_PERFMON_EVENTSEL0 + 17,
+ };
+ 
++static u32 msrs_to_save[ARRAY_SIZE(msrs_to_save_all)];
+ static unsigned num_msrs_to_save;
+ 
+-static u32 emulated_msrs[] = {
++static const u32 emulated_msrs_all[] = {
+ 	MSR_KVM_SYSTEM_TIME, MSR_KVM_WALL_CLOCK,
+ 	MSR_KVM_SYSTEM_TIME_NEW, MSR_KVM_WALL_CLOCK_NEW,
+ 	HV_X64_MSR_GUEST_OS_ID, HV_X64_MSR_HYPERCALL,
+@@ -1220,7 +1223,7 @@ static u32 emulated_msrs[] = {
+ 	 * by arch/x86/kvm/vmx/nested.c based on CPUID or other MSRs.
+ 	 * We always support the "true" VMX control MSRs, even if the host
+ 	 * processor does not, so I am putting these registers here rather
+-	 * than in msrs_to_save.
++	 * than in msrs_to_save_all.
+ 	 */
+ 	MSR_IA32_VMX_BASIC,
+ 	MSR_IA32_VMX_TRUE_PINBASED_CTLS,
+@@ -1239,13 +1242,14 @@ static u32 emulated_msrs[] = {
+ 	MSR_KVM_POLL_CONTROL,
+ };
+ 
++static u32 emulated_msrs[ARRAY_SIZE(emulated_msrs_all)];
+ static unsigned num_emulated_msrs;
+ 
+ /*
+  * List of msr numbers which are used to expose MSR-based features that
+  * can be used by a hypervisor to validate requested CPU features.
+  */
+-static u32 msr_based_features[] = {
++static const u32 msr_based_features_all[] = {
+ 	MSR_IA32_VMX_BASIC,
+ 	MSR_IA32_VMX_TRUE_PINBASED_CTLS,
+ 	MSR_IA32_VMX_PINBASED_CTLS,
+@@ -1270,6 +1274,7 @@ static u32 msr_based_features[] = {
+ 	MSR_IA32_ARCH_CAPABILITIES,
+ };
+ 
++static u32 msr_based_features[ARRAY_SIZE(msr_based_features_all)];
+ static unsigned int num_msr_based_features;
+ 
+ static u64 kvm_get_arch_capabilities(void)
+@@ -5090,22 +5095,22 @@ static void kvm_init_msr_list(void)
+ {
+ 	struct x86_pmu_capability x86_pmu;
+ 	u32 dummy[2];
+-	unsigned i, j;
++	unsigned i;
+ 
+ 	BUILD_BUG_ON_MSG(INTEL_PMC_MAX_FIXED != 4,
+-			 "Please update the fixed PMCs in msrs_to_save[]");
++			 "Please update the fixed PMCs in msrs_to_saved_all[]");
+ 
+ 	perf_get_x86_pmu_capability(&x86_pmu);
+ 
+-	for (i = j = 0; i < ARRAY_SIZE(msrs_to_save); i++) {
+-		if (rdmsr_safe(msrs_to_save[i], &dummy[0], &dummy[1]) < 0)
++	for (i = 0; i < ARRAY_SIZE(msrs_to_save_all); i++) {
++		if (rdmsr_safe(msrs_to_save_all[i], &dummy[0], &dummy[1]) < 0)
+ 			continue;
+ 
+ 		/*
+ 		 * Even MSRs that are valid in the host may not be exposed
+ 		 * to the guests in some cases.
+ 		 */
+-		switch (msrs_to_save[i]) {
++		switch (msrs_to_save_all[i]) {
+ 		case MSR_IA32_BNDCFGS:
+ 			if (!kvm_mpx_supported())
+ 				continue;
+@@ -5133,17 +5138,17 @@ static void kvm_init_msr_list(void)
+ 			break;
+ 		case MSR_IA32_RTIT_ADDR0_A ... MSR_IA32_RTIT_ADDR3_B: {
+ 			if (!kvm_x86_ops->pt_supported() ||
+-				msrs_to_save[i] - MSR_IA32_RTIT_ADDR0_A >=
++				msrs_to_save_all[i] - MSR_IA32_RTIT_ADDR0_A >=
+ 				intel_pt_validate_hw_cap(PT_CAP_num_address_ranges) * 2)
+ 				continue;
+ 			break;
+ 		case MSR_ARCH_PERFMON_PERFCTR0 ... MSR_ARCH_PERFMON_PERFCTR0 + 17:
+-			if (msrs_to_save[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
++			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_PERFCTR0 >=
+ 			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
+ 				continue;
+ 			break;
+ 		case MSR_ARCH_PERFMON_EVENTSEL0 ... MSR_ARCH_PERFMON_EVENTSEL0 + 17:
+-			if (msrs_to_save[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
++			if (msrs_to_save_all[i] - MSR_ARCH_PERFMON_EVENTSEL0 >=
+ 			    min(INTEL_PMC_MAX_GENERIC, x86_pmu.num_counters_gp))
+ 				continue;
+ 		}
+@@ -5151,34 +5156,25 @@ static void kvm_init_msr_list(void)
+ 			break;
+ 		}
+ 
+-		if (j < i)
+-			msrs_to_save[j] = msrs_to_save[i];
+-		j++;
++		msrs_to_save[num_msrs_to_save++] = msrs_to_save_all[i];
+ 	}
+-	num_msrs_to_save = j;
+ 
+-	for (i = j = 0; i < ARRAY_SIZE(emulated_msrs); i++) {
+-		if (!kvm_x86_ops->has_emulated_msr(emulated_msrs[i]))
++	for (i = 0; i < ARRAY_SIZE(emulated_msrs_all); i++) {
++		if (!kvm_x86_ops->has_emulated_msr(emulated_msrs_all[i]))
+ 			continue;
+ 
+-		if (j < i)
+-			emulated_msrs[j] = emulated_msrs[i];
+-		j++;
++		emulated_msrs[num_emulated_msrs++] = emulated_msrs_all[i];
+ 	}
+-	num_emulated_msrs = j;
+ 
+-	for (i = j = 0; i < ARRAY_SIZE(msr_based_features); i++) {
++	for (i = 0; i < ARRAY_SIZE(msr_based_features_all); i++) {
+ 		struct kvm_msr_entry msr;
+ 
+-		msr.index = msr_based_features[i];
++		msr.index = msr_based_features_all[i];
+ 		if (kvm_get_msr_feature(&msr))
+ 			continue;
+ 
+-		if (j < i)
+-			msr_based_features[j] = msr_based_features[i];
+-		j++;
++		msr_based_features[num_msr_based_features++] = msr_based_features_all[i];
+ 	}
+-	num_msr_based_features = j;
  }
  
+ static int vcpu_mmio_write(struct kvm_vcpu *vcpu, gpa_t addr, int len,
 
