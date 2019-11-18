@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 057661008BE
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:55:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E1F1008BF
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:55:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726654AbfKRPzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 10:55:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59988 "EHLO mail.kernel.org"
+        id S1726970AbfKRPzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 10:55:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726216AbfKRPzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Nov 2019 10:55:10 -0500
+        id S1726216AbfKRPzM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Nov 2019 10:55:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A09F721479;
-        Mon, 18 Nov 2019 15:55:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48F6E21479;
+        Mon, 18 Nov 2019 15:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574092509;
-        bh=+H11BmFuDIrjqI0oRPBKwXkCzdebVRPRJU6ZGZKr+YE=;
+        s=default; t=1574092511;
+        bh=mnOIhbzou1Zbxe3FiviV0mt/cl7njLPMSJ8EGAQx0vo=;
         h=Subject:To:From:Date:From;
-        b=j1YnGHckBRFikFSwNwvF8kciQmi3/FfFrinSbg/5/QZHN9zF83fiFXSVQsDRkOh8h
-         DmrOJwdEsE3rKJ89B1MRNVB3ZOOQwn3YA1lv0LdROYgGclaklFd2+gi+ujjh0VG7/p
-         2dZpBhhD1LHa98LWf30JJVnUwT6rSvz+J5JPi1qs=
-Subject: patch "usb: host: xhci-tegra: Correct phy enable sequence" added to usb-next
-To:     nkristam@nvidia.com, gregkh@linuxfoundation.org, jckuo@nvidia.com,
-        jonathanh@nvidia.com, stable@vger.kernel.org, treding@nvidia.com
+        b=iSOl95Y3jQ0xvQtU6482G9MYvuyugLJPShj8LBh0zCEy8lLOM90CJ+IO394u+hWIP
+         MZM+Msppg7wtJ6sT5WnRoCrvREIjNhX7mVEKFfEX+bR/z1DpSdlSc/yoNf83fyDa2N
+         afuScYYJMGsg7TAsHulqSRckwL/LM24rwSmhJMYg=
+Subject: patch "USB: uas: honor flag to avoid CAPACITY16" added to usb-next
+To:     oneukum@suse.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Nov 2019 16:53:10 +0100
-Message-ID: <157409239014211@kroah.com>
+Date:   Mon, 18 Nov 2019 16:53:11 +0100
+Message-ID: <1574092391197166@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: host: xhci-tegra: Correct phy enable sequence
+    USB: uas: honor flag to avoid CAPACITY16
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,100 +55,36 @@ during the merge window.
 If you have any questions about this process, please let me know.
 
 
-From 6351653febbb784d86fdf83afe41f7523a61b392 Mon Sep 17 00:00:00 2001
-From: Nagarjuna Kristam <nkristam@nvidia.com>
-Date: Mon, 4 Nov 2019 14:54:30 +0530
-Subject: usb: host: xhci-tegra: Correct phy enable sequence
+From bff000cae1eec750d62e265c4ba2db9af57b17e1 Mon Sep 17 00:00:00 2001
+From: Oliver Neukum <oneukum@suse.com>
+Date: Thu, 14 Nov 2019 12:27:56 +0100
+Subject: USB: uas: honor flag to avoid CAPACITY16
 
-XUSB phy needs to be enabled before un-powergating the power partitions.
-However in the current sequence, it happens opposite. Correct the phy
-enable and powergating partition sequence to avoid any boot hangs.
+Copy the support over from usb-storage to get feature parity
 
-Signed-off-by: Nagarjuna Kristam <nkristam@nvidia.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Jui Chang Kuo <jckuo@nvidia.com>
-Tested-by: Jon Hunter <jonathanh@nvidia.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Link: https://lore.kernel.org/r/1572859470-7823-1-git-send-email-nkristam@nvidia.com
+Link: https://lore.kernel.org/r/20191114112758.32747-2-oneukum@suse.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-tegra.c | 25 +++++++++++++------------
- 1 file changed, 13 insertions(+), 12 deletions(-)
+ drivers/usb/storage/uas.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/host/xhci-tegra.c b/drivers/usb/host/xhci-tegra.c
-index 540b47a99824..bf9065438320 100644
---- a/drivers/usb/host/xhci-tegra.c
-+++ b/drivers/usb/host/xhci-tegra.c
-@@ -763,7 +763,6 @@ static int tegra_xusb_runtime_suspend(struct device *dev)
- {
- 	struct tegra_xusb *tegra = dev_get_drvdata(dev);
- 
--	tegra_xusb_phy_disable(tegra);
- 	regulator_bulk_disable(tegra->soc->num_supplies, tegra->supplies);
- 	tegra_xusb_clk_disable(tegra);
- 
-@@ -787,16 +786,8 @@ static int tegra_xusb_runtime_resume(struct device *dev)
- 		goto disable_clk;
+diff --git a/drivers/usb/storage/uas.c b/drivers/usb/storage/uas.c
+index 34538253f12c..def2d4aba549 100644
+--- a/drivers/usb/storage/uas.c
++++ b/drivers/usb/storage/uas.c
+@@ -825,6 +825,10 @@ static int uas_slave_configure(struct scsi_device *sdev)
+ 		sdev->wce_default_on = 1;
  	}
  
--	err = tegra_xusb_phy_enable(tegra);
--	if (err < 0) {
--		dev_err(dev, "failed to enable PHYs: %d\n", err);
--		goto disable_regulator;
--	}
--
- 	return 0;
- 
--disable_regulator:
--	regulator_bulk_disable(tegra->soc->num_supplies, tegra->supplies);
- disable_clk:
- 	tegra_xusb_clk_disable(tegra);
- 	return err;
-@@ -1188,6 +1179,12 @@ static int tegra_xusb_probe(struct platform_device *pdev)
- 	 */
- 	platform_set_drvdata(pdev, tegra);
- 
-+	err = tegra_xusb_phy_enable(tegra);
-+	if (err < 0) {
-+		dev_err(&pdev->dev, "failed to enable PHYs: %d\n", err);
-+		goto put_hcd;
-+	}
++	/* Some disks cannot handle READ_CAPACITY_16 */
++	if (devinfo->flags & US_FL_NO_READ_CAPACITY_16)
++		sdev->no_read_capacity_16 = 1;
 +
- 	pm_runtime_enable(&pdev->dev);
- 	if (pm_runtime_enabled(&pdev->dev))
- 		err = pm_runtime_get_sync(&pdev->dev);
-@@ -1196,7 +1193,7 @@ static int tegra_xusb_probe(struct platform_device *pdev)
- 
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "failed to enable device: %d\n", err);
--		goto disable_rpm;
-+		goto disable_phy;
- 	}
- 
- 	tegra_xusb_config(tegra, regs);
-@@ -1282,9 +1279,11 @@ static int tegra_xusb_probe(struct platform_device *pdev)
- put_rpm:
- 	if (!pm_runtime_status_suspended(&pdev->dev))
- 		tegra_xusb_runtime_suspend(&pdev->dev);
--disable_rpm:
--	pm_runtime_disable(&pdev->dev);
-+put_hcd:
- 	usb_put_hcd(tegra->hcd);
-+disable_phy:
-+	tegra_xusb_phy_disable(tegra);
-+	pm_runtime_disable(&pdev->dev);
- put_powerdomains:
- 	if (!of_property_read_bool(pdev->dev.of_node, "power-domains")) {
- 		tegra_powergate_power_off(TEGRA_POWERGATE_XUSBC);
-@@ -1321,6 +1320,8 @@ static int tegra_xusb_remove(struct platform_device *pdev)
- 		tegra_xusb_powerdomain_remove(&pdev->dev, tegra);
- 	}
- 
-+	tegra_xusb_phy_disable(tegra);
-+
- 	tegra_xusb_padctl_put(tegra->padctl);
- 
- 	return 0;
+ 	/*
+ 	 * Some disks return the total number of blocks in response
+ 	 * to READ CAPACITY rather than the highest block number.
 -- 
 2.24.0
 
