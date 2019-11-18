@@ -2,80 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A41100037
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 09:16:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59FC610018E
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 10:43:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726442AbfKRIQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 03:16:56 -0500
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:39059 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726371AbfKRIQz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 03:16:55 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id ADD7443A;
-        Mon, 18 Nov 2019 03:16:54 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 18 Nov 2019 03:16:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=+LLLwPZSMhpdl8Q5Vi48h2RtYpA
-        oUIfBjK2WLJHQry0=; b=secSb2CKvFV39XDJ0/v/cvXShoDObh2nyTAGpQ9Xtvz
-        75EAotGNLOiNmWyTapnnJ8PfixjdBV9BeTyiEveiElk6ndklAIiPEhVNks9XP8OT
-        aoUmlfvaq2Zw4HxbILGxK7xdvl1htQ0J9/vaSds9SzZ42QnLQnkCQQl333P+PrCx
-        53vmuM4eTAvVzTjBDpYR04ueChrIMCan+tdfZM7pJeboJTDodcndnSxVZEiR+0Au
-        nb0QlxPhchtojXms9YnNl7Y4zDaua54r7Uri8zV/Nu8Vllx9ql584VIiPW7N5sug
-        wk6wMcSmlrLs4FgNyMf5HSc/ZHd864B2xBOlPM+vv2A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=+LLLwP
-        ZSMhpdl8Q5Vi48h2RtYpAoUIfBjK2WLJHQry0=; b=pGg1bYNUYWtKnSs9neBAom
-        gGxBE7XymFyffF1Wx0rqliap5zomDjXgfiNg7/r9TRvsyjR5MfxbGVtcEqq0NjBX
-        pcz3VF3r78iQGWJkMGjGWljyJgtJWB53+Zam0J2IXLSn+D/rAVL+1frQ6Mt6/KAV
-        2mJ0Lx8bcN8e6WQhX/Ue10Yc+LvWFCVvMwSXoWqQlPYZ0vG3MrOrQVbGtYgERJ2V
-        k2LY8Qd83gVRaKD7PTAX6yCZFEoAH0pRgj2cBiqMFvP2qr3rRcxRxOn2hJA0JqIK
-        IbCvatAxwyCiKg/BPvOoX6RkEllNwwLdn0on4PmR90uE64PFNwhGwflMPENaY6pA
-        ==
-X-ME-Sender: <xms:dlPSXWvj2XNbWSNnLCpcJOU2AS_PgN8kshhR2T-R_MFYC1VQDJObcA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudeggedguddukecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:dlPSXQo-PLeF5O5o4P5Dt6DZZSiv9gZovhQD7zrZIzF2iqMNktOinA>
-    <xmx:dlPSXVLuBSF0OoPgVOrC8fk_oa9pKnZujjQXMKSOm1UmZXhSUbvllg>
-    <xmx:dlPSXQtkWtGfx6x8j4QybPWKXZi9uEQJSRfCb7ta5zS5frNgoJ6a4w>
-    <xmx:dlPSXTs56XUse28HCmQ8f9c8A1C9wXeMwXBmUYBuFN_5vx-hvN_Pmg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id A21E980060;
-        Mon, 18 Nov 2019 03:16:53 -0500 (EST)
-Date:   Mon, 18 Nov 2019 09:16:28 +0100
-From:   Greg KH <greg@kroah.com>
-To:     David Miller <davem@davemloft.net>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCHES] Networking
-Message-ID: <20191118081628.GA139840@kroah.com>
-References: <20191118.000801.490087222208784064.davem@davemloft.net>
+        id S1726614AbfKRJnh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 04:43:37 -0500
+Received: from mx2.suse.de ([195.135.220.15]:41852 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726461AbfKRJnh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Nov 2019 04:43:37 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 5B832AD55;
+        Mon, 18 Nov 2019 09:43:35 +0000 (UTC)
+Date:   Mon, 18 Nov 2019 10:43:34 +0100
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Roman Gushchin <guro@fb.com>
+Cc:     Tejun Heo <tj@kernel.org>,
+        Michal =?iso-8859-1?Q?Koutn=FD?= <mkoutny@suse.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Kernel Team <Kernel-team@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/2] mm: memcg: switch to css_tryget() in
+ get_mem_cgroup_from_mm()
+Message-ID: <20191118094334.GA14255@dhcp22.suse.cz>
+References: <20191106225131.3543616-1-guro@fb.com>
+ <20191113162934.GF19372@blackbody.suse.cz>
+ <20191113170823.GA12464@castle.DHCP.thefacebook.com>
+ <20191114191657.GN20866@dhcp22.suse.cz>
+ <20191114192018.GJ4163745@devbig004.ftw2.facebook.com>
+ <20191114193340.GA24848@dhcp22.suse.cz>
+ <20191114193736.GL4163745@devbig004.ftw2.facebook.com>
+ <20191115174031.GA15216@dhcp22.suse.cz>
+ <20191115174721.GB15216@dhcp22.suse.cz>
+ <20191115180728.GA27385@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191118.000801.490087222208784064.davem@davemloft.net>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+In-Reply-To: <20191115180728.GA27385@localhost.localdomain>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 18, 2019 at 12:08:01AM -0800, David Miller wrote:
+On Fri 15-11-19 18:07:34, Roman Gushchin wrote:
+> On Fri, Nov 15, 2019 at 06:47:21PM +0100, Michal Hocko wrote:
+> > On Fri 15-11-19 18:40:31, Michal Hocko wrote:
+> > > On Thu 14-11-19 11:37:36, Tejun Heo wrote:
+> > > > Hello,
+> > > > 
+> > > > On Thu, Nov 14, 2019 at 08:33:40PM +0100, Michal Hocko wrote:
+> > > > > > It is useful for controlling admissions of new userspace visible uses
+> > > > > > - e.g. a tracepoint shouldn't be allowed to be attached to a cgroup
+> > > > > > which has already been deleted.
+> > > > > 
+> > > > > I am not sure I understand. Roman says that the cgroup can get offline
+> > > > > right after the function returns. How is "already deleted" different
+> > > > > from "just deleted"? I thought that the state is preserved at least
+> > > > > while the rcu lock is held but my memory is dim here.
+> > > > 
+> > > > It's the same difference as between "opening a file and deleting it"
+> > > > and "deleting a file and opening it".
+> > > 
+> > > I am sorry but I do not follow. How can css_tryget_online provide the
+> > > same semantic when the css can go offline right after the tryget call
+> > > returns so it is effectivelly undistinguishable from the case when the
+> > > css was already online before the call was made.
+> > 
+> > s@online@offline@
+> > 
+> > And reading after myself it turned out to sound differently than I
+> > meant. What I wanted to say really is, what is the difference that
+> > css_tryget_online really guarantee when the css might go offline right
+> > after the call suceeds so more specifically what is the difference
+> > between
+> > 	if (css_tryget()) {
+> > 		if (online)
+> > 			DO_SOMETHING
+> > 	}
+> > and
+> > 	if (css_tryget_online()) {
+> > 		DO_SOMETHING
+> > 	}
+> > 
+> > both of them are racy and do not provide any guarantee wrt. online
+> > state.
 > 
-> Please queue up the following networking bug fixes for v4.19 and
-> v5.3 -stable, respectively.
+> Let me step back a little bit.
 > 
-> Thank you.
+> I think, we all agree that css_tryget_online() has a weird semantics,
+> in most cases is used only due to historical reasons and clearly asks
+> for a cleanup. So I suggest to stop arguing about it and wait for the
+> cleanup patchset. Then we can discuss each remaining use case in details,
+> if there will be any.
 
-
-All now queued up, thanks!
-
-greg k-h
+Yes I am all in favor of the clean up patches as well as getting down
+to the bottom of the underlying issue (race). Andrew has already sent
+these two patches to Linus, unfortunatelly, even though the changelog
+is slightly misleading (btw 18fa84a2db0e has the similar incorrect
+reasoning).
+-- 
+Michal Hocko
+SUSE Labs
