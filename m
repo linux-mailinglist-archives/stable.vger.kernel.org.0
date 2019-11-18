@@ -2,119 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 191D9FFD8F
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 05:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13958FFE98
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 07:35:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726332AbfKRElA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 17 Nov 2019 23:41:00 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:41231 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726314AbfKRElA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 17 Nov 2019 23:41:00 -0500
-Received: from 61-220-137-34.hinet-ip.hinet.net ([61.220.137.34] helo=[10.101.195.16])
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <hui.wang@canonical.com>)
-        id 1iWYqP-0003kk-4e; Mon, 18 Nov 2019 04:40:57 +0000
-Subject: Re: [PATCH] ALSA: hda/hdmi - add a parameter to let users decide if
- checking the eld_valid
-From:   Hui Wang <hui.wang@canonical.com>
-To:     Takashi Iwai <tiwai@suse.de>
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-References: <20191111144502.22910-1-hui.wang@canonical.com>
- <s5h7e46whpi.wl-tiwai@suse.de> <s5hzhh2v1pw.wl-tiwai@suse.de>
- <cf190a1c-ec4c-0031-f1af-c3bfdd1acc85@canonical.com>
-Message-ID: <5af71ae2-2a1e-cb75-cfce-7228c433a957@canonical.com>
-Date:   Mon, 18 Nov 2019 12:40:52 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1726614AbfKRGfp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 01:35:45 -0500
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:9070 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726347AbfKRGfp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 01:35:45 -0500
+Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5dd23bc10000>; Sun, 17 Nov 2019 22:35:45 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate102.nvidia.com (PGP Universal service);
+  Sun, 17 Nov 2019 22:35:44 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate102.nvidia.com on Sun, 17 Nov 2019 22:35:44 -0800
+Received: from [10.25.74.243] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Mon, 18 Nov
+ 2019 06:35:41 +0000
+Subject: Re: stable request: PCI: tegra: Enable Relaxed Ordering only for
+ Tegra20 & Tegra30
+From:   Vidya Sagar <vidyas@nvidia.com>
+To:     <ben@decadent.org.uk>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <stable@vger.kernel.org>, Jon Hunter <jonathanh@nvidia.com>,
+        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
+        Manikanta Maddireddy <mmaddireddy@nvidia.com>,
+        Krishna Thota <kthota@nvidia.com>
+References: <11251eb0-5675-9d3d-d15f-c346781e2bff@nvidia.com>
+ <20191111130908.GA448544@kroah.com>
+ <9d7871e7-f8aa-1ed5-dc2e-37ba6f218a2f@nvidia.com>
+X-Nvconfidentiality: public
+Message-ID: <cd787fce-3675-a2d1-90a7-5fa0c4b3f946@nvidia.com>
+Date:   Mon, 18 Nov 2019 12:05:38 +0530
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.1
 MIME-Version: 1.0
-In-Reply-To: <cf190a1c-ec4c-0031-f1af-c3bfdd1acc85@canonical.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <9d7871e7-f8aa-1ed5-dc2e-37ba6f218a2f@nvidia.com>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL111.nvidia.com (172.20.187.18) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1574058945; bh=yC9YmO9iY4x6XOFtTJ1ck/A/zBa81wN0ty/ofzhcMCM=;
+        h=X-PGP-Universal:Subject:From:To:CC:References:X-Nvconfidentiality:
+         Message-ID:Date:User-Agent:MIME-Version:In-Reply-To:
+         X-Originating-IP:X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=axtTL5tsvJLPbOAKbEFM+B0x9aKxiX3a2ex4f6BuWA9YNl8oCYsQPkP8SSb/YEQWK
+         K9RpKpETTjz7V26J6Gxj4vgvPnx+YmjzUxZyY/goJMZgeqHzbFladMyUaPXnKmdnUt
+         cFoP2WeelsXE2Cw/S+AIOEyA/j4xH34TFpSn6qWHJByNT5xXxV8Nsr8euwW/7se97e
+         eAm7TMhKK9phU3z5RVUz/n4Cp2C//akydgZ7dr1JLWxhTcHX/1hApYjm4aYNmg4Kg9
+         hfSTEk6cVMG9j0ebOXvRV3Zd0OhoEJruC4EThgaSIeN2hyetKhEx6/wEQhCFkaiyv9
+         YxJcyM5xcR1KQ==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-On 2019/11/12 下午8:21, Hui Wang wrote:
->
-> On 2019/11/12 上午12:04, Takashi Iwai wrote:
->> On Mon, 11 Nov 2019 16:33:45 +0100,
->> Takashi Iwai wrote:
->>> On Mon, 11 Nov 2019 15:45:02 +0100,
->>> Hui Wang wrote:
->
-[snip]
->> On the second thought, I wonder whether eld_valid would be corrected
->> later by the graphics side at all.  If yes, it's a timing issue, and
->> it can be corrected with the repolling.
+On 11/11/2019 8:52 PM, Vidya Sagar wrote:
+> On 11/11/2019 6:39 PM, Greg Kroah-Hartman wrote:
+>> On Mon, Nov 11, 2019 at 06:24:53PM +0530, Vidya Sagar wrote:
+>>> Hi Greg,
+>>> We noticed that the Tegra PCIe host controller driver enabled
+>>> "Relaxed Ordering" bit in the PCIe configuration space for "all"
+>>> devices erroneously. We pushed a fix for this through the
+>>> commit: 7be142caabc4780b13a522c485abc806de5c4114 and it has been
+>>> soaking in main line for the last four months.
+>>> Based on the discussion we had @ http://patchwork.ozlabs.org/patch/1127=
+604/
+>>> we would now like to push it to the following stable kernels
+>>> 4.19=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 : Applies cleanly
+>>> 3.16, 4.4, 4.9 & 4.14 : Following equivalent patch needs to be used as =
+the
+>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+ file was at drivers/pci/host/pci-tegra.c earlier
+>>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+ (and moved to drivers/pci/controller/pci-tegra.c starting 4.19)
 >>
->> A totally untested patch is below.
->
-> I will build a testing kernel with this patch and let the bug reporter 
-> test it.
->
-> Thanks,
->
-> Hui.
-
-Hello Takashi,
-
-Tested the patch,  it didn't work. The driver always failed to read the 
-speaker allocation from snd_hdmi_get_eld_ati().
-
-This is the dmesg after adding the patch:
-
-https://launchpadlibrarian.net/451420819/dmesg (both presence and 
-eld_valid bits are set, but can't get the speaker_alloc)
-
-Regards,
-
-Hui.
-
-
->
->
+>> All now queued up (except for 3.16, that's Ben's tree, he will get to it
+>> soon.)
 >>
+Hi Ben,
+Could you please queue this up for 3.16 as well?
+
+- Vidya Sagar
+
 >> thanks,
 >>
->> Takashi
+>> greg k-h
 >>
->> --- a/sound/pci/hda/patch_hdmi.c
->> +++ b/sound/pci/hda/patch_hdmi.c
->> @@ -1549,19 +1549,25 @@ static bool 
->> hdmi_present_sense_via_verbs(struct hdmi_spec_per_pin *per_pin,
->>               do_repoll = true;
->>       }
->>   -    if (do_repoll)
->> +    do_repoll |= repoll && eld->eld_valid != eld->monitor_present;
->> +    if (do_repoll) {
->>           schedule_delayed_work(&per_pin->work, msecs_to_jiffies(300));
->> -    else
->> +        ret = false;
->> +    } else {
->>           update_eld(codec, per_pin, eld);
->> -
->> -    ret = !repoll || !eld->monitor_present || eld->eld_valid;
->> +        per_pin->repoll_count = 0;
->> +        ret = true;
->> +    }
->>         jack = snd_hda_jack_tbl_get(codec, pin_nid);
->>       if (jack) {
->>           jack->block_report = !ret;
->> -        jack->pin_sense = (eld->monitor_present && eld->eld_valid) ?
->> -            AC_PINSENSE_PRESENCE : 0;
->> +        if (ret) {
->> +            jack->pin_sense = (eld->monitor_present && 
->> eld->eld_valid) ?
->> +                AC_PINSENSE_PRESENCE : 0;
->> +        }
->>       }
->> +
->>       mutex_unlock(&per_pin->lock);
->>       return ret;
->>   }
->>
+>=20
+> Thanks a lot Greg.
+>=20
+> - Vidya Sagar
+
