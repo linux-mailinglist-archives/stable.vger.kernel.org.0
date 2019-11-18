@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 964CA1008A2
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9380F1008A3
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:50:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727004AbfKRPup (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 10:50:45 -0500
-Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:54369 "EHLO
+        id S1727239AbfKRPuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 10:50:51 -0500
+Received: from wnew4-smtp.messagingengine.com ([64.147.123.18]:42963 "EHLO
         wnew4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726748AbfKRPuo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:50:44 -0500
+        by vger.kernel.org with ESMTP id S1726748AbfKRPuv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:50:51 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id 616D86E0;
-        Mon, 18 Nov 2019 10:50:41 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 18 Nov 2019 10:50:42 -0500
+        by mailnew.west.internal (Postfix) with ESMTP id A3CC96D3;
+        Mon, 18 Nov 2019 10:50:48 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 18 Nov 2019 10:50:49 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=dCoE+i
-        kZFpCTZGkyMYJp3T2e8t6zGYmy1wh//WSqF0I=; b=WVSsBYJNTK+5f5trc3Z17v
-        f/ovFDeZbdIM1K0YG/le7QZDAfQRs0f6OaYGMyrKhUX0IYp13VEa0NLVMrlAEve6
-        cziSNXw+f0a7zJ5diMX99ueY6CQvEVe1H+63qfLebHS6RG9YQ3OPKdBoXguXVYmB
-        mCxbRx/LG4Ht7huyJvsU54Es34YGmHgoy2CEO5VZ7Llm8qbXpBHUKfJgdY3RA1Ix
-        lJ5d4o+r4FQ9w3LJUN1SWGTbVEEzaX4lcf6PtV0cuzekr7w6RUDL5Ku60iYHUlrC
-        rGM8Rk9OpF4RfosvXGYyVBh/ysC3RsZ6YJ3UqLRgTJkEE33YGJYe0nFgfn8kICGg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=dUSheJ
+        mQWfaFMaELeatoyWfCSHsLq3r560Hk3KVa1qk=; b=wSytOlfHMVGQ01jVk0YggU
+        Lir+wFL67NRhaP3gbuTZvSponR3LUVziwIT/zjZ/rTXk0f6NlEUr+cEpnpMs5zLW
+        wtlAQjp2ns4AM0tmT5B3ARn7DjKP8y/Dm16HDFtZPwGAAiFXcYKfyHX1noR0I5LP
+        6Q2HEbYzW4dnI11PlRthmNsIe4k2J+cvnzvotncBqBsMap8DkMytftSu7Udb1w+7
+        fp3gJjc2l5aJ2Qcz6h/sZsXda6+HnGg4FRePF0Dzw7Ar23IdwW2SZa8rlMJ/yEyv
+        OGrCbvm6hgtuKXix+3PSf8l+wVJSqw5XgRgFRMo22SyojjY01L6JsDhkc7BdEHrg
         ==
-X-ME-Sender: <xms:zr3SXd8vBZndQsdhh0kQplrw2p9FwoBxn4qpyAAdtN2Kxowdak8mNQ>
+X-ME-Sender: <xms:2L3SXdRkMQd2d-v_4MW2JbWL4GFzBAglUxAwQqJavUwWjtS5hPfdrw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudegiedgheelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:zr3SXeflMPJn2DoU2_1EmKs4la-r1PtWyHQFUZw5vYHOV8AulbAKVA>
-    <xmx:zr3SXak3dRjOBzIiEuOmrfBLwPl9TCPGgd1k6YVfhKqui9cX_IR2CQ>
-    <xmx:zr3SXaHjGmuOuK5R0FgrwXszu2WCp_7uCsym8oNWX4FwDURf1MxHyg>
-    <xmx:0L3SXV3y2MRUvaUs2UHPiKoUg6z3gLnHe6tJTtGJo3eMh0F3xOPoLoIJbTk>
+    ucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:2L3SXW5GFqqVYUVE5ULtlsB9MPv3XXvNNvMr6GAZXCTMO8aL3yK0OQ>
+    <xmx:2L3SXQovAbsUZ2vjTqHfcnTozNOY3jI_BqlNXOyyICTJb2q6H_voHg>
+    <xmx:2L3SXZRC8Uw6RL3Yti16cBsMhbD2lksOjkSbUTbandSoxjDz8MRa2g>
+    <xmx:2L3SXb0fSjb7LcVjDPFmAc-GLu242v8Kbt1K9Qfl3bg1ymg_5ee4BOMFqWM>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7984D306005B;
-        Mon, 18 Nov 2019 10:50:38 -0500 (EST)
-Subject: FAILED: patch "[PATCH] mm/memory_hotplug: fix try_offline_node()" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B3EAA80063;
+        Mon, 18 Nov 2019 10:50:47 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm/memory_hotplug: fix try_offline_node()" failed to apply to 4.14-stable tree
 To:     david@redhat.com, akpm@linux-foundation.org,
         dan.j.williams@intel.com, gregkh@linuxfoundation.org,
         jani.nikula@intel.com, jolsa@kernel.org, keith.busch@intel.com,
@@ -52,8 +52,8 @@ To:     david@redhat.com, akpm@linux-foundation.org,
         tangchen@cn.fujitsu.com, torvalds@linux-foundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Nov 2019 16:50:36 +0100
-Message-ID: <157409223621479@kroah.com>
+Date:   Mon, 18 Nov 2019 16:50:38 +0100
+Message-ID: <1574092238208153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -63,7 +63,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
