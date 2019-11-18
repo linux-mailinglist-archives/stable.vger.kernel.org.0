@@ -2,70 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0A65100C4C
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 20:40:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1009B100C53
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 20:40:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbfKRTkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 14:40:10 -0500
-Received: from mail-io1-f67.google.com ([209.85.166.67]:38589 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726475AbfKRTkJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 14:40:09 -0500
-Received: by mail-io1-f67.google.com with SMTP id i13so20200102ioj.5
-        for <stable@vger.kernel.org>; Mon, 18 Nov 2019 11:40:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=ga2QOfLsmfhUnk6OwFJIP/FQLzU959KChsQqy2SkK0Y=;
-        b=PU7Vz9tJaqQojCfLRboG837OeLoOtQZpwQCf8MXYQXSQ0yEub51VGxshLMUi7epDOd
-         xs+ageFwVejd8Guw1fRAXgEkqH5NWGUoacZvQfZWOkGi80u8rFvFiXygRzqdO93LGI9O
-         /MW3unwEs6/Z15UUIOpA7rZOHQ4/OQN65nOlUo7xT2tBFkRhqtgqGAOaiaWZ8tV6kExX
-         ntZIlMGXS6u7FIBlN3BkxP/gLBPtlaR5VxLFMN6yC0qEx5Igeop/GgHvvuIt9/yuJYp0
-         mN3Wtbhb2oT1mZTHHc5opIaQaFnOs2AbGTP7nWs5zvpHRMt2yHHC01KX+EMXVYsiVqHT
-         ndWA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=ga2QOfLsmfhUnk6OwFJIP/FQLzU959KChsQqy2SkK0Y=;
-        b=NQljsYbIo9+66kyTmion6b5tDZwrVXLJemAHp9mwlHb/U26KTXp3l9luiP19MPATZd
-         95zCbsMbbtw5RU3KHvuDFevk3nQ2tkabHIoKpUJWVYDfwSDkXJfuQtjfZylYL6BrJ7W+
-         pc9Z48ECaRSwe42V4DuEjQ+MwJe+Jo7qngsd5jBcZewYHrgPCtP0gibpdv02vZ55GCRp
-         zql27CRktXpa5U8rBo5l5LZaYBz6Aam6J4zONhZFbA723aP4haHCsU3UUgx5L3gMZP0B
-         bXE35fWO7KfmX38GWoBj9+aDETRgwsm0crXEcWuCuv9bj4fdlvLaD9xMCmHblAlQQ04h
-         218w==
-X-Gm-Message-State: APjAAAXXjWRfi0NihgwbLd9i56cPOFET24GX16f6llAons1rYiqaw1AC
-        Rips72v7+xHv/WtHqRF8wzAcqNsKaCVBQPyoO0whrw==
-X-Google-Smtp-Source: APXvYqw+d2zHth6qS/TxDmab4ggByifB0NaAT7RS/+ysk4DVgF/PlEVHyn1tIEWtnKHuSz1obEsITYvKNRASyR77Icc=
-X-Received: by 2002:a5d:9b08:: with SMTP id y8mr7466853ion.108.1574106008870;
- Mon, 18 Nov 2019 11:40:08 -0800 (PST)
+        id S1727171AbfKRTkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 14:40:20 -0500
+Received: from verein.lst.de ([213.95.11.211]:58218 "EHLO verein.lst.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726937AbfKRTkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Nov 2019 14:40:20 -0500
+Received: by verein.lst.de (Postfix, from userid 107)
+        id 5E75C68BFE; Mon, 18 Nov 2019 20:40:18 +0100 (CET)
+X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on verein.lst.de
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.2 required=5.0 tests=ALL_TRUSTED,BAYES_50
+        autolearn=disabled version=3.3.1
+Received: from lst.de (p5B0D82C7.dip0.t-ipconnect.de [91.13.130.199])
+        by verein.lst.de (Postfix) with ESMTPSA id BCEA168AFE;
+        Mon, 18 Nov 2019 20:40:13 +0100 (CET)
+Date:   Mon, 18 Nov 2019 20:40:12 +0100
+From:   Torsten Duwe <duwe@lst.de>
+To:     Mark Brown <broonie@kernel.org>
+Cc:     Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] regulator: Defer init completion for a while after
+ late_initcall
+Message-ID: <20191118194012.GB7894@lst.de>
+References: <20190904124250.25844-1-broonie@kernel.org>
+ <20191116125233.GA5570@lst.de>
+ <20191118124654.GD9761@sirena.org.uk>
+ <20191118164101.GA7894@lst.de>
+ <20191118165651.GK9761@sirena.org.uk>
 MIME-Version: 1.0
-References: <1574101067-5638-1-git-send-email-pbonzini@redhat.com> <1574101067-5638-2-git-send-email-pbonzini@redhat.com>
-In-Reply-To: <1574101067-5638-2-git-send-email-pbonzini@redhat.com>
-From:   Jim Mattson <jmattson@google.com>
-Date:   Mon, 18 Nov 2019 11:39:57 -0800
-Message-ID: <CALMp9eQjkp7H5oj_XrmqbTsQjrjq1LrbYfxqeNUzWfT4a_Tg8Q@mail.gmail.com>
-Subject: Re: [PATCH 1/5] KVM: x86: fix presentation of TSX feature in ARCH_CAPABILITIES
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        kvm list <kvm@vger.kernel.org>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        stable@vger.kernel.org, Aaron Lewis <aaronlewis@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191118165651.GK9761@sirena.org.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 18, 2019 at 10:17 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
->
-> KVM does not implement MSR_IA32_TSX_CTRL, so it must not be presented
-> to the guests.  It is also confusing to have !ARCH_CAP_TSX_CTRL_MSR &&
-> !RTM && ARCH_CAP_TAA_NO: lack of MSR_IA32_TSX_CTRL suggests TSX was not
-> hidden (it actually was), yet the value says that TSX is not vulnerable
-> to microarchitectural data sampling.  Fix both.
+On Mon, Nov 18, 2019 at 04:56:51PM +0000, Mark Brown wrote:
+> On Mon, Nov 18, 2019 at 05:41:01PM +0100, Torsten Duwe wrote:
+> > On Mon, Nov 18, 2019 at 12:46:54PM +0000, Mark Brown wrote:
+> 
+> > > This is not new behaviour, all this change did was delay this.  We've
+> > > been powering off unused regulators for a bit over a decade.
+> 
+> > For me, this appeared first after upgrading from from 5.3.0-rc1 to 5.4.0-rc6.
+> > I guess the late initcall was executed before the regulator driver module got
+> > loaded? And now, with the 30s delay, the regulator driver is finally there?
+> > Would that explain it?
+> 
+> If the regulator driver wasn't loaded you'd not see the power off on
+> late init, yes.
 
-I actually think kvm should virtualize IA32_TSX_CTRL for VMs that have
-exclusive use of their cores (i.e. the same VMs for which we disable
-MWAIT and HLT exiting).
+Then this is the change I see, thanks for the confirmation.
+
+> 
+> Regulators are enabled using the regulator_enable() call,
+
+Fine, the driver does that, but...
+
+> I don't follow at all, if a driver is calling regulator_get() and
+> regulator_put() repeatedly at runtime around voltage changes then it
+> sounds like the driver is extremely broken.  Further, if a supply has a
+> regulator provided in device tree then a dummy regulator will never be
+> provided for it.  
+
+I'm afraid I must object here:
+
+kernel: anx6345 0-0038: 0-0038 supply dvdd12-supply not found, using dummy regulator
+kernel: anx6345 0-0038: 0-0038 supply dvdd25-supply not found, using dummy regulator
+
+DT has:
+  dvdd25-supply = <&reg_dldo2>;
+  dvdd12-supply = <&reg_dldo3>;
+
+It's only that the regulator driver module has not fully loaded at that point.
+
+> > AFAICS the caller is then stuck with a reference to the dummy, correct?
+> 
+> If a dummy regulator has been provided then there is no possibility that
+> a real supply could be provided, there's not a firmware description of
+> one.  We use a dummy regulator to keep software working on the basis
+> that it's unlikely that the device can operate without power but lacking
+> any information on the regulator we can't actually control it.
+
+That's what I figured. I was fancying some hash table for yet unkown
+regulators with callbacks to those who had asked. Or the EPROBE_DEFER
+to have them come back later. Maybe initrd barriers would help.
+
+So is my understanding correct that with the above messages, the anx6345
+driver will never be able to control those voltages for real?
+And additionally, the real regulator's use count will remain 0 unless there
+are other users (which there aren't)?
+
+Again: this all didn't matter before this init completion code was moved
+to the right location. Power management wouldn't work, but at least the
+established voltages stayed on.
+
+	Torsten
+
