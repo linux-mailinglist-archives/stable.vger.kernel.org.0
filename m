@@ -2,33 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DDF1008C1
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:55:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 595D110094F
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 17:37:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727010AbfKRPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 10:55:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60144 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726216AbfKRPzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Nov 2019 10:55:19 -0500
+        id S1726635AbfKRQhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 11:37:24 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:52167 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726475AbfKRQhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 11:37:24 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id C019A6AB;
+        Mon, 18 Nov 2019 11:37:22 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 18 Nov 2019 11:37:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=82XT/G
+        vxKb2yfizXyIXfcrk+LrbY1rQkX7src4u8O0g=; b=J4NiiUwztakzSdUaprUM/L
+        er1xnHFKZ3PG7Ottxuu+TifOnKA4VjK8h9FQwFmIJhr3UOE/OeyyCw6S5aPoKLO/
+        yvR/c+nxENQELz1JaOPvTUtHDqRlUlElB0W+BIrWL5QlsJ98fdnJGqBwT4pCbHI6
+        FjlgHimX7qUQlR9qq13qsh629GAGk/y1uxpvaVocTJoZYuMStLvtoEjNsZL8/aFM
+        aMY0VeiFgk1UHUSCJrwLkoMRKokLU6Yd8s/5ZOHhCLbwCLG0sDObjMK/4Z/pgJF5
+        B+4HUu4hcR33u6RTjsceWDA9oNZLZ/4HMuwtb+g+vrychiKw0Zxf++gQeNjuvgYA
+        ==
+X-ME-Sender: <xms:wsjSXaH-gfwcKqA9clX2lLk60pNBOcb7sTLt74NExRpfm_USrfCoOA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudegiedgieelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:wsjSXaESMH-Yb6ZDXxS4fj1BqsE6An7K5xsIJFf5GBPwGRUclr4LSA>
+    <xmx:wsjSXWVN85KEKpnBlgqaujUcZ_N8KYDtf658XmA42b-SswjOFIm0JQ>
+    <xmx:wsjSXYlHABoAmBytKoy-H472H6ocn365onVReZXTteg_gtcoB2IZqQ>
+    <xmx:wsjSXQp-Z9wGExQv2IRx3hyanswQJNC4XUb0igdJRIp7URYDv5ktZQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36E84217D6;
-        Mon, 18 Nov 2019 15:55:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574092517;
-        bh=YZnjVOt6yX2qLVx9+Tl9hPYlxzt5VspoypeIPjjJjA8=;
-        h=Subject:To:From:Date:From;
-        b=PPbJCXKzJEOGJGLIDojTOEvlwu6cS/hwMZu6kLyGWN0xEnR9N4RjOunXPcsV0Z5SU
-         uxJuQqdlnNWBAV6j603mUYRrfBrp72hmVhOfDQFyCpWy6sjz2KApjVrVDxVuS3Bp8K
-         x9LRLMwFO9yyGsKNJyLGjlXxlGq00zI/Y1bzmhhE=
-Subject: patch "USB: documentation: flags on usb-storage versus UAS" added to usb-next
-To:     oneukum@suse.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id CC29A3060064;
+        Mon, 18 Nov 2019 11:37:21 -0500 (EST)
+Subject: FAILED: patch "[PATCH] mm/page_io.c: do not free shared swap slots" failed to apply to 4.19-stable tree
+To:     vinmenon@codeaurora.org, akpm@linux-foundation.org,
+        hughd@google.com, mhocko@suse.com, minchan@google.com,
+        minchan@kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Nov 2019 16:53:13 +0100
-Message-ID: <157409239351242@kroah.com>
+Date:   Mon, 18 Nov 2019 17:37:16 +0100
+Message-ID: <1574095036140231@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -38,95 +60,83 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-    USB: documentation: flags on usb-storage versus UAS
+thanks,
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-next branch.
+greg k-h
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+------------------ original commit in Linus's tree ------------------
 
-The patch will also be merged in the next major kernel release
-during the merge window.
+From 5df373e95689b9519b8557da7c5bd0db0856d776 Mon Sep 17 00:00:00 2001
+From: Vinayak Menon <vinmenon@codeaurora.org>
+Date: Fri, 15 Nov 2019 17:35:00 -0800
+Subject: [PATCH] mm/page_io.c: do not free shared swap slots
 
-If you have any questions about this process, please let me know.
+The following race is observed due to which a processes faulting on a
+swap entry, finds the page neither in swapcache nor swap.  This causes
+zram to give a zero filled page that gets mapped to the process,
+resulting in a user space crash later.
 
+Consider parent and child processes Pa and Pb sharing the same swap slot
+with swap_count 2.  Swap is on zram with SWP_SYNCHRONOUS_IO set.
+Virtual address 'VA' of Pa and Pb points to the shared swap entry.
 
-From 65cc8bf99349f651a0a2cee69333525fe581f306 Mon Sep 17 00:00:00 2001
-From: Oliver Neukum <oneukum@suse.com>
-Date: Thu, 14 Nov 2019 12:27:58 +0100
-Subject: USB: documentation: flags on usb-storage versus UAS
+Pa                                       Pb
 
-Document which flags work storage, UAS or both
+fault on VA                              fault on VA
+do_swap_page                             do_swap_page
+lookup_swap_cache fails                  lookup_swap_cache fails
+                                         Pb scheduled out
+swapin_readahead (deletes zram entry)
+swap_free (makes swap_count 1)
+                                         Pb scheduled in
+                                         swap_readpage (swap_count == 1)
+                                         Takes SWP_SYNCHRONOUS_IO path
+                                         zram enrty absent
+                                         zram gives a zero filled page
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191114112758.32747-4-oneukum@suse.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- .../admin-guide/kernel-parameters.txt         | 22 ++++++++++---------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+Fix this by making sure that swap slot is freed only when swap count
+drops down to one.
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index a84a83f8881e..a02b1799a756 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -4998,13 +4998,13 @@
- 			Flags is a set of characters, each corresponding
- 			to a common usb-storage quirk flag as follows:
- 				a = SANE_SENSE (collect more than 18 bytes
--					of sense data);
-+					of sense data, not on uas);
- 				b = BAD_SENSE (don't collect more than 18
--					bytes of sense data);
-+					bytes of sense data, not on uas);
- 				c = FIX_CAPACITY (decrease the reported
- 					device capacity by one sector);
- 				d = NO_READ_DISC_INFO (don't use
--					READ_DISC_INFO command);
-+					READ_DISC_INFO command, not on uas);
- 				e = NO_READ_CAPACITY_16 (don't use
- 					READ_CAPACITY_16 command);
- 				f = NO_REPORT_OPCODES (don't use report opcodes
-@@ -5019,17 +5019,18 @@
- 				j = NO_REPORT_LUNS (don't use report luns
- 					command, uas only);
- 				l = NOT_LOCKABLE (don't try to lock and
--					unlock ejectable media);
-+					unlock ejectable media, not on uas);
- 				m = MAX_SECTORS_64 (don't transfer more
--					than 64 sectors = 32 KB at a time);
-+					than 64 sectors = 32 KB at a time,
-+					not on uas);
- 				n = INITIAL_READ10 (force a retry of the
--					initial READ(10) command);
-+					initial READ(10) command, not on uas);
- 				o = CAPACITY_OK (accept the capacity
--					reported by the device);
-+					reported by the device, not on uas);
- 				p = WRITE_CACHE (the device cache is ON
--					by default);
-+					by default, not on uas);
- 				r = IGNORE_RESIDUE (the device reports
--					bogus residue values);
-+					bogus residue values, not on uas);
- 				s = SINGLE_LUN (the device has only one
- 					Logical Unit);
- 				t = NO_ATA_1X (don't allow ATA(12) and ATA(16)
-@@ -5038,7 +5039,8 @@
- 				w = NO_WP_DETECT (don't test whether the
- 					medium is write-protected).
- 				y = ALWAYS_SYNC (issue a SYNCHRONIZE_CACHE
--					even if the device claims no cache)
-+					even if the device claims no cache,
-+					not on uas)
- 			Example: quirks=0419:aaf5:rl,0421:0433:rc
+Link: http://lkml.kernel.org/r/1571743294-14285-1-git-send-email-vinmenon@codeaurora.org
+Fixes: aa8d22a11da9 ("mm: swap: SWP_SYNCHRONOUS_IO: skip swapcache only if swapped page has no other reference")
+Signed-off-by: Vinayak Menon <vinmenon@codeaurora.org>
+Suggested-by: Minchan Kim <minchan@google.com>
+Acked-by: Minchan Kim <minchan@kernel.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+
+diff --git a/mm/page_io.c b/mm/page_io.c
+index 24ee600f9131..60a66a58b9bf 100644
+--- a/mm/page_io.c
++++ b/mm/page_io.c
+@@ -73,6 +73,7 @@ static void swap_slot_free_notify(struct page *page)
+ {
+ 	struct swap_info_struct *sis;
+ 	struct gendisk *disk;
++	swp_entry_t entry;
  
- 	user_debug=	[KNL,ARM]
--- 
-2.24.0
-
+ 	/*
+ 	 * There is no guarantee that the page is in swap cache - the software
+@@ -104,11 +105,10 @@ static void swap_slot_free_notify(struct page *page)
+ 	 * we again wish to reclaim it.
+ 	 */
+ 	disk = sis->bdev->bd_disk;
+-	if (disk->fops->swap_slot_free_notify) {
+-		swp_entry_t entry;
++	entry.val = page_private(page);
++	if (disk->fops->swap_slot_free_notify && __swap_count(entry) == 1) {
+ 		unsigned long offset;
+ 
+-		entry.val = page_private(page);
+ 		offset = swp_offset(entry);
+ 
+ 		SetPageDirty(page);
 
