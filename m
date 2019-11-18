@@ -2,100 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ACAB100D18
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 21:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94C62100D1F
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 21:29:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726647AbfKRU1R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 15:27:17 -0500
-Received: from mail-qk1-f195.google.com ([209.85.222.195]:36167 "EHLO
-        mail-qk1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726568AbfKRU1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 15:27:16 -0500
-Received: by mail-qk1-f195.google.com with SMTP id d13so15676387qko.3
-        for <stable@vger.kernel.org>; Mon, 18 Nov 2019 12:27:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=rn9PmXG9zN7JtIt5zr+2mmeEEUnpYr+Jpitib9nTCsw=;
-        b=v4mLBoSymbGVEY1PIxQQ/QnlTxxm05B1sFyx2xM4xpn3XGoXHrCEf/wR4JBQJO0kCe
-         TVyzSxhfdrNQPDeZ8D8ZhZZXvu0TZSaDHcLaINTDIWekINXmEnmavogvIc3PTAl84L+b
-         2buhVoL2TmTs7XoEC08/z8dh7xXa8ms0xrcdpOxnzSC4NdxaZomM4u8aGZ92Gy8d4un+
-         /X5osXDb2GXDiQewBy+OYiLHANMzip5COZ8B2Tf87Vb2mVx66J6Vovi75TXAVWRCxeYo
-         zldpVYYAYa9YkQ2/AsmgAklR1hcebRFlENzey/vREbW4SNCUFJ85c6IfcuSdQi4fy3D5
-         WmsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=rn9PmXG9zN7JtIt5zr+2mmeEEUnpYr+Jpitib9nTCsw=;
-        b=LJKa09vX5bZVg3uZz5vTDLUjtwxIY85npw+8+Yd7GH35m+8o5p7xbu9Vt45BA58eRY
-         KCm6TfMjmP9g2EXuLLDHUUdRXyizxjifZBBRrAtWKbO7nrdzsJx2Wlsh6yNOh4AApmmf
-         +dD+3STYdAqlPOOWgz0Raw9Uaqj9L+blSC/EdNwnswOWAx9p84LsUrxNiTgixwnLEsKN
-         +4nNXhU6zPc9toIntcrZrFKu1OjW9Q9FwzIW8F5+wK7krELKakzJetcHwWKTFajgTLEO
-         SxUyd7nku/WcbYoHW3ZuA17XGWHIiXVRh0lz+wBMd4moyRyiGJ/AakEcTBahmTCKRcFA
-         9W0A==
-X-Gm-Message-State: APjAAAV5Tt86P3lB3wVzwKtE9EFLShOoUJTumWaS6igoPL4S6bRxHxE4
-        2jeJXfu7t3kWWyC9AZwl+k+i0Q==
-X-Google-Smtp-Source: APXvYqx3HsIfki1VMmbtrCmd4+45VkEtLaz5aeosbRXeE3EB02qW4CX31/BYAhEdNtRzinswvuYd6A==
-X-Received: by 2002:a37:4906:: with SMTP id w6mr14513952qka.82.1574108834507;
-        Mon, 18 Nov 2019 12:27:14 -0800 (PST)
-Received: from localhost (rfs.netwinder.org. [206.248.184.2])
-        by smtp.gmail.com with ESMTPSA id t27sm9004534qkm.19.2019.11.18.12.27.13
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 18 Nov 2019 12:27:13 -0800 (PST)
-Date:   Mon, 18 Nov 2019 15:27:12 -0500
-From:   Ralph Siemsen <ralph.siemsen@linaro.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        syzbot+899a33dc0fa0dbaf06a6@syzkaller.appspotmail.com,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Jeremy Cline <jcline@redhat.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: Re: [PATCH 4.9 02/31] Bluetooth: hci_ldisc: Postpone
- HCI_UART_PROTO_READY bit set in hci_uart_set_proto()
-Message-ID: <20191118202712.GA14832@maple.netwinder.org>
-References: <20191115062009.813108457@linuxfoundation.org>
- <20191115062010.682028342@linuxfoundation.org>
- <20191115161029.GA32365@maple.netwinder.org>
- <20191116075614.GB381281@kroah.com>
+        id S1726536AbfKRU3x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 15:29:53 -0500
+Received: from foss.arm.com ([217.140.110.172]:39754 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726475AbfKRU3x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Nov 2019 15:29:53 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 6D0B9328;
+        Mon, 18 Nov 2019 12:29:52 -0800 (PST)
+Received: from localhost (unknown [10.37.6.21])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 77B933F6C4;
+        Mon, 18 Nov 2019 12:29:51 -0800 (PST)
+Date:   Mon, 18 Nov 2019 20:29:49 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Torsten Duwe <duwe@lst.de>
+Cc:     Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] regulator: Defer init completion for a while after
+ late_initcall
+Message-ID: <20191118202949.GD43585@sirena.org.uk>
+References: <20190904124250.25844-1-broonie@kernel.org>
+ <20191116125233.GA5570@lst.de>
+ <20191118124654.GD9761@sirena.org.uk>
+ <20191118164101.GA7894@lst.de>
+ <20191118165651.GK9761@sirena.org.uk>
+ <20191118194012.GB7894@lst.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="hoZxPH4CaxYzWscb"
 Content-Disposition: inline
-In-Reply-To: <20191116075614.GB381281@kroah.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20191118194012.GB7894@lst.de>
+X-Cookie: Are we live or on tape?
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Nov 16, 2019 at 03:56:14PM +0800, Greg Kroah-Hartman wrote:
->>
->> BTW, this also seems to be missing from 4.4 branch, although it was merged
->> for 3.16 (per https://lore.kernel.org/stable/?q=Postpone+HCI).
->
->Odd that it was merged into 3.16, perhaps it was done there because some
->earlier patch added the problem?
 
-This patch should really be viewed as a correction to an earlier commit:
-84cb3df02aea ("Bluetooth: hci_ldisc: Fix null pointer derefence in case 
-of early data"). This was merged 2016-Apr-08 into v4.7, and therefore is 
-included in 4.9 and higher.
+--hoZxPH4CaxYzWscb
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Only very recently, on 2019-Sep-23, this was backported to 3.16, along 
-with the correction. Both appeared in v3.16.74.
+On Mon, Nov 18, 2019 at 08:40:12PM +0100, Torsten Duwe wrote:
+> On Mon, Nov 18, 2019 at 04:56:51PM +0000, Mark Brown wrote:
 
-> I say this as I do not think this is
->relevant for the 4.4.y kernel, do you?  Have you tried to apply this
->patch there?
+> > I don't follow at all, if a driver is calling regulator_get() and
+> > regulator_put() repeatedly at runtime around voltage changes then it
+> > sounds like the driver is extremely broken.  Further, if a supply has a
+> > regulator provided in device tree then a dummy regulator will never be
+> > provided for it. =20
 
-The patch does not apply, but this is mainly due to the earlier commit 
-missing. It seems to me like that earlier fix is desirable (and it was 
-put into 3.16), along with the followup. So I would think we want it in 
-4.4 as well.
+> I'm afraid I must object here:
+>=20
+> kernel: anx6345 0-0038: 0-0038 supply dvdd12-supply not found, using dumm=
+y regulator
+> kernel: anx6345 0-0038: 0-0038 supply dvdd25-supply not found, using dumm=
+y regulator
 
-[Aside: I'm really only interested in 4.9 and 4.19, so the 4.4 stuff is 
-just a diversion. But figured I might as well mention what I found...]
+> DT has:
+>   dvdd25-supply =3D <&reg_dldo2>;
+>   dvdd12-supply =3D <&reg_dldo3>;
 
-Regards,
--Ralph
+> It's only that the regulator driver module has not fully loaded at that p=
+oint.
+
+We substitute in the dummy regulator in regulator_get() if
+regulator_dev_lookup() returns -ENODEV and a few other conditions are
+satisfied.  When lookup up via DT regulator_dev_lookup() will use
+of_find_regulator_by_node() to look up the regulator, if that lookup
+fails it returns -EPROBE_DEFER.  Until we get to of_find_regulator_by_node()
+we're just looking to see if nodes exist, not to see if anything is
+registered.  What mechanism do you see causing issues?  If there's
+something going wrong here it's in that area.
+
+> > > AFAICS the caller is then stuck with a reference to the dummy, correc=
+t?
+
+> > If a dummy regulator has been provided then there is no possibility that
+> > a real supply could be provided, there's not a firmware description of
+> > one.  We use a dummy regulator to keep software working on the basis
+> > that it's unlikely that the device can operate without power but lacking
+> > any information on the regulator we can't actually control it.
+
+> That's what I figured. I was fancying some hash table for yet unkown
+> regulators with callbacks to those who had asked. Or the EPROBE_DEFER
+> to have them come back later. Maybe initrd barriers would help.
+
+Like I've been saying attempts to get a regulator will defer unless the
+core can confirm that the regulator can't be resolved.
+
+I don't know what an initrd barrier is but anything that relies on
+initrds not going to help with trying to figure out when userspace is
+ready since there's no requirement for userspace to use an initrd at all
+let alone put all modules in there.
+
+> So is my understanding correct that with the above messages, the anx6345
+> driver will never be able to control those voltages for real?
+> And additionally, the real regulator's use count will remain 0 unless the=
+re
+> are other users (which there aren't)?
+
+If the consumer driver is gets a reference to the dummy regulator it's
+going to continue to have a reference to the dummy regulator.
+
+> Again: this all didn't matter before this init completion code was moved
+> to the right location. Power management wouldn't work, but at least the
+> established voltages stayed on.
+
+As far as I can tell whatever is going on with your system it's only
+ever been working through luck.  Without any specific references to
+what's going on in the system it's hard to tell what might be happening,
+it looks like you're working with out of tree code here so it's possible
+there's something going on in there and your use of non-standard
+terminology makes it a bit hard to follow.
+
+--hoZxPH4CaxYzWscb
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAl3S/zwACgkQJNaLcl1U
+h9Ah/Af/c/71LCy3SIA/+OV+eAV62vp7PW/U11VkTMnP/8JTusv0t6NdClinnwrI
+tLx3jVFkPXzauk90sWBYmEo3OaRToPkTl5e3qGAACJLcdZoAOdx+yK4jRh7D1ygC
+PReCZCgbHLobTew3lX3f7tzvjvT3Cp/Pc+tAVF6Q3osH4JUS0rx0PW3C+j9xNsN3
+Th/Hvb/EWuS3Dr9z5JxqThouiG75W5zuyohL7OsjIb60yk2mS4ak6V0DE6+ZlnqX
+A9hW1cm1dPnjc70DwuBbOcxTd7QKYN7wHhb7RIjEKMKY5Z4CPRgUGdofO9gh0Ro1
+Y5NXfyII6s+LTsHl9tX5Bh1NKARP4Q==
+=zh1w
+-----END PGP SIGNATURE-----
+
+--hoZxPH4CaxYzWscb--
