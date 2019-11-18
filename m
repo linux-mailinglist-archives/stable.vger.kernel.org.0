@@ -2,126 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBD11100833
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D872100874
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:41:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726668AbfKRP0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 10:26:01 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:35512 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726578AbfKRP0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:26:01 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id AC5F21C1802; Mon, 18 Nov 2019 16:25:58 +0100 (CET)
-Date:   Mon, 18 Nov 2019 16:25:58 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 4.19 56/81] kernel/sysctl.c: do not override max_threads
- provided by userspace
-Message-ID: <20191118152558.GA26236@duo.ucw.cz>
-References: <20191016214805.727399379@linuxfoundation.org>
- <20191016214842.621065901@linuxfoundation.org>
- <20191017105940.GA5966@amd>
- <20191017110516.GG24485@dhcp22.suse.cz>
+        id S1727161AbfKRPlU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 10:41:20 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:47453 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727185AbfKRPlT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:41:19 -0500
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 4DA3E619;
+        Mon, 18 Nov 2019 10:41:18 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 18 Nov 2019 10:41:18 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=7xKWdQ
+        8P8Z0C/6AInUDor/FENHYE11DPXQCJUToLG+k=; b=yA+bT+aKDHDUOPoI7iWmv8
+        j9mnb9iEY+SnD/eun5cEuIPMptxABB5QWAXR4DYrh8mspJRh+qxtGEN2qXQvbLZi
+        LfjnBFRRRNGF3FOj8hzwVNOJcH5Ao1htzsoZ8Sl5jh9ZyeXdFmjkGjGNo3Yr3IOT
+        Ma+YENzECQuj7gToT+J4zclYuz48oj4EA5I/dg0d0G5/QczBwgHn6kNOer0E5q+i
+        iJ2dstBBq9xJx0FywwEX2o8QaSBmyWNC5gh9qnW2VjMcTxEy8CKGm+IS5jDhlSgb
+        FaNrKxqdgLSgd47k+W11JkrizRfvv8bgJnCTJf/tnzQnv+vEGfDgvWw5L9xGXEhA
+        ==
+X-ME-Sender: <xms:nbvSXbUe0z2aPLV55oFyTFgL_-ae0RHxMrTGjKmSD4cjxOrdvfT20w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudegiedgheeiucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
+    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:nbvSXf6dAQcPiPuYTVGkxHOjwxJCfhzjuGNQg4nDmF_HQKS-ASsNEQ>
+    <xmx:nbvSXaKCyWgm24A2MGDU6zRkBqzLpuuX0pxkRYbbPWobuD4xLvsVnw>
+    <xmx:nbvSXYLKFWu8p0jJHNc_3RcfcMsj7sNg11dbbHOs1Q3DvnqBDfomYQ>
+    <xmx:nbvSXXHfStBFf44Ud5Hni9XIP7xoimy5OsDMjGifpazSBtYndvM8wQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2CBD38005A;
+        Mon, 18 Nov 2019 10:41:17 -0500 (EST)
+Subject: FAILED: patch "[PATCH] drm/i915: update rawclk also on resume" failed to apply to 4.19-stable tree
+To:     jani.nikula@intel.com, rodrigo.vivi@intel.com,
+        shawn.c.lee@intel.com, stable@vger.kernel.org,
+        ville.syrjala@linux.intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Nov 2019 16:41:15 +0100
+Message-ID: <157409167539188@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="DocE+STaALJfprDB"
-Content-Disposition: inline
-In-Reply-To: <20191017110516.GG24485@dhcp22.suse.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---DocE+STaALJfprDB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Hi!
+thanks,
 
-> > > From: Michal Hocko <mhocko@suse.com>
-> > >=20
-> > > commit b0f53dbc4bc4c371f38b14c391095a3bb8a0bb40 upstream.
-> > >=20
-> > > Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
-> > > limits") because the patch is causing a regression to any workload wh=
-ich
-> > > needs to override the auto-tuning of the limit provided by kernel.
-> > >=20
-> > > set_max_threads is implementing a boot time guesstimate to provide a
-> > > sensible limit of the concurrently running threads so that runaways w=
-ill
-> > > not deplete all the memory.  This is a good thing in general but there
-> > > are workloads which might need to increase this limit for an applicat=
-ion
-> > > to run (reportedly WebSpher MQ is affected) and that is simply not
-> > > possible after the mentioned change.  It is also very dubious to
-> > > override an admin decision by an estimation that doesn't have any dir=
-ect
-> > > relation to correctness of the kernel operation.
-> > >=20
-> > > Fix this by dropping set_max_threads from sysctl_max_threads so any
-> > > value is accepted as long as it fits into MAX_THREADS which is import=
-ant
-> > > to check because allowing more threads could break internal robust fu=
-tex
-> > > restriction.  While at it, do not use MIN_THREADS as the lower bounda=
-ry
-> > > because it is also only a heuristic for automatic estimation and admin
-> > > might have a good reason to stop new threads to be created even when
-> > > below this limit.
-> >=20
-> > Ok, why not, but I smell followup work could be done:
-> >=20
-> > > @@ -2635,7 +2635,7 @@ int sysctl_max_threads(struct ctl_table
-> > >  	if (ret || !write)
-> > >  		return ret;
-> > > =20
-> > > -	set_max_threads(threads);
-> > > +	max_threads =3D threads;
-> > > =20
-> >=20
-> > AFAICT set_max_threads can now become __init.
->=20
-> Yes. Care to send a patch?
+greg k-h
 
-I'm not usually hacking in that area. Could you do that?
+------------------ original commit in Linus's tree ------------------
 
-> > Plus, I don't see any locking here, should this be WRITE_ONCE() at
-> > minimum?
->=20
-> Why would that matter? Do you expect several root processes race to set
-> the value?
+From 2f216a8507153578efc309c821528a6b81628cd2 Mon Sep 17 00:00:00 2001
+From: Jani Nikula <jani.nikula@intel.com>
+Date: Fri, 1 Nov 2019 16:20:24 +0200
+Subject: [PATCH] drm/i915: update rawclk also on resume
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Well, for example to warn humans that this code is accessing unlocked
-variable. Second, as is, code is not valid C and compilers are
-allowed to do strange stuff ("undefined behaviour"). Third, there are
-concurency checkers that will not like this one.
+Since CNP it's possible for rawclk to have two different values, 19.2
+and 24 MHz. If the value indicated by SFUSE_STRAP register is different
+from the power on default for PCH_RAWCLK_FREQ, we'll end up having a
+mismatch between the rawclk hardware and software states after
+suspend/resume. On previous platforms this used to work by accident,
+because the power on defaults worked just fine.
 
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+Update the rawclk also on resume. The natural place to do this would be
+intel_modeset_init_hw(), however VLV/CHV need it done before
+intel_power_domains_init_hw(). Thus put it there even if it feels
+slightly out of place.
 
---DocE+STaALJfprDB
-Content-Type: application/pgp-signature; name="signature.asc"
+v2: Call intel_update_rawclck() in intel_power_domains_init_hw() for all
+    platforms (Ville).
 
------BEGIN PGP SIGNATURE-----
+Reported-by: Shawn Lee <shawn.c.lee@intel.com>
+Cc: Shawn Lee <shawn.c.lee@intel.com>
+Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Tested-by: Shawn Lee <shawn.c.lee@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20191101142024.13877-1-jani.nikula@intel.com
+(cherry picked from commit 59ed05ccdded5eb18ce012eff3d01798ac8535fa)
+Cc: <stable@vger.kernel.org> # v4.15+
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXdK4BgAKCRAw5/Bqldv6
-8jhNAKCIHYsvVTsQZIFjD8mF57s56P5jGQCeI6LKsnyR/vGN+ve0bAJx5KxTWF8=
-=oWaa
------END PGP SIGNATURE-----
+diff --git a/drivers/gpu/drm/i915/display/intel_display_power.c b/drivers/gpu/drm/i915/display/intel_display_power.c
+index 12099760d99e..c002f234ff31 100644
+--- a/drivers/gpu/drm/i915/display/intel_display_power.c
++++ b/drivers/gpu/drm/i915/display/intel_display_power.c
+@@ -4896,6 +4896,9 @@ void intel_power_domains_init_hw(struct drm_i915_private *i915, bool resume)
+ 
+ 	power_domains->initializing = true;
+ 
++	/* Must happen before power domain init on VLV/CHV */
++	intel_update_rawclk(i915);
++
+ 	if (INTEL_GEN(i915) >= 11) {
+ 		icl_display_core_init(i915, resume);
+ 	} else if (IS_CANNONLAKE(i915)) {
+diff --git a/drivers/gpu/drm/i915/i915_drv.c b/drivers/gpu/drm/i915/i915_drv.c
+index bb6f86c7067a..916e6ca86a1d 100644
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -364,9 +364,6 @@ static int i915_driver_modeset_probe(struct drm_device *dev)
+ 	if (ret)
+ 		goto cleanup_vga_client;
+ 
+-	/* must happen before intel_power_domains_init_hw() on VLV/CHV */
+-	intel_update_rawclk(dev_priv);
+-
+ 	intel_power_domains_init_hw(dev_priv, false);
+ 
+ 	intel_csr_ucode_init(dev_priv);
 
---DocE+STaALJfprDB--
