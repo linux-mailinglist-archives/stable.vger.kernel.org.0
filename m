@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F98710080B
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:22:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6DE10080D
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726748AbfKRPW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 10:22:26 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:52499 "EHLO
+        id S1726970AbfKRPW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 10:22:28 -0500
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:53725 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726668AbfKRPWZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:22:25 -0500
+        by vger.kernel.org with ESMTP id S1726668AbfKRPW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 10:22:28 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 872236A6;
-        Mon, 18 Nov 2019 10:22:24 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 66D5468A;
+        Mon, 18 Nov 2019 10:22:27 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 18 Nov 2019 10:22:24 -0500
+  by compute6.internal (MEProxy); Mon, 18 Nov 2019 10:22:27 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=w97upZ
-        jdqhf7Uuscd6G0E/FQ2fZ+OEx4NQNvmwkD8dg=; b=kjLsvk+OmpdbFVtfIUNvEw
-        bWnrGzTGex2ySw5Tys6llcFuZEaAagB6MyzlsuLV8FAdZt2wRYSMZqTFgL63Iw8k
-        R7WwHooVQj5IOD3oiu9lY90t/YDCSeOla3pILPyMFQNVPXZ72zYhPwg3hz+RJi1j
-        uqD/MJkr3qkys6RbgSDE3eNikymqrD7IlKwYwdP3DyYeDvFOt4drdq2wrv1i3dkO
-        mwwPD9GYOZ6n/46cy8Oc9GhoDLeKozjCsPq2TfR2jvNCqrJpwn1HYWfmGvNVR/Lf
-        dhmCOG1dU2Zo1b+B6v/aqmZGycw4Qhh/ScU0mpjlcs8g9LvG2mQxs/n0IWcJ8vRw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=V3HsKX
+        5HXQWUCfpiEPL2+KduKdsmhWzXrMOXbIRD/l4=; b=mlUAKA54VWhrx0k8X0aRDV
+        J7UVoqZ7ypGIBY+dXNLPxwPDHwIfjZCwWYilZpEZEdl3tP3OPSTs3XtqNadP9vLB
+        q+Ui+R7v5ox817DLdCXkZKgQGkU0SEIeu5zfa3SlQD/87pSi1xtYUFtVdvG/B6h2
+        y3uW2zeqi7ITp4uGp8dVslt7vRV/F9JMD5vPi7l47ebGjKbQ9VrvwE2hTd3mGGUk
+        o4Chv7Chf7V/oP8RvOFoEzrP2aSSWL6FeM+aRp4TQTwKM5awIUDFzYpq3rR9wLdz
+        LeGClaK6jlrucBGCTN9SQAwFrMkMbuO8DLrOWY0/WzQOYM8vnZJxMQZoqPcy81Xg
         ==
-X-ME-Sender: <xms:MLfSXWDwNsa87lpkbSJ3sUJfFbmB4XpPj0jfi7t9iTDV5BPuzfYxdA>
+X-ME-Sender: <xms:MrfSXaamkKykkLrtp4KbaaAeqJPxRu1uFVCcz7VwH_w4jmfKGhFrSg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudegiedghedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:MLfSXUyO_zrw3biNR-73Rsce4AMMAcr1rzIwIQ3U8AF-QAXcymxbAw>
-    <xmx:MLfSXUnLYpC8G5PlD-mabt3sePsosZZ5VbAcMhCu2fWU0axilZ68eQ>
-    <xmx:MLfSXZEt_wDszntuJyWfaFb11heMi9BR7IsmVOiIjKLDN7wRJ6gkow>
-    <xmx:MLfSXSS9Mzmyoi6kp_hcCaymdmBPfhljoUzEi3ssAQs8ubsr0BrNOg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
+X-ME-Proxy: <xmx:MrfSXYkMc5SmOE078Jk6Hx8Ujc0TO3b8F3xHi7XtphNSygkVlliwFw>
+    <xmx:MrfSXUHHoQJDHM8yFOdLeHUjOlJTggWPn6QS-gdAHA0X2-m1Zk3dwQ>
+    <xmx:MrfSXc76aVOeNxwA0YVl2OrjjXU6g6fvZ8dPEfnlraWApKog9BKSAA>
+    <xmx:M7fSXXmT6LGfVtvmRN-vgpLtqo9Nw0fPkjvGw5JtOU-ROznsXd5NbQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 9FA788005C;
-        Mon, 18 Nov 2019 10:22:23 -0500 (EST)
-Subject: FAILED: patch "[PATCH] KVM: X86: Fix initialization of MSR lists" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8E7C78005B;
+        Mon, 18 Nov 2019 10:22:26 -0500 (EST)
+Subject: FAILED: patch "[PATCH] KVM: X86: Fix initialization of MSR lists" failed to apply to 4.4-stable tree
 To:     chenyi.qiang@intel.com, pbonzini@redhat.com, xiaoyao.li@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 18 Nov 2019 16:22:19 +0100
-Message-ID: <157409053914953@kroah.com>
+Date:   Mon, 18 Nov 2019 16:22:20 +0100
+Message-ID: <1574090540102131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
