@@ -2,108 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9E21008AC
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:52:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 574591008BC
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 16:54:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726654AbfKRPwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 10:52:04 -0500
-Received: from mx2.suse.de ([195.135.220.15]:58334 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726216AbfKRPwE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Nov 2019 10:52:04 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id C842AB0E6;
-        Mon, 18 Nov 2019 15:52:01 +0000 (UTC)
-Date:   Mon, 18 Nov 2019 16:52:00 +0100
-From:   Michal Hocko <mhocko@kernel.org>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Heinrich Schuchardt <xypron.glpk@gmx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 4.19 56/81] kernel/sysctl.c: do not override max_threads
- provided by userspace
-Message-ID: <20191118155200.GG14255@dhcp22.suse.cz>
-References: <20191016214805.727399379@linuxfoundation.org>
- <20191016214842.621065901@linuxfoundation.org>
- <20191017105940.GA5966@amd>
- <20191017110516.GG24485@dhcp22.suse.cz>
- <20191118152558.GA26236@duo.ucw.cz>
+        id S1726976AbfKRPyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 10:54:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59444 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726423AbfKRPyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 18 Nov 2019 10:54:22 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7CAD821934;
+        Mon, 18 Nov 2019 15:54:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574092462;
+        bh=os3tH9kyucZcB+CUY2G9JQjJZzec3Ep0QPlE9s0GWZ0=;
+        h=Subject:To:From:Date:From;
+        b=qdEXDfevA29vZvL0bGFbRrjds1fj3ZjVfFoGVl9g2oftFg/4NovLH4/HdoxXEcuKK
+         h+fsyIWMGgCMtdYmWxbwVp4PtAT3i9cuW8cPrWj/y5p+kU3cCHdALYZoCct4R6NABO
+         +3W8GZxCaPUKmc+72sT3Ipen6g16TpZR405es2VU=
+Subject: patch "usb: dwc2: use a longer core rest timeout in dwc2_core_reset()" added to usb-next
+To:     dev@kresin.me, felipe.balbi@linux.intel.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 18 Nov 2019 16:52:50 +0100
+Message-ID: <1574092370206140@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191118152558.GA26236@duo.ucw.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon 18-11-19 16:25:58, Pavel Machek wrote:
-> Hi!
-> 
-> > > > From: Michal Hocko <mhocko@suse.com>
-> > > > 
-> > > > commit b0f53dbc4bc4c371f38b14c391095a3bb8a0bb40 upstream.
-> > > > 
-> > > > Partially revert 16db3d3f1170 ("kernel/sysctl.c: threads-max observe
-> > > > limits") because the patch is causing a regression to any workload which
-> > > > needs to override the auto-tuning of the limit provided by kernel.
-> > > > 
-> > > > set_max_threads is implementing a boot time guesstimate to provide a
-> > > > sensible limit of the concurrently running threads so that runaways will
-> > > > not deplete all the memory.  This is a good thing in general but there
-> > > > are workloads which might need to increase this limit for an application
-> > > > to run (reportedly WebSpher MQ is affected) and that is simply not
-> > > > possible after the mentioned change.  It is also very dubious to
-> > > > override an admin decision by an estimation that doesn't have any direct
-> > > > relation to correctness of the kernel operation.
-> > > > 
-> > > > Fix this by dropping set_max_threads from sysctl_max_threads so any
-> > > > value is accepted as long as it fits into MAX_THREADS which is important
-> > > > to check because allowing more threads could break internal robust futex
-> > > > restriction.  While at it, do not use MIN_THREADS as the lower boundary
-> > > > because it is also only a heuristic for automatic estimation and admin
-> > > > might have a good reason to stop new threads to be created even when
-> > > > below this limit.
-> > > 
-> > > Ok, why not, but I smell followup work could be done:
-> > > 
-> > > > @@ -2635,7 +2635,7 @@ int sysctl_max_threads(struct ctl_table
-> > > >  	if (ret || !write)
-> > > >  		return ret;
-> > > >  
-> > > > -	set_max_threads(threads);
-> > > > +	max_threads = threads;
-> > > >  
-> > > 
-> > > AFAICT set_max_threads can now become __init.
-> > 
-> > Yes. Care to send a patch?
-> 
-> I'm not usually hacking in that area. Could you do that?
 
-I can put it on my ever growing todo list. But this should be a low
-hanging fruit that doesn't really require a deep understanding of the
-specific subsystem.
+This is a note to let you know that I've just added the patch titled
 
-> > > Plus, I don't see any locking here, should this be WRITE_ONCE() at
-> > > minimum?
-> > 
-> > Why would that matter? Do you expect several root processes race to set
-> > the value?
-> 
-> Well, for example to warn humans that this code is accessing unlocked
-> variable. Second, as is, code is not valid C and compilers are
-> allowed to do strange stuff ("undefined behaviour"). Third, there are
-> concurency checkers that will not like this one.
+    usb: dwc2: use a longer core rest timeout in dwc2_core_reset()
 
-I do not see any undefined behahvior in assigning an integer in a
-lockless manner if there are no actual consistency issues. If this is
-not the case then please do describe them in a specific manner.
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-next branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will also be merged in the next major kernel release
+during the merge window.
+
+If you have any questions about this process, please let me know.
+
+
+From 6689f0f4bb14e50917ba42eb9b41c25e0184970c Mon Sep 17 00:00:00 2001
+From: Mathias Kresin <dev@kresin.me>
+Date: Sun, 7 Jul 2019 16:22:01 +0200
+Subject: usb: dwc2: use a longer core rest timeout in dwc2_core_reset()
+
+Testing on different generations of Lantiq MIPS SoC based boards, showed
+that it takes up to 1500 us until the core reset bit is cleared.
+
+The driver from the vendor SDK (ifxhcd) uses a 1 second timeout. Use the
+same timeout to fix wrong hang detections and make the driver work for
+Lantiq MIPS SoCs.
+
+At least till kernel 4.14 the hanging reset only caused a warning but
+the driver was probed successful. With kernel 4.19 errors out with
+EBUSY.
+
+Cc: linux-stable <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Mathias Kresin <dev@kresin.me>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+---
+ drivers/usb/dwc2/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/usb/dwc2/core.c b/drivers/usb/dwc2/core.c
+index 8e41d70fd298..78a4925aa118 100644
+--- a/drivers/usb/dwc2/core.c
++++ b/drivers/usb/dwc2/core.c
+@@ -524,7 +524,7 @@ int dwc2_core_reset(struct dwc2_hsotg *hsotg, bool skip_wait)
+ 	greset |= GRSTCTL_CSFTRST;
+ 	dwc2_writel(hsotg, greset, GRSTCTL);
+ 
+-	if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL, GRSTCTL_CSFTRST, 50)) {
++	if (dwc2_hsotg_wait_bit_clear(hsotg, GRSTCTL, GRSTCTL_CSFTRST, 10000)) {
+ 		dev_warn(hsotg->dev, "%s: HANG! Soft Reset timeout GRSTCTL GRSTCTL_CSFTRST\n",
+ 			 __func__);
+ 		return -EBUSY;
 -- 
-Michal Hocko
-SUSE Labs
+2.24.0
+
+
