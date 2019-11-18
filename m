@@ -2,106 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1009B100C53
-	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 20:40:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B9B2100D02
+	for <lists+stable@lfdr.de>; Mon, 18 Nov 2019 21:23:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727171AbfKRTkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 18 Nov 2019 14:40:20 -0500
-Received: from verein.lst.de ([213.95.11.211]:58218 "EHLO verein.lst.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726937AbfKRTkU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 18 Nov 2019 14:40:20 -0500
-Received: by verein.lst.de (Postfix, from userid 107)
-        id 5E75C68BFE; Mon, 18 Nov 2019 20:40:18 +0100 (CET)
-X-Spam-Checker-Version: SpamAssassin 3.3.1 (2010-03-16) on verein.lst.de
-X-Spam-Level: 
-X-Spam-Status: No, score=-0.2 required=5.0 tests=ALL_TRUSTED,BAYES_50
-        autolearn=disabled version=3.3.1
-Received: from lst.de (p5B0D82C7.dip0.t-ipconnect.de [91.13.130.199])
-        by verein.lst.de (Postfix) with ESMTPSA id BCEA168AFE;
-        Mon, 18 Nov 2019 20:40:13 +0100 (CET)
-Date:   Mon, 18 Nov 2019 20:40:12 +0100
-From:   Torsten Duwe <duwe@lst.de>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Liam Girdwood <lgirdwood@gmail.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] regulator: Defer init completion for a while after
- late_initcall
-Message-ID: <20191118194012.GB7894@lst.de>
-References: <20190904124250.25844-1-broonie@kernel.org>
- <20191116125233.GA5570@lst.de>
- <20191118124654.GD9761@sirena.org.uk>
- <20191118164101.GA7894@lst.de>
- <20191118165651.GK9761@sirena.org.uk>
+        id S1726536AbfKRUXL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 18 Nov 2019 15:23:11 -0500
+Received: from mail-oi1-f169.google.com ([209.85.167.169]:38702 "EHLO
+        mail-oi1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726435AbfKRUXL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 18 Nov 2019 15:23:11 -0500
+Received: by mail-oi1-f169.google.com with SMTP id a14so16588959oid.5
+        for <stable@vger.kernel.org>; Mon, 18 Nov 2019 12:23:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=OAyuhc8eTPHZStGj4j04Bunphq3hKbWOo/Q7FfcBi2k=;
+        b=O6pfFYaHCzZMMJh/xfB2Gdzcmc/whitIceAHDfkDZbHkDnVEzPioXK2EiS3eT9srVm
+         pSIbM66Kc/vhV2S8gvmD44SG9hVgyJqXNcZo3giZmAmp8rQG+32/bMgcd3kubkOrJuyy
+         cyQuKXJC0F6kOtHJq6rzyLfDLigYDMiMu3bJUVtHXmVWLqmNayrh0Ull9CRldm281pz2
+         zqf9Nu79u0G9X3CEYF3Re4X7DbLlIJ95wg11I0Z06ou+0SpvDs7QCTzgzfhkTnv4AdJL
+         enwo9Tl2XMD4QFaQsWS6fKD7sMiEDfNCwrVwYy8Au7kSECSiEkRNhe0XICg/jN//PNsv
+         M2bw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=OAyuhc8eTPHZStGj4j04Bunphq3hKbWOo/Q7FfcBi2k=;
+        b=kfc00jRygl3gSNADPnoSocCdmpWuAatk/4r6+MQHXNG4aJBUAycp60KDx1JiIIs6zj
+         ywSMYpZFQ1xjQKYJEI/po4w/qnbXPkNbtglD2hNzds8X6jdYRFITgZiwliK7b2hfiFAd
+         Za01k+z6qVdBkkGW6qtPr96xl+5uROjurcce24/oY3D/vB4f065xPTpU4ChTZ8T1DWID
+         0rQ4/y4yz/OsurytwEWNOIKQdXUxb+FSYfp+Uv70hlzQAjD+m12UovLHWb/o30PLeWx9
+         CAg/IYIJX8aNVYzZa+9OKlTd40YRxRUNytLNUntMvTAlFXs/PvOrMDaxqL5J3QDoZwfV
+         JhXw==
+X-Gm-Message-State: APjAAAXRQ/gQsabrIHtfwPXuXJVCee0ogavyw7Op4jqFOSE4A9v5Dg2R
+        wpgNeDXCZ3kfNcunQ0ADV5in3CpcWqEa/PWDdnM=
+X-Google-Smtp-Source: APXvYqxozPWBKisfxR4/iqDUX7IDMrfFvBHCof/BiYVSqPV+pQksS+VrG43/KLF09jwUHe+OjZKRI2JwcqcRYaQ10fw=
+X-Received: by 2002:aca:d0d:: with SMTP id 13mr763113oin.44.1574108590290;
+ Mon, 18 Nov 2019 12:23:10 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191118165651.GK9761@sirena.org.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <95023b9f-1281-b74b-cae0-0516ee4ceb90@gmail.com>
+In-Reply-To: <95023b9f-1281-b74b-cae0-0516ee4ceb90@gmail.com>
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Date:   Mon, 18 Nov 2019 20:22:34 +0000
+Message-ID: <CADVatmObLQ9-aPN1s9qLNh0JVO08fxJ_r_YGvuGqyF4Lsf9KeQ@mail.gmail.com>
+Subject: Re: Size of the stable-queue git tree
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Stable <stable@vger.kernel.org>,
+        =?UTF-8?Q?Fran=C3=A7ois_Valenduc?= <francoisvalenduc@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Nov 18, 2019 at 04:56:51PM +0000, Mark Brown wrote:
-> On Mon, Nov 18, 2019 at 05:41:01PM +0100, Torsten Duwe wrote:
-> > On Mon, Nov 18, 2019 at 12:46:54PM +0000, Mark Brown wrote:
-> 
-> > > This is not new behaviour, all this change did was delay this.  We've
-> > > been powering off unused regulators for a bit over a decade.
-> 
-> > For me, this appeared first after upgrading from from 5.3.0-rc1 to 5.4.0-rc6.
-> > I guess the late initcall was executed before the regulator driver module got
-> > loaded? And now, with the 30s delay, the regulator driver is finally there?
-> > Would that explain it?
-> 
-> If the regulator driver wasn't loaded you'd not see the power off on
-> late init, yes.
+On Mon, Nov 18, 2019 at 6:55 PM Fran=C3=A7ois Valenduc
+<francoisvalenduc@gmail.com> wrote:
+>
+> Hello everybody,
+>
+> I pulled the stable-queue tree just now. This was not an inital clone,
+> but only an update. My previous update was end of last week I was
+> surprised I had to download 1,19 Gb to download.
 
-Then this is the change I see, thanks for the confirmation.
+same for me too. 1.2GiB.
 
-> 
-> Regulators are enabled using the regulator_enable() call,
 
-Fine, the driver does that, but...
-
-> I don't follow at all, if a driver is calling regulator_get() and
-> regulator_put() repeatedly at runtime around voltage changes then it
-> sounds like the driver is extremely broken.  Further, if a supply has a
-> regulator provided in device tree then a dummy regulator will never be
-> provided for it.  
-
-I'm afraid I must object here:
-
-kernel: anx6345 0-0038: 0-0038 supply dvdd12-supply not found, using dummy regulator
-kernel: anx6345 0-0038: 0-0038 supply dvdd25-supply not found, using dummy regulator
-
-DT has:
-  dvdd25-supply = <&reg_dldo2>;
-  dvdd12-supply = <&reg_dldo3>;
-
-It's only that the regulator driver module has not fully loaded at that point.
-
-> > AFAICS the caller is then stuck with a reference to the dummy, correct?
-> 
-> If a dummy regulator has been provided then there is no possibility that
-> a real supply could be provided, there's not a firmware description of
-> one.  We use a dummy regulator to keep software working on the basis
-> that it's unlikely that the device can operate without power but lacking
-> any information on the regulator we can't actually control it.
-
-That's what I figured. I was fancying some hash table for yet unkown
-regulators with callbacks to those who had asked. Or the EPROBE_DEFER
-to have them come back later. Maybe initrd barriers would help.
-
-So is my understanding correct that with the above messages, the anx6345
-driver will never be able to control those voltages for real?
-And additionally, the real regulator's use count will remain 0 unless there
-are other users (which there aren't)?
-
-Again: this all didn't matter before this init completion code was moved
-to the right location. Power management wouldn't work, but at least the
-established voltages stayed on.
-
-	Torsten
-
+--=20
+Regards
+Sudip
