@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0C81013A5
+	by mail.lfdr.de (Postfix) with ESMTP id 737AF1013A6
 	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:27:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727890AbfKSF0G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:26:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44024 "EHLO mail.kernel.org"
+        id S1728497AbfKSF0H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:26:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727665AbfKSF0E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:26:04 -0500
+        id S1727849AbfKSF0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:26:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BFF321823;
-        Tue, 19 Nov 2019 05:26:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1BC4222A2;
+        Tue, 19 Nov 2019 05:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141163;
-        bh=Y4FdlwIm9c/henSoa6RBnUIlwhJJ7s4sawtG84K2ywg=;
+        s=default; t=1574141166;
+        bh=GFSVBNLPJtFDTvTDouENezti5bv31KmrpDsn995p2Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWOyx+D80HFH6vmI/3FSOvjoh1ThdR6+5tCWViYchFhGkQM2uZ5c1781I1KzvrZq+
-         BtxqFfJZwvEi9g8elAfiT6ETDqcDQeefRSXgrWZWToVuWKd8L058NtgVbsFQz9WlkY
-         8PtY6hQYAjuny8GfuXUqSrmFbarVxmbhlwhHTYq4=
+        b=J2JSjJSQYYiFaFgJ7AJztaa/30yiJiMY1w+2Ycci5OS+k5lUNIW68r8seruIc5mTl
+         uRQmWz4nHao/qGkQEO1GNEPMa8/tt44MmxrIyeqUimaomcix3sVv8gZWppJxHU2b5c
+         q2oMwBi4YK7UhJVWNzL/ond8iUl4opsYAMelyR/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/422] ASoC: dpcm: Properly initialise hw->rate_max
-Date:   Tue, 19 Nov 2019 06:14:24 +0100
-Message-Id: <20191119051404.009279032@linuxfoundation.org>
+Subject: [PATCH 4.19 068/422] ASoC: meson: axg-fifo: report interrupt request failure
+Date:   Tue, 19 Nov 2019 06:14:25 +0100
+Message-Id: <20191119051404.060509734@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -45,40 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit e33ffbd9cd39da09831ce62c11025d830bf78d9e ]
+[ Upstream commit dadfab7272b13ca441efdb9aa9117bc669680b05 ]
 
-If the CPU DAI does not initialise rate_max, say if using
-using KNOT or CONTINUOUS, then the rate_max field will be
-initialised to 0. A value of zero in the rate_max field of
-the hardware runtime will cause the sound card to support no
-sample rates at all. Obviously this is not desired, just a
-different mechanism is being used to apply the constraints. As
-such update the setting of rate_max in dpcm_init_runtime_hw
-to be consistent with the non-DPCM cases and set rate_max to
-UINT_MAX if nothing is defined on the CPU DAI.
+Return value of request_irq() was irgnored. Fix this and report
+the failure if any
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Fixes: 6dc4fa179fb8 ("ASoC: meson: add axg fifo base driver")
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/meson/axg-fifo.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 6566c8831a965..551bfc581fc12 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1683,7 +1683,7 @@ static void dpcm_init_runtime_hw(struct snd_pcm_runtime *runtime,
- 				 struct snd_soc_pcm_stream *stream)
- {
- 	runtime->hw.rate_min = stream->rate_min;
--	runtime->hw.rate_max = stream->rate_max;
-+	runtime->hw.rate_max = min_not_zero(stream->rate_max, UINT_MAX);
- 	runtime->hw.channels_min = stream->channels_min;
- 	runtime->hw.channels_max = stream->channels_max;
- 	if (runtime->hw.formats)
+diff --git a/sound/soc/meson/axg-fifo.c b/sound/soc/meson/axg-fifo.c
+index 30262550e37b1..0e4f65e654c4b 100644
+--- a/sound/soc/meson/axg-fifo.c
++++ b/sound/soc/meson/axg-fifo.c
+@@ -203,6 +203,8 @@ static int axg_fifo_pcm_open(struct snd_pcm_substream *ss)
+ 
+ 	ret = request_irq(fifo->irq, axg_fifo_pcm_irq_block, 0,
+ 			  dev_name(dev), ss);
++	if (ret)
++		return ret;
+ 
+ 	/* Enable pclk to access registers and clock the fifo ip */
+ 	ret = clk_prepare_enable(fifo->pclk);
 -- 
 2.20.1
 
