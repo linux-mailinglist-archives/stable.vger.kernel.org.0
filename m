@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 652A0101726
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB78B1017BD
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:03:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730020AbfKSFsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:48:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
+        id S1729979AbfKSFj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:39:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731405AbfKSFsn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:48:43 -0500
+        id S1729029AbfKSFjz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:39:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9451F2071B;
-        Tue, 19 Nov 2019 05:48:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15284208C3;
+        Tue, 19 Nov 2019 05:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142523;
-        bh=rsIFastpJJlICg4cAEuQV+rAu0HcIDPMReFk86IgpQY=;
+        s=default; t=1574141994;
+        bh=AaJ/mLERXI2BGShxQaRJWcyC7zaq2lLv8vFC69G+pfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cF8bMDlR23zzv4Ogs0zdngIjzXNKw7QMClnhAd68fEILJuNlREwf6pA0Ze0zFLm2n
-         WsEFPkGV4/eZEzWoXwRyLbfNB8dwlfM1BjKFwyMLjRP2jTrCeOBTAfrgfjHGN+88lI
-         7TjTlUyjmo7GW+lMNyQ+x2nu4+FMTcSJBUiFKk50=
+        b=AKzYOh//kxh9GSnW1xCYcpIeUsu2EzSyVNttwyK2G1R3XoPOTx+tF1qtE6JntH2xq
+         ylvygpXODpkqNa/S+yJhn4M5ONx37Lt6SSRYHvb1hMqa0jo4cU0cEK0TF4BdieqlIE
+         9gKUdXpSLSv4M3/GZ3/qObS2+uAx48nTVefp4wMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 110/239] ALSA: intel8x0m: Register irq handler after register initializations
-Date:   Tue, 19 Nov 2019 06:18:30 +0100
-Message-Id: <20191119051327.668300821@linuxfoundation.org>
+        stable@vger.kernel.org, Keith Busch <keith.busch@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sinan Kaya <okaya@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 314/422] PCI/AER: Dont read upstream ports below fatal errors
+Date:   Tue, 19 Nov 2019 06:18:31 +0100
+Message-Id: <20191119051419.342944237@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Keith Busch <keith.busch@intel.com>
 
-[ Upstream commit 7064f376d4a10686f51c879401a569bb4babf9c6 ]
+[ Upstream commit 9d938ea53b265ed6df6cdd1715d971f0235fdbfc ]
 
-The interrupt handler has to be acquired after the other resource
-initialization when allocated with IRQF_SHARED.  Otherwise it's
-triggered before the resource gets ready, and may lead to unpleasant
-behavior.
+The AER driver has never read the config space of an endpoint that reported
+a fatal error because the link to that device is considered unreliable.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+An ERR_FATAL from an upstream port almost certainly indicates an error on
+its upstream link, so we can't expect to reliably read its config space for
+the same reason.
+
+Signed-off-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Sinan Kaya <okaya@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/intel8x0m.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/pci/pcie/aer.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/intel8x0m.c b/sound/pci/intel8x0m.c
-index 3a4769a97d290..a626ee18628ea 100644
---- a/sound/pci/intel8x0m.c
-+++ b/sound/pci/intel8x0m.c
-@@ -1171,16 +1171,6 @@ static int snd_intel8x0m_create(struct snd_card *card,
- 	}
+diff --git a/drivers/pci/pcie/aer.c b/drivers/pci/pcie/aer.c
+index ffbbd759683c5..5c3ea7254c6ae 100644
+--- a/drivers/pci/pcie/aer.c
++++ b/drivers/pci/pcie/aer.c
+@@ -1116,8 +1116,9 @@ int aer_get_device_error_info(struct pci_dev *dev, struct aer_err_info *info)
+ 			&info->mask);
+ 		if (!(info->status & ~info->mask))
+ 			return 0;
+-	} else if (dev->hdr_type == PCI_HEADER_TYPE_BRIDGE ||
+-		info->severity == AER_NONFATAL) {
++	} else if (pci_pcie_type(dev) == PCI_EXP_TYPE_ROOT_PORT ||
++	           pci_pcie_type(dev) == PCI_EXP_TYPE_DOWNSTREAM ||
++		   info->severity == AER_NONFATAL) {
  
-  port_inited:
--	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
--			KBUILD_MODNAME, chip)) {
--		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
--		snd_intel8x0m_free(chip);
--		return -EBUSY;
--	}
--	chip->irq = pci->irq;
--	pci_set_master(pci);
--	synchronize_irq(chip->irq);
--
- 	/* initialize offsets */
- 	chip->bdbars_count = 2;
- 	tbl = intel_regs;
-@@ -1224,11 +1214,21 @@ static int snd_intel8x0m_create(struct snd_card *card,
- 	chip->int_sta_reg = ICH_REG_GLOB_STA;
- 	chip->int_sta_mask = int_sta_masks;
- 
-+	pci_set_master(pci);
-+
- 	if ((err = snd_intel8x0m_chip_init(chip, 1)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
- 	}
- 
-+	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
-+			KBUILD_MODNAME, chip)) {
-+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
-+		snd_intel8x0m_free(chip);
-+		return -EBUSY;
-+	}
-+	chip->irq = pci->irq;
-+
- 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
+ 		/* Link is still healthy for IO reads */
+ 		pci_read_config_dword(dev, pos + PCI_ERR_UNCOR_STATUS,
 -- 
 2.20.1
 
