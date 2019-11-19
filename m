@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70F8A1018DF
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC83101898
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727352AbfKSGKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:10:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43770 "EHLO mail.kernel.org"
+        id S1727860AbfKSFZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:25:55 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727841AbfKSFZw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:25:52 -0500
+        id S1728466AbfKSFZy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:25:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ACF5B21823;
-        Tue, 19 Nov 2019 05:25:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 70941222DC;
+        Tue, 19 Nov 2019 05:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141151;
-        bh=XNLzB284cpGHfHfz5gqLU1Vm8NUPYzDzyp/DCxDsOQM=;
+        s=default; t=1574141153;
+        bh=GQey7TwbKvULlRfhwuWfjNyOcIhpTbmyqmXpesqkp0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=law7ipEqKmmCYlA0Y4n4OVkavXGwa/Sjp1yLOHN5FgQGbgwILXC4I7kCU4tEpwLjL
-         IvLU+foauMJ+M6Gnpye/abJSIpIoOl2LriT4Bifd5LW+tOy09tqMlOPKyAIV/t49ob
-         OQTbBFveEsoJbQCYVB0bAGU36KpgHOrUG4wakAwc=
+        b=HKRv6ewWJVV9TD30hEhrMYVyratk9RlewdhSvWRiHAvBaEHax6Gb8Dl4tgrKcHr9Y
+         yBMv6vLKZ8GdmGL5geSb+m6Ut8lYl06r00HIorj/gQM7w4wdqNLUXe7Y5s/bNXmxuN
+         YNCZmVwN1D8WMpKhjait1TnwtDUKGSvIaXa/a+OU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/422] ice: Prevent control queue operations during reset
-Date:   Tue, 19 Nov 2019 06:14:20 +0100
-Message-Id: <20191119051403.783565468@linuxfoundation.org>
+Subject: [PATCH 4.19 064/422] gfs2: Dont set GFS2_RDF_UPTODATE when the lvb is updated
+Date:   Tue, 19 Nov 2019 06:14:21 +0100
+Message-Id: <20191119051403.840934993@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,144 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit fd2a981777d911b2e94cdec50779c85c58a0dec9 ]
+[ Upstream commit 4f36cb36c9d14340bb200d2ad9117b03ce992cfe ]
 
-Once reset is issued, the driver loses all control queue interfaces.
-Exercising control queue operations during reset is incorrect and
-may result in long timeouts.
+The GFS2_RDF_UPTODATE flag in the rgrp is used to determine when
+a rgrp buffer is valid. It's cleared when the glock is invalidated,
+signifying that the buffer data is now invalid. But before this
+patch, function update_rgrp_lvb was setting the flag when it
+determined it had a valid lvb. But that's an invalid assumption:
+just because you have a valid lvb doesn't mean you have valid
+buffers. After all, another node may have made the lvb valid,
+and this node just fetched it from the glock via dlm.
 
-This patch introduces a new field 'reset_ongoing' in the hw structure.
-This is set to 1 by the core driver when it receives a reset interrupt.
-ice_sq_send_cmd checks reset_ongoing before actually issuing the control
-queue operation. If a reset is in progress, it returns a soft error code
-(ICE_ERR_RESET_PENDING) to the caller. The caller may or may not have to
-take any action based on this return. Once the driver knows that the
-reset is done, it has to set reset_ongoing back to 0. This will allow
-control queue operations to be posted to the hardware again.
+Consider this scenario:
+1. The file system is mounted with RGRPLVB option.
+2. In gfs2_inplace_reserve it locks the rgrp glock EX, but thanks
+   to GL_SKIP, it skips the gfs2_rgrp_bh_get.
+3. Since loops == 0 and the allocation target (ap->target) is
+   bigger than the largest known chunk of blocks in the rgrp
+   (rs->rs_rbm.rgd->rd_extfail_pt) it skips that rgrp and bypasses
+   the call to gfs2_rgrp_bh_get there as well.
+4. update_rgrp_lvb sees the lvb MAGIC number is valid, so bypasses
+   gfs2_rgrp_bh_get, but it still sets sets GFS2_RDF_UPTODATE due
+   to this invalid assumption.
+5. The next time update_rgrp_lvb is called, it sees the bit is set
+   and just returns 0, assuming both the lvb and rgrp are both
+   uptodate. But since this is a smaller allocation, or space has
+   been freed by another node, thus adjusting the lvb values,
+   it decides to use the rgrp for allocations, with invalid rd_free
+   due to the fact it was never updated.
 
-This "bail out" logic was specifically added to ice_sq_send_cmd (which
-is pretty low level function) so that we have one solution in one place
-that applies to all types of control queues.
+This patch changes update_rgrp_lvb so it doesn't set the UPTODATE
+flag anymore. That way, it has no choice but to fetch the latest
+values.
 
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_controlq.c |  3 ++
- drivers/net/ethernet/intel/ice/ice_main.c     | 34 ++++++++++++++++---
- drivers/net/ethernet/intel/ice/ice_status.h   |  1 +
- drivers/net/ethernet/intel/ice/ice_type.h     |  1 +
- 4 files changed, 34 insertions(+), 5 deletions(-)
+ fs/gfs2/rgrp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_controlq.c b/drivers/net/ethernet/intel/ice/ice_controlq.c
-index e783976c401d8..89f18fe18fe36 100644
---- a/drivers/net/ethernet/intel/ice/ice_controlq.c
-+++ b/drivers/net/ethernet/intel/ice/ice_controlq.c
-@@ -814,6 +814,9 @@ ice_sq_send_cmd(struct ice_hw *hw, struct ice_ctl_q_info *cq,
- 	u16 retval = 0;
- 	u32 val = 0;
- 
-+	/* if reset is in progress return a soft error */
-+	if (hw->reset_ongoing)
-+		return ICE_ERR_RESET_ONGOING;
- 	mutex_lock(&cq->sq_lock);
- 
- 	cq->sq_last_status = ICE_AQ_RC_OK;
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 875f97aba6e0d..e1f95e7a51393 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -535,10 +535,13 @@ static void ice_reset_subtask(struct ice_pf *pf)
- 		ice_prepare_for_reset(pf);
- 
- 		/* make sure we are ready to rebuild */
--		if (ice_check_reset(&pf->hw))
-+		if (ice_check_reset(&pf->hw)) {
- 			set_bit(__ICE_RESET_FAILED, pf->state);
--		else
-+		} else {
-+			/* done with reset. start rebuild */
-+			pf->hw.reset_ongoing = false;
- 			ice_rebuild(pf);
-+		}
- 		clear_bit(__ICE_RESET_RECOVERY_PENDING, pf->state);
- 		goto unlock;
- 	}
-@@ -1757,7 +1760,8 @@ static irqreturn_t ice_misc_intr(int __always_unused irq, void *data)
- 		 * We also make note of which reset happened so that peer
- 		 * devices/drivers can be informed.
- 		 */
--		if (!test_bit(__ICE_RESET_RECOVERY_PENDING, pf->state)) {
-+		if (!test_and_set_bit(__ICE_RESET_RECOVERY_PENDING,
-+				      pf->state)) {
- 			if (reset == ICE_RESET_CORER)
- 				set_bit(__ICE_CORER_RECV, pf->state);
- 			else if (reset == ICE_RESET_GLOBR)
-@@ -1765,7 +1769,20 @@ static irqreturn_t ice_misc_intr(int __always_unused irq, void *data)
- 			else
- 				set_bit(__ICE_EMPR_RECV, pf->state);
- 
--			set_bit(__ICE_RESET_RECOVERY_PENDING, pf->state);
-+			/* There are couple of different bits at play here.
-+			 * hw->reset_ongoing indicates whether the hardware is
-+			 * in reset. This is set to true when a reset interrupt
-+			 * is received and set back to false after the driver
-+			 * has determined that the hardware is out of reset.
-+			 *
-+			 * __ICE_RESET_RECOVERY_PENDING in pf->state indicates
-+			 * that a post reset rebuild is required before the
-+			 * driver is operational again. This is set above.
-+			 *
-+			 * As this is the start of the reset/rebuild cycle, set
-+			 * both to indicate that.
-+			 */
-+			hw->reset_ongoing = true;
- 		}
- 	}
- 
-@@ -4188,7 +4205,14 @@ static int ice_vsi_stop_tx_rings(struct ice_vsi *vsi)
- 	}
- 	status = ice_dis_vsi_txq(vsi->port_info, vsi->num_txq, q_ids, q_teids,
- 				 NULL);
--	if (status) {
-+	/* if the disable queue command was exercised during an active reset
-+	 * flow, ICE_ERR_RESET_ONGOING is returned. This is not an error as
-+	 * the reset operation disables queues at the hardware level anyway.
-+	 */
-+	if (status == ICE_ERR_RESET_ONGOING) {
-+		dev_dbg(&pf->pdev->dev,
-+			"Reset in progress. LAN Tx queues already disabled\n");
-+	} else if (status) {
- 		dev_err(&pf->pdev->dev,
- 			"Failed to disable LAN Tx queues, error: %d\n",
- 			status);
-diff --git a/drivers/net/ethernet/intel/ice/ice_status.h b/drivers/net/ethernet/intel/ice/ice_status.h
-index 9a95c4ffd7d79..d2dae913d81e0 100644
---- a/drivers/net/ethernet/intel/ice/ice_status.h
-+++ b/drivers/net/ethernet/intel/ice/ice_status.h
-@@ -20,6 +20,7 @@ enum ice_status {
- 	ICE_ERR_ALREADY_EXISTS			= -14,
- 	ICE_ERR_DOES_NOT_EXIST			= -15,
- 	ICE_ERR_MAX_LIMIT			= -17,
-+	ICE_ERR_RESET_ONGOING			= -18,
- 	ICE_ERR_BUF_TOO_SHORT			= -52,
- 	ICE_ERR_NVM_BLANK_MODE			= -53,
- 	ICE_ERR_AQ_ERROR			= -100,
-diff --git a/drivers/net/ethernet/intel/ice/ice_type.h b/drivers/net/ethernet/intel/ice/ice_type.h
-index a509fe5f1e543..5ca9d684429d1 100644
---- a/drivers/net/ethernet/intel/ice/ice_type.h
-+++ b/drivers/net/ethernet/intel/ice/ice_type.h
-@@ -293,6 +293,7 @@ struct ice_hw {
- 	u8 sw_entry_point_layer;
- 
- 	u8 evb_veb;		/* true for VEB, false for VEPA */
-+	u8 reset_ongoing;	/* true if hw is in reset, false otherwise */
- 	struct ice_bus_info bus;
- 	struct ice_nvm_info nvm;
- 	struct ice_hw_dev_caps dev_caps;	/* device capabilities */
+diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
+index 449d0cb45a845..63e5387c84d26 100644
+--- a/fs/gfs2/rgrp.c
++++ b/fs/gfs2/rgrp.c
+@@ -1227,7 +1227,7 @@ static int update_rgrp_lvb(struct gfs2_rgrpd *rgd)
+ 	rl_flags = be32_to_cpu(rgd->rd_rgl->rl_flags);
+ 	rl_flags &= ~GFS2_RDF_MASK;
+ 	rgd->rd_flags &= GFS2_RDF_MASK;
+-	rgd->rd_flags |= (rl_flags | GFS2_RDF_UPTODATE | GFS2_RDF_CHECK);
++	rgd->rd_flags |= (rl_flags | GFS2_RDF_CHECK);
+ 	if (rgd->rd_rgl->rl_unlinked == 0)
+ 		rgd->rd_flags &= ~GFS2_RDF_CHECK;
+ 	rgd->rd_free = be32_to_cpu(rgd->rd_rgl->rl_free);
 -- 
 2.20.1
 
