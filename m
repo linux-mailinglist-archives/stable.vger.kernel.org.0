@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6DEB1017CE
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:04:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D608101733
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728044AbfKSGDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:03:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33416 "EHLO mail.kernel.org"
+        id S1731291AbfKSFuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:50:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730263AbfKSFjT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:39:19 -0500
+        id S1729360AbfKSFuA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:50:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D37F920721;
-        Tue, 19 Nov 2019 05:39:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4220420721;
+        Tue, 19 Nov 2019 05:49:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141959;
-        bh=2enzXx7lcGEUB/VfRd3pDz675b+yj6Xt/n4BUBuGZ00=;
+        s=default; t=1574142599;
+        bh=5x+LmrqeEnbeK59deb9In/L3b8XEmOiclhXJ0kY79ls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBVrgCysaK2tjWougu14Uw836ju+zzYc9yICNlkb+4tYXcxiDvM+qhxYhB9MCG79p
-         ytjlyABo3hAWdND0s27GkpkB+IpYxu7dOdY5ogOXxWPrrUcHK9lnmm9kBS9f6vOR4j
-         BryBWmuQM61KsL0njHmHTu/uWPre1XKZLn/f4H0g=
+        b=HixryGg8TxajsG49XKkL9Wft2bdVBCLKY8A1Pwulw4fx3htUm5gylmj6tQGJ1+Fov
+         wRO+jNJYrZ84BUHxlCbOIriDAZY0E9fRM1u1OLlgN3Y6AmTsNO4ZFI/plllyl5twAP
+         HJ5EajW5pxEBimVg84M7Cx4nRf0cLnmiXgsoc++E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Corey Minyard <cminyard@mvista.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 339/422] phy: renesas: rcar-gen3-usb2: fix vbus_ctrl for role sysfs
-Date:   Tue, 19 Nov 2019 06:18:56 +0100
-Message-Id: <20191119051420.984413140@linuxfoundation.org>
+Subject: [PATCH 4.14 137/239] ipmi:dmi: Ignore IPMI SMBIOS entries with a zero base address
+Date:   Tue, 19 Nov 2019 06:18:57 +0100
+Message-Id: <20191119051331.291215311@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Corey Minyard <cminyard@mvista.com>
 
-[ Upstream commit 09938ea9d136243e8d1fed6d4d7a257764f28f6d ]
+[ Upstream commit 1574608f5f4204440d6d9f52b971aba967664764 ]
 
-This patch fixes and issue that the vbus_ctrl is disabled by
-rcar_gen3_init_from_a_peri_to_a_host(), so a usb host cannot
-supply the vbus.
+Looking at logs from systems all over the place, it looks like tons
+of broken systems exist that set the base address to zero.  I can
+only guess that is some sort of non-standard idea to mark the
+interface as not being present.  It can't be zero, anyway, so just
+complain and ignore it.
 
-Note that this condition will exit when the otg irq happens
-even if we don't apply this patch.
-
-Fixes: 9bb86777fb71 ("phy: rcar-gen3-usb2: add sysfs for usb role swap")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Corey Minyard <cminyard@mvista.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/renesas/phy-rcar-gen3-usb2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/ipmi/ipmi_dmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/phy/renesas/phy-rcar-gen3-usb2.c b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-index 6fb2b69695905..d22b1ec2e58c7 100644
---- a/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-+++ b/drivers/phy/renesas/phy-rcar-gen3-usb2.c
-@@ -199,7 +199,7 @@ static void rcar_gen3_init_from_a_peri_to_a_host(struct rcar_gen3_chan *ch)
- 	val = readl(usb2_base + USB2_OBINTEN);
- 	writel(val & ~USB2_OBINT_BITS, usb2_base + USB2_OBINTEN);
+diff --git a/drivers/char/ipmi/ipmi_dmi.c b/drivers/char/ipmi/ipmi_dmi.c
+index c3a23ec3e76f7..a37d9794170cc 100644
+--- a/drivers/char/ipmi/ipmi_dmi.c
++++ b/drivers/char/ipmi/ipmi_dmi.c
+@@ -197,6 +197,10 @@ static void __init dmi_decode_ipmi(const struct dmi_header *dm)
+ 	slave_addr = data[DMI_IPMI_SLAVEADDR];
  
--	rcar_gen3_enable_vbus_ctrl(ch, 0);
-+	rcar_gen3_enable_vbus_ctrl(ch, 1);
- 	rcar_gen3_init_for_host(ch);
- 
- 	writel(val | USB2_OBINT_BITS, usb2_base + USB2_OBINTEN);
+ 	memcpy(&base_addr, data + DMI_IPMI_ADDR, sizeof(unsigned long));
++	if (!base_addr) {
++		pr_err("Base address is zero, assuming no IPMI interface\n");
++		return;
++	}
+ 	if (len >= DMI_IPMI_VER2_LENGTH) {
+ 		if (type == IPMI_DMI_TYPE_SSIF) {
+ 			offset = 0;
 -- 
 2.20.1
 
