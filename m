@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F19101647
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:51:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17DD7101649
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:51:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730941AbfKSFvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:51:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49274 "EHLO mail.kernel.org"
+        id S1731839AbfKSFvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:51:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731839AbfKSFvq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:51:46 -0500
+        id S1731843AbfKSFvt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:51:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11F8D21783;
-        Tue, 19 Nov 2019 05:51:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38EE6208C3;
+        Tue, 19 Nov 2019 05:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142705;
-        bh=63nU4fdCgX2p8UUb5OJm+yB5Xgb0CqU3zNEb9oVmn4Y=;
+        s=default; t=1574142708;
+        bh=2Ryiu54J7RjdKSMXF03LaKQ2DIslLnR9lwAhh7kigR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/BnRmczu+NpPpYmd4lv1IKQelcKPZJUvdkeTVZ1YUpFmUsjX/fCkWNTv2+5xNZfL
-         YUwZbJqaLAeHpY/7r17mf5DuZenPRJedE3nc2YS+TfyVnzEW2Y+mSX8F3oC2oZRLOk
-         x5eykw1+Ib+Xwm1aP4diX9RzxsFroJyLnLjn8XcA=
+        b=en3qPCVROYEmx0OoprYHXcbE0j+rSXkJfGg5wdHo5S9M/ixWJxl64MTYKvMs0alB5
+         ZXOiQ0MK8+GGrqgF2UeAJKjUeRDN+XS/vBfIhbjonBk+XvHia/KzXjc1wjrRSlzBie
+         hbG5husIqJS6olvXgKhGyEgdDFac8k7CBepRY6WA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Kelley <mikelley@microsoft.com>,
-        Sinan Kaya <okaya@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Nava kishore Manne <navam@xilinx.com>,
+        Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 131/239] PCI/ACPI: Correct error message for ASPM disabling
-Date:   Tue, 19 Nov 2019 06:18:51 +0100
-Message-Id: <20191119051330.707132807@linuxfoundation.org>
+Subject: [PATCH 4.14 132/239] serial: uartps: Fix suspend functionality
+Date:   Tue, 19 Nov 2019 06:18:52 +0100
+Message-Id: <20191119051330.773039084@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -45,41 +44,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sinan Kaya <okaya@kernel.org>
+From: Nava kishore Manne <nava.manne@xilinx.com>
 
-[ Upstream commit 1ad61b612b95980a4d970c52022aa01dfc0f6068 ]
+[ Upstream commit 4b9d33c6a30688344a3e95179654ea31b07f59b7 ]
 
-If _OSC execution fails today for platforms without an _OSC entry, code is
-printing a misleading message saying disabling ASPM as follows:
+The driver's suspend/resume functions were buggy.
+If UART node contains any child node in the DT and
+the child is established a communication path with
+the parent UART. The relevant /dev/ttyPS* node will
+be not available for other operations.
+If the driver is trying to do any operations like
+suspend/resume without checking the tty->dev status
+it leads to the kernel crash/hang.
 
-  acpi PNP0A03:00: _OSC failed (AE_NOT_FOUND); disabling ASPM
+This patch fix this issue by call the device_may_wake()
+with the generic parameter of type struct device.
+in the uart suspend and resume paths.
 
-We need to ensure that platform supports ASPM to begin with.
+It also fixes a race condition in the uart suspend
+path(i.e uart_suspend_port() should be called at the
+end of cdns_uart_suspend API this path updates the same)
 
-Reported-by: Michael Kelley <mikelley@microsoft.com>
-Signed-off-by: Sinan Kaya <okaya@kernel.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Nava kishore Manne <navam@xilinx.com>
+Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/pci_root.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/tty/serial/xilinx_uartps.c | 41 +++++++++---------------------
+ 1 file changed, 12 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/acpi/pci_root.c b/drivers/acpi/pci_root.c
-index eb857d6ea1fef..96911360a28e7 100644
---- a/drivers/acpi/pci_root.c
-+++ b/drivers/acpi/pci_root.c
-@@ -454,8 +454,9 @@ static void negotiate_os_control(struct acpi_pci_root *root, int *no_aspm)
- 	decode_osc_support(root, "OS supports", support);
- 	status = acpi_pci_osc_support(root, support);
- 	if (ACPI_FAILURE(status)) {
--		dev_info(&device->dev, "_OSC failed (%s); disabling ASPM\n",
--			 acpi_format_exception(status));
-+		dev_info(&device->dev, "_OSC failed (%s)%s\n",
-+			 acpi_format_exception(status),
-+			 pcie_aspm_support_enabled() ? "; disabling ASPM" : "");
- 		*no_aspm = 1;
- 		return;
+diff --git a/drivers/tty/serial/xilinx_uartps.c b/drivers/tty/serial/xilinx_uartps.c
+index b0da63737aa19..0dbfd02e3b196 100644
+--- a/drivers/tty/serial/xilinx_uartps.c
++++ b/drivers/tty/serial/xilinx_uartps.c
+@@ -1342,24 +1342,11 @@ static struct uart_driver cdns_uart_uart_driver = {
+ static int cdns_uart_suspend(struct device *device)
+ {
+ 	struct uart_port *port = dev_get_drvdata(device);
+-	struct tty_struct *tty;
+-	struct device *tty_dev;
+-	int may_wake = 0;
+-
+-	/* Get the tty which could be NULL so don't assume it's valid */
+-	tty = tty_port_tty_get(&port->state->port);
+-	if (tty) {
+-		tty_dev = tty->dev;
+-		may_wake = device_may_wakeup(tty_dev);
+-		tty_kref_put(tty);
+-	}
++	int may_wake;
+ 
+-	/*
+-	 * Call the API provided in serial_core.c file which handles
+-	 * the suspend.
+-	 */
+-	uart_suspend_port(&cdns_uart_uart_driver, port);
+-	if (!(console_suspend_enabled && !may_wake)) {
++	may_wake = device_may_wakeup(device);
++
++	if (console_suspend_enabled && may_wake) {
+ 		unsigned long flags = 0;
+ 
+ 		spin_lock_irqsave(&port->lock, flags);
+@@ -1374,7 +1361,11 @@ static int cdns_uart_suspend(struct device *device)
+ 		spin_unlock_irqrestore(&port->lock, flags);
  	}
+ 
+-	return 0;
++	/*
++	 * Call the API provided in serial_core.c file which handles
++	 * the suspend.
++	 */
++	return uart_suspend_port(&cdns_uart_uart_driver, port);
+ }
+ 
+ /**
+@@ -1388,17 +1379,9 @@ static int cdns_uart_resume(struct device *device)
+ 	struct uart_port *port = dev_get_drvdata(device);
+ 	unsigned long flags = 0;
+ 	u32 ctrl_reg;
+-	struct tty_struct *tty;
+-	struct device *tty_dev;
+-	int may_wake = 0;
+-
+-	/* Get the tty which could be NULL so don't assume it's valid */
+-	tty = tty_port_tty_get(&port->state->port);
+-	if (tty) {
+-		tty_dev = tty->dev;
+-		may_wake = device_may_wakeup(tty_dev);
+-		tty_kref_put(tty);
+-	}
++	int may_wake;
++
++	may_wake = device_may_wakeup(device);
+ 
+ 	if (console_suspend_enabled && !may_wake) {
+ 		struct cdns_uart *cdns_uart = port->private_data;
 -- 
 2.20.1
 
