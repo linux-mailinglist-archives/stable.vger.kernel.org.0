@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D689101659
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECDF81016E1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:57:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731900AbfKSFwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:52:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49998 "EHLO mail.kernel.org"
+        id S1731586AbfKSFw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:52:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731297AbfKSFwT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:52:19 -0500
+        id S1731891AbfKSFwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:52:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA71320721;
-        Tue, 19 Nov 2019 05:52:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BBFB20862;
+        Tue, 19 Nov 2019 05:52:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142738;
-        bh=1i+vQmOAwXrZq0x2DsTWc7B130SaqeQXm6f1QAqJXH0=;
+        s=default; t=1574142741;
+        bh=SgPrO7ugVJyhINURkWlDfRVDXn1Vdmrw7OE7L8HeNAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WW+0H9ZD/4ecQyXXkQO/76dN09CzjnhXGqSw5rJu2DCSo9sS8EfRyK/TtF2cbu1W8
-         4mAMa+P0gdlbaDCqpWE+jGMNKiD6hFB+gVKDxcQKK41eLF4KF2PSYKu0b2BuJT1Ul8
-         8xcJUaN07s44nwhlAYSX5JTMOVSkF7qlGOfhcsmc=
+        b=mP8qMuiOfte6Axn+2UmhBQE642GEVDpm63Z370l/sszuT0o9beTQks9jevDUNyQ2S
+         NZRMbgmCzWHpfaPi708J06Pyk9rChnNmO5oJuwt8L9Fal5mXWlq31P9ea3/MZ+wbH4
+         i9MbxWz1gI2LAMxbhP1J5J5NoMHPqIZAEpY4p0EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joel Pepper <joel.pepper@rwth-aachen.de>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 184/239] usb: gadget: uvc: configfs: Prevent format changes after linking header
-Date:   Tue, 19 Nov 2019 06:19:44 +0100
-Message-Id: <20191119051334.983203021@linuxfoundation.org>
+Subject: [PATCH 4.14 185/239] i2c: aspeed: fix invalid clock parameters for very large divisors
+Date:   Tue, 19 Nov 2019 06:19:45 +0100
+Message-Id: <20191119051335.060834185@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -45,44 +46,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joel Pepper <joel.pepper@rwth-aachen.de>
+From: Brendan Higgins <brendanhiggins@google.com>
 
-[ Upstream commit cb2200f7af8341aaf0c6abd7ba37e4c667c41639 ]
+[ Upstream commit 17ccba67109cd0631f206cf49e17986218b47854 ]
 
-While checks are in place to avoid attributes and children of a format
-being manipulated after the format is linked into the streaming header,
-the linked flag was never actually set, invalidating the protections.
-Update the flag as appropriate in the header link calls.
+The function that computes clock parameters from divisors did not
+respect the maximum size of the bitfields that the parameters were
+written to. This fixes the bug.
 
-Signed-off-by: Joel Pepper <joel.pepper@rwth-aachen.de>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+This bug can be reproduced with (and this fix verified with) the test
+at: https://kunit-review.googlesource.com/c/linux/+/1035/
+
+Discovered-by-KUnit: https://kunit-review.googlesource.com/c/linux/+/1035/
+Signed-off-by: Brendan Higgins <brendanhiggins@google.com>
+Reviewed-by: Jae Hyun Yoo <jae.hyun.yoo@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_configfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/i2c/busses/i2c-aspeed.c | 65 +++++++++++++++++++++++----------
+ 1 file changed, 45 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_configfs.c b/drivers/usb/gadget/function/uvc_configfs.c
-index fc604439b25a1..57f6e8a668cf5 100644
---- a/drivers/usb/gadget/function/uvc_configfs.c
-+++ b/drivers/usb/gadget/function/uvc_configfs.c
-@@ -765,6 +765,7 @@ static int uvcg_streaming_header_allow_link(struct config_item *src,
- 	format_ptr->fmt = target_fmt;
- 	list_add_tail(&format_ptr->entry, &src_hdr->formats);
- 	++src_hdr->num_fmt;
-+	++target_fmt->linked;
+diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+index a074735456bc7..29574b9075fd7 100644
+--- a/drivers/i2c/busses/i2c-aspeed.c
++++ b/drivers/i2c/busses/i2c-aspeed.c
+@@ -135,7 +135,8 @@ struct aspeed_i2c_bus {
+ 	/* Synchronizes I/O mem access to base. */
+ 	spinlock_t			lock;
+ 	struct completion		cmd_complete;
+-	u32				(*get_clk_reg_val)(u32 divisor);
++	u32				(*get_clk_reg_val)(struct device *dev,
++							   u32 divisor);
+ 	unsigned long			parent_clk_frequency;
+ 	u32				bus_frequency;
+ 	/* Transaction state. */
+@@ -679,16 +680,27 @@ static const struct i2c_algorithm aspeed_i2c_algo = {
+ #endif /* CONFIG_I2C_SLAVE */
+ };
  
- out:
- 	mutex_unlock(&opts->lock);
-@@ -802,6 +803,8 @@ static void uvcg_streaming_header_drop_link(struct config_item *src,
- 			break;
- 		}
- 
-+	--target_fmt->linked;
+-static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
++static u32 aspeed_i2c_get_clk_reg_val(struct device *dev,
++				      u32 clk_high_low_mask,
++				      u32 divisor)
+ {
+-	u32 base_clk, clk_high, clk_low, tmp;
++	u32 base_clk_divisor, clk_high_low_max, clk_high, clk_low, tmp;
 +
- out:
- 	mutex_unlock(&opts->lock);
- 	mutex_unlock(su_mutex);
++	/*
++	 * SCL_high and SCL_low represent a value 1 greater than what is stored
++	 * since a zero divider is meaningless. Thus, the max value each can
++	 * store is every bit set + 1. Since SCL_high and SCL_low are added
++	 * together (see below), the max value of both is the max value of one
++	 * them times two.
++	 */
++	clk_high_low_max = (clk_high_low_mask + 1) * 2;
+ 
+ 	/*
+ 	 * The actual clock frequency of SCL is:
+ 	 *	SCL_freq = APB_freq / (base_freq * (SCL_high + SCL_low))
+ 	 *		 = APB_freq / divisor
+ 	 * where base_freq is a programmable clock divider; its value is
+-	 *	base_freq = 1 << base_clk
++	 *	base_freq = 1 << base_clk_divisor
+ 	 * SCL_high is the number of base_freq clock cycles that SCL stays high
+ 	 * and SCL_low is the number of base_freq clock cycles that SCL stays
+ 	 * low for a period of SCL.
+@@ -698,47 +710,59 @@ static u32 aspeed_i2c_get_clk_reg_val(u32 clk_high_low_max, u32 divisor)
+ 	 *	SCL_low	 = clk_low + 1
+ 	 * Thus,
+ 	 *	SCL_freq = APB_freq /
+-	 *		((1 << base_clk) * (clk_high + 1 + clk_low + 1))
++	 *		((1 << base_clk_divisor) * (clk_high + 1 + clk_low + 1))
+ 	 * The documentation recommends clk_high >= clk_high_max / 2 and
+ 	 * clk_low >= clk_low_max / 2 - 1 when possible; this last constraint
+ 	 * gives us the following solution:
+ 	 */
+-	base_clk = divisor > clk_high_low_max ?
++	base_clk_divisor = divisor > clk_high_low_max ?
+ 			ilog2((divisor - 1) / clk_high_low_max) + 1 : 0;
+-	tmp = (divisor + (1 << base_clk) - 1) >> base_clk;
+-	clk_low = tmp / 2;
+-	clk_high = tmp - clk_low;
+ 
+-	if (clk_high)
+-		clk_high--;
++	if (base_clk_divisor > ASPEED_I2CD_TIME_BASE_DIVISOR_MASK) {
++		base_clk_divisor = ASPEED_I2CD_TIME_BASE_DIVISOR_MASK;
++		clk_low = clk_high_low_mask;
++		clk_high = clk_high_low_mask;
++		dev_err(dev,
++			"clamping clock divider: divider requested, %u, is greater than largest possible divider, %u.\n",
++			divisor, (1 << base_clk_divisor) * clk_high_low_max);
++	} else {
++		tmp = (divisor + (1 << base_clk_divisor) - 1)
++				>> base_clk_divisor;
++		clk_low = tmp / 2;
++		clk_high = tmp - clk_low;
++
++		if (clk_high)
++			clk_high--;
+ 
+-	if (clk_low)
+-		clk_low--;
++		if (clk_low)
++			clk_low--;
++	}
+ 
+ 
+ 	return ((clk_high << ASPEED_I2CD_TIME_SCL_HIGH_SHIFT)
+ 		& ASPEED_I2CD_TIME_SCL_HIGH_MASK)
+ 			| ((clk_low << ASPEED_I2CD_TIME_SCL_LOW_SHIFT)
+ 			   & ASPEED_I2CD_TIME_SCL_LOW_MASK)
+-			| (base_clk & ASPEED_I2CD_TIME_BASE_DIVISOR_MASK);
++			| (base_clk_divisor
++			   & ASPEED_I2CD_TIME_BASE_DIVISOR_MASK);
+ }
+ 
+-static u32 aspeed_i2c_24xx_get_clk_reg_val(u32 divisor)
++static u32 aspeed_i2c_24xx_get_clk_reg_val(struct device *dev, u32 divisor)
+ {
+ 	/*
+ 	 * clk_high and clk_low are each 3 bits wide, so each can hold a max
+ 	 * value of 8 giving a clk_high_low_max of 16.
+ 	 */
+-	return aspeed_i2c_get_clk_reg_val(16, divisor);
++	return aspeed_i2c_get_clk_reg_val(dev, GENMASK(2, 0), divisor);
+ }
+ 
+-static u32 aspeed_i2c_25xx_get_clk_reg_val(u32 divisor)
++static u32 aspeed_i2c_25xx_get_clk_reg_val(struct device *dev, u32 divisor)
+ {
+ 	/*
+ 	 * clk_high and clk_low are each 4 bits wide, so each can hold a max
+ 	 * value of 16 giving a clk_high_low_max of 32.
+ 	 */
+-	return aspeed_i2c_get_clk_reg_val(32, divisor);
++	return aspeed_i2c_get_clk_reg_val(dev, GENMASK(3, 0), divisor);
+ }
+ 
+ /* precondition: bus.lock has been acquired. */
+@@ -751,7 +775,7 @@ static int aspeed_i2c_init_clk(struct aspeed_i2c_bus *bus)
+ 	clk_reg_val &= (ASPEED_I2CD_TIME_TBUF_MASK |
+ 			ASPEED_I2CD_TIME_THDSTA_MASK |
+ 			ASPEED_I2CD_TIME_TACST_MASK);
+-	clk_reg_val |= bus->get_clk_reg_val(divisor);
++	clk_reg_val |= bus->get_clk_reg_val(bus->dev, divisor);
+ 	writel(clk_reg_val, bus->base + ASPEED_I2C_AC_TIMING_REG1);
+ 	writel(ASPEED_NO_TIMEOUT_CTRL, bus->base + ASPEED_I2C_AC_TIMING_REG2);
+ 
+@@ -859,7 +883,8 @@ static int aspeed_i2c_probe_bus(struct platform_device *pdev)
+ 	if (!match)
+ 		bus->get_clk_reg_val = aspeed_i2c_24xx_get_clk_reg_val;
+ 	else
+-		bus->get_clk_reg_val = (u32 (*)(u32))match->data;
++		bus->get_clk_reg_val = (u32 (*)(struct device *, u32))
++				match->data;
+ 
+ 	/* Initialize the I2C adapter */
+ 	spin_lock_init(&bus->lock);
 -- 
 2.20.1
 
