@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC1E101909
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:12:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB8E110176C
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:02:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727719AbfKSFWW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:22:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37640 "EHLO mail.kernel.org"
+        id S1730509AbfKSFnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:43:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727675AbfKSFWU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:22:20 -0500
+        id S1730734AbfKSFnY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:43:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC6FB21939;
-        Tue, 19 Nov 2019 05:22:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9741721939;
+        Tue, 19 Nov 2019 05:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574140940;
-        bh=uXdI3PPqMJMLILLma3LnSa5THZKkaW21eCix6Zy1suM=;
+        s=default; t=1574142203;
+        bh=RTN9fRlW3hdSlWehYKYMeAfRyZpS7tmEpqOc3F+6y0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LzF1pMsk/hWztkd/rG/5wy4WRabFPCNMJuspYWv7prGtWLB6t14Z4egOJnjhmH8lw
-         VyKYswSPlb0Ll4pCqi5AZNIiahvf9vVYbISVpAt8To2eRwuAUKm4MN2kPsJq3lmam1
-         kLzdEY4oN/4laFSV1YHi0+bTbGS4qQdXtRriO/ic=
+        b=zaRe8XJdmL/XnPCYHk8RCK8NFHtToz7DjEoMW8hStZkVjWOzb3EY1Rl3z2YGKrgVR
+         f3nsephPhrcRXfZUZ1+hne7vGJ9QH79brzMYYbPRFo8F8OHTXJXZVhygKmnhd3XxDs
+         6Uu2Oc+6mQ3XC9v1aogEhf5wEAY2VQ4LXBPe5FgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Lee <shawn.c.lee@intel.com>,
-        Ville Syrjala <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.3 37/48] drm/i915: update rawclk also on resume
+        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 400/422] scsi: NCR5380: Have NCR5380_select() return a bool
 Date:   Tue, 19 Nov 2019 06:19:57 +0100
-Message-Id: <20191119051017.804535722@linuxfoundation.org>
+Message-Id: <20191119051425.063628516@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119050946.745015350@linuxfoundation.org>
-References: <20191119050946.745015350@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +45,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jani Nikula <jani.nikula@intel.com>
+From: Finn Thain <fthain@telegraphics.com.au>
 
-commit 2f216a8507153578efc309c821528a6b81628cd2 upstream.
+[ Upstream commit dad8261e643849ea134c7cd5c8e794e31d93b9eb ]
 
-Since CNP it's possible for rawclk to have two different values, 19.2
-and 24 MHz. If the value indicated by SFUSE_STRAP register is different
-from the power on default for PCH_RAWCLK_FREQ, we'll end up having a
-mismatch between the rawclk hardware and software states after
-suspend/resume. On previous platforms this used to work by accident,
-because the power on defaults worked just fine.
+The return value is taken to mean "retry" or "don't retry". Change it to bool
+to improve readability. Fix related comments. No functional change.
 
-Update the rawclk also on resume. The natural place to do this would be
-intel_modeset_init_hw(), however VLV/CHV need it done before
-intel_power_domains_init_hw(). Thus put it there even if it feels
-slightly out of place.
-
-v2: Call intel_update_rawclck() in intel_power_domains_init_hw() for all
-    platforms (Ville).
-
-Reported-by: Shawn Lee <shawn.c.lee@intel.com>
-Cc: Shawn Lee <shawn.c.lee@intel.com>
-Cc: Ville Syrjala <ville.syrjala@linux.intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Tested-by: Shawn Lee <shawn.c.lee@intel.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20191101142024.13877-1-jani.nikula@intel.com
-(cherry picked from commit 59ed05ccdded5eb18ce012eff3d01798ac8535fa)
-Cc: <stable@vger.kernel.org> # v4.15+
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Tested-by: Michael Schmitz <schmitzmic@gmail.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_display_power.c |    3 +++
- drivers/gpu/drm/i915/i915_drv.c                    |    3 ---
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/scsi/NCR5380.c | 46 +++++++++++++++++++-----------------------
+ drivers/scsi/NCR5380.h |  2 +-
+ 2 files changed, 22 insertions(+), 26 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_display_power.c
-+++ b/drivers/gpu/drm/i915/display/intel_display_power.c
-@@ -4345,6 +4345,9 @@ void intel_power_domains_init_hw(struct
+diff --git a/drivers/scsi/NCR5380.c b/drivers/scsi/NCR5380.c
+index d0bbb20518048..d600d3e94ba4a 100644
+--- a/drivers/scsi/NCR5380.c
++++ b/drivers/scsi/NCR5380.c
+@@ -904,20 +904,16 @@ static irqreturn_t __maybe_unused NCR5380_intr(int irq, void *dev_id)
+ 	return IRQ_RETVAL(handled);
+ }
  
- 	power_domains->initializing = true;
+-/*
+- * Function : int NCR5380_select(struct Scsi_Host *instance,
+- * struct scsi_cmnd *cmd)
+- *
+- * Purpose : establishes I_T_L or I_T_L_Q nexus for new or existing command,
+- * including ARBITRATION, SELECTION, and initial message out for
+- * IDENTIFY and queue messages.
++/**
++ * NCR5380_select - attempt arbitration and selection for a given command
++ * @instance: the Scsi_Host instance
++ * @cmd: the scsi_cmnd to execute
+  *
+- * Inputs : instance - instantiation of the 5380 driver on which this
+- * target lives, cmd - SCSI command to execute.
++ * This routine establishes an I_T_L nexus for a SCSI command. This involves
++ * ARBITRATION, SELECTION and MESSAGE OUT phases and an IDENTIFY message.
+  *
+- * Returns cmd if selection failed but should be retried,
+- * NULL if selection failed and should not be retried, or
+- * NULL if selection succeeded (hostdata->connected == cmd).
++ * Returns true if the operation should be retried.
++ * Returns false if it should not be retried.
+  *
+  * Side effects :
+  * If bus busy, arbitration failed, etc, NCR5380_select() will exit
+@@ -925,16 +921,15 @@ static irqreturn_t __maybe_unused NCR5380_intr(int irq, void *dev_id)
+  * SELECT_ENABLE will be set appropriately, the NCR5380
+  * will cease to drive any SCSI bus signals.
+  *
+- * If successful : I_T_L or I_T_L_Q nexus will be established,
+- * instance->connected will be set to cmd.
++ * If successful : the I_T_L nexus will be established, and
++ * hostdata->connected will be set to cmd.
+  * SELECT interrupt will be disabled.
+  *
+  * If failed (no target) : cmd->scsi_done() will be called, and the
+  * cmd->result host byte set to DID_BAD_TARGET.
+  */
  
-+	/* Must happen before power domain init on VLV/CHV */
-+	intel_update_rawclk(i915);
-+
- 	if (INTEL_GEN(i915) >= 11) {
- 		icl_display_core_init(i915, resume);
- 	} else if (IS_CANNONLAKE(i915)) {
---- a/drivers/gpu/drm/i915/i915_drv.c
-+++ b/drivers/gpu/drm/i915/i915_drv.c
-@@ -708,9 +708,6 @@ static int i915_load_modeset_init(struct
- 	if (ret)
- 		goto cleanup_vga_client;
+-static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+-                                        struct scsi_cmnd *cmd)
++static bool NCR5380_select(struct Scsi_Host *instance, struct scsi_cmnd *cmd)
+ 	__releases(&hostdata->lock) __acquires(&hostdata->lock)
+ {
+ 	struct NCR5380_hostdata *hostdata = shost_priv(instance);
+@@ -942,6 +937,7 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 	unsigned char *data;
+ 	int len;
+ 	int err;
++	bool ret = true;
  
--	/* must happen before intel_power_domains_init_hw() on VLV/CHV */
--	intel_update_rawclk(dev_priv);
--
- 	intel_power_domains_init_hw(dev_priv, false);
+ 	NCR5380_dprint(NDEBUG_ARBITRATION, instance);
+ 	dsprintk(NDEBUG_ARBITRATION, instance, "starting arbitration, id = %d\n",
+@@ -950,7 +946,7 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 	/*
+ 	 * Arbitration and selection phases are slow and involve dropping the
+ 	 * lock, so we have to watch out for EH. An exception handler may
+-	 * change 'selecting' to NULL. This function will then return NULL
++	 * change 'selecting' to NULL. This function will then return false
+ 	 * so that the caller will forget about 'cmd'. (During information
+ 	 * transfer phases, EH may change 'connected' to NULL.)
+ 	 */
+@@ -986,7 +982,7 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 	if (!hostdata->selecting) {
+ 		/* Command was aborted */
+ 		NCR5380_write(MODE_REG, MR_BASE);
+-		return NULL;
++		return false;
+ 	}
+ 	if (err < 0) {
+ 		NCR5380_write(MODE_REG, MR_BASE);
+@@ -1035,7 +1031,7 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 	if (!hostdata->selecting) {
+ 		NCR5380_write(MODE_REG, MR_BASE);
+ 		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+-		return NULL;
++		return false;
+ 	}
  
- 	intel_csr_ucode_init(dev_priv);
+ 	dsprintk(NDEBUG_ARBITRATION, instance, "won arbitration\n");
+@@ -1118,13 +1114,13 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 
+ 		/* Can't touch cmd if it has been reclaimed by the scsi ML */
+ 		if (!hostdata->selecting)
+-			return NULL;
++			return false;
+ 
+ 		cmd->result = DID_BAD_TARGET << 16;
+ 		complete_cmd(instance, cmd);
+ 		dsprintk(NDEBUG_SELECTION, instance,
+ 			"target did not respond within 250ms\n");
+-		cmd = NULL;
++		ret = false;
+ 		goto out;
+ 	}
+ 
+@@ -1156,7 +1152,7 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 	}
+ 	if (!hostdata->selecting) {
+ 		do_abort(instance);
+-		return NULL;
++		return false;
+ 	}
+ 
+ 	dsprintk(NDEBUG_SELECTION, instance, "target %d selected, going into MESSAGE OUT phase.\n",
+@@ -1172,7 +1168,7 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 		cmd->result = DID_ERROR << 16;
+ 		complete_cmd(instance, cmd);
+ 		dsprintk(NDEBUG_SELECTION, instance, "IDENTIFY message transfer failed\n");
+-		cmd = NULL;
++		ret = false;
+ 		goto out;
+ 	}
+ 
+@@ -1187,13 +1183,13 @@ static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *instance,
+ 
+ 	initialize_SCp(cmd);
+ 
+-	cmd = NULL;
++	ret = false;
+ 
+ out:
+ 	if (!hostdata->selecting)
+ 		return NULL;
+ 	hostdata->selecting = NULL;
+-	return cmd;
++	return ret;
+ }
+ 
+ /*
+diff --git a/drivers/scsi/NCR5380.h b/drivers/scsi/NCR5380.h
+index 8a6d002e67894..5935fd6d1a058 100644
+--- a/drivers/scsi/NCR5380.h
++++ b/drivers/scsi/NCR5380.h
+@@ -275,7 +275,7 @@ static irqreturn_t NCR5380_intr(int irq, void *dev_id);
+ static void NCR5380_main(struct work_struct *work);
+ static const char *NCR5380_info(struct Scsi_Host *instance);
+ static void NCR5380_reselect(struct Scsi_Host *instance);
+-static struct scsi_cmnd *NCR5380_select(struct Scsi_Host *, struct scsi_cmnd *);
++static bool NCR5380_select(struct Scsi_Host *, struct scsi_cmnd *);
+ static int NCR5380_transfer_dma(struct Scsi_Host *instance, unsigned char *phase, int *count, unsigned char **data);
+ static int NCR5380_transfer_pio(struct Scsi_Host *instance, unsigned char *phase, int *count, unsigned char **data);
+ static int NCR5380_poll_politely2(struct NCR5380_hostdata *,
+-- 
+2.20.1
+
 
 
