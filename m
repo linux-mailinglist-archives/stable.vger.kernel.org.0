@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C74110184E
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D9E2101771
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:02:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727747AbfKSFdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:33:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53784 "EHLO mail.kernel.org"
+        id S1730782AbfKSFnv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:43:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729514AbfKSFdP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:33:15 -0500
+        id S1730778AbfKSFnt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:43:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B856721783;
-        Tue, 19 Nov 2019 05:33:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D40EF2075E;
+        Tue, 19 Nov 2019 05:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141595;
-        bh=nrwlX0+o3IBQvyjj/20EPhRXPTRgqzdCYKUR/stkalw=;
+        s=default; t=1574142229;
+        bh=LqMI0tEsXsqQ8LnuUkkaJDxRVpqdAujD1Vwxg1ehTU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JUm9uAb/c2QTxgvn7rZCbfCM+kdstkCV15GA5g2P17le9g6OJKn9YoicoecDSCueu
-         EB8MJWDyhZppfZN1Ss1CojGN5qV7Ckj0vTGD1OcFmqTaX9/ySITYmp39lpYeSQV/jk
-         WsXuCRJs4wWRbtMV3I65RZL63I6FatZKcsEpn01E=
+        b=1ZwJTZnD5+mXEn5favhqAXtViNw/7MAz3z/VVBWiOzeMeHY0gDvOrWeMUhz2aDIrS
+         uQXnl741MsCIgVRu+iiuam12fZw3iWvjIoiidYkliVeq+NG/iLoBQkV3+OfGbsCqVG
+         487kEKschL+y68xbpaG/1HBekDzL6o8gk08fb3DM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 213/422] ARM: dts: socfpga: Fix I2C bus unit-address error
-Date:   Tue, 19 Nov 2019 06:16:50 +0100
-Message-Id: <20191119051412.397749832@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 011/239] ALSA: usb-audio: Fix missing error check at mixer resolution test
+Date:   Tue, 19 Nov 2019 06:16:51 +0100
+Message-Id: <20191119051300.187161524@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit cbbc488ed85061a765cf370c3e41f383c1e0add6 ]
+commit 167beb1756791e0806365a3f86a0da10d7a327ee upstream.
 
-dtc has new checks for I2C buses. Fix the warnings in unit-addresses.
+A check of the return value from get_cur_mix_raw() is missing at the
+resolution test code in get_min_max_with_quirks(), which may leave the
+variable untouched, leading to a random uninitialized value, as
+detected by syzkaller fuzzer.
 
-arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dtb: Warning (i2c_bus_reg): /soc/i2c@ffc04000/adxl345@0: I2C bus unit address format error, expected "53"
+Add the missing return error check for fixing that.
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-and-tested-by: syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20191109181658.30368-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/mixer.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts b/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
-index b280e64941938..31b01a998b2ed 100644
---- a/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
-+++ b/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
-@@ -88,7 +88,7 @@
- 	status = "okay";
- 	clock-frequency = <100000>;
+--- a/sound/usb/mixer.c
++++ b/sound/usb/mixer.c
+@@ -1052,7 +1052,8 @@ static int get_min_max_with_quirks(struc
+ 		if (cval->min + cval->res < cval->max) {
+ 			int last_valid_res = cval->res;
+ 			int saved, test, check;
+-			get_cur_mix_raw(cval, minchn, &saved);
++			if (get_cur_mix_raw(cval, minchn, &saved) < 0)
++				goto no_res_check;
+ 			for (;;) {
+ 				test = saved;
+ 				if (test < cval->max)
+@@ -1072,6 +1073,7 @@ static int get_min_max_with_quirks(struc
+ 			snd_usb_set_cur_mix_value(cval, minchn, 0, saved);
+ 		}
  
--	adxl345: adxl345@0 {
-+	adxl345: adxl345@53 {
- 		compatible = "adi,adxl345";
- 		reg = <0x53>;
++no_res_check:
+ 		cval->initialized = 1;
+ 	}
  
--- 
-2.20.1
-
 
 
