@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EFC7B101666
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:53:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE624101549
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731957AbfKSFww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:52:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50676 "EHLO mail.kernel.org"
+        id S1729601AbfKSFm3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:42:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731212AbfKSFwv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:52:51 -0500
+        id S1729307AbfKSFm2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:42:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06A8F20862;
-        Tue, 19 Nov 2019 05:52:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 715FC21783;
+        Tue, 19 Nov 2019 05:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142770;
-        bh=tTpIGXVuqGrtRoD1ab8w5sMCyys71HtQw55eRKeWIeo=;
+        s=default; t=1574142146;
+        bh=9YlaCXaWA3dweQyNoIt/1+CUs8RUr1Fzrhp45ngREL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OgD03ZudjRa+rdYPP9+yILrk+ljysWemHC/Y6sRKuABd2N/hZW0TXDsFc3exPparv
-         8ksHFwM0C0oouBzumo8nuLrCkqmRhB4wBEBSjlk9CViWdWB1sG+swx5V2cTTli84sf
-         EXQp/fbrpS4ZveY1/Tr81vUCNKwzAfOmO0Sz7W1s=
+        b=oFbx/34kIXkm0azgE9K2zFel3E9TI8taWWE8fczg9APueNF3okwy/v4vKDvvN2XBe
+         FplWwa17TCGeLZnIYEGFnZqYp3hMUlJj/4EpXhFR/2NIkykhK7dlMzZc4/iuD+/YkL
+         o2TeIWIFLo0MODW1NldMlx2lbvnQ+22mnERYexoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tomasz Nowicki <tnowicki@caviumnetworks.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 194/239] coresight: etm4x: Configure EL2 exception level when kernel is running in HYP
+Subject: [PATCH 4.19 397/422] iwlwifi: mvm: use correct FIFO length
 Date:   Tue, 19 Nov 2019 06:19:54 +0100
-Message-Id: <20191119051335.880239322@linuxfoundation.org>
+Message-Id: <20191119051424.858935021@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Nowicki <tnowicki@caviumnetworks.com>
+From: Sara Sharon <sara.sharon@intel.com>
 
-[ Upstream commit b860801e3237ec4c74cf8de0be4816996757ae5c ]
+[ Upstream commit 7126b6f2bbdf8e25f85e7ca6d91d49ea4ce9f6a6 ]
 
-For non-VHE systems host kernel runs at EL1 and jumps to EL2 whenever
-hypervisor code should be executed. In this case ETM4x driver must
-restrict configuration to EL1 when it setups kernel tracing.
-However, there is no separate hypervisor privilege level when VHE
-is enabled, the host kernel runs at EL2.
+Current FIFO size calculation is wrong for two reasons:
+- We access lmac 0 by default
+- We don't take 11ax into consideration.
+Fix both.
 
-This patch fixes configuration of TRCACATRn register for VHE systems
-so that ETM_EXLEVEL_NS_HYP bit is used instead of ETM_EXLEVEL_NS_OS
-to on/off kernel tracing. At the same time, it moves common code
-to new helper.
-
-Signed-off-by: Tomasz Nowicki <tnowicki@caviumnetworks.com>
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sara Sharon <sara.sharon@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/coresight/coresight-etm4x.c | 40 +++++++++----------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ .../net/wireless/intel/iwlwifi/mvm/mac-ctxt.c |  4 ++
+ drivers/net/wireless/intel/iwlwifi/mvm/tx.c   | 47 +++++++++++++------
+ 2 files changed, 36 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-etm4x.c b/drivers/hwtracing/coresight/coresight-etm4x.c
-index b0141ba7b7414..fb392688281b5 100644
---- a/drivers/hwtracing/coresight/coresight-etm4x.c
-+++ b/drivers/hwtracing/coresight/coresight-etm4x.c
-@@ -35,6 +35,7 @@
- #include <linux/pm_runtime.h>
- #include <asm/sections.h>
- #include <asm/local.h>
-+#include <asm/virt.h>
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
+index b3fd20502abb3..d90d58309bf0e 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac-ctxt.c
+@@ -85,6 +85,10 @@ const u8 iwl_mvm_ac_to_gen2_tx_fifo[] = {
+ 	IWL_GEN2_EDCA_TX_FIFO_VI,
+ 	IWL_GEN2_EDCA_TX_FIFO_BE,
+ 	IWL_GEN2_EDCA_TX_FIFO_BK,
++	IWL_GEN2_TRIG_TX_FIFO_VO,
++	IWL_GEN2_TRIG_TX_FIFO_VI,
++	IWL_GEN2_TRIG_TX_FIFO_BE,
++	IWL_GEN2_TRIG_TX_FIFO_BK,
+ };
  
- #include "coresight-etm4x.h"
- #include "coresight-etm-perf.h"
-@@ -623,7 +624,7 @@ static void etm4_set_default_config(struct etmv4_config *config)
- 	config->vinst_ctrl |= BIT(0);
+ struct iwl_mvm_mac_iface_iterator_data {
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+index cb2e52e7f46c9..449e3d32811a6 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
+@@ -778,6 +778,36 @@ iwl_mvm_tx_tso_segment(struct sk_buff *skb, unsigned int num_subframes,
+ 	return 0;
  }
  
--static u64 etm4_get_access_type(struct etmv4_config *config)
-+static u64 etm4_get_ns_access_type(struct etmv4_config *config)
- {
- 	u64 access_type = 0;
- 
-@@ -634,17 +635,26 @@ static u64 etm4_get_access_type(struct etmv4_config *config)
- 	 *   Bit[13] Exception level 1 - OS
- 	 *   Bit[14] Exception level 2 - Hypervisor
- 	 *   Bit[15] Never implemented
--	 *
--	 * Always stay away from hypervisor mode.
- 	 */
--	access_type = ETM_EXLEVEL_NS_HYP;
--
--	if (config->mode & ETM_MODE_EXCL_KERN)
--		access_type |= ETM_EXLEVEL_NS_OS;
-+	if (!is_kernel_in_hyp_mode()) {
-+		/* Stay away from hypervisor mode for non-VHE */
-+		access_type =  ETM_EXLEVEL_NS_HYP;
-+		if (config->mode & ETM_MODE_EXCL_KERN)
-+			access_type |= ETM_EXLEVEL_NS_OS;
-+	} else if (config->mode & ETM_MODE_EXCL_KERN) {
-+		access_type = ETM_EXLEVEL_NS_HYP;
-+	}
- 
- 	if (config->mode & ETM_MODE_EXCL_USER)
- 		access_type |= ETM_EXLEVEL_NS_APP;
- 
-+	return access_type;
++static unsigned int iwl_mvm_max_amsdu_size(struct iwl_mvm *mvm,
++					   struct ieee80211_sta *sta,
++					   unsigned int tid)
++{
++	struct iwl_mvm_sta *mvmsta = iwl_mvm_sta_from_mac80211(sta);
++	enum nl80211_band band = mvmsta->vif->bss_conf.chandef.chan->band;
++	u8 ac = tid_to_mac80211_ac[tid];
++	unsigned int txf;
++	int lmac = IWL_LMAC_24G_INDEX;
++
++	if (iwl_mvm_is_cdb_supported(mvm) &&
++	    band == NL80211_BAND_5GHZ)
++		lmac = IWL_LMAC_5G_INDEX;
++
++	/* For HE redirect to trigger based fifos */
++	if (sta->he_cap.has_he && !WARN_ON(!iwl_mvm_has_new_tx_api(mvm)))
++		ac += 4;
++
++	txf = iwl_mvm_mac_ac_to_tx_fifo(mvm, ac);
++
++	/*
++	 * Don't send an AMSDU that will be longer than the TXF.
++	 * Add a security margin of 256 for the TX command + headers.
++	 * We also want to have the start of the next packet inside the
++	 * fifo to be able to send bursts.
++	 */
++	return min_t(unsigned int, mvmsta->max_amsdu_len,
++		     mvm->fwrt.smem_cfg.lmac[lmac].txfifo_size[txf] - 256);
 +}
 +
-+static u64 etm4_get_access_type(struct etmv4_config *config)
-+{
-+	u64 access_type = etm4_get_ns_access_type(config);
-+
- 	/*
- 	 * EXLEVEL_S, bits[11:8], don't trace anything happening
- 	 * in secure state.
-@@ -898,20 +908,10 @@ void etm4_config_trace_mode(struct etmv4_config *config)
+ static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 			  struct ieee80211_tx_info *info,
+ 			  struct ieee80211_sta *sta,
+@@ -790,7 +820,7 @@ static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 	u16 snap_ip_tcp, pad;
+ 	unsigned int dbg_max_amsdu_len;
+ 	netdev_features_t netdev_flags = NETIF_F_CSUM_MASK | NETIF_F_SG;
+-	u8 tid, txf;
++	u8 tid;
  
- 	addr_acc = config->addr_acc[ETM_DEFAULT_ADDR_COMP];
- 	/* clear default config */
--	addr_acc &= ~(ETM_EXLEVEL_NS_APP | ETM_EXLEVEL_NS_OS);
-+	addr_acc &= ~(ETM_EXLEVEL_NS_APP | ETM_EXLEVEL_NS_OS |
-+		      ETM_EXLEVEL_NS_HYP);
+ 	snap_ip_tcp = 8 + skb_transport_header(skb) - skb_network_header(skb) +
+ 		tcp_hdrlen(skb);
+@@ -829,20 +859,7 @@ static int iwl_mvm_tx_tso(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 	    !(mvmsta->amsdu_enabled & BIT(tid)))
+ 		return iwl_mvm_tx_tso_segment(skb, 1, netdev_flags, mpdus_skb);
  
+-	max_amsdu_len = mvmsta->max_amsdu_len;
+-
+-	/* the Tx FIFO to which this A-MSDU will be routed */
+-	txf = iwl_mvm_mac_ac_to_tx_fifo(mvm, tid_to_mac80211_ac[tid]);
+-
 -	/*
--	 * EXLEVEL_NS, bits[15:12]
--	 * The Exception levels are:
--	 *   Bit[12] Exception level 0 - Application
--	 *   Bit[13] Exception level 1 - OS
--	 *   Bit[14] Exception level 2 - Hypervisor
--	 *   Bit[15] Never implemented
+-	 * Don't send an AMSDU that will be longer than the TXF.
+-	 * Add a security margin of 256 for the TX command + headers.
+-	 * We also want to have the start of the next packet inside the
+-	 * fifo to be able to send bursts.
 -	 */
--	if (mode & ETM_MODE_EXCL_KERN)
--		addr_acc |= ETM_EXLEVEL_NS_OS;
--	else
--		addr_acc |= ETM_EXLEVEL_NS_APP;
-+	addr_acc |= etm4_get_ns_access_type(config);
+-	max_amsdu_len = min_t(unsigned int, max_amsdu_len,
+-			      mvm->fwrt.smem_cfg.lmac[0].txfifo_size[txf] -
+-			      256);
++	max_amsdu_len = iwl_mvm_max_amsdu_size(mvm, sta, tid);
  
- 	config->addr_acc[ETM_DEFAULT_ADDR_COMP] = addr_acc;
- 	config->addr_acc[ETM_DEFAULT_ADDR_COMP + 1] = addr_acc;
+ 	if (unlikely(dbg_max_amsdu_len))
+ 		max_amsdu_len = min_t(unsigned int, max_amsdu_len,
 -- 
 2.20.1
 
