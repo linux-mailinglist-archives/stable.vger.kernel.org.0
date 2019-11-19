@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4801F10189E
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A067F1018A1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727512AbfKSF0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:26:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44728 "EHLO mail.kernel.org"
+        id S1728645AbfKSF0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:26:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728583AbfKSF0g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:26:36 -0500
+        id S1728636AbfKSF0x (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:26:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EB222230F;
-        Tue, 19 Nov 2019 05:26:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0416D21783;
+        Tue, 19 Nov 2019 05:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141195;
-        bh=XkpVBslqKuTdE5Rwg3WUgngD4asXjVjBos72JgaNb94=;
+        s=default; t=1574141212;
+        bh=FBFUnT8LQXED72+Al9YJaWDfbqJLi+M8khoAEx+dqV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s56o69ZiMR3N62byG1haS/ECq/W9nj8RVQQM+iODjigVhRMzLRr8YJnlPBq1DZVIc
-         qeuSAjo6SwmmM8YP3LK1YEvgO0VK2ywSIPS2/iEFH3E8T6WWNqgbpc0tkUQ6D9l+oE
-         V4gpQ1ki+FfO3EcT9Tf88KuGlqeV4dOUQswJzros=
+        b=UhG6GQnz+SIKWKjvi/XIEQ9ORO+HBefxJTwMjA/hdvz/VMa0XrkPj0G+zK0F2SlT+
+         mlKp2cFpbYzUHvSDMVXcbC/R7LvxcmqLfViT46JbXK91dYydF1RZ2U6+976EjFh5hM
+         wII0l1wt5lGOFKgHNeX5tgZ6TR5j3uDV29w0UG0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        =?UTF-8?q?Patryk=20Ma=C5=82ek?= <patryk.malek@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/422] ARM: dts: exynos: Fix regulators configuration on Peach Pi/Pit Chromebooks
-Date:   Tue, 19 Nov 2019 06:14:34 +0100
-Message-Id: <20191119051404.521809984@linuxfoundation.org>
+Subject: [PATCH 4.19 082/422] i40evf: Dont enable vlan stripping when rx offload is turned on
+Date:   Tue, 19 Nov 2019 06:14:39 +0100
+Message-Id: <20191119051404.785783726@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,84 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Patryk Małek <patryk.malek@intel.com>
 
-[ Upstream commit f8f3b7fc21b1cb59385b780acd9b9a26d04cb7b2 ]
+[ Upstream commit 3bd77e2ae1477d6f87fc3f542c737119d5decf9f ]
 
-Regulators, which are marked as 'on-in-suspend' seems to be critical for
-board operation, thus they must not be disabled anytime. This can be
-only assured by marking them as 'always-on', because otherwise some
-actions of their clients might result in turning them off. This patch
-restores suspend/resume operation on Peach-Pit Chromebook board. It
-partially reverts 'always-on' property removal done by the commit
-mentioned in the Fixes tag.
+With current implementation of i40evf_set_features when user sets
+any offload via ethtool we set I40EVF_FLAG_AQ_ENABLE_VLAN_STRIPPING
+as a required aq which triggers driver to call
+i40evf_enable_vlan_stripping. This shouldn't take place.
+This patches fixes it by setting the flag only when VLAN offload
+is turned on.
 
-Fixes: 665c441eea3d ("ARM: dts: exynos: Remove unneded always-on for regulators on Peach boards")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Patryk Małek <patryk.malek@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5420-peach-pit.dts | 3 +++
- arch/arm/boot/dts/exynos5800-peach-pi.dts  | 3 +++
- 2 files changed, 6 insertions(+)
+ drivers/net/ethernet/intel/i40evf/i40evf_main.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5420-peach-pit.dts b/arch/arm/boot/dts/exynos5420-peach-pit.dts
-index 25bdc9d97a4df..769d60d6c9006 100644
---- a/arch/arm/boot/dts/exynos5420-peach-pit.dts
-+++ b/arch/arm/boot/dts/exynos5420-peach-pit.dts
-@@ -312,6 +312,7 @@
- 				regulator-name = "vdd_1v35";
- 				regulator-min-microvolt = <1350000>;
- 				regulator-max-microvolt = <1350000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -333,6 +334,7 @@
- 				regulator-name = "vdd_2v";
- 				regulator-min-microvolt = <2000000>;
- 				regulator-max-microvolt = <2000000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -343,6 +345,7 @@
- 				regulator-name = "vdd_1v8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-diff --git a/arch/arm/boot/dts/exynos5800-peach-pi.dts b/arch/arm/boot/dts/exynos5800-peach-pi.dts
-index 7989631b39ccf..492e2cd2e559e 100644
---- a/arch/arm/boot/dts/exynos5800-peach-pi.dts
-+++ b/arch/arm/boot/dts/exynos5800-peach-pi.dts
-@@ -312,6 +312,7 @@
- 				regulator-name = "vdd_1v35";
- 				regulator-min-microvolt = <1350000>;
- 				regulator-max-microvolt = <1350000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -333,6 +334,7 @@
- 				regulator-name = "vdd_2v";
- 				regulator-min-microvolt = <2000000>;
- 				regulator-max-microvolt = <2000000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -343,6 +345,7 @@
- 				regulator-name = "vdd_1v8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
+diff --git a/drivers/net/ethernet/intel/i40evf/i40evf_main.c b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
+index bc4fa9df6da3e..3fc46d2adc087 100644
+--- a/drivers/net/ethernet/intel/i40evf/i40evf_main.c
++++ b/drivers/net/ethernet/intel/i40evf/i40evf_main.c
+@@ -3097,18 +3097,19 @@ static int i40evf_set_features(struct net_device *netdev,
+ {
+ 	struct i40evf_adapter *adapter = netdev_priv(netdev);
+ 
+-	/* Don't allow changing VLAN_RX flag when VLAN is set for VF
+-	 * and return an error in this case
++	/* Don't allow changing VLAN_RX flag when adapter is not capable
++	 * of VLAN offload
+ 	 */
+-	if (VLAN_ALLOWED(adapter)) {
++	if (!VLAN_ALLOWED(adapter)) {
++		if ((netdev->features ^ features) & NETIF_F_HW_VLAN_CTAG_RX)
++			return -EINVAL;
++	} else if ((netdev->features ^ features) & NETIF_F_HW_VLAN_CTAG_RX) {
+ 		if (features & NETIF_F_HW_VLAN_CTAG_RX)
+ 			adapter->aq_required |=
+ 				I40EVF_FLAG_AQ_ENABLE_VLAN_STRIPPING;
+ 		else
+ 			adapter->aq_required |=
+ 				I40EVF_FLAG_AQ_DISABLE_VLAN_STRIPPING;
+-	} else if ((netdev->features ^ features) & NETIF_F_HW_VLAN_CTAG_RX) {
+-		return -EINVAL;
+ 	}
+ 
+ 	return 0;
 -- 
 2.20.1
 
