@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34E801013F4
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:28:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9710810140A
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728290AbfKSF2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:28:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47330 "EHLO mail.kernel.org"
+        id S1728522AbfKSF3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:29:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728914AbfKSF2v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:28:51 -0500
+        id S1729016AbfKSF3i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:29:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C0D6208C3;
-        Tue, 19 Nov 2019 05:28:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BE5F21783;
+        Tue, 19 Nov 2019 05:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141330;
-        bh=cE+XnpIA2UlQ3+nHh+xT7kPEuciIqH7gZf5c/sPtmCU=;
+        s=default; t=1574141377;
+        bh=dpSjd1hk84fWWcoabhUygmApwukG2qV9KDnFTNF0n4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lRpYnNcHvoa3KK0R9hkS9V0RU1c4s1MlTLq3zD4eZVoGsRRVjtrpoaVL3DRZDldkx
-         XYg8/85VzslNk3vUXSL64fEnG8IiAZVqV5jT9vUJR0GQu6eGxTZ+q/iU3j5sBUBCHa
-         AiNYtrHGK1fOzCa/VVhBSEPbqSv0YO0VVTJdeZXM=
+        b=v1mazikRd+sqggaSNrgEar2vY0vt2xDMcVgYLOERtfgyH0XmfY9r2SexyUJ0rmfQj
+         uy5T2ooALx2ALJ5zRUlWzcOunaBo50a4eCXSEnGG6Mn926B+kRzh0gm3A0P+RdOHRQ
+         INZqZMzF6dEjAxNksegf8Z2T6gcAtJgeeT09w/6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vidya Dharmaraju <vidyad@marvell.com>,
-        Cathy Luo <cluo@marvell.com>,
-        Ganapathi Bhat <gbhat@marvell.com>,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/422] mwifiex: do no submit URB in suspended state
-Date:   Tue, 19 Nov 2019 06:14:54 +0100
-Message-Id: <20191119051405.574997628@linuxfoundation.org>
+Subject: [PATCH 4.19 099/422] brcmfmac: fix wrong strnchr usage
+Date:   Tue, 19 Nov 2019 06:14:56 +0100
+Message-Id: <20191119051405.677762994@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,53 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ganapathi Bhat <gbhat@marvell.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit 7bd4628c2f31c51254aa39628ecae521d00d0b90 ]
+[ Upstream commit cb18e2e9ec71d42409a51b83546686c609780dde ]
 
-There is a possible race between USB suspend and main thread:
+strnchr takes arguments in the order of its name: string, max bytes to
+read, character to search for. Here we're passing '\n' aka 10 as the
+buffer size, and searching for sizeof(buf) aka BRCMF_DCMD_SMLEN aka
+256 (aka '\0', since it's implicitly converted to char) within those 10
+bytes.
 
-1. After processing the command response, main thread will submit
-rx_cmd URB back so as to process next command response, by
-calling mwifiex_usb_submit_rx_urb.
+Just interchanging the last two arguments would still leave a bug,
+because if we've been successful once, there are not sizeof(buf)
+characters left after the new value of p.
 
-2. During USB suspend, the suspend handler will check if rx_cmd
-URB is pending(submitted) and if true, kill this URB.
+Since clmver is immediately afterwards passed as a %s argument, I assume
+that it is actually a properly nul-terminated string. For that case, we
+have strreplace().
 
-There is a possible race between #1 and #2, where rx_cmd URB will
-be submitted by main thread(#1) after the suspend handler check
-in #2.
-
-To fix this, check if device is already suspended in
-mwifiex_usb_submit_rx_urb, in which case do not submit the URB.
-
-Signed-off-by: Vidya Dharmaraju <vidyad@marvell.com>
-Signed-off-by: Cathy Luo <cluo@marvell.com>
-Signed-off-by: Ganapathi Bhat <gbhat@marvell.com>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/usb.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
-index 433c6a16870b6..76d80fd545236 100644
---- a/drivers/net/wireless/marvell/mwifiex/usb.c
-+++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-@@ -298,6 +298,13 @@ static int mwifiex_usb_submit_rx_urb(struct urb_context *ctx, int size)
- 	struct mwifiex_adapter *adapter = ctx->adapter;
- 	struct usb_card_rec *card = (struct usb_card_rec *)adapter->card;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+index 27893af63ebc3..8510d207ee87d 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+@@ -296,9 +296,7 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
+ 		/* Replace all newline/linefeed characters with space
+ 		 * character
+ 		 */
+-		ptr = clmver;
+-		while ((ptr = strnchr(ptr, '\n', sizeof(buf))) != NULL)
+-			*ptr = ' ';
++		strreplace(clmver, '\n', ' ');
  
-+	if (test_bit(MWIFIEX_IS_SUSPENDED, &adapter->work_flags)) {
-+		mwifiex_dbg(adapter, ERROR,
-+			    "%s: card removed/suspended, EP %d rx_cmd URB submit skipped\n",
-+			    __func__, ctx->ep);
-+		return -1;
-+	}
-+
- 	if (card->rx_cmd_ep != ctx->ep) {
- 		ctx->skb = dev_alloc_skb(size);
- 		if (!ctx->skb) {
+ 		brcmf_dbg(INFO, "CLM version = %s\n", clmver);
+ 	}
 -- 
 2.20.1
 
