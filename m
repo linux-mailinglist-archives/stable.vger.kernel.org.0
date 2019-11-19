@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD551014AB
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:36:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15EFA1015C5
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:47:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728721AbfKSFgP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:36:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57430 "EHLO mail.kernel.org"
+        id S1731209AbfKSFrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:47:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729931AbfKSFgP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:36:15 -0500
+        id S1731195AbfKSFrK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:47:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3249620862;
-        Tue, 19 Nov 2019 05:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8937B21823;
+        Tue, 19 Nov 2019 05:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141774;
-        bh=TWMtyGoTPlsTVwTgBV9Um9JUDKWHvmdAk1nWhp7XC/0=;
+        s=default; t=1574142429;
+        bh=EHNa2amsQaOkyhQIBzLMO98bHhld5ecDt8p9SsmOMEs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oUAW1IwaqReMWhgjs4QlqE/XZQnK4KWZh+5qzkeJhAm/c2Ybg6O5p8wQPqT3QoTSK
-         2W6txk1Y3MOa/pjnsoMAU6VsznHWvqnyeTig+xnA0XB0RoWQoV1QB7OuwHupG7y9ac
-         onxlUICsBvJDrnyXAeO6EEoR4ud3tXlZg/5jHk8A=
+        b=tfE+I0tv+4LtASekBRKO7ZuVLsm16HTJpJbDqJ88iQ/3tZf34XpULgnxzhqxcbPIt
+         ay01u16uXPjAfKVFSwL4rOC9bPFDM/tbX034eZNyLKnmviIl4R6Np+UNJfDozygaQ8
+         c87g+33+njZcfvD0OlZMi0palrEkVWCKGVQhzNMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 277/422] net: broadcom: fix return type of ndo_start_xmit function
-Date:   Tue, 19 Nov 2019 06:17:54 +0100
-Message-Id: <20191119051416.936428380@linuxfoundation.org>
+Subject: [PATCH 4.14 077/239] ARM: dts: omap3-gta04: fixes for tvout / venc
+Date:   Tue, 19 Nov 2019 06:17:57 +0100
+Message-Id: <20191119051314.359664356@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit 0c13b8d1aee87c35a2fbc1d85a1f766227cf54b5 ]
+[ Upstream commit f6591391373dbff2c0200e1055d4ff86191578d2 ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+* fix connector compatibility (composite)
+* add comment for gpio1 23
+* add proper #address-cells
+* we use only one venc_out channel for composite
 
-Found by coccinelle.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcm63xx_enet.c | 5 +++--
- drivers/net/ethernet/broadcom/sb1250-mac.c   | 4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/omap3-gta04.dtsi | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcm63xx_enet.c b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-index 897302adc38ec..50f8a377596e1 100644
---- a/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-+++ b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-@@ -568,12 +568,13 @@ static irqreturn_t bcm_enet_isr_dma(int irq, void *dev_id)
- /*
-  * tx request callback
-  */
--static int bcm_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+bcm_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct bcm_enet_priv *priv;
- 	struct bcm_enet_desc *desc;
- 	u32 len_stat;
--	int ret;
-+	netdev_tx_t ret;
+diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
+index 0b0aa020a8d5d..5f62b2f3c6e93 100644
+--- a/arch/arm/boot/dts/omap3-gta04.dtsi
++++ b/arch/arm/boot/dts/omap3-gta04.dtsi
+@@ -123,7 +123,7 @@
+ 	};
  
- 	priv = netdev_priv(dev);
+ 	tv0: connector {
+-		compatible = "svideo-connector";
++		compatible = "composite-video-connector";
+ 		label = "tv";
  
-diff --git a/drivers/net/ethernet/broadcom/sb1250-mac.c b/drivers/net/ethernet/broadcom/sb1250-mac.c
-index ef4a0c326736d..7e3f9642ba6c5 100644
---- a/drivers/net/ethernet/broadcom/sb1250-mac.c
-+++ b/drivers/net/ethernet/broadcom/sb1250-mac.c
-@@ -299,7 +299,7 @@ static enum sbmac_state sbmac_set_channel_state(struct sbmac_softc *,
- static void sbmac_promiscuous_mode(struct sbmac_softc *sc, int onoff);
- static uint64_t sbmac_addr2reg(unsigned char *ptr);
- static irqreturn_t sbmac_intr(int irq, void *dev_instance);
--static int sbmac_start_tx(struct sk_buff *skb, struct net_device *dev);
-+static netdev_tx_t sbmac_start_tx(struct sk_buff *skb, struct net_device *dev);
- static void sbmac_setmulti(struct sbmac_softc *sc);
- static int sbmac_init(struct platform_device *pldev, long long base);
- static int sbmac_set_speed(struct sbmac_softc *s, enum sbmac_speed speed);
-@@ -2028,7 +2028,7 @@ static irqreturn_t sbmac_intr(int irq,void *dev_instance)
-  *  Return value:
-  *  	   nothing
-  ********************************************************************* */
--static int sbmac_start_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t sbmac_start_tx(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct sbmac_softc *sc = netdev_priv(dev);
- 	unsigned long flags;
+ 		port {
+@@ -135,7 +135,7 @@
+ 
+ 	tv_amp: opa362 {
+ 		compatible = "ti,opa362";
+-		enable-gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;
++		enable-gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;	/* GPIO_23 to enable video out amplifier */
+ 
+ 		ports {
+ 			#address-cells = <1>;
+@@ -540,10 +540,14 @@
+ 
+ 	vdda-supply = <&vdac>;
+ 
++	#address-cells = <1>;
++	#size-cells = <0>;
++
+ 	port {
++		reg = <0>;
+ 		venc_out: endpoint {
+ 			remote-endpoint = <&opa_in>;
+-			ti,channels = <2>;
++			ti,channels = <1>;
+ 			ti,invert-polarity;
+ 		};
+ 	};
 -- 
 2.20.1
 
