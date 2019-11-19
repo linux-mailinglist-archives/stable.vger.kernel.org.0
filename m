@@ -2,136 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 004BA10259D
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 14:41:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EFE41025A1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 14:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727673AbfKSNlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 08:41:01 -0500
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:34423 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725798AbfKSNlA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 08:41:00 -0500
-Received: by mail-wr1-f65.google.com with SMTP id e6so23929257wrw.1
-        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 05:40:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0frWimAnATgKKKHvoJQrskDhF0bqqm3M6pcal3BWTtU=;
-        b=xBw7cwQrw8HHpG4Xv+vaxyvfnylpleUcmnmTLmAm11rPf54vSFbmZFkn1KzxLobtCx
-         XbpHkNYA1jUW+4FEX+mqiGa/2kklKzgUBeeOzWNTSRAIpGP4oaVKtrMatENBFjbf+RS2
-         OzueHFtz2b5MQbp17Xpp5dpcPsHJSrhLsRiEW+D67iVbfcB1rjMJxX74vxUox62QAH+D
-         E7tN9rdV+zzI5p8wDQFss1kPGfdtXP0UfIxjWncJCPKbsBPhQEVIyvZ9ihLz990OpqwI
-         ewygdtSPL1CexX8e9kTmEieSAHz+rOUgu+7ZiqpVk/sugDfurNl6A2bgEopAdnSG/66+
-         MDOA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0frWimAnATgKKKHvoJQrskDhF0bqqm3M6pcal3BWTtU=;
-        b=t0mBKBophrMScQ/ikDHyzApqM5Gm4WaTDCLRh3gN+JTBjDHGJ18VQUMr5UNQ9QsUKM
-         RMbCr3aw+v6sju/A8toDNSCZrVfHh6Wd9IDXigP5yEmj0sSnNkrpyDpVjQ86KyThs+6z
-         EBaoGsFZYyEqypOq8IZNUQVp809C0cKKJeI+H8VPv797ujIbL/77M8erZOE1j/o51EK4
-         grNdHXyKLmER4Mz37DfWqT1PhSgWG6gfJPgbLhgNN9JQXYNdAL3OtPGjTh0YAr9gG7UG
-         02P3GBMteXq4hOyYtDEcT1N6w1HNHPMQCeXcU2bEiRZmDJcgPK8kohyFRaJOpshbCsdo
-         RE4A==
-X-Gm-Message-State: APjAAAVNZm3GNTMQkLWqF9+JWnpRNJjCAm0juw+iMNw1aVdX7EHlZ/20
-        QPv64xunCTtq77baYUgrGpQ4SV2NVw0+LQ==
-X-Google-Smtp-Source: APXvYqx1mxE3gsEyZe1yhHAozaoe5Y8HfMfs2j7xDOZT6pdAowD6ckFn/gHHXE+Hfhs4IRBULBcKjw==
-X-Received: by 2002:a5d:5089:: with SMTP id a9mr21359381wrt.57.1574170858665;
-        Tue, 19 Nov 2019 05:40:58 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id r2sm3199293wma.44.2019.11.19.05.40.57
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Nov 2019 05:40:57 -0800 (PST)
-Message-ID: <5dd3f0e9.1c69fb81.3e5f9.f16b@mx.google.com>
-Date:   Tue, 19 Nov 2019 05:40:57 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.201-179-ge948539072c5
-Subject: stable-rc/linux-4.9.y boot: 97 boots: 1 failed,
- 86 passed with 10 offline (v4.9.201-179-ge948539072c5)
+        id S1726555AbfKSNle (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 08:41:34 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:44528 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725798AbfKSNle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 08:41:34 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574170893;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=tmJK/bMOM/h7njGCd0+7n8mLcwuxh5LcRErS125lK/E=;
+        b=XZuhOEsQnMnyD69KS8pzoA3A9KaG8WgovazPiVrTxQ1lbG4zN8V5xGBSPkBL+Qz+BsXsa6
+        UC/EFQGlOOizfobzt9/LXoh0nJkfGed4BNo9glyupKG1UWW6Dt9H6bq5ExMQw1AJobzMis
+        mBw2kCc7Fbq3giJf1COLrJBvRqMOrs4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-15-jOar8NNnOS2KQ9d44Dempw-1; Tue, 19 Nov 2019 08:41:29 -0500
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D76B6102C85E;
+        Tue, 19 Nov 2019 13:41:27 +0000 (UTC)
+Received: from t460s.redhat.com (ovpn-117-126.ams2.redhat.com [10.36.117.126])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DB53469193;
+        Tue, 19 Nov 2019 13:41:24 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     gregkh@linuxfoundation.org, David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>
+Subject: [PATCH for 4.14-stable 2/2] mm/memory_hotplug: fix updating the node span
+Date:   Tue, 19 Nov 2019 14:41:07 +0100
+Message-Id: <20191119134108.9420-2-david@redhat.com>
+In-Reply-To: <20191119134108.9420-1-david@redhat.com>
+References: <15721838171019@kroah.com>
+ <20191119134108.9420-1-david@redhat.com>
+MIME-Version: 1.0
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-MC-Unique: jOar8NNnOS2KQ9d44Dempw-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 97 boots: 1 failed, 86 passed with 10 offline (=
-v4.9.201-179-ge948539072c5)
+commit 656d571193262a11c2daa4012e53e4d645bbce56 upstream.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.201-179-ge948539072c5/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.201-179-ge948539072c5/
+We recently started updating the node span based on the zone span to
+avoid touching uninitialized memmaps.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.201-179-ge948539072c5
-Git Commit: e948539072c5ea11d61b15d4536f9202c88736c2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 51 unique boards, 20 SoC families, 14 builds out of 197
+Currently, we will always detect the node span to start at 0, meaning a
+node can easily span too many pages.  pgdat_is_empty() will still work
+correctly if all zones span no pages.  We should skip over all zones
+without spanned pages and properly handle the first detected zone that
+spans pages.
 
-Boot Regressions Detected:
+Unfortunately, in contrast to the zone span (/proc/zoneinfo), the node
+span cannot easily be inspected and tested.  The node span gives no real
+guarantees when an architecture supports memory hotplug, meaning it can
+easily contain holes or span pages of different nodes.
 
-arm:
+The node span is not really used after init on architectures that
+support memory hotplug.
 
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
-1-32-gd7f83e4f45e8 - first fail: v4.9.201-180-ga01b8802acde)
+E.g., we use it in mm/memory_hotplug.c:try_offline_node() and in
+mm/kmemleak.c:kmemleak_scan().  These users seem to be fine.
 
-    socfpga_defconfig:
-        gcc-8:
-          socfpga_cyclone5_de0_sockit:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
-1-32-gd7f83e4f45e8 - first fail: v4.9.201-180-ga01b8802acde)
-
-Boot Failure Detected:
-
-arm:
-    omap2plus_defconfig:
-        gcc-8:
-            omap3-beagle-xm: 1 failed lab
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            juno-r2: 1 offline lab
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            bcm4708-smartrg-sr400ac: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    socfpga_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-
+Link: http://lkml.kernel.org/r/20191027222714.5313-1-david@redhat.com
+Fixes: 00d6c019b5bc ("mm/memory_hotplug: don't access uninitialized memmaps=
+ in shrink_pgdat_span()")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+ mm/memory_hotplug.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 9cd25b19e111..d4affa9982ca 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -470,6 +470,14 @@ static void update_pgdat_span(struct pglist_data *pgda=
+t)
+ =09=09=09=09=09     zone->spanned_pages;
+=20
+ =09=09/* No need to lock the zones, they can't change. */
++=09=09if (!zone->spanned_pages)
++=09=09=09continue;
++=09=09if (!node_end_pfn) {
++=09=09=09node_start_pfn =3D zone->zone_start_pfn;
++=09=09=09node_end_pfn =3D zone_end_pfn;
++=09=09=09continue;
++=09=09}
++
+ =09=09if (zone_end_pfn > node_end_pfn)
+ =09=09=09node_end_pfn =3D zone_end_pfn;
+ =09=09if (zone->zone_start_pfn < node_start_pfn)
+--=20
+2.21.0
+
