@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7F2610145B
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:33:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4D9101593
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:45:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728955AbfKSFdD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:33:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53442 "EHLO mail.kernel.org"
+        id S1730957AbfKSFpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:45:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729471AbfKSFdC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:33:02 -0500
+        id S1730953AbfKSFpY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:45:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5546421783;
-        Tue, 19 Nov 2019 05:33:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B82E12071B;
+        Tue, 19 Nov 2019 05:45:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141580;
-        bh=NflRRV0uqucVxYoCTUuHIRCHF+FW37oV9OaJflefziU=;
+        s=default; t=1574142323;
+        bh=OYfmMb3m2nCIOs2EeM9NS1uXNPRrO6cIesaP/zHuJJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjFnvUr/WtrQ99NmsfsmPwbth+Stp83stQ8xVGe8qAc/aJCwHrzdSfzr47Lcvd80C
-         gisOUkCBrJVP5gqLObQwaO7YgrZPeKxO+UULmt2u+BcOhr+FkhN7OccA1NWBRxYZAD
-         HZg79rSlXPPX0E61+Wd6zo0GZgeuxdsbtWQl0UxY=
+        b=RtPVNGLbOOOpEq239OjKLgSKHYWNk+WfXtYOqepcrH0IQ5xatU0mxSkfsqLrVY2NZ
+         tEwycatKXh1RF+BwIqUoGldvYEOLTHSP5l6enm2xY7RuUsciTDN+9c3rfbCwgidoBs
+         GLrymaWn5bMf2KERKZrM5wae/zk1opZlJKMdae9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ray Jui <rjui@broadcom.com>,
-        Scott Branden <sbranden@broadcom.com>,
-        Jon Mason <jonmason@broadcom.com>,
-        bcm-kernel-feedback-list@broadcom.com,
-        Rob Herring <robh@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 209/422] arm64: dts: broadcom: Fix I2C and SPI bus warnings
-Date:   Tue, 19 Nov 2019 06:16:46 +0100
-Message-Id: <20191119051412.136267401@linuxfoundation.org>
+        stable@vger.kernel.org, Anju T Sudhakar <anju@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Andrew Donnellan <ajd@linux.ibm.com>
+Subject: [PATCH 4.14 007/239] powerpc/perf: Fix kfree memory allocated for nest pmus
+Date:   Tue, 19 Nov 2019 06:16:47 +0100
+Message-Id: <20191119051258.907487839@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,91 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Anju T Sudhakar <anju@linux.vnet.ibm.com>
 
-[ Upstream commit 7cdbe45da1a189e744e6801aebb462ee47235580 ]
+commit 110df8bd3e418b3476cae80babe8add48a8ea523 upstream.
 
-dtc has new checks for I2C and SPI buses. Fix the warnings in node names
-and unit-addresses.
+imc_common_cpuhp_mem_free() is the common function for all
+IMC (In-memory Collection counters) domains to unregister cpuhotplug
+callback and free memory. Since kfree of memory allocated for
+nest-imc (per_nest_pmu_arr) is in the common code, all
+domains (core/nest/thread) can do the kfree in the failure case.
 
-arch/arm64/boot/dts/broadcom/stingray/bcm958742k.dtb: Warning (i2c_bus_reg): /hsls/i2c@e0000/pcf8574@20: I2C bus unit address format error, expected "27"
-arch/arm64/boot/dts/broadcom/stingray/bcm958742t.dtb: Warning (i2c_bus_reg): /hsls/i2c@e0000/pcf8574@20: I2C bus unit address format error, expected "27"
-arch/arm64/boot/dts/broadcom/stingray/bcm958742k.dtb: Warning (spi_bus_bridge): /hsls/ssp@180000: node name for SPI buses should be 'spi'
-arch/arm64/boot/dts/broadcom/stingray/bcm958742k.dtb: Warning (spi_bus_bridge): /hsls/ssp@190000: node name for SPI buses should be 'spi'
+This could potentially create a call trace as shown below, where
+core(/thread/nest) imc pmu initialization fails and in the failure
+path imc_common_cpuhp_mem_free() free the memory(per_nest_pmu_arr),
+which is allocated by successfully registered nest units.
 
-Cc: Ray Jui <rjui@broadcom.com>
-Cc: Scott Branden <sbranden@broadcom.com>
-Cc: Jon Mason <jonmason@broadcom.com>
-Cc: bcm-kernel-feedback-list@broadcom.com
-Signed-off-by: Rob Herring <robh@kernel.org>
-Acked-by: Scott Branden <sbranden@broadcom.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The call trace is generated in a scenario where core-imc
+initialization is made to fail and a cpuhotplug is performed in a p9
+system. During cpuhotplug ppc_nest_imc_cpu_offline() tries to access
+per_nest_pmu_arr, which is already freed by core-imc.
+
+  NIP [c000000000cb6a94] mutex_lock+0x34/0x90
+  LR [c000000000cb6a88] mutex_lock+0x28/0x90
+  Call Trace:
+    mutex_lock+0x28/0x90 (unreliable)
+    perf_pmu_migrate_context+0x90/0x3a0
+    ppc_nest_imc_cpu_offline+0x190/0x1f0
+    cpuhp_invoke_callback+0x160/0x820
+    cpuhp_thread_fun+0x1bc/0x270
+    smpboot_thread_fn+0x250/0x290
+    kthread+0x1a8/0x1b0
+    ret_from_kernel_thread+0x5c/0x74
+
+To address this scenario do the kfree(per_nest_pmu_arr) only in case
+of nest-imc initialization failure, and when there is no other nest
+units registered.
+
+Fixes: 73ce9aec65b1 ("powerpc/perf: Fix IMC_MAX_PMU macro")
+Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Andrew Donnellan <ajd@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi          | 4 ++--
- arch/arm64/boot/dts/broadcom/stingray/bcm958742-base.dtsi | 2 +-
- arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi       | 4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ arch/powerpc/perf/imc-pmu.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-index 1a406a76c86a2..ea854f689fda8 100644
---- a/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/northstar2/ns2.dtsi
-@@ -639,7 +639,7 @@
- 			status = "disabled";
- 		};
+--- a/arch/powerpc/perf/imc-pmu.c
++++ b/arch/powerpc/perf/imc-pmu.c
+@@ -1189,6 +1189,7 @@ static void imc_common_cpuhp_mem_free(st
+ 		if (nest_pmus == 1) {
+ 			cpuhp_remove_state(CPUHP_AP_PERF_POWERPC_NEST_IMC_ONLINE);
+ 			kfree(nest_imc_refc);
++			kfree(per_nest_pmu_arr);
+ 		}
  
--		ssp0: ssp@66180000 {
-+		ssp0: spi@66180000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x66180000 0x1000>;
- 			interrupts = <GIC_SPI 404 IRQ_TYPE_LEVEL_HIGH>;
-@@ -650,7 +650,7 @@
- 			status = "disabled";
- 		};
+ 		if (nest_pmus > 0)
+@@ -1213,7 +1214,6 @@ static void imc_common_cpuhp_mem_free(st
+ 		kfree(pmu_ptr->attr_groups[IMC_EVENT_ATTR]->attrs);
+ 	kfree(pmu_ptr->attr_groups[IMC_EVENT_ATTR]);
+ 	kfree(pmu_ptr);
+-	kfree(per_nest_pmu_arr);
+ 	return;
+ }
  
--		ssp1: ssp@66190000 {
-+		ssp1: spi@66190000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x66190000 0x1000>;
- 			interrupts = <GIC_SPI 405 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/bcm958742-base.dtsi b/arch/arm64/boot/dts/broadcom/stingray/bcm958742-base.dtsi
-index bc299c3d90683..a9b92e52d50e8 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/bcm958742-base.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/bcm958742-base.dtsi
-@@ -138,7 +138,7 @@
- &i2c1 {
- 	status = "okay";
- 
--	pcf8574: pcf8574@20 {
-+	pcf8574: pcf8574@27 {
- 		compatible = "nxp,pcf8574a";
- 		gpio-controller;
- 		#gpio-cells = <2>;
-diff --git a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-index 84101ea1fd2cb..ff714fcbac68d 100644
---- a/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-+++ b/arch/arm64/boot/dts/broadcom/stingray/stingray.dtsi
-@@ -520,7 +520,7 @@
- 			status = "disabled";
- 		};
- 
--		ssp0: ssp@180000 {
-+		ssp0: spi@180000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x00180000 0x1000>;
- 			interrupts = <GIC_SPI 187 IRQ_TYPE_LEVEL_HIGH>;
-@@ -532,7 +532,7 @@
- 			status = "disabled";
- 		};
- 
--		ssp1: ssp@190000 {
-+		ssp1: spi@190000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x00190000 0x1000>;
- 			interrupts = <GIC_SPI 188 IRQ_TYPE_LEVEL_HIGH>;
--- 
-2.20.1
-
+@@ -1327,6 +1327,8 @@ int init_imc_pmu(struct device_node *par
+ 			ret = nest_pmu_cpumask_init();
+ 			if (ret) {
+ 				mutex_unlock(&nest_init_lock);
++				kfree(nest_imc_refc);
++				kfree(per_nest_pmu_arr);
+ 				goto err_free;
+ 			}
+ 		}
 
 
