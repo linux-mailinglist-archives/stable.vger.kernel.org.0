@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D471710175B
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E60F1017FE
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:05:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728549AbfKSGAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:00:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40356 "EHLO mail.kernel.org"
+        id S1729914AbfKSFgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:36:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730654AbfKSFow (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:44:52 -0500
+        id S1729911AbfKSFgG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:36:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1F1D218BA;
-        Tue, 19 Nov 2019 05:44:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D8CF20672;
+        Tue, 19 Nov 2019 05:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142291;
-        bh=UM+uiVXGrOUFsU4KqPI+fr6gwIOMvJUHAQ2n0jspCrI=;
+        s=default; t=1574141765;
+        bh=7e2XOAxRCZkEiFfovhqWgSe7n5iO8CPSFgffFPsUjWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjFT/f0HAScjmrdCNMTGDRFmxM0A4kqiae2rg7HKKa0iVnbgQkgYe4tf61lYgDWwP
-         q4yuaVkpavNqIsF/bi0z9nuoDxFZv8URLxcdJDnNBn8t4VB6sTWRhZG5+L4K8J2+V+
-         O1bygLLMS8OStd/ZAj53lnx9inMzTgz3IMMdxSeU=
+        b=TOz2HwTK9Ip9yRdhMOV44KhaIGcmI4DQ3/jcZYPvilcJCRX4dr15ukY/jEsbIF5ar
+         PrR2L5wLxXWswDz3Al4PWyeyDJ3VDxQ/FdPPlKmAA5HLMMXj6UAKB6gfk/v3KCgm3f
+         Idmc/FQ5xtnfZRrie7Xp1sNt0W6gOiyg+spZRA+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tamizh chelvam <tamizhr@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 030/239] ath10k: fix kernel panic by moving pci flush after napi_disable
+Subject: [PATCH 4.19 233/422] netfilter: nf_tables: avoid BUG_ON usage
 Date:   Tue, 19 Nov 2019 06:17:10 +0100
-Message-Id: <20191119051303.542103898@linuxfoundation.org>
+Message-Id: <20191119051414.205983228@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,87 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tamizh chelvam <tamizhr@codeaurora.org>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit bd1d395070cca4f42a93e520b0597274789274a4 ]
+[ Upstream commit fa5950e498e7face21a1761f327e6c1152f778c3 ]
 
-When continuously running wifi up/down sequence, the napi poll
-can be scheduled after the CE buffers being freed by ath10k_pci_flush
+None of these spots really needs to crash the kernel.
+In one two cases we can jsut report error to userspace, in the other
+cases we can just use WARN_ON (and leak memory instead).
 
-Steps:
-  In a certain condition, during wifi down below scenario might occur.
-
-ath10k_stop->ath10k_hif_stop->napi_schedule->ath10k_pci_flush->napi_poll(napi_synchronize).
-
-In the above scenario, CE buffer entries will be freed up and become NULL in
-ath10k_pci_flush. And the napi_poll has been invoked after the flush process
-and it will try to get the skb from the CE buffer entry and perform some action on that.
-Since the CE buffer already cleaned by pci flush this action will create NULL
-pointer dereference and trigger below kernel panic.
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000005c
-PC is at ath10k_pci_htt_rx_cb+0x64/0x3ec [ath10k_pci]
-ath10k_pci_htt_rx_cb [ath10k_pci]
-ath10k_ce_per_engine_service+0x74/0xc4 [ath10k_pci]
-ath10k_ce_per_engine_service [ath10k_pci]
-ath10k_ce_per_engine_service_any+0x74/0x80 [ath10k_pci]
-ath10k_ce_per_engine_service_any [ath10k_pci]
-ath10k_pci_napi_poll+0x48/0xec [ath10k_pci]
-ath10k_pci_napi_poll [ath10k_pci]
-net_rx_action+0xac/0x160
-net_rx_action
-__do_softirq+0xdc/0x208
-__do_softirq
-irq_exit+0x84/0xe0
-irq_exit
-__handle_domain_irq+0x80/0xa0
-__handle_domain_irq
-gic_handle_irq+0x38/0x5c
-gic_handle_irq
-__irq_usr+0x44/0x60
-
-Tested on QCA4019 and firmware version 10.4.3.2.1.1-00010
-
-Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath10k/ahb.c | 4 ++--
- drivers/net/wireless/ath/ath10k/pci.c | 2 +-
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/netfilter/nf_tables_api.c | 9 ++++++---
+ net/netfilter/nft_cmp.c       | 6 ++++--
+ net/netfilter/nft_reject.c    | 6 ++++--
+ 3 files changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath10k/ahb.c b/drivers/net/wireless/ath/ath10k/ahb.c
-index ff6815e956848..1404ec9f56be9 100644
---- a/drivers/net/wireless/ath/ath10k/ahb.c
-+++ b/drivers/net/wireless/ath/ath10k/ahb.c
-@@ -663,10 +663,10 @@ static void ath10k_ahb_hif_stop(struct ath10k *ar)
- 	ath10k_ahb_irq_disable(ar);
- 	synchronize_irq(ar_ahb->irq);
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 24fddf0322790..289d079008ee8 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1031,7 +1031,8 @@ static int nf_tables_deltable(struct net *net, struct sock *nlsk,
  
--	ath10k_pci_flush(ar);
--
- 	napi_synchronize(&ar->napi);
- 	napi_disable(&ar->napi);
-+
-+	ath10k_pci_flush(ar);
+ static void nf_tables_table_destroy(struct nft_ctx *ctx)
+ {
+-	BUG_ON(ctx->table->use > 0);
++	if (WARN_ON(ctx->table->use > 0))
++		return;
+ 
+ 	rhltable_destroy(&ctx->table->chains_ht);
+ 	kfree(ctx->table->name);
+@@ -1446,7 +1447,8 @@ static void nf_tables_chain_destroy(struct nft_ctx *ctx)
+ {
+ 	struct nft_chain *chain = ctx->chain;
+ 
+-	BUG_ON(chain->use > 0);
++	if (WARN_ON(chain->use > 0))
++		return;
+ 
+ 	/* no concurrent access possible anymore */
+ 	nf_tables_chain_free_chain_rules(chain);
+@@ -7253,7 +7255,8 @@ int __nft_release_basechain(struct nft_ctx *ctx)
+ {
+ 	struct nft_rule *rule, *nr;
+ 
+-	BUG_ON(!nft_is_base_chain(ctx->chain));
++	if (WARN_ON(!nft_is_base_chain(ctx->chain)))
++		return 0;
+ 
+ 	nf_tables_unregister_hook(ctx->net, ctx->chain->table, ctx->chain);
+ 	list_for_each_entry_safe(rule, nr, &ctx->chain->rules, list) {
+diff --git a/net/netfilter/nft_cmp.c b/net/netfilter/nft_cmp.c
+index fa90a8402845d..79d48c1d06f4d 100644
+--- a/net/netfilter/nft_cmp.c
++++ b/net/netfilter/nft_cmp.c
+@@ -79,7 +79,8 @@ static int nft_cmp_init(const struct nft_ctx *ctx, const struct nft_expr *expr,
+ 
+ 	err = nft_data_init(NULL, &priv->data, sizeof(priv->data), &desc,
+ 			    tb[NFTA_CMP_DATA]);
+-	BUG_ON(err < 0);
++	if (err < 0)
++		return err;
+ 
+ 	priv->sreg = nft_parse_register(tb[NFTA_CMP_SREG]);
+ 	err = nft_validate_register_load(priv->sreg, desc.len);
+@@ -129,7 +130,8 @@ static int nft_cmp_fast_init(const struct nft_ctx *ctx,
+ 
+ 	err = nft_data_init(NULL, &data, sizeof(data), &desc,
+ 			    tb[NFTA_CMP_DATA]);
+-	BUG_ON(err < 0);
++	if (err < 0)
++		return err;
+ 
+ 	priv->sreg = nft_parse_register(tb[NFTA_CMP_SREG]);
+ 	err = nft_validate_register_load(priv->sreg, desc.len);
+diff --git a/net/netfilter/nft_reject.c b/net/netfilter/nft_reject.c
+index 29f5bd2377b0d..b48e58cceeb72 100644
+--- a/net/netfilter/nft_reject.c
++++ b/net/netfilter/nft_reject.c
+@@ -94,7 +94,8 @@ static u8 icmp_code_v4[NFT_REJECT_ICMPX_MAX + 1] = {
+ 
+ int nft_reject_icmp_code(u8 code)
+ {
+-	BUG_ON(code > NFT_REJECT_ICMPX_MAX);
++	if (WARN_ON_ONCE(code > NFT_REJECT_ICMPX_MAX))
++		return ICMP_NET_UNREACH;
+ 
+ 	return icmp_code_v4[code];
  }
+@@ -111,7 +112,8 @@ static u8 icmp_code_v6[NFT_REJECT_ICMPX_MAX + 1] = {
  
- static int ath10k_ahb_hif_power_up(struct ath10k *ar)
-diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
-index d790ea20b95d9..27ab3eb47534f 100644
---- a/drivers/net/wireless/ath/ath10k/pci.c
-+++ b/drivers/net/wireless/ath/ath10k/pci.c
-@@ -1787,9 +1787,9 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
+ int nft_reject_icmpv6_code(u8 code)
+ {
+-	BUG_ON(code > NFT_REJECT_ICMPX_MAX);
++	if (WARN_ON_ONCE(code > NFT_REJECT_ICMPX_MAX))
++		return ICMPV6_NOROUTE;
  
- 	ath10k_pci_irq_disable(ar);
- 	ath10k_pci_irq_sync(ar);
--	ath10k_pci_flush(ar);
- 	napi_synchronize(&ar->napi);
- 	napi_disable(&ar->napi);
-+	ath10k_pci_flush(ar);
- 
- 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
- 	WARN_ON(ar_pci->ps_wake_refcount > 0);
+ 	return icmp_code_v6[code];
+ }
 -- 
 2.20.1
 
