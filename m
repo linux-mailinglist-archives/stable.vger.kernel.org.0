@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16D281016C0
+	by mail.lfdr.de (Postfix) with ESMTP id 84EE11016C1
 	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:56:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731441AbfKSFxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:53:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51644 "EHLO mail.kernel.org"
+        id S1731764AbfKSFxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:53:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51700 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727888AbfKSFxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:53:41 -0500
+        id S1727237AbfKSFxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:53:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 451EF21783;
-        Tue, 19 Nov 2019 05:53:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7E4C21783;
+        Tue, 19 Nov 2019 05:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142820;
-        bh=UupwU4breSByp96+YTz2uZ3ED3NUHaAkfOoof3kWAeI=;
+        s=default; t=1574142823;
+        bh=BpnwpGuXXtlyoebxNxuNBkJRbnnyc53jKXJmL7lQueM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tPR8l6KIhQSdak79Qr/RjEVkNj1gw229oW0EJAFYQbuEc3zLfNBpC+8h7qHP7Xzxg
-         6gAEXypwdJCHH6n4xVv7jFwANYFWvthfATY/FaxHFpmSN2Ipn9eda8IXLMccp5BYqL
-         NdzDkvTYVovAJJs1dxDiSwIHz0IWv7KQ6pD/Hdf8=
+        b=UW0nXiSB63F0V4iJuBoZCpGvyiIlGP5k6O52KBhI6oS9oe2wZtHmfCCi8QSlfBGWq
+         UpcdUTAmzFB70dosSOzJUHbiHcHgibFHL2kaDknc008IYJOEKP8B3NkOPfTEBaCDLL
+         8HcA3EoXzs/bqtEPmzL72vIpTQtPJGKJJqwtQQwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Ernst <justin.ernst@hpe.com>,
-        Borislav Petkov <bp@suse.de>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 209/239] EDAC: Raise the maximum number of memory controllers
-Date:   Tue, 19 Nov 2019 06:20:09 +0100
-Message-Id: <20191119051337.711593264@linuxfoundation.org>
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 210/239] ARM: dts: realview: Fix SPI controller node names
+Date:   Tue, 19 Nov 2019 06:20:10 +0100
+Message-Id: <20191119051337.959920534@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -46,61 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Ernst <justin.ernst@hpe.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 6b58859419554fb824e09cfdd73151a195473cbc ]
+[ Upstream commit 016add12977bcc30f77d7e48fc9a3a024cb46645 ]
 
-We observe an oops in the skx_edac module during boot:
+SPI controller nodes should be named 'spi' rather than 'ssp'. Fixing the
+name enables dtc SPI bus checks.
 
-  EDAC MC0: Giving out device to module skx_edac controller Skylake Socket#0 IMC#0
-  EDAC MC1: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
-  EDAC MC2: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
-  ...
-  EDAC MC13: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
-  EDAC MC14: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
-  EDAC MC15: Giving out device to module skx_edac controller Skylake Socket#1 IMC#1
-  Too many memory controllers: 16
-  EDAC MC: Removed device 0 for skx_edac Skylake Socket#0 IMC#0
-
-We observe there are two memory controllers per socket, with a limit
-of 16. Raise the maximum number of memory controllers from 16 to 2 *
-MAX_NUMNODES (1024).
-
-[ bp: This is just a band-aid fix until we've sorted out the whole issue
-  with the bus_type association and handling in EDAC and can get rid of
-  this arbitrary limit. ]
-
-Signed-off-by: Justin Ernst <justin.ernst@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Russ Anderson <russ.anderson@hpe.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac@vger.kernel.org
-Link: https://lkml.kernel.org/r/20180925143449.284634-1-justin.ernst@hpe.com
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/edac.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/arm-realview-eb.dtsi    | 2 +-
+ arch/arm/boot/dts/arm-realview-pb1176.dts | 2 +-
+ arch/arm/boot/dts/arm-realview-pb11mp.dts | 2 +-
+ arch/arm/boot/dts/arm-realview-pbx.dtsi   | 2 +-
+ arch/arm/boot/dts/versatile-ab.dts        | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/edac.h b/include/linux/edac.h
-index cd75c173fd00b..90f72336aea66 100644
---- a/include/linux/edac.h
-+++ b/include/linux/edac.h
-@@ -17,6 +17,7 @@
- #include <linux/completion.h>
- #include <linux/workqueue.h>
- #include <linux/debugfs.h>
-+#include <linux/numa.h>
+diff --git a/arch/arm/boot/dts/arm-realview-eb.dtsi b/arch/arm/boot/dts/arm-realview-eb.dtsi
+index e2e9599596e25..05379b6c1c13b 100644
+--- a/arch/arm/boot/dts/arm-realview-eb.dtsi
++++ b/arch/arm/boot/dts/arm-realview-eb.dtsi
+@@ -334,7 +334,7 @@
+ 			clock-names = "uartclk", "apb_pclk";
+ 		};
  
- #define EDAC_DEVICE_NAME_LEN	31
+-		ssp: ssp@1000d000 {
++		ssp: spi@1000d000 {
+ 			compatible = "arm,pl022", "arm,primecell";
+ 			reg = <0x1000d000 0x1000>;
+ 			clocks = <&sspclk>, <&pclk>;
+diff --git a/arch/arm/boot/dts/arm-realview-pb1176.dts b/arch/arm/boot/dts/arm-realview-pb1176.dts
+index c789564f28033..c1fd5615ddfe3 100644
+--- a/arch/arm/boot/dts/arm-realview-pb1176.dts
++++ b/arch/arm/boot/dts/arm-realview-pb1176.dts
+@@ -343,7 +343,7 @@
+ 			clock-names = "apb_pclk";
+ 		};
  
-@@ -667,6 +668,6 @@ struct mem_ctl_info {
- /*
-  * Maximum number of memory controllers in the coherent fabric.
-  */
--#define EDAC_MAX_MCS	16
-+#define EDAC_MAX_MCS	2 * MAX_NUMNODES
+-		pb1176_ssp: ssp@1010b000 {
++		pb1176_ssp: spi@1010b000 {
+ 			compatible = "arm,pl022", "arm,primecell";
+ 			reg = <0x1010b000 0x1000>;
+ 			interrupt-parent = <&intc_dc1176>;
+diff --git a/arch/arm/boot/dts/arm-realview-pb11mp.dts b/arch/arm/boot/dts/arm-realview-pb11mp.dts
+index 3944765ac4b06..e306f1cceb4ec 100644
+--- a/arch/arm/boot/dts/arm-realview-pb11mp.dts
++++ b/arch/arm/boot/dts/arm-realview-pb11mp.dts
+@@ -480,7 +480,7 @@
+ 			clock-names = "uartclk", "apb_pclk";
+ 		};
  
- #endif
+-		ssp@1000d000 {
++		spi@1000d000 {
+ 			compatible = "arm,pl022", "arm,primecell";
+ 			reg = <0x1000d000 0x1000>;
+ 			interrupt-parent = <&intc_pb11mp>;
+diff --git a/arch/arm/boot/dts/arm-realview-pbx.dtsi b/arch/arm/boot/dts/arm-realview-pbx.dtsi
+index aeb49c4bd773f..2bf3958b2e6b9 100644
+--- a/arch/arm/boot/dts/arm-realview-pbx.dtsi
++++ b/arch/arm/boot/dts/arm-realview-pbx.dtsi
+@@ -318,7 +318,7 @@
+ 			clock-names = "uartclk", "apb_pclk";
+ 		};
+ 
+-		ssp: ssp@1000d000 {
++		ssp: spi@1000d000 {
+ 			compatible = "arm,pl022", "arm,primecell";
+ 			reg = <0x1000d000 0x1000>;
+ 			clocks = <&sspclk>, <&pclk>;
+diff --git a/arch/arm/boot/dts/versatile-ab.dts b/arch/arm/boot/dts/versatile-ab.dts
+index 4a51612996bc2..a9000d22b2c00 100644
+--- a/arch/arm/boot/dts/versatile-ab.dts
++++ b/arch/arm/boot/dts/versatile-ab.dts
+@@ -304,7 +304,7 @@
+ 			clock-names = "apb_pclk";
+ 		};
+ 
+-		ssp@101f4000 {
++		spi@101f4000 {
+ 			compatible = "arm,pl022", "arm,primecell";
+ 			reg = <0x101f4000 0x1000>;
+ 			interrupts = <11>;
 -- 
 2.20.1
 
