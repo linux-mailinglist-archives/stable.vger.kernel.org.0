@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9527F1017F5
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:05:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF7D101747
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729112AbfKSFhS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:37:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58942 "EHLO mail.kernel.org"
+        id S1730923AbfKSF7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:59:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727137AbfKSFhN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:37:13 -0500
+        id S1731278AbfKSFru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:47:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E492221823;
-        Tue, 19 Nov 2019 05:37:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BEB232071B;
+        Tue, 19 Nov 2019 05:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141833;
-        bh=VHqwNr/2MI7GULDENmCysXqgEJ5Gz68MXJ5DolXPSlw=;
+        s=default; t=1574142470;
+        bh=ZoolEWxOabJwcBM2BzPFOQu5UR4QVvivvteOKpm4ogs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvQKEFJxYricu7D1larYF6UuD0qcjc1yHzVqO7SllOlh3tsPoYdPaVIjua7qOwQtM
-         0NiLHmMqBpX9w2TSZdBBXud6+t5S/3gzL+leHTGOrivdnmnS62U2EI4xKPNyw5ZjPg
-         9s72HrrN5YPu/l8Pq5SZr8AdymGusLQF5LhxL+KU=
+        b=whIEUmAJSPP+2MW9dKy/GT1pKdnqsTLNBvIQ2tAws8uH9wqTr0zF4aHY1psDgoIFT
+         ko6unE6SVTha7SnkqZqudr0JdOF7Am5m5jyyZ5Gq58MinmKPZGL96s/NWXUnvZ+XTj
+         t9Xw1X+4d+98SWIWUWFbGzVLNGNJoclJ+kO8foS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 296/422] ARM: dts: am335x-evm: fix number of cpsw
+Subject: [PATCH 4.14 093/239] signal: Properly deliver SIGSEGV from x86 uprobes
 Date:   Tue, 19 Nov 2019 06:18:13 +0100
-Message-Id: <20191119051418.171853121@linuxfoundation.org>
+Message-Id: <20191119051321.234871754@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grygorii Strashko <grygorii.strashko@ti.com>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit dcbf6b18d81bcdc51390ca1b258c17e2e13b7d0c ]
+[ Upstream commit 4a63c1ffd384ebdce40aac9c997dab68379137be ]
 
-am335x-evm has only one CPSW external port physically wired, but DT defines
-2 ext. ports. As result, PHY connection failure reported for the second
-ext. port.
+For userspace to tell the difference between an random signal
+and an exception, the exception must include siginfo information.
 
-Update DT to reflect am335x-evm board HW configuration, and, while here,
-switch to use phy-handle instead of phy_id.
+Using SEND_SIG_FORCED for SIGSEGV is thus wrong, and it will result in
+userspace seeing si_code == SI_USER (like a random signal) instead of
+si_code == SI_KERNEL or a more specific si_code as all exceptions
+deliver.
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Therefore replace force_sig_info(SIGSEGV, SEND_SIG_FORCE, current)
+with force_sig(SIG_SEGV, current) which gets this right and is shorter
+and easier to type.
+
+Fixes: 791eca10107f ("uretprobes/x86: Hijack return address")
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/am335x-evm.dts | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/x86/kernel/uprobes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
-index 20bbb899b3b76..cc59e42c91342 100644
---- a/arch/arm/boot/dts/am335x-evm.dts
-+++ b/arch/arm/boot/dts/am335x-evm.dts
-@@ -731,6 +731,7 @@
- 	pinctrl-0 = <&cpsw_default>;
- 	pinctrl-1 = <&cpsw_sleep>;
- 	status = "okay";
-+	slaves = <1>;
- };
+diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+index 7a87ef1f5b5e6..73391c1bd2a9a 100644
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -987,7 +987,7 @@ arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs
+ 		pr_err("uprobe: return address clobbered: pid=%d, %%sp=%#lx, "
+ 			"%%ip=%#lx\n", current->pid, regs->sp, regs->ip);
  
- &davinci_mdio {
-@@ -738,15 +739,14 @@
- 	pinctrl-0 = <&davinci_mdio_default>;
- 	pinctrl-1 = <&davinci_mdio_sleep>;
- 	status = "okay";
--};
+-		force_sig_info(SIGSEGV, SEND_SIG_FORCED, current);
++		force_sig(SIGSEGV, current);
+ 	}
  
--&cpsw_emac0 {
--	phy_id = <&davinci_mdio>, <0>;
--	phy-mode = "rgmii-txid";
-+	ethphy0: ethernet-phy@0 {
-+		reg = <0>;
-+	};
- };
- 
--&cpsw_emac1 {
--	phy_id = <&davinci_mdio>, <1>;
-+&cpsw_emac0 {
-+	phy-handle = <&ethphy0>;
- 	phy-mode = "rgmii-txid";
- };
- 
+ 	return -1;
 -- 
 2.20.1
 
