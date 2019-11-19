@@ -2,86 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ECAD102542
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 14:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 004BA10259D
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 14:41:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727255AbfKSNT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 08:19:26 -0500
-Received: from relay.sw.ru ([185.231.240.75]:37432 "EHLO relay.sw.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726378AbfKSNT0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 08:19:26 -0500
-Received: from dhcp-172-16-25-5.sw.ru ([172.16.25.5] helo=i7.sw.ru)
-        by relay.sw.ru with esmtp (Exim 4.92.3)
-        (envelope-from <aryabinin@virtuozzo.com>)
-        id 1iX3PT-0007Sl-0S; Tue, 19 Nov 2019 16:19:11 +0300
-From:   Andrey Ryabinin <aryabinin@virtuozzo.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Hugh Dickins <hughd@google.com>,
-        Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] mm/ksm: Don't WARN if page is still mapped in remove_stable_node()
-Date:   Tue, 19 Nov 2019 16:18:50 +0300
-Message-Id: <20191119131850.5675-1-aryabinin@virtuozzo.com>
-X-Mailer: git-send-email 2.23.0
+        id S1727673AbfKSNlB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 08:41:01 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:34423 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725798AbfKSNlA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 08:41:00 -0500
+Received: by mail-wr1-f65.google.com with SMTP id e6so23929257wrw.1
+        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 05:40:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=0frWimAnATgKKKHvoJQrskDhF0bqqm3M6pcal3BWTtU=;
+        b=xBw7cwQrw8HHpG4Xv+vaxyvfnylpleUcmnmTLmAm11rPf54vSFbmZFkn1KzxLobtCx
+         XbpHkNYA1jUW+4FEX+mqiGa/2kklKzgUBeeOzWNTSRAIpGP4oaVKtrMatENBFjbf+RS2
+         OzueHFtz2b5MQbp17Xpp5dpcPsHJSrhLsRiEW+D67iVbfcB1rjMJxX74vxUox62QAH+D
+         E7tN9rdV+zzI5p8wDQFss1kPGfdtXP0UfIxjWncJCPKbsBPhQEVIyvZ9ihLz990OpqwI
+         ewygdtSPL1CexX8e9kTmEieSAHz+rOUgu+7ZiqpVk/sugDfurNl6A2bgEopAdnSG/66+
+         MDOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=0frWimAnATgKKKHvoJQrskDhF0bqqm3M6pcal3BWTtU=;
+        b=t0mBKBophrMScQ/ikDHyzApqM5Gm4WaTDCLRh3gN+JTBjDHGJ18VQUMr5UNQ9QsUKM
+         RMbCr3aw+v6sju/A8toDNSCZrVfHh6Wd9IDXigP5yEmj0sSnNkrpyDpVjQ86KyThs+6z
+         EBaoGsFZYyEqypOq8IZNUQVp809C0cKKJeI+H8VPv797ujIbL/77M8erZOE1j/o51EK4
+         grNdHXyKLmER4Mz37DfWqT1PhSgWG6gfJPgbLhgNN9JQXYNdAL3OtPGjTh0YAr9gG7UG
+         02P3GBMteXq4hOyYtDEcT1N6w1HNHPMQCeXcU2bEiRZmDJcgPK8kohyFRaJOpshbCsdo
+         RE4A==
+X-Gm-Message-State: APjAAAVNZm3GNTMQkLWqF9+JWnpRNJjCAm0juw+iMNw1aVdX7EHlZ/20
+        QPv64xunCTtq77baYUgrGpQ4SV2NVw0+LQ==
+X-Google-Smtp-Source: APXvYqx1mxE3gsEyZe1yhHAozaoe5Y8HfMfs2j7xDOZT6pdAowD6ckFn/gHHXE+Hfhs4IRBULBcKjw==
+X-Received: by 2002:a5d:5089:: with SMTP id a9mr21359381wrt.57.1574170858665;
+        Tue, 19 Nov 2019 05:40:58 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id r2sm3199293wma.44.2019.11.19.05.40.57
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Nov 2019 05:40:57 -0800 (PST)
+Message-ID: <5dd3f0e9.1c69fb81.3e5f9.f16b@mx.google.com>
+Date:   Tue, 19 Nov 2019 05:40:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.201-179-ge948539072c5
+Subject: stable-rc/linux-4.9.y boot: 97 boots: 1 failed,
+ 86 passed with 10 offline (v4.9.201-179-ge948539072c5)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It's possible to hit the WARN_ON_ONCE(page_mapped(page)) in
-remove_stable_node() when it races with __mmput() and squeezes
-in between ksm_exit() and exit_mmap().
+stable-rc/linux-4.9.y boot: 97 boots: 1 failed, 86 passed with 10 offline (=
+v4.9.201-179-ge948539072c5)
 
- WARNING: CPU: 0 PID: 3295 at mm/ksm.c:888 remove_stable_node+0x10c/0x150
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.201-179-ge948539072c5/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.201-179-ge948539072c5/
 
- Call Trace:
-  remove_all_stable_nodes+0x12b/0x330
-  run_store+0x4ef/0x7b0
-  kernfs_fop_write+0x200/0x420
-  vfs_write+0x154/0x450
-  ksys_write+0xf9/0x1d0
-  do_syscall_64+0x99/0x510
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.201-179-ge948539072c5
+Git Commit: e948539072c5ea11d61b15d4536f9202c88736c2
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 51 unique boards, 20 SoC families, 14 builds out of 197
 
-Remove the warning as there is nothing scary going on.
+Boot Regressions Detected:
 
-Fixes: cbf86cfe04a6 ("ksm: remove old stable nodes more thoroughly")
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: <stable@vger.kernel.org>
+arm:
+
+    bcm2835_defconfig:
+        gcc-8:
+          bcm2835-rpi-b:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
+1-32-gd7f83e4f45e8 - first fail: v4.9.201-180-ga01b8802acde)
+
+    socfpga_defconfig:
+        gcc-8:
+          socfpga_cyclone5_de0_sockit:
+              lab-baylibre-seattle: failing since 1 day (last pass: v4.9.20=
+1-32-gd7f83e4f45e8 - first fail: v4.9.201-180-ga01b8802acde)
+
+Boot Failure Detected:
+
+arm:
+    omap2plus_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            juno-r2: 1 offline lab
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            bcm4708-smartrg-sr400ac: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    socfpga_defconfig:
+        gcc-8
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+
 ---
- mm/ksm.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/mm/ksm.c b/mm/ksm.c
-index dbee2eb4dd05..7905934cd3ad 100644
---- a/mm/ksm.c
-+++ b/mm/ksm.c
-@@ -885,13 +885,13 @@ static int remove_stable_node(struct stable_node *stable_node)
- 		return 0;
- 	}
- 
--	if (WARN_ON_ONCE(page_mapped(page))) {
--		/*
--		 * This should not happen: but if it does, just refuse to let
--		 * merge_across_nodes be switched - there is no need to panic.
--		 */
--		err = -EBUSY;
--	} else {
-+	/*
-+	 * Page could be still mapped if this races with __mmput() running in
-+	 * between ksm_exit() and exit_mmap(). Just refuse to let
-+	 * merge_across_nodes/max_page_sharing be switched.
-+	 */
-+	err = -EBUSY;
-+	if (!page_mapped(page)) {
- 		/*
- 		 * The stable node did not yet appear stale to get_ksm_page(),
- 		 * since that allows for an unmapped ksm page to be recognized
--- 
-2.23.0
-
+For more info write to <info@kernelci.org>
