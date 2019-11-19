@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E9510183F
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE11D101838
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729138AbfKSFd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:33:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54582 "EHLO mail.kernel.org"
+        id S1728253AbfKSFeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:34:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728843AbfKSFd4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:33:56 -0500
+        id S1729129AbfKSFeC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:34:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A00D1206EC;
-        Tue, 19 Nov 2019 05:33:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76D57206EC;
+        Tue, 19 Nov 2019 05:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141636;
-        bh=tU1uL0kgHbeIfHi2VXruJE3ZdOm5oSbiBE7SyjAQ0hs=;
+        s=default; t=1574141642;
+        bh=ks2R9c+gJRIhU1kOjJzzbLPw+dP1+cZFyS4+4a0PfI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X7kesEVqZYerwY76senzfHpws9cTcWPJuhLCCKafRKluQGPAGUmDgW5KKVsmcwLRZ
-         5Rbtr4R5LdqNTmjR5ePW/+M8V0Dri/JKB7a839JI+ITN66qKIQ/jPVjjltD155l3KH
-         KlDFoLjFS7ftHjpLQbzHzG3Fj5TSMmnYewYjTH8Q=
+        b=ueyeqbxVyUMDOcmV/H5yMHIIM6+CW6Qs2b9eyopal0qXpoGpTtfOOPpJcJ3/gk/Eg
+         zxW0844oWoeYmlUXDdARFbkI32fRR0/GGMmcuCN0uPHppVoYHrxvJ/RMQMuNR2D3QI
+         /LqW2sbPsmAEInR5zy6kWXIkGAl5WS0zPFLVy1K8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 188/422] nvmem: core: return error code instead of NULL from nvmem_device_get
-Date:   Tue, 19 Nov 2019 06:16:25 +0100
-Message-Id: <20191119051410.688562851@linuxfoundation.org>
+Subject: [PATCH 4.19 190/422] ALSA: hda: Fix implicit definition of pci_iomap() on SH
+Date:   Tue, 19 Nov 2019 06:16:27 +0100
+Message-Id: <20191119051410.833052144@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,34 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit ca6ac25cecf0e740d7cc8e03e0ebbf8acbeca3df ]
+[ Upstream commit d9b84a15892c02334ac8a5c28865ae54168d9b22 ]
 
-nvmem_device_get() should return ERR_PTR() on error or valid pointer
-on success, but one of the code path seems to return NULL, so fix it.
+Include asm/io.h directly so we've got a definition of pci_iomap(), the
+current set of includes do this implicitly on most architectures but not
+on SH.
 
-Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/hda/patch_ca0132.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index d32eba11c000f..30c040786fde2 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -692,7 +692,7 @@ static struct nvmem_device *nvmem_find(const char *name)
- 	d = bus_find_device_by_name(&nvmem_bus_type, NULL, name);
- 
- 	if (!d)
--		return NULL;
-+		return ERR_PTR(-ENOENT);
- 
- 	return to_nvmem_device(d);
- }
+diff --git a/sound/pci/hda/patch_ca0132.c b/sound/pci/hda/patch_ca0132.c
+index 3e978b75be9ac..f2cabfdced05c 100644
+--- a/sound/pci/hda/patch_ca0132.c
++++ b/sound/pci/hda/patch_ca0132.c
+@@ -31,6 +31,7 @@
+ #include <linux/types.h>
+ #include <linux/io.h>
+ #include <linux/pci.h>
++#include <asm/io.h>
+ #include <sound/core.h>
+ #include "hda_codec.h"
+ #include "hda_local.h"
 -- 
 2.20.1
 
