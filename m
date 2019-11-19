@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F0AC3101866
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A31310185C
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728554AbfKSFcE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:32:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52052 "EHLO mail.kernel.org"
+        id S1729412AbfKSFcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:32:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727811AbfKSFcC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:32:02 -0500
+        id S1728669AbfKSFce (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:32:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9316A208C3;
-        Tue, 19 Nov 2019 05:32:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A135521783;
+        Tue, 19 Nov 2019 05:32:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141522;
-        bh=bps7aspVj9ihpI9mgbBFifMa6gO24Le9UKHhslhfgzc=;
+        s=default; t=1574141554;
+        bh=IPfFpNkXVBfD3r8yyTcbXoGbM9yP96Lps47iWKfbr+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rsq9rnAiqADhhdmdQFohQvfzB5k0OrRsaY3CNomQRUXCBQ0aMCqnQ//uAkmakdgti
-         xo3R9QkVHws1IQLQ70cGGR0RAX2bvYbkfjKus7E/XrcqUxDSeEo/hCDITdCSgqvtts
-         se77CTZaurGeBchLFSOCCdif2JTp24i2QXmQCK5E=
+        b=SNN+tA99KT6sbMWe1yDWHQtnp+5OJQaT5Iz8TjTecFe4dDw14AcEzjax26WF/ZDI3
+         +ZwqULIzYw0Qjr6ol6C/CWf9L3F1JXqUAgd7CkNPljqgSGH7J7irHbfhJ1oZGBHmf5
+         glPtmz4tZbP2l1JbzhBUeNoiHV0GJUm7nGDwUN38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Deepak Ukey <deepak.ukey@microchip.com>,
+        Viswas G <Viswas.G@microchip.com>,
+        Jack Wang <jinpu.wang@profitbricks.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 182/422] ARM: imx6: register pm_power_off handler if "fsl,pmic-stby-poweroff" is set
-Date:   Tue, 19 Nov 2019 06:16:19 +0100
-Message-Id: <20191119051410.265926410@linuxfoundation.org>
+Subject: [PATCH 4.19 183/422] scsi: pm80xx: Corrected dma_unmap_sg() parameter
+Date:   Tue, 19 Nov 2019 06:16:20 +0100
+Message-Id: <20191119051410.334604538@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,72 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleksij Rempel <o.rempel@pengutronix.de>
+From: Deepak Ukey <deepak.ukey@microchip.com>
 
-[ Upstream commit 8148d2136002da2e2887caf6a07bbd9c033f14f3 ]
+[ Upstream commit 76cb25b058034d37244be6aca97a2ad52a5fbcad ]
 
-One of the Freescale recommended sequences for power off with external
-PMIC is the following:
-...
-3.  SoC is programming PMIC for power off when standby is asserted.
-4.  In CCM STOP mode, Standby is asserted, PMIC gates SoC supplies.
+For the function dma_unmap_sg(), the <nents> parameter should be number of
+elements in the scatter list prior to the mapping, not after the mapping.
 
-See:
-http://www.nxp.com/assets/documents/data/en/reference-manuals/IMX6DQRM.pdf
-page 5083
-
-This patch implements step 4. of this sequence.
-
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
+Signed-off-by: Viswas G <Viswas.G@microchip.com>
+Acked-by: Jack Wang <jinpu.wang@profitbricks.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mach-imx/pm-imx6.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/scsi/pm8001/pm8001_sas.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
-index b08e407d8d96f..529f4b5bbd3a7 100644
---- a/arch/arm/mach-imx/pm-imx6.c
-+++ b/arch/arm/mach-imx/pm-imx6.c
-@@ -618,6 +618,28 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
- 				   IMX6Q_GPR1_GINT);
- }
- 
-+static void imx6_pm_stby_poweroff(void)
-+{
-+	imx6_set_lpm(STOP_POWER_OFF);
-+	imx6q_suspend_finish(0);
-+
-+	mdelay(1000);
-+
-+	pr_emerg("Unable to poweroff system\n");
-+}
-+
-+static int imx6_pm_stby_poweroff_probe(void)
-+{
-+	if (pm_power_off) {
-+		pr_warn("%s: pm_power_off already claimed  %p %pf!\n",
-+			__func__, pm_power_off, pm_power_off);
-+		return -EBUSY;
-+	}
-+
-+	pm_power_off = imx6_pm_stby_poweroff;
-+	return 0;
-+}
-+
- void __init imx6_pm_ccm_init(const char *ccm_compat)
- {
- 	struct device_node *np;
-@@ -634,6 +656,9 @@ void __init imx6_pm_ccm_init(const char *ccm_compat)
- 	val = readl_relaxed(ccm_base + CLPCR);
- 	val &= ~BM_CLPCR_LPM;
- 	writel_relaxed(val, ccm_base + CLPCR);
-+
-+	if (of_property_read_bool(np, "fsl,pmic-stby-poweroff"))
-+		imx6_pm_stby_poweroff_probe();
- }
- 
- void __init imx6q_pm_init(void)
+diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
+index 947d6017d004c..576a0f091933b 100644
+--- a/drivers/scsi/pm8001/pm8001_sas.c
++++ b/drivers/scsi/pm8001/pm8001_sas.c
+@@ -466,7 +466,7 @@ err_out:
+ 	dev_printk(KERN_ERR, pm8001_ha->dev, "pm8001 exec failed[%d]!\n", rc);
+ 	if (!sas_protocol_ata(t->task_proto))
+ 		if (n_elem)
+-			dma_unmap_sg(pm8001_ha->dev, t->scatter, n_elem,
++			dma_unmap_sg(pm8001_ha->dev, t->scatter, t->num_scatter,
+ 				t->data_dir);
+ out_done:
+ 	spin_unlock_irqrestore(&pm8001_ha->lock, flags);
 -- 
 2.20.1
 
