@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C16241018FF
+	by mail.lfdr.de (Postfix) with ESMTP id 4CAC61018FE
 	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727104AbfKSFXW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:23:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38980 "EHLO mail.kernel.org"
+        id S1727174AbfKSFX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:23:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727963AbfKSFXW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:23:22 -0500
+        id S1727993AbfKSFX1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:23:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF7F62231A;
-        Tue, 19 Nov 2019 05:23:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2981E2235D;
+        Tue, 19 Nov 2019 05:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141001;
-        bh=sKIeWLn1mX4A/aVFN2Vpovh/sCUJHX5zLURb9S6+bdk=;
+        s=default; t=1574141006;
+        bh=cQeyOvxs7onENN1fn/gu3+UF9kBXixfGOWhFtaeliFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jf46VhDUzVOQEN91L0FoUFkagEH4xMGxTMBrZpjIW3ivoqbrXXfr9b76f55hMJyuo
-         iDtX6RFj4YM3YCcu0zE6SAaWxis8UbL+ATsgdsaKI8mnh+EIxQiiQ49orB1QVpXF8f
-         I93CBkqDmXshhkmeFjLf8DV3f+7CCEZLjNYYJn9k=
+        b=EhPOevOCA7oXGfd6lBMpoG6qmj5DmcIzYwwQ+geDD7RZC3+kS+l9JPmXQ0+nMjcIR
+         FOB29HqKzAWp5t658aKTEMf3d6/WRfYanEqK5kLYU8jh7mH5NzjfEFyFQOlPl+aYUv
+         5drZ3s1G9CeMIpSR/c9t0UMrryFPygfUvGDr9PFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Thain <fthain@telegraphics.com.au>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 003/422] scsi: core: Handle drivers which set sg_tablesize to zero
-Date:   Tue, 19 Nov 2019 06:13:20 +0100
-Message-Id: <20191119051400.455734877@linuxfoundation.org>
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 005/422] ipmr: Fix skb headroom in ipmr_get_route().
+Date:   Tue, 19 Nov 2019 06:13:22 +0100
+Message-Id: <20191119051400.563955281@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,51 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit 9393c8de628cf0968d81a17cc11841e42191e041 upstream.
+[ Upstream commit 7901cd97963d6cbde88fa25a4a446db3554c16c6 ]
 
-In scsi_mq_setup_tags(), cmd_size is calculated based on zero size for the
-scatter-gather list in case the low level driver uses SG_NONE in its host
-template.
+In route.c, inet_rtm_getroute_build_skb() creates an skb with no
+headroom. This skb is then used by inet_rtm_getroute() which may pass
+it to rt_fill_info() and, from there, to ipmr_get_route(). The later
+might try to reuse this skb by cloning it and prepending an IPv4
+header. But since the original skb has no headroom, skb_push() triggers
+skb_under_panic():
 
-cmd_size is passed on to the block layer for calculation of the request
-size, and we've seen NULL pointer dereference errors from the block layer
-in drivers where SG_NONE is used and a mq IO scheduler is active,
-apparently as a consequence of this (see commit 68ab2d76e4be ("scsi:
-cxlflash: Set sg_tablesize to 1 instead of SG_NONE"), and a recent patch by
-Finn Thain converting the three m68k NFR5380 drivers to avoid setting
-SG_NONE).
+skbuff: skb_under_panic: text:00000000ca46ad8a len:80 put:20 head:00000000cd28494e data:000000009366fd6b tail:0x3c end:0xec0 dev:veth0
+------------[ cut here ]------------
+kernel BUG at net/core/skbuff.c:108!
+invalid opcode: 0000 [#1] SMP KASAN PTI
+CPU: 6 PID: 587 Comm: ip Not tainted 5.4.0-rc6+ #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
+RIP: 0010:skb_panic+0xbf/0xd0
+Code: 41 a2 ff 8b 4b 70 4c 8b 4d d0 48 c7 c7 20 76 f5 8b 44 8b 45 bc 48 8b 55 c0 48 8b 75 c8 41 54 41 57 41 56 41 55 e8 75 dc 7a ff <0f> 0b 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00
+RSP: 0018:ffff888059ddf0b0 EFLAGS: 00010286
+RAX: 0000000000000086 RBX: ffff888060a315c0 RCX: ffffffff8abe4822
+RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff88806c9a79cc
+RBP: ffff888059ddf118 R08: ffffed100d9361b1 R09: ffffed100d9361b0
+R10: ffff88805c68aee3 R11: ffffed100d9361b1 R12: ffff88805d218000
+R13: ffff88805c689fec R14: 000000000000003c R15: 0000000000000ec0
+FS:  00007f6af184b700(0000) GS:ffff88806c980000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007ffc8204a000 CR3: 0000000057b40006 CR4: 0000000000360ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ skb_push+0x7e/0x80
+ ipmr_get_route+0x459/0x6fa
+ rt_fill_info+0x692/0x9f0
+ inet_rtm_getroute+0xd26/0xf20
+ rtnetlink_rcv_msg+0x45d/0x630
+ netlink_rcv_skb+0x1a5/0x220
+ rtnetlink_rcv+0x15/0x20
+ netlink_unicast+0x305/0x3a0
+ netlink_sendmsg+0x575/0x730
+ sock_sendmsg+0xb5/0xc0
+ ___sys_sendmsg+0x497/0x4f0
+ __sys_sendmsg+0xcb/0x150
+ __x64_sys_sendmsg+0x48/0x50
+ do_syscall_64+0xd2/0xac0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Try to avoid these errors by accounting for at least one sg list entry when
-calculating cmd_size, regardless of whether the low level driver set a zero
-sg_tablesize.
+Actually the original skb used to have enough headroom, but the
+reserve_skb() call was lost with the introduction of
+inet_rtm_getroute_build_skb() by commit 404eb77ea766 ("ipv4: support
+sport, dport and ip_proto in RTM_GETROUTE").
 
-Tested on 030 m68k with the atari_scsi driver - setting sg_tablesize to
-SG_NONE no longer results in a crash when loading this driver.
+We could reserve some headroom again in inet_rtm_getroute_build_skb(),
+but this function shouldn't be responsible for handling the special
+case of ipmr_get_route(). Let's handle that directly in
+ipmr_get_route() by calling skb_realloc_headroom() instead of
+skb_clone().
 
-CC: Finn Thain <fthain@telegraphics.com.au>
-Link: https://lore.kernel.org/r/1572922150-4358-1-git-send-email-schmitzmic@gmail.com
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 404eb77ea766 ("ipv4: support sport, dport and ip_proto in RTM_GETROUTE")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- drivers/scsi/scsi_lib.c |    3 ++-
+ net/ipv4/ipmr.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -2371,7 +2371,8 @@ int scsi_mq_setup_tags(struct Scsi_Host
- {
- 	unsigned int cmd_size, sgl_size;
- 
--	sgl_size = scsi_mq_sgl_size(shost);
-+	sgl_size = max_t(unsigned int, sizeof(struct scatterlist),
-+			scsi_mq_sgl_size(shost));
- 	cmd_size = sizeof(struct scsi_cmnd) + shost->hostt->cmd_size + sgl_size;
- 	if (scsi_host_get_prot(shost))
- 		cmd_size += sizeof(struct scsi_data_buffer) + sgl_size;
+--- a/net/ipv4/ipmr.c
++++ b/net/ipv4/ipmr.c
+@@ -2278,7 +2278,8 @@ int ipmr_get_route(struct net *net, stru
+ 			rcu_read_unlock();
+ 			return -ENODEV;
+ 		}
+-		skb2 = skb_clone(skb, GFP_ATOMIC);
++
++		skb2 = skb_realloc_headroom(skb, sizeof(struct iphdr));
+ 		if (!skb2) {
+ 			read_unlock(&mrt_lock);
+ 			rcu_read_unlock();
 
 
