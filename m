@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CAC61018FE
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:12:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B564E101894
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727174AbfKSFX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:23:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39100 "EHLO mail.kernel.org"
+        id S1728441AbfKSFZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:25:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727993AbfKSFX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:23:27 -0500
+        id S1728435AbfKSFZn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:25:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2981E2235D;
-        Tue, 19 Nov 2019 05:23:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9929E222DC;
+        Tue, 19 Nov 2019 05:25:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141006;
-        bh=cQeyOvxs7onENN1fn/gu3+UF9kBXixfGOWhFtaeliFc=;
+        s=default; t=1574141142;
+        bh=tu0Rc8b6GxVmN+U6FBQh53szbTYC73ta5z5AP/vLPUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhPOevOCA7oXGfd6lBMpoG6qmj5DmcIzYwwQ+geDD7RZC3+kS+l9JPmXQ0+nMjcIR
-         FOB29HqKzAWp5t658aKTEMf3d6/WRfYanEqK5kLYU8jh7mH5NzjfEFyFQOlPl+aYUv
-         5drZ3s1G9CeMIpSR/c9t0UMrryFPygfUvGDr9PFw=
+        b=D9bPvoICD1GfxaAX5Eel8+o7BzhziiJ4OYaLDrKvxwOkfa6L4BddEyX6shOZG+Wig
+         rcRthvNhIJm3ujl8RyL/dKLzvtYfnQvN7m6Ylb3WPemJR8cpoaSXug1R5msJuh21Tx
+         oPvruHbMII7v7QnGXz3bpEKgn8b9AMjqxUx7VRqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 005/422] ipmr: Fix skb headroom in ipmr_get_route().
-Date:   Tue, 19 Nov 2019 06:13:22 +0100
-Message-Id: <20191119051400.563955281@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jouni Hogander <jouni.hogander@unikie.com>
+Subject: [PATCH 4.19 008/422] slip: Fix memory leak in slip_open error path
+Date:   Tue, 19 Nov 2019 06:13:25 +0100
+Message-Id: <20191119051400.750600561@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -43,83 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Jouni Hogander <jouni.hogander@unikie.com>
 
-[ Upstream commit 7901cd97963d6cbde88fa25a4a446db3554c16c6 ]
+[ Upstream commit 3b5a39979dafea9d0cd69c7ae06088f7a84cdafa ]
 
-In route.c, inet_rtm_getroute_build_skb() creates an skb with no
-headroom. This skb is then used by inet_rtm_getroute() which may pass
-it to rt_fill_info() and, from there, to ipmr_get_route(). The later
-might try to reuse this skb by cloning it and prepending an IPv4
-header. But since the original skb has no headroom, skb_push() triggers
-skb_under_panic():
+Driver/net/can/slcan.c is derived from slip.c. Memory leak was detected
+by Syzkaller in slcan. Same issue exists in slip.c and this patch is
+addressing the leak in slip.c.
 
-skbuff: skb_under_panic: text:00000000ca46ad8a len:80 put:20 head:00000000cd28494e data:000000009366fd6b tail:0x3c end:0xec0 dev:veth0
-------------[ cut here ]------------
-kernel BUG at net/core/skbuff.c:108!
-invalid opcode: 0000 [#1] SMP KASAN PTI
-CPU: 6 PID: 587 Comm: ip Not tainted 5.4.0-rc6+ #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
-RIP: 0010:skb_panic+0xbf/0xd0
-Code: 41 a2 ff 8b 4b 70 4c 8b 4d d0 48 c7 c7 20 76 f5 8b 44 8b 45 bc 48 8b 55 c0 48 8b 75 c8 41 54 41 57 41 56 41 55 e8 75 dc 7a ff <0f> 0b 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00
-RSP: 0018:ffff888059ddf0b0 EFLAGS: 00010286
-RAX: 0000000000000086 RBX: ffff888060a315c0 RCX: ffffffff8abe4822
-RDX: 0000000000000000 RSI: 0000000000000008 RDI: ffff88806c9a79cc
-RBP: ffff888059ddf118 R08: ffffed100d9361b1 R09: ffffed100d9361b0
-R10: ffff88805c68aee3 R11: ffffed100d9361b1 R12: ffff88805d218000
-R13: ffff88805c689fec R14: 000000000000003c R15: 0000000000000ec0
-FS:  00007f6af184b700(0000) GS:ffff88806c980000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007ffc8204a000 CR3: 0000000057b40006 CR4: 0000000000360ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- skb_push+0x7e/0x80
- ipmr_get_route+0x459/0x6fa
- rt_fill_info+0x692/0x9f0
- inet_rtm_getroute+0xd26/0xf20
- rtnetlink_rcv_msg+0x45d/0x630
- netlink_rcv_skb+0x1a5/0x220
- rtnetlink_rcv+0x15/0x20
- netlink_unicast+0x305/0x3a0
- netlink_sendmsg+0x575/0x730
- sock_sendmsg+0xb5/0xc0
- ___sys_sendmsg+0x497/0x4f0
- __sys_sendmsg+0xcb/0x150
- __x64_sys_sendmsg+0x48/0x50
- do_syscall_64+0xd2/0xac0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Here is the slcan memory leak trace reported by Syzkaller:
 
-Actually the original skb used to have enough headroom, but the
-reserve_skb() call was lost with the introduction of
-inet_rtm_getroute_build_skb() by commit 404eb77ea766 ("ipv4: support
-sport, dport and ip_proto in RTM_GETROUTE").
+BUG: memory leak unreferenced object 0xffff888067f65500 (size 4096):
+  comm "syz-executor043", pid 454, jiffies 4294759719 (age 11.930s)
+  hex dump (first 32 bytes):
+    73 6c 63 61 6e 30 00 00 00 00 00 00 00 00 00 00 slcan0..........
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+  backtrace:
+    [<00000000a06eec0d>] __kmalloc+0x18b/0x2c0
+    [<0000000083306e66>] kvmalloc_node+0x3a/0xc0
+    [<000000006ac27f87>] alloc_netdev_mqs+0x17a/0x1080
+    [<0000000061a996c9>] slcan_open+0x3ae/0x9a0
+    [<000000001226f0f9>] tty_ldisc_open.isra.1+0x76/0xc0
+    [<0000000019289631>] tty_set_ldisc+0x28c/0x5f0
+    [<000000004de5a617>] tty_ioctl+0x48d/0x1590
+    [<00000000daef496f>] do_vfs_ioctl+0x1c7/0x1510
+    [<0000000059068dbc>] ksys_ioctl+0x99/0xb0
+    [<000000009a6eb334>] __x64_sys_ioctl+0x78/0xb0
+    [<0000000053d0332e>] do_syscall_64+0x16f/0x580
+    [<0000000021b83b99>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+    [<000000008ea75434>] 0xfffffffffffffff
 
-We could reserve some headroom again in inet_rtm_getroute_build_skb(),
-but this function shouldn't be responsible for handling the special
-case of ipmr_get_route(). Let's handle that directly in
-ipmr_get_route() by calling skb_realloc_headroom() instead of
-skb_clone().
-
-Fixes: 404eb77ea766 ("ipv4: support sport, dport and ip_proto in RTM_GETROUTE")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>
+Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/ipmr.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/slip/slip.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv4/ipmr.c
-+++ b/net/ipv4/ipmr.c
-@@ -2278,7 +2278,8 @@ int ipmr_get_route(struct net *net, stru
- 			rcu_read_unlock();
- 			return -ENODEV;
- 		}
--		skb2 = skb_clone(skb, GFP_ATOMIC);
-+
-+		skb2 = skb_realloc_headroom(skb, sizeof(struct iphdr));
- 		if (!skb2) {
- 			read_unlock(&mrt_lock);
- 			rcu_read_unlock();
+--- a/drivers/net/slip/slip.c
++++ b/drivers/net/slip/slip.c
+@@ -855,6 +855,7 @@ err_free_chan:
+ 	sl->tty = NULL;
+ 	tty->disc_data = NULL;
+ 	clear_bit(SLF_INUSE, &sl->flags);
++	free_netdev(sl->dev);
+ 
+ err_exit:
+ 	rtnl_unlock();
 
 
