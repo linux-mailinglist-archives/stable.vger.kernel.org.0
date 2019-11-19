@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C2ADE101490
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:35:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D135D1015A1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:46:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728488AbfKSFfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:35:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55986 "EHLO mail.kernel.org"
+        id S1730214AbfKSFps (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:45:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729290AbfKSFfH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:35:07 -0500
+        id S1730982AbfKSFpp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:45:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FB48208C3;
-        Tue, 19 Nov 2019 05:35:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B6E92082F;
+        Tue, 19 Nov 2019 05:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141706;
-        bh=rOUJTLLDLcIrzkoJgb4s/aQqCIxC8gU62BXczugNZz8=;
+        s=default; t=1574142344;
+        bh=gQc1TgP91Eg1fBE2eP6CQ+0ionmH6FlDG3R33s8qABo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDN/PTmsq+WJFUURyGrEf1BsmYj5P8tLjiFYBqG+agBO6h7T/XGprzlN7F7nttIkM
-         NtdVvrUdw0UlUsIX5i+qBKkW5bWz6hZdUEalh1BDH3uQB0b/lPIIz2bNYgWFiNVIyZ
-         w4auzy2+zlyKVKQa5FJtFYH2XdELSpnuzNXdXEwg=
+        b=Poaom7iuWaa9vyumom/6gTe/DRAlzjpxhw+KvvkJZC/WCk2xWOB4oAXHHuVL4ibmT
+         zdFgspYoMwKc/doVtFVM305GNjfvelHluWsscj4n+j6dE3uoFF1Ejdvz4w0pVxMyY4
+         hrHOoK+0QVPPZC/i/EJBgp5TL0t9JjVjlHeSrV9g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
-        Corey Minyard <cminyard@mvista.com>,
+        stable@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 253/422] ipmi_si_pci: fix NULL device in ipmi_si error message
+Subject: [PATCH 4.14 050/239] ARM: dts: exynos: Fix regulators configuration on Peach Pi/Pit Chromebooks
 Date:   Tue, 19 Nov 2019 06:17:30 +0100
-Message-Id: <20191119051415.383023929@linuxfoundation.org>
+Message-Id: <20191119051307.357970632@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meelis Roos <mroos@linux.ee>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 01508d9ebf4fc863f2fc4561c390bf4b7c3301a6 ]
+[ Upstream commit f8f3b7fc21b1cb59385b780acd9b9a26d04cb7b2 ]
 
-I noticed that 4.17.0 logs the follwing during ipmi_si setup:
+Regulators, which are marked as 'on-in-suspend' seems to be critical for
+board operation, thus they must not be disabled anytime. This can be
+only assured by marking them as 'always-on', because otherwise some
+actions of their clients might result in turning them off. This patch
+restores suspend/resume operation on Peach-Pit Chromebook board. It
+partially reverts 'always-on' property removal done by the commit
+mentioned in the Fixes tag.
 
- ipmi_si 0000:01:04.6: probing via PCI
- (NULL device *): Could not setup I/O space
- ipmi_si 0000:01:04.6: [mem 0xf5ef0000-0xf5ef00ff] regsize 1 spacing 1 irq 21
-
-Fix the "NULL device *) by moving io.dev assignment before its potential
-use by ipmi_pci_probe_regspacing().
-
-Result:
- ipmi_si 0000:01:04.6: probing via PCI
- ipmi_si 0000:01:04.6: Could not setup I/O space
- ipmi_si 0000:01:04.6: [mem 0xf5ef0000-0xf5ef00ff] regsize 1 spacing 1 irq 21
-
-Signed-off-by: Meelis Roos <mroos@linux.ee>
-Signed-off-by: Corey Minyard <cminyard@mvista.com>
+Fixes: 665c441eea3d ("ARM: dts: exynos: Remove unneded always-on for regulators on Peach boards")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ipmi/ipmi_si_pci.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos5420-peach-pit.dts | 3 +++
+ arch/arm/boot/dts/exynos5800-peach-pi.dts  | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/char/ipmi/ipmi_si_pci.c b/drivers/char/ipmi/ipmi_si_pci.c
-index f54ca6869ed2c..022e03634ce2a 100644
---- a/drivers/char/ipmi/ipmi_si_pci.c
-+++ b/drivers/char/ipmi/ipmi_si_pci.c
-@@ -120,6 +120,8 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
- 	}
- 	io.addr_data = pci_resource_start(pdev, 0);
- 
-+	io.dev = &pdev->dev;
-+
- 	io.regspacing = ipmi_pci_probe_regspacing(&io);
- 	io.regsize = DEFAULT_REGSIZE;
- 	io.regshift = 0;
-@@ -128,8 +130,6 @@ static int ipmi_pci_probe(struct pci_dev *pdev,
- 	if (io.irq)
- 		io.irq_setup = ipmi_std_irq_setup;
- 
--	io.dev = &pdev->dev;
--
- 	dev_info(&pdev->dev, "%pR regsize %d spacing %d irq %d\n",
- 		&pdev->resource[0], io.regsize, io.regspacing, io.irq);
- 
+diff --git a/arch/arm/boot/dts/exynos5420-peach-pit.dts b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+index 7ccee2cfe4812..442161d2acd57 100644
+--- a/arch/arm/boot/dts/exynos5420-peach-pit.dts
++++ b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+@@ -301,6 +301,7 @@
+ 				regulator-name = "vdd_1v35";
+ 				regulator-min-microvolt = <1350000>;
+ 				regulator-max-microvolt = <1350000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -322,6 +323,7 @@
+ 				regulator-name = "vdd_2v";
+ 				regulator-min-microvolt = <2000000>;
+ 				regulator-max-microvolt = <2000000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -332,6 +334,7 @@
+ 				regulator-name = "vdd_1v8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+diff --git a/arch/arm/boot/dts/exynos5800-peach-pi.dts b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+index 0900b38f60b4f..58af2254e5212 100644
+--- a/arch/arm/boot/dts/exynos5800-peach-pi.dts
++++ b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+@@ -301,6 +301,7 @@
+ 				regulator-name = "vdd_1v35";
+ 				regulator-min-microvolt = <1350000>;
+ 				regulator-max-microvolt = <1350000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -322,6 +323,7 @@
+ 				regulator-name = "vdd_2v";
+ 				regulator-min-microvolt = <2000000>;
+ 				regulator-max-microvolt = <2000000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -332,6 +334,7 @@
+ 				regulator-name = "vdd_1v8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
 -- 
 2.20.1
 
