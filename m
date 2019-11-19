@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF63A101751
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:01:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 352BF1016FF
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727866AbfKSGA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:00:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41578 "EHLO mail.kernel.org"
+        id S1730982AbfKSFpu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:45:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728009AbfKSFpr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:45:47 -0500
+        id S1731007AbfKSFpu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:45:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CCFC2075E;
-        Tue, 19 Nov 2019 05:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DC702071B;
+        Tue, 19 Nov 2019 05:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142346;
-        bh=L/S6jj7DjumFJ+aYhX8gtox1aMBuIiR/X1oK5cVsu1Q=;
+        s=default; t=1574142349;
+        bh=eUkZ04H25tcOU3XzyAJgSjCwZ1Hp4q0z9s2RJC9opNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SXY9QJor5QHutRsDpQ6l4He79eLJEk6KmRUJZFVTnga0h5U4L8mloIPiuTJw6YxSC
-         LS1eQfptlQUtMQhRkY3aKF50QF9guU55xsseZmlaq35Yfb1hs0Nbt28jcfNOCHRhLi
-         ZTTWlVGOz8C5XMMBeEwhSN3vzhb/yGjJXCfp5pkk=
+        b=Ovri21FDhi6ajKHNZ1Fhkko6wl7DBxHqb6H6emI/mxgd6OT6VtZtKULIpK17idzMK
+         QhjzMUBSJO6Y6gG8S99QcB5wZOMvZKNlQuJypgLyvkxsqB3hpkAk+pbm35upradx0S
+         m5KAkQ8GBp4OCxYMmNxzBTS+ZJyXg2kj/D9JVRRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
+        =?UTF-8?q?Patryk=20Ma=C5=82ek?= <patryk.malek@intel.com>,
         Andrew Bowers <andrewx.bowers@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 051/239] i40e: use correct length for strncpy
-Date:   Tue, 19 Nov 2019 06:17:31 +0100
-Message-Id: <20191119051307.569380070@linuxfoundation.org>
+Subject: [PATCH 4.14 052/239] i40e: hold the rtnl lock on clearing interrupt scheme
+Date:   Tue, 19 Nov 2019 06:17:32 +0100
+Message-Id: <20191119051307.645659152@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -46,36 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: Patryk Małek <patryk.malek@intel.com>
 
-[ Upstream commit 7eb74ff891b4e94b8bac48f648a21e4b94ddee64 ]
+[ Upstream commit 5cba17b14182696d6bb0ec83a1d087933f252241 ]
 
-Caught by GCC 8. When we provide a length for strncpy, we should not
-include the terminating null. So we must tell it one less than the size
-of the destination buffer.
+Hold the rtnl lock when we're clearing interrupt scheme
+in i40e_shutdown and in i40e_remove.
 
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
+Signed-off-by: Patryk Małek <patryk.malek@intel.com>
 Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_ptp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ptp.c b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-index ef242dbae116b..5fc8707574809 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-@@ -704,7 +704,8 @@ static long i40e_ptp_create_clock(struct i40e_pf *pf)
- 	if (!IS_ERR_OR_NULL(pf->ptp_clock))
- 		return 0;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 39029a12a2337..aa2b446d6ad0f 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -11885,6 +11885,7 @@ static void i40e_remove(struct pci_dev *pdev)
+ 	mutex_destroy(&hw->aq.asq_mutex);
  
--	strncpy(pf->ptp_caps.name, i40e_driver_name, sizeof(pf->ptp_caps.name));
-+	strncpy(pf->ptp_caps.name, i40e_driver_name,
-+		sizeof(pf->ptp_caps.name) - 1);
- 	pf->ptp_caps.owner = THIS_MODULE;
- 	pf->ptp_caps.max_adj = 999999999;
- 	pf->ptp_caps.n_ext_ts = 0;
+ 	/* Clear all dynamic memory lists of rings, q_vectors, and VSIs */
++	rtnl_lock();
+ 	i40e_clear_interrupt_scheme(pf);
+ 	for (i = 0; i < pf->num_alloc_vsi; i++) {
+ 		if (pf->vsi[i]) {
+@@ -11893,6 +11894,7 @@ static void i40e_remove(struct pci_dev *pdev)
+ 			pf->vsi[i] = NULL;
+ 		}
+ 	}
++	rtnl_unlock();
+ 
+ 	for (i = 0; i < I40E_MAX_VEB; i++) {
+ 		kfree(pf->veb[i]);
+@@ -12086,7 +12088,13 @@ static void i40e_shutdown(struct pci_dev *pdev)
+ 	wr32(hw, I40E_PFPM_WUFC,
+ 	     (pf->wol_en ? I40E_PFPM_WUFC_MAG_MASK : 0));
+ 
++	/* Since we're going to destroy queues during the
++	 * i40e_clear_interrupt_scheme() we should hold the RTNL lock for this
++	 * whole section
++	 */
++	rtnl_lock();
+ 	i40e_clear_interrupt_scheme(pf);
++	rtnl_unlock();
+ 
+ 	if (system_state == SYSTEM_POWER_OFF) {
+ 		pci_wake_from_d3(pdev, pf->wol_en);
 -- 
 2.20.1
 
