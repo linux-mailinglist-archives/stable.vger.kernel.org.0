@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E50341013F9
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:29:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AD031013FA
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:29:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbfKSF3E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:29:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47542 "EHLO mail.kernel.org"
+        id S1728394AbfKSF3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:29:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47616 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728388AbfKSF3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:29:04 -0500
+        id S1728914AbfKSF3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:29:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C1F39208C3;
-        Tue, 19 Nov 2019 05:29:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D10EF222DF;
+        Tue, 19 Nov 2019 05:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141342;
-        bh=0mGVJ9uX0ARCdCw/vdbCln6Nb+99wd6SXVvf6W+1R9I=;
+        s=default; t=1574141345;
+        bh=rJZmS8a2liOWHcDaTjgFTXazWE8WcQ8YmMRJxhUxWQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0+D3G4RFix6I+VJuhjoyJoNo0mPkGvhD38FSf7uudAMpKiS7kVsZ4WF95UVgUXcdM
-         7MmY96FxQ/L+KeAia8dHfpXaKLupEIUOUnJEY5seth08P9bheFIQj1Fvaq/BCYL2BD
-         xQ0GPyKFI8Abxw0H4Yy+g6tVrnBw7bEUJeLfbc08=
+        b=Ess/GGr48fVCgBg1V5MupqRWw6efyVbat5aEhXhLWzCXrukiHUqKUC9RGKR+KxwNa
+         uIUfHUBT/bb0BMmRf4ehUzSrcTHcXuR0IaL3vjE8+JhcRuHNk1LdtXFInzO+plpHTE
+         PZ5CrG4cgt11o9C4ZO4aDEbnmq19/HpAJsjYTI7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jun Gao <jun.gao@mediatek.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Daniel Jurgens <danielj@mellanox.com>,
+        Maor Gottlieb <maorg@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 127/422] i2c: mediatek: Use DMA safe buffers for i2c transactions
-Date:   Tue, 19 Nov 2019 06:15:24 +0100
-Message-Id: <20191119051407.175902069@linuxfoundation.org>
+Subject: [PATCH 4.19 128/422] IB/mlx5: Dont hold spin lock while checking device state
+Date:   Tue, 19 Nov 2019 06:15:25 +0100
+Message-Id: <20191119051407.229145815@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,140 +47,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jun Gao <jun.gao@mediatek.com>
+From: Parav Pandit <parav@mellanox.com>
 
-[ Upstream commit fc66b39fe36acfd06f716e338de7cd8f9550fad2 ]
+[ Upstream commit 6c75520f7e5a6a353f3b332509d205e213d05855 ]
 
-DMA mode will always be used in i2c transactions, try to allocate
-a DMA safe buffer if the buf of struct i2c_msg used is not DMA safe.
+mdev->state device state is not protected by the QP for which WRs are
+being processed. Therefore, there is no need to hold spin lock while
+checking mdev state.
 
-Signed-off-by: Jun Gao <jun.gao@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Given that device fatal error is unlikely situation, wrap the condition
+check with unlikely().
+
+Additionally, kernel QP1 is also a kernel ULP for which soft CQEs needs
+to be generated. Therefore, check for device fatal error before
+processing QP1 work requests.
+
+Fixes: 89ea94a7b6c4 ("IB/mlx5: Reset flow support for IB kernel ULPs")
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Maor Gottlieb <maorg@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-mt65xx.c | 62 +++++++++++++++++++++++++++++----
- 1 file changed, 55 insertions(+), 7 deletions(-)
+ drivers/infiniband/hw/mlx5/qp.c | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index 1e57f58fcb001..a74ef76705e0c 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -441,6 +441,8 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	u16 control_reg;
- 	u16 restart_flag = 0;
- 	u32 reg_4g_mode;
-+	u8 *dma_rd_buf = NULL;
-+	u8 *dma_wr_buf = NULL;
- 	dma_addr_t rpaddr = 0;
- 	dma_addr_t wpaddr = 0;
- 	int ret;
-@@ -500,10 +502,18 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	if (i2c->op == I2C_MASTER_RD) {
- 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CON_RX, i2c->pdmabase + OFFSET_CON);
--		rpaddr = dma_map_single(i2c->dev, msgs->buf,
-+
-+		dma_rd_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		if (!dma_rd_buf)
-+			return -ENOMEM;
-+
-+		rpaddr = dma_map_single(i2c->dev, dma_rd_buf,
- 					msgs->len, DMA_FROM_DEVICE);
--		if (dma_mapping_error(i2c->dev, rpaddr))
-+		if (dma_mapping_error(i2c->dev, rpaddr)) {
-+			i2c_put_dma_safe_msg_buf(dma_rd_buf, msgs, false);
-+
- 			return -ENOMEM;
-+		}
+diff --git a/drivers/infiniband/hw/mlx5/qp.c b/drivers/infiniband/hw/mlx5/qp.c
+index 2e7230392a498..ef0f710587ad8 100644
+--- a/drivers/infiniband/hw/mlx5/qp.c
++++ b/drivers/infiniband/hw/mlx5/qp.c
+@@ -4407,6 +4407,12 @@ static int _mlx5_ib_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
+ 	u8 next_fence = 0;
+ 	u8 fence;
  
- 		if (i2c->dev_comp->support_33bits) {
- 			reg_4g_mode = mtk_i2c_set_4g_mode(rpaddr);
-@@ -515,10 +525,18 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	} else if (i2c->op == I2C_MASTER_WR) {
- 		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CON_TX, i2c->pdmabase + OFFSET_CON);
--		wpaddr = dma_map_single(i2c->dev, msgs->buf,
++	if (unlikely(mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR &&
++		     !drain)) {
++		*bad_wr = wr;
++		return -EIO;
++	}
 +
-+		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		if (!dma_wr_buf)
-+			return -ENOMEM;
-+
-+		wpaddr = dma_map_single(i2c->dev, dma_wr_buf,
- 					msgs->len, DMA_TO_DEVICE);
--		if (dma_mapping_error(i2c->dev, wpaddr))
-+		if (dma_mapping_error(i2c->dev, wpaddr)) {
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+
- 			return -ENOMEM;
-+		}
+ 	if (unlikely(ibqp->qp_type == IB_QPT_GSI))
+ 		return mlx5_ib_gsi_post_send(ibqp, wr, bad_wr);
  
- 		if (i2c->dev_comp->support_33bits) {
- 			reg_4g_mode = mtk_i2c_set_4g_mode(wpaddr);
-@@ -530,16 +548,39 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	} else {
- 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_INT_FLAG);
- 		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_CON);
--		wpaddr = dma_map_single(i2c->dev, msgs->buf,
-+
-+		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
-+		if (!dma_wr_buf)
-+			return -ENOMEM;
-+
-+		wpaddr = dma_map_single(i2c->dev, dma_wr_buf,
- 					msgs->len, DMA_TO_DEVICE);
--		if (dma_mapping_error(i2c->dev, wpaddr))
-+		if (dma_mapping_error(i2c->dev, wpaddr)) {
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+
- 			return -ENOMEM;
--		rpaddr = dma_map_single(i2c->dev, (msgs + 1)->buf,
-+		}
-+
-+		dma_rd_buf = i2c_get_dma_safe_msg_buf((msgs + 1), 0);
-+		if (!dma_rd_buf) {
-+			dma_unmap_single(i2c->dev, wpaddr,
-+					 msgs->len, DMA_TO_DEVICE);
-+
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+
-+			return -ENOMEM;
-+		}
-+
-+		rpaddr = dma_map_single(i2c->dev, dma_rd_buf,
- 					(msgs + 1)->len,
- 					DMA_FROM_DEVICE);
- 		if (dma_mapping_error(i2c->dev, rpaddr)) {
- 			dma_unmap_single(i2c->dev, wpaddr,
- 					 msgs->len, DMA_TO_DEVICE);
-+
-+			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
-+			i2c_put_dma_safe_msg_buf(dma_rd_buf, (msgs + 1), false);
-+
- 			return -ENOMEM;
- 		}
+@@ -4416,13 +4422,6 @@ static int _mlx5_ib_post_send(struct ib_qp *ibqp, const struct ib_send_wr *wr,
  
-@@ -578,14 +619,21 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
- 	if (i2c->op == I2C_MASTER_WR) {
- 		dma_unmap_single(i2c->dev, wpaddr,
- 				 msgs->len, DMA_TO_DEVICE);
-+
-+		i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, true);
- 	} else if (i2c->op == I2C_MASTER_RD) {
- 		dma_unmap_single(i2c->dev, rpaddr,
- 				 msgs->len, DMA_FROM_DEVICE);
-+
-+		i2c_put_dma_safe_msg_buf(dma_rd_buf, msgs, true);
- 	} else {
- 		dma_unmap_single(i2c->dev, wpaddr, msgs->len,
- 				 DMA_TO_DEVICE);
- 		dma_unmap_single(i2c->dev, rpaddr, (msgs + 1)->len,
- 				 DMA_FROM_DEVICE);
-+
-+		i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, true);
-+		i2c_put_dma_safe_msg_buf(dma_rd_buf, (msgs + 1), true);
- 	}
+ 	spin_lock_irqsave(&qp->sq.lock, flags);
  
- 	if (ret == 0) {
+-	if (mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR && !drain) {
+-		err = -EIO;
+-		*bad_wr = wr;
+-		nreq = 0;
+-		goto out;
+-	}
+-
+ 	for (nreq = 0; wr; nreq++, wr = wr->next) {
+ 		if (unlikely(wr->opcode >= ARRAY_SIZE(mlx5_ib_opcode))) {
+ 			mlx5_ib_warn(dev, "\n");
+@@ -4737,18 +4736,17 @@ static int _mlx5_ib_post_recv(struct ib_qp *ibqp, const struct ib_recv_wr *wr,
+ 	int ind;
+ 	int i;
+ 
++	if (unlikely(mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR &&
++		     !drain)) {
++		*bad_wr = wr;
++		return -EIO;
++	}
++
+ 	if (unlikely(ibqp->qp_type == IB_QPT_GSI))
+ 		return mlx5_ib_gsi_post_recv(ibqp, wr, bad_wr);
+ 
+ 	spin_lock_irqsave(&qp->rq.lock, flags);
+ 
+-	if (mdev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR && !drain) {
+-		err = -EIO;
+-		*bad_wr = wr;
+-		nreq = 0;
+-		goto out;
+-	}
+-
+ 	ind = qp->rq.head & (qp->rq.wqe_cnt - 1);
+ 
+ 	for (nreq = 0; wr; nreq++, wr = wr->next) {
 -- 
 2.20.1
 
