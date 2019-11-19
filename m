@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 767511013EE
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0DC11013F1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:28:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728888AbfKSF2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:28:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47064 "EHLO mail.kernel.org"
+        id S1728903AbfKSF2q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:28:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728307AbfKSF2h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:28:37 -0500
+        id S1728327AbfKSF2p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:28:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC150208C3;
-        Tue, 19 Nov 2019 05:28:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D3AC21823;
+        Tue, 19 Nov 2019 05:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141316;
-        bh=UBcwiqcs+4h2OQNhYlEoP/ApOIVZSmpdBOgLMo93mcE=;
+        s=default; t=1574141324;
+        bh=vOu5GY2HeiZhUlzomiwDu7QcOj43pllbfrYPDvOkyk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kp7hEZt5PO4JjBumdPIxYqXhCIn5JU59NnCv6KXWWAxoSodHeeR+uZ3YuYHj447fx
-         ZGRmSwIj1aX7n/Xe2/12A7PvEo/Fz10A51UU0bRzekaDrUnlILv7iLTwvbMnf1G8zz
-         O60ggGEv8sC3HWEAtnkTOufiJ/Gn7xhwz98fDSG0=
+        b=05QTRegZsMvxA00gDDfwaMD8611PPcA2mOG5XLyOm47bDcFbz5332kLHg3gfURic1
+         lR6PEu+sKD/zTeg72PrznDh9qEruKY28xNYk98hOPa1+lVeHYMRF7ESU5/HBA/TPt4
+         y/lNxezCyhdsbGZCda4YH9wkjqWp5Psk3eGlHe6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanislaw Gruszka <sgruszka@redhat.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Christian Brauner <christian@brauner.io>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/422] cfg80211: validate wmm rule when setting
-Date:   Tue, 19 Nov 2019 06:15:16 +0100
-Message-Id: <20191119051406.766888842@linuxfoundation.org>
+Subject: [PATCH 4.19 122/422] rtnetlink: move type calculation out of loop
+Date:   Tue, 19 Nov 2019 06:15:19 +0100
+Message-Id: <20191119051406.920820019@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,122 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stanislaw Gruszka <sgruszka@redhat.com>
+From: Christian Brauner <christian@brauner.io>
 
-[ Upstream commit 014f5a250fc49fa8c6cd50093e725e71f3ae52da ]
+[ Upstream commit 87ccbb1f943625884b824c5560f635dcea8e4510 ]
 
-Add validation check for wmm rule when copy rules from fwdb and print
-error when rule is invalid.
+I don't see how the type - which is one of
+RTM_{GETADDR,GETROUTE,GETNETCONF} - can change. So do the message type
+calculation once before entering the for loop.
 
-Signed-off-by: Stanislaw Gruszka <sgruszka@redhat.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Christian Brauner <christian@brauner.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 64 +++++++++++++++++++++++++---------------------
- 1 file changed, 35 insertions(+), 29 deletions(-)
+ net/core/rtnetlink.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index 68ae97ef8bf0b..64841238df855 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -847,22 +847,36 @@ static bool valid_regdb(const u8 *data, unsigned int size)
- 	return true;
- }
- 
--static void set_wmm_rule(struct ieee80211_reg_rule *rrule,
--			 struct fwdb_wmm_rule *wmm)
--{
--	struct ieee80211_wmm_rule *rule = &rrule->wmm_rule;
--	unsigned int i;
-+static void set_wmm_rule(const struct fwdb_header *db,
-+			 const struct fwdb_country *country,
-+			 const struct fwdb_rule *rule,
-+			 struct ieee80211_reg_rule *rrule)
-+{
-+	struct ieee80211_wmm_rule *wmm_rule = &rrule->wmm_rule;
-+	struct fwdb_wmm_rule *wmm;
-+	unsigned int i, wmm_ptr;
-+
-+	wmm_ptr = be16_to_cpu(rule->wmm_ptr) << 2;
-+	wmm = (void *)((u8 *)db + wmm_ptr);
-+
-+	if (!valid_wmm(wmm)) {
-+		pr_err("Invalid regulatory WMM rule %u-%u in domain %c%c\n",
-+		       be32_to_cpu(rule->start), be32_to_cpu(rule->end),
-+		       country->alpha2[0], country->alpha2[1]);
-+		return;
-+	}
- 
- 	for (i = 0; i < IEEE80211_NUM_ACS; i++) {
--		rule->client[i].cw_min =
-+		wmm_rule->client[i].cw_min =
- 			ecw2cw((wmm->client[i].ecw & 0xf0) >> 4);
--		rule->client[i].cw_max = ecw2cw(wmm->client[i].ecw & 0x0f);
--		rule->client[i].aifsn =  wmm->client[i].aifsn;
--		rule->client[i].cot = 1000 * be16_to_cpu(wmm->client[i].cot);
--		rule->ap[i].cw_min = ecw2cw((wmm->ap[i].ecw & 0xf0) >> 4);
--		rule->ap[i].cw_max = ecw2cw(wmm->ap[i].ecw & 0x0f);
--		rule->ap[i].aifsn = wmm->ap[i].aifsn;
--		rule->ap[i].cot = 1000 * be16_to_cpu(wmm->ap[i].cot);
-+		wmm_rule->client[i].cw_max = ecw2cw(wmm->client[i].ecw & 0x0f);
-+		wmm_rule->client[i].aifsn =  wmm->client[i].aifsn;
-+		wmm_rule->client[i].cot =
-+			1000 * be16_to_cpu(wmm->client[i].cot);
-+		wmm_rule->ap[i].cw_min = ecw2cw((wmm->ap[i].ecw & 0xf0) >> 4);
-+		wmm_rule->ap[i].cw_max = ecw2cw(wmm->ap[i].ecw & 0x0f);
-+		wmm_rule->ap[i].aifsn = wmm->ap[i].aifsn;
-+		wmm_rule->ap[i].cot = 1000 * be16_to_cpu(wmm->ap[i].cot);
- 	}
- 
- 	rrule->has_wmm = true;
-@@ -870,7 +884,7 @@ static void set_wmm_rule(struct ieee80211_reg_rule *rrule,
- 
- static int __regdb_query_wmm(const struct fwdb_header *db,
- 			     const struct fwdb_country *country, int freq,
--			     struct ieee80211_reg_rule *rule)
-+			     struct ieee80211_reg_rule *rrule)
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 95768a9fca06e..c0de73b125802 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -3268,13 +3268,13 @@ static int rtnl_dump_all(struct sk_buff *skb, struct netlink_callback *cb)
  {
- 	unsigned int ptr = be16_to_cpu(country->coll_ptr) << 2;
- 	struct fwdb_collection *coll = (void *)((u8 *)db + ptr);
-@@ -879,18 +893,14 @@ static int __regdb_query_wmm(const struct fwdb_header *db,
- 	for (i = 0; i < coll->n_rules; i++) {
- 		__be16 *rules_ptr = (void *)((u8 *)coll + ALIGN(coll->len, 2));
- 		unsigned int rule_ptr = be16_to_cpu(rules_ptr[i]) << 2;
--		struct fwdb_rule *rrule = (void *)((u8 *)db + rule_ptr);
--		struct fwdb_wmm_rule *wmm;
--		unsigned int wmm_ptr;
-+		struct fwdb_rule *rule = (void *)((u8 *)db + rule_ptr);
+ 	int idx;
+ 	int s_idx = cb->family;
++	int type = cb->nlh->nlmsg_type - RTM_BASE;
  
--		if (rrule->len < offsetofend(struct fwdb_rule, wmm_ptr))
-+		if (rule->len < offsetofend(struct fwdb_rule, wmm_ptr))
- 			continue;
+ 	if (s_idx == 0)
+ 		s_idx = 1;
  
--		if (freq >= KHZ_TO_MHZ(be32_to_cpu(rrule->start)) &&
--		    freq <= KHZ_TO_MHZ(be32_to_cpu(rrule->end))) {
--			wmm_ptr = be16_to_cpu(rrule->wmm_ptr) << 2;
--			wmm = (void *)((u8 *)db + wmm_ptr);
--			set_wmm_rule(rule, wmm);
-+		if (freq >= KHZ_TO_MHZ(be32_to_cpu(rule->start)) &&
-+		    freq <= KHZ_TO_MHZ(be32_to_cpu(rule->end))) {
-+			set_wmm_rule(db, country, rule, rrule);
- 			return 0;
- 		}
- 	}
-@@ -972,12 +982,8 @@ static int regdb_query_country(const struct fwdb_header *db,
- 		if (rule->len >= offsetofend(struct fwdb_rule, cac_timeout))
- 			rrule->dfs_cac_ms =
- 				1000 * be16_to_cpu(rule->cac_timeout);
--		if (rule->len >= offsetofend(struct fwdb_rule, wmm_ptr)) {
--			u32 wmm_ptr = be16_to_cpu(rule->wmm_ptr) << 2;
--			struct fwdb_wmm_rule *wmm = (void *)((u8 *)db + wmm_ptr);
--
--			set_wmm_rule(rrule, wmm);
--		}
-+		if (rule->len >= offsetofend(struct fwdb_rule, wmm_ptr))
-+			set_wmm_rule(db, country, rule, rrule);
- 	}
+ 	for (idx = 1; idx <= RTNL_FAMILY_MAX; idx++) {
+ 		struct rtnl_link **tab;
+-		int type = cb->nlh->nlmsg_type-RTM_BASE;
+ 		struct rtnl_link *link;
+ 		rtnl_dumpit_func dumpit;
  
- 	return reg_schedule_apply(regdom);
 -- 
 2.20.1
 
