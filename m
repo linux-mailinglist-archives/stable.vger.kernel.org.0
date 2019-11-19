@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FBCF1017AF
+	by mail.lfdr.de (Postfix) with ESMTP id AD6311017B0
 	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730087AbfKSFkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:40:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34398 "EHLO mail.kernel.org"
+        id S1728876AbfKSFkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:40:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbfKSFkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:40:14 -0500
+        id S1730378AbfKSFkS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:40:18 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8306121783;
-        Tue, 19 Nov 2019 05:40:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E197222DC;
+        Tue, 19 Nov 2019 05:40:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142014;
-        bh=m6fIGk2f8vaLLz+v7jVvYjREXcJWMYr3qzHcOjDW0jg=;
+        s=default; t=1574142016;
+        bh=JQk9omXxklF8VgVrkHHZjnjSyVreUFDVuykH+LeLiPA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ShfMl3LjWDykvWfSp550c77BOtrON6WXswxZqcDeFMaKpNfYIdcHLywYroiEw+cPm
-         HyWBtUYEm1OsTQtyV/NLACxjeonfbu/9NFjuJmlkH6mKQuUzV2BchBnfbGKyUntKk+
-         TAkmFcQ3QeON27JXuV3WbCI5Bz2Zr8L4J9MBo/4E=
+        b=oXQaczOgG1Z/UDLt67eVROE5ZUanKhxm8qozFIJYAH96KSGyxlbMTrFAOxHwa2uPl
+         vLM4+ueIrPgef6ZVjVuQhg9DzXpJEBKGjRMPKH8inZLBouOxv+K8BocXIBksfI0nMK
+         Hs1TXxysg6WXjMCJg+HgE0K1CcXzJCDK3gSavUk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 318/422] net: micrel: fix return type of ndo_start_xmit function
-Date:   Tue, 19 Nov 2019 06:18:35 +0100
-Message-Id: <20191119051419.599634113@linuxfoundation.org>
+Subject: [PATCH 4.19 319/422] net: freescale: fix return type of ndo_start_xmit function
+Date:   Tue, 19 Nov 2019 06:18:36 +0100
+Message-Id: <20191119051419.663640403@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,7 +46,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 2b49117a5abee8478b0470cba46ac74f93b4a479 ]
+[ Upstream commit 06983aa526c759ebdf43f202d8d0491d9494e2f4 ]
 
 The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
 which is a typedef for an enum type, so make sure the implementation in
@@ -59,39 +59,91 @@ Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8695net.c  | 2 +-
- drivers/net/ethernet/micrel/ks8851_mll.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/freescale/dpaa/dpaa_eth.c        | 3 ++-
+ drivers/net/ethernet/freescale/fec_mpc52xx.c          | 3 ++-
+ drivers/net/ethernet/freescale/fs_enet/fs_enet-main.c | 3 ++-
+ drivers/net/ethernet/freescale/gianfar.c              | 4 ++--
+ drivers/net/ethernet/freescale/ucc_geth.c             | 3 ++-
+ 5 files changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8695net.c b/drivers/net/ethernet/micrel/ks8695net.c
-index bd51e057e9150..b881f5d4a7f9e 100644
---- a/drivers/net/ethernet/micrel/ks8695net.c
-+++ b/drivers/net/ethernet/micrel/ks8695net.c
-@@ -1164,7 +1164,7 @@ ks8695_timeout(struct net_device *ndev)
-  *	sk_buff and adds it to the TX ring. It then kicks the TX DMA
-  *	engine to ensure transmission begins.
-  */
--static int
-+static netdev_tx_t
- ks8695_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- {
- 	struct ks8695_priv *ksp = netdev_priv(ndev);
-diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
-index 0e9719fbc6243..35f8c9ef204d9 100644
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -1021,9 +1021,9 @@ static void ks_write_qmu(struct ks_net *ks, u8 *pdata, u16 len)
-  * spin_lock_irqsave is required because tx and rx should be mutual exclusive.
-  * So while tx is in-progress, prevent IRQ interrupt from happenning.
-  */
--static int ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
-+static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
--	int retv = NETDEV_TX_OK;
-+	netdev_tx_t retv = NETDEV_TX_OK;
- 	struct ks_net *ks = netdev_priv(netdev);
+diff --git a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+index d7915cd68dc14..462bb8c4f80c9 100644
+--- a/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
++++ b/drivers/net/ethernet/freescale/dpaa/dpaa_eth.c
+@@ -2046,7 +2046,8 @@ static inline int dpaa_xmit(struct dpaa_priv *priv,
+ 	return 0;
+ }
  
- 	disable_irq(netdev->irq);
+-static int dpaa_start_xmit(struct sk_buff *skb, struct net_device *net_dev)
++static netdev_tx_t
++dpaa_start_xmit(struct sk_buff *skb, struct net_device *net_dev)
+ {
+ 	const int queue_mapping = skb_get_queue_mapping(skb);
+ 	bool nonlinear = skb_is_nonlinear(skb);
+diff --git a/drivers/net/ethernet/freescale/fec_mpc52xx.c b/drivers/net/ethernet/freescale/fec_mpc52xx.c
+index 6d7269d87a850..b90bab72efdb3 100644
+--- a/drivers/net/ethernet/freescale/fec_mpc52xx.c
++++ b/drivers/net/ethernet/freescale/fec_mpc52xx.c
+@@ -305,7 +305,8 @@ static int mpc52xx_fec_close(struct net_device *dev)
+  * invariant will hold if you make sure that the netif_*_queue()
+  * calls are done at the proper times.
+  */
+-static int mpc52xx_fec_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++mpc52xx_fec_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct mpc52xx_fec_priv *priv = netdev_priv(dev);
+ 	struct bcom_fec_bd *bd;
+diff --git a/drivers/net/ethernet/freescale/fs_enet/fs_enet-main.c b/drivers/net/ethernet/freescale/fs_enet/fs_enet-main.c
+index 2c2976a2dda6b..7c548ed535da5 100644
+--- a/drivers/net/ethernet/freescale/fs_enet/fs_enet-main.c
++++ b/drivers/net/ethernet/freescale/fs_enet/fs_enet-main.c
+@@ -481,7 +481,8 @@ static struct sk_buff *tx_skb_align_workaround(struct net_device *dev,
+ }
+ #endif
+ 
+-static int fs_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++fs_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct fs_enet_private *fep = netdev_priv(dev);
+ 	cbd_t __iomem *bdp;
+diff --git a/drivers/net/ethernet/freescale/gianfar.c b/drivers/net/ethernet/freescale/gianfar.c
+index f27f9bae1a4ac..c97c4edfa31bc 100644
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -112,7 +112,7 @@
+ const char gfar_driver_version[] = "2.0";
+ 
+ static int gfar_enet_open(struct net_device *dev);
+-static int gfar_start_xmit(struct sk_buff *skb, struct net_device *dev);
++static netdev_tx_t gfar_start_xmit(struct sk_buff *skb, struct net_device *dev);
+ static void gfar_reset_task(struct work_struct *work);
+ static void gfar_timeout(struct net_device *dev);
+ static int gfar_close(struct net_device *dev);
+@@ -2334,7 +2334,7 @@ static inline bool gfar_csum_errata_76(struct gfar_private *priv,
+ /* This is called by the kernel when a frame is ready for transmission.
+  * It is pointed to by the dev->hard_start_xmit function pointer
+  */
+-static int gfar_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t gfar_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct gfar_private *priv = netdev_priv(dev);
+ 	struct gfar_priv_tx_q *tx_queue = NULL;
+diff --git a/drivers/net/ethernet/freescale/ucc_geth.c b/drivers/net/ethernet/freescale/ucc_geth.c
+index 1e2b53a934fb9..a5bf02ae4bc5c 100644
+--- a/drivers/net/ethernet/freescale/ucc_geth.c
++++ b/drivers/net/ethernet/freescale/ucc_geth.c
+@@ -3085,7 +3085,8 @@ static int ucc_geth_startup(struct ucc_geth_private *ugeth)
+ 
+ /* This is called by the kernel when a frame is ready for transmission. */
+ /* It is pointed to by the dev->hard_start_xmit function pointer */
+-static int ucc_geth_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++ucc_geth_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ucc_geth_private *ugeth = netdev_priv(dev);
+ #ifdef CONFIG_UGETH_TX_ON_DEMAND
 -- 
 2.20.1
 
