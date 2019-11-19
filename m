@@ -2,123 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0C3102DE4
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 22:02:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71511102E3C
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 22:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726711AbfKSVCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 16:02:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34506 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727467AbfKSVCU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 16:02:20 -0500
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D64972245B;
-        Tue, 19 Nov 2019 21:02:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574197339;
-        bh=MgeNnAjFeQsQ0hYQpdXYYybm4fGfiOsaz4xFfqL6j9U=;
-        h=Date:From:To:Subject:From;
-        b=XiFC4gU6/q7P5HdP9d4tm5086q2KLVU7y2H2nXpk+3ElDls/i32IFVrO0Tf/HA3zL
-         /WXtp+u98Co90jDvz1FNdDemecuh6EZK035BxXV29TAn1IJqrbBo0nQ50B60kPadtw
-         2JYQshNq9px5z7uQBPpQ0k68cZmWsyU+StqoGPiQ=
-Date:   Tue, 19 Nov 2019 13:02:18 -0800
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        hughd@google.com, aarcange@redhat.com, aryabinin@virtuozzo.com
-Subject:  +
- mm-ksm-dont-warn-if-page-is-still-mapped-in-remove_stable_node.patch added to
- -mm tree
-Message-ID: <20191119210218.LGoMg%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.13
+        id S1726892AbfKSVbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 16:31:43 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:47972 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726874AbfKSVbn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 16:31:43 -0500
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iXB65-0003lK-Oz; Tue, 19 Nov 2019 21:31:41 +0000
+Received: from ben by deadeye with local (Exim 4.93-RC1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iXB65-00053v-C0; Tue, 19 Nov 2019 21:31:41 +0000
+Date:   Tue, 19 Nov 2019 21:31:41 +0000
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Konstantin Ryabitsev <konstantin@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: [PATCH website] releases: Extend 3.16 EOL to match Debian 8
+Message-ID: <20191119213141.GA19244@decadent.org.uk>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
+Content-Disposition: inline
+User-Agent: Mutt/1.12.2 (2019-09-21)
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/ksm.c: don't WARN if page is still mapped in remove_stable_node()
-has been added to the -mm tree.  Its filename is
-     mm-ksm-dont-warn-if-page-is-still-mapped-in-remove_stable_node.patch
+--a8Wt8u1KmwUX3Y2C
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-ksm-dont-warn-if-page-is-still-mapped-in-remove_stable_node.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-ksm-dont-warn-if-page-is-still-mapped-in-remove_stable_node.patch
+I'm maintaining 3.16 primarily for Debian 8.  I originally expected
+that to have an EOL of April 2020 but it's actually June.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Subject: mm/ksm.c: don't WARN if page is still mapped in remove_stable_node()
-
-It's possible to hit the WARN_ON_ONCE(page_mapped(page)) in
-remove_stable_node() when it races with __mmput() and squeezes in between
-ksm_exit() and exit_mmap().
-
- WARNING: CPU: 0 PID: 3295 at mm/ksm.c:888 remove_stable_node+0x10c/0x150
-
- Call Trace:
-  remove_all_stable_nodes+0x12b/0x330
-  run_store+0x4ef/0x7b0
-  kernfs_fop_write+0x200/0x420
-  vfs_write+0x154/0x450
-  ksys_write+0xf9/0x1d0
-  do_syscall_64+0x99/0x510
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Remove the warning as there is nothing scary going on.
-
-Link: http://lkml.kernel.org/r/20191119131850.5675-1-aryabinin@virtuozzo.com
-Fixes: cbf86cfe04a6 ("ksm: remove old stable nodes more thoroughly")
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
+ content/releases.rst | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- mm/ksm.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+diff --git a/content/releases.rst b/content/releases.rst
+index dbbe0d69db9d..0908fd090cdc 100644
+--- a/content/releases.rst
++++ b/content/releases.rst
+@@ -45,7 +45,7 @@ Longterm
+     4.14     Greg Kroah-Hartman & Sasha Levin 2017-11-12   Jan, 2024
+     4.9      Greg Kroah-Hartman & Sasha Levin 2016-12-11   Jan, 2023
+     4.4      Greg Kroah-Hartman & Sasha Levin 2016-01-10   Feb, 2022
+-    3.16     Ben Hutchings                    2014-08-03   Apr, 2020
++    3.16     Ben Hutchings                    2014-08-03   Jun, 2020
+     =3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=20
+ Distribution kernels
 
---- a/mm/ksm.c~mm-ksm-dont-warn-if-page-is-still-mapped-in-remove_stable_node
-+++ a/mm/ksm.c
-@@ -885,13 +885,13 @@ static int remove_stable_node(struct sta
- 		return 0;
- 	}
- 
--	if (WARN_ON_ONCE(page_mapped(page))) {
--		/*
--		 * This should not happen: but if it does, just refuse to let
--		 * merge_across_nodes be switched - there is no need to panic.
--		 */
--		err = -EBUSY;
--	} else {
-+	/*
-+	 * Page could be still mapped if this races with __mmput() running in
-+	 * between ksm_exit() and exit_mmap(). Just refuse to let
-+	 * merge_across_nodes/max_page_sharing be switched.
-+	 */
-+	err = -EBUSY;
-+	if (!page_mapped(page)) {
- 		/*
- 		 * The stable node did not yet appear stale to get_ksm_page(),
- 		 * since that allows for an unmapped ksm page to be recognized
-_
+--a8Wt8u1KmwUX3Y2C
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Patches currently in -mm which might be from aryabinin@virtuozzo.com are
+-----BEGIN PGP SIGNATURE-----
 
-mm-ksm-dont-warn-if-page-is-still-mapped-in-remove_stable_node.patch
-mm-vmscan-remove-unused-lru_pages-argument.patch
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl3UXzgACgkQ57/I7JWG
+EQk+tw/+OOFHZ73t48BRbhufzQRpHIENPtHcOyCzpOpEAalQX6cFAO4N47xWhrdF
+EFHT7sK5Q/4PRuA+fzksuBPonXBLlDo3VPtB8hb9ILp+9pjyPoLp4+gMDsw4E5dH
+2/PP2hDAUQ6ircxZEj2UFjd1FKTQs8bIZwo/nagnldCLl4UWnodtj8k8o10ezbmb
+5Tk912RIpPKUMjpYYRkEkhgtkslvCeWHh2OA/CEFDicZ3WcDtBvWXyPVSzYCmyHE
+7fGNGo2rbhd+O256RJFi5D56hCKgDF10mgDIoAhmVzh99IIMVwznnse98huYxkta
+MSBDL+GK+FflueV3pbyC4TdvvcAtg+D1uSQ7b+n2AXH73gLEfAtIQh+9HrLP2Gnk
+yDUy3DlO9eefM5AKe5TRnUDikPmTSLqCjV9GT3weW5MTJ7uhAi/6GbFmyN8Flz00
+xCDFBg4kTh/zCVKv2X01pu172tyUjKWBB6oCPWd+HJCmoAeh9pL/kuTrZDCCwRTX
+l10Rl9C3i9tkiXSuGwfNGRRixxUJczH/sKTkGRA5UFw4xrDkxJh9wKHinbjlqaJ7
+nduMBarzEzyYeEDFtno4u/bTdqjJHGMRKoJznKMTd0tnf4QfkjmlPvydvHn83+8/
+go1/in2NLj7cO+hQ02q5RXDjJrtxqYs2wded0IEagAVJdJcZ+ew=
+=6FzO
+-----END PGP SIGNATURE-----
 
+--a8Wt8u1KmwUX3Y2C--
