@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5345B1017EC
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:05:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E044610170F
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729736AbfKSFiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:38:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59892 "EHLO mail.kernel.org"
+        id S1730870AbfKSFqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:46:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727176AbfKSFiB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:38:01 -0500
+        id S1730650AbfKSFqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:46:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA5AB208C3;
-        Tue, 19 Nov 2019 05:37:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6628F2071B;
+        Tue, 19 Nov 2019 05:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141880;
-        bh=6rLXOOpyhENEwIWRMZg72JBdXNe4tH+Hrc/ZYftRZBI=;
+        s=default; t=1574142408;
+        bh=5y7jySM1EY7FEWm+rSzD2iseCEIB0/ban7fS0k4+TEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n5i99zOZdl9J2wN1/SV4ArQ3qBlj2ZIo6XVpk2Kkx4+kTfcxdc7FTG/abcmDP+wvT
-         j03svwM94m3Y3fA36aoP7lICn89IPAUtzrt7ih1pVsKCX3BBZLXAqJNP1oyTgPTwTI
-         8febHINGRY8XB6XKlseq3U5yUUt5vDJ9ZsKnP6Xg=
+        b=ZJm42z5BUicUjoUcBzGGuolHUVp8mX9OJLQT27wT+1bHtZVLVVvm8lVnxl912QjvH
+         sV+AkslNTWWk0tDz6SlC+7TrABnKD70hHxM0dnVWYWmtu9KGxs0vMOHu4dhjUGXUo5
+         NfzGOEjglPgjgZHJ2sIfj5GwGf2r7/6LmOewOQ7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Muhammad Sammar <muhammads@mellanox.com>,
+        Feras Daoud <ferasda@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 272/422] power: supply: twl4030_charger: disable eoc interrupt on linear charge
-Date:   Tue, 19 Nov 2019 06:17:49 +0100
-Message-Id: <20191119051416.614384894@linuxfoundation.org>
+Subject: [PATCH 4.14 070/239] IB/ipoib: Ensure that MTU isnt less than minimum permitted
+Date:   Tue, 19 Nov 2019 06:17:50 +0100
+Message-Id: <20191119051313.031606081@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Muhammad Sammar <muhammads@mellanox.com>
 
-[ Upstream commit 079cdff3d0a09c5da10ae1be35def7a116776328 ]
+[ Upstream commit 142a9c287613560edf5a03c8d142c8b6ebc1995b ]
 
-This avoids getting woken up from suspend after power interruptions
-when the bci wrongly thinks the battery is full just because
-of input current going low because of low input power
+It is illegal to change MTU to a value lower than the minimum MTU
+stated in ethernet spec. In addition to that we need to add 4 bytes
+for encapsulation header (IPOIB_ENCAP_LEN).
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Before "ifconfig ib0 mtu 0" command, succeeds while it obviously shouldn't.
+
+Signed-off-by: Muhammad Sammar <muhammads@mellanox.com>
+Reviewed-by: Feras Daoud <ferasda@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/twl4030_charger.c | 27 +++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+ drivers/infiniband/ulp/ipoib/ipoib_main.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
-index adcaa0a10a6f4..0e202d4273fb6 100644
---- a/drivers/power/supply/twl4030_charger.c
-+++ b/drivers/power/supply/twl4030_charger.c
-@@ -440,6 +440,7 @@ static void twl4030_current_worker(struct work_struct *data)
- static int twl4030_charger_enable_usb(struct twl4030_bci *bci, bool enable)
- {
- 	int ret;
-+	u32 reg;
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_main.c b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+index 1a93d3d58c8a4..caae4bfab950d 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+@@ -249,7 +249,8 @@ static int ipoib_change_mtu(struct net_device *dev, int new_mtu)
+ 		return 0;
+ 	}
  
- 	if (bci->usb_mode == CHARGE_OFF)
- 		enable = false;
-@@ -453,14 +454,38 @@ static int twl4030_charger_enable_usb(struct twl4030_bci *bci, bool enable)
- 			bci->usb_enabled = 1;
- 		}
+-	if (new_mtu > IPOIB_UD_MTU(priv->max_ib_mtu))
++	if (new_mtu < (ETH_MIN_MTU + IPOIB_ENCAP_LEN) ||
++	    new_mtu > IPOIB_UD_MTU(priv->max_ib_mtu))
+ 		return -EINVAL;
  
--		if (bci->usb_mode == CHARGE_AUTO)
-+		if (bci->usb_mode == CHARGE_AUTO) {
-+			/* Enable interrupts now. */
-+			reg = ~(u32)(TWL4030_ICHGLOW | TWL4030_ICHGEOC |
-+					TWL4030_TBATOR2 | TWL4030_TBATOR1 |
-+					TWL4030_BATSTS);
-+			ret = twl_i2c_write_u8(TWL4030_MODULE_INTERRUPTS, reg,
-+				       TWL4030_INTERRUPTS_BCIIMR1A);
-+			if (ret < 0) {
-+				dev_err(bci->dev,
-+					"failed to unmask interrupts: %d\n",
-+					ret);
-+				return ret;
-+			}
- 			/* forcing the field BCIAUTOUSB (BOOT_BCI[1]) to 1 */
- 			ret = twl4030_clear_set_boot_bci(0, TWL4030_BCIAUTOUSB);
-+		}
- 
- 		/* forcing USBFASTMCHG(BCIMFSTS4[2]) to 1 */
- 		ret = twl4030_clear_set(TWL_MODULE_MAIN_CHARGE, 0,
- 			TWL4030_USBFASTMCHG, TWL4030_BCIMFSTS4);
- 		if (bci->usb_mode == CHARGE_LINEAR) {
-+			/* Enable interrupts now. */
-+			reg = ~(u32)(TWL4030_ICHGLOW | TWL4030_TBATOR2 |
-+					TWL4030_TBATOR1 | TWL4030_BATSTS);
-+			ret = twl_i2c_write_u8(TWL4030_MODULE_INTERRUPTS, reg,
-+				       TWL4030_INTERRUPTS_BCIIMR1A);
-+			if (ret < 0) {
-+				dev_err(bci->dev,
-+					"failed to unmask interrupts: %d\n",
-+					ret);
-+				return ret;
-+			}
- 			twl4030_clear_set_boot_bci(TWL4030_BCIAUTOAC|TWL4030_CVENAC, 0);
- 			/* Watch dog key: WOVF acknowledge */
- 			ret = twl_i2c_write_u8(TWL_MODULE_MAIN_CHARGE, 0x33,
+ 	priv->admin_mtu = new_mtu;
 -- 
 2.20.1
 
