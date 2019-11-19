@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CF31101765
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:01:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9158F101812
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:06:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727763AbfKSGBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:01:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39772 "EHLO mail.kernel.org"
+        id S1728393AbfKSFej (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:34:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730841AbfKSFoZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:44:25 -0500
+        id S1729702AbfKSFei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:34:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0238B208C3;
-        Tue, 19 Nov 2019 05:44:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86B41208C3;
+        Tue, 19 Nov 2019 05:34:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142264;
-        bh=CblsfOa4ImQQFEaNqUn3K8K/yi1ZGlhGRYKFVXGUr8E=;
+        s=default; t=1574141678;
+        bh=djqdZXlQ3iLn+R5cPJY6lBtwWI+0PBuh+RGdpxjWQW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5gLBJcBI9V2//AmAyk6a3aCIY05IOt6YVYwNTMJ7hOIxaD/98TObdJRVelK/bChT
-         /7vIh5Rbprpve2PZJignMWtGXBYas3iyBcY+LgIL736f0yYWzL6pLhgVS0mC2xtc3L
-         P/y+hYL8vPPKlrBVqqfc+/M51Eu4ieK8FZ2y4DUs=
+        b=YfqscCqfTI+O3T0VNKb2Im/2Hfa0r+y+fkGswlIVhxggbTGeWgpo/PHuDTvOws92Y
+         dgq9NfUSoUQUhXUankT7vYhK3RR3ew3sv+i2LO+9gmFbEATOY//arccliB3+qX976m
+         KrGpzeNSjDSqDQixaqvkDOTwUy6QZLVGjU3mPw2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.14 022/239] ecryptfs_lookup_interpose(): lower_dentry->d_inode is not stable
-Date:   Tue, 19 Nov 2019 06:17:02 +0100
-Message-Id: <20191119051301.789712716@linuxfoundation.org>
+        stable@vger.kernel.org, Banajit Goswami <bgoswami@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 226/422] component: fix loop condition to call unbind() if bind() fails
+Date:   Tue, 19 Nov 2019 06:17:03 +0100
+Message-Id: <20191119051413.281574543@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Banajit Goswami <bgoswami@codeaurora.org>
 
-commit e72b9dd6a5f17d0fb51f16f8685f3004361e83d0 upstream.
+[ Upstream commit bdae566d5d9733b6e32b378668b84eadf28a94d4 ]
 
-lower_dentry can't go from positive to negative (we have it pinned),
-but it *can* go from negative to positive.  So fetching ->d_inode
-into a local variable, doing a blocking allocation, checking that
-now ->d_inode is non-NULL and feeding the value we'd fetched
-earlier to a function that won't accept NULL is not a good idea.
+During component_bind_all(), if bind() fails for any
+particular component associated with a master, unbind()
+should be called for all previous components in that
+master's match array, whose bind() might have completed
+successfully. As per the current logic, if bind() fails
+for the component at position 'n' in the master's match
+array, it would start calling unbind() from component in
+'n'th position itself and work backwards, and will always
+skip calling unbind() for component in 0th position in the
+master's match array.
+Fix this by updating the loop condition, and the logic to
+refer to the components in master's match array, so that
+unbind() is called for all components starting from 'n-1'st
+position in the array, until (and including) component in
+0th position.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Banajit Goswami <bgoswami@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ecryptfs/inode.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/base/component.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ecryptfs/inode.c
-+++ b/fs/ecryptfs/inode.c
-@@ -326,7 +326,7 @@ static int ecryptfs_i_size_read(struct d
- static struct dentry *ecryptfs_lookup_interpose(struct dentry *dentry,
- 				     struct dentry *lower_dentry)
- {
--	struct inode *inode, *lower_inode = d_inode(lower_dentry);
-+	struct inode *inode, *lower_inode;
- 	struct ecryptfs_dentry_info *dentry_info;
- 	struct vfsmount *lower_mnt;
- 	int rc = 0;
-@@ -349,7 +349,15 @@ static struct dentry *ecryptfs_lookup_in
- 	dentry_info->lower_path.mnt = lower_mnt;
- 	dentry_info->lower_path.dentry = lower_dentry;
+diff --git a/drivers/base/component.c b/drivers/base/component.c
+index 8946dfee4768e..e8d676fad0c95 100644
+--- a/drivers/base/component.c
++++ b/drivers/base/component.c
+@@ -536,9 +536,9 @@ int component_bind_all(struct device *master_dev, void *data)
+ 		}
  
--	if (d_really_is_negative(lower_dentry)) {
-+	/*
-+	 * negative dentry can go positive under us here - its parent is not
-+	 * locked.  That's OK and that could happen just as we return from
-+	 * ecryptfs_lookup() anyway.  Just need to be careful and fetch
-+	 * ->d_inode only once - it's not stable here.
-+	 */
-+	lower_inode = READ_ONCE(lower_dentry->d_inode);
-+
-+	if (!lower_inode) {
- 		/* We want to add because we couldn't find in lower */
- 		d_add(dentry, NULL);
- 		return NULL;
+ 	if (ret != 0) {
+-		for (; i--; )
+-			if (!master->match->compare[i].duplicate) {
+-				c = master->match->compare[i].component;
++		for (; i > 0; i--)
++			if (!master->match->compare[i - 1].duplicate) {
++				c = master->match->compare[i - 1].component;
+ 				component_unbind(c, master, data);
+ 			}
+ 	}
+-- 
+2.20.1
+
 
 
