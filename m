@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E44601015E9
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 676AC1014D8
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:38:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731367AbfKSFsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:48:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45094 "EHLO mail.kernel.org"
+        id S1729409AbfKSFiB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:38:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731366AbfKSFs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:48:29 -0500
+        id S1730134AbfKSFh5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:37:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 205F22071B;
-        Tue, 19 Nov 2019 05:48:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0330206EC;
+        Tue, 19 Nov 2019 05:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142508;
-        bh=+tsNtYF+z2Lyp9tPCd2Dr0PqAGfSfurgQujhAXNneP8=;
+        s=default; t=1574141877;
+        bh=yz5PejhQbGuzk/AXf4ICBQpxa/55np+whAzr4vywspM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zB2dSly+InjnRQmeygzpkYQS7ad8lse2+wZj4ihGblipnhO4383OMxPGEFQuWsGfN
-         JB8wCY5nGwFIqSSwMhgapgNmejWra9kqst9Lk34U/5QznhNAoRz0OI1soVkxH+XVDO
-         TYswGQyrDFk4r6kwigCLK4AQYYMCoRG2rtRb1prI=
+        b=ey95zcAjY44/GLDFRgNWBF6zUb3Spun+YOkMRKc2snoxFrzGwnSMMS2AdBKKGpjYa
+         QOGgVvA0SPJ/qHLl5qlXTa0NpBTOR/46DK1X1MrmznWg9Im83XkbDRa9HvYulQSo2w
+         b9Evqo1NHmrw7KTF8KekNLgyzPRG3ZFZICJe7mOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Yannick=20Fertr=C3=A9?= <yannick.fertre@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 105/239] nvmem: core: return error code instead of NULL from nvmem_device_get
-Date:   Tue, 19 Nov 2019 06:18:25 +0100
-Message-Id: <20191119051325.923866588@linuxfoundation.org>
+Subject: [PATCH 4.19 309/422] ARM: dts: stm32: enable display on stm32mp157c-ev1 board
+Date:   Tue, 19 Nov 2019 06:18:26 +0100
+Message-Id: <20191119051419.021836317@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Yannick Fertré <yannick.fertre@st.com>
 
-[ Upstream commit ca6ac25cecf0e740d7cc8e03e0ebbf8acbeca3df ]
+[ Upstream commit 67330599f93672bd351123c729e2591a460fd24c ]
 
-nvmem_device_get() should return ERR_PTR() on error or valid pointer
-on success, but one of the code path seems to return NULL, so fix it.
+Enable panel raydium RM68200, DSI bridge & display controller.
 
-Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yannick Fertré <yannick.fertre@st.com>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/stm32mp157c-ev1.dts | 73 ++++++++++++++++++++++++---
+ 1 file changed, 67 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index b414d9d207d45..08b171731664e 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -617,7 +617,7 @@ static struct nvmem_device *nvmem_find(const char *name)
- 	d = bus_find_device(&nvmem_bus_type, NULL, (void *)name, nvmem_match);
+diff --git a/arch/arm/boot/dts/stm32mp157c-ev1.dts b/arch/arm/boot/dts/stm32mp157c-ev1.dts
+index 372bc2ea6b921..063ee8ac5dcbd 100644
+--- a/arch/arm/boot/dts/stm32mp157c-ev1.dts
++++ b/arch/arm/boot/dts/stm32mp157c-ev1.dts
+@@ -6,6 +6,7 @@
+ /dts-v1/;
  
- 	if (!d)
--		return NULL;
-+		return ERR_PTR(-ENOENT);
+ #include "stm32mp157c-ed1.dts"
++#include <dt-bindings/gpio/gpio.h>
  
- 	return to_nvmem_device(d);
- }
+ / {
+ 	model = "STMicroelectronics STM32MP157C eval daughter on eval mother";
+@@ -19,6 +20,58 @@
+ 		serial0 = &uart4;
+ 		ethernet0 = &ethernet0;
+ 	};
++
++	panel_backlight: panel-backlight {
++		compatible = "gpio-backlight";
++		gpios = <&gpiod 13 GPIO_ACTIVE_LOW>;
++		default-on;
++		status = "okay";
++	};
++};
++
++&cec {
++	pinctrl-names = "default";
++	pinctrl-0 = <&cec_pins_a>;
++	status = "okay";
++};
++
++&dsi {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			reg = <0>;
++			dsi_in: endpoint {
++				remote-endpoint = <&ltdc_ep0_out>;
++			};
++		};
++
++		port@1 {
++			reg = <1>;
++			dsi_out: endpoint {
++				remote-endpoint = <&dsi_panel_in>;
++			};
++		};
++	};
++
++	panel-dsi@0 {
++		compatible = "raydium,rm68200";
++		reg = <0>;
++		reset-gpios = <&gpiof 15 GPIO_ACTIVE_LOW>;
++		backlight = <&panel_backlight>;
++		status = "okay";
++
++		port {
++			dsi_panel_in: endpoint {
++				remote-endpoint = <&dsi_out>;
++			};
++		};
++	};
+ };
+ 
+ &ethernet0 {
+@@ -40,12 +93,6 @@
+ 	};
+ };
+ 
+-&cec {
+-	pinctrl-names = "default";
+-	pinctrl-0 = <&cec_pins_a>;
+-	status = "okay";
+-};
+-
+ &i2c2 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&i2c2_pins_a>;
+@@ -62,6 +109,20 @@
+ 	status = "okay";
+ };
+ 
++&ltdc {
++	status = "okay";
++
++	port {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		ltdc_ep0_out: endpoint@0 {
++			reg = <0>;
++			remote-endpoint = <&dsi_in>;
++		};
++	};
++};
++
+ &m_can1 {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&m_can1_pins_a>;
 -- 
 2.20.1
 
