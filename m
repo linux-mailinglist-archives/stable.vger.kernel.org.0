@@ -2,92 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7633E102EC0
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 23:00:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04E2A102F90
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 23:51:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727082AbfKSWA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 17:00:57 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:35202 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726948AbfKSWA5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 17:00:57 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id AD1AB1C1998; Tue, 19 Nov 2019 23:00:55 +0100 (CET)
-Date:   Tue, 19 Nov 2019 23:00:55 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: Re: [PATCH 4.19 025/422] ecryptfs_lookup_interpose():
- lower_dentry->d_inode is not stable
-Message-ID: <20191119220055.GC4495@amd>
-References: <20191119051400.261610025@linuxfoundation.org>
- <20191119051401.707458888@linuxfoundation.org>
+        id S1727233AbfKSWvc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 17:51:32 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:38127 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726539AbfKSWvc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 17:51:32 -0500
+Received: by mail-wr1-f68.google.com with SMTP id i12so25883442wro.5
+        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 14:51:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YSoaZYdBjL7ucX8PM9u4AOnNEd9TCR2lqT9F4bK3Ils=;
+        b=SF6dCx563jb9rWZ7TepxGmxSlZ6CNOdpBIbeYbZAJtsVyqnyFPmRvovnmPIKRWpWgc
+         pz6ehug29a5boWlj5uMkJ+Ova3sLhKq6Vx1vXrygEtDl8kdBIxzG17Y+5K9RNFa5d8LG
+         PQaZ7BZ5P+ETursZPM5hekB7ECSFYhta6rWlY86agLTSXFVU39WALQNOZIo0Tmwofdpz
+         ExiD49tJTmEACUYCNHjivAz+U2OHQA7bLn5yrRu3r6haMslGh40WsRpCWF7KPOlRyfLe
+         boEVv+tfj31EAwpIM1/+oeEwkuMdh02BHvW3rmT3CRdPjVfcqq1HkKC4eyqlEszQNSe6
+         D3aw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YSoaZYdBjL7ucX8PM9u4AOnNEd9TCR2lqT9F4bK3Ils=;
+        b=eWlSFPlhPt5AqtBhDYAWPoSNb3hqQZpSGk6yxcuZzUajTr18fhBGmKKV/0cbwjl9zA
+         UtlWv2rNcoWns5uQACw2D4VBvie8G51pSlk9tBcQBcKH8gP8jfjKubDjzUECRvb/IGTo
+         4wGuRcV3+MffV6Fej8gnHbSKEtVrR7fL6BfIdIjFZC4aOXIrJZZ/ELnQ3Pa8uDDTIUn2
+         Wv9kXpgbf+2U2YAEGYmRMk5xvOta9zhg5IaLv2WwLEPU2N5b5plZZvNX/tXaFybNU8/s
+         ZNY+jq1q21K2jx5qzytAM4/Zx6ErEcqKnuWeD9sd7RyN1ChLZ159p+aCLD7CfsjwCJSX
+         SPHg==
+X-Gm-Message-State: APjAAAVza4ypfbwZmO/UXEMYOB583JoE8V5LhgKUVPNqJMYJVegfcuC4
+        d1UJ/UBI0E4Pg0C4NGkHpNh1Ftqns06DQA==
+X-Google-Smtp-Source: APXvYqyEy24/xTXYSl6mz1ASx7ZQRDktkLSqrRWuGDADoO3OFmqaDsJLOIuBJPTngI+8SjjTOt1zqw==
+X-Received: by 2002:adf:fe0e:: with SMTP id n14mr41878184wrr.72.1574203889768;
+        Tue, 19 Nov 2019 14:51:29 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id w81sm5008497wmg.5.2019.11.19.14.51.27
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Nov 2019 14:51:28 -0800 (PST)
+Message-ID: <5dd471f0.1c69fb81.412df.8caf@mx.google.com>
+Date:   Tue, 19 Nov 2019 14:51:28 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="pAwQNkOnpTn9IO2O"
-Content-Disposition: inline
-In-Reply-To: <20191119051401.707458888@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.84-420-g824c9adafc93
+Subject: stable-rc/linux-4.19.y boot: 81 boots: 3 failed,
+ 77 passed with 1 untried/unknown (v4.19.84-420-g824c9adafc93)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.19.y boot: 81 boots: 3 failed, 77 passed with 1 untried/u=
+nknown (v4.19.84-420-g824c9adafc93)
 
---pAwQNkOnpTn9IO2O
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.84-420-g824c9adafc93/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.84-420-g824c9adafc93/
 
-Hi!
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.84-420-g824c9adafc93
+Git Commit: 824c9adafc9321640f8338fd99d6b2b122d61e07
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 46 unique boards, 16 SoC families, 11 builds out of 206
 
-> From: Al Viro <viro@zeniv.linux.org.uk>
->=20
-> commit e72b9dd6a5f17d0fb51f16f8685f3004361e83d0 upstream.
->=20
-> lower_dentry can't go from positive to negative (we have it pinned),
-> but it *can* go from negative to positive.  So fetching ->d_inode
-> into a local variable, doing a blocking allocation, checking that
-> now ->d_inode is non-NULL and feeding the value we'd fetched
-> earlier to a function that won't accept NULL is not a good idea.
->=20
-> Cc: stable@vger.kernel.org
-> --- a/fs/ecryptfs/inode.c
-> +++ b/fs/ecryptfs/inode.c
-> @@ -345,7 +345,15 @@ static struct dentry *ecryptfs_lookup_in
->  	dentry_info->lower_path.mnt =3D lower_mnt;
->  	dentry_info->lower_path.dentry =3D lower_dentry;
-> =20
-> -	if (d_really_is_negative(lower_dentry)) {
-> +	/*
-> +	 * negative dentry can go positive under us here - its parent is not
-> +	 * locked.  That's OK and that could happen just as we return from
-> +	 * ecryptfs_lookup() anyway.  Just need to be careful and fetch
-> +	 * ->d_inode only once - it's not stable here.
-> +	 */
-> +	lower_inode =3D READ_ONCE(lower_dentry->d_inode);
+Boot Regressions Detected:
 
-Should this use d_inode_rcu() function, to keep the abstraction
-provided by the header file?
+arc:
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+    hsdk_defconfig:
+        gcc-8:
+          hsdk:
+              lab-baylibre: new failure (last pass: v4.19.84-422-gaf1bb7db3=
+102)
 
---pAwQNkOnpTn9IO2O
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+arm:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+    exynos_defconfig:
+        gcc-8:
+          exynos4412-odroidx2:
+              lab-collabora: failing since 1 day (last pass: v4.19.84 - fir=
+st fail: v4.19.84-423-g1b1960cc7ceb)
 
-iEYEARECAAYFAl3UZhYACgkQMOfwapXb+vJleQCfUWqbwogZDwonqJGENVIS3Xke
-v5kAoKcgNZ6NYe26I2PVjBwGxl4F+EFK
-=n2Vo
------END PGP SIGNATURE-----
+Boot Failures Detected:
 
---pAwQNkOnpTn9IO2O--
+arm:
+    exynos_defconfig:
+        gcc-8:
+            exynos4412-odroidx2: 1 failed lab
+            exynos5422-odroidxu3: 2 failed labs
+
+---
+For more info write to <info@kernelci.org>
