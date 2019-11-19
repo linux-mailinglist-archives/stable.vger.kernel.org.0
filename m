@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A041017FA
+	by mail.lfdr.de (Postfix) with ESMTP id 6452C1017F9
 	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:05:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730015AbfKSFhB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:37:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58586 "EHLO mail.kernel.org"
+        id S1729435AbfKSFhE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:37:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730026AbfKSFg7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:36:59 -0500
+        id S1730032AbfKSFhC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:37:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F04FF21783;
-        Tue, 19 Nov 2019 05:36:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EC93214DE;
+        Tue, 19 Nov 2019 05:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141818;
-        bh=uGWYfVg65/HzkdeuzxNxaCvqxmyX3trBbFNbZSXOU/s=;
+        s=default; t=1574141821;
+        bh=JimTXPtAbX8YoTT19Gr8WHDW98DSZBe8ND3dur/LtAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=05DA47/PdsFG8w/RoUTeigqsKUBv7R8PNfOj94mwnuDPcbPZcuCkE30WKDKA/3gku
-         pn8+JcLZSEijpyDC+8Fq+tvTSk1dT74z6RCTJl5j70TyTY2VVKALgb/NV8un+1bEOx
-         rCbZyUteWldEsMdzIpZB7Oe/K5XmGl7z6trCcRco=
+        b=lpcIpKXhTiQOoT+DOFIrYUUggtdcYwUMzQorWT4gCj0zYLfWjCqz0wVUcvkeuauLX
+         X2sS0ej+Vp4vUwzUgBKv2NwSFC4mUUwzBdyGYycR0afAekQa+J2jMuZM0el84pzmlm
+         HBvthojrCckgngzk5wgf7cjJ9Kyfvb3SWXHVrDtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 291/422] s390/vdso: correct CFI annotations of vDSO functions
-Date:   Tue, 19 Nov 2019 06:18:08 +0100
-Message-Id: <20191119051417.848414867@linuxfoundation.org>
+Subject: [PATCH 4.19 292/422] brcmfmac: increase buffer for obtaining firmware capabilities
+Date:   Tue, 19 Nov 2019 06:18:09 +0100
+Message-Id: <20191119051417.914114118@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,210 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Arend van Spriel <arend.vanspriel@broadcom.com>
 
-[ Upstream commit 26f4414a45b808f83d42d6fd2fbf4a59ef25e84b ]
+[ Upstream commit 59c2a30d36c8ae430d26a902c4c9665ea33ccee5 ]
 
-Correct stack frame overhead for 31-bit vdso, which should be 96 rather
-then 160. This is done by reusing STACK_FRAME_OVERHEAD definition which
-contains correct value based on build flags. This fixes stack unwinding
-within vdso code for 31-bit processes. While at it replace all hard coded
-stack frame overhead values with the same definition in vdso64 as well.
+When obtaining the firmware capability a buffer is provided of 512
+bytes. However, if all features in firmware are supported the buffer
+needs to be 565 bytes as otherwise truncated information is retrieved
+from firmware. Increasing the buffer to 768 bytes on stack.
 
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reviewed-by: Hante Meuleman <hante.meuleman@broadcom.com>
+Reviewed-by: Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
+Reviewed-by: Franky Lin <franky.lin@broadcom.com>
+Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vdso32/clock_gettime.S | 19 ++++++++++---------
- arch/s390/kernel/vdso32/gettimeofday.S  |  3 ++-
- arch/s390/kernel/vdso64/clock_gettime.S | 25 +++++++++++++------------
- arch/s390/kernel/vdso64/gettimeofday.S  |  3 ++-
- 4 files changed, 27 insertions(+), 23 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/vdso32/clock_gettime.S b/arch/s390/kernel/vdso32/clock_gettime.S
-index a9418bf975db5..ada5c11a16e5a 100644
---- a/arch/s390/kernel/vdso32/clock_gettime.S
-+++ b/arch/s390/kernel/vdso32/clock_gettime.S
-@@ -10,6 +10,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/unistd.h>
- #include <asm/dwarf.h>
-+#include <asm/ptrace.h>
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+index 8347da632a5b0..4c5a3995dc352 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/feature.c
+@@ -178,7 +178,7 @@ static void brcmf_feat_iovar_data_set(struct brcmf_if *ifp,
+ 	ifp->fwil_fwerr = false;
+ }
  
- 	.text
- 	.align 4
-@@ -18,8 +19,8 @@
- __kernel_clock_gettime:
- 	CFI_STARTPROC
- 	ahi	%r15,-16
--	CFI_DEF_CFA_OFFSET 176
--	CFI_VAL_OFFSET 15, -160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD+16
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 	basr	%r5,0
- 0:	al	%r5,21f-0b(%r5)			/* get &_vdso_data */
- 	chi	%r2,__CLOCK_REALTIME_COARSE
-@@ -72,13 +73,13 @@ __kernel_clock_gettime:
- 	st	%r1,4(%r3)			/* store tp->tv_nsec */
- 	lhi	%r2,0
- 	ahi	%r15,16
--	CFI_DEF_CFA_OFFSET 160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD
- 	CFI_RESTORE 15
- 	br	%r14
- 
- 	/* CLOCK_MONOTONIC_COARSE */
--	CFI_DEF_CFA_OFFSET 176
--	CFI_VAL_OFFSET 15, -160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD+16
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 9:	l	%r4,__VDSO_UPD_COUNT+4(%r5)	/* load update counter */
- 	tml	%r4,0x0001			/* pending update ? loop */
- 	jnz	9b
-@@ -158,17 +159,17 @@ __kernel_clock_gettime:
- 	st	%r1,4(%r3)			/* store tp->tv_nsec */
- 	lhi	%r2,0
- 	ahi	%r15,16
--	CFI_DEF_CFA_OFFSET 160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD
- 	CFI_RESTORE 15
- 	br	%r14
- 
- 	/* Fallback to system call */
--	CFI_DEF_CFA_OFFSET 176
--	CFI_VAL_OFFSET 15, -160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD+16
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 19:	lhi	%r1,__NR_clock_gettime
- 	svc	0
- 	ahi	%r15,16
--	CFI_DEF_CFA_OFFSET 160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD
- 	CFI_RESTORE 15
- 	br	%r14
- 	CFI_ENDPROC
-diff --git a/arch/s390/kernel/vdso32/gettimeofday.S b/arch/s390/kernel/vdso32/gettimeofday.S
-index 3c0db0fa6ad90..b23063fbc892c 100644
---- a/arch/s390/kernel/vdso32/gettimeofday.S
-+++ b/arch/s390/kernel/vdso32/gettimeofday.S
-@@ -10,6 +10,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/unistd.h>
- #include <asm/dwarf.h>
-+#include <asm/ptrace.h>
- 
- 	.text
- 	.align 4
-@@ -19,7 +20,7 @@ __kernel_gettimeofday:
- 	CFI_STARTPROC
- 	ahi	%r15,-16
- 	CFI_ADJUST_CFA_OFFSET 16
--	CFI_VAL_OFFSET 15, -160
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 	basr	%r5,0
- 0:	al	%r5,13f-0b(%r5)			/* get &_vdso_data */
- 1:	ltr	%r3,%r3				/* check if tz is NULL */
-diff --git a/arch/s390/kernel/vdso64/clock_gettime.S b/arch/s390/kernel/vdso64/clock_gettime.S
-index fac3ab5ec83a9..9d2ee79b90f25 100644
---- a/arch/s390/kernel/vdso64/clock_gettime.S
-+++ b/arch/s390/kernel/vdso64/clock_gettime.S
-@@ -10,6 +10,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/unistd.h>
- #include <asm/dwarf.h>
-+#include <asm/ptrace.h>
- 
- 	.text
- 	.align 4
-@@ -18,8 +19,8 @@
- __kernel_clock_gettime:
- 	CFI_STARTPROC
- 	aghi	%r15,-16
--	CFI_DEF_CFA_OFFSET 176
--	CFI_VAL_OFFSET 15, -160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD+16
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 	larl	%r5,_vdso_data
- 	cghi	%r2,__CLOCK_REALTIME_COARSE
- 	je	4f
-@@ -56,13 +57,13 @@ __kernel_clock_gettime:
- 	stg	%r1,8(%r3)			/* store tp->tv_nsec */
- 	lghi	%r2,0
- 	aghi	%r15,16
--	CFI_DEF_CFA_OFFSET 160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD
- 	CFI_RESTORE 15
- 	br	%r14
- 
- 	/* CLOCK_MONOTONIC_COARSE */
--	CFI_DEF_CFA_OFFSET 176
--	CFI_VAL_OFFSET 15, -160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD+16
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 3:	lg	%r4,__VDSO_UPD_COUNT(%r5)	/* load update counter */
- 	tmll	%r4,0x0001			/* pending update ? loop */
- 	jnz	3b
-@@ -115,13 +116,13 @@ __kernel_clock_gettime:
- 	stg	%r1,8(%r3)			/* store tp->tv_nsec */
- 	lghi	%r2,0
- 	aghi	%r15,16
--	CFI_DEF_CFA_OFFSET 160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD
- 	CFI_RESTORE 15
- 	br	%r14
- 
- 	/* CPUCLOCK_VIRT for this thread */
--	CFI_DEF_CFA_OFFSET 176
--	CFI_VAL_OFFSET 15, -160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD+16
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 9:	lghi	%r4,0
- 	icm	%r0,15,__VDSO_ECTG_OK(%r5)
- 	jz	12f
-@@ -142,17 +143,17 @@ __kernel_clock_gettime:
- 	stg	%r4,8(%r3)
- 	lghi	%r2,0
- 	aghi	%r15,16
--	CFI_DEF_CFA_OFFSET 160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD
- 	CFI_RESTORE 15
- 	br	%r14
- 
- 	/* Fallback to system call */
--	CFI_DEF_CFA_OFFSET 176
--	CFI_VAL_OFFSET 15, -160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD+16
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 12:	lghi	%r1,__NR_clock_gettime
- 	svc	0
- 	aghi	%r15,16
--	CFI_DEF_CFA_OFFSET 160
-+	CFI_DEF_CFA_OFFSET STACK_FRAME_OVERHEAD
- 	CFI_RESTORE 15
- 	br	%r14
- 	CFI_ENDPROC
-diff --git a/arch/s390/kernel/vdso64/gettimeofday.S b/arch/s390/kernel/vdso64/gettimeofday.S
-index 6e1f0b421695a..aebe10dc7c99a 100644
---- a/arch/s390/kernel/vdso64/gettimeofday.S
-+++ b/arch/s390/kernel/vdso64/gettimeofday.S
-@@ -10,6 +10,7 @@
- #include <asm/asm-offsets.h>
- #include <asm/unistd.h>
- #include <asm/dwarf.h>
-+#include <asm/ptrace.h>
- 
- 	.text
- 	.align 4
-@@ -19,7 +20,7 @@ __kernel_gettimeofday:
- 	CFI_STARTPROC
- 	aghi	%r15,-16
- 	CFI_ADJUST_CFA_OFFSET 16
--	CFI_VAL_OFFSET 15, -160
-+	CFI_VAL_OFFSET 15, -STACK_FRAME_OVERHEAD
- 	larl	%r5,_vdso_data
- 0:	ltgr	%r3,%r3				/* check if tz is NULL */
- 	je	1f
+-#define MAX_CAPS_BUFFER_SIZE	512
++#define MAX_CAPS_BUFFER_SIZE	768
+ static void brcmf_feat_firmware_capabilities(struct brcmf_if *ifp)
+ {
+ 	char caps[MAX_CAPS_BUFFER_SIZE];
 -- 
 2.20.1
 
