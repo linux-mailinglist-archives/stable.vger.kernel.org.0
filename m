@@ -2,147 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83580102AF0
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 18:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B51D5102B4A
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 19:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726792AbfKSRpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 12:45:44 -0500
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:35136 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725904AbfKSRpo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 12:45:44 -0500
-Received: by mail-wr1-f68.google.com with SMTP id s5so24942172wrw.2
-        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 09:45:43 -0800 (PST)
+        id S1726825AbfKSSAF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 13:00:05 -0500
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:42282 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726510AbfKSSAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 13:00:05 -0500
+Received: by mail-pl1-f193.google.com with SMTP id j12so12148787plt.9;
+        Tue, 19 Nov 2019 10:00:05 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=G6x6+H2oEw1eRH8HVLW1lO0sr6ZCJLW7wV/bc8fc47Y=;
-        b=HaRT1BTRB+zTWR+wsTQsKOXRctZCReoLhj97VZzdLAKZWia1jt8WEXeRE7awg+s7fg
-         srMk1DNKFRJ/tELmq6RRSboSHmhW0Mq0HO+Ao2ddsVSuf4CRapQysiBYfXdg0fOU3XHA
-         Igs4aFCODRCx10RXg/KAS5uITZiIfaLB8eELZQaoLH5naJNCUi0jnVWSLD/nvCcMEFGb
-         hTsA++dQWNaHQphW13RoAfoVK5wEo1PyZgxoSUpULFWCnIK38en4qrmi0nUbA/eT2A0L
-         WrQ07dYD6eGdP5t+6wQMAPis5n0AaQSBWlgkv2XW6GCUC502bjDrnkyF1wAGwhQBA6JL
-         Lfsw==
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=wv41PPu6EmCtUmj6WAxFactHJxIkJXo8H+4DQ21DEhQ=;
+        b=JuKQac/srBNXbHZJZNKzkBy37cCEV7gmaDunK5og2AMayUonn6nPfd5BwEshnA/sMH
+         TuQEbpMfJTLzfoaajluHkGGF/Fm1lOfCzy5LHZczKZZ44Q3BN2/i2ElumXUjimOV7W/3
+         8OrNwnqFwFtaBhyc6dss89UBrQS2BjYiR6bhk6Ub8qhBHtrU292jemVLatgMgSTAX3vW
+         qgycOmrTtc+t6aZ6JlUOGbZaxEtVtLx4fF6ikWus6a7/nq5iTQOwTwxtTfB2gKIPwepg
+         ZPAB6F/guk28n680cms9gUYmcW+0vJGNxXQWOOlekScAK+AkhW1louZiOuhlOS0k6KuX
+         NU9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=G6x6+H2oEw1eRH8HVLW1lO0sr6ZCJLW7wV/bc8fc47Y=;
-        b=cQgZcIyLGtW8/pN0FKDBx81dcxvHT3iZ4hTHD6LxJ7071ZWjZEaFC7TZLEdxp4nce3
-         pgU+ogbM4cbIWCj1MD5ZklUfsuVz34SZhxmZGC2fGstb8ivlbJSVaxnSbkb41J/JfS/c
-         34k3zfWkEuS59ScpdXcMlZZLBzV1o679yxud05vnEb7pRFrdWU1/J5+FatZbyT0F5hTK
-         FHhuJGvkwE4tVHox6S/IGkHQE63iHvzJ8YaCMcsKHIDSO5zEqz9UNQVw5JnNvkqCizi8
-         X6rzx+ZJ3DdeyfTZMF/lIvx14z99PDj3tOYt9h26sh9i6VK7k1hg0wqmaQb5UeUvhlbW
-         nZ8A==
-X-Gm-Message-State: APjAAAUcWXewEUDyrV+znM7WelISlq3buwl2v8YXDMUmTXhBJOvMe4Ot
-        g2WFmZunDOy5Pegvv3+jX9XYjrrqHg0Sxw==
-X-Google-Smtp-Source: APXvYqyBybWoSrk8twMRtRV/fNYMHqMCPWVmJpuATSZ698bEww4KN+va4NEy6YMXARpFYe/CrZziPg==
-X-Received: by 2002:a5d:4247:: with SMTP id s7mr32280755wrr.381.1574185542657;
-        Tue, 19 Nov 2019 09:45:42 -0800 (PST)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a26sm3822526wmm.14.2019.11.19.09.45.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 Nov 2019 09:45:42 -0800 (PST)
-Message-ID: <5dd42a46.1c69fb81.75bfb.2bb7@mx.google.com>
-Date:   Tue, 19 Nov 2019 09:45:42 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to:user-agent;
+        bh=wv41PPu6EmCtUmj6WAxFactHJxIkJXo8H+4DQ21DEhQ=;
+        b=ZKbWe+zklUbGVkoL3bfwNpT0hzY/6FSmn+vwBPc0vdyaZx/q4gsVuXPW3N3Eg56v7f
+         c290bgMMdStGynpJd05HXO/sGDVUGQd0yshKFWKmqeG14NvohGKrRN9wo8xUCzzeVYWO
+         iJDfNUX9W0AORjkeVCo3DfI48ML15m/9ZQflpiOvhYMjVJblROlLNYQirXnoH0sO+MBp
+         iOICnXTzXeWSCsehSxkxtlqMeV5XW4AMvXuD7WILQ/fzsXzox4QTwEP8hkUy/iV9hPpA
+         cyxRe8/SvxyRPENJaguYwn91jBtFEWl2Qf4Tr/+mWYbHMLU2V3VWCxqx/IW79rg52mdN
+         F0dw==
+X-Gm-Message-State: APjAAAVn4dObaBxmeDDD97CT8y5EcaOX9ymkBNUAQpPow36Ka84AlWah
+        +nnxNGWm36dUlD4SRXHf1H8=
+X-Google-Smtp-Source: APXvYqwLuaGQ6XNB+Tq1qfKotdJl9s4pZr+U2bG23Ozt9lMQFPoyd3ioXk2inelVGh5QlWhGPEPF9w==
+X-Received: by 2002:a17:902:6bc3:: with SMTP id m3mr35377196plt.329.1574186404460;
+        Tue, 19 Nov 2019 10:00:04 -0800 (PST)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id l9sm4487647pgh.31.2019.11.19.10.00.03
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 19 Nov 2019 10:00:03 -0800 (PST)
+Date:   Tue, 19 Nov 2019 10:00:02 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Chris Paterson <Chris.Paterson2@renesas.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
+        "shuah@kernel.org" <shuah@kernel.org>,
+        "patches@kernelci.org" <patches@kernelci.org>,
+        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
+        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 4.19 000/422] 4.19.85-stable review
+Message-ID: <20191119180002.GA17608@roeck-us.net>
+References: <20191119051400.261610025@linuxfoundation.org>
+ <TYAPR01MB22854E4F20C28F3A10DA65E3B74C0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191119122909.GC1913916@kroah.com>
+ <TYAPR01MB228560FC98FFD1D449FA4EC2B74C0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191119154839.GB1982025@kroah.com>
+ <TYAPR01MB2285698B8E0F38B9EEF47128B74C0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+ <20191119165207.GA2071545@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.154-239-g086940936515
-Subject: stable-rc/linux-4.14.y boot: 122 boots: 4 failed,
- 106 passed with 12 offline (v4.14.154-239-g086940936515)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191119165207.GA2071545@kroah.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 122 boots: 4 failed, 106 passed with 12 offlin=
-e (v4.14.154-239-g086940936515)
+On Tue, Nov 19, 2019 at 05:52:07PM +0100, Greg Kroah-Hartman wrote:
+> On Tue, Nov 19, 2019 at 04:38:06PM +0000, Chris Paterson wrote:
+> > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > Sent: 19 November 2019 15:49
+> > > 
+> > > On Tue, Nov 19, 2019 at 02:44:12PM +0000, Chris Paterson wrote:
+> > > > Hi Greg,
+> > > >
+> > > > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > > Sent: 19 November 2019 12:29
+> > > > >
+> > > > > On Tue, Nov 19, 2019 at 08:54:25AM +0000, Chris Paterson wrote:
+> > > > > > Hello Greg, all,
+> > > > > >
+> > > > > > > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org>
+> > > On
+> > > > > > > Behalf Of Greg Kroah-Hartman
+> > > > > > > Sent: 19 November 2019 05:13
+> > > > > > >
+> > > > > > > This is the start of the stable review cycle for the 4.19.85 release.
+> > > > > > > There are 422 patches in this series, all will be posted as a response
+> > > > > > > to this one.  If anyone has any issues with these being applied, please
+> > > > > > > let me know.
+> > > > > >
+> > > > > > I'm seeing some build issues with module compilation with this release
+> > > > > (1b1960cc Linux 4.19.85-rc1), I also saw them with the previous two versions
+> > > of
+> > > > > Linux 4.19.85-rc1 (cd21ecdb and 1fd0ac64).
+> > > > > >
+> > > > > > Full log available on GitLab [0]. Build conf [1].
+> > > > > > [0] https://gitlab.com/cip-playground/linux-stable-rc-ci/-/jobs/354591285
+> > > > > > [1] https://gitlab.com/cip-playground/linux-stable-rc-ci/-
+> > > > > /jobs/354591285/artifacts/file/output/4.19.85-
+> > > > > rc1_1b1960cc7/x86/siemens_iot2000.config/config/.config
+> > > > > >
+> > > > > > Main error below:
+> > > > > >
+> > > > > > 3907   CC [M]  drivers/net/ethernet/mellanox/mlx4/main.o
+> > > > > > 3908   LD [M]  fs/ntfs/ntfs.o
+> > > > > > 3909   CC [M]  drivers/net/ethernet/intel/i40evf/i40e_txrx.o
+> > > > > > 3910   CC [M]  drivers/usb/musb/musb_core.o
+> > > > > > 3911   CC [M]  drivers/net/ethernet/nvidia/forcedeth.o
+> > > > > > 3912   CC [M]  fs/udf/balloc.o
+> > > > > > 3913   CC [M]  drivers/net/ethernet/intel/fm10k/fm10k_debugfs.o
+> > > > > > 3914   CC [M]  fs/udf/dir.o
+> > > > > > 3915   CC [M]  drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.o
+> > > > > > 3916   CC [M]  drivers/net/ethernet/intel/i40e/i40e_ptp.o
+> > > > > > 3917 drivers/net/ethernet/mellanox/mlx4/main.c: In function
+> > > 'mlx4_init_one':
+> > > > > > 3918 drivers/net/ethernet/mellanox/mlx4/main.c:3985:2: error: implicit
+> > > > > declaration of function 'devlink_reload_enable'; did you mean
+> > > > > 'devlink_region_create'? [-Werror=implicit-function-declaration]
+> > > > > > 3919   devlink_reload_enable(devlink);
+> > > > > > 3920   ^~~~~~~~~~~~~~~~~~~~~
+> > > > > > 3921   devlink_region_create
+> > > > > > 3922   CC [M]  drivers/net/ethernet/chelsio/cxgb4/cxgb4_cudbg.o
+> > > > > > 3923 drivers/net/ethernet/mellanox/mlx4/main.c: In function
+> > > > > 'mlx4_remove_one':
+> > > > > > 3924 drivers/net/ethernet/mellanox/mlx4/main.c:4097:2: error: implicit
+> > > > > declaration of function 'devlink_reload_disable'; did you mean
+> > > > > 'devlink_region_destroy'? [-Werror=implicit-function-declaration]
+> > > > > > 3925   devlink_reload_disable(devlink);
+> > > > > > 3926   ^~~~~~~~~~~~~~~~~~~~~~
+> > > > > > 3927   devlink_region_destroy
+> > > > > > 3928   CC [M]  drivers/net/ethernet/packetengines/hamachi.o
+> > > > > > 3929   CC [M]  fs/udf/file.o
+> > > > > > 3930   LD [M]  drivers/net/ethernet/intel/fm10k/fm10k.o
+> > > > > >
+> > > > > > I haven't tried to trace the issue further yet, sorry.
+> > > > >
+> > > > > Any chance you can bisect this?  I don't see any obvious reason why this
+> > > > > error should be happening, and it isn't showing up here :(
+> > > >
+> > > > Looking through the commit history, the issue seems to be related to:
+> > > > 672cf82122be ("devlink: disallow reload operation during device cleanup")
+> > > >
+> > > > I've reverted this commit and Linux 4.19.85-rc2 (af1bb7db before revert) will
+> > > build with the configuration I'm using [2].
+> > > > I haven't looked further yet though, sorry.
+> > > >
+> > > > [2] https://gitlab.com/cip-project/cip-kernel/cip-kernel-
+> > > config/raw/master/4.19.y-cip/x86/siemens_iot2000.config
+> > > 
+> > > If you add:
+> > > 	#include <net/devlink.h>
+> > > to the top of drivers/net/ethernet/mellanox/mlx4/main.c, does it fix the
+> > > issue for you?
+> > 
+> > This is already defined:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/tree/drivers/net/ethernet/mellanox/mlx4/main.c?h=linux-4.19.y#n47
+> 
+> Ah, ok, the issue is that CONFIG_NET_DEVLINK is not enabled, the driver
+> now requires this.  This was resolved by adding the dependancy to the
+> driver itself, and then just punting and always enabling it over time.
+> 
+> We can backport part of f6b19b354d50 ("net: devlink: select NET_DEVLINK
+> from drivers") if you want, but that feels messy.
+> 
+> For now, if you enable that option, does it build for you?
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.154-239-g086940936515/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.154-239-g086940936515/
+Selecting NET_DEVLINK manually fixes the problem, but at least for my part
+I was unable to find a means to define the dependency in the Kconfig file.
+I either get a recursive dependency or unmet direct dependencies.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.154-239-g086940936515
-Git Commit: 086940936515491724d7d237c38c1a85e6309ed5
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 22 SoC families, 13 builds out of 201
+FWIW, reverting the devlink patch fixes the compile problem.
 
-Boot Regressions Detected:
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8:
-          bcm2835-rpi-b:
-              lab-baylibre-seattle: failing since 1 day (last pass: v4.14.1=
-54 - first fail: v4.14.154-240-gab050cd3bb84)
-
-    exynos_defconfig:
-        gcc-8:
-          exynos4412-odroidx2:
-              lab-collabora: failing since 1 day (last pass: v4.14.154 - fi=
-rst fail: v4.14.154-240-g8dd59dbecd7d)
-          exynos5422-odroidxu3:
-              lab-baylibre: failing since 1 day (last pass: v4.14.154 - fir=
-st fail: v4.14.154-240-gab050cd3bb84)
-
-Boot Failures Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-q200: 1 failed lab
-
-arm:
-    exynos_defconfig:
-        gcc-8:
-            exynos4412-odroidx2: 1 failed lab
-            exynos5422-odroidxu3: 2 failed labs
-
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            exynos5800-peach-pi: 1 offline lab
-            mt7623n-bananapi-bpi-r2: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            sun7i-a20-bananapi: 1 offline lab
-
-    exynos_defconfig:
-        gcc-8
-            exynos5800-peach-pi: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Guenter
