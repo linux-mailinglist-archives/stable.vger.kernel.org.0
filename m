@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 180411018BA
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FBB81018D3
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728908AbfKSF2t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:28:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47288 "EHLO mail.kernel.org"
+        id S1728483AbfKSGJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 01:09:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728905AbfKSF2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:28:48 -0500
+        id S1727908AbfKSF3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:29:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 502AC208C3;
-        Tue, 19 Nov 2019 05:28:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BABB208C3;
+        Tue, 19 Nov 2019 05:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141327;
-        bh=UNQs/91dK9j+/CpReb4++waTjXoKNuAIztVw5SJpU20=;
+        s=default; t=1574141339;
+        bh=NgTsZq5LbL3QYqBe2oz5+VeHyhCREUqx2iZfVrpgkDA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V++aly+UEkxjPbkuVBz3AEBA61J91WfTSVSwwg95ayXMv+dm4qSZnrNYaOl/5U4LW
-         3mkII8/TD4EvSZuz4Zj8kc+AedwpALEI29F/+NIiIiv/0L1INBvdvwtZFageCdudxS
-         2THXXYq2FUS5lyiT3goqPEK60esH7J+9TBMIh2oc=
+        b=hAiFeNHvMR07ri0yW3dEH8Tt346gdCoy2bm73BLj/amr/EpmidoOsux22M8EFcAbu
+         aHa02IJpQND5bi6Xi52C2zamzSrCoRdLLysSWwozFUH6i9DQjktwOUHUAOceHVeuKa
+         zWGeh7ad1snGggfj2nQWpOtOz+61rbmCiD6Z+YrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Erik Stromdahl <erik.stromdahl@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 123/422] ASoC: sgtl5000: avoid division by zero if lo_vag is zero
-Date:   Tue, 19 Nov 2019 06:15:20 +0100
-Message-Id: <20191119051406.971910930@linuxfoundation.org>
+Subject: [PATCH 4.19 126/422] ath10k: wmi: disable softirqs while calling ieee80211_rx
+Date:   Tue, 19 Nov 2019 06:15:23 +0100
+Message-Id: <20191119051407.125019358@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,36 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Erik Stromdahl <erik.stromdahl@gmail.com>
 
-[ Upstream commit 9ab708aef61f5620113269a9d1bdb1543d1207d0 ]
+[ Upstream commit 37f62c0d5822f631b786b29a1b1069ab714d1a28 ]
 
-In the case where lo_vag <= SGTL5000_LINE_OUT_GND_BASE, lo_vag
-is set to zero and later vol_quot is computed by dividing by
-lo_vag causing a division by zero error.  Fix this by avoiding
-a zero division and set vol_quot to zero in this specific case
-so that the lowest setting for i is correctly set.
+This is done in order not to trig the below warning in
+ieee80211_rx_napi:
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+WARN_ON_ONCE(softirq_count() == 0);
+
+ieee80211_rx_napi requires that softirq's are disabled during
+execution.
+
+The High latency bus drivers (SDIO and USB) sometimes call the wmi
+ep_rx_complete callback from non softirq context, resulting in a trigger
+of the above warning.
+
+Calling ieee80211_rx_ni with softirq's already disabled (e.g., from
+softirq context) should be safe as the local_bh_disable and
+local_bh_enable functions (called from ieee80211_rx_ni) are fully
+reentrant.
+
+Signed-off-by: Erik Stromdahl <erik.stromdahl@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/sgtl5000.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/wmi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
-index 64a52d495b1f5..896412d11a31c 100644
---- a/sound/soc/codecs/sgtl5000.c
-+++ b/sound/soc/codecs/sgtl5000.c
-@@ -1387,7 +1387,7 @@ static int sgtl5000_set_power_regs(struct snd_soc_component *component)
- 	 * Searching for a suitable index solving this formula:
- 	 * idx = 40 * log10(vag_val / lo_cagcntrl) + 15
- 	 */
--	vol_quot = (vag * 100) / lo_vag;
-+	vol_quot = lo_vag ? (vag * 100) / lo_vag : 0;
- 	lo_vol = 0;
- 	for (i = 0; i < ARRAY_SIZE(vol_quot_table); i++) {
- 		if (vol_quot >= vol_quot_table[i])
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index 583147f00fa4e..40b36e73bb48c 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -2487,7 +2487,8 @@ int ath10k_wmi_event_mgmt_rx(struct ath10k *ar, struct sk_buff *skb)
+ 		   status->freq, status->band, status->signal,
+ 		   status->rate_idx);
+ 
+-	ieee80211_rx(ar->hw, skb);
++	ieee80211_rx_ni(ar->hw, skb);
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
