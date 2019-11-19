@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B283101358
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:24:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C96101386
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:25:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728270AbfKSFYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:24:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41172 "EHLO mail.kernel.org"
+        id S1728254AbfKSFYu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:24:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728254AbfKSFYr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:24:47 -0500
+        id S1728275AbfKSFYt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:24:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FC9C21783;
-        Tue, 19 Nov 2019 05:24:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A408121823;
+        Tue, 19 Nov 2019 05:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141086;
-        bh=nL257+5kU0ZhATbuvvRos00sxXWABvhtjW0o5lB36dE=;
+        s=default; t=1574141089;
+        bh=CqirFA+y3Yz1r/QLQgaj2aGsvThhGc28+10qfsOM2X8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rMKSqgfh2ZOf0emicRaB4DK2+hnNoTYzHYoN90wSZqy8hw0YQMHP8Lw6xMD8Ydccn
-         qryn5I98IGYwukZKsK+aW4YXrA9YRuJgpjJ4IpEEW7QD0HZQkKWJ85RbUvyy3nVVGh
-         jeqpuMgkFo7kDRRgncG0LEZLkhc4a1KejPaAVvmI=
+        b=JWH8H2XeLLx1ToF0IycgO3o8zUm7YycI1dkLPY++LNAU2ta7ed+ytkcNVUbgjiAEB
+         odMA+AOETbNIRvvn555L3QUds8cVdDXT9Eu5lYFGmQmylXw1DbDOgqyESGpT/XNsVj
+         ux98vdJ/GelqTrm7Oglf6t/RUS9vUFgn4ylivMpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 039/422] soundwire: intel: Fix uninitialized adev deref
-Date:   Tue, 19 Nov 2019 06:13:56 +0100
-Message-Id: <20191119051402.493920522@linuxfoundation.org>
+        stable@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
+        Andre Przywara <andre.przywara@arm.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 040/422] arm64: dts: allwinner: a64: Orange Pi Win: Fix SD card node
+Date:   Tue, 19 Nov 2019 06:13:57 +0100
+Message-Id: <20191119051402.547353516@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,37 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vinod Koul <vkoul@kernel.org>
+From: Samuel Holland <samuel@sholland.org>
 
-[ Upstream commit e1c815f4b24a305e5bc9eceb541674bf4d02b709 ]
+[ Upstream commit 09b964afca14d0594b2b2f265df3d987e2f43867 ]
 
-In case of error, we can dereference uninitialized 'adev'
+The Orange Pi Win has a microSD card slot which is connected via all
+four SD data lines. As the DT was not mentioning this fact, we got the
+default single bit transfers, losing out on performance.
+Also, as microSD does not have a write protect switch, we disable this
+feature in the DT node.
 
-drivers/soundwire/intel_init.c:154 sdw_intel_acpi_cb()
-error: uninitialized symbol 'adev'.
-
-Fix that by not using adev for warn print and make it pr_err.
-
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/intel_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soundwire/intel_init.c b/drivers/soundwire/intel_init.c
-index d1ea6b4d0ad30..5c8a20d998786 100644
---- a/drivers/soundwire/intel_init.c
-+++ b/drivers/soundwire/intel_init.c
-@@ -151,7 +151,7 @@ static acpi_status sdw_intel_acpi_cb(acpi_handle handle, u32 level,
- 	struct acpi_device *adev;
- 
- 	if (acpi_bus_get_device(handle, &adev)) {
--		dev_err(&adev->dev, "Couldn't find ACPI handle\n");
-+		pr_err("%s: Couldn't find ACPI handle\n", __func__);
- 		return AE_NOT_FOUND;
- 	}
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
+index 1221764f5719c..667016815cf32 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-orangepi-win.dts
+@@ -67,7 +67,9 @@
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&mmc0_pins>;
+ 	vmmc-supply = <&reg_dcdc1>;
+-	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>;
++	cd-gpios = <&pio 5 6 GPIO_ACTIVE_LOW>; /* PF6 */
++	disable-wp;
++	bus-width = <4>;
+ 	status = "okay";
+ };
  
 -- 
 2.20.1
