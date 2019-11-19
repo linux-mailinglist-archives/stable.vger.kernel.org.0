@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D0B10144E
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84804101454
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728676AbfKSFc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:32:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52758 "EHLO mail.kernel.org"
+        id S1728927AbfKSFcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:32:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729399AbfKSFc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:32:28 -0500
+        id S1729445AbfKSFcq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:32:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 939DE21783;
-        Tue, 19 Nov 2019 05:32:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 51B36222A2;
+        Tue, 19 Nov 2019 05:32:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141548;
-        bh=4q0wxmlT8LNfXIg3Vz5jn72hLNxKgjL8rMq45doAlCg=;
+        s=default; t=1574141565;
+        bh=ZBUarJcRbt5B3LCR0U1Unw1x/sHcp5/3339eiUcDDvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nQAvWg4xCPivlkHUnw5uu6ipj8+GJRgGBAlyYvVGkOJvVuWKGtvMsOb7N/B1HsDvh
-         gx0BmioSQckLioRAY5FFa1FVM6Bli5wH1zwvR3C6AENjke8H21S0kNGaloPkvHKm/P
-         3ygXvKEXZM/+sK9icQ7H1tAQ8kER8skMc7t/mMe8=
+        b=zwhbDPgeo6T2hLMdPhnjkQCgKG78Lx+/BUqcI7tMpaycTs9gVOrCESNze8AVUUYjg
+         3NcqK6tRXYsLY8TeVeB7Hb9kr53qgEei03ggKDov3L47UusCt8L37nvG3DQk7L0Q5a
+         vI6XWs4n54m4a5rAVj90OBivoieh6i/ZV0uzvFHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Andy Gross <andy.gross@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 199/422] arm64: dts: renesas: r8a77965: Fix HS-USB compatible
-Date:   Tue, 19 Nov 2019 06:16:36 +0100
-Message-Id: <20191119051411.469544772@linuxfoundation.org>
+Subject: [PATCH 4.19 204/422] soc: qcom: geni: Dont ignore clk_round_rate() errors in geni_se_clk_tbl_get()
+Date:   Tue, 19 Nov 2019 06:16:41 +0100
+Message-Id: <20191119051411.801774598@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,34 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 99584d93e301d820d817bba2eb77b9152e13009c ]
+[ Upstream commit e11bbcedecae85ce60a5d99ea03528c2d6f867e0 ]
 
-Should be "renesas,usbhs-r8a77965", not "renesas,usbhs-r8a7796".
+The function clk_round_rate() is defined to return a "long", not an
+"unsigned long".  That's because it might return a negative error
+code.  Change the call in geni_se_clk_tbl_get() to check for errors.
 
-Fixes: a06e8af801760a98 ("arm64: dts: renesas: r8a77965: add HS-USB node")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
+While we're at it, get rid of a useless init of "freq".
+
+NOTE: overall the idea that we should iterate over clk_round_rate() to
+try to reconstruct a table already present in the clock driver is
+questionable.  Specifically:
+- This method relies on "clk_round_rate()" rounding up.
+- This method only works if the table is sorted and has no duplicates.
+...this patch doesn't try to fix those problems, it just makes the
+error handling more correct.
+
+Fixes: eddac5af0654 ("soc: qcom: Add GENI based QUP Wrapper driver")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/renesas/r8a77965.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/qcom/qcom-geni-se.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/renesas/r8a77965.dtsi b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-index 0da4841162610..2ccb1138cdf0c 100644
---- a/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-+++ b/arch/arm64/boot/dts/renesas/r8a77965.dtsi
-@@ -545,7 +545,7 @@
- 		};
+diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
+index feed3db21c108..1b19b8428c4ac 100644
+--- a/drivers/soc/qcom/qcom-geni-se.c
++++ b/drivers/soc/qcom/qcom-geni-se.c
+@@ -513,7 +513,7 @@ EXPORT_SYMBOL(geni_se_resources_on);
+  */
+ int geni_se_clk_tbl_get(struct geni_se *se, unsigned long **tbl)
+ {
+-	unsigned long freq = 0;
++	long freq = 0;
+ 	int i;
  
- 		hsusb: usb@e6590000 {
--			compatible = "renesas,usbhs-r8a7796",
-+			compatible = "renesas,usbhs-r8a77965",
- 				     "renesas,rcar-gen3-usbhs";
- 			reg = <0 0xe6590000 0 0x100>;
- 			interrupts = <GIC_SPI 107 IRQ_TYPE_LEVEL_HIGH>;
+ 	if (se->clk_perf_tbl) {
+@@ -529,7 +529,7 @@ int geni_se_clk_tbl_get(struct geni_se *se, unsigned long **tbl)
+ 
+ 	for (i = 0; i < MAX_CLK_PERF_LEVEL; i++) {
+ 		freq = clk_round_rate(se->clk, freq + 1);
+-		if (!freq || freq == se->clk_perf_tbl[i - 1])
++		if (freq <= 0 || freq == se->clk_perf_tbl[i - 1])
+ 			break;
+ 		se->clk_perf_tbl[i] = freq;
+ 	}
 -- 
 2.20.1
 
