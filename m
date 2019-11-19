@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FB3E101895
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 315511018A0
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728451AbfKSFZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:25:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43600 "EHLO mail.kernel.org"
+        id S1727797AbfKSF0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:26:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728444AbfKSFZq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:25:46 -0500
+        id S1725873AbfKSF0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:26:51 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4F7B21823;
-        Tue, 19 Nov 2019 05:25:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DB9621783;
+        Tue, 19 Nov 2019 05:26:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141145;
-        bh=xCW/lSW1U3Vl+AVPWZpivK93tjtE9RmQzvGRaO6XjAw=;
+        s=default; t=1574141209;
+        bh=FX7PqBezq7lvQhWb99e8xtKPgxkz9s7iKOplU6OafSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X5l74bYHuWmLqgx4+WBLfIY6YMdy4ouju9njjzGlQ7qJgbs8+zyhOd0LYVVnuIEZ5
-         Aj3nfRBES5QPXeLh5qpidetUWmKn3+Zqleal2VS4eJaqev4830afXOt1GjMn8QYbZ1
-         HL1Rwn112hjAHFH5uE8536vk84VQWQKpHvrYoQ2Q=
+        b=CaeZef4E1wkcvzU6MU98JI6m/cnoRd0711uI8uZ9+lt5F1KQUoytXYGQwi+4YWeT/
+         TagCYYj/MN2dFiKXCXmTDU631nipRdS65e6MFq13vRpHHmtgXJiBt0kA7DncKaAhgP
+         HIk+YhDgvpJZlkYeo/L9efpWV00z8+uW9/io6lNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Rakesh Pillai <pillair@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 053/422] cfg80211: Avoid regulatory restore when COUNTRY_IE_IGNORE is set
-Date:   Tue, 19 Nov 2019 06:14:10 +0100
-Message-Id: <20191119051403.245849688@linuxfoundation.org>
+Subject: [PATCH 4.19 055/422] ath10k: skip resetting rx filter for WCN3990
+Date:   Tue, 19 Nov 2019 06:14:12 +0100
+Message-Id: <20191119051403.352761634@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -45,93 +44,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>
+From: Rakesh Pillai <pillair@codeaurora.org>
 
-[ Upstream commit 7417844b63d4b0dc8ab23f88259bf95de7d09b57 ]
+[ Upstream commit 58da3b42307061b71f2dcce2bd1185d578a3aa53 ]
 
-When REGULATORY_COUNTRY_IE_IGNORE is set,  __reg_process_hint_country_ie()
-ignores the country code change request from __cfg80211_connect_result()
-via regulatory_hint_country_ie().
+WCN3990 has the MAC_PCU_ADDR1 configured properly
+and hence it will not send spurious ack frames
+during boot up.
 
-After Disconnect, similar to above, country code should not be reset to
-world when country IE ignore is set. But this is violated and restore of
-regulatory settings is invoked by cfg80211_disconnect_work via
-regulatory_hint_disconnect().
+Hence the reset_rx_filter workaround is not needed
+for WCN3990. Add a hw_param to indicate if hardware rx
+filter reset is needed and skip the reset_rx_filter for
+WCN3990.
 
-To address this, avoid regulatory restore from regulatory_hint_disconnect()
-when COUNTRY_IE_IGNORE is set.
+Tested HW: WCN3990
+Tested FW: WLAN.HL.2.0-01188-QCAHLSWMTPLZ-1
 
-Note: Currently, restore_regulatory_settings() takes care of clearing
-beacon hints. But in the proposed change, regulatory restore is avoided.
-Therefore, explicitly clear beacon hints when DISABLE_BEACON_HINTS
-is not set.
-
-Signed-off-by: Rajeev Kumar Sirasanagandla <rsirasan@codeaurora.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Rakesh Pillai <pillair@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/wireless/reg.c | 46 ++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ drivers/net/wireless/ath/ath10k/core.c | 17 ++++++++++++++++-
+ drivers/net/wireless/ath/ath10k/hw.h   |  5 +++++
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/net/wireless/reg.c b/net/wireless/reg.c
-index cccbf845079c8..68ae97ef8bf0b 100644
---- a/net/wireless/reg.c
-+++ b/net/wireless/reg.c
-@@ -3225,8 +3225,54 @@ static void restore_regulatory_settings(bool reset_user)
- 	schedule_work(&reg_work);
- }
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index 2791ef2fd716c..436eac342b622 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -91,6 +91,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rx_ring_fill_level = HTT_RX_RING_FILL_LEVEL,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA988X_HW_2_0_VERSION,
+@@ -124,6 +125,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA9887_HW_1_0_VERSION,
+@@ -157,6 +159,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA6174_HW_2_1_VERSION,
+@@ -189,6 +192,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA6174_HW_2_1_VERSION,
+@@ -221,6 +225,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA6174_HW_3_0_VERSION,
+@@ -253,6 +258,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA6174_HW_3_2_VERSION,
+@@ -288,6 +294,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA99X0_HW_2_0_DEV_VERSION,
+@@ -326,6 +333,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA9984_HW_1_0_DEV_VERSION,
+@@ -369,6 +377,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA9888_HW_2_0_DEV_VERSION,
+@@ -411,6 +420,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA9377_HW_1_0_DEV_VERSION,
+@@ -443,6 +453,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA9377_HW_1_1_DEV_VERSION,
+@@ -477,6 +488,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = QCA4019_HW_1_0_DEV_VERSION,
+@@ -516,6 +528,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = false,
+ 		.shadow_reg_support = false,
+ 		.rri_on_ddr = false,
++		.hw_filter_reset_required = true,
+ 	},
+ 	{
+ 		.id = WCN3990_HW_1_0_DEV_VERSION,
+@@ -540,6 +553,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.per_ce_irq = true,
+ 		.shadow_reg_support = true,
+ 		.rri_on_ddr = true,
++		.hw_filter_reset_required = false,
+ 	},
+ };
  
-+static bool is_wiphy_all_set_reg_flag(enum ieee80211_regulatory_flags flag)
-+{
-+	struct cfg80211_registered_device *rdev;
-+	struct wireless_dev *wdev;
+@@ -2406,7 +2420,8 @@ int ath10k_core_start(struct ath10k *ar, enum ath10k_firmware_mode mode,
+ 	 * possible to implicitly make it correct by creating a dummy vdev and
+ 	 * then deleting it.
+ 	 */
+-	if (mode == ATH10K_FIRMWARE_MODE_NORMAL) {
++	if (ar->hw_params.hw_filter_reset_required &&
++	    mode == ATH10K_FIRMWARE_MODE_NORMAL) {
+ 		status = ath10k_core_reset_rx_filter(ar);
+ 		if (status) {
+ 			ath10k_err(ar,
+diff --git a/drivers/net/wireless/ath/ath10k/hw.h b/drivers/net/wireless/ath/ath10k/hw.h
+index 977f79ebb4fd5..fac58c3c576a2 100644
+--- a/drivers/net/wireless/ath/ath10k/hw.h
++++ b/drivers/net/wireless/ath/ath10k/hw.h
+@@ -589,6 +589,11 @@ struct ath10k_hw_params {
+ 
+ 	/* Number of bytes to be the offset for each FFT sample */
+ 	int spectral_bin_offset;
 +
-+	list_for_each_entry(rdev, &cfg80211_rdev_list, list) {
-+		list_for_each_entry(wdev, &rdev->wiphy.wdev_list, list) {
-+			wdev_lock(wdev);
-+			if (!(wdev->wiphy->regulatory_flags & flag)) {
-+				wdev_unlock(wdev);
-+				return false;
-+			}
-+			wdev_unlock(wdev);
-+		}
-+	}
-+
-+	return true;
-+}
-+
- void regulatory_hint_disconnect(void)
- {
-+	/* Restore of regulatory settings is not required when wiphy(s)
-+	 * ignore IE from connected access point but clearance of beacon hints
-+	 * is required when wiphy(s) supports beacon hints.
++	/* targets which require hw filter reset during boot up,
++	 * to avoid it sending spurious acks.
 +	 */
-+	if (is_wiphy_all_set_reg_flag(REGULATORY_COUNTRY_IE_IGNORE)) {
-+		struct reg_beacon *reg_beacon, *btmp;
-+
-+		if (is_wiphy_all_set_reg_flag(REGULATORY_DISABLE_BEACON_HINTS))
-+			return;
-+
-+		spin_lock_bh(&reg_pending_beacons_lock);
-+		list_for_each_entry_safe(reg_beacon, btmp,
-+					 &reg_pending_beacons, list) {
-+			list_del(&reg_beacon->list);
-+			kfree(reg_beacon);
-+		}
-+		spin_unlock_bh(&reg_pending_beacons_lock);
-+
-+		list_for_each_entry_safe(reg_beacon, btmp,
-+					 &reg_beacon_list, list) {
-+			list_del(&reg_beacon->list);
-+			kfree(reg_beacon);
-+		}
-+
-+		return;
-+	}
-+
- 	pr_debug("All devices are disconnected, going to restore regulatory settings\n");
- 	restore_regulatory_settings(false);
- }
++	bool hw_filter_reset_required;
+ };
+ 
+ struct htt_rx_desc;
 -- 
 2.20.1
 
