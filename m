@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 352BF1016FF
+	by mail.lfdr.de (Postfix) with ESMTP id B087B101700
 	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730982AbfKSFpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:45:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41668 "EHLO mail.kernel.org"
+        id S1731033AbfKSFp7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:45:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731007AbfKSFpu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:45:50 -0500
+        id S1731031AbfKSFp6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:45:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DC702071B;
-        Tue, 19 Nov 2019 05:45:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D016C2075E;
+        Tue, 19 Nov 2019 05:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142349;
-        bh=eUkZ04H25tcOU3XzyAJgSjCwZ1Hp4q0z9s2RJC9opNE=;
+        s=default; t=1574142358;
+        bh=kbSPGq080Nn0FUfGmRqHlogt7rWfHK73COfGgh2PqDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ovri21FDhi6ajKHNZ1Fhkko6wl7DBxHqb6H6emI/mxgd6OT6VtZtKULIpK17idzMK
-         QhjzMUBSJO6Y6gG8S99QcB5wZOMvZKNlQuJypgLyvkxsqB3hpkAk+pbm35upradx0S
-         m5KAkQ8GBp4OCxYMmNxzBTS+ZJyXg2kj/D9JVRRM=
+        b=dCoewIKDaBWxfDeQJ3T2wtzf27ZKd2Ww4Dy24ECxMkB42UqhJCtuyRq197Lf4JosB
+         ULTgHH29WTXH0JV6dzsX0TGsHUC3jephSCrP1W+HGKzBfPhGwQQtqcWnxWOJW6O6WL
+         gRnHCa4gzBeA2zuHtgP5toDo0mOmAmj0pwEFX/5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Patryk=20Ma=C5=82ek?= <patryk.malek@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 052/239] i40e: hold the rtnl lock on clearing interrupt scheme
-Date:   Tue, 19 Nov 2019 06:17:32 +0100
-Message-Id: <20191119051307.645659152@linuxfoundation.org>
+Subject: [PATCH 4.14 055/239] iwlwifi: dont WARN on trying to dump dead firmware
+Date:   Tue, 19 Nov 2019 06:17:35 +0100
+Message-Id: <20191119051308.365808462@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -46,55 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Małek <patryk.malek@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 5cba17b14182696d6bb0ec83a1d087933f252241 ]
+[ Upstream commit 84f260251ed8153e84c64eb2c5278ab18d3ddef6 ]
 
-Hold the rtnl lock when we're clearing interrupt scheme
-in i40e_shutdown and in i40e_remove.
+There's no point in warning here, the user will just get an
+error back to the debugfs file write, and warning just makes
+it seem like there's an internal consistency problem when in
+reality the user just happened to hit this at a bad time.
+Remove the warning.
 
-Signed-off-by: Patryk Małek <patryk.malek@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Fixes: f45f979dc208 ("iwlwifi: mvm: disable dbg data collect when fw isn't alive")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/fw/dbg.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 39029a12a2337..aa2b446d6ad0f 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -11885,6 +11885,7 @@ static void i40e_remove(struct pci_dev *pdev)
- 	mutex_destroy(&hw->aq.asq_mutex);
+diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+index 8390104172410..e72c0b825420c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
++++ b/drivers/net/wireless/intel/iwlwifi/fw/dbg.c
+@@ -954,7 +954,7 @@ int iwl_fw_dbg_collect_desc(struct iwl_fw_runtime *fwrt,
+ 	 * If the loading of the FW completed successfully, the next step is to
+ 	 * get the SMEM config data. Thus, if fwrt->smem_cfg.num_lmacs is non
+ 	 * zero, the FW was already loaded successully. If the state is "NO_FW"
+-	 * in such a case - WARN and exit, since FW may be dead. Otherwise, we
++	 * in such a case - exit, since FW may be dead. Otherwise, we
+ 	 * can try to collect the data, since FW might just not be fully
+ 	 * loaded (no "ALIVE" yet), and the debug data is accessible.
+ 	 *
+@@ -962,9 +962,8 @@ int iwl_fw_dbg_collect_desc(struct iwl_fw_runtime *fwrt,
+ 	 *	config. In such a case, due to HW access problems, we might
+ 	 *	collect garbage.
+ 	 */
+-	if (WARN((fwrt->trans->state == IWL_TRANS_NO_FW) &&
+-		 fwrt->smem_cfg.num_lmacs,
+-		 "Can't collect dbg data when FW isn't alive\n"))
++	if (fwrt->trans->state == IWL_TRANS_NO_FW &&
++	    fwrt->smem_cfg.num_lmacs)
+ 		return -EIO;
  
- 	/* Clear all dynamic memory lists of rings, q_vectors, and VSIs */
-+	rtnl_lock();
- 	i40e_clear_interrupt_scheme(pf);
- 	for (i = 0; i < pf->num_alloc_vsi; i++) {
- 		if (pf->vsi[i]) {
-@@ -11893,6 +11894,7 @@ static void i40e_remove(struct pci_dev *pdev)
- 			pf->vsi[i] = NULL;
- 		}
- 	}
-+	rtnl_unlock();
- 
- 	for (i = 0; i < I40E_MAX_VEB; i++) {
- 		kfree(pf->veb[i]);
-@@ -12086,7 +12088,13 @@ static void i40e_shutdown(struct pci_dev *pdev)
- 	wr32(hw, I40E_PFPM_WUFC,
- 	     (pf->wol_en ? I40E_PFPM_WUFC_MAG_MASK : 0));
- 
-+	/* Since we're going to destroy queues during the
-+	 * i40e_clear_interrupt_scheme() we should hold the RTNL lock for this
-+	 * whole section
-+	 */
-+	rtnl_lock();
- 	i40e_clear_interrupt_scheme(pf);
-+	rtnl_unlock();
- 
- 	if (system_state == SYSTEM_POWER_OFF) {
- 		pci_wake_from_d3(pdev, pf->wol_en);
+ 	if (test_and_set_bit(IWL_FWRT_STATUS_DUMPING, &fwrt->status))
 -- 
 2.20.1
 
