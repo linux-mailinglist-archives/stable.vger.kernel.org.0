@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8CDF1015DE
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89D1B1015E2
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731030AbfKSFsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:48:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44574 "EHLO mail.kernel.org"
+        id S1731331AbfKSFsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:48:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728394AbfKSFsF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:48:05 -0500
+        id S1731325AbfKSFsL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:48:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7626B208C3;
-        Tue, 19 Nov 2019 05:48:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E56B21783;
+        Tue, 19 Nov 2019 05:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142485;
-        bh=TQNxn8PQb6pfkKLulXH3rqOfZl5w2skxGNN/p3loGqg=;
+        s=default; t=1574142490;
+        bh=vn/21sVwQ2K1AtlyTNj8Njl/NzU1TgIYkZgxejPPKHE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zNdVURH5M+ypCHl9b61YKJtQ6wvkUXwSN6YjNCzlFJvuLGl1WDG2Y2ge7az5PR/y
-         6nVe+55hv1ANkn5SK66JoP0fWnKBpG0VnpnI+UDWZU3gPTkkZW8xHwChaYjeSa3ODJ
-         gs+iIcnfUmCKcTqZHc7XHgu1zJ8/X90PS5lvkMRM=
+        b=vl4RtH1jFhn8IJJozzZ9eHDQZrhxEh8mKHmt4UeBeOARkfacDXW8ZDfB+JF8RBTy9
+         qtdiqd3TM1IQswR9flCVMaHCw3vvVOlxD/PIdIOi7GrbnHkQdzVCbuSOKnRQazqfkp
+         0LXRKU+jIluK95cj4VBdMmUPkQeHt+NCY37MUiA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <james.smart@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 098/239] scsi: lpfc: Fix errors in log messages.
-Date:   Tue, 19 Nov 2019 06:18:18 +0100
-Message-Id: <20191119051323.580192078@linuxfoundation.org>
+Subject: [PATCH 4.14 100/239] ARM: imx6: register pm_power_off handler if "fsl,pmic-stby-poweroff" is set
+Date:   Tue, 19 Nov 2019 06:18:20 +0100
+Message-Id: <20191119051324.247031686@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -45,61 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 2879265f514b1f4154288243c91438ddbedb3ed4 ]
+[ Upstream commit 8148d2136002da2e2887caf6a07bbd9c033f14f3 ]
 
-Message 6408 is displayed for each entry in an array, but the cpu and queue
-numbers were incorrect for the entry.  Message 6001 includes an extraneous
-character.
+One of the Freescale recommended sequences for power off with external
+PMIC is the following:
+...
+3.  SoC is programming PMIC for power off when standby is asserted.
+4.  In CCM STOP mode, Standby is asserted, PMIC gates SoC supplies.
 
-Resolve both issues
+See:
+http://www.nxp.com/assets/documents/data/en/reference-manuals/IMX6DQRM.pdf
+page 5083
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This patch implements step 4. of this sequence.
+
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvme.c  | 2 +-
- drivers/scsi/lpfc/lpfc_nvmet.c | 7 +++----
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ arch/arm/mach-imx/pm-imx6.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index 23bdb1ca106e4..6c4499db969c1 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -144,7 +144,7 @@ lpfc_nvme_delete_queue(struct nvme_fc_local_port *pnvme_lport,
- 	vport = lport->vport;
- 
- 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
--			"6001 ENTER.  lpfc_pnvme %p, qidx x%xi qhandle %p\n",
-+			"6001 ENTER.  lpfc_pnvme %p, qidx x%x qhandle %p\n",
- 			lport, qidx, handle);
- 	kfree(handle);
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index ecdf071653d4d..6078bcc9f594a 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -604,6 +604,28 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
+ 				   IMX6Q_GPR1_GINT);
  }
-diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
-index 7ac1a067d7801..eacdcb931bdab 100644
---- a/drivers/scsi/lpfc/lpfc_nvmet.c
-+++ b/drivers/scsi/lpfc/lpfc_nvmet.c
-@@ -1078,15 +1078,14 @@ lpfc_nvmet_setup_io_context(struct lpfc_hba *phba)
- 			idx = 0;
- 	}
  
--	infop = phba->sli4_hba.nvmet_ctx_info;
--	for (j = 0; j < phba->cfg_nvmet_mrq; j++) {
--		for (i = 0; i < phba->sli4_hba.num_present_cpu; i++) {
-+	for (i = 0; i < phba->sli4_hba.num_present_cpu; i++) {
-+		for (j = 0; j < phba->cfg_nvmet_mrq; j++) {
-+			infop = lpfc_get_ctx_list(phba, i, j);
- 			lpfc_printf_log(phba, KERN_INFO, LOG_NVME | LOG_INIT,
- 					"6408 TOTAL NVMET ctx for CPU %d "
- 					"MRQ %d: cnt %d nextcpu %p\n",
- 					i, j, infop->nvmet_ctx_list_cnt,
- 					infop->nvmet_ctx_next_cpu);
--			infop++;
- 		}
- 	}
- 	return 0;
++static void imx6_pm_stby_poweroff(void)
++{
++	imx6_set_lpm(STOP_POWER_OFF);
++	imx6q_suspend_finish(0);
++
++	mdelay(1000);
++
++	pr_emerg("Unable to poweroff system\n");
++}
++
++static int imx6_pm_stby_poweroff_probe(void)
++{
++	if (pm_power_off) {
++		pr_warn("%s: pm_power_off already claimed  %p %pf!\n",
++			__func__, pm_power_off, pm_power_off);
++		return -EBUSY;
++	}
++
++	pm_power_off = imx6_pm_stby_poweroff;
++	return 0;
++}
++
+ void __init imx6_pm_ccm_init(const char *ccm_compat)
+ {
+ 	struct device_node *np;
+@@ -620,6 +642,9 @@ void __init imx6_pm_ccm_init(const char *ccm_compat)
+ 	val = readl_relaxed(ccm_base + CLPCR);
+ 	val &= ~BM_CLPCR_LPM;
+ 	writel_relaxed(val, ccm_base + CLPCR);
++
++	if (of_property_read_bool(np, "fsl,pmic-stby-poweroff"))
++		imx6_pm_stby_poweroff_probe();
+ }
+ 
+ void __init imx6q_pm_init(void)
 -- 
 2.20.1
 
