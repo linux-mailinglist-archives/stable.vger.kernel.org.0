@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 725291015E4
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 598F41015E6
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730911AbfKSFsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:48:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44816 "EHLO mail.kernel.org"
+        id S1731355AbfKSFsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:48:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731340AbfKSFsR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:48:17 -0500
+        id S1731346AbfKSFsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:48:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DF7E2071B;
-        Tue, 19 Nov 2019 05:48:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13CDD218BA;
+        Tue, 19 Nov 2019 05:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142496;
-        bh=nHTNft2ct8Swzv59J+uQWEJCYKeLMnBCYuaPYwe5Hmo=;
+        s=default; t=1574142502;
+        bh=4BlJTgCIHYa86nRJU6GQNdjkNoCpN8bYhMvm2xuHntA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GXhT/2wZCcWOuaKAy4eJyd58BNGLuO1EOOSxVbPUYcx2NaxPV8KA7hv2ySDfFVQAp
-         G1LHVKUgsdpRWEm/fSwQVB5hEBrQgL2wwbsDpcC4qsJTypzQAFKpmynw9Ti2/4nKLm
-         5vYTRF8RJxyZHlj85I9FjXTtrLdYrxHa2iFDmt5k=
+        b=i/xW/ZrmKvInofrZ4Wrz/5p+z/Zdx8vNFU71epIUzLPxXWmVQo8LhTA5mn+xYGcHJ
+         6FATtQY8J4JQ/k6quXHlJXUgeU3zZXOeg9Z+KZRFOIo+rdb80KJRJIZ+a4tGPgwAMB
+         lSK2df3Zd9DjTm5M5qUID0n8+7T6LhM/G78KQeCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Deepak Ukey <deepak.ukey@microchip.com>,
-        Viswas G <Viswas.G@microchip.com>,
-        Jack Wang <jinpu.wang@profitbricks.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/239] scsi: pm80xx: Corrected dma_unmap_sg() parameter
-Date:   Tue, 19 Nov 2019 06:18:21 +0100
-Message-Id: <20191119051324.684685846@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 103/239] kprobes: Dont call BUG_ON() if there is a kprobe in use on free list
+Date:   Tue, 19 Nov 2019 06:18:23 +0100
+Message-Id: <20191119051325.527136366@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -46,35 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Deepak Ukey <deepak.ukey@microchip.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 76cb25b058034d37244be6aca97a2ad52a5fbcad ]
+[ Upstream commit cbdd96f5586151e48317d90a403941ec23f12660 ]
 
-For the function dma_unmap_sg(), the <nents> parameter should be number of
-elements in the scatter list prior to the mapping, not after the mapping.
+Instead of calling BUG_ON(), if we find a kprobe in use on free kprobe
+list, just remove it from the list and keep it on kprobe hash list
+as same as other in-use kprobes.
 
-Signed-off-by: Deepak Ukey <deepak.ukey@microchip.com>
-Signed-off-by: Viswas G <Viswas.G@microchip.com>
-Acked-by: Jack Wang <jinpu.wang@profitbricks.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: David S . Miller <davem@davemloft.net>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Naveen N . Rao <naveen.n.rao@linux.vnet.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/153666126882.21306.10738207224288507996.stgit@devbox
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_sas.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/kprobes.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
-index ce584c31d36e5..d1fcd21f7f7dd 100644
---- a/drivers/scsi/pm8001/pm8001_sas.c
-+++ b/drivers/scsi/pm8001/pm8001_sas.c
-@@ -466,7 +466,7 @@ err_out:
- 	dev_printk(KERN_ERR, pm8001_ha->dev, "pm8001 exec failed[%d]!\n", rc);
- 	if (!sas_protocol_ata(t->task_proto))
- 		if (n_elem)
--			dma_unmap_sg(pm8001_ha->dev, t->scatter, n_elem,
-+			dma_unmap_sg(pm8001_ha->dev, t->scatter, t->num_scatter,
- 				t->data_dir);
- out_done:
- 	spin_unlock_irqrestore(&pm8001_ha->lock, flags);
+diff --git a/kernel/kprobes.c b/kernel/kprobes.c
+index f7a4602a76f98..d0fe20a5475f7 100644
+--- a/kernel/kprobes.c
++++ b/kernel/kprobes.c
+@@ -544,8 +544,14 @@ static void do_free_cleaned_kprobes(void)
+ 	struct optimized_kprobe *op, *tmp;
+ 
+ 	list_for_each_entry_safe(op, tmp, &freeing_list, list) {
+-		BUG_ON(!kprobe_unused(&op->kp));
+ 		list_del_init(&op->list);
++		if (WARN_ON_ONCE(!kprobe_unused(&op->kp))) {
++			/*
++			 * This must not happen, but if there is a kprobe
++			 * still in use, keep it on kprobes hash list.
++			 */
++			continue;
++		}
+ 		free_aggr_kprobe(&op->kp);
+ 	}
+ }
 -- 
 2.20.1
 
