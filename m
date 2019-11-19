@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA19E1014E5
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:38:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC80E101602
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:49:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730205AbfKSFia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:38:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60540 "EHLO mail.kernel.org"
+        id S1731067AbfKSFt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:49:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730201AbfKSFia (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:38:30 -0500
+        id S1730917AbfKSFtZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:49:25 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B217222A4;
-        Tue, 19 Nov 2019 05:38:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B639420721;
+        Tue, 19 Nov 2019 05:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141909;
-        bh=8DD4osZh3pqSw/v3Z8lBeKCbS7/Ml7qR65jLNRSZyrc=;
+        s=default; t=1574142564;
+        bh=RBRTeBaME1S9QHwrLDbdRZCqvLjaiRbJ04TB6H3lm/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYerfH1qpsQWupximigg2HVKWhy9zsZfAZ8APJmZbd7yEvyLCk5UTkHjFXKGL2hS0
-         m592pdLalLwf4gheEaFGJZX9Q0o5bcvqHVhM2gDKWbRdS5qbq6Wb/GF94dtt0geK2F
-         U12z2EPylvEW1uy+pETgaZGFoYWapdpD28/mfd04=
+        b=FvNMRmaxZTvYi4pMix0ilajm59aDgFto/wxciDvGUKe/VJYeKbWssr0VRU6AjCs55
+         5nHQQd0b18J3nsBf+ABWMmCdkKtMKgEzdMpB3+YI6W+Xg2afERtjgiJTRnife4IJ8u
+         dOsEIcoLU9ZNTY7VghR0EwPPMEs85/VjqjVTY1bE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rachel Mozes <rachel.mozes@intel.com>,
-        Dengcheng Zhu <dzhu@wavecomp.com>,
-        Paul Burton <paul.burton@mips.com>, pburton@wavecomp.com,
-        ralf@linux-mips.org, linux-mips@linux-mips.org,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 323/422] MIPS: kexec: Relax memory restriction
-Date:   Tue, 19 Nov 2019 06:18:40 +0100
-Message-Id: <20191119051419.940745799@linuxfoundation.org>
+Subject: [PATCH 4.14 122/239] power: reset: at91-poweroff: do not procede if at91_shdwc is allocated
+Date:   Tue, 19 Nov 2019 06:18:42 +0100
+Message-Id: <20191119051329.966707883@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dengcheng Zhu <dzhu@wavecomp.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit a6da4d6fdf8bd512c98d3ac7f1d16bc4bb282919 ]
+[ Upstream commit 9f1e44774be578fb92776add95f1fcaf8284d692 ]
 
-We can rely on the system kernel and the dump capture kernel themselves in
-memory usage.
+There should be only one instance of struct shdwc in the system. This is
+referenced through at91_shdwc. Return in probe if at91_shdwc is already
+allocated.
 
-Being restrictive with 512MB limit may cause kexec tool failure on some
-platforms.
-
-Tested-by: Rachel Mozes <rachel.mozes@intel.com>
-Reported-by: Rachel Mozes <rachel.mozes@intel.com>
-Signed-off-by: Dengcheng Zhu <dzhu@wavecomp.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/20568/
-Cc: pburton@wavecomp.com
-Cc: ralf@linux-mips.org
-Cc: linux-mips@linux-mips.org
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/kexec.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/power/reset/at91-sama5d2_shdwc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/mips/include/asm/kexec.h b/arch/mips/include/asm/kexec.h
-index 493a3cc7c39ad..cfdbe66575f4d 100644
---- a/arch/mips/include/asm/kexec.h
-+++ b/arch/mips/include/asm/kexec.h
-@@ -12,11 +12,11 @@
- #include <asm/stacktrace.h>
+diff --git a/drivers/power/reset/at91-sama5d2_shdwc.c b/drivers/power/reset/at91-sama5d2_shdwc.c
+index 31080c2541249..037976a1fe40b 100644
+--- a/drivers/power/reset/at91-sama5d2_shdwc.c
++++ b/drivers/power/reset/at91-sama5d2_shdwc.c
+@@ -246,6 +246,9 @@ static int __init at91_shdwc_probe(struct platform_device *pdev)
+ 	if (!pdev->dev.of_node)
+ 		return -ENODEV;
  
- /* Maximum physical address we can use pages from */
--#define KEXEC_SOURCE_MEMORY_LIMIT (0x20000000)
-+#define KEXEC_SOURCE_MEMORY_LIMIT (-1UL)
- /* Maximum address we can reach in physical address mode */
--#define KEXEC_DESTINATION_MEMORY_LIMIT (0x20000000)
-+#define KEXEC_DESTINATION_MEMORY_LIMIT (-1UL)
-  /* Maximum address we can use for the control code buffer */
--#define KEXEC_CONTROL_MEMORY_LIMIT (0x20000000)
-+#define KEXEC_CONTROL_MEMORY_LIMIT (-1UL)
- /* Reserve 3*4096 bytes for board-specific info */
- #define KEXEC_CONTROL_PAGE_SIZE (4096 + 3*4096)
- 
++	if (at91_shdwc)
++		return -EBUSY;
++
+ 	at91_shdwc = devm_kzalloc(&pdev->dev, sizeof(*at91_shdwc), GFP_KERNEL);
+ 	if (!at91_shdwc)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
