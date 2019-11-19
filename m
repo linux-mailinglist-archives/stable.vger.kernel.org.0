@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F4A101568
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:43:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A345101462
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:33:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730775AbfKSFnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:43:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38750 "EHLO mail.kernel.org"
+        id S1727865AbfKSFdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:33:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730237AbfKSFnr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:43:47 -0500
+        id S1729517AbfKSFdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:33:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3390D2084D;
-        Tue, 19 Nov 2019 05:43:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BADE621783;
+        Tue, 19 Nov 2019 05:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142226;
-        bh=hsKxKdwogcjR4ZHBi+71yqZ0W0LQjjJkDx0ygb3+bXU=;
+        s=default; t=1574141598;
+        bh=3R1O+2sefDUBuO2KrxNRutCSxBn0BF/KyQKfUA/8QQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDZV9sUcFQWC33rIqbA4yBpxsLmzz1pjYwaHrFirW5lTMKEoxlBbKvWS6yuHz+wW/
-         wywwbl8Se/NOHAgIE+NeTu9jHnfpuPXzIgQxmIqilsZQaDz3OgOdtb1rkyjm7Izt1k
-         g5bE+5rH9A6sRkq4uddz3fOGpnU8+xHWEE0LfLCo=
+        b=PvhJq7VlBpE8sHTfD0QtUSv3L09zK5QyOHSG6pGyZAFLUkyqwx1i2xcBZJYNPlWZP
+         /3+Y0HjVS2XreuGQ1Ot5SpLBQMDQOawLlXrsHZEKHTC6hDu4/l111bR9u6yUkssrN4
+         N243hpGmiRAer2W8eSfIX17PhTruoJusuVAbK/Sc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Jouni Hogander <jouni.hogander@unikie.com>
-Subject: [PATCH 4.14 010/239] slip: Fix memory leak in slip_open error path
-Date:   Tue, 19 Nov 2019 06:16:50 +0100
-Message-Id: <20191119051259.812944817@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 214/422] ARM: dts: sunxi: Fix I2C bus warnings
+Date:   Tue, 19 Nov 2019 06:16:51 +0100
+Message-Id: <20191119051412.467259994@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Hogander <jouni.hogander@unikie.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 3b5a39979dafea9d0cd69c7ae06088f7a84cdafa ]
+[ Upstream commit 0729b4af5753b65aa031f58c435da53dbbf56d19 ]
 
-Driver/net/can/slcan.c is derived from slip.c. Memory leak was detected
-by Syzkaller in slcan. Same issue exists in slip.c and this patch is
-addressing the leak in slip.c.
+dtc has new checks for I2C buses. Fix the warnings in unit-addresses.
 
-Here is the slcan memory leak trace reported by Syzkaller:
+arch/arm/boot/dts/sun8i-a23-gt90h-v4.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a23-inet86dz.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a23-polaroid-mid2407pxe03.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a23-polaroid-mid2809pxe04.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a33-ga10h-v1.1.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun8i-a33-inet-d978-rev2.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: missing or empty reg property
+arch/arm/boot/dts/sun8i-a33-ippo-q8h-v1.2.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: missing or empty reg property
+arch/arm/boot/dts/sun8i-a33-q8-tablet.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2ac00/touchscreen@0: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-utoo-p66.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: I2C bus unit address format error, expected "40"
+arch/arm/boot/dts/sun5i-a13-difrnce-dit4350.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-empire-electronix-m712.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-inet-98v-rev2.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
+arch/arm/boot/dts/sun5i-a13-q8-tablet.dtb: Warning (i2c_bus_reg): /soc@1c00000/i2c@1c2b000/touchscreen: missing or empty reg property
 
-BUG: memory leak unreferenced object 0xffff888067f65500 (size 4096):
-  comm "syz-executor043", pid 454, jiffies 4294759719 (age 11.930s)
-  hex dump (first 32 bytes):
-    73 6c 63 61 6e 30 00 00 00 00 00 00 00 00 00 00 slcan0..........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-  backtrace:
-    [<00000000a06eec0d>] __kmalloc+0x18b/0x2c0
-    [<0000000083306e66>] kvmalloc_node+0x3a/0xc0
-    [<000000006ac27f87>] alloc_netdev_mqs+0x17a/0x1080
-    [<0000000061a996c9>] slcan_open+0x3ae/0x9a0
-    [<000000001226f0f9>] tty_ldisc_open.isra.1+0x76/0xc0
-    [<0000000019289631>] tty_set_ldisc+0x28c/0x5f0
-    [<000000004de5a617>] tty_ioctl+0x48d/0x1590
-    [<00000000daef496f>] do_vfs_ioctl+0x1c7/0x1510
-    [<0000000059068dbc>] ksys_ioctl+0x99/0xb0
-    [<000000009a6eb334>] __x64_sys_ioctl+0x78/0xb0
-    [<0000000053d0332e>] do_syscall_64+0x16f/0x580
-    [<0000000021b83b99>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-    [<000000008ea75434>] 0xfffffffffffffff
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Oliver Hartkopp <socketcan@hartkopp.net>
-Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/slip/slip.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi | 3 ++-
+ arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi | 3 ++-
+ arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts    | 2 +-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/slip/slip.c
-+++ b/drivers/net/slip/slip.c
-@@ -859,6 +859,7 @@ err_free_chan:
- 	sl->tty = NULL;
- 	tty->disc_data = NULL;
- 	clear_bit(SLF_INUSE, &sl->flags);
-+	free_netdev(sl->dev);
+diff --git a/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi b/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi
+index 8acbaab14fe51..d2a2eb8b3f262 100644
+--- a/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi
++++ b/arch/arm/boot/dts/sun5i-reference-design-tablet.dtsi
+@@ -92,7 +92,8 @@
+ 	 */
+ 	clock-frequency = <400000>;
  
- err_exit:
- 	rtnl_unlock();
+-	touchscreen: touchscreen {
++	touchscreen: touchscreen@40 {
++		reg = <0x40>;
+ 		interrupt-parent = <&pio>;
+ 		interrupts = <6 11 IRQ_TYPE_EDGE_FALLING>; /* EINT11 (PG11) */
+ 		pinctrl-names = "default";
+diff --git a/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi b/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi
+index 880096c7e2523..5e8a95af89b8c 100644
+--- a/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi
++++ b/arch/arm/boot/dts/sun8i-reference-design-tablet.dtsi
+@@ -69,7 +69,8 @@
+ 	 */
+ 	clock-frequency = <400000>;
+ 
+-	touchscreen: touchscreen@0 {
++	touchscreen: touchscreen@40 {
++		reg = <0x40>;
+ 		interrupt-parent = <&pio>;
+ 		interrupts = <1 5 IRQ_TYPE_EDGE_FALLING>; /* PB5 */
+ 		pinctrl-names = "default";
+diff --git a/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts b/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
+index 35859d8f3267f..bf97f6244c233 100644
+--- a/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
++++ b/arch/arm/boot/dts/sun8i-v40-bananapi-m2-berry.dts
+@@ -95,7 +95,7 @@
+ &i2c0 {
+ 	status = "okay";
+ 
+-	axp22x: pmic@68 {
++	axp22x: pmic@34 {
+ 		compatible = "x-powers,axp221";
+ 		reg = <0x34>;
+ 		interrupt-parent = <&nmi_intc>;
+-- 
+2.20.1
+
 
 
