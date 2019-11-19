@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 945711017B6
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1011B101905
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728426AbfKSFkc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:40:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34712 "EHLO mail.kernel.org"
+        id S1727591AbfKSFV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:21:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729961AbfKSFkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:40:31 -0500
+        id S1727539AbfKSFV6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:21:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7D39218BA;
-        Tue, 19 Nov 2019 05:40:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CF2022317;
+        Tue, 19 Nov 2019 05:21:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142030;
-        bh=ruwTrmd0clXQGGZZmo8V50xrv053nKh84sC0o73hv7g=;
+        s=default; t=1574140916;
+        bh=Jx7N3naRKuizoBu6BtVpPJsrEwHfHDwHNVNCUvzTgPk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgxMuX/6s0zSoSwL9FpFHwVb+RaL6n+eIDpt6Dqm4vv77QoQXRBGVBlepfMpJastP
-         8Huj+LrqA4uJNgk2D3X4zODSbyOMWLKC2VTVYfbOrFN+ybXY96R5DB3eLEHCM3/2FM
-         hk0N6AdnBe9nzYxiQQwVW9saLCxenT6rRRPBlTPo=
+        b=WqN1/A2GzX74/6RQCRxmQyW2iDKgSe9FfNyXPeWhl4sBlG3eJuZlICpWyTNrEFKqh
+         Yde5In4m7OPh0SpXOpYPF0UMfrbYlGr4+wl6H8wXy2XI/jPLa7rWxHzcKoE9tM0Bl0
+         Ic50pB2X3OeCIJnTElIOg/Uercyrjjj/d+pTN/Jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shawn Guo <shawnguo@kernel.org>,
-        Li Yang <leoyang.li@nxp.com>, Rob Herring <robh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 365/422] arm64: dts: fsl: Fix I2C and SPI bus warnings
-Date:   Tue, 19 Nov 2019 06:19:22 +0100
-Message-Id: <20191119051422.667755226@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 03/48] devlink: disallow reload operation during device cleanup
+Date:   Tue, 19 Nov 2019 06:19:23 +0100
+Message-Id: <20191119050949.815080213@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119050946.745015350@linuxfoundation.org>
+References: <20191119050946.745015350@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,139 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Jiri Pirko <jiri@mellanox.com>
 
-[ Upstream commit b739c177e1aeab532f355493439a1901b85be38c ]
+[ Upstream commit 5a508a254bed9a2e36a5fb96c9065532a6bf1e9c ]
 
-dtc has new checks for I2C and SPI buses. Fix the SPI bus node names
-and warnings in unit-addresses.
+There is a race between driver code that does setup/cleanup of device
+and devlink reload operation that in some drivers works with the same
+code. Use after free could we easily obtained by running:
 
-arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dtb: Warning (i2c_bus_reg): /soc/i2c@2180000/eeprom@57: I2C bus unit address format error, expected "53"
-arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dtb: Warning (i2c_bus_reg): /soc/i2c@2180000/eeprom@56: I2C bus unit address format error, expected "52"
+while true; do
+        echo "0000:00:10.0" >/sys/bus/pci/drivers/mlxsw_spectrum2/bind
+        devlink dev reload pci/0000:00:10.0 &
+        echo "0000:00:10.0" >/sys/bus/pci/drivers/mlxsw_spectrum2/unbind
+done
 
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Acked-by: Li Yang <leoyang.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by enabling reload only after setup of device is complete and
+disabling it at the beginning of the cleanup process.
+
+Reported-by: Ido Schimmel <idosch@mellanox.com>
+Fixes: 2d8dc5bbf4e7 ("devlink: Add support for reload")
+Signed-off-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi    | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi    | 6 +++---
- arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts | 4 ++--
- arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi    | 4 ++--
- arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi    | 4 ++--
- 5 files changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/main.c  |    3 ++
+ drivers/net/ethernet/mellanox/mlxsw/core.c |    6 +++-
+ drivers/net/netdevsim/dev.c                |    2 +
+ include/net/devlink.h                      |    3 ++
+ net/core/devlink.c                         |   39 ++++++++++++++++++++++++++++-
+ 5 files changed, 51 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
-index 68ac78c4564dc..5da732f82fa0c 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a.dtsi
-@@ -337,7 +337,7 @@
- 			status = "disabled";
- 		};
+--- a/drivers/net/ethernet/mellanox/mlx4/main.c
++++ b/drivers/net/ethernet/mellanox/mlx4/main.c
+@@ -3982,6 +3982,7 @@ static int mlx4_init_one(struct pci_dev
+ 		goto err_params_unregister;
  
--		dspi: dspi@2100000 {
-+		dspi: spi@2100000 {
- 			compatible = "fsl,ls1012a-dspi", "fsl,ls1021a-v1.0-dspi";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-index 7881e3d81a9ab..b9c0f2de8f12c 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a.dtsi
-@@ -284,7 +284,7 @@
- 			interrupts = <0 43 0x4>;
- 		};
+ 	devlink_params_publish(devlink);
++	devlink_reload_enable(devlink);
+ 	pci_save_state(pdev);
+ 	return 0;
  
--		qspi: quadspi@1550000 {
-+		qspi: spi@1550000 {
- 			compatible = "fsl,ls1043a-qspi", "fsl,ls1021a-qspi";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-@@ -382,7 +382,7 @@
- 			ranges = <0x0 0x5 0x00000000 0x8000000>;
- 		};
+@@ -4093,6 +4094,8 @@ static void mlx4_remove_one(struct pci_d
+ 	struct devlink *devlink = priv_to_devlink(priv);
+ 	int active_vfs = 0;
  
--		dspi0: dspi@2100000 {
-+		dspi0: spi@2100000 {
- 			compatible = "fsl,ls1043a-dspi", "fsl,ls1021a-v1.0-dspi";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-@@ -395,7 +395,7 @@
- 			status = "disabled";
- 		};
++	devlink_reload_disable(devlink);
++
+ 	if (mlx4_is_slave(dev))
+ 		persist->interface_state |= MLX4_INTERFACE_STATE_NOWAIT;
  
--		dspi1: dspi@2110000 {
-+		dspi1: spi@2110000 {
- 			compatible = "fsl,ls1043a-dspi", "fsl,ls1021a-v1.0-dspi";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-index 440e111651d53..a59b48203688a 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-rdb.dts
-@@ -57,12 +57,12 @@
- 		reg = <0x4c>;
- 	};
+--- a/drivers/net/ethernet/mellanox/mlxsw/core.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/core.c
+@@ -1128,8 +1128,10 @@ __mlxsw_core_bus_device_register(const s
+ 	if (err)
+ 		goto err_thermal_init;
  
--	eeprom@56 {
-+	eeprom@52 {
- 		compatible = "atmel,24c512";
- 		reg = <0x52>;
- 	};
+-	if (mlxsw_driver->params_register)
++	if (mlxsw_driver->params_register) {
+ 		devlink_params_publish(devlink);
++		devlink_reload_enable(devlink);
++	}
  
--	eeprom@57 {
-+	eeprom@53 {
- 		compatible = "atmel,24c512";
- 		reg = <0x53>;
- 	};
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-index ef83786b8b905..de6af453a6e16 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a.dtsi
-@@ -202,7 +202,7 @@
- 			interrupts = <GIC_SPI 43 IRQ_TYPE_LEVEL_HIGH>;
- 		};
+ 	return 0;
  
--		qspi: quadspi@1550000 {
-+		qspi: spi@1550000 {
- 			compatible = "fsl,ls1021a-qspi";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-@@ -361,7 +361,7 @@
- 			#thermal-sensor-cells = <1>;
- 		};
+@@ -1191,6 +1193,8 @@ void mlxsw_core_bus_device_unregister(st
+ {
+ 	struct devlink *devlink = priv_to_devlink(mlxsw_core);
  
--		dspi: dspi@2100000 {
-+		dspi: spi@2100000 {
- 			compatible = "fsl,ls1021a-v1.0-dspi";
- 			#address-cells = <1>;
- 			#size-cells = <0>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-index 8cb78dd996728..ebe0cd4bf2b7e 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa.dtsi
-@@ -469,7 +469,7 @@
- 			mmu-masters = <&fsl_mc 0x300 0>;
- 		};
++	if (!reload)
++		devlink_reload_disable(devlink);
+ 	if (mlxsw_core->reload_fail) {
+ 		if (!reload)
+ 			/* Only the parts that were not de-initialized in the
+--- a/drivers/net/netdevsim/dev.c
++++ b/drivers/net/netdevsim/dev.c
+@@ -297,6 +297,7 @@ nsim_dev_create(struct nsim_bus_dev *nsi
+ 	if (err)
+ 		goto err_debugfs_exit;
  
--		dspi: dspi@2100000 {
-+		dspi: spi@2100000 {
- 			status = "disabled";
- 			compatible = "fsl,ls2080a-dspi", "fsl,ls2085a-dspi";
- 			#address-cells = <1>;
-@@ -595,7 +595,7 @@
- 				  3 0 0x5 0x20000000 0x00010000>;
- 		};
++	devlink_reload_enable(devlink);
+ 	return nsim_dev;
  
--		qspi: quadspi@20c0000 {
-+		qspi: spi@20c0000 {
- 			status = "disabled";
- 			compatible = "fsl,ls2080a-qspi", "fsl,ls1021a-qspi";
- 			#address-cells = <1>;
--- 
-2.20.1
-
+ err_debugfs_exit:
+@@ -314,6 +315,7 @@ static void nsim_dev_destroy(struct nsim
+ {
+ 	struct devlink *devlink = priv_to_devlink(nsim_dev);
+ 
++	devlink_reload_disable(devlink);
+ 	nsim_bpf_dev_exit(nsim_dev);
+ 	nsim_dev_debugfs_exit(nsim_dev);
+ 	devlink_unregister(devlink);
+--- a/include/net/devlink.h
++++ b/include/net/devlink.h
+@@ -35,6 +35,7 @@ struct devlink {
+ 	struct device *dev;
+ 	possible_net_t _net;
+ 	struct mutex lock;
++	u8 reload_enabled:1;
+ 	char priv[0] __aligned(NETDEV_ALIGN);
+ };
+ 
+@@ -594,6 +595,8 @@ struct ib_device;
+ struct devlink *devlink_alloc(const struct devlink_ops *ops, size_t priv_size);
+ int devlink_register(struct devlink *devlink, struct device *dev);
+ void devlink_unregister(struct devlink *devlink);
++void devlink_reload_enable(struct devlink *devlink);
++void devlink_reload_disable(struct devlink *devlink);
+ void devlink_free(struct devlink *devlink);
+ int devlink_port_register(struct devlink *devlink,
+ 			  struct devlink_port *devlink_port,
+--- a/net/core/devlink.c
++++ b/net/core/devlink.c
+@@ -2677,7 +2677,7 @@ static int devlink_nl_cmd_reload(struct
+ 	struct devlink *devlink = info->user_ptr[0];
+ 	int err;
+ 
+-	if (!devlink->ops->reload)
++	if (!devlink->ops->reload || !devlink->reload_enabled)
+ 		return -EOPNOTSUPP;
+ 
+ 	err = devlink_resources_validate(devlink, NULL, info);
+@@ -5559,6 +5559,8 @@ EXPORT_SYMBOL_GPL(devlink_register);
+ void devlink_unregister(struct devlink *devlink)
+ {
+ 	mutex_lock(&devlink_mutex);
++	WARN_ON(devlink_reload_supported(devlink) &&
++		devlink->reload_enabled);
+ 	devlink_notify(devlink, DEVLINK_CMD_DEL);
+ 	list_del(&devlink->list);
+ 	mutex_unlock(&devlink_mutex);
+@@ -5566,6 +5568,41 @@ void devlink_unregister(struct devlink *
+ EXPORT_SYMBOL_GPL(devlink_unregister);
+ 
+ /**
++ *	devlink_reload_enable - Enable reload of devlink instance
++ *
++ *	@devlink: devlink
++ *
++ *	Should be called at end of device initialization
++ *	process when reload operation is supported.
++ */
++void devlink_reload_enable(struct devlink *devlink)
++{
++	mutex_lock(&devlink_mutex);
++	devlink->reload_enabled = true;
++	mutex_unlock(&devlink_mutex);
++}
++EXPORT_SYMBOL_GPL(devlink_reload_enable);
++
++/**
++ *	devlink_reload_disable - Disable reload of devlink instance
++ *
++ *	@devlink: devlink
++ *
++ *	Should be called at the beginning of device cleanup
++ *	process when reload operation is supported.
++ */
++void devlink_reload_disable(struct devlink *devlink)
++{
++	mutex_lock(&devlink_mutex);
++	/* Mutex is taken which ensures that no reload operation is in
++	 * progress while setting up forbidded flag.
++	 */
++	devlink->reload_enabled = false;
++	mutex_unlock(&devlink_mutex);
++}
++EXPORT_SYMBOL_GPL(devlink_reload_disable);
++
++/**
+  *	devlink_free - Free devlink instance resources
+  *
+  *	@devlink: devlink
 
 
