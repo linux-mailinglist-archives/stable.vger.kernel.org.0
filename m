@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC8910149F
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:36:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 082C41015B8
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:47:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729074AbfKSFfv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:35:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56790 "EHLO mail.kernel.org"
+        id S1730347AbfKSFqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:46:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729843AbfKSFft (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:35:49 -0500
+        id S1731128AbfKSFqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:46:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95D6F20672;
-        Tue, 19 Nov 2019 05:35:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC0DA2071B;
+        Tue, 19 Nov 2019 05:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141748;
-        bh=q+cN5ok+VrAZGQOSbtWyaOQZIbwaK+5NNW/nn9cFBnU=;
+        s=default; t=1574142397;
+        bh=etxpC8JZZJWPy8F/xgvTzSrSpq2DAsTTtvter5MD1QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eus76iXwI9TKMlLgCZgor+J6JqPwhDyBEl/SMBUMytlifmeK+5LtJCnGwI8QPMeZH
-         nuDd1R0NyVbE9cEtWz5KNKOMPTTj9LHZqCYMJQyTzFEKHYjQCFB+f5+RBYFOulZeX+
-         qCUDu0lEjKJZrOd5ts4afZo6xaUl0SnKTifC35jE=
+        b=pLx1MrZ5t3aTthC8KovmwUFutLGWfS2hA2Rbb9ywkRU13oT8GFHglXVilLbfia0dA
+         QuSKyusy7DRUo9c+CDT4dsmN9KVT3UmZItlgYco3mxIw+vbs+IDutjl2NlEo6FOv7P
+         chrBvGylHf0SCEnW3QNEs+m320mCa2JqEwdSbRL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Blanchard <anton@samba.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 265/422] powerpc: Fix duplicate const clang warning in user access code
-Date:   Tue, 19 Nov 2019 06:17:42 +0100
-Message-Id: <20191119051416.162140403@linuxfoundation.org>
+Subject: [PATCH 4.14 067/239] ASoC: sgtl5000: avoid division by zero if lo_vag is zero
+Date:   Tue, 19 Nov 2019 06:17:47 +0100
+Message-Id: <20191119051312.407793060@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Blanchard <anton@samba.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit e00d93ac9a189673028ac125a74b9bc8ae73eebc ]
+[ Upstream commit 9ab708aef61f5620113269a9d1bdb1543d1207d0 ]
 
-This re-applies commit b91c1e3e7a6f ("powerpc: Fix duplicate const
-clang warning in user access code") (Jun 2015) which was undone in
-commits:
-  f2ca80905929 ("powerpc/sparse: Constify the address pointer in __get_user_nosleep()") (Feb 2017)
-  d466f6c5cac1 ("powerpc/sparse: Constify the address pointer in __get_user_nocheck()") (Feb 2017)
-  f84ed59a612d ("powerpc/sparse: Constify the address pointer in __get_user_check()") (Feb 2017)
+In the case where lo_vag <= SGTL5000_LINE_OUT_GND_BASE, lo_vag
+is set to zero and later vol_quot is computed by dividing by
+lo_vag causing a division by zero error.  Fix this by avoiding
+a zero division and set vol_quot to zero in this specific case
+so that the lowest setting for i is correctly set.
 
-We see a large number of duplicate const errors in the user access
-code when building with llvm/clang:
-
-  include/linux/pagemap.h:576:8: warning: duplicate 'const' declaration specifier [-Wduplicate-decl-specifier]
-        ret = __get_user(c, uaddr);
-
-The problem is we are doing const __typeof__(*(ptr)), which will hit
-the warning if ptr is marked const.
-
-Removing const does not seem to have any effect on GCC code
-generation.
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
-Signed-off-by: Joel Stanley <joel@jms.id.au>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/uaccess.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/codecs/sgtl5000.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/uaccess.h b/arch/powerpc/include/asm/uaccess.h
-index 1ca9e37f7cc99..38a25ff8afb76 100644
---- a/arch/powerpc/include/asm/uaccess.h
-+++ b/arch/powerpc/include/asm/uaccess.h
-@@ -260,7 +260,7 @@ do {								\
- ({								\
- 	long __gu_err;						\
- 	__long_type(*(ptr)) __gu_val;				\
--	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
-+	__typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
- 	__chk_user_ptr(ptr);					\
- 	if (!is_kernel_addr((unsigned long)__gu_addr))		\
- 		might_fault();					\
-@@ -274,7 +274,7 @@ do {								\
- ({									\
- 	long __gu_err = -EFAULT;					\
- 	__long_type(*(ptr)) __gu_val = 0;				\
--	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
-+	__typeof__(*(ptr)) __user *__gu_addr = (ptr);		\
- 	might_fault();							\
- 	if (access_ok(VERIFY_READ, __gu_addr, (size))) {		\
- 		barrier_nospec();					\
-@@ -288,7 +288,7 @@ do {								\
- ({								\
- 	long __gu_err;						\
- 	__long_type(*(ptr)) __gu_val;				\
--	const __typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
-+	__typeof__(*(ptr)) __user *__gu_addr = (ptr);	\
- 	__chk_user_ptr(ptr);					\
- 	barrier_nospec();					\
- 	__get_user_size(__gu_val, __gu_addr, (size), __gu_err);	\
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 10764c1e854e2..ca8a70ab22a82 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1314,7 +1314,7 @@ static int sgtl5000_set_power_regs(struct snd_soc_codec *codec)
+ 	 * Searching for a suitable index solving this formula:
+ 	 * idx = 40 * log10(vag_val / lo_cagcntrl) + 15
+ 	 */
+-	vol_quot = (vag * 100) / lo_vag;
++	vol_quot = lo_vag ? (vag * 100) / lo_vag : 0;
+ 	lo_vol = 0;
+ 	for (i = 0; i < ARRAY_SIZE(vol_quot_table); i++) {
+ 		if (vol_quot >= vol_quot_table[i])
 -- 
 2.20.1
 
