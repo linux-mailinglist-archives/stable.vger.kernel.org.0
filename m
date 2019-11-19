@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ADF61014D6
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:38:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E44601015E9
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730123AbfKSFhz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:37:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59832 "EHLO mail.kernel.org"
+        id S1731367AbfKSFsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:48:30 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729409AbfKSFhz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:37:55 -0500
+        id S1731366AbfKSFs3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:48:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D705208C3;
-        Tue, 19 Nov 2019 05:37:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 205F22071B;
+        Tue, 19 Nov 2019 05:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141874;
-        bh=NBNBvP45RE2ewafMBBNQHhDvHIX7XZ6vY2f8zsAHmcI=;
+        s=default; t=1574142508;
+        bh=+tsNtYF+z2Lyp9tPCd2Dr0PqAGfSfurgQujhAXNneP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hMCrZCxwr7BBgmMfo7ztRc8ooh3wIuH5GAw9HqSsurNSlPT5/AWiFSEAEEN1+6mRJ
-         JzDmtLDDfgZbusYACLbbZsO7Fla6adBgVl0ufSl+zdazJd27heWiD9nI30hy5HD1cM
-         Wiklf+pbCpbesmBJFZhyK39vkm7CK2yVc6YeN2Qw=
+        b=zB2dSly+InjnRQmeygzpkYQS7ad8lse2+wZj4ihGblipnhO4383OMxPGEFQuWsGfN
+         JB8wCY5nGwFIqSSwMhgapgNmejWra9kqst9Lk34U/5QznhNAoRz0OI1soVkxH+XVDO
+         TYswGQyrDFk4r6kwigCLK4AQYYMCoRG2rtRb1prI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 308/422] x86/mce-inject: Reset injection struct after injection
+Subject: [PATCH 4.14 105/239] nvmem: core: return error code instead of NULL from nvmem_device_get
 Date:   Tue, 19 Nov 2019 06:18:25 +0100
-Message-Id: <20191119051418.957799948@linuxfoundation.org>
+Message-Id: <20191119051325.923866588@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 7401a633c34adc7aefd3edfec60074cb0475a3e8 ]
+[ Upstream commit ca6ac25cecf0e740d7cc8e03e0ebbf8acbeca3df ]
 
-Clear the MCE struct which is used for collecting the injection details
-after injection.
+nvmem_device_get() should return ERR_PTR() on error or valid pointer
+on success, but one of the code path seems to return NULL, so fix it.
 
-Also, populate it with more details from the machine.
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20180905081954.10391-1-bp@alien8.de
+Reported-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce-inject.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/nvmem/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/mce-inject.c b/arch/x86/kernel/cpu/mcheck/mce-inject.c
-index ff1c00b695aed..1ceccc4a5472c 100644
---- a/arch/x86/kernel/cpu/mcheck/mce-inject.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce-inject.c
-@@ -106,6 +106,9 @@ static void setup_inj_struct(struct mce *m)
- 	memset(m, 0, sizeof(struct mce));
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index b414d9d207d45..08b171731664e 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -617,7 +617,7 @@ static struct nvmem_device *nvmem_find(const char *name)
+ 	d = bus_find_device(&nvmem_bus_type, NULL, (void *)name, nvmem_match);
  
- 	m->cpuvendor = boot_cpu_data.x86_vendor;
-+	m->time	     = ktime_get_real_seconds();
-+	m->cpuid     = cpuid_eax(1);
-+	m->microcode = boot_cpu_data.microcode;
+ 	if (!d)
+-		return NULL;
++		return ERR_PTR(-ENOENT);
+ 
+ 	return to_nvmem_device(d);
  }
- 
- /* Update fake mce registers on current CPU. */
-@@ -580,6 +583,9 @@ static int inj_bank_set(void *data, u64 val)
- 	m->bank = val;
- 	do_inject();
- 
-+	/* Reset injection struct */
-+	setup_inj_struct(&i_mce);
-+
- 	return 0;
- }
- 
 -- 
 2.20.1
 
