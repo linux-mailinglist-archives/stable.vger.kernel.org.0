@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D0601017D7
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCA74101730
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729621AbfKSFio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:38:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60796 "EHLO mail.kernel.org"
+        id S1731545AbfKSFtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:49:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730211AbfKSFin (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:38:43 -0500
+        id S1731526AbfKSFtt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:49:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3C45214DE;
-        Tue, 19 Nov 2019 05:38:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FD54208C3;
+        Tue, 19 Nov 2019 05:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141921;
-        bh=0V0ylmDejaYia5CRLo0lS05lj+Q0a8zKivPVI6lYOYA=;
+        s=default; t=1574142588;
+        bh=V2MXQNvdw4Ron/Ca+2ik6qa8Dz9RDGfx4vCYSh7+Ib0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDgfgPgzvUFzIg2Coev+CScMwwJzINuAZz15qDOpmRz9KtZ47KGqt5ZmrMov+PvHd
-         tj0vBMnR5jm0SiywtmjlKW06dJrpwHwO/0KJEamEpjioIsKq4EQ39Au26lY3EG5GOq
-         tD99sCIbS7iXS30PgowbiYVCj4D6WdpHZ8/agG2M=
+        b=C3hUZ7E6FwpCLpG6LOQu2j6FJqI38jMjqIg2tBoa7VCVEe7W0E0d0nICa8iFiVROb
+         11maD8+k+914YUu8mNp/vUx/dahqaoiyT065TLRz5icnP+9E0XXtJyKhX7v/7OJL9v
+         Rscrn4gHP9llMuADWgCis1ffQS/mT9qj97V+dZ7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 327/422] media: pci: ivtv: Fix a sleep-in-atomic-context bug in ivtv_yuv_init()
-Date:   Tue, 19 Nov 2019 06:18:44 +0100
-Message-Id: <20191119051420.206074147@linuxfoundation.org>
+        stable@vger.kernel.org, Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 125/239] kernfs: Fix range checks in kernfs_get_target_path
+Date:   Tue, 19 Nov 2019 06:18:45 +0100
+Message-Id: <20191119051330.330237056@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Bernd Edlinger <bernd.edlinger@hotmail.de>
 
-[ Upstream commit 8d11eb847de7d89c2754988c944d51a4f63e219b ]
+[ Upstream commit a75e78f21f9ad4b810868c89dbbabcc3931591ca ]
 
-The driver may sleep in a interrupt handler.
+The terminating NUL byte is only there because the buffer is
+allocated with kzalloc(PAGE_SIZE, GFP_KERNEL), but since the
+range-check is off-by-one, and PAGE_SIZE==PATH_MAX, the
+returned string may not be zero-terminated if it is exactly
+PATH_MAX characters long.  Furthermore also the initial loop
+may theoretically exceed PATH_MAX and cause a fault.
 
-The function call paths (from bottom to top) in Linux-4.16 are:
-
-[FUNC] kzalloc(GFP_KERNEL)
-drivers/media/pci/ivtv/ivtv-yuv.c, 938:
-	kzalloc in ivtv_yuv_init
-drivers/media/pci/ivtv/ivtv-yuv.c, 960:
-	ivtv_yuv_init in ivtv_yuv_next_free
-drivers/media/pci/ivtv/ivtv-yuv.c, 1126:
-	ivtv_yuv_next_free in ivtv_yuv_setup_stream_frame
-drivers/media/pci/ivtv/ivtv-irq.c, 827:
-	ivtv_yuv_setup_stream_frame in ivtv_irq_dec_data_req
-drivers/media/pci/ivtv/ivtv-irq.c, 1013:
-	ivtv_irq_dec_data_req in ivtv_irq_handler
-
-To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
-
-This bug is found by my static analysis tool DSAC.
-
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/ivtv/ivtv-yuv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/kernfs/symlink.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/ivtv/ivtv-yuv.c b/drivers/media/pci/ivtv/ivtv-yuv.c
-index 44936d6d7c396..1380474519f2b 100644
---- a/drivers/media/pci/ivtv/ivtv-yuv.c
-+++ b/drivers/media/pci/ivtv/ivtv-yuv.c
-@@ -935,7 +935,7 @@ static void ivtv_yuv_init(struct ivtv *itv)
- 	}
+diff --git a/fs/kernfs/symlink.c b/fs/kernfs/symlink.c
+index 5145ae2f0572e..d273e3accade6 100644
+--- a/fs/kernfs/symlink.c
++++ b/fs/kernfs/symlink.c
+@@ -63,6 +63,9 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
+ 		if (base == kn)
+ 			break;
  
- 	/* We need a buffer for blanking when Y plane is offset - non-fatal if we can't get one */
--	yi->blanking_ptr = kzalloc(720 * 16, GFP_KERNEL|__GFP_NOWARN);
-+	yi->blanking_ptr = kzalloc(720 * 16, GFP_ATOMIC|__GFP_NOWARN);
- 	if (yi->blanking_ptr) {
- 		yi->blanking_dmaptr = pci_map_single(itv->pdev, yi->blanking_ptr, 720*16, PCI_DMA_TODEVICE);
- 	} else {
++		if ((s - path) + 3 >= PATH_MAX)
++			return -ENAMETOOLONG;
++
+ 		strcpy(s, "../");
+ 		s += 3;
+ 		base = base->parent;
+@@ -79,7 +82,7 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
+ 	if (len < 2)
+ 		return -EINVAL;
+ 	len--;
+-	if ((s - path) + len > PATH_MAX)
++	if ((s - path) + len >= PATH_MAX)
+ 		return -ENAMETOOLONG;
+ 
+ 	/* reverse fillup of target string from target to base */
 -- 
 2.20.1
 
