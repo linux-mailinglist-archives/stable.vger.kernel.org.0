@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 063CC10160B
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:49:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A0831014C1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:37:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731250AbfKSFtn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:49:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46572 "EHLO mail.kernel.org"
+        id S1730036AbfKSFhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:37:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731526AbfKSFtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:49:42 -0500
+        id S1730026AbfKSFhF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:37:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C941920721;
-        Tue, 19 Nov 2019 05:49:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CE45E21823;
+        Tue, 19 Nov 2019 05:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142582;
-        bh=JKIZoRZ7nmPBq/9//pG2xcnSF0372UaTNuRC9ECEowg=;
+        s=default; t=1574141824;
+        bh=G8lJ2j3/oBPS6i/yoR6pbKyVq2pXSDmOnUhlWt+bOgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h2V7qcvaZOrgRIiFRJvuF177vYVe8Jj3X2QAAiv0G7l2OzFpbeEFo3yhDY0zKkNXH
-         c3X/hTIcybuJMp6cO3Kovdxu6PrQLezWahaQZ7RltSNnHQ4Vn7LVPFxcFEPeV/9loX
-         o1i8vO0Y7PIxSsZTegvRd5U71W6017OqjnhEm/0g=
+        b=wEtGWEwcvYRiZYdY2hSldDw+tarO0LXEDxKnzzqfHxdezrKen4JkAjYtOFJsJb0fd
+         e/I+HcCZyDs0XKO9cjDaiSlHUpqzzJyMIXj00jTVVL+3SMzx0mYKVwt6BhdEimHQ9a
+         MlRr5ESbxSC4orG3dvZ2DJpiXHAQFxZrVjIoogi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 090/239] IB/hfi1: Missing return value in error path for user sdma
+Subject: [PATCH 4.19 293/422] brcmsmac: Use kvmalloc() for ucode allocations
 Date:   Tue, 19 Nov 2019 06:18:10 +0100
-Message-Id: <20191119051319.378077036@linuxfoundation.org>
+Message-Id: <20191119051417.979638039@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael J. Ruhl <michael.j.ruhl@intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 2bf4b33f83dfe521c4c7c407b6b150aeec04d69c ]
+[ Upstream commit 6c3efbe77bc78bf49db851aec7f385be475afca6 ]
 
-If the set_txreq_header_agh() function returns an error, the exit path
-is chosen.
+The ucode chunk might be relatively large and the allocation with
+kmalloc() may fail occasionally.  Since the data isn't DMA-transferred
+but by manual loops, we can use vmalloc instead of kmalloc.
+For a better performance, though, kvmalloc() would be the best choice
+in such a case, so let's replace with it.
 
-In this path, the code fails to set the return value.  This will cause
-the caller to not realize an error has occurred.
-
-Set the return value correctly in the error path.
-
-Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Bugzilla: https://bugzilla.suse.com/show_bug.cgi?id=1103431
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/user_sdma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c  | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/user_sdma.c b/drivers/infiniband/hw/hfi1/user_sdma.c
-index 75275f9e363de..4854a4a453b5f 100644
---- a/drivers/infiniband/hw/hfi1/user_sdma.c
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.c
-@@ -856,8 +856,10 @@ static int user_sdma_send_pkts(struct user_sdma_request *req, unsigned maxpkts)
- 
- 				changes = set_txreq_header_ahg(req, tx,
- 							       datalen);
--				if (changes < 0)
-+				if (changes < 0) {
-+					ret = changes;
- 					goto free_tx;
-+				}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
+index ecc89e718b9c1..6255fb6d97a70 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmsmac/mac80211_if.c
+@@ -1578,10 +1578,10 @@ int brcms_ucode_init_buf(struct brcms_info *wl, void **pbuf, u32 idx)
+ 			if (le32_to_cpu(hdr->idx) == idx) {
+ 				pdata = wl->fw.fw_bin[i]->data +
+ 					le32_to_cpu(hdr->offset);
+-				*pbuf = kmemdup(pdata, len, GFP_KERNEL);
++				*pbuf = kvmalloc(len, GFP_KERNEL);
+ 				if (*pbuf == NULL)
+ 					goto fail;
+-
++				memcpy(*pbuf, pdata, len);
+ 				return 0;
  			}
- 		} else {
- 			ret = sdma_txinit(&tx->txreq, 0, sizeof(req->hdr) +
+ 		}
+@@ -1629,7 +1629,7 @@ int brcms_ucode_init_uint(struct brcms_info *wl, size_t *n_bytes, u32 idx)
+  */
+ void brcms_ucode_free_buf(void *p)
+ {
+-	kfree(p);
++	kvfree(p);
+ }
+ 
+ /*
 -- 
 2.20.1
 
