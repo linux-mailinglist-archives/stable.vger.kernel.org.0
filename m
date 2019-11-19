@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 080D4101586
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:45:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0575B101588
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:45:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730903AbfKSFo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:44:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40446 "EHLO mail.kernel.org"
+        id S1728534AbfKSFpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:45:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730439AbfKSFo5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:44:57 -0500
+        id S1728024AbfKSFpD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:45:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A73A82071B;
-        Tue, 19 Nov 2019 05:44:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6366E2082F;
+        Tue, 19 Nov 2019 05:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142297;
-        bh=LSJuR6xuJV+Zd/1X8vuZZ7n0Yx4USt8B+Uah0jtEuXg=;
+        s=default; t=1574142302;
+        bh=n+9XzrVxtEeVuhRwZ4HPS0if8MXX+eA8pGGYJcSjOfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOgDJfMrz9LtQ0pW9dZFGSKlzqj4ijaDIou1iO9UUs9rvEFX3ZzOxZs5OjZZb1yCt
-         jkRry9FH5vocZ1rAgjTgNVxoeu+fujp7ek7sWPV+KYyBL8+ykWd3015xOdTcHRbKkZ
-         5YUA9l6lwLQS+cBYKymPvxRY8gG7YmuYiW4doljA=
+        b=myDBQxiBHue9sFQVefLQsuEjqU1kikSdyJveLEqMRLXUxjipa0gj2y+IrE910TSNA
+         pIe6fAd+AQg74PIUnjyGHYAQtRC3Ok9VviBaHj+XRcOULn6QFTJoHHav7wFIzV+WBH
+         jzpcdlTzZsegQpF+5cpTuGNid7T7gQvUE3semer8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Martin Lucina <martin@lucina.net>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 032/239] arm64: dts: allwinner: a64: Olinuxino: fix DRAM voltage
-Date:   Tue, 19 Nov 2019 06:17:12 +0100
-Message-Id: <20191119051303.669678206@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 034/239] ALSA: pcm: signedness bug in snd_pcm_plug_alloc()
+Date:   Tue, 19 Nov 2019 06:17:14 +0100
+Message-Id: <20191119051304.154353444@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -45,49 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 93366b49a35f3a190052734b3f32c8fe2535b53f ]
+[ Upstream commit 6f128fa41f310e1f39ebcea9621d2905549ecf52 ]
 
-The Olinuxino board uses DDR3L chips which are supposed to be driven
-with 1.35V. The reset default of the AXP is properly set to 1.36V.
+The "frames" variable is unsigned so the error handling doesn't work
+properly.
 
-While technically the chips can also run at 1.5 volts, changing the
-voltage on the fly while booting Linux is asking for trouble. Also
-running at a lower voltage saves power.
-
-So fix the DCDC5 value to match the actual board design.
-
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Tested-by: Martin Lucina <martin@lucina.net>
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-olinuxino.dts | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/core/oss/pcm_plugin.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-olinuxino.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-olinuxino.dts
-index 338e786155b1f..2ef779b027572 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-olinuxino.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-olinuxino.dts
-@@ -120,10 +120,14 @@
- 
- /* DCDC3 is polyphased with DCDC2 */
- 
-+/*
-+ * The board uses DDR3L DRAM chips. 1.36V is the closest to the nominal
-+ * 1.35V that the PMIC can drive.
-+ */
- &reg_dcdc5 {
- 	regulator-always-on;
--	regulator-min-microvolt = <1500000>;
--	regulator-max-microvolt = <1500000>;
-+	regulator-min-microvolt = <1360000>;
-+	regulator-max-microvolt = <1360000>;
- 	regulator-name = "vcc-ddr3";
- };
- 
+diff --git a/sound/core/oss/pcm_plugin.c b/sound/core/oss/pcm_plugin.c
+index 617845d4a811b..b8ab46b8298de 100644
+--- a/sound/core/oss/pcm_plugin.c
++++ b/sound/core/oss/pcm_plugin.c
+@@ -111,7 +111,7 @@ int snd_pcm_plug_alloc(struct snd_pcm_substream *plug, snd_pcm_uframes_t frames)
+ 		while (plugin->next) {
+ 			if (plugin->dst_frames)
+ 				frames = plugin->dst_frames(plugin, frames);
+-			if (snd_BUG_ON(frames <= 0))
++			if (snd_BUG_ON((snd_pcm_sframes_t)frames <= 0))
+ 				return -ENXIO;
+ 			plugin = plugin->next;
+ 			err = snd_pcm_plugin_alloc(plugin, frames);
+@@ -123,7 +123,7 @@ int snd_pcm_plug_alloc(struct snd_pcm_substream *plug, snd_pcm_uframes_t frames)
+ 		while (plugin->prev) {
+ 			if (plugin->src_frames)
+ 				frames = plugin->src_frames(plugin, frames);
+-			if (snd_BUG_ON(frames <= 0))
++			if (snd_BUG_ON((snd_pcm_sframes_t)frames <= 0))
+ 				return -ENXIO;
+ 			plugin = plugin->prev;
+ 			err = snd_pcm_plugin_alloc(plugin, frames);
 -- 
 2.20.1
 
