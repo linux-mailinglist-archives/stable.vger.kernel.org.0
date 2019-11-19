@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ACE3C1016F9
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C8AA1014F0
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:39:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731318AbfKSFuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:50:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47398 "EHLO mail.kernel.org"
+        id S1729878AbfKSFi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:38:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:32846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731314AbfKSFuV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:50:21 -0500
+        id S1729113AbfKSFiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:38:55 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63C0F20862;
-        Tue, 19 Nov 2019 05:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C146720721;
+        Tue, 19 Nov 2019 05:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142620;
-        bh=M+Eyt6L2+Zke5w7wUWrYPbTlOGIyopR/8zIlGuP9wYY=;
+        s=default; t=1574141933;
+        bh=ZPjfq3pUDu+AsWiU2zu9iZRPXobWVshwV8XGX7wGb6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VG6FOvZa0oiAKalvgrfs7h7WePLXmyyX6BdnI76R2QjlxTU62IKBzwairFj2hmgdq
-         CJwFCx0IIbke/3kPr09IuWYurzoMDbzF0L3aBz7B8JRBKSsSqab0ZcSCeXd/kT8gzM
-         yKelQkVC+7t8lxI9nC8dnrTOXvIcKVx5R309jr08=
+        b=SVyNcVHuQZ8wVHiROT40+wMeVOIMchaJEQf7f8mhfZWQTEaffLL8PYx/FZHhkoIFy
+         i+1CN8a7rFSx3Bq49ujGPFP7h1gqpUvv8lBTUWwVjj+lQYobNSA9I9CA03YenydFEi
+         t91wAOfMNgJo8cl5IKE8YXZbJE9MOlLHhY2j5C8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Benc <jbenc@redhat.com>,
-        Haishuang Yan <yanhaishuang@cmss.chinamobile.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 126/239] ip_gre: fix parsing gre header in ipgre_err
-Date:   Tue, 19 Nov 2019 06:18:46 +0100
-Message-Id: <20191119051330.393823317@linuxfoundation.org>
+Subject: [PATCH 4.19 330/422] ARM: dts: rockchip: explicitly set vcc_sd0 pin to gpio on rk3188-radxarock
+Date:   Tue, 19 Nov 2019 06:18:47 +0100
+Message-Id: <20191119051420.401740360@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +43,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
+From: Heiko Stuebner <heiko@sntech.de>
 
-[ Upstream commit b0350d51f001e6edc13ee4f253b98b50b05dd401 ]
+[ Upstream commit a2df0984e73fd9e1dad5fc3f1c307ec3de395e30 ]
 
-gre_parse_header stops parsing when csum_err is encountered, which means
-tpi->key is undefined and ip_tunnel_lookup will return NULL improperly.
+It is good practice to make the setting of gpio-pinctrls explicitly in the
+devicetree, and in this case even necessary.
+Rockchip boards start with iomux settings set to gpio for most pins and
+while the linux pinctrl driver also implicitly sets the gpio function if
+a pin is requested as gpio that is not necessarily true for other drivers.
 
-This patch introduce a NULL pointer as csum_err parameter. Even when
-csum_err is encountered, it won't return error and continue parsing gre
-header as expected.
+The issue in question stems from uboot, where the sdmmc_pwr pin is set
+to function 1 (sdmmc-power) by the bootrom when reading the 1st-stage
+loader. The regulator controlled by the pin is active-low though, so
+when the dwmmc hw-block sets its enabled bit, it actually disables the
+regulator. By changing the pin back to gpio we fix that behaviour.
 
-Fixes: 9f57c67c379d ("gre: Remove support for sharing GRE protocol hook.")
-Reported-by: Jiri Benc <jbenc@redhat.com>
-Signed-off-by: Haishuang Yan <yanhaishuang@cmss.chinamobile.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/gre_demux.c | 7 ++++---
- net/ipv4/ip_gre.c    | 9 +++------
- 2 files changed, 7 insertions(+), 9 deletions(-)
+ arch/arm/boot/dts/rk3188-radxarock.dts | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/ipv4/gre_demux.c b/net/ipv4/gre_demux.c
-index b798862b6be5d..7efe740c06ebf 100644
---- a/net/ipv4/gre_demux.c
-+++ b/net/ipv4/gre_demux.c
-@@ -86,13 +86,14 @@ int gre_parse_header(struct sk_buff *skb, struct tnl_ptk_info *tpi,
+diff --git a/arch/arm/boot/dts/rk3188-radxarock.dts b/arch/arm/boot/dts/rk3188-radxarock.dts
+index 45fd2b302dda1..4a2890618f6fc 100644
+--- a/arch/arm/boot/dts/rk3188-radxarock.dts
++++ b/arch/arm/boot/dts/rk3188-radxarock.dts
+@@ -93,6 +93,8 @@
+ 		regulator-min-microvolt = <3300000>;
+ 		regulator-max-microvolt = <3300000>;
+ 		gpio = <&gpio3 RK_PA1 GPIO_ACTIVE_LOW>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&sdmmc_pwr>;
+ 		startup-delay-us = <100000>;
+ 		vin-supply = <&vcc_io>;
+ 	};
+@@ -315,6 +317,12 @@
+ 		};
+ 	};
  
- 	options = (__be32 *)(greh + 1);
- 	if (greh->flags & GRE_CSUM) {
--		if (skb_checksum_simple_validate(skb)) {
-+		if (!skb_checksum_simple_validate(skb)) {
-+			skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
-+						 null_compute_pseudo);
-+		} else if (csum_err) {
- 			*csum_err = true;
- 			return -EINVAL;
- 		}
- 
--		skb_checksum_try_convert(skb, IPPROTO_GRE, 0,
--					 null_compute_pseudo);
- 		options++;
- 	}
- 
-diff --git a/net/ipv4/ip_gre.c b/net/ipv4/ip_gre.c
-index 71ff2531d973c..9940a59306b51 100644
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -230,13 +230,10 @@ static void gre_err(struct sk_buff *skb, u32 info)
- 	const int type = icmp_hdr(skb)->type;
- 	const int code = icmp_hdr(skb)->code;
- 	struct tnl_ptk_info tpi;
--	bool csum_err = false;
- 
--	if (gre_parse_header(skb, &tpi, &csum_err, htons(ETH_P_IP),
--			     iph->ihl * 4) < 0) {
--		if (!csum_err)		/* ignore csum errors. */
--			return;
--	}
-+	if (gre_parse_header(skb, &tpi, NULL, htons(ETH_P_IP),
-+			     iph->ihl * 4) < 0)
-+		return;
- 
- 	if (type == ICMP_DEST_UNREACH && code == ICMP_FRAG_NEEDED) {
- 		ipv4_update_pmtu(skb, dev_net(skb->dev), info,
++	sd0 {
++		sdmmc_pwr: sdmmc-pwr {
++			rockchip,pins = <RK_GPIO3 1 RK_FUNC_GPIO &pcfg_pull_none>;
++		};
++	};
++
+ 	usb {
+ 		host_vbus_drv: host-vbus-drv {
+ 			rockchip,pins = <0 3 RK_FUNC_GPIO &pcfg_pull_none>;
 -- 
 2.20.1
 
