@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15EFA1015C5
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6919D1014AF
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731209AbfKSFrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:47:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43450 "EHLO mail.kernel.org"
+        id S1729957AbfKSFgY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:36:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731195AbfKSFrK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:47:10 -0500
+        id S1729952AbfKSFgX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:36:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8937B21823;
-        Tue, 19 Nov 2019 05:47:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A61B020862;
+        Tue, 19 Nov 2019 05:36:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142429;
-        bh=EHNa2amsQaOkyhQIBzLMO98bHhld5ecDt8p9SsmOMEs=;
+        s=default; t=1574141783;
+        bh=ooDI27F35NIkgvcvKJNcQQRxPTs8GoiGuAb3F5wcRGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tfE+I0tv+4LtASekBRKO7ZuVLsm16HTJpJbDqJ88iQ/3tZf34XpULgnxzhqxcbPIt
-         ay01u16uXPjAfKVFSwL4rOC9bPFDM/tbX034eZNyLKnmviIl4R6Np+UNJfDozygaQ8
-         c87g+33+njZcfvD0OlZMi0palrEkVWCKGVQhzNMo=
+        b=QSvhFTLvnjjqECJgTkEvFvccBYt6kSMdD7+1zrNcSx0xNEFtVxl5rYs1nXXfpFTM6
+         PPLxp/rPsoSGDVkzvcjWl6TPp1VJwQtO9h9DrPenNp/sTUvLxuMcKcw+9qoBufAg1V
+         yW4CACaexEPyZgTGwxtc6dq/ZA7+CNGtrZlXN7cw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Fuyun Liang <liangfuyun1@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/239] ARM: dts: omap3-gta04: fixes for tvout / venc
+Subject: [PATCH 4.19 280/422] net: hns3: Fix for setting speed for phy failed problem
 Date:   Tue, 19 Nov 2019 06:17:57 +0100
-Message-Id: <20191119051314.359664356@linuxfoundation.org>
+Message-Id: <20191119051417.129968165@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Fuyun Liang <liangfuyun1@huawei.com>
 
-[ Upstream commit f6591391373dbff2c0200e1055d4ff86191578d2 ]
+[ Upstream commit fd8133148eb6a733f9cfdaecd4d99f378e21d582 ]
 
-* fix connector compatibility (composite)
-* add comment for gpio1 23
-* add proper #address-cells
-* we use only one venc_out channel for composite
+The function of genphy_read_status is that reading phy information
+from HW and using these information to update SW variable. If user
+is using ethtool to setting the speed of phy and service task is calling
+by hclge_get_mac_phy_link, the result of speed setting is uncertain.
+Because ethtool cmd will modified phydev and hclge_get_mac_phy_link also
+will modified phydev.
 
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Because phy state machine will update phy link periodically, we can
+just use phydev->link to check the link status. This patch removes
+function call of genphy_read_status. To ensure accuracy, this patch
+adds a phy state check. If phy state is not PHY_RUNNING, we consider
+link is down. Because in some scenarios, phydev->link may be link up,
+but phy state is not PHY_RUNNING. This is just an intermediate state.
+In fact, the link is not ready yet.
+
+Fixes: 46a3df9f9718 ("net: hns3: Add HNS3 Acceleration Engine & Compatibility Layer Support")
+Signed-off-by: Fuyun Liang <liangfuyun1@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-gta04.dtsi | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index 0b0aa020a8d5d..5f62b2f3c6e93 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -123,7 +123,7 @@
- 	};
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 0cf33fa351df3..6889e83a55707 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2367,7 +2367,7 @@ static int hclge_get_mac_phy_link(struct hclge_dev *hdev)
+ 	mac_state = hclge_get_mac_link_status(hdev);
  
- 	tv0: connector {
--		compatible = "svideo-connector";
-+		compatible = "composite-video-connector";
- 		label = "tv";
- 
- 		port {
-@@ -135,7 +135,7 @@
- 
- 	tv_amp: opa362 {
- 		compatible = "ti,opa362";
--		enable-gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;
-+		enable-gpios = <&gpio1 23 GPIO_ACTIVE_HIGH>;	/* GPIO_23 to enable video out amplifier */
- 
- 		ports {
- 			#address-cells = <1>;
-@@ -540,10 +540,14 @@
- 
- 	vdda-supply = <&vdac>;
- 
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
- 	port {
-+		reg = <0>;
- 		venc_out: endpoint {
- 			remote-endpoint = <&opa_in>;
--			ti,channels = <2>;
-+			ti,channels = <1>;
- 			ti,invert-polarity;
- 		};
- 	};
+ 	if (hdev->hw.mac.phydev) {
+-		if (!genphy_read_status(hdev->hw.mac.phydev))
++		if (hdev->hw.mac.phydev->state == PHY_RUNNING)
+ 			link_stat = mac_state &
+ 				hdev->hw.mac.phydev->link;
+ 		else
 -- 
 2.20.1
 
