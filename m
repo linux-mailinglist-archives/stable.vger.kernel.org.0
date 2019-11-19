@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD4BA101924
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:13:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 818D110191F
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:12:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726658AbfKSFU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:20:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35352 "EHLO mail.kernel.org"
+        id S1726573AbfKSFVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:21:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726573AbfKSFU5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:20:57 -0500
+        id S1727099AbfKSFVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:21:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD72522319;
-        Tue, 19 Nov 2019 05:20:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79F1722317;
+        Tue, 19 Nov 2019 05:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574140857;
-        bh=avfu55Y2iDIi0f8VzZAaA4QFY5w/y4Xlk4OEvEcrJ1M=;
+        s=default; t=1574140860;
+        bh=RqNSZ4ShTGo3Yr+zq9uP/VvURI8M9/4ycc+vUOEsjo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nL9TYp91LFnRAGc3ia74XrlWj0qqeNzEF2AN3aJGc5coT+Hr5ZyWa2BVhvxeaprnH
-         i/wg/tcEEwpDoS0rJQA69KhuKsw2+qG+0rSTGDHPqjkvNxrwhSV7EzI/O4eUC820Vh
-         a31PP/cOiTIJjkvGX6WSAluTy7SuSkkcJQRAqSsY=
+        b=e780kXj38jWDdm0fGqYyr23LKEHqfQY64wd0WFQC5WrrkjuisesAMG9Mx0HuJyiyP
+         ciRIiS0wWfx8zamuPYzvQfTbIH31XVrnkMkyP1JtbAfVng5XzXOt+5bhjCuCSzoHyy
+         BYMwapAZng8H9OedbtXY+yVeTrYBXe53NvPsJXWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        Tony Lu <tonylu@linux.alibaba.com>,
+        stable@vger.kernel.org, Ioana Ciornei <ioana.ciornei@nxp.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.3 10/48] tcp: remove redundant new line from tcp_event_sk_skb
-Date:   Tue, 19 Nov 2019 06:19:30 +0100
-Message-Id: <20191119050956.866669523@linuxfoundation.org>
+Subject: [PATCH 5.3 11/48] dpaa2-eth: free already allocated channels on probe defer
+Date:   Tue, 19 Nov 2019 06:19:31 +0100
+Message-Id: <20191119050957.779532912@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119050946.745015350@linuxfoundation.org>
 References: <20191119050946.745015350@linuxfoundation.org>
@@ -45,33 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lu <tonylu@linux.alibaba.com>
+From: Ioana Ciornei <ioana.ciornei@nxp.com>
 
-[ Upstream commit dd3d792def0d4f33bbf319982b1878b0c8aaca34 ]
+[ Upstream commit 5aa4277d4368c099223bbcd3a9086f3351a12ce9 ]
 
-This removes '\n' from trace event class tcp_event_sk_skb to avoid
-redundant new blank line and make output compact.
+The setup_dpio() function tries to allocate a number of channels equal
+to the number of CPUs online. When there are not enough DPCON objects
+already probed, the function will return EPROBE_DEFER. When this
+happens, the already allocated channels are not freed. This results in
+the incapacity of properly probing the next time around.
+Fix this by freeing the channels on the error path.
 
-Fixes: af4325ecc24f ("tcp: expose sk_state in tcp_retransmit_skb tracepoint")
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Yafang Shao <laoar.shao@gmail.com>
-Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
+Fixes: d7f5a9d89a55 ("dpaa2-eth: defer probe on object allocate")
+Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/events/tcp.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/include/trace/events/tcp.h
-+++ b/include/trace/events/tcp.h
-@@ -86,7 +86,7 @@ DECLARE_EVENT_CLASS(tcp_event_sk_skb,
- 			      sk->sk_v6_rcv_saddr, sk->sk_v6_daddr);
- 	),
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
+@@ -2166,8 +2166,16 @@ err_set_cdan:
+ err_service_reg:
+ 	free_channel(priv, channel);
+ err_alloc_ch:
+-	if (err == -EPROBE_DEFER)
++	if (err == -EPROBE_DEFER) {
++		for (i = 0; i < priv->num_channels; i++) {
++			channel = priv->channel[i];
++			nctx = &channel->nctx;
++			dpaa2_io_service_deregister(channel->dpio, nctx, dev);
++			free_channel(priv, channel);
++		}
++		priv->num_channels = 0;
+ 		return err;
++	}
  
--	TP_printk("sport=%hu dport=%hu saddr=%pI4 daddr=%pI4 saddrv6=%pI6c daddrv6=%pI6c state=%s\n",
-+	TP_printk("sport=%hu dport=%hu saddr=%pI4 daddr=%pI4 saddrv6=%pI6c daddrv6=%pI6c state=%s",
- 		  __entry->sport, __entry->dport, __entry->saddr, __entry->daddr,
- 		  __entry->saddr_v6, __entry->daddr_v6,
- 		  show_tcp_state_name(__entry->state))
+ 	if (cpumask_empty(&priv->dpio_cpumask)) {
+ 		dev_err(dev, "No cpu with an affine DPIO/DPCON\n");
 
 
