@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41BDD101712
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 379DC1017E0
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:04:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730892AbfKSFq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:46:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43210 "EHLO mail.kernel.org"
+        id S1727864AbfKSGEc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 01:04:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730637AbfKSFq6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:46:58 -0500
+        id S1729447AbfKSFiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:38:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E09522071B;
-        Tue, 19 Nov 2019 05:46:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BBD6206EC;
+        Tue, 19 Nov 2019 05:38:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142417;
-        bh=xhf/4H4yFczKL2kdqA8IiqG5aMFJ7x0hqVi3LZjt9Bg=;
+        s=default; t=1574141892;
+        bh=ThFLDZe1hOaFdWIq1h+j+kEKwDv0hoNIwX9dEIFPTjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z4RrEoz7qOxw9Lpx+lYmmp9OnBHzu2R5hU2MREMBv0Mc7SIdM6S8ZA8PyalVIqApp
-         ke8cbi/Bqej2Zu3pBjM8IUja4UkGhBNcxfbQrOx3repWKeJu0aZYhg4a8M2vtMhKaC
-         F7HMfd6SDnNfclVUkEpm0K5PfPPHCeFKbnO5CmNU=
+        b=wgVUox8mVMlHWPXNtK09LCRrPkeMIMaFy7UAJ9FdZKbS3qJxU5zHNe6xXL0akin6O
+         LsZfCkmrjZpTzK3c7HOwJvOuOVA9t5n1dgDY7ZyE96WQ8tmh8oLHcuYLYuPhPayiYP
+         qa3qnNQ/sgwIBdAahC5y/WzVkT4PHxeWs07xHHEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ding Xiang <dingxiang@cmss.chinamobile.com>,
-        Atsushi Nemoto <anemo@mba.ocn.ne.jp>,
-        Paul Burton <paul.burton@mips.com>, ralf@linux-mips.org,
-        jhogan@kernel.org, linux-mips@linux-mips.org,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 073/239] mips: txx9: fix iounmap related issue
+Subject: [PATCH 4.19 276/422] net: xilinx: fix return type of ndo_start_xmit function
 Date:   Tue, 19 Nov 2019 06:17:53 +0100
-Message-Id: <20191119051313.532172161@linuxfoundation.org>
+Message-Id: <20191119051416.872729645@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Xiang <dingxiang@cmss.chinamobile.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit c6e1241a82e6e74d1ae5cc34581dab2ffd6022d0 ]
+[ Upstream commit 81255af8d9d5565004792c295dde49344df450ca ]
 
-if device_register return error, iounmap should be called, also iounmap
-need to call before put_device.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Signed-off-by: Ding Xiang <dingxiang@cmss.chinamobile.com>
-Reviewed-by: Atsushi Nemoto <anemo@mba.ocn.ne.jp>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Patchwork: https://patchwork.linux-mips.org/patch/20476/
-Cc: ralf@linux-mips.org
-Cc: jhogan@kernel.org
-Cc: linux-mips@linux-mips.org
-Cc: linux-kernel@vger.kernel.org
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/txx9/generic/setup.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c       | 3 ++-
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 3 ++-
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c     | 9 +++++----
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/mips/txx9/generic/setup.c b/arch/mips/txx9/generic/setup.c
-index 1791a44ee570a..20aaf77166e85 100644
---- a/arch/mips/txx9/generic/setup.c
-+++ b/arch/mips/txx9/generic/setup.c
-@@ -959,12 +959,11 @@ void __init txx9_sramc_init(struct resource *r)
- 		goto exit_put;
- 	err = sysfs_create_bin_file(&dev->dev.kobj, &dev->bindata_attr);
- 	if (err) {
--		device_unregister(&dev->dev);
- 		iounmap(dev->base);
--		kfree(dev);
-+		device_unregister(&dev->dev);
- 	}
- 	return;
- exit_put:
-+	iounmap(dev->base);
- 	put_device(&dev->dev);
--	return;
+diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
+index 60abc9250f56a..2241f98970926 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -674,7 +674,8 @@ static inline int temac_check_tx_bd_space(struct temac_local *lp, int num_frag)
+ 	return 0;
  }
+ 
+-static int temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++static netdev_tx_t
++temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ {
+ 	struct temac_local *lp = netdev_priv(ndev);
+ 	struct cdmac_bd *cur_p;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index 66b30ebd45ee8..28764268a44f8 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -657,7 +657,8 @@ static inline int axienet_check_tx_bd_space(struct axienet_local *lp,
+  * start the transmission. Additionally if checksum offloading is supported,
+  * it populates AXI Stream Control fields with appropriate values.
+  */
+-static int axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++static netdev_tx_t
++axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ {
+ 	u32 ii;
+ 	u32 num_frag;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+index 42f1f518dad69..c77c81eb7ab3b 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -1020,9 +1020,10 @@ static int xemaclite_close(struct net_device *dev)
+  * deferred and the Tx queue is stopped so that the deferred socket buffer can
+  * be transmitted when the Emaclite device is free to transmit data.
+  *
+- * Return:	0, always.
++ * Return:	NETDEV_TX_OK, always.
+  */
+-static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
++static netdev_tx_t
++xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
+ {
+ 	struct net_local *lp = netdev_priv(dev);
+ 	struct sk_buff *new_skb;
+@@ -1044,7 +1045,7 @@ static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
+ 		/* Take the time stamp now, since we can't do this in an ISR. */
+ 		skb_tx_timestamp(new_skb);
+ 		spin_unlock_irqrestore(&lp->reset_lock, flags);
+-		return 0;
++		return NETDEV_TX_OK;
+ 	}
+ 	spin_unlock_irqrestore(&lp->reset_lock, flags);
+ 
+@@ -1053,7 +1054,7 @@ static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
+ 	dev->stats.tx_bytes += len;
+ 	dev_consume_skb_any(new_skb);
+ 
+-	return 0;
++	return NETDEV_TX_OK;
+ }
+ 
+ /**
 -- 
 2.20.1
 
