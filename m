@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A4F101608
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:49:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 063CC10160B
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:49:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731512AbfKSFth (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:49:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
+        id S1731250AbfKSFtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:49:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731486AbfKSFtg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:49:36 -0500
+        id S1731526AbfKSFtm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:49:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B65820721;
-        Tue, 19 Nov 2019 05:49:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C941920721;
+        Tue, 19 Nov 2019 05:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142576;
-        bh=DgnMDlLLXfeQeKctRy7xaYZdYGgwE1jsdDjdNnqBmGA=;
+        s=default; t=1574142582;
+        bh=JKIZoRZ7nmPBq/9//pG2xcnSF0372UaTNuRC9ECEowg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CjuqBj+lpMPdvbbEaLVcPnbiuP2rf1gEM3g2kxqnKNV0KFAWXvgZAwAmE7VJdKnI0
-         QoDit+l+0CRAyLUkv/FNWztkwahgj9TUttt9HDRYfyetxUDqMBBRUPvdBo7/NZlTcL
-         exCje0AeX7wyswwWOiVim2S5N97ANBtx1c38f2Ug=
+        b=h2V7qcvaZOrgRIiFRJvuF177vYVe8Jj3X2QAAiv0G7l2OzFpbeEFo3yhDY0zKkNXH
+         c3X/hTIcybuJMp6cO3Kovdxu6PrQLezWahaQZ7RltSNnHQ4Vn7LVPFxcFEPeV/9loX
+         o1i8vO0Y7PIxSsZTegvRd5U71W6017OqjnhEm/0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
+        Dennis Dalessandro <dennis.dalessandro@intel.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/239] rtc: pl030: fix possible race condition
-Date:   Tue, 19 Nov 2019 06:18:08 +0100
-Message-Id: <20191119051318.980849038@linuxfoundation.org>
+Subject: [PATCH 4.14 090/239] IB/hfi1: Missing return value in error path for user sdma
+Date:   Tue, 19 Nov 2019 06:18:10 +0100
+Message-Id: <20191119051319.378077036@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -44,64 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Michael J. Ruhl <michael.j.ruhl@intel.com>
 
-[ Upstream commit c778ec85825dc895936940072aea9fe9037db684 ]
+[ Upstream commit 2bf4b33f83dfe521c4c7c407b6b150aeec04d69c ]
 
-The IRQ is requested before the struct rtc is allocated and registered, but
-this struct is used in the IRQ handler. This may lead to a NULL pointer
-dereference.
+If the set_txreq_header_agh() function returns an error, the exit path
+is chosen.
 
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before requesting the IRQ.
+In this path, the code fails to set the return value.  This will cause
+the caller to not realize an error has occurred.
 
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Set the return value correctly in the error path.
+
+Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-pl030.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ drivers/infiniband/hw/hfi1/user_sdma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/rtc/rtc-pl030.c b/drivers/rtc/rtc-pl030.c
-index f85a1a93e669f..343bb6ed17839 100644
---- a/drivers/rtc/rtc-pl030.c
-+++ b/drivers/rtc/rtc-pl030.c
-@@ -112,6 +112,13 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
- 		goto err_rtc;
- 	}
+diff --git a/drivers/infiniband/hw/hfi1/user_sdma.c b/drivers/infiniband/hw/hfi1/user_sdma.c
+index 75275f9e363de..4854a4a453b5f 100644
+--- a/drivers/infiniband/hw/hfi1/user_sdma.c
++++ b/drivers/infiniband/hw/hfi1/user_sdma.c
+@@ -856,8 +856,10 @@ static int user_sdma_send_pkts(struct user_sdma_request *req, unsigned maxpkts)
  
-+	rtc->rtc = devm_rtc_allocate_device(&dev->dev);
-+	if (IS_ERR(rtc->rtc)) {
-+		ret = PTR_ERR(rtc->rtc);
-+		goto err_rtc;
-+	}
-+
-+	rtc->rtc->ops = &pl030_ops;
- 	rtc->base = ioremap(dev->res.start, resource_size(&dev->res));
- 	if (!rtc->base) {
- 		ret = -ENOMEM;
-@@ -128,12 +135,9 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
- 	if (ret)
- 		goto err_irq;
- 
--	rtc->rtc = rtc_device_register("pl030", &dev->dev, &pl030_ops,
--				       THIS_MODULE);
--	if (IS_ERR(rtc->rtc)) {
--		ret = PTR_ERR(rtc->rtc);
-+	ret = rtc_register_device(rtc->rtc);
-+	if (ret)
- 		goto err_reg;
--	}
- 
- 	return 0;
- 
-@@ -154,7 +158,6 @@ static int pl030_remove(struct amba_device *dev)
- 	writel(0, rtc->base + RTC_CR);
- 
- 	free_irq(dev->irq[0], rtc);
--	rtc_device_unregister(rtc->rtc);
- 	iounmap(rtc->base);
- 	amba_release_regions(dev);
- 
+ 				changes = set_txreq_header_ahg(req, tx,
+ 							       datalen);
+-				if (changes < 0)
++				if (changes < 0) {
++					ret = changes;
+ 					goto free_tx;
++				}
+ 			}
+ 		} else {
+ 			ret = sdma_txinit(&tx->txreq, 0, sizeof(req->hdr) +
 -- 
 2.20.1
 
