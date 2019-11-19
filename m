@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BC0410131C
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C469101327
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727740AbfKSFW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:22:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37758 "EHLO mail.kernel.org"
+        id S1727859AbfKSFWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:22:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727736AbfKSFW0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:22:26 -0500
+        id S1727829AbfKSFWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:22:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C444121939;
-        Tue, 19 Nov 2019 05:22:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB1FF22318;
+        Tue, 19 Nov 2019 05:22:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574140946;
-        bh=qhjc3em040Ekybk+oPPE0CRElY/YwmptLb2RMbz5b94=;
+        s=default; t=1574140972;
+        bh=edEBquirL+vEMiID2KXi+iBu7SgfnF5yxMwv8ddoWOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vos8Duf10v0ZOXfPiVPqT1uRGRPyyuk1H7S+SrRGTffQ0e7pFJp22M8jHKjOXiC1w
-         nW01Ep+mxA2Kzx0DNfTotBnclHqyNNcM3wPu0EeBUIHK6IAQfU2v0xz3iGIJkyrIeH
-         D9RYE/4AcHqAhiEScz7iJ0zvtdo1YiP9vMecjYIs=
+        b=cpebZE2EsNb9suQXgmBledIU+QAvrmfGrlK/Z9ptnewREIqPpZYY0VPzx4eW2NtNE
+         SIKZJPJ89TW0/HW8ybmRkp4ZiLlHOoSumiLT6ov039M/T0no8ilHH2mWXE1aJ8osj1
+         i6h7jXrk4wbB34iQmmL55VE50FElGicsMnbupXJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.3 39/48] ntp/y2038: Remove incorrect time_t truncation
-Date:   Tue, 19 Nov 2019 06:19:59 +0100
-Message-Id: <20191119051022.161704534@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
+        Li Xinhai <lixinhai.lxh@gmail.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Michal Hocko <mhocko@suse.com>,
+        Mel Gorman <mgorman@techsingularity.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 42/48] mm: mempolicy: fix the wrong return value and potential pages leak of mbind
+Date:   Tue, 19 Nov 2019 06:20:02 +0100
+Message-Id: <20191119051025.323788194@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119050946.745015350@linuxfoundation.org>
 References: <20191119050946.745015350@linuxfoundation.org>
@@ -43,37 +48,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Yang Shi <yang.shi@linux.alibaba.com>
 
-commit 2f5841349df281ecf8f81cc82d869b8476f0db0b upstream.
+commit a85dfc305a21acfc48fa28a0fa0a0cb6ad496120 upstream.
 
-A cast to 'time_t' was accidentally left in place during the
-conversion of __do_adjtimex() to 64-bit timestamps, so the
-resulting value is incorrectly truncated.
+Commit d883544515aa ("mm: mempolicy: make the behavior consistent when
+MPOL_MF_MOVE* and MPOL_MF_STRICT were specified") fixed the return value
+of mbind() for a couple of corner cases.  But, it altered the errno for
+some other cases, for example, mbind() should return -EFAULT when part
+or all of the memory range specified by nodemask and maxnode points
+outside your accessible address space, or there was an unmapped hole in
+the specified memory range specified by addr and len.
 
-Remove the cast so the 64-bit time gets propagated correctly.
+Fix this by preserving the errno returned by queue_pages_range().  And,
+the pagelist may be not empty even though queue_pages_range() returns
+error, put the pages back to LRU since mbind_range() is not called to
+really apply the policy so those pages should not be migrated, this is
+also the old behavior before the problematic commit.
 
-Fixes: ead25417f82e ("timex: use __kernel_timex internally")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20191108203435.112759-2-arnd@arndb.de
+Link: http://lkml.kernel.org/r/1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: d883544515aa ("mm: mempolicy: make the behavior consistent when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Reported-by: Li Xinhai <lixinhai.lxh@gmail.com>
+Reviewed-by: Li Xinhai <lixinhai.lxh@gmail.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mel Gorman <mgorman@techsingularity.net>
+Cc: <stable@vger.kernel.org>	[4.19 and 5.2+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/time/ntp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/mempolicy.c |   14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -771,7 +771,7 @@ int __do_adjtimex(struct __kernel_timex
- 	/* fill PPS status fields */
- 	pps_fill_timex(txc);
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -666,7 +666,9 @@ static int queue_pages_test_walk(unsigne
+  * 1 - there is unmovable page, but MPOL_MF_MOVE* & MPOL_MF_STRICT were
+  *     specified.
+  * 0 - queue pages successfully or no misplaced page.
+- * -EIO - there is misplaced page and only MPOL_MF_STRICT was specified.
++ * errno - i.e. misplaced pages with MPOL_MF_STRICT specified (-EIO) or
++ *         memory range specified by nodemask and maxnode points outside
++ *         your accessible address space (-EFAULT)
+  */
+ static int
+ queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
+@@ -1287,7 +1289,7 @@ static long do_mbind(unsigned long start
+ 			  flags | MPOL_MF_INVERT, &pagelist);
  
--	txc->time.tv_sec = (time_t)ts->tv_sec;
-+	txc->time.tv_sec = ts->tv_sec;
- 	txc->time.tv_usec = ts->tv_nsec;
- 	if (!(time_status & STA_NANO))
- 		txc->time.tv_usec = ts->tv_nsec / NSEC_PER_USEC;
+ 	if (ret < 0) {
+-		err = -EIO;
++		err = ret;
+ 		goto up_out;
+ 	}
+ 
+@@ -1306,10 +1308,12 @@ static long do_mbind(unsigned long start
+ 
+ 		if ((ret > 0) || (nr_failed && (flags & MPOL_MF_STRICT)))
+ 			err = -EIO;
+-	} else
+-		putback_movable_pages(&pagelist);
+-
++	} else {
+ up_out:
++		if (!list_empty(&pagelist))
++			putback_movable_pages(&pagelist);
++	}
++
+ 	up_write(&mm->mmap_sem);
+ mpol_out:
+ 	mpol_put(new);
 
 
