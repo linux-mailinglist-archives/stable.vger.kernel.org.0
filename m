@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4EF10169A
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C6C310169C
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:55:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732205AbfKSFyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:54:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53118 "EHLO mail.kernel.org"
+        id S1731898AbfKSFy6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:54:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731898AbfKSFyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:54:52 -0500
+        id S1732208AbfKSFyy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:54:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E03D2084D;
-        Tue, 19 Nov 2019 05:54:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD52D208C3;
+        Tue, 19 Nov 2019 05:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142891;
-        bh=Y73+dY1Y0k2XuM4+cKQsdic8Xpu6IH+WkIG2UhOnRI8=;
+        s=default; t=1574142894;
+        bh=gjsQgDA0Yi/U7t3UzquNBahrZVVvipDwiouj+8LHZNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExVEBqsBnyvluQDf4QV1Tuhj+mGE1JgeKlxr9Cvn0iz2uj/QuYI8TCIuSn+428ySG
-         npx+xQrNrzQJNPyI/ZGn34mEsXjusAfzWViIzqugmWDUGPyqVcHWBl/ryzJoLAxOJu
-         z97bNK7qOQaHGQjZu7ylFzUi8SXNuToQ4aFVJ16Y=
+        b=D9iNbw9rCb+GViCLLwqsAYyd9DzEwd1vVXaar2fTGZl6K4/ejQO+cUeTOqzgie12s
+         8Kzkq6CDgPXSIQYBTpf1rkPq3G7clMWfct8mINXyPaaoACaYYuoI5lUGh4ouQE0dgU
+         GyAuM9GmmYXKACFCLNhGhZvUqlTwMcB1gwuzP6EM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 236/239] fuse: use READ_ONCE on congestion_threshold and max_background
-Date:   Tue, 19 Nov 2019 06:20:36 +0100
-Message-Id: <20191119051342.647358118@linuxfoundation.org>
+Subject: [PATCH 4.14 237/239] IB/iser: Fix possible NULL deref at iser_inv_desc()
+Date:   Tue, 19 Nov 2019 06:20:37 +0100
+Message-Id: <20191119051342.699396217@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -44,43 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill Tkhai <ktkhai@virtuozzo.com>
+From: Israel Rukshin <israelr@mellanox.com>
 
-[ Upstream commit 2a23f2b8adbe4bd584f936f7ac17a99750eed9d7 ]
+[ Upstream commit 65f07f5a09dacf3b60619f196f096ea3671a5eda ]
 
-Since they are of unsigned int type, it's allowed to read them
-unlocked during reporting to userspace. Let's underline this fact
-with READ_ONCE() macroses.
+In case target remote invalidates bogus rkey and signature is not used,
+pi_ctx is NULL deref.
 
-Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+The commit also fails the connection on bogus remote invalidation.
+
+Fixes: 59caaed7a72a ("IB/iser: Support the remote invalidation exception")
+Signed-off-by: Israel Rukshin <israelr@mellanox.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/control.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/iser/iser_initiator.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/fs/fuse/control.c b/fs/fuse/control.c
-index 5be0339dcceb2..42bed87dd5ea9 100644
---- a/fs/fuse/control.c
-+++ b/fs/fuse/control.c
-@@ -107,7 +107,7 @@ static ssize_t fuse_conn_max_background_read(struct file *file,
- 	if (!fc)
- 		return 0;
+diff --git a/drivers/infiniband/ulp/iser/iser_initiator.c b/drivers/infiniband/ulp/iser/iser_initiator.c
+index 2a07692007bdd..a126750b65a92 100644
+--- a/drivers/infiniband/ulp/iser/iser_initiator.c
++++ b/drivers/infiniband/ulp/iser/iser_initiator.c
+@@ -592,13 +592,19 @@ void iser_login_rsp(struct ib_cq *cq, struct ib_wc *wc)
+ 	ib_conn->post_recv_buf_count--;
+ }
  
--	val = fc->max_background;
-+	val = READ_ONCE(fc->max_background);
- 	fuse_conn_put(fc);
+-static inline void
++static inline int
+ iser_inv_desc(struct iser_fr_desc *desc, u32 rkey)
+ {
+-	if (likely(rkey == desc->rsc.mr->rkey))
++	if (likely(rkey == desc->rsc.mr->rkey)) {
+ 		desc->rsc.mr_valid = 0;
+-	else if (likely(rkey == desc->pi_ctx->sig_mr->rkey))
++	} else if (likely(desc->pi_ctx && rkey == desc->pi_ctx->sig_mr->rkey)) {
+ 		desc->pi_ctx->sig_mr_valid = 0;
++	} else {
++		iser_err("Bogus remote invalidation for rkey %#x\n", rkey);
++		return -EINVAL;
++	}
++
++	return 0;
+ }
  
- 	return fuse_conn_limit_read(file, buf, len, ppos, val);
-@@ -144,7 +144,7 @@ static ssize_t fuse_conn_congestion_threshold_read(struct file *file,
- 	if (!fc)
- 		return 0;
+ static int
+@@ -626,12 +632,14 @@ iser_check_remote_inv(struct iser_conn *iser_conn,
  
--	val = fc->congestion_threshold;
-+	val = READ_ONCE(fc->congestion_threshold);
- 	fuse_conn_put(fc);
+ 			if (iser_task->dir[ISER_DIR_IN]) {
+ 				desc = iser_task->rdma_reg[ISER_DIR_IN].mem_h;
+-				iser_inv_desc(desc, rkey);
++				if (unlikely(iser_inv_desc(desc, rkey)))
++					return -EINVAL;
+ 			}
  
- 	return fuse_conn_limit_read(file, buf, len, ppos, val);
+ 			if (iser_task->dir[ISER_DIR_OUT]) {
+ 				desc = iser_task->rdma_reg[ISER_DIR_OUT].mem_h;
+-				iser_inv_desc(desc, rkey);
++				if (unlikely(iser_inv_desc(desc, rkey)))
++					return -EINVAL;
+ 			}
+ 		} else {
+ 			iser_err("failed to get task for itt=%d\n", hdr->itt);
 -- 
 2.20.1
 
