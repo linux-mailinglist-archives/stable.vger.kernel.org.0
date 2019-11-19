@@ -2,113 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A0C1102DA7
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 21:40:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 217B0102DE1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 22:02:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726722AbfKSUkx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 15:40:53 -0500
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:46468 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726711AbfKSUkx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 15:40:53 -0500
-Received: by mail-pl1-f193.google.com with SMTP id l4so12456912plt.13;
-        Tue, 19 Nov 2019 12:40:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=CSaSjdFx+v8TgqrKNkfnWp7nAv6SAOOTZ17l4vlUo0A=;
-        b=aJYoIoZo4QrycytU5Yl3xmbMDv1vOxs2Mh3otchnoI4oDPu8VAJgOdYhgnq2GH0N2o
-         uALAu4Z1r142+V8LFJ2vOm0bxbtBbpR3BNFH8BdExAK1d/736Cm7OIBw8dBwLzb2eQCp
-         nrnnaEpSJD3lq0FWy+1Li3bq6wStpqGL9xbQG1so/goyttNLtjo5wO02/XhueNG9H7bY
-         jfIpVYgHKcKNnOe0KSCBN+wWOyFlWoL08SkUPvAv7R16DY7RKc0sqAB7+r0BBEW22uR0
-         YGJPINP3M1FEkycEwKf4hYizyRn418KRHU6LyPFdBSGkS97gKXxZLuWwj6Ts5uIlsCN+
-         l83A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=CSaSjdFx+v8TgqrKNkfnWp7nAv6SAOOTZ17l4vlUo0A=;
-        b=DmJcX6btwKKEDmwVSsdLAhtmnH71mF+I0MczOOxmPe2KfUqaKMGDTWsZaR5hxvM2Ci
-         NXZIP+xGvi2h9ryftksszEkZB7kmaDxiseGHm8EQYwFEb8Ul6m690il9huP1+aSQ3oGm
-         P0DHkHxici1cAXssYgzGhHUm1IBwyihQMiwTbKdgPgNFowBSzSg3lQhskNcVPJFNO53h
-         3BTVvVNn1PR08wqYXvVe7K0hBoAdk2RWYz1itPX/fXmDV2dbzSLZ8mkghkjT/C2ZoQXS
-         J7u81UZUqKFn8vrgRir6yyKmHDbCm7Wq8itgfsshsi/DO2gBqnV4nSwLAXixIsmFVViN
-         msxQ==
-X-Gm-Message-State: APjAAAUE7SuwWZpQ74X5pXumxZFUl7747Hy6+hFntAXEbpXpn64Up5R0
-        Id39rC4OLZqCcw+WxAmLP18aSEyX
-X-Google-Smtp-Source: APXvYqz5aaftKLhMq3XwHsDL6DPu4M/T0DcRhsAeCdvGD/dzTZxwJuRAZb2EaSKvm4fsVHhq6RqKpA==
-X-Received: by 2002:a17:90a:326b:: with SMTP id k98mr8957149pjb.50.1574196051134;
-        Tue, 19 Nov 2019 12:40:51 -0800 (PST)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id a6sm24793197pgc.4.2019.11.19.12.40.50
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 19 Nov 2019 12:40:50 -0800 (PST)
-Date:   Tue, 19 Nov 2019 12:40:49 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Denis Kirjanov <kda@linux-powerpc.org>
-Subject: Re: [PATCH 3.16 000/132] 3.16.74-rc1 review
-Message-ID: <20191119204049.GD14938@roeck-us.net>
-References: <lsq.1568989414.954567518@decadent.org.uk>
- <20190920200423.GA26056@roeck-us.net>
- <8dbced01558cd8d4a1d4f058010e7d63e5f6810e.camel@decadent.org.uk>
- <CANiq72mYYzH1oS4h9GTODMP1ckZn2GnGTGirue1VLU1aw+Qo2A@mail.gmail.com>
- <13b0e0ced6e9420dc91242dbe85cdf96c06fb645.camel@decadent.org.uk>
+        id S1727385AbfKSVCI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 16:02:08 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:54579 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726711AbfKSVCH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 16:02:07 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iXAdJ-0003Cv-79; Tue, 19 Nov 2019 22:01:57 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id D70E21C19F4;
+        Tue, 19 Nov 2019 22:01:56 +0100 (CET)
+Date:   Tue, 19 Nov 2019 21:01:56 -0000
+From:   "tip-bot2 for Jan Beulich" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/stackframe/32: Repair 32-bit Xen PV
+Cc:     Jan Beulich <jbeulich@suse.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Stable Team <stable@vger.kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <0fad341f-b7f5-f859-d55d-f0084ee7087e@suse.com>
+References: <0fad341f-b7f5-f859-d55d-f0084ee7087e@suse.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <13b0e0ced6e9420dc91242dbe85cdf96c06fb645.camel@decadent.org.uk>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+Message-ID: <157419731680.12247.14651763970362764251.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 19, 2019 at 02:58:58PM +0000, Ben Hutchings wrote:
-> On Sun, 2019-09-22 at 21:26 +0200, Miguel Ojeda wrote:
-> > On Sun, Sep 22, 2019 at 9:04 PM Ben Hutchings <ben@decadent.org.uk> wrote:
-> > > It looks like this is triggered by you switching arm builds from gcc 8
-> > > to 9, rather than by any code change.
-> > > 
-> > > Does it actually make sense to try to support building Linux 3.16 with
-> > > gcc 9?  If so, I suppose I'll need to add:
-> > > 
-> > > commit edc966de8725f9186cc9358214da89d335f0e0bd
-> > > Author: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-> > > Date:   Fri Aug 2 12:37:56 2019 +0200
-> > > 
-> > >     Backport minimal compiler_attributes.h to support GCC 9
-> > > 
-> > > commit a6e60d84989fa0e91db7f236eda40453b0e44afa
-> > > Author: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-> > > Date:   Sat Jan 19 20:59:34 2019 +0100
-> > > 
-> > >     include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
-> > 
-> > Yeah, those should fix it.
-> 
-> A week or two back I tried building 3.16 for x86_64 with gcc 8, which
-> produced some warnings but did succeed (and I know Guenter successfully
-> build-tests 3.16 with gcc 8 for many architectures).  However, the
-> kernel didn't boot on a test system, while the same code built with gcc
-> 4.9 (if I remember correctly) did boot.
-> 
-> While I'm not about to remove support for gcc 8, this makes me think
-> that there are some not-so-obvious fixes required to make 3.16 properly
-> compatible with recent gcc versions.  So I would rather not continue
-> adding superficial support for them, that may lead to people wasting
-> time building broken kernels.
-> 
+The following commit has been merged into the x86/urgent branch of tip:
 
-I kind of agree. It would make my life easier since I'd be able to drop
-older compilers, but on the other side anyone actually using 3.16 kernels
-will very likely not update their compilers for the same reason they don't
-update the kernel.
+Commit-ID:     81ff2c37f9e5d77593928df0536d86443195fd64
+Gitweb:        https://git.kernel.org/tip/81ff2c37f9e5d77593928df0536d86443195fd64
+Author:        Jan Beulich <jbeulich@suse.com>
+AuthorDate:    Mon, 18 Nov 2019 16:21:12 +01:00
+Committer:     Thomas Gleixner <tglx@linutronix.de>
+CommitterDate: Tue, 19 Nov 2019 21:58:28 +01:00
 
-Guenter
+x86/stackframe/32: Repair 32-bit Xen PV
+
+Once again RPL checks have been introduced which don't account for a 32-bit
+kernel living in ring 1 when running in a PV Xen domain. The case in
+FIXUP_FRAME has been preventing boot.
+
+Adjust BUG_IF_WRONG_CR3 as well to guard against future uses of the macro
+on a code path reachable when running in PV mode under Xen; I have to admit
+that I stopped at a certain point trying to figure out whether there are
+present ones.
+
+Fixes: 3c88c692c287 ("x86/stackframe/32: Provide consistent pt_regs")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Stable Team <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/0fad341f-b7f5-f859-d55d-f0084ee7087e@suse.com
+---
+ arch/x86/entry/entry_32.S      |  4 ++--
+ arch/x86/include/asm/segment.h | 12 ++++++++++++
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
+index f83ca5a..3f847d8 100644
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -172,7 +172,7 @@
+ 	ALTERNATIVE "jmp .Lend_\@", "", X86_FEATURE_PTI
+ 	.if \no_user_check == 0
+ 	/* coming from usermode? */
+-	testl	$SEGMENT_RPL_MASK, PT_CS(%esp)
++	testl	$USER_SEGMENT_RPL_MASK, PT_CS(%esp)
+ 	jz	.Lend_\@
+ 	.endif
+ 	/* On user-cr3? */
+@@ -217,7 +217,7 @@
+ 	testl	$X86_EFLAGS_VM, 4*4(%esp)
+ 	jnz	.Lfrom_usermode_no_fixup_\@
+ #endif
+-	testl	$SEGMENT_RPL_MASK, 3*4(%esp)
++	testl	$USER_SEGMENT_RPL_MASK, 3*4(%esp)
+ 	jnz	.Lfrom_usermode_no_fixup_\@
+ 
+ 	orl	$CS_FROM_KERNEL, 3*4(%esp)
+diff --git a/arch/x86/include/asm/segment.h b/arch/x86/include/asm/segment.h
+index ac38929..6669164 100644
+--- a/arch/x86/include/asm/segment.h
++++ b/arch/x86/include/asm/segment.h
+@@ -31,6 +31,18 @@
+  */
+ #define SEGMENT_RPL_MASK	0x3
+ 
++/*
++ * When running on Xen PV, the actual privilege level of the kernel is 1,
++ * not 0. Testing the Requested Privilege Level in a segment selector to
++ * determine whether the context is user mode or kernel mode with
++ * SEGMENT_RPL_MASK is wrong because the PV kernel's privilege level
++ * matches the 0x3 mask.
++ *
++ * Testing with USER_SEGMENT_RPL_MASK is valid for both native and Xen PV
++ * kernels because privilege level 2 is never used.
++ */
++#define USER_SEGMENT_RPL_MASK	0x2
++
+ /* User mode is privilege level 3: */
+ #define USER_RPL		0x3
+ 
