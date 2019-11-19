@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EB11017DF
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:04:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D0601017D7
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:04:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728763AbfKSGEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:04:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60646 "EHLO mail.kernel.org"
+        id S1729621AbfKSFio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:38:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729826AbfKSFih (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:38:37 -0500
+        id S1730211AbfKSFin (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:38:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DEBF20862;
-        Tue, 19 Nov 2019 05:38:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3C45214DE;
+        Tue, 19 Nov 2019 05:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141915;
-        bh=QBninmn1N0bnodZPUNG5LFWIH1SXzGqrLbKpZ9NwMJs=;
+        s=default; t=1574141921;
+        bh=0V0ylmDejaYia5CRLo0lS05lj+Q0a8zKivPVI6lYOYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q1W96JjidyfI7Y/3AKYfkMJw2WK5wYL4/BWd5OR9+Nw3BOtXnejqF6NNSqMZHgPfu
-         T1pw7rqPNPSfpZu+YNLq7TKUyZ9quVWwIQKrp4zJudpMnZN8s/9/0QNJU2PBetNSCK
-         q3vx/CptVOt0/h2n1pKA+SUB/8/Sg88tcrufBir8=
+        b=xDgfgPgzvUFzIg2Coev+CScMwwJzINuAZz15qDOpmRz9KtZ47KGqt5ZmrMov+PvHd
+         tj0vBMnR5jm0SiywtmjlKW06dJrpwHwO/0KJEamEpjioIsKq4EQ39Au26lY3EG5GOq
+         tD99sCIbS7iXS30PgowbiYVCj4D6WdpHZ8/agG2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jia-Ju Bai <baijiaju1990@gmail.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 325/422] mlxsw: Make MLXSW_SP1_FWREV_MINOR a hard requirement
-Date:   Tue, 19 Nov 2019 06:18:42 +0100
-Message-Id: <20191119051420.076010542@linuxfoundation.org>
+Subject: [PATCH 4.19 327/422] media: pci: ivtv: Fix a sleep-in-atomic-context bug in ivtv_yuv_init()
+Date:   Tue, 19 Nov 2019 06:18:44 +0100
+Message-Id: <20191119051420.206074147@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,51 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Jia-Ju Bai <baijiaju1990@gmail.com>
 
-[ Upstream commit 12ba7e1045521ec9f251c93ae0a6735cc3f42337 ]
+[ Upstream commit 8d11eb847de7d89c2754988c944d51a4f63e219b ]
 
-Up until now, mlxsw tolerated firmware versions that weren't exactly
-matching the required version, if the branch number matched. That
-allowed the users to test various firmware versions as long as they were
-on the right branch.
+The driver may sleep in a interrupt handler.
 
-On the other hand, it made it impossible for mlxsw to put a hard lower
-bound on a version that fixes all problems known to date. If a user had
-a somewhat older FW version installed, mlxsw would start up just fine,
-possibly performing non-optimally as it would use features that trigger
-problematic behavior.
+The function call paths (from bottom to top) in Linux-4.16 are:
 
-Therefore tweak the check to accept any FW version that is:
+[FUNC] kzalloc(GFP_KERNEL)
+drivers/media/pci/ivtv/ivtv-yuv.c, 938:
+	kzalloc in ivtv_yuv_init
+drivers/media/pci/ivtv/ivtv-yuv.c, 960:
+	ivtv_yuv_init in ivtv_yuv_next_free
+drivers/media/pci/ivtv/ivtv-yuv.c, 1126:
+	ivtv_yuv_next_free in ivtv_yuv_setup_stream_frame
+drivers/media/pci/ivtv/ivtv-irq.c, 827:
+	ivtv_yuv_setup_stream_frame in ivtv_irq_dec_data_req
+drivers/media/pci/ivtv/ivtv-irq.c, 1013:
+	ivtv_irq_dec_data_req in ivtv_irq_handler
 
-- on the same branch as the preferred version, and
-- the same as or newer than the preferred version.
+To fix this bug, GFP_KERNEL is replaced with GFP_ATOMIC.
 
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Reviewed-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This bug is found by my static analysis tool DSAC.
+
+Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/pci/ivtv/ivtv-yuv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-index 1c170a0fd2cc9..e498ee95bacab 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
-@@ -336,7 +336,10 @@ static int mlxsw_sp_fw_rev_validate(struct mlxsw_sp *mlxsw_sp)
- 		return -EINVAL;
+diff --git a/drivers/media/pci/ivtv/ivtv-yuv.c b/drivers/media/pci/ivtv/ivtv-yuv.c
+index 44936d6d7c396..1380474519f2b 100644
+--- a/drivers/media/pci/ivtv/ivtv-yuv.c
++++ b/drivers/media/pci/ivtv/ivtv-yuv.c
+@@ -935,7 +935,7 @@ static void ivtv_yuv_init(struct ivtv *itv)
  	}
- 	if (MLXSW_SP_FWREV_MINOR_TO_BRANCH(rev->minor) ==
--	    MLXSW_SP_FWREV_MINOR_TO_BRANCH(req_rev->minor))
-+	    MLXSW_SP_FWREV_MINOR_TO_BRANCH(req_rev->minor) &&
-+	    (rev->minor > req_rev->minor ||
-+	     (rev->minor == req_rev->minor &&
-+	      rev->subminor >= req_rev->subminor)))
- 		return 0;
  
- 	dev_info(mlxsw_sp->bus_info->dev, "The firmware version %d.%d.%d is incompatible with the driver\n",
+ 	/* We need a buffer for blanking when Y plane is offset - non-fatal if we can't get one */
+-	yi->blanking_ptr = kzalloc(720 * 16, GFP_KERNEL|__GFP_NOWARN);
++	yi->blanking_ptr = kzalloc(720 * 16, GFP_ATOMIC|__GFP_NOWARN);
+ 	if (yi->blanking_ptr) {
+ 		yi->blanking_dmaptr = pci_map_single(itv->pdev, yi->blanking_ptr, 720*16, PCI_DMA_TODEVICE);
+ 	} else {
 -- 
 2.20.1
 
