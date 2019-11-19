@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A8961018A7
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B961018A9
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728087AbfKSF1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:27:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45454 "EHLO mail.kernel.org"
+        id S1728737AbfKSF1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:27:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728097AbfKSF1Q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:27:16 -0500
+        id S1728731AbfKSF1Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:27:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BCC8221823;
-        Tue, 19 Nov 2019 05:27:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 401BC22309;
+        Tue, 19 Nov 2019 05:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141234;
-        bh=quaFVzJRdtGC0pYG6THaiNj51wCyvvfrzByeOymHtEo=;
+        s=default; t=1574141242;
+        bh=fb+uDVLzQj+oXotwUSncvB4df9zFhWnG3pcDqa1qYLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGgCFWqYwP0+eFA8iW+WSuyetmx4LpNJHpimXCrFC9yo6q+5hZ6QYmeKtg0oyJxh+
-         6ao6N08FkBA9wkAsrIjR5an67DHlkhbWIcXWnx5GrOyr5AAD6Qr2YcY/2dk+ivGG25
-         26K2PMQI7hce4m96A8sMneEeljfr6ZcDPpD/0H8A=
+        b=UOmd3ElgNEkvFxNfCon0VWde7nIMDFupPJu9wnV9RHW2vUTfiZCZqQ/tKT7XfG2DN
+         8SqlOFJb6GWfxnGc/Wc4kQMxA6IKR8jnUWRem+LXMMP5JSg3tphOgcz75i9zH3ATpg
+         x4UwanTeTccLL34Md9zO5p2gD+4kBdH0jOeEQsAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sara Sharon <sara.sharon@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/422] iwlwifi: mvm: avoid sending too many BARs
-Date:   Tue, 19 Nov 2019 06:14:47 +0100
-Message-Id: <20191119051405.216492911@linuxfoundation.org>
+Subject: [PATCH 4.19 092/422] media: i2c: Fix pm_runtime_get_if_in_use() usage in sensor drivers
+Date:   Tue, 19 Nov 2019 06:14:49 +0100
+Message-Id: <20191119051405.318887799@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,48 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sara Sharon <sara.sharon@intel.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit 1a19c139be18ed4d6d681049cc48586fae070120 ]
+[ Upstream commit 4d471563d87b2b83e73b8abffb9273950e6d2e36 ]
 
-When we receive TX response, we may release a few packets
-due to a hole that was closed in the transmission window.
+pm_runtime_get_if_in_use() returns -EINVAL if runtime PM is disabled. This
+should not be considered an error. Generally the driver has enabled
+runtime PM already so getting this error due to runtime PM being disabled
+will not happen.
 
-However, if that frame failed, we will mark all the released
-frames as failed and will send multiple BARs.
+Instead of checking for lesser or equal to zero, check for zero only.
+Address this for drivers where this pattern exists.
 
-This affects statistics badly, and cause unnecessary frames
-transmission.
+This patch has been produced using the following command:
 
-Instead, mark all the following packets as success, with the
-desired result of sending a bar for the failed frame only.
+$ git grep -l pm_runtime_get_if_in_use -- drivers/media/i2c/ | \
+  xargs perl -i -pe 's/(pm_runtime_get_if_in_use\(.*\)) \<\= 0/!$1/'
 
-Signed-off-by: Sara Sharon <sara.sharon@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/tx.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/i2c/ov13858.c | 2 +-
+ drivers/media/i2c/ov2685.c  | 2 +-
+ drivers/media/i2c/ov5670.c  | 2 +-
+ drivers/media/i2c/ov5695.c  | 2 +-
+ drivers/media/i2c/ov7740.c  | 2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-index 5615ce55cef56..cb2e52e7f46c9 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/tx.c
-@@ -1438,6 +1438,14 @@ static void iwl_mvm_rx_tx_cmd_single(struct iwl_mvm *mvm,
- 			break;
- 		}
+diff --git a/drivers/media/i2c/ov13858.c b/drivers/media/i2c/ov13858.c
+index a66f6201f53c7..0e7a85c4996c7 100644
+--- a/drivers/media/i2c/ov13858.c
++++ b/drivers/media/i2c/ov13858.c
+@@ -1230,7 +1230,7 @@ static int ov13858_set_ctrl(struct v4l2_ctrl *ctrl)
+ 	 * Applying V4L2 control value only happens
+ 	 * when power is up for streaming
+ 	 */
+-	if (pm_runtime_get_if_in_use(&client->dev) <= 0)
++	if (!pm_runtime_get_if_in_use(&client->dev))
+ 		return 0;
  
-+		/*
-+		 * If we are freeing multiple frames, mark all the frames
-+		 * but the first one as acked, since they were acknowledged
-+		 * before
-+		 * */
-+		if (skb_freed > 1)
-+			info->flags |= IEEE80211_TX_STAT_ACK;
-+
- 		iwl_mvm_tx_status_check_trigger(mvm, status);
+ 	ret = 0;
+diff --git a/drivers/media/i2c/ov2685.c b/drivers/media/i2c/ov2685.c
+index 385c1886a9470..98a1f2e312b58 100644
+--- a/drivers/media/i2c/ov2685.c
++++ b/drivers/media/i2c/ov2685.c
+@@ -549,7 +549,7 @@ static int ov2685_set_ctrl(struct v4l2_ctrl *ctrl)
+ 		break;
+ 	}
  
- 		info->status.rates[0].count = tx_resp->failure_frame + 1;
+-	if (pm_runtime_get_if_in_use(&client->dev) <= 0)
++	if (!pm_runtime_get_if_in_use(&client->dev))
+ 		return 0;
+ 
+ 	switch (ctrl->id) {
+diff --git a/drivers/media/i2c/ov5670.c b/drivers/media/i2c/ov5670.c
+index 7b7c74d773707..53dd30d96e691 100644
+--- a/drivers/media/i2c/ov5670.c
++++ b/drivers/media/i2c/ov5670.c
+@@ -2016,7 +2016,7 @@ static int ov5670_set_ctrl(struct v4l2_ctrl *ctrl)
+ 	}
+ 
+ 	/* V4L2 controls values will be applied only when power is already up */
+-	if (pm_runtime_get_if_in_use(&client->dev) <= 0)
++	if (!pm_runtime_get_if_in_use(&client->dev))
+ 		return 0;
+ 
+ 	switch (ctrl->id) {
+diff --git a/drivers/media/i2c/ov5695.c b/drivers/media/i2c/ov5695.c
+index 9a80decd93d3c..5d107c53364d6 100644
+--- a/drivers/media/i2c/ov5695.c
++++ b/drivers/media/i2c/ov5695.c
+@@ -1110,7 +1110,7 @@ static int ov5695_set_ctrl(struct v4l2_ctrl *ctrl)
+ 		break;
+ 	}
+ 
+-	if (pm_runtime_get_if_in_use(&client->dev) <= 0)
++	if (!pm_runtime_get_if_in_use(&client->dev))
+ 		return 0;
+ 
+ 	switch (ctrl->id) {
+diff --git a/drivers/media/i2c/ov7740.c b/drivers/media/i2c/ov7740.c
+index 8a6a7a5929aa3..7804013934ab5 100644
+--- a/drivers/media/i2c/ov7740.c
++++ b/drivers/media/i2c/ov7740.c
+@@ -510,7 +510,7 @@ static int ov7740_set_ctrl(struct v4l2_ctrl *ctrl)
+ 	int ret;
+ 	u8 val = 0;
+ 
+-	if (pm_runtime_get_if_in_use(&client->dev) <= 0)
++	if (!pm_runtime_get_if_in_use(&client->dev))
+ 		return 0;
+ 
+ 	switch (ctrl->id) {
 -- 
 2.20.1
 
