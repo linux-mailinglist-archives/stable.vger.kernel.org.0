@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35D65101788
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:02:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C03AB101787
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:02:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730655AbfKSFmp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:42:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37500 "EHLO mail.kernel.org"
+        id S1728836AbfKSGCF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 01:02:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730665AbfKSFmo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:42:44 -0500
+        id S1730672AbfKSFmt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:42:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C6F3218BA;
-        Tue, 19 Nov 2019 05:42:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A407421783;
+        Tue, 19 Nov 2019 05:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142162;
-        bh=RRoVybARuoCg+kCC3+TjStz3qLWGD7rDOiQeSGC0dmE=;
+        s=default; t=1574142168;
+        bh=6zIYvAQLeAqmRqLZCnOGn1hGP8lmOux0Wh75nSABTTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Mc8EUXYwwItXCBz4DLR/kpyA5aJJQgRPme/JFwwHibMTZuICIwTb26ZO1DNu9+At
-         TG6YhcDJX/N2OvNedktu+Yzu5sDkMJqzEx319X26avCM9190e1vvBiwmvxPlo5KKCh
-         lw6aMOYtoMxH/ZXCmQuKo4Dn8QtWLeSfvHl8rv5U=
+        b=OEM/Xisf9L7sdhTOIYYlXNLt+jenKWanvmkRzT3XhBbTCqvxa0e494qZVFo7WUGfS
+         GwiCG3hmOPjhBSS7usP8ERcChfCLknqp+c8sDtXM4eOdGQ/zHVY9iXgaRO5Tk1Ltx1
+         //ruXGNyIBfdgvy18ALkoQu4vwAyK/cWvAKxrFqA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Denis Osterland <Denis.Osterland@diehl.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 411/422] rtc: isl1208: avoid possible sysfs race
-Date:   Tue, 19 Nov 2019 06:20:08 +0100
-Message-Id: <20191119051425.824143266@linuxfoundation.org>
+Subject: [PATCH 4.19 413/422] rtc: armada38x: fix possible race condition
+Date:   Tue, 19 Nov 2019 06:20:10 +0100
+Message-Id: <20191119051425.956631885@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -47,125 +46,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit 1b4c794fda583edabe864ac466e9cd43c707be80 ]
+[ Upstream commit 7d61cbb945a753af08e247b5f10bdd5dbb8d6c80 ]
 
-Use rtc_add_group to add the common sysfs group to avoid a possible race
-condition.
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-[Denis.Osterland@diehl.com: use to_i2c_client(dev->parent)]
-Signed-off-by: Denis Osterland <Denis.Osterland@diehl.com>
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
+
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-
-The move of atrim, dtrim usr sysfs properties from i2c device
-to rtc device require to access them via dev->parent.
-This patch also aligns timestamp0.
-
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-isl1208.c | 27 ++++++++++-----------------
- 1 file changed, 10 insertions(+), 17 deletions(-)
+ drivers/rtc/rtc-armada38x.c | 22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/rtc/rtc-isl1208.c b/drivers/rtc/rtc-isl1208.c
-index ea18a8f4bce06..033f65aef5788 100644
---- a/drivers/rtc/rtc-isl1208.c
-+++ b/drivers/rtc/rtc-isl1208.c
-@@ -518,7 +518,7 @@ static ssize_t timestamp0_store(struct device *dev,
- 				struct device_attribute *attr,
- 				const char *buf, size_t count)
+diff --git a/drivers/rtc/rtc-armada38x.c b/drivers/rtc/rtc-armada38x.c
+index bde53c8ccee2c..b74338d6dde60 100644
+--- a/drivers/rtc/rtc-armada38x.c
++++ b/drivers/rtc/rtc-armada38x.c
+@@ -514,7 +514,6 @@ MODULE_DEVICE_TABLE(of, armada38x_rtc_of_match_table);
+ 
+ static __init int armada38x_rtc_probe(struct platform_device *pdev)
  {
--	struct i2c_client *client = dev_get_drvdata(dev);
-+	struct i2c_client *client = to_i2c_client(dev->parent);
- 	int sr;
- 
- 	sr = isl1208_i2c_get_sr(client);
-@@ -540,7 +540,7 @@ static ssize_t timestamp0_store(struct device *dev,
- static ssize_t timestamp0_show(struct device *dev,
- 			       struct device_attribute *attr, char *buf)
- {
--	struct i2c_client *client = dev_get_drvdata(dev);
-+	struct i2c_client *client = to_i2c_client(dev->parent);
- 	u8 regs[ISL1219_EVT_SECTION_LEN] = { 0, };
- 	struct rtc_time tm;
- 	int sr;
-@@ -650,7 +650,7 @@ static ssize_t
- isl1208_sysfs_show_atrim(struct device *dev,
- 			 struct device_attribute *attr, char *buf)
- {
--	int atr = isl1208_i2c_get_atr(to_i2c_client(dev));
-+	int atr = isl1208_i2c_get_atr(to_i2c_client(dev->parent));
- 	if (atr < 0)
- 		return atr;
- 
-@@ -663,7 +663,7 @@ static ssize_t
- isl1208_sysfs_show_dtrim(struct device *dev,
- 			 struct device_attribute *attr, char *buf)
- {
--	int dtr = isl1208_i2c_get_dtr(to_i2c_client(dev));
-+	int dtr = isl1208_i2c_get_dtr(to_i2c_client(dev->parent));
- 	if (dtr < 0)
- 		return dtr;
- 
-@@ -676,7 +676,7 @@ static ssize_t
- isl1208_sysfs_show_usr(struct device *dev,
- 		       struct device_attribute *attr, char *buf)
- {
--	int usr = isl1208_i2c_get_usr(to_i2c_client(dev));
-+	int usr = isl1208_i2c_get_usr(to_i2c_client(dev->parent));
- 	if (usr < 0)
- 		return usr;
- 
-@@ -701,7 +701,10 @@ isl1208_sysfs_store_usr(struct device *dev,
- 	if (usr < 0 || usr > 0xffff)
- 		return -EINVAL;
- 
--	return isl1208_i2c_set_usr(to_i2c_client(dev), usr) ? -EIO : count;
-+	if (isl1208_i2c_set_usr(to_i2c_client(dev->parent), usr))
-+		return -EIO;
-+
-+	return count;
- }
- 
- static DEVICE_ATTR(usr, S_IRUGO | S_IWUSR, isl1208_sysfs_show_usr,
-@@ -765,7 +768,6 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	rtc->ops = &isl1208_rtc_ops;
- 
- 	i2c_set_clientdata(client, rtc);
--	dev_set_drvdata(&rtc->dev, client);
- 
- 	rc = isl1208_i2c_get_sr(client);
- 	if (rc < 0) {
-@@ -804,7 +806,7 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 		evdet_irq = of_irq_get_byname(np, "evdet");
+-	const struct rtc_class_ops *ops;
+ 	struct resource *res;
+ 	struct armada38x_rtc *rtc;
+ 	const struct of_device_id *match;
+@@ -551,6 +550,11 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "no irq\n");
+ 		return rtc->irq;
  	}
++
++	rtc->rtc_dev = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(rtc->rtc_dev))
++		return PTR_ERR(rtc->rtc_dev);
++
+ 	if (devm_request_irq(&pdev->dev, rtc->irq, armada38x_rtc_alarm_irq,
+ 				0, pdev->name, rtc) < 0) {
+ 		dev_warn(&pdev->dev, "Interrupt not available.\n");
+@@ -560,28 +564,24 @@ static __init int armada38x_rtc_probe(struct platform_device *pdev)
  
--	rc = sysfs_create_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
-+	rc = rtc_add_group(rtc, &isl1208_rtc_sysfs_files);
- 	if (rc)
- 		return rc;
+ 	if (rtc->irq != -1) {
+ 		device_init_wakeup(&pdev->dev, 1);
+-		ops = &armada38x_rtc_ops;
++		rtc->rtc_dev->ops = &armada38x_rtc_ops;
+ 	} else {
+ 		/*
+ 		 * If there is no interrupt available then we can't
+ 		 * use the alarm
+ 		 */
+-		ops = &armada38x_rtc_ops_noirq;
++		rtc->rtc_dev->ops = &armada38x_rtc_ops_noirq;
+ 	}
+ 	rtc->data = (struct armada38x_rtc_data *)match->data;
  
-@@ -821,14 +823,6 @@ isl1208_probe(struct i2c_client *client, const struct i2c_device_id *id)
- 	return rtc_register_device(rtc);
+-
+ 	/* Update RTC-MBUS bridge timing parameters */
+ 	rtc->data->update_mbus_timing(rtc);
+ 
+-	rtc->rtc_dev = devm_rtc_device_register(&pdev->dev, pdev->name,
+-						ops, THIS_MODULE);
+-	if (IS_ERR(rtc->rtc_dev)) {
+-		ret = PTR_ERR(rtc->rtc_dev);
++	ret = rtc_register_device(rtc->rtc_dev);
++	if (ret)
+ 		dev_err(&pdev->dev, "Failed to register RTC device: %d\n", ret);
+-		return ret;
+-	}
+-	return 0;
++
++	return ret;
  }
  
--static int
--isl1208_remove(struct i2c_client *client)
--{
--	sysfs_remove_group(&client->dev.kobj, &isl1208_rtc_sysfs_files);
--
--	return 0;
--}
--
- static const struct i2c_device_id isl1208_id[] = {
- 	{ "isl1208", TYPE_ISL1208 },
- 	{ "isl1218", TYPE_ISL1218 },
-@@ -851,7 +845,6 @@ static struct i2c_driver isl1208_driver = {
- 		.of_match_table = of_match_ptr(isl1208_of_match),
- 	},
- 	.probe = isl1208_probe,
--	.remove = isl1208_remove,
- 	.id_table = isl1208_id,
- };
- 
+ #ifdef CONFIG_PM_SLEEP
 -- 
 2.20.1
 
