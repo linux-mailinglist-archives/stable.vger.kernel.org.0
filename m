@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9F711016EE
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 528EE10162A
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:50:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731103AbfKSFus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:50:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
+        id S1730797AbfKSFuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:50:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730797AbfKSFus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:50:48 -0500
+        id S1730300AbfKSFuu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:50:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 685BA20862;
-        Tue, 19 Nov 2019 05:50:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9B3B4214D9;
+        Tue, 19 Nov 2019 05:50:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142646;
-        bh=25Q+f4/0/pvCMAhfRTJkbuwfS2E6R0twOlTJSUveP14=;
+        s=default; t=1574142650;
+        bh=Fqy9Df9VV1p/fXocuqWjl0pJ6+pzlHmrrdfJKPeH+lM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rogjMRwsC5GA37EKkA45eOGN1/bvWvTNKAbRh3Aj+q1ZhBCd5Yy2nVMQVqJ5e9Xz2
-         yrAHltQabwysnpguClJ+fC8AeDTKW+TWOTA2EwE2LXfelZXvcfJUGt9A0FDy1mI9G9
-         mjvTpQErzfMewfI+cuVrOEdQp75Zf/GC9PUPEkV8=
+        b=jCQYShrtaKMFPdcUukprgBJM6k2//mbac7gafhEsKv3feTphRR7rj+cH7GwdVXwYs
+         9v2WYERadfwHFLSxmF7VK98u8j+rCfzNP8OGid+nrYa2Y0WvWdNnkF7i2188BVD5Nk
+         SCJfpVJwDalL6+cw0CF3xtRn9OHbZMGsTs0ZNXcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Shannon Nelson <shannon.nelson@oracle.com>,
+        stable@vger.kernel.org, Fuyun Liang <liangfuyun1@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Salil Mehta <salil.mehta@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 152/239] net: sun: fix return type of ndo_start_xmit function
-Date:   Tue, 19 Nov 2019 06:19:12 +0100
-Message-Id: <20191119051332.713152958@linuxfoundation.org>
+Subject: [PATCH 4.14 153/239] net: hns3: Fix for setting speed for phy failed problem
+Date:   Tue, 19 Nov 2019 06:19:13 +0100
+Message-Id: <20191119051332.842670211@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -45,132 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Fuyun Liang <liangfuyun1@huawei.com>
 
-[ Upstream commit 0e0cc31f6999df18bb5cfd0bd83c892ed5633975 ]
+[ Upstream commit fd8133148eb6a733f9cfdaecd4d99f378e21d582 ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, but the implementation in this
-driver returns an 'int'.
+The function of genphy_read_status is that reading phy information
+from HW and using these information to update SW variable. If user
+is using ethtool to setting the speed of phy and service task is calling
+by hclge_get_mac_phy_link, the result of speed setting is uncertain.
+Because ethtool cmd will modified phydev and hclge_get_mac_phy_link also
+will modified phydev.
 
-Found by coccinelle.
+Because phy state machine will update phy link periodically, we can
+just use phydev->link to check the link status. This patch removes
+function call of genphy_read_status. To ensure accuracy, this patch
+adds a phy state check. If phy state is not PHY_RUNNING, we consider
+link is down. Because in some scenarios, phydev->link may be link up,
+but phy state is not PHY_RUNNING. This is just an intermediate state.
+In fact, the link is not ready yet.
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Shannon Nelson <shannon.nelson@oracle.com>
+Fixes: 46a3df9f9718 ("net: hns3: Add HNS3 Acceleration Engine & Compatibility Layer Support")
+Signed-off-by: Fuyun Liang <liangfuyun1@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/ldmvsw.c         |  2 +-
- drivers/net/ethernet/sun/sunbmac.c        |  3 ++-
- drivers/net/ethernet/sun/sunqe.c          |  2 +-
- drivers/net/ethernet/sun/sunvnet.c        |  2 +-
- drivers/net/ethernet/sun/sunvnet_common.c | 14 ++++++++------
- drivers/net/ethernet/sun/sunvnet_common.h |  7 ++++---
- 6 files changed, 17 insertions(+), 13 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/sun/ldmvsw.c b/drivers/net/ethernet/sun/ldmvsw.c
-index 5b56c24b6ed2e..e6b96c2989b22 100644
---- a/drivers/net/ethernet/sun/ldmvsw.c
-+++ b/drivers/net/ethernet/sun/ldmvsw.c
-@@ -111,7 +111,7 @@ static u16 vsw_select_queue(struct net_device *dev, struct sk_buff *skb,
- }
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+index 86523e8993cb9..3bb6181ff0548 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
+@@ -2179,7 +2179,7 @@ static int hclge_get_mac_phy_link(struct hclge_dev *hdev)
+ 	mac_state = hclge_get_mac_link_status(hdev);
  
- /* Wrappers to common functions */
--static int vsw_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t vsw_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	return sunvnet_start_xmit_common(skb, dev, vsw_tx_port_find);
- }
-diff --git a/drivers/net/ethernet/sun/sunbmac.c b/drivers/net/ethernet/sun/sunbmac.c
-index 3189722110c26..9a60fb2b4e9dc 100644
---- a/drivers/net/ethernet/sun/sunbmac.c
-+++ b/drivers/net/ethernet/sun/sunbmac.c
-@@ -951,7 +951,8 @@ static void bigmac_tx_timeout(struct net_device *dev)
- }
- 
- /* Put a packet on the wire. */
--static int bigmac_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+bigmac_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct bigmac *bp = netdev_priv(dev);
- 	int len, entry;
-diff --git a/drivers/net/ethernet/sun/sunqe.c b/drivers/net/ethernet/sun/sunqe.c
-index a6bcdcdd947e3..82386a375bd26 100644
---- a/drivers/net/ethernet/sun/sunqe.c
-+++ b/drivers/net/ethernet/sun/sunqe.c
-@@ -569,7 +569,7 @@ out:
- }
- 
- /* Get a packet queued to go onto the wire. */
--static int qe_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t qe_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct sunqe *qep = netdev_priv(dev);
- 	struct sunqe_buffers *qbufs = qep->buffers;
-diff --git a/drivers/net/ethernet/sun/sunvnet.c b/drivers/net/ethernet/sun/sunvnet.c
-index 65347d2f139b7..02ebbe74d93de 100644
---- a/drivers/net/ethernet/sun/sunvnet.c
-+++ b/drivers/net/ethernet/sun/sunvnet.c
-@@ -245,7 +245,7 @@ static u16 vnet_select_queue(struct net_device *dev, struct sk_buff *skb,
- }
- 
- /* Wrappers to common functions */
--static int vnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t vnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	return sunvnet_start_xmit_common(skb, dev, vnet_tx_port_find);
- }
-diff --git a/drivers/net/ethernet/sun/sunvnet_common.c b/drivers/net/ethernet/sun/sunvnet_common.c
-index ecf456c7b6d14..fd84ff8bba31a 100644
---- a/drivers/net/ethernet/sun/sunvnet_common.c
-+++ b/drivers/net/ethernet/sun/sunvnet_common.c
-@@ -1215,9 +1215,10 @@ static inline struct sk_buff *vnet_skb_shape(struct sk_buff *skb, int ncookies)
- 	return skb;
- }
- 
--static int vnet_handle_offloads(struct vnet_port *port, struct sk_buff *skb,
--				struct vnet_port *(*vnet_tx_port)
--				(struct sk_buff *, struct net_device *))
-+static netdev_tx_t
-+vnet_handle_offloads(struct vnet_port *port, struct sk_buff *skb,
-+		     struct vnet_port *(*vnet_tx_port)
-+		     (struct sk_buff *, struct net_device *))
- {
- 	struct net_device *dev = VNET_PORT_TO_NET_DEVICE(port);
- 	struct vio_dring_state *dr = &port->vio.drings[VIO_DRIVER_TX_RING];
-@@ -1320,9 +1321,10 @@ out_dropped:
- 	return NETDEV_TX_OK;
- }
- 
--int sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
--			      struct vnet_port *(*vnet_tx_port)
--			      (struct sk_buff *, struct net_device *))
-+netdev_tx_t
-+sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
-+			  struct vnet_port *(*vnet_tx_port)
-+			  (struct sk_buff *, struct net_device *))
- {
- 	struct vnet_port *port = NULL;
- 	struct vio_dring_state *dr;
-diff --git a/drivers/net/ethernet/sun/sunvnet_common.h b/drivers/net/ethernet/sun/sunvnet_common.h
-index 6a4dd1fb19bf6..3fcb608fbbb31 100644
---- a/drivers/net/ethernet/sun/sunvnet_common.h
-+++ b/drivers/net/ethernet/sun/sunvnet_common.h
-@@ -136,9 +136,10 @@ int sunvnet_close_common(struct net_device *dev);
- void sunvnet_set_rx_mode_common(struct net_device *dev, struct vnet *vp);
- int sunvnet_set_mac_addr_common(struct net_device *dev, void *p);
- void sunvnet_tx_timeout_common(struct net_device *dev);
--int sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
--			   struct vnet_port *(*vnet_tx_port)
--			   (struct sk_buff *, struct net_device *));
-+netdev_tx_t
-+sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
-+			  struct vnet_port *(*vnet_tx_port)
-+			  (struct sk_buff *, struct net_device *));
- #ifdef CONFIG_NET_POLL_CONTROLLER
- void sunvnet_poll_controller_common(struct net_device *dev, struct vnet *vp);
- #endif
+ 	if (hdev->hw.mac.phydev) {
+-		if (!genphy_read_status(hdev->hw.mac.phydev))
++		if (hdev->hw.mac.phydev->state == PHY_RUNNING)
+ 			link_stat = mac_state &
+ 				hdev->hw.mac.phydev->link;
+ 		else
 -- 
 2.20.1
 
