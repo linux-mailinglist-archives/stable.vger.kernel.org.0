@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC02D101632
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06BAB101634
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:51:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731727AbfKSFvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:51:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48428 "EHLO mail.kernel.org"
+        id S1731197AbfKSFvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:51:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731725AbfKSFvF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:51:05 -0500
+        id S1731074AbfKSFvI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:51:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 147D521939;
-        Tue, 19 Nov 2019 05:51:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4507D20862;
+        Tue, 19 Nov 2019 05:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142664;
-        bh=HhY6aRuiU+JFIVbArd6TnC9cOXQnnSAEu6elwhYbO2M=;
+        s=default; t=1574142667;
+        bh=dYIXRbexQq7+/HOd58pSYSn1iRSMJHiiIRGBrEXnUBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DmS7kFm1SKzwcCBlO4HklHSGFhPZWYS9snLX4gTzsq++eeIQ/X4Kc8w5cWXI8UOsq
-         ligElru7JYGNSHXquLgukgXocCtr8bnQC5pJJPUz6+xTWg2uJ9VukbKq0nX7cGnFp5
-         nbzp73py2jMJiAR4mQc98MstAzn9SIlEd78WarNg=
+        b=gSMS+yIUFcKC8yhUOjav9AaDcQvEI/qVk2C5xz2qnVQp2uo+2JUjwmVvLaFSGREJK
+         hxgZZ54KXGEi/fpu3h9+mtRlmmL+GMYkeq2e3IczmFy/55PJp/1m65n3pYTRAQiAh0
+         fBjwYuD6wOBq9X/kWUrVGayUyTbZZGV9Sdelm5ms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
-        Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Ido Schimmel <idosch@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 157/239] usb: chipidea: Fix otg event handler
-Date:   Tue, 19 Nov 2019 06:19:17 +0100
-Message-Id: <20191119051333.133155502@linuxfoundation.org>
+Subject: [PATCH 4.14 158/239] mlxsw: spectrum: Init shaper for TCs 8..15
+Date:   Tue, 19 Nov 2019 06:19:18 +0100
+Message-Id: <20191119051333.194190634@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -44,46 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Loic Poulain <loic.poulain@linaro.org>
+From: Petr Machata <petrm@mellanox.com>
 
-[ Upstream commit 59739131e0ca06db7560f9073fff2fb83f6bc2a5 ]
+[ Upstream commit a9f36656b519a9a21309793c306941a3cd0eeb8f ]
 
-At OTG work running time, it's possible that several events need to be
-addressed (e.g. ID and VBUS events). The current implementation handles
-only one event at a time which leads to ignoring the other one. Fix it.
+With introduction of MC-aware mode to mlxsw, it became necessary to
+configure TCs above 7 as well. There is now code in mlxsw to disable ETS
+for these higher classes, but disablement of max shaper was neglected.
 
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+By default, max shaper is currently disabled to begin with, so the
+problem is just cosmetic. However, for symmetry, do like we do for ETS
+configuration, and call mlxsw_sp_port_ets_maxrate_set() for both TC i
+and i + 8.
+
+Signed-off-by: Petr Machata <petrm@mellanox.com>
+Reviewed-by: Jiri Pirko <jiri@mellanox.com>
+Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/otg.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/usb/chipidea/otg.c b/drivers/usb/chipidea/otg.c
-index 10236fe715228..8bf4032226ed5 100644
---- a/drivers/usb/chipidea/otg.c
-+++ b/drivers/usb/chipidea/otg.c
-@@ -206,14 +206,17 @@ static void ci_otg_work(struct work_struct *work)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+index a909aa315a92a..226187cba0e81 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum.c
+@@ -2825,6 +2825,13 @@ static int mlxsw_sp_port_ets_init(struct mlxsw_sp_port *mlxsw_sp_port)
+ 						    MLXSW_REG_QEEC_MAS_DIS);
+ 		if (err)
+ 			return err;
++
++		err = mlxsw_sp_port_ets_maxrate_set(mlxsw_sp_port,
++						    MLXSW_REG_QEEC_HIERARCY_TC,
++						    i + 8, i,
++						    MLXSW_REG_QEEC_MAS_DIS);
++		if (err)
++			return err;
  	}
  
- 	pm_runtime_get_sync(ci->dev);
-+
- 	if (ci->id_event) {
- 		ci->id_event = false;
- 		ci_handle_id_switch(ci);
--	} else if (ci->b_sess_valid_event) {
-+	}
-+
-+	if (ci->b_sess_valid_event) {
- 		ci->b_sess_valid_event = false;
- 		ci_handle_vbus_change(ci);
--	} else
--		dev_err(ci->dev, "unexpected event occurs at %s\n", __func__);
-+	}
-+
- 	pm_runtime_put_sync(ci->dev);
- 
- 	enable_irq(ci->irq);
+ 	/* Map all priorities to traffic class 0. */
 -- 
 2.20.1
 
