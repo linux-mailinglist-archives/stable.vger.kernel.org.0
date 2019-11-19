@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D58610171F
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64E8A1017E8
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:05:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730913AbfKSFsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:48:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44634 "EHLO mail.kernel.org"
+        id S1729325AbfKSFhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:37:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731321AbfKSFsI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:48:08 -0500
+        id S1729521AbfKSFhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:37:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18BE121823;
-        Tue, 19 Nov 2019 05:48:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CA37206EC;
+        Tue, 19 Nov 2019 05:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142487;
-        bh=i7cCvh+uPeAS+8By3+xyuq47pYVcGmyoHO0qG3CM9nY=;
+        s=default; t=1574141856;
+        bh=fMAtgmI930Z8gUhddQonnfxS9dGC3YaYHi8d80VubaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GpiZaOqhAaRhvtSq3wjwG/xq2jYlnYP8OQ8NaGOjut5ck2R2MeQEwJZ5SczfkROEr
-         ol7t7mKUQrmFpZRIDdXtZxmfhy7mnmyKe4T5BUUrL5VDMa+r+DpyqEZJy05YluDGuv
-         8mwjMd8R7i8R6DaP0b/ignU8r9v1uULWjX/1OvQc=
+        b=sIkLfYbFmgXwLwcU4MErtlkSM7vSRD6RnSeUU6PJ2xo6S8+af4VGafa02zW4nT8zQ
+         ecb3l2leFldkRfIik4jLurCF4XVduuXQsMBXQ41bax5CsFTPHeRkK2JFXsHavu7no8
+         6T5YvTKo2PwzvqmQmWbsL2A1/1Nu4F4FvLnDsWjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <matthew.wilcox@oracle.com>,
-        George Kennedy <george.kennedy@oracle.com>,
-        Mark Kanda <mark.kanda@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 099/239] scsi: sym53c8xx: fix NULL pointer dereference panic in sym_int_sir()
-Date:   Tue, 19 Nov 2019 06:18:19 +0100
-Message-Id: <20191119051323.762052874@linuxfoundation.org>
+Subject: [PATCH 4.19 303/422] spi: pic32: Use proper enum in dmaengine_prep_slave_rg
+Date:   Tue, 19 Nov 2019 06:18:20 +0100
+Message-Id: <20191119051418.635516038@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,77 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Kennedy <george.kennedy@oracle.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 288315e95264b6355e26609e9dec5dc4563d4ab0 ]
+[ Upstream commit 8cfde7847d5ed0bb77bace41519572963e43cd17 ]
 
-sym_int_sir() in sym_hipd.c does not check the command pointer for NULL before
-using it in debug message prints.
+Clang warns when one enumerated type is converted implicitly to another:
 
-Suggested-by: Matthew Wilcox <matthew.wilcox@oracle.com>
-Signed-off-by: George Kennedy <george.kennedy@oracle.com>
-Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
-Acked-by: Matthew Wilcox <matthew.wilcox@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+drivers/spi/spi-pic32.c:323:8: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+                                          DMA_FROM_DEVICE,
+                                          ^~~~~~~~~~~~~~~
+drivers/spi/spi-pic32.c:333:8: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+                                          DMA_TO_DEVICE,
+                                          ^~~~~~~~~~~~~
+2 warnings generated.
+
+Use the proper enums from dma_transfer_direction (DMA_FROM_DEVICE =
+DMA_DEV_TO_MEM = 2, DMA_TO_DEVICE = DMA_MEM_TO_DEV = 1) to satify Clang.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/159
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sym53c8xx_2/sym_hipd.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/spi/spi-pic32.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/sym53c8xx_2/sym_hipd.c b/drivers/scsi/sym53c8xx_2/sym_hipd.c
-index 378af306fda17..b87b6c63431dd 100644
---- a/drivers/scsi/sym53c8xx_2/sym_hipd.c
-+++ b/drivers/scsi/sym53c8xx_2/sym_hipd.c
-@@ -4371,6 +4371,13 @@ static void sym_nego_rejected(struct sym_hcb *np, struct sym_tcb *tp, struct sym
- 	OUTB(np, HS_PRT, HS_BUSY);
- }
- 
-+#define sym_printk(lvl, tp, cp, fmt, v...) do { \
-+	if (cp)							\
-+		scmd_printk(lvl, cp->cmd, fmt, ##v);		\
-+	else							\
-+		starget_printk(lvl, tp->starget, fmt, ##v);	\
-+} while (0)
-+
- /*
-  *  chip exception handler for programmed interrupts.
-  */
-@@ -4416,7 +4423,7 @@ static void sym_int_sir(struct sym_hcb *np)
- 	 *  been selected with ATN.  We do not want to handle that.
- 	 */
- 	case SIR_SEL_ATN_NO_MSG_OUT:
--		scmd_printk(KERN_WARNING, cp->cmd,
-+		sym_printk(KERN_WARNING, tp, cp,
- 				"No MSG OUT phase after selection with ATN\n");
- 		goto out_stuck;
- 	/*
-@@ -4424,7 +4431,7 @@ static void sym_int_sir(struct sym_hcb *np)
- 	 *  having reselected the initiator.
- 	 */
- 	case SIR_RESEL_NO_MSG_IN:
--		scmd_printk(KERN_WARNING, cp->cmd,
-+		sym_printk(KERN_WARNING, tp, cp,
- 				"No MSG IN phase after reselection\n");
- 		goto out_stuck;
- 	/*
-@@ -4432,7 +4439,7 @@ static void sym_int_sir(struct sym_hcb *np)
- 	 *  an IDENTIFY.
- 	 */
- 	case SIR_RESEL_NO_IDENTIFY:
--		scmd_printk(KERN_WARNING, cp->cmd,
-+		sym_printk(KERN_WARNING, tp, cp,
- 				"No IDENTIFY after reselection\n");
- 		goto out_stuck;
- 	/*
-@@ -4461,7 +4468,7 @@ static void sym_int_sir(struct sym_hcb *np)
- 	case SIR_RESEL_ABORTED:
- 		np->lastmsg = np->msgout[0];
- 		np->msgout[0] = M_NOOP;
--		scmd_printk(KERN_WARNING, cp->cmd,
-+		sym_printk(KERN_WARNING, tp, cp,
- 			"message %x sent on bad reselection\n", np->lastmsg);
- 		goto out;
- 	/*
+diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
+index f8a45af1fa9f2..288002f6c613e 100644
+--- a/drivers/spi/spi-pic32.c
++++ b/drivers/spi/spi-pic32.c
+@@ -320,7 +320,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
+ 	desc_rx = dmaengine_prep_slave_sg(master->dma_rx,
+ 					  xfer->rx_sg.sgl,
+ 					  xfer->rx_sg.nents,
+-					  DMA_FROM_DEVICE,
++					  DMA_DEV_TO_MEM,
+ 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+ 	if (!desc_rx) {
+ 		ret = -EINVAL;
+@@ -330,7 +330,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
+ 	desc_tx = dmaengine_prep_slave_sg(master->dma_tx,
+ 					  xfer->tx_sg.sgl,
+ 					  xfer->tx_sg.nents,
+-					  DMA_TO_DEVICE,
++					  DMA_MEM_TO_DEV,
+ 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
+ 	if (!desc_tx) {
+ 		ret = -EINVAL;
 -- 
 2.20.1
 
