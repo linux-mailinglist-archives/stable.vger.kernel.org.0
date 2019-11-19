@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D9E2101771
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9817101848
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730782AbfKSFnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:43:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38818 "EHLO mail.kernel.org"
+        id S1728760AbfKSFdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:33:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730778AbfKSFnt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:43:49 -0500
+        id S1729526AbfKSFdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:33:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D40EF2075E;
-        Tue, 19 Nov 2019 05:43:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CFF221823;
+        Tue, 19 Nov 2019 05:33:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142229;
-        bh=LqMI0tEsXsqQ8LnuUkkaJDxRVpqdAujD1Vwxg1ehTU8=;
+        s=default; t=1574141604;
+        bh=ITiLQa7PhFYebKtxc6Fl3GvTzg0Y6H8CyAE5H5v51fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1ZwJTZnD5+mXEn5favhqAXtViNw/7MAz3z/VVBWiOzeMeHY0gDvOrWeMUhz2aDIrS
-         uQXnl741MsCIgVRu+iiuam12fZw3iWvjIoiidYkliVeq+NG/iLoBQkV3+OfGbsCqVG
-         487kEKschL+y68xbpaG/1HBekDzL6o8gk08fb3DM=
+        b=rJtCI1ij6uWRskH8nMZ157rYNUL1TqqaEvd4WvZ6IFFN02u4SDmrFeKjuuMHjtZ+M
+         K2/HbSlKQ3ZoO3ffWb0VvPjDVuuIoWFkITL357Kq1/SK4m7wRwngw+gQZjUCOwEAoY
+         QCivxQA02qV1NjYKzmYDlX3aui3+SSSla3C2D01o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 011/239] ALSA: usb-audio: Fix missing error check at mixer resolution test
-Date:   Tue, 19 Nov 2019 06:16:51 +0100
-Message-Id: <20191119051300.187161524@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
+        Chen-Yu Tsai <wens@csie.org>, Rob Herring <robh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 216/422] ARM: dts: sun9i: Fix I2C bus warnings
+Date:   Tue, 19 Nov 2019 06:16:53 +0100
+Message-Id: <20191119051412.605588409@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Rob Herring <robh@kernel.org>
 
-commit 167beb1756791e0806365a3f86a0da10d7a327ee upstream.
+[ Upstream commit 57a83c5222c1b5e7b3acc72c6e60fce00a38991a ]
 
-A check of the return value from get_cur_mix_raw() is missing at the
-resolution test code in get_min_max_with_quirks(), which may leave the
-variable untouched, leading to a random uninitialized value, as
-detected by syzkaller fuzzer.
+dtc has new checks for I2C buses. The sun9i-a80 dts file has a node named
+'i2c' which causes a false positive warning. As the node is a RSB bus,
+correct the node name to be 'rsb' to fix the warnings.
 
-Add the missing return error check for fixing that.
+arch/arm/boot/dts/sun9i-a80-cubieboard4.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/codec@e89:reg: I2C address must be less than 10-bits, got "0xe89"
+arch/arm/boot/dts/sun9i-a80-cubieboard4.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/pmic@745:reg: I2C address must be less than 10-bits, got "0x745"
+arch/arm/boot/dts/sun9i-a80-optimus.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/codec@e89:reg: I2C address must be less than 10-bits, got "0xe89"
+arch/arm/boot/dts/sun9i-a80-optimus.dtb: Warning (i2c_bus_reg): /soc/i2c@8003400/pmic@745:reg: I2C address must be less than 10-bits, got "0x745"
 
-Reported-and-tested-by: syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191109181658.30368-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Maxime Ripard <maxime.ripard@bootlin.com>
+Cc: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/sun9i-a80.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1052,7 +1052,8 @@ static int get_min_max_with_quirks(struc
- 		if (cval->min + cval->res < cval->max) {
- 			int last_valid_res = cval->res;
- 			int saved, test, check;
--			get_cur_mix_raw(cval, minchn, &saved);
-+			if (get_cur_mix_raw(cval, minchn, &saved) < 0)
-+				goto no_res_check;
- 			for (;;) {
- 				test = saved;
- 				if (test < cval->max)
-@@ -1072,6 +1073,7 @@ static int get_min_max_with_quirks(struc
- 			snd_usb_set_cur_mix_value(cval, minchn, 0, saved);
- 		}
+diff --git a/arch/arm/boot/dts/sun9i-a80.dtsi b/arch/arm/boot/dts/sun9i-a80.dtsi
+index 25591d6883ef2..d9532fb1ef650 100644
+--- a/arch/arm/boot/dts/sun9i-a80.dtsi
++++ b/arch/arm/boot/dts/sun9i-a80.dtsi
+@@ -1196,7 +1196,7 @@
+ 			};
+ 		};
  
-+no_res_check:
- 		cval->initialized = 1;
- 	}
- 
+-		r_rsb: i2c@8003400 {
++		r_rsb: rsb@8003400 {
+ 			compatible = "allwinner,sun8i-a23-rsb";
+ 			reg = <0x08003400 0x400>;
+ 			interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
+-- 
+2.20.1
+
 
 
