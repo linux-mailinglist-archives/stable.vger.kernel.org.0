@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7952C101341
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:23:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7699A101344
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:24:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728072AbfKSFXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:23:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39558 "EHLO mail.kernel.org"
+        id S1728081AbfKSFX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:23:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728066AbfKSFXs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:23:48 -0500
+        id S1728101AbfKSFX5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:23:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99370208C3;
-        Tue, 19 Nov 2019 05:23:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2B89A22312;
+        Tue, 19 Nov 2019 05:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141028;
-        bh=lJqKMzsQM394exQ/gOIojX+fRwIsFX9ervvaWqFiaVI=;
+        s=default; t=1574141036;
+        bh=+d0p1aduMP3MB9LcU46CArqgS58ADEkjGXzfiILnTeA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ICzB/SE9HB7N6d7yKXDD/QcQLXVdgoQeo18jfKTgkg0wWOlgbQxOfbh57UXabLkTT
-         FviQZ1EIkW6ms0B/JsgPto9gf6gsPom4JT+Ed0zqzxGCAHXbSPt2tB4FarP6HfVHfc
-         WLJf3XuxrfWO42MwdRPBQHWPaHbVeVHJDOPhJjeg=
+        b=Ircns/7GiqUArD1Tn5VBtwzBFkX5j9eSNdD2lEdD9O+CfISCBt5MuqqCV7mu9Zwgs
+         mLG/fFpbbujIyhetTAWTYZw5ZL/DoYlP7BMmed9mkOF5xo4VwjsEm0WBhCKvFLFXT8
+         8l0DKSSJzVRAc1StVQKyflck6DJG2+adaE8xCrKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Kaike Wan <kaike.wan@intel.com>,
-        James Erwin <james.erwin@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>
-Subject: [PATCH 4.19 021/422] IB/hfi1: Ensure full Gen3 speed in a Gen4 system
-Date:   Tue, 19 Nov 2019 06:13:38 +0100
-Message-Id: <20191119051401.474331011@linuxfoundation.org>
+        stable@vger.kernel.org, Feng Tang <feng.tang@intel.com>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.19 024/422] x86/quirks: Disable HPET on Intel Coffe Lake platforms
+Date:   Tue, 19 Nov 2019 06:13:41 +0100
+Message-Id: <20191119051401.644581662@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -47,47 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Erwin <james.erwin@intel.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit a9c3c4c597704b3a1a2b9bef990e7d8a881f6533 upstream.
+commit fc5db58539b49351e76f19817ed1102bf7c712d0 upstream.
 
-If an hfi1 card is inserted in a Gen4 systems, the driver will avoid the
-gen3 speed bump and the card will operate at half speed.
+Some Coffee Lake platforms have a skewed HPET timer once the SoCs entered
+PC10, which in consequence marks TSC as unstable because HPET is used as
+watchdog clocksource for TSC.
 
-This is because the driver avoids the gen3 speed bump when the parent bus
-speed isn't identical to gen3, 8.0GT/s.  This is not compatible with gen4
-and newer speeds.
+Harry Pan tried to work around it in the clocksource watchdog code [1]
+thereby creating a circular dependency between HPET and TSC. This also
+ignores the fact, that HPET is not only unsuitable as watchdog clocksource
+on these systems, it becomes unusable in general.
 
-Fix by relaxing the test to explicitly look for the lower capability
-speeds which inherently allows for gen4 and all future speeds.
+Disable HPET on affected platforms.
 
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20191101192059.106248.1699.stgit@awfm-01.aw.intel.com
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Reviewed-by: Kaike Wan <kaike.wan@intel.com>
-Signed-off-by: James Erwin <james.erwin@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Suggested-by: Feng Tang <feng.tang@intel.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203183
+Link: https://lore.kernel.org/lkml/20190516090651.1396-1-harry.pan@intel.com/ [1]
+Link: https://lkml.kernel.org/r/20191016103816.30650-1-kai.heng.feng@canonical.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/hfi1/pcie.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kernel/early-quirks.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/infiniband/hw/hfi1/pcie.c
-+++ b/drivers/infiniband/hw/hfi1/pcie.c
-@@ -331,7 +331,9 @@ int pcie_speeds(struct hfi1_devdata *dd)
- 	/*
- 	 * bus->max_bus_speed is set from the bridge's linkcap Max Link Speed
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -707,6 +707,8 @@ static struct chipset early_qrk[] __init
  	 */
--	if (parent && dd->pcidev->bus->max_bus_speed != PCIE_SPEED_8_0GT) {
-+	if (parent &&
-+	    (dd->pcidev->bus->max_bus_speed == PCIE_SPEED_2_5GT ||
-+	     dd->pcidev->bus->max_bus_speed == PCIE_SPEED_5_0GT)) {
- 		dd_dev_info(dd, "Parent PCIe bridge does not support Gen3\n");
- 		dd->link_gen3_capable = 0;
- 	}
+ 	{ PCI_VENDOR_ID_INTEL, 0x0f00,
+ 		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
++	{ PCI_VENDOR_ID_INTEL, 0x3ec4,
++		PCI_CLASS_BRIDGE_HOST, PCI_ANY_ID, 0, force_disable_hpet},
+ 	{ PCI_VENDOR_ID_BROADCOM, 0x4331,
+ 	  PCI_CLASS_NETWORK_OTHER, PCI_ANY_ID, 0, apple_airport_reset},
+ 	{}
 
 
