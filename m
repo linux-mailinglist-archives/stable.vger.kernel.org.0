@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A321014C8
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:37:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8CDF1015DE
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727435AbfKSFh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:37:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59110 "EHLO mail.kernel.org"
+        id S1731030AbfKSFsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:48:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44574 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728686AbfKSFhW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:37:22 -0500
+        id S1728394AbfKSFsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:48:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 877D021823;
-        Tue, 19 Nov 2019 05:37:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7626B208C3;
+        Tue, 19 Nov 2019 05:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141842;
-        bh=HcaG8+dHQM6vRbs5vZczWzHqeAXK9WrbHcV3kbOn0to=;
+        s=default; t=1574142485;
+        bh=TQNxn8PQb6pfkKLulXH3rqOfZl5w2skxGNN/p3loGqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kqqXqwTTmcSgPCDh9jYI1MMEaXH2yl5SNBtPH/rn5wLWJ0Uzx4HZ8n4q255h7efTy
-         ox2aaGRQjK9YJkBrzXOM66K8KSVY7a15NaD9q3AjVYd12PFB4FWoMVGa/xHNE0zPjh
-         r5WerDMC0BZT4dTwqRQ67F4oa4zlZvzLdQA0Ltmk=
+        b=1zNdVURH5M+ypCHl9b61YKJtQ6wvkUXwSN6YjNCzlFJvuLGl1WDG2Y2ge7az5PR/y
+         6nVe+55hv1ANkn5SK66JoP0fWnKBpG0VnpnI+UDWZU3gPTkkZW8xHwChaYjeSa3ODJ
+         gs+iIcnfUmCKcTqZHc7XHgu1zJ8/X90PS5lvkMRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <james.smart@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 298/422] f2fs: avoid infinite loop in f2fs_alloc_nid
-Date:   Tue, 19 Nov 2019 06:18:15 +0100
-Message-Id: <20191119051418.313412348@linuxfoundation.org>
+Subject: [PATCH 4.14 098/239] scsi: lpfc: Fix errors in log messages.
+Date:   Tue, 19 Nov 2019 06:18:18 +0100
+Message-Id: <20191119051323.580192078@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit f84262b0862d43b71b3e80a036cdd9d82e620367 ]
+[ Upstream commit 2879265f514b1f4154288243c91438ddbedb3ed4 ]
 
-If we have an error in f2fs_build_free_nids, we're able to fall into a loop
-to find free nids.
+Message 6408 is displayed for each entry in an array, but the cpu and queue
+numbers were incorrect for the entry.  Message 6001 includes an extraneous
+character.
 
-Suggested-by: Chao Yu <chao@kernel.org>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Resolve both issues
+
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/node.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/lpfc/lpfc_nvme.c  | 2 +-
+ drivers/scsi/lpfc/lpfc_nvmet.c | 7 +++----
+ 2 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index aa8f19e1bdb3d..e5d474681471c 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2367,8 +2367,9 @@ retry:
- 	spin_unlock(&nm_i->nid_list_lock);
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index 23bdb1ca106e4..6c4499db969c1 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -144,7 +144,7 @@ lpfc_nvme_delete_queue(struct nvme_fc_local_port *pnvme_lport,
+ 	vport = lport->vport;
  
- 	/* Let's scan nat pages and its caches to get free nids */
--	f2fs_build_free_nids(sbi, true, false);
--	goto retry;
-+	if (!f2fs_build_free_nids(sbi, true, false))
-+		goto retry;
-+	return false;
+ 	lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME,
+-			"6001 ENTER.  lpfc_pnvme %p, qidx x%xi qhandle %p\n",
++			"6001 ENTER.  lpfc_pnvme %p, qidx x%x qhandle %p\n",
+ 			lport, qidx, handle);
+ 	kfree(handle);
  }
+diff --git a/drivers/scsi/lpfc/lpfc_nvmet.c b/drivers/scsi/lpfc/lpfc_nvmet.c
+index 7ac1a067d7801..eacdcb931bdab 100644
+--- a/drivers/scsi/lpfc/lpfc_nvmet.c
++++ b/drivers/scsi/lpfc/lpfc_nvmet.c
+@@ -1078,15 +1078,14 @@ lpfc_nvmet_setup_io_context(struct lpfc_hba *phba)
+ 			idx = 0;
+ 	}
  
- /*
+-	infop = phba->sli4_hba.nvmet_ctx_info;
+-	for (j = 0; j < phba->cfg_nvmet_mrq; j++) {
+-		for (i = 0; i < phba->sli4_hba.num_present_cpu; i++) {
++	for (i = 0; i < phba->sli4_hba.num_present_cpu; i++) {
++		for (j = 0; j < phba->cfg_nvmet_mrq; j++) {
++			infop = lpfc_get_ctx_list(phba, i, j);
+ 			lpfc_printf_log(phba, KERN_INFO, LOG_NVME | LOG_INIT,
+ 					"6408 TOTAL NVMET ctx for CPU %d "
+ 					"MRQ %d: cnt %d nextcpu %p\n",
+ 					i, j, infop->nvmet_ctx_list_cnt,
+ 					infop->nvmet_ctx_next_cpu);
+-			infop++;
+ 		}
+ 	}
+ 	return 0;
 -- 
 2.20.1
 
