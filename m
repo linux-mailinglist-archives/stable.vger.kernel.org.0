@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AACA7101734
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 617611017C9
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:04:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731015AbfKSFuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:50:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47068 "EHLO mail.kernel.org"
+        id S1728693AbfKSFjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:39:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731575AbfKSFuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:50:06 -0500
+        id S1730303AbfKSFje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:39:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BDE220862;
-        Tue, 19 Nov 2019 05:50:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CFFDB218BA;
+        Tue, 19 Nov 2019 05:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142605;
-        bh=8JSNvn9TVCSWekjREP0P9IlnAzsxkji+Lf9fjESjWsc=;
+        s=default; t=1574141974;
+        bh=iBBMe15K4+HA3kN/vHerQ3O7nBFoxK4BcXZ0KO4hoCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CwI+oLqm5XebML41RlabhsdQabUWAdduFUWEuqbj3LoTMvSNxbL+TVKsTDLHSJ2Fl
-         kRUCW7WGZf9os+YHKvKzpKs7V2IO2GTBOAf/obSosiuB6QuXcLo84EIys6SyJ+i7ZS
-         wZ1rLN/6hhaz10a7FRVHHc6u2M8bEqZG7z60vk00=
+        b=1GAVnGkPs7AHRR8Ettp7gZpzCOn66byM8rt3Y7Avtx6QR1w2IBR/6LD/Y1ztjIiUf
+         F9AtkVYEMYPlPILYc6oR9o2pkM87z+wOO+7lOXkcJbbJFuhNtiHTKu1BuV/lUNuaHK
+         n7fXSIv+RyphKlguIPI9JNFFnjk4vgj7lEgFYY5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Breno Leitao <leitao@debian.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 139/239] powerpc/iommu: Avoid derefence before pointer check
-Date:   Tue, 19 Nov 2019 06:18:59 +0100
-Message-Id: <20191119051331.473699362@linuxfoundation.org>
+Subject: [PATCH 4.19 343/422] usb: gadget: uvc: Only halt video streaming endpoint in bulk mode
+Date:   Tue, 19 Nov 2019 06:19:00 +0100
+Message-Id: <20191119051421.241021189@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 984ecdd68de0fa1f63ce205d6c19ef5a7bc67b40 ]
+[ Upstream commit 8dbf9c7abefd5c1434a956d5c6b25e11183061a3 ]
 
-The tbl pointer is being derefenced by IOMMU_PAGE_SIZE prior the check
-if it is not NULL.
+When USB requests for video data fail to be submitted, the driver
+signals a problem to the host by halting the video streaming endpoint.
+This is only valid in bulk mode, as isochronous transfers have no
+handshake phase and can't thus report a stall. The usb_ep_set_halt()
+call returns an error when using isochronous endpoints, which we happily
+ignore, but some UDCs complain in the kernel log. Fix this by only
+trying to halt the endpoint in bulk mode.
 
-Just moving the dereference code to after the check, where there will
-be guarantee that 'tbl' will not be NULL.
-
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Tested-by: Paul Elder <paul.elder@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_video.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
-index af7a20dc6e093..80b6caaa9b92e 100644
---- a/arch/powerpc/kernel/iommu.c
-+++ b/arch/powerpc/kernel/iommu.c
-@@ -785,9 +785,9 @@ dma_addr_t iommu_map_page(struct device *dev, struct iommu_table *tbl,
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index a95c8e2364edc..2c9821ec836e7 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -132,7 +132,9 @@ static int uvcg_video_ep_queue(struct uvc_video *video, struct usb_request *req)
+ 	ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
+ 	if (ret < 0) {
+ 		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
+-		usb_ep_set_halt(video->ep);
++		/* Isochronous endpoints can't be halted. */
++		if (usb_endpoint_xfer_bulk(video->ep->desc))
++			usb_ep_set_halt(video->ep);
+ 	}
  
- 	vaddr = page_address(page) + offset;
- 	uaddr = (unsigned long)vaddr;
--	npages = iommu_num_pages(uaddr, size, IOMMU_PAGE_SIZE(tbl));
- 
- 	if (tbl) {
-+		npages = iommu_num_pages(uaddr, size, IOMMU_PAGE_SIZE(tbl));
- 		align = 0;
- 		if (tbl->it_page_shift < PAGE_SHIFT && size >= PAGE_SIZE &&
- 		    ((unsigned long)vaddr & ~PAGE_MASK) == 0)
+ 	return ret;
 -- 
 2.20.1
 
