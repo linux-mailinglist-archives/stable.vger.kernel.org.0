@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F16771016F5
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43D9D1016F8
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731236AbfKSFv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:51:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48862 "EHLO mail.kernel.org"
+        id S1731417AbfKSFvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:51:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731777AbfKSFv0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:51:26 -0500
+        id S1731821AbfKSFvk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:51:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9B25208C3;
-        Tue, 19 Nov 2019 05:51:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21317214D9;
+        Tue, 19 Nov 2019 05:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142685;
-        bh=d999pwMigJEppsr13vUh55zksJ5+AulgB9PyRUebJXw=;
+        s=default; t=1574142699;
+        bh=pfDF5o5Sf/FZB9G8qxf3rgn8Br81z+BJhC63kU1YSUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kcojmWkrYDGNWeZ4yHwm7pro/JmAUlc8gXLfkFgX+u5sw9tbdC5LlGkxM8AHQQAA6
-         nX65YLJB8YOi0CGlcL9if7wAJqrfeyFbCm1t/xjy72owb3XgK9S1ENIjn+K8DihMst
-         ZqxWLwzh7+r0vMyxs87Q6JFKkSrX1av2xYkVbNww=
+        b=2MM8K+MEbxwPIK3Hn8EaifFOihgiDbRmkhPHHdxK2XJmyzTjGbuPYrH/rzuF4tp2l
+         y6V9OJ48T638xv5gXsRvjUBsLJ+KsMwQd5MhSsrmwa2iEXrj9nh8B570Nr9t26TPWY
+         9uevkNAiTv3tyZBT7IC/Uty0o2rv52+EFcrEenQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 128/239] ACPI / LPSS: Exclude I2C busses shared with PUNIT from pmc_atom_d3_mask
-Date:   Tue, 19 Nov 2019 06:18:48 +0100
-Message-Id: <20191119051330.514529055@linuxfoundation.org>
+Subject: [PATCH 4.14 129/239] ath9k: Fix a locking bug in ath9k_add_interface()
+Date:   Tue, 19 Nov 2019 06:18:49 +0100
+Message-Id: <20191119051330.569269677@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -45,86 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 86b62e5cd8965d3056f9e9ccdec51631c37add81 ]
+[ Upstream commit 461cf036057477805a8a391e5fd0f5264a5e56a8 ]
 
-lpss_iosf_enter_d3_state() checks if all hw-blocks using the DMA
-controllers are in d3 before powering down the DMA controllers.
+We tried to revert commit d9c52fd17cb4 ("ath9k: fix tx99 with monitor
+mode interface") but accidentally missed part of the locking change.
 
-But on devices, where the I2C bus connected to the PMIC is shared by
-the PUNIT, the controller for that bus will never reach d3 since it has
-an effectively empty _PS3 method. Instead it appears to automatically
-power-down during S0i3 and we never see it as being in d3.
+The lock has to be held earlier so that we're holding it when we do
+"sc->tx99_vif = vif;" and also there in the current code there is a
+stray unlock before we have taken the lock.
 
-This causes the DMA controllers to never be powered-down on these devices,
-causing them to never reach S0i3. This commit uses the ACPI _SEM method
-to detect if an I2C bus is shared with the PUNIT and if it is, it removes
-it from the mask of devices which lpss_iosf_enter_d3_state() checks for.
-
-This fixes these devices never reaching any S0ix states.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 6df0580be8bc ("ath9k: add back support for using active monitor interfaces for tx99")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_lpss.c | 22 ++++++++++++++++++++--
- 1 file changed, 20 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath9k/main.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
-index 51592dd45b066..1ab8d7223b252 100644
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -98,6 +98,9 @@ struct lpss_private_data {
- 	u32 prv_reg_ctx[LPSS_PRV_REG_COUNT];
- };
+diff --git a/drivers/net/wireless/ath/ath9k/main.c b/drivers/net/wireless/ath/ath9k/main.c
+index 3589f1f3e744d..72ad84fde5c18 100644
+--- a/drivers/net/wireless/ath/ath9k/main.c
++++ b/drivers/net/wireless/ath/ath9k/main.c
+@@ -1250,6 +1250,7 @@ static int ath9k_add_interface(struct ieee80211_hw *hw,
+ 	struct ath_vif *avp = (void *)vif->drv_priv;
+ 	struct ath_node *an = &avp->mcast_node;
  
-+/* Devices which need to be in D3 before lpss_iosf_enter_d3_state() proceeds */
-+static u32 pmc_atom_d3_mask = 0xfe000ffe;
-+
- /* LPSS run time quirks */
- static unsigned int lpss_quirks;
++	mutex_lock(&sc->mutex);
+ 	if (IS_ENABLED(CONFIG_ATH9K_TX99)) {
+ 		if (sc->cur_chan->nvifs >= 1) {
+ 			mutex_unlock(&sc->mutex);
+@@ -1258,8 +1259,6 @@ static int ath9k_add_interface(struct ieee80211_hw *hw,
+ 		sc->tx99_vif = vif;
+ 	}
  
-@@ -174,6 +177,21 @@ static void byt_pwm_setup(struct lpss_private_data *pdata)
- 
- static void byt_i2c_setup(struct lpss_private_data *pdata)
- {
-+	const char *uid_str = acpi_device_uid(pdata->adev);
-+	acpi_handle handle = pdata->adev->handle;
-+	unsigned long long shared_host = 0;
-+	acpi_status status;
-+	long uid = 0;
-+
-+	/* Expected to always be true, but better safe then sorry */
-+	if (uid_str)
-+		uid = simple_strtol(uid_str, NULL, 10);
-+
-+	/* Detect I2C bus shared with PUNIT and ignore its d3 status */
-+	status = acpi_evaluate_integer(handle, "_SEM", NULL, &shared_host);
-+	if (ACPI_SUCCESS(status) && shared_host && uid)
-+		pmc_atom_d3_mask &= ~(BIT_LPSS2_F1_I2C1 << (uid - 1));
-+
- 	lpss_deassert_reset(pdata);
- 
- 	if (readl(pdata->mmio_base + pdata->dev_desc->prv_offset))
-@@ -789,7 +807,7 @@ static void lpss_iosf_enter_d3_state(void)
- 	 * Here we read the values related to LPSS power island, i.e. LPSS
- 	 * devices, excluding both LPSS DMA controllers, along with SCC domain.
- 	 */
--	u32 func_dis, d3_sts_0, pmc_status, pmc_mask = 0xfe000ffe;
-+	u32 func_dis, d3_sts_0, pmc_status;
- 	int ret;
- 
- 	ret = pmc_atom_read(PMC_FUNC_DIS, &func_dis);
-@@ -807,7 +825,7 @@ static void lpss_iosf_enter_d3_state(void)
- 	 * Shutdown both LPSS DMA controllers if and only if all other devices
- 	 * are already in D3hot.
- 	 */
--	pmc_status = (~(d3_sts_0 | func_dis)) & pmc_mask;
-+	pmc_status = (~(d3_sts_0 | func_dis)) & pmc_atom_d3_mask;
- 	if (pmc_status)
- 		goto exit;
+-	mutex_lock(&sc->mutex);
+-
+ 	ath_dbg(common, CONFIG, "Attach a VIF of type: %d\n", vif->type);
+ 	sc->cur_chan->nvifs++;
  
 -- 
 2.20.1
