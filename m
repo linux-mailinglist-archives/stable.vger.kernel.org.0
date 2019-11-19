@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C0D51018DB
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4801F10189E
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727264AbfKSGKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:10:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44572 "EHLO mail.kernel.org"
+        id S1727512AbfKSF0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:26:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727961AbfKSF0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:26:30 -0500
+        id S1728583AbfKSF0g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:26:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 392FC21823;
-        Tue, 19 Nov 2019 05:26:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0EB222230F;
+        Tue, 19 Nov 2019 05:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141189;
-        bh=LoGSwEhWqUDWuPoWcpmAiDNc+LQbBg12CiqsW0Xkyo0=;
+        s=default; t=1574141195;
+        bh=XkpVBslqKuTdE5Rwg3WUgngD4asXjVjBos72JgaNb94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FKkmEgQG7m+I1KYi6vpBRwsSQYbckk/17PRd6BNeAo34d2DgH8dF/JhjF+aKnWBgQ
-         06mj30/kL8PuNzvadG02gmrkAY4IUn3Z6cNTvdyEqnkH9IfnUVkKPz4S6J1goBK4WH
-         f/3ipNhDRL7p4O6yH/A9EctIPvpWH7zphzzqf+0g=
+        b=s56o69ZiMR3N62byG1haS/ECq/W9nj8RVQQM+iODjigVhRMzLRr8YJnlPBq1DZVIc
+         qeuSAjo6SwmmM8YP3LK1YEvgO0VK2ywSIPS2/iEFH3E8T6WWNqgbpc0tkUQ6D9l+oE
+         V4gpQ1ki+FfO3EcT9Tf88KuGlqeV4dOUQswJzros=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rick Farrington <ricardo.farrington@cavium.com>,
-        Felix Manlunas <felix.manlunas@cavium.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/422] liquidio: fix race condition in instruction completion processing
-Date:   Tue, 19 Nov 2019 06:14:32 +0100
-Message-Id: <20191119051404.419226516@linuxfoundation.org>
+Subject: [PATCH 4.19 077/422] ARM: dts: exynos: Fix regulators configuration on Peach Pi/Pit Chromebooks
+Date:   Tue, 19 Nov 2019 06:14:34 +0100
+Message-Id: <20191119051404.521809984@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -46,75 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rick Farrington <ricardo.farrington@cavium.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit b943f17e06493fd2c7fd00743093ad5dcdb90e7f ]
+[ Upstream commit f8f3b7fc21b1cb59385b780acd9b9a26d04cb7b2 ]
 
-In lio_enable_irq, the pkt_in_done count register was being cleared to
-zero.  However, there could be some completed instructions which were not
-yet processed due to budget and limit constraints.
-So, only write this register with the number of actual completions
-that were processed.
+Regulators, which are marked as 'on-in-suspend' seems to be critical for
+board operation, thus they must not be disabled anytime. This can be
+only assured by marking them as 'always-on', because otherwise some
+actions of their clients might result in turning them off. This patch
+restores suspend/resume operation on Peach-Pit Chromebook board. It
+partially reverts 'always-on' property removal done by the commit
+mentioned in the Fixes tag.
 
-Signed-off-by: Rick Farrington <ricardo.farrington@cavium.com>
-Signed-off-by: Felix Manlunas <felix.manlunas@cavium.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 665c441eea3d ("ARM: dts: exynos: Remove unneded always-on for regulators on Peach boards")
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Tested-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/liquidio/octeon_device.c   | 5 +++--
- drivers/net/ethernet/cavium/liquidio/octeon_iq.h       | 2 ++
- drivers/net/ethernet/cavium/liquidio/request_manager.c | 2 ++
- 3 files changed, 7 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos5420-peach-pit.dts | 3 +++
+ arch/arm/boot/dts/exynos5800-peach-pi.dts  | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/octeon_device.c b/drivers/net/ethernet/cavium/liquidio/octeon_device.c
-index f878a552fef3b..d0ed6c4f9e1a2 100644
---- a/drivers/net/ethernet/cavium/liquidio/octeon_device.c
-+++ b/drivers/net/ethernet/cavium/liquidio/octeon_device.c
-@@ -1450,8 +1450,9 @@ void lio_enable_irq(struct octeon_droq *droq, struct octeon_instr_queue *iq)
- 	}
- 	if (iq) {
- 		spin_lock_bh(&iq->lock);
--		writel(iq->pkt_in_done, iq->inst_cnt_reg);
--		iq->pkt_in_done = 0;
-+		writel(iq->pkts_processed, iq->inst_cnt_reg);
-+		iq->pkt_in_done -= iq->pkts_processed;
-+		iq->pkts_processed = 0;
- 		/* this write needs to be flushed before we release the lock */
- 		mmiowb();
- 		spin_unlock_bh(&iq->lock);
-diff --git a/drivers/net/ethernet/cavium/liquidio/octeon_iq.h b/drivers/net/ethernet/cavium/liquidio/octeon_iq.h
-index 2327062e8af6b..aecd0d36d6349 100644
---- a/drivers/net/ethernet/cavium/liquidio/octeon_iq.h
-+++ b/drivers/net/ethernet/cavium/liquidio/octeon_iq.h
-@@ -94,6 +94,8 @@ struct octeon_instr_queue {
- 
- 	u32 pkt_in_done;
- 
-+	u32 pkts_processed;
-+
- 	/** A spinlock to protect access to the input ring.*/
- 	spinlock_t iq_flush_running_lock;
- 
-diff --git a/drivers/net/ethernet/cavium/liquidio/request_manager.c b/drivers/net/ethernet/cavium/liquidio/request_manager.c
-index 3deb3c07681fd..1d9ab7f4a2fef 100644
---- a/drivers/net/ethernet/cavium/liquidio/request_manager.c
-+++ b/drivers/net/ethernet/cavium/liquidio/request_manager.c
-@@ -123,6 +123,7 @@ int octeon_init_instr_queue(struct octeon_device *oct,
- 	iq->do_auto_flush = 1;
- 	iq->db_timeout = (u32)conf->db_timeout;
- 	atomic_set(&iq->instr_pending, 0);
-+	iq->pkts_processed = 0;
- 
- 	/* Initialize the spinlock for this instruction queue */
- 	spin_lock_init(&iq->lock);
-@@ -497,6 +498,7 @@ octeon_flush_iq(struct octeon_device *oct, struct octeon_instr_queue *iq,
- 				lio_process_iq_request_list(oct, iq, 0);
- 
- 		if (inst_processed) {
-+			iq->pkts_processed += inst_processed;
- 			atomic_sub(inst_processed, &iq->instr_pending);
- 			iq->stats.instr_processed += inst_processed;
- 		}
+diff --git a/arch/arm/boot/dts/exynos5420-peach-pit.dts b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+index 25bdc9d97a4df..769d60d6c9006 100644
+--- a/arch/arm/boot/dts/exynos5420-peach-pit.dts
++++ b/arch/arm/boot/dts/exynos5420-peach-pit.dts
+@@ -312,6 +312,7 @@
+ 				regulator-name = "vdd_1v35";
+ 				regulator-min-microvolt = <1350000>;
+ 				regulator-max-microvolt = <1350000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -333,6 +334,7 @@
+ 				regulator-name = "vdd_2v";
+ 				regulator-min-microvolt = <2000000>;
+ 				regulator-max-microvolt = <2000000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -343,6 +345,7 @@
+ 				regulator-name = "vdd_1v8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+diff --git a/arch/arm/boot/dts/exynos5800-peach-pi.dts b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+index 7989631b39ccf..492e2cd2e559e 100644
+--- a/arch/arm/boot/dts/exynos5800-peach-pi.dts
++++ b/arch/arm/boot/dts/exynos5800-peach-pi.dts
+@@ -312,6 +312,7 @@
+ 				regulator-name = "vdd_1v35";
+ 				regulator-min-microvolt = <1350000>;
+ 				regulator-max-microvolt = <1350000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -333,6 +334,7 @@
+ 				regulator-name = "vdd_2v";
+ 				regulator-min-microvolt = <2000000>;
+ 				regulator-max-microvolt = <2000000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
+@@ -343,6 +345,7 @@
+ 				regulator-name = "vdd_1v8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 				regulator-boot-on;
+ 				regulator-state-mem {
+ 					regulator-on-in-suspend;
 -- 
 2.20.1
 
