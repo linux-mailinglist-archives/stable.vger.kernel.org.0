@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E4C1018E1
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CEC2101889
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727604AbfKSFZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:25:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41662 "EHLO mail.kernel.org"
+        id S1725306AbfKSFZK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:25:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728310AbfKSFZC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:25:02 -0500
+        id S1728326AbfKSFZH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:25:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CA3921783;
-        Tue, 19 Nov 2019 05:25:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65DB121823;
+        Tue, 19 Nov 2019 05:25:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141101;
-        bh=N175i1gxQlKG58kZd35eoA5nSyc+JAtK9XTWQzqa5sg=;
+        s=default; t=1574141106;
+        bh=VKcieq0ARls4eteR5hLrrJ5YCzzxNlWyVtNRCKYMwmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BpfIIbuHIzqZk3EwtW28xXBi9YxHtpxl5IGbZf7wwdharnGKUpjftuXVBkcPMLK1d
-         FX1Cb1lkZH3RS7fQck0p/jT96x4DrgMpHALwitNnC0oAIoIe/qPc3gWtbzGglX+F5S
-         +lqyeQXUBmDpHw0RrKDuV4ILLisgR+kOqujGoCjU=
+        b=O3PCyqyAYX0wtqn2aEIUXXt+zuATKxXWjzJxDHtcL+8iKSqEqzz0jZL72sOkMNr1U
+         eLiG8gi4YOP63FIInccB2hUWcNq+5EnriekFIZnq50NHBTRQxCk5sOtMMo/GxMa6AB
+         HhKfvFPHjaFASm7+A6HUuM3TxCI4PbDu8HLh6gJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aapo Vienamo <avienamo@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 044/422] soc/tegra: pmc: Fix pad voltage configuration for Tegra186
-Date:   Tue, 19 Nov 2019 06:14:01 +0100
-Message-Id: <20191119051402.764473552@linuxfoundation.org>
+Subject: [PATCH 4.19 046/422] y2038: make do_gettimeofday() and get_seconds() inline
+Date:   Tue, 19 Nov 2019 06:14:03 +0100
+Message-Id: <20191119051402.870151067@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -45,178 +43,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aapo Vienamo <avienamo@nvidia.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 13136a47a061c01c91df78b37f7708dd5ce7035f ]
+[ Upstream commit 33e26418193f58d1895f2f968e1953b1caf8deb7 ]
 
-Implement support for the PMC_IMPL_E_33V_PWR register which replaces
-PMC_PWR_DET register interface of the SoC generations preceding
-Tegra186. Also add the voltage bit offsets to the tegra186_io_pads[]
-table and the AO_HV pad.
+get_seconds() and do_gettimeofday() are only used by a few modules now any
+more (waiting for the respective patches to get accepted), and they are
+among the last holdouts of code that is not y2038 safe in the core kernel.
 
-Signed-off-by: Aapo Vienamo <avienamo@nvidia.com>
-Acked-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Move the implementation into the timekeeping32.h header to clean up
+the core kernel and isolate the old interfaces further.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/tegra/pmc.c | 55 +++++++++++++++++++++++++++++------------
- include/soc/tegra/pmc.h |  1 +
- 2 files changed, 40 insertions(+), 16 deletions(-)
+ include/linux/timekeeping32.h | 15 +++++++++++++--
+ kernel/time/time.c            | 15 +++++++++------
+ kernel/time/timekeeping.c     | 24 ------------------------
+ 3 files changed, 22 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
-index 4b452f36f0547..f17a678154047 100644
---- a/drivers/soc/tegra/pmc.c
-+++ b/drivers/soc/tegra/pmc.c
-@@ -65,6 +65,8 @@
+diff --git a/include/linux/timekeeping32.h b/include/linux/timekeeping32.h
+index 8762c2f45f8bf..479da36be8c82 100644
+--- a/include/linux/timekeeping32.h
++++ b/include/linux/timekeeping32.h
+@@ -6,8 +6,19 @@
+  * over time so we can remove the file here.
+  */
  
- #define PWRGATE_STATUS			0x38
- 
-+#define PMC_IMPL_E_33V_PWR		0x40
+-extern void do_gettimeofday(struct timeval *tv);
+-unsigned long get_seconds(void);
++static inline void do_gettimeofday(struct timeval *tv)
++{
++	struct timespec64 now;
 +
- #define PMC_PWR_DET			0x48
- 
- #define PMC_SCRATCH0_MODE_RECOVERY	BIT(31)
-@@ -154,6 +156,7 @@ struct tegra_pmc_soc {
- 	bool has_tsense_reset;
- 	bool has_gpu_clamps;
- 	bool needs_mbist_war;
-+	bool has_impl_33v_pwr;
- 
- 	const struct tegra_io_pad_soc *io_pads;
- 	unsigned int num_io_pads;
-@@ -1067,20 +1070,31 @@ int tegra_io_pad_set_voltage(enum tegra_io_pad id,
- 
- 	mutex_lock(&pmc->powergates_lock);
- 
--	/* write-enable PMC_PWR_DET_VALUE[pad->voltage] */
--	value = tegra_pmc_readl(PMC_PWR_DET);
--	value |= BIT(pad->voltage);
--	tegra_pmc_writel(value, PMC_PWR_DET);
-+	if (pmc->soc->has_impl_33v_pwr) {
-+		value = tegra_pmc_readl(PMC_IMPL_E_33V_PWR);
- 
--	/* update I/O voltage */
--	value = tegra_pmc_readl(PMC_PWR_DET_VALUE);
-+		if (voltage == TEGRA_IO_PAD_1800000UV)
-+			value &= ~BIT(pad->voltage);
-+		else
-+			value |= BIT(pad->voltage);
- 
--	if (voltage == TEGRA_IO_PAD_1800000UV)
--		value &= ~BIT(pad->voltage);
--	else
-+		tegra_pmc_writel(value, PMC_IMPL_E_33V_PWR);
-+	} else {
-+		/* write-enable PMC_PWR_DET_VALUE[pad->voltage] */
-+		value = tegra_pmc_readl(PMC_PWR_DET);
- 		value |= BIT(pad->voltage);
-+		tegra_pmc_writel(value, PMC_PWR_DET);
++	ktime_get_real_ts64(&now);
++	tv->tv_sec = now.tv_sec;
++	tv->tv_usec = now.tv_nsec/1000;
++}
 +
-+		/* update I/O voltage */
-+		value = tegra_pmc_readl(PMC_PWR_DET_VALUE);
++static inline unsigned long get_seconds(void)
++{
++	return ktime_get_real_seconds();
++}
  
--	tegra_pmc_writel(value, PMC_PWR_DET_VALUE);
-+		if (voltage == TEGRA_IO_PAD_1800000UV)
-+			value &= ~BIT(pad->voltage);
-+		else
-+			value |= BIT(pad->voltage);
+ static inline struct timespec current_kernel_time(void)
+ {
+diff --git a/kernel/time/time.c b/kernel/time/time.c
+index be057d6579f13..f7d4fa5ddb9e2 100644
+--- a/kernel/time/time.c
++++ b/kernel/time/time.c
+@@ -144,9 +144,11 @@ SYSCALL_DEFINE2(gettimeofday, struct timeval __user *, tv,
+ 		struct timezone __user *, tz)
+ {
+ 	if (likely(tv != NULL)) {
+-		struct timeval ktv;
+-		do_gettimeofday(&ktv);
+-		if (copy_to_user(tv, &ktv, sizeof(ktv)))
++		struct timespec64 ts;
 +
-+		tegra_pmc_writel(value, PMC_PWR_DET_VALUE);
-+	}
++		ktime_get_real_ts64(&ts);
++		if (put_user(ts.tv_sec, &tv->tv_sec) ||
++		    put_user(ts.tv_nsec / 1000, &tv->tv_usec))
+ 			return -EFAULT;
+ 	}
+ 	if (unlikely(tz != NULL)) {
+@@ -227,10 +229,11 @@ COMPAT_SYSCALL_DEFINE2(gettimeofday, struct compat_timeval __user *, tv,
+ 		       struct timezone __user *, tz)
+ {
+ 	if (tv) {
+-		struct timeval ktv;
++		struct timespec64 ts;
  
- 	mutex_unlock(&pmc->powergates_lock);
+-		do_gettimeofday(&ktv);
+-		if (compat_put_timeval(&ktv, tv))
++		ktime_get_real_ts64(&ts);
++		if (put_user(ts.tv_sec, &tv->tv_sec) ||
++		    put_user(ts.tv_nsec / 1000, &tv->tv_usec))
+ 			return -EFAULT;
+ 	}
+ 	if (tz) {
+diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
+index c2708e1f0c69f..81ee5b83c9200 100644
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -1214,22 +1214,6 @@ int get_device_system_crosststamp(int (*get_time_fn)
+ }
+ EXPORT_SYMBOL_GPL(get_device_system_crosststamp);
  
-@@ -1102,7 +1116,10 @@ int tegra_io_pad_get_voltage(enum tegra_io_pad id)
- 	if (pad->voltage == UINT_MAX)
- 		return -ENOTSUPP;
+-/**
+- * do_gettimeofday - Returns the time of day in a timeval
+- * @tv:		pointer to the timeval to be set
+- *
+- * NOTE: Users should be converted to using getnstimeofday()
+- */
+-void do_gettimeofday(struct timeval *tv)
+-{
+-	struct timespec64 now;
+-
+-	getnstimeofday64(&now);
+-	tv->tv_sec = now.tv_sec;
+-	tv->tv_usec = now.tv_nsec/1000;
+-}
+-EXPORT_SYMBOL(do_gettimeofday);
+-
+ /**
+  * do_settimeofday64 - Sets the time of day.
+  * @ts:     pointer to the timespec64 variable containing the new time
+@@ -2177,14 +2161,6 @@ void getboottime64(struct timespec64 *ts)
+ }
+ EXPORT_SYMBOL_GPL(getboottime64);
  
--	value = tegra_pmc_readl(PMC_PWR_DET_VALUE);
-+	if (pmc->soc->has_impl_33v_pwr)
-+		value = tegra_pmc_readl(PMC_IMPL_E_33V_PWR);
-+	else
-+		value = tegra_pmc_readl(PMC_PWR_DET_VALUE);
- 
- 	if ((value & BIT(pad->voltage)) == 0)
- 		return TEGRA_IO_PAD_1800000UV;
-@@ -1561,6 +1578,7 @@ static const struct tegra_pmc_soc tegra30_pmc_soc = {
- 	.cpu_powergates = tegra30_cpu_powergates,
- 	.has_tsense_reset = true,
- 	.has_gpu_clamps = false,
-+	.has_impl_33v_pwr = false,
- 	.num_io_pads = 0,
- 	.io_pads = NULL,
- 	.regs = &tegra20_pmc_regs,
-@@ -1603,6 +1621,7 @@ static const struct tegra_pmc_soc tegra114_pmc_soc = {
- 	.cpu_powergates = tegra114_cpu_powergates,
- 	.has_tsense_reset = true,
- 	.has_gpu_clamps = false,
-+	.has_impl_33v_pwr = false,
- 	.num_io_pads = 0,
- 	.io_pads = NULL,
- 	.regs = &tegra20_pmc_regs,
-@@ -1683,6 +1702,7 @@ static const struct tegra_pmc_soc tegra124_pmc_soc = {
- 	.cpu_powergates = tegra124_cpu_powergates,
- 	.has_tsense_reset = true,
- 	.has_gpu_clamps = true,
-+	.has_impl_33v_pwr = false,
- 	.num_io_pads = ARRAY_SIZE(tegra124_io_pads),
- 	.io_pads = tegra124_io_pads,
- 	.regs = &tegra20_pmc_regs,
-@@ -1772,6 +1792,7 @@ static const struct tegra_pmc_soc tegra210_pmc_soc = {
- 	.cpu_powergates = tegra210_cpu_powergates,
- 	.has_tsense_reset = true,
- 	.has_gpu_clamps = true,
-+	.has_impl_33v_pwr = false,
- 	.needs_mbist_war = true,
- 	.num_io_pads = ARRAY_SIZE(tegra210_io_pads),
- 	.io_pads = tegra210_io_pads,
-@@ -1800,7 +1821,7 @@ static const struct tegra_io_pad_soc tegra186_io_pads[] = {
- 	{ .id = TEGRA_IO_PAD_HDMI_DP0, .dpd = 28, .voltage = UINT_MAX },
- 	{ .id = TEGRA_IO_PAD_HDMI_DP1, .dpd = 29, .voltage = UINT_MAX },
- 	{ .id = TEGRA_IO_PAD_PEX_CNTRL, .dpd = 32, .voltage = UINT_MAX },
--	{ .id = TEGRA_IO_PAD_SDMMC2_HV, .dpd = 34, .voltage = UINT_MAX },
-+	{ .id = TEGRA_IO_PAD_SDMMC2_HV, .dpd = 34, .voltage = 5 },
- 	{ .id = TEGRA_IO_PAD_SDMMC4, .dpd = 36, .voltage = UINT_MAX },
- 	{ .id = TEGRA_IO_PAD_CAM, .dpd = 38, .voltage = UINT_MAX },
- 	{ .id = TEGRA_IO_PAD_DSIB, .dpd = 40, .voltage = UINT_MAX },
-@@ -1812,12 +1833,13 @@ static const struct tegra_io_pad_soc tegra186_io_pads[] = {
- 	{ .id = TEGRA_IO_PAD_CSIF, .dpd = 46, .voltage = UINT_MAX },
- 	{ .id = TEGRA_IO_PAD_SPI, .dpd = 47, .voltage = UINT_MAX },
- 	{ .id = TEGRA_IO_PAD_UFS, .dpd = 49, .voltage = UINT_MAX },
--	{ .id = TEGRA_IO_PAD_DMIC_HV, .dpd = 52, .voltage = UINT_MAX },
-+	{ .id = TEGRA_IO_PAD_DMIC_HV, .dpd = 52, .voltage = 2 },
- 	{ .id = TEGRA_IO_PAD_EDP, .dpd = 53, .voltage = UINT_MAX },
--	{ .id = TEGRA_IO_PAD_SDMMC1_HV, .dpd = 55, .voltage = UINT_MAX },
--	{ .id = TEGRA_IO_PAD_SDMMC3_HV, .dpd = 56, .voltage = UINT_MAX },
-+	{ .id = TEGRA_IO_PAD_SDMMC1_HV, .dpd = 55, .voltage = 4 },
-+	{ .id = TEGRA_IO_PAD_SDMMC3_HV, .dpd = 56, .voltage = 6 },
- 	{ .id = TEGRA_IO_PAD_CONN, .dpd = 60, .voltage = UINT_MAX },
--	{ .id = TEGRA_IO_PAD_AUDIO_HV, .dpd = 61, .voltage = UINT_MAX },
-+	{ .id = TEGRA_IO_PAD_AUDIO_HV, .dpd = 61, .voltage = 1 },
-+	{ .id = TEGRA_IO_PAD_AO_HV, .dpd = UINT_MAX, .voltage = 0 },
- };
- 
- static const struct tegra_pmc_regs tegra186_pmc_regs = {
-@@ -1870,6 +1892,7 @@ static const struct tegra_pmc_soc tegra186_pmc_soc = {
- 	.cpu_powergates = NULL,
- 	.has_tsense_reset = false,
- 	.has_gpu_clamps = false,
-+	.has_impl_33v_pwr = true,
- 	.num_io_pads = ARRAY_SIZE(tegra186_io_pads),
- 	.io_pads = tegra186_io_pads,
- 	.regs = &tegra186_pmc_regs,
-diff --git a/include/soc/tegra/pmc.h b/include/soc/tegra/pmc.h
-index c32bf91c23e6f..445aa66514e90 100644
---- a/include/soc/tegra/pmc.h
-+++ b/include/soc/tegra/pmc.h
-@@ -134,6 +134,7 @@ enum tegra_io_pad {
- 	TEGRA_IO_PAD_USB2,
- 	TEGRA_IO_PAD_USB3,
- 	TEGRA_IO_PAD_USB_BIAS,
-+	TEGRA_IO_PAD_AO_HV,
- };
- 
- /* deprecated, use TEGRA_IO_PAD_{HDMI,LVDS} instead */
+-unsigned long get_seconds(void)
+-{
+-	struct timekeeper *tk = &tk_core.timekeeper;
+-
+-	return tk->xtime_sec;
+-}
+-EXPORT_SYMBOL(get_seconds);
+-
+ void ktime_get_coarse_real_ts64(struct timespec64 *ts)
+ {
+ 	struct timekeeper *tk = &tk_core.timekeeper;
 -- 
 2.20.1
 
