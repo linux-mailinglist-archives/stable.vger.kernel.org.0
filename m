@@ -2,167 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C0051024DA
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 13:51:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D75FF102517
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 14:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725798AbfKSMvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 07:51:07 -0500
-Received: from us-smtp-1.mimecast.com ([205.139.110.61]:24508 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1727678AbfKSMvH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 07:51:07 -0500
+        id S1727782AbfKSNDc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 08:03:32 -0500
+Received: from us-smtp-delivery-1.mimecast.com ([207.211.31.120]:44854 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1725798AbfKSNDc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 08:03:32 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574167865;
+        s=mimecast20190719; t=1574168610;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=QEDKMyayCUjPgIE9DPZezHt4FnuO8rXLJV/h7E1JGa4=;
-        b=HLLgrLqDWVF4mjOoGELJFRArYOd2axkB2Y5AbhhMaqeXXXtnRnd8srymo6yeHnG1ExJ9CJ
-        0lDEeDnPXfKatYgbg2yM+Q/cnVcIVDCBJukCds0g1VPjnEfxArYmxKqe59ZOaev0eozkhX
-        C5ImMvdrJSjAf6XjjTq+jBgx5hHzcSQ=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-216-5qjGg8PFPfS6C1BCp1OmxA-1; Tue, 19 Nov 2019 07:50:59 -0500
-Received: by mail-qk1-f197.google.com with SMTP id q14so5850604qkq.13
-        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 04:50:59 -0800 (PST)
+        bh=VVKdPHyNInKr1jXwID8mLSj5pIoLgSLr+NLS/+lX59s=;
+        b=QBzFubHnIHunF1tzTLHQLITjgu82qPyk/62e3JDNPHl3OwQQ14qpXRSwQu4NWBg/u9RrH2
+        pAmnkQSH8r9TNV4B+IFoy3ls2kpJOrzLcHe9LqK084lJASGixalN+kSdE8lDQgzsrjoGjV
+        IEiqd1t8scivkG1GW0qbD16NM0vJEW8=
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com
+ [209.85.219.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-401-CBkKTUcKM86WBjA878TyOA-1; Tue, 19 Nov 2019 08:03:26 -0500
+Received: by mail-qv1-f70.google.com with SMTP id i32so14628542qvi.21
+        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 05:03:26 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=v0yQRjcMF4pMatebKNWPD4GsrcfBYND0A2pjfYAUpEs=;
-        b=XtMtV+/ghBdU8VV3FHaFLz+nSf+5BMS3Ht2+XkcfaTfeJtxKTqPTSJQELTiArBupYw
-         mKlsGx5ta+ybqOaZ2SJhnUs8t/t54FC8x5Huhd6JcU2m+IGSp6LDu3MEUTk7lTUTzGQ7
-         bIhMMv5tLiMh+F3W+F3P8mUxLmxkhKfcN89PMMkl78DpHxoqFv9ibuo7JgxRe205kZsL
-         heviI+whSxz8sqePG3Is31YferQCAaUa8s8X2YSqEWxIIxyfgc1LoLODHom31kuuC3as
-         C8ubLnbIFqAAqX8dj/QedaNKb4upFUst5JRI8zQPHYDse4zWc+/OxS1qAqPJRcjg7kFD
-         aLMg==
-X-Gm-Message-State: APjAAAWiaHR+LcaGCNaHfmga868klXV4a4XMSq47+5KfxNHVz5noeSv2
-        NvZNL/jBwkRgxJSJxDIBMTauccKS+8xlvUP4vQ7GemJluVBX0IP25K/r119SrLtB/55RtQk7MQa
-        4dqRU1P6tJHlE0Ofu
-X-Received: by 2002:a37:a650:: with SMTP id p77mr16155372qke.188.1574167858728;
-        Tue, 19 Nov 2019 04:50:58 -0800 (PST)
-X-Google-Smtp-Source: APXvYqyVpYrDtpqXfgyAR+mYTNqB981fhGl1zI6Y1Vd4W3jPJ7xhLz3f71eKnWfrx6kT2ISTRX8K8w==
-X-Received: by 2002:a37:a650:: with SMTP id p77mr16155348qke.188.1574167858384;
-        Tue, 19 Nov 2019 04:50:58 -0800 (PST)
-Received: from [192.168.1.157] (pool-96-235-39-235.pitbpa.fios.verizon.net. [96.235.39.235])
-        by smtp.gmail.com with ESMTPSA id k65sm11891302qtd.14.2019.11.19.04.50.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Nov 2019 04:50:57 -0800 (PST)
-Subject: =?UTF-8?Q?Re=3a_=e2=9d=8c_FAIL=3a_Stable_queue=3a_queue-5=2e3?=
-To:     Greg KH <greg@kroah.com>
-Cc:     Rachel Sibley <rasibley@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>
-References: <cki.042792963E.5VOWULC1Q9@redhat.com>
- <8e0fa6de-b6b1-23ac-9e77-d425c8d1ba22@redhat.com>
- <c326c35e-453e-2dae-391c-5324803e6112@redhat.com>
- <20191119124428.GC1975017@kroah.com>
-From:   Laura Abbott <labbott@redhat.com>
-Message-ID: <236c4f8d-a54e-daa6-0896-eca236e23e58@redhat.com>
-Date:   Tue, 19 Nov 2019 07:50:56 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.1.1
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=U7VXEEogLZ2y/UYgVzgWhynH6YujLFzwyuHzw1/YNWU=;
+        b=Z2AmeWk3DW99l1Ifp44q2fUjI4mPrWlUdcScVk4bzcphQegmRL8j5x5IPz+6EMtici
+         /LdFrDa1/MW4NqODPRKEBeFGwUN6ABLV7Av2HukygnslBlSmAANpE0w+FUVKOPf+snpw
+         lQI9Iw8nUJsAubOl63L1tNSwDZ/sY4+0pAmoz5Dy/EXoJddiUu/qIoeVbPwSECUxY/f6
+         tPU37B1idmzJ0pWGZERlsUf9oSmiquL+jq524bAC4h7P1Dp/5nWxDUrH0Wab+OcrSY26
+         gwjjQwtWWQjXOI8Vek+JoZzk6u74CTGLfNowfkoM6SFlD7ceg8nQF/xdplsM0w08oroE
+         fWTw==
+X-Gm-Message-State: APjAAAWEv7vf2+nr4vxZEhaPyms8oW8+qykNTaaZVzOQp+wU6yvOifzT
+        5ZGdP4kOOzSLk6C75pVOxBsd4XM1ha/hL8UMds9c9WbLl8C9yflekCDdAcF4axrTlMr4ypyZQtY
+        xsAXDfCxuXQTGbJdx
+X-Received: by 2002:ae9:edc6:: with SMTP id c189mr29290249qkg.351.1574168606026;
+        Tue, 19 Nov 2019 05:03:26 -0800 (PST)
+X-Google-Smtp-Source: APXvYqyiIfkMbDD3N5CTsf6CCSVQpQTOzwgDzZyzojxHwiP+jBWlIneB91vqUjmHw3eYsoLuHqhzZw==
+X-Received: by 2002:ae9:edc6:: with SMTP id c189mr29290210qkg.351.1574168605618;
+        Tue, 19 Nov 2019 05:03:25 -0800 (PST)
+Received: from redhat.com (bzq-79-176-6-42.red.bezeqint.net. [79.176.6.42])
+        by smtp.gmail.com with ESMTPSA id 187sm10260541qkk.103.2019.11.19.05.03.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Nov 2019 05:03:24 -0800 (PST)
+Date:   Tue, 19 Nov 2019 08:03:19 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     David Hildenbrand <david@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Khazhismel Kumykov <khazhy@google.com>,
+        Wei Wang <wei.w.wang@intel.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH] virtio_balloon: fix shrinker scan number of pages
+Message-ID: <20191119080254-mutt-send-email-mst@kernel.org>
+References: <20191119101718.38976-1-mst@redhat.com>
+ <34c84d6a-d200-c296-39bb-4770bf4517e9@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20191119124428.GC1975017@kroah.com>
-Content-Language: en-US
-X-MC-Unique: 5qjGg8PFPfS6C1BCp1OmxA-1
+In-Reply-To: <34c84d6a-d200-c296-39bb-4770bf4517e9@redhat.com>
+X-MC-Unique: CBkKTUcKM86WBjA878TyOA-1
 X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=WINDOWS-1252
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/19/19 7:44 AM, Greg KH wrote:
-> On Tue, Nov 19, 2019 at 07:37:09AM -0500, Laura Abbott wrote:
->> On 11/18/19 7:07 PM, Rachel Sibley wrote:
->>>
->>> On 11/18/19 10:00 AM, CKI Project wrote:
->>>> Hello,
->>>>
->>>> We ran automated tests on a patchset that was proposed for merging int=
-o this
->>>> kernel tree. The patches were applied to:
->>>>
->>>>          Kernel repo:https://git.kernel.org/pub/scm/linux/kernel/git/s=
-table/linux.git
->>>>               Commit: 116a395b7061 - Linux 5.3.11
->>>>
->>>> The results of these automated tests are provided below.
->>>>
->>>>       Overall result: FAILED (see details below)
->>>>                Merge: OK
->>>>              Compile: OK
->>>>                Tests: FAILED
->>>>
->>>> All kernel binaries, config files, and logs are available for download=
- here:
->>>>
->>>>     https://artifacts.cki-project.org/pipelines/293063
->>>>
->>>> One or more kernel tests failed:
->>>>
->>>>       aarch64:
->>>>        =E2=9D=8C LTP lite
->>>
->>> I see a panic when installing the LTP dependencies
->>>
->>> [  690.625060] Call trace:
->>> [  690.627495]  bfq_find_set_group+0x8c/0xf0
->>> [  690.631491]  bfq_bic_update_cgroup+0xbc/0x218
->>> [  690.635834]  bfq_init_rq+0xac/0x808
->>> [  690.639309]  bfq_insert_request.isra.0+0xe0/0x200
->>> [  690.643999]  bfq_insert_requests+0x68/0x88
->>> [  690.648085]  blk_mq_sched_insert_requests+0x84/0x140
->>> [  690.653036]  blk_mq_flush_plug_list+0x170/0x2b0
->>> [  690.657555]  blk_flush_plug_list+0xec/0x100
->>> [  690.661725]  blk_mq_make_request+0x200/0x5e8
->>> [  690.665982]  generic_make_request+0x94/0x270
->>> [  690.670239]  submit_bio+0x34/0x168
->>> [  690.673712]  xfs_submit_ioend.isra.0+0x9c/0x180 [xfs]
->>> [  690.678798]  xfs_do_writepage+0x234/0x458 [xfs]
->>> [  690.683318]  write_cache_pages+0x1a4/0x3f8
->>> [  690.687442]  xfs_vm_writepages+0x84/0xb8 [xfs]
->>> [  690.691874]  do_writepages+0x3c/0xe0
->>> [  690.695438]  __writeback_single_inode+0x48/0x440
->>> [  690.700042]  writeback_sb_inodes+0x1ec/0x4b0
->>> [  690.704298]  __writeback_inodes_wb+0x50/0xe8
->>> [  690.708555]  wb_writeback+0x264/0x388
->>> [  690.712204]  wb_do_writeback+0x300/0x358
->>> [  690.716113]  wb_workfn+0x80/0x1e0
->>> [  690.719418]  process_one_work+0x1bc/0x3e8
->>> [  690.723414]  worker_thread+0x54/0x440
->>> [  690.727064]  kthread+0x104/0x130
->>> [  690.730281]  ret_from_fork+0x10/0x18
->>> [  690.733847] Code: eb00007f 54000220 b4000040 f8568022 (f9401c42)
->>> [  690.739928] ---[ end trace d3fd392f569e86d3 ]---
->>>
->>> https://artifacts.cki-project.org/pipelines/293063/logs/aarch64_host_2_=
-console.log
->>>
->>
->> This looks like that same issue
->> https://bugzilla.redhat.com/show_bug.cgi?id=3D1767539
->>
->> I don't think the BFQ fix has been sent to stable yet, or at least
->> it was not in 5.3.11
+On Tue, Nov 19, 2019 at 12:39:51PM +0100, David Hildenbrand wrote:
+> On 19.11.19 11:17, Michael S. Tsirkin wrote:
+> > virtio_balloon_shrinker_scan should return number of system pages freed=
+,
+> > but because it's calling functions that deal with balloon pages, it get=
+s
+> > confused and sometimes returns the number of balloon pages.
+> >=20
+> > It does not matter practically as the exact number isn't
+> > used, but it seems better to be consistent in case someone
+> > starts using this API.
 >=20
-> Any specific git commit id I should be picking up for this?
->=20
-> thanks,
->=20
-> greg k-h
->=20
+> If it doesn't matter, why cc: stable?
 
-Should be 478de3380c1c ("block, bfq: deschedule empty bfq_queues
-not referred by any process") .
+Oh right. Sorry.
 
-Thanks,
-Laura
+> >=20
+> > Further, if we ever tried to iteratively leak pages as
+> > virtio_balloon_shrinker_scan tries to do, we'd run into issues - this i=
+s
+> > because freed_pages was accumulating total freed pages, but was also
+> > subtracted on each iteration from pages_to_free, which can result in
+> > either leaking less memory than we were supposed to free, or or more if
+> > pages_to_free underruns.
+> >=20
+> > On a system with 4K pages we are lucky that we are never asked to leak
+> > more than 128 pages while we can leak up to 256 at a time,
+> > but it looks like a real issue for systems with page size !=3D 4K.
+> >=20
+> > Cc: stable@vger.kernel.org
+> > Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinke=
+r")
+> > Reported-by: Khazhismel Kumykov <khazhy@google.com>
+> > Reviewed-by: Wei Wang <wei.w.wang@intel.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >   drivers/virtio/virtio_balloon.c | 17 +++++++++++------
+> >   1 file changed, 11 insertions(+), 6 deletions(-)
+> >=20
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ba=
+lloon.c
+> > index 226fbb995fb0..7cee05cdf3fb 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -772,6 +772,13 @@ static unsigned long shrink_free_pages(struct virt=
+io_balloon *vb,
+> >   =09return blocks_freed << VIRTIO_BALLOON_FREE_PAGE_ORDER;
+> >   }
+> > +static unsigned long leak_balloon_pages(struct virtio_balloon *vb,
+> > +                                          unsigned long pages_to_free)
+> > +{
+> > +=09return leak_balloon(vb, pages_to_free * VIRTIO_BALLOON_PAGES_PER_PA=
+GE) /
+> > +=09=09VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > +}
+> > +
+> >   static unsigned long shrink_balloon_pages(struct virtio_balloon *vb,
+> >   =09=09=09=09=09  unsigned long pages_to_free)
+> >   {
+> > @@ -782,11 +789,9 @@ static unsigned long shrink_balloon_pages(struct v=
+irtio_balloon *vb,
+> >   =09 * VIRTIO_BALLOON_ARRAY_PFNS_MAX balloon pages, so we call it
+> >   =09 * multiple times to deflate pages till reaching pages_to_free.
+> >   =09 */
+> > -=09while (vb->num_pages && pages_to_free) {
+> > -=09=09pages_freed +=3D leak_balloon(vb, pages_to_free) /
+> > -=09=09=09=09=09VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > -=09=09pages_to_free -=3D pages_freed;
+> > -=09}
+> > +=09while (vb->num_pages && pages_freed < pages_to_free)
+> > +=09=09pages_freed +=3D leak_balloon_pages(vb, pages_to_free);
+> > +
+> >   =09update_balloon_size(vb);
+> >   =09return pages_freed;
+> > @@ -799,7 +804,7 @@ static unsigned long virtio_balloon_shrinker_scan(s=
+truct shrinker *shrinker,
+> >   =09struct virtio_balloon *vb =3D container_of(shrinker,
+> >   =09=09=09=09=09struct virtio_balloon, shrinker);
+> > -=09pages_to_free =3D sc->nr_to_scan * VIRTIO_BALLOON_PAGES_PER_PAGE;
+> > +=09pages_to_free =3D sc->nr_to_scan;
+> >   =09if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+> >   =09=09pages_freed =3D shrink_free_pages(vb, pages_to_free);
+> >=20
+>=20
+>=20
+> --=20
+>=20
+> Thanks,
+>=20
+> David / dhildenb
 
