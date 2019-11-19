@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB76E1015CD
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 681F510148B
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:35:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730507AbfKSFr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:47:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43822 "EHLO mail.kernel.org"
+        id S1728018AbfKSFev (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:34:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731239AbfKSFr1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:47:27 -0500
+        id S1727835AbfKSFeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:34:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18D572071B;
-        Tue, 19 Nov 2019 05:47:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AB4A214DE;
+        Tue, 19 Nov 2019 05:34:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142446;
-        bh=66ajkt9iM6MDmOPzzY+y7AnWo/Vg7+hhgie9nPB1eoI=;
+        s=default; t=1574141689;
+        bh=4B1lfGVTlTuZKRFOEPEp1APClwPQiys1+IGzeX5ARuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnVIvspbC6btfRKlykhoTLf7MOZgtxoqR7rHNqHWgfSli18EdH1+Byr/qlOZgALqP
-         sUosM5E1arvCbc8M7qkevrbPiiV0mozLfOZa4zhJRTGwvc4l7+Vtuk94/Yri5vVIJE
-         mio6nGPpkU7yNvEJ00kYnTEkpcj5qgI5za1jM0Dw=
+        b=19+z9un1TXwp70r+RLs7ePHKDm0R+/DzLG6OLQkBMIF1FdqhvS1kKFmKrNrtpZsZe
+         AkkZ/l0l+fbAhbGFZAXVu25ZpBHjbcoZG1WwgLT+2uUPaxw0N/TXT+VyG2ppP7nCZQ
+         xTaGseDPNn6TLEd/4uPUkKBmgdaYBPyr0wt8Cgus=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 044/239] gfs2: Dont set GFS2_RDF_UPTODATE when the lvb is updated
+Subject: [PATCH 4.19 247/422] tty: serial: qcom_geni_serial: Fix serial when not used as console
 Date:   Tue, 19 Nov 2019 06:17:24 +0100
-Message-Id: <20191119051306.193240094@linuxfoundation.org>
+Message-Id: <20191119051415.000288263@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,60 +44,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Douglas Anderson <dianders@chromium.org>
 
-[ Upstream commit 4f36cb36c9d14340bb200d2ad9117b03ce992cfe ]
+[ Upstream commit c362272bdea32bf048d6916b0a2dc485eb9cf787 ]
 
-The GFS2_RDF_UPTODATE flag in the rgrp is used to determine when
-a rgrp buffer is valid. It's cleared when the glock is invalidated,
-signifying that the buffer data is now invalid. But before this
-patch, function update_rgrp_lvb was setting the flag when it
-determined it had a valid lvb. But that's an invalid assumption:
-just because you have a valid lvb doesn't mean you have valid
-buffers. After all, another node may have made the lvb valid,
-and this node just fetched it from the glock via dlm.
+If you've got the "console" serial port setup to use just as a UART
+(AKA there is no "console=ttyMSMX" on the kernel command line) then
+certain initialization is skipped.  When userspace later tries to do
+something with the port then things go boom (specifically, on my
+system, some sort of exception hit that caused the system to reboot
+itself w/ no error messages).
 
-Consider this scenario:
-1. The file system is mounted with RGRPLVB option.
-2. In gfs2_inplace_reserve it locks the rgrp glock EX, but thanks
-   to GL_SKIP, it skips the gfs2_rgrp_bh_get.
-3. Since loops == 0 and the allocation target (ap->target) is
-   bigger than the largest known chunk of blocks in the rgrp
-   (rs->rs_rbm.rgd->rd_extfail_pt) it skips that rgrp and bypasses
-   the call to gfs2_rgrp_bh_get there as well.
-4. update_rgrp_lvb sees the lvb MAGIC number is valid, so bypasses
-   gfs2_rgrp_bh_get, but it still sets sets GFS2_RDF_UPTODATE due
-   to this invalid assumption.
-5. The next time update_rgrp_lvb is called, it sees the bit is set
-   and just returns 0, assuming both the lvb and rgrp are both
-   uptodate. But since this is a smaller allocation, or space has
-   been freed by another node, thus adjusting the lvb values,
-   it decides to use the rgrp for allocations, with invalid rd_free
-   due to the fact it was never updated.
+Let's cleanup / refactor the init so that we always run the same init
+code regardless of whether we're using the console.
 
-This patch changes update_rgrp_lvb so it doesn't set the UPTODATE
-flag anymore. That way, it has no choice but to fetch the latest
-values.
+To make this work, we make rely on qcom_geni_serial_pm doing its job
+to turn resources on.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+For the record, here is a trace of the order of things (after this
+patch) when console= is specified on the command line and we have an
+agetty on the port:
+  qcom_geni_serial_pm: 4 (undefined) => 0 (on)
+  qcom_geni_console_setup
+  qcom_geni_serial_port_setup
+  qcom_geni_serial_console_write
+  qcom_geni_serial_startup
+  qcom_geni_serial_start_tx
+
+...and here is the order of things (after this patch) when console= is
+_NOT_ specified on the command line and we have an agetty port:
+  qcom_geni_serial_pm: 4 => 0
+  qcom_geni_serial_pm: 0 => 3
+  qcom_geni_serial_pm: 3 => 0
+  qcom_geni_serial_startup
+  qcom_geni_serial_port_setup
+  qcom_geni_serial_pm: 0 => 3
+  qcom_geni_serial_pm: 3 => 0
+  qcom_geni_serial_startup
+  qcom_geni_serial_start_tx
+
+Fixes: c4f528795d1a ("tty: serial: msm_geni_serial: Add serial driver support for GENI based QUP")
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/rgrp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/qcom_geni_serial.c | 55 +++++++++++++--------------
+ 1 file changed, 26 insertions(+), 29 deletions(-)
 
-diff --git a/fs/gfs2/rgrp.c b/fs/gfs2/rgrp.c
-index b0eee90738ff4..0d72baae51509 100644
---- a/fs/gfs2/rgrp.c
-+++ b/fs/gfs2/rgrp.c
-@@ -1201,7 +1201,7 @@ static int update_rgrp_lvb(struct gfs2_rgrpd *rgd)
- 	rl_flags = be32_to_cpu(rgd->rd_rgl->rl_flags);
- 	rl_flags &= ~GFS2_RDF_MASK;
- 	rgd->rd_flags &= GFS2_RDF_MASK;
--	rgd->rd_flags |= (rl_flags | GFS2_RDF_UPTODATE | GFS2_RDF_CHECK);
-+	rgd->rd_flags |= (rl_flags | GFS2_RDF_CHECK);
- 	if (rgd->rd_rgl->rl_unlinked == 0)
- 		rgd->rd_flags &= ~GFS2_RDF_CHECK;
- 	rgd->rd_free = be32_to_cpu(rgd->rd_rgl->rl_free);
+diff --git a/drivers/tty/serial/qcom_geni_serial.c b/drivers/tty/serial/qcom_geni_serial.c
+index 5b96df4ad5b30..69b980bb8ac29 100644
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -851,6 +851,23 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
+ {
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+ 	unsigned int rxstale = DEFAULT_BITS_PER_CHAR * STALE_TIMEOUT;
++	u32 proto;
++
++	if (uart_console(uport))
++		port->tx_bytes_pw = 1;
++	else
++		port->tx_bytes_pw = 4;
++	port->rx_bytes_pw = RX_BYTES_PW;
++
++	proto = geni_se_read_proto(&port->se);
++	if (proto != GENI_SE_UART) {
++		dev_err(uport->dev, "Invalid FW loaded, proto: %d\n", proto);
++		return -ENXIO;
++	}
++
++	qcom_geni_serial_stop_rx(uport);
++
++	get_tx_fifo_size(port);
+ 
+ 	set_rfr_wm(port);
+ 	writel_relaxed(rxstale, uport->membase + SE_UART_RX_STALE_CNT);
+@@ -874,30 +891,19 @@ static int qcom_geni_serial_port_setup(struct uart_port *uport)
+ 			return -ENOMEM;
+ 	}
+ 	port->setup = true;
++
+ 	return 0;
+ }
+ 
+ static int qcom_geni_serial_startup(struct uart_port *uport)
+ {
+ 	int ret;
+-	u32 proto;
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+ 
+ 	scnprintf(port->name, sizeof(port->name),
+ 		  "qcom_serial_%s%d",
+ 		(uart_console(uport) ? "console" : "uart"), uport->line);
+ 
+-	if (!uart_console(uport)) {
+-		port->tx_bytes_pw = 4;
+-		port->rx_bytes_pw = RX_BYTES_PW;
+-	}
+-	proto = geni_se_read_proto(&port->se);
+-	if (proto != GENI_SE_UART) {
+-		dev_err(uport->dev, "Invalid FW loaded, proto: %d\n", proto);
+-		return -ENXIO;
+-	}
+-
+-	get_tx_fifo_size(port);
+ 	if (!port->setup) {
+ 		ret = qcom_geni_serial_port_setup(uport);
+ 		if (ret)
+@@ -1056,6 +1062,7 @@ static int __init qcom_geni_console_setup(struct console *co, char *options)
+ 	int bits = 8;
+ 	int parity = 'n';
+ 	int flow = 'n';
++	int ret;
+ 
+ 	if (co->index >= GENI_UART_CONS_PORTS  || co->index < 0)
+ 		return -ENXIO;
+@@ -1071,21 +1078,10 @@ static int __init qcom_geni_console_setup(struct console *co, char *options)
+ 	if (unlikely(!uport->membase))
+ 		return -ENXIO;
+ 
+-	if (geni_se_resources_on(&port->se)) {
+-		dev_err(port->se.dev, "Error turning on resources\n");
+-		return -ENXIO;
+-	}
+-
+-	if (unlikely(geni_se_read_proto(&port->se) != GENI_SE_UART)) {
+-		geni_se_resources_off(&port->se);
+-		return -ENXIO;
+-	}
+-
+ 	if (!port->setup) {
+-		port->tx_bytes_pw = 1;
+-		port->rx_bytes_pw = RX_BYTES_PW;
+-		qcom_geni_serial_stop_rx(uport);
+-		qcom_geni_serial_port_setup(uport);
++		ret = qcom_geni_serial_port_setup(uport);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	if (options)
+@@ -1203,11 +1199,12 @@ static void qcom_geni_serial_pm(struct uart_port *uport,
+ {
+ 	struct qcom_geni_serial_port *port = to_dev_port(uport, uport);
+ 
++	/* If we've never been called, treat it as off */
++	if (old_state == UART_PM_STATE_UNDEFINED)
++		old_state = UART_PM_STATE_OFF;
++
+ 	if (new_state == UART_PM_STATE_ON && old_state == UART_PM_STATE_OFF)
+ 		geni_se_resources_on(&port->se);
+-	else if (!uart_console(uport) && (new_state == UART_PM_STATE_ON &&
+-				old_state == UART_PM_STATE_UNDEFINED))
+-		geni_se_resources_on(&port->se);
+ 	else if (new_state == UART_PM_STATE_OFF &&
+ 			old_state == UART_PM_STATE_ON)
+ 		geni_se_resources_off(&port->se);
 -- 
 2.20.1
 
