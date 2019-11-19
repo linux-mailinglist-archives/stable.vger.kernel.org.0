@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BCC41016AF
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:55:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55794101556
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:43:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732234AbfKSFzG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:55:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53410 "EHLO mail.kernel.org"
+        id S1729566AbfKSFnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:43:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732232AbfKSFzG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:55:06 -0500
+        id S1727586AbfKSFnG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:43:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20E31218BA;
-        Tue, 19 Nov 2019 05:55:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F701208C3;
+        Tue, 19 Nov 2019 05:43:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142905;
-        bh=BIKvivTgbhJmyqsY0AFtQ/h+1Vep9bWqDEIZO2zDLAM=;
+        s=default; t=1574142185;
+        bh=rUWE+gCpVtyvviHYp6lEwaLES4+niP2PfE8w5mXRyp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=POK6MKBbpZ/sdx2dO6do9grqn6AD4sbDzPQXyTu1AaFLP+Pps5s2SVmbrC2mWyU2y
-         GCUTXVzoA0vCmhu8xfVyxdom0cG8dZyqI/H/XKABUAxZ51HnEhouXoswnabC3BTJ6H
-         IXTl5F3CPHvloCrJ8knvZJtkrWPVzV2h1/o7YAOg=
+        b=gy4r+Npb4fLwaHjaE71bIetUoxDJ0z7gfIjN/U3Qpw9QBgvMlaLKyVy78iME494K9
+         1L+NtQ5IbMFu6lgaysdTECDg0cziud+0+DSIk+TJMqPgLm6rJ1UDQSlwVwu+iA81D2
+         fGHo4rdbWsIGP0BRKUceGMZ3zICJW9uOPJkwHvKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christoph Manszewski <c.manszewski@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Kamil Konieczny <k.konieczny@partner.samsung.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Israel Rukshin <israelr@mellanox.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 215/239] crypto: s5p-sss: Fix Fix argument list alignment
+Subject: [PATCH 4.19 418/422] IB/iser: Fix possible NULL deref at iser_inv_desc()
 Date:   Tue, 19 Nov 2019 06:20:15 +0100
-Message-Id: <20191119051339.100438972@linuxfoundation.org>
+Message-Id: <20191119051426.281452901@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Manszewski <c.manszewski@samsung.com>
+From: Israel Rukshin <israelr@mellanox.com>
 
-[ Upstream commit 6c12b6ba45490eeb820fdceccf5a53f42a26799c ]
+[ Upstream commit 65f07f5a09dacf3b60619f196f096ea3671a5eda ]
 
-Fix misalignment of continued argument list.
+In case target remote invalidates bogus rkey and signature is not used,
+pi_ctx is NULL deref.
 
-Signed-off-by: Christoph Manszewski <c.manszewski@samsung.com>
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
-Acked-by: Kamil Konieczny <k.konieczny@partner.samsung.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The commit also fails the connection on bogus remote invalidation.
+
+Fixes: 59caaed7a72a ("IB/iser: Support the remote invalidation exception")
+Signed-off-by: Israel Rukshin <israelr@mellanox.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/s5p-sss.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/iser/iser_initiator.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/crypto/s5p-sss.c b/drivers/crypto/s5p-sss.c
-index aec66159566dd..9a5213cbcbe18 100644
---- a/drivers/crypto/s5p-sss.c
-+++ b/drivers/crypto/s5p-sss.c
-@@ -323,7 +323,7 @@ static void s5p_unset_indata(struct s5p_aes_dev *dev)
+diff --git a/drivers/infiniband/ulp/iser/iser_initiator.c b/drivers/infiniband/ulp/iser/iser_initiator.c
+index 2f6388596f886..96af06cfe0afd 100644
+--- a/drivers/infiniband/ulp/iser/iser_initiator.c
++++ b/drivers/infiniband/ulp/iser/iser_initiator.c
+@@ -589,13 +589,19 @@ void iser_login_rsp(struct ib_cq *cq, struct ib_wc *wc)
+ 	ib_conn->post_recv_buf_count--;
  }
  
- static int s5p_make_sg_cpy(struct s5p_aes_dev *dev, struct scatterlist *src,
--			    struct scatterlist **dst)
-+			   struct scatterlist **dst)
+-static inline void
++static inline int
+ iser_inv_desc(struct iser_fr_desc *desc, u32 rkey)
  {
- 	void *pages;
- 	int len;
-@@ -569,7 +569,7 @@ static int s5p_set_indata_start(struct s5p_aes_dev *dev,
+-	if (likely(rkey == desc->rsc.mr->rkey))
++	if (likely(rkey == desc->rsc.mr->rkey)) {
+ 		desc->rsc.mr_valid = 0;
+-	else if (likely(rkey == desc->pi_ctx->sig_mr->rkey))
++	} else if (likely(desc->pi_ctx && rkey == desc->pi_ctx->sig_mr->rkey)) {
+ 		desc->pi_ctx->sig_mr_valid = 0;
++	} else {
++		iser_err("Bogus remote invalidation for rkey %#x\n", rkey);
++		return -EINVAL;
++	}
++
++	return 0;
  }
  
- static int s5p_set_outdata_start(struct s5p_aes_dev *dev,
--				struct ablkcipher_request *req)
-+				 struct ablkcipher_request *req)
- {
- 	struct scatterlist *sg;
- 	int err;
+ static int
+@@ -623,12 +629,14 @@ iser_check_remote_inv(struct iser_conn *iser_conn,
+ 
+ 			if (iser_task->dir[ISER_DIR_IN]) {
+ 				desc = iser_task->rdma_reg[ISER_DIR_IN].mem_h;
+-				iser_inv_desc(desc, rkey);
++				if (unlikely(iser_inv_desc(desc, rkey)))
++					return -EINVAL;
+ 			}
+ 
+ 			if (iser_task->dir[ISER_DIR_OUT]) {
+ 				desc = iser_task->rdma_reg[ISER_DIR_OUT].mem_h;
+-				iser_inv_desc(desc, rkey);
++				if (unlikely(iser_inv_desc(desc, rkey)))
++					return -EINVAL;
+ 			}
+ 		} else {
+ 			iser_err("failed to get task for itt=%d\n", hdr->itt);
 -- 
 2.20.1
 
