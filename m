@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 884831016F4
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16634101518
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:40:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731790AbfKSFv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:51:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48922 "EHLO mail.kernel.org"
+        id S1730432AbfKSFkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:40:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728903AbfKSFv2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:51:28 -0500
+        id S1729961AbfKSFkg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:40:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5838520862;
-        Tue, 19 Nov 2019 05:51:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BD5A208C3;
+        Tue, 19 Nov 2019 05:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142687;
-        bh=fMAtgmI930Z8gUhddQonnfxS9dGC3YaYHi8d80VubaY=;
+        s=default; t=1574142036;
+        bh=yRG4lXGZHqVRRehlry61nL/wufOOr98J8YvVsQqt1zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EV+eS3VJ2WnMH0M/ZfU3ie2ipe0FAeUaC/TRgOIK5laW/Ccos1n6JyIeRecGpypIG
-         kPt8faAnCyWU7a+k5KixpvdAQvObc9FYJ77H+iv+DBsKdGFtlgsI1Xit2fvB4amOqj
-         fL8WjTT3cqi8JeHFvFb2tDZLeJxkeQdlyeV7crUA=
+        b=hYVJpdmNCP7NygYM6DiYb8OCIAXy8gGi+n3/VV+UngdTGf5IXlDzlppr+1lbVR7Ye
+         u1X99bgERjiwc1/DC8/NPgL2uj5BN4M6cRquC3YHKfcFMxMhrJV+19zIUeb+0Oosi9
+         JcJj8zAv0c/e2G5x9sV8tuqBtsFjQl73ixT7XpVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 164/239] spi: pic32: Use proper enum in dmaengine_prep_slave_rg
+Subject: [PATCH 4.19 367/422] arm64: tegra: I2C on Tegra194 is not compatible with Tegra114
 Date:   Tue, 19 Nov 2019 06:19:24 +0100
-Message-Id: <20191119051333.567994602@linuxfoundation.org>
+Message-Id: <20191119051422.796145230@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +43,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 8cfde7847d5ed0bb77bace41519572963e43cd17 ]
+[ Upstream commit d9fd22447ba59a9b53a202fade977e82bfba8d8d ]
 
-Clang warns when one enumerated type is converted implicitly to another:
+Tegra194 contains a version of the I2C controller that is no longer
+compatible with the version found in Tegra114.
 
-drivers/spi/spi-pic32.c:323:8: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-                                          DMA_FROM_DEVICE,
-                                          ^~~~~~~~~~~~~~~
-drivers/spi/spi-pic32.c:333:8: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-                                          DMA_TO_DEVICE,
-                                          ^~~~~~~~~~~~~
-2 warnings generated.
-
-Use the proper enums from dma_transfer_direction (DMA_FROM_DEVICE =
-DMA_DEV_TO_MEM = 2, DMA_TO_DEVICE = DMA_MEM_TO_DEV = 1) to satify Clang.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/159
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pic32.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra194.dtsi | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/spi/spi-pic32.c b/drivers/spi/spi-pic32.c
-index f8a45af1fa9f2..288002f6c613e 100644
---- a/drivers/spi/spi-pic32.c
-+++ b/drivers/spi/spi-pic32.c
-@@ -320,7 +320,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
- 	desc_rx = dmaengine_prep_slave_sg(master->dma_rx,
- 					  xfer->rx_sg.sgl,
- 					  xfer->rx_sg.nents,
--					  DMA_FROM_DEVICE,
-+					  DMA_DEV_TO_MEM,
- 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc_rx) {
- 		ret = -EINVAL;
-@@ -330,7 +330,7 @@ static int pic32_spi_dma_transfer(struct pic32_spi *pic32s,
- 	desc_tx = dmaengine_prep_slave_sg(master->dma_tx,
- 					  xfer->tx_sg.sgl,
- 					  xfer->tx_sg.nents,
--					  DMA_TO_DEVICE,
-+					  DMA_MEM_TO_DEV,
- 					  DMA_PREP_INTERRUPT | DMA_CTRL_ACK);
- 	if (!desc_tx) {
- 		ret = -EINVAL;
+diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+index a4dfcd19b9e88..9fc14bb9a0aff 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
+@@ -118,7 +118,7 @@
+ 		};
+ 
+ 		gen1_i2c: i2c@3160000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x03160000 0x10000>;
+ 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -143,7 +143,7 @@
+ 		};
+ 
+ 		cam_i2c: i2c@3180000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x03180000 0x10000>;
+ 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -157,7 +157,7 @@
+ 
+ 		/* shares pads with dpaux1 */
+ 		dp_aux_ch1_i2c: i2c@3190000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x03190000 0x10000>;
+ 			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -171,7 +171,7 @@
+ 
+ 		/* shares pads with dpaux0 */
+ 		dp_aux_ch0_i2c: i2c@31b0000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x031b0000 0x10000>;
+ 			interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -184,7 +184,7 @@
+ 		};
+ 
+ 		gen7_i2c: i2c@31c0000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x031c0000 0x10000>;
+ 			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -197,7 +197,7 @@
+ 		};
+ 
+ 		gen9_i2c: i2c@31e0000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x031e0000 0x10000>;
+ 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -264,7 +264,7 @@
+ 		};
+ 
+ 		gen2_i2c: i2c@c240000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x0c240000 0x10000>;
+ 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
+@@ -277,7 +277,7 @@
+ 		};
+ 
+ 		gen8_i2c: i2c@c250000 {
+-			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
++			compatible = "nvidia,tegra194-i2c";
+ 			reg = <0x0c250000 0x10000>;
+ 			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
+ 			#address-cells = <1>;
 -- 
 2.20.1
 
