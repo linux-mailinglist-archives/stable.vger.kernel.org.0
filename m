@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 241C2101910
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4BA101924
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727833AbfKSFWr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:22:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38154 "EHLO mail.kernel.org"
+        id S1726658AbfKSFU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:20:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727829AbfKSFWr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:22:47 -0500
+        id S1726573AbfKSFU5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:20:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5AEF21939;
-        Tue, 19 Nov 2019 05:22:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD72522319;
+        Tue, 19 Nov 2019 05:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574140966;
-        bh=tu0Rc8b6GxVmN+U6FBQh53szbTYC73ta5z5AP/vLPUg=;
+        s=default; t=1574140857;
+        bh=avfu55Y2iDIi0f8VzZAaA4QFY5w/y4Xlk4OEvEcrJ1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2A+aba7C6eEDHefK9zKuEZV2d4sJ+MRkw4LKWAIzBsCEdsObUk5CvkiSYh+SdJUp/
-         aCzsNDBRjZFnYAbF11PhZfkTKsYR5NvO3EbTmf+sO6VMZ6SQGYlwWTzJOXp+EpT8xO
-         OE6vEeeRSsZ0JRokRFVAa5ffDsvQl8iQgKLIosGQ=
+        b=nL9TYp91LFnRAGc3ia74XrlWj0qqeNzEF2AN3aJGc5coT+Hr5ZyWa2BVhvxeaprnH
+         i/wg/tcEEwpDoS0rJQA69KhuKsw2+qG+0rSTGDHPqjkvNxrwhSV7EzI/O4eUC820Vh
+         a31PP/cOiTIJjkvGX6WSAluTy7SuSkkcJQRAqSsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Jouni Hogander <jouni.hogander@unikie.com>
-Subject: [PATCH 5.3 09/48] slip: Fix memory leak in slip_open error path
-Date:   Tue, 19 Nov 2019 06:19:29 +0100
-Message-Id: <20191119050955.380296035@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        Tony Lu <tonylu@linux.alibaba.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.3 10/48] tcp: remove redundant new line from tcp_event_sk_skb
+Date:   Tue, 19 Nov 2019 06:19:30 +0100
+Message-Id: <20191119050956.866669523@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119050946.745015350@linuxfoundation.org>
 References: <20191119050946.745015350@linuxfoundation.org>
@@ -45,55 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Hogander <jouni.hogander@unikie.com>
+From: Tony Lu <tonylu@linux.alibaba.com>
 
-[ Upstream commit 3b5a39979dafea9d0cd69c7ae06088f7a84cdafa ]
+[ Upstream commit dd3d792def0d4f33bbf319982b1878b0c8aaca34 ]
 
-Driver/net/can/slcan.c is derived from slip.c. Memory leak was detected
-by Syzkaller in slcan. Same issue exists in slip.c and this patch is
-addressing the leak in slip.c.
+This removes '\n' from trace event class tcp_event_sk_skb to avoid
+redundant new blank line and make output compact.
 
-Here is the slcan memory leak trace reported by Syzkaller:
-
-BUG: memory leak unreferenced object 0xffff888067f65500 (size 4096):
-  comm "syz-executor043", pid 454, jiffies 4294759719 (age 11.930s)
-  hex dump (first 32 bytes):
-    73 6c 63 61 6e 30 00 00 00 00 00 00 00 00 00 00 slcan0..........
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
-  backtrace:
-    [<00000000a06eec0d>] __kmalloc+0x18b/0x2c0
-    [<0000000083306e66>] kvmalloc_node+0x3a/0xc0
-    [<000000006ac27f87>] alloc_netdev_mqs+0x17a/0x1080
-    [<0000000061a996c9>] slcan_open+0x3ae/0x9a0
-    [<000000001226f0f9>] tty_ldisc_open.isra.1+0x76/0xc0
-    [<0000000019289631>] tty_set_ldisc+0x28c/0x5f0
-    [<000000004de5a617>] tty_ioctl+0x48d/0x1590
-    [<00000000daef496f>] do_vfs_ioctl+0x1c7/0x1510
-    [<0000000059068dbc>] ksys_ioctl+0x99/0xb0
-    [<000000009a6eb334>] __x64_sys_ioctl+0x78/0xb0
-    [<0000000053d0332e>] do_syscall_64+0x16f/0x580
-    [<0000000021b83b99>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-    [<000000008ea75434>] 0xfffffffffffffff
-
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Oliver Hartkopp <socketcan@hartkopp.net>
-Cc: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Signed-off-by: Jouni Hogander <jouni.hogander@unikie.com>
+Fixes: af4325ecc24f ("tcp: expose sk_state in tcp_retransmit_skb tracepoint")
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: Tony Lu <tonylu@linux.alibaba.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/slip/slip.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/trace/events/tcp.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/slip/slip.c
-+++ b/drivers/net/slip/slip.c
-@@ -855,6 +855,7 @@ err_free_chan:
- 	sl->tty = NULL;
- 	tty->disc_data = NULL;
- 	clear_bit(SLF_INUSE, &sl->flags);
-+	free_netdev(sl->dev);
+--- a/include/trace/events/tcp.h
++++ b/include/trace/events/tcp.h
+@@ -86,7 +86,7 @@ DECLARE_EVENT_CLASS(tcp_event_sk_skb,
+ 			      sk->sk_v6_rcv_saddr, sk->sk_v6_daddr);
+ 	),
  
- err_exit:
- 	rtnl_unlock();
+-	TP_printk("sport=%hu dport=%hu saddr=%pI4 daddr=%pI4 saddrv6=%pI6c daddrv6=%pI6c state=%s\n",
++	TP_printk("sport=%hu dport=%hu saddr=%pI4 daddr=%pI4 saddrv6=%pI6c daddrv6=%pI6c state=%s",
+ 		  __entry->sport, __entry->dport, __entry->saddr, __entry->daddr,
+ 		  __entry->saddr_v6, __entry->daddr_v6,
+ 		  show_tcp_state_name(__entry->state))
 
 
