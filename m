@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE7E410173F
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:01:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FBCF1017AF
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731017AbfKSF6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:58:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45616 "EHLO mail.kernel.org"
+        id S1730087AbfKSFkP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:40:15 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731414AbfKSFtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:49:01 -0500
+        id S1728876AbfKSFkO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:40:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 216AA20862;
-        Tue, 19 Nov 2019 05:48:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8306121783;
+        Tue, 19 Nov 2019 05:40:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142540;
-        bh=fyEovHonIi28L8n/cm3MK/odCyRSRZIyQ7OjuLbLtdA=;
+        s=default; t=1574142014;
+        bh=m6fIGk2f8vaLLz+v7jVvYjREXcJWMYr3qzHcOjDW0jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=in8DGZx7cCrl1yDixAK9lWA9kAe95AUIKFbRDvQLMcUXAUMvuJareo94QR9kht/HL
-         ZGegzzea5jdrNzttVU/bBuUZEyJjZeiGrbI3oiJqvjkvwP6pCq20A+QNdkYfv5f0/o
-         DlusjFy7qfF0YC/5N/UlAYEEKs9BKFTmJ3a7aMeA=
+        b=ShfMl3LjWDykvWfSp550c77BOtrON6WXswxZqcDeFMaKpNfYIdcHLywYroiEw+cPm
+         HyWBtUYEm1OsTQtyV/NLACxjeonfbu/9NFjuJmlkH6mKQuUzV2BchBnfbGKyUntKk+
+         TAkmFcQ3QeON27JXuV3WbCI5Bz2Zr8L4J9MBo/4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Modra <amodra@gmail.com>,
-        Reza Arbab <arbab@linux.ibm.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 115/239] powerpc/vdso: Correct call frame information
+Subject: [PATCH 4.19 318/422] net: micrel: fix return type of ndo_start_xmit function
 Date:   Tue, 19 Nov 2019 06:18:35 +0100
-Message-Id: <20191119051328.957111578@linuxfoundation.org>
+Message-Id: <20191119051419.599634113@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Modra <amodra@gmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 56d20861c027498b5a1112b4f9f05b56d906fdda ]
+[ Upstream commit 2b49117a5abee8478b0470cba46ac74f93b4a479 ]
 
-Call Frame Information is used by gdb for back-traces and inserting
-breakpoints on function return for the "finish" command.  This failed
-when inside __kernel_clock_gettime.  More concerning than difficulty
-debugging is that CFI is also used by stack frame unwinding code to
-implement exceptions.  If you have an app that needs to handle
-asynchronous exceptions for some reason, and you are unlucky enough to
-get one inside the VDSO time functions, your app will crash.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-What's wrong:  There is control flow in __kernel_clock_gettime that
-reaches label 99 without saving lr in r12.  CFI info however is
-interpreted by the unwinder without reference to control flow: It's a
-simple matter of "Execute all the CFI opcodes up to the current
-address".  That means the unwinder thinks r12 contains the return
-address at label 99.  Disabuse it of that notion by resetting CFI for
-the return address at label 99.
+Found by coccinelle.
 
-Note that the ".cfi_restore lr" could have gone anywhere from the
-"mtlr r12" a few instructions earlier to the instruction at label 99.
-I put the CFI as late as possible, because in general that's best
-practice (and if possible grouped with other CFI in order to reduce
-the number of CFI opcodes executed when unwinding).  Using r12 as the
-return address is perfectly fine after the "mtlr r12" since r12 on
-that code path still contains the return address.
-
-__get_datapage also has a CFI error.  That function temporarily saves
-lr in r0, and reflects that fact with ".cfi_register lr,r0".  A later
-use of r0 means the CFI at that point isn't correct, as r0 no longer
-contains the return address.  Fix that too.
-
-Signed-off-by: Alan Modra <amodra@gmail.com>
-Tested-by: Reza Arbab <arbab@linux.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/vdso32/datapage.S     | 1 +
- arch/powerpc/kernel/vdso32/gettimeofday.S | 1 +
- arch/powerpc/kernel/vdso64/datapage.S     | 1 +
- arch/powerpc/kernel/vdso64/gettimeofday.S | 1 +
- 4 files changed, 4 insertions(+)
+ drivers/net/ethernet/micrel/ks8695net.c  | 2 +-
+ drivers/net/ethernet/micrel/ks8851_mll.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/vdso32/datapage.S b/arch/powerpc/kernel/vdso32/datapage.S
-index 3745113fcc652..2a7eb5452aba7 100644
---- a/arch/powerpc/kernel/vdso32/datapage.S
-+++ b/arch/powerpc/kernel/vdso32/datapage.S
-@@ -37,6 +37,7 @@ data_page_branch:
- 	mtlr	r0
- 	addi	r3, r3, __kernel_datapage_offset-data_page_branch
- 	lwz	r0,0(r3)
-+  .cfi_restore lr
- 	add	r3,r0,r3
- 	blr
-   .cfi_endproc
-diff --git a/arch/powerpc/kernel/vdso32/gettimeofday.S b/arch/powerpc/kernel/vdso32/gettimeofday.S
-index 769c2624e0a6b..1e0bc5955a400 100644
---- a/arch/powerpc/kernel/vdso32/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso32/gettimeofday.S
-@@ -139,6 +139,7 @@ V_FUNCTION_BEGIN(__kernel_clock_gettime)
- 	 */
- 99:
- 	li	r0,__NR_clock_gettime
-+  .cfi_restore lr
- 	sc
- 	blr
-   .cfi_endproc
-diff --git a/arch/powerpc/kernel/vdso64/datapage.S b/arch/powerpc/kernel/vdso64/datapage.S
-index abf17feffe404..bf96686915116 100644
---- a/arch/powerpc/kernel/vdso64/datapage.S
-+++ b/arch/powerpc/kernel/vdso64/datapage.S
-@@ -37,6 +37,7 @@ data_page_branch:
- 	mtlr	r0
- 	addi	r3, r3, __kernel_datapage_offset-data_page_branch
- 	lwz	r0,0(r3)
-+  .cfi_restore lr
- 	add	r3,r0,r3
- 	blr
-   .cfi_endproc
-diff --git a/arch/powerpc/kernel/vdso64/gettimeofday.S b/arch/powerpc/kernel/vdso64/gettimeofday.S
-index 3820213248836..09b2a49f6dd53 100644
---- a/arch/powerpc/kernel/vdso64/gettimeofday.S
-+++ b/arch/powerpc/kernel/vdso64/gettimeofday.S
-@@ -124,6 +124,7 @@ V_FUNCTION_BEGIN(__kernel_clock_gettime)
- 	 */
- 99:
- 	li	r0,__NR_clock_gettime
-+  .cfi_restore lr
- 	sc
- 	blr
-   .cfi_endproc
+diff --git a/drivers/net/ethernet/micrel/ks8695net.c b/drivers/net/ethernet/micrel/ks8695net.c
+index bd51e057e9150..b881f5d4a7f9e 100644
+--- a/drivers/net/ethernet/micrel/ks8695net.c
++++ b/drivers/net/ethernet/micrel/ks8695net.c
+@@ -1164,7 +1164,7 @@ ks8695_timeout(struct net_device *ndev)
+  *	sk_buff and adds it to the TX ring. It then kicks the TX DMA
+  *	engine to ensure transmission begins.
+  */
+-static int
++static netdev_tx_t
+ ks8695_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ {
+ 	struct ks8695_priv *ksp = netdev_priv(ndev);
+diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
+index 0e9719fbc6243..35f8c9ef204d9 100644
+--- a/drivers/net/ethernet/micrel/ks8851_mll.c
++++ b/drivers/net/ethernet/micrel/ks8851_mll.c
+@@ -1021,9 +1021,9 @@ static void ks_write_qmu(struct ks_net *ks, u8 *pdata, u16 len)
+  * spin_lock_irqsave is required because tx and rx should be mutual exclusive.
+  * So while tx is in-progress, prevent IRQ interrupt from happenning.
+  */
+-static int ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
++static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+-	int retv = NETDEV_TX_OK;
++	netdev_tx_t retv = NETDEV_TX_OK;
+ 	struct ks_net *ks = netdev_priv(netdev);
+ 
+ 	disable_irq(netdev->irq);
 -- 
 2.20.1
 
