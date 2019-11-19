@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D631016E8
+	by mail.lfdr.de (Postfix) with ESMTP id AC0FB1016E9
 	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731615AbfKSFuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:50:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47450 "EHLO mail.kernel.org"
+        id S1730283AbfKSFu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:50:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731611AbfKSFuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:50:24 -0500
+        id S1731626AbfKSFu1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:50:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4782B21783;
-        Tue, 19 Nov 2019 05:50:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8136B214D9;
+        Tue, 19 Nov 2019 05:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142624;
-        bh=eCG85q6t7YJoJKlRi9ND0119j3qWg7j8OP8APe9k2Zg=;
+        s=default; t=1574142627;
+        bh=yd/2s7NgD5N/H4tCXDGVVAgmUhkj7AtVXMSL9P/ctck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vLCMPMXskpmsffM4DNq/HbWmvPZLoOv8AMtu3EzHTjBvG4ZIIOHciL6e53nqdC9xd
-         EqDarZEiPZc7/geayIrjJbPrcILj2MpjL6Z/cEqDHCMVFurmSWdEcrJkhX9bIC1rzX
-         so7S3NAmVwEaz2p8sOjvvPMQ/M7T63weHwWrW+fs=
+        b=BuQc1BM1I8/yu19XBJ4e9NwFPz2Etwu7iOf0sPt/oW+xKZ90hVBnV48nUzW8kFmin
+         0c7SRzTHRoeAUFP646uukjTgWH4xjRlKu/FBdzwEn4bdSVfN22y1NLL/VPj2ZgqbJK
+         1IxppL7+D6W6jWYWeM6NZmNh48EoG560b5Eoi3uI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Niklas Cassel <niklas.cassel@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 144/239] OPP: Protect dev_list with opp_table lock
-Date:   Tue, 19 Nov 2019 06:19:04 +0100
-Message-Id: <20191119051332.034700923@linuxfoundation.org>
+Subject: [PATCH 4.14 145/239] libfdt: Ensure INT_MAX is defined in libfdt_env.h
+Date:   Tue, 19 Nov 2019 06:19:05 +0100
+Message-Id: <20191119051332.226062838@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -44,134 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Viresh Kumar <viresh.kumar@linaro.org>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 3d2556992a878a2210d3be498416aee39e0c32aa ]
+[ Upstream commit 53dd9dce6979bc54d64a3a09a2fb20187a025be7 ]
 
-The dev_list needs to be protected with a lock, else we may have
-simultaneous access (addition/removal) to it and that would be racy.
-Extend scope of the opp_table lock to protect dev_list as well.
+The next update of libfdt has a new dependency on INT_MAX. Update the
+instances of libfdt_env.h in the kernel to either include the necessary
+header with the definition or define it locally.
 
-Tested-by: Niklas Cassel <niklas.cassel@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/opp/core.c | 21 +++++++++++++++++++--
- drivers/base/power/opp/cpu.c  |  2 ++
- drivers/base/power/opp/opp.h  |  2 +-
- 3 files changed, 22 insertions(+), 3 deletions(-)
+ arch/arm/boot/compressed/libfdt_env.h | 2 ++
+ arch/powerpc/boot/libfdt_env.h        | 2 ++
+ include/linux/libfdt_env.h            | 1 +
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/base/power/opp/core.c b/drivers/base/power/opp/core.c
-index d5e7e8cc4f221..8100c87691497 100644
---- a/drivers/base/power/opp/core.c
-+++ b/drivers/base/power/opp/core.c
-@@ -49,9 +49,14 @@ static struct opp_device *_find_opp_dev(const struct device *dev,
- static struct opp_table *_find_opp_table_unlocked(struct device *dev)
- {
- 	struct opp_table *opp_table;
-+	bool found;
+diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
+index 07437816e0986..b36c0289a308e 100644
+--- a/arch/arm/boot/compressed/libfdt_env.h
++++ b/arch/arm/boot/compressed/libfdt_env.h
+@@ -6,6 +6,8 @@
+ #include <linux/string.h>
+ #include <asm/byteorder.h>
  
- 	list_for_each_entry(opp_table, &opp_tables, node) {
--		if (_find_opp_dev(dev, opp_table)) {
-+		mutex_lock(&opp_table->lock);
-+		found = !!_find_opp_dev(dev, opp_table);
-+		mutex_unlock(&opp_table->lock);
++#define INT_MAX			((int)(~0U>>1))
 +
-+		if (found) {
- 			_get_opp_table_kref(opp_table);
+ typedef __be16 fdt16_t;
+ typedef __be32 fdt32_t;
+ typedef __be64 fdt64_t;
+diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
+index f52c31b1f48fa..39155d3b2cefa 100644
+--- a/arch/powerpc/boot/libfdt_env.h
++++ b/arch/powerpc/boot/libfdt_env.h
+@@ -5,6 +5,8 @@
+ #include <types.h>
+ #include <string.h>
  
- 			return opp_table;
-@@ -711,6 +716,8 @@ struct opp_device *_add_opp_dev(const struct device *dev,
- 
- 	/* Initialize opp-dev */
- 	opp_dev->dev = dev;
++#define INT_MAX			((int)(~0U>>1))
 +
-+	mutex_lock(&opp_table->lock);
- 	list_add(&opp_dev->node, &opp_table->dev_list);
+ #include "of.h"
  
- 	/* Create debugfs entries for the opp_table */
-@@ -718,6 +725,7 @@ struct opp_device *_add_opp_dev(const struct device *dev,
- 	if (ret)
- 		dev_err(dev, "%s: Failed to register opp debugfs (%d)\n",
- 			__func__, ret);
-+	mutex_unlock(&opp_table->lock);
+ typedef u32 uint32_t;
+diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
+index 14997285e53d3..1aa707ab19bbf 100644
+--- a/include/linux/libfdt_env.h
++++ b/include/linux/libfdt_env.h
+@@ -2,6 +2,7 @@
+ #ifndef _LIBFDT_ENV_H
+ #define _LIBFDT_ENV_H
  
- 	return opp_dev;
- }
-@@ -736,6 +744,7 @@ static struct opp_table *_allocate_opp_table(struct device *dev)
- 	if (!opp_table)
- 		return NULL;
++#include <linux/kernel.h>	/* For INT_MAX */
+ #include <linux/string.h>
  
-+	mutex_init(&opp_table->lock);
- 	INIT_LIST_HEAD(&opp_table->dev_list);
- 
- 	opp_dev = _add_opp_dev(dev, opp_table);
-@@ -757,7 +766,6 @@ static struct opp_table *_allocate_opp_table(struct device *dev)
- 
- 	BLOCKING_INIT_NOTIFIER_HEAD(&opp_table->head);
- 	INIT_LIST_HEAD(&opp_table->opp_list);
--	mutex_init(&opp_table->lock);
- 	kref_init(&opp_table->kref);
- 
- 	/* Secure the device table modification */
-@@ -799,6 +807,10 @@ static void _opp_table_kref_release(struct kref *kref)
- 	if (!IS_ERR(opp_table->clk))
- 		clk_put(opp_table->clk);
- 
-+	/*
-+	 * No need to take opp_table->lock here as we are guaranteed that no
-+	 * references to the OPP table are taken at this point.
-+	 */
- 	opp_dev = list_first_entry(&opp_table->dev_list, struct opp_device,
- 				   node);
- 
-@@ -1702,6 +1714,9 @@ void _dev_pm_opp_remove_table(struct opp_table *opp_table, struct device *dev,
- {
- 	struct dev_pm_opp *opp, *tmp;
- 
-+	/* Protect dev_list */
-+	mutex_lock(&opp_table->lock);
-+
- 	/* Find if opp_table manages a single device */
- 	if (list_is_singular(&opp_table->dev_list)) {
- 		/* Free static OPPs */
-@@ -1712,6 +1727,8 @@ void _dev_pm_opp_remove_table(struct opp_table *opp_table, struct device *dev,
- 	} else {
- 		_remove_opp_dev(_find_opp_dev(dev, opp_table), opp_table);
- 	}
-+
-+	mutex_unlock(&opp_table->lock);
- }
- 
- void _dev_pm_opp_find_and_remove_table(struct device *dev, bool remove_all)
-diff --git a/drivers/base/power/opp/cpu.c b/drivers/base/power/opp/cpu.c
-index 2d87bc1adf38b..66e406bd4d628 100644
---- a/drivers/base/power/opp/cpu.c
-+++ b/drivers/base/power/opp/cpu.c
-@@ -222,8 +222,10 @@ int dev_pm_opp_get_sharing_cpus(struct device *cpu_dev, struct cpumask *cpumask)
- 	cpumask_clear(cpumask);
- 
- 	if (opp_table->shared_opp == OPP_TABLE_ACCESS_SHARED) {
-+		mutex_lock(&opp_table->lock);
- 		list_for_each_entry(opp_dev, &opp_table->dev_list, node)
- 			cpumask_set_cpu(opp_dev->dev->id, cpumask);
-+		mutex_unlock(&opp_table->lock);
- 	} else {
- 		cpumask_set_cpu(cpu_dev->id, cpumask);
- 	}
-diff --git a/drivers/base/power/opp/opp.h b/drivers/base/power/opp/opp.h
-index 166eef9905995..0a206c6b90868 100644
---- a/drivers/base/power/opp/opp.h
-+++ b/drivers/base/power/opp/opp.h
-@@ -124,7 +124,7 @@ enum opp_table_access {
-  * @dev_list:	list of devices that share these OPPs
-  * @opp_list:	table of opps
-  * @kref:	for reference count of the table.
-- * @lock:	mutex protecting the opp_list.
-+ * @lock:	mutex protecting the opp_list and dev_list.
-  * @np:		struct device_node pointer for opp's DT node.
-  * @clock_latency_ns_max: Max clock latency in nanoseconds.
-  * @shared_opp: OPP is shared between multiple devices.
+ #include <asm/byteorder.h>
 -- 
 2.20.1
 
