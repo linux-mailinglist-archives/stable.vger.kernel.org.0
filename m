@@ -2,226 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9562102263
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 11:57:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13C051022C8
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 12:17:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726637AbfKSK5O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 05:57:14 -0500
-Received: from a27-186.smtp-out.us-west-2.amazonses.com ([54.240.27.186]:42508
-        "EHLO a27-186.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726555AbfKSK5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 05:57:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1574161033;
-        h=Subject:To:References:From:Message-ID:Date:MIME-Version:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-        bh=xfDtV50w7tZiUC3kp+koTJ74nvTkxuOuaJRy67IFzAQ=;
-        b=cb086TmMPc4zbmS11My0oSHkx/EVr6X3IXSvQOuURw2o63/IpP9wc/lWBEKe/AEG
-        VjrflqjrlhobS4qqdYOkdElp768bl5vN/sN3bkX3ed+cepXUYgKhfC4k+x+ADaSGOL3
-        vjNfp2lIqJ3bJbCKOalDixQnFyH340yn1PXW619M=
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1574161033;
-        h=Subject:To:References:From:Message-ID:Date:MIME-Version:In-Reply-To:Content-Type:Content-Transfer-Encoding:Feedback-ID;
-        bh=xfDtV50w7tZiUC3kp+koTJ74nvTkxuOuaJRy67IFzAQ=;
-        b=Ad2DReIuIUhNfwJ30p7lhAoDqG+6WOkmyn5OAfrk8m8cz+M42LfXiZ/PMdqLrfhu
-        EhHCgZDk1VscXLSsrsruCuuebtn2Nv8V1I1d0r4mL033ySzuahJC0HvB8xP3doJMMhg
-        lMZyjVdKxy5BSID9pIqXZNcyu9Oudjcj+eX5zlA8=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-1.0 required=2.0 tests=ALL_TRUSTED,SPF_NONE,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org EEA28C447A0
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=vinmenon@codeaurora.org
-Subject: Re: FAILED: patch "[PATCH] mm/page_io.c: do not free shared swap
- slots" failed to apply to 4.19-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>, akpm@linux-foundation.org,
-        hughd@google.com, mhocko@suse.com, minchan@google.com,
-        minchan@kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-References: <1574095036140231@kroah.com> <20191118164038.GA595410@kroah.com>
-From:   Vinayak Menon <vinmenon@codeaurora.org>
-Message-ID: <0101016e834f2833-62565910-1153-4759-bed3-4779158dc514-000000@us-west-2.amazonses.com>
-Date:   Tue, 19 Nov 2019 10:57:13 +0000
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.1
+        id S1726165AbfKSLRH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 06:17:07 -0500
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:39794 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726000AbfKSLRH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 06:17:07 -0500
+Received: by mail-wr1-f68.google.com with SMTP id l7so23326386wrp.6
+        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 03:17:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pmLBujEphKkpDcEb0Ulnil8Cqx256T7mYb2KwVCXUZI=;
+        b=sHP6bfpmiz2ylEe+M6v4A6U7U9S6RcKXY2paJUe4VpORrKrMoiSPpZi668R3pm3XvR
+         wpGW76VzM6MnvJYiEhi+zJxz5ZAfaYnypUoypenitZ2XAZhMI2VdSitbO7mff72TQDgq
+         IhmrAg15Vr9V+iXf37wxdwOSdz0isQxz3D63lD8S4OkeA4QY0rLMv9s0+MZwy+sw4u6N
+         b/Vm+1GNi+ApNP3YpDqvGT9gBFhKm+AFrad5rSkJFRYGnp9EiMTwis+uvmcvB0A2iNiX
+         2TY/Wd5JIk06CAGlsI6smIL0RIwc/7FyV38SGfaCMbr67sE4aR9RGXqve/psPB6H0Lll
+         8y1w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pmLBujEphKkpDcEb0Ulnil8Cqx256T7mYb2KwVCXUZI=;
+        b=MAo2/y5j2fDavO8jcWkG2cg3ENEdFD5JfbFThO7rAjCkPmbkLxgHoa6bxBr37zTgEH
+         f+cQ1B1rl9VIvIJnkzFpJ17O2l04MPTTBTmh5QDm5RLOPPJnOtFt9YDY7FjTFLtmrENb
+         S6mvnHuanV10N852OWM6WTbmzY9hua7kiS0dA5E2kOA5qbcHA3Rz621vw+r7neJ1EcHi
+         pJxADGrAXWA+e2HNxpc6CW/KBOccBXZi15dAAPSfRO/2OkHMZ1x2zfOd+GeUODkNOmV6
+         FgHJ5NVnp0NqDdpWFA5PvdBEPrg3e5+9R10W2VpmedqzfHAp+dphXndcOb3wSX/CkWHP
+         lqMQ==
+X-Gm-Message-State: APjAAAUGwYLtCXfTkfiJgRmik4FyxTWGv6SPwRi/8iASGROfIrJzFzRf
+        6go7BGSsMcH3gGR3S0ktVmUYplRmya4MBQ==
+X-Google-Smtp-Source: APXvYqzW9qkqK5PFS4Eg0kJ4vYfuvP3DAV3v4VaHYQY6CfOZekXVd7CvD95l4gm2Gma6RR0sc0SxYQ==
+X-Received: by 2002:adf:e506:: with SMTP id j6mr37259979wrm.19.1574162224162;
+        Tue, 19 Nov 2019 03:17:04 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id z17sm26315760wrh.57.2019.11.19.03.17.02
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Nov 2019 03:17:03 -0800 (PST)
+Message-ID: <5dd3cf2f.1c69fb81.c4469.d810@mx.google.com>
+Date:   Tue, 19 Nov 2019 03:17:03 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20191118164038.GA595410@kroah.com>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-SES-Outgoing: 2019.11.19-54.240.27.186
-Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.154-240-gab050cd3bb84
+Subject: stable-rc/linux-4.14.y boot: 83 boots: 1 failed,
+ 73 passed with 9 offline (v4.14.154-240-gab050cd3bb84)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y boot: 83 boots: 1 failed, 73 passed with 9 offline (=
+v4.14.154-240-gab050cd3bb84)
 
-On 11/18/2019 10:10 PM, Greg KH wrote:
-> On Mon, Nov 18, 2019 at 05:37:16PM +0100, gregkh@linuxfoundation.org wrote:
->> The patch below does not apply to the 4.19-stable tree.
->> If someone wants it applied there, or to any other stable or longterm
->> tree, then please email the backport, including the original git commit
->> id to <stable@vger.kernel.org>.
-> Note, this applies, but just breaks the build, so it needs a backport
-> for 4.19 if people want to see it there.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.154-240-gab050cd3bb84/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.154-240-gab050cd3bb84/
 
-The version below fixes the build on 4.19.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.154-240-gab050cd3bb84
+Git Commit: ab050cd3bb84dbcaf833a1abd102e5814a2112cd
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 50 unique boards, 18 SoC families, 13 builds out of 201
 
->
-> thanks,
->
-> greg k-h
+Boot Regressions Detected:
 
-From 3745cc4bb5cddbc1058889e4f779492060d5e550 Mon Sep 17 00:00:00 2001
-From: Vinayak Menon <vinmenon@codeaurora.org>
-Date: Fri, 15 Nov 2019 17:35:00 -0800
-Subject: [PATCH] mm/page_io.c: do not free shared swap slots
+arm:
 
-commit 5df373e95689b9519b8557da7c5bd0db0856d776 upstream.
+    bcm2835_defconfig:
+        gcc-8:
+          bcm2835-rpi-b:
+              lab-baylibre-seattle: new failure (last pass: v4.14.154)
 
-The following race is observed due to which a processes faulting on a
-swap entry, finds the page neither in swapcache nor swap.  This causes
-zram to give a zero filled page that gets mapped to the process,
-resulting in a user space crash later.
+    exynos_defconfig:
+        gcc-8:
+          exynos5422-odroidxu3:
+              lab-baylibre: new failure (last pass: v4.14.154)
 
-Consider parent and child processes Pa and Pb sharing the same swap slot
-with swap_count 2.  Swap is on zram with SWP_SYNCHRONOUS_IO set.
-Virtual address 'VA' of Pa and Pb points to the shared swap entry.
+Boot Failure Detected:
 
-Pa                                       Pb
+arm:
+    exynos_defconfig:
+        gcc-8:
+            exynos5422-odroidxu3: 1 failed lab
 
-fault on VA                              fault on VA
-do_swap_page                             do_swap_page
-lookup_swap_cache fails                  lookup_swap_cache fails
-                                         Pb scheduled out
-swapin_readahead (deletes zram entry)
-swap_free (makes swap_count 1)
-                                         Pb scheduled in
-                                         swap_readpage (swap_count == 1)
-                                         Takes SWP_SYNCHRONOUS_IO path
-                                         zram enrty absent
-                                         zram gives a zero filled page
+Offline Platforms:
 
-Fix this by making sure that swap slot is freed only when swap count
-drops down to one.
+arm64:
 
-Link: http://lkml.kernel.org/r/1571743294-14285-1-git-send-email-vinmenon@codeaurora.org
-Fixes: aa8d22a11da9 ("mm: swap: SWP_SYNCHRONOUS_IO: skip swapcache only if swapped page has no other reference")
-Signed-off-by: Vinayak Menon <vinmenon@codeaurora.org>
-Suggested-by: Minchan Kim <minchan@google.com>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    defconfig:
+        gcc-8
+            mt7622-rfb1: 1 offline lab
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
 ---
- mm/page_io.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/mm/page_io.c b/mm/page_io.c
-index abc1466..e763047 100644
---- a/mm/page_io.c
-+++ b/mm/page_io.c
-@@ -77,6 +77,7 @@ static void swap_slot_free_notify(struct page *page)
- {
-        struct swap_info_struct *sis;
-        struct gendisk *disk;
-+       swp_entry_t entry;
-
-        /*
-         * There is no guarantee that the page is in swap cache - the software
-@@ -108,11 +109,11 @@ static void swap_slot_free_notify(struct page *page)
-         * we again wish to reclaim it.
-         */
-        disk = sis->bdev->bd_disk;
--       if (disk->fops->swap_slot_free_notify) {
--               swp_entry_t entry;
-+       entry.val = page_private(page);
-+       if (disk->fops->swap_slot_free_notify &&
-+                       __swap_count(sis, entry) == 1) {
-                unsigned long offset;
-
--               entry.val = page_private(page);
-                offset = swp_offset(entry);
-
-                SetPageDirty(page);
---
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a
-member of the Code Aurora Forum, hosted by The Linux Foundation
-
->
->> ------------------ original commit in Linus's tree ------------------
->>
->> >From 5df373e95689b9519b8557da7c5bd0db0856d776 Mon Sep 17 00:00:00 2001
->> From: Vinayak Menon <vinmenon@codeaurora.org>
->> Date: Fri, 15 Nov 2019 17:35:00 -0800
->> Subject: [PATCH] mm/page_io.c: do not free shared swap slots
->>
->> The following race is observed due to which a processes faulting on a
->> swap entry, finds the page neither in swapcache nor swap.  This causes
->> zram to give a zero filled page that gets mapped to the process,
->> resulting in a user space crash later.
->>
->> Consider parent and child processes Pa and Pb sharing the same swap slot
->> with swap_count 2.  Swap is on zram with SWP_SYNCHRONOUS_IO set.
->> Virtual address 'VA' of Pa and Pb points to the shared swap entry.
->>
->> Pa                                       Pb
->>
->> fault on VA                              fault on VA
->> do_swap_page                             do_swap_page
->> lookup_swap_cache fails                  lookup_swap_cache fails
->>                                          Pb scheduled out
->> swapin_readahead (deletes zram entry)
->> swap_free (makes swap_count 1)
->>                                          Pb scheduled in
->>                                          swap_readpage (swap_count == 1)
->>                                          Takes SWP_SYNCHRONOUS_IO path
->>                                          zram enrty absent
->>                                          zram gives a zero filled page
->>
->> Fix this by making sure that swap slot is freed only when swap count
->> drops down to one.
->>
->> Link: http://lkml.kernel.org/r/1571743294-14285-1-git-send-email-vinmenon@codeaurora.org
->> Fixes: aa8d22a11da9 ("mm: swap: SWP_SYNCHRONOUS_IO: skip swapcache only if swapped page has no other reference")
->> Signed-off-by: Vinayak Menon <vinmenon@codeaurora.org>
->> Suggested-by: Minchan Kim <minchan@google.com>
->> Acked-by: Minchan Kim <minchan@kernel.org>
->> Cc: Michal Hocko <mhocko@suse.com>
->> Cc: Hugh Dickins <hughd@google.com>
->> Cc: <stable@vger.kernel.org>
->> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
->> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
->>
->> diff --git a/mm/page_io.c b/mm/page_io.c
->> index 24ee600f9131..60a66a58b9bf 100644
->> --- a/mm/page_io.c
->> +++ b/mm/page_io.c
->> @@ -73,6 +73,7 @@ static void swap_slot_free_notify(struct page *page)
->>  {
->>  	struct swap_info_struct *sis;
->>  	struct gendisk *disk;
->> +	swp_entry_t entry;
->>  
->>  	/*
->>  	 * There is no guarantee that the page is in swap cache - the software
->> @@ -104,11 +105,10 @@ static void swap_slot_free_notify(struct page *page)
->>  	 * we again wish to reclaim it.
->>  	 */
->>  	disk = sis->bdev->bd_disk;
->> -	if (disk->fops->swap_slot_free_notify) {
->> -		swp_entry_t entry;
->> +	entry.val = page_private(page);
->> +	if (disk->fops->swap_slot_free_notify && __swap_count(entry) == 1) {
->>  		unsigned long offset;
->>  
->> -		entry.val = page_private(page);
->>  		offset = swp_offset(entry);
->>  
->>  		SetPageDirty(page);
->>
+For more info write to <info@kernelci.org>
