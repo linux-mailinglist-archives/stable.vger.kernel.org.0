@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DCE31018CF
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DFEF1018C3
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:11:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727176AbfKSGI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 01:08:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48264 "EHLO mail.kernel.org"
+        id S1727905AbfKSF3s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:29:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48422 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727333AbfKSF3l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:29:41 -0500
+        id S1728525AbfKSF3r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:29:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DC5E21783;
-        Tue, 19 Nov 2019 05:29:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1535E21939;
+        Tue, 19 Nov 2019 05:29:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141380;
-        bh=ZPSKGSZEulSokc6OQ6g3QxfBYvIV5a0XHwF8ROZCzws=;
+        s=default; t=1574141386;
+        bh=at/HoHkmjnY+BK7GL6shu8EYd2ZI3hl/LZhn9cks92k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufbx80CNWEHclkgKtqQRJGfFj23gdHOBXD5h5YIl05rMsRRHEBuPzVPqWflK+UtFd
-         ru5kzRwrsGoUyiB25JSNHcOBVj1hLsc2Qan6vN5V+RywAFcAdOo2RLZWcuSJs4KeAR
-         KaaHNFFT3qIMP6fmJT+0+mFsZDO8JJVW8VWLwAiA=
+        b=NhTOQCPwDmn1cZ+/jgvCvUPFfk5shex31ANNeUIYoOEogeZsPS88gv2gGNlElSISS
+         Uidk8ye/XzPjex4u2zi8hlNtlKVNoOqYzAjqeTYheN0ZduJtZIOBSFc1+LOZvR0sIK
+         kl7CzciWgq6CpcFuXxXkX0jp+8uj4SXP15PQTQPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Jiada Wang <jiada_wang@mentor.com>,
+        Timo Wischer <twischer@de.adit-jv.com>,
+        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
+        Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 100/422] mt76: Fix comparisons with invalid hardware key index
-Date:   Tue, 19 Nov 2019 06:14:57 +0100
-Message-Id: <20191119051405.729889312@linuxfoundation.org>
+Subject: [PATCH 4.19 102/422] ASoC: rsnd: ssi: Fix issue in dma data address assignment
+Date:   Tue, 19 Nov 2019 06:14:59 +0100
+Message-Id: <20191119051405.834496921@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,57 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Jiada Wang <jiada_wang@mentor.com>
 
-[ Upstream commit 81c8eccc2404d06082025b773f1d90e8c861bc6a ]
+[ Upstream commit 0e289012b47a2de1f029a6b61c75998e2f159dd9 ]
 
-With gcc 4.1.2:
+Same SSI device may be used in different dai links,
+by only having one dma struct in rsnd_ssi, after the first
+instance's dma config be initilized, the following instances
+can no longer configure dma, this causes issue, when their
+dma data address are different from the first instance.
 
-    drivers/net/wireless/mediatek/mt76/mt76x0/tx.c: In function ‘mt76x0_tx’:
-    drivers/net/wireless/mediatek/mt76/mt76x0/tx.c:169: warning: comparison is always true due to limited range of data type
-    drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c: In function ‘mt76x2_tx’:
-    drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c:35: warning: comparison is always true due to limited range of data type
-
-While assigning -1 to a u8 works fine, comparing with -1 does not work
-as expected.
-
-Fix this by comparing with 0xff, like is already done in some other
-places.
-
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
+Signed-off-by: Timo Wischer <twischer@de.adit-jv.com>
+[Kuninori: tidyup for upstream]
+Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+Tested-by: Hiroyuki Yokoyama <hiroyuki.yokoyama.vx@renesas.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76x0/tx.c        | 2 +-
- drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ sound/soc/sh/rcar/rsnd.h | 1 +
+ sound/soc/sh/rcar/ssi.c  | 4 +---
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c b/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c
-index 751b49c28ae53..c45d05d5aab1d 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x0/tx.c
-@@ -166,7 +166,7 @@ void mt76x0_tx(struct ieee80211_hw *hw, struct ieee80211_tx_control *control,
- 	if (sta) {
- 		msta = (struct mt76_sta *) sta->drv_priv;
- 		wcid = &msta->wcid;
--	} else if (vif && (!info->control.hw_key && wcid->hw_key_idx != -1)) {
-+	} else if (vif && (!info->control.hw_key && wcid->hw_key_idx != 0xff)) {
- 		struct mt76_vif *mvif = (struct mt76_vif *)vif->drv_priv;
+diff --git a/sound/soc/sh/rcar/rsnd.h b/sound/soc/sh/rcar/rsnd.h
+index 8f7a0abfa751e..f64c7058b258b 100644
+--- a/sound/soc/sh/rcar/rsnd.h
++++ b/sound/soc/sh/rcar/rsnd.h
+@@ -438,6 +438,7 @@ struct rsnd_dai_stream {
+ 	char name[RSND_DAI_NAME_SIZE];
+ 	struct snd_pcm_substream *substream;
+ 	struct rsnd_mod *mod[RSND_MOD_MAX];
++	struct rsnd_mod *dma;
+ 	struct rsnd_dai *rdai;
+ 	struct device *dmac_dev; /* for IPMMU */
+ 	u32 parent_ssi_status;
+diff --git a/sound/soc/sh/rcar/ssi.c b/sound/soc/sh/rcar/ssi.c
+index 9410e0a9b14b7..33dc8d6ad35b2 100644
+--- a/sound/soc/sh/rcar/ssi.c
++++ b/sound/soc/sh/rcar/ssi.c
+@@ -72,7 +72,6 @@
  
- 		wcid = &mvif->group_wcid;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c b/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c
-index 36afb166fa3ff..c0ca0df84ed8b 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76x2_tx_common.c
-@@ -32,7 +32,7 @@ void mt76x2_tx(struct ieee80211_hw *hw, struct ieee80211_tx_control *control,
- 		msta = (struct mt76x2_sta *)control->sta->drv_priv;
- 		wcid = &msta->wcid;
- 		/* sw encrypted frames */
--		if (!info->control.hw_key && wcid->hw_key_idx != -1)
-+		if (!info->control.hw_key && wcid->hw_key_idx != 0xff)
- 			control->sta = NULL;
- 	}
+ struct rsnd_ssi {
+ 	struct rsnd_mod mod;
+-	struct rsnd_mod *dma;
  
+ 	u32 flags;
+ 	u32 cr_own;
+@@ -873,7 +872,6 @@ static int rsnd_ssi_dma_probe(struct rsnd_mod *mod,
+ 			      struct rsnd_dai_stream *io,
+ 			      struct rsnd_priv *priv)
+ {
+-	struct rsnd_ssi *ssi = rsnd_mod_to_ssi(mod);
+ 	int ret;
+ 
+ 	/*
+@@ -888,7 +886,7 @@ static int rsnd_ssi_dma_probe(struct rsnd_mod *mod,
+ 		return ret;
+ 
+ 	/* SSI probe might be called many times in MUX multi path */
+-	ret = rsnd_dma_attach(io, mod, &ssi->dma);
++	ret = rsnd_dma_attach(io, mod, &io->dma);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
