@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16634101518
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:40:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9D4E101640
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:51:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730432AbfKSFkk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:40:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34806 "EHLO mail.kernel.org"
+        id S1728641AbfKSFvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:51:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729961AbfKSFkg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:40:36 -0500
+        id S1728903AbfKSFvb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:51:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BD5A208C3;
-        Tue, 19 Nov 2019 05:40:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A861820721;
+        Tue, 19 Nov 2019 05:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142036;
-        bh=yRG4lXGZHqVRRehlry61nL/wufOOr98J8YvVsQqt1zw=;
+        s=default; t=1574142691;
+        bh=9vHTsqmnu+cuuI3EJ+XhZIbw+Rq+l0wS6KturhsKzNY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hYVJpdmNCP7NygYM6DiYb8OCIAXy8gGi+n3/VV+UngdTGf5IXlDzlppr+1lbVR7Ye
-         u1X99bgERjiwc1/DC8/NPgL2uj5BN4M6cRquC3YHKfcFMxMhrJV+19zIUeb+0Oosi9
-         JcJj8zAv0c/e2G5x9sV8tuqBtsFjQl73ixT7XpVo=
+        b=BsgImu1UDDoZ+Q0Ttm4RCwUhBuzkgUd9HE4cMgT6UOhRfsucPVgwe76AwR9c/pQZS
+         lEjt6RwtkZoi36LnZZZ8l/MZYhtwJFcQTYrwWQJ06g0oHQOq4WZwtlGlT7yXxV9GrO
+         pb7VrMJG3SZExONJUXCWSC2NVKVldAgmmafFOSAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 367/422] arm64: tegra: I2C on Tegra194 is not compatible with Tegra114
-Date:   Tue, 19 Nov 2019 06:19:24 +0100
-Message-Id: <20191119051422.796145230@linuxfoundation.org>
+Subject: [PATCH 4.14 165/239] cpufeature: avoid warning when compiling with clang
+Date:   Tue, 19 Nov 2019 06:19:25 +0100
+Message-Id: <20191119051333.624198701@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,95 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Stefan Agner <stefan@agner.ch>
 
-[ Upstream commit d9fd22447ba59a9b53a202fade977e82bfba8d8d ]
+[ Upstream commit c785896b21dd8e156326ff660050b0074d3431df ]
 
-Tegra194 contains a version of the I2C controller that is no longer
-compatible with the version found in Tegra114.
+The table id (second) argument to MODULE_DEVICE_TABLE is often
+referenced otherwise. This is not the case for CPU features. This
+leads to warnings when building the kernel with Clang:
+  arch/arm/crypto/aes-ce-glue.c:450:1: warning: variable
+    'cpu_feature_match_AES' is not needed and will not be emitted
+    [-Wunneeded-internal-declaration]
+  module_cpu_feature_match(AES, aes_init);
+  ^
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Avoid warnings by using __maybe_unused, similar to commit 1f318a8bafcf
+("modules: mark __inittest/__exittest as __maybe_unused").
+
+Fixes: 67bad2fdb754 ("cpu: add generic support for CPU feature based module autoloading")
+Signed-off-by: Stefan Agner <stefan@agner.ch>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ include/linux/cpufeature.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index a4dfcd19b9e88..9fc14bb9a0aff 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -118,7 +118,7 @@
- 		};
- 
- 		gen1_i2c: i2c@3160000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x03160000 0x10000>;
- 			interrupts = <GIC_SPI 25 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
-@@ -143,7 +143,7 @@
- 		};
- 
- 		cam_i2c: i2c@3180000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x03180000 0x10000>;
- 			interrupts = <GIC_SPI 27 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
-@@ -157,7 +157,7 @@
- 
- 		/* shares pads with dpaux1 */
- 		dp_aux_ch1_i2c: i2c@3190000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x03190000 0x10000>;
- 			interrupts = <GIC_SPI 28 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
-@@ -171,7 +171,7 @@
- 
- 		/* shares pads with dpaux0 */
- 		dp_aux_ch0_i2c: i2c@31b0000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x031b0000 0x10000>;
- 			interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
-@@ -184,7 +184,7 @@
- 		};
- 
- 		gen7_i2c: i2c@31c0000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x031c0000 0x10000>;
- 			interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
-@@ -197,7 +197,7 @@
- 		};
- 
- 		gen9_i2c: i2c@31e0000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x031e0000 0x10000>;
- 			interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
-@@ -264,7 +264,7 @@
- 		};
- 
- 		gen2_i2c: i2c@c240000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x0c240000 0x10000>;
- 			interrupts = <GIC_SPI 26 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
-@@ -277,7 +277,7 @@
- 		};
- 
- 		gen8_i2c: i2c@c250000 {
--			compatible = "nvidia,tegra194-i2c", "nvidia,tegra114-i2c";
-+			compatible = "nvidia,tegra194-i2c";
- 			reg = <0x0c250000 0x10000>;
- 			interrupts = <GIC_SPI 32 IRQ_TYPE_LEVEL_HIGH>;
- 			#address-cells = <1>;
+diff --git a/include/linux/cpufeature.h b/include/linux/cpufeature.h
+index 986c06c88d814..84d3c81b59781 100644
+--- a/include/linux/cpufeature.h
++++ b/include/linux/cpufeature.h
+@@ -45,7 +45,7 @@
+  * 'asm/cpufeature.h' of your favorite architecture.
+  */
+ #define module_cpu_feature_match(x, __initfunc)			\
+-static struct cpu_feature const cpu_feature_match_ ## x[] =	\
++static struct cpu_feature const __maybe_unused cpu_feature_match_ ## x[] = \
+ 	{ { .feature = cpu_feature(x) }, { } };			\
+ MODULE_DEVICE_TABLE(cpu, cpu_feature_match_ ## x);		\
+ 								\
 -- 
 2.20.1
 
