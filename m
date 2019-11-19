@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 714AD1016ED
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F71610151F
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:41:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731673AbfKSFuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:50:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47928 "EHLO mail.kernel.org"
+        id S1728651AbfKSFk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:40:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731103AbfKSFup (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:50:45 -0500
+        id S1730458AbfKSFky (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:40:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C077220721;
-        Tue, 19 Nov 2019 05:50:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15E3F208C3;
+        Tue, 19 Nov 2019 05:40:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142644;
-        bh=+XJXz3djOkX6qUW8ZeX4FHTSxzDRH4wUCa7Q+XLf6A4=;
+        s=default; t=1574142053;
+        bh=k8d5s75KhVKjgm3jmwxPY/yUWZ6JYWL1KLUdROsgTKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OfdHWjv6CJk/OmqyiLY374FbmhowqanH8zo2tiq4JecFr36pGxX82y5BMW9ETKAEU
-         y4OWF5Jrc6wZKJQGtcR2e0lqraYO+CKBJ99U4lYT+wcrqxZPHf+986qHM85Qhig13V
-         zWADuJWq0UO9oMln1RKRdCfBefWrgapTPlKpUDI8=
+        b=g7AaRCcBxppnbYZ6rkLcA8bgrNDBTANvr4jmVmePF/IYtKFule66w0lCar/iJdCm5
+         /JkXnTcQHiUqT33lSEyYa5nJWUqZGVfyo99nAeffbkvdgZFA0bdvn/CwGkRI+6OEry
+         1Vl1CNTpNISGFKIZ4Rx7puEVjNywWl3DWxKc+1EU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 151/239] net: amd: fix return type of ndo_start_xmit function
-Date:   Tue, 19 Nov 2019 06:19:11 +0100
-Message-Id: <20191119051332.639673462@linuxfoundation.org>
+Subject: [PATCH 4.19 355/422] misc: kgdbts: Fix restrict error
+Date:   Tue, 19 Nov 2019 06:19:12 +0100
+Message-Id: <20191119051422.023773594@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,138 +44,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Laura Abbott <labbott@redhat.com>
 
-[ Upstream commit fe72352e37ae8478f4c97975a9831f0c50f22e73 ]
+[ Upstream commit fa0218ef733e6f247a1a3986e3eb12460064ac77 ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+kgdbts current fails when compiled with restrict:
 
-Found by coccinelle.
+drivers/misc/kgdbts.c: In function ‘configure_kgdbts’:
+drivers/misc/kgdbts.c:1070:2: error: ‘strcpy’ source argument is the same as destination [-Werror=restrict]
+  strcpy(config, opt);
+  ^~~~~~~~~~~~~~~~~~~
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+As the error says, config is being used in both the source and destination.
+Refactor the code to avoid the extra copy and put the parsing closer to
+the actual location.
+
+Signed-off-by: Laura Abbott <labbott@redhat.com>
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/am79c961a.c     | 2 +-
- drivers/net/ethernet/amd/atarilance.c    | 6 ++++--
- drivers/net/ethernet/amd/declance.c      | 2 +-
- drivers/net/ethernet/amd/sun3lance.c     | 6 ++++--
- drivers/net/ethernet/amd/sunlance.c      | 2 +-
- drivers/net/ethernet/amd/xgbe/xgbe-drv.c | 4 ++--
- 6 files changed, 13 insertions(+), 9 deletions(-)
+ drivers/misc/kgdbts.c | 16 ++++++----------
+ 1 file changed, 6 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/net/ethernet/amd/am79c961a.c b/drivers/net/ethernet/amd/am79c961a.c
-index b11e910850f7f..78d1e5385a3ee 100644
---- a/drivers/net/ethernet/amd/am79c961a.c
-+++ b/drivers/net/ethernet/amd/am79c961a.c
-@@ -440,7 +440,7 @@ static void am79c961_timeout(struct net_device *dev)
- /*
-  * Transmit a packet
-  */
--static int
-+static netdev_tx_t
- am79c961_sendpacket(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct dev_priv *priv = netdev_priv(dev);
-diff --git a/drivers/net/ethernet/amd/atarilance.c b/drivers/net/ethernet/amd/atarilance.c
-index c5b81268c2849..d3d44e07afbc0 100644
---- a/drivers/net/ethernet/amd/atarilance.c
-+++ b/drivers/net/ethernet/amd/atarilance.c
-@@ -339,7 +339,8 @@ static unsigned long lance_probe1( struct net_device *dev, struct lance_addr
-                                    *init_rec );
- static int lance_open( struct net_device *dev );
- static void lance_init_ring( struct net_device *dev );
--static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev );
-+static netdev_tx_t lance_start_xmit(struct sk_buff *skb,
-+				    struct net_device *dev);
- static irqreturn_t lance_interrupt( int irq, void *dev_id );
- static int lance_rx( struct net_device *dev );
- static int lance_close( struct net_device *dev );
-@@ -769,7 +770,8 @@ static void lance_tx_timeout (struct net_device *dev)
+diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
+index eb4d90b7d99e1..8b01257783dd8 100644
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -985,6 +985,12 @@ static void kgdbts_run_tests(void)
+ 	int nmi_sleep = 0;
+ 	int i;
  
- /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
- 
--static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev )
-+static netdev_tx_t
-+lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct lance_private *lp = netdev_priv(dev);
- 	struct lance_ioreg	 *IO = lp->iobase;
-diff --git a/drivers/net/ethernet/amd/declance.c b/drivers/net/ethernet/amd/declance.c
-index c7cde58feaf7a..290d070b293bf 100644
---- a/drivers/net/ethernet/amd/declance.c
-+++ b/drivers/net/ethernet/amd/declance.c
-@@ -893,7 +893,7 @@ static void lance_tx_timeout(struct net_device *dev)
- 	netif_wake_queue(dev);
- }
- 
--static int lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct lance_private *lp = netdev_priv(dev);
- 	volatile struct lance_regs *ll = lp->ll;
-diff --git a/drivers/net/ethernet/amd/sun3lance.c b/drivers/net/ethernet/amd/sun3lance.c
-index 77b1db2677309..da7e3d4f41661 100644
---- a/drivers/net/ethernet/amd/sun3lance.c
-+++ b/drivers/net/ethernet/amd/sun3lance.c
-@@ -236,7 +236,8 @@ struct lance_private {
- static int lance_probe( struct net_device *dev);
- static int lance_open( struct net_device *dev );
- static void lance_init_ring( struct net_device *dev );
--static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev );
-+static netdev_tx_t lance_start_xmit(struct sk_buff *skb,
-+				    struct net_device *dev);
- static irqreturn_t lance_interrupt( int irq, void *dev_id);
- static int lance_rx( struct net_device *dev );
- static int lance_close( struct net_device *dev );
-@@ -511,7 +512,8 @@ static void lance_init_ring( struct net_device *dev )
- }
- 
- 
--static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev )
-+static netdev_tx_t
-+lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct lance_private *lp = netdev_priv(dev);
- 	int entry, len;
-diff --git a/drivers/net/ethernet/amd/sunlance.c b/drivers/net/ethernet/amd/sunlance.c
-index 9845e07d40cd3..1a44c8c26b8a1 100644
---- a/drivers/net/ethernet/amd/sunlance.c
-+++ b/drivers/net/ethernet/amd/sunlance.c
-@@ -1106,7 +1106,7 @@ static void lance_tx_timeout(struct net_device *dev)
- 	netif_wake_queue(dev);
- }
- 
--static int lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct lance_private *lp = netdev_priv(dev);
- 	int entry, skblen, len;
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-index 75c4455e22717..c65d2cdcc7cfb 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
-@@ -1964,7 +1964,7 @@ static int xgbe_close(struct net_device *netdev)
++	verbose = 0;
++	if (strstr(config, "V1"))
++		verbose = 1;
++	if (strstr(config, "V2"))
++		verbose = 2;
++
+ 	ptr = strchr(config, 'F');
+ 	if (ptr)
+ 		fork_test = simple_strtol(ptr + 1, NULL, 10);
+@@ -1068,13 +1074,6 @@ static int kgdbts_option_setup(char *opt)
+ 		return -ENOSPC;
+ 	}
+ 	strcpy(config, opt);
+-
+-	verbose = 0;
+-	if (strstr(config, "V1"))
+-		verbose = 1;
+-	if (strstr(config, "V2"))
+-		verbose = 2;
+-
  	return 0;
  }
  
--static int xgbe_xmit(struct sk_buff *skb, struct net_device *netdev)
-+static netdev_tx_t xgbe_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
- 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
- 	struct xgbe_hw_if *hw_if = &pdata->hw_if;
-@@ -1973,7 +1973,7 @@ static int xgbe_xmit(struct sk_buff *skb, struct net_device *netdev)
- 	struct xgbe_ring *ring;
- 	struct xgbe_packet_data *packet;
- 	struct netdev_queue *txq;
--	int ret;
-+	netdev_tx_t ret;
+@@ -1086,9 +1085,6 @@ static int configure_kgdbts(void)
  
- 	DBGPR("-->xgbe_xmit: skb->len = %d\n", skb->len);
+ 	if (!strlen(config) || isspace(config[0]))
+ 		goto noconfig;
+-	err = kgdbts_option_setup(config);
+-	if (err)
+-		goto noconfig;
  
+ 	final_ack = 0;
+ 	run_plant_and_detach_test(1);
 -- 
 2.20.1
 
