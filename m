@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BB921015E1
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94A4F101608
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:49:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731050AbfKSFsO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:48:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
+        id S1731512AbfKSFth (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:49:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731321AbfKSFsO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:48:14 -0500
+        id S1731486AbfKSFtg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:49:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1B2762071B;
-        Tue, 19 Nov 2019 05:48:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B65820721;
+        Tue, 19 Nov 2019 05:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142493;
-        bh=HdPHDp3BlBc7LAHKrrfU2bGbLW19OD8QFTgc6uk6uuQ=;
+        s=default; t=1574142576;
+        bh=DgnMDlLLXfeQeKctRy7xaYZdYGgwE1jsdDjdNnqBmGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=riFTTKZ6IO+EVfwa6h5lSAClLtek8a5VgbZ+0QIC3kEE13LZtY5BCYC0SfeXlvfsq
-         8TWPZgHanvdOLalSA1HBrlUeoKg2uW3gcZU+ybADzXwqp+KAZA5iWWPr6BRHhwy8iZ
-         tFcUetGmYr74manTJuDWGUTR7+wGGtZKcbXqhT2M=
+        b=CjuqBj+lpMPdvbbEaLVcPnbiuP2rf1gEM3g2kxqnKNV0KFAWXvgZAwAmE7VJdKnI0
+         QoDit+l+0CRAyLUkv/FNWztkwahgj9TUttt9HDRYfyetxUDqMBBRUPvdBo7/NZlTcL
+         exCje0AeX7wyswwWOiVim2S5N97ANBtx1c38f2Ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vicente Bergas <vicencb@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 083/239] arm64: dts: rockchip: Fix VCC5V0_HOST_EN on rk3399-sapphire
-Date:   Tue, 19 Nov 2019 06:18:03 +0100
-Message-Id: <20191119051316.339430105@linuxfoundation.org>
+Subject: [PATCH 4.14 088/239] rtc: pl030: fix possible race condition
+Date:   Tue, 19 Nov 2019 06:18:08 +0100
+Message-Id: <20191119051318.980849038@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
 References: <20191119051255.850204959@linuxfoundation.org>
@@ -44,32 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vicente Bergas <vicencb@gmail.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-[ Upstream commit bcdb578a5f5b4aea79441606ab7f0a2e076b4474 ]
+[ Upstream commit c778ec85825dc895936940072aea9fe9037db684 ]
 
-The pin is GPIO4-D1 not GPIO1-D1, see schematic, page 15 for reference.
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-Signed-off-by: Vicente Bergas <vicencb@gmail.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+before requesting the IRQ.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-pl030.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi
-index ce592a4c0c4cd..82576011b959b 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi
-@@ -136,7 +136,7 @@
- 	vcc5v0_host: vcc5v0-host-regulator {
- 		compatible = "regulator-fixed";
- 		enable-active-high;
--		gpio = <&gpio1 RK_PD1 GPIO_ACTIVE_HIGH>;
-+		gpio = <&gpio4 RK_PD1 GPIO_ACTIVE_HIGH>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&vcc5v0_host_en>;
- 		regulator-name = "vcc5v0_host";
+diff --git a/drivers/rtc/rtc-pl030.c b/drivers/rtc/rtc-pl030.c
+index f85a1a93e669f..343bb6ed17839 100644
+--- a/drivers/rtc/rtc-pl030.c
++++ b/drivers/rtc/rtc-pl030.c
+@@ -112,6 +112,13 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
+ 		goto err_rtc;
+ 	}
+ 
++	rtc->rtc = devm_rtc_allocate_device(&dev->dev);
++	if (IS_ERR(rtc->rtc)) {
++		ret = PTR_ERR(rtc->rtc);
++		goto err_rtc;
++	}
++
++	rtc->rtc->ops = &pl030_ops;
+ 	rtc->base = ioremap(dev->res.start, resource_size(&dev->res));
+ 	if (!rtc->base) {
+ 		ret = -ENOMEM;
+@@ -128,12 +135,9 @@ static int pl030_probe(struct amba_device *dev, const struct amba_id *id)
+ 	if (ret)
+ 		goto err_irq;
+ 
+-	rtc->rtc = rtc_device_register("pl030", &dev->dev, &pl030_ops,
+-				       THIS_MODULE);
+-	if (IS_ERR(rtc->rtc)) {
+-		ret = PTR_ERR(rtc->rtc);
++	ret = rtc_register_device(rtc->rtc);
++	if (ret)
+ 		goto err_reg;
+-	}
+ 
+ 	return 0;
+ 
+@@ -154,7 +158,6 @@ static int pl030_remove(struct amba_device *dev)
+ 	writel(0, rtc->base + RTC_CR);
+ 
+ 	free_irq(dev->irq[0], rtc);
+-	rtc_device_unregister(rtc->rtc);
+ 	iounmap(rtc->base);
+ 	amba_release_regions(dev);
+ 
 -- 
 2.20.1
 
