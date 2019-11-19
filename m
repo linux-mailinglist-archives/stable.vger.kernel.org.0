@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC1E510150E
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:40:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE6A21015F8
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:49:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730059AbfKSFkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:40:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34288 "EHLO mail.kernel.org"
+        id S1727482AbfKSFtF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:49:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729283AbfKSFkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:40:10 -0500
+        id S1731012AbfKSFtE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:49:04 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3728D218BA;
-        Tue, 19 Nov 2019 05:40:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 668B120721;
+        Tue, 19 Nov 2019 05:49:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142008;
-        bh=5ZDLL2jzO0bYUJZZV6wHwNTMpEYiGBSQOV5StXzn/1U=;
+        s=default; t=1574142543;
+        bh=nrwlX0+o3IBQvyjj/20EPhRXPTRgqzdCYKUR/stkalw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PYc3dQOhRqRT+X42sRY+YQRxg4GeC3lrg3lPPT9HhnZ7Ja5WxGyVl4JVtWZtZ7q9X
-         zfvsCowdOb3KKf+W5Pq6sBFgl1HEU+86XwTvpd/xfu6JBhTFa7ClMnN3YpAno5kKAu
-         K0fFzrNMPi8a6niDnjDgOkJGpob3ws+FFo96FE/k=
+        b=eHsgPknTN0XLQ1NyaHfkDKHjoUbhUKiUbmE1+nVy9PzALh5dE77x41Nv/s/iBNhaP
+         iS0piYSWv9+xv9vz1mrcgZAla4cWrvvSiWB7x/x/GOe3R0sRk2CWPoKudTc9ADM7Er
+         Yjd7LMnidk69lSeihNsh7PITpMIXUON1JturenwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Prashant Bhole <bhole_prashant_q7@lab.ntt.co.jp>,
-        Song Liu <songliubraving@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 316/422] samples/bpf: fix compilation failure
-Date:   Tue, 19 Nov 2019 06:18:33 +0100
-Message-Id: <20191119051419.471438761@linuxfoundation.org>
+Subject: [PATCH 4.14 116/239] ARM: dts: socfpga: Fix I2C bus unit-address error
+Date:   Tue, 19 Nov 2019 06:18:36 +0100
+Message-Id: <20191119051329.015669223@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,145 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Bhole <bhole_prashant_q7@lab.ntt.co.jp>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit 32c009798385ce21080beaa87a9b95faad3acd1e ]
+[ Upstream commit cbbc488ed85061a765cf370c3e41f383c1e0add6 ]
 
-following commit:
-commit d58e468b1112 ("flow_dissector: implements flow dissector BPF hook")
-added struct bpf_flow_keys which conflicts with the struct with
-same name in sockex2_kern.c and sockex3_kern.c
+dtc has new checks for I2C buses. Fix the warnings in unit-addresses.
 
-similar to commit:
-commit 534e0e52bc23 ("samples/bpf: fix a compilation failure")
-we tried the rename it "flow_keys" but it also conflicted with struct
-having same name in include/net/flow_dissector.h. Hence renaming the
-struct to "flow_key_record". Also, this commit doesn't fix the
-compilation error completely because the similar struct is present in
-sockex3_kern.c. Hence renaming it in both files sockex3_user.c and
-sockex3_kern.c
+arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dtb: Warning (i2c_bus_reg): /soc/i2c@ffc04000/adxl345@0: I2C bus unit address format error, expected "53"
 
-Signed-off-by: Prashant Bhole <bhole_prashant_q7@lab.ntt.co.jp>
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/sockex2_kern.c | 11 ++++++-----
- samples/bpf/sockex3_kern.c |  8 ++++----
- samples/bpf/sockex3_user.c |  4 ++--
- 3 files changed, 12 insertions(+), 11 deletions(-)
+ arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/samples/bpf/sockex2_kern.c b/samples/bpf/sockex2_kern.c
-index f58acfc925561..f2f9dbc021b0d 100644
---- a/samples/bpf/sockex2_kern.c
-+++ b/samples/bpf/sockex2_kern.c
-@@ -14,7 +14,7 @@ struct vlan_hdr {
- 	__be16 h_vlan_encapsulated_proto;
- };
+diff --git a/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts b/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
+index b280e64941938..31b01a998b2ed 100644
+--- a/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
++++ b/arch/arm/boot/dts/socfpga_cyclone5_de0_sockit.dts
+@@ -88,7 +88,7 @@
+ 	status = "okay";
+ 	clock-frequency = <100000>;
  
--struct bpf_flow_keys {
-+struct flow_key_record {
- 	__be32 src;
- 	__be32 dst;
- 	union {
-@@ -59,7 +59,7 @@ static inline __u32 ipv6_addr_hash(struct __sk_buff *ctx, __u64 off)
- }
+-	adxl345: adxl345@0 {
++	adxl345: adxl345@53 {
+ 		compatible = "adi,adxl345";
+ 		reg = <0x53>;
  
- static inline __u64 parse_ip(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_proto,
--			     struct bpf_flow_keys *flow)
-+			     struct flow_key_record *flow)
- {
- 	__u64 verlen;
- 
-@@ -83,7 +83,7 @@ static inline __u64 parse_ip(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_proto
- }
- 
- static inline __u64 parse_ipv6(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_proto,
--			       struct bpf_flow_keys *flow)
-+			       struct flow_key_record *flow)
- {
- 	*ip_proto = load_byte(skb,
- 			      nhoff + offsetof(struct ipv6hdr, nexthdr));
-@@ -96,7 +96,8 @@ static inline __u64 parse_ipv6(struct __sk_buff *skb, __u64 nhoff, __u64 *ip_pro
- 	return nhoff;
- }
- 
--static inline bool flow_dissector(struct __sk_buff *skb, struct bpf_flow_keys *flow)
-+static inline bool flow_dissector(struct __sk_buff *skb,
-+				  struct flow_key_record *flow)
- {
- 	__u64 nhoff = ETH_HLEN;
- 	__u64 ip_proto;
-@@ -198,7 +199,7 @@ struct bpf_map_def SEC("maps") hash_map = {
- SEC("socket2")
- int bpf_prog2(struct __sk_buff *skb)
- {
--	struct bpf_flow_keys flow = {};
-+	struct flow_key_record flow = {};
- 	struct pair *value;
- 	u32 key;
- 
-diff --git a/samples/bpf/sockex3_kern.c b/samples/bpf/sockex3_kern.c
-index 95907f8d2b17d..c527b57d3ec8a 100644
---- a/samples/bpf/sockex3_kern.c
-+++ b/samples/bpf/sockex3_kern.c
-@@ -61,7 +61,7 @@ struct vlan_hdr {
- 	__be16 h_vlan_encapsulated_proto;
- };
- 
--struct bpf_flow_keys {
-+struct flow_key_record {
- 	__be32 src;
- 	__be32 dst;
- 	union {
-@@ -88,7 +88,7 @@ static inline __u32 ipv6_addr_hash(struct __sk_buff *ctx, __u64 off)
- }
- 
- struct globals {
--	struct bpf_flow_keys flow;
-+	struct flow_key_record flow;
- };
- 
- struct bpf_map_def SEC("maps") percpu_map = {
-@@ -114,14 +114,14 @@ struct pair {
- 
- struct bpf_map_def SEC("maps") hash_map = {
- 	.type = BPF_MAP_TYPE_HASH,
--	.key_size = sizeof(struct bpf_flow_keys),
-+	.key_size = sizeof(struct flow_key_record),
- 	.value_size = sizeof(struct pair),
- 	.max_entries = 1024,
- };
- 
- static void update_stats(struct __sk_buff *skb, struct globals *g)
- {
--	struct bpf_flow_keys key = g->flow;
-+	struct flow_key_record key = g->flow;
- 	struct pair *value;
- 
- 	value = bpf_map_lookup_elem(&hash_map, &key);
-diff --git a/samples/bpf/sockex3_user.c b/samples/bpf/sockex3_user.c
-index 22f74d0e14934..9d02e0404719a 100644
---- a/samples/bpf/sockex3_user.c
-+++ b/samples/bpf/sockex3_user.c
-@@ -13,7 +13,7 @@
- #define PARSE_IP_PROG_FD (prog_fd[0])
- #define PROG_ARRAY_FD (map_fd[0])
- 
--struct flow_keys {
-+struct flow_key_record {
- 	__be32 src;
- 	__be32 dst;
- 	union {
-@@ -64,7 +64,7 @@ int main(int argc, char **argv)
- 	(void) f;
- 
- 	for (i = 0; i < 5; i++) {
--		struct flow_keys key = {}, next_key;
-+		struct flow_key_record key = {}, next_key;
- 		struct pair value;
- 
- 		sleep(1);
 -- 
 2.20.1
 
