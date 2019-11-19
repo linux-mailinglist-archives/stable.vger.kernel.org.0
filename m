@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DC5010134E
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:24:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95BB1101351
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:24:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728172AbfKSFYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:24:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40350 "EHLO mail.kernel.org"
+        id S1728191AbfKSFYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:24:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728153AbfKSFYS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:24:18 -0500
+        id S1727321AbfKSFYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:24:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D866B21939;
-        Tue, 19 Nov 2019 05:24:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B45BF22312;
+        Tue, 19 Nov 2019 05:24:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141057;
-        bh=KPzPGrs3RHMR4XpWDr6msZIFfclTa17HYqsGsUlAfzI=;
+        s=default; t=1574141063;
+        bh=rov3wtJSAYgXd5mk0ZDxS1aVT47hCOAi1MsTY650SM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAKCZ6xh5Q5ZzCeYNF8+9TZkVXaXxlPy4HU49YfBBVp6CPjVlXmc4fygVS2yL9x/0
-         xm10z4GUBcmH719S8fsJxUqaa5xbPJnyPRXATIpfxlB70Vv9m8jWULN3t9n3iUhDMT
-         +3y9MFQ/PV2Ff/BzqYLDlOG6ddQhbiPe78NT3am0=
+        b=CpXpY659lvhBfyuywS14tSnAAQ/NYYu6Y4/mbE95vviBlLFckVNvy70qSVCGtGxBU
+         Vyh/5Ry5wGvRMw+gHd+w5zM5kBOkhGurLPisVRbV85WVfUrlSFDudFVva3B8zsky/h
+         hJ82VPh26aPxLiX+mkHY01uvIVfFyV8yG81wjc0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tejun Heo <tj@kernel.org>, Shakeel Butt <shakeeb@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Michal Koutn <mkoutny@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 030/422] mm: memcg: switch to css_tryget() in get_mem_cgroup_from_mm()
-Date:   Tue, 19 Nov 2019 06:13:47 +0100
-Message-Id: <20191119051401.996176899@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Eugen Hristev <eugen.hristev@microchip.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.19 032/422] mmc: sdhci-of-at91: fix quirk2 overwrite
+Date:   Tue, 19 Nov 2019 06:13:49 +0100
+Message-Id: <20191119051402.103701922@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -48,80 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Eugen Hristev <eugen.hristev@microchip.com>
 
-commit 00d484f354d85845991b40141d40ba9e5eb60faf upstream.
+commit fed23c5829ecab4ddc712d7b0046e59610ca3ba4 upstream.
 
-We've encountered a rcu stall in get_mem_cgroup_from_mm():
+The quirks2 are parsed and set (e.g. from DT) before the quirk for broken
+HS200 is set in the driver.
+The driver needs to enable just this flag, not rewrite the whole quirk set.
 
-  rcu: INFO: rcu_sched self-detected stall on CPU
-  rcu: 33-....: (21000 ticks this GP) idle=6c6/1/0x4000000000000002 softirq=35441/35441 fqs=5017
-  (t=21031 jiffies g=324821 q=95837) NMI backtrace for cpu 33
-  <...>
-  RIP: 0010:get_mem_cgroup_from_mm+0x2f/0x90
-  <...>
-   __memcg_kmem_charge+0x55/0x140
-   __alloc_pages_nodemask+0x267/0x320
-   pipe_write+0x1ad/0x400
-   new_sync_write+0x127/0x1c0
-   __kernel_write+0x4f/0xf0
-   dump_emit+0x91/0xc0
-   writenote+0xa0/0xc0
-   elf_core_dump+0x11af/0x1430
-   do_coredump+0xc65/0xee0
-   get_signal+0x132/0x7c0
-   do_signal+0x36/0x640
-   exit_to_usermode_loop+0x61/0xd0
-   do_syscall_64+0xd4/0x100
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The problem is caused by an exiting task which is associated with an
-offline memcg.  We're iterating over and over in the do {} while
-(!css_tryget_online()) loop, but obviously the memcg won't become online
-and the exiting task won't be migrated to a live memcg.
-
-Let's fix it by switching from css_tryget_online() to css_tryget().
-
-As css_tryget_online() cannot guarantee that the memcg won't go offline,
-the check is usually useless, except some rare cases when for example it
-determines if something should be presented to a user.
-
-A similar problem is described by commit 18fa84a2db0e ("cgroup: Use
-css_tryget() instead of css_tryget_online() in task_get_css()").
-
-Johannes:
-
-: The bug aside, it doesn't matter whether the cgroup is online for the
-: callers.  It used to matter when offlining needed to evacuate all charges
-: from the memcg, and so needed to prevent new ones from showing up, but we
-: don't care now.
-
-Link: http://lkml.kernel.org/r/20191106225131.3543616-1-guro@fb.com
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Shakeel Butt <shakeeb@google.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Michal Koutn <mkoutny@suse.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7871aa60ae00 ("mmc: sdhci-of-at91: add quirk for broken HS200")
+Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/memcontrol.c |    2 +-
+ drivers/mmc/host/sdhci-of-at91.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -851,7 +851,7 @@ struct mem_cgroup *get_mem_cgroup_from_m
- 			if (unlikely(!memcg))
- 				memcg = root_mem_cgroup;
- 		}
--	} while (!css_tryget_online(&memcg->css));
-+	} while (!css_tryget(&memcg->css));
- 	rcu_read_unlock();
- 	return memcg;
- }
+--- a/drivers/mmc/host/sdhci-of-at91.c
++++ b/drivers/mmc/host/sdhci-of-at91.c
+@@ -366,7 +366,7 @@ static int sdhci_at91_probe(struct platf
+ 	pm_runtime_use_autosuspend(&pdev->dev);
+ 
+ 	/* HS200 is broken at this moment */
+-	host->quirks2 = SDHCI_QUIRK2_BROKEN_HS200;
++	host->quirks2 |= SDHCI_QUIRK2_BROKEN_HS200;
+ 
+ 	ret = sdhci_add_host(host);
+ 	if (ret)
 
 
