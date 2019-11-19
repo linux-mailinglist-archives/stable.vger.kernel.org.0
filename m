@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C469101327
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE7510132A
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:23:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727859AbfKSFWy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:22:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38278 "EHLO mail.kernel.org"
+        id S1727887AbfKSFW7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:22:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727829AbfKSFWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:22:53 -0500
+        id S1727881AbfKSFW6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:22:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB1FF22318;
-        Tue, 19 Nov 2019 05:22:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E52F2231C;
+        Tue, 19 Nov 2019 05:22:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574140972;
-        bh=edEBquirL+vEMiID2KXi+iBu7SgfnF5yxMwv8ddoWOY=;
+        s=default; t=1574140978;
+        bh=ynaErUTl8+VKC74rImywBO6Po3jc/xm37V2gxxiQ00c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cpebZE2EsNb9suQXgmBledIU+QAvrmfGrlK/Z9ptnewREIqPpZYY0VPzx4eW2NtNE
-         SIKZJPJ89TW0/HW8ybmRkp4ZiLlHOoSumiLT6ov039M/T0no8ilHH2mWXE1aJ8osj1
-         i6h7jXrk4wbB34iQmmL55VE50FElGicsMnbupXJ0=
+        b=S++svdIWqDP1Akajrj2MLVCNhoySxCsZCQuuvpX1K7dhfl7ENqKBInL/Gn5Xcw7DW
+         Tz9d2TSPvzZ60EzLNOSInN5Rar4K23r1pVuXHED31W4jYQbKuedbgFkud0S5SzOkQM
+         Ygw9jDfVp00g6Gz84D4XpalQWd5zNVckQC2AW7V0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Shi <yang.shi@linux.alibaba.com>,
-        Li Xinhai <lixinhai.lxh@gmail.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Michal Hocko <mhocko@suse.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tejun Heo <tj@kernel.org>, Shakeel Butt <shakeelb@google.com>,
+        Michal Hocko <mhocko@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.3 42/48] mm: mempolicy: fix the wrong return value and potential pages leak of mbind
-Date:   Tue, 19 Nov 2019 06:20:02 +0100
-Message-Id: <20191119051025.323788194@linuxfoundation.org>
+Subject: [PATCH 5.3 44/48] mm: hugetlb: switch to css_tryget() in hugetlb_cgroup_charge_cgroup()
+Date:   Tue, 19 Nov 2019 06:20:04 +0100
+Message-Id: <20191119051027.304353417@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119050946.745015350@linuxfoundation.org>
 References: <20191119050946.745015350@linuxfoundation.org>
@@ -48,78 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Shi <yang.shi@linux.alibaba.com>
+From: Roman Gushchin <guro@fb.com>
 
-commit a85dfc305a21acfc48fa28a0fa0a0cb6ad496120 upstream.
+commit 0362f326d86c645b5e96b7dbc3ee515986ed019d upstream.
 
-Commit d883544515aa ("mm: mempolicy: make the behavior consistent when
-MPOL_MF_MOVE* and MPOL_MF_STRICT were specified") fixed the return value
-of mbind() for a couple of corner cases.  But, it altered the errno for
-some other cases, for example, mbind() should return -EFAULT when part
-or all of the memory range specified by nodemask and maxnode points
-outside your accessible address space, or there was an unmapped hole in
-the specified memory range specified by addr and len.
+An exiting task might belong to an offline cgroup.  In this case an
+attempt to grab a cgroup reference from the task can end up with an
+infinite loop in hugetlb_cgroup_charge_cgroup(), because neither the
+cgroup will become online, neither the task will be migrated to a live
+cgroup.
 
-Fix this by preserving the errno returned by queue_pages_range().  And,
-the pagelist may be not empty even though queue_pages_range() returns
-error, put the pages back to LRU since mbind_range() is not called to
-really apply the policy so those pages should not be migrated, this is
-also the old behavior before the problematic commit.
+Fix this by switching over to css_tryget().  As css_tryget_online()
+can't guarantee that the cgroup won't go offline, in most cases the
+check doesn't make sense.  In this particular case users of
+hugetlb_cgroup_charge_cgroup() are not affected by this change.
 
-Link: http://lkml.kernel.org/r/1572454731-3925-1-git-send-email-yang.shi@linux.alibaba.com
-Fixes: d883544515aa ("mm: mempolicy: make the behavior consistent when MPOL_MF_MOVE* and MPOL_MF_STRICT were specified")
-Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
-Reported-by: Li Xinhai <lixinhai.lxh@gmail.com>
-Reviewed-by: Li Xinhai <lixinhai.lxh@gmail.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Mel Gorman <mgorman@techsingularity.net>
-Cc: <stable@vger.kernel.org>	[4.19 and 5.2+]
+A similar problem is described by commit 18fa84a2db0e ("cgroup: Use
+css_tryget() instead of css_tryget_online() in task_get_css()").
+
+Link: http://lkml.kernel.org/r/20191106225131.3543616-2-guro@fb.com
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- mm/mempolicy.c |   14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ mm/hugetlb_cgroup.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -666,7 +666,9 @@ static int queue_pages_test_walk(unsigne
-  * 1 - there is unmovable page, but MPOL_MF_MOVE* & MPOL_MF_STRICT were
-  *     specified.
-  * 0 - queue pages successfully or no misplaced page.
-- * -EIO - there is misplaced page and only MPOL_MF_STRICT was specified.
-+ * errno - i.e. misplaced pages with MPOL_MF_STRICT specified (-EIO) or
-+ *         memory range specified by nodemask and maxnode points outside
-+ *         your accessible address space (-EFAULT)
-  */
- static int
- queue_pages_range(struct mm_struct *mm, unsigned long start, unsigned long end,
-@@ -1287,7 +1289,7 @@ static long do_mbind(unsigned long start
- 			  flags | MPOL_MF_INVERT, &pagelist);
- 
- 	if (ret < 0) {
--		err = -EIO;
-+		err = ret;
- 		goto up_out;
+--- a/mm/hugetlb_cgroup.c
++++ b/mm/hugetlb_cgroup.c
+@@ -196,7 +196,7 @@ int hugetlb_cgroup_charge_cgroup(int idx
+ again:
+ 	rcu_read_lock();
+ 	h_cg = hugetlb_cgroup_from_task(current);
+-	if (!css_tryget_online(&h_cg->css)) {
++	if (!css_tryget(&h_cg->css)) {
+ 		rcu_read_unlock();
+ 		goto again;
  	}
- 
-@@ -1306,10 +1308,12 @@ static long do_mbind(unsigned long start
- 
- 		if ((ret > 0) || (nr_failed && (flags & MPOL_MF_STRICT)))
- 			err = -EIO;
--	} else
--		putback_movable_pages(&pagelist);
--
-+	} else {
- up_out:
-+		if (!list_empty(&pagelist))
-+			putback_movable_pages(&pagelist);
-+	}
-+
- 	up_write(&mm->mmap_sem);
- mpol_out:
- 	mpol_put(new);
 
 
