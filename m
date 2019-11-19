@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE961101862
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBDEA101861
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727007AbfKSFcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:32:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52606 "EHLO mail.kernel.org"
+        id S1729382AbfKSFcX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:32:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52668 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728656AbfKSFcV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:32:21 -0500
+        id S1728824AbfKSFcW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:32:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17ADE21783;
-        Tue, 19 Nov 2019 05:32:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D052021783;
+        Tue, 19 Nov 2019 05:32:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141539;
-        bh=VL9r0Csglza5UEJzSeVP/0TGRgcTmcqr5vr+D1HxZhw=;
+        s=default; t=1574141542;
+        bh=ycY+drilEGsuAc0TqZW982ftVP8L7XHLLduCT27lNnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6fjvA0JNJKSzlyZdH7JtyISbErGXHh7dRkmwzA1nL4FaL4TkNvWwwAu9x868UbWP
-         ayArhmgzpfGzb3l9ik1wtH9I4VcXsW6nM3RLR7heGS072MDa2vE3HJVhH1xzpHflSC
-         jlJ0vYgl9+nUZio+pz5DpuUy6ged+F3zDgjTPjN8=
+        b=nZkgGTPXxbgAHTjI8ucspH8+qFqZ0Y0D6iJoFMysIjP3EYOtaAOs8PBeV9iiQybEE
+         k937aJ0P/yDatvmA1FZlx4uRjet7mW0Keoqpw+hPXff/M7ut/M3n4o8jUijAauda4F
+         oZXya5QSv3K3tXxsNpbptg+fQL831iKroZAAaGf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 196/422] ALSA: intel8x0m: Register irq handler after register initializations
-Date:   Tue, 19 Nov 2019 06:16:33 +0100
-Message-Id: <20191119051411.271206773@linuxfoundation.org>
+Subject: [PATCH 4.19 197/422] arm64: dts: renesas: salvator-common: adv748x: Override secondary addresses
+Date:   Tue, 19 Nov 2019 06:16:34 +0100
+Message-Id: <20191119051411.337601402@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -43,64 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Kieran Bingham <kieran.bingham@ideasonboard.com>
 
-[ Upstream commit 7064f376d4a10686f51c879401a569bb4babf9c6 ]
+[ Upstream commit e3da41a6c28f9b61ea03df987f1c9ffffc8b8e60 ]
 
-The interrupt handler has to be acquired after the other resource
-initialization when allocated with IRQF_SHARED.  Otherwise it's
-triggered before the resource gets ready, and may lead to unpleasant
-behavior.
+Ensure that the ADV748x device addresses do not conflict, and group them
+together (visually in i2cdetect)
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Signed-off-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/intel8x0m.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/arm64/boot/dts/renesas/salvator-common.dtsi | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/intel8x0m.c b/sound/pci/intel8x0m.c
-index 943a726b1c1b0..c84629190cbaf 100644
---- a/sound/pci/intel8x0m.c
-+++ b/sound/pci/intel8x0m.c
-@@ -1171,16 +1171,6 @@ static int snd_intel8x0m_create(struct snd_card *card,
- 	}
+diff --git a/arch/arm64/boot/dts/renesas/salvator-common.dtsi b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
+index 7d3d866a00635..3b90f816dfefc 100644
+--- a/arch/arm64/boot/dts/renesas/salvator-common.dtsi
++++ b/arch/arm64/boot/dts/renesas/salvator-common.dtsi
+@@ -420,7 +420,10 @@
  
-  port_inited:
--	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
--			KBUILD_MODNAME, chip)) {
--		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
--		snd_intel8x0m_free(chip);
--		return -EBUSY;
--	}
--	chip->irq = pci->irq;
--	pci_set_master(pci);
--	synchronize_irq(chip->irq);
--
- 	/* initialize offsets */
- 	chip->bdbars_count = 2;
- 	tbl = intel_regs;
-@@ -1224,11 +1214,21 @@ static int snd_intel8x0m_create(struct snd_card *card,
- 	chip->int_sta_reg = ICH_REG_GLOB_STA;
- 	chip->int_sta_mask = int_sta_masks;
+ 	video-receiver@70 {
+ 		compatible = "adi,adv7482";
+-		reg = <0x70>;
++		reg = <0x70 0x71 0x72 0x73 0x74 0x75
++		       0x60 0x61 0x62 0x63 0x64 0x65>;
++		reg-names = "main", "dpll", "cp", "hdmi", "edid", "repeater",
++			    "infoframe", "cbus", "cec", "sdp", "txa", "txb" ;
  
-+	pci_set_master(pci);
-+
- 	if ((err = snd_intel8x0m_chip_init(chip, 1)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
- 	}
- 
-+	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
-+			KBUILD_MODNAME, chip)) {
-+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
-+		snd_intel8x0m_free(chip);
-+		return -EBUSY;
-+	}
-+	chip->irq = pci->irq;
-+
- 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 -- 
 2.20.1
 
