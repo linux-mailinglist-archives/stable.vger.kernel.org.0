@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCC41101349
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:24:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE0CC101397
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:26:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727334AbfKSFYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:24:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40092 "EHLO mail.kernel.org"
+        id S1728426AbfKSFZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:25:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728145AbfKSFYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:24:08 -0500
+        id S1728409AbfKSFZg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:25:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8F5921939;
-        Tue, 19 Nov 2019 05:24:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A704E21823;
+        Tue, 19 Nov 2019 05:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141048;
-        bh=fEdbkL9uYuspgoCHF7lff4gZbCjmziYMNUUD7McSOZ4=;
+        s=default; t=1574141136;
+        bh=KmV30vfzaz3Zgwoqs9ty1PdCpMMPsXaQ232gg+9G3SY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IjDy+K4P6OWF396+CzROTrN5zHL2Ox5I0U59T5AqPbDNImLkOuT5ULFWN2vmAHG0j
-         4fLjdx8HwhWObVFf2vqSvcnnXmHMEAIb+0jblozhIE+ogKAbtd8NdGIjFTiM/HoPCR
-         bqbufoHFdVlJ/rc+LDTQYkpEn1TnZBcCC+NWdkfk=
+        b=DfQN8i25Hy0eOt5+RVEdOeVjIqA4rMBgQDQZ1DqCQxdxJ0naig1D8UeEVqGFg6Xnw
+         T9DgZ84bvcU56hV0zYGGLl7rByrGRp6fbNy8ZrCFz8QgBC5Og0OPlbX/kckJH8xzgW
+         LnyqFofXug0l0nMG97MhZEP6Q8+RzrroB2+vMe04=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 010/422] ALSA: usb-audio: Fix missing error check at mixer resolution test
-Date:   Tue, 19 Nov 2019 06:13:27 +0100
-Message-Id: <20191119051400.856985620@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.19 016/422] Input: synaptics-rmi4 - fix video buffer size
+Date:   Tue, 19 Nov 2019 06:13:33 +0100
+Message-Id: <20191119051401.180625294@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -43,46 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 167beb1756791e0806365a3f86a0da10d7a327ee upstream.
+commit 003f01c780020daa9a06dea1db495b553a868c29 upstream.
 
-A check of the return value from get_cur_mix_raw() is missing at the
-resolution test code in get_min_max_with_quirks(), which may leave the
-variable untouched, leading to a random uninitialized value, as
-detected by syzkaller fuzzer.
+The video buffer used by the queue is a vb2_v4l2_buffer, not a plain
+vb2_buffer. Using the wrong type causes the allocation of the buffer
+storage to be too small, causing a out of bounds write when
+__init_vb2_v4l2_buffer initializes the buffer.
 
-Add the missing return error check for fixing that.
-
-Reported-and-tested-by: syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191109181658.30368-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20191104114454.10500-1-l.stach@pengutronix.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/input/rmi4/rmi_f54.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1244,7 +1244,8 @@ static int get_min_max_with_quirks(struc
- 		if (cval->min + cval->res < cval->max) {
- 			int last_valid_res = cval->res;
- 			int saved, test, check;
--			get_cur_mix_raw(cval, minchn, &saved);
-+			if (get_cur_mix_raw(cval, minchn, &saved) < 0)
-+				goto no_res_check;
- 			for (;;) {
- 				test = saved;
- 				if (test < cval->max)
-@@ -1264,6 +1265,7 @@ static int get_min_max_with_quirks(struc
- 			snd_usb_set_cur_mix_value(cval, minchn, 0, saved);
- 		}
- 
-+no_res_check:
- 		cval->initialized = 1;
- 	}
- 
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -362,7 +362,7 @@ static const struct vb2_ops rmi_f54_queu
+ static const struct vb2_queue rmi_f54_queue = {
+ 	.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
+ 	.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_READ,
+-	.buf_struct_size = sizeof(struct vb2_buffer),
++	.buf_struct_size = sizeof(struct vb2_v4l2_buffer),
+ 	.ops = &rmi_f54_queue_ops,
+ 	.mem_ops = &vb2_vmalloc_memops,
+ 	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
 
 
