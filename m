@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 115D610152D
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:41:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 995B2101652
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:52:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728902AbfKSFla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:41:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35948 "EHLO mail.kernel.org"
+        id S1731540AbfKSFwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:52:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730526AbfKSFl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:41:29 -0500
+        id S1731871AbfKSFwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:52:07 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E835208C3;
-        Tue, 19 Nov 2019 05:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DFC0020862;
+        Tue, 19 Nov 2019 05:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142088;
-        bh=NW5M5tG5jivL/ewIrjwbSjVjsD2EhZihRfAaDgW/z/4=;
+        s=default; t=1574142726;
+        bh=gzEchfM7M9ylyt97dkh+RkFlfZBYYPbqX4JcKuUKC2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aC0GfEfeBVjSxwLumRx/mQieGcsx+Cd3v7HGiRNQ2AMY/xEMI7r4SZSWQGIz/+Xx5
-         Qnut76C4b/6fEsFKKBZD+F01m6UVwpciDCHcZfDZkR2PTmDunG5a9pF42Enz/CNkJQ
-         t+ZT0xbU17qRDH5k+Je4IUpQ7ZShFJG0jQe45E9E=
+        b=RdrmkTtfIhOTf+klzyl9j5err08tInpHcBIbnkHIK/uP3q8itU2bJ3O+e9BKtBKFF
+         LxGw491TDwLLzLR5yAciXrYV4nq+bhBe6hlL0W32v02BjF2HLNfZ7dr74P+ep3BWhQ
+         hl5j72Pq2n0tAIv+IPRlXfJLhWL09KDRqzAjTfpU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stuart Hayes <stuart.w.hayes@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Brad Love <brad@nextdimension.cc>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 383/422] firmware: dell_rbu: Make payload memory uncachable
+Subject: [PATCH 4.14 180/239] media: au0828: Fix incorrect error messages
 Date:   Tue, 19 Nov 2019 06:19:40 +0100
-Message-Id: <20191119051423.887664218@linuxfoundation.org>
+Message-Id: <20191119051334.565050072@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stuart Hayes <stuart.w.hayes@gmail.com>
+From: Brad Love <brad@nextdimension.cc>
 
-[ Upstream commit 6aecee6ad41cf97c0270f72da032c10eef025bf0 ]
+[ Upstream commit f347596f2bf114a3af3d80201c6e6bef538d884f ]
 
-The dell_rbu driver takes firmware update payloads and puts them in memory so
-the system BIOS can find them after a reboot.  This sometimes fails (though
-rarely), because the memory containing the payload is in the CPU cache but
-never gets written back to main memory before the system is rebooted (CPU
-cache contents are lost on reboot).
+Correcting red herring error messages.
 
-With this patch, the payload memory will be changed to uncachable to ensure
-that the payload is actually in main memory before the system is rebooted.
+Where appropriate, replaces au0282_dev_register with:
+- au0828_analog_register
+- au0828_dvb_register
 
-Signed-off-by: Stuart Hayes <stuart.w.hayes@gmail.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Brad Love <brad@nextdimension.cc>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/dell_rbu.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/usb/au0828/au0828-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/dell_rbu.c b/drivers/firmware/dell_rbu.c
-index fb8af5cb7c9bf..ccefa84f73057 100644
---- a/drivers/firmware/dell_rbu.c
-+++ b/drivers/firmware/dell_rbu.c
-@@ -45,6 +45,7 @@
- #include <linux/moduleparam.h>
- #include <linux/firmware.h>
- #include <linux/dma-mapping.h>
-+#include <asm/set_memory.h>
+diff --git a/drivers/media/usb/au0828/au0828-core.c b/drivers/media/usb/au0828/au0828-core.c
+index e3f63299f85c0..07e3322bb1827 100644
+--- a/drivers/media/usb/au0828/au0828-core.c
++++ b/drivers/media/usb/au0828/au0828-core.c
+@@ -632,7 +632,7 @@ static int au0828_usb_probe(struct usb_interface *interface,
+ 	/* Analog TV */
+ 	retval = au0828_analog_register(dev, interface);
+ 	if (retval) {
+-		pr_err("%s() au0282_dev_register failed to register on V4L2\n",
++		pr_err("%s() au0828_analog_register failed to register on V4L2\n",
+ 			__func__);
+ 		mutex_unlock(&dev->lock);
+ 		goto done;
+@@ -641,7 +641,7 @@ static int au0828_usb_probe(struct usb_interface *interface,
+ 	/* Digital TV */
+ 	retval = au0828_dvb_register(dev);
+ 	if (retval)
+-		pr_err("%s() au0282_dev_register failed\n",
++		pr_err("%s() au0828_dvb_register failed\n",
+ 		       __func__);
  
- MODULE_AUTHOR("Abhay Salunke <abhay_salunke@dell.com>");
- MODULE_DESCRIPTION("Driver for updating BIOS image on DELL systems");
-@@ -181,6 +182,11 @@ static int create_packet(void *data, size_t length)
- 			packet_data_temp_buf = NULL;
- 		}
- 	}
-+	/*
-+	 * set to uncachable or it may never get written back before reboot
-+	 */
-+	set_memory_uc((unsigned long)packet_data_temp_buf, 1 << ordernum);
-+
- 	spin_lock(&rbu_data.lock);
- 
- 	newpacket->data = packet_data_temp_buf;
-@@ -349,6 +355,8 @@ static void packet_empty_list(void)
- 		 * to make sure there are no stale RBU packets left in memory
- 		 */
- 		memset(newpacket->data, 0, rbu_data.packetsize);
-+		set_memory_wb((unsigned long)newpacket->data,
-+			1 << newpacket->ordernum);
- 		free_pages((unsigned long) newpacket->data,
- 			newpacket->ordernum);
- 		kfree(newpacket);
+ 	/* Remote controller */
 -- 
 2.20.1
 
