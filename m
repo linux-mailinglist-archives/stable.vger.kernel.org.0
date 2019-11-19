@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F71610151F
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:41:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9F711016EE
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:58:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728651AbfKSFk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:40:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35184 "EHLO mail.kernel.org"
+        id S1731103AbfKSFus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:50:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730458AbfKSFky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:40:54 -0500
+        id S1730797AbfKSFus (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:50:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15E3F208C3;
-        Tue, 19 Nov 2019 05:40:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 685BA20862;
+        Tue, 19 Nov 2019 05:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142053;
-        bh=k8d5s75KhVKjgm3jmwxPY/yUWZ6JYWL1KLUdROsgTKk=;
+        s=default; t=1574142646;
+        bh=25Q+f4/0/pvCMAhfRTJkbuwfS2E6R0twOlTJSUveP14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g7AaRCcBxppnbYZ6rkLcA8bgrNDBTANvr4jmVmePF/IYtKFule66w0lCar/iJdCm5
-         /JkXnTcQHiUqT33lSEyYa5nJWUqZGVfyo99nAeffbkvdgZFA0bdvn/CwGkRI+6OEry
-         1Vl1CNTpNISGFKIZ4Rx7puEVjNywWl3DWxKc+1EU=
+        b=rogjMRwsC5GA37EKkA45eOGN1/bvWvTNKAbRh3Aj+q1ZhBCd5Yy2nVMQVqJ5e9Xz2
+         yrAHltQabwysnpguClJ+fC8AeDTKW+TWOTA2EwE2LXfelZXvcfJUGt9A0FDy1mI9G9
+         mjvTpQErzfMewfI+cuVrOEdQp75Zf/GC9PUPEkV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Shannon Nelson <shannon.nelson@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 355/422] misc: kgdbts: Fix restrict error
+Subject: [PATCH 4.14 152/239] net: sun: fix return type of ndo_start_xmit function
 Date:   Tue, 19 Nov 2019 06:19:12 +0100
-Message-Id: <20191119051422.023773594@linuxfoundation.org>
+Message-Id: <20191119051332.713152958@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,70 +45,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit fa0218ef733e6f247a1a3986e3eb12460064ac77 ]
+[ Upstream commit 0e0cc31f6999df18bb5cfd0bd83c892ed5633975 ]
 
-kgdbts current fails when compiled with restrict:
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, but the implementation in this
+driver returns an 'int'.
 
-drivers/misc/kgdbts.c: In function ‘configure_kgdbts’:
-drivers/misc/kgdbts.c:1070:2: error: ‘strcpy’ source argument is the same as destination [-Werror=restrict]
-  strcpy(config, opt);
-  ^~~~~~~~~~~~~~~~~~~
+Found by coccinelle.
 
-As the error says, config is being used in both the source and destination.
-Refactor the code to avoid the extra copy and put the parsing closer to
-the actual location.
-
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Shannon Nelson <shannon.nelson@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/kgdbts.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/sun/ldmvsw.c         |  2 +-
+ drivers/net/ethernet/sun/sunbmac.c        |  3 ++-
+ drivers/net/ethernet/sun/sunqe.c          |  2 +-
+ drivers/net/ethernet/sun/sunvnet.c        |  2 +-
+ drivers/net/ethernet/sun/sunvnet_common.c | 14 ++++++++------
+ drivers/net/ethernet/sun/sunvnet_common.h |  7 ++++---
+ 6 files changed, 17 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
-index eb4d90b7d99e1..8b01257783dd8 100644
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -985,6 +985,12 @@ static void kgdbts_run_tests(void)
- 	int nmi_sleep = 0;
- 	int i;
- 
-+	verbose = 0;
-+	if (strstr(config, "V1"))
-+		verbose = 1;
-+	if (strstr(config, "V2"))
-+		verbose = 2;
-+
- 	ptr = strchr(config, 'F');
- 	if (ptr)
- 		fork_test = simple_strtol(ptr + 1, NULL, 10);
-@@ -1068,13 +1074,6 @@ static int kgdbts_option_setup(char *opt)
- 		return -ENOSPC;
- 	}
- 	strcpy(config, opt);
--
--	verbose = 0;
--	if (strstr(config, "V1"))
--		verbose = 1;
--	if (strstr(config, "V2"))
--		verbose = 2;
--
- 	return 0;
+diff --git a/drivers/net/ethernet/sun/ldmvsw.c b/drivers/net/ethernet/sun/ldmvsw.c
+index 5b56c24b6ed2e..e6b96c2989b22 100644
+--- a/drivers/net/ethernet/sun/ldmvsw.c
++++ b/drivers/net/ethernet/sun/ldmvsw.c
+@@ -111,7 +111,7 @@ static u16 vsw_select_queue(struct net_device *dev, struct sk_buff *skb,
  }
  
-@@ -1086,9 +1085,6 @@ static int configure_kgdbts(void)
+ /* Wrappers to common functions */
+-static int vsw_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t vsw_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	return sunvnet_start_xmit_common(skb, dev, vsw_tx_port_find);
+ }
+diff --git a/drivers/net/ethernet/sun/sunbmac.c b/drivers/net/ethernet/sun/sunbmac.c
+index 3189722110c26..9a60fb2b4e9dc 100644
+--- a/drivers/net/ethernet/sun/sunbmac.c
++++ b/drivers/net/ethernet/sun/sunbmac.c
+@@ -951,7 +951,8 @@ static void bigmac_tx_timeout(struct net_device *dev)
+ }
  
- 	if (!strlen(config) || isspace(config[0]))
- 		goto noconfig;
--	err = kgdbts_option_setup(config);
--	if (err)
--		goto noconfig;
+ /* Put a packet on the wire. */
+-static int bigmac_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++bigmac_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct bigmac *bp = netdev_priv(dev);
+ 	int len, entry;
+diff --git a/drivers/net/ethernet/sun/sunqe.c b/drivers/net/ethernet/sun/sunqe.c
+index a6bcdcdd947e3..82386a375bd26 100644
+--- a/drivers/net/ethernet/sun/sunqe.c
++++ b/drivers/net/ethernet/sun/sunqe.c
+@@ -569,7 +569,7 @@ out:
+ }
  
- 	final_ack = 0;
- 	run_plant_and_detach_test(1);
+ /* Get a packet queued to go onto the wire. */
+-static int qe_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t qe_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct sunqe *qep = netdev_priv(dev);
+ 	struct sunqe_buffers *qbufs = qep->buffers;
+diff --git a/drivers/net/ethernet/sun/sunvnet.c b/drivers/net/ethernet/sun/sunvnet.c
+index 65347d2f139b7..02ebbe74d93de 100644
+--- a/drivers/net/ethernet/sun/sunvnet.c
++++ b/drivers/net/ethernet/sun/sunvnet.c
+@@ -245,7 +245,7 @@ static u16 vnet_select_queue(struct net_device *dev, struct sk_buff *skb,
+ }
+ 
+ /* Wrappers to common functions */
+-static int vnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t vnet_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	return sunvnet_start_xmit_common(skb, dev, vnet_tx_port_find);
+ }
+diff --git a/drivers/net/ethernet/sun/sunvnet_common.c b/drivers/net/ethernet/sun/sunvnet_common.c
+index ecf456c7b6d14..fd84ff8bba31a 100644
+--- a/drivers/net/ethernet/sun/sunvnet_common.c
++++ b/drivers/net/ethernet/sun/sunvnet_common.c
+@@ -1215,9 +1215,10 @@ static inline struct sk_buff *vnet_skb_shape(struct sk_buff *skb, int ncookies)
+ 	return skb;
+ }
+ 
+-static int vnet_handle_offloads(struct vnet_port *port, struct sk_buff *skb,
+-				struct vnet_port *(*vnet_tx_port)
+-				(struct sk_buff *, struct net_device *))
++static netdev_tx_t
++vnet_handle_offloads(struct vnet_port *port, struct sk_buff *skb,
++		     struct vnet_port *(*vnet_tx_port)
++		     (struct sk_buff *, struct net_device *))
+ {
+ 	struct net_device *dev = VNET_PORT_TO_NET_DEVICE(port);
+ 	struct vio_dring_state *dr = &port->vio.drings[VIO_DRIVER_TX_RING];
+@@ -1320,9 +1321,10 @@ out_dropped:
+ 	return NETDEV_TX_OK;
+ }
+ 
+-int sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
+-			      struct vnet_port *(*vnet_tx_port)
+-			      (struct sk_buff *, struct net_device *))
++netdev_tx_t
++sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
++			  struct vnet_port *(*vnet_tx_port)
++			  (struct sk_buff *, struct net_device *))
+ {
+ 	struct vnet_port *port = NULL;
+ 	struct vio_dring_state *dr;
+diff --git a/drivers/net/ethernet/sun/sunvnet_common.h b/drivers/net/ethernet/sun/sunvnet_common.h
+index 6a4dd1fb19bf6..3fcb608fbbb31 100644
+--- a/drivers/net/ethernet/sun/sunvnet_common.h
++++ b/drivers/net/ethernet/sun/sunvnet_common.h
+@@ -136,9 +136,10 @@ int sunvnet_close_common(struct net_device *dev);
+ void sunvnet_set_rx_mode_common(struct net_device *dev, struct vnet *vp);
+ int sunvnet_set_mac_addr_common(struct net_device *dev, void *p);
+ void sunvnet_tx_timeout_common(struct net_device *dev);
+-int sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
+-			   struct vnet_port *(*vnet_tx_port)
+-			   (struct sk_buff *, struct net_device *));
++netdev_tx_t
++sunvnet_start_xmit_common(struct sk_buff *skb, struct net_device *dev,
++			  struct vnet_port *(*vnet_tx_port)
++			  (struct sk_buff *, struct net_device *));
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+ void sunvnet_poll_controller_common(struct net_device *dev, struct vnet *vp);
+ #endif
 -- 
 2.20.1
 
