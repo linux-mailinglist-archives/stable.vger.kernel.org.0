@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A61710141C
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:30:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8684C101422
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729128AbfKSFaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:30:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49142 "EHLO mail.kernel.org"
+        id S1728088AbfKSFah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:30:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729109AbfKSFaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:30:22 -0500
+        id S1729151AbfKSFag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:30:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9920121783;
-        Tue, 19 Nov 2019 05:30:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0EA821783;
+        Tue, 19 Nov 2019 05:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141422;
-        bh=9lp8kFKHd1OL9uVPSrrIRYlikpXGmBVr/jOZMSrQJck=;
+        s=default; t=1574141436;
+        bh=4c8T9lhoM24QU9yBAUVR0Cr0Z6EWI2IrsZQyZeiUGIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ir0ho1jSJ+oZcqKRiO9WgeECal4NAz4uGd+ZW58eQg5L2uAY+cvnNESXUHGrCxlou
-         8GgxIjz5lBHByUlWbZ2zzlocZWBCAXp546JlvAe5DINof9W14W7jeQPdj661D2LeGA
-         D0AKZtMmgAlIPnGPhgZ1cCbLrzag4ndZAmnc7Ymc=
+        b=cWjm9GnDtByIbmnctOuF2PbkmTP/qDgvx8oZjRm+xbiw+E3Ut7e60a5H84cOi7MAO
+         SQi5xOeaV0w/ZuxpMoCkclg7ISXCLIXXKJ7dsrPQ+I/fLtXA5FL5s8O62BoYiLUKcV
+         ABg+BgDqbRUTIAuid7ROFmU3/b5EPIBwG/s6/8/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie Huang <eddie.huang@mediatek.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 156/422] rtc: mt6397: fix possible race condition
-Date:   Tue, 19 Nov 2019 06:15:53 +0100
-Message-Id: <20191119051408.668158774@linuxfoundation.org>
+Subject: [PATCH 4.19 160/422] RDMA/hns: Fix an error code in hns_roce_v2_init_eq_table()
+Date:   Tue, 19 Nov 2019 06:15:57 +0100
+Message-Id: <20191119051408.873974374@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,62 +44,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit babab2f86440352d24e76118fdd7d40cab5fd7bf ]
+[ Upstream commit f1a315420e79fe5c077fa119db9439ffabd2cda2 ]
 
-The IRQ is requested before the struct rtc is allocated and registered, but
-this struct is used in the IRQ handler. This may lead to a NULL pointer
-dereference.
+The error code isn't set on this path.
 
-Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
-before requesting the IRQ.
-
-Acked-by: Eddie Huang <eddie.huang@mediatek.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-mt6397.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-mt6397.c b/drivers/rtc/rtc-mt6397.c
-index 385f8303bb412..e9a25ec4d434f 100644
---- a/drivers/rtc/rtc-mt6397.c
-+++ b/drivers/rtc/rtc-mt6397.c
-@@ -332,6 +332,10 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 
- 	platform_set_drvdata(pdev, rtc);
- 
-+	rtc->rtc_dev = devm_rtc_allocate_device(rtc->dev);
-+	if (IS_ERR(rtc->rtc_dev))
-+		return PTR_ERR(rtc->rtc_dev);
-+
- 	ret = request_threaded_irq(rtc->irq, NULL,
- 				   mtk_rtc_irq_handler_thread,
- 				   IRQF_ONESHOT | IRQF_TRIGGER_HIGH,
-@@ -344,11 +348,11 @@ static int mtk_rtc_probe(struct platform_device *pdev)
- 
- 	device_init_wakeup(&pdev->dev, 1);
- 
--	rtc->rtc_dev = rtc_device_register("mt6397-rtc", &pdev->dev,
--					   &mtk_rtc_ops, THIS_MODULE);
--	if (IS_ERR(rtc->rtc_dev)) {
-+	rtc->rtc_dev->ops = &mtk_rtc_ops;
-+
-+	ret = rtc_register_device(rtc->rtc_dev);
-+	if (ret) {
- 		dev_err(&pdev->dev, "register rtc device failed\n");
--		ret = PTR_ERR(rtc->rtc_dev);
- 		goto out_free_irq;
+diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+index cf878e1b71fc1..3f8e13190aa71 100644
+--- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
++++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
+@@ -5117,6 +5117,7 @@ static int hns_roce_v2_init_eq_table(struct hns_roce_dev *hr_dev)
+ 		create_singlethread_workqueue("hns_roce_irq_workqueue");
+ 	if (!hr_dev->irq_workq) {
+ 		dev_err(dev, "Create irq workqueue failed!\n");
++		ret = -ENOMEM;
+ 		goto err_request_irq_fail;
  	}
- 
-@@ -365,7 +369,6 @@ static int mtk_rtc_remove(struct platform_device *pdev)
- {
- 	struct mt6397_rtc *rtc = platform_get_drvdata(pdev);
- 
--	rtc_device_unregister(rtc->rtc_dev);
- 	free_irq(rtc->irq, rtc->rtc_dev);
- 	irq_dispose_mapping(rtc->irq);
  
 -- 
 2.20.1
