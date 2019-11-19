@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EA2B101758
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43616101839
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:07:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730129AbfKSFpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:45:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40532 "EHLO mail.kernel.org"
+        id S1728873AbfKSFeS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:34:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730908AbfKSFpA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:45:00 -0500
+        id S1729631AbfKSFeR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:34:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5493C208C3;
-        Tue, 19 Nov 2019 05:44:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6614F20672;
+        Tue, 19 Nov 2019 05:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142299;
-        bh=dkQQjEz/3AL8lCoqR+WhrS+wxdB8zSvy0TZOHAZ0ujY=;
+        s=default; t=1574141656;
+        bh=n6QzZCLFvjcRY9Gen25EumCUyRvB0LU/DHo9DES47YM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clKd9zEMbtwQt5cMTl+lCciovaHDzg/WHLgY4faYhlMwpQgS6TTd0O1JunI98FqvL
-         lbssxFJOLP0vVB6xfpprZZukls/JOI2lFnZKeOPR35U4RhvODB1dmP9EUoD3LCEcLu
-         mjlLxx1Cusyg4BldvwylCjE7gGC0JzOevVQ5Zvz8=
+        b=VuTh8EkfacZIgIWA0je7ab1Oh17Uw8hn+Et95imG702PlNCRsb7yITDdiiNeWTkLv
+         5egzIzmHP5f7ZRV9wPE/XPTRGbyFXK6lbl+siX5li7Gdim7B6Agvti/J8CA4gnETod
+         bHsNd2cLPHE/8ExljaR3fe633XmQUwOQ/FQI8aWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andre Przywara <andre.przywara@arm.com>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Chen-Yu Tsai <wens@csie.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 033/239] arm64: dts: allwinner: a64: NanoPi-A64: Fix DCDC1 voltage
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 236/422] s390/qeth: invoke softirqs after napi_schedule()
 Date:   Tue, 19 Nov 2019 06:17:13 +0100
-Message-Id: <20191119051303.951967036@linuxfoundation.org>
+Message-Id: <20191119051414.378040494@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 480f58cdbe392d4387a2193b6131a277e0111dd0 ]
+[ Upstream commit 4d19db777a2f32c9b76f6fd517ed8960576cb43e ]
 
-According to the NanoPi-A64 schematics, DCDC1 is connected to a voltage
-rail named "VDD_SYS_3.3V". All users seem to expect 3.3V here: the
-Ethernet PHY, the uSD card slot, the camera interface and the GPIO pins
-on the headers.
-Fix up the voltage on the regulator to lift it up to 3.3V.
+Calling napi_schedule() from process context does not ensure that the
+NET_RX softirq is run in a timely fashion. So trigger it manually.
 
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+This is no big issue with current code. A call to ndo_open() is usually
+followed by a ndo_set_rx_mode() call, and for qeth this contains a
+spin_unlock_bh(). Except for OSN, where qeth_l2_set_rx_mode() bails out
+early.
+Nevertheless it's best to not depend on this behaviour, and just fix
+the issue at its source like all other drivers do. For instance see
+commit 83a0c6e58901 ("i40e: Invoke softirqs after napi_reschedule").
+
+Fixes: a1c3ed4c9ca0 ("qeth: NAPI support for l2 and l3 discipline")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/allwinner/sun50i-a64-nanopi-a64.dts | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/s390/net/qeth_l2_main.c | 3 +++
+ drivers/s390/net/qeth_l3_main.c | 3 +++
+ 2 files changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-nanopi-a64.dts b/arch/arm64/boot/dts/allwinner/sun50i-a64-nanopi-a64.dts
-index 2beef9e6cb885..aa0b3844ad63e 100644
---- a/arch/arm64/boot/dts/allwinner/sun50i-a64-nanopi-a64.dts
-+++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-nanopi-a64.dts
-@@ -126,9 +126,9 @@
+diff --git a/drivers/s390/net/qeth_l2_main.c b/drivers/s390/net/qeth_l2_main.c
+index c1c35eccd5b65..95669d47c389e 100644
+--- a/drivers/s390/net/qeth_l2_main.c
++++ b/drivers/s390/net/qeth_l2_main.c
+@@ -789,7 +789,10 @@ static int __qeth_l2_open(struct net_device *dev)
  
- &reg_dcdc1 {
- 	regulator-always-on;
--	regulator-min-microvolt = <3000000>;
--	regulator-max-microvolt = <3000000>;
--	regulator-name = "vcc-3v";
-+	regulator-min-microvolt = <3300000>;
-+	regulator-max-microvolt = <3300000>;
-+	regulator-name = "vcc-3v3";
- };
+ 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
+ 		napi_enable(&card->napi);
++		local_bh_disable();
+ 		napi_schedule(&card->napi);
++		/* kick-start the NAPI softirq: */
++		local_bh_enable();
+ 	} else
+ 		rc = -EIO;
+ 	return rc;
+diff --git a/drivers/s390/net/qeth_l3_main.c b/drivers/s390/net/qeth_l3_main.c
+index 9c5e801b3f6cb..52e0ae4dc7241 100644
+--- a/drivers/s390/net/qeth_l3_main.c
++++ b/drivers/s390/net/qeth_l3_main.c
+@@ -2414,7 +2414,10 @@ static int __qeth_l3_open(struct net_device *dev)
  
- &reg_dcdc2 {
+ 	if (qdio_stop_irq(card->data.ccwdev, 0) >= 0) {
+ 		napi_enable(&card->napi);
++		local_bh_disable();
+ 		napi_schedule(&card->napi);
++		/* kick-start the NAPI softirq: */
++		local_bh_enable();
+ 	} else
+ 		rc = -EIO;
+ 	return rc;
 -- 
 2.20.1
 
