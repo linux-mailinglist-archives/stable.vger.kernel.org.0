@@ -2,101 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88E17102793
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 16:04:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCD7C10279C
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 16:05:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727646AbfKSPEr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 10:04:47 -0500
-Received: from hqemgate16.nvidia.com ([216.228.121.65]:17485 "EHLO
-        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727124AbfKSPEr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 10:04:47 -0500
-Received: from hqpgpgate102.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
-        id <B5dd4048f0000>; Tue, 19 Nov 2019 07:04:47 -0800
-Received: from hqmail.nvidia.com ([172.20.161.6])
-  by hqpgpgate102.nvidia.com (PGP Universal service);
-  Tue, 19 Nov 2019 07:04:46 -0800
-X-PGP-Universal: processed;
-        by hqpgpgate102.nvidia.com on Tue, 19 Nov 2019 07:04:46 -0800
-Received: from [10.25.75.114] (172.20.13.39) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 19 Nov
- 2019 15:04:43 +0000
-Subject: Re: stable request: PCI: tegra: Enable Relaxed Ordering only for
- Tegra20 & Tegra30
-To:     Ben Hutchings <ben@decadent.org.uk>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <stable@vger.kernel.org>, Jon Hunter <jonathanh@nvidia.com>,
-        "thierry.reding@gmail.com" <thierry.reding@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>,
-        Manikanta Maddireddy <mmaddireddy@nvidia.com>,
-        Krishna Thota <kthota@nvidia.com>
-References: <11251eb0-5675-9d3d-d15f-c346781e2bff@nvidia.com>
- <20191111130908.GA448544@kroah.com>
- <9d7871e7-f8aa-1ed5-dc2e-37ba6f218a2f@nvidia.com>
- <cd787fce-3675-a2d1-90a7-5fa0c4b3f946@nvidia.com>
- <f63d4cd6578e297ebbfbaa81842f89410d495587.camel@decadent.org.uk>
-X-Nvconfidentiality: public
-From:   Vidya Sagar <vidyas@nvidia.com>
-Message-ID: <0cc0738a-d10f-4901-3f79-c36d50732a7d@nvidia.com>
-Date:   Tue, 19 Nov 2019 20:34:40 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.1
+        id S1728015AbfKSPFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 10:05:19 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46176 "EHLO
+        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727066AbfKSPFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 10:05:18 -0500
+Received: from [192.168.4.242] (helo=deadeye)
+        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iX548-0006Z9-Eq; Tue, 19 Nov 2019 15:05:16 +0000
+Received: from ben by deadeye with local (Exim 4.93-RC1)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1iX548-0002N9-2O; Tue, 19 Nov 2019 15:05:16 +0000
+Message-ID: <46dc1928560995ad297c47de39c067b66f0babc4.camel@decadent.org.uk>
+Subject: Re: Fix bad backport to stable v3.16+
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     Song Liu <songliubraving@fb.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     linux-raid <linux-raid@vger.kernel.org>,
+        Nigel Croxon <ncroxon@redhat.com>,
+        "linux@thorsten-knabe.de" <linux@thorsten-knabe.de>
+Date:   Tue, 19 Nov 2019 15:05:10 +0000
+In-Reply-To: <5F8253BF-1167-4A48-A3AC-E0728E1EE6CB@fb.com>
+References: <5F8253BF-1167-4A48-A3AC-E0728E1EE6CB@fb.com>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-HOTLde77X4/KNkvQnvHn"
+User-Agent: Evolution 3.30.5-1.1 
 MIME-Version: 1.0
-In-Reply-To: <f63d4cd6578e297ebbfbaa81842f89410d495587.camel@decadent.org.uk>
-X-Originating-IP: [172.20.13.39]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-SA-Exim-Connect-IP: 192.168.4.242
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 11/19/2019 8:01 PM, Ben Hutchings wrote:
-> On Mon, 2019-11-18 at 12:05 +0530, Vidya Sagar wrote:
->> On 11/11/2019 8:52 PM, Vidya Sagar wrote:
->>> On 11/11/2019 6:39 PM, Greg Kroah-Hartman wrote:
->>>> On Mon, Nov 11, 2019 at 06:24:53PM +0530, Vidya Sagar wrote:
->>>>> Hi Greg,
->>>>> We noticed that the Tegra PCIe host controller driver enabled
->>>>> "Relaxed Ordering" bit in the PCIe configuration space for "all"
->>>>> devices erroneously. We pushed a fix for this through the
->>>>> commit: 7be142caabc4780b13a522c485abc806de5c4114 and it has been
->>>>> soaking in main line for the last four months.
->>>>> Based on the discussion we had @ http://patchwork.ozlabs.org/patch/1127604/
->>>>> we would now like to push it to the following stable kernels
->>>>> 4.19                  : Applies cleanly
->>>>> 3.16, 4.4, 4.9 & 4.14 : Following equivalent patch needs to be used as the
->>>>>                           file was at drivers/pci/host/pci-tegra.c earlier
->>>>>                           (and moved to drivers/pci/controller/pci-tegra.c starting 4.19)
->>>>
->>>> All now queued up (except for 3.16, that's Ben's tree, he will get to it
->>>> soon.)
->>>>
->> Hi Ben,
->> Could you please queue this up for 3.16 as well?
-> 
-> OK, I've added it to my queue.
-> 
-> Ben.
-Thanks Ben
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
-	t=1574175887; bh=uXgYUHwtrZapitSGWf5JwJRJHk5Ptu14CGrFy5WPBBY=;
-	h=X-PGP-Universal:Subject:To:CC:References:X-Nvconfidentiality:From:
-	 Message-ID:Date:User-Agent:MIME-Version:In-Reply-To:
-	 X-Originating-IP:X-ClientProxiedBy:Content-Type:Content-Language:
-	 Content-Transfer-Encoding;
-	b=BPvs5cLXDhhzLY5asc+jfjOrcDfSlyLorXJ5IgqoZzGwtoQ5I7z6XjucTqpIfjqvw
-	 vygAgc9INi1iMl3JQz19LURImeo9BxUh7BSosY61mt8KGlFI0vWOiCBtdKiWMy7avG
-	 V9pqAEnRT6/i4VNoqZdFLItXcW8UXe/JP8Pw5vFyQn4+XzGDefCFLqGLySYDcUH8E0
-	 djZWIOywbATPq1ULSYYChrKdqoRMTbhz2C1cA4f2LTMzoOB27bFwjRJxEGuMjIAYT+
-	 m1Q/FvH2fSse30bw3za+YkstE61vC8SyMV2/4sOT1vb4JNVsVI9/0GyguV2syIrmlR
-	 KjiT61+BAXAkg==
 
-- Vidya Sagar
-> 
+--=-HOTLde77X4/KNkvQnvHn
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Wed, 2019-05-22 at 16:30 +0000, Song Liu wrote:
+> Hi,=20
+>=20
+> As reported by Thorsten Knabe <linux@thorsten-knabe.de>.=20
+>=20
+> commit 4f4fd7c5798b ("Don't jump to compute_result state from check_resul=
+t state") =20
+> was back ported to v3.16+. However, this fix was wrong. =20
+
+I never backported it to 3.16=E2=80=A6
+
+> Please back port the following two commits to fix this issue.=20
+>=20
+> commit a25d8c327bb4 ("Revert "Don't jump to compute_result state from che=
+ck_result state"")
+
+=E2=80=A6so I didn't need this=E2=80=A6
+
+> commit b2176a1dfb51 ("md/raid: raid5 preserve the writeback action after =
+the parity check")
+
+=E2=80=A6but I have queued this up, thanks.
+
+Ben.
+
+--=20
+Ben Hutchings
+Theory and practice are closer in theory than in practice - John Levine
+
+
+
+--=-HOTLde77X4/KNkvQnvHn
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl3UBKYACgkQ57/I7JWG
+EQm+XRAAjuq7lPYfpLakVu9CkQzfx2ts5oLLvYalovtkpktY5i/sFChs+Y+K5J2N
+gpcRCz+sF2nvp8fMEC7jisO3Gt3KYKAAtsjWgbMY8w0KL8QC8CgPGxW7Bwil4VNh
+/I/A6Khncldln5N1xa9CqN3ix37aUGe+j1BQARgsAd47K9OmMmd4FOMZOpqj3u5Z
+pih2aJuNxsWP9ncwNFHg5K0ehQQ5pxo15N1Ov2fLsLbx1JHT2ZkhrwWaEgERHfZA
+r8edwi82bXRhEcFSLjbl/Z4Qk1ZtRfXtO3EklSMC61jelABFRyPZTIqIp42zCbOJ
+XNHPTqOnIdqUeJA8c8mq7b1CN9Y+pvQ7QVlcrmUNk146KYvDMXBWuIzbY6BnK4qU
+qKT8NJiuCbc1L1F4NUOhq+tL6rhjH6j0Haedfy2Obyt7HGvgNYpqnCrXRWx2qTUn
+LUwb+pqB62VbLvw6bwj+xznsMamv5pTIhsk29RykopfhoLG76nKR9ZRW4j2yi/9g
+L94Ot9hhxfDf62afzDvV6hjy946tbXcQqx+sNZnm0JzVW3vsxdcsUE35iaUjE7zU
+Y4Bapxg2QuNxilhDQ86E5hnJBTCigjv0sIEgbzvQTO4Mr6p5lTKoQb5AQ7zAVSlx
+e8fc3KHS6k2wiJ47i5UNRLfUYZMzfHgan9MVPAGD1LTYrdqhNm4=
+=ioIL
+-----END PGP SIGNATURE-----
+
+--=-HOTLde77X4/KNkvQnvHn--
