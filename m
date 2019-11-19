@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 468051014B8
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:36:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BB921015E1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:48:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729992AbfKSFgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:36:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58128 "EHLO mail.kernel.org"
+        id S1731050AbfKSFsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:48:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729989AbfKSFgl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:36:41 -0500
+        id S1731321AbfKSFsO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:48:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7150020862;
-        Tue, 19 Nov 2019 05:36:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B2762071B;
+        Tue, 19 Nov 2019 05:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141800;
-        bh=A8kyb2hX5fNoWsEQow3qiFHYpIqrMrW8S0UxFL6m/bM=;
+        s=default; t=1574142493;
+        bh=HdPHDp3BlBc7LAHKrrfU2bGbLW19OD8QFTgc6uk6uuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMucfdd7vr8fs7umUCv1WKQp52ljfLHYWDhH6nIFiYntW6jRER0G2jpygulLsd1Qm
-         +7rGJnQ25lb2BakrHKM6N5S9rm2QzrSop/7F2iZRIPO6WhXg+6b8e4yI5yg8SwmGDs
-         auUtmjai+4Xn1KQS/9fdHV8gjEs/Rq9EHnCTFSaY=
+        b=riFTTKZ6IO+EVfwa6h5lSAClLtek8a5VgbZ+0QIC3kEE13LZtY5BCYC0SfeXlvfsq
+         8TWPZgHanvdOLalSA1HBrlUeoKg2uW3gcZU+ybADzXwqp+KAZA5iWWPr6BRHhwy8iZ
+         tFcUetGmYr74manTJuDWGUTR7+wGGtZKcbXqhT2M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Adell <nicolas.adell@actia.fr>,
-        Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org, Vicente Bergas <vicencb@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 286/422] usb: chipidea: imx: enable OTG overcurrent in case USB subsystem is already started
+Subject: [PATCH 4.14 083/239] arm64: dts: rockchip: Fix VCC5V0_HOST_EN on rk3399-sapphire
 Date:   Tue, 19 Nov 2019 06:18:03 +0100
-Message-Id: <20191119051417.517873970@linuxfoundation.org>
+Message-Id: <20191119051316.339430105@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
-References: <20191119051400.261610025@linuxfoundation.org>
+In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
+References: <20191119051255.850204959@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Adell <nicolas.adell@actia.fr>
+From: Vicente Bergas <vicencb@gmail.com>
 
-[ Upstream commit 1dedbdf2bbb1ede8d96f35f9845ecae179dc1988 ]
+[ Upstream commit bcdb578a5f5b4aea79441606ab7f0a2e076b4474 ]
 
-When initializing the USB subsystem before starting the kernel,
-OTG overcurrent detection is disabled. In case the OTG polarity of
-overcurrent is low active, the overcurrent detection is never enabled
-again and events cannot be reported as expected. Because imx usb
-overcurrent polarity is low active by default, only detection needs
-to be enable in usbmisc init function.
+The pin is GPIO4-D1 not GPIO1-D1, see schematic, page 15 for reference.
 
-Signed-off-by: Nicolas Adell <nicolas.adell@actia.fr>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Vicente Bergas <vicencb@gmail.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/usbmisc_imx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/chipidea/usbmisc_imx.c b/drivers/usb/chipidea/usbmisc_imx.c
-index 34ad5bf8acd8d..424ecb1f003fe 100644
---- a/drivers/usb/chipidea/usbmisc_imx.c
-+++ b/drivers/usb/chipidea/usbmisc_imx.c
-@@ -343,6 +343,8 @@ static int usbmisc_imx6q_init(struct imx_usbmisc_data *data)
- 	} else if (data->oc_polarity == 1) {
- 		/* High active */
- 		reg &= ~(MX6_BM_OVER_CUR_DIS | MX6_BM_OVER_CUR_POLARITY);
-+	} else {
-+		reg &= ~(MX6_BM_OVER_CUR_DIS);
- 	}
- 	writel(reg, usbmisc->base + data->index * 4);
- 
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi
+index ce592a4c0c4cd..82576011b959b 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-sapphire.dtsi
+@@ -136,7 +136,7 @@
+ 	vcc5v0_host: vcc5v0-host-regulator {
+ 		compatible = "regulator-fixed";
+ 		enable-active-high;
+-		gpio = <&gpio1 RK_PD1 GPIO_ACTIVE_HIGH>;
++		gpio = <&gpio4 RK_PD1 GPIO_ACTIVE_HIGH>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&vcc5v0_host_en>;
+ 		regulator-name = "vcc5v0_host";
 -- 
 2.20.1
 
