@@ -2,78 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C9C0103059
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 00:40:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84901103069
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 00:45:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727082AbfKSXk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 18:40:58 -0500
-Received: from mail-pj1-f66.google.com ([209.85.216.66]:40716 "EHLO
-        mail-pj1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726874AbfKSXk6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 18:40:58 -0500
-Received: by mail-pj1-f66.google.com with SMTP id ep1so3335475pjb.7;
-        Tue, 19 Nov 2019 15:40:58 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=LGdI8nMvJO9Yp2V4F8P1ev7tTWwm2jfSwnW1T5/k5as=;
-        b=s1Semn+6Dv5dbkdxqX9rBSd8PZOFcTn99KrRedSZLD5pyv+MYTTDWzY6ytMJ/r5UuM
-         rLeZs01qmvEZH01Zf7DodcBILb1jEBoLAOctWD69HrfpcuCocCIOkwaYLwY8oohX9nuk
-         YDCn1UHt8pOzeq+1szIdWkzmyf+3ZDOOXtew9rRGiaL1EcCf259izmykgt3viJTW1jdt
-         5DLI6n+vgbOCy6uWwCvewCrM+Kv7XeRir/xpPhksRKCIGAzA4GPHoMyrO1FuwN9kmp9T
-         mxtpaMlfWfXpE4B02sFWvlI38fZSEAIVXXb73CA1sETWB+8BUAGBIidX0YkSD/VmqiMq
-         L84Q==
-X-Gm-Message-State: APjAAAWwh/uKwrdkcf5MCS8GiZIT4Ib4ze0FBoeZOINvVkCsz+6oTcm7
-        vVCtUIIt5NG8Nc2VjdSsJrwfZnTIatU=
-X-Google-Smtp-Source: APXvYqxaqRKCdfDH6V8YoUt6s/ImovXm0GCKDyXavhCF1NO0+J23GblS0JEL8I94w3YrZSAKQMm05Q==
-X-Received: by 2002:a17:90a:bd95:: with SMTP id z21mr246817pjr.10.1574206857435;
-        Tue, 19 Nov 2019 15:40:57 -0800 (PST)
-Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
-        by smtp.gmail.com with ESMTPSA id x192sm29727552pfd.96.2019.11.19.15.40.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Nov 2019 15:40:56 -0800 (PST)
-Subject: Re: [PATCH v2] loop: avoid EAGAIN, if offset or block_size are
- changed
-To:     Jaegeuk Kim <jaegeuk@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
-        linux-block@vger.kernel.org
-References: <20190518004751.18962-1-jaegeuk@kernel.org>
- <20190518005304.GA19446@jaegeuk-macbookpro.roam.corp.google.com>
-From:   Bart Van Assche <bvanassche@acm.org>
-Message-ID: <1e1aae74-bd6b-dddb-0c88-660aac33872c@acm.org>
-Date:   Tue, 19 Nov 2019 15:40:55 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        id S1726874AbfKSXpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 18:45:53 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:34484 "EHLO
+        us-smtp-1.mimecast.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726911AbfKSXpx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 18:45:53 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574207152;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3bFj7LSbHt/7ruFNmSC+gYmj5OfI/vxqc7ZinRrkQ1A=;
+        b=TzbuEuvIg9aI5VJuEbmsOy42VGUjp++eWjzYc8bwRP7qHDF2J4ovuUaiwumMimucAE6xH6
+        0wHdRq6oFQCirg5Oqrwh09RcBYYC9b0YyLyx2LsBpvQYQ4NbO5Bg1mN4C0Qbvn+6i6kciw
+        6azNt5Hx3//vlgGLC/t/bi7Vim41wWM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-7-OLmRwB14PtS3nQai2skpxQ-1; Tue, 19 Nov 2019 18:45:50 -0500
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 735D0100551A;
+        Tue, 19 Nov 2019 23:45:48 +0000 (UTC)
+Received: from malachite.bss.redhat.com (dhcp-10-20-1-46.bss.redhat.com [10.20.1.46])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8415810375FC;
+        Tue, 19 Nov 2019 23:45:41 +0000 (UTC)
+From:   Lyude Paul <lyude@redhat.com>
+To:     linux-input@vger.kernel.org
+Cc:     stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        =?UTF-8?q?Mantas=20Mikul=C4=97nas?= <grawity@gmail.com>,
+        Nick Black <dankamongmen@gmail.com>,
+        Yussuf Khalil <dev@pp3345.net>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Alexander Mikhaylenko <exalm7659@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Joe Perches <joe@perches.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] Revert "Input: synaptics - enable RMI mode for X1 Extreme 2nd Generation"
+Date:   Tue, 19 Nov 2019 18:45:33 -0500
+Message-Id: <20191119234534.10725-1-lyude@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20190518005304.GA19446@jaegeuk-macbookpro.roam.corp.google.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-MC-Unique: OLmRwB14PtS3nQai2skpxQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/17/19 5:53 PM, Jaegeuk Kim wrote:
-> This patch tries to avoid EAGAIN due to nrpages!=0 that was originally trying
-> to drop stale pages resulting in wrong data access.
-> 
-> Report: https://bugs.chromium.org/p/chromium/issues/detail?id=938958#c38
+This reverts commit 68b9c5066e39af41d3448abfc887c77ce22dd64d.
 
-Please provide a more detailed commit description. What is wrong with 
-the current implementation and why is the new behavior considered the 
-correct behavior?
+Ugh, I really dropped the ball on this one :\. So as it turns out RMI4
+works perfectly fine on the X1 Extreme Gen 2 except for one thing I
+didn't notice because I usually use the trackpoint: clicking with the
+touchpad. Somehow this is broken, in fact we don't even seem to indicate
+BTN_LEFT as a valid event type for the RMI4 touchpad. And, I don't even
+see any RMI4 events coming from the touchpad when I press down on it.
+This only seems to work for PS/2 mode.
 
-This patch moves draining code from before the following comment to 
-after that comment:
+Since that means we have a regression, and PS/2 mode seems to work fine
+for the time being - revert this for now. We'll have to do a more
+thorough investigation on this.
 
-/* I/O need to be drained during transfer transition */
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/input/mouse/synaptics.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-Is that comment still correct or should it perhaps be updated?
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptic=
+s.c
+index 704558d449a2..56fae3472114 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -177,7 +177,6 @@ static const char * const smbus_pnp_ids[] =3D {
+ =09"LEN0096", /* X280 */
+ =09"LEN0097", /* X280 -> ALPS trackpoint */
+ =09"LEN009b", /* T580 */
+-=09"LEN0402", /* X1 Extreme 2nd Generation */
+ =09"LEN200f", /* T450s */
+ =09"LEN2054", /* E480 */
+ =09"LEN2055", /* E580 */
+--=20
+2.21.0
 
-Thanks,
-
-Bart.
