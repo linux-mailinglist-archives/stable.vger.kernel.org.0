@@ -2,270 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA5011023C6
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 13:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE18C1023CB
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 13:02:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727733AbfKSMBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 07:01:12 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:36163 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726351AbfKSMBM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 07:01:12 -0500
-Received: by mail-wm1-f66.google.com with SMTP id c22so3271769wmd.1;
-        Tue, 19 Nov 2019 04:01:10 -0800 (PST)
+        id S1726351AbfKSMCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 07:02:13 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:33289 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727316AbfKSMCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 07:02:12 -0500
+Received: by mail-wr1-f66.google.com with SMTP id w9so23526936wrr.0
+        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 04:02:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=V37VOLVC6nZ7bOtXcoSScu2fdxthYnMNkBthP1SXCPs=;
-        b=oq69as9Bc4kYOs5o6p/Kei9PC3/vXLiG+jJ+jdbilJwBHqEv3kcsXBd4/i0MNd6Zvv
-         12ajbUizUEWFqcby6z19qiihS90G3aJA0dgKJVlWq+d2bD8LuTQXfsJOHgliVO8Ixpvp
-         IARXXBa2sb50fKSYMu/5PXkmX/hQmCPe4T+rb37NIRCWru6DbMQO7VnZvL0/BdpeAWLR
-         IhSkQqgaiiGfI9LdFkTaduio6G993kaI2tIq3dtDOSFiMYGxlfmM8AgWvu1jDMdJuG+b
-         q6n30wQ8TITFwygmgknIcSg64jFY0b2Ow3pYUuVqtofIeU3GtgnpqF5qnZzKCtWeZ0xr
-         aPmg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
+         :references:subject:to:from:cc;
+        bh=0DNtwBvozh9fqGSsAXWPMP3mT78xGFgP7ic/0T1B4Rk=;
+        b=WJlmMsQ+fQu5l3fJSfoQ8lUkg2QHxDrmSgaP6iO4qn6+X+x98Xx7wLd6L0sM8xLMXC
+         iqttXxJs9LBJlUM6i1jVl5KPBCBzVjWAglnzXBW8oPkqsD/SWkhTUUZUwB20immV1bmG
+         4fAuT7I8+jGRpJCQJaXy1vrqZVG8cWny+IGZaqbIn2hWF/1uOoyn7M7MosxAV+qFyzYl
+         kSFpF0bgrdAShfwz2dOkkeB7NyJg8GwJ1WzLwZoiHRgk2RIwF4RYLGwSfRr5M3muAuFZ
+         eDvB3Bnosa7hofff3H4GbqOZ9uSL6D2CSgniJS19aNQMuHQSh7ApFDGPj9zS5U21tTZL
+         XyZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=V37VOLVC6nZ7bOtXcoSScu2fdxthYnMNkBthP1SXCPs=;
-        b=PnUxL87pEpQOqXPysT+qMYzxxKB+JwBU3S1aROAc6TPG/i/FIoDT25G99rsPI85DGe
-         Xft0ausJlWKlqOpTMEyVycY50bqGfz9oMVQsdepgan387X6DU+oxw5xr6VJo6IEDG3iV
-         RjuyeBFHzvwVtbplaRKAs3TN8Eq4oG4UcQqDlYIZKsAfIbboRuvg/27DeJeVxh3HKeON
-         yWngAgNMl1IZDl8OpZ6WIBJzdaVBT+uff9QlT6YLVfKFPylx3EX2HLQgzQ/Cxda35Z9j
-         /0EAcAY3d9VR2F8xBpoqT+Y8h568lCGLxkbH8BtHPLRAIMRP1osDSIZ2z75f2WQD62kk
-         tK1Q==
-X-Gm-Message-State: APjAAAV6cyz0HTyOkX3n/KirQBAb92IlU1/RAjAXmAfRodE8PfwFVkMQ
-        FfCBiclKTBdbC8qNGqOTJ7GpmWs2
-X-Google-Smtp-Source: APXvYqwAW3TmQO2UYSSFwUkt6G2KvRbw4MEWOoeEZbANdhbR6jPRzNUaatrNVKAZYGqvxxrNQDL7cA==
-X-Received: by 2002:a1c:dc09:: with SMTP id t9mr4964301wmg.65.1574164869407;
-        Tue, 19 Nov 2019 04:01:09 -0800 (PST)
-Received: from [192.168.2.41] ([46.227.18.67])
-        by smtp.gmail.com with ESMTPSA id y8sm10850407wru.59.2019.11.19.04.01.07
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 19 Nov 2019 04:01:08 -0800 (PST)
-Subject: Re: [PATCH 4.19 150/422] tty/serial: atmel: Change the driver to work
- under at91-usart MFD
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Radu Pirea <radu_nicolae.pirea@upb.ro>
-Cc:     "stable # 4 . 4+" <stable@vger.kernel.org>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Richard Genoud <richard.genoud@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <20191119051400.261610025@linuxfoundation.org>
- <20191119051408.360814564@linuxfoundation.org>
-From:   Richard Genoud <richard.genoud@gmail.com>
-Message-ID: <86754813-17ae-46c1-f222-1635c535668e@gmail.com>
-Date:   Tue, 19 Nov 2019 13:01:01 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.9.0
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
+        bh=0DNtwBvozh9fqGSsAXWPMP3mT78xGFgP7ic/0T1B4Rk=;
+        b=Qfk61Bp2lJc5kLqqaEXwvSUqLA4onozJan6is/7n1hB90q6nwLEypj+V2Pv6OQKIOT
+         9z1kWbPE8z7y5UPfhMm1+JYEeEUTD0LAB4LMfrEYNx5PnFMOFUAFrZ/NBbUYzW3y77ex
+         9lCRcZpdf7ZxZXQe22NNXJqlWaOLhNkihXbtdz+IBgY76XBeVDoQoZTWohkcZqwWb6FL
+         CvRtWr+Zp/ZdvsNR3JqaL81pCTYmg0L73Iszn0wk1S0s608llyCynqJeEZ1PpHxLT65L
+         losMAhqGqLB5ha3kLFTtgELehPzezzsdrdH5OU+blyMt7KxMJJDkTGcWka8qoskq3m5i
+         a2Og==
+X-Gm-Message-State: APjAAAXpeFtjF5Y36nI092+ep7/BKwQMfaa9VNeFdUyUgJVkaz9smB4r
+        HItHlNqZzV+LzmX6aHRkVVWbOA==
+X-Google-Smtp-Source: APXvYqz0D8b2XZRzO5SG5UHZfNyYilwiJlRBZ+LqFlImYbyTc2V3JBhh4YJx8CVkHpk6L9Jge/tAgw==
+X-Received: by 2002:adf:d091:: with SMTP id y17mr38319573wrh.182.1574164929677;
+        Tue, 19 Nov 2019 04:02:09 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c9sm2798419wmb.42.2019.11.19.04.02.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Nov 2019 04:02:08 -0800 (PST)
+Message-ID: <5dd3d9c0.1c69fb81.9978d.cff1@mx.google.com>
+Date:   Tue, 19 Nov 2019 04:02:08 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20191119051408.360814564@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.84-423-g1fd0ac6484bb
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
+Subject: Re: [PATCH 4.19 000/422] 4.19.85-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi all,
+stable-rc/linux-4.19.y boot: 67 boots: 1 failed, 60 passed with 6 offline (=
+v4.19.84-423-g1fd0ac6484bb)
 
-Le 19/11/2019 à 06:15, Greg Kroah-Hartman a écrit :
-> From: Radu Pirea <radu.pirea@microchip.com>
-> 
-> [ Upstream commit c24d25317a7c6bb3053d4c193b3cf57d1e9a3e4b ]
-> 
-> This patch modifies the place where resources and device tree properties
-> are searched.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.84-423-g1fd0ac6484bb/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.84-423-g1fd0ac6484bb/
 
-Maybe I missed something, but I don't see why this is backported to stable.
-I don't think that this patch was send with a Cc: stable (I just came
-back from holidays, so I may be wrong :))
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.84-423-g1fd0ac6484bb
+Git Commit: 1fd0ac6484bbc5a0a4e64547a3a27a510d647fc1
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 59 unique boards, 17 SoC families, 15 builds out of 206
 
-Moreover, it's part of a series that introduce "config MFD_AT91_USART",
-but grepping MFD_AT91_USART on stable-rc/linux-4.19.y only returns:
-drivers/tty/serial/Kconfig:     select MFD_AT91_USART
+Boot Regressions Detected:
 
-So I think this is a mistake (but how it got there ? it is by a bot or
-something ?)
+arm:
 
-regards,
-Richard
+    bcm2835_defconfig:
+        gcc-8:
+          bcm2835-rpi-b:
+              lab-baylibre-seattle: new failure (last pass: v4.19.84)
 
-> 
-> Signed-off-by: Radu Pirea <radu.pirea@microchip.com>
-> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Acked-by: Richard Genoud <richard.genoud@gmail.com>
-> Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/tty/serial/Kconfig        |  1 +
->  drivers/tty/serial/atmel_serial.c | 42 ++++++++++++++++++++-----------
->  2 files changed, 28 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/tty/serial/Kconfig b/drivers/tty/serial/Kconfig
-> index df8bd0c7b97db..32886c3046413 100644
-> --- a/drivers/tty/serial/Kconfig
-> +++ b/drivers/tty/serial/Kconfig
-> @@ -118,6 +118,7 @@ config SERIAL_ATMEL
->  	depends on ARCH_AT91 || COMPILE_TEST
->  	select SERIAL_CORE
->  	select SERIAL_MCTRL_GPIO if GPIOLIB
-> +	select MFD_AT91_USART
->  	help
->  	  This enables the driver for the on-chip UARTs of the Atmel
->  	  AT91 processors.
-> diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-> index dd8949e8fcd7a..251f708f47f76 100644
-> --- a/drivers/tty/serial/atmel_serial.c
-> +++ b/drivers/tty/serial/atmel_serial.c
-> @@ -195,8 +195,7 @@ static struct console atmel_console;
->  
->  #if defined(CONFIG_OF)
->  static const struct of_device_id atmel_serial_dt_ids[] = {
-> -	{ .compatible = "atmel,at91rm9200-usart" },
-> -	{ .compatible = "atmel,at91sam9260-usart" },
-> +	{ .compatible = "atmel,at91rm9200-usart-serial" },
->  	{ /* sentinel */ }
->  };
->  #endif
-> @@ -926,6 +925,7 @@ static void atmel_tx_dma(struct uart_port *port)
->  static int atmel_prepare_tx_dma(struct uart_port *port)
->  {
->  	struct atmel_uart_port *atmel_port = to_atmel_uart_port(port);
-> +	struct device *mfd_dev = port->dev->parent;
->  	dma_cap_mask_t		mask;
->  	struct dma_slave_config config;
->  	int ret, nent;
-> @@ -933,7 +933,7 @@ static int atmel_prepare_tx_dma(struct uart_port *port)
->  	dma_cap_zero(mask);
->  	dma_cap_set(DMA_SLAVE, mask);
->  
-> -	atmel_port->chan_tx = dma_request_slave_channel(port->dev, "tx");
-> +	atmel_port->chan_tx = dma_request_slave_channel(mfd_dev, "tx");
->  	if (atmel_port->chan_tx == NULL)
->  		goto chan_err;
->  	dev_info(port->dev, "using %s for tx DMA transfers\n",
-> @@ -1104,6 +1104,7 @@ static void atmel_rx_from_dma(struct uart_port *port)
->  static int atmel_prepare_rx_dma(struct uart_port *port)
->  {
->  	struct atmel_uart_port *atmel_port = to_atmel_uart_port(port);
-> +	struct device *mfd_dev = port->dev->parent;
->  	struct dma_async_tx_descriptor *desc;
->  	dma_cap_mask_t		mask;
->  	struct dma_slave_config config;
-> @@ -1115,7 +1116,7 @@ static int atmel_prepare_rx_dma(struct uart_port *port)
->  	dma_cap_zero(mask);
->  	dma_cap_set(DMA_CYCLIC, mask);
->  
-> -	atmel_port->chan_rx = dma_request_slave_channel(port->dev, "rx");
-> +	atmel_port->chan_rx = dma_request_slave_channel(mfd_dev, "rx");
->  	if (atmel_port->chan_rx == NULL)
->  		goto chan_err;
->  	dev_info(port->dev, "using %s for rx DMA transfers\n",
-> @@ -2246,8 +2247,8 @@ static const char *atmel_type(struct uart_port *port)
->   */
->  static void atmel_release_port(struct uart_port *port)
->  {
-> -	struct platform_device *pdev = to_platform_device(port->dev);
-> -	int size = pdev->resource[0].end - pdev->resource[0].start + 1;
-> +	struct platform_device *mpdev = to_platform_device(port->dev->parent);
-> +	int size = resource_size(mpdev->resource);
->  
->  	release_mem_region(port->mapbase, size);
->  
-> @@ -2262,8 +2263,8 @@ static void atmel_release_port(struct uart_port *port)
->   */
->  static int atmel_request_port(struct uart_port *port)
->  {
-> -	struct platform_device *pdev = to_platform_device(port->dev);
-> -	int size = pdev->resource[0].end - pdev->resource[0].start + 1;
-> +	struct platform_device *mpdev = to_platform_device(port->dev->parent);
-> +	int size = resource_size(mpdev->resource);
->  
->  	if (!request_mem_region(port->mapbase, size, "atmel_serial"))
->  		return -EBUSY;
-> @@ -2365,27 +2366,28 @@ static int atmel_init_port(struct atmel_uart_port *atmel_port,
->  {
->  	int ret;
->  	struct uart_port *port = &atmel_port->uart;
-> +	struct platform_device *mpdev = to_platform_device(pdev->dev.parent);
->  
->  	atmel_init_property(atmel_port, pdev);
->  	atmel_set_ops(port);
->  
-> -	uart_get_rs485_mode(&pdev->dev, &port->rs485);
-> +	uart_get_rs485_mode(&mpdev->dev, &port->rs485);
->  
->  	port->iotype		= UPIO_MEM;
->  	port->flags		= UPF_BOOT_AUTOCONF | UPF_IOREMAP;
->  	port->ops		= &atmel_pops;
->  	port->fifosize		= 1;
->  	port->dev		= &pdev->dev;
-> -	port->mapbase	= pdev->resource[0].start;
-> -	port->irq	= pdev->resource[1].start;
-> +	port->mapbase		= mpdev->resource[0].start;
-> +	port->irq		= mpdev->resource[1].start;
->  	port->rs485_config	= atmel_config_rs485;
-> -	port->membase	= NULL;
-> +	port->membase		= NULL;
->  
->  	memset(&atmel_port->rx_ring, 0, sizeof(atmel_port->rx_ring));
->  
->  	/* for console, the clock could already be configured */
->  	if (!atmel_port->clk) {
-> -		atmel_port->clk = clk_get(&pdev->dev, "usart");
-> +		atmel_port->clk = clk_get(&mpdev->dev, "usart");
->  		if (IS_ERR(atmel_port->clk)) {
->  			ret = PTR_ERR(atmel_port->clk);
->  			atmel_port->clk = NULL;
-> @@ -2718,13 +2720,22 @@ static void atmel_serial_probe_fifos(struct atmel_uart_port *atmel_port,
->  static int atmel_serial_probe(struct platform_device *pdev)
->  {
->  	struct atmel_uart_port *atmel_port;
-> -	struct device_node *np = pdev->dev.of_node;
-> +	struct device_node *np = pdev->dev.parent->of_node;
->  	void *data;
->  	int ret = -ENODEV;
->  	bool rs485_enabled;
->  
->  	BUILD_BUG_ON(ATMEL_SERIAL_RINGSIZE & (ATMEL_SERIAL_RINGSIZE - 1));
->  
-> +	/*
-> +	 * In device tree there is no node with "atmel,at91rm9200-usart-serial"
-> +	 * as compatible string. This driver is probed by at91-usart mfd driver
-> +	 * which is just a wrapper over the atmel_serial driver and
-> +	 * spi-at91-usart driver. All attributes needed by this driver are
-> +	 * found in of_node of parent.
-> +	 */
-> +	pdev->dev.of_node = np;
-> +
->  	ret = of_alias_get_id(np, "serial");
->  	if (ret < 0)
->  		/* port id not found in platform data nor device-tree aliases:
-> @@ -2860,6 +2871,7 @@ static int atmel_serial_remove(struct platform_device *pdev)
->  
->  	clk_put(atmel_port->clk);
->  	atmel_port->clk = NULL;
-> +	pdev->dev.of_node = NULL;
->  
->  	return ret;
->  }
-> @@ -2870,7 +2882,7 @@ static struct platform_driver atmel_serial_driver = {
->  	.suspend	= atmel_serial_suspend,
->  	.resume		= atmel_serial_resume,
->  	.driver		= {
-> -		.name			= "atmel_usart",
-> +		.name			= "atmel_usart_serial",
->  		.of_match_table		= of_match_ptr(atmel_serial_dt_ids),
->  	},
->  };
-> 
+    exynos_defconfig:
+        gcc-8:
+          exynos5422-odroidxu3:
+              lab-baylibre: new failure (last pass: v4.19.84)
 
+Boot Failure Detected:
+
+arm:
+    exynos_defconfig:
+        gcc-8:
+            exynos5422-odroidxu3: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            juno-r2: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
