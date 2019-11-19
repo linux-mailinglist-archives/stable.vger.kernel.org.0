@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32C761013B1
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:27:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79FA31013B4
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:27:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727073AbfKSF01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:26:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44442 "EHLO mail.kernel.org"
+        id S1728572AbfKSF0e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:26:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728555AbfKSF0Y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:26:24 -0500
+        id S1727987AbfKSF0d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:26:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67099222ED;
-        Tue, 19 Nov 2019 05:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5909B222ED;
+        Tue, 19 Nov 2019 05:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574141183;
-        bh=V4E15JTP8Ncram5dpMtDGj4oBuQLPirvzgjhs8k4/tk=;
+        s=default; t=1574141192;
+        bh=W6uN9xHq7HGKDzwyHjCpDmU5tv6iPNN8Hw2AZv3Xizw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J5yxcXlOcecwKKpcbFECt5HKnr6UWSrNda89KGjekr+EwFfzcwJlELRDxJXm80x5v
-         YV57xaRaD7U1TeyUUsLEDGEtaQmkRa7Z0gaSwlzE0QN8A+/obqWh0gWEAZ7DCRTrVF
-         6UVqYB3CAR40orMhRp/vFY/28NVcuCC0xX6bpcbw=
+        b=RZH0kTsXQ4Jnw8T9RR19AnotKnzUgtBDjsbD62IxUcekgrBwm05GMT+u4qCQFimGo
+         uwASkd1OYEGBGuy2mvrg1icx8Vb+UvFDh/2E8+fjFM+Bo8gLnEucHeg9b5Ex5knbYF
+         X9zF5cb+26Tj6Iymae5mqO5nz1mOsRIz3F9rv9Vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrzej Hajda <a.hajda@samsung.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Alan Tull <atull@kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 073/422] ARM: dts: exynos: Fix HDMI-HPD line handling on Arndale
-Date:   Tue, 19 Nov 2019 06:14:30 +0100
-Message-Id: <20191119051404.317414910@linuxfoundation.org>
+Subject: [PATCH 4.19 076/422] arm64: dts: stratix10: i2c clock running out of spec
+Date:   Tue, 19 Nov 2019 06:14:33 +0100
+Message-Id: <20191119051404.470539070@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,55 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrzej Hajda <a.hajda@samsung.com>
+From: Alan Tull <atull@kernel.org>
 
-[ Upstream commit 21cb5a27483a3cfdbcb7508a06a30c0a485e1211 ]
+[ Upstream commit c8da1d15b8a4957f105ad77bb1404d72e304566f ]
 
-HDMI-HPD was set active low, moreover by default pincontrol chip sets
-pull-down on the pin. As a result HDMI driver assumes TV is always
-connected regardless of actual state.  The patch fixes it.
+DesignWare I2C controller was observed running at 105.93kHz rather
+than the specified 100kHz.  Adjust device tree settings to bring it
+within spec (a slightly conservative 98 MHz).
 
-Signed-off-by: Andrzej Hajda <a.hajda@samsung.com>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Alan Tull <atull@kernel.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-arndale.dts  | 4 +++-
- arch/arm/boot/dts/exynos5250-pinctrl.dtsi | 5 +++++
- 2 files changed, 8 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm/boot/dts/exynos5250-arndale.dts b/arch/arm/boot/dts/exynos5250-arndale.dts
-index bb3fcd652b5d7..9c8ab4b7fb2cf 100644
---- a/arch/arm/boot/dts/exynos5250-arndale.dts
-+++ b/arch/arm/boot/dts/exynos5250-arndale.dts
-@@ -149,9 +149,11 @@
- };
- 
- &hdmi {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&hdmi_hpd>;
+diff --git a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
+index 7c661753bfaf4..faa017d4cd56b 100644
+--- a/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
++++ b/arch/arm64/boot/dts/altera/socfpga_stratix10_socdk.dts
+@@ -124,6 +124,8 @@
+ &i2c1 {
  	status = "okay";
- 	ddc = <&i2c_ddc>;
--	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_LOW>;
-+	hpd-gpios = <&gpx3 7 GPIO_ACTIVE_HIGH>;
- 	vdd_osc-supply = <&ldo10_reg>;
- 	vdd_pll-supply = <&ldo8_reg>;
- 	vdd-supply = <&ldo8_reg>;
-diff --git a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
-index b25d520393b8b..d31a68672bfac 100644
---- a/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/exynos5250-pinctrl.dtsi
-@@ -599,6 +599,11 @@
- 		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
- 		samsung,pin-drv = <EXYNOS4_PIN_DRV_LV1>;
- 	};
-+
-+	hdmi_hpd: hdmi-hpd {
-+		samsung,pins = "gpx3-7";
-+		samsung,pin-pud = <EXYNOS_PIN_PULL_NONE>;
-+	};
- };
+ 	clock-frequency = <100000>;
++	i2c-sda-falling-time-ns = <890>;  /* hcnt */
++	i2c-sdl-falling-time-ns = <890>;  /* lcnt */
  
- &pinctrl_1 {
+ 	adc@14 {
+ 		compatible = "lltc,ltc2497";
 -- 
 2.20.1
 
