@@ -2,157 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D488D1029D0
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 17:52:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CF56102A2E
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 17:58:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727991AbfKSQwN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 11:52:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46680 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727560AbfKSQwM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 11:52:12 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00AD2222D1;
-        Tue, 19 Nov 2019 16:52:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574182330;
-        bh=PQE08P8cZPIQVrquCvag3YZlLtDU39GyDrviAt/PyU8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=e6TrI1GRBWRgsZYJFPhe9V07K6ChCrac2m7Dqfgk53XaPQoocsRZCYLjL/O5lxBb0
-         evRhJiou6r4rGj6L0bH3eguiEluzt7ujSqmxBJZtAnNvO1ZDKIhk3en01fSPE/xGs7
-         ZVPQXqU6u1WJEILKbBovdpnI5KluwM0+rCFQZs8o=
-Date:   Tue, 19 Nov 2019 17:52:07 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Chris Paterson <Chris.Paterson2@renesas.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "cip-dev@lists.cip-project.org" <cip-dev@lists.cip-project.org>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "shuah@kernel.org" <shuah@kernel.org>,
-        "patches@kernelci.org" <patches@kernelci.org>,
-        "ben.hutchings@codethink.co.uk" <ben.hutchings@codethink.co.uk>,
-        "lkft-triage@lists.linaro.org" <lkft-triage@lists.linaro.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH 4.19 000/422] 4.19.85-stable review
-Message-ID: <20191119165207.GA2071545@kroah.com>
-References: <20191119051400.261610025@linuxfoundation.org>
- <TYAPR01MB22854E4F20C28F3A10DA65E3B74C0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191119122909.GC1913916@kroah.com>
- <TYAPR01MB228560FC98FFD1D449FA4EC2B74C0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
- <20191119154839.GB1982025@kroah.com>
- <TYAPR01MB2285698B8E0F38B9EEF47128B74C0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
+        id S1728645AbfKSQ6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 11:58:46 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:52892 "EHLO
+        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728668AbfKSQ5K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 11:57:10 -0500
+Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
+        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
+        (Exim 4.80)
+        (envelope-from <tip-bot2@linutronix.de>)
+        id 1iX6oL-0007WJ-Ee; Tue, 19 Nov 2019 17:57:05 +0100
+Received: from [127.0.1.1] (localhost [IPv6:::1])
+        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id 0D5171C19DD;
+        Tue, 19 Nov 2019 17:56:51 +0100 (CET)
+Date:   Tue, 19 Nov 2019 16:56:50 -0000
+From:   "tip-bot2 for Adrian Hunter" <tip-bot2@linutronix.de>
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: perf/core] perf scripts python: exported-sql-viewer.py: Fix use
+ of TRUE with SQLite
+Cc:     Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>, stable@vger.kernel.org,
+        #@tip-bot2.tec.linutronix.de, v5.3+@tip-bot2.tec.linutronix.de,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ingo Molnar <mingo@kernel.org>, Borislav Petkov <bp@alien8.de>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20191113120206.26957-1-adrian.hunter@intel.com>
+References: <20191113120206.26957-1-adrian.hunter@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <TYAPR01MB2285698B8E0F38B9EEF47128B74C0@TYAPR01MB2285.jpnprd01.prod.outlook.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Message-ID: <157418261096.12247.2783714648514697196.tip-bot2@tip-bot2>
+X-Mailer: tip-git-log-daemon
+Robot-ID: <tip-bot2.linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Linutronix-Spam-Score: -1.0
+X-Linutronix-Spam-Level: -
+X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 19, 2019 at 04:38:06PM +0000, Chris Paterson wrote:
-> > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > Sent: 19 November 2019 15:49
-> > 
-> > On Tue, Nov 19, 2019 at 02:44:12PM +0000, Chris Paterson wrote:
-> > > Hi Greg,
-> > >
-> > > > From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > Sent: 19 November 2019 12:29
-> > > >
-> > > > On Tue, Nov 19, 2019 at 08:54:25AM +0000, Chris Paterson wrote:
-> > > > > Hello Greg, all,
-> > > > >
-> > > > > > From: stable-owner@vger.kernel.org <stable-owner@vger.kernel.org>
-> > On
-> > > > > > Behalf Of Greg Kroah-Hartman
-> > > > > > Sent: 19 November 2019 05:13
-> > > > > >
-> > > > > > This is the start of the stable review cycle for the 4.19.85 release.
-> > > > > > There are 422 patches in this series, all will be posted as a response
-> > > > > > to this one.  If anyone has any issues with these being applied, please
-> > > > > > let me know.
-> > > > >
-> > > > > I'm seeing some build issues with module compilation with this release
-> > > > (1b1960cc Linux 4.19.85-rc1), I also saw them with the previous two versions
-> > of
-> > > > Linux 4.19.85-rc1 (cd21ecdb and 1fd0ac64).
-> > > > >
-> > > > > Full log available on GitLab [0]. Build conf [1].
-> > > > > [0] https://gitlab.com/cip-playground/linux-stable-rc-ci/-/jobs/354591285
-> > > > > [1] https://gitlab.com/cip-playground/linux-stable-rc-ci/-
-> > > > /jobs/354591285/artifacts/file/output/4.19.85-
-> > > > rc1_1b1960cc7/x86/siemens_iot2000.config/config/.config
-> > > > >
-> > > > > Main error below:
-> > > > >
-> > > > > 3907   CC [M]  drivers/net/ethernet/mellanox/mlx4/main.o
-> > > > > 3908   LD [M]  fs/ntfs/ntfs.o
-> > > > > 3909   CC [M]  drivers/net/ethernet/intel/i40evf/i40e_txrx.o
-> > > > > 3910   CC [M]  drivers/usb/musb/musb_core.o
-> > > > > 3911   CC [M]  drivers/net/ethernet/nvidia/forcedeth.o
-> > > > > 3912   CC [M]  fs/udf/balloc.o
-> > > > > 3913   CC [M]  drivers/net/ethernet/intel/fm10k/fm10k_debugfs.o
-> > > > > 3914   CC [M]  fs/udf/dir.o
-> > > > > 3915   CC [M]  drivers/net/ethernet/broadcom/bnx2x/bnx2x_vfpf.o
-> > > > > 3916   CC [M]  drivers/net/ethernet/intel/i40e/i40e_ptp.o
-> > > > > 3917 drivers/net/ethernet/mellanox/mlx4/main.c: In function
-> > 'mlx4_init_one':
-> > > > > 3918 drivers/net/ethernet/mellanox/mlx4/main.c:3985:2: error: implicit
-> > > > declaration of function 'devlink_reload_enable'; did you mean
-> > > > 'devlink_region_create'? [-Werror=implicit-function-declaration]
-> > > > > 3919   devlink_reload_enable(devlink);
-> > > > > 3920   ^~~~~~~~~~~~~~~~~~~~~
-> > > > > 3921   devlink_region_create
-> > > > > 3922   CC [M]  drivers/net/ethernet/chelsio/cxgb4/cxgb4_cudbg.o
-> > > > > 3923 drivers/net/ethernet/mellanox/mlx4/main.c: In function
-> > > > 'mlx4_remove_one':
-> > > > > 3924 drivers/net/ethernet/mellanox/mlx4/main.c:4097:2: error: implicit
-> > > > declaration of function 'devlink_reload_disable'; did you mean
-> > > > 'devlink_region_destroy'? [-Werror=implicit-function-declaration]
-> > > > > 3925   devlink_reload_disable(devlink);
-> > > > > 3926   ^~~~~~~~~~~~~~~~~~~~~~
-> > > > > 3927   devlink_region_destroy
-> > > > > 3928   CC [M]  drivers/net/ethernet/packetengines/hamachi.o
-> > > > > 3929   CC [M]  fs/udf/file.o
-> > > > > 3930   LD [M]  drivers/net/ethernet/intel/fm10k/fm10k.o
-> > > > >
-> > > > > I haven't tried to trace the issue further yet, sorry.
-> > > >
-> > > > Any chance you can bisect this?  I don't see any obvious reason why this
-> > > > error should be happening, and it isn't showing up here :(
-> > >
-> > > Looking through the commit history, the issue seems to be related to:
-> > > 672cf82122be ("devlink: disallow reload operation during device cleanup")
-> > >
-> > > I've reverted this commit and Linux 4.19.85-rc2 (af1bb7db before revert) will
-> > build with the configuration I'm using [2].
-> > > I haven't looked further yet though, sorry.
-> > >
-> > > [2] https://gitlab.com/cip-project/cip-kernel/cip-kernel-
-> > config/raw/master/4.19.y-cip/x86/siemens_iot2000.config
-> > 
-> > If you add:
-> > 	#include <net/devlink.h>
-> > to the top of drivers/net/ethernet/mellanox/mlx4/main.c, does it fix the
-> > issue for you?
-> 
-> This is already defined:
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/tree/drivers/net/ethernet/mellanox/mlx4/main.c?h=linux-4.19.y#n47
+The following commit has been merged into the perf/core branch of tip:
 
-Ah, ok, the issue is that CONFIG_NET_DEVLINK is not enabled, the driver
-now requires this.  This was resolved by adding the dependancy to the
-driver itself, and then just punting and always enabling it over time.
+Commit-ID:     af833988c088d3fed3e7188e7c3dd9ca17178dc3
+Gitweb:        https://git.kernel.org/tip/af833988c088d3fed3e7188e7c3dd9ca17178dc3
+Author:        Adrian Hunter <adrian.hunter@intel.com>
+AuthorDate:    Wed, 13 Nov 2019 14:02:06 +02:00
+Committer:     Arnaldo Carvalho de Melo <acme@redhat.com>
+CommitterDate: Wed, 13 Nov 2019 09:13:16 -03:00
 
-We can backport part of f6b19b354d50 ("net: devlink: select NET_DEVLINK
-from drivers") if you want, but that feels messy.
+perf scripts python: exported-sql-viewer.py: Fix use of TRUE with SQLite
 
-For now, if you enable that option, does it build for you?
+Prior to version 3.23 SQLite does not support TRUE or FALSE, so always
+use 1 and 0 for SQLite.
 
-thanks,
+Fixes: 26c11206f433 ("perf scripts python: exported-sql-viewer.py: Use new 'has_calls' column")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org # v5.3+
+Link: http://lore.kernel.org/lkml/20191113120206.26957-1-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+---
+ tools/perf/scripts/python/exported-sql-viewer.py | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-greg k-h
+diff --git a/tools/perf/scripts/python/exported-sql-viewer.py b/tools/perf/scripts/python/exported-sql-viewer.py
+index ebc6a2e..26d7be7 100755
+--- a/tools/perf/scripts/python/exported-sql-viewer.py
++++ b/tools/perf/scripts/python/exported-sql-viewer.py
+@@ -637,7 +637,7 @@ class CallGraphRootItem(CallGraphLevelItemBase):
+ 		self.query_done = True
+ 		if_has_calls = ""
+ 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
+-			if_has_calls = " WHERE has_calls = TRUE"
++			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
+ 		query = QSqlQuery(glb.db)
+ 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
+ 		while query.next():
+@@ -918,7 +918,7 @@ class CallTreeRootItem(CallGraphLevelItemBase):
+ 		self.query_done = True
+ 		if_has_calls = ""
+ 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
+-			if_has_calls = " WHERE has_calls = TRUE"
++			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
+ 		query = QSqlQuery(glb.db)
+ 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
+ 		while query.next():
+@@ -1290,7 +1290,7 @@ class SwitchGraphData(GraphData):
+ 		QueryExec(query, "SELECT id, c_time"
+ 					" FROM comms"
+ 					" WHERE c_thread_id = " + str(thread_id) +
+-					"   AND exec_flag = TRUE"
++					"   AND exec_flag = " + self.collection.glb.dbref.TRUE +
+ 					"   AND c_time >= " + str(start_time) +
+ 					"   AND c_time <= " + str(end_time) +
+ 					" ORDER BY c_time, id")
+@@ -5016,6 +5016,12 @@ class DBRef():
+ 	def __init__(self, is_sqlite3, dbname):
+ 		self.is_sqlite3 = is_sqlite3
+ 		self.dbname = dbname
++		self.TRUE = "TRUE"
++		self.FALSE = "FALSE"
++		# SQLite prior to version 3.23 does not support TRUE and FALSE
++		if self.is_sqlite3:
++			self.TRUE = "1"
++			self.FALSE = "0"
+ 
+ 	def Open(self, connection_name):
+ 		dbname = self.dbname
