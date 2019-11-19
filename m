@@ -2,108 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9905F102312
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 12:35:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2C5C102349
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 12:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727770AbfKSLdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 06:33:17 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46958 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727584AbfKSLdR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 06:33:17 -0500
-Received: from quaco.ghostprotocols.net (179.176.11.138.dynamic.adsl.gvt.net.br [179.176.11.138])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 988B42230D;
-        Tue, 19 Nov 2019 11:33:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574163196;
-        bh=sM6LjVoo1xfXZxPFYySwqIK3weoW/nciNqfJGG09xzQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xujcKlkI5P4TtMuN/PDB04kJ+QYWIW9vKKRWXXG5A1Nyz1EiwI+aKN1CbRtzs8/Qf
-         QcDRQPiC67dn36AOKSUHMpvhsqh6CSnwullf9ngDTeyXPDKITizrAdUiuAsF0un8M4
-         55Z8WQy+XJrlcBzdKB9L1vZeOS7kwHcTVDXxnzX4=
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
-        Clark Williams <williams@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>, stable@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 04/25] perf scripts python: exported-sql-viewer.py: Fix use of TRUE with SQLite
-Date:   Tue, 19 Nov 2019 08:32:24 -0300
-Message-Id: <20191119113245.19593-5-acme@kernel.org>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20191119113245.19593-1-acme@kernel.org>
-References: <20191119113245.19593-1-acme@kernel.org>
+        id S1727921AbfKSLhs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 06:37:48 -0500
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:35739 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727557AbfKSLhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 06:37:47 -0500
+Received: by mail-wm1-f68.google.com with SMTP id 8so3186283wmo.0
+        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 03:37:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=ZQpO1iO3m4MmPWlKOsrOg7w+/ReoqHz0s9xrlKZvmlU=;
+        b=y3+WlFomBz0yzuCYYxGKF0YMSxwawpZFSXhTyOBtN6yY3PAQ4XWnvE56ZfKHF7/j7Z
+         vKK2yL88ecUhudIrOjd+xYUl2fQDf8ojojbda3u5ssNAKlkMVsyOECopaZidRKXbO9o1
+         mNtC6L9SM7AyBr7kMU8pC078YvsXNX6nbVyw012u8bDFvE+zC5YAUamaeddbX+Go6WJN
+         NXuXM6Z0RdDzPm9ZLK2ft5Xi0buxxMZamqXRYE2X2W5AA/RvMD3qePXeLDIwtP4v/iTF
+         kOl4MPIzA+wjUELMw6AO0CCI0JBB53wrItoY2IdkSH1FBhSZQGITqk6tJvMnoMRdShAV
+         qJ/A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=ZQpO1iO3m4MmPWlKOsrOg7w+/ReoqHz0s9xrlKZvmlU=;
+        b=BFxWTNnydZKBMYYbGa51I1xOTplBa+JoUQjxqSANr1Zu3pvKqBO6WM21cIuy5jouQK
+         WFqnCX4BKHe0qR5AXxBHC2BHhM9z1Q4AjU6l3oqo5irhcJCZicZCxs3XPoPkM5CH15dQ
+         VEK3UBniLy1iWJuQ4cOpKN4QAJKrjAs+MFIYPSMOZGEgnIi/pvINX6zTT5x2IE+L5HE5
+         pweK3UsQqKLRke3UhmDK1dKgRuN7ZC+LrK5xCN/ngm9pOnxeCT/Ww9hX2D5P4k+bOV5x
+         P0lTlY7IzWzGdLkb0R37oV65MipchNho+59Ocpvygs8j7JGfXos5GdbbPlS9JcZDqVwK
+         FkpA==
+X-Gm-Message-State: APjAAAWs5nYyLHckaOLH7nUfvye7EmjJGC1Lv1eSegnobwrEnaDe+zk3
+        O7BA86/JhbhJKF/spi7b+noPUy+dJXbgng==
+X-Google-Smtp-Source: APXvYqwU1jD1L9YebKmp4xQjRnWVMV4/Gw9cBoH1ECEbqJ5l9n08S6jXAFRYpSaOztXvD2tL3AbRNg==
+X-Received: by 2002:a1c:99cb:: with SMTP id b194mr5323943wme.100.1574163465858;
+        Tue, 19 Nov 2019 03:37:45 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id p4sm27696366wrx.71.2019.11.19.03.37.44
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 Nov 2019 03:37:44 -0800 (PST)
+Message-ID: <5dd3d408.1c69fb81.c2258.3da5@mx.google.com>
+Date:   Tue, 19 Nov 2019 03:37:44 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.201-180-ga01b8802acde
+Subject: stable-rc/linux-4.9.y boot: 78 boots: 1 failed,
+ 67 passed with 10 offline (v4.9.201-180-ga01b8802acde)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+stable-rc/linux-4.9.y boot: 78 boots: 1 failed, 67 passed with 10 offline (=
+v4.9.201-180-ga01b8802acde)
 
-Prior to version 3.23 SQLite does not support TRUE or FALSE, so always
-use 1 and 0 for SQLite.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.201-180-ga01b8802acde/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.201-180-ga01b8802acde/
 
-Fixes: 26c11206f433 ("perf scripts python: exported-sql-viewer.py: Use new 'has_calls' column")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org # v5.3+
-Link: http://lore.kernel.org/lkml/20191113120206.26957-1-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.201-180-ga01b8802acde
+Git Commit: a01b8802acde97795921ca736e348541c0669c94
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 46 unique boards, 18 SoC families, 14 builds out of 197
+
+Boot Regressions Detected:
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8:
+          bcm2835-rpi-b:
+              lab-baylibre-seattle: new failure (last pass: v4.9.201-32-gd7=
+f83e4f45e8)
+
+    socfpga_defconfig:
+        gcc-8:
+          socfpga_cyclone5_de0_sockit:
+              lab-baylibre-seattle: new failure (last pass: v4.9.201-32-gd7=
+f83e4f45e8)
+
+Boot Failure Detected:
+
+arm:
+    omap2plus_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
+
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            juno-r2: 1 offline lab
+
+arm:
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            bcm4708-smartrg-sr400ac: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    socfpga_defconfig:
+        gcc-8
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+
 ---
- tools/perf/scripts/python/exported-sql-viewer.py | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/tools/perf/scripts/python/exported-sql-viewer.py b/tools/perf/scripts/python/exported-sql-viewer.py
-index ebc6a2e5eae9..26d7be785288 100755
---- a/tools/perf/scripts/python/exported-sql-viewer.py
-+++ b/tools/perf/scripts/python/exported-sql-viewer.py
-@@ -637,7 +637,7 @@ class CallGraphRootItem(CallGraphLevelItemBase):
- 		self.query_done = True
- 		if_has_calls = ""
- 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
--			if_has_calls = " WHERE has_calls = TRUE"
-+			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
- 		query = QSqlQuery(glb.db)
- 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
- 		while query.next():
-@@ -918,7 +918,7 @@ class CallTreeRootItem(CallGraphLevelItemBase):
- 		self.query_done = True
- 		if_has_calls = ""
- 		if IsSelectable(glb.db, "comms", columns = "has_calls"):
--			if_has_calls = " WHERE has_calls = TRUE"
-+			if_has_calls = " WHERE has_calls = " + glb.dbref.TRUE
- 		query = QSqlQuery(glb.db)
- 		QueryExec(query, "SELECT id, comm FROM comms" + if_has_calls)
- 		while query.next():
-@@ -1290,7 +1290,7 @@ class SwitchGraphData(GraphData):
- 		QueryExec(query, "SELECT id, c_time"
- 					" FROM comms"
- 					" WHERE c_thread_id = " + str(thread_id) +
--					"   AND exec_flag = TRUE"
-+					"   AND exec_flag = " + self.collection.glb.dbref.TRUE +
- 					"   AND c_time >= " + str(start_time) +
- 					"   AND c_time <= " + str(end_time) +
- 					" ORDER BY c_time, id")
-@@ -5016,6 +5016,12 @@ class DBRef():
- 	def __init__(self, is_sqlite3, dbname):
- 		self.is_sqlite3 = is_sqlite3
- 		self.dbname = dbname
-+		self.TRUE = "TRUE"
-+		self.FALSE = "FALSE"
-+		# SQLite prior to version 3.23 does not support TRUE and FALSE
-+		if self.is_sqlite3:
-+			self.TRUE = "1"
-+			self.FALSE = "0"
- 
- 	def Open(self, connection_name):
- 		dbname = self.dbname
--- 
-2.21.0
-
+For more info write to <info@kernelci.org>
