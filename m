@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B3C1017A5
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:02:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86A0D1017A3
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 07:02:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728424AbfKSFlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:41:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35712 "EHLO mail.kernel.org"
+        id S1729966AbfKSFlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:41:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729946AbfKSFlR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:41:17 -0500
+        id S1729531AbfKSFlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:41:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6285821783;
-        Tue, 19 Nov 2019 05:41:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF79F21823;
+        Tue, 19 Nov 2019 05:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142076;
-        bh=xscJ7EClHwitBaxZMa5jBEldDG3fG8cJaiC13LZuq10=;
+        s=default; t=1574142080;
+        bh=8YwN1mIPCq0li5Fv10AaqXAk7tANchOV30SvSfyabI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XuL6+aSW1++/cMN4rn0S8rVfX9G77aay8qLXKGcnWdqqzh9tv/KMN73zjHxaZuUl8
-         +41qiEzIBd/L49IUvQIx/77B4VLJqC160fhKWi+TmSOYFwmLrUIhADMm0c6RVu7jeG
-         uu2m5ICPoU4bc8hk9LDQwYWWFWzgW1phjuiF+4x4=
+        b=fDd96QiEp1XXXZaJnlVahfiWzc12CzcE60MAcaMst8Xh+zLi7dccvPuEz8sxFfGBq
+         jh6xyF4f0KIwzXvvnA4Udd3TT8tJ3UB6VTco4DMgr5G66RB79e+Q4qxA0pkPsAqQc0
+         U6g0wiII8RgaBy4GFnAljTpOktHuCS59kJZkP05I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 380/422] RDMA: Fix dependencies for rdma_user_mmap_io
-Date:   Tue, 19 Nov 2019 06:19:37 +0100
-Message-Id: <20191119051423.687303372@linuxfoundation.org>
+        stable@vger.kernel.org, Justin Ernst <justin.ernst@hpe.com>,
+        Borislav Petkov <bp@suse.de>,
+        Russ Anderson <russ.anderson@hpe.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        linux-edac@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 381/422] EDAC: Raise the maximum number of memory controllers
+Date:   Tue, 19 Nov 2019 06:19:38 +0100
+Message-Id: <20191119051423.753292334@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
 References: <20191119051400.261610025@linuxfoundation.org>
@@ -44,56 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Justin Ernst <justin.ernst@hpe.com>
 
-[ Upstream commit 46bdf777685677c1cc6b3da9220aace9da690731 ]
+[ Upstream commit 6b58859419554fb824e09cfdd73151a195473cbc ]
 
-The mlx4 driver produces a link error when it is configured
-as built-in while CONFIG_INFINIBAND_USER_ACCESS is set to =m:
+We observe an oops in the skx_edac module during boot:
 
-drivers/infiniband/hw/mlx4/main.o: In function `mlx4_ib_mmap':
-main.c:(.text+0x1af4): undefined reference to `rdma_user_mmap_io'
+  EDAC MC0: Giving out device to module skx_edac controller Skylake Socket#0 IMC#0
+  EDAC MC1: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
+  EDAC MC2: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
+  ...
+  EDAC MC13: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
+  EDAC MC14: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
+  EDAC MC15: Giving out device to module skx_edac controller Skylake Socket#1 IMC#1
+  Too many memory controllers: 16
+  EDAC MC: Removed device 0 for skx_edac Skylake Socket#0 IMC#0
 
-The same function is called from mlx5, which already has a
-dependency to ensure we can call it, and from hns, which
-appears to suffer from the same problem.
+We observe there are two memory controllers per socket, with a limit
+of 16. Raise the maximum number of memory controllers from 16 to 2 *
+MAX_NUMNODES (1024).
 
-This adds the same dependency that mlx5 uses to the other two.
+[ bp: This is just a band-aid fix until we've sorted out the whole issue
+  with the bus_type association and handling in EDAC and can get rid of
+  this arbitrary limit. ]
 
-Fixes: 6745d356ab39 ("RDMA/hns: Use rdma_user_mmap_io")
-Fixes: c282da4109e4 ("RDMA/mlx4: Use rdma_user_mmap_io")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Justin Ernst <justin.ernst@hpe.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Russ Anderson <russ.anderson@hpe.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: linux-edac@vger.kernel.org
+Link: https://lkml.kernel.org/r/20180925143449.284634-1-justin.ernst@hpe.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/Kconfig  | 1 +
- drivers/infiniband/hw/mlx4/Kconfig | 1 +
- 2 files changed, 2 insertions(+)
+ include/linux/edac.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hns/Kconfig b/drivers/infiniband/hw/hns/Kconfig
-index fddb5fdf92de8..21c2100b2ea98 100644
---- a/drivers/infiniband/hw/hns/Kconfig
-+++ b/drivers/infiniband/hw/hns/Kconfig
-@@ -1,6 +1,7 @@
- config INFINIBAND_HNS
- 	tristate "HNS RoCE Driver"
- 	depends on NET_VENDOR_HISILICON
-+	depends on INFINIBAND_USER_ACCESS || !INFINIBAND_USER_ACCESS
- 	depends on ARM64 || (COMPILE_TEST && 64BIT)
- 	---help---
- 	  This is a RoCE/RDMA driver for the Hisilicon RoCE engine. The engine
-diff --git a/drivers/infiniband/hw/mlx4/Kconfig b/drivers/infiniband/hw/mlx4/Kconfig
-index db4aa13ebae0c..d1de3285fd885 100644
---- a/drivers/infiniband/hw/mlx4/Kconfig
-+++ b/drivers/infiniband/hw/mlx4/Kconfig
-@@ -1,6 +1,7 @@
- config MLX4_INFINIBAND
- 	tristate "Mellanox ConnectX HCA support"
- 	depends on NETDEVICES && ETHERNET && PCI && INET
-+	depends on INFINIBAND_USER_ACCESS || !INFINIBAND_USER_ACCESS
- 	depends on MAY_USE_DEVLINK
- 	select NET_VENDOR_MELLANOX
- 	select MLX4_CORE
+diff --git a/include/linux/edac.h b/include/linux/edac.h
+index bffb97828ed67..958d69332c1d5 100644
+--- a/include/linux/edac.h
++++ b/include/linux/edac.h
+@@ -17,6 +17,7 @@
+ #include <linux/completion.h>
+ #include <linux/workqueue.h>
+ #include <linux/debugfs.h>
++#include <linux/numa.h>
+ 
+ #define EDAC_DEVICE_NAME_LEN	31
+ 
+@@ -670,6 +671,6 @@ struct mem_ctl_info {
+ /*
+  * Maximum number of memory controllers in the coherent fabric.
+  */
+-#define EDAC_MAX_MCS	16
++#define EDAC_MAX_MCS	2 * MAX_NUMNODES
+ 
+ #endif
 -- 
 2.20.1
 
