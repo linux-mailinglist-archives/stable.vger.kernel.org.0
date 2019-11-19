@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F1810157A
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B90461014A1
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 06:36:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729028AbfKSFof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 00:44:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39926 "EHLO mail.kernel.org"
+        id S1729428AbfKSFgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 00:36:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728279AbfKSFoe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 19 Nov 2019 00:44:34 -0500
+        id S1729106AbfKSFf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 19 Nov 2019 00:35:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D61A2075E;
-        Tue, 19 Nov 2019 05:44:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9320B20862;
+        Tue, 19 Nov 2019 05:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574142273;
-        bh=MRSC/rpnl5+bhnmzznhBQPp4qw0a6pfP0cTuKURpk84=;
+        s=default; t=1574141757;
+        bh=jSGFsiKCQFZBLSEAsjsqgfDUw/IFfM12cjJ2KDf7CbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rovGv277GmyqDCXs7wwPzyc3yxi8x56iJMD6eDspWsXARuDu/E4MmE8iE70Qa/guj
-         B5kI8Gg5fiXlrnd5fQVWxTDohRTxw7BBampOziXuEpoXuhw9QfmoxDz+GCFHnowF1e
-         ASEnbkNS7IF/8yDL7BcrEcyi7P64sDgZNentYZxs=
+        b=kYKRtrb9rJ4Jb5JpkFUZNJ2ge+CTywiWjFLXNm8wMOLmAdCcfSFx2X8t8FmhGwrPN
+         QNs2Cs+yKnVJqJNYtN979hAB2U7LN9Oo0zWhuxXo2Ym6iDU/Kydt1MGOaTxVIZ++xE
+         eoqaXXk8MxchB/S9hP6bIjglQW8A+AOu1xklU6eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tejun Heo <tj@kernel.org>, Shakeel Butt <shakeeb@google.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Michal Koutn <mkoutny@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 025/239] mm: memcg: switch to css_tryget() in get_mem_cgroup_from_mm()
-Date:   Tue, 19 Nov 2019 06:17:05 +0100
-Message-Id: <20191119051302.643328780@linuxfoundation.org>
+        stable@vger.kernel.org, Heiko Stuebner <heiko@sntech.de>,
+        linux-rockchip@lists.infradead.org, Rob Herring <robh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 230/422] ARM: dts: rockchip: Fix erroneous SPI bus dtc warnings on rk3036
+Date:   Tue, 19 Nov 2019 06:17:07 +0100
+Message-Id: <20191119051413.780821671@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191119051255.850204959@linuxfoundation.org>
-References: <20191119051255.850204959@linuxfoundation.org>
+In-Reply-To: <20191119051400.261610025@linuxfoundation.org>
+References: <20191119051400.261610025@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,80 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Gushchin <guro@fb.com>
+From: Rob Herring <robh@kernel.org>
 
-commit 00d484f354d85845991b40141d40ba9e5eb60faf upstream.
+[ Upstream commit 131c3eb428ccd5f0c784b9edb4f72ec296a045d2 ]
 
-We've encountered a rcu stall in get_mem_cgroup_from_mm():
+dtc has new checks for SPI buses. The rk3036 dts file has a node named
+spi' which causes false positive warnings. As the node is a pinctrl child
+node, change the node name to be 'spi-pins' to fix the warnings.
 
-  rcu: INFO: rcu_sched self-detected stall on CPU
-  rcu: 33-....: (21000 ticks this GP) idle=6c6/1/0x4000000000000002 softirq=35441/35441 fqs=5017
-  (t=21031 jiffies g=324821 q=95837) NMI backtrace for cpu 33
-  <...>
-  RIP: 0010:get_mem_cgroup_from_mm+0x2f/0x90
-  <...>
-   __memcg_kmem_charge+0x55/0x140
-   __alloc_pages_nodemask+0x267/0x320
-   pipe_write+0x1ad/0x400
-   new_sync_write+0x127/0x1c0
-   __kernel_write+0x4f/0xf0
-   dump_emit+0x91/0xc0
-   writenote+0xa0/0xc0
-   elf_core_dump+0x11af/0x1430
-   do_coredump+0xc65/0xee0
-   get_signal+0x132/0x7c0
-   do_signal+0x36/0x640
-   exit_to_usermode_loop+0x61/0xd0
-   do_syscall_64+0xd4/0x100
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+arch/arm/boot/dts/rk3036-evb.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #address-cells for SPI bus
+arch/arm/boot/dts/rk3036-kylin.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #address-cells for SPI bus
+arch/arm/boot/dts/rk3036-evb.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #size-cells for SPI bus
+arch/arm/boot/dts/rk3036-kylin.dtb: Warning (spi_bus_bridge): /pinctrl/spi: incorrect #size-cells for SPI bus
 
-The problem is caused by an exiting task which is associated with an
-offline memcg.  We're iterating over and over in the do {} while
-(!css_tryget_online()) loop, but obviously the memcg won't become online
-and the exiting task won't be migrated to a live memcg.
-
-Let's fix it by switching from css_tryget_online() to css_tryget().
-
-As css_tryget_online() cannot guarantee that the memcg won't go offline,
-the check is usually useless, except some rare cases when for example it
-determines if something should be presented to a user.
-
-A similar problem is described by commit 18fa84a2db0e ("cgroup: Use
-css_tryget() instead of css_tryget_online() in task_get_css()").
-
-Johannes:
-
-: The bug aside, it doesn't matter whether the cgroup is online for the
-: callers.  It used to matter when offlining needed to evacuate all charges
-: from the memcg, and so needed to prevent new ones from showing up, but we
-: don't care now.
-
-Link: http://lkml.kernel.org/r/20191106225131.3543616-1-guro@fb.com
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Reviewed-by: Shakeel Butt <shakeeb@google.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Michal Koutn <mkoutny@suse.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Cc: Heiko Stuebner <heiko@sntech.de>
+Cc: linux-rockchip@lists.infradead.org
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memcontrol.c |    2 +-
+ arch/arm/boot/dts/rk3036.dtsi | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/memcontrol.c
-+++ b/mm/memcontrol.c
-@@ -725,7 +725,7 @@ static struct mem_cgroup *get_mem_cgroup
- 			if (unlikely(!memcg))
- 				memcg = root_mem_cgroup;
- 		}
--	} while (!css_tryget_online(&memcg->css));
-+	} while (!css_tryget(&memcg->css));
- 	rcu_read_unlock();
- 	return memcg;
- }
+diff --git a/arch/arm/boot/dts/rk3036.dtsi b/arch/arm/boot/dts/rk3036.dtsi
+index 67f57200d9a06..d560fc4051c5f 100644
+--- a/arch/arm/boot/dts/rk3036.dtsi
++++ b/arch/arm/boot/dts/rk3036.dtsi
+@@ -733,7 +733,7 @@
+ 			/* no rts / cts for uart2 */
+ 		};
+ 
+-		spi {
++		spi-pins {
+ 			spi_txd:spi-txd {
+ 				rockchip,pins = <1 29 RK_FUNC_3 &pcfg_pull_default>;
+ 			};
+-- 
+2.20.1
+
 
 
