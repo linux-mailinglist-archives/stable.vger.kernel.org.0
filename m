@@ -2,101 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54FE31027FB
-	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 16:23:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2867B102863
+	for <lists+stable@lfdr.de>; Tue, 19 Nov 2019 16:45:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726307AbfKSPXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 10:23:41 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:46242 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726637AbfKSPXl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 10:23:41 -0500
-Received: from [192.168.4.242] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iX5Lt-0007Sx-88; Tue, 19 Nov 2019 15:23:37 +0000
-Received: from ben by deadeye with local (Exim 4.93-RC1)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1iX5Ls-0006Si-Ru; Tue, 19 Nov 2019 15:23:36 +0000
-Message-ID: <2962b899411bcb9c1463310dd3d5eda733bf4b63.camel@decadent.org.uk>
-Subject: Re: [PATCH AUTOSEL 4.20 072/117] btrfs: alloc_chunk: fix more DUP
- stripe size handling
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Hans van Kranenburg <Hans.van.Kranenburg@mendix.com>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        David Sterba <dsterba@suse.com>,
-        "linux-btrfs@vger.kernel.org" <linux-btrfs@vger.kernel.org>
-Date:   Tue, 19 Nov 2019 15:23:31 +0000
-In-Reply-To: <84061712-32b6-35b7-eb1f-27eb9f85fd11@mendix.com>
-References: <20190108192628.121270-1-sashal@kernel.org>
-         <20190108192628.121270-72-sashal@kernel.org>
-         <783ccf1f-65df-d388-079c-9449d4319c27@mendix.com>
-         <20190123143732.GL202535@sasha-vm>
-         <cb62ab8d-7d6f-de02-2912-3d9391a2bbb2@mendix.com>
-         <20190123181805.GM202535@sasha-vm>
-         <84061712-32b6-35b7-eb1f-27eb9f85fd11@mendix.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-kMH/KTWFcu9xkthxoQQ2"
-User-Agent: Evolution 3.30.5-1.1 
+        id S1727849AbfKSPpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 10:45:51 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:30042 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727509AbfKSPpu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 10:45:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574178349;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LbnCMkoiZ5CqdtFgMpOj6wQjaMdUNcc3dycuR9m661I=;
+        b=aw74F2QU8Fbxycpb08+EI8gLt+qfq21ukgcnIkku4X2uLKQ8aTfmGnOrrgJBaQnL3mdjPT
+        QItUR+JfYm7KARsYvTEsvDmuFTsDrIlJu6/gbmkhOYdZ0uGtS27O7Q8B8FeAUW28e0JbBL
+        o5Kyrocjd9E+mDl1u6+hHS8ur4K3Zjg=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-147-MnCKn-_TPle0sTkpBg7gKA-1; Tue, 19 Nov 2019 10:45:48 -0500
+Received: by mail-wr1-f71.google.com with SMTP id q6so18523232wrv.11
+        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 07:45:48 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=8JkyWkzJQJfiHNPGzrnQ6E/SLlDkUPPBDBGlK+/hvWw=;
+        b=QevacM0L4zrzWGiSsnaMXxw9zHfpTC84F3izSar+zBzBnjZQSntp1u2/ynEsEHmDKK
+         235VbL08YrzzG3PHirGHLwTfZ8AClUsto6AfooPzEG3E4m40YQvIjpfD2Z58zdxXDNQe
+         U0nquYZuKyDJ1VY85Rknq+cfX1pQ5WQ0c8WkEA3iPtKJJn6EBTDUrVbfb0wXIZ5CUlx+
+         D3spMuSluPLYHEpP2Oo1tEcWJHytOY6tEkITdeH/XNQcfSMsio/2F85kEbiGX0oYUAdx
+         efcFfXIG6i3cpkCiZV541NkdzMEos1BhjxJEN/h4sPlAWWNQU/k/xbDzk1S2Du86jggI
+         a32Q==
+X-Gm-Message-State: APjAAAVa1RmTYJze/uR+hZJDREZ04ZD2hw+be864owE2S5k32f03J0/i
+        +CUcddR1S8s9eLf8qhnZhxrcAVdccFwr+SomfVX908IPrtA4++ZnOQwgqrJPt7uO84PD1h21bLK
+        BVjzHGplnHR/Lq+ib
+X-Received: by 2002:a1c:5409:: with SMTP id i9mr6254298wmb.135.1574178346660;
+        Tue, 19 Nov 2019 07:45:46 -0800 (PST)
+X-Google-Smtp-Source: APXvYqxb+yB42mXYCP/zBNiwRYM+7CZhIJ1zCuaeamCMBkXL7xRhB6O+9M4r+8sJAX1quQMM5dQOXw==
+X-Received: by 2002:a1c:5409:: with SMTP id i9mr6254268wmb.135.1574178346422;
+        Tue, 19 Nov 2019 07:45:46 -0800 (PST)
+Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
+        by smtp.gmail.com with ESMTPSA id 5sm3327537wmk.48.2019.11.19.07.45.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 19 Nov 2019 07:45:45 -0800 (PST)
+Subject: Re: [PATCH] pinctrl: baytrail: Really serialize all register accesses
+To:     Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20191118142020.22256-1-hdegoede@redhat.com>
+ <20191118142020.22256-2-hdegoede@redhat.com>
+ <20191119081909.GE11621@lahna.fi.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <b5ac836b-a805-aae9-24ff-42913b3a585e@redhat.com>
+Date:   Tue, 19 Nov 2019 16:45:44 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.2.0
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 192.168.4.242
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+In-Reply-To: <20191119081909.GE11621@lahna.fi.intel.com>
+Content-Language: en-US
+X-MC-Unique: MnCKn-_TPle0sTkpBg7gKA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=WINDOWS-1252; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi,
 
---=-kMH/KTWFcu9xkthxoQQ2
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2019-01-23 at 19:32 +0000, Hans van Kranenburg wrote:
-[...]
-> For 3.16.y it also first needs a little part of b8b93addde from David
-> Sterba, which is a collection of coding style changes in quite some
-> places. After that 793ff2c88c6 and then baf92114c7 apply cleanly, only
-> touch that single part of the code and end up with the right thing.
+On 19-11-2019 09:19, Mika Westerberg wrote:
+> On Mon, Nov 18, 2019 at 03:20:20PM +0100, Hans de Goede wrote:
+>> Commit 39ce8150a079 ("pinctrl: baytrail: Serialize all register access")
+>> added a spinlock around all register accesses because:
+>>
+>> "There is a hardware issue in Intel Baytrail where concurrent GPIO regis=
+ter
+>>   access might result reads of 0xffffffff and writes might get dropped
+>>   completely."
+>>
+>> Testing has shown that this does not catch all cases, there are still
+>> 2 problems remaining
+>>
+>> 1) The original fix uses a spinlock per byt_gpio device / struct,
+>> additional testing has shown that this is not sufficient concurent
+>> accesses to 2 different GPIO banks also suffer from the same problem.
+>>
+>> This commit fixes this by moving to a single global lock.
+>>
+>> 2) The original fix did not add a lock around the register accesses in
+>> the suspend/resume handling.
+>>
+>> Since pinctrl-baytrail.c is using normal suspend/resume handlers,
+>> interrupts are still enabled during suspend/resume handling. Nothing
+>> should be using the GPIOs when they are being taken down, _but_ the
+>> GPIOs themselves may still cause interrupts, which are likely to
+>> use (read) the triggering GPIO. So we need to protect against
+>> concurrent GPIO register accesses in the suspend/resume handlers too.
+>>
+>> This commit fixes this by adding the missing spin_lock / unlock calls.
+>>
+>> The 2 fixes together fix the Acer Switch 10 SW5-012 getting completely
+>> confused after a suspend resume. The DSDT for this device has a bug
+>> in its _LID method which reprograms the home and power button trigger-
+>> flags requesting both high and low _level_ interrupts so the IRQs for
+>> these 2 GPIOs continuously fire. This combined with the saving of
+>> registers during suspend, triggers concurrent GPIO register accesses
+>> resulting in saving 0xffffffff as pconf0 value during suspend and then
+>> when restoring this on resume the pinmux settings get all messed up,
+>> resulting in various I2C busses being stuck, the wifi no longer working
+>> and often the tablet simply not coming out of suspend at all.
+>>
+>> Cc: stable@vger.kernel.org
+>> Fixes: 39ce8150a079 ("pinctrl: baytrail: Serialize all register access")
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/pinctrl/intel/pinctrl-baytrail.c | 81 +++++++++++++-----------
+>>   1 file changed, 44 insertions(+), 37 deletions(-)
+>>
+>> diff --git a/drivers/pinctrl/intel/pinctrl-baytrail.c b/drivers/pinctrl/=
+intel/pinctrl-baytrail.c
+>> index b18336d42252..1b289f64c3a2 100644
+>> --- a/drivers/pinctrl/intel/pinctrl-baytrail.c
+>> +++ b/drivers/pinctrl/intel/pinctrl-baytrail.c
+>> @@ -111,7 +111,6 @@ struct byt_gpio {
+>>   =09struct platform_device *pdev;
+>>   =09struct pinctrl_dev *pctl_dev;
+>>   =09struct pinctrl_desc pctl_desc;
+>> -=09raw_spinlock_t lock;
+>>   =09const struct intel_pinctrl_soc_data *soc_data;
+>>   =09struct intel_community *communities_copy;
+>>   =09struct byt_gpio_pin_context *saved_context;
+>> @@ -550,6 +549,8 @@ static const struct intel_pinctrl_soc_data *byt_soc_=
+data[] =3D {
+>>   =09NULL
+>>   };
+>>  =20
+>> +static DEFINE_RAW_SPINLOCK(byt_gpio_lock);
 >=20
-> I attached 3.16.y-WIP-partially-apply-b8b93addde.patch as quick and
-> dirty example, please let me know how this should be done properly.
->=20
-> For 4.4, 4.9 and 4.14, first 793ff2c88c6 and then baf92114c7 indeed also
-> end up with the right thing. I just tried that here.
+> Can we call it byt_lock instead? Following same convention we use in
+> chv.
 
-I've belatedly queued up the required changes for 3.16, thanks.
+Ok, v2 with this changed coming up.
 
-Ben.
+> Other than that looks good and definitely right thing to do. Thanks for
+> doing this Hans!
 
---=20
-Ben Hutchings
-Theory and practice are closer in theory than in practice - John Levine
+You are welcome. I must say that this was an interesting adventure :)
+The interrupt storm issue on the Acer SW5-012 really managed to hit this bu=
+g
+very reliably, resulting in all sorts of fun due to the pinmux settings
+getting messed up.
 
+Regards,
 
+Hans
 
---=-kMH/KTWFcu9xkthxoQQ2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAl3UCPMACgkQ57/I7JWG
-EQkRexAAvNvLIEUL5XuEtxfH//0tW9T2ku6MYy5ONh8XvltoGrI8hy4FOCYmiGXp
-EZLobTTjCDlQfk4cyj4Ep8e04yv3/0ZSCKnTYgRQgwB5qZanB5fo3c6OMH49UiqL
-nih34ht8AW+JOZAPvr285zSrlp/8Ooi7NtRU9gvdTDO9mqU2k8nJxRjOTMm2Y2AL
-17NTuHcxJJYh4+BNWgtn6L+1hOEV9K0PzFLuys+nWiTnZcDN39EF78kFCuCgWHfA
-pRobX1PuuJoFnOisVnNH4rSAGKHAR2mgj/ke34qy3hhYL59MUmAKjg8kyVHUhl6Q
-CxyqQmPf4Ryag9re+8zK7g+IB096OcoT5arKxLyffiCSwaIpXSYqdHa0GaMdpSRS
-nvhe4iZFm+Ie6res16o0x5wj9UC0tOk+CwvzgUqHc9UxrL0zJoL1rGmb5ezzAKU+
-4WhODiFhJP1bXairgknahxRqCtKEOCrdCdb1LbGZmPLdgtsxX5L6IbYxFEE9WQBN
-Ac/ys+vjIEOfhPDgrUcX2lu+sSr9NFX+3tZuDQOLwYUCPPsdypWmNsCJyz/Snxb1
-jWB98nZPVGvvQuG1qursHEH9JM1yCeQjIyjt6BGLDBLApX8N3ncNQnjECyLYFnnM
-5K0/IzpiFfuNvYHCw6EjuPS/pO7hnu08Ree4Ty9iZlVvvIXywR0=
-=LWIb
------END PGP SIGNATURE-----
-
---=-kMH/KTWFcu9xkthxoQQ2--
