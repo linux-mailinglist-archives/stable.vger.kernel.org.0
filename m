@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8701C103F0A
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89440103F1B
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731918AbfKTPkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:40:25 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53346 "EHLO
+        id S1730340AbfKTPlR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:41:17 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53352 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731906AbfKTPkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:25 -0500
+        by vger.kernel.org with ESMTP id S1731907AbfKTPkY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:24 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5T-0004ZS-H7; Wed, 20 Nov 2019 15:40:11 +0000
+        id 1iXS5T-0004ZT-Gy; Wed, 20 Nov 2019 15:40:11 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5S-0004GE-Qv; Wed, 20 Nov 2019 15:40:10 +0000
+        id 1iXS5S-0004GK-Sc; Wed, 20 Nov 2019 15:40:10 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,18 +26,17 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Will Deacon" <will@kernel.org>, "Petr Mladek" <pmladek@suse.com>,
-        "Jann Horn" <jannh@google.com>, "Ingo Molnar" <mingo@kernel.org>,
-        "Sergey Senozhatsky" <sergey.senozhatsky@gmail.com>,
-        "Thomas Gleixner" <tglx@linutronix.de>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>
-Date:   Wed, 20 Nov 2019 15:37:20 +0000
-Message-ID: <lsq.1574264230.654885483@decadent.org.uk>
+        "Peter Zijlstra" <peterz@infradead.org>,
+        "Will Deacon" <will@kernel.org>, "Ingo Molnar" <mingo@kernel.org>,
+        "Peter Hurley" <peter@hurleysoftware.com>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>,
+        "Thomas Gleixner" <tglx@linutronix.de>
+Date:   Wed, 20 Nov 2019 15:37:21 +0000
+Message-ID: <lsq.1574264230.727638244@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 10/83] sched/fair: Don't free p->numa_faults with
- concurrent readers
+Subject: [PATCH 3.16 11/83] tty/ldsem, locking/rwsem: Add missing ACQUIRE
+ to read_failed sleep loop
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -51,130 +50,70 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Jann Horn <jannh@google.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 16d51a590a8ce3befb1308e0e7ab77f3b661af33 upstream.
+commit 952041a8639a7a3a73a2b6573cb8aa8518bc39f8 upstream.
 
-When going through execve(), zero out the NUMA fault statistics instead of
-freeing them.
+While reviewing rwsem down_slowpath, Will noticed ldsem had a copy of
+a bug we just found for rwsem.
 
-During execve, the task is reachable through procfs and the scheduler. A
-concurrent /proc/*/sched reader can read data from a freed ->numa_faults
-allocation (confirmed by KASAN) and write it back to userspace.
-I believe that it would also be possible for a use-after-free read to occur
-through a race between a NUMA fault and execve(): task_numa_fault() can
-lead to task_numa_compare(), which invokes task_weight() on the currently
-running task of a different CPU.
+  X = 0;
 
-Another way to fix this would be to make ->numa_faults RCU-managed or add
-extra locking, but it seems easier to wipe the NUMA fault statistics on
-execve.
+  CPU0			CPU1
 
-Signed-off-by: Jann Horn <jannh@google.com>
+  rwsem_down_read()
+    for (;;) {
+      set_current_state(TASK_UNINTERRUPTIBLE);
+
+                        X = 1;
+                        rwsem_up_write();
+                          rwsem_mark_wake()
+                            atomic_long_add(adjustment, &sem->count);
+                            smp_store_release(&waiter->task, NULL);
+
+      if (!waiter.task)
+        break;
+
+      ...
+    }
+
+  r = X;
+
+Allows 'r == 0'.
+
+Reported-by: Will Deacon <will@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Will Deacon <will@kernel.org>
 Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Hurley <peter@hurleysoftware.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will@kernel.org>
-Fixes: 82727018b0d3 ("sched/numa: Call task_numa_free() from do_execve()")
-Link: https://lkml.kernel.org/r/20190716152047.14424-1-jannh@google.com
+Fixes: 4898e640caf0 ("tty: Add timed, writer-prioritized rw semaphore")
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
-[bwh: Backported to 3.16: adjust filename, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
---- a/fs/exec.c
-+++ b/fs/exec.c
-@@ -1589,7 +1589,7 @@ static int do_execve_common(struct filen
- 	current->fs->in_exec = 0;
- 	current->in_execve = 0;
- 	acct_update_integrals(current);
--	task_numa_free(current);
-+	task_numa_free(current, false);
- 	free_bprm(bprm);
- 	putname(filename);
- 	if (displaced)
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1671,7 +1671,7 @@ struct task_struct {
- extern void task_numa_fault(int last_node, int node, int pages, int flags);
- extern pid_t task_numa_group_id(struct task_struct *p);
- extern void set_numabalancing_state(bool enabled);
--extern void task_numa_free(struct task_struct *p);
-+extern void task_numa_free(struct task_struct *p, bool final);
- extern bool should_numa_migrate_memory(struct task_struct *p, struct page *page,
- 					int src_nid, int dst_cpu);
- #else
-@@ -1686,7 +1686,7 @@ static inline pid_t task_numa_group_id(s
- static inline void set_numabalancing_state(bool enabled)
- {
- }
--static inline void task_numa_free(struct task_struct *p)
-+static inline void task_numa_free(struct task_struct *p, bool final)
- {
- }
- static inline bool should_numa_migrate_memory(struct task_struct *p,
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -242,7 +242,7 @@ void __put_task_struct(struct task_struc
- 	WARN_ON(atomic_read(&tsk->usage));
- 	WARN_ON(tsk == current);
+ drivers/tty/tty_ldsem.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+--- a/drivers/tty/tty_ldsem.c
++++ b/drivers/tty/tty_ldsem.c
+@@ -137,8 +137,7 @@ static void __ldsem_wake_readers(struct
  
--	task_numa_free(tsk);
-+	task_numa_free(tsk, true);
- 	security_task_free(tsk);
- 	exit_creds(tsk);
- 	delayacct_tsk_free(tsk);
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -1747,13 +1747,23 @@ no_join:
- 	return;
- }
- 
--void task_numa_free(struct task_struct *p)
-+/*
-+ * Get rid of NUMA staticstics associated with a task (either current or dead).
-+ * If @final is set, the task is dead and has reached refcount zero, so we can
-+ * safely free all relevant data structures. Otherwise, there might be
-+ * concurrent reads from places like load balancing and procfs, and we should
-+ * reset the data back to default state without freeing ->numa_faults.
-+ */
-+void task_numa_free(struct task_struct *p, bool final)
- {
- 	struct numa_group *grp = p->numa_group;
--	void *numa_faults = p->numa_faults_memory;
-+	unsigned long *numa_faults = p->numa_faults_memory;
- 	unsigned long flags;
- 	int i;
- 
-+	if (!numa_faults)
-+		return;
-+
- 	if (grp) {
- 		spin_lock_irqsave(&grp->lock, flags);
- 		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
-@@ -1767,11 +1777,17 @@ void task_numa_free(struct task_struct *
- 		put_numa_group(grp);
+ 	list_for_each_entry_safe(waiter, next, &sem->read_wait, list) {
+ 		tsk = waiter->task;
+-		smp_mb();
+-		waiter->task = NULL;
++		smp_store_release(&waiter->task, NULL);
+ 		wake_up_process(tsk);
+ 		put_task_struct(tsk);
  	}
+@@ -234,7 +233,7 @@ down_read_failed(struct ld_semaphore *se
+ 	for (;;) {
+ 		set_task_state(tsk, TASK_UNINTERRUPTIBLE);
  
--	p->numa_faults_memory = NULL;
--	p->numa_faults_buffer_memory = NULL;
--	p->numa_faults_cpu= NULL;
--	p->numa_faults_buffer_cpu = NULL;
--	kfree(numa_faults);
-+	if (final) {
-+		p->numa_faults_memory = NULL;
-+		p->numa_faults_buffer_memory = NULL;
-+		p->numa_faults_cpu = NULL;
-+		p->numa_faults_buffer_cpu = NULL;
-+		kfree(numa_faults);
-+	} else {
-+		p->total_numa_faults = 0;
-+		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
-+			numa_faults[i] = 0;
-+	}
- }
- 
- /*
+-		if (!waiter.task)
++		if (!smp_load_acquire(&waiter.task))
+ 			break;
+ 		if (!timeout)
+ 			break;
 
