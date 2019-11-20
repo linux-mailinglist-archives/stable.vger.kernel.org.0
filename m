@@ -2,106 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE99D10317B
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 03:18:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AA2F1031DF
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 04:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727222AbfKTCSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 21:18:42 -0500
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:42070 "EHLO
+        id S1727336AbfKTDHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 22:07:25 -0500
+Received: from mo-csw1515.securemx.jp ([210.130.202.154]:53728 "EHLO
         mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727082AbfKTCSm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 21:18:42 -0500
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id xAK2IWma031090; Wed, 20 Nov 2019 11:18:32 +0900
-X-Iguazu-Qid: 34tri0Mt082SogzPLH
-X-Iguazu-QSIG: v=2; s=0; t=1574216312; q=34tri0Mt082SogzPLH; m=luvDoeALb1HlBxIQtq0OD8ulvd3UP5QOufXziv5U2MI=
-Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
-        by relay.securemx.jp (mx-mr1511) id xAK2IVhk028623;
-        Wed, 20 Nov 2019 11:18:31 +0900
-Received: from enc01.localdomain ([106.186.93.100])
-        by imx2.toshiba.co.jp  with ESMTP id xAK2IVXi029867;
-        Wed, 20 Nov 2019 11:18:31 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.localdomain  with ESMTP id xAK2IVag029743;
-        Wed, 20 Nov 2019 11:18:31 +0900
-Date:   Wed, 20 Nov 2019 11:18:28 +0900
+        with ESMTP id S1727264AbfKTDHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 22:07:25 -0500
+Received: by mo-csw.securemx.jp (mx-mo-csw1515) id xAK37Nfu013238; Wed, 20 Nov 2019 12:07:23 +0900
+X-Iguazu-Qid: 34ts1RrN0nTFD9LZze
+X-Iguazu-QSIG: v=2; s=0; t=1574219243; q=34ts1RrN0nTFD9LZze; m=uM+/VZWrtCuads7105kfAm1fCNt6GpI3KgzccHklqmE=
+Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
+        by relay.securemx.jp (mx-mr1512) id xAK37Msk025891;
+        Wed, 20 Nov 2019 12:07:23 +0900
+Received: from enc02.toshiba.co.jp ([61.202.160.51])
+        by imx12.toshiba.co.jp  with ESMTP id xAK37MUC028154
+        for <stable@vger.kernel.org>; Wed, 20 Nov 2019 12:07:22 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id xAK37Ms1017057
+        for <stable@vger.kernel.org>; Wed, 20 Nov 2019 12:07:22 +0900
 From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 034/422] tee: optee: take DT status property into
- account
+To:     stable@vger.kernel.org
+Subject: [PATCH for 4.4.y, 4.9.y, 4.14.y, 4.19.y] net: cdc_ncm: Signedness bug in cdc_ncm_set_dgram_size()
+Date:   Wed, 20 Nov 2019 12:07:10 +0900
 X-TSB-HOP: ON
-Message-ID: <20191120021828.hwtwxfby3myn7mnh@toshiba.co.jp>
-References: <20191119051400.261610025@linuxfoundation.org>
- <20191119051402.211777274@linuxfoundation.org>
+Message-Id: <20191120030710.5169-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191119051402.211777274@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-On Tue, Nov 19, 2019 at 06:13:51AM +0100, Greg Kroah-Hartman wrote:
-> From: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> 
-> [ Upstream commit db878f76b9ff7487da9bb0f686153f81829f1230 ]
-> 
-> DT nodes may have a 'status' property which, if set to anything other
-> than 'ok' or 'okay', indicates to the OS that the DT node should be
-> treated as if it was not present. So add that missing logic to the
-> OP-TEE driver.
-> 
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+commit a56dcc6b455830776899ce3686735f1172e12243 upstream.
 
-This patch requires the following additional commit:
+This code is supposed to test for negative error codes and partial
+reads, but because sizeof() is size_t (unsigned) type then negative
+error codes are type promoted to high positive values and the condition
+doesn't work as expected.
 
-commit c7c0d8df0b94a67377555a550b8d66ee2ad2f4ed
-Author: Julia Lawall <Julia.Lawall@lip6.fr>
-Date:   Sat Feb 23 14:20:36 2019 +0100
+Fixes: 332f989a3b00 ("CDC-NCM: handle incomplete transfer of MTU")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ drivers/net/usb/cdc_ncm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-    tee: optee: add missing of_node_put after of_device_is_available
+diff --git a/drivers/net/usb/cdc_ncm.c b/drivers/net/usb/cdc_ncm.c
+index 71ef895b4dca..bab13ccfb085 100644
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -534,7 +534,7 @@ static void cdc_ncm_set_dgram_size(struct usbnet *dev, int new_size)
+ 	err = usbnet_read_cmd(dev, USB_CDC_GET_MAX_DATAGRAM_SIZE,
+ 			      USB_TYPE_CLASS | USB_DIR_IN | USB_RECIP_INTERFACE,
+ 			      0, iface_no, &max_datagram_size, sizeof(max_datagram_size));
+-	if (err < sizeof(max_datagram_size)) {
++	if (err != sizeof(max_datagram_size)) {
+ 		dev_dbg(&dev->intf->dev, "GET_MAX_DATAGRAM_SIZE failed\n");
+ 		goto out;
+ 	}
+-- 
+2.23.0
 
-    Add an of_node_put when a tested device node is not available.
-
-    The semantic patch that fixes this problem is as follows
-    (http://coccinelle.lip6.fr):
-
-    // <smpl>
-    @@
-    identifier f;
-    local idexpression e;
-    expression x;
-    @@
-
-    e = f(...);
-    ... when != of_node_put(e)
-        when != x = e
-        when != e = x
-        when any
-    if (<+...of_device_is_available(e)...+>) {
-      ... when != of_node_put(e)
-    (
-      return e;
-    |
-    + of_node_put(e);
-      return ...;
-    )
-    }
-    // </smpl>
-
-    Fixes: db878f76b9ff ("tee: optee: take DT status property into account")
-    Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-    Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-
-Please apply this commit. And this is also required for 4.14.y.
-
-Best regards,
-  Nobuhiro
