@@ -2,58 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E48510340F
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 07:00:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DB58103579
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 08:45:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727305AbfKTGA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 01:00:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45384 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726014AbfKTGA3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Nov 2019 01:00:29 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14DC1205C9;
-        Wed, 20 Nov 2019 06:00:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574229628;
-        bh=2d2oFiuKLFEOGBdFCBRI/uZU667a1Rtk1tIk3n6mnA0=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=Ww+AOqAIAnCQ6uE+LJNysbs2r/nNtvVcy4t2Ljs03cQE19q+ieNpM7zefeNyIxmsS
-         5VnuMk8fnQuH7FeXLAy7Jus8i8NteXUQmixBteOhVOGHBv/FzCid5meebpaJHTKTJ1
-         MLjvp5oyLSGl1ZHq1+z0VQmYWEAHs0pYFFdozfzo=
-Date:   Wed, 20 Nov 2019 07:00:25 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.3 00/48] 5.3.12-stable review
-Message-ID: <20191120060025.GC2853442@kroah.com>
-References: <20191119050946.745015350@linuxfoundation.org>
- <20191119184524.v7b5mkopvv2zunpc@xps.therub.org>
+        id S1727304AbfKTHpz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 02:45:55 -0500
+Received: from a27-55.smtp-out.us-west-2.amazonses.com ([54.240.27.55]:60652
+        "EHLO a27-55.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727052AbfKTHpz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 02:45:55 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1574235955;
+        h=Content-Type:MIME-Version:Content-Transfer-Encoding:Subject:From:In-Reply-To:References:To:Cc:Message-Id:Date;
+        bh=p8K3o/lFoopCfjZ/JulFFvlJ/OXXANqrw/rnnKXfsCk=;
+        b=GkzC7HDxYFptORcQOJLXvvWVz6vFvvRzhjnWOgs8CH/PXtREz+tjhG9yuXhRkPc1
+        cQMtI6WxMR9NiETmzxJjk6eaUIzM6dbFE4eNzN0a0h/OoT3QafojepkXp+E2SOjVKTe
+        LIX/dLbTY5ecQw96sttL2UjBNRmpLNKrmgyCRYT0=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1574235955;
+        h=Content-Type:MIME-Version:Content-Transfer-Encoding:Subject:From:In-Reply-To:References:To:Cc:Message-Id:Date:Feedback-ID;
+        bh=p8K3o/lFoopCfjZ/JulFFvlJ/OXXANqrw/rnnKXfsCk=;
+        b=XS++2RSdUelFAwjoZr61ZyYbhdtTShes3dNX44g6b+DgHZpSS/qc+Z/805/Fi3ph
+        2ol5gOfYvIpWrRIaQwkIt4g8b1NUQ9ez8qlYLhywrEpKeXrc/TEfDZkl1H8BVmJ5+Sn
+        1JwyAzD5UlZBG19/pNX3jSeh8/7BNXgFn/oIizXM=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
+        MISSING_MID,SPF_NONE,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.0
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 1CD61C433CB
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20191119184524.v7b5mkopvv2zunpc@xps.therub.org>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Subject: Re: [PATCH FIX] brcmfmac: disable PCIe interrupts before bus reset
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20191118115308.21963-1-zajec5@gmail.com>
+References: <20191118115308.21963-1-zajec5@gmail.com>
+To:     =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <zajec5@gmail.com>
+Cc:     Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        Chi-Hsien Lin <chi-hsien.lin@cypress.com>,
+        Wright Feng <wright.feng@cypress.com>,
+        Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>,
+        Winnie Chang <winnie.chang@cypress.com>,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        brcm80211-dev-list@cypress.com,
+        =?utf-8?b?UmFmYcWCIE1pxYJlY2tp?= <rafal@milecki.pl>,
+        stable@vger.kernel.org
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-ID: <0101016e87c65ed5-2079be01-c96f-4861-91cb-108117dbb861-000000@us-west-2.amazonses.com>
+Date:   Wed, 20 Nov 2019 07:45:54 +0000
+X-SES-Outgoing: 2019.11.20-54.240.27.55
+Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 19, 2019 at 12:45:24PM -0600, Dan Rue wrote:
-> On Tue, Nov 19, 2019 at 06:19:20AM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.3.12 release.
-> > There are 48 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
+Rafał Miłecki wrote:
+
+> From: Rafał Miłecki <rafal@milecki.pl>
 > 
-> Results from Linaro’s test farm.
-> No regressions on arm64, arm, x86_64, and i386.
+> Keeping interrupts on could result in brcmfmac freeing some resources
+> and then IRQ handlers trying to use them. That was obviously a straight
+> path for crashing a kernel.
+> 
+> Example:
+> CPU0                           CPU1
+> ----                           ----
+> brcmf_pcie_reset
+>   brcmf_pcie_bus_console_read
+>   brcmf_detach
+>     ...
+>     brcmf_fweh_detach
+>     brcmf_proto_detach
+>                                brcmf_pcie_isr_thread
+>                                  ...
+>                                  brcmf_proto_msgbuf_rx_trigger
+>                                    ...
+>                                    drvr->proto->pd
+>     brcmf_pcie_release_irq
+> 
+> [  363.789218] Unable to handle kernel NULL pointer dereference at virtual address 00000038
+> [  363.797339] pgd = c0004000
+> [  363.800050] [00000038] *pgd=00000000
+> [  363.803635] Internal error: Oops: 17 [#1] SMP ARM
+> (...)
+> [  364.029209] Backtrace:
+> [  364.031725] [<bf243838>] (brcmf_proto_msgbuf_rx_trigger [brcmfmac]) from [<bf2471dc>] (brcmf_pcie_isr_thread+0x228/0x274 [brcmfmac])
+> [  364.043662]  r7:00000001 r6:c8ca0000 r5:00010000 r4:c7b4f800
+> 
+> Fixes: 4684997d9eea ("brcmfmac: reset PCIe bus on a firmware crash")
+> Cc: stable@vger.kernel.org # v5.2+
+> Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
 
-Great, thanks for testing all 3 of these and letting me know.
+Patch applied to wireless-drivers-next.git, thanks.
 
-greg k-h
+5d26a6a6150c brcmfmac: disable PCIe interrupts before bus reset
+
+-- 
+https://patchwork.kernel.org/patch/11249683/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+
