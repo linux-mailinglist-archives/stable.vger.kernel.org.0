@@ -2,171 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E0E104482
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 20:46:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE3310448C
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 20:49:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727737AbfKTTqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 14:46:49 -0500
-Received: from mout.kundenserver.de ([212.227.126.135]:56085 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727378AbfKTTqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 14:46:48 -0500
-Received: from mail-qt1-f181.google.com ([209.85.160.181]) by
- mrelayeu.kundenserver.de (mreue009 [212.227.15.129]) with ESMTPSA (Nemesis)
- id 1McpW6-1hyjPo2WXK-00Zvn5; Wed, 20 Nov 2019 20:46:46 +0100
-Received: by mail-qt1-f181.google.com with SMTP id t8so857044qtc.6;
-        Wed, 20 Nov 2019 11:46:46 -0800 (PST)
-X-Gm-Message-State: APjAAAU51hy9Hz0YQS3JNRr2UAbkYPU2asSe5zDLE+Sl/k8UAuBTpy3n
-        BrKrBh9TIJc4gtQGUwu2fon7o/OS5cH/AlBv8Xg=
-X-Google-Smtp-Source: APXvYqxPZzv5p9M0S54RVzyCQ3+IKHoZHHwaet1h8egEPSf91VBYkxihnAwuFZfH1zdk4pgEJL+YwqwpgpxJECT1PWs=
-X-Received: by 2002:ac8:18eb:: with SMTP id o40mr4514073qtk.304.1574279205448;
- Wed, 20 Nov 2019 11:46:45 -0800 (PST)
+        id S1727179AbfKTTtD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 14:49:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36990 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726623AbfKTTtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Nov 2019 14:49:03 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4341C20679;
+        Wed, 20 Nov 2019 19:49:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574279342;
+        bh=4Yylve0XKqwFQhuvCSg6udFvsnwxRrhTvVcTVcXMVhM=;
+        h=Subject:To:From:Date:From;
+        b=lWfMSqU7iTNHovNREiemZiaYvgBvcTLHUZ9AEqDJd3L3fRV93goR+CbrD2rgwIrez
+         0fmWVzLxDJ9zLDov9U/Vue1PJ8/bzh5uOq+8SpYObO7/y2WyEPDLhSZTCh5pXdbvh6
+         qx8ML5kvSaEN9xhqqRqdC+VGih34iPsNsN/3TJcU=
+Subject: patch "usb: gadget: configfs: Fix missing spin_lock_init()" added to usb-testing
+To:     weiyongjun1@huawei.com, gregkh@linuxfoundation.org,
+        peter.chen@nxp.com, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 20 Nov 2019 20:49:00 +0100
+Message-ID: <157427934022834@kroah.com>
 MIME-Version: 1.0
-References: <20191108203435.112759-1-arnd@arndb.de> <20191108203435.112759-7-arnd@arndb.de>
- <41baf20a190039443cb2b82aea0c2a8ec872cfed.camel@codethink.co.uk>
-In-Reply-To: <41baf20a190039443cb2b82aea0c2a8ec872cfed.camel@codethink.co.uk>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Wed, 20 Nov 2019 20:46:29 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3U0GWCyU9WOnrGQ2tqnHoyAbJ=HdYJGfTHuxVqcww0wg@mail.gmail.com>
-Message-ID: <CAK8P3a3U0GWCyU9WOnrGQ2tqnHoyAbJ=HdYJGfTHuxVqcww0wg@mail.gmail.com>
-Subject: Re: [Y2038] [PATCH 6/8] lp: fix sparc64 LPSETTIMEOUT ioctl
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc:     y2038 Mailman List <y2038@lists.linaro.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Bamvor Jian Zhang <bamv2005@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:hSbHdgcgUeQgXlEmJ4EKRoKgZD9UulCtypIgHNsbgkKidt/myew
- 7klpYhHFggiuBVAmwNkcUnfUrJDiRg0U7PzUaiO+MW9RQZi/Wo0ut5pTDc25UCjiCpw1zT5
- BfmTsRxFk5o/19TXgk4xdXOtFvxSFsl5Kh1yAHBnGEF1B8vAPDBZoaDnOBlE+EAe43yVsRs
- 8E12ft1ifcWDEEiwYdIHA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:lSDmNxSpplg=:Sdqq8e/aFeeyZsdBAJ274E
- 4J1Exa+yWf6evZgi9nr3xLR8IDFZFQiGgg1dYkkP5SMvm0/TD1OXf6zJG+HNwQVWz2zz5FdFb
- 5FiP6nOy/rPmuvyDwm3HpgTIqg9+2gAIudlf/6KdeLkiiP1EddK1Gw9ivZYi715uiyfeWbi/r
- 4HE44BicCjHI6Uj5/gJFOs1B3s2W6ZpV3wqhDnT/zAd2vz/r45pe53hFHw1m5dENtwTNnkgG1
- D9A7N5vEpAs0hYXR0jghj2HyGX0/ll94MPyiNdecBcLH/4jQH0H4Tfva4Gg9qpCSr0bu2cscK
- 2eZJPU6dH++nPU1zFfE49eE8qOyK7cpHkp+nx+jnnvS1ztehVstF5tKn6lXS1ofocgmbDzd+f
- PGt06QQKyeu/2ZhEXvhXQPDU3f0D3HdRqfgUbjwLUBKVsEx6PoJpC3SRv0vyMA+8wVs3QE0aH
- GVCHzvK5pxBtuhZ22r0jLUOXfOml4ujKVIZFhqGt+A6I/hHihx+Mntq7lMeN4jRe4rokY1tgv
- bR8L97XCJHnFAdoy1a16lqQbZwBoAyNf3XTkYlNHbLCYZcg/8hJaJoC2Opn73/F8htenN6ayZ
- 9E4ikI30aNDAjjLr9s1jR7dMfSZjI9ZLeMEQlI0HqSO9KZXI31kOSypHEqVXo+qUdX86EYCYs
- NMhBj9cz6DfAnTzruvbmxf4FY2+4femfGsXmkTUXp8Iz0QDj8bLB1WobWHcdd9ylmjvlhKEMd
- yc1ylLCGDRmkcGxvrRG/5ca6N2CNHHvsxM4L7rBJi+U6lbOvjWaUICuoCaU60rH9crfRXfs9m
- 9GW6j/ZMKf6hzW6S5qhQ+Mkwz+KKQYy6dDUyGy/GTZRVgu1sIOufWR8ciotz9jSjFlromntYv
- IicryZ8Unp11GgycQISg==
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 20, 2019 at 8:27 PM Ben Hutchings
-<ben.hutchings@codethink.co.uk> wrote:
->
-> On Fri, 2019-11-08 at 21:34 +0100, Arnd Bergmann wrote:
-> > The layout of struct timeval is different on sparc64 from
-> > anything else, and the patch I did long ago failed to take
-> > this into account.
-> >
-> > Change it now to handle sparc64 user space correctly again.
-> >
-> > Quite likely nobody cares about parallel ports on sparc64,
-> > but there is no reason not to fix it.
-> >
-> > Cc: stable@vger.kernel.org
-> > Fixes: 9a450484089d ("lp: support 64-bit time_t user space")
-> > Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> > ---
-> >  drivers/char/lp.c | 4 ++++
-> >  1 file changed, 4 insertions(+)
-> >
-> > diff --git a/drivers/char/lp.c b/drivers/char/lp.c
-> > index 7c9269e3477a..bd95aba1f9fe 100644
-> > --- a/drivers/char/lp.c
-> > +++ b/drivers/char/lp.c
-> > @@ -713,6 +713,10 @@ static int lp_set_timeout64(unsigned int minor, void __user *arg)
-> >       if (copy_from_user(karg, arg, sizeof(karg)))
-> >               return -EFAULT;
-> >
-> > +     /* sparc64 suseconds_t is 32-bit only */
-> > +     if (IS_ENABLED(CONFIG_SPARC64) && !in_compat_syscall())
-> > +             karg[1] >>= 32;
-> > +
-> >       return lp_set_timeout(minor, karg[0], karg[1]);
-> >  }
-> >
->
-> It seems like it would make way more sense to use __kernel_old_timeval.
 
-Right, that would work. I tried to keep the patch small here, changing
-it to __kernel_old_timeval would require make it all more complicated
-since it would still need to check some conditional to tell the difference
-between sparc32 and sparc64.
+This is a note to let you know that I've just added the patch titled
 
-I think this patch (relative to the version I posted) would work the same:
+    usb: gadget: configfs: Fix missing spin_lock_init()
 
-diff --git a/drivers/char/lp.c b/drivers/char/lp.c
-index bd95aba1f9fe..86994421ee97 100644
---- a/drivers/char/lp.c
-+++ b/drivers/char/lp.c
-@@ -713,13 +713,19 @@ static int lp_set_timeout64(unsigned int minor,
-void __user *arg)
-        if (copy_from_user(karg, arg, sizeof(karg)))
-                return -EFAULT;
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-testing branch.
 
--       /* sparc64 suseconds_t is 32-bit only */
--       if (IS_ENABLED(CONFIG_SPARC64) && !in_compat_syscall())
--               karg[1] >>= 32;
--
-        return lp_set_timeout(minor, karg[0], karg[1]);
- }
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-+static int lp_set_timeout(unsigned int minor, void __user *arg)
-+{
-+       __kernel_old_timeval tv;
-+
-+       if (copy_from_user(tv, arg, sizeof(karg)))
-+               return -EFAULT;
-+
-+       return lp_set_timeout(minor, tv->tv_sec, tv->tv_usec);
-+}
-+
- static long lp_ioctl(struct file *file, unsigned int cmd,
-                        unsigned long arg)
- {
-@@ -730,11 +736,8 @@ static long lp_ioctl(struct file *file, unsigned int cmd,
-        mutex_lock(&lp_mutex);
-        switch (cmd) {
-        case LPSETTIMEOUT_OLD:
--               if (BITS_PER_LONG == 32) {
--                       ret = lp_set_timeout32(minor, (void __user *)arg);
--                       break;
--               }
--               /* fall through - for 64-bit */
-+               ret = lp_set_timeout(minor, (void __user *)arg);
-+               break;
-        case LPSETTIMEOUT_NEW:
-                ret = lp_set_timeout64(minor, (void __user *)arg);
-                break;
+The patch will be merged to the usb-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-Do you like that better? One difference here is the handling of
-LPSETTIMEOUT_NEW on sparc64, which would continue to use
-the 64/64 layout rather than the 64/32/pad layout, but that should
-be ok, since sparc64 user space using ppdev (if any exists)
-would use LPSETTIMEOUT_OLD, not LPSETTIMEOUT_NEW.
+If you have any questions about this process, please let me know.
 
-> Then you don't have to explicitly handle the sparc64 oddity.
->
-> As it is, this still over-reads from user-space which might result in a
-> spurious -EFAULT.
 
-I think you got this wrong: sparc64 like most architectures naturally
-aligns 64-bit members, so 'struct timeval' still uses 16 bytes including
-the four padding bytes at the end, it just has the nanoseconds in
-a different position from all other big-endian architectures.
+From 093edc2baad2c258b1f55d1ab9c63c2b5ae67e42 Mon Sep 17 00:00:00 2001
+From: Wei Yongjun <weiyongjun1@huawei.com>
+Date: Wed, 30 Oct 2019 03:40:46 +0000
+Subject: usb: gadget: configfs: Fix missing spin_lock_init()
 
-      Arnd
+The driver allocates the spinlock but not initialize it.
+Use spin_lock_init() on it to initialize it correctly.
+
+This is detected by Coccinelle semantic patch.
+
+Fixes: 1a1c851bbd70 ("usb: gadget: configfs: fix concurrent issue between composite APIs")
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@nxp.com>
+Link: https://lore.kernel.org/r/20191030034046.188808-1-weiyongjun1@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/gadget/configfs.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/gadget/configfs.c b/drivers/usb/gadget/configfs.c
+index 33852c2b29d1..ab9ac48a751a 100644
+--- a/drivers/usb/gadget/configfs.c
++++ b/drivers/usb/gadget/configfs.c
+@@ -1544,6 +1544,7 @@ static struct config_group *gadgets_make(
+ 	gi->composite.resume = NULL;
+ 	gi->composite.max_speed = USB_SPEED_SUPER;
+ 
++	spin_lock_init(&gi->spinlock);
+ 	mutex_init(&gi->lock);
+ 	INIT_LIST_HEAD(&gi->string_list);
+ 	INIT_LIST_HEAD(&gi->available_func);
+-- 
+2.24.0
+
+
