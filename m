@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A29CD103F3C
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:42:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A852E103F08
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:41:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728879AbfKTPmO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:42:14 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53016 "EHLO
+        id S1731886AbfKTPkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:40:21 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53008 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731850AbfKTPkU (ORCPT
+        by vger.kernel.org with ESMTP id S1731843AbfKTPkU (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:20 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5X-0004d4-GA; Wed, 20 Nov 2019 15:40:15 +0000
+        id 1iXS5X-0004d5-Fu; Wed, 20 Nov 2019 15:40:15 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5V-0004Oj-Ll; Wed, 20 Nov 2019 15:40:13 +0000
+        id 1iXS5V-0004P2-N8; Wed, 20 Nov 2019 15:40:13 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,12 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Dan Williams" <dan.j.williams@intel.com>,
-        "Song Liu" <songliubraving@fb.com>,
-        "Nigel Croxon" <ncroxon@redhat.com>
-Date:   Wed, 20 Nov 2019 15:38:30 +0000
-Message-ID: <lsq.1574264230.785481722@decadent.org.uk>
+        "Hans van Kranenburg" <hans@knorrie.org>
+Date:   Wed, 20 Nov 2019 15:38:31 +0000
+Message-ID: <lsq.1574264230.614031573@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 80/83] md/raid: raid5 preserve the writeback action
- after the parity check
+Subject: [PATCH 3.16 81/83] btrfs: partially apply b8b93addde
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,50 +45,32 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Nigel Croxon <ncroxon@redhat.com>
+From: Hans van Kranenburg <hans@knorrie.org>
 
-commit b2176a1dfb518d870ee073445d27055fea64dfb8 upstream.
+Extracted from commit b8b93addde "btrfs: cleanup 64bit/32bit divs,
+provably bounded values", to allow commits 793ff2c88c6 "btrfs:
+volumes: Cleanup stripe size calculation" and baf92114c7 "btrfs:
+alloc_chunk: fix more DUP stripe size handling" to apply cleanly.
 
-The problem is that any 'uptodate' vs 'disks' check is not precise
-in this path. Put a "WARN_ON(!test_bit(R5_UPTODATE, &dev->flags)" on the
-device that might try to kick off writes and then skip the action.
-Better to prevent the raid driver from taking unexpected action *and* keep
-the system alive vs killing the machine with BUG_ON.
-
-Note: fixed warning reported by kbuild test robot <lkp@intel.com>
-
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+[bwh: Add patch description]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/md/raid5.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ fs/btrfs/volumes.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -3385,7 +3385,7 @@ static void handle_parity_checks6(struct
- 		/* now write out any block on a failed drive,
- 		 * or P or Q if they were recomputed
- 		 */
--		BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
-+		dev = NULL;
- 		if (s->failed == 2) {
- 			dev = &sh->dev[s->failed_num[1]];
- 			s->locked++;
-@@ -3410,6 +3410,14 @@ static void handle_parity_checks6(struct
- 			set_bit(R5_LOCKED, &dev->flags);
- 			set_bit(R5_Wantwrite, &dev->flags);
- 		}
-+		if (WARN_ONCE(dev && !test_bit(R5_UPTODATE, &dev->flags),
-+			      "%s: disk%td not up to date\n",
-+			      mdname(conf->mddev),
-+			      dev - (struct r5dev *) &sh->dev)) {
-+			clear_bit(R5_LOCKED, &dev->flags);
-+			clear_bit(R5_Wantwrite, &dev->flags);
-+			s->locked--;
-+		}
- 		clear_bit(STRIPE_DEGRADED, &sh->state);
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index 4aa1a20fc5d7..b4b98a75ca8b 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -4274,8 +4274,8 @@ static int __btrfs_alloc_chunk(struct btrfs_trans_handle *trans,
+ 	 */
+ 	if (stripe_size * data_stripes > max_chunk_size) {
+ 		u64 mask = (1ULL << 24) - 1;
+-		stripe_size = max_chunk_size;
+-		do_div(stripe_size, data_stripes);
++
++		stripe_size = div_u64(max_chunk_size, data_stripes);
  
- 		set_bit(STRIPE_INSYNC, &sh->state);
+ 		/* bump the answer up to a 16MB boundary */
+ 		stripe_size = (stripe_size + mask) & ~mask;
 
