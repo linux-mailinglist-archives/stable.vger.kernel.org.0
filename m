@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5248C104605
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 22:48:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3E110462B
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 22:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725854AbfKTVsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 16:48:51 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:54028 "EHLO
+        id S1725820AbfKTVyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 16:54:19 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55720 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725820AbfKTVsv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 16:48:51 -0500
+        with ESMTP id S1725819AbfKTVyT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 16:54:19 -0500
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id F2BFB1C1AB8; Wed, 20 Nov 2019 22:48:48 +0100 (CET)
-Date:   Wed, 20 Nov 2019 22:48:48 +0100
+        id A94131C1AB7; Wed, 20 Nov 2019 22:54:17 +0100 (CET)
+Date:   Wed, 20 Nov 2019 22:54:17 +0100
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 063/422] ice: Prevent control queue operations
- during reset
-Message-ID: <20191120214848.GA13271@duo.ucw.cz>
+        Sanyog Kale <sanyog.r.kale@intel.com>,
+        Shreyas NC <shreyas.nc@intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 038/422] soundwire: Initialize completion for defer
+ messages
+Message-ID: <20191120215417.GA23361@duo.ucw.cz>
 References: <20191119051400.261610025@linuxfoundation.org>
- <20191119051403.783565468@linuxfoundation.org>
+ <20191119051402.440815842@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+        protocol="application/pgp-signature"; boundary="a8Wt8u1KmwUX3Y2C"
 Content-Disposition: inline
-In-Reply-To: <20191119051403.783565468@linuxfoundation.org>
+In-Reply-To: <20191119051402.440815842@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -38,72 +38,61 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---HcAYCG3uE/tztfnV
+--a8Wt8u1KmwUX3Y2C
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi!
+On Tue 2019-11-19 06:13:55, Greg Kroah-Hartman wrote:
+> From: Shreyas NC <shreyas.nc@intel.com>
 >=20
-> [ Upstream commit fd2a981777d911b2e94cdec50779c85c58a0dec9 ]
+> [ Upstream commit a306a0e4a5326269b6c78d136407f08433ab5ece ]
 >=20
-> Once reset is issued, the driver loses all control queue interfaces.
-> Exercising control queue operations during reset is incorrect and
-> may result in long timeouts.
+> Deferred messages are async messages used to synchronize
+> transitions mostly while doing a bank switch on multi links.
+> On successful transitions these messages are marked complete
+> and thereby confirming that all the buses performed bank switch
+> successfully.
 >=20
-> This patch introduces a new field 'reset_ongoing' in the hw structure.
-> This is set to 1 by the core driver when it receives a reset interrupt.
-> ice_sq_send_cmd checks reset_ongoing before actually issuing the control
-> queue operation. If a reset is in progress, it returns a soft error code
-> (ICE_ERR_RESET_PENDING) to the caller. The caller may or may not have to
-> take any action based on this return. Once the driver knows that the
-> reset is done, it has to set reset_ongoing back to 0. This will allow
-> control queue operations to be posted to the hardware again.
+> So, initialize the completion structure for the same.
 >=20
-> This "bail out" logic was specifically added to ice_sq_send_cmd (which
-> is pretty low level function) so that we have one solution in one place
-> that applies to all types of control queues.
+> Signed-off-by: Sanyog Kale <sanyog.r.kale@intel.com>
 
-I don't think this is suitable for stable. Would driver maintainers
-comment?
+This is only called from sdw_transfer_defer() and that function is
+called in mainline, but is unused in 4.19.X.
 
-> +			 *
-> +			 * As this is the start of the reset/rebuild cycle, set
-> +			 * both to indicate that.
-> +			 */
-> +			hw->reset_ongoing =3D true;
->  		}
->  	}
-
-This should be =3D 1, since variable is u8...
+So I don't think this is suitable for -stable.
 
 Best regards,
-									Pavel     	      =20
+								Pavel
 
-> +++ b/drivers/net/ethernet/intel/ice/ice_type.h
-> @@ -293,6 +293,7 @@ struct ice_hw {
->  	u8 sw_entry_point_layer;
+> diff --git a/drivers/soundwire/bus.c b/drivers/soundwire/bus.c
+> index 83576810eee65..df172bf3925f6 100644
+> --- a/drivers/soundwire/bus.c
+> +++ b/drivers/soundwire/bus.c
+> @@ -175,6 +175,7 @@ static inline int do_transfer_defer(struct sdw_bus *b=
+us,
 > =20
->  	u8 evb_veb;		/* true for VEB, false for VEPA */
-> +	u8 reset_ongoing;	/* true if hw is in reset, false otherwise */
->  	struct ice_bus_info bus;
->  	struct ice_nvm_info nvm;
->  	struct ice_hw_dev_caps dev_caps;	/* device capabilities */
-> --=20
+>  	defer->msg =3D msg;
+>  	defer->length =3D msg->len;
+> +	init_completion(&defer->complete);
+> =20
+>  	for (i =3D 0; i <=3D retry; i++) {
+>  		resp =3D bus->ops->xfer_msg_defer(bus, msg, defer);
 
 --=20
 (english) http://www.livejournal.com/~pavelmachek
 (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
 g.html
 
---HcAYCG3uE/tztfnV
+--a8Wt8u1KmwUX3Y2C
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXdW0wAAKCRAw5/Bqldv6
-8sxlAKDEha3WJuock0aOY2h8UfYbOW3HEgCcCt+6GiSmCKL4VV2nDuTaeTApljg=
-=AL5j
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXdW2CQAKCRAw5/Bqldv6
+8tbaAKCiKoBQlQxQhcoxZTgnKYmZSnB/7gCfUFIzLIpunfiVjYK7GBpBIxxhG0g=
+=U6zF
 -----END PGP SIGNATURE-----
 
---HcAYCG3uE/tztfnV--
+--a8Wt8u1KmwUX3Y2C--
