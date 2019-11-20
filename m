@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC16F103F76
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:44:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8701C103F0A
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:41:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732310AbfKTPoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:44:07 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52792 "EHLO
+        id S1731918AbfKTPkZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:40:25 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53346 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730016AbfKTPkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:19 -0500
+        by vger.kernel.org with ESMTP id S1731906AbfKTPkZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:25 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5U-0004Z1-Ci; Wed, 20 Nov 2019 15:40:12 +0000
+        id 1iXS5T-0004ZS-H7; Wed, 20 Nov 2019 15:40:11 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5S-0004G9-Ow; Wed, 20 Nov 2019 15:40:10 +0000
+        id 1iXS5S-0004GE-Qv; Wed, 20 Nov 2019 15:40:10 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,18 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Kefeng Wang" <wangkefeng.wang@huawei.com>,
-        "Zhang HongJun" <zhanghongjun2@huawei.com>,
-        "Arnd Bergmann" <arnd@arndb.de>,
-        "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Date:   Wed, 20 Nov 2019 15:37:19 +0000
-Message-ID: <lsq.1574264230.958657365@decadent.org.uk>
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        "Will Deacon" <will@kernel.org>, "Petr Mladek" <pmladek@suse.com>,
+        "Jann Horn" <jannh@google.com>, "Ingo Molnar" <mingo@kernel.org>,
+        "Sergey Senozhatsky" <sergey.senozhatsky@gmail.com>,
+        "Thomas Gleixner" <tglx@linutronix.de>,
+        "Linus Torvalds" <torvalds@linux-foundation.org>
+Date:   Wed, 20 Nov 2019 15:37:20 +0000
+Message-ID: <lsq.1574264230.654885483@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 09/83] hpet: Fix division by zero in hpet_time_div()
+Subject: [PATCH 3.16 10/83] sched/fair: Don't free p->numa_faults with
+ concurrent readers
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,65 +51,130 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
+From: Jann Horn <jannh@google.com>
 
-commit 0c7d37f4d9b8446956e97b7c5e61173cdb7c8522 upstream.
+commit 16d51a590a8ce3befb1308e0e7ab77f3b661af33 upstream.
 
-The base value in do_div() called by hpet_time_div() is truncated from
-unsigned long to uint32_t, resulting in a divide-by-zero exception.
+When going through execve(), zero out the NUMA fault statistics instead of
+freeing them.
 
-UBSAN: Undefined behaviour in ../drivers/char/hpet.c:572:2
-division by zero
-CPU: 1 PID: 23682 Comm: syz-executor.3 Not tainted 4.4.184.x86_64+ #4
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS Ubuntu-1.8.2-1ubuntu1 04/01/2014
- 0000000000000000 b573382df1853d00 ffff8800a3287b98 ffffffff81ad7561
- ffff8800a3287c00 ffffffff838b35b0 ffffffff838b3860 ffff8800a3287c20
- 0000000000000000 ffff8800a3287bb0 ffffffff81b8f25e ffffffff838b35a0
-Call Trace:
- [<ffffffff81ad7561>] __dump_stack lib/dump_stack.c:15 [inline]
- [<ffffffff81ad7561>] dump_stack+0xc1/0x120 lib/dump_stack.c:51
- [<ffffffff81b8f25e>] ubsan_epilogue+0x12/0x8d lib/ubsan.c:166
- [<ffffffff81b900cb>] __ubsan_handle_divrem_overflow+0x282/0x2c8 lib/ubsan.c:262
- [<ffffffff823560dd>] hpet_time_div drivers/char/hpet.c:572 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common drivers/char/hpet.c:663 [inline]
- [<ffffffff823560dd>] hpet_ioctl_common.cold+0xa8/0xad drivers/char/hpet.c:577
- [<ffffffff81e63d56>] hpet_ioctl+0xc6/0x180 drivers/char/hpet.c:676
- [<ffffffff81711590>] vfs_ioctl fs/ioctl.c:43 [inline]
- [<ffffffff81711590>] file_ioctl fs/ioctl.c:470 [inline]
- [<ffffffff81711590>] do_vfs_ioctl+0x6e0/0xf70 fs/ioctl.c:605
- [<ffffffff81711eb4>] SYSC_ioctl fs/ioctl.c:622 [inline]
- [<ffffffff81711eb4>] SyS_ioctl+0x94/0xc0 fs/ioctl.c:613
- [<ffffffff82846003>] tracesys_phase2+0x90/0x95
+During execve, the task is reachable through procfs and the scheduler. A
+concurrent /proc/*/sched reader can read data from a freed ->numa_faults
+allocation (confirmed by KASAN) and write it back to userspace.
+I believe that it would also be possible for a use-after-free read to occur
+through a race between a NUMA fault and execve(): task_numa_fault() can
+lead to task_numa_compare(), which invokes task_weight() on the currently
+running task of a different CPU.
 
-The main C reproducer autogenerated by syzkaller,
+Another way to fix this would be to make ->numa_faults RCU-managed or add
+extra locking, but it seems easier to wipe the NUMA fault statistics on
+execve.
 
-  syscall(__NR_mmap, 0x20000000, 0x1000000, 3, 0x32, -1, 0);
-  memcpy((void*)0x20000100, "/dev/hpet\000", 10);
-  syscall(__NR_openat, 0xffffffffffffff9c, 0x20000100, 0, 0);
-  syscall(__NR_ioctl, r[0], 0x40086806, 0x40000000000000);
-
-Fix it by using div64_ul().
-
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Signed-off-by: Zhang HongJun <zhanghongjun2@huawei.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20190711132757.130092-1-wangkefeng.wang@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Will Deacon <will@kernel.org>
+Fixes: 82727018b0d3 ("sched/numa: Call task_numa_free() from do_execve()")
+Link: https://lkml.kernel.org/r/20190716152047.14424-1-jannh@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[bwh: Backported to 3.16: adjust filename, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/char/hpet.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
-
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -570,8 +570,7 @@ static inline unsigned long hpet_time_di
- 	unsigned long long m;
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1589,7 +1589,7 @@ static int do_execve_common(struct filen
+ 	current->fs->in_exec = 0;
+ 	current->in_execve = 0;
+ 	acct_update_integrals(current);
+-	task_numa_free(current);
++	task_numa_free(current, false);
+ 	free_bprm(bprm);
+ 	putname(filename);
+ 	if (displaced)
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -1671,7 +1671,7 @@ struct task_struct {
+ extern void task_numa_fault(int last_node, int node, int pages, int flags);
+ extern pid_t task_numa_group_id(struct task_struct *p);
+ extern void set_numabalancing_state(bool enabled);
+-extern void task_numa_free(struct task_struct *p);
++extern void task_numa_free(struct task_struct *p, bool final);
+ extern bool should_numa_migrate_memory(struct task_struct *p, struct page *page,
+ 					int src_nid, int dst_cpu);
+ #else
+@@ -1686,7 +1686,7 @@ static inline pid_t task_numa_group_id(s
+ static inline void set_numabalancing_state(bool enabled)
+ {
+ }
+-static inline void task_numa_free(struct task_struct *p)
++static inline void task_numa_free(struct task_struct *p, bool final)
+ {
+ }
+ static inline bool should_numa_migrate_memory(struct task_struct *p,
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -242,7 +242,7 @@ void __put_task_struct(struct task_struc
+ 	WARN_ON(atomic_read(&tsk->usage));
+ 	WARN_ON(tsk == current);
  
- 	m = hpets->hp_tick_freq + (dis >> 1);
--	do_div(m, dis);
--	return (unsigned long)m;
-+	return div64_ul(m, dis);
+-	task_numa_free(tsk);
++	task_numa_free(tsk, true);
+ 	security_task_free(tsk);
+ 	exit_creds(tsk);
+ 	delayacct_tsk_free(tsk);
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -1747,13 +1747,23 @@ no_join:
+ 	return;
  }
  
- static int
+-void task_numa_free(struct task_struct *p)
++/*
++ * Get rid of NUMA staticstics associated with a task (either current or dead).
++ * If @final is set, the task is dead and has reached refcount zero, so we can
++ * safely free all relevant data structures. Otherwise, there might be
++ * concurrent reads from places like load balancing and procfs, and we should
++ * reset the data back to default state without freeing ->numa_faults.
++ */
++void task_numa_free(struct task_struct *p, bool final)
+ {
+ 	struct numa_group *grp = p->numa_group;
+-	void *numa_faults = p->numa_faults_memory;
++	unsigned long *numa_faults = p->numa_faults_memory;
+ 	unsigned long flags;
+ 	int i;
+ 
++	if (!numa_faults)
++		return;
++
+ 	if (grp) {
+ 		spin_lock_irqsave(&grp->lock, flags);
+ 		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
+@@ -1767,11 +1777,17 @@ void task_numa_free(struct task_struct *
+ 		put_numa_group(grp);
+ 	}
+ 
+-	p->numa_faults_memory = NULL;
+-	p->numa_faults_buffer_memory = NULL;
+-	p->numa_faults_cpu= NULL;
+-	p->numa_faults_buffer_cpu = NULL;
+-	kfree(numa_faults);
++	if (final) {
++		p->numa_faults_memory = NULL;
++		p->numa_faults_buffer_memory = NULL;
++		p->numa_faults_cpu = NULL;
++		p->numa_faults_buffer_cpu = NULL;
++		kfree(numa_faults);
++	} else {
++		p->total_numa_faults = 0;
++		for (i = 0; i < NR_NUMA_HINT_FAULT_STATS * nr_node_ids; i++)
++			numa_faults[i] = 0;
++	}
+ }
+ 
+ /*
 
