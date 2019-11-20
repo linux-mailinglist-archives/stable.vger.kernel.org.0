@@ -2,103 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB1B10423D
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 18:38:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FFA5104236
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 18:36:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728026AbfKTRiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 12:38:02 -0500
-Received: from mga06.intel.com ([134.134.136.31]:33364 "EHLO mga06.intel.com"
+        id S1728229AbfKTRgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 12:36:45 -0500
+Received: from mga17.intel.com ([192.55.52.151]:7732 "EHLO mga17.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727925AbfKTRiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Nov 2019 12:38:02 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
+        id S1727925AbfKTRgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Nov 2019 12:36:45 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Nov 2019 09:38:01 -0800
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Nov 2019 09:36:32 -0800
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.69,222,1571727600"; 
-   d="scan'208";a="381441510"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
-  by orsmga005.jf.intel.com with ESMTP; 20 Nov 2019 09:37:59 -0800
-Received: from andy by smile with local (Exim 4.93-RC1)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1iXTvS-0000MK-On; Wed, 20 Nov 2019 19:37:58 +0200
-Date:   Wed, 20 Nov 2019 19:37:58 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, linux-acpi@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v2] pinctrl: baytrail: Really serialize all register
- accesses
-Message-ID: <20191120173758.GR32742@smile.fi.intel.com>
-References: <20191119154641.202139-1-hdegoede@redhat.com>
- <20191119160917.GM11621@lahna.fi.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20191119160917.GM11621@lahna.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-User-Agent: Mutt/1.10.1 (2018-07-13)
+   d="scan'208";a="259103050"
+Received: from tthayer-hp-z620.an.intel.com ([10.122.105.146])
+  by FMSMGA003.fm.intel.com with ESMTP; 20 Nov 2019 09:36:32 -0800
+From:   thor.thayer@linux.intel.com
+To:     stable@vger.kernel.org, bp@alien8.de, mchehab@kernel.org
+Cc:     tony.luck@intel.com, james.morse@arm.com, rrichter@marvell.com,
+        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Thor Thayer <thor.thayer@linux.intel.com>,
+        Meng Li <Meng.Li@windriver.com>
+Subject: [PATCH] EDAC/altera: Use fast register IO for S10 IRQs
+Date:   Wed, 20 Nov 2019 11:38:01 -0600
+Message-Id: <1574271481-9310-1-git-send-email-thor.thayer@linux.intel.com>
+X-Mailer: git-send-email 2.7.4
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 19, 2019 at 06:09:17PM +0200, Mika Westerberg wrote:
-> On Tue, Nov 19, 2019 at 04:46:41PM +0100, Hans de Goede wrote:
-> > Commit 39ce8150a079 ("pinctrl: baytrail: Serialize all register access")
-> > added a spinlock around all register accesses because:
-> > 
-> > "There is a hardware issue in Intel Baytrail where concurrent GPIO register
-> >  access might result reads of 0xffffffff and writes might get dropped
-> >  completely."
-> > 
-> > Testing has shown that this does not catch all cases, there are still
-> > 2 problems remaining
-> > 
-> > 1) The original fix uses a spinlock per byt_gpio device / struct,
-> > additional testing has shown that this is not sufficient concurent
-> > accesses to 2 different GPIO banks also suffer from the same problem.
-> > 
-> > This commit fixes this by moving to a single global lock.
-> > 
-> > 2) The original fix did not add a lock around the register accesses in
-> > the suspend/resume handling.
-> > 
-> > Since pinctrl-baytrail.c is using normal suspend/resume handlers,
-> > interrupts are still enabled during suspend/resume handling. Nothing
-> > should be using the GPIOs when they are being taken down, _but_ the
-> > GPIOs themselves may still cause interrupts, which are likely to
-> > use (read) the triggering GPIO. So we need to protect against
-> > concurrent GPIO register accesses in the suspend/resume handlers too.
-> > 
-> > This commit fixes this by adding the missing spin_lock / unlock calls.
-> > 
-> > The 2 fixes together fix the Acer Switch 10 SW5-012 getting completely
-> > confused after a suspend resume. The DSDT for this device has a bug
-> > in its _LID method which reprograms the home and power button trigger-
-> > flags requesting both high and low _level_ interrupts so the IRQs for
-> > these 2 GPIOs continuously fire. This combined with the saving of
-> > registers during suspend, triggers concurrent GPIO register accesses
-> > resulting in saving 0xffffffff as pconf0 value during suspend and then
-> > when restoring this on resume the pinmux settings get all messed up,
-> > resulting in various I2C busses being stuck, the wifi no longer working
-> > and often the tablet simply not coming out of suspend at all.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: 39ce8150a079 ("pinctrl: baytrail: Serialize all register access")
-> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> 
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Thor Thayer <thor.thayer@linux.intel.com>
 
-Pushed to my review and testing queue, thanks!
+When an irq occurs in altera edac driver, regmap_xxx() is invoked
+in atomic context. Regmap must indicate register IO is fast so
+that a spinlock is used instead of a mutex to avoid sleeping
+in atomic context.
 
+Fixes mutex-lock error
+   lock_acquire+0xfc/0x288
+   __mutex_lock+0x8c/0x808
+   mutex_lock_nested+0x3c/0x50
+   regmap_lock_mutex+0x24/0x30
+   regmap_write+0x40/0x78
+   a10_eccmgr_irq_unmask+0x34/0x40
+   unmask_irq.part.0+0x30/0x50
+   irq_enable+0x74/0x80
+   __irq_startup+0x80/0xa8
+   irq_startup+0x70/0x150
+   __setup_irq+0x650/0x6d0
+   request_threaded_irq+0xe4/0x180
+   devm_request_threaded_irq+0x7c/0xf0
+   altr_sdram_probe+0x2c4/0x600
+<snip>
+
+Upstream fix pending [1] (common code uses fast mode)
+[1] https://lkml.org/lkml/2019/11/7/1014
+
+Fixes: 3dab6bd52687 ("EDAC, altera: Add support for Stratix10 SDRAM EDAC")
+Cc: stable@vger.kernel.org
+Reported-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Meng Li <Meng.Li@windriver.com>
+Signed-off-by: Thor Thayer <thor.thayer@linux.intel.com>
+---
+ drivers/edac/altera_edac.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
+index 59319f0c873b..647b3a5ef095 100644
+--- a/drivers/edac/altera_edac.c
++++ b/drivers/edac/altera_edac.c
+@@ -561,6 +561,7 @@ static const struct regmap_config s10_sdram_regmap_cfg = {
+ 	.reg_write = s10_protected_reg_write,
+ 	.use_single_read = true,
+ 	.use_single_write = true,
++	.fast_io = true,
+ };
+ 
+ /************** </Stratix10 EDAC Memory Controller Functions> ***********/
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.7.4
 
