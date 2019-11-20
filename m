@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB40C103FA2
+	by mail.lfdr.de (Postfix) with ESMTP id 53F35103FA1
 	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731042AbfKTPpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:45:06 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52638 "EHLO
+        id S1730958AbfKTPpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:45:05 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52674 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729747AbfKTPkR (ORCPT
+        by vger.kernel.org with ESMTP id S1729829AbfKTPkR (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:17 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5U-0004ak-Dl; Wed, 20 Nov 2019 15:40:12 +0000
+        id 1iXS5U-0004aq-E7; Wed, 20 Nov 2019 15:40:12 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5T-0004HG-C9; Wed, 20 Nov 2019 15:40:11 +0000
+        id 1iXS5T-0004HM-EO; Wed, 20 Nov 2019 15:40:11 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Trond Myklebust" <trond.myklebust@hammerspace.com>,
-        "John Hubbard" <jhubbard@nvidia.com>
-Date:   Wed, 20 Nov 2019 15:37:33 +0000
-Message-ID: <lsq.1574264230.259130717@decadent.org.uk>
+        "Hiroyuki Yamamoto" <hyamamo@allied-telesis.co.jp>,
+        "Johan Hovold" <johan@kernel.org>,
+        "Yoshiaki Okamoto" <yokamoto@allied-telesis.co.jp>
+Date:   Wed, 20 Nov 2019 15:37:34 +0000
+Message-ID: <lsq.1574264230.77282122@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 23/83] NFSv4: Fix a potential sleep while atomic in
- nfs4_do_reclaim()
+Subject: [PATCH 3.16 24/83] USB: serial: option: Add support for ZTE MF871A
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,134 +47,46 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
 
-commit c77e22834ae9a11891cb613bd9a551be1b94f2bc upstream.
+commit 7e7ae38bf928c5cfa6dd6e9a2cf8b42c84a27c92 upstream.
 
-John Hubbard reports seeing the following stack trace:
+This patch adds support for MF871A USB modem (aka Speed USB STICK U03)
+to option driver. This modem is manufactured by ZTE corporation, and
+sold by KDDI.
 
-nfs4_do_reclaim
-   rcu_read_lock /* we are now in_atomic() and must not sleep */
-       nfs4_purge_state_owners
-           nfs4_free_state_owner
-               nfs4_destroy_seqid_counter
-                   rpc_destroy_wait_queue
-                       cancel_delayed_work_sync
-                           __cancel_work_timer
-                               __flush_work
-                                   start_flush_work
-                                       might_sleep:
-                                        (kernel/workqueue.c:2975: BUG)
+Interface layout:
+0: AT
+1: MODEM
 
-The solution is to separate out the freeing of the state owners
-from nfs4_purge_state_owners(), and perform that outside the atomic
-context.
+usb-devices output:
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  9 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=19d2 ProdID=1481 Rev=52.87
+S:  Manufacturer=ZTE,Incorporated
+S:  Product=ZTE Technologies MSM
+S:  SerialNumber=1234567890ABCDEF
+C:  #Ifs= 2 Cfg#= 1 Atr=80 MxPwr=500mA
+I:  If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#= 1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
 
-Reported-by: John Hubbard <jhubbard@nvidia.com>
-Fixes: 0aaaf5c424c7f ("NFS: Cache state owners after files are closed")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Co-developed-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
+Signed-off-by: Hiroyuki Yamamoto <hyamamo@allied-telesis.co.jp>
+Signed-off-by: Yoshiaki Okamoto <yokamoto@allied-telesis.co.jp>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/nfs/nfs4_fs.h    |  3 ++-
- fs/nfs/nfs4client.c |  5 ++++-
- fs/nfs/nfs4state.c  | 27 ++++++++++++++++++++++-----
- 3 files changed, 28 insertions(+), 7 deletions(-)
+ drivers/usb/serial/option.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/nfs/nfs4_fs.h
-+++ b/fs/nfs/nfs4_fs.h
-@@ -419,7 +419,8 @@ static inline void nfs4_schedule_session
- 
- extern struct nfs4_state_owner *nfs4_get_state_owner(struct nfs_server *, struct rpc_cred *, gfp_t);
- extern void nfs4_put_state_owner(struct nfs4_state_owner *);
--extern void nfs4_purge_state_owners(struct nfs_server *);
-+extern void nfs4_purge_state_owners(struct nfs_server *, struct list_head *);
-+extern void nfs4_free_state_owners(struct list_head *head);
- extern struct nfs4_state * nfs4_get_open_state(struct inode *, struct nfs4_state_owner *);
- extern void nfs4_put_open_state(struct nfs4_state *);
- extern void nfs4_close_state(struct nfs4_state *, fmode_t);
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -682,9 +682,12 @@ int nfs41_walk_client_list(struct nfs_cl
- 
- static void nfs4_destroy_server(struct nfs_server *server)
- {
-+	LIST_HEAD(freeme);
-+
- 	nfs_server_return_all_delegations(server);
- 	unset_pnfs_layoutdriver(server);
--	nfs4_purge_state_owners(server);
-+	nfs4_purge_state_owners(server, &freeme);
-+	nfs4_free_state_owners(&freeme);
- }
- 
- /*
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -598,24 +598,39 @@ void nfs4_put_state_owner(struct nfs4_st
- /**
-  * nfs4_purge_state_owners - Release all cached state owners
-  * @server: nfs_server with cached state owners to release
-+ * @head: resulting list of state owners
-  *
-  * Called at umount time.  Remaining state owners will be on
-  * the LRU with ref count of zero.
-+ * Note that the state owners are not freed, but are added
-+ * to the list @head, which can later be used as an argument
-+ * to nfs4_free_state_owners.
-  */
--void nfs4_purge_state_owners(struct nfs_server *server)
-+void nfs4_purge_state_owners(struct nfs_server *server, struct list_head *head)
- {
- 	struct nfs_client *clp = server->nfs_client;
- 	struct nfs4_state_owner *sp, *tmp;
--	LIST_HEAD(doomed);
- 
- 	spin_lock(&clp->cl_lock);
- 	list_for_each_entry_safe(sp, tmp, &server->state_owners_lru, so_lru) {
--		list_move(&sp->so_lru, &doomed);
-+		list_move(&sp->so_lru, head);
- 		nfs4_remove_state_owner_locked(sp);
- 	}
- 	spin_unlock(&clp->cl_lock);
-+}
-+
-+/**
-+ * nfs4_purge_state_owners - Release all cached state owners
-+ * @head: resulting list of state owners
-+ *
-+ * Frees a list of state owners that was generated by
-+ * nfs4_purge_state_owners
-+ */
-+void nfs4_free_state_owners(struct list_head *head)
-+{
-+	struct nfs4_state_owner *sp, *tmp;
- 
--	list_for_each_entry_safe(sp, tmp, &doomed, so_lru) {
-+	list_for_each_entry_safe(sp, tmp, head, so_lru) {
- 		list_del(&sp->so_lru);
- 		nfs4_free_state_owner(sp);
- 	}
-@@ -1719,12 +1734,13 @@ static int nfs4_do_reclaim(struct nfs_cl
- 	struct nfs4_state_owner *sp;
- 	struct nfs_server *server;
- 	struct rb_node *pos;
-+	LIST_HEAD(freeme);
- 	int status = 0;
- 
- restart:
- 	rcu_read_lock();
- 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
--		nfs4_purge_state_owners(server);
-+		nfs4_purge_state_owners(server, &freeme);
- 		spin_lock(&clp->cl_lock);
- 		for (pos = rb_first(&server->state_owners);
- 		     pos != NULL;
-@@ -1752,6 +1768,7 @@ restart:
- 		spin_unlock(&clp->cl_lock);
- 	}
- 	rcu_read_unlock();
-+	nfs4_free_state_owners(&freeme);
- 	return 0;
- }
- 
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1672,6 +1672,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1428, 0xff, 0xff, 0xff),  /* Telewell TW-LTE 4G v2 */
+ 		.driver_info = (kernel_ulong_t)&net_intf2_blacklist },
+ 	{ USB_DEVICE_INTERFACE_CLASS(ZTE_VENDOR_ID, 0x1476, 0xff) },	/* GosunCn ZTE WeLink ME3630 (ECM/NCM mode) */
++	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1481, 0xff, 0x00, 0x00) }, /* ZTE MF871A */
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1533, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1534, 0xff, 0xff, 0xff) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, 0x1535, 0xff, 0xff, 0xff) },
 
