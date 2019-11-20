@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7422103F89
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:44:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D062E103F3F
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729330AbfKTPoH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:44:07 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52824 "EHLO
+        id S1730312AbfKTPmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:42:15 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52938 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1730060AbfKTPkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:19 -0500
+        by vger.kernel.org with ESMTP id S1731807AbfKTPkU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:20 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5U-0004b9-Pq; Wed, 20 Nov 2019 15:40:12 +0000
+        id 1iXS5U-0004bC-QE; Wed, 20 Nov 2019 15:40:12 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5T-0004Hr-N0; Wed, 20 Nov 2019 15:40:11 +0000
+        id 1iXS5T-0004Hv-O0; Wed, 20 Nov 2019 15:40:11 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,12 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Wenwen Wang" <wenwen@cs.uga.edu>, "Takashi Iwai" <tiwai@suse.de>
-Date:   Wed, 20 Nov 2019 15:37:40 +0000
-Message-ID: <lsq.1574264230.858277812@decadent.org.uk>
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        "Geert Uytterhoeven" <geert+renesas@glider.be>,
+        "Guenter Roeck" <linux@roeck-us.net>
+Date:   Wed, 20 Nov 2019 15:37:41 +0000
+Message-ID: <lsq.1574264230.370732562@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 30/83] ALSA: hda - Fix a memory leak bug
+Subject: [PATCH 3.16 31/83] sh: kernel: hw_breakpoint: Fix missing break
+ in switch statement
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -45,33 +48,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Wenwen Wang <wenwen@cs.uga.edu>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-commit cfef67f016e4c00a2f423256fc678a6967a9fc09 upstream.
+commit 1ee1119d184bb06af921b48c3021d921bbd85bac upstream.
 
-In snd_hda_parse_generic_codec(), 'spec' is allocated through kzalloc().
-Then, the pin widgets in 'codec' are parsed. However, if the parsing
-process fails, 'spec' is not deallocated, leading to a memory leak.
+Add missing break statement in order to prevent the code from falling
+through to case SH_BREAKPOINT_WRITE.
 
-To fix the above issue, free 'spec' before returning the error.
-
-Fixes: 352f7f914ebb ("ALSA: hda - Merge Realtek parser code to generic parser")
-Signed-off-by: Wenwen Wang <wenwen@cs.uga.edu>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 09a072947791 ("sh: hw-breakpoints: Add preliminary support for SH-4A UBC.")
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- sound/pci/hda/hda_generic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/sh/kernel/hw_breakpoint.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -5431,7 +5431,7 @@ int snd_hda_parse_generic_codec(struct h
- 
- 	err = snd_hda_parse_pin_defcfg(codec, &spec->autocfg, NULL, 0);
- 	if (err < 0)
--		return err;
-+		goto error;
- 
- 	err = snd_hda_gen_parse_auto_config(codec, &spec->autocfg);
- 	if (err < 0)
+--- a/arch/sh/kernel/hw_breakpoint.c
++++ b/arch/sh/kernel/hw_breakpoint.c
+@@ -160,6 +160,7 @@ int arch_bp_generic_fields(int sh_len, i
+ 	switch (sh_type) {
+ 	case SH_BREAKPOINT_READ:
+ 		*gen_type = HW_BREAKPOINT_R;
++		break;
+ 	case SH_BREAKPOINT_WRITE:
+ 		*gen_type = HW_BREAKPOINT_W;
+ 		break;
 
