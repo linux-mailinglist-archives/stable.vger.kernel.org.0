@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B84103F94
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:45:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB40C103FA2
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:45:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729618AbfKTPpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:45:05 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52620 "EHLO
+        id S1731042AbfKTPpG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:45:06 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52638 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729743AbfKTPkR (ORCPT
+        by vger.kernel.org with ESMTP id S1729747AbfKTPkR (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:17 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5U-0004ag-7y; Wed, 20 Nov 2019 15:40:12 +0000
+        id 1iXS5U-0004ak-Dl; Wed, 20 Nov 2019 15:40:12 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5T-0004HB-BG; Wed, 20 Nov 2019 15:40:11 +0000
+        id 1iXS5T-0004HG-C9; Wed, 20 Nov 2019 15:40:11 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,20 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Nick Desaulniers" <ndesaulniers@google.com>,
-        "James Y Knight" <jyknight@google.com>,
-        "Nathan Chancellor" <natechancellor@gmail.com>,
-        "Arnd Bergmann" <arnd@arndb.de>,
-        "Bill Wendling" <morbo@google.com>,
-        "Linus Torvalds" <torvalds@linux-foundation.org>,
-        "Jakub Jelinek" <jakub@redhat.com>,
-        "David Howells" <dhowells@redhat.com>, "Qian Cai" <cai@lca.pw>,
-        "David S. Miller" <davem@davemloft.net>
-Date:   Wed, 20 Nov 2019 15:37:32 +0000
-Message-ID: <lsq.1574264230.399102358@decadent.org.uk>
+        "Trond Myklebust" <trond.myklebust@hammerspace.com>,
+        "John Hubbard" <jhubbard@nvidia.com>
+Date:   Wed, 20 Nov 2019 15:37:33 +0000
+Message-ID: <lsq.1574264230.259130717@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 22/83] asm-generic: fix -Wtype-limits compiler warnings
+Subject: [PATCH 3.16 23/83] NFSv4: Fix a potential sleep while atomic in
+ nfs4_do_reclaim()
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -53,128 +47,134 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Qian Cai <cai@lca.pw>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit cbedfe11347fe418621bd188d58a206beb676218 upstream.
+commit c77e22834ae9a11891cb613bd9a551be1b94f2bc upstream.
 
-Commit d66acc39c7ce ("bitops: Optimise get_order()") introduced a
-compilation warning because "rx_frag_size" is an "ushort" while
-PAGE_SHIFT here is 16.
+John Hubbard reports seeing the following stack trace:
 
-The commit changed the get_order() to be a multi-line macro where
-compilers insist to check all statements in the macro even when
-__builtin_constant_p(rx_frag_size) will return false as "rx_frag_size"
-is a module parameter.
+nfs4_do_reclaim
+   rcu_read_lock /* we are now in_atomic() and must not sleep */
+       nfs4_purge_state_owners
+           nfs4_free_state_owner
+               nfs4_destroy_seqid_counter
+                   rpc_destroy_wait_queue
+                       cancel_delayed_work_sync
+                           __cancel_work_timer
+                               __flush_work
+                                   start_flush_work
+                                       might_sleep:
+                                        (kernel/workqueue.c:2975: BUG)
 
-In file included from ./arch/powerpc/include/asm/page_64.h:107,
-                 from ./arch/powerpc/include/asm/page.h:242,
-                 from ./arch/powerpc/include/asm/mmu.h:132,
-                 from ./arch/powerpc/include/asm/lppaca.h:47,
-                 from ./arch/powerpc/include/asm/paca.h:17,
-                 from ./arch/powerpc/include/asm/current.h:13,
-                 from ./include/linux/thread_info.h:21,
-                 from ./arch/powerpc/include/asm/processor.h:39,
-                 from ./include/linux/prefetch.h:15,
-                 from drivers/net/ethernet/emulex/benet/be_main.c:14:
-drivers/net/ethernet/emulex/benet/be_main.c: In function 'be_rx_cqs_create':
-./include/asm-generic/getorder.h:54:9: warning: comparison is always
-true due to limited range of data type [-Wtype-limits]
-   (((n) < (1UL << PAGE_SHIFT)) ? 0 :  \
-         ^
-drivers/net/ethernet/emulex/benet/be_main.c:3138:33: note: in expansion
-of macro 'get_order'
-  adapter->big_page_size = (1 << get_order(rx_frag_size)) * PAGE_SIZE;
-                                 ^~~~~~~~~
+The solution is to separate out the freeing of the state owners
+from nfs4_purge_state_owners(), and perform that outside the atomic
+context.
 
-Fix it by moving all of this multi-line macro into a proper function,
-and killing __get_order() off.
-
-[akpm@linux-foundation.org: remove __get_order() altogether]
-[cai@lca.pw: v2]
-  Link: http://lkml.kernel.org/r/1564000166-31428-1-git-send-email-cai@lca.pw
-Link: http://lkml.kernel.org/r/1563914986-26502-1-git-send-email-cai@lca.pw
-Fixes: d66acc39c7ce ("bitops: Optimise get_order()")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Jakub Jelinek <jakub@redhat.com>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Bill Wendling <morbo@google.com>
-Cc: James Y Knight <jyknight@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: John Hubbard <jhubbard@nvidia.com>
+Fixes: 0aaaf5c424c7f ("NFS: Cache state owners after files are closed")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- include/asm-generic/getorder.h | 50 ++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 30 deletions(-)
+ fs/nfs/nfs4_fs.h    |  3 ++-
+ fs/nfs/nfs4client.c |  5 ++++-
+ fs/nfs/nfs4state.c  | 27 ++++++++++++++++++++++-----
+ 3 files changed, 28 insertions(+), 7 deletions(-)
 
---- a/include/asm-generic/getorder.h
-+++ b/include/asm-generic/getorder.h
-@@ -6,24 +6,6 @@
- #include <linux/compiler.h>
- #include <linux/log2.h>
+--- a/fs/nfs/nfs4_fs.h
++++ b/fs/nfs/nfs4_fs.h
+@@ -419,7 +419,8 @@ static inline void nfs4_schedule_session
  
--/*
-- * Runtime evaluation of get_order()
-- */
--static inline __attribute_const__
--int __get_order(unsigned long size)
--{
--	int order;
--
--	size--;
--	size >>= PAGE_SHIFT;
--#if BITS_PER_LONG == 32
--	order = fls(size);
--#else
--	order = fls64(size);
--#endif
--	return order;
--}
--
+ extern struct nfs4_state_owner *nfs4_get_state_owner(struct nfs_server *, struct rpc_cred *, gfp_t);
+ extern void nfs4_put_state_owner(struct nfs4_state_owner *);
+-extern void nfs4_purge_state_owners(struct nfs_server *);
++extern void nfs4_purge_state_owners(struct nfs_server *, struct list_head *);
++extern void nfs4_free_state_owners(struct list_head *head);
+ extern struct nfs4_state * nfs4_get_open_state(struct inode *, struct nfs4_state_owner *);
+ extern void nfs4_put_open_state(struct nfs4_state *);
+ extern void nfs4_close_state(struct nfs4_state *, fmode_t);
+--- a/fs/nfs/nfs4client.c
++++ b/fs/nfs/nfs4client.c
+@@ -682,9 +682,12 @@ int nfs41_walk_client_list(struct nfs_cl
+ 
+ static void nfs4_destroy_server(struct nfs_server *server)
+ {
++	LIST_HEAD(freeme);
++
+ 	nfs_server_return_all_delegations(server);
+ 	unset_pnfs_layoutdriver(server);
+-	nfs4_purge_state_owners(server);
++	nfs4_purge_state_owners(server, &freeme);
++	nfs4_free_state_owners(&freeme);
+ }
+ 
+ /*
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -598,24 +598,39 @@ void nfs4_put_state_owner(struct nfs4_st
  /**
-  * get_order - Determine the allocation order of a memory size
-  * @size: The size for which to get the order
-@@ -42,19 +24,27 @@ int __get_order(unsigned long size)
-  * to hold an object of the specified size.
+  * nfs4_purge_state_owners - Release all cached state owners
+  * @server: nfs_server with cached state owners to release
++ * @head: resulting list of state owners
   *
-  * The result is undefined if the size is 0.
-- *
-- * This function may be used to initialise variables with compile time
-- * evaluations of constants.
+  * Called at umount time.  Remaining state owners will be on
+  * the LRU with ref count of zero.
++ * Note that the state owners are not freed, but are added
++ * to the list @head, which can later be used as an argument
++ * to nfs4_free_state_owners.
   */
--#define get_order(n)						\
--(								\
--	__builtin_constant_p(n) ? (				\
--		((n) == 0UL) ? BITS_PER_LONG - PAGE_SHIFT :	\
--		(((n) < (1UL << PAGE_SHIFT)) ? 0 :		\
--		 ilog2((n) - 1) - PAGE_SHIFT + 1)		\
--	) :							\
--	__get_order(n)						\
--)
-+static inline __attribute_const__ int get_order(unsigned long size)
-+{
-+	if (__builtin_constant_p(size)) {
-+		if (!size)
-+			return BITS_PER_LONG - PAGE_SHIFT;
-+
-+		if (size < (1UL << PAGE_SHIFT))
-+			return 0;
-+
-+		return ilog2((size) - 1) - PAGE_SHIFT + 1;
-+	}
-+
-+	size--;
-+	size >>= PAGE_SHIFT;
-+#if BITS_PER_LONG == 32
-+	return fls(size);
-+#else
-+	return fls64(size);
-+#endif
-+}
+-void nfs4_purge_state_owners(struct nfs_server *server)
++void nfs4_purge_state_owners(struct nfs_server *server, struct list_head *head)
+ {
+ 	struct nfs_client *clp = server->nfs_client;
+ 	struct nfs4_state_owner *sp, *tmp;
+-	LIST_HEAD(doomed);
  
- #endif	/* __ASSEMBLY__ */
+ 	spin_lock(&clp->cl_lock);
+ 	list_for_each_entry_safe(sp, tmp, &server->state_owners_lru, so_lru) {
+-		list_move(&sp->so_lru, &doomed);
++		list_move(&sp->so_lru, head);
+ 		nfs4_remove_state_owner_locked(sp);
+ 	}
+ 	spin_unlock(&clp->cl_lock);
++}
++
++/**
++ * nfs4_purge_state_owners - Release all cached state owners
++ * @head: resulting list of state owners
++ *
++ * Frees a list of state owners that was generated by
++ * nfs4_purge_state_owners
++ */
++void nfs4_free_state_owners(struct list_head *head)
++{
++	struct nfs4_state_owner *sp, *tmp;
+ 
+-	list_for_each_entry_safe(sp, tmp, &doomed, so_lru) {
++	list_for_each_entry_safe(sp, tmp, head, so_lru) {
+ 		list_del(&sp->so_lru);
+ 		nfs4_free_state_owner(sp);
+ 	}
+@@ -1719,12 +1734,13 @@ static int nfs4_do_reclaim(struct nfs_cl
+ 	struct nfs4_state_owner *sp;
+ 	struct nfs_server *server;
+ 	struct rb_node *pos;
++	LIST_HEAD(freeme);
+ 	int status = 0;
+ 
+ restart:
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(server, &clp->cl_superblocks, client_link) {
+-		nfs4_purge_state_owners(server);
++		nfs4_purge_state_owners(server, &freeme);
+ 		spin_lock(&clp->cl_lock);
+ 		for (pos = rb_first(&server->state_owners);
+ 		     pos != NULL;
+@@ -1752,6 +1768,7 @@ restart:
+ 		spin_unlock(&clp->cl_lock);
+ 	}
+ 	rcu_read_unlock();
++	nfs4_free_state_owners(&freeme);
+ 	return 0;
+ }
  
 
