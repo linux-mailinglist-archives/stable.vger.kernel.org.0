@@ -2,54 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04F461038CB
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 12:35:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 535671039FB
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 13:22:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727974AbfKTLfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 06:35:36 -0500
-Received: from mx2.suse.de ([195.135.220.15]:55320 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727900AbfKTLfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 20 Nov 2019 06:35:36 -0500
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 4E70FBD36;
-        Wed, 20 Nov 2019 11:35:35 +0000 (UTC)
-Date:   Wed, 20 Nov 2019 12:35:34 +0100
-From:   Cyril Hrubis <chrubis@suse.cz>
-To:     CKI Project <cki-project@redhat.com>
-Cc:     Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>
-Subject: Re: [LTP] ??? FAIL: Test report for kernel 5.4.0-rc8-4b17a56.cki
- (stable-next)
-Message-ID: <20191120113534.GC14963@rei.lan>
-References: <cki.6D94BD5731.3IAGHB25D8@redhat.com>
+        id S1729140AbfKTMWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 07:22:30 -0500
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:43754 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728611AbfKTMWa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 07:22:30 -0500
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: dafna)
+        with ESMTPSA id 4B2A429011E
+From:   Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+To:     linux-media@vger.kernel.org
+Cc:     dafna.hirschfeld@collabora.com, hverkuil@xs4all.nl,
+        dafna3@gmail.com, helen.koike@collabora.com,
+        ezequiel@collabora.com, stable@vger.kernel.org
+Subject: [PATCH v3] media: v4l2-core: fix a use-after-free bug of sd->devnode
+Date:   Wed, 20 Nov 2019 13:22:17 +0100
+Message-Id: <20191120122217.845-1-dafna.hirschfeld@collabora.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cki.6D94BD5731.3IAGHB25D8@redhat.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi!
-> One or more kernel tests failed:
-> 
->     ppc64le:
->      ??? LTP lite
->      ??? xfstests: ext4
+sd->devnode is released after calling
+v4l2_subdev_release. Therefore it should be set
+to NULL so that the subdev won't hold a pointer
+to a released object. This fixes a reference
+after free bug in function
+v4l2_device_unregister_subdev
 
-Both logs shows missing files, that may be an infrastructure problem as
-well.
+Cc: stable@vger.kernel.org
+Fixes: 0e43734d4c46e ("media: v4l2-subdev: add release() internal op")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
+---
+changes since v2:
+- since this is a regresion fix, I added Fixes and Cc to stable tags,
+- change the commit title and log to be more clear.
 
-Also can we include links to the logfiles here? Bonus points for showing
-the snippet with the actual failure in the email as well. I takes a fair
-amount of time locating them manually in the pipeline repository, it
-would be much much easier just with the links to the right logfile...
+ drivers/media/v4l2-core/v4l2-device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
+diff --git a/drivers/media/v4l2-core/v4l2-device.c b/drivers/media/v4l2-core/v4l2-device.c
+index 63d6b147b21e..2b3595671d62 100644
+--- a/drivers/media/v4l2-core/v4l2-device.c
++++ b/drivers/media/v4l2-core/v4l2-device.c
+@@ -177,6 +177,7 @@ static void v4l2_subdev_release(struct v4l2_subdev *sd)
+ {
+ 	struct module *owner = !sd->owner_v4l2_dev ? sd->owner : NULL;
+ 
++	sd->devnode = NULL;
+ 	if (sd->internal_ops && sd->internal_ops->release)
+ 		sd->internal_ops->release(sd);
+ 	module_put(owner);
 -- 
-Cyril Hrubis
-chrubis@suse.cz
+2.20.1
+
