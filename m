@@ -2,59 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4F01037F3
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 11:52:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6DD5103868
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 12:15:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728864AbfKTKwc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 05:52:32 -0500
-Received: from youngberry.canonical.com ([91.189.89.112]:37550 "EHLO
-        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727514AbfKTKwb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 05:52:31 -0500
-Received: from [79.140.122.151] (helo=wittgenstein)
-        by youngberry.canonical.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.86_2)
-        (envelope-from <christian.brauner@ubuntu.com>)
-        id 1iXNb3-0004ZQ-Vn; Wed, 20 Nov 2019 10:52:30 +0000
-Date:   Wed, 20 Nov 2019 11:52:29 +0100
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Joel Fernandes <joel@joelfernandes.org>,
-        Christian Brauner <christian@brauner.io>
-Subject: Re: [PATCH v2] fork: fix pidfd_poll()'s return type
-Message-ID: <20191120105227.uln6z5d67ita3edj@wittgenstein>
-References: <20191120002145.skgtkx2f5dxagx4f@wittgenstein>
- <20191120003320.31138-1-luc.vanoostenryck@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20191120003320.31138-1-luc.vanoostenryck@gmail.com>
-User-Agent: NeoMutt/20180716
+        id S1727958AbfKTLPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 06:15:37 -0500
+Received: from mga03.intel.com ([134.134.136.65]:34495 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727874AbfKTLPg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 20 Nov 2019 06:15:36 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 20 Nov 2019 03:15:36 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,221,1571727600"; 
+   d="scan'208";a="237692766"
+Received: from egrumbac-mobl1.jer.intel.com ([10.12.117.10])
+  by fmsmga002.fm.intel.com with ESMTP; 20 Nov 2019 03:15:34 -0800
+From:   Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+To:     linux-wireless@kernel.org
+Cc:     luciano.coelho@intel.com,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] iwlmvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif to Rx queues
+Date:   Wed, 20 Nov 2019 13:15:28 +0200
+Message-Id: <20191120111528.24499-1-emmanuel.grumbach@intel.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 20, 2019 at 01:33:20AM +0100, Luc Van Oostenryck wrote:
-> pidfd_poll() is defined as returning 'unsigned int' but the
-> .poll method is declared as returning '__poll_t', a bitwise type.
-> 
-> Fix this by using the proper return type and using the EPOLL
-> constants instead of the POLL ones, as required for __poll_t.
-> 
-> Fixes: b53b0b9d9a61 ("pidfd: add polling support")
-> Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-> Cc: Christian Brauner <christian@brauner.io>
-> Cc: stable@vger.kernel.org # 5.3
-> Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
-> Reviewed-by: Christian Brauner <christian.brauner@ubuntu.com>
+The purpose of this was to keep all the queues updated with
+the Rx sequence numbers because unlikely yet possible
+situations where queues can't understand if a specific
+packet needs to be dropped or not.
 
-Applied to
-https://git.kernel.org/pub/scm/linux/kernel/git/brauner/linux.git/log/?h=fixes
+Unfortunately, it was reported that this caused issues in
+our DMA engine. We don't fully understand how this is related,
+but this is being currently debugged. For now, just don't send
+this notification to the Rx queues. This de-facto reverts my
+commit 3c514bf831ac12356b695ff054bef641b9e99593:
 
-Will likely send this as a fix for v5.4 still so stable only has to
-backport this to 5.3 and not 5.4 too.
+iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
 
-Thanks!
-Christian
+This issue was reported here:
+https://bugzilla.kernel.org/show_bug.cgi?id=204873
+https://bugzilla.kernel.org/show_bug.cgi?id=205001
+and others maybe.
+
+Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
+CC: <stable@vger.kernel.org> # 5.3+
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+---
+ drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+index 75a7af5ad7b2..8925fe5976cb 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+@@ -521,7 +521,11 @@ static void iwl_mvm_sync_nssn(struct iwl_mvm *mvm, u8 baid, u16 nssn)
+ 		.nssn_sync.nssn = nssn,
+ 	};
+ 
+-	iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
++	/*
++	 * This allow to synchronize the queues, but it has been reported
++	 * to cause FH issues. Don't send the notification for now.
++	 * iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
++	 */
+ }
+ 
+ #define RX_REORDER_BUF_TIMEOUT_MQ (HZ / 10)
+-- 
+2.17.1
+
