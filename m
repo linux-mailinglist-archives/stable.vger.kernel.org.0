@@ -2,65 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 535671039FB
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 13:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7C83103A15
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 13:31:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729140AbfKTMWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 07:22:30 -0500
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:43754 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728611AbfKTMWa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 07:22:30 -0500
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        (Authenticated sender: dafna)
-        with ESMTPSA id 4B2A429011E
-From:   Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-To:     linux-media@vger.kernel.org
-Cc:     dafna.hirschfeld@collabora.com, hverkuil@xs4all.nl,
-        dafna3@gmail.com, helen.koike@collabora.com,
-        ezequiel@collabora.com, stable@vger.kernel.org
-Subject: [PATCH v3] media: v4l2-core: fix a use-after-free bug of sd->devnode
-Date:   Wed, 20 Nov 2019 13:22:17 +0100
-Message-Id: <20191120122217.845-1-dafna.hirschfeld@collabora.com>
-X-Mailer: git-send-email 2.20.1
+        id S1728040AbfKTMbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 07:31:16 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59044 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729708AbfKTMbQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 07:31:16 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id EEDC81C1A4E; Wed, 20 Nov 2019 13:31:14 +0100 (CET)
+Date:   Wed, 20 Nov 2019 13:31:13 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 352/422] slimbus: ngd: register ngd driver only once.
+Message-ID: <20191120123113.GD4495@amd>
+References: <20191119051400.261610025@linuxfoundation.org>
+ <20191119051421.826714842@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="oj4kGyHlBMXGt3Le"
+Content-Disposition: inline
+In-Reply-To: <20191119051421.826714842@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-sd->devnode is released after calling
-v4l2_subdev_release. Therefore it should be set
-to NULL so that the subdev won't hold a pointer
-to a released object. This fixes a reference
-after free bug in function
-v4l2_device_unregister_subdev
 
-Cc: stable@vger.kernel.org
-Fixes: 0e43734d4c46e ("media: v4l2-subdev: add release() internal op")
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Reviewed-by: Ezequiel Garcia <ezequiel@collabora.com>
----
-changes since v2:
-- since this is a regresion fix, I added Fixes and Cc to stable tags,
-- change the commit title and log to be more clear.
+--oj4kGyHlBMXGt3Le
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- drivers/media/v4l2-core/v4l2-device.c | 1 +
- 1 file changed, 1 insertion(+)
+On Tue 2019-11-19 06:19:09, Greg Kroah-Hartman wrote:
+> From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+>=20
+> [ Upstream commit 1830dad34c070161fda2ff1db77b39ffa78aa380 ]
+>=20
+> Move ngd platform driver out of loop so that it registers only once.
 
-diff --git a/drivers/media/v4l2-core/v4l2-device.c b/drivers/media/v4l2-core/v4l2-device.c
-index 63d6b147b21e..2b3595671d62 100644
---- a/drivers/media/v4l2-core/v4l2-device.c
-+++ b/drivers/media/v4l2-core/v4l2-device.c
-@@ -177,6 +177,7 @@ static void v4l2_subdev_release(struct v4l2_subdev *sd)
- {
- 	struct module *owner = !sd->owner_v4l2_dev ? sd->owner : NULL;
- 
-+	sd->devnode = NULL;
- 	if (sd->internal_ops && sd->internal_ops->release)
- 		sd->internal_ops->release(sd);
- 	module_put(owner);
--- 
-2.20.1
+AFAICT driver_register is immediately followed by "return", so it was
+already registered only once before you patched it.
 
+I don't think this should be in stable.
+
+Best regards,
+								Pavel
+
+> +++ b/drivers/slimbus/qcom-ngd-ctrl.c
+> @@ -1346,7 +1346,6 @@ static int of_qcom_slim_ngd_register(struct device =
+*parent,
+>  		ngd->base =3D ctrl->base + ngd->id * data->offset +
+>  					(ngd->id - 1) * data->size;
+>  		ctrl->ngd =3D ngd;
+> -		platform_driver_register(&qcom_slim_ngd_driver);
+> =20
+>  		return 0;
+>  	}
+> @@ -1445,6 +1444,7 @@ static int qcom_slim_ngd_ctrl_probe(struct platform=
+_device *pdev)
+>  	init_completion(&ctrl->reconf);
+>  	init_completion(&ctrl->qmi.qmi_comp);
+> =20
+> +	platform_driver_register(&qcom_slim_ngd_driver);
+>  	return of_qcom_slim_ngd_register(dev, ctrl);
+>  }
+> =20
+
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--oj4kGyHlBMXGt3Le
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAl3VMhEACgkQMOfwapXb+vKdTACdHnh4BoDWn+9U1B2RAiAFdS29
+SVoAn3l20Braw6MSlLwvz96UOc0h5lNc
+=5ihl
+-----END PGP SIGNATURE-----
+
+--oj4kGyHlBMXGt3Le--
