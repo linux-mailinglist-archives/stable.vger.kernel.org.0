@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C458F103EFA
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:40:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A29CD103F3C
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:42:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731866AbfKTPkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:40:20 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52904 "EHLO
+        id S1728879AbfKTPmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:42:14 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53016 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1731698AbfKTPkU (ORCPT
+        by vger.kernel.org with ESMTP id S1731850AbfKTPkU (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:20 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5X-0004d3-Fk; Wed, 20 Nov 2019 15:40:15 +0000
+        id 1iXS5X-0004d4-GA; Wed, 20 Nov 2019 15:40:15 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5V-0004OF-Is; Wed, 20 Nov 2019 15:40:13 +0000
+        id 1iXS5V-0004Oj-Ll; Wed, 20 Nov 2019 15:40:13 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,14 +26,15 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Ronnie Sahlberg" <lsahlber@redhat.com>,
-        "Steve French" <stfrench@microsoft.com>,
-        "Pavel Shilovsky" <pshilov@microsoft.com>
-Date:   Wed, 20 Nov 2019 15:38:29 +0000
-Message-ID: <lsq.1574264230.70362151@decadent.org.uk>
+        "Dan Williams" <dan.j.williams@intel.com>,
+        "Song Liu" <songliubraving@fb.com>,
+        "Nigel Croxon" <ncroxon@redhat.com>
+Date:   Wed, 20 Nov 2019 15:38:30 +0000
+Message-ID: <lsq.1574264230.785481722@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 79/83] CIFS: Fix use after free of file info structures
+Subject: [PATCH 3.16 80/83] md/raid: raid5 preserve the writeback action
+ after the parity check
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -47,62 +48,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Pavel Shilovsky <pshilov@microsoft.com>
+From: Nigel Croxon <ncroxon@redhat.com>
 
-commit 1a67c415965752879e2e9fad407bc44fc7f25f23 upstream.
+commit b2176a1dfb518d870ee073445d27055fea64dfb8 upstream.
 
-Currently the code assumes that if a file info entry belongs
-to lists of open file handles of an inode and a tcon then
-it has non-zero reference. The recent changes broke that
-assumption when putting the last reference of the file info.
-There may be a situation when a file is being deleted but
-nothing prevents another thread to reference it again
-and start using it. This happens because we do not hold
-the inode list lock while checking the number of references
-of the file info structure. Fix this by doing the proper
-locking when doing the check.
+The problem is that any 'uptodate' vs 'disks' check is not precise
+in this path. Put a "WARN_ON(!test_bit(R5_UPTODATE, &dev->flags)" on the
+device that might try to kick off writes and then skip the action.
+Better to prevent the raid driver from taking unexpected action *and* keep
+the system alive vs killing the machine with BUG_ON.
 
-Fixes: 487317c99477d ("cifs: add spinlock for the openFileList to cifsInodeInfo")
-Fixes: cb248819d209d ("cifs: use cifsInodeInfo->open_file_lock while iterating to avoid a panic")
-Reviewed-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Note: fixed warning reported by kbuild test robot <lkp@intel.com>
+
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/cifs/file.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/md/raid5.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -398,10 +398,11 @@ void _cifsFileInfo_put(struct cifsFileIn
- 	bool oplock_break_cancelled;
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -3385,7 +3385,7 @@ static void handle_parity_checks6(struct
+ 		/* now write out any block on a failed drive,
+ 		 * or P or Q if they were recomputed
+ 		 */
+-		BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
++		dev = NULL;
+ 		if (s->failed == 2) {
+ 			dev = &sh->dev[s->failed_num[1]];
+ 			s->locked++;
+@@ -3410,6 +3410,14 @@ static void handle_parity_checks6(struct
+ 			set_bit(R5_LOCKED, &dev->flags);
+ 			set_bit(R5_Wantwrite, &dev->flags);
+ 		}
++		if (WARN_ONCE(dev && !test_bit(R5_UPTODATE, &dev->flags),
++			      "%s: disk%td not up to date\n",
++			      mdname(conf->mddev),
++			      dev - (struct r5dev *) &sh->dev)) {
++			clear_bit(R5_LOCKED, &dev->flags);
++			clear_bit(R5_Wantwrite, &dev->flags);
++			s->locked--;
++		}
+ 		clear_bit(STRIPE_DEGRADED, &sh->state);
  
- 	spin_lock(&tcon->open_file_lock);
--
-+	spin_lock(&cifsi->open_file_lock);
- 	spin_lock(&cifs_file->file_info_lock);
- 	if (--cifs_file->count > 0) {
- 		spin_unlock(&cifs_file->file_info_lock);
-+		spin_unlock(&cifsi->open_file_lock);
- 		spin_unlock(&tcon->open_file_lock);
- 		return;
- 	}
-@@ -414,9 +415,7 @@ void _cifsFileInfo_put(struct cifsFileIn
- 	cifs_add_pending_open_locked(&fid, cifs_file->tlink, &open);
- 
- 	/* remove it from the lists */
--	spin_lock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->flist);
--	spin_unlock(&cifsi->open_file_lock);
- 	list_del(&cifs_file->tlist);
- 
- 	if (list_empty(&cifsi->openFileList)) {
-@@ -432,6 +431,7 @@ void _cifsFileInfo_put(struct cifsFileIn
- 		cifs_set_oplock_level(cifsi, 0);
- 	}
- 
-+	spin_unlock(&cifsi->open_file_lock);
- 	spin_unlock(&tcon->open_file_lock);
- 
- 	oplock_break_cancelled = wait_oplock_handler ?
+ 		set_bit(STRIPE_INSYNC, &sh->state);
 
