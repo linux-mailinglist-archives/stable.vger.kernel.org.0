@@ -2,124 +2,213 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 793B9103110
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 02:23:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0157E10316E
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 03:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727417AbfKTBXw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 19 Nov 2019 20:23:52 -0500
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:34528 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727403AbfKTBXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 20:23:52 -0500
-Received: by mail-ot1-f67.google.com with SMTP id 1so2924074otk.1
-        for <stable@vger.kernel.org>; Tue, 19 Nov 2019 17:23:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=intel-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Rxay+wCZQrFdqVqPfP8bGnBXwNi7j1uwxGcwoDzHOJg=;
-        b=q62/J5T86M5j3XdVPvMCk5XFfbynZBXOrhy/Ulzi2Ak/SR66QjEV87taVb/sLBA3+A
-         xuow/s/p3ytUdzNvEX9JK6w5BAbChtMtIdWvHxzGvtKRDb0o09QWid6OxNkq5gjnq/G/
-         W9pefG+ABYaSiIFsz4jze3GC6XPZYvzkWIecsf8a7kJXP957iOMBXABs5xZkpQyObfZC
-         20UrcGjV/aangfkzJUabO1neVqCgkWWylv3wBDriJ79L+WaoxIv8wxuG+AQk2JCxY8aL
-         uh0dBa9zCXeFbI5rTF7c4ZKfCW6+uJrZfqCMvG1BobCRObtklhiOA8mUVwHPSQvieGb/
-         JcxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Rxay+wCZQrFdqVqPfP8bGnBXwNi7j1uwxGcwoDzHOJg=;
-        b=dsTV1grMRrZHdCctjdQy6OaK+BZwloGGr2boW0g5mXzw8xnEV/mQjTxMHpOtxp3yzR
-         uvGN2dlynUEYjRDghvQmVV76CWsauQzAZ4u8B6YhsfUWOjJAd6GY13EJ8Oq7igb7OhtI
-         VIEJW9pl7eIeih6J/+14yE9aOHOn30tKbsxam8yY5g+FBdaOJxq6U6Nqj+umSKsm7Xut
-         JDUuq2akaxMmX0NwQrhWvpNpoz7C3zqU+eHuVC2nfeNZV8ozYAKKeJHQAySWtBlddkFS
-         ZtYnfbF24EE4A3zwdmHOGH2eVmVIbIVd/Z1alK/Frmg+a8aBCtWT4ldb8iEYckJ6Qpo9
-         v16A==
-X-Gm-Message-State: APjAAAUt3KWz729r8Z9R8mt+/4qtP+uXsRxPqfEIlaykD0zOcfV433Nm
-        AXN4VmnbGUEeyrvAF7gLjH/xgfSmL/Po2YJpyBKG90vuLbI=
-X-Google-Smtp-Source: APXvYqwEGWXq68sgRrJB+WmFLAETfFi7R+3dBcf7IQikGC7DoTtMMrGt4WrK8ENVvUUMQa0NJRByGxVekHep/a33HMQ=
-X-Received: by 2002:a05:6830:1af7:: with SMTP id c23mr5858337otd.247.1574213031135;
- Tue, 19 Nov 2019 17:23:51 -0800 (PST)
+        id S1727264AbfKTCMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 19 Nov 2019 21:12:16 -0500
+Received: from mo-csw-fb1516.securemx.jp ([210.130.202.172]:43838 "EHLO
+        mo-csw-fb.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727262AbfKTCMQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 19 Nov 2019 21:12:16 -0500
+X-Greylist: delayed 1667 seconds by postgrey-1.27 at vger.kernel.org; Tue, 19 Nov 2019 21:12:15 EST
+Received: by mo-csw-fb.securemx.jp (mx-mo-csw-fb1516) id xAK1iRDR021224; Wed, 20 Nov 2019 10:44:29 +0900
+Received: by mo-csw.securemx.jp (mx-mo-csw1516) id xAK1iDqJ031733; Wed, 20 Nov 2019 10:44:13 +0900
+X-Iguazu-Qid: 34trXMv6oTDFsoBoOZ
+X-Iguazu-QSIG: v=2; s=0; t=1574214253; q=34trXMv6oTDFsoBoOZ; m=zSb2Ql+p4RWbL6ryM4ftbL9TR6ynY+a/LXW4c1SkabI=
+Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
+        by relay.securemx.jp (mx-mr1512) id xAK1iCXi035032;
+        Wed, 20 Nov 2019 10:44:12 +0900
+Received: from enc01.localdomain ([106.186.93.100])
+        by imx2.toshiba.co.jp  with ESMTP id xAK1iBXU006614;
+        Wed, 20 Nov 2019 10:44:11 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.localdomain  with ESMTP id xAK1iBxv026879;
+        Wed, 20 Nov 2019 10:44:11 +0900
+Date:   Wed, 20 Nov 2019 10:44:06 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Jun Gao <jun.gao@mediatek.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 127/422] i2c: mediatek: Use DMA safe buffers for i2c
+ transactions
+X-TSB-HOP: ON
+Message-ID: <20191120014406.nfmrfe5ic5vm6b2l@toshiba.co.jp>
+References: <20191119051400.261610025@linuxfoundation.org>
+ <20191119051407.175902069@linuxfoundation.org>
 MIME-Version: 1.0
-References: <157418493888.1639105.6922809760655305210.stgit@dwillia2-desk3.amr.corp.intel.com>
- <CAKgT0UfGCzfMqM_GdYsfsowAasW7-awYjSp=FBmB99rDuZpc8g@mail.gmail.com>
-In-Reply-To: <CAKgT0UfGCzfMqM_GdYsfsowAasW7-awYjSp=FBmB99rDuZpc8g@mail.gmail.com>
-From:   Dan Williams <dan.j.williams@intel.com>
-Date:   Tue, 19 Nov 2019 17:23:40 -0800
-Message-ID: <CAPcyv4hy_nNe8G0o8sMrz9A8HcdRzAuKgXmvdjKusAAA3Fow4g@mail.gmail.com>
-Subject: Re: [PATCH] dma/debug: Fix dma vs cow-page collision detection
-To:     Alexander Duyck <alexander.duyck@gmail.com>
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Russell King <linux@armlinux.org.uk>,
-        Don Dutile <ddutile@redhat.com>,
-        stable <stable@vger.kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-mm <linux-mm@kvack.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191119051407.175902069@linuxfoundation.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 19, 2019 at 4:02 PM Alexander Duyck
-<alexander.duyck@gmail.com> wrote:
->
-> On Tue, Nov 19, 2019 at 9:49 AM Dan Williams <dan.j.williams@intel.com> wrote:
-> >
-> > The debug_dma_assert_idle() infrastructure was put in place to catch a
-> > data corruption scenario first identified by the now defunct NET_DMA
-> > receive offload feature. It caught cases where dma was in flight to a
-> > stale page because the dma raced the cpu writing the page, and the cpu
-> > write triggered cow_user_page().
-> >
-> > However, the dma-debug tracking is overeager and also triggers in cases
-> > where the dma device is reading from a page that is also undergoing
-> > cow_user_page().
-> >
-> > The fix proposed was originally posted in 2016, and Russell reported
-> > "Yes, that seems to avoid the warning for me from an initial test", and
-> > now Don is also reporting that this fix is addressing a similar false
-> > positive report that he is seeing.
-> >
-> > Link: https://lore.kernel.org/r/CAPcyv4j8fWqwAaX5oCdg5atc+vmp57HoAGT6AfBFwaCiv0RbAQ@mail.gmail.com
-> > Reported-by: Russell King <linux@armlinux.org.uk>
-> > Reported-by: Don Dutile <ddutile@redhat.com>
-> > Fixes: 0abdd7a81b7e ("dma-debug: introduce debug_dma_assert_idle()")
-> > Cc: <stable@vger.kernel.org>
-> > Cc: Christoph Hellwig <hch@lst.de>
-> > Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-> > Cc: Robin Murphy <robin.murphy@arm.com>
-> > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> > ---
-> >  kernel/dma/debug.c |    2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/kernel/dma/debug.c b/kernel/dma/debug.c
-> > index 099002d84f46..11a6db53d193 100644
-> > --- a/kernel/dma/debug.c
-> > +++ b/kernel/dma/debug.c
-> > @@ -587,7 +587,7 @@ void debug_dma_assert_idle(struct page *page)
-> >         }
-> >         spin_unlock_irqrestore(&radix_lock, flags);
-> >
-> > -       if (!entry)
-> > +       if (!entry || entry->direction != DMA_FROM_DEVICE)
-> >                 return;
-> >
-> >         cln = to_cacheline_number(entry);
->
-> If I am understanding right DMA_TO_DEVICE is fine, but won't  you also
-> need to cover the DMA_BIDIRECTIONAL case since it is possible for a
-> device to also write the memory in that case?
+Hi,
 
-True, DMA_BIDIRECTIONAL and DMA_TO_DEVICE are being treated equally in
-this case. Given this is the second time this facility needed to be
-taught to be less eager [1], I'd be inclined to let the tie-break /
-BIDIR case be treated like TO. This facility was always meant as a
-"there might be a problem here", but not a definitive checker, and it
-certainly loses value if the reports are ambiguous.
+On Tue, Nov 19, 2019 at 06:15:24AM +0100, Greg Kroah-Hartman wrote:
+> From: Jun Gao <jun.gao@mediatek.com>
+> 
+> [ Upstream commit fc66b39fe36acfd06f716e338de7cd8f9550fad2 ]
+> 
+> DMA mode will always be used in i2c transactions, try to allocate
+> a DMA safe buffer if the buf of struct i2c_msg used is not DMA safe.
+> 
+> Signed-off-by: Jun Gao <jun.gao@mediatek.com>
+> Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-[1]: 3b7a6418c749 dma debug: account for cachelines and read-only
-mappings in overlap tracking
+This patch requires the following additional commit:
+
+commit bc1a7f75c85e226e82f183d30d75c357f92b6029
+Author: Hsin-Yi Wang <hsinyi@chromium.org>
+Date:   Fri Feb 15 17:02:02 2019 +0800
+
+    i2c: mediatek: modify threshold passed to i2c_get_dma_safe_msg_buf()
+
+    DMA with zero-length transfers doesn't make sense and this HW doesn't
+    support them at all, so increase the threshold.
+
+    Fixes: fc66b39fe36a ("i2c: mediatek: Use DMA safe buffers for i2c transactions")
+    Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
+    [wsa: reworded commit message]
+    Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+
+Please apply this commit.
+
+Best regards,
+  Nobuhiro
+
+> ---
+>  drivers/i2c/busses/i2c-mt65xx.c | 62 +++++++++++++++++++++++++++++----
+>  1 file changed, 55 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+> index 1e57f58fcb001..a74ef76705e0c 100644
+> --- a/drivers/i2c/busses/i2c-mt65xx.c
+> +++ b/drivers/i2c/busses/i2c-mt65xx.c
+> @@ -441,6 +441,8 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+>  	u16 control_reg;
+>  	u16 restart_flag = 0;
+>  	u32 reg_4g_mode;
+> +	u8 *dma_rd_buf = NULL;
+> +	u8 *dma_wr_buf = NULL;
+>  	dma_addr_t rpaddr = 0;
+>  	dma_addr_t wpaddr = 0;
+>  	int ret;
+> @@ -500,10 +502,18 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+>  	if (i2c->op == I2C_MASTER_RD) {
+>  		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
+>  		writel(I2C_DMA_CON_RX, i2c->pdmabase + OFFSET_CON);
+> -		rpaddr = dma_map_single(i2c->dev, msgs->buf,
+> +
+> +		dma_rd_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
+> +		if (!dma_rd_buf)
+> +			return -ENOMEM;
+> +
+> +		rpaddr = dma_map_single(i2c->dev, dma_rd_buf,
+>  					msgs->len, DMA_FROM_DEVICE);
+> -		if (dma_mapping_error(i2c->dev, rpaddr))
+> +		if (dma_mapping_error(i2c->dev, rpaddr)) {
+> +			i2c_put_dma_safe_msg_buf(dma_rd_buf, msgs, false);
+> +
+>  			return -ENOMEM;
+> +		}
+>  
+>  		if (i2c->dev_comp->support_33bits) {
+>  			reg_4g_mode = mtk_i2c_set_4g_mode(rpaddr);
+> @@ -515,10 +525,18 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+>  	} else if (i2c->op == I2C_MASTER_WR) {
+>  		writel(I2C_DMA_INT_FLAG_NONE, i2c->pdmabase + OFFSET_INT_FLAG);
+>  		writel(I2C_DMA_CON_TX, i2c->pdmabase + OFFSET_CON);
+> -		wpaddr = dma_map_single(i2c->dev, msgs->buf,
+> +
+> +		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
+> +		if (!dma_wr_buf)
+> +			return -ENOMEM;
+> +
+> +		wpaddr = dma_map_single(i2c->dev, dma_wr_buf,
+>  					msgs->len, DMA_TO_DEVICE);
+> -		if (dma_mapping_error(i2c->dev, wpaddr))
+> +		if (dma_mapping_error(i2c->dev, wpaddr)) {
+> +			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
+> +
+>  			return -ENOMEM;
+> +		}
+>  
+>  		if (i2c->dev_comp->support_33bits) {
+>  			reg_4g_mode = mtk_i2c_set_4g_mode(wpaddr);
+> @@ -530,16 +548,39 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+>  	} else {
+>  		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_INT_FLAG);
+>  		writel(I2C_DMA_CLR_FLAG, i2c->pdmabase + OFFSET_CON);
+> -		wpaddr = dma_map_single(i2c->dev, msgs->buf,
+> +
+> +		dma_wr_buf = i2c_get_dma_safe_msg_buf(msgs, 0);
+> +		if (!dma_wr_buf)
+> +			return -ENOMEM;
+> +
+> +		wpaddr = dma_map_single(i2c->dev, dma_wr_buf,
+>  					msgs->len, DMA_TO_DEVICE);
+> -		if (dma_mapping_error(i2c->dev, wpaddr))
+> +		if (dma_mapping_error(i2c->dev, wpaddr)) {
+> +			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
+> +
+>  			return -ENOMEM;
+> -		rpaddr = dma_map_single(i2c->dev, (msgs + 1)->buf,
+> +		}
+> +
+> +		dma_rd_buf = i2c_get_dma_safe_msg_buf((msgs + 1), 0);
+> +		if (!dma_rd_buf) {
+> +			dma_unmap_single(i2c->dev, wpaddr,
+> +					 msgs->len, DMA_TO_DEVICE);
+> +
+> +			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
+> +
+> +			return -ENOMEM;
+> +		}
+> +
+> +		rpaddr = dma_map_single(i2c->dev, dma_rd_buf,
+>  					(msgs + 1)->len,
+>  					DMA_FROM_DEVICE);
+>  		if (dma_mapping_error(i2c->dev, rpaddr)) {
+>  			dma_unmap_single(i2c->dev, wpaddr,
+>  					 msgs->len, DMA_TO_DEVICE);
+> +
+> +			i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, false);
+> +			i2c_put_dma_safe_msg_buf(dma_rd_buf, (msgs + 1), false);
+> +
+>  			return -ENOMEM;
+>  		}
+>  
+> @@ -578,14 +619,21 @@ static int mtk_i2c_do_transfer(struct mtk_i2c *i2c, struct i2c_msg *msgs,
+>  	if (i2c->op == I2C_MASTER_WR) {
+>  		dma_unmap_single(i2c->dev, wpaddr,
+>  				 msgs->len, DMA_TO_DEVICE);
+> +
+> +		i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, true);
+>  	} else if (i2c->op == I2C_MASTER_RD) {
+>  		dma_unmap_single(i2c->dev, rpaddr,
+>  				 msgs->len, DMA_FROM_DEVICE);
+> +
+> +		i2c_put_dma_safe_msg_buf(dma_rd_buf, msgs, true);
+>  	} else {
+>  		dma_unmap_single(i2c->dev, wpaddr, msgs->len,
+>  				 DMA_TO_DEVICE);
+>  		dma_unmap_single(i2c->dev, rpaddr, (msgs + 1)->len,
+>  				 DMA_FROM_DEVICE);
+> +
+> +		i2c_put_dma_safe_msg_buf(dma_wr_buf, msgs, true);
+> +		i2c_put_dma_safe_msg_buf(dma_rd_buf, (msgs + 1), true);
+>  	}
+>  
+>  	if (ret == 0) {
+> -- 
+> 2.20.1
+> 
+> 
+> 
+> 
