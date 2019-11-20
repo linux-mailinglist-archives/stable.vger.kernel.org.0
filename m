@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ED7D103F24
-	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:41:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8ADF103F64
+	for <lists+stable@lfdr.de>; Wed, 20 Nov 2019 16:43:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732077AbfKTPl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 10:41:26 -0500
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:53136 "EHLO
+        id S1727784AbfKTPnc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 10:43:32 -0500
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:52858 "EHLO
         shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729402AbfKTPkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:21 -0500
+        by vger.kernel.org with ESMTP id S1730103AbfKTPkT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 10:40:19 -0500
 Received: from [167.98.27.226] (helo=deadeye)
         by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.89)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5V-0004bO-1J; Wed, 20 Nov 2019 15:40:13 +0000
+        id 1iXS5V-0004bQ-1Z; Wed, 20 Nov 2019 15:40:13 +0000
 Received: from ben by deadeye with local (Exim 4.93-RC1)
         (envelope-from <ben@decadent.org.uk>)
-        id 1iXS5T-0004IJ-Sf; Wed, 20 Nov 2019 15:40:11 +0000
+        id 1iXS5T-0004IP-Tn; Wed, 20 Nov 2019 15:40:11 +0000
 Content-Type: text/plain; charset="UTF-8"
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
@@ -26,15 +26,14 @@ MIME-Version: 1.0
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 CC:     akpm@linux-foundation.org, Denis Kirjanov <kda@linux-powerpc.org>,
-        "Dirk Morris" <dmorris@metaloft.com>,
-        "Pablo Neira Ayuso" <pablo@netfilter.org>,
-        "Florian Westphal" <fw@strlen.de>
-Date:   Wed, 20 Nov 2019 15:37:46 +0000
-Message-ID: <lsq.1574264230.809936163@decadent.org.uk>
+        "Marcelo Ricardo Leitner" <marcelo.leitner@gmail.com>,
+        "Xin Long" <lucien.xin@gmail.com>,
+        "Jakub Kicinski" <jakub.kicinski@netronome.com>
+Date:   Wed, 20 Nov 2019 15:37:47 +0000
+Message-ID: <lsq.1574264230.971583478@decadent.org.uk>
 X-Mailer: LinuxStableQueue (scripts by bwh)
 X-Patchwork-Hint: ignore
-Subject: [PATCH 3.16 36/83] netfilter: conntrack: Use consistent ct id
- hash calculation
+Subject: [PATCH 3.16 37/83] sctp: fix the transport error_count check
 In-Reply-To: <lsq.1574264230.280218497@decadent.org.uk>
 X-SA-Exim-Connect-IP: 167.98.27.226
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -48,63 +47,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 ------------------
 
-From: Dirk Morris <dmorris@metaloft.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 656c8e9cc1badbc18eefe6ba01d33ebbcae61b9a upstream.
+commit a1794de8b92ea6bc2037f445b296814ac826693e upstream.
 
-Change ct id hash calculation to only use invariants.
+As the annotation says in sctp_do_8_2_transport_strike():
 
-Currently the ct id hash calculation is based on some fields that can
-change in the lifetime on a conntrack entry in some corner cases. The
-current hash uses the whole tuple which contains an hlist pointer which
-will change when the conntrack is placed on the dying list resulting in
-a ct id change.
+  "If the transport error count is greater than the pf_retrans
+   threshold, and less than pathmaxrtx ..."
 
-This patch also removes the reply-side tuple and extension pointer from
-the hash calculation so that the ct id will will not change from
-initialization until confirmation.
+It should be transport->error_count checked with pathmaxrxt,
+instead of asoc->pf_retrans.
 
-Fixes: 3c79107631db1f7 ("netfilter: ctnetlink: don't use conntrack/expect object addresses as id")
-Signed-off-by: Dirk Morris <dmorris@metaloft.com>
-Acked-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 5aa93bcf66f4 ("sctp: Implement quick failover draft from tsvwg")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+[bwh: Backported to 3.16: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- net/netfilter/nf_conntrack_core.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/sctp/sm_sideeffect.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nf_conntrack_core.c
-+++ b/net/netfilter/nf_conntrack_core.c
-@@ -240,13 +240,12 @@ EXPORT_SYMBOL_GPL(nf_ct_invert_tuple);
-  * table location, we assume id gets exposed to userspace.
-  *
-  * Following nf_conn items do not change throughout lifetime
-- * of the nf_conn after it has been committed to main hash table:
-+ * of the nf_conn:
-  *
-  * 1. nf_conn address
-- * 2. nf_conn->ext address
-- * 3. nf_conn->master address (normally NULL)
-- * 4. tuple
-- * 5. the associated net namespace
-+ * 2. nf_conn->master address (normally NULL)
-+ * 3. the associated net namespace
-+ * 4. the original direction tuple
-  */
- u32 nf_ct_get_id(const struct nf_conn *ct)
- {
-@@ -256,9 +255,10 @@ u32 nf_ct_get_id(const struct nf_conn *c
- 	net_get_random_once(&ct_id_seed, sizeof(ct_id_seed));
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -504,7 +504,7 @@ static void sctp_do_8_2_transport_strike
+ 	 * see SCTP Quick Failover Draft, section 5.1
+ 	 */
+ 	if ((transport->state == SCTP_ACTIVE) &&
+-	   (asoc->pf_retrans < transport->pathmaxrxt) &&
++	   (transport->error_count < transport->pathmaxrxt) &&
+ 	   (transport->error_count > asoc->pf_retrans)) {
  
- 	a = (unsigned long)ct;
--	b = (unsigned long)ct->master ^ net_hash_mix(nf_ct_net(ct));
--	c = (unsigned long)ct->ext;
--	d = (unsigned long)siphash(&ct->tuplehash, sizeof(ct->tuplehash),
-+	b = (unsigned long)ct->master;
-+	c = (unsigned long)nf_ct_net(ct);
-+	d = (unsigned long)siphash(&ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple,
-+				   sizeof(ct->tuplehash[IP_CT_DIR_ORIGINAL].tuple),
- 				   &ct_id_seed);
- #ifdef CONFIG_64BIT
- 	return siphash_4u64((u64)a, (u64)b, (u64)c, (u64)d, &ct_id_seed);
+ 		sctp_assoc_control_transport(asoc, transport,
 
