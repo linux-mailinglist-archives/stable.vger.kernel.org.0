@@ -2,99 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 809921059E1
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 19:45:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB406105A10
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 19:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726563AbfKUSpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 13:45:35 -0500
-Received: from mga05.intel.com ([192.55.52.43]:19591 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726541AbfKUSpf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Nov 2019 13:45:35 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Nov 2019 10:45:35 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,226,1571727600"; 
-   d="scan'208";a="357885322"
-Received: from antonma-mobl.ger.corp.intel.com (HELO egrumbac-mobl1.ger.corp.intel.com) ([10.255.202.138])
-  by orsmga004.jf.intel.com with ESMTP; 21 Nov 2019 10:45:33 -0800
-From:   Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-To:     linux-wireless@vger.kernel.org
-Cc:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif to Rx queues
-Date:   Thu, 21 Nov 2019 20:45:30 +0200
-Message-Id: <20191121184530.5393-1-emmanuel.grumbach@intel.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
-References: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
+        id S1726333AbfKUS6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 13:58:47 -0500
+Received: from mail-wm1-f51.google.com ([209.85.128.51]:37495 "EHLO
+        mail-wm1-f51.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726293AbfKUS6r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 13:58:47 -0500
+Received: by mail-wm1-f51.google.com with SMTP id f129so3619579wmf.2
+        for <stable@vger.kernel.org>; Thu, 21 Nov 2019 10:58:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pLGmhcKK/tPO6jgH/nd5+sJJJb62f86+rS7cJx42q6o=;
+        b=x0Rwd1YtQB89qdeAifKlyJwfNs16uobt+igvjLLRED6hpWhKWrpqxhwMp38c6q25rb
+         JtwZSXvjXSmP4gRwiU7SstwcWVTTNIf2nPryanwE4PW8xOPaiqeZFtvhlOHhd+VC7NEF
+         kwCJF/W7824Cq53kLc3RvlDaaLPY4JY8NyiGQhh3ah1dnGz3GIZO3ixjQMI1qhcmTJIi
+         dhYj8zWrM036UaLeEtsWOUa6I3tFrfycRgsrQ3dov+vsmPmtI+o1LiVim/aM3lSkiHAA
+         54Qb0fRF/UtSX834cc3olwkE85qYl1UjpBCXhyS0ocKDy3YBckLKGj8FDX74qy6oO9Gl
+         d8fg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pLGmhcKK/tPO6jgH/nd5+sJJJb62f86+rS7cJx42q6o=;
+        b=KQV+kQV4CiGhvHd+qp2ou2I0IE4MCuNkoEIwRTZRKFnBxV8YGRZYxOM9dAUGvhmiVs
+         63PUyZg9f9uVc8u2nQdyvCfzRJiMKMi1ppoKYt/n9mraeceSD7FTt0AYXyf9yzS5WhQ1
+         wfOPltY+iVhrV152nyr9D0UDV+c4MzR/JpMYWd6TYQPOTLYEIyB5eqMki0hHzD//7Sd4
+         pFcSAZcYdHJrrYK1ClJ6WT9P3wUYbLGxzDkwBnAhx4/KAV6+mUh00+tFBoWjW4O4UK1u
+         5GcQWGzgjRrPOHAV/+ww6GTLR2frw/oICxtvYEbqiONLOdstlqVk2+mZfFW7lqbymm9H
+         KOBg==
+X-Gm-Message-State: APjAAAXu5pwEmN+FmE7mh2uynkwH+2rq4/6MFr93OvyYGICUQgcMQJDG
+        PA4kki4MUtREKKYx8M7hKzlD+cu8uXIzBA==
+X-Google-Smtp-Source: APXvYqzo7xY97oTPAN0i/nnAlrVOJtiCS3yra8WwF6Ko7k/i/fNSHHXRvJ1WlvU+zs95r2jcp/wr3w==
+X-Received: by 2002:a1c:2846:: with SMTP id o67mr12058183wmo.7.1574362725262;
+        Thu, 21 Nov 2019 10:58:45 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id i7sm4445890wrs.38.2019.11.21.10.58.42
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Nov 2019 10:58:42 -0800 (PST)
+Message-ID: <5dd6de62.1c69fb81.5a116.7131@mx.google.com>
+Date:   Thu, 21 Nov 2019 10:58:42 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.9.202
+Subject: stable-rc/linux-4.9.y boot: 106 boots: 0 failed,
+ 102 passed with 4 offline (v4.9.202)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The purpose of this was to keep all the queues updated with
-the Rx sequence numbers because unlikely yet possible
-situations where queues can't understand if a specific
-packet needs to be dropped or not.
+stable-rc/linux-4.9.y boot: 106 boots: 0 failed, 102 passed with 4 offline =
+(v4.9.202)
 
-Unfortunately, it was reported that this caused issues in
-our DMA engine. We don't fully understand how this is related,
-but this is being currently debugged. For now, just don't send
-this notification to the Rx queues. This de-facto reverts my
-commit 3c514bf831ac12356b695ff054bef641b9e99593:
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.9.y/kernel/v4.9.202/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
+/kernel/v4.9.202/
 
-iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
+Tree: stable-rc
+Branch: linux-4.9.y
+Git Describe: v4.9.202
+Git Commit: a86e4a77b558b9bdbae1192188ea744a3cf84176
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 54 unique boards, 20 SoC families, 14 builds out of 197
 
-This issue was reported here:
-https://bugzilla.kernel.org/show_bug.cgi?id=204873
-https://bugzilla.kernel.org/show_bug.cgi?id=205001
-and others maybe.
+Offline Platforms:
 
-Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
-CC: <stable@vger.kernel.org> # 5.3+
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
 ---
-v2: avoid the unused variable warning
----
- drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 22 ++++++++++++-------
- 1 file changed, 14 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-index 75a7af5ad7b2..392bfa4b496c 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-@@ -514,14 +514,20 @@ static bool iwl_mvm_is_sn_less(u16 sn1, u16 sn2, u16 buffer_size)
- 
- static void iwl_mvm_sync_nssn(struct iwl_mvm *mvm, u8 baid, u16 nssn)
- {
--	struct iwl_mvm_rss_sync_notif notif = {
--		.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
--		.metadata.sync = 0,
--		.nssn_sync.baid = baid,
--		.nssn_sync.nssn = nssn,
--	};
--
--	iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
-+	/*
-+	 * This allow to synchronize the queues, but it has been reported
-+	 * to cause FH issues. Don't send the notification for now.
-+	 *
-+	 * struct iwl_mvm_rss_sync_notif notif = {
-+	 *	.metadata.type = IWL_MVM_RXQ_NSSN_SYNC,
-+	 *	.metadata.sync = 0,
-+	 *	.nssn_sync.baid = baid,
-+	 *	.nssn_sync.nssn = nssn,
-+	 * };
-+	 *
-+	 *
-+	 * iwl_mvm_sync_rx_queues_internal(mvm, (void *)&notif, sizeof(notif));
-+	 */
- }
- 
- #define RX_REORDER_BUF_TIMEOUT_MQ (HZ / 10)
--- 
-2.17.1
-
+For more info write to <info@kernelci.org>
