@@ -2,90 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 558D1104779
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 01:23:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72B10104862
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 03:00:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726695AbfKUAX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 19:23:29 -0500
-Received: from Galois.linutronix.de ([193.142.43.55]:59224 "EHLO
-        Galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726230AbfKUAX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 19:23:29 -0500
-Received: from [5.158.153.53] (helo=tip-bot2.lab.linutronix.de)
-        by Galois.linutronix.de with esmtpsa (TLS1.2:DHE_RSA_AES_256_CBC_SHA256:256)
-        (Exim 4.80)
-        (envelope-from <tip-bot2@linutronix.de>)
-        id 1iXaFn-0001DS-9e; Thu, 21 Nov 2019 01:23:23 +0100
-Received: from [127.0.1.1] (localhost [IPv6:::1])
-        by tip-bot2.lab.linutronix.de (Postfix) with ESMTP id C418A1C0070;
-        Thu, 21 Nov 2019 01:23:22 +0100 (CET)
-Date:   Thu, 21 Nov 2019 00:23:22 -0000
-From:   "tip-bot2 for Dmitry Safonov" <tip-bot2@linutronix.de>
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: timers/urgent] time: Zero the upper 32-bits in
- __kernel_timespec on 32-bit
-Cc:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Dmitry Safonov <dima@arista.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86 <x86@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20191121000303.126523-1-dima@arista.com>
-References: <20191121000303.126523-1-dima@arista.com>
-MIME-Version: 1.0
-Message-ID: <157429580269.21853.3914350918293284243.tip-bot2@tip-bot2>
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot2.linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+        id S1726293AbfKUCAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 21:00:15 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:39360 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726170AbfKUCAO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 21:00:14 -0500
+Received: by mail-wr1-f67.google.com with SMTP id l7so2336486wrp.6
+        for <stable@vger.kernel.org>; Wed, 20 Nov 2019 18:00:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=HzXCjY+iBf4WLN0ewKiOKVGmHyXy9JgHo1yQkbW8DYE=;
+        b=lCRkxcuj3Y7NbVvDQCisiB96wF2iO7VsoD+eVk02YaPU8iiR3mzV8BHM+fa3MBiELw
+         BdvkVAmW9pGgKwbej76dfDL/zohIlwbGWfHLEF/UwM0+oBMSiX5uKfJJ8cE1Dyb8j7YU
+         gVvA5WJcR2gWDdmS09WBuvHrNzFgz5Z/J1TNMK7oqLiWseLRwdHEyw/cESyNrUuQ6rj7
+         4rGK9TJEzFAQw13htWFwZc/QnJAMRGXZfvvjx9xPudI5Iaznr7uHNi3bIr18t60vnAku
+         zBZ/DasdpX+0ElffQksq/oYaA1z82Mu/55yLHd27acb6xsmEChWxT+GGikmKu9vb0UIA
+         jCuA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=HzXCjY+iBf4WLN0ewKiOKVGmHyXy9JgHo1yQkbW8DYE=;
+        b=kqxXUFvLvitULnpYQC6JnOsbLMKMzGR8Jb6IySPR8mGmZj69iAvIEgk4VmeaGHZ+Fr
+         qIiuwv1eqsRU8G6UmKrOUOPB9BxTC+bvc5ZgH6sC7t4Kpf7rU0QRXw4e5ukehXGqFyF0
+         lNQ4EcPkFAC5YXFj6K7qIugQX8DKzyh2+9G5+PujPlZ64R5PxXIjYOrDdJU4QVY7wHsH
+         pvO3EmjAz8D3OfTiTtHmo7/74DF1v+mG+5oU1886sHuRIq1XwLoaXD8fPwFGWc0k/gL4
+         ZE8gD60U1aEEk3V9L1UuWByvPFef58P5S2yIZw7NgFkcgcHhuJoVDPzt6P/0U23h8f5W
+         viIA==
+X-Gm-Message-State: APjAAAUdtS53xtAsyJGgc7p7XryFlN7GBTF8f/Qj2L+9bRfAhjgBVs96
+        dJCApr9UvZGVjBiMkd2NEfCtdgwuTagwvw==
+X-Google-Smtp-Source: APXvYqzse/X88wwJHgvoKzZhOaXa2Gvj738PCP6ZLRRCYM4slxzomEmCWYpC+LvgGqYoy3T9Ot8Dlw==
+X-Received: by 2002:adf:82cc:: with SMTP id 70mr5516546wrc.231.1574301612619;
+        Wed, 20 Nov 2019 18:00:12 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id m1sm1460226wrv.37.2019.11.20.18.00.11
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 20 Nov 2019 18:00:11 -0800 (PST)
+Message-ID: <5dd5efab.1c69fb81.41033.7466@mx.google.com>
+Date:   Wed, 20 Nov 2019 18:00:11 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Linutronix-Spam-Score: -1.0
-X-Linutronix-Spam-Level: -
-X-Linutronix-Spam-Status: No , -1.0 points, 5.0 required,  ALL_TRUSTED=-1,SHORTCIRCUIT=-0.0001
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.85
+Subject: stable/linux-4.19.y boot: 78 boots: 4 failed, 74 passed (v4.19.85)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the timers/urgent branch of tip:
+stable/linux-4.19.y boot: 78 boots: 4 failed, 74 passed (v4.19.85)
 
-Commit-ID:     7b8474466ed97be458c825f34a85f2c2b84c3f95
-Gitweb:        https://git.kernel.org/tip/7b8474466ed97be458c825f34a85f2c2b84c3f95
-Author:        Dmitry Safonov <dima@arista.com>
-AuthorDate:    Thu, 21 Nov 2019 00:03:03 
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 21 Nov 2019 01:17:58 +01:00
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+19.y/kernel/v4.19.85/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
+ernel/v4.19.85/
 
-time: Zero the upper 32-bits in __kernel_timespec on 32-bit
+Tree: stable
+Branch: linux-4.19.y
+Git Describe: v4.19.85
+Git Commit: c63ee2939dc1c6eee6c544af1b4ab441490bfe6e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 48 unique boards, 17 SoC families, 12 builds out of 206
 
-On compat interfaces, the high order bits of nanoseconds should be zeroed
-out. This is because the application code or the libc do not guarantee
-zeroing of these. If used without zeroing, kernel might be at risk of using
-timespec values incorrectly.
+Boot Regressions Detected:
 
-Originally it was handled correctly, but lost during is_compat_syscall()
-cleanup. Revert the condition back to check CONFIG_64BIT.
+arm:
 
-Fixes: 98f76206b335 ("compat: Cleanup in_compat_syscall() callers")
-Reported-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Dmitry Safonov <dima@arista.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20191121000303.126523-1-dima@arista.com
+    exynos_defconfig:
+        gcc-8:
+          exynos4412-odroidx2:
+              lab-collabora: new failure (last pass: v4.19.84)
+          exynos5422-odroidxu3:
+              lab-baylibre: new failure (last pass: v4.19.84)
+              lab-collabora: new failure (last pass: v4.19.84)
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxl-s905d-p230:
+              lab-baylibre: new failure (last pass: v4.19.84)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxl-s905d-p230: 1 failed lab
+
+arm:
+    exynos_defconfig:
+        gcc-8:
+            exynos4412-odroidx2: 1 failed lab
+            exynos5422-odroidxu3: 2 failed labs
+
 ---
- kernel/time/time.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/kernel/time/time.c b/kernel/time/time.c
-index 5c54ca6..83f403e 100644
---- a/kernel/time/time.c
-+++ b/kernel/time/time.c
-@@ -881,7 +881,8 @@ int get_timespec64(struct timespec64 *ts,
- 	ts->tv_sec = kts.tv_sec;
- 
- 	/* Zero out the padding for 32 bit systems or in compat mode */
--	if (IS_ENABLED(CONFIG_64BIT_TIME) && in_compat_syscall())
-+	if (IS_ENABLED(CONFIG_64BIT_TIME) && (!IS_ENABLED(CONFIG_64BIT) ||
-+					      in_compat_syscall()))
- 		kts.tv_nsec &= 0xFFFFFFFFUL;
- 
- 	ts->tv_nsec = kts.tv_nsec;
+For more info write to <info@kernelci.org>
