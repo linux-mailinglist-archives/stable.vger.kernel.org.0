@@ -2,104 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECFCA105887
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 18:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1F2105893
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 18:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726293AbfKURXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 12:23:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35594 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726279AbfKURXe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Nov 2019 12:23:34 -0500
-Received: from localhost (unknown [217.68.49.72])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4DF812067D;
-        Thu, 21 Nov 2019 17:23:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574357014;
-        bh=/+vDRF+mdlQrYJLUoZNvQwglz6Hp8AVx6ALrf8Fa9VQ=;
-        h=Subject:To:From:Date:From;
-        b=CYaescfhloaXLil56oWLgk9QY1XdPD9bL25N2TPwPS1Q+6tcwWPiDWvdNegiMEcc3
-         ka085FQhsvmCf7qVhMo4JWLC1MfW97c1Q0Fo7URNXG3Ek5bQqViqBXlR7mLI22H0Nu
-         FEp4FVp6Z6U8x7v8Zk63Jo7rppI9K0IGjCV+sWFU=
-Subject: patch "serial: stm32: fix clearing interrupt error flags" added to tty-testing
-To:     fabrice.gasnier@st.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 21 Nov 2019 18:23:30 +0100
-Message-ID: <1574357010225218@kroah.com>
+        id S1726541AbfKUR2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 12:28:45 -0500
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:34154 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726279AbfKUR2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 12:28:45 -0500
+Received: by mail-wr1-f66.google.com with SMTP id t2so5483764wrr.1
+        for <stable@vger.kernel.org>; Thu, 21 Nov 2019 09:28:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=py+bXe7YONFQOM7MAq75iAq+Pb8clhJ4Ewar4JdQPek=;
+        b=yw+F52JlCKW+m8xEmhai818eFgrwZNjRPb7rVPMopqhs5pRP0KVmqDgb+CwW4fOK3k
+         L3wynRkr1EHjFkxwq0ZJ51LcCa9hHQq1Kd82qhPRT234waz1NzCS2f8wCIcuWbSkTIoE
+         9XVd1L90SQ58nuFzRwtQdblVa3i7qS36H8vzJ+4CUXPYmnMgrho/2L9YgF0CfEBAfkuc
+         iapA5vYJfdcxpmEF7WZx2VmXAkl6aG1C7m+So6nbH1/SlmjgaP7UHdjoaDk71UZPSpk4
+         SiGtbuTQrHCARUqhSWqyboeWAgxCcN2zciBdWmLj9Nl9dp/LmOfGnyfc1Yt4UQ5KoEvB
+         JoFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=py+bXe7YONFQOM7MAq75iAq+Pb8clhJ4Ewar4JdQPek=;
+        b=AGnSgAgv35SeQv4cxZmR8ktTC2zAvbGjr8xq+pgVLROZsFkKg4LQolGCQIMAKxQDWa
+         MfjHGf6Rxq2nnpQthUuwnuR3xEzfHyclo9oAV0bDzpsFXEFp9y9ae7YjSNjV74RGDc2Y
+         /UHThSAhBOWWGgHNfh26cSglRDIgSxLFJh/Mnt/ktaBWfPIaDd3F00VwtHpNAA3/+EPM
+         OQDMC6nB56mekqTqYoK2gIrhmyNen08FLw2MIgDrEdyJ0SnnBVFulp4VaA3FpxmH9PCX
+         LYmjtzF49URkRltfpsA/Ll9bFIbOObNd8kgIhqTVWpKqhuI9M8edzHrGwedOFyN3PcYk
+         kyIQ==
+X-Gm-Message-State: APjAAAU9KW1T5qKXN8r/SyRSqL8ZnXfqnWEGCsQL+T964zqxkH2XdSDq
+        gKN3kAWiqQZ8mPO+4w5OhZXKUssfTxPX9A==
+X-Google-Smtp-Source: APXvYqyuh9CyVOK6OQts8oUuWWzFEZo8/RoQl4LgGXzrEXRLOWFx6/pDsLpX8dz45breT/c3pt0zag==
+X-Received: by 2002:adf:fd45:: with SMTP id h5mr7935608wrs.388.1574357321574;
+        Thu, 21 Nov 2019 09:28:41 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id a2sm4148110wrt.79.2019.11.21.09.28.39
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Nov 2019 09:28:39 -0800 (PST)
+Message-ID: <5dd6c947.1c69fb81.cbfab.4c46@mx.google.com>
+Date:   Thu, 21 Nov 2019 09:28:39 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.3.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.3.12
+Subject: stable-rc/linux-5.3.y boot: 147 boots: 0 failed,
+ 141 passed with 5 offline, 1 conflict (v5.3.12)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-5.3.y boot: 147 boots: 0 failed, 141 passed with 5 offline,=
+ 1 conflict (v5.3.12)
 
-This is a note to let you know that I've just added the patch titled
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.3.y/kernel/v5.3.12/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.3.y=
+/kernel/v5.3.12/
 
-    serial: stm32: fix clearing interrupt error flags
+Tree: stable-rc
+Branch: linux-5.3.y
+Git Describe: v5.3.12
+Git Commit: 807d174bcb26ffc9eeb944d39591a15059aa7cbc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 87 unique boards, 26 SoC families, 17 builds out of 208
 
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-testing branch.
+Offline Platforms:
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+arm:
 
-The patch will be merged to the tty-next branch sometime soon,
-after it passes testing, and the merge window is open.
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
 
-If you have any questions about this process, please let me know.
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
 
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
 
-From 1250ed7114a977cdc2a67a0c09d6cdda63970eb9 Mon Sep 17 00:00:00 2001
-From: Fabrice Gasnier <fabrice.gasnier@st.com>
-Date: Thu, 21 Nov 2019 09:10:49 +0100
-Subject: serial: stm32: fix clearing interrupt error flags
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
 
-The interrupt clear flag register is a "write 1 to clear" register.
-So, only writing ones allows to clear flags:
-- Replace buggy stm32_clr_bits() by a simple write to clear error flags
-- Replace useless read/modify/write stm32_set_bits() routine by a
-  simple write to clear TC (transfer complete) flag.
+i386:
+    i386_defconfig:
+        qemu_i386:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
 
-Fixes: 4f01d833fdcd ("serial: stm32: fix rx error handling")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@st.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1574323849-1909-1-git-send-email-fabrice.gasnier@st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/stm32-usart.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index df90747ee3a8..2f72514d63ed 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -240,8 +240,8 @@ static void stm32_receive_chars(struct uart_port *port, bool threaded)
- 		 * cleared by the sequence [read SR - read DR].
- 		 */
- 		if ((sr & USART_SR_ERR_MASK) && ofs->icr != UNDEF_REG)
--			stm32_clr_bits(port, ofs->icr, USART_ICR_ORECF |
--				       USART_ICR_PECF | USART_ICR_FECF);
-+			writel_relaxed(sr & USART_SR_ERR_MASK,
-+				       port->membase + ofs->icr);
- 
- 		c = stm32_get_char(port, &sr, &stm32_port->last_res);
- 		port->icount.rx++;
-@@ -435,7 +435,7 @@ static void stm32_transmit_chars(struct uart_port *port)
- 	if (ofs->icr == UNDEF_REG)
- 		stm32_clr_bits(port, ofs->isr, USART_SR_TC);
- 	else
--		stm32_set_bits(port, ofs->icr, USART_ICR_TCCF);
-+		writel_relaxed(USART_ICR_TCCF, port->membase + ofs->icr);
- 
- 	if (stm32_port->tx_ch)
- 		stm32_transmit_chars_dma(port);
--- 
-2.24.0
-
-
+For more info write to <info@kernelci.org>
