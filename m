@@ -2,80 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2D2104CE4
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 08:47:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 360A9104EBD
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 10:07:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726762AbfKUHrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 02:47:31 -0500
-Received: from mail-pj1-f67.google.com ([209.85.216.67]:37161 "EHLO
-        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726437AbfKUHrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 02:47:31 -0500
-Received: by mail-pj1-f67.google.com with SMTP id f3so1094748pjg.4;
-        Wed, 20 Nov 2019 23:47:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=bPzli0UbnIkOuw3Obh9ByfekwddOHEm4S9pnT6dhJAw=;
-        b=fiYcxH6U0LxbtGZxga3o8u5x20JnP+ppgJdVTAfnkK9kn2X/XzwWAHbyq5JzJ1nGxv
-         KFAJSnZKm8uZyYQDe81yPlfKl2UkeJEGl1AA4mDvxT5raq1J+zU8gwKT0rdCiiacRaGa
-         pASYPbuFQ320DGsYaviIK5Jr771oSniNrEbkgOvG7YOZXm4jwGpilriveKcngGJK8mon
-         i95fzCdgJU1blqz0LuQ9Vk8HNlutNWCiKegu6B3xeNQviYrCTEiKVo3O/eQeo6xA1HRt
-         PEONxO8+ktmhqr0eZrZHOd2bhlnKaBZegGUAukUm1saGnF2YMOhA430KIfLBhW+NXHBj
-         EyOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=bPzli0UbnIkOuw3Obh9ByfekwddOHEm4S9pnT6dhJAw=;
-        b=aofMssRGhuXG2sgZ84/Ff3gB/3HDWRtCPNd6d1O9RBokTaXNncAk0VhykpMFXIl+hd
-         YKATozw+QaxBa8H2hKuTDljr4tgNLKfEfw44TX+hlbcYRdbWC3lvfqWjfUS03H6fmgVq
-         +LPBrTtFvgNVTBcST28hKZCkhf3SPqjSgLTDc1NrSDjCOcSRsW6UbWNT70iDjayjnDbX
-         lry2k8QYoil2PlsQTAcbYRNzn5Kxh7c/ItdGuXk2o/QEsgcOWCkXeO9RXHxFho2VpY+N
-         CRHzLaeKkOlU7shsRpBukzaNpwNf1RD7er6WTeiV0BpH/MKThowfZOiFvN6xOLYCW+RL
-         6obw==
-X-Gm-Message-State: APjAAAWcQ5v2PlXdhaeS8NkO8Tt6wJbqe54Xkr86RKHhHE+074mBkbZt
-        6+ZFJ6odXs/2qK00CJLFj0RM0BNV
-X-Google-Smtp-Source: APXvYqzA4wKcUaP3fSi0u49yfp0Cu1bVQg+vavVdmm0K5SRY2Yu7k3JEDUOmxc17MPSHJGg3pGlvhA==
-X-Received: by 2002:a17:902:76cb:: with SMTP id j11mr7070605plt.50.1574322450729;
-        Wed, 20 Nov 2019 23:47:30 -0800 (PST)
-Received: from udknight.localhost ([183.250.89.86])
-        by smtp.gmail.com with ESMTPSA id t27sm2118278pfq.169.2019.11.20.23.47.29
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 Nov 2019 23:47:30 -0800 (PST)
-Received: from udknight.localhost (localhost [127.0.0.1])
-        by udknight.localhost (8.14.9/8.14.4) with ESMTP id xAL7lQeW015510;
-        Thu, 21 Nov 2019 15:47:26 +0800
-Received: (from root@localhost)
-        by udknight.localhost (8.14.9/8.14.9/Submit) id xAL7lP2k015509;
-        Thu, 21 Nov 2019 15:47:25 +0800
-Date:   Thu, 21 Nov 2019 15:47:25 +0800
-From:   Wang YanQing <udknight@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     stephen@networkplumber.org, ast@kernel.org, songliubraving@fb.com,
-        yhs@fb.com, daniel@iogearbox.net, itugrok@yahoo.com,
-        bpf@vger.kernel.org
-Subject: [PATCH] bpf, x32: Fix bug with ALU64 {LSH, RSH, ARSH} BPF_K shift by
- 0
-Message-ID: <20191121074725.GA15476@udknight>
+        id S1726362AbfKUJHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 04:07:16 -0500
+Received: from mout.kundenserver.de ([212.227.17.13]:58027 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726170AbfKUJHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 04:07:16 -0500
+Received: from mail-qk1-f180.google.com ([209.85.222.180]) by
+ mrelayeu.kundenserver.de (mreue108 [212.227.15.145]) with ESMTPSA (Nemesis)
+ id 1MlwFp-1i7D7J1bXP-00j50B; Thu, 21 Nov 2019 10:07:14 +0100
+Received: by mail-qk1-f180.google.com with SMTP id e2so2403491qkn.5;
+        Thu, 21 Nov 2019 01:07:14 -0800 (PST)
+X-Gm-Message-State: APjAAAX2EmKFiiT2rUJ9lXShvIUPJAH1iBGH8nV1Kl7H7iG5BZddrOlE
+        Xs5UOcG+yX+XU44ZGRbsYLp35dKDT62dxAspoYM=
+X-Google-Smtp-Source: APXvYqz0knwr27vOcmkkaREpSGNN31fRcZlHTsqa2yOgKtw6XKUZWtgvnf4DEi0F3uVGb6x4PGDYRjeb7NG71QvZYeU=
+X-Received: by 2002:a37:58d:: with SMTP id 135mr6882097qkf.394.1574327233197;
+ Thu, 21 Nov 2019 01:07:13 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.7.1 (2016-10-04)
+References: <20191121000303.126523-1-dima@arista.com>
+In-Reply-To: <20191121000303.126523-1-dima@arista.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Thu, 21 Nov 2019 10:06:57 +0100
+X-Gmail-Original-Message-ID: <CAK8P3a2ny7SBwQbNcn5nxYrZ9pX1Vh5P2PFXVpOFaquTcFguCA@mail.gmail.com>
+Message-ID: <CAK8P3a2ny7SBwQbNcn5nxYrZ9pX1Vh5P2PFXVpOFaquTcFguCA@mail.gmail.com>
+Subject: Re: [PATCH] time: Zerofy padding in __kernel_timespec on 32-bit
+To:     Dmitry Safonov <dima@arista.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        John Stultz <john.stultz@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        y2038 Mailman List <y2038@lists.linaro.org>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+X-Provags-ID: V03:K1:+84/mLQW0Wd+nj8N7g/1lDbad3ei+9/DkUcK33umBC8TLCOF47B
+ jl/hoWlC09Qa3G64HxmMlKXjo0YuoCextcIc1Mr5UHOx3fTACZWetCTrDC5rx/DYn1U9D0V
+ 5oRGE7CuoDTAdyR4rfGvqcewXbTDCIiGLQr4NWcYmrZWYfmF4QzwPp8yIICH7mRhjAZpQe8
+ FYZSc3DZ9xKSVLmPVnsgA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:dRmdJ2KizgM=:sf3PrKnyuhy2+ZoLV/2ToI
+ sCgzNzQG0lj1uKKffdv0x0b28aZvMuOqVpuZXzOugqWDOQN0gcc4g1NwYBDRYVSqGG78pGzke
+ b8kqPEuNSJT+xLfNc4k+E0oYplvmeDRzFyLbYU6H2UrNEIwd7yU9KSztIHEdJrzEFP7nf+GN3
+ wrTnvubQ7SYHNrfUKxLlYpPfm6Tu/UC4hQhiyMZSbs3jgA6wddPtUtTzxKatm1JSiy+dmb6SP
+ 3TGPPY5jwVAcavgL1R+5sOuFl3dAdIWjCGUw20zgpgwVOeIvcCGGXLHaqSAuPGiXq4YkuwHfU
+ kx9dyq65q8xbc7xA/nTrNFtNiK4kdkuanqiBaIaqum9lh5WUdLRBLFvFqE6eCnD8dpXsYqi8r
+ 8J5JmAKr2i4kKbPn7nxrvQLJ3oLKoTeVM/YJZUJ2EPg+vTnfBG1Fbt3UXFDslYEUrEVwiiHq3
+ olOsTkPynGYayrdpLmb5k2h09OxTJmxSV+8HkS4lVK1vnsad5BRwGHU3tGAX9lToV5L2u40fW
+ FyaBq4YAsyCQrzT+MrcD5gPOP6h3qb9mb22xQoFJSiZjfhHrmIt+ju52KrgRxMuVyoSS6+PlM
+ jnwV4CEiGXGhgSSg5TPD+IiRfArrnalm5POhbVH0KGS3c/qvwP0yEG24kNiOUXy3d2ta7/sH0
+ 8Z0mJxxRWNkKY3V2Dl2uVoKRXz/d17BTJjidstm/eWn7UdOKCkB/PKjr7ib60zXC6kEo9sPxG
+ +TuDPjVcl2Y5ZNmnNenoqXSVP3lLEt2dOWFwVUK9dOKQCxnQA1JFGJ+NG4AC3v+gyVKV8Jo+T
+ fuDrM4E01mHqVjOdreTm489U2GOoMDkVJ5jgoMDCFeZ2r8EDus2EOteOEeId40Okc3/B/Q4+v
+ VKD21MarhfoAIpUinruA==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 6fa632e719eec4d1b1ebf3ddc0b2d667997b057b upstream.
+On Thu, Nov 21, 2019 at 1:03 AM Dmitry Safonov <dima@arista.com> wrote:
+>
+> On compat interfaces, the high order bits of nanoseconds should
+> be zeroed out. This is because the application code or the libc
+> do not guarantee zeroing of these. If used without zeroing,
+> kernel might be at risk of using timespec values incorrectly.
+>
+> Originally it was handled correctly, but lost during is_compat_syscall()
+> cleanup. Revert the condition back to check CONFIG_64BIT.
+>
+> Reported-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+> Fixes: 98f76206b335 ("compat: Cleanup in_compat_syscall() callers")
 
-The fix only affects x32 bpf jit, and it is critical to use x32 bpf jit on a
-unpatched system, so I think we should backport it to the only affected stable
-kernel version: v4.19
-
-Thanks.
-
-Cc: <stable@vger.kernel.org> #4.19
-
-Signed-off-by: Wang YanQing <udknight@gmail.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
