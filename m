@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2671052DB
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 14:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 955961052EA
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 14:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726379AbfKUNZL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 08:25:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
+        id S1726358AbfKUN12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 08:27:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726342AbfKUNZL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Nov 2019 08:25:11 -0500
+        id S1726293AbfKUN12 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Nov 2019 08:27:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7906920898;
-        Thu, 21 Nov 2019 13:25:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 457B62075E;
+        Thu, 21 Nov 2019 13:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574342710;
-        bh=DgGo8Lh1PV9aMHvbnUEzeQh/ZCRzeuu3Kov6n3jqlu4=;
+        s=default; t=1574342847;
+        bh=p8voWrCmt33oQBTtqZwdgQvebcCutW2WuDE8PPkPNi0=;
         h=Subject:To:From:Date:From;
-        b=mo0YXJKYPimqKS2MOFVp6PdLSqPZRgbEpo8kJaxkOZx2q3zLkh09NcXD8doAVFhPb
-         bNblPMFHbfraiMwZXYlItRt06cbc87xYYay++N+77YtZKe/K30fhDebJA52Azk2VtE
-         IRqzw5+NfU+wGysJit9AMNXYC5B612FJ/N5lZ6Ks=
+        b=LgcqxaGvOlZwLIkVs2HDK/vfVmXd4sdmHqhkibMKia+NETfa4ljV6aRP8BZ9ty4zw
+         ybpqzDIFE2FucJ0otzgzU+zL3tKOARdxPNKtcZAwdiOfqpo0lEr7FcxDHnkBCT97Gf
+         zlefAdz4P85Ydk9nVXgCc2WcMpJ2nGTaI+uoiMTo=
 Subject: patch "staging: comedi: usbduxfast: usbduxfast_ai_cmdtest rounding error" added to staging-testing
 To:     mail@berndporr.me.uk, abbotti@mev.co.uk,
         gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 21 Nov 2019 14:24:35 +0100
-Message-ID: <157434267512158@kroah.com>
+Date:   Thu, 21 Nov 2019 14:27:25 +0100
+Message-ID: <157434284519572@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -55,7 +55,7 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From c83b03628f0a1c0e652c9424fed2e903cca1c3b7 Mon Sep 17 00:00:00 2001
+From 222f7381cf6f1eab2ea3a534cbea0815a2b53326 Mon Sep 17 00:00:00 2001
 From: Bernd Porr <mail@berndporr.me.uk>
 Date: Mon, 18 Nov 2019 23:07:59 +0000
 Subject: staging: comedi: usbduxfast: usbduxfast_ai_cmdtest rounding error
