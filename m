@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92834105D03
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 00:06:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B26D3105D04
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 00:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726265AbfKUXG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 18:06:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40676 "EHLO mail.kernel.org"
+        id S1726776AbfKUXGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 18:06:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726500AbfKUXG3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Nov 2019 18:06:29 -0500
+        id S1726539AbfKUXGf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Nov 2019 18:06:35 -0500
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1AF6206B6;
-        Thu, 21 Nov 2019 23:06:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA410206CB;
+        Thu, 21 Nov 2019 23:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574377588;
-        bh=Ptm2J2HxpN9LwOUHQuqiPMz68itkFJEYC3rEHUnQmY4=;
+        s=default; t=1574377594;
+        bh=df36G5zQK91weQjhtZyhy4EF8U6pehXwPTieWc+DLOg=;
         h=Date:From:To:Subject:From;
-        b=TMC8baq1GBUhaTLTYwh7xMKZ5zrOTOmYkDS9fVNUpJuJsXJyzxrp0uwlMy5nxJAa8
-         md02Q035miwj+1vHpbGL6swi6LTCzS8mYmxEj6RNl7hyukWbhrxQWHVBYk0p9yWzQc
-         qncFLIm49gjzQOkrIkKoyOduSnrGWjDwOOOU3DZM=
-Date:   Thu, 21 Nov 2019 15:06:27 -0800
+        b=hafKt6pXuqsxrJq/uBwrDfakWmi1FHbmQ1vrMiZspCBpa4aikmIn7P4UOFxEYn9Hr
+         57js5YDvcjK86z+Jw9L4HmiVxecCionpP4oO2gAMaV3YSsrND4Sdh9wmYRMri86lCQ
+         VVVuoLE5SR/3Osil13banI6YI/BL6br0AFpACQo0=
+Date:   Thu, 21 Nov 2019 15:06:33 -0800
 From:   akpm@linux-foundation.org
-To:     hannes@cmpxchg.org, mhocko@suse.com, minchan@kernel.org,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        zhongjiang@huawei.com
+To:     guro@fb.com, hannes@cmpxchg.org, mhocko@kernel.org,
+        mkoutny@suse.com, mm-commits@vger.kernel.org, shakeeb@google.com,
+        stable@vger.kernel.org, tj@kernel.org
 Subject:  [merged]
- =?US-ASCII?Q?mm-fix-trying-to-reclaim-unevictable-lru-page-when-calling-m?=
- =?US-ASCII?Q?advise=5Fpageout.patch?= removed from -mm tree
-Message-ID: <20191121230627.bGPDQc4us%akpm@linux-foundation.org>
+ mm-memcg-switch-to-css_tryget-in-get_mem_cgroup_from_mm.patch removed from
+ -mm tree
+Message-ID: <20191121230633.zrGTMHreP%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -42,113 +40,89 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: mm: fix trying to reclaim unevictable lru page when calling madvise_pageout
+     Subject: mm: memcg: switch to css_tryget() in get_mem_cgroup_from_mm()
 has been removed from the -mm tree.  Its filename was
-     mm-fix-trying-to-reclaim-unevictable-lru-page-when-calling-madvise_pageout.patch
+     mm-memcg-switch-to-css_tryget-in-get_mem_cgroup_from_mm.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: zhong jiang <zhongjiang@huawei.com>
-Subject: mm: fix trying to reclaim unevictable lru page when calling madvise_pageout
+From: Roman Gushchin <guro@fb.com>
+Subject: mm: memcg: switch to css_tryget() in get_mem_cgroup_from_mm()
 
-Recently, I hit the following issue when running upstream.
+We've encountered a rcu stall in get_mem_cgroup_from_mm():
 
-kernel BUG at mm/vmscan.c:1521!
-invalid opcode: 0000 [#1] SMP KASAN PTI
-CPU: 0 PID: 23385 Comm: syz-executor.6 Not tainted 5.4.0-rc4+ #1
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-RIP: 0010:shrink_page_list+0x12b6/0x3530 mm/vmscan.c:1521
-Code: de f5 ff ff e8 ab 79 eb ff 4c 89 f7 e8 43 33 0d 00 e9 cc f5 ff ff e8 99 79 eb ff 48 c7 c6 a0 34 2b a0 4c 89 f7 e8 1a 4d 05 00 <0f> 0b e8 83 79 eb ff 48 89 d8 48 c1 e8 03 42 80 3c 38 00 0f 85 74
-RSP: 0018:ffff88819a3df5a0 EFLAGS: 00010286
-RAX: 0000000000040000 RBX: ffffea00061c3980 RCX: ffffffff814fba36
-RDX: 00000000000056f7 RSI: ffffc9000c02c000 RDI: ffff8881f70268cc
-RBP: ffff88819a3df898 R08: ffffed103ee05de0 R09: ffffed103ee05de0
-R10: 0000000000000001 R11: ffffed103ee05ddf R12: ffff88819a3df6f0
-R13: ffff88819a3df6f0 R14: ffffea00061c3980 R15: dffffc0000000000
-FS:  00007f21b9d8e700(0000) GS:ffff8881f7000000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2d621000 CR3: 00000001c8c46004 CR4: 00000000007606f0
-DR0: 0000000020000140 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000600
-PKRU: 55555554
-Call Trace:
- reclaim_pages+0x499/0x800 mm/vmscan.c:2188
- madvise_cold_or_pageout_pte_range+0x58a/0x710 mm/madvise.c:453
- walk_pmd_range mm/pagewalk.c:53 [inline]
- walk_pud_range mm/pagewalk.c:112 [inline]
- walk_p4d_range mm/pagewalk.c:139 [inline]
- walk_pgd_range mm/pagewalk.c:166 [inline]
- __walk_page_range+0x45a/0xc20 mm/pagewalk.c:261
- walk_page_range+0x179/0x310 mm/pagewalk.c:349
- madvise_pageout_page_range mm/madvise.c:506 [inline]
- madvise_pageout+0x1f0/0x330 mm/madvise.c:542
- madvise_vma mm/madvise.c:931 [inline]
- __do_sys_madvise+0x7d2/0x1600 mm/madvise.c:1113
- do_syscall_64+0x9f/0x4c0 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+ rcu: INFO: rcu_sched self-detected stall on CPU
+ rcu: 33-....: (21000 ticks this GP) idle=6c6/1/0x4000000000000002 softirq=35441/35441 fqs=5017
+ (t=21031 jiffies g=324821 q=95837) NMI backtrace for cpu 33
+ <...>
+ RIP: 0010:get_mem_cgroup_from_mm+0x2f/0x90
+ <...>
+ __memcg_kmem_charge+0x55/0x140
+ __alloc_pages_nodemask+0x267/0x320
+ pipe_write+0x1ad/0x400
+ new_sync_write+0x127/0x1c0
+ __kernel_write+0x4f/0xf0
+ dump_emit+0x91/0xc0
+ writenote+0xa0/0xc0
+ elf_core_dump+0x11af/0x1430
+ do_coredump+0xc65/0xee0
+ ? unix_stream_sendmsg+0x37d/0x3b0
+ get_signal+0x132/0x7c0
+ do_signal+0x36/0x640
+ ? recalc_sigpending+0x17/0x50
+ exit_to_usermode_loop+0x61/0xd0
+ do_syscall_64+0xd4/0x100
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-madvise_pageout() accesses the specified range of the vma and isolates
-them, then runs shrink_page_list() to reclaim its memory.  But it also
-isolates the unevictable pages to reclaim.  Hence, we can catch the cases
-in shrink_page_list().
+The problem is caused by an exiting task which is associated with an
+offline memcg.  We're iterating over and over in the do {} while
+(!css_tryget_online()) loop, but obviously the memcg won't become online
+and the exiting task won't be migrated to a live memcg.
 
-The root cause is that we scan the page tables instead of specific LRU
-list.  and so we need to filter out the unevictable lru pages from our
-end.
+Let's fix it by switching from css_tryget_online() to css_tryget().
 
-Link: http://lkml.kernel.org/r/1572616245-18946-1-git-send-email-zhongjiang@huawei.com
-Fixes: 1a4e58cce84e ("mm: introduce MADV_PAGEOUT")
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Suggested-by: Johannes Weiner <hannes@cmpxchg.org>
+As css_tryget_online() cannot guarantee that the memcg won't go offline,
+the check is usually useless, except some rare cases when for example it
+determines if something should be presented to a user.
+
+A similar problem is described by commit 18fa84a2db0e ("cgroup: Use
+css_tryget() instead of css_tryget_online() in task_get_css()").
+
+Johannes:
+
+: The bug aside, it doesn't matter whether the cgroup is online for the
+: callers.  It used to matter when offlining needed to evacuate all charges
+: from the memcg, and so needed to prevent new ones from showing up, but we
+: don't care now.
+
+Link: http://lkml.kernel.org/r/20191106225131.3543616-1-guro@fb.com
+Signed-off-by: Roman Gushchin <guro@fb.com>
 Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Acked-by: Minchan Kim <minchan@kernel.org>
-Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Reviewed-by: Shakeel Butt <shakeeb@google.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Koutn <mkoutny@suse.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/madvise.c |   16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+ mm/memcontrol.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/madvise.c~mm-fix-trying-to-reclaim-unevictable-lru-page-when-calling-madvise_pageout
-+++ a/mm/madvise.c
-@@ -363,8 +363,12 @@ static int madvise_cold_or_pageout_pte_r
- 		ClearPageReferenced(page);
- 		test_and_clear_page_young(page);
- 		if (pageout) {
--			if (!isolate_lru_page(page))
--				list_add(&page->lru, &page_list);
-+			if (!isolate_lru_page(page)) {
-+				if (PageUnevictable(page))
-+					putback_lru_page(page);
-+				else
-+					list_add(&page->lru, &page_list);
-+			}
- 		} else
- 			deactivate_page(page);
- huge_unlock:
-@@ -441,8 +445,12 @@ regular_page:
- 		ClearPageReferenced(page);
- 		test_and_clear_page_young(page);
- 		if (pageout) {
--			if (!isolate_lru_page(page))
--				list_add(&page->lru, &page_list);
-+			if (!isolate_lru_page(page)) {
-+				if (PageUnevictable(page))
-+					putback_lru_page(page);
-+				else
-+					list_add(&page->lru, &page_list);
-+			}
- 		} else
- 			deactivate_page(page);
- 	}
+--- a/mm/memcontrol.c~mm-memcg-switch-to-css_tryget-in-get_mem_cgroup_from_mm
++++ a/mm/memcontrol.c
+@@ -960,7 +960,7 @@ struct mem_cgroup *get_mem_cgroup_from_m
+ 			if (unlikely(!memcg))
+ 				memcg = root_mem_cgroup;
+ 		}
+-	} while (!css_tryget_online(&memcg->css));
++	} while (!css_tryget(&memcg->css));
+ 	rcu_read_unlock();
+ 	return memcg;
+ }
 _
 
-Patches currently in -mm which might be from zhongjiang@huawei.com are
+Patches currently in -mm which might be from guro@fb.com are
 
-mm-gup-allow-cma-migration-to-propagate-errors-back-to-caller.patch
-mm-split_huge_pages_fops-should-be-defined-with-define_debugfs_attribute.patch
-mm-cma_debug-use-define_debugfs_attribute-to-define-debugfs-fops.patch
-mm-hwpoison-inject-use-define_debugfs_attribute-to-define-debugfs-fops.patch
 
