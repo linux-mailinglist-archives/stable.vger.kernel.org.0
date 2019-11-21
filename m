@@ -2,80 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CED5A105253
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 13:35:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2671052DB
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 14:25:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726293AbfKUMfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 07:35:25 -0500
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:39928 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726230AbfKUMfY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 07:35:24 -0500
-Received: by mail-lf1-f67.google.com with SMTP id f18so2498302lfj.6
-        for <stable@vger.kernel.org>; Thu, 21 Nov 2019 04:35:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=PBvjvtlJ3gmdO3Q5JhnFS2hqB/M5iofUn1lQwwxOIjE=;
-        b=SkYHXvllDV1ADo5PBRcCQG0Vws0MwcwgXWHXjCpL9riuGA8sz7qQ2TlkpOHNFUwPEE
-         Mew83iBW7G9NNFavnaLQKuVEB/sf00oyrYY6yQkHjPk33uP6lgdnxDpuNLI9OM8e28wn
-         fvOVq2fOKJWKVu0QlEQbgGh3MrViEhN9DTZiFHJ2QnyQhZwDymBAs0JIBWmGVhs5uapW
-         b8+wZbQlWGtKlLFQnDkzusY2iRru0fLV8uhACfFfoOjE5VE7lsBrn++DxXUFddfjEl4v
-         HlbngJ8t2CPmtI+31NNJuhrER4CUWIdAPgyb81sjIuQmsi7+ns33aHlzys/q7arnfIPt
-         Ipkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=PBvjvtlJ3gmdO3Q5JhnFS2hqB/M5iofUn1lQwwxOIjE=;
-        b=hepv1pHx7Q6Hoa2/iqkkWSNMiM7PdxQ8ZIzHq9ZFXpQgelBgQssKH4NHqGJpm2zC4M
-         ai9Ls6UqeLPJep9BZxIKQ/zGMMvBA5QDUu/C+1NG0wUBaDq5OXR4JrAWOEZ4EXVAtpAf
-         oXqGL4CG4FxdXExBS8tTbY7v52DPu8Pz+q4rBuDZ7CVtR7u5DGUzaBQPz50lU/k0xiGL
-         WxOfXWY1vK+joX3j36daI1FyWkiOZwq4l12qVN+6HVxtMF05ScA+rMaFfNFUWr4PR3wi
-         9MTpypY/Wm0YM8Uj0wnagpqZg5ZKP3OUKAAL/WFtS9ATZSFqi+2fyrUkX3nq3QJZSviX
-         d8Lg==
-X-Gm-Message-State: APjAAAXVIBkRL6XtT/rbyvs2VH+KmxXAH+8r/7fc+/+3QkxHx/pF5gja
-        EbOYFCNpi6I9RHmkj0/14aKgd52p3VOePh+vt7ro/Q==
-X-Google-Smtp-Source: APXvYqxGJGGj+DEWqGSQXlorg9LyvjDcxFmHWNq+E7FgvjoQ0UR0VT+OsOjfFjvBWfUQyCZqN4LnMCva1+nFoSZK3KM=
-X-Received: by 2002:a19:7d02:: with SMTP id y2mr7054946lfc.86.1574339722680;
- Thu, 21 Nov 2019 04:35:22 -0800 (PST)
+        id S1726379AbfKUNZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 08:25:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45634 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726342AbfKUNZL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Nov 2019 08:25:11 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7906920898;
+        Thu, 21 Nov 2019 13:25:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574342710;
+        bh=DgGo8Lh1PV9aMHvbnUEzeQh/ZCRzeuu3Kov6n3jqlu4=;
+        h=Subject:To:From:Date:From;
+        b=mo0YXJKYPimqKS2MOFVp6PdLSqPZRgbEpo8kJaxkOZx2q3zLkh09NcXD8doAVFhPb
+         bNblPMFHbfraiMwZXYlItRt06cbc87xYYay++N+77YtZKe/K30fhDebJA52Azk2VtE
+         IRqzw5+NfU+wGysJit9AMNXYC5B612FJ/N5lZ6Ks=
+Subject: patch "staging: comedi: usbduxfast: usbduxfast_ai_cmdtest rounding error" added to staging-testing
+To:     mail@berndporr.me.uk, abbotti@mev.co.uk,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 21 Nov 2019 14:24:35 +0100
+Message-ID: <157434267512158@kroah.com>
 MIME-Version: 1.0
-References: <CACgcjHEHxzBkiE6hH3OEUw6V+PZHX7MAKht61OZPbAyAVRDQiQ@mail.gmail.com>
-In-Reply-To: <CACgcjHEHxzBkiE6hH3OEUw6V+PZHX7MAKht61OZPbAyAVRDQiQ@mail.gmail.com>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Thu, 21 Nov 2019 13:35:10 +0100
-Message-ID: <CACRpkdZB4XDTpv9YSdpdaqkAESpw99zw25GsZrNgZeC1GH1NQQ@mail.gmail.com>
-Subject: Re: [PATCH 4.4] gpio: make the gpiochip a real device
-To:     Yama Modo <zero19850401@gmail.com>
-Cc:     stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hu Yama & friends,
 
-thanks for your patch!
+This is a note to let you know that I've just added the patch titled
 
-On Thu, Nov 21, 2019 at 12:49 PM Yama Modo <zero19850401@gmail.com> wrote:
+    staging: comedi: usbduxfast: usbduxfast_ai_cmdtest rounding error
 
-> Dear Linus Walleij,
->
-> I want to backport commit ff2b13592299 "gpio: make the gpiochip a real
-> device" to linux 4.4.y. Could you please review the following patch? I
-> will improve this later if something need to take care. Thanks!
+to my staging git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+in the staging-testing branch.
 
-Super cool, and I bet you have a good reason for wanting the new
-GPIO framework on elder kernels, like being able to create drivers
-and userspace that can be used on newer kernels seamlessly.
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
 
-But I think you are confusing Greg, because the stable kernel is
-by definition intended for fixing instabilities, I would say make it
-publicly available for people who want it and need it, but unless
-it is fixing an instability for users, it will not be stable kernel
-material.
+The patch will be merged to the staging-next branch sometime soon,
+after it passes testing, and the merge window is open.
 
-Yours,
-Linus Walleij
+If you have any questions about this process, please let me know.
+
+
+From c83b03628f0a1c0e652c9424fed2e903cca1c3b7 Mon Sep 17 00:00:00 2001
+From: Bernd Porr <mail@berndporr.me.uk>
+Date: Mon, 18 Nov 2019 23:07:59 +0000
+Subject: staging: comedi: usbduxfast: usbduxfast_ai_cmdtest rounding error
+
+The userspace comedilib function 'get_cmd_generic_timed' fills
+the cmd structure with an informed guess and then calls the
+function 'usbduxfast_ai_cmdtest' in this driver repeatedly while
+'usbduxfast_ai_cmdtest' is modifying the cmd struct until it
+no longer changes. However, because of rounding errors this never
+converged because 'steps = (cmd->convert_arg * 30) / 1000' and then
+back to 'cmd->convert_arg = (steps * 1000) / 30' won't be the same
+because of rounding errors. 'Steps' should only be converted back to
+the 'convert_arg' if 'steps' has actually been modified. In addition
+the case of steps being 0 wasn't checked which is also now done.
+
+Signed-off-by: Bernd Porr <mail@berndporr.me.uk>
+Cc: <stable@vger.kernel.org> # 4.4+
+Reviewed-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20191118230759.1727-1-mail@berndporr.me.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/staging/comedi/drivers/usbduxfast.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/staging/comedi/drivers/usbduxfast.c b/drivers/staging/comedi/drivers/usbduxfast.c
+index 04bc488385e6..4af012968cb6 100644
+--- a/drivers/staging/comedi/drivers/usbduxfast.c
++++ b/drivers/staging/comedi/drivers/usbduxfast.c
+@@ -1,6 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0+
+ /*
+- *  Copyright (C) 2004-2014 Bernd Porr, mail@berndporr.me.uk
++ *  Copyright (C) 2004-2019 Bernd Porr, mail@berndporr.me.uk
+  */
+ 
+ /*
+@@ -8,7 +8,7 @@
+  * Description: University of Stirling USB DAQ & INCITE Technology Limited
+  * Devices: [ITL] USB-DUX-FAST (usbduxfast)
+  * Author: Bernd Porr <mail@berndporr.me.uk>
+- * Updated: 10 Oct 2014
++ * Updated: 16 Nov 2019
+  * Status: stable
+  */
+ 
+@@ -22,6 +22,7 @@
+  *
+  *
+  * Revision history:
++ * 1.0: Fixed a rounding error in usbduxfast_ai_cmdtest
+  * 0.9: Dropping the first data packet which seems to be from the last transfer.
+  *      Buffer overflows in the FX2 are handed over to comedi.
+  * 0.92: Dropping now 4 packets. The quad buffer has to be emptied.
+@@ -350,6 +351,7 @@ static int usbduxfast_ai_cmdtest(struct comedi_device *dev,
+ 				 struct comedi_cmd *cmd)
+ {
+ 	int err = 0;
++	int err2 = 0;
+ 	unsigned int steps;
+ 	unsigned int arg;
+ 
+@@ -399,11 +401,16 @@ static int usbduxfast_ai_cmdtest(struct comedi_device *dev,
+ 	 */
+ 	steps = (cmd->convert_arg * 30) / 1000;
+ 	if (cmd->chanlist_len !=  1)
+-		err |= comedi_check_trigger_arg_min(&steps,
+-						    MIN_SAMPLING_PERIOD);
+-	err |= comedi_check_trigger_arg_max(&steps, MAX_SAMPLING_PERIOD);
+-	arg = (steps * 1000) / 30;
+-	err |= comedi_check_trigger_arg_is(&cmd->convert_arg, arg);
++		err2 |= comedi_check_trigger_arg_min(&steps,
++						     MIN_SAMPLING_PERIOD);
++	else
++		err2 |= comedi_check_trigger_arg_min(&steps, 1);
++	err2 |= comedi_check_trigger_arg_max(&steps, MAX_SAMPLING_PERIOD);
++	if (err2) {
++		err |= err2;
++		arg = (steps * 1000) / 30;
++		err |= comedi_check_trigger_arg_is(&cmd->convert_arg, arg);
++	}
+ 
+ 	if (cmd->stop_src == TRIG_COUNT)
+ 		err |= comedi_check_trigger_arg_min(&cmd->stop_arg, 1);
+-- 
+2.24.0
+
+
