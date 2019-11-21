@@ -2,165 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7641C1058D4
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 18:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB9310596C
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 19:21:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726279AbfKURx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 12:53:29 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49069 "EHLO
-        out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726568AbfKURx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 12:53:29 -0500
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7890422469;
-        Thu, 21 Nov 2019 12:53:28 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 21 Nov 2019 12:53:28 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=N
-        AEmnfDLUP/DueEFDmZwyPS9pgpcvLGf7F8mdIJ+CW8=; b=N/xl9Rk0DX4YmymoC
-        M1WmbMjb/MCBgevGg83zIRoVFnfpWyev4GR4CYEcViVXUL8Dmi6pqmmPo8jxuhfk
-        gM4GfeLEk6s+4G2MGxV+UtgSMVQUJeft6w0SgQV46BbQz0z/I9adJG68Nn7wLJzd
-        Ew+c4CFAbf7LgopwwFdF+LzKQMFHU7/z1XinoyMVNCyDLsWG1uelGQLrhHaB/MED
-        t/X5sqUxVYLpvXPlmsNFLo7qojuMkee3tzH+CXNeFrU5JvFHJVksEY77vRRQtA2A
-        VY/qTp5Cg7kiZ7HWgSVtUlLjXkKj2jAOk1th693kobV5DvGb0I9h+cn1SyN53703
-        msSQg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=NAEmnfDLUP/DueEFDmZwyPS9pgpcvLGf7F8mdIJ+C
-        W8=; b=wuPr5a+zJiOf26soMbNgboPO9sYPzmhckI2n2AH9oUGzLCPnoYWsoQeR7
-        NNNW+joDGHFXXa4AehC5L5s1axd9vhFyqQ+ds4Ar+k3PP3qXCEvyqGmt2tRyAp1F
-        uDdakDi+FNI88RVvlEwJAMWBtk86RSohs9q2MRvEtkgZtUWdxsg59SnJ9JwQw9Ku
-        lycKyUGN9D1SYUXIRAaa3UUXHr/P8ytHB4ucGbmC8EtUw1lXgdCVZIoJzhB2ZNuz
-        8GO3uNzJbGfHMn5aJ/oUfUqHlyjAlfTz8LLAQ3Sxby3F2UAr5M53nVzfiF8ahEvs
-        9PMtkQnoNnAbbezVit5lNKt7E2X9w==
-X-ME-Sender: <xms:F8_WXd7zzekFpbXl90hV9cD45aetyQVPlQylgOQCA-chMR9pS4mteQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudehvddguddtkecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhr
-    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpegtkhhiqd
-    hprhhojhgvtghtrdhorhhgpdhrvgguhhgrthdrtghomhdpkhgvrhhnvghlrdhorhhgnecu
-    kfhppedvudejrdeikedrgeelrdejvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvg
-    hgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:F8_WXQGR8hodcutKRKtu7SDk-DxDUkHNzbqN7DoXWRP0i2hYn0HbwQ>
-    <xmx:F8_WXX0r5RGXZ1UfCJ0NwbMLtQxsWwnF0LZY8p4rATLiR4NaszMHvw>
-    <xmx:F8_WXVoRAJ-CwJhP42A81RivCKgaxO5amqF5Sp1SdYY2B4pv_Khr1g>
-    <xmx:GM_WXdolWo8RnOXZFAfmEChuRaqgiF4tplcCwep2gZftHIDVU8qPJw>
-Received: from localhost (unknown [217.68.49.72])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 4150F3060060;
-        Thu, 21 Nov 2019 12:53:27 -0500 (EST)
-Date:   Thu, 21 Nov 2019 18:53:26 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Laura Abbott <labbott@redhat.com>
-Cc:     Rachel Sibley <rasibley@redhat.com>,
-        CKI Project <cki-project@redhat.com>,
-        Linux Stable maillist <stable@vger.kernel.org>,
-        Memory Management <mm-qe@redhat.com>,
-        Jan Stancek <jstancek@redhat.com>,
-        LTP Mailing List <ltp@lists.linux.it>
-Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.3
-Message-ID: <20191121175326.GB766491@kroah.com>
-References: <cki.042792963E.5VOWULC1Q9@redhat.com>
- <8e0fa6de-b6b1-23ac-9e77-d425c8d1ba22@redhat.com>
- <c326c35e-453e-2dae-391c-5324803e6112@redhat.com>
- <20191119124428.GC1975017@kroah.com>
- <236c4f8d-a54e-daa6-0896-eca236e23e58@redhat.com>
+        id S1726762AbfKUSVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 13:21:47 -0500
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:38456 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726279AbfKUSVr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 13:21:47 -0500
+Received: by mail-wr1-f52.google.com with SMTP id i12so5646005wro.5
+        for <stable@vger.kernel.org>; Thu, 21 Nov 2019 10:21:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YDyIi72oL+/n0u+G3pcX0mycv2tbAaj9xWueoVZQl48=;
+        b=lFsNoSV7QxcqBYvn3e6Tec/3f3YTbGjDf6t6BKr4gguDx+IbcnQUyVDXQaplr++8GR
+         g668CgLYhEeckrNXhYJzDNUhA8+9jScVwcb08F+/Y0mtNkAK8/9i0KOcafv2KCm4Boqy
+         wBDtvbUOPGa/lVG+D2CoPQxty0eL3VPRNpCWW4VtaGpsyN+53qMfw/CzTBIpQgD9PtKy
+         NxhD83QLnqkUwh3WowzDCahsoguS5+UKab6mRsZHHy+UAmrDJZ+JhzT9+f9asVPbGO/5
+         y2rTvf8PzezY4WS0DULL2J0ZSP3kAI4USG8/1MXuYZ5jmyzKnI9Ur8cmahR2FBWzpY/U
+         A0Sw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YDyIi72oL+/n0u+G3pcX0mycv2tbAaj9xWueoVZQl48=;
+        b=MNCfYybBmitWIbTsenveMK/gTkrJinHuN5pj+G4P5rav+D5zwT9G1itPgqfuG41ouN
+         Ju1PQ8pz9CnJcq08qcq5Jpb6/j1nFiEo0OsqTywP84b3WsVWxr4h+ZVZadMaNkqB0Uyd
+         Jr+ZQp5dQCUEJDl2wqxqIVZCgALIfdquu+uIBYjXAcId+EOazqFsC+S5pyeNEtfH4dH6
+         loEC6ohbf52hap/AlOt2X81yS/pNfWKBo3jn2zP3HRTU95pYqpK5W2IOUsimryj4+se2
+         BjpgriTj6lm4DHK2oppMafOEh4+0Sf/ZKJcyc1y/Dk48qp9VqoX1DLWf6SP2uLWElv+j
+         qs1A==
+X-Gm-Message-State: APjAAAXTLL9zMRFmQc7nz5fj4a5IMldm/dpA+GClxHots8QP2nVp2PPb
+        7nNJ/P12aO4DG/IRQN6m91DzHA1f6tH1jw==
+X-Google-Smtp-Source: APXvYqymFzXr/ryZbQcjD57Rc22P50uu3W39Kscs8jqktkTE3H7fEGMtNOWSw368RFjY9PRQjnvLog==
+X-Received: by 2002:a5d:5050:: with SMTP id h16mr13509983wrt.380.1574360505280;
+        Thu, 21 Nov 2019 10:21:45 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id 91sm4430807wrm.42.2019.11.21.10.21.42
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Nov 2019 10:21:42 -0800 (PST)
+Message-ID: <5dd6d5b6.1c69fb81.a5313.652f@mx.google.com>
+Date:   Thu, 21 Nov 2019 10:21:42 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <236c4f8d-a54e-daa6-0896-eca236e23e58@redhat.com>
-User-Agent: Mutt/1.12.2 (2019-09-21)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.202
+Subject: stable-rc/linux-4.4.y boot: 92 boots: 0 failed,
+ 87 passed with 4 offline, 1 conflict (v4.4.202)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Nov 19, 2019 at 07:50:56AM -0500, Laura Abbott wrote:
-> On 11/19/19 7:44 AM, Greg KH wrote:
-> > On Tue, Nov 19, 2019 at 07:37:09AM -0500, Laura Abbott wrote:
-> > > On 11/18/19 7:07 PM, Rachel Sibley wrote:
-> > > > 
-> > > > On 11/18/19 10:00 AM, CKI Project wrote:
-> > > > > Hello,
-> > > > > 
-> > > > > We ran automated tests on a patchset that was proposed for merging into this
-> > > > > kernel tree. The patches were applied to:
-> > > > > 
-> > > > >          Kernel repo:https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-> > > > >               Commit: 116a395b7061 - Linux 5.3.11
-> > > > > 
-> > > > > The results of these automated tests are provided below.
-> > > > > 
-> > > > >       Overall result: FAILED (see details below)
-> > > > >                Merge: OK
-> > > > >              Compile: OK
-> > > > >                Tests: FAILED
-> > > > > 
-> > > > > All kernel binaries, config files, and logs are available for download here:
-> > > > > 
-> > > > >     https://artifacts.cki-project.org/pipelines/293063
-> > > > > 
-> > > > > One or more kernel tests failed:
-> > > > > 
-> > > > >       aarch64:
-> > > > >        ❌ LTP lite
-> > > > 
-> > > > I see a panic when installing the LTP dependencies
-> > > > 
-> > > > [  690.625060] Call trace:
-> > > > [  690.627495]  bfq_find_set_group+0x8c/0xf0
-> > > > [  690.631491]  bfq_bic_update_cgroup+0xbc/0x218
-> > > > [  690.635834]  bfq_init_rq+0xac/0x808
-> > > > [  690.639309]  bfq_insert_request.isra.0+0xe0/0x200
-> > > > [  690.643999]  bfq_insert_requests+0x68/0x88
-> > > > [  690.648085]  blk_mq_sched_insert_requests+0x84/0x140
-> > > > [  690.653036]  blk_mq_flush_plug_list+0x170/0x2b0
-> > > > [  690.657555]  blk_flush_plug_list+0xec/0x100
-> > > > [  690.661725]  blk_mq_make_request+0x200/0x5e8
-> > > > [  690.665982]  generic_make_request+0x94/0x270
-> > > > [  690.670239]  submit_bio+0x34/0x168
-> > > > [  690.673712]  xfs_submit_ioend.isra.0+0x9c/0x180 [xfs]
-> > > > [  690.678798]  xfs_do_writepage+0x234/0x458 [xfs]
-> > > > [  690.683318]  write_cache_pages+0x1a4/0x3f8
-> > > > [  690.687442]  xfs_vm_writepages+0x84/0xb8 [xfs]
-> > > > [  690.691874]  do_writepages+0x3c/0xe0
-> > > > [  690.695438]  __writeback_single_inode+0x48/0x440
-> > > > [  690.700042]  writeback_sb_inodes+0x1ec/0x4b0
-> > > > [  690.704298]  __writeback_inodes_wb+0x50/0xe8
-> > > > [  690.708555]  wb_writeback+0x264/0x388
-> > > > [  690.712204]  wb_do_writeback+0x300/0x358
-> > > > [  690.716113]  wb_workfn+0x80/0x1e0
-> > > > [  690.719418]  process_one_work+0x1bc/0x3e8
-> > > > [  690.723414]  worker_thread+0x54/0x440
-> > > > [  690.727064]  kthread+0x104/0x130
-> > > > [  690.730281]  ret_from_fork+0x10/0x18
-> > > > [  690.733847] Code: eb00007f 54000220 b4000040 f8568022 (f9401c42)
-> > > > [  690.739928] ---[ end trace d3fd392f569e86d3 ]---
-> > > > 
-> > > > https://artifacts.cki-project.org/pipelines/293063/logs/aarch64_host_2_console.log
-> > > > 
-> > > 
-> > > This looks like that same issue
-> > > https://bugzilla.redhat.com/show_bug.cgi?id=1767539
-> > > 
-> > > I don't think the BFQ fix has been sent to stable yet, or at least
-> > > it was not in 5.3.11
-> > 
-> > Any specific git commit id I should be picking up for this?
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Should be 478de3380c1c ("block, bfq: deschedule empty bfq_queues
-> not referred by any process") .
+stable-rc/linux-4.4.y boot: 92 boots: 0 failed, 87 passed with 4 offline, 1=
+ conflict (v4.4.202)
 
-Thanks, now queued up.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.202/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.202/
 
-greg k-h
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.202
+Git Commit: bc69c961f59512012af64efd4ff20b3cb67c99ce
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 45 unique boards, 17 SoC families, 13 builds out of 190
+
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+arm:
+    exynos_defconfig:
+        exynos5422-odroidxu3:
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
