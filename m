@@ -2,105 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 561F4105D6D
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 00:53:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DF17105D72
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 00:55:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726655AbfKUXxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 18:53:52 -0500
-Received: from mga11.intel.com ([192.55.52.93]:11343 "EHLO mga11.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725956AbfKUXxw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Nov 2019 18:53:52 -0500
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Nov 2019 15:53:51 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,227,1571727600"; 
-   d="asc'?scan'208";a="219272737"
-Received: from lmhaganx-mobl.amr.corp.intel.com ([10.251.138.123])
-  by orsmga002.jf.intel.com with ESMTP; 21 Nov 2019 15:53:51 -0800
-Message-ID: <7fa4d937db14f550b3c3624ff5d13875566e8cdd.camel@intel.com>
-Subject: Re: [PATCH 4.19 079/422] i40e: use correct length for strncpy
-From:   Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-To:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Date:   Thu, 21 Nov 2019 15:53:50 -0800
-In-Reply-To: <20191121103504.GC26882@amd>
-References: <20191119051400.261610025@linuxfoundation.org>
-         <20191119051404.622986351@linuxfoundation.org> <20191121103504.GC26882@amd>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-ZhLo4uiGTkHBM5nXZKab"
-User-Agent: Evolution 3.34.1 (3.34.1-1.fc31) 
+        id S1726725AbfKUXzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 18:55:46 -0500
+Received: from userp2120.oracle.com ([156.151.31.85]:55304 "EHLO
+        userp2120.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725956AbfKUXzq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 18:55:46 -0500
+Received: from pps.filterd (userp2120.oracle.com [127.0.0.1])
+        by userp2120.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xALNnTWv027681;
+        Thu, 21 Nov 2019 23:55:33 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : from : to : cc
+ : subject : message-id : references : mime-version : content-type :
+ in-reply-to; s=corp-2019-08-05;
+ bh=QY8j3JMop/DxVJMadbxBdDgSIUv8maue2MbhnBUj7oY=;
+ b=YJtDdfQTLEDQZkxgDah9Oh3oJf/Y7/LQYtpzWwR+JLcqKeDmtC69ZA9ZQIkovwWbz7Sd
+ LEtJjuYjje7AVpB2UIciELSe28pUx51YwL0AjD5alz+aGgbGtqjpeOnz2gVsMpWS3neL
+ NIetllZ/4ENPCXnKaxfg5VsidkLirx531ZBSBVPSsnDCl0fS3X6rr3x0B9HRIYDgxz/f
+ 2/lbG1twG71ME2qtKoPQpAHr8e+Ygs5gUa4LzfAdB+Xyx0khP63523LQzFChBozqma+m
+ 1HL5AAPRCK4T5sYPkirGxWDTxZpQm5QNdp7HfS8eTOBgd7y2+3Xmc32luQ8KdzeeOUEr pg== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+        by userp2120.oracle.com with ESMTP id 2wa9rqyfru-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Nov 2019 23:55:32 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+        by userp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id xALNnLRS134406;
+        Thu, 21 Nov 2019 23:55:32 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by userp3030.oracle.com with ESMTP id 2wda06wxuy-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 21 Nov 2019 23:55:32 +0000
+Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id xALNtTrx011837;
+        Thu, 21 Nov 2019 23:55:29 GMT
+Received: from localhost (/10.145.178.64)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Thu, 21 Nov 2019 15:55:29 -0800
+Date:   Thu, 21 Nov 2019 15:55:28 -0800
+From:   "Darrick J. Wong" <darrick.wong@oracle.com>
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-fsdevel@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>,
+        Matthew Bobrowski <mbobrowski@mbobrowski.org>,
+        Eric Biggers <ebiggers@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] iomap: Fix pipe page leakage during splicing
+Message-ID: <20191121235528.GO6211@magnolia>
+References: <20191121161144.30802-1-jack@suse.cz>
+ <20191121161538.18445-1-jack@suse.cz>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191121161538.18445-1-jack@suse.cz>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9448 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1911140001 definitions=main-1911210202
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9448 signatures=668685
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1911140001
+ definitions=main-1911210202
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Nov 21, 2019 at 05:15:34PM +0100, Jan Kara wrote:
+> When splicing using iomap_dio_rw() to a pipe, we may leak pipe pages
+> because bio_iov_iter_get_pages() records that the pipe will have full
+> extent worth of data however if file size is not block size aligned
+> iomap_dio_rw() returns less than what bio_iov_iter_get_pages() set up
+> and splice code gets confused leaking a pipe page with the file tail.
+> 
+> Handle the situation similarly to the old direct IO implementation and
+> revert iter to actually returned read amount which makes iter consistent
+> with value returned from iomap_dio_rw() and thus the splice code is
+> happy.
+> 
+> Fixes: ff6a9292e6f6 ("iomap: implement direct I/O")
+> CC: stable@vger.kernel.org
+> Reported-by: syzbot+991400e8eba7e00a26e1@syzkaller.appspotmail.com
+> Signed-off-by: Jan Kara <jack@suse.cz>
+> ---
+>  fs/iomap/direct-io.c | 9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+> 
+> diff --git a/fs/iomap/direct-io.c b/fs/iomap/direct-io.c
+> index 1fc28c2da279..30189652c560 100644
+> --- a/fs/iomap/direct-io.c
+> +++ b/fs/iomap/direct-io.c
+> @@ -497,8 +497,15 @@ iomap_dio_rw(struct kiocb *iocb, struct iov_iter *iter,
+>  		}
+>  		pos += ret;
+>  
+> -		if (iov_iter_rw(iter) == READ && pos >= dio->i_size)
+> +		if (iov_iter_rw(iter) == READ && pos >= dio->i_size) {
+> +			/*
+> +			 * We will report we've read data only upto i_size.
 
---=-ZhLo4uiGTkHBM5nXZKab
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Nit: "up to"; will fix that on the way in.
 
-On Thu, 2019-11-21 at 11:35 +0100, Pavel Machek wrote:
-> > From: Mitch Williams <mitch.a.williams@intel.com>
-> >=20
-> > [ Upstream commit 7eb74ff891b4e94b8bac48f648a21e4b94ddee64 ]
-> >=20
-> > Caught by GCC 8. When we provide a length for strncpy, we should not
-> > include the terminating null. So we must tell it one less than the size
-> > of the destination buffer.
->=20
-> > +++ b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-> > @@ -694,7 +694,8 @@ static long i40e_ptp_create_clock(struct i40e_pf
-> *pf)
-> >       if (!IS_ERR_OR_NULL(pf->ptp_clock))
-> >               return 0;
-> > =20
-> > -     strncpy(pf->ptp_caps.name, i40e_driver_name, sizeof(pf-
-> >ptp_caps.name));
-> > +     strncpy(pf->ptp_caps.name, i40e_driver_name,
-> > +             sizeof(pf->ptp_caps.name) - 1);
-> >       pf->ptp_caps.owner =3D THIS_MODULE;
-> >       pf->ptp_caps.max_adj =3D 999999999;
-> >       pf->ptp_caps.n_ext_ts =3D 0;
->=20
-> So... pf is allocated with kzalloc, which will provide the null
-> termination... so the code is okay.
->=20
-> On the other hand, the =3D 0 below is unneeded by the same logic, so
-> this is a bit confusing.
+> +			 * Revert iter to a state corresponding to that as
+> +			 * some callers (such as splice code) rely on it.
+> +			 */
+> +			iov_iter_revert(iter, pos - dio->i_size);
 
-Thanks for the catch, we are putting together a follow-on patch to cleanup
-up the unneeded code.
+Just to make sure I'm getting this right, iov_iter_revert walks the
+iterator variables backwards through pipe buffers/bvec/iovec, which has
+the effect of undoing whatever iterator walking we've just done.
 
---=-ZhLo4uiGTkHBM5nXZKab
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-Content-Transfer-Encoding: 7bit
+In contrast, iov_iter_reexpand undoes a previous subtraction to
+iov->count which was (presumably) done via iov_iter_truncate.
 
------BEGIN PGP SIGNATURE-----
+Or to put it another way, _revert walks the iteration pointer backwards,
+whereas _truncate/_reexpand modify where the iteration ends.  Right?
 
-iQIzBAABCgAdFiEEiTyZWz+nnTrOJ1LZ5W/vlVpL7c4FAl3XI44ACgkQ5W/vlVpL
-7c5UdA//T42uWRN1y1+11boQlufWFhFADrtJAQAISRBd8Wd+Biaa3mDw9vtcCSRU
-lbPwcFv6DBmpTRKNscMuKPkea4DeAVqtwHTQ2iWR/w7ou8VCgjHhGMp49m+weqaV
-gMi+o/Cuj51cq2RxnvLAnmy3eOuyUHzzAycKeVIDJSyoPX7WGPq6Jy40Wv6w8IqV
-s9oBMikGYDvHtklBrEui9AO5vhro0rlUmVvwx4HD9pNLUFI8NjU0NNPzghYElU8i
-d5fA0PvGjY8lzvabZvM4mAcbFf9n1Wv6vdxCPSnZaxj7phyPb7GdsCgNkoEhxssw
-j+y8JjZJvb2Hyt2mPmwecmRt/UTrRwm8zJjEAaaGceuFd5q52+8jmLotQo3ljZdM
-91WHDJ1nPEAP2aVECnhRTpb4DAdfH4jAGqfFwKBUeUNGIwwN5H/7xTRZMrzSlbVx
-LUEqf9GsTpUEQHUTs1Dz56WrtUvxn5Kh91EC3ZjHFXbTuiJ75PuUsnWzambNhGQe
-zoMhP7vmz8HgY4aTFNDrJTsBYRw10saJhfD+tGIO+FkTpoazS0j6NKYvtociWYpT
-o9YmQM1ADZ4OTjJFpgFuMCfBXbZUYhNpwvcSeYAm5w/ljPSAA61K3vuL6TMu3ZhP
-/wEFmJnsJ1+UcsAW17bA0Mu3ZihJGkgpGPMOxReeaIMbIdQB8hw=
-=99Bu
------END PGP SIGNATURE-----
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 
---=-ZhLo4uiGTkHBM5nXZKab--
+--D
 
+>  			break;
+> +		}
+>  	} while ((count = iov_iter_count(iter)) > 0);
+>  	blk_finish_plug(&plug);
+>  
+> -- 
+> 2.16.4
+> 
