@@ -2,88 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B28E10531F
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 14:32:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3969A10534B
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 14:39:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726358AbfKUNcW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 08:32:22 -0500
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:41926 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726546AbfKUNcW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 08:32:22 -0500
-Received: by mail-wr1-f66.google.com with SMTP id b18so4401619wrj.8;
-        Thu, 21 Nov 2019 05:32:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id;
-        bh=+C/cs017OrqlyrW+ijapSly866aUVTUkDdweWrl6lFE=;
-        b=eYpeBUR8QAO1EAEZp+JARhcC6Wz+tdkK2dpTM8QAFn18v1PBrRBAoSxPNJNg1Oqs2N
-         P81KObUNS4ZjP3MhCpJHcwXHNMK3WydTf5ILGcCLYVfTwM6mbPkDfEDtS6X+VLConr8P
-         xiNkmSWRev6Ptm424zs55BDDz544q9oVrCEl2OAySET98SjgA7a3T7axjNKqqrv3sgLg
-         kXB/JlLlRQdTSg0xhCcrlcz2pSJzx/bQ3HHuJ6+KK/s8FJkOpFdVPXREISyO7SvD8Zeg
-         ePLeltpyddXJVzWcOvIrTCFS0FoBKJCh9tHXbBfQOEkV/RKupLEo4LnwEda2D2CK7s/G
-         yMTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id;
-        bh=+C/cs017OrqlyrW+ijapSly866aUVTUkDdweWrl6lFE=;
-        b=EkzgVI46OnSbyiLK4UlVxOj4OM061tkROOdqPAmxps0rjF8T8rH5BYxHmstyJnGAdt
-         kkv0xQi/g+1QaiacEoxhfQvQrT7AkDA2aCu/vtk0KgGZHPW7/wDfg4EDqMvWScRpwvto
-         EpGjSaVEhFxsrjjZXhXXwTodSZEU1r8uvwrFqA/9rIf9Aas8eX3diIb+/6GX5JjUZ0vG
-         IVdESiKpainZgw6lCGzH1bmGHs1RO+k4zWqr3QWS87t0BuATzePtTrjvE0Zlk4M0yp87
-         2ZVCsyBeCvN7xI2J9DILkhrcgciVEj/9TM6RNF1/WxPsGib1rHuYVROIUUiWCzKuL78F
-         Ws0w==
-X-Gm-Message-State: APjAAAXDRAkdOOb/YgrX1DOfg31PiuXirBZmZyM0k47oJbUf+sPvEJD1
-        1ZsUSfhZp3DPLVPkQghi/g8yGD0T
-X-Google-Smtp-Source: APXvYqxgWF5Wbj1AfbjM8EnG5GkwL4TW9/QfOscwNry6IPTsj+6uG1pih6CfGBhNznygbNEwOUi0JQ==
-X-Received: by 2002:a5d:51c8:: with SMTP id n8mr10632150wrv.302.1574343139817;
-        Thu, 21 Nov 2019 05:32:19 -0800 (PST)
-Received: from 640k.lan ([93.56.166.5])
-        by smtp.gmail.com with ESMTPSA id m25sm2703329wmi.46.2019.11.21.05.32.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 21 Nov 2019 05:32:19 -0800 (PST)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH] KVM: nVMX: expose "load IA32_PERF_GLOBAL_CTRL" controls
-Date:   Thu, 21 Nov 2019 14:32:18 +0100
-Message-Id: <1574343138-32015-1-git-send-email-pbonzini@redhat.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S1726676AbfKUNjV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 08:39:21 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59426 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726638AbfKUNjV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 08:39:21 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 78F5E1C1B7B; Thu, 21 Nov 2019 14:39:19 +0100 (CET)
+Date:   Thu, 21 Nov 2019 14:39:19 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 166/422] f2fs: fix memory leak of percpu counter in
+ fill_super()
+Message-ID: <20191121133918.GA15106@duo.ucw.cz>
+References: <20191119051400.261610025@linuxfoundation.org>
+ <20191119051409.193853097@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="mP3DRpeJDSE+ciuQ"
+Content-Disposition: inline
+In-Reply-To: <20191119051409.193853097@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These controls have always been supported (or at least have been
-supported for longer than nested_vmx_setup_ctls_msrs has existed),
-so we should advertise them to userspace.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- arch/x86/kvm/vmx/nested.c | 2 ++
- 1 file changed, 2 insertions(+)
+--mP3DRpeJDSE+ciuQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 4aea7d304beb..4b4ce6a804ff 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5982,6 +5982,7 @@ void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps,
- #ifdef CONFIG_X86_64
- 		VM_EXIT_HOST_ADDR_SPACE_SIZE |
- #endif
-+		VM_EXIT_LOAD_IA32_PERF_GLOBAL_CTRL |
- 		VM_EXIT_LOAD_IA32_PAT | VM_EXIT_SAVE_IA32_PAT;
- 	msrs->exit_ctls_high |=
- 		VM_EXIT_ALWAYSON_WITHOUT_TRUE_MSR |
-@@ -6001,6 +6002,7 @@ void nested_vmx_setup_ctls_msrs(struct nested_vmx_msrs *msrs, u32 ept_caps,
- #ifdef CONFIG_X86_64
- 		VM_ENTRY_IA32E_MODE |
- #endif
-+		VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL |
- 		VM_ENTRY_LOAD_IA32_PAT;
- 	msrs->entry_ctls_high |=
- 		(VM_ENTRY_ALWAYSON_WITHOUT_TRUE_MSR | VM_ENTRY_LOAD_IA32_EFER);
--- 
-1.8.3.1
+Hi!
 
+> From: Chao Yu <yuchao0@huawei.com>
+>=20
+> [ Upstream commit 4a70e255449c9a13eed7a6eeecc85a1ea63cef76 ]
+>=20
+> In fill_super -> init_percpu_info, we should destroy percpu counter
+> in error path, otherwise memory allcoated for percpu counter will
+> leak.
+
+> diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+> index 58931d55dc1d2..c5d28e92d146e 100644
+> --- a/fs/f2fs/super.c
+> +++ b/fs/f2fs/super.c
+> @@ -2516,8 +2516,12 @@ static int init_percpu_info(struct f2fs_sb_info *s=
+bi)
+>  	if (err)
+>  		return err;
+> =20
+> -	return percpu_counter_init(&sbi->total_valid_inode_count, 0,
+> +	err =3D percpu_counter_init(&sbi->total_valid_inode_count, 0,
+>  								GFP_KERNEL);
+> +	if (err)
+> +		percpu_counter_destroy(&sbi->alloc_valid_block_count);
+> +
+> +	return err;
+>  }
+
+Are you sure this is good idea? Normally when _init() fails, the thing
+is not allocated, and there is nothing to destroy...
+
+If you are right, there's same bug in fs/xfs/xfs_buf.c .
+
+Best regards,
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
+
+--mP3DRpeJDSE+ciuQ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXdaThgAKCRAw5/Bqldv6
+8tH8AJ0Ruqu80UgKnnneJwc+YmADySjjqgCfQmZgg+xyO9X/oIf4LYnYdhp+5Mg=
+=dWS4
+-----END PGP SIGNATURE-----
+
+--mP3DRpeJDSE+ciuQ--
