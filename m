@@ -2,61 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA2F7104CCA
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 08:45:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E2D2104CE4
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 08:47:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726408AbfKUHpf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 02:45:35 -0500
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:47053 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726265AbfKUHpf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 02:45:35 -0500
-Received: by mail-pl1-f195.google.com with SMTP id l4so1166675plt.13
-        for <stable@vger.kernel.org>; Wed, 20 Nov 2019 23:45:34 -0800 (PST)
+        id S1726762AbfKUHrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 02:47:31 -0500
+Received: from mail-pj1-f67.google.com ([209.85.216.67]:37161 "EHLO
+        mail-pj1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726437AbfKUHrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 02:47:31 -0500
+Received: by mail-pj1-f67.google.com with SMTP id f3so1094748pjg.4;
+        Wed, 20 Nov 2019 23:47:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:subject:message-id:mime-version:content-disposition
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
          :user-agent;
         bh=bPzli0UbnIkOuw3Obh9ByfekwddOHEm4S9pnT6dhJAw=;
-        b=qeVdompd7MsyOrNmmhkKOQfjDUIOutiTZSWetVdJtQGNSAW9QVmGT5Abg172zxsLc+
-         mdRBlcIOCbJDfeLjbbxrHgOoWvKxFXcLYPTOErYdwfTqLQQ7iECkSEOR8tiL0ZgNfGsQ
-         c7GmWYygqY+dlpiviMOmtl2rRbAh93UEQqGNgs3YkccEJnXlWvZPkJgvDWfsLHPekgI7
-         343L2MT/9V+VEoJ9cpjWLs7rHxU1B7/+zkBfdrDnEvlq5l5lLBJ4eo8Io8k8z9Zoxad4
-         OVodCvslR0oETSjknoVIAJDB160A9DgK4jigPn+wI/qU8Syxcm5uAu7kGEo2v6cKTuiF
-         czbg==
+        b=fiYcxH6U0LxbtGZxga3o8u5x20JnP+ppgJdVTAfnkK9kn2X/XzwWAHbyq5JzJ1nGxv
+         KFAJSnZKm8uZyYQDe81yPlfKl2UkeJEGl1AA4mDvxT5raq1J+zU8gwKT0rdCiiacRaGa
+         pASYPbuFQ320DGsYaviIK5Jr771oSniNrEbkgOvG7YOZXm4jwGpilriveKcngGJK8mon
+         i95fzCdgJU1blqz0LuQ9Vk8HNlutNWCiKegu6B3xeNQviYrCTEiKVo3O/eQeo6xA1HRt
+         PEONxO8+ktmhqr0eZrZHOd2bhlnKaBZegGUAukUm1saGnF2YMOhA430KIfLBhW+NXHBj
+         EyOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:subject:message-id:mime-version
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
          :content-disposition:user-agent;
         bh=bPzli0UbnIkOuw3Obh9ByfekwddOHEm4S9pnT6dhJAw=;
-        b=jphx5m2g7U0v24LEMyFL3mHX/xI7JQpwfMi8FVveP2bLod7dZ9bj4kJLlvnsI6FWzE
-         l0g0vqg5l90aCgPkJjNZx05bxN201OHP2CoGwq0UmU2d6fUw/GtPAfLYdsQj2Z3InuXu
-         hNrzYbCGqSVQwQJ78hQPUZECbn4s+43T3NJqp8m/BThHbqa5N7MCeT7bheeaCIUxxC6B
-         zV76cEpq/ZN5LGjOU8IaB0N/0OaGCF/apwBxqYOKpBLFV2V1Po9UoeYSs1K3fTkko/0g
-         S49lP5Qh8Z/pDS285hpCFezdzIQsv6azBwtbQrXGFB4gMPYSQOsjkXVmOZWfNsjnaaRu
-         qrrA==
-X-Gm-Message-State: APjAAAV5LHEAFcM5RqUK7jeqXy0Iq8hDFCDqNRtn20FlmZmHddxsFxT/
-        AwVx/+is2EJa0roMBthM/5KjuVGv
-X-Google-Smtp-Source: APXvYqzRVpHcfCB3hzpPLnq8R2HrUYmriEvr21kF9A/BBuR7jVGhWHMwM1jaAYgo78pg36KxFSCz1Q==
-X-Received: by 2002:a17:902:d70a:: with SMTP id w10mr7426861ply.279.1574322334279;
-        Wed, 20 Nov 2019 23:45:34 -0800 (PST)
+        b=aofMssRGhuXG2sgZ84/Ff3gB/3HDWRtCPNd6d1O9RBokTaXNncAk0VhykpMFXIl+hd
+         YKATozw+QaxBa8H2hKuTDljr4tgNLKfEfw44TX+hlbcYRdbWC3lvfqWjfUS03H6fmgVq
+         +LPBrTtFvgNVTBcST28hKZCkhf3SPqjSgLTDc1NrSDjCOcSRsW6UbWNT70iDjayjnDbX
+         lry2k8QYoil2PlsQTAcbYRNzn5Kxh7c/ItdGuXk2o/QEsgcOWCkXeO9RXHxFho2VpY+N
+         CRHzLaeKkOlU7shsRpBukzaNpwNf1RD7er6WTeiV0BpH/MKThowfZOiFvN6xOLYCW+RL
+         6obw==
+X-Gm-Message-State: APjAAAWcQ5v2PlXdhaeS8NkO8Tt6wJbqe54Xkr86RKHhHE+074mBkbZt
+        6+ZFJ6odXs/2qK00CJLFj0RM0BNV
+X-Google-Smtp-Source: APXvYqzA4wKcUaP3fSi0u49yfp0Cu1bVQg+vavVdmm0K5SRY2Yu7k3JEDUOmxc17MPSHJGg3pGlvhA==
+X-Received: by 2002:a17:902:76cb:: with SMTP id j11mr7070605plt.50.1574322450729;
+        Wed, 20 Nov 2019 23:47:30 -0800 (PST)
 Received: from udknight.localhost ([183.250.89.86])
-        by smtp.gmail.com with ESMTPSA id c9sm1943811pfb.114.2019.11.20.23.45.32
-        for <stable@vger.kernel.org>
+        by smtp.gmail.com with ESMTPSA id t27sm2118278pfq.169.2019.11.20.23.47.29
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 20 Nov 2019 23:45:33 -0800 (PST)
+        Wed, 20 Nov 2019 23:47:30 -0800 (PST)
 Received: from udknight.localhost (localhost [127.0.0.1])
-        by udknight.localhost (8.14.9/8.14.4) with ESMTP id xAL7jTAb015461
-        for <stable@vger.kernel.org>; Thu, 21 Nov 2019 15:45:29 +0800
+        by udknight.localhost (8.14.9/8.14.4) with ESMTP id xAL7lQeW015510;
+        Thu, 21 Nov 2019 15:47:26 +0800
 Received: (from root@localhost)
-        by udknight.localhost (8.14.9/8.14.9/Submit) id xAL7jTpt015460
-        for stable@vger.kernel.org; Thu, 21 Nov 2019 15:45:29 +0800
-Date:   Thu, 21 Nov 2019 15:45:29 +0800
+        by udknight.localhost (8.14.9/8.14.9/Submit) id xAL7lP2k015509;
+        Thu, 21 Nov 2019 15:47:25 +0800
+Date:   Thu, 21 Nov 2019 15:47:25 +0800
 From:   Wang YanQing <udknight@gmail.com>
 To:     stable@vger.kernel.org
+Cc:     stephen@networkplumber.org, ast@kernel.org, songliubraving@fb.com,
+        yhs@fb.com, daniel@iogearbox.net, itugrok@yahoo.com,
+        bpf@vger.kernel.org
 Subject: [PATCH] bpf, x32: Fix bug with ALU64 {LSH, RSH, ARSH} BPF_K shift by
  0
-Message-ID: <20191121074529.GD15326@udknight>
+Message-ID: <20191121074725.GA15476@udknight>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
