@@ -2,95 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC81105995
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 19:32:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B652105998
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 19:33:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726333AbfKUScM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 13:32:12 -0500
-Received: from a27-56.smtp-out.us-west-2.amazonses.com ([54.240.27.56]:38258
-        "EHLO a27-56.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726293AbfKUScM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 13:32:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1574361131;
-        h=Content-Type:MIME-Version:Content-Transfer-Encoding:Subject:From:In-Reply-To:References:To:Cc:Message-Id:Date;
-        bh=UZWfLHNZyjo0uxwd7HGUaUTR2svfAG+XtuRNNAaT300=;
-        b=GP2f+3zMBdpTBBeNR1WATr6BqUVRtSmV7tgsRy4QEXFz6jkXTDbhaRgutLMi+Ht1
-        zb1w/2/RdMgJ9qx48vch4K6M2IKlVLz1D9XSOykvof3xzIIfRqmI6p+yyx7EYepFtou
-        NwvAJeqYfMfrv3BSbyrYf1XsIGrdWu7X1pTe01RI=
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
-        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1574361131;
-        h=Content-Type:MIME-Version:Content-Transfer-Encoding:Subject:From:In-Reply-To:References:To:Cc:Message-Id:Date:Feedback-ID;
-        bh=UZWfLHNZyjo0uxwd7HGUaUTR2svfAG+XtuRNNAaT300=;
-        b=f2H378RPRWUdlnU3vkDTGbjzRxggnhllWj2zF6HnfqxoY9rhYgIiZKBme3dqSxiF
-        eFO02A+w0Tk0zVTdfj+g4s+pnasnFMOKV03LmiGBvV4vE+UNUsEmwPguTfXzqAPDhcq
-        m335ppLW3s2JicL86x8IC2f12xOBdGVRf8uwj54w=
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
-        MISSING_MID,SPF_NONE,URIBL_BLOCKED autolearn=no autolearn_force=no
-        version=3.4.0
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 6000CC447A9
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+        id S1726948AbfKUSdP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 13:33:15 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:46664 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726293AbfKUSdP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 13:33:15 -0500
+Received: by mail-wr1-f65.google.com with SMTP id z7so2259161wrl.13
+        for <stable@vger.kernel.org>; Thu, 21 Nov 2019 10:33:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=LHYtqgJReqi5AMPtBpDUdsHGFliKXRAhQSsOuZKrVDg=;
+        b=JB5ep7AEzk2ubUfKyIfU3/AxnK8eqhgp87mYFwk2jZ+5UrKZLkA9C1II6ZCFE+cde7
+         Q67zO77q5Snd3/VoXgIUqs4B7sziQ7Q8+YbqdWRMqQCIROGK/Kfs+FAkGBxObzHEf1zV
+         NOkq5+AfvOxW6IjQic+q+tTzrHlX5Gt30YMCLE88h3m2wVrzDbaOpGAcglCBnb14rNdR
+         ZMMCMbkh9So/ugA6W29IhKqNPFzqIqXmXTT7a20Nh8fhMiCdsLh1YSpKrsJ9S0AUfDr5
+         y9KXTqzppxGr8xRCl9/oHqyo7KtE+oUq68HFYSumWUWWuGGmlR8izFRVXupOTUTPlW4n
+         EPcg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=LHYtqgJReqi5AMPtBpDUdsHGFliKXRAhQSsOuZKrVDg=;
+        b=etVWAABfkCtp7CtGy3o1ik3rQiEhTF8Xu8xERGFcGGgdhkFk/1Y6P/Yxbh7/XJ7vfH
+         il7P9nDlYpd8JqwnZrtiahPLikr6StnHatz9q9XcGQ4ln82ylVAs3pBZQcmyO+G1nLs3
+         ID/9f6Es/8USCWbCl8BmEYmjPbdahcRzbH2Af3hSUmNWU6LFMDxVWYCpz3EWsj5pzlmP
+         NZroIPlyh5NWKIeHPGb6arD4LI6uWqHO2kK9OHP/Rgts2MrWOI9YaBs3DDr9RDJdF7g6
+         +Tzdg+q0B4EbEbh1ba8U5F0nwbm1M5u/JwSoveYJiURpq6rBaQS6pNaHQD9MjcsW/aJz
+         UXTA==
+X-Gm-Message-State: APjAAAW/JjyoBrpuCsJcunsRsvqrWVRH33jjn435zYsfCSNKBx5YhtdD
+        OBhTC3ob6JotmJuTRy29ZtAlxUDkfEvpjw==
+X-Google-Smtp-Source: APXvYqwKy6wLAuyj0JsqbiFvl4iSE6oWT5iolEwbhpnk8gnJUMEhdqWc2iSbvfsGOKbz2P1VZ6kLew==
+X-Received: by 2002:a5d:51c9:: with SMTP id n9mr13377787wrv.6.1574361193043;
+        Thu, 21 Nov 2019 10:33:13 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id m3sm4171945wrw.20.2019.11.21.10.33.12
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Nov 2019 10:33:12 -0800 (PST)
+Message-ID: <5dd6d868.1c69fb81.7ee5f.51ae@mx.google.com>
+Date:   Thu, 21 Nov 2019 10:33:12 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH] iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif
- to Rx queues
-From:   Kalle Valo <kvalo@codeaurora.org>
-In-Reply-To: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
-References: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
-To:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Cc:     linux-wireless@vger.kernel.org, luciano.coelho@intel.com,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        stable@vger.kernel.org
-User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
-Message-ID: <0101016e8f3c686f-049c8c20-4974-4fcd-a0bc-3081de94e65b-000000@us-west-2.amazonses.com>
-Date:   Thu, 21 Nov 2019 18:32:11 +0000
-X-SES-Outgoing: 2019.11.21-54.240.27.56
-Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.85
+Subject: stable-rc/linux-4.19.y boot: 136 boots: 3 failed,
+ 128 passed with 5 offline (v4.19.85)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Emmanuel Grumbach <emmanuel.grumbach@intel.com> wrote:
+stable-rc/linux-4.19.y boot: 136 boots: 3 failed, 128 passed with 5 offline=
+ (v4.19.85)
 
-> The purpose of this was to keep all the queues updated with
-> the Rx sequence numbers because unlikely yet possible
-> situations where queues can't understand if a specific
-> packet needs to be dropped or not.
-> 
-> Unfortunately, it was reported that this caused issues in
-> our DMA engine. We don't fully understand how this is related,
-> but this is being currently debugged. For now, just don't send
-> this notification to the Rx queues. This de-facto reverts my
-> commit 3c514bf831ac12356b695ff054bef641b9e99593:
-> 
-> iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
-> 
-> This issue was reported here:
-> https://bugzilla.kernel.org/show_bug.cgi?id=204873
-> https://bugzilla.kernel.org/show_bug.cgi?id=205001
-> and others maybe.
-> 
-> Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
-> CC: <stable@vger.kernel.org> # 5.3+
-> Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.85/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.85/
 
-New warning:
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.85
+Git Commit: c63ee2939dc1c6eee6c544af1b4ab441490bfe6e
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 78 unique boards, 24 SoC families, 15 builds out of 206
 
-drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c: In function 'iwl_mvm_sync_nssn':
-drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c:517:32: warning: unused variable 'notif' [-Wunused-variable]
-  struct iwl_mvm_rss_sync_notif notif = {
-                                ^~~~~
+Boot Regressions Detected:
 
-Patch set to Changes Requested.
+arm:
 
--- 
-https://patchwork.kernel.org/patch/11253817/
+    exynos_defconfig:
+        gcc-8:
+          exynos4412-odroidx2:
+              lab-collabora: failing since 2 days (last pass: v4.19.84 - fi=
+rst fail: v4.19.84-423-g1b1960cc7ceb)
 
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
+Boot Failures Detected:
 
+arm:
+    exynos_defconfig:
+        gcc-8:
+            exynos4412-odroidx2: 1 failed lab
+            exynos5422-odroidxu3: 2 failed labs
+
+Offline Platforms:
+
+arm:
+
+    sunxi_defconfig:
+        gcc-8
+            sun7i-a20-bananapi: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+            mt7623n-bananapi-bpi-r2: 1 offline lab
+            sun7i-a20-bananapi: 1 offline lab
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
