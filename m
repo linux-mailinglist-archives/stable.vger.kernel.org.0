@@ -2,49 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC83D105B2D
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 21:35:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0CB5105B2F
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 21:35:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726563AbfKUUfQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 15:35:16 -0500
-Received: from Chamillionaire.breakpoint.cc ([193.142.43.52]:56004 "EHLO
-        Chamillionaire.breakpoint.cc" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726722AbfKUUfQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 15:35:16 -0500
-Received: from fw by Chamillionaire.breakpoint.cc with local (Exim 4.92)
-        (envelope-from <fw@strlen.de>)
-        id 1iXtAX-0007QM-OX; Thu, 21 Nov 2019 21:35:13 +0100
-Date:   Thu, 21 Nov 2019 21:35:13 +0100
-From:   Florian Westphal <fw@strlen.de>
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 233/422] netfilter: nf_tables: avoid BUG_ON usage
-Message-ID: <20191121203513.GJ20235@breakpoint.cc>
-References: <20191119051400.261610025@linuxfoundation.org>
- <20191119051414.205983228@linuxfoundation.org>
- <20191121201618.GB15106@duo.ucw.cz>
+        id S1726676AbfKUUf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 15:35:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53210 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726546AbfKUUf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Nov 2019 15:35:57 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9F442067D;
+        Thu, 21 Nov 2019 20:35:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574368557;
+        bh=EBEuWEXiND5r+hzvfssTP/k6Pzy7IzSaEwfFoMMhtG4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hTLafm0tmhYvG24r+oqQKAppv2cnWeGr379P8zg4tUDualXOU7iS51eNapOndq0w5
+         rmJSK96IY+YHN360Q0l6q5Vqqc7aZxD9hJlRiCPZokZB8pnIbWJ3pUtkM4uJL56bDt
+         3yhtdxUuCoQuhiBhQ3ZFobG2pvbcigDuiZGOqsp0=
+Date:   Thu, 21 Nov 2019 21:35:55 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: Re: [stable 4.19+][PATCH 01/20] i2c: stm32f7: fix first byte to send
+ in slave mode
+Message-ID: <20191121203555.GC813260@kroah.com>
+References: <20191115223356.27675-1-mathieu.poirier@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191121201618.GB15106@duo.ucw.cz>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20191115223356.27675-1-mathieu.poirier@linaro.org>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Pavel Machek <pavel@denx.de> wrote:
-> This goes from "kill kernel with backtrace" to "silently return
-> failure". Should WARN_ON() be preserved here?
+On Fri, Nov 15, 2019 at 03:33:37PM -0700, Mathieu Poirier wrote:
+> From: Fabrice Gasnier <fabrice.gasnier@st.com>
+> 
+> commit 915da2b794ce4fc98b1acf64d64354f22a5e4931 upstream
 
-No need.  The error would propagate back to userspace via nfnetlink.
+That commit is not in Linus's tree :(
 
-So it would be 'running this command fails with error x' vs.
-'running this command makes kernel crash'.
+I'll stop here.  Please check all of these and resend the whole thing.
 
-That being said, I did not observe this BUG from triggering, ever.
-I only removed it because I did not see any reason for it.
+Also, does this series also apply fully to 5.3.y?
+
+thanks,
+
+greg k-h
