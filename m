@@ -2,100 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0A0A105AF5
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 21:16:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C25F5105B0C
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 21:21:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbfKUUQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 15:16:36 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:45956 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726293AbfKUUQg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 15:16:36 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 3697C1C1BCE; Thu, 21 Nov 2019 21:16:34 +0100 (CET)
-Date:   Thu, 21 Nov 2019 21:16:18 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 233/422] netfilter: nf_tables: avoid BUG_ON usage
-Message-ID: <20191121201618.GB15106@duo.ucw.cz>
-References: <20191119051400.261610025@linuxfoundation.org>
- <20191119051414.205983228@linuxfoundation.org>
+        id S1726293AbfKUUVI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 15:21:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40414 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726775AbfKUUVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 21 Nov 2019 15:21:08 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3746420672;
+        Thu, 21 Nov 2019 20:21:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574367666;
+        bh=HgxTSBNdBflEaa2mhxi0rIBzCeKSbmDGPn7oUaS9/jw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=qZETbOGrs6HkcD335esHHSk5upUtshvkNT3XL3+bGIsebnSyLJlSLxpba4mRB/6K/
+         hLPYK1DtXbTgqj1vvzIkvrNbQnIa3A49cQWA4U7zTTZV8xxorjSM+iFjuP4EmuL8/Z
+         OYyaXHKsDbOqTfUOoTkWf6lGFLp8DlnGQaPVn9Ro=
+Date:   Thu, 21 Nov 2019 21:21:04 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>
+Cc:     stable@vger.kernel.org, skhan@linuxfoundation.org,
+        linux-kernel-mentees@lists.linuxfoundation.org
+Subject: Re: Linux 5.3.12 BOOT TEST: Compiled, Booted, everything OK.
+Message-ID: <20191121202104.GA812038@kroah.com>
+References: <a02e01c5-635f-60c3-9d27-6c13abda8ffa@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="cvVnyQ+4j833TQvp"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191119051414.205983228@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <a02e01c5-635f-60c3-9d27-6c13abda8ffa@gmail.com>
+User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Nov 21, 2019 at 03:55:34PM -0300, Daniel W. S. Almeida wrote:
+> ~ 2hr uptime: no crashes, no new errors on dmesg, everything looks good.
 
---cvVnyQ+4j833TQvp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for testing.
 
-Hi!
+> *This pops up after diffing the output of kselftest though:*
+> 
+> < # ./reuseport_bpf: Unable to open tcp_fastopen sysctl for writing:
+> Permission denied
+> ---
+> > # ./reuseport_bpf: ebpf error. log:
+> > # 0: (bf) r6 = r1
+> > # 1: (20) r0 = *(u32 *)skb[0]
+> > # 2: (97) r0 %= 10
+> > # 3: (95) exit
+> > # processed 4 insns (limit 1000000) max_states_per_insn 0 total_states 0
+> peak_states 0 mark_read 0
+> > #
+> > # : Operation not permitted
+> 
+> I did not run kselftest as root. I assume it is nothing noteworthy?
 
-> From: Florian Westphal <fw@strlen.de>
->=20
-> [ Upstream commit fa5950e498e7face21a1761f327e6c1152f778c3 ]
->=20
-> None of these spots really needs to crash the kernel.
-> In one two cases we can jsut report error to userspace, in the other
-> cases we can just use WARN_ON (and leak memory instead).
+Is this a new issue, or has it always been there?
 
-Do these conditions trigger for someone, to warrant -stable patch?
+thanks,
 
-> +++ b/net/netfilter/nft_cmp.c
-> @@ -79,7 +79,8 @@ static int nft_cmp_init(const struct nft_ctx *ctx, cons=
-t struct nft_expr *expr,
-> =20
->  	err =3D nft_data_init(NULL, &priv->data, sizeof(priv->data), &desc,
->  			    tb[NFTA_CMP_DATA]);
-> -	BUG_ON(err < 0);
-> +	if (err < 0)
-> +		return err;
-> =20
->  	priv->sreg =3D nft_parse_register(tb[NFTA_CMP_SREG]);
->  	err =3D nft_validate_register_load(priv->sreg, desc.len);
-> @@ -129,7 +130,8 @@ static int nft_cmp_fast_init(const struct nft_ctx *ct=
-x,
-> =20
->  	err =3D nft_data_init(NULL, &data, sizeof(data), &desc,
->  			    tb[NFTA_CMP_DATA]);
-> -	BUG_ON(err < 0);
-> +	if (err < 0)
-> +		return err;
-> =20
->  	priv->sreg =3D nft_parse_register(tb[NFTA_CMP_SREG]);
->  	err =3D nft_validate_register_load(priv->sreg, desc.len);
-
-This goes from "kill kernel with backtrace" to "silently return
-failure". Should WARN_ON() be preserved here?
-
-Best regards,
-								Pavel
-							=09
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---cvVnyQ+4j833TQvp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCXdbwkgAKCRAw5/Bqldv6
-8l5qAKC9n9Z+1mVzS9IM9LaSttCq2lqVeACgp6Ckp2puBkyXe9dWOAY6omkyMYQ=
-=edJ9
------END PGP SIGNATURE-----
-
---cvVnyQ+4j833TQvp--
+greg k-h
