@@ -2,90 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88284105983
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 19:29:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC81105995
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 19:32:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726961AbfKUS3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 13:29:18 -0500
-Received: from mga18.intel.com ([134.134.136.126]:31604 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726279AbfKUS3S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 21 Nov 2019 13:29:18 -0500
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga106.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 21 Nov 2019 10:29:17 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.69,226,1571727600"; 
-   d="scan'208";a="381823367"
-Received: from tthayer-hp-z620.an.intel.com ([10.122.105.146])
-  by orsmga005.jf.intel.com with ESMTP; 21 Nov 2019 10:29:16 -0800
-From:   thor.thayer@linux.intel.com
-To:     bp@alien8.de, mchehab@kernel.org, tony.luck@intel.com,
-        james.morse@arm.com, rrichter@marvell.com
-Cc:     Meng.Li@windriver.com, linux-edac@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCHv2 1/3] EDAC/altera: Use fast register IO for S10 IRQs
-Date:   Thu, 21 Nov 2019 12:30:46 -0600
-Message-Id: <1574361048-17572-2-git-send-email-thor.thayer@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1574361048-17572-1-git-send-email-thor.thayer@linux.intel.com>
-References: <1574361048-17572-1-git-send-email-thor.thayer@linux.intel.com>
+        id S1726333AbfKUScM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 13:32:12 -0500
+Received: from a27-56.smtp-out.us-west-2.amazonses.com ([54.240.27.56]:38258
+        "EHLO a27-56.smtp-out.us-west-2.amazonses.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726293AbfKUScM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 13:32:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=zsmsymrwgfyinv5wlfyidntwsjeeldzt; d=codeaurora.org; t=1574361131;
+        h=Content-Type:MIME-Version:Content-Transfer-Encoding:Subject:From:In-Reply-To:References:To:Cc:Message-Id:Date;
+        bh=UZWfLHNZyjo0uxwd7HGUaUTR2svfAG+XtuRNNAaT300=;
+        b=GP2f+3zMBdpTBBeNR1WATr6BqUVRtSmV7tgsRy4QEXFz6jkXTDbhaRgutLMi+Ht1
+        zb1w/2/RdMgJ9qx48vch4K6M2IKlVLz1D9XSOykvof3xzIIfRqmI6p+yyx7EYepFtou
+        NwvAJeqYfMfrv3BSbyrYf1XsIGrdWu7X1pTe01RI=
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+        s=gdwg2y3kokkkj5a55z2ilkup5wp5hhxx; d=amazonses.com; t=1574361131;
+        h=Content-Type:MIME-Version:Content-Transfer-Encoding:Subject:From:In-Reply-To:References:To:Cc:Message-Id:Date:Feedback-ID;
+        bh=UZWfLHNZyjo0uxwd7HGUaUTR2svfAG+XtuRNNAaT300=;
+        b=f2H378RPRWUdlnU3vkDTGbjzRxggnhllWj2zF6HnfqxoY9rhYgIiZKBme3dqSxiF
+        eFO02A+w0Tk0zVTdfj+g4s+pnasnFMOKV03LmiGBvV4vE+UNUsEmwPguTfXzqAPDhcq
+        m335ppLW3s2JicL86x8IC2f12xOBdGVRf8uwj54w=
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=0.5 required=2.0 tests=ALL_TRUSTED,MISSING_DATE,
+        MISSING_MID,SPF_NONE,URIBL_BLOCKED autolearn=no autolearn_force=no
+        version=3.4.0
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 6000CC447A9
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=none smtp.mailfrom=kvalo@codeaurora.org
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH] iwlwifi: mvm: don't send the IWL_MVM_RXQ_NSSN_SYNC notif
+ to Rx queues
+From:   Kalle Valo <kvalo@codeaurora.org>
+In-Reply-To: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
+References: <20191120132628.30731-1-emmanuel.grumbach@intel.com>
+To:     Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Cc:     linux-wireless@vger.kernel.org, luciano.coelho@intel.com,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        stable@vger.kernel.org
+User-Agent: pwcli/0.0.0-git (https://github.com/kvalo/pwcli/) Python/2.7.12
+Message-ID: <0101016e8f3c686f-049c8c20-4974-4fcd-a0bc-3081de94e65b-000000@us-west-2.amazonses.com>
+Date:   Thu, 21 Nov 2019 18:32:11 +0000
+X-SES-Outgoing: 2019.11.21-54.240.27.56
+Feedback-ID: 1.us-west-2.CZuq2qbDmUIuT3qdvXlRHZZCpfZqZ4GtG9v3VKgRyF0=:AmazonSES
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+Emmanuel Grumbach <emmanuel.grumbach@intel.com> wrote:
 
-When an irq occurs in altera edac driver, regmap_xxx() is invoked
-in atomic context. Regmap must indicate register IO is fast so
-that a spinlock is used instead of a mutex to avoid sleeping
-in atomic context.
+> The purpose of this was to keep all the queues updated with
+> the Rx sequence numbers because unlikely yet possible
+> situations where queues can't understand if a specific
+> packet needs to be dropped or not.
+> 
+> Unfortunately, it was reported that this caused issues in
+> our DMA engine. We don't fully understand how this is related,
+> but this is being currently debugged. For now, just don't send
+> this notification to the Rx queues. This de-facto reverts my
+> commit 3c514bf831ac12356b695ff054bef641b9e99593:
+> 
+> iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues
+> 
+> This issue was reported here:
+> https://bugzilla.kernel.org/show_bug.cgi?id=204873
+> https://bugzilla.kernel.org/show_bug.cgi?id=205001
+> and others maybe.
+> 
+> Fixes: 3c514bf831ac ("iwlwifi: mvm: add a loose synchronization of the NSSN across Rx queues")
+> CC: <stable@vger.kernel.org> # 5.3+
+> Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-Fixes mutex-lock error
-   lock_acquire+0xfc/0x288
-   __mutex_lock+0x8c/0x808
-   mutex_lock_nested+0x3c/0x50
-   regmap_lock_mutex+0x24/0x30
-   regmap_write+0x40/0x78
-   a10_eccmgr_irq_unmask+0x34/0x40
-   unmask_irq.part.0+0x30/0x50
-   irq_enable+0x74/0x80
-   __irq_startup+0x80/0xa8
-   irq_startup+0x70/0x150
-   __setup_irq+0x650/0x6d0
-   request_threaded_irq+0xe4/0x180
-   devm_request_threaded_irq+0x7c/0xf0
-   altr_sdram_probe+0x2c4/0x600
-<snip>
+New warning:
 
-Upstream fix pending [1] (common code uses fast mode)
-[1] https://lkml.org/lkml/2019/11/7/1014
+drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c: In function 'iwl_mvm_sync_nssn':
+drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c:517:32: warning: unused variable 'notif' [-Wunused-variable]
+  struct iwl_mvm_rss_sync_notif notif = {
+                                ^~~~~
 
-Fixes: 3dab6bd52687 ("EDAC, altera: Add support for Stratix10 SDRAM EDAC")
-Cc: stable@vger.kernel.org
-Reported-by: Meng Li <Meng.Li@windriver.com>
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
----
-v2 Change Author to Meng Li & Reviewed-by: Thor Thayer
----
- drivers/edac/altera_edac.c | 1 +
- 1 file changed, 1 insertion(+)
+Patch set to Changes Requested.
 
-diff --git a/drivers/edac/altera_edac.c b/drivers/edac/altera_edac.c
-index fbda4b876afd..0be3d1b17f03 100644
---- a/drivers/edac/altera_edac.c
-+++ b/drivers/edac/altera_edac.c
-@@ -560,6 +560,7 @@ static const struct regmap_config s10_sdram_regmap_cfg = {
- 	.reg_write = s10_protected_reg_write,
- 	.use_single_read = true,
- 	.use_single_write = true,
-+	.fast_io = true,
- };
- 
- /************** </Stratix10 EDAC Memory Controller Functions> ***********/
 -- 
-2.7.4
+https://patchwork.kernel.org/patch/11253817/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
 
