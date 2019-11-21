@@ -2,104 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF5F3104735
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 01:03:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED509104746
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 01:10:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726574AbfKUADN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 20 Nov 2019 19:03:13 -0500
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:44726 "EHLO
+        id S1726230AbfKUAKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 20 Nov 2019 19:10:01 -0500
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:38525 "EHLO
         mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725878AbfKUADM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 19:03:12 -0500
-Received: by mail-wr1-f67.google.com with SMTP id i12so2069785wrn.11
-        for <stable@vger.kernel.org>; Wed, 20 Nov 2019 16:03:11 -0800 (PST)
+        with ESMTP id S1726293AbfKUAKB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 20 Nov 2019 19:10:01 -0500
+Received: by mail-wr1-f67.google.com with SMTP id i12so2135875wro.5
+        for <stable@vger.kernel.org>; Wed, 20 Nov 2019 16:09:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arista.com; s=googlenew;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iILqDiivRi8BjwupWA1etZi9HVAj+9a2PtQFD00PqHE=;
-        b=MbK1bl7YJkp3/vdJhrEg3CI8GOjQmhwVc2X423eHVIUCovz8pqRBXuFIRniAvdK0ZP
-         l0HQKajC9oTXwaP56P+6bdjbqyxTEVIhvK4v21SAU3v1nudd+89rzss8bIcVFrmKbNsD
-         rtQwpe6mI5135UJhd6gYLC64cgQa4KF3b5rRdO/F6UJ4ZMK7XbEX8RL3GxAHpULMXoMG
-         MH4OwxiNbOszQXwEFSEtwPz6x3spiiiLLrmvhVIqAVMc/COuMdrtb/xkYmUzOwCUVhG1
-         Ij/aMz3kBkq0+o6Rdk/HpUk5jVuzDa59EjlzCb0HakzaW5HhAgJdz+57VYXTB9VQbmC/
-         6VEQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=K2XbJErydaaHbY9ztKeJEU7v7GWgOtXIGrmGSVTLtzQ=;
+        b=UC1uD1fV+2K6cU8/0/wm/2bARBLXHn742Sfhwz+KezPBAMcfXkqvU83ag3BA1ZDGDd
+         Cr4sb208TS7YGoUJEUVBUkMEYTbjH0hq2co70BCP5o9XnNnUXJyTq7tPlxwUYgaLQR8e
+         9rwoA6I1s7Hx82k9sbMXAUazB/khZOSl/SCdTc64sDWHTjdRkkj5Giiq5NJ7BQOW01Fx
+         lUpxdX8I9uwdyBg0NmwhA5NR71zAFHxR4aB8dtVLeeGuYy43hAnwGvY5AJIHLyqZ2Uhf
+         WGvLyy0HGV7qFIspn6F0bzxxMwmNrCongoWfxVIZwgpMOLR+XeiLPDqjQZ1vxfN3woFH
+         f+kA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=iILqDiivRi8BjwupWA1etZi9HVAj+9a2PtQFD00PqHE=;
-        b=m5NTnienGlkVgnU+gOLj85nred5ccZvL8yjcf/0cPNY7q9Qzi36e6rYtT8x6AN/OJA
-         S064cWm4vPS19DNOmkIvm79Av1YnT1lcgQSD6x2yHSSsloB+t9ZD9xFQ9KUO38CuZ0ZJ
-         BvsQyzKczYH39VdaFIri6485bIL6MzjA/2UB4DvsF3BQdfI0aub40V+vTZSZu9dyBlZN
-         +hGNeVEYMxEoxrNqxu0Y/MJ0lw0iCK/o1PRLVt15zMYeDxq51XPUw0AmfZxiX4W7YXWm
-         kR+osWr3kovUB0jHNKMmzW4JSLtdYGJhix+bn4QAKSr5gSkec58FTzaiX8iZOjg7vbsz
-         f50g==
-X-Gm-Message-State: APjAAAUcliX46zsgPhdc4DmOwDNCZCRsBGCUawhVyAo9LNSCA3Dx7SqL
-        OCzwX+X1HVZZaUuGZ/KEd5beew==
-X-Google-Smtp-Source: APXvYqyutfd/TDTPhcdy9nLeIRZoQyJ/7YXhGyry4x9pmPK1r39zEU9x1yFFqtERynEbCqt6WuM8MQ==
-X-Received: by 2002:adf:ee92:: with SMTP id b18mr7224710wro.346.1574294590222;
-        Wed, 20 Nov 2019 16:03:10 -0800 (PST)
-Received: from Mindolluin.ire.aristanetworks.com ([217.173.96.166])
-        by smtp.gmail.com with ESMTPSA id 17sm949900wmg.19.2019.11.20.16.03.09
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=K2XbJErydaaHbY9ztKeJEU7v7GWgOtXIGrmGSVTLtzQ=;
+        b=oSij4kE/p0lUBuHzvkoIEmsIX4QfefrO9XBwMWUPjI2ctbvbYlnwYyZ6qwtrFlMNrv
+         thvTH9IhE7BwlBrkx4hL8BawX5a8+eSq+tcKIxzlhxZhS+s78UJm1Y3KWcZ8KHQ8SlQG
+         es1svcrZoyA5qZAcxHzNH1p0KR8r6swnfA9cBRJlBI6eZexBy+3K01SVYemK5dqVPhtb
+         53Zs4MvhJN2gCVA1UNSa2GN2GrXiijW9cbjPm+h11kSBtwuXYc1APd5MfMIG5RdPlXuP
+         RidRbYYSe35nt6ALvcaQfMiH8uJoZzz+ySTeI3B1R8af+JUq5NtRy8G0MGGm0QOSJ9/z
+         olYg==
+X-Gm-Message-State: APjAAAWeMhAlsfUOdPFnQVKPbdUG3gJRWRsZW32pnp5IOyJmC8L/Gqun
+        eKsEJBPya78vXGlNPsTiG3ldRhMJLLpIGQ==
+X-Google-Smtp-Source: APXvYqzO2oH+T+hfFxN6nuIcjiJ39/0J3vFV8YKQaagkvIpnSaiCLhU32VHAXEA5KWZvtj9ZG9OJnw==
+X-Received: by 2002:a5d:694d:: with SMTP id r13mr6636116wrw.395.1574294998856;
+        Wed, 20 Nov 2019 16:09:58 -0800 (PST)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id j2sm1069148wrt.61.2019.11.20.16.09.57
+        for <stable@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Nov 2019 16:03:09 -0800 (PST)
-From:   Dmitry Safonov <dima@arista.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Dmitry Safonov <0x7f454c46@gmail.com>,
-        Dmitry Safonov <dima@arista.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>, y2038@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: [PATCH] time: Zerofy padding in __kernel_timespec on 32-bit
-Date:   Thu, 21 Nov 2019 00:03:03 +0000
-Message-Id: <20191121000303.126523-1-dima@arista.com>
-X-Mailer: git-send-email 2.24.0
+        Wed, 20 Nov 2019 16:09:57 -0800 (PST)
+Message-ID: <5dd5d5d5.1c69fb81.4d0fc.5adf@mx.google.com>
+Date:   Wed, 20 Nov 2019 16:09:57 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.155
+Subject: stable/linux-4.14.y boot: 67 boots: 4 failed, 63 passed (v4.14.155)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On compat interfaces, the high order bits of nanoseconds should
-be zeroed out. This is because the application code or the libc
-do not guarantee zeroing of these. If used without zeroing,
-kernel might be at risk of using timespec values incorrectly.
+stable/linux-4.14.y boot: 67 boots: 4 failed, 63 passed (v4.14.155)
 
-Originally it was handled correctly, but lost during is_compat_syscall()
-cleanup. Revert the condition back to check CONFIG_64BIT.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.155/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.155/
 
-Reported-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Fixes: 98f76206b335 ("compat: Cleanup in_compat_syscall() callers")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: y2038@lists.linaro.org
-Cc: stable@vger.kernel.org # v4.20+
-Signed-off-by: Dmitry Safonov <dima@arista.com>
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.155
+Git Commit: f56f3d0e65adb447b8b583c8ed4fbbe544c9bfde
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 38 unique boards, 15 SoC families, 10 builds out of 201
+
+Boot Regressions Detected:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8:
+          exynos4412-odroidx2:
+              lab-collabora: new failure (last pass: v4.14.154)
+          exynos5422-odroidxu3:
+              lab-collabora: new failure (last pass: v4.14.154)
+              lab-baylibre: new failure (last pass: v4.14.154)
+
+Boot Failures Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-q200: 1 failed lab
+
+arm:
+    exynos_defconfig:
+        gcc-8:
+            exynos4412-odroidx2: 1 failed lab
+            exynos5422-odroidxu3: 2 failed labs
+
 ---
- kernel/time/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/kernel/time/time.c b/kernel/time/time.c
-index 5c54ca632d08..1cb045c5c97e 100644
---- a/kernel/time/time.c
-+++ b/kernel/time/time.c
-@@ -881,7 +881,7 @@ int get_timespec64(struct timespec64 *ts,
- 	ts->tv_sec = kts.tv_sec;
- 
- 	/* Zero out the padding for 32 bit systems or in compat mode */
--	if (IS_ENABLED(CONFIG_64BIT_TIME) && in_compat_syscall())
-+	if (IS_ENABLED(CONFIG_64BIT_TIME) && (!IS_ENABLED(CONFIG_64BIT) || in_compat_syscall()))
- 		kts.tv_nsec &= 0xFFFFFFFFUL;
- 
- 	ts->tv_nsec = kts.tv_nsec;
--- 
-2.24.0
-
+For more info write to <info@kernelci.org>
