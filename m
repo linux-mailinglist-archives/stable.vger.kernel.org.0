@@ -2,91 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47EBF1058CB
-	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 18:50:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7641C1058D4
+	for <lists+stable@lfdr.de>; Thu, 21 Nov 2019 18:53:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726333AbfKURuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 21 Nov 2019 12:50:05 -0500
-Received: from out1-smtp.messagingengine.com ([66.111.4.25]:35893 "EHLO
+        id S1726279AbfKURx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 21 Nov 2019 12:53:29 -0500
+Received: from out1-smtp.messagingengine.com ([66.111.4.25]:49069 "EHLO
         out1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726279AbfKURuF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 12:50:05 -0500
+        by vger.kernel.org with ESMTP id S1726568AbfKURx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 21 Nov 2019 12:53:29 -0500
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 9736822716;
-        Thu, 21 Nov 2019 12:50:04 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 21 Nov 2019 12:50:04 -0500
+        by mailout.nyi.internal (Postfix) with ESMTP id 7890422469;
+        Thu, 21 Nov 2019 12:53:28 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 21 Nov 2019 12:53:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
         date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=oM+Oc5aGWuWFWH/DjEDqWU7Hek4
-        C7Ywv02tmN1aTL3Y=; b=CUm18/XmeQ6ZZFjaGCSIbl7OSqF4duemGsTqJCd0haq
-        1SN2MZBbBrOTs5WblThP7IrW+V7ea16csRsYlNVp87u/67z2hzRj4/f4OTGj1o3E
-        RBEq70i2Sp41a7LgXiw31vAzkyaJEWJnDjx4MLyNufzV2exRPpbw44cfYjCOX9ql
-        r//58H2rbM91uOtuZUDCl46WnzBAaQsVaqHF+VjGZhOBlLD8xqfrbrIqj4PCYnJt
-        FuHKD1vXKuA9plehxT0znIw8rr+YBIEPJIoBskGOc6F0Mm0gOoz974SZNy3nLANE
-        7dwUA7uZ5/17w9lCYAprO7ry7cNzQIxCdoo5VUBGWxg==
+        :content-type:content-transfer-encoding:in-reply-to; s=fm2; bh=N
+        AEmnfDLUP/DueEFDmZwyPS9pgpcvLGf7F8mdIJ+CW8=; b=N/xl9Rk0DX4YmymoC
+        M1WmbMjb/MCBgevGg83zIRoVFnfpWyev4GR4CYEcViVXUL8Dmi6pqmmPo8jxuhfk
+        gM4GfeLEk6s+4G2MGxV+UtgSMVQUJeft6w0SgQV46BbQz0z/I9adJG68Nn7wLJzd
+        Ew+c4CFAbf7LgopwwFdF+LzKQMFHU7/z1XinoyMVNCyDLsWG1uelGQLrhHaB/MED
+        t/X5sqUxVYLpvXPlmsNFLo7qojuMkee3tzH+CXNeFrU5JvFHJVksEY77vRRQtA2A
+        VY/qTp5Cg7kiZ7HWgSVtUlLjXkKj2jAOk1th693kobV5DvGb0I9h+cn1SyN53703
+        msSQg==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=oM+Oc5
-        aGWuWFWH/DjEDqWU7Hek4C7Ywv02tmN1aTL3Y=; b=x9FHoPLw1RDiJmuqBcYvUU
-        oGZ6zbH3ChSk4wxg1xn5ElkqzPxiDDf5s3ZY8hsl3TI4JG5DPbtdsJkhs5f6PLKS
-        AHylHneUbvxDpW40m9VKcx+oBiwY+h9PTj5kFAcX6jkMb49DWYvyxv8a0MIiyWgw
-        AjIbAzRptS6zjCzX6qBw+etFACNjineS8k9MRxiE103ZUZ0we9mbjLGqdWU+IhU7
-        uSPLE9OydQ++JyeEsd4YWIWN9QT0G20BeWsKrHVho5AZlmlTWMJ9M1HrllNy2wq+
-        pIWljhT7hhMPXF/59xpePIslgFjc+sG+0X1sMNtmK/+AZwWZzBSdcQja8koQ4+/A
-        ==
-X-ME-Sender: <xms:TM7WXRlkNHJeUHKfTYlUp9FqTzCGvGJRlcWIoeNkO5rccl1mjEG9oQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudehvddguddtjecutefuodetggdotefrod
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm1; bh=NAEmnfDLUP/DueEFDmZwyPS9pgpcvLGf7F8mdIJ+C
+        W8=; b=wuPr5a+zJiOf26soMbNgboPO9sYPzmhckI2n2AH9oUGzLCPnoYWsoQeR7
+        NNNW+joDGHFXXa4AehC5L5s1axd9vhFyqQ+ds4Ar+k3PP3qXCEvyqGmt2tRyAp1F
+        uDdakDi+FNI88RVvlEwJAMWBtk86RSohs9q2MRvEtkgZtUWdxsg59SnJ9JwQw9Ku
+        lycKyUGN9D1SYUXIRAaa3UUXHr/P8ytHB4ucGbmC8EtUw1lXgdCVZIoJzhB2ZNuz
+        8GO3uNzJbGfHMn5aJ/oUfUqHlyjAlfTz8LLAQ3Sxby3F2UAr5M53nVzfiF8ahEvs
+        9PMtkQnoNnAbbezVit5lNKt7E2X9w==
+X-ME-Sender: <xms:F8_WXd7zzekFpbXl90hV9cD45aetyQVPlQylgOQCA-chMR9pS4mteQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedufedrudehvddguddtkecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepvddujedrieekrdegle
-    drjedvnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:TM7WXf3FfzZaI19Lho07iLZtVO5_lKcEXjJYKGSEGe2sOKXGyRiRoA>
-    <xmx:TM7WXRh3CXzj7dPzOEmqydKxbe_IYSzFK1A5sexaa67z-0VcjKNn8w>
-    <xmx:TM7WXcpewjbTSSdED9av_SJr2TuaaKba8ufH4t122HylOJ_WT0qpKg>
-    <xmx:TM7WXZpePT4UDA4mMfRPQ_yWc0-hdjIgX3D4JfkSPzVTd9SkxBsrnA>
+    enucfjughrpeffhffvuffkfhggtggugfgjfgesthekredttderjeenucfhrhhomhepifhr
+    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuffhomhgrihhnpegtkhhiqd
+    hprhhojhgvtghtrdhorhhgpdhrvgguhhgrthdrtghomhdpkhgvrhhnvghlrdhorhhgnecu
+    kfhppedvudejrdeikedrgeelrdejvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvg
+    hgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:F8_WXQGR8hodcutKRKtu7SDk-DxDUkHNzbqN7DoXWRP0i2hYn0HbwQ>
+    <xmx:F8_WXX0r5RGXZ1UfCJ0NwbMLtQxsWwnF0LZY8p4rATLiR4NaszMHvw>
+    <xmx:F8_WXVoRAJ-CwJhP42A81RivCKgaxO5amqF5Sp1SdYY2B4pv_Khr1g>
+    <xmx:GM_WXdolWo8RnOXZFAfmEChuRaqgiF4tplcCwep2gZftHIDVU8qPJw>
 Received: from localhost (unknown [217.68.49.72])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 780A080066;
-        Thu, 21 Nov 2019 12:50:03 -0500 (EST)
-Date:   Thu, 21 Nov 2019 18:50:01 +0100
+        by mail.messagingengine.com (Postfix) with ESMTPA id 4150F3060060;
+        Thu, 21 Nov 2019 12:53:27 -0500 (EST)
+Date:   Thu, 21 Nov 2019 18:53:26 +0100
 From:   Greg KH <greg@kroah.com>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH for 4.4.y, 4.9.y, 4.14.y, 4.19.y] net: cdc_ncm:
- Signedness bug in cdc_ncm_set_dgram_size()
-Message-ID: <20191121175001.GA766491@kroah.com>
-References: <20191120030710.5169-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     Laura Abbott <labbott@redhat.com>
+Cc:     Rachel Sibley <rasibley@redhat.com>,
+        CKI Project <cki-project@redhat.com>,
+        Linux Stable maillist <stable@vger.kernel.org>,
+        Memory Management <mm-qe@redhat.com>,
+        Jan Stancek <jstancek@redhat.com>,
+        LTP Mailing List <ltp@lists.linux.it>
+Subject: Re: =?utf-8?B?4p2MIEZBSUw=?= =?utf-8?Q?=3A?= Stable queue: queue-5.3
+Message-ID: <20191121175326.GB766491@kroah.com>
+References: <cki.042792963E.5VOWULC1Q9@redhat.com>
+ <8e0fa6de-b6b1-23ac-9e77-d425c8d1ba22@redhat.com>
+ <c326c35e-453e-2dae-391c-5324803e6112@redhat.com>
+ <20191119124428.GC1975017@kroah.com>
+ <236c4f8d-a54e-daa6-0896-eca236e23e58@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20191120030710.5169-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <236c4f8d-a54e-daa6-0896-eca236e23e58@redhat.com>
 User-Agent: Mutt/1.12.2 (2019-09-21)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Nov 20, 2019 at 12:07:10PM +0900, Nobuhiro Iwamatsu wrote:
-> From: Dan Carpenter <dan.carpenter@oracle.com>
+On Tue, Nov 19, 2019 at 07:50:56AM -0500, Laura Abbott wrote:
+> On 11/19/19 7:44 AM, Greg KH wrote:
+> > On Tue, Nov 19, 2019 at 07:37:09AM -0500, Laura Abbott wrote:
+> > > On 11/18/19 7:07 PM, Rachel Sibley wrote:
+> > > > 
+> > > > On 11/18/19 10:00 AM, CKI Project wrote:
+> > > > > Hello,
+> > > > > 
+> > > > > We ran automated tests on a patchset that was proposed for merging into this
+> > > > > kernel tree. The patches were applied to:
+> > > > > 
+> > > > >          Kernel repo:https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+> > > > >               Commit: 116a395b7061 - Linux 5.3.11
+> > > > > 
+> > > > > The results of these automated tests are provided below.
+> > > > > 
+> > > > >       Overall result: FAILED (see details below)
+> > > > >                Merge: OK
+> > > > >              Compile: OK
+> > > > >                Tests: FAILED
+> > > > > 
+> > > > > All kernel binaries, config files, and logs are available for download here:
+> > > > > 
+> > > > >     https://artifacts.cki-project.org/pipelines/293063
+> > > > > 
+> > > > > One or more kernel tests failed:
+> > > > > 
+> > > > >       aarch64:
+> > > > >        ❌ LTP lite
+> > > > 
+> > > > I see a panic when installing the LTP dependencies
+> > > > 
+> > > > [  690.625060] Call trace:
+> > > > [  690.627495]  bfq_find_set_group+0x8c/0xf0
+> > > > [  690.631491]  bfq_bic_update_cgroup+0xbc/0x218
+> > > > [  690.635834]  bfq_init_rq+0xac/0x808
+> > > > [  690.639309]  bfq_insert_request.isra.0+0xe0/0x200
+> > > > [  690.643999]  bfq_insert_requests+0x68/0x88
+> > > > [  690.648085]  blk_mq_sched_insert_requests+0x84/0x140
+> > > > [  690.653036]  blk_mq_flush_plug_list+0x170/0x2b0
+> > > > [  690.657555]  blk_flush_plug_list+0xec/0x100
+> > > > [  690.661725]  blk_mq_make_request+0x200/0x5e8
+> > > > [  690.665982]  generic_make_request+0x94/0x270
+> > > > [  690.670239]  submit_bio+0x34/0x168
+> > > > [  690.673712]  xfs_submit_ioend.isra.0+0x9c/0x180 [xfs]
+> > > > [  690.678798]  xfs_do_writepage+0x234/0x458 [xfs]
+> > > > [  690.683318]  write_cache_pages+0x1a4/0x3f8
+> > > > [  690.687442]  xfs_vm_writepages+0x84/0xb8 [xfs]
+> > > > [  690.691874]  do_writepages+0x3c/0xe0
+> > > > [  690.695438]  __writeback_single_inode+0x48/0x440
+> > > > [  690.700042]  writeback_sb_inodes+0x1ec/0x4b0
+> > > > [  690.704298]  __writeback_inodes_wb+0x50/0xe8
+> > > > [  690.708555]  wb_writeback+0x264/0x388
+> > > > [  690.712204]  wb_do_writeback+0x300/0x358
+> > > > [  690.716113]  wb_workfn+0x80/0x1e0
+> > > > [  690.719418]  process_one_work+0x1bc/0x3e8
+> > > > [  690.723414]  worker_thread+0x54/0x440
+> > > > [  690.727064]  kthread+0x104/0x130
+> > > > [  690.730281]  ret_from_fork+0x10/0x18
+> > > > [  690.733847] Code: eb00007f 54000220 b4000040 f8568022 (f9401c42)
+> > > > [  690.739928] ---[ end trace d3fd392f569e86d3 ]---
+> > > > 
+> > > > https://artifacts.cki-project.org/pipelines/293063/logs/aarch64_host_2_console.log
+> > > > 
+> > > 
+> > > This looks like that same issue
+> > > https://bugzilla.redhat.com/show_bug.cgi?id=1767539
+> > > 
+> > > I don't think the BFQ fix has been sent to stable yet, or at least
+> > > it was not in 5.3.11
+> > 
+> > Any specific git commit id I should be picking up for this?
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> > 
 > 
-> commit a56dcc6b455830776899ce3686735f1172e12243 upstream.
-> 
-> This code is supposed to test for negative error codes and partial
-> reads, but because sizeof() is size_t (unsigned) type then negative
-> error codes are type promoted to high positive values and the condition
-> doesn't work as expected.
-> 
-> Fixes: 332f989a3b00 ("CDC-NCM: handle incomplete transfer of MTU")
-> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-> ---
->  drivers/net/usb/cdc_ncm.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Should be 478de3380c1c ("block, bfq: deschedule empty bfq_queues
+> not referred by any process") .
 
-Now queud up, thanks!
+Thanks, now queued up.
 
 greg k-h
