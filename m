@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AADF106E2A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D31C5106E2D
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731330AbfKVLGl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:06:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35094 "EHLO mail.kernel.org"
+        id S1730404AbfKVLGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:06:53 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731013AbfKVLGk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:06:40 -0500
+        id S1731154AbfKVLGq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:06:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6228E20885;
-        Fri, 22 Nov 2019 11:06:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA1F22084F;
+        Fri, 22 Nov 2019 11:06:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420799;
-        bh=rl0J2kUgD8Q7v5xJ3ktPrZJwJ0UTuHJGEvm0mn5/a2o=;
+        s=default; t=1574420806;
+        bh=mRKZx/dtkkwJ3Waki57KbIjqXykXG+/ubnEk0vOs8iM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRrhsAduIY8H87L7UEAIcC7ASXirk7MclJdUxtB9j/SqaaKKg/fc8NbvqXg8/TUWC
-         tEi3b3JDXeVeSfgM5FLeRZDfeICy3/0FkruACP7JM9uE1fV9GrQNvYaOUlPmCOwIZn
-         NrmbuB0/dsUDMOfu9629YMDNgKAl4reErSMiaJLc=
+        b=r+ANl7ZSMLjHk4vh7zrgLMV7Fmw7QJ3oVtLSu1FXBd2K/S5pNsHiHAbAjQCHd46KF
+         XxW+WPnDc6fYxcFHgw2hwTURGUxoDljqQiJKC8c+20a/29GFPBVy/NHo98n+o+ju4/
+         KVAyrBWOJtIPJvgfbGsh/QqHV9vz+DtQwTz8GIDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Evich <cevich@redhat.com>,
-        Patrick Dung <patdung100@gmail.com>,
-        Thorsten Schubert <tschubert@bafh.org>,
-        Oleksandr Natalenko <oleksandr@natalenko.name>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, Laura Abbott <labbott@redhat.com>
-Subject: [PATCH 5.3 2/6] block, bfq: deschedule empty bfq_queues not referred by any process
-Date:   Fri, 22 Nov 2019 11:30:04 +0100
-Message-Id: <20191122100322.673010728@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.3 4/6] mm/memory_hotplug: fix updating the node span
+Date:   Fri, 22 Nov 2019 11:30:06 +0100
+Message-Id: <20191122100326.607203017@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100320.878809004@linuxfoundation.org>
 References: <20191122100320.878809004@linuxfoundation.org>
@@ -47,112 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Valente <paolo.valente@linaro.org>
+From: David Hildenbrand <david@redhat.com>
 
-commit 478de3380c1c7dbb0f65f545ee0185848413f3fe upstream.
+commit 656d571193262a11c2daa4012e53e4d645bbce56 upstream.
 
-Since commit 3726112ec731 ("block, bfq: re-schedule empty queues if
-they deserve I/O plugging"), to prevent the service guarantees of a
-bfq_queue from being violated, the bfq_queue may be left busy, i.e.,
-scheduled for service, even if empty (see comments in
-__bfq_bfqq_expire() for details). But, if no process will send
-requests to the bfq_queue any longer, then there is no point in
-keeping the bfq_queue scheduled for service.
+We recently started updating the node span based on the zone span to
+avoid touching uninitialized memmaps.
 
-In addition, keeping the bfq_queue scheduled for service, but with no
-process reference any longer, may cause the bfq_queue to be freed when
-descheduled from service. But this is assumed to never happen, and
-causes a UAF if it happens. This, in turn, caused crashes [1, 2].
+Currently, we will always detect the node span to start at 0, meaning a
+node can easily span too many pages.  pgdat_is_empty() will still work
+correctly if all zones span no pages.  We should skip over all zones
+without spanned pages and properly handle the first detected zone that
+spans pages.
 
-This commit fixes this issue by descheduling an empty bfq_queue when
-it remains with not process reference.
+Unfortunately, in contrast to the zone span (/proc/zoneinfo), the node
+span cannot easily be inspected and tested.  The node span gives no real
+guarantees when an architecture supports memory hotplug, meaning it can
+easily contain holes or span pages of different nodes.
 
-[1] https://bugzilla.redhat.com/show_bug.cgi?id=1767539
-[2] https://bugzilla.kernel.org/show_bug.cgi?id=205447
+The node span is not really used after init on architectures that
+support memory hotplug.
 
-Fixes: 3726112ec731 ("block, bfq: re-schedule empty queues if they deserve I/O plugging")
-Reported-by: Chris Evich <cevich@redhat.com>
-Reported-by: Patrick Dung <patdung100@gmail.com>
-Reported-by: Thorsten Schubert <tschubert@bafh.org>
-Tested-by: Thorsten Schubert <tschubert@bafh.org>
-Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
-Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Cc: Laura Abbott <labbott@redhat.com>
+E.g., we use it in mm/memory_hotplug.c:try_offline_node() and in
+mm/kmemleak.c:kmemleak_scan().  These users seem to be fine.
+
+Link: http://lkml.kernel.org/r/20191027222714.5313-1-david@redhat.com
+Fixes: 00d6c019b5bc ("mm/memory_hotplug: don't access uninitialized memmaps in shrink_pgdat_span()")
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- block/bfq-iosched.c |   32 ++++++++++++++++++++++++++------
- 1 file changed, 26 insertions(+), 6 deletions(-)
+ mm/memory_hotplug.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2699,6 +2699,28 @@ static void bfq_bfqq_save_state(struct b
- 	}
- }
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -447,6 +447,14 @@ static void update_pgdat_span(struct pgl
+ 					     zone->spanned_pages;
  
+ 		/* No need to lock the zones, they can't change. */
++		if (!zone->spanned_pages)
++			continue;
++		if (!node_end_pfn) {
++			node_start_pfn = zone->zone_start_pfn;
++			node_end_pfn = zone_end_pfn;
++			continue;
++		}
 +
-+static
-+void bfq_release_process_ref(struct bfq_data *bfqd, struct bfq_queue *bfqq)
-+{
-+	/*
-+	 * To prevent bfqq's service guarantees from being violated,
-+	 * bfqq may be left busy, i.e., queued for service, even if
-+	 * empty (see comments in __bfq_bfqq_expire() for
-+	 * details). But, if no process will send requests to bfqq any
-+	 * longer, then there is no point in keeping bfqq queued for
-+	 * service. In addition, keeping bfqq queued for service, but
-+	 * with no process ref any longer, may have caused bfqq to be
-+	 * freed when dequeued from service. But this is assumed to
-+	 * never happen.
-+	 */
-+	if (bfq_bfqq_busy(bfqq) && RB_EMPTY_ROOT(&bfqq->sort_list) &&
-+	    bfqq != bfqd->in_service_queue)
-+		bfq_del_bfqq_busy(bfqd, bfqq, false);
-+
-+	bfq_put_queue(bfqq);
-+}
-+
- static void
- bfq_merge_bfqqs(struct bfq_data *bfqd, struct bfq_io_cq *bic,
- 		struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
-@@ -2769,8 +2791,7 @@ bfq_merge_bfqqs(struct bfq_data *bfqd, s
- 	 */
- 	new_bfqq->pid = -1;
- 	bfqq->bic = NULL;
--	/* release process reference to bfqq */
--	bfq_put_queue(bfqq);
-+	bfq_release_process_ref(bfqd, bfqq);
- }
- 
- static bool bfq_allow_bio_merge(struct request_queue *q, struct request *rq,
-@@ -4885,7 +4906,7 @@ static void bfq_exit_bfqq(struct bfq_dat
- 
- 	bfq_put_cooperator(bfqq);
- 
--	bfq_put_queue(bfqq); /* release process reference */
-+	bfq_release_process_ref(bfqd, bfqq);
- }
- 
- static void bfq_exit_icq_bfqq(struct bfq_io_cq *bic, bool is_sync)
-@@ -4987,8 +5008,7 @@ static void bfq_check_ioprio_change(stru
- 
- 	bfqq = bic_to_bfqq(bic, false);
- 	if (bfqq) {
--		/* release process reference on this queue */
--		bfq_put_queue(bfqq);
-+		bfq_release_process_ref(bfqd, bfqq);
- 		bfqq = bfq_get_queue(bfqd, bio, BLK_RW_ASYNC, bic);
- 		bic_set_bfqq(bic, bfqq, false);
- 	}
-@@ -5948,7 +5968,7 @@ bfq_split_bfqq(struct bfq_io_cq *bic, st
- 
- 	bfq_put_cooperator(bfqq);
- 
--	bfq_put_queue(bfqq);
-+	bfq_release_process_ref(bfqq->bfqd, bfqq);
- 	return NULL;
- }
- 
+ 		if (zone_end_pfn > node_end_pfn)
+ 			node_end_pfn = zone_end_pfn;
+ 		if (zone->zone_start_pfn < node_start_pfn)
 
 
