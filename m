@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4CB105FFE
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:31:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FD9106004
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:31:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726546AbfKVFaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:30:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
+        id S1726690AbfKVFaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:30:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726248AbfKVFaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:30:05 -0500
+        id S1726248AbfKVFaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:30:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1FA1B20707;
-        Fri, 22 Nov 2019 05:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B83DD20708;
+        Fri, 22 Nov 2019 05:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574400604;
-        bh=K8/nosl4hE+hkkP23VwLxak+ntPZZn18CaUsFIU+arU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cO8HNhb0I4+RIYxQaTtyvH45VDd/VZ7P3wF7jA1KTYrHKPYLs6sNEnXWbG6Qzl0Sc
-         +6H2mU3ebeESkkbpIyQ3xokvUe8qIu0+2+oVQFoMOjWOzDVh88yvzBkmA9abneFt1j
-         LLWDyOl7QTmKMMIyjHkzSXbN76GaVCQsWnymJVqM=
+        s=default; t=1574400605;
+        bh=uMgmPvrDLDsbL0dY3dsmfSahB5TPRLdrqSc2NbbB570=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=FqVx/Lnwfn7aO7CrtL0vWdk28Blgbud8nKn8cw5YoqdJ6ATYBT5Io03v8HJFXPg+t
+         Mr7FBCoBthAgFd2+lBUKKGCm06PXoBHytau2XB8yD+BOjYN5Rk/wHJjyubs/zgt0+7
+         Af63dCqt89XSL4H11nQMHCKHVd6tMsQrD4mqrf48=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Fabio Estevam <festevam@gmail.com>, Rob Herring <robh@kernel.org>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 008/219] ARM: dts: imx51: Fix memory node duplication
-Date:   Fri, 22 Nov 2019 00:26:30 -0500
-Message-Id: <20191122053001.752-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 009/219] ARM: dts: imx53: Fix memory node duplication
+Date:   Fri, 22 Nov 2019 00:26:31 -0500
+Message-Id: <20191122053001.752-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20191122053001.752-1-sashal@kernel.org>
+References: <20191122053001.752-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,13 +46,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 6a9681168b83c62abfa457c709f2f4b126bd6b92 ]
+[ Upstream commit e8fd17b900a4a1e3a8bef7b44727cbad35db05a7 ]
 
-Boards based on imx51 have duplicate memory nodes:
+Boards based on imx53 have duplicate memory nodes:
 
 - One coming from the board dts file: memory@
 
-- One coming from the imx51.dtsi file.
+- One coming from the imx53.dtsi file.
 
 Fix the duplication by removing the memory node from the dtsi file
 and by adding 'device_type = "memory";' in the board dts.
@@ -60,118 +62,118 @@ Signed-off-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx51-apf51.dts                 | 1 +
- arch/arm/boot/dts/imx51-babbage.dts               | 1 +
- arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi | 1 +
- arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi      | 1 +
- arch/arm/boot/dts/imx51-ts4800.dts                | 1 +
- arch/arm/boot/dts/imx51-zii-rdu1.dts              | 1 +
- arch/arm/boot/dts/imx51-zii-scu2-mezz.dts         | 1 +
- arch/arm/boot/dts/imx51-zii-scu3-esb.dts          | 1 +
- arch/arm/boot/dts/imx51.dtsi                      | 2 --
+ arch/arm/boot/dts/imx53-ard.dts         | 1 +
+ arch/arm/boot/dts/imx53-cx9020.dts      | 1 +
+ arch/arm/boot/dts/imx53-m53.dtsi        | 1 +
+ arch/arm/boot/dts/imx53-qsb-common.dtsi | 1 +
+ arch/arm/boot/dts/imx53-smd.dts         | 1 +
+ arch/arm/boot/dts/imx53-tqma53.dtsi     | 1 +
+ arch/arm/boot/dts/imx53-tx53.dtsi       | 1 +
+ arch/arm/boot/dts/imx53-usbarmory.dts   | 1 +
+ arch/arm/boot/dts/imx53.dtsi            | 2 --
  9 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx51-apf51.dts b/arch/arm/boot/dts/imx51-apf51.dts
-index 79d80036f74de..1eddf2908b3f2 100644
---- a/arch/arm/boot/dts/imx51-apf51.dts
-+++ b/arch/arm/boot/dts/imx51-apf51.dts
+diff --git a/arch/arm/boot/dts/imx53-ard.dts b/arch/arm/boot/dts/imx53-ard.dts
+index 117bd002dd1d1..7d5a48250f867 100644
+--- a/arch/arm/boot/dts/imx53-ard.dts
++++ b/arch/arm/boot/dts/imx53-ard.dts
+@@ -19,6 +19,7 @@
+ 	compatible = "fsl,imx53-ard", "fsl,imx53";
+ 
+ 	memory@70000000 {
++		device_type = "memory";
+ 		reg = <0x70000000 0x40000000>;
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/imx53-cx9020.dts b/arch/arm/boot/dts/imx53-cx9020.dts
+index cf70ebc4399a2..c875e23ee45fb 100644
+--- a/arch/arm/boot/dts/imx53-cx9020.dts
++++ b/arch/arm/boot/dts/imx53-cx9020.dts
 @@ -22,6 +22,7 @@
- 	compatible = "armadeus,imx51-apf51", "fsl,imx51";
+ 	};
  
- 	memory@90000000 {
+ 	memory@70000000 {
 +		device_type = "memory";
- 		reg = <0x90000000 0x20000000>;
+ 		reg = <0x70000000 0x20000000>,
+ 		      <0xb0000000 0x20000000>;
  	};
+diff --git a/arch/arm/boot/dts/imx53-m53.dtsi b/arch/arm/boot/dts/imx53-m53.dtsi
+index ce45f08e30514..db2e5bce9b6a1 100644
+--- a/arch/arm/boot/dts/imx53-m53.dtsi
++++ b/arch/arm/boot/dts/imx53-m53.dtsi
+@@ -16,6 +16,7 @@
+ 	compatible = "aries,imx53-m53", "denx,imx53-m53", "fsl,imx53";
  
-diff --git a/arch/arm/boot/dts/imx51-babbage.dts b/arch/arm/boot/dts/imx51-babbage.dts
-index ba60b0cb3cc13..99191466a8085 100644
---- a/arch/arm/boot/dts/imx51-babbage.dts
-+++ b/arch/arm/boot/dts/imx51-babbage.dts
-@@ -15,6 +15,7 @@
- 	};
- 
- 	memory@90000000 {
+ 	memory@70000000 {
 +		device_type = "memory";
- 		reg = <0x90000000 0x20000000>;
+ 		reg = <0x70000000 0x20000000>,
+ 		      <0xb0000000 0x20000000>;
+ 	};
+diff --git a/arch/arm/boot/dts/imx53-qsb-common.dtsi b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+index 50dde84b72ed7..f00dda334976a 100644
+--- a/arch/arm/boot/dts/imx53-qsb-common.dtsi
++++ b/arch/arm/boot/dts/imx53-qsb-common.dtsi
+@@ -11,6 +11,7 @@
  	};
  
-diff --git a/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi b/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
-index 5761a66e8a0d3..82d8df097ef1f 100644
---- a/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
-+++ b/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
+ 	memory@70000000 {
++		device_type = "memory";
+ 		reg = <0x70000000 0x20000000>,
+ 		      <0xb0000000 0x20000000>;
+ 	};
+diff --git a/arch/arm/boot/dts/imx53-smd.dts b/arch/arm/boot/dts/imx53-smd.dts
+index 462071c9ddd73..09071ca11c6cf 100644
+--- a/arch/arm/boot/dts/imx53-smd.dts
++++ b/arch/arm/boot/dts/imx53-smd.dts
+@@ -12,6 +12,7 @@
+ 	compatible = "fsl,imx53-smd", "fsl,imx53";
+ 
+ 	memory@70000000 {
++		device_type = "memory";
+ 		reg = <0x70000000 0x40000000>;
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/imx53-tqma53.dtsi b/arch/arm/boot/dts/imx53-tqma53.dtsi
+index a72b8981fc3bd..c77d58f06c949 100644
+--- a/arch/arm/boot/dts/imx53-tqma53.dtsi
++++ b/arch/arm/boot/dts/imx53-tqma53.dtsi
 @@ -17,6 +17,7 @@
- 	compatible = "digi,connectcore-ccxmx51-som", "fsl,imx51";
+ 	compatible = "tq,tqma53", "fsl,imx53";
  
- 	memory@90000000 {
+ 	memory@70000000 {
 +		device_type = "memory";
- 		reg = <0x90000000 0x08000000>;
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
-index f8902a338e49a..2e3125391bc49 100644
---- a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
-+++ b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
-@@ -23,6 +23,7 @@
- 	compatible = "eukrea,cpuimx51", "fsl,imx51";
- 
- 	memory@90000000 {
-+		device_type = "memory";
- 		reg = <0x90000000 0x10000000>; /* 256M */
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx51-ts4800.dts b/arch/arm/boot/dts/imx51-ts4800.dts
-index 39eb067904c3d..4344632f79400 100644
---- a/arch/arm/boot/dts/imx51-ts4800.dts
-+++ b/arch/arm/boot/dts/imx51-ts4800.dts
-@@ -18,6 +18,7 @@
+ 		reg = <0x70000000 0x40000000>; /* Up to 1GiB */
  	};
  
- 	memory@90000000 {
-+		device_type = "memory";
- 		reg = <0x90000000 0x10000000>;
- 	};
- 
-diff --git a/arch/arm/boot/dts/imx51-zii-rdu1.dts b/arch/arm/boot/dts/imx51-zii-rdu1.dts
-index 6e80254c4562a..d0e0eb9c9adfa 100644
---- a/arch/arm/boot/dts/imx51-zii-rdu1.dts
-+++ b/arch/arm/boot/dts/imx51-zii-rdu1.dts
-@@ -53,6 +53,7 @@
+diff --git a/arch/arm/boot/dts/imx53-tx53.dtsi b/arch/arm/boot/dts/imx53-tx53.dtsi
+index 54cf3e67069a9..4ab135906949f 100644
+--- a/arch/arm/boot/dts/imx53-tx53.dtsi
++++ b/arch/arm/boot/dts/imx53-tx53.dtsi
+@@ -51,6 +51,7 @@
  
  	/* Will be filled by the bootloader */
- 	memory@90000000 {
+ 	memory@70000000 {
 +		device_type = "memory";
- 		reg = <0x90000000 0>;
+ 		reg = <0x70000000 0>;
  	};
  
-diff --git a/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts b/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts
-index 26cf08549df40..f5b2d768fe47f 100644
---- a/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts
-+++ b/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts
-@@ -18,6 +18,7 @@
- 
- 	/* Will be filled by the bootloader */
- 	memory@90000000 {
-+		device_type = "memory";
- 		reg = <0x90000000 0>;
+diff --git a/arch/arm/boot/dts/imx53-usbarmory.dts b/arch/arm/boot/dts/imx53-usbarmory.dts
+index f6268d0ded296..ee6263d1c2d3d 100644
+--- a/arch/arm/boot/dts/imx53-usbarmory.dts
++++ b/arch/arm/boot/dts/imx53-usbarmory.dts
+@@ -58,6 +58,7 @@
  	};
  
-diff --git a/arch/arm/boot/dts/imx51-zii-scu3-esb.dts b/arch/arm/boot/dts/imx51-zii-scu3-esb.dts
-index e6ebac8f43e4f..ad90d66ccca6c 100644
---- a/arch/arm/boot/dts/imx51-zii-scu3-esb.dts
-+++ b/arch/arm/boot/dts/imx51-zii-scu3-esb.dts
-@@ -18,6 +18,7 @@
- 
- 	/* Will be filled by the bootloader */
- 	memory@90000000 {
+ 	memory@70000000 {
 +		device_type = "memory";
- 		reg = <0x90000000 0>;
+ 		reg = <0x70000000 0x20000000>;
  	};
  
-diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
-index ef2abc0978439..81f60c96a2e41 100644
---- a/arch/arm/boot/dts/imx51.dtsi
-+++ b/arch/arm/boot/dts/imx51.dtsi
-@@ -16,10 +16,8 @@
+diff --git a/arch/arm/boot/dts/imx53.dtsi b/arch/arm/boot/dts/imx53.dtsi
+index b6b0818343c4e..8accbe16b7584 100644
+--- a/arch/arm/boot/dts/imx53.dtsi
++++ b/arch/arm/boot/dts/imx53.dtsi
+@@ -23,10 +23,8 @@
  	 * The decompressor and also some bootloaders rely on a
  	 * pre-existing /chosen node to be available to insert the
  	 * command line and merge other ATAGS info.
