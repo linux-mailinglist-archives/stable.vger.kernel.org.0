@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CF1D106EC2
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95551106FA5
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:16:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbfKVLAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:00:23 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
+        id S1728184AbfKVKuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:50:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730166AbfKVLAW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:00:22 -0500
+        id S1729663AbfKVKt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AAA1207DD;
-        Fri, 22 Nov 2019 11:00:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D63BD20656;
+        Fri, 22 Nov 2019 10:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420421;
-        bh=mh1zORXvu0FZrYjtkaqRU48F03LGzPErdFzjrRjApG0=;
+        s=default; t=1574419797;
+        bh=3ch1Aeuv2nR0Jk6lCWT7dYMB2uUXDzRSZPmEwk8q1aQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPvK5n/KVC60aAUn+YEL5cVuzDnzbbD+XQZl9DipogrvcKjy5EgpcCVIBULRZiLjf
-         w8Byrj+uNe/Ix87hqYmfwm5hSAbuVsAVpdCbJaULlxmzLE1Z5TFhIg+GpLL9b9Ze1+
-         18mdhDQUVEWGKGc5fLOYFbHeph/OvyI30hxZLFMo=
+        b=M/aMzMG1aIw+unEB7qeOtsuWGzlzu6bKP0ng7eQteZgF7n1VvQiYBNxmh038EG89M
+         HPP6VNIKYevphjGR/McG8WHXeHdIHUNM0y1dATz4B6BwJRPBZKeRfQ8igEl8QrRaUj
+         HEZaQicggSbB11e4oJUJ0/AQ/33uQd25yeERrNFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Roger Quadros <rogerq@ti.com>,
+        "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 101/220] media: pxa_camera: Fix check for pdev->dev.of_node
+Subject: [PATCH 4.14 013/122] ARM: dts: omap5: enable OTG role for DWC3 controller
 Date:   Fri, 22 Nov 2019 11:27:46 +0100
-Message-Id: <20191122100920.035154221@linuxfoundation.org>
+Message-Id: <20191122100731.907058762@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: H. Nikolaus Schaller <hns@goldelico.com>
 
-[ Upstream commit 44d7f1a77d8c84f8e42789b5475b74ae0e6d4758 ]
+[ Upstream commit 656c1a65ab555ee5c7cd0d6aee8ab82ca3c1795f ]
 
-Clang warns that the address of a pointer will always evaluated as true
-in a boolean context.
+Since SMPS10 and OTG cable detection extcon are described here, and
+work to enable OTG power when an OTG cable is plugged in, we can
+define OTG mode in the controller (which is disabled by default in
+omap5.dtsi).
 
-drivers/media/platform/pxa_camera.c:2400:17: warning: address of
-'pdev->dev.of_node' will always evaluate to 'true'
-[-Wpointer-bool-conversion]
-        if (&pdev->dev.of_node && !pcdev->pdata) {
-             ~~~~~~~~~~^~~~~~~ ~~
-1 warning generated.
+Tested on OMAP5EVM and Pyra.
 
-Judging from the rest of the kernel, it seems like this was an error and
-just the value of of_node should be checked rather than the address.
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Suggested-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/pxa_camera.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/omap5-board-common.dtsi | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/platform/pxa_camera.c b/drivers/media/platform/pxa_camera.c
-index b6e9e93bde7a8..406ac673ad84c 100644
---- a/drivers/media/platform/pxa_camera.c
-+++ b/drivers/media/platform/pxa_camera.c
-@@ -2397,7 +2397,7 @@ static int pxa_camera_probe(struct platform_device *pdev)
- 	pcdev->res = res;
+diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
+index 7824b2631cb6b..f65343f8e1d69 100644
+--- a/arch/arm/boot/dts/omap5-board-common.dtsi
++++ b/arch/arm/boot/dts/omap5-board-common.dtsi
+@@ -694,6 +694,10 @@
+ 	vbus-supply = <&smps10_out1_reg>;
+ };
  
- 	pcdev->pdata = pdev->dev.platform_data;
--	if (&pdev->dev.of_node && !pcdev->pdata) {
-+	if (pdev->dev.of_node && !pcdev->pdata) {
- 		err = pxa_camera_pdata_from_dt(&pdev->dev, pcdev, &pcdev->asd);
- 	} else {
- 		pcdev->platform_flags = pcdev->pdata->flags;
++&dwc3 {
++	dr_mode = "otg";
++};
++
+ &mcspi1 {
+ 
+ };
 -- 
 2.20.1
 
