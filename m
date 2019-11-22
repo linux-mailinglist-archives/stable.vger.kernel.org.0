@@ -2,170 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B193A107763
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 19:33:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 211F01077B3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 19:55:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726062AbfKVSdi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 13:33:38 -0500
-Received: from us-smtp-2.mimecast.com ([205.139.110.61]:33209 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726046AbfKVSdi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 13:33:38 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574447616;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UwrPXOeBl29qFxzv6xIXjTB+Rui31Azd3iBdNuGluxw=;
-        b=UM5nK2mvJZGlpa8AdpjVzcvnuAtrWdQnVCTX9ZjPpo7aKiTXf1rrXXnxR+4/hJECK4SUnP
-        4f/A9pTIDE865zuca8AEMb1DJTKMgGJRSgd00naiAEKEONVNF6DoqKpSOvCzt2bfdZ1SUA
-        +Oq8Ar5VfnXmM4BqNiS37KIYxK/D3a4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-388-Nm2n7kc8M1e_Vbu1WMNqiw-1; Fri, 22 Nov 2019 13:33:32 -0500
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 39EF4801E74;
-        Fri, 22 Nov 2019 18:33:31 +0000 (UTC)
-Received: from localhost.localdomain (ovpn-122-27.rdu2.redhat.com [10.10.122.27])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3DA3662675;
-        Fri, 22 Nov 2019 18:33:23 +0000 (UTC)
-Subject: Re: [LTP] ??? FAIL: Test report for kernel 5.4.0-rc8-4b17a56.cki
- (stable-next)
-To:     Tim.Bird@sony.com, chrubis@suse.cz
-Cc:     mm-qe@redhat.com, ltp@lists.linux.it, stable@vger.kernel.org,
-        cki-project@redhat.com
-References: <cki.6D94BD5731.3IAGHB25D8@redhat.com>
- <20191120113534.GC14963@rei.lan>
- <57f8e29e-1d49-e93f-2b03-75a3fd3e6e21@redhat.com>
- <20191121093150.GA14186@rei.lan>
- <ECADFF3FD767C149AD96A924E7EA6EAF978BCF95@USCULXMSG01.am.sony.com>
-From:   Rachel Sibley <rasibley@redhat.com>
-Message-ID: <93a3732c-6c64-b3db-44df-98e9ad825e10@redhat.com>
-Date:   Fri, 22 Nov 2019 13:33:23 -0500
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.2.2
-MIME-Version: 1.0
-In-Reply-To: <ECADFF3FD767C149AD96A924E7EA6EAF978BCF95@USCULXMSG01.am.sony.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-MC-Unique: Nm2n7kc8M1e_Vbu1WMNqiw-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 7bit
+        id S1726744AbfKVSz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 13:55:27 -0500
+Received: from mail-ua1-f73.google.com ([209.85.222.73]:43919 "EHLO
+        mail-ua1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726980AbfKVSz1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 13:55:27 -0500
+Received: by mail-ua1-f73.google.com with SMTP id r23so1968495uam.10
+        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 10:55:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=SHVXHEGGxuqIpcBFwRHv/uk1e/S46AumK4IMAmbp/ok=;
+        b=cpZcy7CysRjVvEDBLriAw2P8/TU3cURqwBXnEv93B2t8l2xennSUdwg+CVfdB/gtFG
+         fz8XtCFW0omCKPALWsT8iEKNvDcc2WzAa1h4wn8dmhXwwLbzyh7qRBwxDvwZ1MG4MXar
+         TBLfcYUcznuWLGge0/XpeHXBj5Xmuy5Vdzy674qVErgGxUoHo+NNnvgQoTK4FikfXZjq
+         B83jZXaoG++9UGZQl4PRYdgJfAV61M9O77iZe7MRy0pREg0kFwJE0FoMNy8AejyOOAWG
+         Lpd6WqHkYN/K4PEOq2ZpUJ7Sn7oFXgWVqndd0MLXYT1vs7Sh159nYv9wwxbCIi8fjmTL
+         ZrPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=SHVXHEGGxuqIpcBFwRHv/uk1e/S46AumK4IMAmbp/ok=;
+        b=fpmaUFgX1s8Ev+12j90zoEQ579iDgNvuqiOdlZuCk4MlQ8qAt8LePhGPR+2gcdlWsL
+         7QdPkekMrQECqUd/MkF5nSqxb8SmGqME5ysit2YRSHqmmzbKUKzjiNdWgPhDm/zaGIMJ
+         19qu//K7RXu9DGr+TdEBioG0GNNU3/zcvVhpqrldAJVb+CbDqsd2L5yx0xxCpjQV4aAy
+         NeaqCWEGTFfv91M+9sRF6yXlgIN1LnTDQvW9jBcsg3XHaVuCdwLzo5uNlVk5YXMlJmBI
+         aW+Sz0Tv9H8mFMFSHTMV9TcnM2JCc3306t6jPbakTLcEpHxJbWBW5uvEjCiJYe7e9eX5
+         jFKQ==
+X-Gm-Message-State: APjAAAWu7pOICZLrZHA9ifbjFAgVw+5WOiOD3HYbxGXICrVI3/BoBJ/C
+        73H1NeaMuHVX83hZwGUkP0AHWFViPwJev6T7zZ0=
+X-Google-Smtp-Source: APXvYqx4/R+aTfQ5J2UOyQ8A6PVE1oEdqepMp2ZpOkKUSoKn8ky/RxzbEAbFNxLLKrHVeZxdmSe4geTa/pyPcfKpv8E=
+X-Received: by 2002:a1f:e0c2:: with SMTP id x185mr10557825vkg.6.1574448926211;
+ Fri, 22 Nov 2019 10:55:26 -0800 (PST)
+Date:   Fri, 22 Nov 2019 10:55:21 -0800
+Message-Id: <20191122185522.20582-1-ndesaulniers@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.24.0.432.g9d3f5f5b63-goog
+Subject: [PATCH] arm: explicitly place .fixup in .text
+From:   Nick Desaulniers <ndesaulniers@google.com>
+To:     linux@armlinux.org.uk
+Cc:     nico@fluxnic.net, clang-built-linux@googlegroups.com,
+        manojgupta@google.com, natechancellor@gmail.com,
+        Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Kees Cook <keescook@chromium.org>
 
+There's an implicit dependency on the section ordering of the orphaned
+section .fixup that can break arm_copy_from_user if the linker places
+the .fixup section before the .text section. Since .fixup is not
+explicitly placed in the existing ARM linker scripts, the linker is free
+to order it anywhere with respect to the rest of the sections.
 
-On 11/21/19 5:58 AM, Tim.Bird@sony.com wrote:
-> 
-> 
->> -----Original Message-----
->> From:  Cyril Hrubis
->>
->> Hi!
->>>>> One or more kernel tests failed:
->>>>>
->>>>>       ppc64le:
->>>>>        ??? LTP lite
->>>>>        ??? xfstests: ext4
->>>>
->>>> Both logs shows missing files, that may be an infrastructure problem as
->>>> well.
->>>>
->>>> Also can we include links to the logfiles here? Bonus points for showing
->>>> the snippet with the actual failure in the email as well. I takes a fair
->>>> amount of time locating them manually in the pipeline repository, it
->>>> would be much much easier just with the links to the right logfile...
-> 
-> My preference would be to include the failure snippet somewhere in
-> the e-mail as well (as opposed to just a link).
-> 
->>>>
->>>
->>> Thanks for the feedback Cyril, we did have links to each failure listed
->>> before but we were told it made the email look cluttered especially
->>> if there are multiple failures.
->>
->> So it's exactly how Dmitry described it, you can't please everyone..,
->>
->>> The test logs are sorted by arch|host|TC, is there something we can
->>> do to make it easier to find related logs ?
->>> https://artifacts.cki-project.org/pipelines/296781/logs/
->>>
->>> Maybe we can look into adding the linked logs to the bottom of the
->>> email with a reference id next to the failures in the summary, so
->>> for example:
->>>
->>>       ppc64le:
->>>        ??? LTP lite [1]
->>>        ??? xfstests: ext4 [2]
->>
->> That would work for me.
->>
-> 
-> Maybe combine the 'footnote' idea with the 'inline' idea, and have
-> the footnote include a link to the full log and a snippet with just the
-> output from the failing testcase, from the full log?
-> 
->>> We could also look into merging the ltp run logs into a single file
->>> as well.
->>
->> That would make it too big I guess. Actually the only part I'm
->> interested in most of the time is the part of the log with the failing
->> test. I would be quite happy if we had logs/failures file on the
->> pipelines sever that would contain only failures extracted from
->> different logfiles. The question is if that's feasible with your
->> framework.
-> 
-> Fuego has an LTP log-splitter and link generator.
-> It's Fuego-specific and generates
-> files referred to by links in the result  tables that Fuego
-> shows to users.
-> 
-> I don't know how CKI is generating it's data or storing it,
-> but I can take a look and see if it could be applied
-> to their use case.  It's a python program that is fairly small.
+Multiple users from different distros (Raspbian, CrOS) reported kernel
+panics executing seccomp() syscall with Linux kernels linked with LLD.
 
-There is a summary log which captures overall results:
-https://artifacts.cki-project.org/pipelines/296781/logs/aarch64_host_1_LTP_lite_resultoutputfile.log
+Documentation/x86/exception-tables.rst alludes to the ordering
+dependency. The relevant quote:
 
-Then an individual log file for each LTP testsuite, e.g:
-https://artifacts.cki-project.org/pipelines/296781/logs/aarch64_host_1_LTP_lite_fs.run.log
+```
+NOTE:
+Due to the way that the exception table is built and needs to be ordered,
+only use exceptions for code in the .text section.  Any other section
+will cause the exception table to not be sorted correctly, and the
+exceptions will fail.
 
-> 
-> See here:
-> https://bitbucket.org/fuegotest/fuego-core/src/master/tests/Functional.LTP/parser.py
+Things changed when 64-bit support was added to x86 Linux. Rather than
+double the size of the exception table by expanding the two entries
+from 32-bits to 64 bits, a clever trick was used to store addresses
+as relative offsets from the table itself. The assembly code changed
+from::
 
-Thanks!
-> 
-> It might not be applicable, depending on whether CKI stores their LTP output similarly
-> to how Fuego does, but IMHO it's worth taking a look.  If there is sufficient interest,
-> maybe this could be generalized and submitted to upstream LTP.  The Fuego log-splitter
-> produces individual files.
+    .long 1b,3b
+  to:
+          .long (from) - .
+          .long (to) - .
 
-I think it's a good idea, as long as it can be generic enough where
-someone could modify a config file for example to indicate the log
-path and naming convention.
+and the C-code that uses these values converts back to absolute addresses
+like this::
 
-> 
-> Another idea would be to write a program that takes an LTP log,
-> and the name of a failing testcase, and outputs (on stdout)  the snippet from the log
-> for that testcase.  I think this would be very easy to do, and might be suitable to
-> use in multiple contexts: on the command line, in a report
-> generator, or as a CGI script for a results server.
+        ex_insn_addr(const struct exception_table_entry *x)
+        {
+                return (unsigned long)&x->insn + x->insn;
+        }
+```
 
-I logged a few tickets so our team can take a closer look and discuss 
-for both failure snippets and linking LTP logs directly. I'm also
-checking to see if we have anything internally.
+Since the addresses stored in the __ex_table are RELATIVE offsets and
+not ABSOLUTE addresses, ordering the fixup anywhere that's not
+immediately preceding .text causes the relative offset of the faulting
+instruction to be wrong, causing the wrong (or no) address of the fixup
+handler to looked up in __ex_table.
 
-Thanks for all the feedback.
+x86 and arm64 place the .fixup section near the end of the .text
+section; follow their pattern.
 
->   -- Tim
-> 
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/282
+Link: https://bugs.chromium.org/p/chromium/issues/detail?id=1020633#c36
+Reported-by: Manoj Gupta <manojgupta@google.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Nick Desaulniers <ndesaulniers@google.com>
+Debugged-by: Nick Desaulniers <ndesaulniers@google.com>
+Worded-by: Nick Desaulniers <ndesaulniers@google.com>
+Tested-by: Manoj Gupta <manojgupta@google.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ arch/arm/kernel/vmlinux.lds.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/kernel/vmlinux.lds.h b/arch/arm/kernel/vmlinux.lds.h
+index 8247bc15addc..e130f7668cf0 100644
+--- a/arch/arm/kernel/vmlinux.lds.h
++++ b/arch/arm/kernel/vmlinux.lds.h
+@@ -74,6 +74,7 @@
+ 		LOCK_TEXT						\
+ 		HYPERVISOR_TEXT						\
+ 		KPROBES_TEXT						\
++		*(.fixup)						\
+ 		*(.gnu.warning)						\
+ 		*(.glue_7)						\
+ 		*(.glue_7t)						\
+-- 
+2.24.0.432.g9d3f5f5b63-goog
 
