@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0411070C4
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 912221070D4
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727980AbfKVKjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:39:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42130 "EHLO mail.kernel.org"
+        id S1728072AbfKVLYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:24:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727289AbfKVKjK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:39:10 -0500
+        id S1727329AbfKVKjP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:39:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D01932071C;
-        Fri, 22 Nov 2019 10:39:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10EA52071C;
+        Fri, 22 Nov 2019 10:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419150;
-        bh=704GgVtjPbYQSRgT22k+tk3j6Fu7SlUM8LHDVu+aC9Y=;
+        s=default; t=1574419153;
+        bh=sMuIECjAf/onTndK4V13lbx+H72rT2nSj8F/ccPmjhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xnsr8BCncteZERF7OBYW6jzrQQmelRIGxxPqv7hjFK5ta4QXUJssPiBDCjXCBap/j
-         2rCQQVaK9CUV46lOCkRHQPng9phOeo9VwqRVwbmz4kv9aQB/TMBLglGOTR6aMHgU4o
-         uQdUOk84Kc3rnEX9wnJTvdONjRohs0ETI2Rsdl1I=
+        b=hIAsVbfKhA6uclmd8f+d1vn7NEOgwyjqSdsHIavGMB4w64O6vdlCkjei+ZxyWWbVH
+         VuXd8eitp4mfT/nyLUi65IUkUiZAQqNN32G1IRfTiivpcHOzxm8r8Q+VXSD9fTsbws
+         fs/meJ7pkZfU8ZY9uVU5cFDb2Y5UCuWXdiUSUDJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.9 015/222] mmc: sdhci-of-at91: fix quirk2 overwrite
-Date:   Fri, 22 Nov 2019 11:25:55 +0100
-Message-Id: <20191122100834.762535278@linuxfoundation.org>
+        stable@vger.kernel.org, Tamizh chelvam <tamizhr@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 016/222] ath10k: fix kernel panic by moving pci flush after napi_disable
+Date:   Fri, 22 Nov 2019 11:25:56 +0100
+Message-Id: <20191122100835.292390044@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -45,35 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Tamizh chelvam <tamizhr@codeaurora.org>
 
-commit fed23c5829ecab4ddc712d7b0046e59610ca3ba4 upstream.
+[ Upstream commit bd1d395070cca4f42a93e520b0597274789274a4 ]
 
-The quirks2 are parsed and set (e.g. from DT) before the quirk for broken
-HS200 is set in the driver.
-The driver needs to enable just this flag, not rewrite the whole quirk set.
+When continuously running wifi up/down sequence, the napi poll
+can be scheduled after the CE buffers being freed by ath10k_pci_flush
 
-Fixes: 7871aa60ae00 ("mmc: sdhci-of-at91: add quirk for broken HS200")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Steps:
+  In a certain condition, during wifi down below scenario might occur.
 
+ath10k_stop->ath10k_hif_stop->napi_schedule->ath10k_pci_flush->napi_poll(napi_synchronize).
+
+In the above scenario, CE buffer entries will be freed up and become NULL in
+ath10k_pci_flush. And the napi_poll has been invoked after the flush process
+and it will try to get the skb from the CE buffer entry and perform some action on that.
+Since the CE buffer already cleaned by pci flush this action will create NULL
+pointer dereference and trigger below kernel panic.
+
+Unable to handle kernel NULL pointer dereference at virtual address 0000005c
+PC is at ath10k_pci_htt_rx_cb+0x64/0x3ec [ath10k_pci]
+ath10k_pci_htt_rx_cb [ath10k_pci]
+ath10k_ce_per_engine_service+0x74/0xc4 [ath10k_pci]
+ath10k_ce_per_engine_service [ath10k_pci]
+ath10k_ce_per_engine_service_any+0x74/0x80 [ath10k_pci]
+ath10k_ce_per_engine_service_any [ath10k_pci]
+ath10k_pci_napi_poll+0x48/0xec [ath10k_pci]
+ath10k_pci_napi_poll [ath10k_pci]
+net_rx_action+0xac/0x160
+net_rx_action
+__do_softirq+0xdc/0x208
+__do_softirq
+irq_exit+0x84/0xe0
+irq_exit
+__handle_domain_irq+0x80/0xa0
+__handle_domain_irq
+gic_handle_irq+0x38/0x5c
+gic_handle_irq
+__irq_usr+0x44/0x60
+
+Tested on QCA4019 and firmware version 10.4.3.2.1.1-00010
+
+Signed-off-by: Tamizh chelvam <tamizhr@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-at91.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/ahb.c | 4 ++--
+ drivers/net/wireless/ath/ath10k/pci.c | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -318,7 +318,7 @@ static int sdhci_at91_probe(struct platf
- 	pm_runtime_use_autosuspend(&pdev->dev);
+diff --git a/drivers/net/wireless/ath/ath10k/ahb.c b/drivers/net/wireless/ath/ath10k/ahb.c
+index da770af830369..125b5c31b2b0a 100644
+--- a/drivers/net/wireless/ath/ath10k/ahb.c
++++ b/drivers/net/wireless/ath/ath10k/ahb.c
+@@ -658,10 +658,10 @@ static void ath10k_ahb_hif_stop(struct ath10k *ar)
+ 	ath10k_ahb_irq_disable(ar);
+ 	synchronize_irq(ar_ahb->irq);
  
- 	/* HS200 is broken at this moment */
--	host->quirks2 = SDHCI_QUIRK2_BROKEN_HS200;
-+	host->quirks2 |= SDHCI_QUIRK2_BROKEN_HS200;
+-	ath10k_pci_flush(ar);
+-
+ 	napi_synchronize(&ar->napi);
+ 	napi_disable(&ar->napi);
++
++	ath10k_pci_flush(ar);
+ }
  
- 	ret = sdhci_add_host(host);
- 	if (ret)
+ static int ath10k_ahb_hif_power_up(struct ath10k *ar)
+diff --git a/drivers/net/wireless/ath/ath10k/pci.c b/drivers/net/wireless/ath/ath10k/pci.c
+index 25b8d501d437e..b7bac14d1487b 100644
+--- a/drivers/net/wireless/ath/ath10k/pci.c
++++ b/drivers/net/wireless/ath/ath10k/pci.c
+@@ -1781,9 +1781,9 @@ static void ath10k_pci_hif_stop(struct ath10k *ar)
+ 
+ 	ath10k_pci_irq_disable(ar);
+ 	ath10k_pci_irq_sync(ar);
+-	ath10k_pci_flush(ar);
+ 	napi_synchronize(&ar->napi);
+ 	napi_disable(&ar->napi);
++	ath10k_pci_flush(ar);
+ 
+ 	spin_lock_irqsave(&ar_pci->ps_lock, flags);
+ 	WARN_ON(ar_pci->ps_wake_refcount > 0);
+-- 
+2.20.1
+
 
 
