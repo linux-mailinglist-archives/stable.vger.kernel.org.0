@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35BB910694C
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 10:51:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB407106950
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 10:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726500AbfKVJu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 04:50:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41598 "EHLO mail.kernel.org"
+        id S1726568AbfKVJvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 04:51:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726417AbfKVJu6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 04:50:58 -0500
+        id S1726417AbfKVJvX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 04:51:23 -0500
 Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF9F920717;
-        Fri, 22 Nov 2019 09:50:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0524720715;
+        Fri, 22 Nov 2019 09:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574416257;
-        bh=OtI7SiOFIIlZ1FqRaKgeQ3m13KUrkq19MeST/e1R7Yk=;
+        s=default; t=1574416282;
+        bh=338xDZS6QqVUNG2iUBxb4ObNXug5gpT9Q1vMzLFA60I=;
         h=From:To:Cc:Subject:Date:From;
-        b=0C8numJn+B4EhQ/hGQmKbfAZzZzPOd96C8r2NM0gVULEcrltOr/nHI8NNvZdLmeKs
-         RyL/i4AX4tucMaVmHZIWbhr/ODCPUdTJm5kSvSFvg/lshdufAMX0aN+F4sVdb2X5rH
-         67zBSjAz4PzQuwyc5aeeVtO1JnjQ1GwUR/YaRSK8=
+        b=TkuV01EuhtAM82pt321ZdjvpxSL+eMivTlGUz9YchessFdeY7LH+TfPMriF98wcqs
+         5x75LdEhN3IOFGWFeh8eq9zjA2h8NH/6iAsHlwBPpme8A9V/DPXpUNhlrLimtzgyzt
+         QbaUPCs2/zmSx726vI7+pbFKxUhPA+GAnVqd9Qxg=
 From:   Will Deacon <will@kernel.org>
 To:     gregkh@linuxfoundation.org
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         catalin.marinas@arm.com, mark.rutland@arm.com,
         pasha.tatashin@soleen.com, Will Deacon <will@kernel.org>
-Subject: [PATCH] [Backport to stable 4.4.y] arm64: uaccess: Ensure PAN is re-enabled after unhandled uaccess fault
-Date:   Fri, 22 Nov 2019 09:50:47 +0000
-Message-Id: <20191122095047.12168-1-will@kernel.org>
+Subject: [PATCH] [Backport to stable 4.9.y] arm64: uaccess: Ensure PAN is re-enabled after unhandled uaccess fault
+Date:   Fri, 22 Nov 2019 09:51:16 +0000
+Message-Id: <20191122095116.12244-1-will@kernel.org>
 X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -104,7 +104,7 @@ Cc: <stable@vger.kernel.org>
 Fixes: 338d4f49d6f7 ("arm64: kernel: Add support for Privileged Access Never")
 Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
 [will: rewrote commit message]
-[will: backport for 4.4.y stable kernels]
+[will: backport for 4.9.y stable kernels]
 Signed-off-by: Will Deacon <will@kernel.org>
 ---
  arch/arm64/lib/clear_user.S     | 2 ++
@@ -114,50 +114,50 @@ Signed-off-by: Will Deacon <will@kernel.org>
  4 files changed, 8 insertions(+)
 
 diff --git a/arch/arm64/lib/clear_user.S b/arch/arm64/lib/clear_user.S
-index a9723c71c52b..8d330c30a6f9 100644
+index efbf610eaf4e..a814f32033b0 100644
 --- a/arch/arm64/lib/clear_user.S
 +++ b/arch/arm64/lib/clear_user.S
-@@ -62,5 +62,7 @@ ENDPROC(__clear_user)
+@@ -62,5 +62,7 @@ ENDPROC(__arch_clear_user)
  	.section .fixup,"ax"
  	.align	2
  9:	mov	x0, x2			// return the original size
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
 +	    CONFIG_ARM64_PAN)
  	ret
  	.previous
 diff --git a/arch/arm64/lib/copy_from_user.S b/arch/arm64/lib/copy_from_user.S
-index 4699cd74f87e..b8c95ef13229 100644
+index 4fd67ea03bb0..580aca96c53c 100644
 --- a/arch/arm64/lib/copy_from_user.S
 +++ b/arch/arm64/lib/copy_from_user.S
-@@ -85,5 +85,7 @@ ENDPROC(__copy_from_user)
- 	strb	wzr, [dst], #1			// zero remaining buffer space
- 	cmp	dst, end
- 	b.lo	9999b
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
+@@ -80,5 +80,7 @@ ENDPROC(__arch_copy_from_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9998:	sub	x0, end, dst			// bytes not copied
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
 +	    CONFIG_ARM64_PAN)
  	ret
  	.previous
 diff --git a/arch/arm64/lib/copy_in_user.S b/arch/arm64/lib/copy_in_user.S
-index 81c8fc93c100..233703c84bcd 100644
+index 841bf8f7fab7..d9ca6a4f33b3 100644
 --- a/arch/arm64/lib/copy_in_user.S
 +++ b/arch/arm64/lib/copy_in_user.S
-@@ -81,5 +81,7 @@ ENDPROC(__copy_in_user)
+@@ -81,5 +81,7 @@ ENDPROC(__arch_copy_in_user)
  	.section .fixup,"ax"
  	.align	2
  9998:	sub	x0, end, dst			// bytes not copied
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
 +	    CONFIG_ARM64_PAN)
  	ret
  	.previous
 diff --git a/arch/arm64/lib/copy_to_user.S b/arch/arm64/lib/copy_to_user.S
-index 7512bbbc07ac..62b179408b23 100644
+index 7a7efe255034..e8bd40dc00cd 100644
 --- a/arch/arm64/lib/copy_to_user.S
 +++ b/arch/arm64/lib/copy_to_user.S
-@@ -79,5 +79,7 @@ ENDPROC(__copy_to_user)
+@@ -79,5 +79,7 @@ ENDPROC(__arch_copy_to_user)
  	.section .fixup,"ax"
  	.align	2
  9998:	sub	x0, end, dst			// bytes not copied
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
 +	    CONFIG_ARM64_PAN)
  	ret
  	.previous
