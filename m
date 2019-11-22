@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39DA51063B9
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E49B1063A3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729079AbfKVF4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:56:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
+        id S1729087AbfKVF4R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:56:17 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729068AbfKVF4P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:15 -0500
+        id S1729075AbfKVF4R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:17 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 616132068F;
-        Fri, 22 Nov 2019 05:56:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C029F20717;
+        Fri, 22 Nov 2019 05:56:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402175;
-        bh=iWavPtoQLOSSTlzUivcfOo7w+HA+x4lZreoVizmD2gw=;
+        s=default; t=1574402176;
+        bh=BkoazdEEzRUfK/YqbmnC3e8JrOLV2b76BjnCxB4RQPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JN03wTXroQtv/e4whKvDsLurZU2/B2cg5tSdVU+KaeJR24lLS1N0Mgc2/xWuiXCdx
-         uoQNjW+u+GKwwGzpXuwbPtX8ymtVwIIXFnCupyeAp6ixcPYtZgbEBxseEhX6gz1Tzu
-         lFw7YUnf35ggYmzj+Srf36nrzVtAXy4fy/KnjPvM=
+        b=G7zX4+EiejRA/OrpoXkpr62tJD82OMJtZAYF3jCD096PBbK1p5nZMvK1kwDIddSmv
+         BJtQ4vLF8VQiBIRVvqzAFnhmH+ZX2+71pjtRsJFiZzo74M7QO2XMl60EoBsXLU/piU
+         BNRezXA0pW33mnTI9pRSYrcJT948eAX12H3UCKWY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jim Mattson <jmattson@google.com>, Peter Shier <pshier@google.com>,
-        Marc Orr <marcorr@google.com>,
-        Liran Alon <liran.alon@oracle.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 027/127] kvm: vmx: Set IA32_TSC_AUX for legacy mode guests
-Date:   Fri, 22 Nov 2019 00:54:05 -0500
-Message-Id: <20191122055544.3299-26-sashal@kernel.org>
+Cc:     Lepton Wu <ytht.net@gmail.com>, Jorgen Hansen <jhansen@vmware.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 028/127] VSOCK: bind to random port for VMADDR_PORT_ANY
+Date:   Fri, 22 Nov 2019 00:54:06 -0500
+Message-Id: <20191122055544.3299-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -46,50 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Mattson <jmattson@google.com>
+From: Lepton Wu <ytht.net@gmail.com>
 
-[ Upstream commit 0023ef39dc35c773c436eaa46ca539a26b308b55 ]
+[ Upstream commit 8236b08cf50f85bbfaf48910a0b3ee68318b7c4b ]
 
-RDTSCP is supported in legacy mode as well as long mode. The
-IA32_TSC_AUX MSR should be set to the correct guest value before
-entering any guest that supports RDTSCP.
+The old code always starts from fixed port for VMADDR_PORT_ANY. Sometimes
+when VMM crashed, there is still orphaned vsock which is waiting for
+close timer, then it could cause connection time out for new started VM
+if they are trying to connect to same port with same guest cid since the
+new packets could hit that orphaned vsock. We could also fix this by doing
+more in vhost_vsock_reset_orphans, but any way, it should be better to start
+from a random local port instead of a fixed one.
 
-Fixes: 4e47c7a6d714 ("KVM: VMX: Add instruction rdtscp support for guest")
-Signed-off-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Peter Shier <pshier@google.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Reviewed-by: Liran Alon <liran.alon@oracle.com>
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Lepton Wu <ytht.net@gmail.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/vmw_vsock/af_vsock.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx.c b/arch/x86/kvm/vmx.c
-index cd5a8e888eb6b..df37901f4a435 100644
---- a/arch/x86/kvm/vmx.c
-+++ b/arch/x86/kvm/vmx.c
-@@ -2818,9 +2818,6 @@ static void setup_msrs(struct vcpu_vmx *vmx)
- 		index = __find_msr_index(vmx, MSR_CSTAR);
- 		if (index >= 0)
- 			move_msr_up(vmx, index, save_nmsrs++);
--		index = __find_msr_index(vmx, MSR_TSC_AUX);
--		if (index >= 0 && guest_cpuid_has(&vmx->vcpu, X86_FEATURE_RDTSCP))
--			move_msr_up(vmx, index, save_nmsrs++);
- 		/*
- 		 * MSR_STAR is only needed on long mode guests, and only
- 		 * if efer.sce is enabled.
-@@ -2833,6 +2830,9 @@ static void setup_msrs(struct vcpu_vmx *vmx)
- 	index = __find_msr_index(vmx, MSR_EFER);
- 	if (index >= 0 && update_transition_efer(vmx, index))
- 		move_msr_up(vmx, index, save_nmsrs++);
-+	index = __find_msr_index(vmx, MSR_TSC_AUX);
-+	if (index >= 0 && guest_cpuid_has(&vmx->vcpu, X86_FEATURE_RDTSCP))
-+		move_msr_up(vmx, index, save_nmsrs++);
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 1939b77e98b72..73eac97e19fb1 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -107,6 +107,7 @@
+ #include <linux/mutex.h>
+ #include <linux/net.h>
+ #include <linux/poll.h>
++#include <linux/random.h>
+ #include <linux/skbuff.h>
+ #include <linux/smp.h>
+ #include <linux/socket.h>
+@@ -487,9 +488,13 @@ static void vsock_pending_work(struct work_struct *work)
+ static int __vsock_bind_stream(struct vsock_sock *vsk,
+ 			       struct sockaddr_vm *addr)
+ {
+-	static u32 port = LAST_RESERVED_PORT + 1;
++	static u32 port = 0;
+ 	struct sockaddr_vm new_addr;
  
- 	vmx->save_nmsrs = save_nmsrs;
++	if (!port)
++		port = LAST_RESERVED_PORT + 1 +
++			prandom_u32_max(U32_MAX - LAST_RESERVED_PORT);
++
+ 	vsock_addr_init(&new_addr, addr->svm_cid, addr->svm_port);
  
+ 	if (addr->svm_port == VMADDR_PORT_ANY) {
 -- 
 2.20.1
 
