@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4A01070F9
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA021106F71
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:15:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727525AbfKVKgD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:36:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35224 "EHLO mail.kernel.org"
+        id S1729187AbfKVKvp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:51:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728320AbfKVKgC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:36:02 -0500
+        id S1730100AbfKVKvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:51:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A48ED20708;
-        Fri, 22 Nov 2019 10:36:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CAE20718;
+        Fri, 22 Nov 2019 10:51:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418962;
-        bh=+kJ46tdBc7iKTbz5siqHX//KIp/joBunnPlMC3HRQM0=;
+        s=default; t=1574419903;
+        bh=iUAeOmTC6KKyCJsPjqadlOssi2y1HjidqPkef2RGGfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnlPx13WujUCpUksGdRrP+RZKtTekwfGBF0a9h+DTuC3C7hAp0Z7MBcJ3cLwsS7n3
-         1qtql3EN15GSAa0mBvYf9EApfdyRkMEiNnNtL7EVX9lwBfigfwWJL425D5ygyrwM28
-         sOoK8x7AnxdPhB6tMskrLMCe2tvSb0rE+tx//hb8=
+        b=qSv1MehF/7IWNPKX/bDqre7knEjp38HGeiAPDTeYIvqvnEdsiXw4piB7yCNfwZlzz
+         spjYMvntOItknMLcd3RDW3Mjw4h5reKUQGoYm569dFoP/dR1NvS1Z5g1okvsQZmKqp
+         T4GiQ5SExMP+FJ6KDi+Qp2ko54Umnr9OieAtIG6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krishna Ram Prakash R <krp@gtux.in>,
-        Kees Cook <keescook@chromium.org>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 110/159] libata: have ata_scsi_rw_xlat() fail invalid passthrough requests
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 048/122] clocksource/drivers/sh_cmt: Fix clocksource width for 32-bit machines
 Date:   Fri, 22 Nov 2019 11:28:21 +0100
-Message-Id: <20191122100827.633136905@linuxfoundation.org>
+Message-Id: <20191122100756.726284211@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-commit 2d7271501720038381d45fb3dcbe4831228fc8cc upstream.
+[ Upstream commit 37e7742c55ba856eaec7e35673ee370f36eb17f3 ]
 
-For passthrough requests, libata-scsi takes what the user passes in
-as gospel. This can be problematic if the user fills in the CDB
-incorrectly. One example of that is in request sizes. For read/write
-commands, the CDB contains fields describing the transfer length of
-the request. These should match with the SG_IO header fields, but
-libata-scsi currently does no validation of that.
+The driver seems to abuse *unsigned long* not only for the (32-bit)
+register values but also for the 'sh_cmt_channel::total_cycles' which
+needs to always be 64-bit -- as a result, the clocksource's mask is
+needlessly clamped down to 32-bits on the 32-bit machines...
 
-Check that the number of blocks in the CDB for passthrough requests
-matches what was mapped into the request. If the CDB asks for more
-data then the validated SG_IO header fields, error it.
-
-Reported-by: Krishna Ram Prakash R <krp@gtux.in>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 19bdc9d061bc ("clocksource: sh_cmt clocksource support")
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libata-scsi.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/clocksource/sh_cmt.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/ata/libata-scsi.c
-+++ b/drivers/ata/libata-scsi.c
-@@ -1654,6 +1654,21 @@ nothing_to_do:
- 	return 1;
- }
+diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
+index 560541f53c8d9..3cd62f7c33e30 100644
+--- a/drivers/clocksource/sh_cmt.c
++++ b/drivers/clocksource/sh_cmt.c
+@@ -105,7 +105,7 @@ struct sh_cmt_channel {
+ 	raw_spinlock_t lock;
+ 	struct clock_event_device ced;
+ 	struct clocksource cs;
+-	unsigned long total_cycles;
++	u64 total_cycles;
+ 	bool cs_enabled;
+ };
  
-+static bool ata_check_nblocks(struct scsi_cmnd *scmd, u32 n_blocks)
-+{
-+	struct request *rq = scmd->request;
-+	u32 req_blocks;
-+
-+	if (!blk_rq_is_passthrough(rq))
-+		return true;
-+
-+	req_blocks = blk_rq_bytes(rq) / scmd->device->sector_size;
-+	if (n_blocks > req_blocks)
-+		return false;
-+
-+	return true;
-+}
-+
- /**
-  *	ata_scsi_rw_xlat - Translate SCSI r/w command into an ATA one
-  *	@qc: Storage for translated ATA taskfile
-@@ -1693,6 +1708,8 @@ static unsigned int ata_scsi_rw_xlat(str
- 		scsi_10_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_6:
- 	case WRITE_6:
-@@ -1705,6 +1722,8 @@ static unsigned int ata_scsi_rw_xlat(str
- 		 */
- 		if (!n_block)
- 			n_block = 256;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	case READ_16:
- 	case WRITE_16:
-@@ -1713,6 +1732,8 @@ static unsigned int ata_scsi_rw_xlat(str
- 		scsi_16_lba_len(cdb, &block, &n_block);
- 		if (cdb[1] & (1 << 3))
- 			tf_flags |= ATA_TFLAG_FUA;
-+		if (!ata_check_nblocks(scmd, n_block))
-+			goto invalid_fld;
- 		break;
- 	default:
- 		DPRINTK("no-byte command\n");
+@@ -607,8 +607,8 @@ static u64 sh_cmt_clocksource_read(struct clocksource *cs)
+ {
+ 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
+ 	unsigned long flags;
+-	unsigned long value;
+ 	u32 has_wrapped;
++	u64 value;
+ 	u32 raw;
+ 
+ 	raw_spin_lock_irqsave(&ch->lock, flags);
+@@ -682,7 +682,7 @@ static int sh_cmt_register_clocksource(struct sh_cmt_channel *ch,
+ 	cs->disable = sh_cmt_clocksource_disable;
+ 	cs->suspend = sh_cmt_clocksource_suspend;
+ 	cs->resume = sh_cmt_clocksource_resume;
+-	cs->mask = CLOCKSOURCE_MASK(sizeof(unsigned long) * 8);
++	cs->mask = CLOCKSOURCE_MASK(sizeof(u64) * 8);
+ 	cs->flags = CLOCK_SOURCE_IS_CONTINUOUS;
+ 
+ 	dev_info(&ch->cmt->pdev->dev, "ch%u: used as clock source\n",
+-- 
+2.20.1
+
 
 
