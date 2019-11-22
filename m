@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E1FC8106CAC
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:55:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65912106AC8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:38:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730240AbfKVKxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:53:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38796 "EHLO mail.kernel.org"
+        id S1727263AbfKVKiS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:38:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729732AbfKVKxu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:53:50 -0500
+        id S1727987AbfKVKiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:38:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32B2B20718;
-        Fri, 22 Nov 2019 10:53:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC99420715;
+        Fri, 22 Nov 2019 10:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420028;
-        bh=EBG3y3SqZq3fh1WMg/aeuj0NpEfig5g8qkXoy86oPUg=;
+        s=default; t=1574419097;
+        bh=laoqNmJBfeOHo+/xTivya8pe9YZR3Jiai/QAOQi7MCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e5bFMgt+BapwXcoV/CuwNy1FjfIU92vJHG0T5Q6GyB5TDqJE0oAdoWaXArDNcvrbD
-         TMpC3/iMC8QWpTm8yeNaXpmFT/jLiSv9e2FCyoxmO0fiLazBS0jPnzsOJr+kokZN+V
-         IF4FtYZBF0Dsea+mkpiu1OJJC8UhtGN3vEwYcUB4=
+        b=tjfNy5CCo6FPhwWERYRmQ+32QSAHuLQcP+PFYrh+bY3TqIh4M/zuCWRpQWW6Rkjc1
+         7RxAyJGF0s9MYecVLUND7+A6uL4Lc+c8niG3J9ypZJx2IYoV37XLss5+9L0ZS9vK4G
+         RrzBA03oE8VyFQDPNX8c66H869V2VGMI/mkQ+dzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shenghui Wang <shhuiw@foxmail.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 092/122] bcache: recal cached_dev_sectors on detach
-Date:   Fri, 22 Nov 2019 11:29:05 +0100
-Message-Id: <20191122100828.823444028@linuxfoundation.org>
+Subject: [PATCH 4.4 155/159] hwmon: (pwm-fan) Silence error on probe deferral
+Date:   Fri, 22 Nov 2019 11:29:06 +0100
+Message-Id: <20191122100848.393906397@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shenghui Wang <shhuiw@foxmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 46010141da6677b81cc77f9b47f8ac62bd1cbfd3 ]
+[ Upstream commit 9f67f7583e77fe5dc57aab3a6159c2642544eaad ]
 
-Recal cached_dev_sectors on cached_dev detached, as recal done on
-cached_dev attached.
+Probe deferrals aren't actual errors, so silence the error message in
+case the PWM cannot yet be acquired.
 
-Update the cached_dev_sectors before bcache_device_detach called
-as bcache_device_detach will set bcache_device->c to NULL.
-
-Signed-off-by: Shenghui Wang <shhuiw@foxmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hwmon/pwm-fan.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 1a270e2262f52..690aeb09bbf55 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -905,6 +905,7 @@ static void cached_dev_detach_finish(struct work_struct *w)
- 	bch_write_bdev_super(dc, &cl);
- 	closure_sync(&cl);
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index 3e23003f78b01..993c61e95d30c 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -227,8 +227,12 @@ static int pwm_fan_probe(struct platform_device *pdev)
  
-+	calc_cached_dev_sectors(dc->disk.c);
- 	bcache_device_detach(&dc->disk);
- 	list_move(&dc->list, &uncached_devices);
+ 	ctx->pwm = devm_of_pwm_get(&pdev->dev, pdev->dev.of_node, NULL);
+ 	if (IS_ERR(ctx->pwm)) {
+-		dev_err(&pdev->dev, "Could not get PWM\n");
+-		return PTR_ERR(ctx->pwm);
++		ret = PTR_ERR(ctx->pwm);
++
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Could not get PWM: %d\n", ret);
++
++		return ret;
+ 	}
  
+ 	platform_set_drvdata(pdev, ctx);
 -- 
 2.20.1
 
