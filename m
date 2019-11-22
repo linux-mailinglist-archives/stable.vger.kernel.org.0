@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23BBF1064FB
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:21:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A721064E3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727184AbfKVGUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:20:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58324 "EHLO mail.kernel.org"
+        id S1728603AbfKVFwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:52:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728576AbfKVFwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:52:34 -0500
+        id S1728589AbfKVFwg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:52:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 143672073B;
-        Fri, 22 Nov 2019 05:52:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 249D32068F;
+        Fri, 22 Nov 2019 05:52:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401953;
-        bh=DVaKPiUmHGKWMJgDHNMiWfSzaP1Ywwb9Top1BdaLCeo=;
+        s=default; t=1574401954;
+        bh=1RMGphbcr6JtM+J9UMC6O9MEbcjofAiElGx6HGAXfr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxuUXIo/dVhzdK+qgDJHdYtJXTqnHMjp2yum9t9gl3dcES2MmpIJBovzDmD9vmaUU
-         dhpVrOlUtb12lNWrQ3AB5yf9gyHCMNHkapll/MegtW2QVQGI9JrDx7l48jsK3XDd88
-         IMuDBFTMbTz9N7rsWUlUrDf5IAFAEqdJdw6svvhI=
+        b=1paX5aYw8d83v/Ie2I9nuJP9YhX42aUwkZPMVBM8AJK6YY8OC/0558kdmLeD8H6OP
+         AgQMU+xYNueETh3BF+0IseKLiHbpkXX8e1wb7S7LBgjpsmA0mA6wPDFmt3EpdZ06tK
+         lxEK5UXbwGAI0QOZhcKyApA89RCCjYLv/z64Rlz4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 176/219] gpu: ipu-v3: pre: don't trigger update if buffer address doesn't change
-Date:   Fri, 22 Nov 2019 00:48:28 -0500
-Message-Id: <20191122054911.1750-169-sashal@kernel.org>
+Cc:     Edward Cree <ecree@solarflare.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 177/219] sfc: suppress duplicate nvmem partition types in efx_ef10_mtd_probe
+Date:   Fri, 22 Nov 2019 00:48:29 -0500
+Message-Id: <20191122054911.1750-170-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,59 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Edward Cree <ecree@solarflare.com>
 
-[ Upstream commit eb0200a4357da100064971689d3a0e9e3cf57f33 ]
+[ Upstream commit 3366463513f544c12c6b88c13da4462ee9e7a1a1 ]
 
-On a NOP double buffer update where current buffer address is the same
-as the next buffer address, the SDW_UPDATE bit clears too late. As we
-are now using this bit to determine when it is safe to signal flip
-completion to userspace this will delay completion of atomic commits
-where one plane doesn't change the buffer by a whole frame period.
+Use a bitmap to keep track of which partition types we've already seen;
+ for duplicates, return -EEXIST from efx_ef10_mtd_probe_partition() and
+ thus skip adding that partition.
+Duplicate partitions occur because of the A/B backup scheme used by newer
+ sfc NICs.  Prior to this patch they cause sysfs_warn_dup errors because
+ they have the same name, causing us not to expose any MTDs at all.
 
-Fix this by remembering the last buffer address and just skip the
-double buffer update if it would not change the buffer address.
-
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-[p.zabel@pengutronix.de: initialize last_bufaddr in ipu_pre_configure]
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Edward Cree <ecree@solarflare.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/ipu-v3/ipu-pre.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/sfc/ef10.c | 29 +++++++++++++++++++++--------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-pre.c b/drivers/gpu/ipu-v3/ipu-pre.c
-index 2f8db9d625514..4a28f3fbb0a28 100644
---- a/drivers/gpu/ipu-v3/ipu-pre.c
-+++ b/drivers/gpu/ipu-v3/ipu-pre.c
-@@ -106,6 +106,7 @@ struct ipu_pre {
- 	void			*buffer_virt;
- 	bool			in_use;
- 	unsigned int		safe_window_end;
-+	unsigned int		last_bufaddr;
+diff --git a/drivers/net/ethernet/sfc/ef10.c b/drivers/net/ethernet/sfc/ef10.c
+index 7eeac3d6cfe89..a497aace7e4f4 100644
+--- a/drivers/net/ethernet/sfc/ef10.c
++++ b/drivers/net/ethernet/sfc/ef10.c
+@@ -6042,22 +6042,25 @@ static const struct efx_ef10_nvram_type_info efx_ef10_nvram_types[] = {
+ 	{ NVRAM_PARTITION_TYPE_LICENSE,		   0,    0, "sfc_license" },
+ 	{ NVRAM_PARTITION_TYPE_PHY_MIN,		   0xff, 0, "sfc_phy_fw" },
  };
++#define EF10_NVRAM_PARTITION_COUNT	ARRAY_SIZE(efx_ef10_nvram_types)
  
- static DEFINE_MUTEX(ipu_pre_list_mutex);
-@@ -185,6 +186,7 @@ void ipu_pre_configure(struct ipu_pre *pre, unsigned int width,
+ static int efx_ef10_mtd_probe_partition(struct efx_nic *efx,
+ 					struct efx_mcdi_mtd_partition *part,
+-					unsigned int type)
++					unsigned int type,
++					unsigned long *found)
+ {
+ 	MCDI_DECLARE_BUF(inbuf, MC_CMD_NVRAM_METADATA_IN_LEN);
+ 	MCDI_DECLARE_BUF(outbuf, MC_CMD_NVRAM_METADATA_OUT_LENMAX);
+ 	const struct efx_ef10_nvram_type_info *info;
+ 	size_t size, erase_size, outlen;
++	int type_idx = 0;
+ 	bool protected;
+ 	int rc;
  
- 	writel(bufaddr, pre->regs + IPU_PRE_CUR_BUF);
- 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
-+	pre->last_bufaddr = bufaddr;
+-	for (info = efx_ef10_nvram_types; ; info++) {
+-		if (info ==
+-		    efx_ef10_nvram_types + ARRAY_SIZE(efx_ef10_nvram_types))
++	for (type_idx = 0; ; type_idx++) {
++		if (type_idx == EF10_NVRAM_PARTITION_COUNT)
+ 			return -ENODEV;
++		info = efx_ef10_nvram_types + type_idx;
+ 		if ((type & ~info->type_mask) == info->type)
+ 			break;
+ 	}
+@@ -6070,6 +6073,13 @@ static int efx_ef10_mtd_probe_partition(struct efx_nic *efx,
+ 	if (protected)
+ 		return -ENODEV; /* hide it */
  
- 	val = IPU_PRE_PREF_ENG_CTRL_INPUT_PIXEL_FORMAT(0) |
- 	      IPU_PRE_PREF_ENG_CTRL_INPUT_ACTIVE_BPP(active_bpp) |
-@@ -242,7 +244,11 @@ void ipu_pre_update(struct ipu_pre *pre, unsigned int bufaddr)
- 	unsigned short current_yblock;
- 	u32 val;
- 
-+	if (bufaddr == pre->last_bufaddr)
-+		return;
++	/* If we've already exposed a partition of this type, hide this
++	 * duplicate.  All operations on MTDs are keyed by the type anyway,
++	 * so we can't act on the duplicate.
++	 */
++	if (__test_and_set_bit(type_idx, found))
++		return -EEXIST;
 +
- 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
-+	pre->last_bufaddr = bufaddr;
+ 	part->nvram_type = type;
  
- 	do {
- 		if (time_after(jiffies, timeout)) {
+ 	MCDI_SET_DWORD(inbuf, NVRAM_METADATA_IN_TYPE, type);
+@@ -6098,6 +6108,7 @@ static int efx_ef10_mtd_probe_partition(struct efx_nic *efx,
+ static int efx_ef10_mtd_probe(struct efx_nic *efx)
+ {
+ 	MCDI_DECLARE_BUF(outbuf, MC_CMD_NVRAM_PARTITIONS_OUT_LENMAX);
++	DECLARE_BITMAP(found, EF10_NVRAM_PARTITION_COUNT);
+ 	struct efx_mcdi_mtd_partition *parts;
+ 	size_t outlen, n_parts_total, i, n_parts;
+ 	unsigned int type;
+@@ -6126,11 +6137,13 @@ static int efx_ef10_mtd_probe(struct efx_nic *efx)
+ 	for (i = 0; i < n_parts_total; i++) {
+ 		type = MCDI_ARRAY_DWORD(outbuf, NVRAM_PARTITIONS_OUT_TYPE_ID,
+ 					i);
+-		rc = efx_ef10_mtd_probe_partition(efx, &parts[n_parts], type);
+-		if (rc == 0)
+-			n_parts++;
+-		else if (rc != -ENODEV)
++		rc = efx_ef10_mtd_probe_partition(efx, &parts[n_parts], type,
++						  found);
++		if (rc == -EEXIST || rc == -ENODEV)
++			continue;
++		if (rc)
+ 			goto fail;
++		n_parts++;
+ 	}
+ 
+ 	rc = efx_mtd_add(efx, &parts[0].common, n_parts, sizeof(*parts));
 -- 
 2.20.1
 
