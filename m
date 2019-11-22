@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11CEC106B83
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:45:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E449106A6B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:34:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728091AbfKVKpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:45:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51222 "EHLO mail.kernel.org"
+        id S1727367AbfKVKek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:34:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728502AbfKVKpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:45:03 -0500
+        id S1727443AbfKVKej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:34:39 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47D40205C9;
-        Fri, 22 Nov 2019 10:45:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D20F620656;
+        Fri, 22 Nov 2019 10:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419502;
-        bh=pdvAvsejs+m9ghYz4ndlfv1HwItb8YLYK5+SNO/7GAg=;
+        s=default; t=1574418879;
+        bh=OQxAjtgjoRmh71w/KKY3w4GztgCDEsVjgMRHOe26tms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zIyCncF7ajdCwHzKGMCwQonsVpIQUaa5HV9AdNP47YAmEueAvzX4MQY+VaF+GNX37
-         zKfEERBUapG90lrIWhQCVaufHKEfd+Nh3cYCD3l/xHcL/fCREK1zOaIbBtM3E4zAwu
-         XPCIizj9rRSb9nhtqzgFjZeF89n+z5YFLPD5MaAU=
+        b=TcCkX9auO3ynNaFL2CSkGsaya1rA0UJNJ/jqooNZAuSdP2FUn+nl+nF0f4RcTSgvg
+         yL9sQiqHTOkHzmLapVMzLCORa3+TGUTP4I2BCRRN9XpoVA8DLynXCvlDPTUbrPCHH8
+         uEl83pgteNNFtB+g1nefTTxYF7TVhbhsXO3H2Sp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Ondrey Zary <linux@rainbow-software.org>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 134/222] scsi: NCR5380: Clear all unissued commands on host reset
-Date:   Fri, 22 Nov 2019 11:27:54 +0100
-Message-Id: <20191122100912.598230520@linuxfoundation.org>
+Subject: [PATCH 4.4 084/159] usb: gadget: uvc: Only halt video streaming endpoint in bulk mode
+Date:   Fri, 22 Nov 2019 11:27:55 +0100
+Message-Id: <20191122100806.327002706@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,53 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 1aeeeed7f03c576f096eede7b0384f99a98f588c ]
+[ Upstream commit 8dbf9c7abefd5c1434a956d5c6b25e11183061a3 ]
 
-When doing a host reset we should be clearing all outstanding commands, not
-just the command triggering the reset.
+When USB requests for video data fail to be submitted, the driver
+signals a problem to the host by halting the video streaming endpoint.
+This is only valid in bulk mode, as isochronous transfers have no
+handshake phase and can't thus report a stall. The usb_ep_set_halt()
+call returns an error when using isochronous endpoints, which we happily
+ignore, but some UDCs complain in the kernel log. Fix this by only
+trying to halt the endpoint in bulk mode.
 
-[mkp: adjusted Hannes' SoB address]
-
-Signed-off-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Cc: Ondrey Zary <linux@rainbow-software.org>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Tested-by: Paul Elder <paul.elder@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/NCR5380.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/function/uvc_video.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/NCR5380.c b/drivers/scsi/NCR5380.c
-index 3cfab8868c989..ba7b3aef3ef0b 100644
---- a/drivers/scsi/NCR5380.c
-+++ b/drivers/scsi/NCR5380.c
-@@ -2392,7 +2392,7 @@ static int NCR5380_bus_reset(struct scsi_cmnd *cmd)
- 	spin_lock_irqsave(&hostdata->lock, flags);
- 
- #if (NDEBUG & NDEBUG_ANY)
--	scmd_printk(KERN_INFO, cmd, __func__);
-+	shost_printk(KERN_INFO, instance, __func__);
- #endif
- 	NCR5380_dprint(NDEBUG_ANY, instance);
- 	NCR5380_dprint_phase(NDEBUG_ANY, instance);
-@@ -2410,10 +2410,13 @@ static int NCR5380_bus_reset(struct scsi_cmnd *cmd)
- 	 * commands!
- 	 */
- 
--	if (list_del_cmd(&hostdata->unissued, cmd)) {
-+	list_for_each_entry(ncmd, &hostdata->unissued, list) {
-+		struct scsi_cmnd *cmd = NCR5380_to_scmd(ncmd);
-+
- 		cmd->result = DID_RESET << 16;
- 		cmd->scsi_done(cmd);
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index 540917f54506a..d6bab12b0b47d 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -136,7 +136,9 @@ static int uvcg_video_ep_queue(struct uvc_video *video, struct usb_request *req)
+ 	ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
+ 	if (ret < 0) {
+ 		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
+-		usb_ep_set_halt(video->ep);
++		/* Isochronous endpoints can't be halted. */
++		if (usb_endpoint_xfer_bulk(video->ep->desc))
++			usb_ep_set_halt(video->ep);
  	}
-+	INIT_LIST_HEAD(&hostdata->unissued);
  
- 	if (hostdata->selecting) {
- 		hostdata->selecting->result = DID_RESET << 16;
+ 	return ret;
 -- 
 2.20.1
 
