@@ -2,71 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E539D10790C
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B18A7107918
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727400AbfKVTzg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 14:55:36 -0500
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:36552 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726187AbfKVTzg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 14:55:36 -0500
-Received: by mail-pf1-f196.google.com with SMTP id b19so3978898pfd.3;
-        Fri, 22 Nov 2019 11:55:35 -0800 (PST)
+        id S1727208AbfKVT4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 14:56:07 -0500
+Received: from mail-pj1-f65.google.com ([209.85.216.65]:45115 "EHLO
+        mail-pj1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726546AbfKVT4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 14:56:06 -0500
+Received: by mail-pj1-f65.google.com with SMTP id m71so3455777pjb.12;
+        Fri, 22 Nov 2019 11:56:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=date:from:to:cc:subject:message-id:references:mime-version
          :content-disposition:in-reply-to:user-agent;
-        bh=+KAr/Xowf3i8pr8EPJk1gltx6EMW0QxKeOvIBPu6+rc=;
-        b=o6OrX4195DPB62OgCWIxrp/crv6S+mPssF+6KFRAKIK3FzUZ92RaCmwElycCewNvMs
-         SjwQbcGj73Rmxtjrqa/NohiSE+NUTaG+FYg6Xx8TsHjE7PbqBBEnRK+Cv3upbm8lDCo9
-         nI8CM+ALPaFZX5Lj1sr09IbAvl6tPC5faCoakL4MKsNSHFmv1x7j932famFFWMJUdIz5
-         h3Zfoe1sano4+DFroa6CAjG46rZnrNXlOPssmP8zoznYTqIqCP77HhFA+ayTKkRjrrLD
-         RbZZ5JCRxjRWl+WEXXwokcigMyv1UEhyn6DFPBzraHjVST1NXcOo+YFjKy50EWVb71PZ
-         vluA==
+        bh=n9AhKfMQ3HPLRIiKyptfIRvZgizFjbDOqmEqa663Z58=;
+        b=BVX0TArGcPO3YDBZ1LafMwPAR15j+hrvoSxKdby/vlgGLtkjC+A7JhWvh5o9gSNiTE
+         Bt4OVcSCoo5/+oRr6iuLxk8/cKicdPKysDTj5G3skdujO0R5SJxaZCsYvO55R/Bmn1AP
+         A8E+xxQUAFB0grXPt84HySzbvuCCZ+6qTT77L1PpF4eMfp2G1ufIWI1A/1E/z71kUSms
+         lRKlOJbrtUwWrPIE9H4rE5/aVvz7vTto6GpI7UgK50/oFXJGxuL2tgDPdZLV4fnkl+/b
+         tEJrlhihcOH8vHj781v8bRX1t2vZwO7URsESYDu85covo+QFOKt1vyTj6ccEufjTpYLI
+         B7iA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=+KAr/Xowf3i8pr8EPJk1gltx6EMW0QxKeOvIBPu6+rc=;
-        b=Zena3V1EB9OCiYga5zSOFgD41c2TyXAasJMPyscEKxl3H+yN2mDB/7EQ5zrj/9jfji
-         uWhoUBidSWaYIDLWQzPrpuIIvAr8PtOgNnmkchzKzAjO8d+Wf6/tA2stshiEbaO/WZMU
-         CEMXLfe6+mXMfDDKEgw04gkP5BY+fYi/CpzU7m9CKzwIcoNi/kZkT0Ap+HnaiZM9Ht77
-         eqvT1zmogfS0AjmBJsr+83hzfqn5azcd7QNhicxokpAraspVo1I9Uzs4/d1Q+3rtAyDF
-         WR2iY0CUiUtomXJ/KH/q0tJHSGnPPn3pOlJPtq6xFZYYW3zPnVThUQulMvR1DyAfTC7o
-         wW7g==
-X-Gm-Message-State: APjAAAUAuKt6fL6PkANM7h2s84WF/q3JWcH1XIffdb6TPNxA4WxHN9rw
-        6dAXFpHVI5+UJTlu4F8S2jY=
-X-Google-Smtp-Source: APXvYqxxriw7hLwKt6j9owi/q/reR4XwlxChZc3XU54nlr0I96qcCgWK60BwuCtm+tYfUUZtsmnTeA==
-X-Received: by 2002:a63:4f64:: with SMTP id p36mr18426689pgl.271.1574452535020;
-        Fri, 22 Nov 2019 11:55:35 -0800 (PST)
+        bh=n9AhKfMQ3HPLRIiKyptfIRvZgizFjbDOqmEqa663Z58=;
+        b=bzCXHziS7BzuZzMbZp7/d0VlgKsk5cjBkeS0tnOcU5oTuZ1o5Zl2LoiKWhZftsdzNb
+         zktUM59FaCqvyoUqCUzdasvFZdDP+vWy0umj979IrlRVgQWYEcVM4M8ceT/MVNEBWLR4
+         8j7g5GAxG90ls+qYS2sVRxkbVnWa0ehpNvXcjVJu3wQr6pL0GNg5DHUf6TcFnwcQCLy9
+         xfyr1p7VQ54HMZNZ8DCQ8Vpk1U9gySWttM2yncAk/9D059QXGsUC+sdGAbNJEcd7EYbm
+         d+GgqwBLpPqTyxYuuRZjOWxSogSTlEztI7Ex1dbWq3mb1cuzMF4MWf0z6pjbcdNnLCVB
+         UE/w==
+X-Gm-Message-State: APjAAAW1icZXNv6SLbepA+9CpqgNd02CJvOcJ6NyRfEjUlyJjnW2rwXZ
+        QDPHi7kTYhDDx1EhWwdYdf0=
+X-Google-Smtp-Source: APXvYqzRjYD+J/qSc85kWoXSUcfa5FtcVRfRnO8zjPR2ARo5UoSYf6mYRehLceXYgvAUaRHsU+rK9Q==
+X-Received: by 2002:a17:90a:a616:: with SMTP id c22mr21479330pjq.46.1574452565243;
+        Fri, 22 Nov 2019 11:56:05 -0800 (PST)
 Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
-        by smtp.gmail.com with ESMTPSA id t1sm8552138pfq.156.2019.11.22.11.55.34
+        by smtp.gmail.com with ESMTPSA id r33sm3947913pjb.5.2019.11.22.11.56.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Nov 2019 11:55:34 -0800 (PST)
-Date:   Fri, 22 Nov 2019 11:55:32 -0800
+        Fri, 22 Nov 2019 11:56:04 -0800 (PST)
+Date:   Fri, 22 Nov 2019 11:56:02 -0800
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Lyude Paul <lyude@redhat.com>, linux-input@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.19 24/25] Input: synaptics - enable RMI mode
+Subject: Re: [PATCH AUTOSEL 4.14 21/21] Input: synaptics - enable RMI mode
  for X1 Extreme 2nd Generation
-Message-ID: <20191122195532.GB248138@dtor-ws>
-References: <20191122194859.24508-1-sashal@kernel.org>
- <20191122194859.24508-24-sashal@kernel.org>
+Message-ID: <20191122195602.GC248138@dtor-ws>
+References: <20191122194931.24732-1-sashal@kernel.org>
+ <20191122194931.24732-21-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20191122194859.24508-24-sashal@kernel.org>
+In-Reply-To: <20191122194931.24732-21-sashal@kernel.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
-
-On Fri, Nov 22, 2019 at 02:48:57PM -0500, Sasha Levin wrote:
+On Fri, Nov 22, 2019 at 02:49:31PM -0500, Sasha Levin wrote:
 > From: Lyude Paul <lyude@redhat.com>
 > 
 > [ Upstream commit 768ea88bcb235ac3a92754bf82afcd3f12200bcc ]
@@ -88,7 +86,7 @@ This will be reverted, do not pick up for stable.
 >  1 file changed, 1 insertion(+)
 > 
 > diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-> index 06cebde2422ea..afdb9947d8af9 100644
+> index 7db53eab70121..1962db0431dea 100644
 > --- a/drivers/input/mouse/synaptics.c
 > +++ b/drivers/input/mouse/synaptics.c
 > @@ -180,6 +180,7 @@ static const char * const smbus_pnp_ids[] = {
