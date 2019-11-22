@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0C3D106B55
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:43:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DBBC106D21
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:57:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729194AbfKVKnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:43:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48940 "EHLO mail.kernel.org"
+        id S1730711AbfKVK5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:57:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729205AbfKVKnV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:43:21 -0500
+        id S1730464AbfKVK5n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:57:43 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 594F120707;
-        Fri, 22 Nov 2019 10:43:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF6672072E;
+        Fri, 22 Nov 2019 10:57:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419400;
-        bh=lxaBYjJ5B0CHoLiYBCq+c4Te2XzDh6prC0xrVXJ31bc=;
+        s=default; t=1574420262;
+        bh=dQt3xAF/0dD9AaQxedCxFQzgzRaMzkywGvh9+OmquuM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02ikqq6uluY2vMDEa3kE7RVE/4NqfUSb1vNNn459ls1SSXLk4MpbwrSTdJxGszK6N
-         moV4JFJlbT+rvcVYQcn+oHWGCHa787Y6/bqF/+Ya/lzP180qftbOfoPYIK6MZgXJR1
-         ZbEWATuEU2wZTTi8ITHxlX3iyDIp3npfMKJuksD4=
+        b=r5tK9uMPWVn2FXQtpWNWp6HsnmQRn7XWVOuff02icyIIHrtiMmqmTl7HDdMAtrmW+
+         TLyBIAtb03L2GqNW5BlYcWxhkNX70WdKocxGTzpR26In9SrALEuwKjDqKvAmRu/+Tz
+         M47TMiVpTrIobaC9lOeviTnVkTce/4pwQFmeOGGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Thinh Nguyen <thinhn@synopsys.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 072/222] power: supply: ab8500_fg: silence uninitialized variable warnings
+Subject: [PATCH 4.19 047/220] usb: dwc3: gadget: Check ENBLSLPM before sending ep command
 Date:   Fri, 22 Nov 2019 11:26:52 +0100
-Message-Id: <20191122100907.048522137@linuxfoundation.org>
+Message-Id: <20191122100915.601546840@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 
-[ Upstream commit 54baff8d4e5dce2cef61953b1dc22079cda1ddb1 ]
+[ Upstream commit 87dd96111b0bb8e616fcbd74dbf4bb4182f2c596 ]
 
-If kstrtoul() fails then we print "charge_full" when it's uninitialized.
-The debug printk doesn't add anything so I deleted it and cleaned these
-two functions up a bit.
+When operating in USB 2.0 speeds (HS/FS), if GUSB2PHYCFG.ENBLSLPM or
+GUSB2PHYCFG.SUSPHY is set, it must be cleared before issuing an endpoint
+command.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Current implementation only save and restore GUSB2PHYCFG.SUSPHY
+configuration. We must save and clear both GUSB2PHYCFG.ENBLSLPM and
+GUSB2PHYCFG.SUSPHY settings. Restore them after the command is
+completed.
+
+DWC_usb3 3.30a and DWC_usb31 1.90a programming guide section 3.2.2
+
+Signed-off-by: Thinh Nguyen <thinhn@synopsys.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/ab8500_fg.c | 31 ++++++++++++-------------------
- 1 file changed, 12 insertions(+), 19 deletions(-)
+ drivers/usb/dwc3/gadget.c | 29 +++++++++++++++++++----------
+ 1 file changed, 19 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/power/supply/ab8500_fg.c b/drivers/power/supply/ab8500_fg.c
-index 2199f673118c0..ea8c26a108f00 100644
---- a/drivers/power/supply/ab8500_fg.c
-+++ b/drivers/power/supply/ab8500_fg.c
-@@ -2437,17 +2437,14 @@ static ssize_t charge_full_store(struct ab8500_fg *di, const char *buf,
- 				 size_t count)
- {
- 	unsigned long charge_full;
--	ssize_t ret;
-+	int ret;
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 8398c33d08e7c..3e04004b4f1b7 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -271,27 +271,36 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
+ 	const struct usb_endpoint_descriptor *desc = dep->endpoint.desc;
+ 	struct dwc3		*dwc = dep->dwc;
+ 	u32			timeout = 1000;
++	u32			saved_config = 0;
+ 	u32			reg;
  
- 	ret = kstrtoul(buf, 10, &charge_full);
-+	if (ret)
-+		return ret;
+ 	int			cmd_status = 0;
+-	int			susphy = false;
+ 	int			ret = -EINVAL;
  
--	dev_dbg(di->dev, "Ret %zd charge_full %lu", ret, charge_full);
--
--	if (!ret) {
--		di->bat_cap.max_mah = (int) charge_full;
--		ret = count;
--	}
--	return ret;
-+	di->bat_cap.max_mah = (int) charge_full;
-+	return count;
- }
+ 	/*
+-	 * Synopsys Databook 2.60a states, on section 6.3.2.5.[1-8], that if
+-	 * we're issuing an endpoint command, we must check if
+-	 * GUSB2PHYCFG.SUSPHY bit is set. If it is, then we need to clear it.
++	 * When operating in USB 2.0 speeds (HS/FS), if GUSB2PHYCFG.ENBLSLPM or
++	 * GUSB2PHYCFG.SUSPHY is set, it must be cleared before issuing an
++	 * endpoint command.
+ 	 *
+-	 * We will also set SUSPHY bit to what it was before returning as stated
+-	 * by the same section on Synopsys databook.
++	 * Save and clear both GUSB2PHYCFG.ENBLSLPM and GUSB2PHYCFG.SUSPHY
++	 * settings. Restore them after the command is completed.
++	 *
++	 * DWC_usb3 3.30a and DWC_usb31 1.90a programming guide section 3.2.2
+ 	 */
+ 	if (dwc->gadget.speed <= USB_SPEED_HIGH) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+ 		if (unlikely(reg & DWC3_GUSB2PHYCFG_SUSPHY)) {
+-			susphy = true;
++			saved_config |= DWC3_GUSB2PHYCFG_SUSPHY;
+ 			reg &= ~DWC3_GUSB2PHYCFG_SUSPHY;
+-			dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+ 		}
++
++		if (reg & DWC3_GUSB2PHYCFG_ENBLSLPM) {
++			saved_config |= DWC3_GUSB2PHYCFG_ENBLSLPM;
++			reg &= ~DWC3_GUSB2PHYCFG_ENBLSLPM;
++		}
++
++		if (saved_config)
++			dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+ 	}
  
- static ssize_t charge_now_show(struct ab8500_fg *di, char *buf)
-@@ -2459,20 +2456,16 @@ static ssize_t charge_now_store(struct ab8500_fg *di, const char *buf,
- 				 size_t count)
- {
- 	unsigned long charge_now;
--	ssize_t ret;
-+	int ret;
+ 	if (DWC3_DEPCMD_CMD(cmd) == DWC3_DEPCMD_STARTTRANSFER) {
+@@ -380,9 +389,9 @@ int dwc3_send_gadget_ep_cmd(struct dwc3_ep *dep, unsigned cmd,
+ 		dwc3_gadget_ep_get_transfer_index(dep);
+ 	}
  
- 	ret = kstrtoul(buf, 10, &charge_now);
-+	if (ret)
-+		return ret;
+-	if (unlikely(susphy)) {
++	if (saved_config) {
+ 		reg = dwc3_readl(dwc->regs, DWC3_GUSB2PHYCFG(0));
+-		reg |= DWC3_GUSB2PHYCFG_SUSPHY;
++		reg |= saved_config;
+ 		dwc3_writel(dwc->regs, DWC3_GUSB2PHYCFG(0), reg);
+ 	}
  
--	dev_dbg(di->dev, "Ret %zd charge_now %lu was %d",
--		ret, charge_now, di->bat_cap.prev_mah);
--
--	if (!ret) {
--		di->bat_cap.user_mah = (int) charge_now;
--		di->flags.user_cap = true;
--		ret = count;
--		queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
--	}
--	return ret;
-+	di->bat_cap.user_mah = (int) charge_now;
-+	di->flags.user_cap = true;
-+	queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
-+	return count;
- }
- 
- static struct ab8500_fg_sysfs_entry charge_full_attr =
 -- 
 2.20.1
 
