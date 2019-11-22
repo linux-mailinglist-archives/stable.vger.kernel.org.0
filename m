@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB7A10711A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAA4107084
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728096AbfKVKe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:34:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59120 "EHLO mail.kernel.org"
+        id S1727892AbfKVLWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:22:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728093AbfKVKe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:34:28 -0500
+        id S1727747AbfKVKmm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:42:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EBE720656;
-        Fri, 22 Nov 2019 10:34:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D346620715;
+        Fri, 22 Nov 2019 10:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418867;
-        bh=VD4UdahY3GQ+xQ2/+jHwTXiwPVyL987arVvNOOss+w0=;
+        s=default; t=1574419362;
+        bh=0K5Le4/yUVvQ+7LVnDH2eIxwNTpwnAm+e6EkDjNqOyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ea7IAH5rnDm5kEu5/sDA/dsVgQxhTcDxu7Pw5HwkQ3zJIJCnc5AUMVrt848e22rdi
-         OCkTdGrDjK9bhFTtj7ITjPp/QFD/3ZwSkP1VGvTT2nIWwWbGnyyGp+ApQfRxk+6G33
-         r+ptG050Gd9bO28Gelm0uDN192q7nWdfGM05Gpmc=
+        b=GmVoWriA4/3Or6+UrMP+p5w9iaxkChr+mtIdURb3Lrd/TO96zRtL4ORY1A3uzD3NU
+         fOKbVpUXRMIMzV0dUq+eFoebi9+JRw+B+xbMio/l7DLlVVJ7/Futlu/Tnc4gwdDTrs
+         IW51hTex6mb6WscKaazzZYMwgnYXhajAwuT/DvDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Silsby <dansilsby@gmail.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Mathieu Malaterre <malat@debian.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 035/159] dmaengine: dma-jz4780: Further residue status fix
-Date:   Fri, 22 Nov 2019 11:27:06 +0100
-Message-Id: <20191122100731.330660345@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        linux-arm-kernel@lists.infradead.org,
+        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 087/222] libfdt: Ensure INT_MAX is defined in libfdt_env.h
+Date:   Fri, 22 Nov 2019 11:27:07 +0100
+Message-Id: <20191122100909.853136152@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Silsby <dansilsby@gmail.com>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit 83ef4fb7556b6a673f755da670cbacab7e2c7f1b ]
+[ Upstream commit 53dd9dce6979bc54d64a3a09a2fb20187a025be7 ]
 
-Func jz4780_dma_desc_residue() expects the index to the next hw
-descriptor as its last parameter. Caller func jz4780_dma_tx_status(),
-however, applied modulus before passing it. When the current hw
-descriptor was last in the list, the index passed became zero.
+The next update of libfdt has a new dependency on INT_MAX. Update the
+instances of libfdt_env.h in the kernel to either include the necessary
+header with the definition or define it locally.
 
-The resulting excess of reported residue especially caused problems
-with cyclic DMA transfer clients, i.e. ALSA AIC audio output, which
-rely on this for determining current DMA location within buffer.
-
-Combined with the recent and related residue-reporting fixes, spurious
-ALSA audio underruns on jz4770 hardware are now fixed.
-
-Signed-off-by: Daniel Silsby <dansilsby@gmail.com>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Tested-by: Mathieu Malaterre <malat@debian.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/dma-jz4780.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/compressed/libfdt_env.h | 2 ++
+ arch/powerpc/boot/libfdt_env.h        | 2 ++
+ include/linux/libfdt_env.h            | 1 +
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/dma/dma-jz4780.c b/drivers/dma/dma-jz4780.c
-index 8344b7c91fe35..1d01e3805f9c2 100644
---- a/drivers/dma/dma-jz4780.c
-+++ b/drivers/dma/dma-jz4780.c
-@@ -576,7 +576,7 @@ static enum dma_status jz4780_dma_tx_status(struct dma_chan *chan,
- 					to_jz4780_dma_desc(vdesc), 0);
- 	} else if (cookie == jzchan->desc->vdesc.tx.cookie) {
- 		txstate->residue = jz4780_dma_desc_residue(jzchan, jzchan->desc,
--			  (jzchan->curr_hwdesc + 1) % jzchan->desc->count);
-+					jzchan->curr_hwdesc + 1);
- 	} else
- 		txstate->residue = 0;
+diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
+index 17ae0f3efac8e..005bf4ff1b4cb 100644
+--- a/arch/arm/boot/compressed/libfdt_env.h
++++ b/arch/arm/boot/compressed/libfdt_env.h
+@@ -5,6 +5,8 @@
+ #include <linux/string.h>
+ #include <asm/byteorder.h>
  
++#define INT_MAX			((int)(~0U>>1))
++
+ typedef __be16 fdt16_t;
+ typedef __be32 fdt32_t;
+ typedef __be64 fdt64_t;
+diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
+index 7e3789ea396b8..0b3db6322c793 100644
+--- a/arch/powerpc/boot/libfdt_env.h
++++ b/arch/powerpc/boot/libfdt_env.h
+@@ -4,6 +4,8 @@
+ #include <types.h>
+ #include <string.h>
+ 
++#define INT_MAX			((int)(~0U>>1))
++
+ #include "of.h"
+ 
+ typedef u32 uint32_t;
+diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
+index 2a663c6bb4285..8850e243c9406 100644
+--- a/include/linux/libfdt_env.h
++++ b/include/linux/libfdt_env.h
+@@ -1,6 +1,7 @@
+ #ifndef _LIBFDT_ENV_H
+ #define _LIBFDT_ENV_H
+ 
++#include <linux/kernel.h>	/* For INT_MAX */
+ #include <linux/string.h>
+ 
+ #include <asm/byteorder.h>
 -- 
 2.20.1
 
