@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8607D106E34
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CB91106F45
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731158AbfKVLGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:06:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33972 "EHLO mail.kernel.org"
+        id S1729773AbfKVLOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:14:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730087AbfKVLGC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:06:02 -0500
+        id S1728271AbfKVKxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:53:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 808F52070E;
-        Fri, 22 Nov 2019 11:06:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CDDF320656;
+        Fri, 22 Nov 2019 10:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420762;
-        bh=aiz3eV8mf86aSfRxkTBxpeVCFF/Kh1Qwikco9jtuQ0Y=;
+        s=default; t=1574420009;
+        bh=h/qoJpUfQOrBJEA7qGpILdqu+csxqNFYDokiCl2xkys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVS7hrScp+rjv16JuxrSeylBwmX0UjsdUtG7jiRdHSsvR26+B045EoGOeWekpNQu0
-         u3WO+B5d+7s5ivpykadVhUtvwNyzHwnE6BDHZAD12+/o+PyGsV1IfiRtaIWlLKCT8l
-         +FuzbxRcSIkWv36biTKNPhuUxPzwxaeRUs1aMqBo=
+        b=Q7l5Mty4bqUGq495AB4vAik+k2QUXgOSLa5qEzb3IC9BkeiDF+hD5aoqkeGE7e2/l
+         j/3y0XlEpHNBGpGZvo6mYzkdBUTVPufzOLS7fYRkAfwXcv21B7Iglqi17dfFCMhaby
+         nvMNAnvOswg/ia+blOOH8rk+OsRM6X/J2WSAtb8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rostedt@goodmis.org,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        He Zhe <zhe.he@windriver.com>, Petr Mladek <pmladek@suse.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Ronald=20Tschal=C3=83=C2=A4r?= <ronald@innovation.ch>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 173/220] printk: Give error on attempt to set log buffer length to over 2G
+Subject: [PATCH 4.14 085/122] ACPI / SBS: Fix rare oops when removing modules
 Date:   Fri, 22 Nov 2019 11:28:58 +0100
-Message-Id: <20191122100925.293272966@linuxfoundation.org>
+Message-Id: <20191122100824.823949891@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Zhe <zhe.he@windriver.com>
+From: Ronald Tschalär <ronald@innovation.ch>
 
-[ Upstream commit e6fe3e5b7d16e8f146a4ae7fe481bc6e97acde1e ]
+[ Upstream commit 757c968c442397f1249bb775a7c8c03842e3e0c7 ]
 
-The current printk() is ready to handle log buffer size up to 2G.
-Give an explicit error for users who want to use larger log buffer.
+There was a small race when removing the sbshc module where
+smbus_alarm() had queued acpi_smbus_callback() for deferred execution
+but it hadn't been run yet, so that when it did run hc had been freed
+and the module unloaded, resulting in an invalid paging request.
 
-Also fix printk formatting to show the 2G as a positive number.
+A similar race existed when removing the sbs module with regards to
+acpi_sbs_callback() (which is called from acpi_smbus_callback()).
 
-Link: http://lkml.kernel.org/r/20181008135916.gg4kkmoki5bgtco5@pathway.suse.cz
-Cc: rostedt@goodmis.org
-Cc: linux-kernel@vger.kernel.org
-Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: He Zhe <zhe.he@windriver.com>
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-[pmladek: Fixed to the really safe limit 2GB.]
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+We therefore need to ensure no callbacks are pending or executing before
+the cleanups are done and the modules are removed.
+
+Signed-off-by: Ronald TschalÃ¤r <ronald@innovation.ch>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/acpi/osl.c   | 1 +
+ drivers/acpi/sbshc.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 52390f5a1db11..c7b3d5489937d 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -438,6 +438,7 @@ static u32 clear_idx;
- /* record buffer */
- #define LOG_ALIGN __alignof__(struct printk_log)
- #define __LOG_BUF_LEN (1 << CONFIG_LOG_BUF_SHIFT)
-+#define LOG_BUF_LEN_MAX (u32)(1 << 31)
- static char __log_buf[__LOG_BUF_LEN] __aligned(LOG_ALIGN);
- static char *log_buf = __log_buf;
- static u32 log_buf_len = __LOG_BUF_LEN;
-@@ -1038,18 +1039,23 @@ void log_buf_vmcoreinfo_setup(void)
- static unsigned long __initdata new_log_buf_len;
+diff --git a/drivers/acpi/osl.c b/drivers/acpi/osl.c
+index 191e86c62037a..9da7e7d874bd8 100644
+--- a/drivers/acpi/osl.c
++++ b/drivers/acpi/osl.c
+@@ -1116,6 +1116,7 @@ void acpi_os_wait_events_complete(void)
+ 	flush_workqueue(kacpid_wq);
+ 	flush_workqueue(kacpi_notify_wq);
+ }
++EXPORT_SYMBOL(acpi_os_wait_events_complete);
  
- /* we practice scaling the ring buffer by powers of 2 */
--static void __init log_buf_len_update(unsigned size)
-+static void __init log_buf_len_update(u64 size)
- {
-+	if (size > (u64)LOG_BUF_LEN_MAX) {
-+		size = (u64)LOG_BUF_LEN_MAX;
-+		pr_err("log_buf over 2G is not supported.\n");
-+	}
-+
- 	if (size)
- 		size = roundup_pow_of_two(size);
- 	if (size > log_buf_len)
--		new_log_buf_len = size;
-+		new_log_buf_len = (unsigned long)size;
+ struct acpi_hp_work {
+ 	struct work_struct work;
+diff --git a/drivers/acpi/sbshc.c b/drivers/acpi/sbshc.c
+index 7a3431018e0ab..5008ead4609a4 100644
+--- a/drivers/acpi/sbshc.c
++++ b/drivers/acpi/sbshc.c
+@@ -196,6 +196,7 @@ int acpi_smbus_unregister_callback(struct acpi_smb_hc *hc)
+ 	hc->callback = NULL;
+ 	hc->context = NULL;
+ 	mutex_unlock(&hc->lock);
++	acpi_os_wait_events_complete();
+ 	return 0;
  }
  
- /* save requested log_buf_len since it's too early to process it */
- static int __init log_buf_len_setup(char *str)
- {
--	unsigned int size;
-+	u64 size;
+@@ -292,6 +293,7 @@ static int acpi_smbus_hc_remove(struct acpi_device *device)
  
- 	if (!str)
- 		return -EINVAL;
-@@ -1119,7 +1125,7 @@ void __init setup_log_buf(int early)
- 	}
- 
- 	if (unlikely(!new_log_buf)) {
--		pr_err("log_buf_len: %ld bytes not available\n",
-+		pr_err("log_buf_len: %lu bytes not available\n",
- 			new_log_buf_len);
- 		return;
- 	}
-@@ -1132,8 +1138,8 @@ void __init setup_log_buf(int early)
- 	memcpy(log_buf, __log_buf, __LOG_BUF_LEN);
- 	logbuf_unlock_irqrestore(flags);
- 
--	pr_info("log_buf_len: %d bytes\n", log_buf_len);
--	pr_info("early log buf free: %d(%d%%)\n",
-+	pr_info("log_buf_len: %u bytes\n", log_buf_len);
-+	pr_info("early log buf free: %u(%u%%)\n",
- 		free, (free * 100) / __LOG_BUF_LEN);
- }
- 
+ 	hc = acpi_driver_data(device);
+ 	acpi_ec_remove_query_handler(hc->ec, hc->query_bit);
++	acpi_os_wait_events_complete();
+ 	kfree(hc);
+ 	device->driver_data = NULL;
+ 	return 0;
 -- 
 2.20.1
 
