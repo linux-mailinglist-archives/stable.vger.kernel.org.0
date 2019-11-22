@@ -2,97 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3262110688E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 10:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35BB910694C
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 10:51:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726364AbfKVJDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 04:03:19 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:38452 "EHLO mail.skyhub.de"
+        id S1726500AbfKVJu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 04:50:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726100AbfKVJDT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 04:03:19 -0500
-Received: from zn.tnic (p200300EC2F0E97008857C615A913C712.dip0.t-ipconnect.de [IPv6:2003:ec:2f0e:9700:8857:c615:a913:c712])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1726417AbfKVJu6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 04:50:58 -0500
+Received: from localhost.localdomain (236.31.169.217.in-addr.arpa [217.169.31.236])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 8312F1EC0CFE;
-        Fri, 22 Nov 2019 10:03:17 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1574413397;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=liTKNvrJ2ArY+2xUErntrVevJruJzJ9WZm0VG8dwj9s=;
-        b=YNzWh7XyrQ0NI2DDjQ16dJCETjVNhVBN4jP6V4zW9M4KyBN1UBEDMyFKicvloQHXOirnIO
-        TS2H7wdIDXui61G/ViQ37bFdGQ0NKGR0sxY+MhopQVtNCAkLM8o6nFC7DNVkxN/cjuP6aw
-        W6Ib6BtfBESxvQUgCoY3eeF9pBEvZZ0=
-Date:   Fri, 22 Nov 2019 10:03:15 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     thor.thayer@linux.intel.com
-Cc:     mchehab@kernel.org, tony.luck@intel.com, james.morse@arm.com,
-        rrichter@marvell.com, Meng.Li@windriver.com,
-        linux-edac@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCHv2 1/3] EDAC/altera: Use fast register IO for S10 IRQs
-Message-ID: <20191122090314.GC6289@zn.tnic>
-References: <1574361048-17572-1-git-send-email-thor.thayer@linux.intel.com>
- <1574361048-17572-2-git-send-email-thor.thayer@linux.intel.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id AF9F920717;
+        Fri, 22 Nov 2019 09:50:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574416257;
+        bh=OtI7SiOFIIlZ1FqRaKgeQ3m13KUrkq19MeST/e1R7Yk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=0C8numJn+B4EhQ/hGQmKbfAZzZzPOd96C8r2NM0gVULEcrltOr/nHI8NNvZdLmeKs
+         RyL/i4AX4tucMaVmHZIWbhr/ODCPUdTJm5kSvSFvg/lshdufAMX0aN+F4sVdb2X5rH
+         67zBSjAz4PzQuwyc5aeeVtO1JnjQ1GwUR/YaRSK8=
+From:   Will Deacon <will@kernel.org>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        catalin.marinas@arm.com, mark.rutland@arm.com,
+        pasha.tatashin@soleen.com, Will Deacon <will@kernel.org>
+Subject: [PATCH] [Backport to stable 4.4.y] arm64: uaccess: Ensure PAN is re-enabled after unhandled uaccess fault
+Date:   Fri, 22 Nov 2019 09:50:47 +0000
+Message-Id: <20191122095047.12168-1-will@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <1574361048-17572-2-git-send-email-thor.thayer@linux.intel.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Nov 21, 2019 at 12:30:46PM -0600, thor.thayer@linux.intel.com wrote:
-> From: Meng Li <Meng.Li@windriver.com>
-> 
-> When an irq occurs in altera edac driver, regmap_xxx() is invoked
-> in atomic context. Regmap must indicate register IO is fast so
-> that a spinlock is used instead of a mutex to avoid sleeping
-> in atomic context.
-> 
-> Fixes mutex-lock error
->    lock_acquire+0xfc/0x288
->    __mutex_lock+0x8c/0x808
->    mutex_lock_nested+0x3c/0x50
->    regmap_lock_mutex+0x24/0x30
->    regmap_write+0x40/0x78
->    a10_eccmgr_irq_unmask+0x34/0x40
->    unmask_irq.part.0+0x30/0x50
->    irq_enable+0x74/0x80
->    __irq_startup+0x80/0xa8
->    irq_startup+0x70/0x150
->    __setup_irq+0x650/0x6d0
->    request_threaded_irq+0xe4/0x180
->    devm_request_threaded_irq+0x7c/0xf0
->    altr_sdram_probe+0x2c4/0x600
-> <snip>
-> 
-> Upstream fix pending [1] (common code uses fast mode)
-> [1] https://lkml.org/lkml/2019/11/7/1014
-> 
-> Fixes: 3dab6bd52687 ("EDAC, altera: Add support for Stratix10 SDRAM EDAC")
-> Cc: stable@vger.kernel.org
-> Reported-by: Meng Li <Meng.Li@windriver.com>
-> Signed-off-by: Meng Li <Meng.Li@windriver.com>
-> Reviewed-by: Thor Thayer <thor.thayer@linux.intel.com>
-> ---
-> v2 Change Author to Meng Li & Reviewed-by: Thor Thayer
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-You don't absolutely need to have Reviewed-by: you, when you send
-someone else's patch. The fact that you send it, kinda implies you've
-reviewed it. I sure hope so, at least :-)
+commit 94bb804e1e6f0a9a77acf20d7c70ea141c6c821e upstream.
 
-What the patch must have is your SOB unterneath. I'll fix that up when
-applying.
+A number of our uaccess routines ('__arch_clear_user()' and
+'__arch_copy_{in,from,to}_user()') fail to re-enable PAN if they
+encounter an unhandled fault whilst accessing userspace.
 
-Thx.
+For CPUs implementing both hardware PAN and UAO, this bug has no effect
+when both extensions are in use by the kernel.
 
+For CPUs implementing hardware PAN but not UAO, this means that a kernel
+using hardware PAN may execute portions of code with PAN inadvertently
+disabled, opening us up to potential security vulnerabilities that rely
+on userspace access from within the kernel which would usually be
+prevented by this mechanism. In other words, parts of the kernel run the
+same way as they would on a CPU without PAN implemented/emulated at all.
+
+For CPUs not implementing hardware PAN and instead relying on software
+emulation via 'CONFIG_ARM64_SW_TTBR0_PAN=y', the impact is unfortunately
+much worse. Calling 'schedule()' with software PAN disabled means that
+the next task will execute in the kernel using the page-table and ASID
+of the previous process even after 'switch_mm()', since the actual
+hardware switch is deferred until return to userspace. At this point, or
+if there is a intermediate call to 'uaccess_enable()', the page-table
+and ASID of the new process are installed. Sadly, due to the changes
+introduced by KPTI, this is not an atomic operation and there is a very
+small window (two instructions) where the CPU is configured with the
+page-table of the old task and the ASID of the new task; a speculative
+access in this state is disastrous because it would corrupt the TLB
+entries for the new task with mappings from the previous address space.
+
+As Pavel explains:
+
+  | I was able to reproduce memory corruption problem on Broadcom's SoC
+  | ARMv8-A like this:
+  |
+  | Enable software perf-events with PERF_SAMPLE_CALLCHAIN so userland's
+  | stack is accessed and copied.
+  |
+  | The test program performed the following on every CPU and forking
+  | many processes:
+  |
+  |	unsigned long *map = mmap(NULL, PAGE_SIZE, PROT_READ|PROT_WRITE,
+  |				  MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+  |	map[0] = getpid();
+  |	sched_yield();
+  |	if (map[0] != getpid()) {
+  |		fprintf(stderr, "Corruption detected!");
+  |	}
+  |	munmap(map, PAGE_SIZE);
+  |
+  | From time to time I was getting map[0] to contain pid for a
+  | different process.
+
+Ensure that PAN is re-enabled when returning after an unhandled user
+fault from our uaccess routines.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 338d4f49d6f7 ("arm64: kernel: Add support for Privileged Access Never")
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+[will: rewrote commit message]
+[will: backport for 4.4.y stable kernels]
+Signed-off-by: Will Deacon <will@kernel.org>
+---
+ arch/arm64/lib/clear_user.S     | 2 ++
+ arch/arm64/lib/copy_from_user.S | 2 ++
+ arch/arm64/lib/copy_in_user.S   | 2 ++
+ arch/arm64/lib/copy_to_user.S   | 2 ++
+ 4 files changed, 8 insertions(+)
+
+diff --git a/arch/arm64/lib/clear_user.S b/arch/arm64/lib/clear_user.S
+index a9723c71c52b..8d330c30a6f9 100644
+--- a/arch/arm64/lib/clear_user.S
++++ b/arch/arm64/lib/clear_user.S
+@@ -62,5 +62,7 @@ ENDPROC(__clear_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9:	mov	x0, x2			// return the original size
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
++	    CONFIG_ARM64_PAN)
+ 	ret
+ 	.previous
+diff --git a/arch/arm64/lib/copy_from_user.S b/arch/arm64/lib/copy_from_user.S
+index 4699cd74f87e..b8c95ef13229 100644
+--- a/arch/arm64/lib/copy_from_user.S
++++ b/arch/arm64/lib/copy_from_user.S
+@@ -85,5 +85,7 @@ ENDPROC(__copy_from_user)
+ 	strb	wzr, [dst], #1			// zero remaining buffer space
+ 	cmp	dst, end
+ 	b.lo	9999b
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
++	    CONFIG_ARM64_PAN)
+ 	ret
+ 	.previous
+diff --git a/arch/arm64/lib/copy_in_user.S b/arch/arm64/lib/copy_in_user.S
+index 81c8fc93c100..233703c84bcd 100644
+--- a/arch/arm64/lib/copy_in_user.S
++++ b/arch/arm64/lib/copy_in_user.S
+@@ -81,5 +81,7 @@ ENDPROC(__copy_in_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9998:	sub	x0, end, dst			// bytes not copied
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
++	    CONFIG_ARM64_PAN)
+ 	ret
+ 	.previous
+diff --git a/arch/arm64/lib/copy_to_user.S b/arch/arm64/lib/copy_to_user.S
+index 7512bbbc07ac..62b179408b23 100644
+--- a/arch/arm64/lib/copy_to_user.S
++++ b/arch/arm64/lib/copy_to_user.S
+@@ -79,5 +79,7 @@ ENDPROC(__copy_to_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9998:	sub	x0, end, dst			// bytes not copied
++ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_HAS_PAN, \
++	    CONFIG_ARM64_PAN)
+ 	ret
+ 	.previous
 -- 
-Regards/Gruss,
-    Boris.
+2.24.0.432.g9d3f5f5b63-goog
 
-https://people.kernel.org/tglx/notes-about-netiquette
