@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B7B106F09
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E2C51070A8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:24:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730097AbfKVKzt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:55:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43002 "EHLO mail.kernel.org"
+        id S1727673AbfKVKkO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:40:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728225AbfKVKzt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:55:49 -0500
+        id S1727653AbfKVKkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:40:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8ADEA20637;
-        Fri, 22 Nov 2019 10:55:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D85D020717;
+        Fri, 22 Nov 2019 10:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420148;
-        bh=yB8sLYZRbA6VwkCNBeIBH7k9NjaGSP0uSTsH2dYbA/k=;
+        s=default; t=1574419212;
+        bh=SLrivsqtWUW1YaeUJjXQacHkwJO/47lWejE0nFG1YqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FHWBdgwW34C2V5YdQo2P5A9IzsBJCWg/wjG2teRxdOvm+1uaD4Ymkl6/0sXn4v8hV
-         2szNeexdIpasfKE9ZTjg4+BtZFoNycOb5oj63BrMcSi5YdvbbKHKCveNTPjT8XqVXo
-         MD5BLhHaQ1rjHKivYx0pQ0k5QWJXG0q/w2PvfnQg=
+        b=cNQ6KyMy7hv+sz/8UXFkrB+Ic8cjWR8zcgYXp4uqYZY+gqpxmIbXJB/QQP6QrwTQw
+         Txrc4xEpth5rJV37HmqH9hg0bx10k1Jll0OXbH9gvx/sqv+/1AsygINUtauERkd4xP
+         EzR95oEP3w+F2+VYgsrA14shrgLABJ8/ypROaAb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tavis Ormandy <taviso@gmail.com>,
-        Daniel Vetter <daniel.vetter@intel.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.19 010/220] fbdev: Ditch fb_edid_add_monspecs
-Date:   Fri, 22 Nov 2019 11:26:15 +0100
-Message-Id: <20191122100913.389382241@linuxfoundation.org>
+        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
+        Raghuram Chary Jallipalli 
+        <raghuramchary.jallipalli@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 036/222] net: lan78xx: Bail out if lan78xx_get_endpoints fails
+Date:   Fri, 22 Nov 2019 11:26:16 +0100
+Message-Id: <20191122100846.707774879@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,238 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Stefan Wahren <stefan.wahren@i2se.com>
 
-commit 3b8720e63f4a1fc6f422a49ecbaa3b59c86d5aaf upstream.
+[ Upstream commit fa8cd98c06407b5798b927cd7fd14d30f360ed02 ]
 
-It's dead code ever since
+We need to bail out if lan78xx_get_endpoints() fails, otherwise the
+result is overwritten.
 
-commit 34280340b1dc74c521e636f45cd728f9abf56ee2
-Author: Geert Uytterhoeven <geert+renesas@glider.be>
-Date:   Fri Dec 4 17:01:43 2015 +0100
-
-    fbdev: Remove unused SH-Mobile HDMI driver
-
-Also with this gone we can remove the cea_modes db. This entire thing
-is massively incomplete anyway, compared to the CEA parsing that
-drm_edid.c does.
-
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Tavis Ormandy <taviso@gmail.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190721201956.941-1-daniel.vetter@ffwll.ch
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet")
+Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
+Reviewed-by: Raghuram Chary Jallipalli <raghuramchary.jallipalli@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbmon.c  |   96 --------------------------------------
- drivers/video/fbdev/core/modedb.c |   57 ----------------------
- include/linux/fb.h                |    3 -
- 3 files changed, 156 deletions(-)
+ drivers/net/usb/lan78xx.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/video/fbdev/core/fbmon.c
-+++ b/drivers/video/fbdev/core/fbmon.c
-@@ -997,98 +997,6 @@ void fb_edid_to_monspecs(unsigned char *
- 	DPRINTK("========================================\n");
- }
+diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
+index e143a7fe93201..a3f9d8f05db4a 100644
+--- a/drivers/net/usb/lan78xx.c
++++ b/drivers/net/usb/lan78xx.c
+@@ -2621,6 +2621,11 @@ static int lan78xx_bind(struct lan78xx_net *dev, struct usb_interface *intf)
+ 	int i;
  
--/**
-- * fb_edid_add_monspecs() - add monitor video modes from E-EDID data
-- * @edid:	128 byte array with an E-EDID block
-- * @spacs:	monitor specs to be extended
-- */
--void fb_edid_add_monspecs(unsigned char *edid, struct fb_monspecs *specs)
--{
--	unsigned char *block;
--	struct fb_videomode *m;
--	int num = 0, i;
--	u8 svd[64], edt[(128 - 4) / DETAILED_TIMING_DESCRIPTION_SIZE];
--	u8 pos = 4, svd_n = 0;
--
--	if (!edid)
--		return;
--
--	if (!edid_checksum(edid))
--		return;
--
--	if (edid[0] != 0x2 ||
--	    edid[2] < 4 || edid[2] > 128 - DETAILED_TIMING_DESCRIPTION_SIZE)
--		return;
--
--	DPRINTK("  Short Video Descriptors\n");
--
--	while (pos < edid[2]) {
--		u8 len = edid[pos] & 0x1f, type = (edid[pos] >> 5) & 7;
--		pr_debug("Data block %u of %u bytes\n", type, len);
--		if (type == 2) {
--			for (i = pos; i < pos + len; i++) {
--				u8 idx = edid[pos + i] & 0x7f;
--				svd[svd_n++] = idx;
--				pr_debug("N%sative mode #%d\n",
--					 edid[pos + i] & 0x80 ? "" : "on-n", idx);
--			}
--		} else if (type == 3 && len >= 3) {
--			/* Check Vendor Specific Data Block.  For HDMI,
--			   it is always 00-0C-03 for HDMI Licensing, LLC. */
--			if (edid[pos + 1] == 3 && edid[pos + 2] == 0xc &&
--			    edid[pos + 3] == 0)
--				specs->misc |= FB_MISC_HDMI;
--		}
--		pos += len + 1;
--	}
--
--	block = edid + edid[2];
--
--	DPRINTK("  Extended Detailed Timings\n");
--
--	for (i = 0; i < (128 - edid[2]) / DETAILED_TIMING_DESCRIPTION_SIZE;
--	     i++, block += DETAILED_TIMING_DESCRIPTION_SIZE)
--		if (PIXEL_CLOCK != 0)
--			edt[num++] = block - edid;
--
--	/* Yikes, EDID data is totally useless */
--	if (!(num + svd_n))
--		return;
--
--	m = kcalloc(specs->modedb_len + num + svd_n,
--		    sizeof(struct fb_videomode),
--		    GFP_KERNEL);
--
--	if (!m)
--		return;
--
--	memcpy(m, specs->modedb, specs->modedb_len * sizeof(struct fb_videomode));
--
--	for (i = specs->modedb_len; i < specs->modedb_len + num; i++) {
--		get_detailed_timing(edid + edt[i - specs->modedb_len], &m[i]);
--		if (i == specs->modedb_len)
--			m[i].flag |= FB_MODE_IS_FIRST;
--		pr_debug("Adding %ux%u@%u\n", m[i].xres, m[i].yres, m[i].refresh);
--	}
--
--	for (i = specs->modedb_len + num; i < specs->modedb_len + num + svd_n; i++) {
--		int idx = svd[i - specs->modedb_len - num];
--		if (!idx || idx >= ARRAY_SIZE(cea_modes)) {
--			pr_warn("Reserved SVD code %d\n", idx);
--		} else if (!cea_modes[idx].xres) {
--			pr_warn("Unimplemented SVD code %d\n", idx);
--		} else {
--			memcpy(&m[i], cea_modes + idx, sizeof(m[i]));
--			pr_debug("Adding SVD #%d: %ux%u@%u\n", idx,
--				 m[i].xres, m[i].yres, m[i].refresh);
--		}
--	}
--
--	kfree(specs->modedb);
--	specs->modedb = m;
--	specs->modedb_len = specs->modedb_len + num + svd_n;
--}
--
- /*
-  * VESA Generalized Timing Formula (GTF)
-  */
-@@ -1498,9 +1406,6 @@ int fb_parse_edid(unsigned char *edid, s
- void fb_edid_to_monspecs(unsigned char *edid, struct fb_monspecs *specs)
- {
- }
--void fb_edid_add_monspecs(unsigned char *edid, struct fb_monspecs *specs)
--{
--}
- void fb_destroy_modedb(struct fb_videomode *modedb)
- {
- }
-@@ -1608,7 +1513,6 @@ EXPORT_SYMBOL(fb_firmware_edid);
+ 	ret = lan78xx_get_endpoints(dev, intf);
++	if (ret) {
++		netdev_warn(dev->net, "lan78xx_get_endpoints failed: %d\n",
++			    ret);
++		return ret;
++	}
  
- EXPORT_SYMBOL(fb_parse_edid);
- EXPORT_SYMBOL(fb_edid_to_monspecs);
--EXPORT_SYMBOL(fb_edid_add_monspecs);
- EXPORT_SYMBOL(fb_get_mode);
- EXPORT_SYMBOL(fb_validate_mode);
- EXPORT_SYMBOL(fb_destroy_modedb);
---- a/drivers/video/fbdev/core/modedb.c
-+++ b/drivers/video/fbdev/core/modedb.c
-@@ -289,63 +289,6 @@ static const struct fb_videomode modedb[
- };
+ 	dev->data[0] = (unsigned long)kzalloc(sizeof(*pdata), GFP_KERNEL);
  
- #ifdef CONFIG_FB_MODE_HELPERS
--const struct fb_videomode cea_modes[65] = {
--	/* #1: 640x480p@59.94/60Hz */
--	[1] = {
--		NULL, 60, 640, 480, 39722, 48, 16, 33, 10, 96, 2, 0,
--		FB_VMODE_NONINTERLACED, 0,
--	},
--	/* #3: 720x480p@59.94/60Hz */
--	[3] = {
--		NULL, 60, 720, 480, 37037, 60, 16, 30, 9, 62, 6, 0,
--		FB_VMODE_NONINTERLACED, 0,
--	},
--	/* #5: 1920x1080i@59.94/60Hz */
--	[5] = {
--		NULL, 60, 1920, 1080, 13763, 148, 88, 15, 2, 44, 5,
--		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
--		FB_VMODE_INTERLACED, 0,
--	},
--	/* #7: 720(1440)x480iH@59.94/60Hz */
--	[7] = {
--		NULL, 60, 1440, 480, 18554/*37108*/, 114, 38, 15, 4, 124, 3, 0,
--		FB_VMODE_INTERLACED, 0,
--	},
--	/* #9: 720(1440)x240pH@59.94/60Hz */
--	[9] = {
--		NULL, 60, 1440, 240, 18554, 114, 38, 16, 4, 124, 3, 0,
--		FB_VMODE_NONINTERLACED, 0,
--	},
--	/* #18: 720x576pH@50Hz */
--	[18] = {
--		NULL, 50, 720, 576, 37037, 68, 12, 39, 5, 64, 5, 0,
--		FB_VMODE_NONINTERLACED, 0,
--	},
--	/* #19: 1280x720p@50Hz */
--	[19] = {
--		NULL, 50, 1280, 720, 13468, 220, 440, 20, 5, 40, 5,
--		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
--		FB_VMODE_NONINTERLACED, 0,
--	},
--	/* #20: 1920x1080i@50Hz */
--	[20] = {
--		NULL, 50, 1920, 1080, 13480, 148, 528, 15, 5, 528, 5,
--		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
--		FB_VMODE_INTERLACED, 0,
--	},
--	/* #32: 1920x1080p@23.98/24Hz */
--	[32] = {
--		NULL, 24, 1920, 1080, 13468, 148, 638, 36, 4, 44, 5,
--		FB_SYNC_HOR_HIGH_ACT | FB_SYNC_VERT_HIGH_ACT,
--		FB_VMODE_NONINTERLACED, 0,
--	},
--	/* #35: (2880)x480p4x@59.94/60Hz */
--	[35] = {
--		NULL, 60, 2880, 480, 9250, 240, 64, 30, 9, 248, 6, 0,
--		FB_VMODE_NONINTERLACED, 0,
--	},
--};
--
- const struct fb_videomode vesa_modes[] = {
- 	/* 0 640x350-85 VESA */
- 	{ NULL, 85, 640, 350, 31746,  96, 32, 60, 32, 64, 3,
---- a/include/linux/fb.h
-+++ b/include/linux/fb.h
-@@ -736,8 +736,6 @@ extern int fb_parse_edid(unsigned char *
- extern const unsigned char *fb_firmware_edid(struct device *device);
- extern void fb_edid_to_monspecs(unsigned char *edid,
- 				struct fb_monspecs *specs);
--extern void fb_edid_add_monspecs(unsigned char *edid,
--				 struct fb_monspecs *specs);
- extern void fb_destroy_modedb(struct fb_videomode *modedb);
- extern int fb_find_mode_cvt(struct fb_videomode *mode, int margins, int rb);
- extern unsigned char *fb_ddc_read(struct i2c_adapter *adapter);
-@@ -811,7 +809,6 @@ struct dmt_videomode {
- 
- extern const char *fb_mode_option;
- extern const struct fb_videomode vesa_modes[];
--extern const struct fb_videomode cea_modes[65];
- extern const struct dmt_videomode dmt_modes[];
- 
- struct fb_modelist {
+-- 
+2.20.1
+
 
 
