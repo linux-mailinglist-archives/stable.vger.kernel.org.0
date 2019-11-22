@@ -2,147 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B1D107274
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 13:51:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48C791072E7
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 14:14:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726712AbfKVMvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 07:51:17 -0500
-Received: from us-smtp-1.mimecast.com ([207.211.31.81]:51953 "EHLO
-        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S1726526AbfKVMvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 07:51:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1574427075;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=Zqn8t/TBvgJerDNrUTJ7nxMF64wppR8yrwvfCwA9/6Q=;
-        b=Mtbl0MvzWB9aSjyrYsvOyht3+f4irB0dUXCrtEdFO90WhID67XzSKoA7PBkf6eUXFsIFGt
-        s8zn4Jt4rkvICkUmqv6647ijjVNMH8oygKq5TdXcWv5hK9P3jucY9roXX/sbhRSXr4xU87
-        2PBbqqBpwmayWRDsDEvoSNDqBjVKe1M=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-45-2QvqituqMt-ZzmEZ9GonvQ-1; Fri, 22 Nov 2019 07:51:13 -0500
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 89C6EDB20
-        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 12:51:12 +0000 (UTC)
-Received: from [172.54.73.15] (cpt-1028.paas.prod.upshift.rdu2.redhat.com [10.0.19.51])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D70906E718;
-        Fri, 22 Nov 2019 12:51:09 +0000 (UTC)
+        id S1727867AbfKVNOe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 08:14:34 -0500
+Received: from hqemgate14.nvidia.com ([216.228.121.143]:6419 "EHLO
+        hqemgate14.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726548AbfKVNOd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 08:14:33 -0500
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate14.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5dd7df3b0000>; Fri, 22 Nov 2019 05:14:36 -0800
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Fri, 22 Nov 2019 05:14:33 -0800
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Fri, 22 Nov 2019 05:14:33 -0800
+Received: from [10.21.133.51] (172.20.13.39) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Fri, 22 Nov
+ 2019 13:14:30 +0000
+Subject: Re: [PATCH 4.4 000/159] 4.4.203-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <ben.hutchings@codethink.co.uk>, <lkft-triage@lists.linaro.org>,
+        <stable@vger.kernel.org>, linux-tegra <linux-tegra@vger.kernel.org>
+References: <20191122100704.194776704@linuxfoundation.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <f0f505ae-5113-1abd-d4f7-0c3535c83de4@nvidia.com>
+Date:   Fri, 22 Nov 2019 13:14:28 +0000
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.9.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.13-rc1-6b14caa.cki
- (stable)
-Date:   Fri, 22 Nov 2019 12:51:09 -0000
-Message-ID: <cki.C2507DF09F.RUKG09QJOE@redhat.com>
-X-Gitlab-Pipeline-ID: 301338
-X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
-X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/301338
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-MC-Unique: 2QvqituqMt-ZzmEZ9GonvQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+X-Originating-IP: [172.20.13.39]
+X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1574428476; bh=K5WU2Jt7q2CDfjyB/BPLlKPJZ2xvbiCPlPuYvbeKy40=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=m5jDo7Pov1oZ+eS9YQGJsMNDelOQYltpuGv1pv9jY8k+tsQx+cDBJq2+hyQtBOZT0
+         6iaDswK7Ym7Hp3yC77ZfJhRnrMpIW+V2TXyW05QSgpxvo3RlFzBFbM/OPy1RWmmMp5
+         zKdzVmNic2z2bQDQ+mQRg4VkHdOkIoAd23v1FjmnWPs0JBWOKrCLXIF39p6qxbO2XV
+         9E57H1eMZDGXE2h/7Uoy/Onj7PV1o1t3QYJk7qCtsm3OqI4cv/5bYwG6dX3Ob2YcQG
+         +SqLgP1iQiE7YwqDkam93yyCQ1QPUri8/GqrBHpnGozxN0TyDWBQFE79jNNLEBhYiy
+         3dj4xgUbNF+3A==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-Hello,
+On 22/11/2019 10:26, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.203 release.
+> There are 159 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sun, 24 Nov 2019 09:59:19 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.203-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+> -------------
+> Pseudo-Shortlog of commits:
 
-We ran automated tests on a recent commit from this kernel tree:
+...
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
-nux-stable-rc.git
-            Commit: 6b14caa1dc57 - Linux 5.3.13-rc1
+> Marek Szyprowski <m.szyprowski@samsung.com>
+>     ARM: dts: exynos: Disable pull control for S5M8767 PMIC
 
-The results of these automated tests are provided below.
+The above commit is causing the following build error for ARM ...
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+Error: /dvs/git/dirty/git-master_l4t-upstream/kernel/arch/arm/boot/dts/exynos5250-arndale.dts:560.22-23 syntax error
+FATAL ERROR: Unable to parse input tree
+scripts/Makefile.lib:293: recipe for target 'arch/arm/boot/dts/exynos5250-arndale.dtb' failed
+make[2]: *** [arch/arm/boot/dts/exynos5250-arndale.dtb] Error 1
 
-All kernel binaries, config files, and logs are available for download here=
-:
+Cheers
+Jon
 
-  https://artifacts.cki-project.org/pipelines/301338
-
-Please reply to this email if you have any questions about the tests that w=
-e
-ran or if you have any suggestions on how to make future tests more effecti=
-ve.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-___________________________________________________________________________=
-___
-
-Compile testing
----------------
-
-We compiled the kernel for 3 architectures:
-
-    aarch64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    ppc64le:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-    x86_64:
-      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
-
-
-Hardware testing
-----------------
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
-arked
-    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  ppc64le:
-
-    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
-arked
-    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  x86_64:
-
-    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
-arked
-    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
-    This is not the fault of the kernel that was tested.
-
-  Test sources: https://github.com/CKI-project/tests-beaker
-    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
- existing tests!
-
-Waived tests
-------------
-If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
-uch tests are
-executed but their results are not taken into account. Tests are waived whe=
-n
-their results are not reliable enough, e.g. when they're just introduced or=
- are
-being fixed.
-
-Testing timeout
----------------
-We aim to provide a report within reasonable timeframe. Tests that haven't
-finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
-s have
-a Beaker recipe linked to next to each host.
-
+-- 
+nvpublic
