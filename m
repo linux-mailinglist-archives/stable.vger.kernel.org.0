@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9BA61078B8
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:53:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BE06107857
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:53:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727589AbfKVTwp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 14:52:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49882 "EHLO mail.kernel.org"
+        id S1727588AbfKVTtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 14:49:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727561AbfKVTtp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 14:49:45 -0500
+        id S1727575AbfKVTtr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 14:49:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DFB620658;
-        Fri, 22 Nov 2019 19:49:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A986720726;
+        Fri, 22 Nov 2019 19:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574452185;
-        bh=C+M+dkqlPuWxaT4c3/MwIJpUvrvzuALHtnCxEPl+/7M=;
+        s=default; t=1574452186;
+        bh=F4g/7JM361b4jueC7R7Pu21X1iG8ZDQQgUl8g+L65+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6fByvoxX1J3nSN+yW8EdvrxFu/sBLJCBifq1lk7fIvBRI9dOyROz7eJN1G96i/QZ
-         5kJRZqoQ06W2F9e6om/LyAjPFA9oK08a7K9UvBP1+HuLp/Mbg18p+2QBl6CZgpcxNr
-         p6xZtVu0HsXHeTVN7PRWqEN6QAYgbkhbOSV+tqWI=
+        b=YSy63xyEVU6GYywQSu4Scv93gAgLrRmFSfRvcMmzWA6QN/YU/d7sl6Hfb23z0wC+s
+         e2h1hvL4eEgozgJwmZ5MGSOgXpZmqYs5XyoDbPkBQg0Az3I3bjtk46xAFEYHto+HJv
+         n/MYs5eY/cVS3KJ1+NuANFgO+eWpjOFzPanLSbMQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     paulhsia <paulhsia@chromium.org>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 11/21] ALSA: pcm: Fix stream lock usage in snd_pcm_period_elapsed()
-Date:   Fri, 22 Nov 2019 14:49:21 -0500
-Message-Id: <20191122194931.24732-11-sashal@kernel.org>
+Cc:     Aleksander Morgado <aleksander@aleksander.es>,
+        =?UTF-8?q?Bj=C3=B8rn=20Mork?= <bjorn@mork.no>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/21] net: usb: qmi_wwan: add support for Foxconn T77W968 LTE modules
+Date:   Fri, 22 Nov 2019 14:49:22 -0500
+Message-Id: <20191122194931.24732-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122194931.24732-1-sashal@kernel.org>
 References: <20191122194931.24732-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,51 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: paulhsia <paulhsia@chromium.org>
+From: Aleksander Morgado <aleksander@aleksander.es>
 
-[ Upstream commit f5cdc9d4003a2f66ea57b3edd3e04acc2b1a4439 ]
+[ Upstream commit 802753cb0b141cf5170ab97fe7e79f5ca10d06b0 ]
 
-If the nullity check for `substream->runtime` is outside of the lock
-region, it is possible to have a null runtime in the critical section
-if snd_pcm_detach_substream is called right before the lock.
+These are the Foxconn-branded variants of the Dell DW5821e modules,
+same USB layout as those.
 
-Signed-off-by: paulhsia <paulhsia@chromium.org>
-Link: https://lore.kernel.org/r/20191112171715.128727-2-paulhsia@chromium.org
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The QMI interface is exposed in USB configuration #1:
+
+P:  Vendor=0489 ProdID=e0b4 Rev=03.18
+S:  Manufacturer=FII
+S:  Product=T77W968 LTE
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=qmi_wwan
+I:  If#=0x1 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=00 Prot=00 Driver=usbhid
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+
+Signed-off-by: Aleksander Morgado <aleksander@aleksander.es>
+Acked-by: Bjørn Mork <bjorn@mork.no>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/pcm_lib.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/usb/qmi_wwan.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/core/pcm_lib.c b/sound/core/pcm_lib.c
-index 729a85a6211d6..80453266a2def 100644
---- a/sound/core/pcm_lib.c
-+++ b/sound/core/pcm_lib.c
-@@ -1803,11 +1803,14 @@ void snd_pcm_period_elapsed(struct snd_pcm_substream *substream)
- 	struct snd_pcm_runtime *runtime;
- 	unsigned long flags;
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index 8ed538295d090..4a984b76a60ec 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -1295,6 +1295,8 @@ static const struct usb_device_id products[] = {
+ 	{QMI_QUIRK_SET_DTR(0x2c7c, 0x0191, 4)},	/* Quectel EG91 */
+ 	{QMI_FIXED_INTF(0x2c7c, 0x0296, 4)},	/* Quectel BG96 */
+ 	{QMI_QUIRK_SET_DTR(0x2cb7, 0x0104, 4)},	/* Fibocom NL678 series */
++	{QMI_FIXED_INTF(0x0489, 0xe0b4, 0)},	/* Foxconn T77W968 LTE */
++	{QMI_FIXED_INTF(0x0489, 0xe0b5, 0)},	/* Foxconn T77W968 LTE with eSIM support*/
  
--	if (PCM_RUNTIME_CHECK(substream))
-+	if (snd_BUG_ON(!substream))
- 		return;
--	runtime = substream->runtime;
- 
- 	snd_pcm_stream_lock_irqsave(substream, flags);
-+	if (PCM_RUNTIME_CHECK(substream))
-+		goto _unlock;
-+	runtime = substream->runtime;
-+
- 	if (!snd_pcm_running(substream) ||
- 	    snd_pcm_update_hw_ptr0(substream, 1) < 0)
- 		goto _end;
-@@ -1818,6 +1821,7 @@ void snd_pcm_period_elapsed(struct snd_pcm_substream *substream)
- #endif
-  _end:
- 	kill_fasync(&runtime->fasync, SIGIO, POLL_IN);
-+ _unlock:
- 	snd_pcm_stream_unlock_irqrestore(substream, flags);
- }
- EXPORT_SYMBOL(snd_pcm_period_elapsed);
+ 	/* 4. Gobi 1000 devices */
+ 	{QMI_GOBI1K_DEVICE(0x05c6, 0x9212)},	/* Acer Gobi Modem Device */
 -- 
 2.20.1
 
