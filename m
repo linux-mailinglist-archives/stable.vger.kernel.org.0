@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E86E3106038
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:31:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC187106008
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbfKVFbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:31:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47662 "EHLO mail.kernel.org"
+        id S1726603AbfKVFaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:30:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727171AbfKVFaI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:30:08 -0500
+        id S1727186AbfKVFaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:30:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73B3720707;
-        Fri, 22 Nov 2019 05:30:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F141A20708;
+        Fri, 22 Nov 2019 05:30:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574400608;
-        bh=J41T5dDACX6mMdDwcHJ66tJM39TIQDMBCyI3Q1j6VLM=;
+        s=default; t=1574400609;
+        bh=g/LS6jI+ABLx2gf5i8mdPXUrd5s/zvOXFa8u8m4VnH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j5akh81urYHiucIH11o9+9BARL4xn3RQtZl3XnbyMAATcjlEGPBFCCiLhEG/JZnFH
-         yeqvwWVOOCx2VjEWFBcFBds4vxkWI4teo4KcLVAH4Cc9X+B7wMYYCVmjkoH6qMmcV0
-         ghrwiYEuFhQkx236KMq9QLu9CxTikqruWMxH4O/A=
+        b=nkH8Gpo8lTMj1loFgCKx+hJ7TYC2YFFVrmmGhPfDb8Yiy6qf9itKr9J1sk9NJfV2f
+         vUlQIPNWOZt9Yw6lLhC6bZuT7kHreGbrD81D1oD/e84Fy4ZOVPRWdH9hDo6wswYxYo
+         FPtBsiwu4uajSqhQzn7z02LjHtUTy0qThSSHBPuo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Fabio Estevam <festevam@gmail.com>, Rob Herring <robh@kernel.org>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 011/219] ARM: dts: imx35: Fix memory node duplication
-Date:   Fri, 22 Nov 2019 00:26:33 -0500
-Message-Id: <20191122053001.752-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 012/219] ARM: dts: imx7: Fix memory node duplication
+Date:   Fri, 22 Nov 2019 00:26:34 -0500
+Message-Id: <20191122053001.752-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122053001.752-1-sashal@kernel.org>
 References: <20191122053001.752-1-sashal@kernel.org>
@@ -46,13 +46,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit 8721610a6c2b8c42fc57819d8c3bfbb9166f95a3 ]
+[ Upstream commit 29988e867cb17de7119e971f9acfad2c3fccdb47 ]
 
-Boards based on imx35 have duplicate memory nodes:
+Boards based on imx7 have duplicate memory nodes:
 
 - One coming from the board dts file: memory@
 
-- One coming from the imx35.dtsi file.
+- One coming from the imx7s.dtsi file.
 
 Fix the duplication by removing the memory node from the dtsi file
 and by adding 'device_type = "memory";' in the board dts.
@@ -62,40 +62,125 @@ Signed-off-by: Fabio Estevam <festevam@gmail.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi | 1 +
- arch/arm/boot/dts/imx35-pdk.dts              | 1 +
- arch/arm/boot/dts/imx35.dtsi                 | 2 --
- 3 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx7d-cl-som-imx7.dts   | 3 ++-
+ arch/arm/boot/dts/imx7d-colibri-emmc.dtsi | 1 +
+ arch/arm/boot/dts/imx7d-colibri.dtsi      | 1 +
+ arch/arm/boot/dts/imx7d-nitrogen7.dts     | 1 +
+ arch/arm/boot/dts/imx7d-pico.dtsi         | 1 +
+ arch/arm/boot/dts/imx7d-sdb.dts           | 1 +
+ arch/arm/boot/dts/imx7s-colibri.dtsi      | 1 +
+ arch/arm/boot/dts/imx7s-warp.dts          | 1 +
+ arch/arm/boot/dts/imx7s.dtsi              | 2 --
+ 9 files changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi b/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
-index ba39d938f2891..5f8a47a9fcd40 100644
---- a/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
-+++ b/arch/arm/boot/dts/imx35-eukrea-cpuimx35.dtsi
-@@ -18,6 +18,7 @@
- 	compatible = "eukrea,cpuimx35", "fsl,imx35";
+diff --git a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
+index 584418f517a88..62d5e9a4a7818 100644
+--- a/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
++++ b/arch/arm/boot/dts/imx7d-cl-som-imx7.dts
+@@ -19,6 +19,7 @@
+ 	compatible = "compulab,cl-som-imx7", "fsl,imx7d";
  
  	memory@80000000 {
 +		device_type = "memory";
- 		reg = <0x80000000 0x8000000>; /* 128M */
+ 		reg = <0x80000000 0x10000000>; /* 256 MB - minimal configuration */
+ 	};
+ 
+@@ -284,4 +285,4 @@
+ 			MX7D_PAD_LPSR_GPIO1_IO05__GPIO1_IO5	0x14 /* OTG PWREN */
+ 		>;
+ 	};
+-};
+\ No newline at end of file
++};
+diff --git a/arch/arm/boot/dts/imx7d-colibri-emmc.dtsi b/arch/arm/boot/dts/imx7d-colibri-emmc.dtsi
+index 04d24ee17b142..898f4b8d7421f 100644
+--- a/arch/arm/boot/dts/imx7d-colibri-emmc.dtsi
++++ b/arch/arm/boot/dts/imx7d-colibri-emmc.dtsi
+@@ -8,6 +8,7 @@
+ 
+ / {
+ 	memory@80000000 {
++		device_type = "memory";
+ 		reg = <0x80000000 0x40000000>;
  	};
  };
-diff --git a/arch/arm/boot/dts/imx35-pdk.dts b/arch/arm/boot/dts/imx35-pdk.dts
-index df613e88fd2c1..ddce0a844758b 100644
---- a/arch/arm/boot/dts/imx35-pdk.dts
-+++ b/arch/arm/boot/dts/imx35-pdk.dts
-@@ -11,6 +11,7 @@
- 	compatible = "fsl,imx35-pdk", "fsl,imx35";
+diff --git a/arch/arm/boot/dts/imx7d-colibri.dtsi b/arch/arm/boot/dts/imx7d-colibri.dtsi
+index d9f8fb69511b6..e2e327f437e35 100644
+--- a/arch/arm/boot/dts/imx7d-colibri.dtsi
++++ b/arch/arm/boot/dts/imx7d-colibri.dtsi
+@@ -45,6 +45,7 @@
+ 
+ / {
+ 	memory@80000000 {
++		device_type = "memory";
+ 		reg = <0x80000000 0x20000000>;
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/imx7d-nitrogen7.dts b/arch/arm/boot/dts/imx7d-nitrogen7.dts
+index 177d21fdeb288..6b4acea1ef795 100644
+--- a/arch/arm/boot/dts/imx7d-nitrogen7.dts
++++ b/arch/arm/boot/dts/imx7d-nitrogen7.dts
+@@ -12,6 +12,7 @@
+ 	compatible = "boundary,imx7d-nitrogen7", "fsl,imx7d";
  
  	memory@80000000 {
 +		device_type = "memory";
- 		reg = <0x80000000 0x8000000>,
- 		      <0x90000000 0x8000000>;
+ 		reg = <0x80000000 0x40000000>;
  	};
-diff --git a/arch/arm/boot/dts/imx35.dtsi b/arch/arm/boot/dts/imx35.dtsi
-index 1c50b785cad47..b36b97b655dda 100644
---- a/arch/arm/boot/dts/imx35.dtsi
-+++ b/arch/arm/boot/dts/imx35.dtsi
-@@ -13,10 +13,8 @@
+ 
+diff --git a/arch/arm/boot/dts/imx7d-pico.dtsi b/arch/arm/boot/dts/imx7d-pico.dtsi
+index f27b3849d3ff3..934a019f341e4 100644
+--- a/arch/arm/boot/dts/imx7d-pico.dtsi
++++ b/arch/arm/boot/dts/imx7d-pico.dtsi
+@@ -49,6 +49,7 @@
+ 	compatible = "technexion,imx7d-pico", "fsl,imx7d";
+ 
+ 	memory@80000000 {
++		device_type = "memory";
+ 		reg = <0x80000000 0x80000000>;
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/imx7d-sdb.dts b/arch/arm/boot/dts/imx7d-sdb.dts
+index c9b3c60b0eb22..317f1bcc56e2a 100644
+--- a/arch/arm/boot/dts/imx7d-sdb.dts
++++ b/arch/arm/boot/dts/imx7d-sdb.dts
+@@ -15,6 +15,7 @@
+ 	};
+ 
+ 	memory@80000000 {
++		device_type = "memory";
+ 		reg = <0x80000000 0x80000000>;
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/imx7s-colibri.dtsi b/arch/arm/boot/dts/imx7s-colibri.dtsi
+index fe8344cee8641..1fb1ec5d3d707 100644
+--- a/arch/arm/boot/dts/imx7s-colibri.dtsi
++++ b/arch/arm/boot/dts/imx7s-colibri.dtsi
+@@ -45,6 +45,7 @@
+ 
+ / {
+ 	memory@80000000 {
++		device_type = "memory";
+ 		reg = <0x80000000 0x10000000>;
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/imx7s-warp.dts b/arch/arm/boot/dts/imx7s-warp.dts
+index fa390da636de7..97d5c711eb0ca 100644
+--- a/arch/arm/boot/dts/imx7s-warp.dts
++++ b/arch/arm/boot/dts/imx7s-warp.dts
+@@ -51,6 +51,7 @@
+ 	compatible = "warp,imx7s-warp", "fsl,imx7s";
+ 
+ 	memory@80000000 {
++		device_type = "memory";
+ 		reg = <0x80000000 0x20000000>;
+ 	};
+ 
+diff --git a/arch/arm/boot/dts/imx7s.dtsi b/arch/arm/boot/dts/imx7s.dtsi
+index 90f5bdfa9b3ce..7eaf96b425bed 100644
+--- a/arch/arm/boot/dts/imx7s.dtsi
++++ b/arch/arm/boot/dts/imx7s.dtsi
+@@ -17,10 +17,8 @@
  	 * The decompressor and also some bootloaders rely on a
  	 * pre-existing /chosen node to be available to insert the
  	 * command line and merge other ATAGS info.
@@ -105,7 +190,7 @@ index 1c50b785cad47..b36b97b655dda 100644
 -	memory { device_type = "memory"; };
  
  	aliases {
- 		ethernet0 = &fec;
+ 		gpio0 = &gpio1;
 -- 
 2.20.1
 
