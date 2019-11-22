@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D03E9106598
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:26:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 430CA1065A4
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:26:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727993AbfKVFvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:51:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56042 "EHLO mail.kernel.org"
+        id S1726539AbfKVGZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:25:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727986AbfKVFvG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:51:06 -0500
+        id S1727989AbfKVFvH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:51:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A66BE2071F;
-        Fri, 22 Nov 2019 05:51:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFB9F20730;
+        Fri, 22 Nov 2019 05:51:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401865;
-        bh=n5Vt1p9Nt6F39gITxhiMCrYn3e5qmSvtYiyUgcZWeAs=;
+        s=default; t=1574401866;
+        bh=CoEzIdgrHZSh/Pmxs+UK47acLtXWnbBfztsrTy8FYMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2c0Nk+x2dOKnsGyCqcEK7ajOZ/HITqMwSVwaHEUbVJdKWNbbQyAwZY4isVot8HAK
-         iGJgUH8QHxASDepGgROtqEfg4rlBE2OVsTB5BK6Rixoy2GLZtUii/TvClM5j6Cm0Us
-         POSwQ5SLl3oedyg44IrYJCXfLTo6voCBbLCz1E7o=
+        b=uVQ4LlVtFey95r2vlnX9PFv1asSPMdQ7oqoeNxsvPMiGxDT6rM897qvcS2MYMoEdE
+         91xo2Iv63wieSlCci29MHfeP6CN1K16Y8Fbl4aWryKpDV18oasq+KSPR06jsMC5mEm
+         gcdHyky490vWB/2kpD7BcMac1zFQyrtNmeVciRlk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Nick Bowler <nbowler@draconx.ca>,
         "Darrick J . Wong" <darrick.wong@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 101/219] xfs: Align compat attrlist_by_handle with native implementation.
-Date:   Fri, 22 Nov 2019 00:47:13 -0500
-Message-Id: <20191122054911.1750-94-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 102/219] xfs: Fix bulkstat compat ioctls on x32 userspace.
+Date:   Fri, 22 Nov 2019 00:47:14 -0500
+Message-Id: <20191122054911.1750-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -45,52 +45,90 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nick Bowler <nbowler@draconx.ca>
 
-[ Upstream commit c456d64449efe37da50832b63d91652a85ea1d20 ]
+[ Upstream commit 7ca860e3c1a74ad6bd8949364073ef1044cad758 ]
 
-While inspecting the ioctl implementations, I noticed that the compat
-implementation of XFS_IOC_ATTRLIST_BY_HANDLE does not do exactly the
-same thing as the native implementation.  Specifically, the "cursor"
-does not appear to be written out to userspace on the compat path,
-like it is on the native path.
+The bulkstat family of ioctls are problematic on x32, because there is
+a mixup of native 32-bit and 64-bit conventions.  The xfs_fsop_bulkreq
+struct contains pointers and 32-bit integers so that matches the native
+32-bit layout, and that means the ioctl implementation goes into the
+regular compat path on x32.
 
-This adjusts the compat implementation to copy out the cursor just
-like the native implementation does.  The attrlist cursor does not
-require any special compat handling.  This fixes xfstests xfs/269
-on both IA-32 and x32 userspace, when running on an amd64 kernel.
+However, the 'ubuffer' member of that struct in turn refers to either
+struct xfs_inogrp or xfs_bstat (or an array of these).  On x32, those
+structures match the native 64-bit layout.  The compat implementation
+writes out the 32-bit version of these structures.  This is not the
+expected format for x32 userspace, causing problems.
+
+Fortunately the functions which actually output these xfs_inogrp and
+xfs_bstat structures have an easy way to select which output format
+is required, so we just need a little tweak to select the right format
+on x32.
 
 Signed-off-by: Nick Bowler <nbowler@draconx.ca>
-Fixes: 0facef7fb053b ("xfs: in _attrlist_by_handle, copy the cursor back to userspace")
 Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_ioctl32.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/xfs/xfs_ioctl32.c | 34 ++++++++++++++++++++++++++++++----
+ 1 file changed, 30 insertions(+), 4 deletions(-)
 
 diff --git a/fs/xfs/xfs_ioctl32.c b/fs/xfs/xfs_ioctl32.c
-index fba115f4103ac..4c34efcbf7e80 100644
+index 4c34efcbf7e80..b044f7d36782c 100644
 --- a/fs/xfs/xfs_ioctl32.c
 +++ b/fs/xfs/xfs_ioctl32.c
-@@ -336,6 +336,7 @@ xfs_compat_attrlist_by_handle(
- {
+@@ -241,6 +241,32 @@ xfs_compat_ioc_bulkstat(
+ 	int			done;
  	int			error;
- 	attrlist_cursor_kern_t	*cursor;
-+	compat_xfs_fsop_attrlist_handlereq_t __user *p = arg;
- 	compat_xfs_fsop_attrlist_handlereq_t al_hreq;
- 	struct dentry		*dentry;
- 	char			*kbuf;
-@@ -370,6 +371,11 @@ xfs_compat_attrlist_by_handle(
- 	if (error)
- 		goto out_kfree;
  
-+	if (copy_to_user(&p->pos, cursor, sizeof(attrlist_cursor_kern_t))) {
-+		error = -EFAULT;
-+		goto out_kfree;
-+	}
++	/*
++	 * Output structure handling functions.  Depending on the command,
++	 * either the xfs_bstat and xfs_inogrp structures are written out
++	 * to userpace memory via bulkreq.ubuffer.  Normally the compat
++	 * functions and structure size are the correct ones to use ...
++	 */
++	inumbers_fmt_pf inumbers_func = xfs_inumbers_fmt_compat;
++	bulkstat_one_pf	bs_one_func = xfs_bulkstat_one_compat;
++	size_t bs_one_size = sizeof(struct compat_xfs_bstat);
 +
- 	if (copy_to_user(compat_ptr(al_hreq.buffer), kbuf, al_hreq.buflen))
- 		error = -EFAULT;
++#ifdef CONFIG_X86_X32
++	if (in_x32_syscall()) {
++		/*
++		 * ... but on x32 the input xfs_fsop_bulkreq has pointers
++		 * which must be handled in the "compat" (32-bit) way, while
++		 * the xfs_bstat and xfs_inogrp structures follow native 64-
++		 * bit layout convention.  So adjust accordingly, otherwise
++		 * the data written out in compat layout will not match what
++		 * x32 userspace expects.
++		 */
++		inumbers_func = xfs_inumbers_fmt;
++		bs_one_func = xfs_bulkstat_one;
++		bs_one_size = sizeof(struct xfs_bstat);
++	}
++#endif
++
+ 	/* done = 1 if there are more stats to get and if bulkstat */
+ 	/* should be called again (unused here, but used in dmapi) */
  
+@@ -272,15 +298,15 @@ xfs_compat_ioc_bulkstat(
+ 
+ 	if (cmd == XFS_IOC_FSINUMBERS_32) {
+ 		error = xfs_inumbers(mp, &inlast, &count,
+-				bulkreq.ubuffer, xfs_inumbers_fmt_compat);
++				bulkreq.ubuffer, inumbers_func);
+ 	} else if (cmd == XFS_IOC_FSBULKSTAT_SINGLE_32) {
+ 		int res;
+ 
+-		error = xfs_bulkstat_one_compat(mp, inlast, bulkreq.ubuffer,
+-				sizeof(compat_xfs_bstat_t), NULL, &res);
++		error = bs_one_func(mp, inlast, bulkreq.ubuffer,
++				bs_one_size, NULL, &res);
+ 	} else if (cmd == XFS_IOC_FSBULKSTAT_32) {
+ 		error = xfs_bulkstat(mp, &inlast, &count,
+-			xfs_bulkstat_one_compat, sizeof(compat_xfs_bstat_t),
++			bs_one_func, bs_one_size,
+ 			bulkreq.ubuffer, &done);
+ 	} else
+ 		error = -EINVAL;
 -- 
 2.20.1
 
