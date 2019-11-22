@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B6410706C
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:22:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3792106EB6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728495AbfKVKoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:44:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50604 "EHLO mail.kernel.org"
+        id S1731032AbfKVLA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:00:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727665AbfKVKoh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:44:37 -0500
+        id S1727179AbfKVLA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:00:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E6F5820715;
-        Fri, 22 Nov 2019 10:44:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 915BE2073B;
+        Fri, 22 Nov 2019 11:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419477;
-        bh=ChGD2ngo7hWVlif2s8Gwz2uOlVS8L+USK1NJnQkRaCE=;
+        s=default; t=1574420425;
+        bh=tXZk9214sgJzo8KjHLglNwAtrSjYARemGMUZSBxff4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a620sZWclMcbVM8kj9jzNtSH4INIg2tbSItX3T0oEaeEM+aryB3Bg4HcZ5TB7Adsr
-         nDybSbAj79BNKqCIpK8O2TMcnL0ORSViHGkqiQ27K3ARnFpCml7dXWOkkcHjvZL0ew
-         QfCjzJFxDHBgA/2bx0XNf6NOn7EyEQkuM7txDpKE=
+        b=xZmfBPyfKPEmgTLmPQp1RTmJ+TWc38OIbkWVZSZ7UAGfTbej7GZ/AAY/qmtXEa/ZO
+         /cXN4cB3Vo+1cYsWraI0mPr32HecFPFMsZxXowfgJiczittfyIGCoB+oxqqnf9/WBB
+         lSpGpiina8ILJ7Mjs0I9k/CUOD7DeN1jvgqCHWmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marcel Ziswiler <marcel.ziswiler@toradex.com>,
-        Thierry Reding <treding@nvidia.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 126/222] ARM: tegra: apalis_t30: fix mmc1 cmd pull-up
-Date:   Fri, 22 Nov 2019 11:27:46 +0100
-Message-Id: <20191122100912.128028960@linuxfoundation.org>
+Subject: [PATCH 4.19 102/220] media: rcar-vin: fix redeclaration of symbol
+Date:   Fri, 22 Nov 2019 11:27:47 +0100
+Message-Id: <20191122100920.111655154@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Ziswiler <marcel.ziswiler@toradex.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit 1c997fe4becdc6fcbc06e23982ceb65621e6572a ]
+[ Upstream commit 4e673ed4e2bfac00b3c3043a84e007874c17c84d ]
 
-Fix MMC1 cmd pin pull-up causing issues on carrier boards without
-external pull-up.
+When adding support for parallel subdev for Gen3 it was missed that the
+symbol 'i' in rvin_group_link_notify() was already declared, remove the
+dupe as it's only used as a loop variable this have no functional
+change. This fixes warning:
 
-Signed-off-by: Marcel Ziswiler <marcel.ziswiler@toradex.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+    rcar-core.c:117:52: originally declared here
+    rcar-core.c:173:30: warning: symbol 'i' shadows an earlier one
+
+Fixes: 1284605dc821cebd ("media: rcar-vin: Handle parallel subdev in link_notify")
+
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Acked-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/tegra30-apalis.dtsi | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/media/platform/rcar-vin/rcar-core.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/tegra30-apalis.dtsi b/arch/arm/boot/dts/tegra30-apalis.dtsi
-index 192b95177aac3..826bdd0b8a257 100644
---- a/arch/arm/boot/dts/tegra30-apalis.dtsi
-+++ b/arch/arm/boot/dts/tegra30-apalis.dtsi
-@@ -147,14 +147,14 @@
+diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
+index e1085e3ab3cc6..485fa3fa8b49a 100644
+--- a/drivers/media/platform/rcar-vin/rcar-core.c
++++ b/drivers/media/platform/rcar-vin/rcar-core.c
+@@ -174,7 +174,6 @@ static int rvin_group_link_notify(struct media_link *link, u32 flags,
  
- 			/* Apalis MMC1 */
- 			sdmmc3_clk_pa6 {
--				nvidia,pins = "sdmmc3_clk_pa6",
--					      "sdmmc3_cmd_pa7";
-+				nvidia,pins = "sdmmc3_clk_pa6";
- 				nvidia,function = "sdmmc3";
- 				nvidia,pull = <TEGRA_PIN_PULL_NONE>;
- 				nvidia,tristate = <TEGRA_PIN_DISABLE>;
- 			};
- 			sdmmc3_dat0_pb7 {
--				nvidia,pins = "sdmmc3_dat0_pb7",
-+				nvidia,pins = "sdmmc3_cmd_pa7",
-+					      "sdmmc3_dat0_pb7",
- 					      "sdmmc3_dat1_pb6",
- 					      "sdmmc3_dat2_pb5",
- 					      "sdmmc3_dat3_pb4",
+ 	if (csi_id == -ENODEV) {
+ 		struct v4l2_subdev *sd;
+-		unsigned int i;
+ 
+ 		/*
+ 		 * Make sure the source entity subdevice is registered as
 -- 
 2.20.1
 
