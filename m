@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FB28107033
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:21:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCE19107038
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:21:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728307AbfKVKpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:45:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51574 "EHLO mail.kernel.org"
+        id S1727556AbfKVKpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:45:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727978AbfKVKpT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:45:19 -0500
+        id S1729070AbfKVKpW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:45:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5812620718;
-        Fri, 22 Nov 2019 10:45:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11B242071C;
+        Fri, 22 Nov 2019 10:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419518;
-        bh=wg46qknz9Hf2607OK9IVon7QRzTj/a1p1YRAecuuMHk=;
+        s=default; t=1574419521;
+        bh=qFMPdXUEH6vwVV5eu/FaLP6bhy2xtehholYH6iinTzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lHvr2G/Y1GRHuRdnWWfQVOFizn8FPgMsPkpnTi0h9dqTl+/0DtLGN7LQgfIbw5iHc
-         xk3fi0YhFcvdSvJQB2KDu5ossWFeHppYTIFQ9dCu3I1CEPIctO91Z/j5CFGKIJ1QiY
-         F2tlp/drvrj5IHHMwLZ2icD9Cpi7/2/Iiqf/MyTY=
+        b=Rxa4exafLJ8MJ5A8ZOT4VbYJIMbn+4C8OX8Cj7NWXiJNiegvjjFBLsIODYIywg6pr
+         Btjl1WMPPVjRp3i5qWOdl7+hl4JjFCg+WGVUHxDHDDQ85ZlAUNtWu/Gw2Y5jVVJTbP
+         tRmvmyV9RtlFOaMRB2X/uuDpKGrfrKbS+hMYPjWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Schmitz <schmitzmic@gmail.com>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Brijesh Singh <brijeshkumar.singh@amd.com>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 139/222] scsi: NCR5380: Handle BUS FREE during reselection
-Date:   Fri, 22 Nov 2019 11:27:59 +0100
-Message-Id: <20191122100912.901414049@linuxfoundation.org>
+Subject: [PATCH 4.9 140/222] arm64: dts: amd: Fix SPI bus warnings
+Date:   Fri, 22 Nov 2019 11:28:00 +0100
+Message-Id: <20191122100912.955623871@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -45,38 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Thain <fthain@telegraphics.com.au>
+From: Rob Herring <robh@kernel.org>
 
-[ Upstream commit ca694afad707cb3ae2fdef3b28454444d9ac726e ]
+[ Upstream commit e9f0878c4b2004ac19581274c1ae4c61ae3ca70e ]
 
-The X3T9.2 specification (draft) says, under "6.1.4.2 RESELECTION time-out
-procedure", that a target may assert RST or go to BUS FREE phase if the
-initiator does not respond within 200 us. Something like this has been
-observed with AztecMonster II target. When it happens, all we can do is wait
-for the target to try again.
+dtc has new checks for SPI buses. Fix the warnings in node names.
 
-Tested-by: Michael Schmitz <schmitzmic@gmail.com>
-Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+arch/arm64/boot/dts/amd/amd-overdrive.dtb: Warning (spi_bus_bridge): /smb/ssp@e1030000: node name for SPI buses should be 'spi'
+arch/arm64/boot/dts/amd/amd-overdrive-rev-b0.dtb: Warning (spi_bus_bridge): /smb/ssp@e1030000: node name for SPI buses should be 'spi'
+arch/arm64/boot/dts/amd/amd-overdrive-rev-b1.dtb: Warning (spi_bus_bridge): /smb/ssp@e1030000: node name for SPI buses should be 'spi'
+
+Cc: Brijesh Singh <brijeshkumar.singh@amd.com>
+Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Cc: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/NCR5380.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/NCR5380.c b/drivers/scsi/NCR5380.c
-index 03f9ddbc37fbb..27270631c70c2 100644
---- a/drivers/scsi/NCR5380.c
-+++ b/drivers/scsi/NCR5380.c
-@@ -2133,6 +2133,9 @@ static void NCR5380_reselect(struct Scsi_Host *instance)
+diff --git a/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi b/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
+index bd3adeac374f4..2973a14523eaf 100644
+--- a/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
++++ b/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
+@@ -106,7 +106,7 @@
+ 			clock-names = "uartclk", "apb_pclk";
+ 		};
  
- 	if (NCR5380_poll_politely(instance,
- 	                          STATUS_REG, SR_REQ, SR_REQ, 2 * HZ) < 0) {
-+		if ((NCR5380_read(STATUS_REG) & (SR_BSY | SR_SEL)) == 0)
-+			/* BUS FREE phase */
-+			return;
- 		shost_printk(KERN_ERR, instance, "reselect: REQ timeout\n");
- 		do_abort(instance);
- 		return;
+-		spi0: ssp@e1020000 {
++		spi0: spi@e1020000 {
+ 			status = "disabled";
+ 			compatible = "arm,pl022", "arm,primecell";
+ 			reg = <0 0xe1020000 0 0x1000>;
+@@ -116,7 +116,7 @@
+ 			clock-names = "apb_pclk";
+ 		};
+ 
+-		spi1: ssp@e1030000 {
++		spi1: spi@e1030000 {
+ 			status = "disabled";
+ 			compatible = "arm,pl022", "arm,primecell";
+ 			reg = <0 0xe1030000 0 0x1000>;
 -- 
 2.20.1
 
