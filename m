@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A84106E5D
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:08:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D282106FB3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731607AbfKVLEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:04:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59934 "EHLO mail.kernel.org"
+        id S1729375AbfKVLRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:17:01 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58972 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731592AbfKVLEq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:04:46 -0500
+        id S1730021AbfKVKtb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ED601207FC;
-        Fri, 22 Nov 2019 11:04:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D35CC20715;
+        Fri, 22 Nov 2019 10:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420685;
-        bh=dONCx61Ia/sj7WTQHEcMz5HEIkjAqNopjr/Sy89EPhA=;
+        s=default; t=1574419771;
+        bh=pkcEKusfz9+5qS3xEeIaSulh+3jZtNJAPw1hijWklJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzLz4t7QUyJnv/zTH+6ub8E4AHft6+pd1ergaUOhp/FRpEUrK8/eMT2Wm7tSjqJVG
-         MMB5kS3VzxKj/Si7pxkENzKw/09hOgWDwoVLrWpmAfGbTJYAow67azaYYsQmFsAsJ+
-         Pli5sozteL5u8wZhdK08gV/YPPM0z2h8rUf48PR4=
+        b=pDjhsMlZimocLUqX08gaSC6TZeHYmbgjCow98mfCOEz1teU7lOfkNcL2ZEjxMLn9X
+         LnybtSlI5l9kiMVGvxdtbCJUsdEi+Y+/Ps/o14acyONVQ7WBcFd/KnGkppzzNgqVPr
+         U4X2KWXmRGS2N9obQvfvTaCZcZyXqx2hRe9BJZDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hieu Tran Dang <dangtranhieu2012@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 191/220] spi: fsl-lpspi: Prevent FIFO under/overrun by default
+Subject: [PATCH 4.9 216/222] hwmon: (pwm-fan) Silence error on probe deferral
 Date:   Fri, 22 Nov 2019 11:29:16 +0100
-Message-Id: <20191122100927.844347489@linuxfoundation.org>
+Message-Id: <20191122100918.107448103@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hieu Tran Dang <dangtranhieu2012@gmail.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit de8978c388c66b8fca192213ec9f0727e964c652 ]
+[ Upstream commit 9f67f7583e77fe5dc57aab3a6159c2642544eaad ]
 
-Certain devices don't work well when a transmit FIFO underrun or
-receive FIFO overrun occurs. Example is the SAF400x radio chip when
-running at high speed which leads to garbage being sent to/received from
-the chip. In which case, it should stall waiting for further data to be
-available before proceeding. This patch unset the NOSTALL bit in CFGR1
-by default to prevent this issue.
+Probe deferrals aren't actual errors, so silence the error message in
+case the PWM cannot yet be acquired.
 
-Signed-off-by: Hieu Tran Dang <dangtranhieu2012@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-lpspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pwm-fan.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-lpspi.c b/drivers/spi/spi-fsl-lpspi.c
-index e6d5cc6ab108b..51670976faa35 100644
---- a/drivers/spi/spi-fsl-lpspi.c
-+++ b/drivers/spi/spi-fsl-lpspi.c
-@@ -276,7 +276,7 @@ static int fsl_lpspi_config(struct fsl_lpspi_data *fsl_lpspi)
+diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
+index fb03449de2e07..aa6333620c37d 100644
+--- a/drivers/hwmon/pwm-fan.c
++++ b/drivers/hwmon/pwm-fan.c
+@@ -231,8 +231,12 @@ static int pwm_fan_probe(struct platform_device *pdev)
  
- 	fsl_lpspi_set_watermark(fsl_lpspi);
+ 	ctx->pwm = devm_of_pwm_get(&pdev->dev, pdev->dev.of_node, NULL);
+ 	if (IS_ERR(ctx->pwm)) {
+-		dev_err(&pdev->dev, "Could not get PWM\n");
+-		return PTR_ERR(ctx->pwm);
++		ret = PTR_ERR(ctx->pwm);
++
++		if (ret != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Could not get PWM: %d\n", ret);
++
++		return ret;
+ 	}
  
--	temp = CFGR1_PCSCFG | CFGR1_MASTER | CFGR1_NOSTALL;
-+	temp = CFGR1_PCSCFG | CFGR1_MASTER;
- 	if (fsl_lpspi->config.mode & SPI_CS_HIGH)
- 		temp |= CFGR1_PCSPOL;
- 	writel(temp, fsl_lpspi->base + IMX7ULP_CFGR1);
+ 	platform_set_drvdata(pdev, ctx);
 -- 
 2.20.1
 
