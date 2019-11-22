@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B0751064F2
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:21:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A0C1064D5
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:20:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729216AbfKVGUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:20:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58612 "EHLO mail.kernel.org"
+        id S1726757AbfKVFwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:52:47 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728659AbfKVFwp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:52:45 -0500
+        id S1728666AbfKVFwr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:52:47 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA5BB20721;
-        Fri, 22 Nov 2019 05:52:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA0CE2068F;
+        Fri, 22 Nov 2019 05:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401964;
-        bh=zYB41gfG09mqdRPWxWlUgH4vOV0svqU0ru6XZw2f+fE=;
+        s=default; t=1574401965;
+        bh=CQuBCBvKAAsOoZocCAsqj8Qd5e+iFxFP6/c3gZsHpI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rVGilCmF8MINlzYUHOHTFM8xcg4SCnmbr7l8oY0D2MikRnwsMTZ8k3/nX4nMYT7m5
-         D8JBeKovtVQRK4MhfxM7zz9tesdm7Ohy3cAr361BVNkCJTX8+ny6NzFfu0VmRLr/Ra
-         mMcWxR+GskYdMV/l26tvBmBurjWVjjp5c6cNXkIw=
+        b=u9wRdKFXg0a/NrOLTQLEcbHTwoGj7r7GuCULhLAezsY3vZLjMVpALpi/JItvAeQAk
+         3agdSV0JIdRrENnIThmnpezUT0jsaD7Z5DVW8XpR9UUp/plU3l87FA9g1m+Vhf5HkJ
+         E7dyroRF6lFhpo43gtSuAXP6x+moIlzkrCFnXnQ8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Johannes Thumshirn <jthumshirn@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 185/219] blktrace: Show requests without sector
-Date:   Fri, 22 Nov 2019 00:48:37 -0500
-Message-Id: <20191122054911.1750-178-sashal@kernel.org>
+Cc:     Ursula Braun <ubraun@linux.ibm.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 186/219] net/smc: fix byte_order for rx_curs_confirmed
+Date:   Fri, 22 Nov 2019 00:48:38 -0500
+Message-Id: <20191122054911.1750-179-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -42,43 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Ursula Braun <ubraun@linux.ibm.com>
 
-[ Upstream commit 0803de78049fe1b0baf44bcddc727b036fb9139b ]
+[ Upstream commit ccc8ca9b90acb45a3309f922b2591b07b4e070ec ]
 
-Currently, blktrace will not show requests that don't have any data as
-rq->__sector is initialized to -1 which is out of device range and thus
-discarded by act_log_check(). This is most notably the case for cache
-flush requests sent to the device. Fix the problem by making
-blk_rq_trace_sector() return 0 for requests without initialized sector.
+The recent change in the rx_curs_confirmed assignment disregards
+byte order, which causes problems on little endian architectures.
+This patch fixes it.
 
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: b8649efad879 ("net/smc: fix sender_free computation") (net-tree)
+Signed-off-by: Ursula Braun <ubraun@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/blktrace_api.h | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ net/smc/smc_cdc.c |  4 +---
+ net/smc/smc_cdc.h | 19 ++++++++++---------
+ 2 files changed, 11 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/blktrace_api.h b/include/linux/blktrace_api.h
-index 8804753805ac5..7bb2d8de9f308 100644
---- a/include/linux/blktrace_api.h
-+++ b/include/linux/blktrace_api.h
-@@ -116,7 +116,13 @@ extern void blk_fill_rwbs(char *rwbs, unsigned int op, int bytes);
+diff --git a/net/smc/smc_cdc.c b/net/smc/smc_cdc.c
+index 8f691b5a44ddf..333e4353498f8 100644
+--- a/net/smc/smc_cdc.c
++++ b/net/smc/smc_cdc.c
+@@ -106,9 +106,7 @@ int smc_cdc_msg_send(struct smc_connection *conn,
  
- static inline sector_t blk_rq_trace_sector(struct request *rq)
+ 	conn->tx_cdc_seq++;
+ 	conn->local_tx_ctrl.seqno = conn->tx_cdc_seq;
+-	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf,
+-			    &conn->local_tx_ctrl, conn);
+-	smc_curs_copy(&cfed, &((struct smc_host_cdc_msg *)wr_buf)->cons, conn);
++	smc_host_msg_to_cdc((struct smc_cdc_msg *)wr_buf, conn, &cfed);
+ 	rc = smc_wr_tx_send(link, (struct smc_wr_tx_pend_priv *)pend);
+ 	if (!rc)
+ 		smc_curs_copy(&conn->rx_curs_confirmed, &cfed, conn);
+diff --git a/net/smc/smc_cdc.h b/net/smc/smc_cdc.h
+index 2377a51772d51..34d2e1450320a 100644
+--- a/net/smc/smc_cdc.h
++++ b/net/smc/smc_cdc.h
+@@ -186,26 +186,27 @@ static inline int smc_curs_diff_large(unsigned int size,
+ 
+ static inline void smc_host_cursor_to_cdc(union smc_cdc_cursor *peer,
+ 					  union smc_host_cursor *local,
++					  union smc_host_cursor *save,
+ 					  struct smc_connection *conn)
  {
--	return blk_rq_is_passthrough(rq) ? 0 : blk_rq_pos(rq);
-+	/*
-+	 * Tracing should ignore starting sector for passthrough requests and
-+	 * requests where starting sector didn't get set.
-+	 */
-+	if (blk_rq_is_passthrough(rq) || blk_rq_pos(rq) == (sector_t)-1)
-+		return 0;
-+	return blk_rq_pos(rq);
+-	union smc_host_cursor temp;
+-
+-	smc_curs_copy(&temp, local, conn);
+-	peer->count = htonl(temp.count);
+-	peer->wrap = htons(temp.wrap);
++	smc_curs_copy(save, local, conn);
++	peer->count = htonl(save->count);
++	peer->wrap = htons(save->wrap);
+ 	/* peer->reserved = htons(0); must be ensured by caller */
  }
  
- static inline unsigned int blk_rq_trace_nr_sectors(struct request *rq)
+ static inline void smc_host_msg_to_cdc(struct smc_cdc_msg *peer,
+-				       struct smc_host_cdc_msg *local,
+-				       struct smc_connection *conn)
++				       struct smc_connection *conn,
++				       union smc_host_cursor *save)
+ {
++	struct smc_host_cdc_msg *local = &conn->local_tx_ctrl;
++
+ 	peer->common.type = local->common.type;
+ 	peer->len = local->len;
+ 	peer->seqno = htons(local->seqno);
+ 	peer->token = htonl(local->token);
+-	smc_host_cursor_to_cdc(&peer->prod, &local->prod, conn);
+-	smc_host_cursor_to_cdc(&peer->cons, &local->cons, conn);
++	smc_host_cursor_to_cdc(&peer->prod, &local->prod, save, conn);
++	smc_host_cursor_to_cdc(&peer->cons, &local->cons, save, conn);
+ 	peer->prod_flags = local->prod_flags;
+ 	peer->conn_state_flags = local->conn_state_flags;
+ }
 -- 
 2.20.1
 
