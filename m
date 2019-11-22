@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10737106D33
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:58:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9875106D50
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729876AbfKVK6N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:58:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47790 "EHLO mail.kernel.org"
+        id S1730381AbfKVK7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:59:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730773AbfKVK6J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:58:09 -0500
+        id S1730387AbfKVK7F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:59:05 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A8F882071C;
-        Fri, 22 Nov 2019 10:58:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 678DB20721;
+        Fri, 22 Nov 2019 10:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420289;
-        bh=MMgzRe5yVk3nwNXkDvps5UuvfqiDrf2kC1LxpPtNu0Q=;
+        s=default; t=1574420344;
+        bh=WatvhTlnTrUeKgE4vGEfMfvYTXMAw5MLRYU+EHcOmmA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lU/8QRCLiWXUC7g7juz6SCd64BVh6m9EfQSWHp8e2TOIRY43QadEtNzh5lq7D6uBJ
-         x1+MkE9mymEVIuXyL1Xak1Q22j3g9h/ACldkfEp6tr+FosXDm+Zgwoe2kDWBEgioDm
-         QtO6UyMbvcYUQRWifxTzGXA7Pjnrdm682rCCg2tE=
+        b=0OBl3o81e3Mm8tOZX/W3tHcPHF89vZYyDUUx7l0WdESKXjVSW5FBJlm3I3MmYKQ27
+         gZSwm0+fNGLrHxQXLdOBVe1flOmY6ZB/Ek8pWT/ggdjXK+GkfMK0LV2LF1y2r7FX2L
+         kp1XTvqC7d8m1ur8wRiJunqqsWCeycpBTh5QZJI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 029/220] IB/hfi1: Error path MAD response size is incorrect
-Date:   Fri, 22 Nov 2019 11:26:34 +0100
-Message-Id: <20191122100914.513996783@linuxfoundation.org>
+        Lorenzo Bianconi <lorenzo.bianconi@redhat.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 031/220] mt76x2: fix tx power configuration for VHT mcs 9
+Date:   Fri, 22 Nov 2019 11:26:36 +0100
+Message-Id: <20191122100914.627267228@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
 References: <20191122100912.732983531@linuxfoundation.org>
@@ -47,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael J. Ruhl <michael.j.ruhl@intel.com>
+From: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
 
-[ Upstream commit 935c84ac649a147e1aad2c48ee5c5a1a9176b2d0 ]
+[ Upstream commit 60b6645ef1a9239a02c70adeae136298395d145a ]
 
-If a MAD packet has incorrect header information, the logic uses the reply
-path to report the error.  The reply path expects *resp_len to be set
-prior to return.  Unfortunately, *resp_len is set to 0 for this path.
-This causes an incorrect response packet.
+Fix tx power configuration for VHT 1SS/STBC mcs 9 since
+in MT_TX_PWR_CFG_{8,9} mcs 8,9 bits are GENMASK(21,16) and
+GENMASK(29,24) while GENMASK(15,6) are marked as reserved
 
-Fix by ensuring that the *resp_len is defaulted to the incoming packet
-size (wc->bytes_len - sizeof(GRH)).
-
-Reviewed-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: 7bc04215a66b ("mt76: add driver code for MT76x2e")
+Signed-off-by: Lorenzo Bianconi <lorenzo.bianconi@redhat.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/mad.c | 4 ++--
+ drivers/net/wireless/mediatek/mt76/mt76x2_phy_common.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/mad.c b/drivers/infiniband/hw/hfi1/mad.c
-index f208a25d0e4f5..1669548e91dcf 100644
---- a/drivers/infiniband/hw/hfi1/mad.c
-+++ b/drivers/infiniband/hw/hfi1/mad.c
-@@ -1,5 +1,5 @@
- /*
-- * Copyright(c) 2015-2017 Intel Corporation.
-+ * Copyright(c) 2015-2018 Intel Corporation.
-  *
-  * This file is provided under a dual BSD/GPLv2 license.  When using or
-  * redistributing this file, you may do so under either license.
-@@ -4829,7 +4829,7 @@ static int hfi1_process_opa_mad(struct ib_device *ibdev, int mad_flags,
- 	int ret;
- 	int pkey_idx;
- 	int local_mad = 0;
--	u32 resp_len = 0;
-+	u32 resp_len = in_wc->byte_len - sizeof(*in_grh);
- 	struct hfi1_ibport *ibp = to_iport(ibdev, port);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x2_phy_common.c b/drivers/net/wireless/mediatek/mt76/mt76x2_phy_common.c
+index 9fd6ab4cbb949..ca68dd184489b 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x2_phy_common.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x2_phy_common.c
+@@ -232,9 +232,9 @@ void mt76x2_phy_set_txpower(struct mt76x2_dev *dev)
+ 	mt76_wr(dev, MT_TX_PWR_CFG_7,
+ 		mt76x2_tx_power_mask(t.ofdm[6], t.vht[8], t.ht[6], t.vht[8]));
+ 	mt76_wr(dev, MT_TX_PWR_CFG_8,
+-		mt76x2_tx_power_mask(t.ht[14], t.vht[8], t.vht[8], 0));
++		mt76x2_tx_power_mask(t.ht[14], 0, t.vht[8], t.vht[8]));
+ 	mt76_wr(dev, MT_TX_PWR_CFG_9,
+-		mt76x2_tx_power_mask(t.ht[6], t.vht[8], t.vht[8], 0));
++		mt76x2_tx_power_mask(t.ht[6], 0, t.vht[8], t.vht[8]));
+ }
+ EXPORT_SYMBOL_GPL(mt76x2_phy_set_txpower);
  
- 	pkey_idx = hfi1_lookup_pkey_idx(ibp, LIM_MGMT_P_KEY);
 -- 
 2.20.1
 
