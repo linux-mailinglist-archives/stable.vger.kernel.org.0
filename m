@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E6C10653E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:23:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E08D10653B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728756AbfKVGW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:22:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57226 "EHLO mail.kernel.org"
+        id S1727560AbfKVGWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:22:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727008AbfKVFvy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:51:54 -0500
+        id S1728320AbfKVFvz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:51:55 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D5DA2070A;
-        Fri, 22 Nov 2019 05:51:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2330020726;
+        Fri, 22 Nov 2019 05:51:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401913;
-        bh=+MPkf+/1ZgSXTTcyRZTaHbIWLFnK7BZRQH9Tcq5LrlY=;
+        s=default; t=1574401914;
+        bh=jQ1iFzeS+vCtqt56Z82AOL2Hls9N2/gLhDuxtgK3EXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ur/qXM0UZOHhrmqSRKTl8ZLjoNzUpMOB500Me/fMwxbCH4ydP/o0fBv+VwmDz1dvq
-         UJIRaMpsetUpCiCX66/JR21ermiDEe8N+3ahPkwLG5fMzi+jQISxawS5fKrEbz8kYF
-         TdpX2BjkZ5kZZfgK6h4Ih5yP0HyRy478sYhDrzuY=
+        b=zZrKmttk3iE92veqOw7VTislUPHAzwHN1eYolHCvyeP/zcuxkjf+31X0L2pF1KBYw
+         AxceKufmmvpjpMxvMkNLQ42Xe7N/pv6GP5mKyeRY9jVrFEu5ydNLRuGCHk4ZzD+xZU
+         ze0QVfwWfg+iG7sfF4KIBQavoETJRtw2DYofAMFQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 144/219] um: Make GCOV depend on !KCOV
-Date:   Fri, 22 Nov 2019 00:47:56 -0500
-Message-Id: <20191122054911.1750-137-sashal@kernel.org>
+Cc:     Kangjie Lu <kjlu@umn.edu>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 145/219] net: (cpts) fix a missing check of clk_prepare
+Date:   Fri, 22 Nov 2019 00:47:57 -0500
+Message-Id: <20191122054911.1750-138-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -42,32 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Weinberger <richard@nod.at>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit 550ed0e2036663b35cec12374b835444f9c60454 ]
+[ Upstream commit 2d822f2dbab7f4c820f72eb8570aacf3f35855bd ]
 
-Both do more or less the same thing and are mutually exclusive.
-If both are enabled the build will fail.
-Sooner or later we can kill UML's GCOV.
+clk_prepare() could fail, so let's check its status, and if it fails,
+return its error code upstream.
 
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/ti/cpts.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/um/Kconfig.debug b/arch/um/Kconfig.debug
-index 2014597605ea9..85726eeec3451 100644
---- a/arch/um/Kconfig.debug
-+++ b/arch/um/Kconfig.debug
-@@ -16,6 +16,7 @@ config GPROF
- config GCOV
- 	bool "Enable gcov support"
- 	depends on DEBUG_INFO
-+	depends on !KCOV
- 	help
- 	  This option allows developers to retrieve coverage data from a UML
- 	  session.
+diff --git a/drivers/net/ethernet/ti/cpts.c b/drivers/net/ethernet/ti/cpts.c
+index b96b93c686bf1..4f644ac314fe8 100644
+--- a/drivers/net/ethernet/ti/cpts.c
++++ b/drivers/net/ethernet/ti/cpts.c
+@@ -572,7 +572,9 @@ struct cpts *cpts_create(struct device *dev, void __iomem *regs,
+ 		return ERR_CAST(cpts->refclk);
+ 	}
+ 
+-	clk_prepare(cpts->refclk);
++	ret = clk_prepare(cpts->refclk);
++	if (ret)
++		return ERR_PTR(ret);
+ 
+ 	cpts->cc.read = cpts_systim_read;
+ 	cpts->cc.mask = CLOCKSOURCE_MASK(32);
 -- 
 2.20.1
 
