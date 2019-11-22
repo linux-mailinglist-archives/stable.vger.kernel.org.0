@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F668106C6D
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:52:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28EB2106BDE
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730129AbfKVKwA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:52:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35166 "EHLO mail.kernel.org"
+        id S1729810AbfKVKr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:47:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730128AbfKVKv7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:51:59 -0500
+        id S1729390AbfKVKry (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:47:54 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 152AB20637;
-        Fri, 22 Nov 2019 10:51:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50C4320715;
+        Fri, 22 Nov 2019 10:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419918;
-        bh=1QkygwHLgUK427ey0VFiRVmTUIOw5qNV4Wt+zMKwblg=;
+        s=default; t=1574419673;
+        bh=LH61V/qzUmWOj7rI6InJebjBB7kMjoSX9nWyR9/yzfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLy8AGNTG2nXw2dolRYaNSXjpTDpzbFrevKmA+syQCnIG8NzW7Oi3qrNvYKeuzZFU
-         SYilSV3VGkseb/BkWXRovsRS/8vc4f5BiINi9uC1BPsXzbeNr2/sUKkYwkBK/6o7Xw
-         wKjQY4s4po9MP4Rty1jFQedMMYdfG6iXYWs1nHF0=
+        b=MIglrufc9l8UZVTsm8snPqSQ8lnZDJfB16onXU3xt6tn9OwTK7fV0mgBgWlHXcEy9
+         XUoVYxUsPlgYWYyyi3NJfXrcQuOTbZqz0LopElxkR3SI4NGUVZVQzrvvEWQ2dpqGvd
+         ecT6TeOnZIppzcBq4VVmHXaQtplztjg3uwrWzMzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
+        stable@vger.kernel.org,
+        Andrew Zaborowski <andrew.zaborowski@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 053/122] IB/mthca: Fix error return code in __mthca_init_one()
+Subject: [PATCH 4.9 166/222] nl80211: Fix a GET_KEY reply attribute
 Date:   Fri, 22 Nov 2019 11:28:26 +0100
-Message-Id: <20191122100758.496108606@linuxfoundation.org>
+Message-Id: <20191122100914.560871101@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Andrew Zaborowski <andrew.zaborowski@intel.com>
 
-[ Upstream commit 39f2495618c5e980d2873ea3f2d1877dd253e07a ]
+[ Upstream commit efdfce7270de85a8706d1ea051bef3a7486809ff ]
 
-Fix to return a negative error code from the mthca_cmd_init() error
-handling case instead of 0, as done elsewhere in this function.
+Use the NL80211_KEY_IDX attribute inside the NL80211_ATTR_KEY in
+NL80211_CMD_GET_KEY responses to comply with nl80211_key_policy.
+This is unlikely to affect existing userspace.
 
-Fixes: 80fd8238734c ("[PATCH] IB/mthca: Encapsulate command interface init")
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Andrew Zaborowski <andrew.zaborowski@intel.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/mthca/mthca_main.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/wireless/nl80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/mthca/mthca_main.c b/drivers/infiniband/hw/mthca/mthca_main.c
-index e36a9bc52268d..ccf50dafce9ca 100644
---- a/drivers/infiniband/hw/mthca/mthca_main.c
-+++ b/drivers/infiniband/hw/mthca/mthca_main.c
-@@ -986,7 +986,8 @@ static int __mthca_init_one(struct pci_dev *pdev, int hca_type)
- 		goto err_free_dev;
- 	}
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 060bc0cc82526..bb19be78aed70 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -3058,7 +3058,7 @@ static void get_key_callback(void *c, struct key_params *params)
+ 			 params->cipher)))
+ 		goto nla_put_failure;
  
--	if (mthca_cmd_init(mdev)) {
-+	err = mthca_cmd_init(mdev);
-+	if (err) {
- 		mthca_err(mdev, "Failed to init command interface, aborting.\n");
- 		goto err_free_dev;
- 	}
+-	if (nla_put_u8(cookie->msg, NL80211_ATTR_KEY_IDX, cookie->idx))
++	if (nla_put_u8(cookie->msg, NL80211_KEY_IDX, cookie->idx))
+ 		goto nla_put_failure;
+ 
+ 	nla_nest_end(cookie->msg, key);
 -- 
 2.20.1
 
