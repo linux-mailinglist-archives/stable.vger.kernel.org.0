@@ -2,125 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D239107229
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 13:30:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B1D107274
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 13:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726792AbfKVMaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 07:30:15 -0500
-Received: from mout.kundenserver.de ([217.72.192.75]:34239 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726546AbfKVMaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 07:30:15 -0500
-Received: from mail-qv1-f51.google.com ([209.85.219.51]) by
- mrelayeu.kundenserver.de (mreue108 [212.227.15.145]) with ESMTPSA (Nemesis)
- id 1MIMT4-1ibRSr3iZY-00EQmw; Fri, 22 Nov 2019 13:30:14 +0100
-Received: by mail-qv1-f51.google.com with SMTP id x14so2798494qvu.0;
-        Fri, 22 Nov 2019 04:30:13 -0800 (PST)
-X-Gm-Message-State: APjAAAWBQ6Pt7ELUVeg7oYmwXNyKj3nZkIgFcCcVX3O89vcQUr92Obyk
-        eo+RSIXn7M2Q0EmeHKUxApF6FTma+3fMIvvbsc8=
-X-Google-Smtp-Source: APXvYqwo4cq5vi2UMJ+B8EOtGb2wJBoNA355QcEFDck33B0EH/15Sn93Gc6HoQeA3bY6XQ3M3oRovNXI54EVvUWqnm0=
-X-Received: by 2002:a05:6214:2c2:: with SMTP id g2mr12983338qvu.210.1574425812653;
- Fri, 22 Nov 2019 04:30:12 -0800 (PST)
+        id S1726712AbfKVMvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 07:51:17 -0500
+Received: from us-smtp-1.mimecast.com ([207.211.31.81]:51953 "EHLO
+        us-smtp-delivery-1.mimecast.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1726526AbfKVMvR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 07:51:17 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1574427075;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=Zqn8t/TBvgJerDNrUTJ7nxMF64wppR8yrwvfCwA9/6Q=;
+        b=Mtbl0MvzWB9aSjyrYsvOyht3+f4irB0dUXCrtEdFO90WhID67XzSKoA7PBkf6eUXFsIFGt
+        s8zn4Jt4rkvICkUmqv6647ijjVNMH8oygKq5TdXcWv5hK9P3jucY9roXX/sbhRSXr4xU87
+        2PBbqqBpwmayWRDsDEvoSNDqBjVKe1M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-45-2QvqituqMt-ZzmEZ9GonvQ-1; Fri, 22 Nov 2019 07:51:13 -0500
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 89C6EDB20
+        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 12:51:12 +0000 (UTC)
+Received: from [172.54.73.15] (cpt-1028.paas.prod.upshift.rdu2.redhat.com [10.0.19.51])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D70906E718;
+        Fri, 22 Nov 2019 12:51:09 +0000 (UTC)
 MIME-Version: 1.0
-References: <20191111203835.2260382-4-arnd@arndb.de> <20191122070015.D5A702068E@mail.kernel.org>
-In-Reply-To: <20191122070015.D5A702068E@mail.kernel.org>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Fri, 22 Nov 2019 13:29:56 +0100
-X-Gmail-Original-Message-ID: <CAK8P3a3kAGE1AvKtifkVuBbrqRXn2f078Q_2kxznv_gFzmrSWg@mail.gmail.com>
-Message-ID: <CAK8P3a3kAGE1AvKtifkVuBbrqRXn2f078Q_2kxznv_gFzmrSWg@mail.gmail.com>
-Subject: Re: [PATCH v4 3/8] media: v4l2-core: compat: ignore native command codes
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Provags-ID: V03:K1:nrgb/6yGw4RXoOcQfuvbxGNdUm6TKYxWJqe8POQt4YiVIXuc+bI
- fhDG5WQ2tntq//8TPfxFoOpHSwd9DrK/kCRDA2juQN3Xh8xmSEcFMaD0zIQEq6/O4c+ctGd
- BkwyJO04mBWrLKHPd+8Jz5CdhYmUH9+Cq4BivCWpMl2DYkchkt1/Ix7LT00I5WY8jjSYNIl
- aDMutOkzvBtynI/OLb31g==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:Lj4cpsbr/HA=:/mJNazM+K1aP8eczjLsXTX
- g0utTWatesEH2EcIFWvosnwuDsPOR3xk5KyoEoKtshgMxQ34IdCnewB6EZWpetsBuWL5FYsTr
- B1SJMkxGAxc7mXt7/nJhVZyOmba1ltBmndg8WZ7KXV7Sq9WtiUPlsK0oMOIBd+Byhotq+TUEP
- uObQ9pXnIopLMOj7f3PrMTzYFjq07pMR/JiHOR4mKKiGhFKKnv7l9K/zCGbbggadFW5D1zuJS
- Bdg14R0J/b/eDqDgBj6Mx4DnyGIMSRnNWFa5wJ0pnTYy8zLtOLYBy/jJkdJuKNx32jFG/FTxf
- wyKSaabS4zsMXiGM/p60eQYZcYrYLTiLXQGh+osdwpeTikMeh9q2zEjYFJTXgksaMJ0NTa193
- dUV4m5sD6k0OJbz5IKZmXa6mTq1ZZmsRpBS0MY4rOrMl+dvV9BrHhFR2cNAOI7V7+6+yDoF4G
- 7N2dCKvtPMSY5KnsVe3TePCmddZC0V5b+jQotZvkeQAyVM01w4QUhyGDOpPUuQVCPzHggbx3e
- wogRVwM2fH9jIXF8m5VTe7XwKOXWLsgCO8KJId+hFhPBOl3vDvij0lzuG5Q/nk78VfAZhFa2H
- ZmxmZ4NIxlojxWqLex00OUYv1vmQ+xRajPfb9BR4nkXd5sU2f/e+QRiQd3HHxrSYN8NB7iopX
- mQmB/GISrt4pTJQ6WguG4ak5dPhs+TaycLhVLepbfvKajE0PBmgup3Ti+H2R7+3vcOkxwMzFW
- lKTcLnBgwVWQQIwkab59cvlAlqfTQqjRYsi+GQ40M2Am1Kpzwoa5zcxR3T3+eE/hNGWAxcjX+
- x/hhpFkT9b88rtTm05aJHiW52WPsE+d/FzDFKOvq46k3+thSbrR/0cB/orPrTVJwzQgzveMX8
- KdrgecevEIA6sAxn1EHQ==
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.3.13-rc1-6b14caa.cki
+ (stable)
+Date:   Fri, 22 Nov 2019 12:51:09 -0000
+Message-ID: <cki.C2507DF09F.RUKG09QJOE@redhat.com>
+X-Gitlab-Pipeline-ID: 301338
+X-Gitlab-Url: https://xci32.lab.eng.rdu2.redhat.com
+X-Gitlab-Path: /cki-project/cki-pipeline/pipelines/301338
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-MC-Unique: 2QvqituqMt-ZzmEZ9GonvQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Nov 22, 2019 at 8:00 AM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
->
-> The bot has tested the following trees: v5.3.11, v4.19.84, v4.14.154, v4.9.201, v4.4.201.
->
-> v5.3.11: Build OK!
-> v4.19.84: Build OK!
 
-Ok, good.
+Hello,
 
-> v4.14.154: Failed to apply! Possible dependencies:
->     6dd0394f5fcd ("media: v4l2-compat-ioctl32: better name userspace pointers")
->     fef6cc6b3618 ("media: v4l2-compat-ioctl32: fix several __user annotations")
+We ran automated tests on a recent commit from this kernel tree:
 
-The fef6cc6b3618 is probably a candidate for backporting (it fixes smatch
-and sparse warnings and should have no other effect), the 6dd0394f5fcd
-may be a little too big (but also harmless).
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux-stable-rc.git
+            Commit: 6b14caa1dc57 - Linux 5.3.13-rc1
 
-The downside of not backporting the patch is that user space code built
-with 64-bit time_t would get incorrect data rather than failing with an
-error code on older kernels.
+The results of these automated tests are provided below.
 
-I do not expect to see backports of 64-bit time_t support to kernels older
-than 4.19, so this probably won't matter much, but in theory it's still
-possible that users can run into it.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-> v4.9.201: Failed to apply! Possible dependencies:
->     6dd0394f5fcd ("media: v4l2-compat-ioctl32: better name userspace pointers")
->     a56bc171598c ("[media] v4l: compat: Prevent allocating excessive amounts of memory")
->     ba7ed691dcce ("[media] v4l2-compat-ioctl32: VIDIOC_S_EDID should return all fields on error")
->     fb9ffa6a7f7e ("[media] v4l: Add metadata buffer type and format")
->     fef6cc6b3618 ("media: v4l2-compat-ioctl32: fix several __user annotations")
->
-> v4.4.201: Failed to apply! Possible dependencies:
->     0579e6e3a326 ("doc-rst: linux_tv: remove whitespaces")
->     17defc282fe6 ("Documentation: add meta-documentation for Sphinx and kernel-doc")
->     22cba31bae9d ("Documentation/sphinx: add basic working Sphinx configuration and build")
->     234d549662a7 ("doc-rst: video: use reference for VIDIOC_ENUMINPUT")
->     5377d91f3e88 ("doc-rst: linux_tv DocBook to reST migration (docs-next)")
->     6dd0394f5fcd ("media: v4l2-compat-ioctl32: better name userspace pointers")
->     7347081e8a52 ("doc-rst: linux_tv: simplify references")
->     789818845202 ("doc-rst: audio: Fix some cross references")
->     94fff0dc5333 ("doc-rst: dmx_fcalls: improve man-like format")
->     9e00ffca8cc7 ("doc-rst: querycap: fix troubles on some references")
->     af4a4d0db8ab ("doc-rst: linux_tv: Replace reference names to match ioctls")
->     c2b66cafdf02 ("[media] v4l: doc: Remove row numbers from tables")
->     e6702ee18e24 ("doc-rst: app-pri: Fix a bad reference")
->     fb9ffa6a7f7e ("[media] v4l: Add metadata buffer type and format")
->
->
-> NOTE: The patch will not be queued to stable trees until it is upstream.
->
-> How should we proceed with this patch?
+All kernel binaries, config files, and logs are available for download here=
+:
 
-I'm happy to provide a hand-backported version of the patch for the older
-kernels if Mauro and Hans think we should do that, otherwise I think it's
-we're fine with having it on 4.19+.
+  https://artifacts.cki-project.org/pipelines/301338
 
-      Arnd
+Please reply to this email if you have any questions about the tests that w=
+e
+ran or if you have any suggestions on how to make future tests more effecti=
+ve.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+___________________________________________________________________________=
+___
+
+Compile testing
+---------------
+
+We compiled the kernel for 3 architectures:
+
+    aarch64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    ppc64le:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+    x86_64:
+      make options: -j30 INSTALL_MOD_STRIP=3D1 targz-pkg
+
+
+Hardware testing
+----------------
+We booted each kernel and ran the following tests:
+
+  aarch64:
+
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
+arked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  ppc64le:
+
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
+arked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  x86_64:
+
+    =E2=9A=A1 Internal infrastructure issues prevented one or more tests (m=
+arked
+    with =E2=9A=A1=E2=9A=A1=E2=9A=A1) from running on this architecture.
+    This is not the fault of the kernel that was tested.
+
+  Test sources: https://github.com/CKI-project/tests-beaker
+    =F0=9F=92=9A Pull requests are welcome for new tests or improvements to=
+ existing tests!
+
+Waived tests
+------------
+If the test run included waived tests, they are marked with =F0=9F=9A=A7. S=
+uch tests are
+executed but their results are not taken into account. Tests are waived whe=
+n
+their results are not reliable enough, e.g. when they're just introduced or=
+ are
+being fixed.
+
+Testing timeout
+---------------
+We aim to provide a report within reasonable timeframe. Tests that haven't
+finished running are marked with =E2=8F=B1. Reports for non-upstream kernel=
+s have
+a Beaker recipe linked to next to each host.
+
