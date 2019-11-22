@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54719106B28
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:42:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06C30106D13
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:57:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727610AbfKVKlr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:41:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46496 "EHLO mail.kernel.org"
+        id S1730661AbfKVK5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:57:24 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729041AbfKVKlr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:41:47 -0500
+        id S1730068AbfKVK5X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:57:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C92220715;
-        Fri, 22 Nov 2019 10:41:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E30DE2071C;
+        Fri, 22 Nov 2019 10:57:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419306;
-        bh=EM/ae9hhkuNWZohlWx0eu1ZZYFSYW5nNEk4i47F0nXQ=;
+        s=default; t=1574420242;
+        bh=MHLTiLMo6OoNuIgCw9aGwbaQZgICcAPVVuPD8MIH+yM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmEiy3OfrF+kLtOavwh4qznOeFpfqBhXBf9M/xYRXFq+qNo0gYe36J5WQa2U2tzpe
-         /J34yDhkmPtk5G4zxSF7ODm7aEQrwYaN+sreAqlS75SlaXDl0+pBEshhQQRsOeoLh7
-         W5g5wRpKktxmIGJyLRtOtQuK6AmU37rCqZBWKYJE=
+        b=r1ssk3W7EKQZOmyJ9rHCEd3qVuX0ozDgWu5oV1cvLwZrxRmCb3RUz401gr+kEOsKQ
+         meC4mXxM3sjbymPVWJSEp22uUzRSraucD5YqGEwU5jqlof9/BOcYq9SKwlu7y0ErEf
+         +7yPHvM1+GtYqLpSu+TrJJP/R51VvHtYGJdtV/rM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Ludovic Desroches <ludovic.desroches@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        MyungJoo Ham <myungjoo.ham@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 065/222] pinctrl: at91-pio4: fix has_config check in atmel_pctl_dt_subnode_to_map()
-Date:   Fri, 22 Nov 2019 11:26:45 +0100
-Message-Id: <20191122100903.666012480@linuxfoundation.org>
+Subject: [PATCH 4.19 041/220] PM / devfreq: Fix devfreq_add_device() when drivers are built as modules.
+Date:   Fri, 22 Nov 2019 11:26:46 +0100
+Message-Id: <20191122100915.244786602@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +46,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-[ Upstream commit b97760ae8e3dc8bb91881c13425a0bff55f2bd85 ]
+[ Upstream commit 23c7b54ca1cd1797ef39169ab85e6d46f1c2d061 ]
 
-Smatch complains about this condition:
+When the devfreq driver and the governor driver are built as modules,
+the call to devfreq_add_device() or governor_store() fails because the
+governor driver is not loaded at the time the devfreq driver loads. The
+devfreq driver has a build dependency on the governor but also should
+have a runtime dependency. We need to make sure that the governor driver
+is loaded before the devfreq driver.
 
-	if (has_config && num_pins >= 1)
+This patch fixes this bug by adding a try_then_request_governor()
+function. First tries to find the governor, and then, if it is not found,
+it requests the module and tries again.
 
-The "has_config" variable is either uninitialized or true.  The
-"num_pins" variable is unsigned and we verified that it is non-zero on
-the lines before so we know "num_pines >= 1" is true.  Really, we could
-just check "num_configs" directly and remove the "has_config" variable.
-
-Fixes: 776180848b57 ("pinctrl: introduce driver for Atmel PIO4 controller")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 1b5c1be2c88e (PM / devfreq: map devfreq drivers to governor using name)
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-at91-pio4.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/devfreq/devfreq.c | 53 ++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 49 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-at91-pio4.c b/drivers/pinctrl/pinctrl-at91-pio4.c
-index 88ba9c50cc8ed..b596f45426ea0 100644
---- a/drivers/pinctrl/pinctrl-at91-pio4.c
-+++ b/drivers/pinctrl/pinctrl-at91-pio4.c
-@@ -479,7 +479,6 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
- 	unsigned num_pins, num_configs, reserve;
- 	unsigned long *configs;
- 	struct property	*pins;
--	bool has_config;
- 	u32 pinfunc;
- 	int ret, i;
+diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
+index 4c49bb1330b52..62ead442a8721 100644
+--- a/drivers/devfreq/devfreq.c
++++ b/drivers/devfreq/devfreq.c
+@@ -11,6 +11,7 @@
+  */
  
-@@ -495,9 +494,6 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
- 		return ret;
+ #include <linux/kernel.h>
++#include <linux/kmod.h>
+ #include <linux/sched.h>
+ #include <linux/errno.h>
+ #include <linux/err.h>
+@@ -221,6 +222,49 @@ static struct devfreq_governor *find_devfreq_governor(const char *name)
+ 	return ERR_PTR(-ENODEV);
+ }
+ 
++/**
++ * try_then_request_governor() - Try to find the governor and request the
++ *                               module if is not found.
++ * @name:	name of the governor
++ *
++ * Search the list of devfreq governors and request the module and try again
++ * if is not found. This can happen when both drivers (the governor driver
++ * and the driver that call devfreq_add_device) are built as modules.
++ * devfreq_list_lock should be held by the caller. Returns the matched
++ * governor's pointer.
++ */
++static struct devfreq_governor *try_then_request_governor(const char *name)
++{
++	struct devfreq_governor *governor;
++	int err = 0;
++
++	if (IS_ERR_OR_NULL(name)) {
++		pr_err("DEVFREQ: %s: Invalid parameters\n", __func__);
++		return ERR_PTR(-EINVAL);
++	}
++	WARN(!mutex_is_locked(&devfreq_list_lock),
++	     "devfreq_list_lock must be locked.");
++
++	governor = find_devfreq_governor(name);
++	if (IS_ERR(governor)) {
++		mutex_unlock(&devfreq_list_lock);
++
++		if (!strncmp(name, DEVFREQ_GOV_SIMPLE_ONDEMAND,
++			     DEVFREQ_NAME_LEN))
++			err = request_module("governor_%s", "simpleondemand");
++		else
++			err = request_module("governor_%s", name);
++		/* Restore previous state before return */
++		mutex_lock(&devfreq_list_lock);
++		if (err)
++			return NULL;
++
++		governor = find_devfreq_governor(name);
++	}
++
++	return governor;
++}
++
+ static int devfreq_notify_transition(struct devfreq *devfreq,
+ 		struct devfreq_freqs *freqs, unsigned int state)
+ {
+@@ -646,9 +690,8 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 	mutex_unlock(&devfreq->lock);
+ 
+ 	mutex_lock(&devfreq_list_lock);
+-	list_add(&devfreq->node, &devfreq_list);
+ 
+-	governor = find_devfreq_governor(devfreq->governor_name);
++	governor = try_then_request_governor(devfreq->governor_name);
+ 	if (IS_ERR(governor)) {
+ 		dev_err(dev, "%s: Unable to find governor for the device\n",
+ 			__func__);
+@@ -664,12 +707,14 @@ struct devfreq *devfreq_add_device(struct device *dev,
+ 			__func__);
+ 		goto err_init;
  	}
++
++	list_add(&devfreq->node, &devfreq_list);
++
+ 	mutex_unlock(&devfreq_list_lock);
  
--	if (num_configs)
--		has_config = true;
--
- 	num_pins = pins->length / sizeof(u32);
- 	if (!num_pins) {
- 		dev_err(pctldev->dev, "no pins found in node %s\n",
-@@ -511,7 +507,7 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
- 	 * map for each pin.
- 	 */
- 	reserve = 1;
--	if (has_config && num_pins >= 1)
-+	if (num_configs)
- 		reserve++;
- 	reserve *= num_pins;
- 	ret = pinctrl_utils_reserve_map(pctldev, map, reserved_maps, num_maps,
-@@ -534,7 +530,7 @@ static int atmel_pctl_dt_subnode_to_map(struct pinctrl_dev *pctldev,
- 		pinctrl_utils_add_map_mux(pctldev, map, reserved_maps, num_maps,
- 					  group, func);
+ 	return devfreq;
  
--		if (has_config) {
-+		if (num_configs) {
- 			ret = pinctrl_utils_add_map_configs(pctldev, map,
- 					reserved_maps, num_maps, group,
- 					configs, num_configs,
+ err_init:
+-	list_del(&devfreq->node);
+ 	mutex_unlock(&devfreq_list_lock);
+ 
+ 	device_unregister(&devfreq->dev);
+@@ -991,7 +1036,7 @@ static ssize_t governor_store(struct device *dev, struct device_attribute *attr,
+ 		return -EINVAL;
+ 
+ 	mutex_lock(&devfreq_list_lock);
+-	governor = find_devfreq_governor(str_governor);
++	governor = try_then_request_governor(str_governor);
+ 	if (IS_ERR(governor)) {
+ 		ret = PTR_ERR(governor);
+ 		goto out;
 -- 
 2.20.1
 
