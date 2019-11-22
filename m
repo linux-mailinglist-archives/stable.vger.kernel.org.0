@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 082211061E0
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59BA81061E3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729463AbfKVF5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:57:33 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35914 "EHLO mail.kernel.org"
+        id S1729466AbfKVF5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:57:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35948 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729455AbfKVF5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:32 -0500
+        id S1729458AbfKVF5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:57:33 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4E3E820854;
-        Fri, 22 Nov 2019 05:57:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7FAEF20731;
+        Fri, 22 Nov 2019 05:57:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402252;
-        bh=6N6utb28xFcbw1WnBmmazrCLf9h//ber+CLlhqfmkag=;
+        s=default; t=1574402253;
+        bh=q/nXUueN+PhY2qiBQi4R8Z9iq0FW4Qo7pZkcszenzB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ykaM0gdtxFGS7b+CHkAx1XEn1nERalQ0fcPHIwPYtMroxtzIQJ3JMj3Jbq/c8dXFV
-         qmhwtCEjTVmwWBftN0p5YniJVuALq47UtRtZ0U3iEfecVlnx3F9Bxyy+LORphHF2lt
-         QzJB+fQoDwQQUHhdDFGJLWrt9vzmR73ks6AW+dW0=
+        b=QjdHVcS1Np72Bd+fVIUQafMA6yIIjHzigrNBZSr8yFqNKuxT8rlBQtg6kd68XSWLc
+         cO0CkBMp0eOiljq0qUoCTR8p/HjI98Rj2mh+PoiFK9KHICvBxh+u4r7jmgLYA2iVoC
+         TSONfV9thI3WqDcUdS0bycB9LWMGtxc8vUAnIdnk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huang Shijie <sjhuang@iluvatar.ai>,
+Cc:     Yi Wang <wang.yi59@zte.com.cn>, Michal Hocko <mhocko@suse.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Skidanov <alexey.skidanov@intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 094/127] lib/genalloc.c: use vzalloc_node() to allocate the bitmap
-Date:   Fri, 22 Nov 2019 00:55:12 -0500
-Message-Id: <20191122055544.3299-93-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 095/127] fork: fix some -Wmissing-prototypes warnings
+Date:   Fri, 22 Nov 2019 00:55:13 -0500
+Message-Id: <20191122055544.3299-94-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -45,50 +45,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Shijie <sjhuang@iluvatar.ai>
+From: Yi Wang <wang.yi59@zte.com.cn>
 
-[ Upstream commit 6862d2fc81859f88c1f3f660886427893f2b4f3f ]
+[ Upstream commit fb5bf31722d0805a3f394f7d59f2e8cd07acccb7 ]
 
-Some devices may have big memory on chip, such as over 1G.  In some
-cases, the nbytes maybe bigger then 4M which is the bounday of the
-memory buddy system (4K default).
+We get a warning when building kernel with W=1:
 
-So use vzalloc_node() to allocate the bitmap.  Also use vfree to free
-it.
+  kernel/fork.c:167:13: warning: no previous prototype for `arch_release_thread_stack' [-Wmissing-prototypes]
+  kernel/fork.c:779:13: warning: no previous prototype for `fork_init' [-Wmissing-prototypes]
 
-Link: http://lkml.kernel.org/r/20181225015701.6289-1-sjhuang@iluvatar.ai
-Signed-off-by: Huang Shijie <sjhuang@iluvatar.ai>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexey Skidanov <alexey.skidanov@intel.com>
+Add the missing declaration in head file to fix this.
+
+Also, remove arch_release_thread_stack() completely because no arch
+seems to implement it since bb9d81264 (arch: remove tile port).
+
+Link: http://lkml.kernel.org/r/1542170087-23645-1-git-send-email-wang.yi59@zte.com.cn
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Mike Rapoport <rppt@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/genalloc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/sched/task.h | 2 ++
+ init/main.c                | 1 -
+ kernel/fork.c              | 5 -----
+ 3 files changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/lib/genalloc.c b/lib/genalloc.c
-index 5deb25c40a5a1..f365d71cdc774 100644
---- a/lib/genalloc.c
-+++ b/lib/genalloc.c
-@@ -187,7 +187,7 @@ int gen_pool_add_virt(struct gen_pool *pool, unsigned long virt, phys_addr_t phy
- 	int nbytes = sizeof(struct gen_pool_chunk) +
- 				BITS_TO_LONGS(nbits) * sizeof(long);
+diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
+index a74ec619ac510..11b4fba82950f 100644
+--- a/include/linux/sched/task.h
++++ b/include/linux/sched/task.h
+@@ -39,6 +39,8 @@ void __noreturn do_task_dead(void);
  
--	chunk = kzalloc_node(nbytes, GFP_KERNEL, nid);
-+	chunk = vzalloc_node(nbytes, nid);
- 	if (unlikely(chunk == NULL))
- 		return -ENOMEM;
+ extern void proc_caches_init(void);
  
-@@ -251,7 +251,7 @@ void gen_pool_destroy(struct gen_pool *pool)
- 		bit = find_next_bit(chunk->bits, end_bit, 0);
- 		BUG_ON(bit < end_bit);
++extern void fork_init(void);
++
+ extern void release_task(struct task_struct * p);
  
--		kfree(chunk);
-+		vfree(chunk);
- 	}
- 	kfree_const(pool->name);
- 	kfree(pool);
+ #ifdef CONFIG_HAVE_COPY_THREAD_TLS
+diff --git a/init/main.c b/init/main.c
+index 51067e2db509d..b1ab36fe1a55c 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -98,7 +98,6 @@
+ static int kernel_init(void *);
+ 
+ extern void init_IRQ(void);
+-extern void fork_init(void);
+ extern void radix_tree_init(void);
+ 
+ /*
+diff --git a/kernel/fork.c b/kernel/fork.c
+index 3352fdbd5e20d..3d9d6a28e21d9 100644
+--- a/kernel/fork.c
++++ b/kernel/fork.c
+@@ -162,10 +162,6 @@ static inline void free_task_struct(struct task_struct *tsk)
+ }
+ #endif
+ 
+-void __weak arch_release_thread_stack(unsigned long *stack)
+-{
+-}
+-
+ #ifndef CONFIG_ARCH_THREAD_STACK_ALLOCATOR
+ 
+ /*
+@@ -348,7 +344,6 @@ static void release_task_stack(struct task_struct *tsk)
+ 		return;  /* Better to leak the stack than to free prematurely */
+ 
+ 	account_kernel_stack(tsk, -1);
+-	arch_release_thread_stack(tsk->stack);
+ 	free_thread_stack(tsk);
+ 	tsk->stack = NULL;
+ #ifdef CONFIG_VMAP_STACK
 -- 
 2.20.1
 
