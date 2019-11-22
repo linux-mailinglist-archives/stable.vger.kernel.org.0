@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 768BD106595
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:26:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B7E91065A6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:26:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbfKVFvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:51:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55972 "EHLO mail.kernel.org"
+        id S1727989AbfKVGZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:25:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727966AbfKVFvC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:51:02 -0500
+        id S1727970AbfKVFvD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:51:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6656E2070E;
-        Fri, 22 Nov 2019 05:51:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89FD720731;
+        Fri, 22 Nov 2019 05:51:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401862;
-        bh=FsaOr/rO8jZIyV6MliQ60rSwoFVaHYrbJ/cX0U66GDM=;
+        s=default; t=1574401863;
+        bh=VuJLFF+98QvkWxdbK4hp/Y/tQqKfJY/Eub1jtxof0Jc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E/chfsTusoF5lmwVopRHa7d/XUv1wicUleFKlS8BazzUhg+sXwqSPYn0x46CI8epO
-         3tBbJ0WgMl5HDSNTxdbMpDefBY7sElWiaRnReG0IJqM+uHay1jcqjUCm4vAsFhNeGc
-         z33hYQCBEuqJHMkqcPKJTwrKAISVbwj2RiuZ5IvM=
+        b=kuAK+qnhno6MXzCrVN4iNGwiPTlqygF3DykfFGWz6QPnI7BSyCa6pihoIQ1UZ87qc
+         rSmjeZSWAC7hAib2hbfm7d1trcPCZdShnjxREpevcF9LpgFJhDOxBvzFI3XBIWOAX0
+         pvbV+SLeztJfm7+LjbYt4IBhq7oUSNdDo7qD6Nhs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sweet Tea <sweettea@redhat.com>,
-        John Dorminy <jdorminy@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.19 098/219] dm flakey: Properly corrupt multi-page bios.
-Date:   Fri, 22 Nov 2019 00:47:10 -0500
-Message-Id: <20191122054911.1750-91-sashal@kernel.org>
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.19 099/219] gfs2: take jdata unstuff into account in do_grow
+Date:   Fri, 22 Nov 2019 00:47:11 -0500
+Message-Id: <20191122054911.1750-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,74 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sweet Tea <sweettea@redhat.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit a00f5276e26636cbf72f24f79831026d2e2868e7 ]
+[ Upstream commit bc0205612bbd4dd4026d4ba6287f5643c37366ec ]
 
-The flakey target is documented to be able to corrupt the Nth byte in
-a bio, but does not corrupt byte indices after the first biovec in the
-bio. Change the corrupting function to actually corrupt the Nth byte
-no matter in which biovec that index falls.
+Before this patch, function do_grow would not reserve enough journal
+blocks in the transaction to unstuff jdata files while growing them.
+This patch adds the logic to add one more block if the file to grow
+is jdata.
 
-A test device generating two-page bios, atop a flakey device configured
-to corrupt a byte index on the second page, verified both the failure
-to corrupt before this patch and the expected corruption after this
-change.
-
-Signed-off-by: John Dorminy <jdorminy@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Reviewed-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-flakey.c | 33 ++++++++++++++++++++++-----------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ fs/gfs2/bmap.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/md/dm-flakey.c b/drivers/md/dm-flakey.c
-index b86d2439ffc76..2fcf62fb2844f 100644
---- a/drivers/md/dm-flakey.c
-+++ b/drivers/md/dm-flakey.c
-@@ -287,20 +287,31 @@ static void flakey_map_bio(struct dm_target *ti, struct bio *bio)
- 
- static void corrupt_bio_data(struct bio *bio, struct flakey_c *fc)
- {
--	unsigned bio_bytes = bio_cur_bytes(bio);
--	char *data = bio_data(bio);
-+	unsigned int corrupt_bio_byte = fc->corrupt_bio_byte - 1;
-+
-+	struct bvec_iter iter;
-+	struct bio_vec bvec;
-+
-+	if (!bio_has_data(bio))
-+		return;
- 
- 	/*
--	 * Overwrite the Nth byte of the data returned.
-+	 * Overwrite the Nth byte of the bio's data, on whichever page
-+	 * it falls.
- 	 */
--	if (data && bio_bytes >= fc->corrupt_bio_byte) {
--		data[fc->corrupt_bio_byte - 1] = fc->corrupt_bio_value;
--
--		DMDEBUG("Corrupting data bio=%p by writing %u to byte %u "
--			"(rw=%c bi_opf=%u bi_sector=%llu cur_bytes=%u)\n",
--			bio, fc->corrupt_bio_value, fc->corrupt_bio_byte,
--			(bio_data_dir(bio) == WRITE) ? 'w' : 'r', bio->bi_opf,
--			(unsigned long long)bio->bi_iter.bi_sector, bio_bytes);
-+	bio_for_each_segment(bvec, bio, iter) {
-+		if (bio_iter_len(bio, iter) > corrupt_bio_byte) {
-+			char *segment = (page_address(bio_iter_page(bio, iter))
-+					 + bio_iter_offset(bio, iter));
-+			segment[corrupt_bio_byte] = fc->corrupt_bio_value;
-+			DMDEBUG("Corrupting data bio=%p by writing %u to byte %u "
-+				"(rw=%c bi_opf=%u bi_sector=%llu size=%u)\n",
-+				bio, fc->corrupt_bio_value, fc->corrupt_bio_byte,
-+				(bio_data_dir(bio) == WRITE) ? 'w' : 'r', bio->bi_opf,
-+				(unsigned long long)bio->bi_iter.bi_sector, bio->bi_iter.bi_size);
-+			break;
-+		}
-+		corrupt_bio_byte -= bio_iter_len(bio, iter);
+diff --git a/fs/gfs2/bmap.c b/fs/gfs2/bmap.c
+index 52feccedd7a44..096b479721395 100644
+--- a/fs/gfs2/bmap.c
++++ b/fs/gfs2/bmap.c
+@@ -2122,6 +2122,8 @@ static int do_grow(struct inode *inode, u64 size)
  	}
- }
  
+ 	error = gfs2_trans_begin(sdp, RES_DINODE + RES_STATFS + RES_RG_BIT +
++				 (unstuff &&
++				  gfs2_is_jdata(ip) ? RES_JDATA : 0) +
+ 				 (sdp->sd_args.ar_quota == GFS2_QUOTA_OFF ?
+ 				  0 : RES_QUOTA), 0);
+ 	if (error)
 -- 
 2.20.1
 
