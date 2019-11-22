@@ -2,40 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92DD2106AC1
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:37:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E5FA106CA6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:55:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728585AbfKVKhw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:37:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39754 "EHLO mail.kernel.org"
+        id S1729986AbfKVKxh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:53:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728579AbfKVKhw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:37:52 -0500
+        id S1730224AbfKVKxg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:53:36 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6AAE20707;
-        Fri, 22 Nov 2019 10:37:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DBED20656;
+        Fri, 22 Nov 2019 10:53:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419071;
-        bh=3TcSAr33we8foAM+TykaFSMPb/1j0mn/8NsdaqDzg88=;
+        s=default; t=1574420015;
+        bh=yK1zw7+ztDz/wY5Xfb41Gx3AS89+UUsmCgSojd7FXaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIf9BJFVNDtaxC/1CnRPMMGSpukBV3SQDxxs4VbWvyB9iNxoEKl5bE9SNZOX59N/C
-         wzgoa26mSphmBbZuu4n5uF8myVabiLAdmvEuoCySOZSZEXtnAJtDgNVYQR2XakbnvF
-         YrT8m8mhxCQxyCu2rEOEOrCWtsmnrLJMFWY5oBWY=
+        b=Gztkh4BRYDKJwlaBLZOl+T9yYSbTWjpprOu1yoK/QZqYtBcSzwlz6d/sFpp3z7DDp
+         oK0F2DNxzH1M0cgsKI9ItoneXBr5k4vCaWI8vbBvrfqmTfdoh9o6xkc+1J6IORuPRp
+         K2GY1Otj0HeF2MTfKPag2a9spGsapEzcAdaeNi4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rostedt@goodmis.org,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        He Zhe <zhe.he@windriver.com>, Petr Mladek <pmladek@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 147/159] printk: Give error on attempt to set log buffer length to over 2G
-Date:   Fri, 22 Nov 2019 11:28:58 +0100
-Message-Id: <20191122100841.847772974@linuxfoundation.org>
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        "Chang S. Bae" <chang.seok.bae@intel.com>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Borislav Petkov <bp@alien8.de>,
+        Brian Gerst <brgerst@gmail.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Denys Vlasenko <dvlasenk@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Markus T Metzger <markus.t.metzger@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ravi Shankar <ravi.v.shankar@intel.com>,
+        Rik van Riel <riel@surriel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 087/122] x86/fsgsbase/64: Fix ptrace() to read the FS/GS base accurately
+Date:   Fri, 22 Nov 2019 11:29:00 +0100
+Message-Id: <20191122100826.017145675@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +56,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Zhe <zhe.he@windriver.com>
+From: Andy Lutomirski <luto@kernel.org>
 
-[ Upstream commit e6fe3e5b7d16e8f146a4ae7fe481bc6e97acde1e ]
+[ Upstream commit 07e1d88adaaeab247b300926f78cc3f950dbeda3 ]
 
-The current printk() is ready to handle log buffer size up to 2G.
-Give an explicit error for users who want to use larger log buffer.
+On 64-bit kernels ptrace can read the FS/GS base using the register access
+APIs (PTRACE_PEEKUSER, etc.) or PTRACE_ARCH_PRCTL.
 
-Also fix printk formatting to show the 2G as a positive number.
+Make both of these mechanisms return the actual FS/GS base.
 
-Link: http://lkml.kernel.org/r/20181008135916.gg4kkmoki5bgtco5@pathway.suse.cz
-Cc: rostedt@goodmis.org
-Cc: linux-kernel@vger.kernel.org
-Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: He Zhe <zhe.he@windriver.com>
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-[pmladek: Fixed to the really safe limit 2GB.]
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+This will improve debuggability by providing the correct information
+to ptracer such as GDB.
+
+[ chang: Rebased and revised patch description. ]
+[ mingo: Revised the changelog some more. ]
+
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Gerst <brgerst@gmail.com>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Denys Vlasenko <dvlasenk@redhat.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Markus T Metzger <markus.t.metzger@intel.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ravi Shankar <ravi.v.shankar@intel.com>
+Cc: Rik van Riel <riel@surriel.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/1537312139-5580-2-git-send-email-chang.seok.bae@intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/x86/kernel/ptrace.c | 62 +++++++++++++++++++++++++++++++++-------
+ 1 file changed, 52 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 5a1b2a914b4e5..699c18c9d7633 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -279,6 +279,7 @@ static u32 clear_idx;
- #define LOG_ALIGN __alignof__(struct printk_log)
- #endif
- #define __LOG_BUF_LEN (1 << CONFIG_LOG_BUF_SHIFT)
-+#define LOG_BUF_LEN_MAX (u32)(1 << 31)
- static char __log_buf[__LOG_BUF_LEN] __aligned(LOG_ALIGN);
- static char *log_buf = __log_buf;
- static u32 log_buf_len = __LOG_BUF_LEN;
-@@ -870,18 +871,23 @@ void log_buf_kexec_setup(void)
- static unsigned long __initdata new_log_buf_len;
+diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
+index 584cdd475bb31..734549492a18b 100644
+--- a/arch/x86/kernel/ptrace.c
++++ b/arch/x86/kernel/ptrace.c
+@@ -40,6 +40,7 @@
+ #include <asm/hw_breakpoint.h>
+ #include <asm/traps.h>
+ #include <asm/syscall.h>
++#include <asm/mmu_context.h>
  
- /* we practice scaling the ring buffer by powers of 2 */
--static void __init log_buf_len_update(unsigned size)
-+static void __init log_buf_len_update(u64 size)
- {
-+	if (size > (u64)LOG_BUF_LEN_MAX) {
-+		size = (u64)LOG_BUF_LEN_MAX;
-+		pr_err("log_buf over 2G is not supported.\n");
+ #include "tls.h"
+ 
+@@ -343,6 +344,49 @@ static int set_segment_reg(struct task_struct *task,
+ 	return 0;
+ }
+ 
++static unsigned long task_seg_base(struct task_struct *task,
++				   unsigned short selector)
++{
++	unsigned short idx = selector >> 3;
++	unsigned long base;
++
++	if (likely((selector & SEGMENT_TI_MASK) == 0)) {
++		if (unlikely(idx >= GDT_ENTRIES))
++			return 0;
++
++		/*
++		 * There are no user segments in the GDT with nonzero bases
++		 * other than the TLS segments.
++		 */
++		if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
++			return 0;
++
++		idx -= GDT_ENTRY_TLS_MIN;
++		base = get_desc_base(&task->thread.tls_array[idx]);
++	} else {
++#ifdef CONFIG_MODIFY_LDT_SYSCALL
++		struct ldt_struct *ldt;
++
++		/*
++		 * If performance here mattered, we could protect the LDT
++		 * with RCU.  This is a slow path, though, so we can just
++		 * take the mutex.
++		 */
++		mutex_lock(&task->mm->context.lock);
++		ldt = task->mm->context.ldt;
++		if (unlikely(idx >= ldt->nr_entries))
++			base = 0;
++		else
++			base = get_desc_base(ldt->entries + idx);
++		mutex_unlock(&task->mm->context.lock);
++#else
++		base = 0;
++#endif
 +	}
 +
- 	if (size)
- 		size = roundup_pow_of_two(size);
- 	if (size > log_buf_len)
--		new_log_buf_len = size;
-+		new_log_buf_len = (unsigned long)size;
- }
++	return base;
++}
++
+ #endif	/* CONFIG_X86_32 */
  
- /* save requested log_buf_len since it's too early to process it */
- static int __init log_buf_len_setup(char *str)
- {
--	unsigned int size;
-+	u64 size;
+ static unsigned long get_flags(struct task_struct *task)
+@@ -436,18 +480,16 @@ static unsigned long getreg(struct task_struct *task, unsigned long offset)
  
- 	if (!str)
- 		return -EINVAL;
-@@ -951,7 +957,7 @@ void __init setup_log_buf(int early)
+ #ifdef CONFIG_X86_64
+ 	case offsetof(struct user_regs_struct, fs_base): {
+-		/*
+-		 * XXX: This will not behave as expected if called on
+-		 * current or if fsindex != 0.
+-		 */
+-		return task->thread.fsbase;
++		if (task->thread.fsindex == 0)
++			return task->thread.fsbase;
++		else
++			return task_seg_base(task, task->thread.fsindex);
  	}
- 
- 	if (unlikely(!new_log_buf)) {
--		pr_err("log_buf_len: %ld bytes not available\n",
-+		pr_err("log_buf_len: %lu bytes not available\n",
- 			new_log_buf_len);
- 		return;
+ 	case offsetof(struct user_regs_struct, gs_base): {
+-		/*
+-		 * XXX: This will not behave as expected if called on
+-		 * current or if fsindex != 0.
+-		 */
+-		return task->thread.gsbase;
++		if (task->thread.gsindex == 0)
++			return task->thread.gsbase;
++		else
++			return task_seg_base(task, task->thread.gsindex);
  	}
-@@ -964,8 +970,8 @@ void __init setup_log_buf(int early)
- 	memcpy(log_buf, __log_buf, __LOG_BUF_LEN);
- 	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
- 
--	pr_info("log_buf_len: %d bytes\n", log_buf_len);
--	pr_info("early log buf free: %d(%d%%)\n",
-+	pr_info("log_buf_len: %u bytes\n", log_buf_len);
-+	pr_info("early log buf free: %u(%u%%)\n",
- 		free, (free * 100) / __LOG_BUF_LEN);
- }
- 
+ #endif
+ 	}
 -- 
 2.20.1
 
