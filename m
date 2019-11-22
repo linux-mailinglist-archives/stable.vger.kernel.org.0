@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6CC71070E6
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E88F106E83
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:09:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727986AbfKVKhF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:37:05 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S1731411AbfKVLDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:03:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727142AbfKVKhE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:37:04 -0500
+        id S1731408AbfKVLDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:03:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 829C52071C;
-        Fri, 22 Nov 2019 10:37:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8FE182075E;
+        Fri, 22 Nov 2019 11:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419024;
-        bh=GAknvF9Xra1VDxZSBLEx+eB5pfkKd1dvyjA3FwvGZAM=;
+        s=default; t=1574420591;
+        bh=iORbwAUQT32YOs7L6orzyi2v9UCPskwpAZJBMgtZrms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iU2KeyUKvVpEV1icHnD4tFzHxoGVhcE/zc+5plfSZ6v8OnbRogx7blat5/pwrQLx0
-         dTbraHKIcjlopNg6rzuLdv05QFwwVS/In7P+CoaXhAPN2gAfh49IjV+wh3shx+HOF/
-         v92mW0n9Z7Q4svFmrqYK6GFqrxOqNpoKdncNWtXY=
+        b=T1ZMlQAmLJ4WhGDxENgt6zqmwgHJPvU8OC1iW2WIBvSEsarjX9tBsa1Gi0VgKWfR+
+         PLS8tTTp1OYloslvoB1VmjNLMDtd2RYMFJIP3TPJx/s6naKWgh1WFyzEhJZZkNSaE8
+         pJv9l92XxsXJz8deRK3ioG92avT4kOlFdm0VOLrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 132/159] USB: serial: cypress_m8: fix interrupt-out transfer length
+Subject: [PATCH 4.19 158/220] platform/x86: mlx-platform: Properly use mlxplat_mlxcpld_msn201x_items
 Date:   Fri, 22 Nov 2019 11:28:43 +0100
-Message-Id: <20191122100834.189827261@linuxfoundation.org>
+Message-Id: <20191122100924.075147228@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,36 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 56445eef55cb5904096fed7a73cf87b755dfffc7 ]
+[ Upstream commit 8289c4b6f2e53750de78bd38cecb6bce4d7a988c ]
 
-Fix interrupt-out transfer length which was being set to the
-transfer-buffer length rather than the size of the outgoing packet.
+Clang warns that mlxplat_mlxcpld_msn201x_items is not going to be
+emitted in the final assembly because it's only used in ARRAY_SIZE right
+now, which is a compile time evaluation since the array's size is known.
 
-Note that no slab data was leaked as the whole transfer buffer is always
-cleared before each transfer.
+drivers/platform/x86/mlx-platform.c:555:32: warning: variable
+'mlxplat_mlxcpld_msn201x_items' is not needed and will not be emitted
+[-Wunneeded-internal-declaration]
+static struct mlxreg_core_item mlxplat_mlxcpld_msn201x_items[] = {
+                               ^
+1 warning generated.
 
-Fixes: 9aa8dae7b1fa ("cypress_m8: use usb_fill_int_urb where appropriate")
-Signed-off-by: Johan Hovold <johan@kernel.org>
+It appears this was a copy and paste mistake from when this item was
+first added. Use the definition in mlxplat_mlxcpld_msn201x_data so that
+Clang no longer warns.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/141
+Fixes: a49a41482f61 ("platform/x86: mlx-platform: Add support for new msn201x system type")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Acked-by: Vadim Pasternak <vadimp@mellanox.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/cypress_m8.c | 2 +-
+ drivers/platform/x86/mlx-platform.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/serial/cypress_m8.c b/drivers/usb/serial/cypress_m8.c
-index 244acb1299a95..e92cd1eceefa2 100644
---- a/drivers/usb/serial/cypress_m8.c
-+++ b/drivers/usb/serial/cypress_m8.c
-@@ -773,7 +773,7 @@ static void cypress_send(struct usb_serial_port *port)
+diff --git a/drivers/platform/x86/mlx-platform.c b/drivers/platform/x86/mlx-platform.c
+index 742a0c2179256..d17db140cb1fc 100644
+--- a/drivers/platform/x86/mlx-platform.c
++++ b/drivers/platform/x86/mlx-platform.c
+@@ -575,7 +575,7 @@ static struct mlxreg_core_item mlxplat_mlxcpld_msn201x_items[] = {
  
- 	usb_fill_int_urb(port->interrupt_out_urb, port->serial->dev,
- 		usb_sndintpipe(port->serial->dev, port->interrupt_out_endpointAddress),
--		port->interrupt_out_buffer, port->interrupt_out_size,
-+		port->interrupt_out_buffer, actual_size,
- 		cypress_write_int_callback, port, priv->write_urb_interval);
- 	result = usb_submit_urb(port->interrupt_out_urb, GFP_ATOMIC);
- 	if (result) {
+ static
+ struct mlxreg_core_hotplug_platform_data mlxplat_mlxcpld_msn201x_data = {
+-	.items = mlxplat_mlxcpld_msn21xx_items,
++	.items = mlxplat_mlxcpld_msn201x_items,
+ 	.counter = ARRAY_SIZE(mlxplat_mlxcpld_msn201x_items),
+ 	.cell = MLXPLAT_CPLD_LPC_REG_AGGR_OFFSET,
+ 	.mask = MLXPLAT_CPLD_AGGR_MASK_DEF,
 -- 
 2.20.1
 
