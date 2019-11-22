@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F401106C68
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:51:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B70106BB9
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:46:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729403AbfKVKvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:51:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34928 "EHLO mail.kernel.org"
+        id S1729681AbfKVKqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:46:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728683AbfKVKvu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:51:50 -0500
+        id S1729685AbfKVKqt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:46:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 081B920718;
-        Fri, 22 Nov 2019 10:51:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8740A20721;
+        Fri, 22 Nov 2019 10:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419909;
-        bh=HBHtmJu5V/blqrrfin0uViVbx9hl+U8z088qsdK+aUc=;
+        s=default; t=1574419609;
+        bh=n3L8c49TwuPiA6F7l7w64tmiblH3+gobPtPSx1j/Ylg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kftPpfzlJLsiGLi7pOsANnAoH9vjx/6xw2+MXKRs6ahg72XOYNzZRsV/t56qvXnWq
-         ihwyMv+qfypaIyoSxeY07PBAvIyyysYWLjsqDmwTPxfwTJPjIOtrEFMX6C9AxgexPF
-         NftgL0EJeTmh0dGPAiNXOB0n7OlC0qiXHuRFkWtI=
+        b=Imnh/QnulNeOA/gm8ByfumhLPMcjKSqUVhp9Clih2NPwQFxcF2mcge1bDWW/S4s6M
+         MdzNBelC28hu8Ve59alexhOvlAwOa4CgZXt3Wg4tIsJgvTjO0gsG42Y6KkWtygfPO5
+         912u2xD9gf8glOlLqwffoNO/xmVgops+CCMKRMfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Radoslaw Tyl <radoslawx.tyl@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Nick Kossifidis <mickflemm@gmail.com>,
+        Simon Wunderlich <sw@simonwunderlich.de>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 050/122] ixgbe: Fix ixgbe TX hangs with XDP_TX beyond queue limit
-Date:   Fri, 22 Nov 2019 11:28:23 +0100
-Message-Id: <20191122100757.457782342@linuxfoundation.org>
+Subject: [PATCH 4.9 164/222] ath9k: fix reporting calculated new FFT upper max
+Date:   Fri, 22 Nov 2019 11:28:24 +0100
+Message-Id: <20191122100914.451807866@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radoslaw Tyl <radoslawx.tyl@intel.com>
+From: Simon Wunderlich <sw@simonwunderlich.de>
 
-[ Upstream commit 8d7179b1e2d64b3493c0114916486fe92e6109a9 ]
+[ Upstream commit 4fb5837ac2bd46a85620b297002c704e9958f64d ]
 
-We have Tx hang when number Tx and XDP queues are more than 64.
-In XDP always is MTQC == 0x0 (64TxQs). We need more space for Tx queues.
+Since the debug print code is outside of the loop, it shouldn't use the loop
+iterator anymore but instead print the found maximum index.
 
-Signed-off-by: Radoslaw Tyl <radoslawx.tyl@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Cc: Nick Kossifidis <mickflemm@gmail.com>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/ath9k/common-spectral.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-index 01c120d656c54..d1472727ef882 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -3490,12 +3490,18 @@ static void ixgbe_setup_mtqc(struct ixgbe_adapter *adapter)
- 		else
- 			mtqc |= IXGBE_MTQC_64VF;
- 	} else {
--		if (tcs > 4)
-+		if (tcs > 4) {
- 			mtqc = IXGBE_MTQC_RT_ENA | IXGBE_MTQC_8TC_8TQ;
--		else if (tcs > 1)
-+		} else if (tcs > 1) {
- 			mtqc = IXGBE_MTQC_RT_ENA | IXGBE_MTQC_4TC_4TQ;
--		else
--			mtqc = IXGBE_MTQC_64Q_1PB;
-+		} else {
-+			u8 max_txq = adapter->num_tx_queues +
-+				adapter->num_xdp_queues;
-+			if (max_txq > 63)
-+				mtqc = IXGBE_MTQC_RT_ENA | IXGBE_MTQC_4TC_4TQ;
-+			else
-+				mtqc = IXGBE_MTQC_64Q_1PB;
-+		}
- 	}
+diff --git a/drivers/net/wireless/ath/ath9k/common-spectral.c b/drivers/net/wireless/ath/ath9k/common-spectral.c
+index eedf86b67cf51..807fbe31e9303 100644
+--- a/drivers/net/wireless/ath/ath9k/common-spectral.c
++++ b/drivers/net/wireless/ath/ath9k/common-spectral.c
+@@ -411,7 +411,7 @@ ath_cmn_process_ht20_40_fft(struct ath_rx_status *rs,
  
- 	IXGBE_WRITE_REG(hw, IXGBE_MTQC, mtqc);
+ 		ath_dbg(common, SPECTRAL_SCAN,
+ 			"Calculated new upper max 0x%X at %i\n",
+-			tmp_mag, i);
++			tmp_mag, fft_sample_40.upper_max_index);
+ 	} else
+ 	for (i = dc_pos; i < SPECTRAL_HT20_40_NUM_BINS; i++) {
+ 		if (fft_sample_40.data[i] == (upper_mag >> max_exp))
 -- 
 2.20.1
 
