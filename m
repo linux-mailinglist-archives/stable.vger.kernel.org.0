@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90636106BB7
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:46:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B00106D68
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:00:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729129AbfKVKqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:46:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54154 "EHLO mail.kernel.org"
+        id S1730959AbfKVK7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:59:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729681AbfKVKqq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:46:46 -0500
+        id S1730662AbfKVK7u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:59:50 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D605D2071C;
-        Fri, 22 Nov 2019 10:46:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0B01420706;
+        Fri, 22 Nov 2019 10:59:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419606;
-        bh=OQxAjtgjoRmh71w/KKY3w4GztgCDEsVjgMRHOe26tms=;
+        s=default; t=1574420389;
+        bh=GnLDcU3GQlLVz86X48Q6AD2uliaNpA6HTGkKvjNyt+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n9R6QCPktLIEbyCYBtXRfNS9ZNSlsTy5/QldgIxCMpofzeN0kffpdg2PQW19t5O/t
-         i5v/8U0802xTqQ8xAd/0i47orLTNWi94LbzUpSSwBqHHhwu/WTPDQ0rxrcXE8LJ+FC
-         4Kgsoy6zNC5OiqrMzR6djeEO7LFdaVXfG/9ned9Q=
+        b=zbZSo5fGaLiJJLRCmV+08MyHYIHH8OPVX5fm+rYs7jXd8Jfz6fJBGWnyDph4WdQvI
+         YvmqWdzZmZXEHvZLlXeDWIJujoPZQMrk4e8/neJKxmPNsrg8U3aY4vxR96BjOpo15M
+         xEQYDFh8kauF6I9eRfR66llzVKlG9MUTaR9cEnoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        Rob Clark <robdclark@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 116/222] usb: gadget: uvc: Only halt video streaming endpoint in bulk mode
+Subject: [PATCH 4.19 091/220] msm/gpu/a6xx: Force of_dma_configure to setup DMA for GMU
 Date:   Fri, 22 Nov 2019 11:27:36 +0100
-Message-Id: <20191122100911.549322410@linuxfoundation.org>
+Message-Id: <20191122100919.197631621@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Jordan Crouse <jcrouse@codeaurora.org>
 
-[ Upstream commit 8dbf9c7abefd5c1434a956d5c6b25e11183061a3 ]
+[ Upstream commit 32aa27e15c28d3898ed6f9b3c98f95f34a81eab2 ]
 
-When USB requests for video data fail to be submitted, the driver
-signals a problem to the host by halting the video streaming endpoint.
-This is only valid in bulk mode, as isochronous transfers have no
-handshake phase and can't thus report a stall. The usb_ep_set_halt()
-call returns an error when using isochronous endpoints, which we happily
-ignore, but some UDCs complain in the kernel log. Fix this by only
-trying to halt the endpoint in bulk mode.
+The point of the 'force_dma' parameter for of_dma_configure
+is to force the device to be set up even if DMA capability is
+not described by the firmware which is exactly the use case
+ we have for GMU - we need SMMU to get set up but we have no
+other dma capabilities since memory is managed by the GPU
+driver. Currently we pass false so of_dma_configure() fails
+and subsequently GMU and GPU probe does as well.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Tested-by: Paul Elder <paul.elder@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+Fixes: 4b565ca5a2c ("drm/msm: Add A6XX device support")
+Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
+Tested-by: Sibi Sankar <sibis@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index 540917f54506a..d6bab12b0b47d 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -136,7 +136,9 @@ static int uvcg_video_ep_queue(struct uvc_video *video, struct usb_request *req)
- 	ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
- 	if (ret < 0) {
- 		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
--		usb_ep_set_halt(video->ep);
-+		/* Isochronous endpoints can't be halted. */
-+		if (usb_endpoint_xfer_bulk(video->ep->desc))
-+			usb_ep_set_halt(video->ep);
- 	}
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+index 9acb9dfaf57e6..9cde79a7335c8 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
+@@ -1140,7 +1140,7 @@ int a6xx_gmu_probe(struct a6xx_gpu *a6xx_gpu, struct device_node *node)
  
- 	return ret;
+ 	gmu->dev = &pdev->dev;
+ 
+-	of_dma_configure(gmu->dev, node, false);
++	of_dma_configure(gmu->dev, node, true);
+ 
+ 	/* Fow now, don't do anything fancy until we get our feet under us */
+ 	gmu->idle_level = GMU_IDLE_STATE_ACTIVE;
 -- 
 2.20.1
 
