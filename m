@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ADDC106F46
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 483CD106F41
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730431AbfKVLOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:14:36 -0500
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:34057 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727890AbfKVKx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 05:53:29 -0500
-Received: by mail-wm1-f66.google.com with SMTP id j18so9950944wmk.1
-        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 02:53:29 -0800 (PST)
+        id S1730216AbfKVKxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:53:32 -0500
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:40975 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730212AbfKVKxc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 05:53:32 -0500
+Received: by mail-wr1-f65.google.com with SMTP id b18so8033910wrj.8
+        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 02:53:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:subject:date:message-id:in-reply-to:references:mime-version
          :content-transfer-encoding;
-        bh=7eQ77p+yZoA07vPJ5MQhHwgPGskB4qfhyE5XsEtx6sE=;
-        b=his3mcjnfWoBpqB2zVQxlSl8g0l8Wx1tuGrDrGxy54p0d5QN1DRbW768D9pe7ifTba
-         PM4qEQ98qx9/qRxJz65ZMDowBTAF4Gyy605grLq8F4li20M6QlZCINDWhjOzq0SdR44G
-         TZbKOrlqWLKgdLLeIq6Lt7yO6VLPGcLlDpZLnkxaxKukjckK6nR6uf9DNbpHCyJUSWTU
-         txBZji6jk6ozACvcK6upKCIFg3XwIhWllnRSm/kWX+WUUaoHwHNS/JHaTiYv2AzAd81v
-         YDeB0ydCR5OmkI5SLcWMLD/XDUXpyEyzHapMInbTkgKNff1/S2Rz01v26Ks9VWEZARnD
-         VJng==
+        bh=EwOfwwiNckMuQzPVj8mAR4X16hKKAPeuk3yKLlec5YI=;
+        b=XFjik6/1F5q/FGsLPzqx/WRNDDqb1Faj6Ianja2u99UxfAsl/WnAdQ9xhIVH6MzGTF
+         JLUl3+TddRPpfgV04UK8uMETkYrgrayOWSWFbQKXbXVgKlVzYODlLllbDIn5pHI7c9oe
+         sOkNvkge+4WwSw4pgriiWN1Rk15xZ3wdRt4XyhEwFtBOY+XFdDZckS2E4p2vjuVRwAWo
+         7UwIPECGHAif1f/3TuIlc/le5fA12pp+K2GM4xE3he/uEyb/K7+96osTjuA/Gvo6WRQf
+         er/JgLv0JbJVUIG3fw8rEd+wyu22zefI9IWY5UGCH2McjnIWPfUqZQYxKtFoD/hg/CXx
+         uEPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=7eQ77p+yZoA07vPJ5MQhHwgPGskB4qfhyE5XsEtx6sE=;
-        b=ajF46L01l5yZnT2Y+FYZxYqw6QXZbCQNEvH8eSleL0Dz1mrz3eoITFO9IeREsCQ8W2
-         Soh7aqqC6UrYUnNUAkkNsYZquuF3V48P0D2ZR8Y5lAWZwWoghv7wAhZZXxFxn3gx/G6J
-         CXwM+nHOiZz5YhM5eh40aiJ7JigalId86DfRDKlpvi7a39j9kn3/pBXnkbacwfa22PUY
-         EjkvrIwzd4uFJ1cgugiZBCCygOz4D6ucm/kH21euRV2LOVEVAAhvv35VGe4tPDLXcO9G
-         V+zzABOr2sXdVvR3MKqSNMnb1gPtQ9c7yOnhNUusEnu+lzxVw1aIm7kLhajoBOtmF6hm
-         4nbw==
-X-Gm-Message-State: APjAAAWnp3tFyD0pFpqIlweIQZ/koH29vJXkt+J8d2cfO3h3J0mc1q75
-        VajuWeUdWxldwvzeD1Gbb+B2uPjqUpE=
-X-Google-Smtp-Source: APXvYqxtANnXCgoewwZBgXvW3lwp73oVb+r+2mop3CQh3bNVhLr5VHeKuknwxYi6TKJacHtNUB6jOQ==
-X-Received: by 2002:a1c:a347:: with SMTP id m68mr504530wme.129.1574420008411;
-        Fri, 22 Nov 2019 02:53:28 -0800 (PST)
+        bh=EwOfwwiNckMuQzPVj8mAR4X16hKKAPeuk3yKLlec5YI=;
+        b=KHg//EYXlU6WvjYWZLyEDTyMvB71R4SwueVY7POuf2qv3GBHbPvn+OpFBsgnJqq6ka
+         5viGqQCFWmDf1+v3LO1QR69GK/8z7dDEAMG5Wjk/J4xC6Y/srN0pz2REg0L9KbtlSVAm
+         zYI8hLH7oVzAjj9lhrs4C04wrt/hhLG1hOi6O8/d2shF+Tyj5AElSRJ5+q9NjFQSqfDJ
+         TuzIO49kg7JeTqZ0ygZHkIg9IQpBBnhTkB+V7o/ngBeNVUOwReVRXAncLJx11ZzDjPE9
+         jL3RwEIaGaecHSVICT5HxCQbNKNmzyGXS9EecM7ocF7FwPeP/I+l975tspQWXocknykt
+         8Tpw==
+X-Gm-Message-State: APjAAAW8EjVJKWpHMvlGJDJjZfKmtJyWNTF9gKog8mY5F9XVHcVfBKMc
+        bX5xtc+Rnj8N+9oX4KGx71/l/wkY+HM=
+X-Google-Smtp-Source: APXvYqygi/D/gXEtBe8E7AfxFCtIdtBoM6tbvmQBBH3sHPMYkm+sEWnzR0JmD3f+R0abR1Uzhiuw4w==
+X-Received: by 2002:a5d:4946:: with SMTP id r6mr9412090wrs.155.1574420010516;
+        Fri, 22 Nov 2019 02:53:30 -0800 (PST)
 Received: from localhost.localdomain ([2.27.35.135])
-        by smtp.gmail.com with ESMTPSA id o1sm7444087wrs.50.2019.11.22.02.53.25
+        by smtp.gmail.com with ESMTPSA id o1sm7444087wrs.50.2019.11.22.02.53.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 Nov 2019 02:53:27 -0800 (PST)
+        Fri, 22 Nov 2019 02:53:29 -0800 (PST)
 From:   Lee Jones <lee.jones@linaro.org>
 To:     lee.jones@linaro.org, gregkh@google.com, stable@vger.kernel.org
-Subject: [PATCH 4.9 5/8] bcache: silence static checker warning
-Date:   Fri, 22 Nov 2019 10:52:50 +0000
-Message-Id: <20191122105253.11375-5-lee.jones@linaro.org>
+Subject: [PATCH 4.9 6/8] dm: use blk_set_queue_dying() in __dm_destroy()
+Date:   Fri, 22 Nov 2019 10:52:51 +0000
+Message-Id: <20191122105253.11375-6-lee.jones@linaro.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122105253.11375-1-lee.jones@linaro.org>
 References: <20191122105253.11375-1-lee.jones@linaro.org>
@@ -59,37 +59,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Bart Van Assche <bart.vanassche@sandisk.com>
 
-[ Upstream commit da22f0eea555baf9b0a84b52afe56db2052cfe8d ]
+[ Upstream commit 2e91c3694181dc500faffec16c5aaa0ac5e15449 ]
 
-In olden times, closure_return() used to have a hidden return built in.
-We removed the hidden return but forgot to add a new return here.  If
-"c" were NULL we would oops on the next line, but fortunately "c" is
-never NULL.  Let's just remove the if statement.
+After QUEUE_FLAG_DYING has been set any code that is waiting in
+get_request() should be woken up.  But to get this behaviour
+blk_set_queue_dying() must be used instead of only setting
+QUEUE_FLAG_DYING.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Bart Van Assche <bart.vanassche@sandisk.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Lee Jones <lee.jones@linaro.org>
 ---
- drivers/md/bcache/super.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/md/dm.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index c5bc3e5e921e..3e113be966fe 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1397,9 +1397,6 @@ static void cache_set_flush(struct closure *cl)
- 	struct btree *b;
- 	unsigned i;
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 2ffe7db75acb..36e6221fabab 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1946,9 +1946,7 @@ static void __dm_destroy(struct mapped_device *md, bool wait)
+ 	set_bit(DMF_FREEING, &md->flags);
+ 	spin_unlock(&_minor_lock);
  
--	if (!c)
--		closure_return(cl);
--
- 	bch_cache_accounting_destroy(&c->accounting);
+-	spin_lock_irq(q->queue_lock);
+-	queue_flag_set(QUEUE_FLAG_DYING, q);
+-	spin_unlock_irq(q->queue_lock);
++	blk_set_queue_dying(q);
  
- 	kobject_put(&c->internal);
+ 	if (dm_request_based(md) && md->kworker_task)
+ 		kthread_flush_worker(&md->kworker);
 -- 
 2.24.0
 
