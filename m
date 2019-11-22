@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98494106264
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:03:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83515106251
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:03:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727184AbfKVGDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:03:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41992 "EHLO mail.kernel.org"
+        id S1727080AbfKVGDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:03:06 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729848AbfKVGDE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:03:04 -0500
+        id S1729853AbfKVGDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:03:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B581A20715;
-        Fri, 22 Nov 2019 06:03:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA96720717;
+        Fri, 22 Nov 2019 06:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402584;
-        bh=UE13o5NrIZhLN81xQOZBSUABipSuNtXeuxUj/NUsRM8=;
+        s=default; t=1574402585;
+        bh=b/jHQB1x+5NehrmLNVjMgte8dWT+yjMVkd02sMqx1aQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wqga1epltyBFq9b2jPmpskZDTmhcPZodQkQD7FA3n9pjnpU2dpIlm4ARGKuK/6AZU
-         xML83VhEL5CnV5BcKvth/omEtA1WVO+EPfYCVNyaDtaHpJEr6oYbvj/6CCBOkCoPnE
-         TaBrpnZwhHsncw6q5/QcAUDyWP7x+iHIwqo2Nrmk=
+        b=gEwSR93yKSMCQXhMkaZujy8KPT1WUN2R/n+yLqcUyXbgEI8rRnPd940kuX1WURdOZ
+         tHF4z0DLqRT5hR6ivQ9hpJYTeSk8KKE4wwGFcY5NuzpuX8w1eUUdDUGNq5Sr0xSF/A
+         z1IADrnW+gIV7XJu3uD1JInkO5BSIzRov7kmvrTk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 85/91] net: dev: Use unsigned integer as an argument to left-shift
-Date:   Fri, 22 Nov 2019 01:01:23 -0500
-Message-Id: <20191122060129.4239-84-sashal@kernel.org>
+Cc:     Aaron Ma <aaron.ma@canonical.com>, Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.9 86/91] iommu/amd: Fix NULL dereference bug in match_hid_uid
+Date:   Fri, 22 Nov 2019 01:01:24 -0500
+Message-Id: <20191122060129.4239-85-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -43,33 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-[ Upstream commit f4d7b3e23d259c44f1f1c39645450680fcd935d6 ]
+[ Upstream commit bb6bccba390c7d743c1e4427de4ef284c8cc6869 ]
 
-1 << 31 is Undefined Behaviour according to the C standard.
-Use U type modifier to avoid theoretical overflow.
+Add a non-NULL check to fix potential NULL pointer dereference
+Cleanup code to call function once.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Fixes: 2bf9a0a12749b ('iommu/amd: Add iommu support for ACPI HID devices')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/netdevice.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd_iommu.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/netdevice.h b/include/linux/netdevice.h
-index 2ecf0f32444e0..29ed5977ac041 100644
---- a/include/linux/netdevice.h
-+++ b/include/linux/netdevice.h
-@@ -3565,7 +3565,7 @@ static inline u32 netif_msg_init(int debug_value, int default_msg_enable_bits)
- 	if (debug_value == 0)	/* no output */
- 		return 0;
- 	/* set low N bits */
--	return (1 << debug_value) - 1;
-+	return (1U << debug_value) - 1;
- }
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index e81acb2b6ee7d..c898c70472bb2 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -176,10 +176,14 @@ static struct lock_class_key reserved_rbtree_key;
+ static inline int match_hid_uid(struct device *dev,
+ 				struct acpihid_map_entry *entry)
+ {
++	struct acpi_device *adev = ACPI_COMPANION(dev);
+ 	const char *hid, *uid;
  
- static inline void __netif_tx_lock(struct netdev_queue *txq, int cpu)
+-	hid = acpi_device_hid(ACPI_COMPANION(dev));
+-	uid = acpi_device_uid(ACPI_COMPANION(dev));
++	if (!adev)
++		return -ENODEV;
++
++	hid = acpi_device_hid(adev);
++	uid = acpi_device_uid(adev);
+ 
+ 	if (!hid || !(*hid))
+ 		return -ENODEV;
 -- 
 2.20.1
 
