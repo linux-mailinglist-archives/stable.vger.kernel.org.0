@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85590106302
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:08:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65988106304
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:08:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729329AbfKVGBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:01:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40178 "EHLO mail.kernel.org"
+        id S1726992AbfKVGHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:07:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728244AbfKVGBw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:01:52 -0500
+        id S1729333AbfKVGBx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:01:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 260872071B;
-        Fri, 22 Nov 2019 06:01:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 464ED2068E;
+        Fri, 22 Nov 2019 06:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402511;
-        bh=eMoiSD1tzoMpSH1v4Q6iiZWfHIi8A63b8kdy7UlncL4=;
+        s=default; t=1574402513;
+        bh=GWmYEcDH9yfOpfU6HPPn3Hvudyuynf9AmwUTzHcL46A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4g/FxC+RV84IOedaTmKT3/bYauJeKRl/6dTaBYkTzHx5AwjZp566E2ufRSHCYmrh
-         UToLwW/TWlNNIXvRwxkusa40ludQxWo3n4stM3Z4e8bonjbx2fCiti+9IFFsxGgDO+
-         75MX17ZVAuBeZcM0dcOv75iC2t3Muk/OR1wvJLKU=
+        b=gRtt1FIuIzVGCYxy4mI1TJjl1BbDQufwjL/k67nAM51NdCw2Lf2j9Cac1r1kOA1+i
+         IARErhusICOwl5lenXSqJBZ9w+y1dfyfmFyKmh60USk5dtbnvGUv/zff5LGVfBRqsi
+         uWaNg9lyuhQpKbaS+wly6JrpdbxZoFQuH2Mr5d0Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lepton Wu <ytht.net@gmail.com>, Jorgen Hansen <jhansen@vmware.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 21/91] VSOCK: bind to random port for VMADDR_PORT_ANY
-Date:   Fri, 22 Nov 2019 01:00:19 -0500
-Message-Id: <20191122060129.4239-20-sashal@kernel.org>
+Cc:     Boris Brezillon <boris.brezillon@bootlin.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.9 22/91] mtd: rawnand: sunxi: Write pageprog related opcodes to WCMD_SET
+Date:   Fri, 22 Nov 2019 01:00:20 -0500
+Message-Id: <20191122060129.4239-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -43,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lepton Wu <ytht.net@gmail.com>
+From: Boris Brezillon <boris.brezillon@bootlin.com>
 
-[ Upstream commit 8236b08cf50f85bbfaf48910a0b3ee68318b7c4b ]
+[ Upstream commit 732774437ae01d9882e60314e303898e63c7f038 ]
 
-The old code always starts from fixed port for VMADDR_PORT_ANY. Sometimes
-when VMM crashed, there is still orphaned vsock which is waiting for
-close timer, then it could cause connection time out for new started VM
-if they are trying to connect to same port with same guest cid since the
-new packets could hit that orphaned vsock. We could also fix this by doing
-more in vhost_vsock_reset_orphans, but any way, it should be better to start
-from a random local port instead of a fixed one.
+The opcodes used by the controller when doing batched page prog should
+be written in NFC_REG_WCMD_SET not FC_REG_RCMD_SET. Luckily, the
+default NFC_REG_WCMD_SET value matches the one we set in the driver
+which explains why we didn't notice the problem.
 
-Signed-off-by: Lepton Wu <ytht.net@gmail.com>
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 614049a8d904 ("mtd: nand: sunxi: add support for DMA assisted operations")
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/af_vsock.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/sunxi_nand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 7566395e526d2..18f377306884b 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -97,6 +97,7 @@
- #include <linux/mutex.h>
- #include <linux/net.h>
- #include <linux/poll.h>
-+#include <linux/random.h>
- #include <linux/skbuff.h>
- #include <linux/smp.h>
- #include <linux/socket.h>
-@@ -501,9 +502,13 @@ static void vsock_pending_work(struct work_struct *work)
- static int __vsock_bind_stream(struct vsock_sock *vsk,
- 			       struct sockaddr_vm *addr)
- {
--	static u32 port = LAST_RESERVED_PORT + 1;
-+	static u32 port = 0;
- 	struct sockaddr_vm new_addr;
+diff --git a/drivers/mtd/nand/sunxi_nand.c b/drivers/mtd/nand/sunxi_nand.c
+index e26c4f880df66..886355bfa7617 100644
+--- a/drivers/mtd/nand/sunxi_nand.c
++++ b/drivers/mtd/nand/sunxi_nand.c
+@@ -1420,7 +1420,7 @@ static int sunxi_nfc_hw_ecc_write_page_dma(struct mtd_info *mtd,
+ 	sunxi_nfc_randomizer_enable(mtd);
  
-+	if (!port)
-+		port = LAST_RESERVED_PORT + 1 +
-+			prandom_u32_max(U32_MAX - LAST_RESERVED_PORT);
-+
- 	vsock_addr_init(&new_addr, addr->svm_cid, addr->svm_port);
+ 	writel((NAND_CMD_RNDIN << 8) | NAND_CMD_PAGEPROG,
+-	       nfc->regs + NFC_REG_RCMD_SET);
++	       nfc->regs + NFC_REG_WCMD_SET);
  
- 	if (addr->svm_port == VMADDR_PORT_ANY) {
+ 	dma_async_issue_pending(nfc->dmac);
+ 
 -- 
 2.20.1
 
