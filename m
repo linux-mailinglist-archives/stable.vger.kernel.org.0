@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C48B410642E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:16:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 118B610641F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:16:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727200AbfKVGQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:16:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51528 "EHLO mail.kernel.org"
+        id S1728103AbfKVGOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:14:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729584AbfKVGOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:14:00 -0500
+        id S1728346AbfKVGOB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:14:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1B1320707;
-        Fri, 22 Nov 2019 06:13:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4849B2070E;
+        Fri, 22 Nov 2019 06:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574403239;
-        bh=jcXj7HV4yf5/Cm5saoBjX27s47NqlAsf2IvWyuAQFSo=;
+        s=default; t=1574403241;
+        bh=sadsCLSkfQewsBhR0p+TkkxkWdvvoH2esadazE9u5Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikODooyH21a99QhiqNx08eMRPyIeKN6G9xcNH2rENEwFiWRUOvfexpPg1xoHHMdOa
-         vY5/E7kA59IgLR655kQWMttccXNDML2z/u1V8dgsMPqtQnk3+m9fSzFpWORpNzrRcy
-         yLYv2Fw9bMiopJOtTD6UuG57VPxlyMxsP/Yg3DHQ=
+        b=hwzkp5rroEiQcps1318ccx6wBjqtXiNtyn+7J2Ud/4aBvr9EFzt2mP1Kc/JUQFZOA
+         7oCkQ2k4Y/l1Q8Vrv7qSWBWv/x+E6WZGccoqc886vaJHJotAVDs+Vwx95vTzhdrgiZ
+         j2CDIam7DYfBg5yq/dcnSGBw8Arl4BMfcw0IhSlE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Junxiao Bi <junxiao.bi@oracle.com>,
-        Yiwen Jiang <jiangyiwen@huawei.com>,
-        Joseph Qi <jiangqi903@gmail.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Changwei Ge <ge.changwei@h3c.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Mark Fasheh <mfasheh@versity.com>,
+Cc:     Huang Shijie <sjhuang@iluvatar.ai>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Alexey Skidanov <alexey.skidanov@intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, ocfs2-devel@oss.oracle.com
-Subject: [PATCH AUTOSEL 4.4 51/68] ocfs2: clear journal dirty flag after shutdown journal
-Date:   Fri, 22 Nov 2019 01:12:44 -0500
-Message-Id: <20191122061301.4947-50-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 52/68] lib/genalloc.c: use vzalloc_node() to allocate the bitmap
+Date:   Fri, 22 Nov 2019 01:12:45 -0500
+Message-Id: <20191122061301.4947-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122061301.4947-1-sashal@kernel.org>
 References: <20191122061301.4947-1-sashal@kernel.org>
@@ -50,55 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Huang Shijie <sjhuang@iluvatar.ai>
 
-[ Upstream commit d85400af790dba2aa294f0a77e712f166681f977 ]
+[ Upstream commit 6862d2fc81859f88c1f3f660886427893f2b4f3f ]
 
-Dirty flag of the journal should be cleared at the last stage of umount,
-if do it before jbd2_journal_destroy(), then some metadata in uncommitted
-transaction could be lost due to io error, but as dirty flag of journal
-was already cleared, we can't find that until run a full fsck.  This may
-cause system panic or other corruption.
+Some devices may have big memory on chip, such as over 1G.  In some
+cases, the nbytes maybe bigger then 4M which is the bounday of the
+memory buddy system (4K default).
 
-Link: http://lkml.kernel.org/r/20181121020023.3034-3-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Yiwen Jiang <jiangyiwen@huawei.com>
-Reviewed-by: Joseph Qi <jiangqi903@gmail.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Changwei Ge <ge.changwei@h3c.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Mark Fasheh <mfasheh@versity.com>
+So use vzalloc_node() to allocate the bitmap.  Also use vfree to free
+it.
+
+Link: http://lkml.kernel.org/r/20181225015701.6289-1-sjhuang@iluvatar.ai
+Signed-off-by: Huang Shijie <sjhuang@iluvatar.ai>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexey Skidanov <alexey.skidanov@intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ocfs2/journal.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ lib/genalloc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/ocfs2/journal.c b/fs/ocfs2/journal.c
-index 722eb5bc9b8f0..2301011428a1d 100644
---- a/fs/ocfs2/journal.c
-+++ b/fs/ocfs2/journal.c
-@@ -1017,7 +1017,8 @@ void ocfs2_journal_shutdown(struct ocfs2_super *osb)
- 			mlog_errno(status);
- 	}
+diff --git a/lib/genalloc.c b/lib/genalloc.c
+index e4303fb2a7b28..38764572ddde8 100644
+--- a/lib/genalloc.c
++++ b/lib/genalloc.c
+@@ -187,7 +187,7 @@ int gen_pool_add_virt(struct gen_pool *pool, unsigned long virt, phys_addr_t phy
+ 	int nbytes = sizeof(struct gen_pool_chunk) +
+ 				BITS_TO_LONGS(nbits) * sizeof(long);
  
--	if (status == 0) {
-+	/* Shutdown the kernel journal system */
-+	if (!jbd2_journal_destroy(journal->j_journal) && !status) {
- 		/*
- 		 * Do not toggle if flush was unsuccessful otherwise
- 		 * will leave dirty metadata in a "clean" journal
-@@ -1026,9 +1027,6 @@ void ocfs2_journal_shutdown(struct ocfs2_super *osb)
- 		if (status < 0)
- 			mlog_errno(status);
- 	}
--
--	/* Shutdown the kernel journal system */
--	jbd2_journal_destroy(journal->j_journal);
- 	journal->j_journal = NULL;
+-	chunk = kzalloc_node(nbytes, GFP_KERNEL, nid);
++	chunk = vzalloc_node(nbytes, nid);
+ 	if (unlikely(chunk == NULL))
+ 		return -ENOMEM;
  
- 	OCFS2_I(inode)->ip_open_count--;
+@@ -251,7 +251,7 @@ void gen_pool_destroy(struct gen_pool *pool)
+ 		bit = find_next_bit(chunk->bits, end_bit, 0);
+ 		BUG_ON(bit < end_bit);
+ 
+-		kfree(chunk);
++		vfree(chunk);
+ 	}
+ 	kfree_const(pool->name);
+ 	kfree(pool);
 -- 
 2.20.1
 
