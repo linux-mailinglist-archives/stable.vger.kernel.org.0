@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABCCD10639E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C74810637A
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:11:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727433AbfKVGLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:11:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
+        id S1729172AbfKVF4d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:56:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729158AbfKVF43 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:29 -0500
+        id S1728138AbfKVF4b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5920D20885;
-        Fri, 22 Nov 2019 05:56:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 749532070A;
+        Fri, 22 Nov 2019 05:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402188;
-        bh=1i3kkGFlDdHwfL3Ke43QrSAxjsuh9LHL5/ZPwD5DPzY=;
+        s=default; t=1574402191;
+        bh=jF9IsxwYOSuw62P1PeeupxUbte4FfaAr0h/JklSur88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T6Fnzvsc+7heIKMKfb7MGHXzmLdfL2A5lQEZA7bK8zNSErSnuat7EDUmwNoKG/1L1
-         phgcCWB2TXTEOcrzCbesaxH3NmQ05w5YM//VINQ3cq7CYAsuUNIW6+4Jge4MC6QK+5
-         oGNuOXwKom0hcFOAJNY+dxAV1unWb7FoYJmNGeSo=
+        b=iv9rLq4oMbS6qeaU5RZidd0yZAUPs49zT6RNefz0Ptj+cKG42CDC4ju8ugx3lekTZ
+         6jKiWgJb5XnL6ahCQfmHoGDvJxG1m6SxzKqp2wwukYMiJDMGzJ+st6hsGonEy5dc1R
+         bAaG/Aa12HMyv/6IDIoV1RUTDBP2Kj5QBZzpTe5o=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        David Howells <dhowells@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 039/127] exofs_mount(): fix leaks on failure exits
-Date:   Fri, 22 Nov 2019 00:54:17 -0500
-Message-Id: <20191122055544.3299-38-sashal@kernel.org>
+Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 041/127] bnxt_en: query force speeds before disabling autoneg mode.
+Date:   Fri, 22 Nov 2019 00:54:19 -0500
+Message-Id: <20191122055544.3299-40-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -43,92 +44,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
 
-[ Upstream commit 26cb5a328c6b2bda9e859307ce4cfc60df3a2c28 ]
+[ Upstream commit 56d374624778652d2a999e18c87a25338b127b41 ]
 
-... and don't abuse mount_nodev(), while we are at it.
+With autoneg enabled, PHY loopback test fails. To disable autoneg,
+driver needs to send a valid forced speed to FW. FW is not sending
+async event for invalid speeds. To fix this, query forced speeds
+and send the correct speed when disabling autoneg mode.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/exofs/super.c | 37 +++++++++++++++++++++++++++++--------
- 1 file changed, 29 insertions(+), 8 deletions(-)
+ .../net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 22 ++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/fs/exofs/super.c b/fs/exofs/super.c
-index c9ec652e2fcd2..881d5798a1814 100644
---- a/fs/exofs/super.c
-+++ b/fs/exofs/super.c
-@@ -702,21 +702,18 @@ static int exofs_read_lookup_dev_table(struct exofs_sb_info *sbi,
- /*
-  * Read the superblock from the OSD and fill in the fields
-  */
--static int exofs_fill_super(struct super_block *sb, void *data, int silent)
-+static int exofs_fill_super(struct super_block *sb,
-+				struct exofs_mountopt *opts,
-+				struct exofs_sb_info *sbi,
-+				int silent)
- {
- 	struct inode *root;
--	struct exofs_mountopt *opts = data;
--	struct exofs_sb_info *sbi;	/*extended info                  */
- 	struct osd_dev *od;		/* Master device                 */
- 	struct exofs_fscb fscb;		/*on-disk superblock info        */
- 	struct ore_comp comp;
- 	unsigned table_count;
- 	int ret;
- 
--	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
--	if (!sbi)
--		return -ENOMEM;
--
- 	/* use mount options to fill superblock */
- 	if (opts->is_osdname) {
- 		struct osd_dev_info odi = {.systemid_len = 0};
-@@ -860,7 +857,9 @@ static struct dentry *exofs_mount(struct file_system_type *type,
- 			  int flags, const char *dev_name,
- 			  void *data)
- {
-+	struct super_block *s;
- 	struct exofs_mountopt opts;
-+	struct exofs_sb_info *sbi;
- 	int ret;
- 
- 	ret = parse_options(data, &opts);
-@@ -869,9 +868,31 @@ static struct dentry *exofs_mount(struct file_system_type *type,
- 		return ERR_PTR(ret);
- 	}
- 
-+	sbi = kzalloc(sizeof(*sbi), GFP_KERNEL);
-+	if (!sbi) {
-+		kfree(opts.dev_name);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	s = sget(type, NULL, set_anon_super, flags, NULL);
-+
-+	if (IS_ERR(s)) {
-+		kfree(opts.dev_name);
-+		kfree(sbi);
-+		return ERR_CAST(s);
-+	}
-+
- 	if (!opts.dev_name)
- 		opts.dev_name = dev_name;
--	return mount_nodev(type, flags, &opts, exofs_fill_super);
-+
-+
-+	ret = exofs_fill_super(s, &opts, sbi, flags & SB_SILENT ? 1 : 0);
-+	if (ret) {
-+		deactivate_locked_super(s);
-+		return ERR_PTR(ret);
-+	}
-+	s->s_flags |= SB_ACTIVE;
-+	return dget(s->s_root);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 4879371ad0c75..fc8e185718a1d 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -2258,17 +2258,37 @@ static int bnxt_hwrm_mac_loopback(struct bnxt *bp, bool enable)
+ 	return hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
  }
  
- /*
++static int bnxt_query_force_speeds(struct bnxt *bp, u16 *force_speeds)
++{
++	struct hwrm_port_phy_qcaps_output *resp = bp->hwrm_cmd_resp_addr;
++	struct hwrm_port_phy_qcaps_input req = {0};
++	int rc;
++
++	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_PORT_PHY_QCAPS, -1, -1);
++	mutex_lock(&bp->hwrm_cmd_lock);
++	rc = _hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
++	if (!rc)
++		*force_speeds = le16_to_cpu(resp->supported_speeds_force_mode);
++
++	mutex_unlock(&bp->hwrm_cmd_lock);
++	return rc;
++}
++
+ static int bnxt_disable_an_for_lpbk(struct bnxt *bp,
+ 				    struct hwrm_port_phy_cfg_input *req)
+ {
+ 	struct bnxt_link_info *link_info = &bp->link_info;
+-	u16 fw_advertising = link_info->advertising;
++	u16 fw_advertising;
+ 	u16 fw_speed;
+ 	int rc;
+ 
+ 	if (!link_info->autoneg)
+ 		return 0;
+ 
++	rc = bnxt_query_force_speeds(bp, &fw_advertising);
++	if (rc)
++		return rc;
++
+ 	fw_speed = PORT_PHY_CFG_REQ_FORCE_LINK_SPEED_1GB;
+ 	if (netif_carrier_ok(bp->dev))
+ 		fw_speed = bp->link_info.link_speed;
 -- 
 2.20.1
 
