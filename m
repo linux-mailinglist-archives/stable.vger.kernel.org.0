@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEE7B107014
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:20:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B0A3106DA1
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:01:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727672AbfKVKqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:46:08 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53028 "EHLO mail.kernel.org"
+        id S1730934AbfKVLBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:01:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729545AbfKVKqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:46:07 -0500
+        id S1731227AbfKVLBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:01:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BEA3620637;
-        Fri, 22 Nov 2019 10:46:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2952120721;
+        Fri, 22 Nov 2019 11:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419567;
-        bh=3N5qwJ28NYzzO8le2/ydKVm0EDx1lQt2MdyjGiVw1Lw=;
+        s=default; t=1574420504;
+        bh=8Gh9QFWIcV8gouhNwtcnLmaTG574i/mtCXf99Tt1wrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uryeN2O2fWfbOsvTnGjB9P6oA/5HvXU2FzHS1nQY0lAXf0t1ACECMsjdbhWPpuVpj
-         JDXbuBbV2lXzK+h6Q8r3CPb05v3cWd5iThLd26Yx4v08w4BQF7Eo8rYsg8BANSPchm
-         KBRKb9xntIANJGz1Rg8amgkWwGKmzV4z52archt8=
+        b=lMmvvVmZBP7KtgT7bMcF25ev6TvIOYa0IZ4OWqJ2luZUOM0evYTiCZOxJTZBa5lzz
+         Y1w0CEG7Yy2MssiqbQ64jAM5vi9n9eb1JOWE3DF6D9Zs6hWGsccs6GYMlbb99Bc8fC
+         okEsRI5Hnu4HM3wLn+spAZ2Kd7aasYJb2Iv0kzWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 155/222] net: ovs: fix return type of ndo_start_xmit function
+Subject: [PATCH 4.19 130/220] i2c: zx2967: use core to detect no zero length quirk
 Date:   Fri, 22 Nov 2019 11:28:15 +0100
-Message-Id: <20191122100913.899784961@linuxfoundation.org>
+Message-Id: <20191122100922.174976206@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit eddf11e18dff0e8671e06ce54e64cfc843303ab9 ]
+[ Upstream commit e2115ace4196bcd2126446fb874bcfc90cba79be ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+And don't reimplement in the driver.
 
-Found by coccinelle.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Acked-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/vport-internal_dev.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-zx2967.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/net/openvswitch/vport-internal_dev.c b/net/openvswitch/vport-internal_dev.c
-index e7da29021b38b..c233924825801 100644
---- a/net/openvswitch/vport-internal_dev.c
-+++ b/net/openvswitch/vport-internal_dev.c
-@@ -44,7 +44,8 @@ static struct internal_dev *internal_dev_priv(struct net_device *netdev)
- }
+diff --git a/drivers/i2c/busses/i2c-zx2967.c b/drivers/i2c/busses/i2c-zx2967.c
+index 48281c1b30c6d..b8f9e020d80e6 100644
+--- a/drivers/i2c/busses/i2c-zx2967.c
++++ b/drivers/i2c/busses/i2c-zx2967.c
+@@ -281,9 +281,6 @@ static int zx2967_i2c_xfer_msg(struct zx2967_i2c *i2c,
+ 	int ret;
+ 	int i;
  
- /* Called with rcu_read_lock_bh. */
--static int internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
-+static netdev_tx_t
-+internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
- 	int len, err;
+-	if (msg->len == 0)
+-		return -EINVAL;
+-
+ 	zx2967_i2c_flush_fifos(i2c);
  
-@@ -63,7 +64,7 @@ static int internal_dev_xmit(struct sk_buff *skb, struct net_device *netdev)
- 	} else {
- 		netdev->stats.tx_errors++;
- 	}
--	return 0;
-+	return NETDEV_TX_OK;
- }
+ 	i2c->cur_trans = msg->buf;
+@@ -498,6 +495,10 @@ static const struct i2c_algorithm zx2967_i2c_algo = {
+ 	.functionality = zx2967_i2c_func,
+ };
  
- static int internal_dev_open(struct net_device *netdev)
++static const struct i2c_adapter_quirks zx2967_i2c_quirks = {
++	.flags = I2C_AQ_NO_ZERO_LEN,
++};
++
+ static const struct of_device_id zx2967_i2c_of_match[] = {
+ 	{ .compatible = "zte,zx296718-i2c", },
+ 	{ },
+@@ -568,6 +569,7 @@ static int zx2967_i2c_probe(struct platform_device *pdev)
+ 	strlcpy(i2c->adap.name, "zx2967 i2c adapter",
+ 		sizeof(i2c->adap.name));
+ 	i2c->adap.algo = &zx2967_i2c_algo;
++	i2c->adap.quirks = &zx2967_i2c_quirks;
+ 	i2c->adap.nr = pdev->id;
+ 	i2c->adap.dev.parent = &pdev->dev;
+ 	i2c->adap.dev.of_node = pdev->dev.of_node;
 -- 
 2.20.1
 
