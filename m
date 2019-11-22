@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F41E10708F
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:23:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A97106ED8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:12:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727663AbfKVLXQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:23:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46044 "EHLO mail.kernel.org"
+        id S1730889AbfKVK7T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:59:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50146 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727578AbfKVKl3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:41:29 -0500
+        id S1730637AbfKVK7R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:59:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 330B120717;
-        Fri, 22 Nov 2019 10:41:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3972C20706;
+        Fri, 22 Nov 2019 10:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419288;
-        bh=vh7PF8Txw85I7bDLRWcJf5RC2LEdYpmkGZ235XlfREs=;
+        s=default; t=1574420356;
+        bh=iOCWkkQyNZ9HFAZK0cqFlOadkurC8YTumm+nF+4sP6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CewPZ0gPKhXgwReVeN20gznpKO36lO2cIBmQVOvD68KoTT/3IUEHWpJAXYqvaCGN3
-         OE5DUzOtE0i+dwGgYGwzD6V6glimb6wQ89HwsBdhG3hjKoSWhE6tISSchAYnpYP5UC
-         q/Mi0ojNAgEgW5hcE+R7NoVFlr5XL5Pt8lXyWdVk=
+        b=2FEWZjyj+SNARVnVXICeEUnQ+ERB3V+T6Au0izBmeatzTFyiwfr//UlKiEX0eB32J
+         qXcYRVFAOTlCcxXXZ5stTA9JgSsnFSxixQHOTDIL0bmxD+0gubPRKA6ZLcyaCAkz6q
+         bSrxsDeYR7chZZl6NlrjPW2sVRS6hhRhfOBEHeqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 060/222] kprobes: Dont call BUG_ON() if there is a kprobe in use on free list
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 035/220] iommu/arm-smmu-v3: Fix unexpected CMD_SYNC timeout
 Date:   Fri, 22 Nov 2019 11:26:40 +0100
-Message-Id: <20191122100858.632581833@linuxfoundation.org>
+Message-Id: <20191122100914.880014065@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,48 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit cbdd96f5586151e48317d90a403941ec23f12660 ]
+[ Upstream commit 0f02477d16980938a84aba8688a4e3a303306116 ]
 
-Instead of calling BUG_ON(), if we find a kprobe in use on free kprobe
-list, just remove it from the list and keep it on kprobe hash list
-as same as other in-use kprobes.
+The condition break condition of:
 
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: David S . Miller <davem@davemloft.net>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Naveen N . Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/153666126882.21306.10738207224288507996.stgit@devbox
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+	(int)(VAL - sync_idx) >= 0
+
+in the __arm_smmu_sync_poll_msi() polling loop requires that sync_idx
+must be increased monotonically according to the sequence of the CMDs in
+the cmdq.
+
+However, since the msidata is populated using atomic_inc_return_relaxed()
+before taking the command-queue spinlock, then the following scenario
+can occur:
+
+CPU0			CPU1
+msidata=0
+			msidata=1
+			insert cmd1
+insert cmd0
+			smmu execute cmd1
+smmu execute cmd0
+			poll timeout, because msidata=1 is overridden by
+			cmd0, that means VAL=0, sync_idx=1.
+
+This is not a functional problem, since the caller will eventually either
+timeout or exit due to another CMD_SYNC, however it's clearly not what
+the code is supposed to be doing. Fix it, by incrementing the sequence
+count with the command-queue lock held, allowing us to drop the atomic
+operations altogether.
+
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+[will: dropped the specialised cmd building routine for now]
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kprobes.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/iommu/arm-smmu-v3.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/kprobes.c b/kernel/kprobes.c
-index 11863e2b01c25..1b75fb8c7735e 100644
---- a/kernel/kprobes.c
-+++ b/kernel/kprobes.c
-@@ -514,8 +514,14 @@ static void do_free_cleaned_kprobes(void)
- 	struct optimized_kprobe *op, *tmp;
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index 40fbf20d69e5a..2ab7100bcff12 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -567,7 +567,7 @@ struct arm_smmu_device {
  
- 	list_for_each_entry_safe(op, tmp, &freeing_list, list) {
--		BUG_ON(!kprobe_unused(&op->kp));
- 		list_del_init(&op->list);
-+		if (WARN_ON_ONCE(!kprobe_unused(&op->kp))) {
-+			/*
-+			 * This must not happen, but if there is a kprobe
-+			 * still in use, keep it on kprobes hash list.
-+			 */
-+			continue;
-+		}
- 		free_aggr_kprobe(&op->kp);
- 	}
- }
+ 	int				gerr_irq;
+ 	int				combined_irq;
+-	atomic_t			sync_nr;
++	u32				sync_nr;
+ 
+ 	unsigned long			ias; /* IPA */
+ 	unsigned long			oas; /* PA */
+@@ -964,14 +964,13 @@ static int __arm_smmu_cmdq_issue_sync_msi(struct arm_smmu_device *smmu)
+ 	struct arm_smmu_cmdq_ent ent = {
+ 		.opcode = CMDQ_OP_CMD_SYNC,
+ 		.sync	= {
+-			.msidata = atomic_inc_return_relaxed(&smmu->sync_nr),
+ 			.msiaddr = virt_to_phys(&smmu->sync_count),
+ 		},
+ 	};
+ 
+-	arm_smmu_cmdq_build_cmd(cmd, &ent);
+-
+ 	spin_lock_irqsave(&smmu->cmdq.lock, flags);
++	ent.sync.msidata = ++smmu->sync_nr;
++	arm_smmu_cmdq_build_cmd(cmd, &ent);
+ 	arm_smmu_cmdq_insert_cmd(smmu, cmd);
+ 	spin_unlock_irqrestore(&smmu->cmdq.lock, flags);
+ 
+@@ -2196,7 +2195,6 @@ static int arm_smmu_init_structures(struct arm_smmu_device *smmu)
+ {
+ 	int ret;
+ 
+-	atomic_set(&smmu->sync_nr, 0);
+ 	ret = arm_smmu_init_queues(smmu);
+ 	if (ret)
+ 		return ret;
 -- 
 2.20.1
 
