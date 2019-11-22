@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBE2A106B30
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:42:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D51E7106B32
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:42:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727495AbfKVKmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:42:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46956 "EHLO mail.kernel.org"
+        id S1727389AbfKVKmL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:42:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729079AbfKVKmF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:42:05 -0500
+        id S1727972AbfKVKmI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:42:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4DFC20707;
-        Fri, 22 Nov 2019 10:42:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FAF020718;
+        Fri, 22 Nov 2019 10:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419324;
-        bh=BPCOPpeQbZWj52xinWEfuf+g4VQnSwbdAi1/ET2hRTQ=;
+        s=default; t=1574419327;
+        bh=7fjEwiSTXkaGr+C2UuO1PVeK6otW8t2730r5OGPfeSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B4e/HCGhzl4gkvkeVTkSvabJbon0O9bFyhO+vRWiE4O2zWuc5KCdfnuStaxvXMZW3
-         XYqmIRl1ES+i813DKpPHONa+u4W7QXZyP7GOqq6trd6ifs0ATSxRXVK3N3xz9Dzhrc
-         P7AFyAoHuU7uu3s22QGU5G3aMqMGCKIEjVI/H4RA=
+        b=GLyC6/y8a0uXSfPbHrUewX9RJ2x0gF4SkIjSxgBaGkD3MPjl1NCJQPaxz9UI0Hhwh
+         XjiicBohg/7IEHL3Yk4tgOSTqF9dO5HqC8gxALMcQ6fV3Ii3PIUgdgCLqYfbAZBK3p
+         SILkMvBvnBrVjz42Mc/pNPFs4vaklm1ZhBbBwjvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        Mitch Williams <mitch.a.williams@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 028/222] ARM: dts: exynos: Fix regulators configuration on Peach Pi/Pit Chromebooks
-Date:   Fri, 22 Nov 2019 11:26:08 +0100
-Message-Id: <20191122100841.192788835@linuxfoundation.org>
+Subject: [PATCH 4.9 029/222] i40e: use correct length for strncpy
+Date:   Fri, 22 Nov 2019 11:26:09 +0100
+Message-Id: <20191122100841.743459007@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -46,84 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Mitch Williams <mitch.a.williams@intel.com>
 
-[ Upstream commit f8f3b7fc21b1cb59385b780acd9b9a26d04cb7b2 ]
+[ Upstream commit 7eb74ff891b4e94b8bac48f648a21e4b94ddee64 ]
 
-Regulators, which are marked as 'on-in-suspend' seems to be critical for
-board operation, thus they must not be disabled anytime. This can be
-only assured by marking them as 'always-on', because otherwise some
-actions of their clients might result in turning them off. This patch
-restores suspend/resume operation on Peach-Pit Chromebook board. It
-partially reverts 'always-on' property removal done by the commit
-mentioned in the Fixes tag.
+Caught by GCC 8. When we provide a length for strncpy, we should not
+include the terminating null. So we must tell it one less than the size
+of the destination buffer.
 
-Fixes: 665c441eea3d ("ARM: dts: exynos: Remove unneded always-on for regulators on Peach boards")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Tested-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5420-peach-pit.dts | 3 +++
- arch/arm/boot/dts/exynos5800-peach-pi.dts  | 3 +++
- 2 files changed, 6 insertions(+)
+ drivers/net/ethernet/intel/i40e/i40e_ptp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/exynos5420-peach-pit.dts b/arch/arm/boot/dts/exynos5420-peach-pit.dts
-index 8b754ae8c8f7d..c9d379b1a1669 100644
---- a/arch/arm/boot/dts/exynos5420-peach-pit.dts
-+++ b/arch/arm/boot/dts/exynos5420-peach-pit.dts
-@@ -302,6 +302,7 @@
- 				regulator-name = "vdd_1v35";
- 				regulator-min-microvolt = <1350000>;
- 				regulator-max-microvolt = <1350000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -323,6 +324,7 @@
- 				regulator-name = "vdd_2v";
- 				regulator-min-microvolt = <2000000>;
- 				regulator-max-microvolt = <2000000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -333,6 +335,7 @@
- 				regulator-name = "vdd_1v8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-diff --git a/arch/arm/boot/dts/exynos5800-peach-pi.dts b/arch/arm/boot/dts/exynos5800-peach-pi.dts
-index 1f90df2d7ecd8..ae58b8d6f6144 100644
---- a/arch/arm/boot/dts/exynos5800-peach-pi.dts
-+++ b/arch/arm/boot/dts/exynos5800-peach-pi.dts
-@@ -302,6 +302,7 @@
- 				regulator-name = "vdd_1v35";
- 				regulator-min-microvolt = <1350000>;
- 				regulator-max-microvolt = <1350000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -323,6 +324,7 @@
- 				regulator-name = "vdd_2v";
- 				regulator-min-microvolt = <2000000>;
- 				regulator-max-microvolt = <2000000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
-@@ -333,6 +335,7 @@
- 				regulator-name = "vdd_1v8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 				regulator-boot-on;
- 				regulator-state-mem {
- 					regulator-on-in-suspend;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ptp.c b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
+index f1feceab758a5..41cbcb0ac2d94 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ptp.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
+@@ -604,7 +604,8 @@ static long i40e_ptp_create_clock(struct i40e_pf *pf)
+ 	if (!IS_ERR_OR_NULL(pf->ptp_clock))
+ 		return 0;
+ 
+-	strncpy(pf->ptp_caps.name, i40e_driver_name, sizeof(pf->ptp_caps.name));
++	strncpy(pf->ptp_caps.name, i40e_driver_name,
++		sizeof(pf->ptp_caps.name) - 1);
+ 	pf->ptp_caps.owner = THIS_MODULE;
+ 	pf->ptp_caps.max_adj = 999999999;
+ 	pf->ptp_caps.n_ext_ts = 0;
 -- 
 2.20.1
 
