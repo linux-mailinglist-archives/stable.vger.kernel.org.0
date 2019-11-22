@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1968106DEC
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 856011070DF
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731565AbfKVLEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:04:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59488 "EHLO mail.kernel.org"
+        id S1727744AbfKVKhl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:37:41 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731563AbfKVLEb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:04:31 -0500
+        id S1727362AbfKVKhk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:37:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1588207FC;
-        Fri, 22 Nov 2019 11:04:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7B4220707;
+        Fri, 22 Nov 2019 10:37:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420670;
-        bh=WNzOcSDtG5/ZzPIRNc452Bw+G3KZ9d2AoXandGQy9MM=;
+        s=default; t=1574419059;
+        bh=NGvcGUUb/zX84EsKjg1TLdH6Al2JKVLtjEr2dAXuSVE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1T/31Wj2VRkukB8wemW1hd8GbXwOlWC5XCrztXKgPlSJ3pVCRMfWaLg3UkA1Q5U/K
-         Dp2c6htyutCYf4eyKgenljcjylw18VEbPBsKZ5H3OVzvHBz1ZZyRIM13tsKizGE2hi
-         WOHYvVWkRipTFxzArK23jJwWo9WMJBJTiSjS9w4g=
+        b=KcsfveKXsU0EO0zYbckJdmrlr/ALbQZ1P5D8CFYu6QyXutEMcxkLTOin92QaFV6YC
+         auFiROkptBm1cepOcv7H03NAJAoROg7SZ+hRccalHkH00J6Pmggka6U28Ws+1fAVxB
+         0u8s6Y6xoanUn6qfL3KvJmzqNYmlPgzFhyvl9YIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Peter Malone <peter.malone@gmail.com>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Mathieu Malaterre <malat@debian.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/220] s390/kasan: avoid user access code instrumentation
+Subject: [PATCH 4.4 143/159] fbdev: sbuslib: integer overflow in sbusfb_ioctl_helper()
 Date:   Fri, 22 Nov 2019 11:28:54 +0100
-Message-Id: <20191122100924.963763508@linuxfoundation.org>
+Message-Id: <20191122100838.403706593@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b6cbe3e8bdff6f21f1b58b08a55f479cdcf98282 ]
+[ Upstream commit e5017716adb8aa5c01c52386c1b7470101ffe9c5 ]
 
-Kasan instrumentation adds "store" check for variables marked as
-modified by inline assembly. With user pointers containing addresses
-from another address space this produces false positives.
+The "index + count" addition can overflow.  Both come directly from the
+user.  This bug leads to an information leak.
 
-static inline unsigned long clear_user_xc(void __user *to, ...)
-{
-	asm volatile(
-	...
-	: "+a" (to) ...
-
-User space access functions are wrapped by manually instrumented
-functions in kasan common code, which should be sufficient to catch
-errors. So, we just disable uaccess.o instrumentation altogether.
-
-Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Peter Malone <peter.malone@gmail.com>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Mathieu Malaterre <malat@debian.org>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/lib/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/video/fbdev/sbuslib.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/lib/Makefile b/arch/s390/lib/Makefile
-index 57ab40188d4bd..5418d10dc2a81 100644
---- a/arch/s390/lib/Makefile
-+++ b/arch/s390/lib/Makefile
-@@ -9,5 +9,9 @@ lib-$(CONFIG_SMP) += spinlock.o
- lib-$(CONFIG_KPROBES) += probes.o
- lib-$(CONFIG_UPROBES) += probes.o
+diff --git a/drivers/video/fbdev/sbuslib.c b/drivers/video/fbdev/sbuslib.c
+index b425718925c01..52e161dbd2047 100644
+--- a/drivers/video/fbdev/sbuslib.c
++++ b/drivers/video/fbdev/sbuslib.c
+@@ -170,7 +170,7 @@ int sbusfb_ioctl_helper(unsigned long cmd, unsigned long arg,
+ 		    get_user(ublue, &c->blue))
+ 			return -EFAULT;
  
-+# Instrumenting memory accesses to __user data (in different address space)
-+# produce false positives
-+KASAN_SANITIZE_uaccess.o := n
-+
- chkbss := mem.o
- include $(srctree)/arch/s390/scripts/Makefile.chkbss
+-		if (index + count > cmap->len)
++		if (index > cmap->len || count > cmap->len - index)
+ 			return -EINVAL;
+ 
+ 		for (i = 0; i < count; i++) {
 -- 
 2.20.1
 
