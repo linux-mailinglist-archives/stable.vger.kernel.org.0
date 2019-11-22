@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82ED3106A41
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA763106B5E
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727908AbfKVKdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:33:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55734 "EHLO mail.kernel.org"
+        id S1729277AbfKVKnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:43:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727866AbfKVKdN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:33:13 -0500
+        id S1728856AbfKVKno (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:43:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6BBCD20715;
-        Fri, 22 Nov 2019 10:33:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E79C720637;
+        Fri, 22 Nov 2019 10:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418793;
-        bh=xmteAW81h2blFb8tQocIaklh7OglFSJcqZ7I45f1uC8=;
+        s=default; t=1574419424;
+        bh=6hPBnO6cyInfrI7QPc5HYLgV1DJSGN4IqdU+EtM4yrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jzx61zqeTrrxjzWf6VmbWHhAARMY/8a3gb5LpA5mF03Owo9yF3edkUvZHwZiw/CUA
-         UMveP3O0j2INxAZjIxU954kVljF0kvghcCs+mHvQbdc1nXlDBOI0Z3vRwCK9SVwCpZ
-         t4/8obt4cDiFywY/jIG1tGaFfT6VMRrFX2010kUo=
+        b=UIK4PSt8645a/tdGCg+uhXims8/zMKZWaVGmYBwtuGRkp7sZV2lcC9oz8jB9WCx51
+         bLxjnk2Y1B2WZdes8TiwxSW5WSxIrvyW7OztLbHuXx8rvDjnXKFQVK/60iQTHVUPB8
+         Q/cbW0gUny3GGA/SFoL7Wm6sQZ1sbePa0zFqNnyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 053/159] power: supply: ab8500_fg: silence uninitialized variable warnings
-Date:   Fri, 22 Nov 2019 11:27:24 +0100
-Message-Id: <20191122100745.696798321@linuxfoundation.org>
+Subject: [PATCH 4.9 106/222] net: micrel: fix return type of ndo_start_xmit function
+Date:   Fri, 22 Nov 2019 11:27:26 +0100
+Message-Id: <20191122100910.975533656@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 54baff8d4e5dce2cef61953b1dc22079cda1ddb1 ]
+[ Upstream commit 2b49117a5abee8478b0470cba46ac74f93b4a479 ]
 
-If kstrtoul() fails then we print "charge_full" when it's uninitialized.
-The debug printk doesn't add anything so I deleted it and cleaned these
-two functions up a bit.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/ab8500_fg.c | 31 ++++++++++++-------------------
- 1 file changed, 12 insertions(+), 19 deletions(-)
+ drivers/net/ethernet/micrel/ks8695net.c  | 2 +-
+ drivers/net/ethernet/micrel/ks8851_mll.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/power/ab8500_fg.c b/drivers/power/ab8500_fg.c
-index 3830dade5d69d..d91111200dde2 100644
---- a/drivers/power/ab8500_fg.c
-+++ b/drivers/power/ab8500_fg.c
-@@ -2447,17 +2447,14 @@ static ssize_t charge_full_store(struct ab8500_fg *di, const char *buf,
- 				 size_t count)
+diff --git a/drivers/net/ethernet/micrel/ks8695net.c b/drivers/net/ethernet/micrel/ks8695net.c
+index 20cb85bc0c5f8..6135d90f368fa 100644
+--- a/drivers/net/ethernet/micrel/ks8695net.c
++++ b/drivers/net/ethernet/micrel/ks8695net.c
+@@ -1156,7 +1156,7 @@ ks8695_timeout(struct net_device *ndev)
+  *	sk_buff and adds it to the TX ring. It then kicks the TX DMA
+  *	engine to ensure transmission begins.
+  */
+-static int
++static netdev_tx_t
+ ks8695_start_xmit(struct sk_buff *skb, struct net_device *ndev)
  {
- 	unsigned long charge_full;
--	ssize_t ret;
-+	int ret;
- 
- 	ret = kstrtoul(buf, 10, &charge_full);
-+	if (ret)
-+		return ret;
- 
--	dev_dbg(di->dev, "Ret %zd charge_full %lu", ret, charge_full);
--
--	if (!ret) {
--		di->bat_cap.max_mah = (int) charge_full;
--		ret = count;
--	}
--	return ret;
-+	di->bat_cap.max_mah = (int) charge_full;
-+	return count;
- }
- 
- static ssize_t charge_now_show(struct ab8500_fg *di, char *buf)
-@@ -2469,20 +2466,16 @@ static ssize_t charge_now_store(struct ab8500_fg *di, const char *buf,
- 				 size_t count)
+ 	struct ks8695_priv *ksp = netdev_priv(ndev);
+diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
+index 2fc5cd56c0a84..8dc1f0277117d 100644
+--- a/drivers/net/ethernet/micrel/ks8851_mll.c
++++ b/drivers/net/ethernet/micrel/ks8851_mll.c
+@@ -1020,9 +1020,9 @@ static void ks_write_qmu(struct ks_net *ks, u8 *pdata, u16 len)
+  * spin_lock_irqsave is required because tx and rx should be mutual exclusive.
+  * So while tx is in-progress, prevent IRQ interrupt from happenning.
+  */
+-static int ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
++static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
  {
- 	unsigned long charge_now;
--	ssize_t ret;
-+	int ret;
+-	int retv = NETDEV_TX_OK;
++	netdev_tx_t retv = NETDEV_TX_OK;
+ 	struct ks_net *ks = netdev_priv(netdev);
  
- 	ret = kstrtoul(buf, 10, &charge_now);
-+	if (ret)
-+		return ret;
- 
--	dev_dbg(di->dev, "Ret %zd charge_now %lu was %d",
--		ret, charge_now, di->bat_cap.prev_mah);
--
--	if (!ret) {
--		di->bat_cap.user_mah = (int) charge_now;
--		di->flags.user_cap = true;
--		ret = count;
--		queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
--	}
--	return ret;
-+	di->bat_cap.user_mah = (int) charge_now;
-+	di->flags.user_cap = true;
-+	queue_delayed_work(di->fg_wq, &di->fg_periodic_work, 0);
-+	return count;
- }
- 
- static struct ab8500_fg_sysfs_entry charge_full_attr =
+ 	disable_irq(netdev->irq);
 -- 
 2.20.1
 
