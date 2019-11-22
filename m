@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD498106D54
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48BDE106A23
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:32:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730136AbfKVK7L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:59:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49936 "EHLO mail.kernel.org"
+        id S1727587AbfKVKcJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:32:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730387AbfKVK7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:59:11 -0500
+        id S1727579AbfKVKcJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:32:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4EE1720706;
-        Fri, 22 Nov 2019 10:59:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F64A2075B;
+        Fri, 22 Nov 2019 10:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420350;
-        bh=IWdzDFSf/TRr9ci4D2Ci/WM12+j7L/sItckgGxtTqy4=;
+        s=default; t=1574418728;
+        bh=DCB1Lm+eD2UVyhgQSltdFYVeU1acKcu26rZLTF3FhfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UBuO29+NCMUhIootlDXcvwYv6X9HK5HjYGvP0XJUMrHQ/J3totu1I7cxyybKj4fYh
-         i5H1/3+8m4VyVy3t/d3KT5ciMtnaCkDPC3C5ElDWVs6I4vLPDtJ1hjKnzSi793ap2n
-         JwCmqs8EPZorYG6JT/OszOHIIz8v+21SvyuMhHMQ=
+        b=aMk/BoVRYir+CcuFuv2zvL/VPhyB7ElpZu4JmLMmwHHn1ZD6m6gbHnjKXTDlhyTaH
+         bznkAXZUeOKjf0PnNWnUcR4KtzPaE4D08ThDSJKHrpIU8U2yCHGfZvZNx+Zp4V/tXQ
+         pXA3Yl1RIGWla001JpwXkDkXNEBJu3eyvxGkuMEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/220] mt76: fix handling ps-poll frames
-Date:   Fri, 22 Nov 2019 11:26:38 +0100
-Message-Id: <20191122100914.763259022@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Auger <eric.auger@redhat.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.4 008/159] iommu/vt-d: Fix QI_DEV_IOTLB_PFSID and QI_DEV_EIOTLB_PFSID macros
+Date:   Fri, 22 Nov 2019 11:26:39 +0100
+Message-Id: <20191122100712.825086850@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,39 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Eric Auger <eric.auger@redhat.com>
 
-[ Upstream commit 36d910960fae3f9e74bedf3e0ef39ee26bdaa51f ]
+commit 4e7120d79edb31e4ee68e6f8421448e4603be1e9 upstream.
 
-Hardware station lookup for pspoll frames can fail, which makes the driver
-ignore ps-poll frames. Fix the resulting powersave issues by looking up
-the station for pspoll frames in software
+For both PASID-based-Device-TLB Invalidate Descriptor and
+Device-TLB Invalidate Descriptor, the Physical Function Source-ID
+value is split according to this layout:
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+PFSID[3:0] is set at offset 12 and PFSID[15:4] is put at offset 52.
+Fix the part laid out at offset 52.
+
+Fixes: 0f725561e1684 ("iommu/vt-d: Add definitions for PFSID")
+Signed-off-by: Eric Auger <eric.auger@redhat.com>
+Acked-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: stable@vger.kernel.org # v4.19+
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/mediatek/mt76/mac80211.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ include/linux/intel-iommu.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mac80211.c b/drivers/net/wireless/mediatek/mt76/mac80211.c
-index ade4a2029a24a..1b5abd4816ed7 100644
---- a/drivers/net/wireless/mediatek/mt76/mac80211.c
-+++ b/drivers/net/wireless/mediatek/mt76/mac80211.c
-@@ -548,6 +548,12 @@ mt76_check_ps(struct mt76_dev *dev, struct sk_buff *skb)
- 	struct mt76_wcid *wcid = status->wcid;
- 	bool ps;
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -295,7 +295,8 @@ enum {
+ #define QI_DEV_IOTLB_SID(sid)	((u64)((sid) & 0xffff) << 32)
+ #define QI_DEV_IOTLB_QDEP(qdep)	(((qdep) & 0x1f) << 16)
+ #define QI_DEV_IOTLB_ADDR(addr)	((u64)(addr) & VTD_PAGE_MASK)
+-#define QI_DEV_IOTLB_PFSID(pfsid) (((u64)(pfsid & 0xf) << 12) | ((u64)(pfsid & 0xfff) << 52))
++#define QI_DEV_IOTLB_PFSID(pfsid) (((u64)(pfsid & 0xf) << 12) | \
++				   ((u64)((pfsid >> 4) & 0xfff) << 52))
+ #define QI_DEV_IOTLB_SIZE	1
+ #define QI_DEV_IOTLB_MAX_INVS	32
  
-+	if (ieee80211_is_pspoll(hdr->frame_control) && !wcid) {
-+		sta = ieee80211_find_sta_by_ifaddr(dev->hw, hdr->addr2, NULL);
-+		if (sta)
-+			wcid = status->wcid = (struct mt76_wcid *) sta->drv_priv;
-+	}
-+
- 	if (!wcid || !wcid->sta)
- 		return;
+@@ -320,7 +321,8 @@ enum {
+ #define QI_DEV_EIOTLB_PASID(p)	(((u64)p) << 32)
+ #define QI_DEV_EIOTLB_SID(sid)	((u64)((sid) & 0xffff) << 16)
+ #define QI_DEV_EIOTLB_QDEP(qd)	((u64)((qd) & 0x1f) << 4)
+-#define QI_DEV_EIOTLB_PFSID(pfsid) (((u64)(pfsid & 0xf) << 12) | ((u64)(pfsid & 0xfff) << 52))
++#define QI_DEV_EIOTLB_PFSID(pfsid) (((u64)(pfsid & 0xf) << 12) | \
++				    ((u64)((pfsid >> 4) & 0xfff) << 52))
+ #define QI_DEV_EIOTLB_MAX_INVS	32
  
--- 
-2.20.1
-
+ #define QI_PGRP_IDX(idx)	(((u64)(idx)) << 55)
 
 
