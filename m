@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB90110612A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:54:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE0F41060EC
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:53:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726792AbfKVFyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:54:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59072 "EHLO mail.kernel.org"
+        id S1728786AbfKVFxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:53:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728770AbfKVFxF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:53:05 -0500
+        id S1728779AbfKVFxG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:53:06 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4D382084D;
-        Fri, 22 Nov 2019 05:53:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0597E2084B;
+        Fri, 22 Nov 2019 05:53:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401984;
-        bh=JHnrEWl6Z0m9Bakb+shtnvx+AphQFnb7BzQ8iNeoJ7U=;
+        s=default; t=1574401985;
+        bh=vTnqRBhSJThxK31D6vHxdhMGVr8Vgn7F/eGcARVmDAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EkIy4Fpgd1Snj9/lOKXx790329jNUa8aIrXUmzPfYLJjKn2/RfAvM3BIFCYbCL+cT
-         raIb/Cz/C6mF3/PvayJ0ri2dxKA8cnp/RQLsOdtGah5ZjBoJbCwjN27vGRGdcYzTDb
-         MMQAbLXQcXAIbmtJRvpNUSeCFs4eTMYDfOumTt3s=
+        b=wfcE+SYGXsak2mRNeEa1tKTBcTXEh37aioE2GYcxIqy6HcQZ2D9LrdH65vUx/xNFl
+         MPob3ERQiwb9UfAEpVcRMNnLSOsmaHxqH5noFQPsxeff18tT2o2JYGr+LlYCXuG8sM
+         iGsTkqAMIjt9vgdvk4uwM9uryT66N+vMo/Ji2WZE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 203/219] net: hns3: fix an issue for hns3_update_new_int_gl
-Date:   Fri, 22 Nov 2019 00:48:54 -0500
-Message-Id: <20191122054911.1750-195-sashal@kernel.org>
+Cc:     Aaron Ma <aaron.ma@canonical.com>, Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>,
+        iommu@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.19 204/219] iommu/amd: Fix NULL dereference bug in match_hid_uid
+Date:   Fri, 22 Nov 2019 00:48:55 -0500
+Message-Id: <20191122054911.1750-196-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,36 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Li <lipeng321@huawei.com>
+From: Aaron Ma <aaron.ma@canonical.com>
 
-[ Upstream commit 6241e71e7207102ffc733991f7a00f74098d7da0 ]
+[ Upstream commit bb6bccba390c7d743c1e4427de4ef284c8cc6869 ]
 
-HNS3 supports setting rx-usecs|tx-usecs as 0, but it will not
-update dynamically when adaptive-tx or adaptive-rx is enable.
-This patch removes the Redundant check.
+Add a non-NULL check to fix potential NULL pointer dereference
+Cleanup code to call function once.
 
-Fixes: a95e1f8666e9 ("net: hns3: change the time interval of int_gl calculating")
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aaron Ma <aaron.ma@canonical.com>
+Fixes: 2bf9a0a12749b ('iommu/amd: Add iommu support for ACPI HID devices')
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/amd_iommu.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 0ccfa6a845353..0ea791e0ae0f5 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -2377,7 +2377,7 @@ static bool hns3_get_new_int_gl(struct hns3_enet_ring_group *ring_group)
- 	u32 time_passed_ms;
- 	u16 new_int_gl;
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 1f2ed44de2438..fe18804a50083 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -139,10 +139,14 @@ static struct lock_class_key reserved_rbtree_key;
+ static inline int match_hid_uid(struct device *dev,
+ 				struct acpihid_map_entry *entry)
+ {
++	struct acpi_device *adev = ACPI_COMPANION(dev);
+ 	const char *hid, *uid;
  
--	if (!ring_group->coal.int_gl || !tqp_vector->last_jiffies)
-+	if (!tqp_vector->last_jiffies)
- 		return false;
+-	hid = acpi_device_hid(ACPI_COMPANION(dev));
+-	uid = acpi_device_uid(ACPI_COMPANION(dev));
++	if (!adev)
++		return -ENODEV;
++
++	hid = acpi_device_hid(adev);
++	uid = acpi_device_uid(adev);
  
- 	if (ring_group->total_packets == 0) {
+ 	if (!hid || !(*hid))
+ 		return -ENODEV;
 -- 
 2.20.1
 
