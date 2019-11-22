@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD0D106C1D
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:50:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4332A106A96
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:36:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729717AbfKVKuC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:50:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59788 "EHLO mail.kernel.org"
+        id S1728360AbfKVKgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:36:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729385AbfKVKuB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:50:01 -0500
+        id S1728352AbfKVKgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:36:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E63A205C9;
-        Fri, 22 Nov 2019 10:50:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 957EE20708;
+        Fri, 22 Nov 2019 10:36:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419800;
-        bh=LAacLFUZ6peFqOHVPLbtujVYQS0liVSdAa/0Z18JY+8=;
+        s=default; t=1574418971;
+        bh=HrZydUBmD092wPT0uKXS80UwIaoK0i9UKqcYugJM4+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nko4VtEj7yE4F/4+RpSv8MjjsiOITbk5yVfeiOInRP/gfk3w5UOOoJQ0vQzqIGILP
-         l8CtrR6KJ8vYGPwVCMDuFBNx5TmirKZLqveLi2XiHqOEOTrTdN7MZfsqgJxhFBSW+W
-         3phNMIbskS4RMLLETomaurbq3IAIMrfNypO+Qx4s=
+        b=IKrRC6aeNtOlR5/WcZs931+IhpC+4vQUq4OILFwSEGcioNpCHJIqNGzfsjKHL9Eil
+         gr1Dj5oGGsCUv5kxHxAXRCQ7Ub7UOjUpi0qac9GDeNZW6d133Qa+SHBM6juz0jy1qz
+         et375ZHBqUXG7Hgku2bNdLUdytcgW/5/V/nrAYgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Salil Mehta <salil.mehta@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Matthew Whitehead <tedheadster@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@amacapital.net>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        Jia Zhang <qianyue.zj@alibaba-inc.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 014/122] net: hns3: Fix for netdev not up problem when setting mtu
-Date:   Fri, 22 Nov 2019 11:27:47 +0100
-Message-Id: <20191122100732.628613980@linuxfoundation.org>
+Subject: [PATCH 4.4 077/159] x86/CPU: Use correct macros for Cyrix calls
+Date:   Fri, 22 Nov 2019 11:27:48 +0100
+Message-Id: <20191122100800.482085842@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Matthew Whitehead <tedheadster@gmail.com>
 
-[ Upstream commit 93d8daf460183871a965dae339839d9e35d44309 ]
+[ Upstream commit 03b099bdcdf7125d4a63dc9ddeefdd454e05123d ]
 
-Currently hns3_nic_change_mtu will try to down the netdev before
-setting mtu, and it does not up the netdev when the setting fails,
-which causes netdev not up problem.
+There are comments in processor-cyrix.h advising you to _not_ make calls
+using the deprecated macros in this style:
 
-This patch fixes it by not returning when the setting fails.
+  setCx86_old(CX86_CCR4, getCx86_old(CX86_CCR4) | 0x80);
 
-Fixes: a8e8b7ff3517 ("net: hns3: Add support to change MTU in HNS3 hardware")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Salil Mehta <salil.mehta@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is because it expands the macro into a non-functioning calling
+sequence. The calling order must be:
+
+  outb(CX86_CCR2, 0x22);
+  inb(0x23);
+
+>From the comments:
+
+ * When using the old macros a line like
+ *   setCx86(CX86_CCR2, getCx86(CX86_CCR2) | 0x88);
+ * gets expanded to:
+ *  do {
+ *    outb((CX86_CCR2), 0x22);
+ *    outb((({
+ *        outb((CX86_CCR2), 0x22);
+ *        inb(0x23);
+ *    }) | 0x88), 0x23);
+ *  } while (0);
+
+The new macros fix this problem, so use them instead.
+
+Signed-off-by: Matthew Whitehead <tedheadster@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Andy Lutomirski <luto@amacapital.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jia Zhang <qianyue.zj@alibaba-inc.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20180921212041.13096-2-tedheadster@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/x86/kernel/cpu/cyrix.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c
-index 69726908e72c4..5483cb23c08a3 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hns3_enet.c
-@@ -1307,13 +1307,11 @@ static int hns3_nic_change_mtu(struct net_device *netdev, int new_mtu)
- 	}
- 
- 	ret = h->ae_algo->ops->set_mtu(h, new_mtu);
--	if (ret) {
-+	if (ret)
- 		netdev_err(netdev, "failed to change MTU in hardware %d\n",
- 			   ret);
--		return ret;
--	}
--
--	netdev->mtu = new_mtu;
-+	else
-+		netdev->mtu = new_mtu;
- 
- 	/* if the netdev was running earlier, bring it up again */
- 	if (if_running && hns3_nic_net_open(netdev))
+diff --git a/arch/x86/kernel/cpu/cyrix.c b/arch/x86/kernel/cpu/cyrix.c
+index 6e4e4191abb56..151625a83d9e2 100644
+--- a/arch/x86/kernel/cpu/cyrix.c
++++ b/arch/x86/kernel/cpu/cyrix.c
+@@ -433,7 +433,7 @@ static void cyrix_identify(struct cpuinfo_x86 *c)
+ 			/* enable MAPEN  */
+ 			setCx86(CX86_CCR3, (ccr3 & 0x0f) | 0x10);
+ 			/* enable cpuid  */
+-			setCx86_old(CX86_CCR4, getCx86_old(CX86_CCR4) | 0x80);
++			setCx86(CX86_CCR4, getCx86(CX86_CCR4) | 0x80);
+ 			/* disable MAPEN */
+ 			setCx86(CX86_CCR3, ccr3);
+ 			local_irq_restore(flags);
 -- 
 2.20.1
 
