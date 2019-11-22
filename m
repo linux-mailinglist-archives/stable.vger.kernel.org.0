@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFCC8106BD6
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:47:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 952DC106AB6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:37:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729798AbfKVKrn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:47:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
+        id S1727105AbfKVKhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:37:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:38798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729344AbfKVKrm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:47:42 -0500
+        id S1727961AbfKVKhW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:37:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2A2420718;
-        Fri, 22 Nov 2019 10:47:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A69A20656;
+        Fri, 22 Nov 2019 10:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419662;
-        bh=xI+skwa8kTa6/wPWYDcvAJcHAf1EsrACC8CuciHJb3o=;
+        s=default; t=1574419041;
+        bh=oSAhrCRzD2BWjJZwDHSujEj55xZunQv1Nx/ZyUztI+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z1NNes2xQhuqW1QT9n1gIuShYbJ1un5wu1p94odocme8NGPxtvrO+kMDfTNTzOeV7
-         /LhHaYcTea0FZr9AyIyqTEvzSxo8ctFD8UXs348b5wUEbjD3WA7najCw+RbI9DNyKG
-         FdPvDsGsyllPH9ySCSAyun92y7ePcBkQdH1KKmY8=
+        b=YTfmiQzKvUxSpRdt4X5oSW/vVRpuOuAOMtLq9txTVt0zAi5MoYtiUENAj5BreZU5e
+         dt6no2lnw2ntyFiU00CdYiz68GbHX1gr7ZsU/kJJ/BVbIHbiTQtdmXwoEte41FRYUP
+         uvN3VeLr2uKqSsX2ZYi1zxTTlh+XKg8SLzkaBTko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Lubomir Rintel <lkundrak@v3.sk>, x86@kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 189/222] i2c: brcmstb: Allow enabling the driver on DSL SoCs
+Subject: [PATCH 4.4 138/159] x86/olpc: Fix build error with CONFIG_MFD_CS5535=m
 Date:   Fri, 22 Nov 2019 11:28:49 +0100
-Message-Id: <20191122100915.943549862@linuxfoundation.org>
+Message-Id: <20191122100836.416013239@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit e1eba2ea54a2de0e4c58d87270d25706bb77b844 ]
+[ Upstream commit fa112cf1e8bc693d5a666b1c479a2859c8b6e0f1 ]
 
-ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
-same controller, make it possible to select the STB driver and update
-the Kconfig and help text a bit.
+When building a 32-bit config which has the above MFD item as module
+but OLPC_XO1_PM is enabled =y - which is bool, btw - the kernel fails
+building with:
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+  ld: arch/x86/platform/olpc/olpc-xo1-pm.o: in function `xo1_pm_remove':
+  /home/boris/kernel/linux/arch/x86/platform/olpc/olpc-xo1-pm.c:159: undefined reference to `mfd_cell_disable'
+  ld: arch/x86/platform/olpc/olpc-xo1-pm.o: in function `xo1_pm_probe':
+  /home/boris/kernel/linux/arch/x86/platform/olpc/olpc-xo1-pm.c:133: undefined reference to `mfd_cell_enable'
+  make: *** [Makefile:1030: vmlinux] Error 1
+
+Force MFD_CS5535 to y if OLPC_XO1_PM is enabled.
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Lubomir Rintel <lkundrak@v3.sk>
+Cc: x86@kernel.org
+Link: http://lkml.kernel.org/r/20181005131750.GA5366@zn.tnic
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ arch/x86/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index d252276feadf6..759c621a860a9 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -397,12 +397,13 @@ config I2C_BCM_KONA
- 	  If you do not need KONA I2C interface, say N.
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 53b429811aef0..1bee1c6a9891b 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -2526,8 +2526,7 @@ config OLPC
  
- config I2C_BRCMSTB
--	tristate "BRCM Settop I2C controller"
--	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
-+	tristate "BRCM Settop/DSL I2C controller"
-+	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_63XX || \
-+		   COMPILE_TEST
- 	default y
- 	help
- 	  If you say yes to this option, support will be included for the
--	  I2C interface on the Broadcom Settop SoCs.
-+	  I2C interface on the Broadcom Settop/DSL SoCs.
- 
- 	  If you do not need I2C interface, say N.
+ config OLPC_XO1_PM
+ 	bool "OLPC XO-1 Power Management"
+-	depends on OLPC && MFD_CS5535 && PM_SLEEP
+-	select MFD_CORE
++	depends on OLPC && MFD_CS5535=y && PM_SLEEP
+ 	---help---
+ 	  Add support for poweroff and suspend of the OLPC XO-1 laptop.
  
 -- 
 2.20.1
