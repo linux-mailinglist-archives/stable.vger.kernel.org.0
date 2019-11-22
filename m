@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 547C3106F4C
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAB2B106F4B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729788AbfKVKwz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:52:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36958 "EHLO mail.kernel.org"
+        id S1728090AbfKVKw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:52:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37056 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729644AbfKVKwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:52:55 -0500
+        id S1729818AbfKVKw6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:52:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B523E20656;
-        Fri, 22 Nov 2019 10:52:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECFAD2070E;
+        Fri, 22 Nov 2019 10:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419974;
-        bh=0PiJltGkCCUSn6b6SczZyBlHFzdXyCOaUGSaDBXebiQ=;
+        s=default; t=1574419977;
+        bh=mBWSYqzntZrRXyv64akBAkmmXnttEMUiQhS1mPu6nLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JKbOArdYNaq8ux98+UzR6+Ut4OcXw2ZzwFMIdwo4e8YO01XlQGQGURPgPoWAN3x+E
-         7X1ajjfBnfHIkGefYvYpCyp3vQjG6R+/zlLHPlFwVMsC20VMnaPFkcJnM2afUlL6fm
-         6GBbxdaYgL/rMMkYyw2SdfeRFayLVT262JYu0NAg=
+        b=nZWJpA5fLJg+GtToBs0HRMifwewvsnSGW5yDkykjB0fxx7XQ7vgAIOwPKCrlWu4zc
+         1v4GuG/puJqlzTvion3m+bfSmnPFnXF5vDVOszQKJwGnnfOzIdOiuBsQfvrtuoLqzc
+         CVcYqRcvO+FLoV7KCuGstCW1jdI5vVxVFWlglZU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joonyoung Shim <jy0922.shim@samsung.com>,
+        stable@vger.kernel.org,
         Marek Szyprowski <m.szyprowski@samsung.com>,
         Sylwester Nawrocki <snawrocki@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 070/122] clk: samsung: exynos5420: Define CLK_SECKEY gate clock only or Exynos5420
-Date:   Fri, 22 Nov 2019 11:28:43 +0100
-Message-Id: <20191122100811.381814171@linuxfoundation.org>
+Subject: [PATCH 4.14 071/122] clk: samsung: Use clk_hw API for calling clk framework from clk notifiers
+Date:   Fri, 22 Nov 2019 11:28:44 +0100
+Message-Id: <20191122100812.169654382@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
 References: <20191122100722.177052205@linuxfoundation.org>
@@ -45,44 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joonyoung Shim <jy0922.shim@samsung.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit d32dd2a1a0f80edad158c9a1ba5f47650d9504a0 ]
+[ Upstream commit 1da220e3a5d22fccda0bc8542997abc1d1741268 ]
 
-The bit of GATE_BUS_PERIS1 for CLK_SECKEY is just reserved on
-exynos5422/5800, not exynos5420. Define gate clk for exynos5420 to
-handle the bit only on exynos5420.
+clk_notifier_register() documentation states, that the provided notifier
+callbacks associated with the notifier must not re-enter into the clk
+framework by calling any top-level clk APIs. Fix this by replacing
+clk_get_rate() calls with clk_hw_get_rate(), which is safe in this
+context.
 
-Signed-off-by: Joonyoung Shim <jy0922.shim@samsung.com>
-[m.szyprow: rewrote commit subject]
 Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Sylwester Nawrocki <snawrocki@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-exynos5420.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/clk/samsung/clk-cpu.c | 6 +++---
+ drivers/clk/samsung/clk-cpu.h | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-exynos5420.c b/drivers/clk/samsung/clk-exynos5420.c
-index 500a55415e900..a882f7038bcec 100644
---- a/drivers/clk/samsung/clk-exynos5420.c
-+++ b/drivers/clk/samsung/clk-exynos5420.c
-@@ -633,6 +633,7 @@ static const struct samsung_div_clock exynos5420_div_clks[] __initconst = {
- };
+diff --git a/drivers/clk/samsung/clk-cpu.c b/drivers/clk/samsung/clk-cpu.c
+index 6686e8ba61f9f..82f023f29a61f 100644
+--- a/drivers/clk/samsung/clk-cpu.c
++++ b/drivers/clk/samsung/clk-cpu.c
+@@ -152,7 +152,7 @@ static int exynos_cpuclk_pre_rate_change(struct clk_notifier_data *ndata,
+ 			struct exynos_cpuclk *cpuclk, void __iomem *base)
+ {
+ 	const struct exynos_cpuclk_cfg_data *cfg_data = cpuclk->cfg;
+-	unsigned long alt_prate = clk_get_rate(cpuclk->alt_parent);
++	unsigned long alt_prate = clk_hw_get_rate(cpuclk->alt_parent);
+ 	unsigned long alt_div = 0, alt_div_mask = DIV_MASK;
+ 	unsigned long div0, div1 = 0, mux_reg;
+ 	unsigned long flags;
+@@ -280,7 +280,7 @@ static int exynos5433_cpuclk_pre_rate_change(struct clk_notifier_data *ndata,
+ 			struct exynos_cpuclk *cpuclk, void __iomem *base)
+ {
+ 	const struct exynos_cpuclk_cfg_data *cfg_data = cpuclk->cfg;
+-	unsigned long alt_prate = clk_get_rate(cpuclk->alt_parent);
++	unsigned long alt_prate = clk_hw_get_rate(cpuclk->alt_parent);
+ 	unsigned long alt_div = 0, alt_div_mask = DIV_MASK;
+ 	unsigned long div0, div1 = 0, mux_reg;
+ 	unsigned long flags;
+@@ -432,7 +432,7 @@ int __init exynos_register_cpu_clock(struct samsung_clk_provider *ctx,
+ 	else
+ 		cpuclk->clk_nb.notifier_call = exynos_cpuclk_notifier_cb;
  
- static const struct samsung_gate_clock exynos5420_gate_clks[] __initconst = {
-+	GATE(CLK_SECKEY, "seckey", "aclk66_psgen", GATE_BUS_PERIS1, 1, 0, 0),
- 	GATE(CLK_MAU_EPLL, "mau_epll", "mout_mau_epll_clk",
- 			SRC_MASK_TOP7, 20, CLK_SET_RATE_PARENT, 0),
- };
-@@ -1167,8 +1168,6 @@ static const struct samsung_gate_clock exynos5x_gate_clks[] __initconst = {
- 	GATE(CLK_TMU, "tmu", "aclk66_psgen", GATE_IP_PERIS, 21, 0, 0),
- 	GATE(CLK_TMU_GPU, "tmu_gpu", "aclk66_psgen", GATE_IP_PERIS, 22, 0, 0),
- 
--	GATE(CLK_SECKEY, "seckey", "aclk66_psgen", GATE_BUS_PERIS1, 1, 0, 0),
--
- 	/* GEN Block */
- 	GATE(CLK_ROTATOR, "rotator", "mout_user_aclk266", GATE_IP_GEN, 1, 0, 0),
- 	GATE(CLK_JPEG, "jpeg", "aclk300_jpeg", GATE_IP_GEN, 2, 0, 0),
+-	cpuclk->alt_parent = __clk_lookup(alt_parent);
++	cpuclk->alt_parent = __clk_get_hw(__clk_lookup(alt_parent));
+ 	if (!cpuclk->alt_parent) {
+ 		pr_err("%s: could not lookup alternate parent %s\n",
+ 				__func__, alt_parent);
+diff --git a/drivers/clk/samsung/clk-cpu.h b/drivers/clk/samsung/clk-cpu.h
+index d4b6b517fe1b4..bd38c6aa38970 100644
+--- a/drivers/clk/samsung/clk-cpu.h
++++ b/drivers/clk/samsung/clk-cpu.h
+@@ -49,7 +49,7 @@ struct exynos_cpuclk_cfg_data {
+  */
+ struct exynos_cpuclk {
+ 	struct clk_hw				hw;
+-	struct clk				*alt_parent;
++	struct clk_hw				*alt_parent;
+ 	void __iomem				*ctrl_base;
+ 	spinlock_t				*lock;
+ 	const struct exynos_cpuclk_cfg_data	*cfg;
 -- 
 2.20.1
 
