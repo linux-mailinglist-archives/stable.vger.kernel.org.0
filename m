@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 993FE10710E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6713106F7F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726716AbfKVLZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:25:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34306 "EHLO mail.kernel.org"
+        id S1729479AbfKVKvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:51:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727138AbfKVKfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:35:42 -0500
+        id S1729197AbfKVKvU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:51:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69F5B20656;
-        Fri, 22 Nov 2019 10:35:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 699592072E;
+        Fri, 22 Nov 2019 10:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418941;
-        bh=mrspe+mgrglRZ+D3kuEHu3waRfdkiGhHWKCwrtBFpzg=;
+        s=default; t=1574419879;
+        bh=HSeu81ZhvvwV6IqE4gBPPXBakWr3J/9nmvn+yNdGt48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=It8mmwaZFEpbEvsz8wR+DFl83nysC2wug0wlS/ZLP9SjyInaKH0dVjTU1RM//1pAj
-         RrW74YLxHgTAEZ9tY5LAVPAJY7IV53Ojqa//YE5X4CgXZJ6MIlcRp9GfJhJPuPoGt5
-         JKxBIesTyn2ZaDkvOYKsCaqOYXdPI0dgxKH3pOEE=
+        b=Wc1PFpCGAWrRK/gGtSEyd8y7kcVPN8ebGAgUmbws/8b7k+NDsQTl64J/dlUdMqveS
+         V+JvyueMHH8fb+lOBBDC3LSCrOPuutvLHLmYBq/un4/fLRNDp0xMjAml1izx9EPzHH
+         d9ISpVzN/dPXOk7iKRPkm1sutMak1vS82cpM1Ykw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        John Johansen <john.johansen@canonical.com>,
-        Seth Arnold <seth.arnold@canonical.com>
-Subject: [PATCH 4.4 103/159] apparmor: fix update the mtime of the profile file on replacement
+        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 041/122] powerpc/xive: Move a dereference below a NULL test
 Date:   Fri, 22 Nov 2019 11:28:14 +0100
-Message-Id: <20191122100822.307982733@linuxfoundation.org>
+Message-Id: <20191122100754.420452462@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,28 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: zhong jiang <zhongjiang@huawei.com>
 
-commit d671e890205a663429da74e1972e652bea4d73ab upstream.
+[ Upstream commit cd5ff94577e004e0a4457e70d0ef3a030f4010b8 ]
 
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Acked-by: Seth Arnold <seth.arnold@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Move the dereference of xc below the NULL test.
 
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/apparmorfs.c |    2 ++
- 1 file changed, 2 insertions(+)
+ arch/powerpc/sysdev/xive/common.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -380,6 +380,8 @@ void __aa_fs_profile_migrate_dents(struc
+diff --git a/arch/powerpc/sysdev/xive/common.c b/arch/powerpc/sysdev/xive/common.c
+index 818fc5351591c..110d8bb16ebbb 100644
+--- a/arch/powerpc/sysdev/xive/common.c
++++ b/arch/powerpc/sysdev/xive/common.c
+@@ -1008,12 +1008,13 @@ static void xive_ipi_eoi(struct irq_data *d)
+ {
+ 	struct xive_cpu *xc = __this_cpu_read(xive_cpu);
  
- 	for (i = 0; i < AAFS_PROF_SIZEOF; i++) {
- 		new->dents[i] = old->dents[i];
-+		if (new->dents[i])
-+			new->dents[i]->d_inode->i_mtime = CURRENT_TIME;
- 		old->dents[i] = NULL;
- 	}
+-	DBG_VERBOSE("IPI eoi: irq=%d [0x%lx] (HW IRQ 0x%x) pending=%02x\n",
+-		    d->irq, irqd_to_hwirq(d), xc->hw_ipi, xc->pending_prio);
+-
+ 	/* Handle possible race with unplug and drop stale IPIs */
+ 	if (!xc)
+ 		return;
++
++	DBG_VERBOSE("IPI eoi: irq=%d [0x%lx] (HW IRQ 0x%x) pending=%02x\n",
++		    d->irq, irqd_to_hwirq(d), xc->hw_ipi, xc->pending_prio);
++
+ 	xive_do_source_eoi(xc->hw_ipi, &xc->ipi_data);
+ 	xive_do_queue_eoi(xc);
  }
+-- 
+2.20.1
+
 
 
