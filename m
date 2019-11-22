@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D52BA106A20
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 481FB106B1B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:42:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726563AbfKVKcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:32:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52960 "EHLO mail.kernel.org"
+        id S1729002AbfKVKlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:41:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727547AbfKVKcD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:32:03 -0500
+        id S1729001AbfKVKlU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:41:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B85062077B;
-        Fri, 22 Nov 2019 10:32:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F5172071C;
+        Fri, 22 Nov 2019 10:41:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418722;
-        bh=/yiiXOWAr9PvapQdaj5ekwCQqFmwzeoTbzKcrhuHjvM=;
+        s=default; t=1574419279;
+        bh=t1Z6oANTD0sjrIAyHNoQs/W7em2+BiiEHXb/QECHPfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o7FTCVhM3YS3QD9HaW78/4MBqiD8H1wsSAdbdbK2AFmfdN4OyD/d9NgCldccIPosd
-         vhkZvL7qrUXB+IyXWOP/+kZG3Rp3tn3MTtdpa/WJRv0NWX08rrORUlBhF+fsR1d+CC
-         xywplSGxHYxdfloGUfy/o1jX2HB7bkwnuEACkCsY=
+        b=HEXSrVsEprEguygoJlF49mfxvwk99y9l6dhbDAygNhhzZXATLHX6X4xAxwYdQVDmD
+         FB0wOrqBTSzlXZzNdmmLwIWSt8eugh8XhpgQSXmtUTPSVSqAS8M10gX6o/YOiWYbAl
+         U3fO0Divdi5lGG8dwDRG9ka5ZVhfZPW6BjYNdjoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 4.4 006/159] ecryptfs_lookup_interpose(): lower_dentry->d_inode is not stable
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 057/222] ARM: imx6: register pm_power_off handler if "fsl,pmic-stby-poweroff" is set
 Date:   Fri, 22 Nov 2019 11:26:37 +0100
-Message-Id: <20191122100710.046390303@linuxfoundation.org>
+Message-Id: <20191122100857.218333102@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit e72b9dd6a5f17d0fb51f16f8685f3004361e83d0 upstream.
+[ Upstream commit 8148d2136002da2e2887caf6a07bbd9c033f14f3 ]
 
-lower_dentry can't go from positive to negative (we have it pinned),
-but it *can* go from negative to positive.  So fetching ->d_inode
-into a local variable, doing a blocking allocation, checking that
-now ->d_inode is non-NULL and feeding the value we'd fetched
-earlier to a function that won't accept NULL is not a good idea.
+One of the Freescale recommended sequences for power off with external
+PMIC is the following:
+...
+3.  SoC is programming PMIC for power off when standby is asserted.
+4.  In CCM STOP mode, Standby is asserted, PMIC gates SoC supplies.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+See:
+http://www.nxp.com/assets/documents/data/en/reference-manuals/IMX6DQRM.pdf
+page 5083
 
+This patch implements step 4. of this sequence.
+
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ecryptfs/inode.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/arm/mach-imx/pm-imx6.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
---- a/fs/ecryptfs/inode.c
-+++ b/fs/ecryptfs/inode.c
-@@ -330,7 +330,7 @@ static int ecryptfs_lookup_interpose(str
- 				     struct dentry *lower_dentry,
- 				     struct inode *dir_inode)
- {
--	struct inode *inode, *lower_inode = d_inode(lower_dentry);
-+	struct inode *inode, *lower_inode;
- 	struct ecryptfs_dentry_info *dentry_info;
- 	struct vfsmount *lower_mnt;
- 	int rc = 0;
-@@ -352,7 +352,15 @@ static int ecryptfs_lookup_interpose(str
- 	dentry_info->lower_path.mnt = lower_mnt;
- 	dentry_info->lower_path.dentry = lower_dentry;
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index 1515e498d348c..dd9eb3f14f45c 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -602,6 +602,28 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
+ 				   IMX6Q_GPR1_GINT);
+ }
  
--	if (d_really_is_negative(lower_dentry)) {
-+	/*
-+	 * negative dentry can go positive under us here - its parent is not
-+	 * locked.  That's OK and that could happen just as we return from
-+	 * ecryptfs_lookup() anyway.  Just need to be careful and fetch
-+	 * ->d_inode only once - it's not stable here.
-+	 */
-+	lower_inode = READ_ONCE(lower_dentry->d_inode);
++static void imx6_pm_stby_poweroff(void)
++{
++	imx6_set_lpm(STOP_POWER_OFF);
++	imx6q_suspend_finish(0);
 +
-+	if (!lower_inode) {
- 		/* We want to add because we couldn't find in lower */
- 		d_add(dentry, NULL);
- 		return 0;
++	mdelay(1000);
++
++	pr_emerg("Unable to poweroff system\n");
++}
++
++static int imx6_pm_stby_poweroff_probe(void)
++{
++	if (pm_power_off) {
++		pr_warn("%s: pm_power_off already claimed  %p %pf!\n",
++			__func__, pm_power_off, pm_power_off);
++		return -EBUSY;
++	}
++
++	pm_power_off = imx6_pm_stby_poweroff;
++	return 0;
++}
++
+ void __init imx6_pm_ccm_init(const char *ccm_compat)
+ {
+ 	struct device_node *np;
+@@ -618,6 +640,9 @@ void __init imx6_pm_ccm_init(const char *ccm_compat)
+ 	val = readl_relaxed(ccm_base + CLPCR);
+ 	val &= ~BM_CLPCR_LPM;
+ 	writel_relaxed(val, ccm_base + CLPCR);
++
++	if (of_property_read_bool(np, "fsl,pmic-stby-poweroff"))
++		imx6_pm_stby_poweroff_probe();
+ }
+ 
+ void __init imx6q_pm_init(void)
+-- 
+2.20.1
+
 
 
