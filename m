@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9EF3106DE8
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9397106F32
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730564AbfKVLEW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:04:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59178 "EHLO mail.kernel.org"
+        id S1729339AbfKVKyD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:54:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731537AbfKVLET (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:04:19 -0500
+        id S1728150AbfKVKyC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:54:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14B312084D;
-        Fri, 22 Nov 2019 11:04:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA87B20637;
+        Fri, 22 Nov 2019 10:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420658;
-        bh=I/hN7bioODU5zQWOx0AH4pWxYq6n0Y2wxs/LWEPYvns=;
+        s=default; t=1574420042;
+        bh=julWjBlCYWiwOVW4slF5Jvmglxdu1fcIEx8uEPF98IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VGFUsbn6um+wiAWUkZRkD4+oMTE5q9aH9wpIsGmkFr4kusgfJvfpIfw7o0Ms0I2Fv
-         hSriu/7/35Pq2DEh5X2MLo/W6U69h1DryfwsDBHlON/mosEa449V/kS45Lo0TsE8Lb
-         8vbgeCOy/3a66Oe2yJt7kIoKO0qnipS6Old93S/c=
+        b=G3OpU3ReBoLvsDOemUwwimUaajs03Uu247EjmFwXD5fdW4brWJKFPwprx4UpRugh6
+         OtFs+fJoQn6Epk6xgjRZErdNx2o8ik7LCnQWe+nF7qzxqd/m1kJoqx+fJ9+T7iSR99
+         /Ldz7k3wUH2HH/KZuKhJNZgLhNKpF2dGV5xL0X6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@cnexlabs.com>,
-        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/220] lightnvm: pblk: guarantee mw_cunits on read buffer
-Date:   Fri, 22 Nov 2019 11:29:08 +0100
-Message-Id: <20191122100927.433258602@linuxfoundation.org>
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 096/122] backlight: lm3639: Unconditionally call led_classdev_unregister
+Date:   Fri, 22 Nov 2019 11:29:09 +0100
+Message-Id: <20191122100830.383590435@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javier González <javier@javigon.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit d672d92d9c433c365fd6cdb4da1c02562b5f1178 ]
+[ Upstream commit 7cea645ae9c5a54aa7904fddb2cdf250acd63a6c ]
 
-OCSSD 2.0 defines the amount of data that the host must buffer per chunk
-to guarantee reads through the geometry field mw_cunits. This value is
-the base that pblk uses to determine the size of its read buffer.
-Currently, this size is set to be the closes power-of-2 to mw_cunits
-times the number of parallel units available to the pblk instance for
-each open line (currently one). When an entry (4KB) is put in the
-buffer, the L2P table points to it. As the buffer wraps up, the L2P is
-updated to point to addresses on the device, thus guaranteeing mw_cunits
-at a chunk level.
+Clang warns that the address of a pointer will always evaluated as true
+in a boolean context.
 
-However, given that pblk cannot write to the device under ws_min
-(normally ws_opt), there might be a window in which the buffer starts
-wrapping up and updating L2P entries before the mw_cunits value in a
-chunk has been surpassed.
+drivers/video/backlight/lm3639_bl.c:403:14: warning: address of
+'pchip->cdev_torch' will always evaluate to 'true'
+[-Wpointer-bool-conversion]
+        if (&pchip->cdev_torch)
+        ~~   ~~~~~~~^~~~~~~~~~
+drivers/video/backlight/lm3639_bl.c:405:14: warning: address of
+'pchip->cdev_flash' will always evaluate to 'true'
+[-Wpointer-bool-conversion]
+        if (&pchip->cdev_flash)
+        ~~   ~~~~~~~^~~~~~~~~~
+2 warnings generated.
 
-In order not to violate the mw_cunits constrain in this case, account
-for ws_opt on the read buffer creation.
+These statements have been present since 2012, introduced by
+commit 0f59858d5119 ("backlight: add new lm3639 backlight
+driver"). Given that they have been called unconditionally since
+then presumably without any issues, removing the always true if
+statements to fix the warnings without any real world changes.
 
-Signed-off-by: Javier González <javier@cnexlabs.com>
-Signed-off-by: Matias Bjørling <mb@lightnvm.io>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://github.com/ClangBuiltLinux/linux/issues/119
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/lightnvm/pblk-init.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/video/backlight/lm3639_bl.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/lightnvm/pblk-init.c b/drivers/lightnvm/pblk-init.c
-index 145922589b0c6..dc32274881b2f 100644
---- a/drivers/lightnvm/pblk-init.c
-+++ b/drivers/lightnvm/pblk-init.c
-@@ -181,7 +181,8 @@ static int pblk_rwb_init(struct pblk *pblk)
- 	unsigned int power_size, power_seg_sz;
- 	int pgs_in_buffer;
+diff --git a/drivers/video/backlight/lm3639_bl.c b/drivers/video/backlight/lm3639_bl.c
+index cd50df5807ead..086611c7bc03c 100644
+--- a/drivers/video/backlight/lm3639_bl.c
++++ b/drivers/video/backlight/lm3639_bl.c
+@@ -400,10 +400,8 @@ static int lm3639_remove(struct i2c_client *client)
  
--	pgs_in_buffer = max(geo->mw_cunits, geo->ws_opt) * geo->all_luns;
-+	pgs_in_buffer = (max(geo->mw_cunits, geo->ws_opt) + geo->ws_opt)
-+								* geo->all_luns;
+ 	regmap_write(pchip->regmap, REG_ENABLE, 0x00);
  
- 	if (write_buffer_size && (write_buffer_size > pgs_in_buffer))
- 		buffer_size = write_buffer_size;
+-	if (&pchip->cdev_torch)
+-		led_classdev_unregister(&pchip->cdev_torch);
+-	if (&pchip->cdev_flash)
+-		led_classdev_unregister(&pchip->cdev_flash);
++	led_classdev_unregister(&pchip->cdev_torch);
++	led_classdev_unregister(&pchip->cdev_flash);
+ 	if (pchip->bled)
+ 		device_remove_file(&(pchip->bled->dev), &dev_attr_bled_mode);
+ 	return 0;
 -- 
 2.20.1
 
