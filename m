@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 277BF10625C
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 463E910625A
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:03:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727767AbfKVGD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:03:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42082 "EHLO mail.kernel.org"
+        id S1727219AbfKVGDW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:03:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729859AbfKVGDI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:03:08 -0500
+        id S1729860AbfKVGDJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:03:09 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2E702068E;
-        Fri, 22 Nov 2019 06:03:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11D7C2070A;
+        Fri, 22 Nov 2019 06:03:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402587;
-        bh=XKvP91xaYDgsGCqTwJbf8sn1B9eY8HzqLn3yToE3lcQ=;
+        s=default; t=1574402588;
+        bh=yA/ALcMI77WBmSZhAk6X8hHB8Qj7j6gisXQdnHK9arI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CuYeOcwUaXo2T4LOwB+DAVCcxDdxZDWy8nXs/wEaDHpQ7F0VeJMi711tL3NiHw9+d
-         9doEwepQg/Rwcfy8vNW1pjqZURC5y+mdcxQRngMBnTB63munexv1q3AqRU5+ZC6qOH
-         plrVR4IQFobe6OAUqDlfN+eevQ8DuyqCEf7rRsMM=
+        b=BToK4S4pFgQRtSbj7InDolPFaaOnOI2HtcPyBtxuo7ULI6aD19FV5dWWCqp1AiHTI
+         3zWO3uup7X6Z7zNpd8WBX8Z3IgnZ39CPcQpUOPzUsqVqgd6rZaf4w9dpwFXjcve7xG
+         Bs2USGeT1JX+kTjds/Zjn15TuIJ9+GDMkz9Ixbg0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     James Morse <james.morse@arm.com>, Borislav Petkov <bp@suse.de>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 88/91] ACPI / APEI: Switch estatus pool to use vmalloc memory
-Date:   Fri, 22 Nov 2019 01:01:26 -0500
-Message-Id: <20191122060129.4239-87-sashal@kernel.org>
+Cc:     John Garry <john.garry@huawei.com>, Jian Luo <luojian5@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 89/91] scsi: libsas: Check SMP PHY control function result
+Date:   Fri, 22 Nov 2019 01:01:27 -0500
+Message-Id: <20191122060129.4239-88-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -43,91 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 0ac234be1a9497498e57d958f4251f5257b116b4 ]
+[ Upstream commit 01929a65dfa13e18d89264ab1378854a91857e59 ]
 
-The ghes code is careful to parse and round firmware's advertised
-memory requirements for CPER records, up to a maximum of 64K.
-However when ghes_estatus_pool_expand() does its work, it splits
-the requested size into PAGE_SIZE granules.
+Currently the SMP PHY control execution result is checked, however the
+function result for the command is not.
 
-This means if firmware generates 5K of CPER records, and correctly
-describes this in the table, __process_error() will silently fail as it
-is unable to allocate more than PAGE_SIZE.
+As such, we may be missing all potential errors, like SMP FUNCTION FAILED,
+INVALID REQUEST FRAME LENGTH, etc., meaning the PHY control request has
+failed.
 
-Switch the estatus pool to vmalloc() memory. On x86 vmalloc() memory
-may fault and be fixed up by vmalloc_fault(). To prevent this call
-vmalloc_sync_all() before an NMI handler could discover the memory.
+In some scenarios we need to ensure the function result is accepted, so add
+a check for this.
 
-Signed-off-by: James Morse <james.morse@arm.com>
-Reviewed-by: Borislav Petkov <bp@suse.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Tested-by: Jian Luo <luojian5@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/apei/ghes.c | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/scsi/libsas/sas_expander.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/apei/ghes.c b/drivers/acpi/apei/ghes.c
-index 0375c60240621..a6e3c8dc2be4e 100644
---- a/drivers/acpi/apei/ghes.c
-+++ b/drivers/acpi/apei/ghes.c
-@@ -203,40 +203,40 @@ static int ghes_estatus_pool_init(void)
- 	return 0;
- }
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index ba16231665a5e..091af5c1cf50f 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -603,7 +603,14 @@ int sas_smp_phy_control(struct domain_device *dev, int phy_id,
+ 	}
  
--static void ghes_estatus_pool_free_chunk_page(struct gen_pool *pool,
-+static void ghes_estatus_pool_free_chunk(struct gen_pool *pool,
- 					      struct gen_pool_chunk *chunk,
- 					      void *data)
- {
--	free_page(chunk->start_addr);
-+	vfree((void *)chunk->start_addr);
- }
- 
- static void ghes_estatus_pool_exit(void)
- {
- 	gen_pool_for_each_chunk(ghes_estatus_pool,
--				ghes_estatus_pool_free_chunk_page, NULL);
-+				ghes_estatus_pool_free_chunk, NULL);
- 	gen_pool_destroy(ghes_estatus_pool);
- }
- 
- static int ghes_estatus_pool_expand(unsigned long len)
- {
--	unsigned long i, pages, size, addr;
--	int ret;
-+	unsigned long size, addr;
- 
- 	ghes_estatus_pool_size_request += PAGE_ALIGN(len);
- 	size = gen_pool_size(ghes_estatus_pool);
- 	if (size >= ghes_estatus_pool_size_request)
- 		return 0;
--	pages = (ghes_estatus_pool_size_request - size) / PAGE_SIZE;
--	for (i = 0; i < pages; i++) {
--		addr = __get_free_page(GFP_KERNEL);
--		if (!addr)
--			return -ENOMEM;
--		ret = gen_pool_add(ghes_estatus_pool, addr, PAGE_SIZE, -1);
--		if (ret)
--			return ret;
--	}
- 
--	return 0;
-+	addr = (unsigned long)vmalloc(PAGE_ALIGN(len));
-+	if (!addr)
-+		return -ENOMEM;
-+
-+	/*
-+	 * New allocation must be visible in all pgd before it can be found by
-+	 * an NMI allocating from the pool.
-+	 */
-+	vmalloc_sync_all();
-+
-+	return gen_pool_add(ghes_estatus_pool, addr, PAGE_ALIGN(len), -1);
- }
- 
- static struct ghes *ghes_new(struct acpi_hest_generic *generic)
+ 	res = smp_execute_task(dev, pc_req, PC_REQ_SIZE, pc_resp,PC_RESP_SIZE);
+-
++	if (res) {
++		pr_err("ex %016llx phy%02d PHY control failed: %d\n",
++		       SAS_ADDR(dev->sas_addr), phy_id, res);
++	} else if (pc_resp[2] != SMP_RESP_FUNC_ACC) {
++		pr_err("ex %016llx phy%02d PHY control failed: function result 0x%x\n",
++		       SAS_ADDR(dev->sas_addr), phy_id, pc_resp[2]);
++		res = pc_resp[2];
++	}
+ 	kfree(pc_resp);
+ 	kfree(pc_req);
+ 	return res;
 -- 
 2.20.1
 
