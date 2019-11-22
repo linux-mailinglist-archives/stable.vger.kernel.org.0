@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 114A7106B94
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:45:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 276D4106A7C
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:35:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727566AbfKVKpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:45:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52264 "EHLO mail.kernel.org"
+        id S1727833AbfKVKfT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:35:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729521AbfKVKpm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:45:42 -0500
+        id S1727747AbfKVKfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:35:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45D6C20718;
-        Fri, 22 Nov 2019 10:45:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4D1520708;
+        Fri, 22 Nov 2019 10:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419541;
-        bh=1cb9MWqtHS9XKZYwGFko2caVYbppdnjIrOxi/cdSZbo=;
+        s=default; t=1574418918;
+        bh=3PvQFrDSNvxXT8aqxDPH2197sp+KfURArbLR4QgM/34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AlT73KSCUU0uQ+DVZKeUGHMHdAL1++rZ17VLt5agtA+RrvkWedBmosFBu/x4n+nK3
-         tCAAPpiZX3nm5/erbY7zPUWtDHfeBhj7RjfibUrGS62HuFr98o7C3/arv9teQ2MNtd
-         qadOrjxmzkqnF/L6gS0uDwbp/Sa6vKAcfxvqdseo=
+        b=J+TBBCCSsmZ84UujW/giNSG/XhgUpgrtXFVkvY5VcS/csnUcFpeDqcDzc6oJzV/6r
+         PfiyMYyaeZn+cLZ+RgKRNAP6YlGQBql+ClWPgVpYUNcbLB4/8Vm/INfpqC0s8+CYl+
+         u9j4xjVMXw1pv+swvoZ5KEpE2/J+2XUX0/vTbpnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 4.9 146/222] memfd: Use radix_tree_deref_slot_protected to avoid the warning.
-Date:   Fri, 22 Nov 2019 11:28:06 +0100
-Message-Id: <20191122100913.339562558@linuxfoundation.org>
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Ralph Siemsen <ralph.siemsen@linaro.org>
+Subject: [PATCH 4.4 096/159] Bluetooth: hci_ldisc: Fix null pointer derefence in case of early data
+Date:   Fri, 22 Nov 2019 11:28:07 +0100
+Message-Id: <20191122100816.692418047@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Loic Poulain <loic.poulain@intel.com>
 
-The commit 3ce6b467b9b2 ("memfd: Fix locking when tagging pins")
-introduces the following warning messages.
+commit 84cb3df02aea4b00405521e67c4c67c2d525c364 upstream.
 
-*WARNING: suspicious RCU usage in memfd_wait_for_pins*
+HCI_UART_PROTO_SET flag is set before hci_uart_set_proto call. If we
+receive data from tty layer during this procedure, proto pointer may
+not be assigned yet, leading to null pointer dereference in rx method
+hci_uart_tty_receive.
 
-It is because we still use radix_tree_deref_slot without read_rcu_lock.
-We should use radix_tree_deref_slot_protected instead in the case.
+This patch fixes this issue by introducing HCI_UART_PROTO_READY flag in
+order to avoid any proto operation before proto opening and assignment.
 
-Cc: stable@vger.kernel.org
-Fixes: 3ce6b467b9b2 ("memfd: Fix locking when tagging pins")
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Loic Poulain <loic.poulain@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: Ralph Siemsen <ralph.siemsen@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/shmem.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2464,7 +2464,7 @@ static void shmem_tag_pins(struct addres
+---
+ drivers/bluetooth/hci_ldisc.c |   11 +++++++----
+ drivers/bluetooth/hci_uart.h  |    1 +
+ 2 files changed, 8 insertions(+), 4 deletions(-)
+
+--- a/drivers/bluetooth/hci_ldisc.c
++++ b/drivers/bluetooth/hci_ldisc.c
+@@ -227,7 +227,7 @@ static int hci_uart_flush(struct hci_dev
+ 	tty_ldisc_flush(tty);
+ 	tty_driver_flush_buffer(tty);
  
- 	spin_lock_irq(&mapping->tree_lock);
- 	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
--		page = radix_tree_deref_slot(slot);
-+		page = radix_tree_deref_slot_protected(slot, &mapping->tree_lock);
- 		if (!page || radix_tree_exception(page)) {
- 			if (radix_tree_deref_retry(page)) {
- 				slot = radix_tree_iter_retry(&iter);
+-	if (test_bit(HCI_UART_PROTO_SET, &hu->flags))
++	if (test_bit(HCI_UART_PROTO_READY, &hu->flags))
+ 		hu->proto->flush(hu);
+ 
+ 	return 0;
+@@ -506,7 +506,7 @@ static void hci_uart_tty_close(struct tt
+ 
+ 	cancel_work_sync(&hu->write_work);
+ 
+-	if (test_and_clear_bit(HCI_UART_PROTO_SET, &hu->flags)) {
++	if (test_and_clear_bit(HCI_UART_PROTO_READY, &hu->flags)) {
+ 		if (hdev) {
+ 			if (test_bit(HCI_UART_REGISTERED, &hu->flags))
+ 				hci_unregister_dev(hdev);
+@@ -514,6 +514,7 @@ static void hci_uart_tty_close(struct tt
+ 		}
+ 		hu->proto->close(hu);
+ 	}
++	clear_bit(HCI_UART_PROTO_SET, &hu->flags);
+ 
+ 	kfree(hu);
+ }
+@@ -540,7 +541,7 @@ static void hci_uart_tty_wakeup(struct t
+ 	if (tty != hu->tty)
+ 		return;
+ 
+-	if (test_bit(HCI_UART_PROTO_SET, &hu->flags))
++	if (test_bit(HCI_UART_PROTO_READY, &hu->flags))
+ 		hci_uart_tx_wakeup(hu);
+ }
+ 
+@@ -564,7 +565,7 @@ static void hci_uart_tty_receive(struct
+ 	if (!hu || tty != hu->tty)
+ 		return;
+ 
+-	if (!test_bit(HCI_UART_PROTO_SET, &hu->flags))
++	if (!test_bit(HCI_UART_PROTO_READY, &hu->flags))
+ 		return;
+ 
+ 	/* It does not need a lock here as it is already protected by a mutex in
+@@ -652,9 +653,11 @@ static int hci_uart_set_proto(struct hci
+ 		return err;
+ 
+ 	hu->proto = p;
++	set_bit(HCI_UART_PROTO_READY, &hu->flags);
+ 
+ 	err = hci_uart_register_dev(hu);
+ 	if (err) {
++		clear_bit(HCI_UART_PROTO_READY, &hu->flags);
+ 		p->close(hu);
+ 		return err;
+ 	}
+--- a/drivers/bluetooth/hci_uart.h
++++ b/drivers/bluetooth/hci_uart.h
+@@ -94,6 +94,7 @@ struct hci_uart {
+ /* HCI_UART proto flag bits */
+ #define HCI_UART_PROTO_SET	0
+ #define HCI_UART_REGISTERED	1
++#define HCI_UART_PROTO_READY	2
+ 
+ /* TX states  */
+ #define HCI_UART_SENDING	1
 
 
