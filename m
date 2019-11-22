@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC71106E3D
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D9B106E27
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731789AbfKVLF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:05:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33802 "EHLO mail.kernel.org"
+        id S1731882AbfKVLGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:06:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730559AbfKVLF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:05:56 -0500
+        id S1730849AbfKVLGe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:06:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A254E2075E;
-        Fri, 22 Nov 2019 11:05:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4DA022084D;
+        Fri, 22 Nov 2019 11:06:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420756;
-        bh=Yk0BthtfhCwG5HdWsol18bF1E9VmSioqlac3A/a++5w=;
+        s=default; t=1574420793;
+        bh=Pa9IDB6Fd3A8IIm+kJX6e40chC4y0g1zGgVAP5mCn/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Py1K5Pvo0lzKf2Xb+REbt0aQd/glp2O0hk/TfKKsmgLdA3NozDfh9bmJi8pKwvq2y
-         i15YzNoUD6ggGsSseM6mfQL0Iqlxh7p9cz9MRF3dGu9HuULUTrgLfx3coBnF3G+6qw
-         r8AHKkfENjHyqMU/teTMKr7zxWiOdiLzZ4mZCCuc=
+        b=Ze4zpUtLQh2JhXVaGTkLe6LO7ibn7hRu30PpP+MwzYTha/k9G+zBy5GArSw7gYZbU
+         v8xyr2o8BceFQB7dMdrDqPr/UXBxZQO3ITvRfYc7RiUGka4GryCPwZovNQ4eq6WlyC
+         NSn+n9Aw5C0W+ReR8NK5NBbJnz9Wz0A31zlUMwxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Roger Quadros <rogerq@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Yuchung Cheng <ycheng@google.com>,
+        Wei Wang <weiwan@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Soheil Hassas Yeganeh <soheil@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 213/220] ARM: dts: omap5: Fix dual-role mode on Super-Speed port
-Date:   Fri, 22 Nov 2019 11:29:38 +0100
-Message-Id: <20191122100928.991365476@linuxfoundation.org>
+Subject: [PATCH 4.19 214/220] tcp: start receiver buffer autotuning sooner
+Date:   Fri, 22 Nov 2019 11:29:39 +0100
+Message-Id: <20191122100929.050374562@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
 References: <20191122100912.732983531@linuxfoundation.org>
@@ -45,37 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Quadros <rogerq@ti.com>
+From: Yuchung Cheng <ycheng@google.com>
 
-[ Upstream commit a763ecc15d0e37c3a15ff6825183061209832685 ]
+[ Upstream commit 041a14d2671573611ffd6412bc16e2f64469f7fb ]
 
-OMAP5's Super-Speed USB port has a software mailbox register
-that needs to be fed with VBUS and ID events from an external
-VBUS/ID comparator.
+Previously receiver buffer auto-tuning starts after receiving
+one advertised window amount of data. After the initial receiver
+buffer was raised by patch a337531b942b ("tcp: up initial rmem to
+128KB and SYN rwin to around 64KB"), the reciver buffer may take
+too long to start raising. To address this issue, this patch lowers
+the initial bytes expected to receive roughly the expected sender's
+initial window.
 
-Without this, Host role will not work correctly.
-
-Fixes: 656c1a65ab55 ("ARM: dts: omap5: enable OTG role for DWC3 controller")
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Roger Quadros <rogerq@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: a337531b942b ("tcp: up initial rmem to 128KB and SYN rwin to around 64KB")
+Signed-off-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: Wei Wang <weiwan@google.com>
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Soheil Hassas Yeganeh <soheil@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap5-board-common.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/tcp_input.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
-index c2dc4199b4ec2..61a06f6add3ca 100644
---- a/arch/arm/boot/dts/omap5-board-common.dtsi
-+++ b/arch/arm/boot/dts/omap5-board-common.dtsi
-@@ -704,6 +704,7 @@
- };
+diff --git a/net/ipv4/tcp_input.c b/net/ipv4/tcp_input.c
+index 0e2b07be08585..57e8dad956ec4 100644
+--- a/net/ipv4/tcp_input.c
++++ b/net/ipv4/tcp_input.c
+@@ -438,7 +438,7 @@ void tcp_init_buffer_space(struct sock *sk)
+ 	if (!(sk->sk_userlocks & SOCK_SNDBUF_LOCK))
+ 		tcp_sndbuf_expand(sk);
  
- &dwc3 {
-+	extcon = <&extcon_usb3>;
- 	dr_mode = "otg";
- };
- 
+-	tp->rcvq_space.space = tp->rcv_wnd;
++	tp->rcvq_space.space = min_t(u32, tp->rcv_wnd, TCP_INIT_CWND * tp->advmss);
+ 	tcp_mstamp_refresh(tp);
+ 	tp->rcvq_space.time = tp->tcp_mstamp;
+ 	tp->rcvq_space.seq = tp->copied_seq;
 -- 
 2.20.1
 
