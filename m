@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8ED106AB4
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:37:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFCC8106BD6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728517AbfKVKhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:37:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38644 "EHLO mail.kernel.org"
+        id S1729798AbfKVKrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:47:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728006AbfKVKhS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:37:18 -0500
+        id S1729344AbfKVKrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:47:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBEF820656;
-        Fri, 22 Nov 2019 10:37:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2A2420718;
+        Fri, 22 Nov 2019 10:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419038;
-        bh=fI/sHNHGSc0l4/Uf78vJqDg2ySHPHwPPg75JGYqJpZw=;
+        s=default; t=1574419662;
+        bh=xI+skwa8kTa6/wPWYDcvAJcHAf1EsrACC8CuciHJb3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZvaXT+g5/WilqxL53OqkBoii6s64w+q/i+h9wsx4r2YiRFlzu2utae8vYAqH+G5y
-         iOanGqgNDNDSTmgoHZYHyYYavldiLBfOEKS0Fvl5cwcb9fFCxAOdI0auj4x+MgzAxC
-         UxW7vsTOQ7NFphQkGpRwMMPQ3yN/WuVCmAtIEMi8=
+        b=Z1NNes2xQhuqW1QT9n1gIuShYbJ1un5wu1p94odocme8NGPxtvrO+kMDfTNTzOeV7
+         /LhHaYcTea0FZr9AyIyqTEvzSxo8ctFD8UXs348b5wUEbjD3WA7najCw+RbI9DNyKG
+         FdPvDsGsyllPH9ySCSAyun92y7ePcBkQdH1KKmY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Kepplinger <martink@posteo.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 137/159] Input: st1232 - set INPUT_PROP_DIRECT property
-Date:   Fri, 22 Nov 2019 11:28:48 +0100
-Message-Id: <20191122100836.203593565@linuxfoundation.org>
+Subject: [PATCH 4.9 189/222] i2c: brcmstb: Allow enabling the driver on DSL SoCs
+Date:   Fri, 22 Nov 2019 11:28:49 +0100
+Message-Id: <20191122100915.943549862@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Kepplinger <martink@posteo.de>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 20bbb312079494a406c10c90932e3c80837c9d94 ]
+[ Upstream commit e1eba2ea54a2de0e4c58d87270d25706bb77b844 ]
 
-This is how userspace checks for touchscreen devices most reliably.
+ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
+same controller, make it possible to select the STB driver and update
+the Kconfig and help text a bit.
 
-Signed-off-by: Martin Kepplinger <martink@posteo.de>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/st1232.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/Kconfig | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index e943678ce54cd..f1c574d6be17f 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -203,6 +203,7 @@ static int st1232_ts_probe(struct i2c_client *client,
- 	input_dev->id.bustype = BUS_I2C;
- 	input_dev->dev.parent = &client->dev;
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index d252276feadf6..759c621a860a9 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -397,12 +397,13 @@ config I2C_BCM_KONA
+ 	  If you do not need KONA I2C interface, say N.
  
-+	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
- 	__set_bit(EV_SYN, input_dev->evbit);
- 	__set_bit(EV_KEY, input_dev->evbit);
- 	__set_bit(EV_ABS, input_dev->evbit);
+ config I2C_BRCMSTB
+-	tristate "BRCM Settop I2C controller"
+-	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
++	tristate "BRCM Settop/DSL I2C controller"
++	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_63XX || \
++		   COMPILE_TEST
+ 	default y
+ 	help
+ 	  If you say yes to this option, support will be included for the
+-	  I2C interface on the Broadcom Settop SoCs.
++	  I2C interface on the Broadcom Settop/DSL SoCs.
+ 
+ 	  If you do not need I2C interface, say N.
+ 
 -- 
 2.20.1
 
