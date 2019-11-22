@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D250A106CB7
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:55:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B470D106C0E
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:50:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729769AbfKVKyS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:54:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39686 "EHLO mail.kernel.org"
+        id S1729675AbfKVKt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:49:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729306AbfKVKyR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:54:17 -0500
+        id S1729465AbfKVKt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCCA02071F;
-        Fri, 22 Nov 2019 10:54:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A64DD20715;
+        Fri, 22 Nov 2019 10:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420057;
-        bh=xkffcVnzZep407UHCvdiZ/+ZuoK++P160a1VYGYgzwo=;
+        s=default; t=1574419768;
+        bh=5sAEPQ6C3izdvVEkVcjaWep+k5AXbl+VHCVHCcYnFlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xI6F6MosOtQ54ddglgtfJLjLEp4bCA5UF2gCYPlb3i90EnW4De0x2IVULFSFAUpQe
-         0bvL+ymvZZ+5YGu9kSrmZIftsufns+NMbAJBI2cRsUjJLyjxqneCEibu/Yd2gNsh8l
-         qcWgcAq99pzUp+gFNMkyPESzNm3M+XKa0kw5p2lg=
+        b=u2ySOzWCDGdn48wLbs5gUr/LFv+kzVSS/B98rgkYpz7JOij5EM+/BbkQzZh2OGQi+
+         uba64VZvwqIyZCwMzjrHK8nhL9kAmBU6mbAGd2NvLF/ADrXKmjksDZTWw1JRKAl35i
+         XQQ4CnraA+exje9eDPkg+qH6gnoQov/GE/etTsUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Mike Marshall <hubcap@omnibond.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/122] media: cx231xx: fix potential sign-extension overflow on large shift
-Date:   Fri, 22 Nov 2019 11:29:14 +0100
-Message-Id: <20191122100831.513095593@linuxfoundation.org>
+Subject: [PATCH 4.9 215/222] orangefs: rate limit the client not running info message
+Date:   Fri, 22 Nov 2019 11:29:15 +0100
+Message-Id: <20191122100918.003934371@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +46,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 32ae592036d7aeaabcccb2b1715373a68639a768 ]
+[ Upstream commit 2978d873471005577e7b68a528b4f256a529b030 ]
 
-Shifting the u8 value[3] by an int can lead to sign-extension
-overflow. For example, if value[3] is 0xff and the shift is 24 then it
-is promoted to int and then the top bit is sign-extended so that all
-upper 32 bits are set.  Fix this by casting value[3] to a u32 before
-the shift.
+Currently accessing various /sys/fs/orangefs files will spam the
+kernel log with the following info message when the client is not
+running:
 
-Detected by CoverityScan, CID#1016522 ("Unintended sign extension")
+[  491.489284] sysfs_service_op_show: Client not running :-5:
 
-Fixes: e0d3bafd0258 ("V4L/DVB (10954): Add cx231xx USB driver")
+Rate limit this info message to make it less spammy.
 
 Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/cx231xx/cx231xx-video.c | 2 +-
+ fs/orangefs/orangefs-sysfs.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/cx231xx/cx231xx-video.c b/drivers/media/usb/cx231xx/cx231xx-video.c
-index 179b8481a870d..fd33c2e9327da 100644
---- a/drivers/media/usb/cx231xx/cx231xx-video.c
-+++ b/drivers/media/usb/cx231xx/cx231xx-video.c
-@@ -1389,7 +1389,7 @@ int cx231xx_g_register(struct file *file, void *priv,
- 		ret = cx231xx_read_ctrl_reg(dev, VRT_GET_REGISTER,
- 				(u16)reg->reg, value, 4);
- 		reg->val = value[0] | value[1] << 8 |
--			value[2] << 16 | value[3] << 24;
-+			value[2] << 16 | (u32)value[3] << 24;
- 		reg->size = 4;
- 		break;
- 	case 1:	/* AFE - read byte */
+diff --git a/fs/orangefs/orangefs-sysfs.c b/fs/orangefs/orangefs-sysfs.c
+index a799546a67f77..f6172c3f83ba0 100644
+--- a/fs/orangefs/orangefs-sysfs.c
++++ b/fs/orangefs/orangefs-sysfs.c
+@@ -315,7 +315,7 @@ static ssize_t sysfs_service_op_show(struct kobject *kobj,
+ 	/* Can't do a service_operation if the client is not running... */
+ 	rc = is_daemon_in_service();
+ 	if (rc) {
+-		pr_info("%s: Client not running :%d:\n",
++		pr_info_ratelimited("%s: Client not running :%d:\n",
+ 			__func__,
+ 			is_daemon_in_service());
+ 		goto out;
 -- 
 2.20.1
 
