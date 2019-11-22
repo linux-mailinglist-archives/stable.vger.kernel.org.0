@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 181FC106CBC
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:56:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B9B3106C13
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:50:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730162AbfKVKy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:54:29 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40068 "EHLO mail.kernel.org"
+        id S1730039AbfKVKti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:49:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730329AbfKVKy3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:54:29 -0500
+        id S1729540AbfKVKth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D529D20715;
-        Fri, 22 Nov 2019 10:54:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92E5220656;
+        Fri, 22 Nov 2019 10:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420068;
-        bh=FxbYPhvLR8fg0DHgSH8WQhAhiiLiSwo6/aH4Zs4YwwI=;
+        s=default; t=1574419777;
+        bh=7jmaLZ+hrUZZxUmiRO0qSUqbgKSq96bs8xMAOPC8FKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pgcl0zGBKtscdasSB9l483qCkrKW9K2rOEkn/Zku8Ix2WElDBhCde0opJmZlI8WkS
-         NahKfqsfUhEHyh7pVFOZ0RXOc+BX7NC+M1twtEV/dmOz7yrFzGCe8Bk4TjWAK4aDNl
-         RdwOFJfCtoOOCbv7Sf8JbW5U+P8dZknaZJu9N3qA=
+        b=bdTi89NqkiiSO05QW91383OXPpk9LOW7ltU+54j8NSbmeP22y5FzDIwFQ0cjbnXbL
+         7KxGq7rYMHB8rICze2/qgy+Y9qbCBbD1p+BsT5m8pXa7tCCuBCl7D/LdIbG1bXE1Gu
+         A70kdfAg/8YBsfDyzaLk4+Ioo4kU1eXfn/ULGaNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hieu Tran Dang <dangtranhieu2012@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
+        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
+        Frederic Barrat <fbarrat@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 104/122] spi: fsl-lpspi: Prevent FIFO under/overrun by default
-Date:   Fri, 22 Nov 2019 11:29:17 +0100
-Message-Id: <20191122100832.065445789@linuxfoundation.org>
+Subject: [PATCH 4.9 218/222] misc: cxl: Fix possible null pointer dereference
+Date:   Fri, 22 Nov 2019 11:29:18 +0100
+Message-Id: <20191122100918.319643938@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hieu Tran Dang <dangtranhieu2012@gmail.com>
+From: zhong jiang <zhongjiang@huawei.com>
 
-[ Upstream commit de8978c388c66b8fca192213ec9f0727e964c652 ]
+[ Upstream commit 3dac3583bf1a61db6aaf31dfd752c677a4400afd ]
 
-Certain devices don't work well when a transmit FIFO underrun or
-receive FIFO overrun occurs. Example is the SAF400x radio chip when
-running at high speed which leads to garbage being sent to/received from
-the chip. In which case, it should stall waiting for further data to be
-available before proceeding. This patch unset the NOSTALL bit in CFGR1
-by default to prevent this issue.
+It is not safe to dereference an object before a null test. It is
+not needed and just remove them. Ftrace can be used instead.
 
-Signed-off-by: Hieu Tran Dang <dangtranhieu2012@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: zhong jiang <zhongjiang@huawei.com>
+Acked-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
+Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-fsl-lpspi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/cxl/guest.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/spi/spi-fsl-lpspi.c b/drivers/spi/spi-fsl-lpspi.c
-index cb3c73007ca15..8fe51f7541bb3 100644
---- a/drivers/spi/spi-fsl-lpspi.c
-+++ b/drivers/spi/spi-fsl-lpspi.c
-@@ -287,7 +287,7 @@ static int fsl_lpspi_config(struct fsl_lpspi_data *fsl_lpspi)
+diff --git a/drivers/misc/cxl/guest.c b/drivers/misc/cxl/guest.c
+index 3e102cd6ed914..d08509cd978a4 100644
+--- a/drivers/misc/cxl/guest.c
++++ b/drivers/misc/cxl/guest.c
+@@ -1026,8 +1026,6 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
  
- 	fsl_lpspi_set_watermark(fsl_lpspi);
+ void cxl_guest_remove_afu(struct cxl_afu *afu)
+ {
+-	pr_devel("in %s - AFU(%d)\n", __func__, afu->slice);
+-
+ 	if (!afu)
+ 		return;
  
--	temp = CFGR1_PCSCFG | CFGR1_MASTER | CFGR1_NOSTALL;
-+	temp = CFGR1_PCSCFG | CFGR1_MASTER;
- 	if (fsl_lpspi->config.mode & SPI_CS_HIGH)
- 		temp |= CFGR1_PCSPOL;
- 	writel(temp, fsl_lpspi->base + IMX7ULP_CFGR1);
 -- 
 2.20.1
 
