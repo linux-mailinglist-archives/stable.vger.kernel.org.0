@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9D1107079
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:22:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F96A107145
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:27:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727793AbfKVKm6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:42:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48432 "EHLO mail.kernel.org"
+        id S1727699AbfKVKcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:32:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729167AbfKVKm6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:42:58 -0500
+        id S1727667AbfKVKcb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:32:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D6E1B20637;
-        Fri, 22 Nov 2019 10:42:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1341420721;
+        Fri, 22 Nov 2019 10:32:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419377;
-        bh=uNuL2SlXQPCd2xQq6qydXDinsZiQ5RcmM24s08p/bDM=;
+        s=default; t=1574418750;
+        bh=bEMiRdC2DTv+ADXauOoOV3CvMlfZpHZO/onVhiyscok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TVD8MD5Q7mO6mQTGsqnlESU/UsJyJ91K2tXBgivmYYvwSUswyxPYeoRpjCA4qEAl8
-         HIJKBKPjVsYd8TRDGcoGMAhz0D2NtnYg5ElXNZ3kwgdqgJOJthY4rD2RMUZ0MVEcXG
-         ih0H/YpB5XShhjDWl0/8w+mFULm4/GW6VFfQDOyg=
+        b=0aKpLLmUP7qjgT1XaFa+ZZ/Dy12gcuagTN2IpUP2IOUDgTh7tMRSlNj+vaxZc2TQI
+         Ynczl8TmtVfkwkpHx92gorXTOViewSpC4SkI11UJ2p7Bb2Ej1CVDOLfZ5HHCGBkoni
+         sYZVCAcQQkTsyyyWbzUCcPMKE2+dkMxo+z7newX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 091/222] net: xilinx: fix return type of ndo_start_xmit function
+Subject: [PATCH 4.4 040/159] ARM: imx6: register pm_power_off handler if "fsl,pmic-stby-poweroff" is set
 Date:   Fri, 22 Nov 2019 11:27:11 +0100
-Message-Id: <20191122100910.090140408@linuxfoundation.org>
+Message-Id: <20191122100734.987439692@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,89 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-[ Upstream commit 81255af8d9d5565004792c295dde49344df450ca ]
+[ Upstream commit 8148d2136002da2e2887caf6a07bbd9c033f14f3 ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+One of the Freescale recommended sequences for power off with external
+PMIC is the following:
+...
+3.  SoC is programming PMIC for power off when standby is asserted.
+4.  In CCM STOP mode, Standby is asserted, PMIC gates SoC supplies.
 
-Found by coccinelle.
+See:
+http://www.nxp.com/assets/documents/data/en/reference-manuals/IMX6DQRM.pdf
+page 5083
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This patch implements step 4. of this sequence.
+
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/ll_temac_main.c       | 3 ++-
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 3 ++-
- drivers/net/ethernet/xilinx/xilinx_emaclite.c     | 9 +++++----
- 3 files changed, 9 insertions(+), 6 deletions(-)
+ arch/arm/mach-imx/pm-imx6.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
-index a9bd665fd1225..545f60877bb7d 100644
---- a/drivers/net/ethernet/xilinx/ll_temac_main.c
-+++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
-@@ -673,7 +673,8 @@ static inline int temac_check_tx_bd_space(struct temac_local *lp, int num_frag)
- 	return 0;
+diff --git a/arch/arm/mach-imx/pm-imx6.c b/arch/arm/mach-imx/pm-imx6.c
+index a19d20f23e716..fff529c5f9b36 100644
+--- a/arch/arm/mach-imx/pm-imx6.c
++++ b/arch/arm/mach-imx/pm-imx6.c
+@@ -602,6 +602,28 @@ static void __init imx6_pm_common_init(const struct imx6_pm_socdata
+ 				   IMX6Q_GPR1_GINT);
  }
  
--static int temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
-+static netdev_tx_t
-+temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++static void imx6_pm_stby_poweroff(void)
++{
++	imx6_set_lpm(STOP_POWER_OFF);
++	imx6q_suspend_finish(0);
++
++	mdelay(1000);
++
++	pr_emerg("Unable to poweroff system\n");
++}
++
++static int imx6_pm_stby_poweroff_probe(void)
++{
++	if (pm_power_off) {
++		pr_warn("%s: pm_power_off already claimed  %p %pf!\n",
++			__func__, pm_power_off, pm_power_off);
++		return -EBUSY;
++	}
++
++	pm_power_off = imx6_pm_stby_poweroff;
++	return 0;
++}
++
+ void __init imx6_pm_ccm_init(const char *ccm_compat)
  {
- 	struct temac_local *lp = netdev_priv(ndev);
- 	struct cdmac_bd *cur_p;
-diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 5f21ddff9e0f9..46fcf3ec2caf7 100644
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -655,7 +655,8 @@ static inline int axienet_check_tx_bd_space(struct axienet_local *lp,
-  * start the transmission. Additionally if checksum offloading is supported,
-  * it populates AXI Stream Control fields with appropriate values.
-  */
--static int axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
-+static netdev_tx_t
-+axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- {
- 	u32 ii;
- 	u32 num_frag;
-diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-index aa02a03a6d8db..034b36442ee75 100644
---- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
-@@ -1005,9 +1005,10 @@ static int xemaclite_close(struct net_device *dev)
-  * deferred and the Tx queue is stopped so that the deferred socket buffer can
-  * be transmitted when the Emaclite device is free to transmit data.
-  *
-- * Return:	0, always.
-+ * Return:	NETDEV_TX_OK, always.
-  */
--static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
-+static netdev_tx_t
-+xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
- {
- 	struct net_local *lp = netdev_priv(dev);
- 	struct sk_buff *new_skb;
-@@ -1028,7 +1029,7 @@ static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
- 		/* Take the time stamp now, since we can't do this in an ISR. */
- 		skb_tx_timestamp(new_skb);
- 		spin_unlock_irqrestore(&lp->reset_lock, flags);
--		return 0;
-+		return NETDEV_TX_OK;
- 	}
- 	spin_unlock_irqrestore(&lp->reset_lock, flags);
- 
-@@ -1037,7 +1038,7 @@ static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
- 	dev->stats.tx_bytes += len;
- 	dev_consume_skb_any(new_skb);
- 
--	return 0;
-+	return NETDEV_TX_OK;
+ 	struct device_node *np;
+@@ -618,6 +640,9 @@ void __init imx6_pm_ccm_init(const char *ccm_compat)
+ 	val = readl_relaxed(ccm_base + CLPCR);
+ 	val &= ~BM_CLPCR_LPM;
+ 	writel_relaxed(val, ccm_base + CLPCR);
++
++	if (of_property_read_bool(np, "fsl,pmic-stby-poweroff"))
++		imx6_pm_stby_poweroff_probe();
  }
  
- /**
+ void __init imx6q_pm_init(void)
 -- 
 2.20.1
 
