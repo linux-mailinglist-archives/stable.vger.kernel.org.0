@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BDC3106A69
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:34:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11CEC106B83
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:45:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727394AbfKVKei (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:34:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59458 "EHLO mail.kernel.org"
+        id S1728091AbfKVKpE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:45:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727367AbfKVKei (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:34:38 -0500
+        id S1728502AbfKVKpD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:45:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2904320715;
-        Fri, 22 Nov 2019 10:34:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47D40205C9;
+        Fri, 22 Nov 2019 10:45:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418876;
-        bh=cWDR+bK9eieHFdL6aHLtdxeVnto+yzXb3nykupc4aDc=;
+        s=default; t=1574419502;
+        bh=pdvAvsejs+m9ghYz4ndlfv1HwItb8YLYK5+SNO/7GAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dPmCWz8oOle2Ez7lXBlTFuVLGJWfQDQQ1Si20UDivtZCz4u2HtlWhUtYUAAooo0PV
-         uYb/WyF+Xcg9gvI9spnyh+GU4Jz/Qb8zSvzLTE5reE0LdRF0sokXa4RNExwizj/Kyb
-         mqReHCOFtCiy9HgS2TaaDxcma8XTcKSup17xX7Xs=
+        b=zIyCncF7ajdCwHzKGMCwQonsVpIQUaa5HV9AdNP47YAmEueAvzX4MQY+VaF+GNX37
+         zKfEERBUapG90lrIWhQCVaufHKEfd+Nh3cYCD3l/xHcL/fCREK1zOaIbBtM3E4zAwu
+         XPCIizj9rRSb9nhtqzgFjZeF89n+z5YFLPD5MaAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Paul Elder <paul.elder@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>,
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Ondrey Zary <linux@rainbow-software.org>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 083/159] usb: gadget: uvc: Factor out video USB request queueing
+Subject: [PATCH 4.9 134/222] scsi: NCR5380: Clear all unissued commands on host reset
 Date:   Fri, 22 Nov 2019 11:27:54 +0100
-Message-Id: <20191122100805.666703358@linuxfoundation.org>
+Message-Id: <20191122100912.598230520@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,85 +47,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+From: Hannes Reinecke <hare@suse.com>
 
-[ Upstream commit 9d1ff5dcb3cd3390b1e56f1c24ae42c72257c4a3 ]
+[ Upstream commit 1aeeeed7f03c576f096eede7b0384f99a98f588c ]
 
-USB requests for video data are queued from two different locations in
-the driver, with the same code block occurring twice. Factor it out to a
-function.
+When doing a host reset we should be clearing all outstanding commands, not
+just the command triggering the reset.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
-Tested-by: Paul Elder <paul.elder@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
+[mkp: adjusted Hannes' SoB address]
+
+Signed-off-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Cc: Ondrey Zary <linux@rainbow-software.org>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/uvc_video.c | 30 ++++++++++++++++---------
- 1 file changed, 20 insertions(+), 10 deletions(-)
+ drivers/scsi/NCR5380.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
-index 0f01c04d7cbd8..540917f54506a 100644
---- a/drivers/usb/gadget/function/uvc_video.c
-+++ b/drivers/usb/gadget/function/uvc_video.c
-@@ -129,6 +129,19 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
-  * Request handling
-  */
+diff --git a/drivers/scsi/NCR5380.c b/drivers/scsi/NCR5380.c
+index 3cfab8868c989..ba7b3aef3ef0b 100644
+--- a/drivers/scsi/NCR5380.c
++++ b/drivers/scsi/NCR5380.c
+@@ -2392,7 +2392,7 @@ static int NCR5380_bus_reset(struct scsi_cmnd *cmd)
+ 	spin_lock_irqsave(&hostdata->lock, flags);
  
-+static int uvcg_video_ep_queue(struct uvc_video *video, struct usb_request *req)
-+{
-+	int ret;
-+
-+	ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
-+	if (ret < 0) {
-+		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
-+		usb_ep_set_halt(video->ep);
-+	}
-+
-+	return ret;
-+}
-+
- /*
-  * I somehow feel that synchronisation won't be easy to achieve here. We have
-  * three events that control USB requests submission:
-@@ -193,14 +206,13 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
+ #if (NDEBUG & NDEBUG_ANY)
+-	scmd_printk(KERN_INFO, cmd, __func__);
++	shost_printk(KERN_INFO, instance, __func__);
+ #endif
+ 	NCR5380_dprint(NDEBUG_ANY, instance);
+ 	NCR5380_dprint_phase(NDEBUG_ANY, instance);
+@@ -2410,10 +2410,13 @@ static int NCR5380_bus_reset(struct scsi_cmnd *cmd)
+ 	 * commands!
+ 	 */
  
- 	video->encode(req, video, buf);
- 
--	if ((ret = usb_ep_queue(ep, req, GFP_ATOMIC)) < 0) {
--		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
--		usb_ep_set_halt(ep);
--		spin_unlock_irqrestore(&video->queue.irqlock, flags);
-+	ret = uvcg_video_ep_queue(video, req);
-+	spin_unlock_irqrestore(&video->queue.irqlock, flags);
+-	if (list_del_cmd(&hostdata->unissued, cmd)) {
++	list_for_each_entry(ncmd, &hostdata->unissued, list) {
++		struct scsi_cmnd *cmd = NCR5380_to_scmd(ncmd);
 +
-+	if (ret < 0) {
- 		uvcg_queue_cancel(queue, 0);
- 		goto requeue;
+ 		cmd->result = DID_RESET << 16;
+ 		cmd->scsi_done(cmd);
  	}
--	spin_unlock_irqrestore(&video->queue.irqlock, flags);
++	INIT_LIST_HEAD(&hostdata->unissued);
  
- 	return;
- 
-@@ -320,15 +332,13 @@ int uvcg_video_pump(struct uvc_video *video)
- 		video->encode(req, video, buf);
- 
- 		/* Queue the USB request */
--		ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
-+		ret = uvcg_video_ep_queue(video, req);
-+		spin_unlock_irqrestore(&queue->irqlock, flags);
-+
- 		if (ret < 0) {
--			printk(KERN_INFO "Failed to queue request (%d)\n", ret);
--			usb_ep_set_halt(video->ep);
--			spin_unlock_irqrestore(&queue->irqlock, flags);
- 			uvcg_queue_cancel(queue, 0);
- 			break;
- 		}
--		spin_unlock_irqrestore(&queue->irqlock, flags);
- 	}
- 
- 	spin_lock_irqsave(&video->req_lock, flags);
+ 	if (hostdata->selecting) {
+ 		hostdata->selecting->result = DID_RESET << 16;
 -- 
 2.20.1
 
