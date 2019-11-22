@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DF5106E88
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:09:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C83A106F4A
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727146AbfKVLJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:09:20 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57518 "EHLO mail.kernel.org"
+        id S1728696AbfKVKxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:53:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729992AbfKVLDX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:03:23 -0500
+        id S1728194AbfKVKxD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:53:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F28E02073F;
-        Fri, 22 Nov 2019 11:03:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0C6E20656;
+        Fri, 22 Nov 2019 10:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420602;
-        bh=8xNOoACWH3K2CUyjJCpoBhrHykxp+H3DVrmXt4ZVvNI=;
+        s=default; t=1574419983;
+        bh=KaHnPYN5/MPj2GtvUEXYozLLZvWi2VlSLe56OZ+ZlJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQDkejTbjVfTrYTjrfrQE8dhubSeHZsZPr9d+MuOsqgB4EAuMlf4oNi5Mw/Yeu2Br
-         Sl3TL/50vdgw0L/kXdd6MgZQMWBfWNDa2gkvT2SZmB1HvKQICCiqI8twzNPkMxoJgE
-         4jI5ccILoilLmnCOc1OFcWZVrR6JujOj9MSHPibY=
+        b=VnWuiKCJb7NUHn2z46PBchomxWdMMUBFdyzuOS4M7sB80EpDtANB4U+odz98kTPH4
+         UElSYAh9/RuI4ocG2+XwT6SYJ9sD7tXE8jOjsRmOjrRTOyoWR/zb25rb2pro6Rp3Nf
+         zp0QEVOfYjWLPg8XWVM2Zg/tWXIwPFdOM/YPlUGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 161/220] media: cx18: Dont check for address of video_dev
+Subject: [PATCH 4.14 073/122] NFSv4.x: fix lock recovery during delegation recall
 Date:   Fri, 22 Nov 2019 11:28:46 +0100
-Message-Id: <20191122100924.323286385@linuxfoundation.org>
+Message-Id: <20191122100814.434207446@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit eb1ca9a428fdc3f98be4898f6cd8bcb803878619 ]
+[ Upstream commit 44f411c353bf6d98d5a34f8f1b8605d43b2e50b8 ]
 
-Clang warns that the address of a pointer will always evaluated as true
-in a boolean context.
+Running "./nfstest_delegation --runtest recall26" uncovers that
+client doesn't recover the lock when we have an appending open,
+where the initial open got a write delegation.
 
-drivers/media/pci/cx18/cx18-driver.c:1255:23: warning: address of
-'cx->streams[i].video_dev' will always evaluate to 'true'
-[-Wpointer-bool-conversion]
-                if (&cx->streams[i].video_dev)
-                ~~   ~~~~~~~~~~~~~~~^~~~~~~~~
-1 warning generated.
+Instead of checking for the passed in open context against
+the file lock's open context. Check that the state is the same.
 
-Check whether v4l2_dev is null, not the address, so that the statement
-doesn't fire all the time. This check has been present since 2009,
-introduced by commit 21a278b85d3c ("V4L/DVB (11619): cx18: Simplify the
-work handler for outgoing mailbox commands")
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/cx18/cx18-driver.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/delegation.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/pci/cx18/cx18-driver.c b/drivers/media/pci/cx18/cx18-driver.c
-index 0c389a3fb4e5f..e64f9093cd6d3 100644
---- a/drivers/media/pci/cx18/cx18-driver.c
-+++ b/drivers/media/pci/cx18/cx18-driver.c
-@@ -1252,7 +1252,7 @@ static void cx18_cancel_out_work_orders(struct cx18 *cx)
- {
- 	int i;
- 	for (i = 0; i < CX18_MAX_STREAMS; i++)
--		if (&cx->streams[i].video_dev)
-+		if (cx->streams[i].video_dev.v4l2_dev)
- 			cancel_work_sync(&cx->streams[i].out_work_order);
+diff --git a/fs/nfs/delegation.c b/fs/nfs/delegation.c
+index 61bc0a6ba08b1..04d57e11577e0 100644
+--- a/fs/nfs/delegation.c
++++ b/fs/nfs/delegation.c
+@@ -101,7 +101,7 @@ int nfs4_check_delegation(struct inode *inode, fmode_t flags)
+ 	return nfs4_do_check_delegation(inode, flags, false);
  }
  
+-static int nfs_delegation_claim_locks(struct nfs_open_context *ctx, struct nfs4_state *state, const nfs4_stateid *stateid)
++static int nfs_delegation_claim_locks(struct nfs4_state *state, const nfs4_stateid *stateid)
+ {
+ 	struct inode *inode = state->inode;
+ 	struct file_lock *fl;
+@@ -116,7 +116,7 @@ static int nfs_delegation_claim_locks(struct nfs_open_context *ctx, struct nfs4_
+ 	spin_lock(&flctx->flc_lock);
+ restart:
+ 	list_for_each_entry(fl, list, fl_list) {
+-		if (nfs_file_open_context(fl->fl_file) != ctx)
++		if (nfs_file_open_context(fl->fl_file)->state != state)
+ 			continue;
+ 		spin_unlock(&flctx->flc_lock);
+ 		status = nfs4_lock_delegation_recall(fl, state, stateid);
+@@ -163,7 +163,7 @@ static int nfs_delegation_claim_opens(struct inode *inode,
+ 		seq = raw_seqcount_begin(&sp->so_reclaim_seqcount);
+ 		err = nfs4_open_delegation_recall(ctx, state, stateid, type);
+ 		if (!err)
+-			err = nfs_delegation_claim_locks(ctx, state, stateid);
++			err = nfs_delegation_claim_locks(state, stateid);
+ 		if (!err && read_seqcount_retry(&sp->so_reclaim_seqcount, seq))
+ 			err = -EAGAIN;
+ 		mutex_unlock(&sp->so_delegreturn_mutex);
 -- 
 2.20.1
 
