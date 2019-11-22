@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEDC3106A57
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:34:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79BD2106D6B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:00:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727301AbfKVKeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:34:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57702 "EHLO mail.kernel.org"
+        id S1730503AbfKVK77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:59:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728025AbfKVKd7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:33:59 -0500
+        id S1728201AbfKVK76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:59:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 058AC20708;
-        Fri, 22 Nov 2019 10:33:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C26820721;
+        Fri, 22 Nov 2019 10:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418838;
-        bh=ni71MLyzBp4qGD+CQpM45gvt8cp3Xgd0N9OQp3oizTI=;
+        s=default; t=1574420397;
+        bh=B2KYIyJoPWeC/UNCnJwJ0lmKqBLfynwxhRwcJ6I1OCA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WQzVPwughiDOgR0Pw9BYT4+n83jVCobpEIq7gdMK6BscIKyyvzNRtyMeP91cBMwSK
-         faV5VDR4tiAhwa4eVnY8ZBJIIrphCFOCONn9zFjpqubh5nJvjStAJSQWlH1UNfDcpV
-         L61jF1Kve+2dcIJ3E9Xeh2jsAgiDPAS9gt4Rp1T4=
+        b=tQwN/+eViaqTndfaYBqpwYSMORPV7EH4HQ1JqKOyfXky+YsYwNG0kogksEn7UkeZn
+         h7FbF3Kkj+OkuEQbLs9AppYFoIpbF/Dset5obQbG+OUNJfX5eIeOAdohPDCL7R12DV
+         NpaRwCSfERp/Ahb0RNXQcDAYil5E+y+gYOiJo78A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Bob Moore <robert.moore@intel.com>,
+        Erik Schmauss <erik.schmauss@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 067/159] net: broadcom: fix return type of ndo_start_xmit function
+Subject: [PATCH 4.19 093/220] ACPICA: Never run _REG on system_memory and system_IO
 Date:   Fri, 22 Nov 2019 11:27:38 +0100
-Message-Id: <20191122100755.326456105@linuxfoundation.org>
+Message-Id: <20191122100919.368561070@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +45,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Bob Moore <robert.moore@intel.com>
 
-[ Upstream commit 0c13b8d1aee87c35a2fbc1d85a1f766227cf54b5 ]
+[ Upstream commit 8b1cafdcb4b75c5027c52f1e82b47ebe727ad7ed ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+These address spaces are defined by the ACPI spec to be
+"always available", and thus _REG should never be run on them.
+Provides compatibility with other ACPI implementations.
 
-Found by coccinelle.
-
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bcm63xx_enet.c | 5 +++--
- drivers/net/ethernet/broadcom/sb1250-mac.c   | 4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/acpi/acpica/acevents.h |  2 ++
+ drivers/acpi/acpica/aclocal.h  |  2 +-
+ drivers/acpi/acpica/evregion.c | 17 +++++++++++++++--
+ drivers/acpi/acpica/evrgnini.c |  6 +-----
+ drivers/acpi/acpica/evxfregn.c |  1 -
+ 5 files changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bcm63xx_enet.c b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-index ec5834087e4b4..c01ab06863b3d 100644
---- a/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-+++ b/drivers/net/ethernet/broadcom/bcm63xx_enet.c
-@@ -571,12 +571,13 @@ static irqreturn_t bcm_enet_isr_dma(int irq, void *dev_id)
+diff --git a/drivers/acpi/acpica/acevents.h b/drivers/acpi/acpica/acevents.h
+index 298180bf7e3c1..bfcc68b9f708d 100644
+--- a/drivers/acpi/acpica/acevents.h
++++ b/drivers/acpi/acpica/acevents.h
+@@ -230,6 +230,8 @@ acpi_ev_default_region_setup(acpi_handle handle,
+ 
+ acpi_status acpi_ev_initialize_region(union acpi_operand_object *region_obj);
+ 
++u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node);
++
  /*
-  * tx request callback
+  * evsci - SCI (System Control Interrupt) handling/dispatch
   */
--static int bcm_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t
-+bcm_enet_start_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct bcm_enet_priv *priv;
- 	struct bcm_enet_desc *desc;
- 	u32 len_stat;
--	int ret;
-+	netdev_tx_t ret;
+diff --git a/drivers/acpi/acpica/aclocal.h b/drivers/acpi/acpica/aclocal.h
+index 0f28a38a43ea1..99b0da8991098 100644
+--- a/drivers/acpi/acpica/aclocal.h
++++ b/drivers/acpi/acpica/aclocal.h
+@@ -395,9 +395,9 @@ struct acpi_simple_repair_info {
+ /* Info for running the _REG methods */
  
- 	priv = netdev_priv(dev);
+ struct acpi_reg_walk_info {
+-	acpi_adr_space_type space_id;
+ 	u32 function;
+ 	u32 reg_run_count;
++	acpi_adr_space_type space_id;
+ };
  
-diff --git a/drivers/net/ethernet/broadcom/sb1250-mac.c b/drivers/net/ethernet/broadcom/sb1250-mac.c
-index f557a2aaec231..73a7c8a504702 100644
---- a/drivers/net/ethernet/broadcom/sb1250-mac.c
-+++ b/drivers/net/ethernet/broadcom/sb1250-mac.c
-@@ -300,7 +300,7 @@ static enum sbmac_state sbmac_set_channel_state(struct sbmac_softc *,
- static void sbmac_promiscuous_mode(struct sbmac_softc *sc, int onoff);
- static uint64_t sbmac_addr2reg(unsigned char *ptr);
- static irqreturn_t sbmac_intr(int irq, void *dev_instance);
--static int sbmac_start_tx(struct sk_buff *skb, struct net_device *dev);
-+static netdev_tx_t sbmac_start_tx(struct sk_buff *skb, struct net_device *dev);
- static void sbmac_setmulti(struct sbmac_softc *sc);
- static int sbmac_init(struct platform_device *pldev, long long base);
- static int sbmac_set_speed(struct sbmac_softc *s, enum sbmac_speed speed);
-@@ -2033,7 +2033,7 @@ static irqreturn_t sbmac_intr(int irq,void *dev_instance)
-  *  Return value:
-  *  	   nothing
-  ********************************************************************* */
--static int sbmac_start_tx(struct sk_buff *skb, struct net_device *dev)
-+static netdev_tx_t sbmac_start_tx(struct sk_buff *skb, struct net_device *dev)
+ /*****************************************************************************
+diff --git a/drivers/acpi/acpica/evregion.c b/drivers/acpi/acpica/evregion.c
+index 70c2bd169f669..49decca4e08ff 100644
+--- a/drivers/acpi/acpica/evregion.c
++++ b/drivers/acpi/acpica/evregion.c
+@@ -653,6 +653,19 @@ acpi_ev_execute_reg_methods(struct acpi_namespace_node *node,
+ 
+ 	ACPI_FUNCTION_TRACE(ev_execute_reg_methods);
+ 
++	/*
++	 * These address spaces do not need a call to _REG, since the ACPI
++	 * specification defines them as: "must always be accessible". Since
++	 * they never change state (never become unavailable), no need to ever
++	 * call _REG on them. Also, a data_table is not a "real" address space,
++	 * so do not call _REG. September 2018.
++	 */
++	if ((space_id == ACPI_ADR_SPACE_SYSTEM_MEMORY) ||
++	    (space_id == ACPI_ADR_SPACE_SYSTEM_IO) ||
++	    (space_id == ACPI_ADR_SPACE_DATA_TABLE)) {
++		return_VOID;
++	}
++
+ 	info.space_id = space_id;
+ 	info.function = function;
+ 	info.reg_run_count = 0;
+@@ -714,8 +727,8 @@ acpi_ev_reg_run(acpi_handle obj_handle,
+ 	}
+ 
+ 	/*
+-	 * We only care about regions.and objects that are allowed to have address
+-	 * space handlers
++	 * We only care about regions and objects that are allowed to have
++	 * address space handlers
+ 	 */
+ 	if ((node->type != ACPI_TYPE_REGION) && (node != acpi_gbl_root_node)) {
+ 		return (AE_OK);
+diff --git a/drivers/acpi/acpica/evrgnini.c b/drivers/acpi/acpica/evrgnini.c
+index 39284deedd885..17df5dacd43cf 100644
+--- a/drivers/acpi/acpica/evrgnini.c
++++ b/drivers/acpi/acpica/evrgnini.c
+@@ -16,9 +16,6 @@
+ #define _COMPONENT          ACPI_EVENTS
+ ACPI_MODULE_NAME("evrgnini")
+ 
+-/* Local prototypes */
+-static u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node);
+-
+ /*******************************************************************************
+  *
+  * FUNCTION:    acpi_ev_system_memory_region_setup
+@@ -33,7 +30,6 @@ static u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node);
+  * DESCRIPTION: Setup a system_memory operation region
+  *
+  ******************************************************************************/
+-
+ acpi_status
+ acpi_ev_system_memory_region_setup(acpi_handle handle,
+ 				   u32 function,
+@@ -313,7 +309,7 @@ acpi_ev_pci_config_region_setup(acpi_handle handle,
+  *
+  ******************************************************************************/
+ 
+-static u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node)
++u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node)
  {
- 	struct sbmac_softc *sc = netdev_priv(dev);
- 	unsigned long flags;
+ 	acpi_status status;
+ 	struct acpi_pnp_device_id *hid;
+diff --git a/drivers/acpi/acpica/evxfregn.c b/drivers/acpi/acpica/evxfregn.c
+index 091415b14fbf1..3b3a25d9f0e6d 100644
+--- a/drivers/acpi/acpica/evxfregn.c
++++ b/drivers/acpi/acpica/evxfregn.c
+@@ -193,7 +193,6 @@ acpi_remove_address_space_handler(acpi_handle device,
+ 				 */
+ 				region_obj =
+ 				    handler_obj->address_space.region_list;
+-
+ 			}
+ 
+ 			/* Remove this Handler object from the list */
 -- 
 2.20.1
 
