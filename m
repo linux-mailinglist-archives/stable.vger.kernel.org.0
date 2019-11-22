@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E151A106FB4
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80D92106F2F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730421AbfKVLRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:17:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58646 "EHLO mail.kernel.org"
+        id S1730301AbfKVKyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:54:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730004AbfKVKtV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:49:21 -0500
+        id S1730299AbfKVKyL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:54:11 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28A872072D;
-        Fri, 22 Nov 2019 10:49:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 516782071C;
+        Fri, 22 Nov 2019 10:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419759;
-        bh=Tc0bizS36rmC3FiUcdlL/HBwy58q2eHM3k8vAr3PYBE=;
+        s=default; t=1574420050;
+        bh=D9FF+PKLhEVyXZcKFFSveysZnUiYAUBTZCk1o2cEWVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4B8IgRw/HzK2xI7FeDhYYlgJzaRDNhm22LUgk4NIskDuynLBT20ijEIELjChB97j
-         leb37uJr9PsrpbPrvOyU768Q6WDUtryDx/lazFhrgNPosDC1bYEMJwmCVr6YcCL/99
-         3u/v64fYZhgLfWXM7tzbLLLvcZ2lHPIKAf0jCzp4=
+        b=cjRRstAfkFGIzwhaHpfiUg/XGyIe7JL0YoqkB/t8gPt/BX0ymVCHLyqfpV3n8xqUR
+         Rwo77pe8iRT9xtmFpZHxGPXP/2wtP2+leWqHk/+ooJSnECJ67k3NaP5P5+AN8TlCel
+         kH9OAS386Oc0lervrv9HzMJDo2gB8apQ3oQWa0Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 212/222] gpio: syscon: Fix possible NULL ptr usage
+Subject: [PATCH 4.14 099/122] media: isif: fix a NULL pointer dereference bug
 Date:   Fri, 22 Nov 2019 11:29:12 +0100
-Message-Id: <20191122100917.746891591@linuxfoundation.org>
+Message-Id: <20191122100831.205692675@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Wenwen Wang <wang6495@umn.edu>
 
-[ Upstream commit 70728c29465bc4bfa7a8c14304771eab77e923c7 ]
+[ Upstream commit a26ac6c1bed951b2066cc4b2257facd919e35c0b ]
 
-The priv->data->set can be NULL while flags contains GPIO_SYSCON_FEAT_OUT
-and chip->set is valid pointer. This happens in case the controller uses
-the default GPIO setter. Always use chip->set to access the setter to avoid
-possible NULL pointer dereferencing.
+In isif_probe(), there is a while loop to get the ISIF base address and
+linearization table0 and table1 address. In the loop body, the function
+platform_get_resource() is called to get the resource. If
+platform_get_resource() returns NULL, the loop is terminated and the
+execution goes to 'fail_nobase_res'. Suppose the loop is terminated at the
+first iteration because platform_get_resource() returns NULL and the
+execution goes to 'fail_nobase_res'. Given that there is another while loop
+at 'fail_nobase_res' and i equals to 0, one iteration of the second while
+loop will be executed. However, the second while loop does not check the
+return value of platform_get_resource(). This can cause a NULL pointer
+dereference bug if the return value is a NULL pointer.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This patch avoids the above issue by adding a check in the second while
+loop after the call to platform_get_resource().
+
+Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-syscon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/davinci/isif.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpio/gpio-syscon.c b/drivers/gpio/gpio-syscon.c
-index 537cec7583fca..cf88a0bfe99ea 100644
---- a/drivers/gpio/gpio-syscon.c
-+++ b/drivers/gpio/gpio-syscon.c
-@@ -122,7 +122,7 @@ static int syscon_gpio_dir_out(struct gpio_chip *chip, unsigned offset, int val)
- 				   BIT(offs % SYSCON_REG_BITS));
+diff --git a/drivers/media/platform/davinci/isif.c b/drivers/media/platform/davinci/isif.c
+index 5813b49391edb..90d0f13283ae9 100644
+--- a/drivers/media/platform/davinci/isif.c
++++ b/drivers/media/platform/davinci/isif.c
+@@ -1102,7 +1102,8 @@ static int isif_probe(struct platform_device *pdev)
+ 
+ 	while (i >= 0) {
+ 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
+-		release_mem_region(res->start, resource_size(res));
++		if (res)
++			release_mem_region(res->start, resource_size(res));
+ 		i--;
  	}
- 
--	priv->data->set(chip, offset, val);
-+	chip->set(chip, offset, val);
- 
- 	return 0;
- }
+ 	vpfe_unregister_ccdc_device(&isif_hw_dev);
 -- 
 2.20.1
 
