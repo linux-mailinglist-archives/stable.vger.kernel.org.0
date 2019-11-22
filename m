@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7A610783A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:49:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B49531078C7
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727467AbfKVTtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 14:49:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49416 "EHLO mail.kernel.org"
+        id S1727481AbfKVTtg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 14:49:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727416AbfKVTtf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 14:49:35 -0500
+        id S1727474AbfKVTtg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 14:49:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3FC020865;
-        Fri, 22 Nov 2019 19:49:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1002E20748;
+        Fri, 22 Nov 2019 19:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574452174;
-        bh=QncCh4pQTgUhpPvU4k9NamkWDYyRUhFGs+V6hZtJi64=;
+        s=default; t=1574452175;
+        bh=J73yVMa3U3RbgGSvk1fo0AqpixtC7XhHJWH/shj0GHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oQUJpmtz3pFZeHwVXWexildxMLL+8C0wm0AQgNYx8v6uAouoF/7uM9EZmSQBLn1yf
-         lqhcEoE/6gomG+QGZ584Bo420QyRfMjKsaVHcS751eqfuXGZbf9aVwLOuJm/CUmwtJ
-         gdBX5qBHaomH95E8YUI/r5pF2PSFnxIZFTGl+Qd8=
+        b=u5HcJDgYt543SfYUexTW5TNvLMWMHFdwrl5QaKi0gVNs2yUsfd6x5GYWmbVKLEYyO
+         j74dWpeNLFiXtIqTpudOMTit4NwdU4fYno5vtrA97cnaqbOXEUKzP1b7Bv60VlkWe1
+         gzGpaeymbzfxcSks/gnvcWFVnp4FKo4TdVWx/5QE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sirong Wang <wangsirong@huawei.com>,
-        Weihang Li <liweihang@hisilicon.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/21] RDMA/hns: Correct the value of HNS_ROCE_HEM_CHUNK_LEN
-Date:   Fri, 22 Nov 2019 14:49:12 -0500
-Message-Id: <20191122194931.24732-2-sashal@kernel.org>
+Cc:     Steffen Klassert <steffen.klassert@secunet.com>,
+        JD <jdtxs00@gmail.com>, Paul Wouters <paul@nohats.ca>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 03/21] xfrm: Fix memleak on xfrm state destroy
+Date:   Fri, 22 Nov 2019 14:49:13 -0500
+Message-Id: <20191122194931.24732-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122194931.24732-1-sashal@kernel.org>
 References: <20191122194931.24732-1-sashal@kernel.org>
@@ -44,37 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sirong Wang <wangsirong@huawei.com>
+From: Steffen Klassert <steffen.klassert@secunet.com>
 
-[ Upstream commit 531eb45b3da4267fc2a64233ba256c8ffb02edd2 ]
+[ Upstream commit 86c6739eda7d2a03f2db30cbee67a5fb81afa8ba ]
 
-Size of pointer to buf field of struct hns_roce_hem_chunk should be
-considered when calculating HNS_ROCE_HEM_CHUNK_LEN, or sg table size will
-be larger than expected when allocating hem.
+We leak the page that we use to create skb page fragments
+when destroying the xfrm_state. Fix this by dropping a
+page reference if a page was assigned to the xfrm_state.
 
-Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
-Link: https://lore.kernel.org/r/1572575610-52530-2-git-send-email-liweihang@hisilicon.com
-Signed-off-by: Sirong Wang <wangsirong@huawei.com>
-Signed-off-by: Weihang Li <liweihang@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fixes: cac2661c53f3 ("esp4: Avoid skb_cow_data whenever possible")
+Reported-by: JD <jdtxs00@gmail.com>
+Reported-by: Paul Wouters <paul@nohats.ca>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hem.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_state.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hem.h b/drivers/infiniband/hw/hns/hns_roce_hem.h
-index 435748858252d..8e8917ebb013b 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hem.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hem.h
-@@ -52,7 +52,7 @@ enum {
- 
- #define HNS_ROCE_HEM_CHUNK_LEN	\
- 	 ((256 - sizeof(struct list_head) - 2 * sizeof(int)) /	 \
--	 (sizeof(struct scatterlist)))
-+	 (sizeof(struct scatterlist) + sizeof(void *)))
- 
- enum {
- 	 HNS_ROCE_HEM_PAGE_SHIFT = 12,
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index bd16e6882017e..190ca59d5ba31 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -449,6 +449,8 @@ static void xfrm_state_gc_destroy(struct xfrm_state *x)
+ 		x->type->destructor(x);
+ 		xfrm_put_type(x->type);
+ 	}
++	if (x->xfrag.page)
++		put_page(x->xfrag.page);
+ 	xfrm_dev_state_free(x);
+ 	security_xfrm_state_free(x);
+ 	kfree(x);
 -- 
 2.20.1
 
