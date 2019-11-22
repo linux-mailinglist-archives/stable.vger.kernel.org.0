@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 647E7106F5E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:15:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C53106FC6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729074AbfKVKwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:52:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35246 "EHLO mail.kernel.org"
+        id S1726980AbfKVLRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:17:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730134AbfKVKwB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:52:01 -0500
+        id S1729937AbfKVKs1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:48:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B797920718;
-        Fri, 22 Nov 2019 10:52:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 37D5820637;
+        Fri, 22 Nov 2019 10:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419921;
-        bh=xyYFUAWcAMDdHO/jt3hyfRiVpGawHPkon/VldhbRt6Q=;
+        s=default; t=1574419706;
+        bh=DFdAjxDKTWhb2noNLW6GfraKQGL6VTYbRx3/xkS64kQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMxhCbRWQTNy6deNPTXIFaE5zKTu44BRPqJF39EewGkFMGH5uDp1oiEsnhF/5Sl2j
-         YDOGFOHa0V6eHNYi8xr2yBm/W+owVhfGVX54FNEzk5ssnzDesvJQQ8RyEmRcxpsxM/
-         Vq9SljgXU8QL/iKracwRxAR5pcJZlbyBfg1v145Q=
+        b=zAtoV8F4JGztNE3sSuwFuAeY71QSi/oBko3d5Dq26oZScZ/lcb1S1NYGm8E6/nXuH
+         KZXXBdIMaX64KZp7P/knsn+hliLhrGpIwbzbNO+zA223BAUMro70+QcerTsYGkbFBH
+         lDJ6IYr+6vtEqOwZO9f3RwK9GG2xUMTyqyYU94Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 054/122] IB/mlx4: Avoid implicit enumerated type conversion
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 167/222] dmaengine: ep93xx: Return proper enum in ep93xx_dma_chan_direction
 Date:   Fri, 22 Nov 2019 11:28:27 +0100
-Message-Id: <20191122100759.371285941@linuxfoundation.org>
+Message-Id: <20191122100914.621164235@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +46,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit b56511c15713ba6c7572e77a41f7ddba9c1053ec ]
+[ Upstream commit 9524d6b265f9b2b9a61fceb2ee2ce1c2a83e39ca ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+Clang warns when implicitly converting from one enumerated type to
+another. Avoid this by using the equivalent value from the expected
+type.
 
-drivers/infiniband/hw/mlx4/mad.c:1811:41: warning: implicit conversion
-from enumeration type 'enum mlx4_ib_qp_flags' to different enumeration
-type 'enum ib_qp_create_flags' [-Wenum-conversion]
-                qp_init_attr.init_attr.create_flags = MLX4_IB_SRIOV_TUNNEL_QP;
-                                                    ~ ^~~~~~~~~~~~~~~~~~~~~~~
-
-drivers/infiniband/hw/mlx4/mad.c:1819:41: warning: implicit conversion
-from enumeration type 'enum mlx4_ib_qp_flags' to different enumeration
-type 'enum ib_qp_create_flags' [-Wenum-conversion]
-                qp_init_attr.init_attr.create_flags = MLX4_IB_SRIOV_SQP;
-                                                    ~ ^~~~~~~~~~~~~~~~~
-
-The type mlx4_ib_qp_flags explicitly provides supplemental values to the
-type ib_qp_create_flags. Make that clear to Clang by changing the
-create_flags type to u32.
+In file included from drivers/dma/ep93xx_dma.c:30:
+./include/linux/platform_data/dma-ep93xx.h:88:10: warning: implicit
+conversion from enumeration type 'enum dma_data_direction' to different
+enumeration type 'enum dma_transfer_direction' [-Wenum-conversion]
+                return DMA_NONE;
+                ~~~~~~ ^~~~~~~~
+1 warning generated.
 
 Reported-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/rdma/ib_verbs.h | 2 +-
+ include/linux/platform_data/dma-ep93xx.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/rdma/ib_verbs.h b/include/rdma/ib_verbs.h
-index 4a43193319894..73cc5cfb72e02 100644
---- a/include/rdma/ib_verbs.h
-+++ b/include/rdma/ib_verbs.h
-@@ -1120,7 +1120,7 @@ struct ib_qp_init_attr {
- 	struct ib_qp_cap	cap;
- 	enum ib_sig_type	sq_sig_type;
- 	enum ib_qp_type		qp_type;
--	enum ib_qp_create_flags	create_flags;
-+	u32			create_flags;
+diff --git a/include/linux/platform_data/dma-ep93xx.h b/include/linux/platform_data/dma-ep93xx.h
+index e82c642fa53cd..5913be0793a26 100644
+--- a/include/linux/platform_data/dma-ep93xx.h
++++ b/include/linux/platform_data/dma-ep93xx.h
+@@ -84,7 +84,7 @@ static inline enum dma_transfer_direction
+ ep93xx_dma_chan_direction(struct dma_chan *chan)
+ {
+ 	if (!ep93xx_dma_chan_is_m2p(chan))
+-		return DMA_NONE;
++		return DMA_TRANS_NONE;
  
- 	/*
- 	 * Only needed for special QP types, or when using the RW API.
+ 	/* even channels are for TX, odd for RX */
+ 	return (chan->chan_id % 2 == 0) ? DMA_MEM_TO_DEV : DMA_DEV_TO_MEM;
 -- 
 2.20.1
 
