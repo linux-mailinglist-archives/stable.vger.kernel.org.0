@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F00A5106FC3
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C83031070B5
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:24:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729695AbfKVLRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:17:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57394 "EHLO mail.kernel.org"
+        id S1727985AbfKVKiK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:38:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729951AbfKVKs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:48:29 -0500
+        id S1727297AbfKVKiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:38:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB08A2071F;
-        Fri, 22 Nov 2019 10:48:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39F3D20717;
+        Fri, 22 Nov 2019 10:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419709;
-        bh=wuFV/Q3pP6kDQ8IyS7nsyXbODbwVXLDPUfz79SNORZk=;
+        s=default; t=1574419088;
+        bh=mwos+MVeoqtMRotueUyVTiTBMiid/z7oNgxPt77TpPs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8Gxb4MOkYtjCYnqI75I1O8Q4IzpKwOj3CY9CD6BZG7dCyMfQPFelHkl8dtJCwNCb
-         G8fRuqcGmZBYaKkz2UPrXrXkpku7cJnWYiQ+5x9BPsZOwJHmH8j3mHGQUJPPb5ndjN
-         EM4gC1FWEyGPtiNj0Wo7rTu1+1or8ptKKZjd6KiY=
+        b=r+SzjdkiyAWF/VaTCjYs1MFOMA4mCyibQoEupu/g49+Qwz0Sj5620SZxHSSuz2aiI
+         0G1upF5qPBUcvuWVrTr7cUSzVpQ1+P+4mLb1mR8DBWTEfjhikgWYOEYwinWG8FvTop
+         XiaP5U/hZt0g0txiHH629E29k3L/91vU9bXlhQ4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 203/222] s390/kasan: avoid vdso instrumentation
+Subject: [PATCH 4.4 152/159] gpio: syscon: Fix possible NULL ptr usage
 Date:   Fri, 22 Nov 2019 11:29:03 +0100
-Message-Id: <20191122100916.925099032@linuxfoundation.org>
+Message-Id: <20191122100844.892559679@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 348498458505e202df41b6b9a78da448d39298b7 ]
+[ Upstream commit 70728c29465bc4bfa7a8c14304771eab77e923c7 ]
 
-vdso is mapped into user space processes, which won't have kasan
-shodow mapped.
+The priv->data->set can be NULL while flags contains GPIO_SYSCON_FEAT_OUT
+and chip->set is valid pointer. This happens in case the controller uses
+the default GPIO setter. Always use chip->set to access the setter to avoid
+possible NULL pointer dereferencing.
 
-Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vdso32/Makefile | 3 ++-
- arch/s390/kernel/vdso64/Makefile | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpio/gpio-syscon.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/s390/kernel/vdso32/Makefile b/arch/s390/kernel/vdso32/Makefile
-index ca7c3c34f94ba..2bb3a255e51a4 100644
---- a/arch/s390/kernel/vdso32/Makefile
-+++ b/arch/s390/kernel/vdso32/Makefile
-@@ -24,9 +24,10 @@ obj-y += vdso32_wrapper.o
- extra-y += vdso32.lds
- CPPFLAGS_vdso32.lds += -P -C -U$(ARCH)
+diff --git a/drivers/gpio/gpio-syscon.c b/drivers/gpio/gpio-syscon.c
+index 7b25fdf648023..f579938552cc5 100644
+--- a/drivers/gpio/gpio-syscon.c
++++ b/drivers/gpio/gpio-syscon.c
+@@ -127,7 +127,7 @@ static int syscon_gpio_dir_out(struct gpio_chip *chip, unsigned offset, int val)
+ 				   BIT(offs % SYSCON_REG_BITS));
+ 	}
  
--# Disable gcov profiling and ubsan for VDSO code
-+# Disable gcov profiling, ubsan and kasan for VDSO code
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
+-	priv->data->set(chip, offset, val);
++	chip->set(chip, offset, val);
  
- # Force dependency (incbin is bad)
- $(obj)/vdso32_wrapper.o : $(obj)/vdso32.so
-diff --git a/arch/s390/kernel/vdso64/Makefile b/arch/s390/kernel/vdso64/Makefile
-index 84af2b6b64c42..76c56b5382be9 100644
---- a/arch/s390/kernel/vdso64/Makefile
-+++ b/arch/s390/kernel/vdso64/Makefile
-@@ -24,9 +24,10 @@ obj-y += vdso64_wrapper.o
- extra-y += vdso64.lds
- CPPFLAGS_vdso64.lds += -P -C -U$(ARCH)
- 
--# Disable gcov profiling and ubsan for VDSO code
-+# Disable gcov profiling, ubsan and kasan for VDSO code
- GCOV_PROFILE := n
- UBSAN_SANITIZE := n
-+KASAN_SANITIZE := n
- 
- # Force dependency (incbin is bad)
- $(obj)/vdso64_wrapper.o : $(obj)/vdso64.so
+ 	return 0;
+ }
 -- 
 2.20.1
 
