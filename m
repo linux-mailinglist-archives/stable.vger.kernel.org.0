@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D0001070CA
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A959D1070D2
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728787AbfKVKjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:39:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42782 "EHLO mail.kernel.org"
+        id S1728854AbfKVLYM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:24:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728784AbfKVKjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:39:31 -0500
+        id S1728789AbfKVKje (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:39:34 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AAD962071F;
-        Fri, 22 Nov 2019 10:39:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 556E820715;
+        Fri, 22 Nov 2019 10:39:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419171;
-        bh=MxvYop6KxN7zmWGcLOnc+kZIwsZl/Wqugobl0MKGPS0=;
+        s=default; t=1574419173;
+        bh=ImmlDRzMG4QM7y293HzEHL2Nt8F3ObbdD/6TybDalBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLxp3e01kvTIAILh2n48CklYq9LybSMnR6hbOmbuV8yja8QegoNSPneik9Dq3ZL3v
-         Hd2IjzVXlzJ5qKJQu+o/1qzVKcBqaFODgft7JccywhmM+Mf9ohXadB6mmMKgLjUeoo
-         7+PjYRRDvFWbAwTV1zsG1fu74gT4382VVqQEgdt8=
+        b=cakd225a+qmawMHJxqQkWaIBU2uxmVj4Bb75MfAnaKOpJfRzR/vE1Jl4cKV+4kZd1
+         ryyD3EcY56mdQET5TFZCe6M4214lLBFdmkcVZSryPH2t4HwgyX7qRDMZkOmzDSYXYa
+         7tMji0ePcMJjrObiLbo6bn8lHU+hGC/CeEgz7DO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 003/222] ALSA: usb-audio: Fix missing error check at mixer resolution test
-Date:   Fri, 22 Nov 2019 11:25:43 +0100
-Message-Id: <20191122100831.262976361@linuxfoundation.org>
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 004/222] ALSA: usb-audio: not submit urb for stopped endpoint
+Date:   Fri, 22 Nov 2019 11:25:44 +0100
+Message-Id: <20191122100831.363618518@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -43,46 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Henry Lin <henryl@nvidia.com>
 
-commit 167beb1756791e0806365a3f86a0da10d7a327ee upstream.
+commit 528699317dd6dc722dccc11b68800cf945109390 upstream.
 
-A check of the return value from get_cur_mix_raw() is missing at the
-resolution test code in get_min_max_with_quirks(), which may leave the
-variable untouched, leading to a random uninitialized value, as
-detected by syzkaller fuzzer.
+While output urb's snd_complete_urb() is executing, calling
+prepare_outbound_urb() may cause endpoint stopped before
+prepare_outbound_urb() returns and result in next urb submitted
+to stopped endpoint. usb-audio driver cannot re-use it afterwards as
+the urb is still hold by usb stack.
 
-Add the missing return error check for fixing that.
+This change checks EP_FLAG_RUNNING flag after prepare_outbound_urb() again
+to let snd_complete_urb() know the endpoint already stopped and does not
+submit next urb. Below kind of error will be fixed:
 
-Reported-and-tested-by: syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
+[  213.153103] usb 1-2: timeout: still 1 active urbs on EP #1
+[  213.164121] usb 1-2: cannot submit urb 0, error -16: unknown error
+
+Signed-off-by: Henry Lin <henryl@nvidia.com>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191109181658.30368-1-tiwai@suse.de
+Link: https://lore.kernel.org/r/20191113021420.13377-1-henryl@nvidia.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- sound/usb/mixer.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/usb/endpoint.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1046,7 +1046,8 @@ static int get_min_max_with_quirks(struc
- 		if (cval->min + cval->res < cval->max) {
- 			int last_valid_res = cval->res;
- 			int saved, test, check;
--			get_cur_mix_raw(cval, minchn, &saved);
-+			if (get_cur_mix_raw(cval, minchn, &saved) < 0)
-+				goto no_res_check;
- 			for (;;) {
- 				test = saved;
- 				if (test < cval->max)
-@@ -1066,6 +1067,7 @@ static int get_min_max_with_quirks(struc
- 			snd_usb_set_cur_mix_value(cval, minchn, 0, saved);
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -403,6 +403,9 @@ static void snd_complete_urb(struct urb
  		}
  
-+no_res_check:
- 		cval->initialized = 1;
- 	}
- 
+ 		prepare_outbound_urb(ep, ctx);
++		/* can be stopped during prepare callback */
++		if (unlikely(!test_bit(EP_FLAG_RUNNING, &ep->flags)))
++			goto exit_clear;
+ 	} else {
+ 		retire_inbound_urb(ep, ctx);
+ 		/* can be stopped during retire callback */
 
 
