@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D3699105FE7
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:29:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3AEA105FF2
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:29:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726976AbfKVF2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:28:42 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46650 "EHLO mail.kernel.org"
+        id S1727121AbfKVF24 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:28:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726417AbfKVF2m (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726952AbfKVF2m (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Nov 2019 00:28:42 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 395902070A;
-        Fri, 22 Nov 2019 05:28:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E18E2070B;
+        Fri, 22 Nov 2019 05:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574400521;
-        bh=Snhzch8azwuOYXbCQtEWlQY+Q47JjDAygTaC4J/qZj8=;
+        s=default; t=1574400522;
+        bh=qcEG6w2/GDNSrFO6+mPfxkBVtMr5NJCSsxklqfbSFtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIlo8SkwBuy4UqJ+yuxqkqIdbHNnt/vU9Kdgm647PoHFrlPrbJaGagvmDI45SiUkv
-         DCflrwcFrp0WZwNrQqnZqGp1GBF10jygnY/vw1imH6NtmMXFrMVbvLqAmC6tRKhKdj
-         IHvWhzbNuMd/6/zsl5gK4UdBYCK7s2TBpfsAlX24=
+        b=foNtxn2pSe0Vym+GQ7crcPLd7gvClXcoCi0rL5ijNHfd4docOAhwksTPvpsaKGrzY
+         tjGN8KBOKWI+br9CUTJkGB487MA+omIzm19/JRtLDySEpgadXJeslNsaJ/3V9SuZKz
+         /J6ojXxfzf1K/rLfNXf2zty+6Lj3jio4jUOCNlRM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Smart <jsmart2021@gmail.com>,
         Dick Kennedy <dick.kennedy@broadcom.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 002/219] scsi: lpfc: Fix kernel Oops due to null pring pointers
-Date:   Fri, 22 Nov 2019 00:25:00 -0500
-Message-Id: <20191122052837.357-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 003/219] scsi: lpfc: Fix dif and first burst use in write commands
+Date:   Fri, 22 Nov 2019 00:25:01 -0500
+Message-Id: <20191122052837.357-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122052837.357-1-sashal@kernel.org>
 References: <20191122052837.357-1-sashal@kernel.org>
@@ -46,89 +46,73 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 5a9eeff57f340238c39c95d8e7e54c96fc722de7 ]
+[ Upstream commit 7c4042a4d0b7532cfbc90478fd3084b2dab5849e ]
 
-Driver is hitting null pring pointers in lpfc_do_work().
+When dif and first burst is used in a write command wqe, the driver was not
+properly setting fields in the io command request. This resulted in no dif
+bytes being sent and invalid xfer_rdy's, resulting in the io being aborted
+by the hardware.
 
-Pointer assignment occurs based on SLI-revision. If recovering after an
-error, its possible the sli revision for the port was cleared, making the
-lpfc_phba_elsring() not return a ring pointer, thus the null pointer.
-
-Add SLI revision checking to lpfc_phba_elsring() and status checking to all
-callers.
+Correct the wqe initializaton when both dif and first burst are used.
 
 Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc.h      | 6 ++++++
- drivers/scsi/lpfc/lpfc_els.c  | 2 ++
- drivers/scsi/lpfc/lpfc_init.c | 7 ++++++-
- drivers/scsi/lpfc/lpfc_sli.c  | 2 ++
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_scsi.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
-index 43732e8d13473..79c3b2f53828e 100644
---- a/drivers/scsi/lpfc/lpfc.h
-+++ b/drivers/scsi/lpfc/lpfc.h
-@@ -1235,6 +1235,12 @@ lpfc_sli_read_hs(struct lpfc_hba *phba)
- static inline struct lpfc_sli_ring *
- lpfc_phba_elsring(struct lpfc_hba *phba)
- {
-+	/* Return NULL if sli_rev has become invalid due to bad fw */
-+	if (phba->sli_rev != LPFC_SLI_REV4  &&
-+	    phba->sli_rev != LPFC_SLI_REV3  &&
-+	    phba->sli_rev != LPFC_SLI_REV2)
-+		return NULL;
-+
- 	if (phba->sli_rev == LPFC_SLI_REV4) {
- 		if (phba->sli4_hba.els_wq)
- 			return phba->sli4_hba.els_wq->pring;
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index f3c6801c0b312..3651c0fc88197 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -1340,6 +1340,8 @@ lpfc_els_abort_flogi(struct lpfc_hba *phba)
- 			Fabric_DID);
- 
- 	pring = lpfc_phba_elsring(phba);
-+	if (unlikely(!pring))
-+		return -EIO;
+diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
+index 666495f21c246..425b83618a2e5 100644
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -2732,6 +2732,7 @@ lpfc_bg_scsi_prep_dma_buf_s3(struct lpfc_hba *phba,
+ 	int datasegcnt, protsegcnt, datadir = scsi_cmnd->sc_data_direction;
+ 	int prot_group_type = 0;
+ 	int fcpdl;
++	struct lpfc_vport *vport = phba->pport;
  
  	/*
- 	 * Check the txcmplq for an iocb that matches the nport the driver is
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 9acb5b44ce4c1..dae0dd8066f04 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -1801,7 +1801,12 @@ lpfc_sli4_port_sta_fn_reset(struct lpfc_hba *phba, int mbx_action,
- 	lpfc_offline(phba);
- 	/* release interrupt for possible resource change */
- 	lpfc_sli4_disable_intr(phba);
--	lpfc_sli_brdrestart(phba);
-+	rc = lpfc_sli_brdrestart(phba);
-+	if (rc) {
-+		lpfc_printf_log(phba, KERN_ERR, LOG_INIT,
-+				"6309 Failed to restart board\n");
-+		return rc;
-+	}
- 	/* request and enable interrupt */
- 	intr_mode = lpfc_sli4_enable_intr(phba, phba->intr_mode);
- 	if (intr_mode == LPFC_INTR_ERROR) {
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index a490e63c94b67..266e7101902ef 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -4644,6 +4644,8 @@ lpfc_sli_brdrestart_s4(struct lpfc_hba *phba)
- 	hba_aer_enabled = phba->hba_flag & HBA_AER_ENABLED;
+ 	 * Start the lpfc command prep by bumping the bpl beyond fcp_cmnd
+@@ -2837,6 +2838,14 @@ lpfc_bg_scsi_prep_dma_buf_s3(struct lpfc_hba *phba,
+ 	 */
+ 	iocb_cmd->un.fcpi.fcpi_parm = fcpdl;
  
- 	rc = lpfc_sli4_brdreset(phba);
-+	if (rc)
-+		return rc;
++	/*
++	 * For First burst, we may need to adjust the initial transfer
++	 * length for DIF
++	 */
++	if (iocb_cmd->un.fcpi.fcpi_XRdy &&
++	    (fcpdl < vport->cfg_first_burst_size))
++		iocb_cmd->un.fcpi.fcpi_XRdy = fcpdl;
++
+ 	return 0;
+ err:
+ 	if (lpfc_cmd->seg_cnt)
+@@ -3401,6 +3410,7 @@ lpfc_bg_scsi_prep_dma_buf_s4(struct lpfc_hba *phba,
+ 	int datasegcnt, protsegcnt, datadir = scsi_cmnd->sc_data_direction;
+ 	int prot_group_type = 0;
+ 	int fcpdl;
++	struct lpfc_vport *vport = phba->pport;
  
- 	spin_lock_irq(&phba->hbalock);
- 	phba->pport->stopped = 0;
+ 	/*
+ 	 * Start the lpfc command prep by bumping the sgl beyond fcp_cmnd
+@@ -3516,6 +3526,14 @@ lpfc_bg_scsi_prep_dma_buf_s4(struct lpfc_hba *phba,
+ 	 */
+ 	iocb_cmd->un.fcpi.fcpi_parm = fcpdl;
+ 
++	/*
++	 * For First burst, we may need to adjust the initial transfer
++	 * length for DIF
++	 */
++	if (iocb_cmd->un.fcpi.fcpi_XRdy &&
++	    (fcpdl < vport->cfg_first_burst_size))
++		iocb_cmd->un.fcpi.fcpi_XRdy = fcpdl;
++
+ 	/*
+ 	 * If the OAS driver feature is enabled and the lun is enabled for
+ 	 * OAS, set the oas iocb related flags.
 -- 
 2.20.1
 
