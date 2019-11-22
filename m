@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB82106DB5
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E593B107100
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730981AbfKVLCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:02:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55834 "EHLO mail.kernel.org"
+        id S1727438AbfKVKgV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:36:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731284AbfKVLCV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:02:21 -0500
+        id S1728375AbfKVKgU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:36:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A87702073F;
-        Fri, 22 Nov 2019 11:02:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57AFF20708;
+        Fri, 22 Nov 2019 10:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420540;
-        bh=s5iwcHxkRt8+t8tvmr6U2LXDWYdG4gCtv2HSTwEukQc=;
+        s=default; t=1574418979;
+        bh=JDylveYxYy5eZKCf0u5c+uJGqKs+qAq8AmkhwoI/v1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AeOfmunaI0ZxCg8VJFMv91PwsQ8mee6aU8SNL5jaZsHvHDv2GgeWEhxqOkgTp3cGW
-         nefq/w61MVz/OmTFZIaJpUNAofM962mvDxHFbK8Uva7pdZ11E6VGcVNlzD9LaxmC5r
-         hsnilXufVnLZxdc2ttkloU6rrTr9iXpddJDSRHBY=
+        b=xrnxuimE0w9r5kXtJip/O6Z1cuXpJY7MZbx2nKsveDP2E5YkToBVhTQOqEfYqM+WC
+         dj8N6bTxeP0Gg0YIkOz6B2M4XNa7Nw5nX9lw6u1AEnWBE2LelWPWH1OVlhRW3SR7u3
+         qYOr0ua6ejAHkVPhQJnq3w5q64dOq32liHbMY5dA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Radu Solea <radu.solea@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 141/220] crypto: mxs-dcp - Fix SHA null hashes and output length
+Subject: [PATCH 4.4 115/159] ath10k: fix vdev-start timeout on error
 Date:   Fri, 22 Nov 2019 11:28:26 +0100
-Message-Id: <20191122100922.927466811@linuxfoundation.org>
+Message-Id: <20191122100829.881214661@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,131 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radu Solea <radu.solea@nxp.com>
+From: Ben Greear <greearb@candelatech.com>
 
-[ Upstream commit c709eebaf5c5faa8a0f140355f9cfe67e8f7afb1 ]
+[ Upstream commit 833fd34d743c728afe6d127ef7bee67e7d9199a8 ]
 
-DCP writes at least 32 bytes in the output buffer instead of hash length
-as documented. Add intermediate buffer to prevent write out of bounds.
+The vdev-start-response message should cause the
+completion to fire, even in the error case.  Otherwise,
+the user still gets no useful information and everything
+is blocked until the timeout period.
 
-When requested to produce null hashes DCP fails to produce valid output.
-Add software workaround to bypass hardware and return valid output.
+Add some warning text to print out the invalid status
+code to aid debugging, and propagate failure code.
 
-Signed-off-by: Radu Solea <radu.solea@nxp.com>
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/mxs-dcp.c | 47 +++++++++++++++++++++++++++++++---------
- 1 file changed, 37 insertions(+), 10 deletions(-)
+ drivers/net/wireless/ath/ath10k/core.h |  1 +
+ drivers/net/wireless/ath/ath10k/mac.c  |  2 +-
+ drivers/net/wireless/ath/ath10k/wmi.c  | 19 ++++++++++++++++---
+ drivers/net/wireless/ath/ath10k/wmi.h  |  8 +++++++-
+ 4 files changed, 25 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
-index 56bd28174f525..3425ccc012168 100644
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -28,9 +28,24 @@
+diff --git a/drivers/net/wireless/ath/ath10k/core.h b/drivers/net/wireless/ath/ath10k/core.h
+index 257836a0cfbc0..a7fab3b0a443f 100644
+--- a/drivers/net/wireless/ath/ath10k/core.h
++++ b/drivers/net/wireless/ath/ath10k/core.h
+@@ -755,6 +755,7 @@ struct ath10k {
  
- #define DCP_MAX_CHANS	4
- #define DCP_BUF_SZ	PAGE_SIZE
-+#define DCP_SHA_PAY_SZ  64
+ 	struct completion install_key_done;
  
- #define DCP_ALIGNMENT	64
++	int last_wmi_vdev_start_status;
+ 	struct completion vdev_setup_done;
  
-+/*
-+ * Null hashes to align with hw behavior on imx6sl and ull
-+ * these are flipped for consistency with hw output
-+ */
-+const uint8_t sha1_null_hash[] =
-+	"\x09\x07\xd8\xaf\x90\x18\x60\x95\xef\xbf"
-+	"\x55\x32\x0d\x4b\x6b\x5e\xee\xa3\x39\xda";
+ 	struct workqueue_struct *workqueue;
+diff --git a/drivers/net/wireless/ath/ath10k/mac.c b/drivers/net/wireless/ath/ath10k/mac.c
+index 5a0138c1c0455..7fbf2abcfc433 100644
+--- a/drivers/net/wireless/ath/ath10k/mac.c
++++ b/drivers/net/wireless/ath/ath10k/mac.c
+@@ -850,7 +850,7 @@ static inline int ath10k_vdev_setup_sync(struct ath10k *ar)
+ 	if (time_left == 0)
+ 		return -ETIMEDOUT;
+ 
+-	return 0;
++	return ar->last_wmi_vdev_start_status;
+ }
+ 
+ static int ath10k_monitor_vdev_start(struct ath10k *ar, int vdev_id)
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.c b/drivers/net/wireless/ath/ath10k/wmi.c
+index f7ce99f67b5c5..4d8cdbfc9d422 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.c
++++ b/drivers/net/wireless/ath/ath10k/wmi.c
+@@ -2945,18 +2945,31 @@ void ath10k_wmi_event_vdev_start_resp(struct ath10k *ar, struct sk_buff *skb)
+ {
+ 	struct wmi_vdev_start_ev_arg arg = {};
+ 	int ret;
++	u32 status;
+ 
+ 	ath10k_dbg(ar, ATH10K_DBG_WMI, "WMI_VDEV_START_RESP_EVENTID\n");
+ 
++	ar->last_wmi_vdev_start_status = 0;
 +
-+const uint8_t sha256_null_hash[] =
-+	"\x55\xb8\x52\x78\x1b\x99\x95\xa4"
-+	"\x4c\x93\x9b\x64\xe4\x41\xae\x27"
-+	"\x24\xb9\x6f\x99\xc8\xf4\xfb\x9a"
-+	"\x14\x1c\xfc\x98\x42\xc4\xb0\xe3";
-+
- /* DCP DMA descriptor. */
- struct dcp_dma_desc {
- 	uint32_t	next_cmd_addr;
-@@ -48,6 +63,7 @@ struct dcp_coherent_block {
- 	uint8_t			aes_in_buf[DCP_BUF_SZ];
- 	uint8_t			aes_out_buf[DCP_BUF_SZ];
- 	uint8_t			sha_in_buf[DCP_BUF_SZ];
-+	uint8_t			sha_out_buf[DCP_SHA_PAY_SZ];
+ 	ret = ath10k_wmi_pull_vdev_start(ar, skb, &arg);
+ 	if (ret) {
+ 		ath10k_warn(ar, "failed to parse vdev start event: %d\n", ret);
+-		return;
++		ar->last_wmi_vdev_start_status = ret;
++		goto out;
+ 	}
  
- 	uint8_t			aes_key[2 * AES_KEYSIZE_128];
- 
-@@ -513,8 +529,6 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
- 	struct dcp_async_ctx *actx = crypto_ahash_ctx(tfm);
- 	struct dcp_sha_req_ctx *rctx = ahash_request_ctx(req);
--	struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
--
- 	struct dcp_dma_desc *desc = &sdcp->coh->desc[actx->chan];
- 
- 	dma_addr_t digest_phys = 0;
-@@ -536,10 +550,23 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	desc->payload = 0;
- 	desc->status = 0;
- 
-+	/*
-+	 * Align driver with hw behavior when generating null hashes
-+	 */
-+	if (rctx->init && rctx->fini && desc->size == 0) {
-+		struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
-+		const uint8_t *sha_buf =
-+			(actx->alg == MXS_DCP_CONTROL1_HASH_SELECT_SHA1) ?
-+			sha1_null_hash : sha256_null_hash;
-+		memcpy(sdcp->coh->sha_out_buf, sha_buf, halg->digestsize);
-+		ret = 0;
-+		goto done_run;
+-	if (WARN_ON(__le32_to_cpu(arg.status)))
+-		return;
++	status = __le32_to_cpu(arg.status);
++	if (WARN_ON_ONCE(status)) {
++		ath10k_warn(ar, "vdev-start-response reports status error: %d (%s)\n",
++			    status, (status == WMI_VDEV_START_CHAN_INVALID) ?
++			    "chan-invalid" : "unknown");
++		/* Setup is done one way or another though, so we should still
++		 * do the completion, so don't return here.
++		 */
++		ar->last_wmi_vdev_start_status = -EINVAL;
 +	}
+ 
++out:
+ 	complete(&ar->vdev_setup_done);
+ }
+ 
+diff --git a/drivers/net/wireless/ath/ath10k/wmi.h b/drivers/net/wireless/ath/ath10k/wmi.h
+index a8b2553e8988a..66148a82ad25a 100644
+--- a/drivers/net/wireless/ath/ath10k/wmi.h
++++ b/drivers/net/wireless/ath/ath10k/wmi.h
+@@ -5969,11 +5969,17 @@ struct wmi_ch_info_ev_arg {
+ 	__le32 rx_frame_count;
+ };
+ 
++/* From 10.4 firmware, not sure all have the same values. */
++enum wmi_vdev_start_status {
++	WMI_VDEV_START_OK = 0,
++	WMI_VDEV_START_CHAN_INVALID,
++};
 +
- 	/* Set HASH_TERM bit for last transfer block. */
- 	if (rctx->fini) {
--		digest_phys = dma_map_single(sdcp->dev, req->result,
--					     halg->digestsize, DMA_FROM_DEVICE);
-+		digest_phys = dma_map_single(sdcp->dev, sdcp->coh->sha_out_buf,
-+					     DCP_SHA_PAY_SZ, DMA_FROM_DEVICE);
- 		desc->control0 |= MXS_DCP_CONTROL0_HASH_TERM;
- 		desc->payload = digest_phys;
- 	}
-@@ -547,9 +574,10 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	ret = mxs_dcp_start_dma(actx);
+ struct wmi_vdev_start_ev_arg {
+ 	__le32 vdev_id;
+ 	__le32 req_id;
+ 	__le32 resp_type; /* %WMI_VDEV_RESP_ */
+-	__le32 status;
++	__le32 status; /* See wmi_vdev_start_status enum above */
+ };
  
- 	if (rctx->fini)
--		dma_unmap_single(sdcp->dev, digest_phys, halg->digestsize,
-+		dma_unmap_single(sdcp->dev, digest_phys, DCP_SHA_PAY_SZ,
- 				 DMA_FROM_DEVICE);
- 
-+done_run:
- 	dma_unmap_single(sdcp->dev, buf_phys, DCP_BUF_SZ, DMA_TO_DEVICE);
- 
- 	return ret;
-@@ -567,6 +595,7 @@ static int dcp_sha_req_to_buf(struct crypto_async_request *arq)
- 	const int nents = sg_nents(req->src);
- 
- 	uint8_t *in_buf = sdcp->coh->sha_in_buf;
-+	uint8_t *out_buf = sdcp->coh->sha_out_buf;
- 
- 	uint8_t *src_buf;
- 
-@@ -621,11 +650,9 @@ static int dcp_sha_req_to_buf(struct crypto_async_request *arq)
- 
- 		actx->fill = 0;
- 
--		/* For some reason, the result is flipped. */
--		for (i = 0; i < halg->digestsize / 2; i++) {
--			swap(req->result[i],
--			     req->result[halg->digestsize - i - 1]);
--		}
-+		/* For some reason the result is flipped */
-+		for (i = 0; i < halg->digestsize; i++)
-+			req->result[i] = out_buf[halg->digestsize - i - 1];
- 	}
- 
- 	return 0;
+ struct wmi_peer_kick_ev_arg {
 -- 
 2.20.1
 
