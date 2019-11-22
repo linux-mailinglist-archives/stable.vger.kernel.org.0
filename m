@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07EB71070E9
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC2D106F5F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:15:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728462AbfKVKg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:36:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:37542 "EHLO mail.kernel.org"
+        id S1730160AbfKVKwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:52:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727841AbfKVKgz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:36:55 -0500
+        id S1730153AbfKVKwT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:52:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7BB9120707;
-        Fri, 22 Nov 2019 10:36:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 55AE02070E;
+        Fri, 22 Nov 2019 10:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419015;
-        bh=NCLa/CmFT/n4HyVaQnIGfgA6wAxspxSXxhBEMczoqUQ=;
+        s=default; t=1574419938;
+        bh=tmAMY+oNmxk7Nfm7KyR/BS1nrQjUL/UOu/NrN+8wWdM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kmWv9rxpUzInv+QI/pWoJ+jmKrQzC9waOF/2tOoy3CMdcbJPyz/9Np4E6HI0hiwM4
-         CDSKimznodRSINuMS0b72bs15cNIlq6VWDPHyBq6eEJ1/E6HRuDs3m9H0kCVDDfqEf
-         v6FNCX9VW/WMgRHusYtEbhmRURgJBhVOE4G29fJM=
+        b=iJnezSBFgzemlQJ6Qz9/iBlEsQ3Z7WKYfVW3dr9SIJxbIDMMEpJxmpem7++XXlbsH
+         9TIUQtDCOVUA4OjMp5Dl8GNzEezOJcmf61Z5VvG+vN3irHEyhlXsJ4KZ8Qy+g/WzlF
+         XpYrR0QbuNFLaT4gBLL1kmDS2CwIzELI+/yTOvms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 121/159] mei: samples: fix a signedness bug in amt_host_if_call()
+Subject: [PATCH 4.14 059/122] media: pxa_camera: Fix check for pdev->dev.of_node
 Date:   Fri, 22 Nov 2019 11:28:32 +0100
-Message-Id: <20191122100831.264094414@linuxfoundation.org>
+Message-Id: <20191122100803.421297043@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,32 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 185647813cac080453cb73a2e034a8821049f2a7 ]
+[ Upstream commit 44d7f1a77d8c84f8e42789b5475b74ae0e6d4758 ]
 
-"out_buf_sz" needs to be signed for the error handling to work.
+Clang warns that the address of a pointer will always evaluated as true
+in a boolean context.
 
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+drivers/media/platform/pxa_camera.c:2400:17: warning: address of
+'pdev->dev.of_node' will always evaluate to 'true'
+[-Wpointer-bool-conversion]
+        if (&pdev->dev.of_node && !pcdev->pdata) {
+             ~~~~~~~~~~^~~~~~~ ~~
+1 warning generated.
+
+Judging from the rest of the kernel, it seems like this was an error and
+just the value of of_node should be checked rather than the address.
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/misc-devices/mei/mei-amt-version.c | 2 +-
+ drivers/media/platform/pxa_camera.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/misc-devices/mei/mei-amt-version.c b/Documentation/misc-devices/mei/mei-amt-version.c
-index 57d0d871dcf71..33e67bd1dc343 100644
---- a/Documentation/misc-devices/mei/mei-amt-version.c
-+++ b/Documentation/misc-devices/mei/mei-amt-version.c
-@@ -370,7 +370,7 @@ static uint32_t amt_host_if_call(struct amt_host_if *acmd,
- 			unsigned int expected_sz)
- {
- 	uint32_t in_buf_sz;
--	uint32_t out_buf_sz;
-+	ssize_t out_buf_sz;
- 	ssize_t written;
- 	uint32_t status;
- 	struct amt_host_if_resp_header *msg_hdr;
+diff --git a/drivers/media/platform/pxa_camera.c b/drivers/media/platform/pxa_camera.c
+index edca993c2b1f0..d270a23299cc7 100644
+--- a/drivers/media/platform/pxa_camera.c
++++ b/drivers/media/platform/pxa_camera.c
+@@ -2374,7 +2374,7 @@ static int pxa_camera_probe(struct platform_device *pdev)
+ 	pcdev->res = res;
+ 
+ 	pcdev->pdata = pdev->dev.platform_data;
+-	if (&pdev->dev.of_node && !pcdev->pdata) {
++	if (pdev->dev.of_node && !pcdev->pdata) {
+ 		err = pxa_camera_pdata_from_dt(&pdev->dev, pcdev, &pcdev->asd);
+ 	} else {
+ 		pcdev->platform_flags = pcdev->pdata->flags;
 -- 
 2.20.1
 
