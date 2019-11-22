@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EA681078A9
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:53:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BFEA107865
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:53:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727415AbfKVTwH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 14:52:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50260 "EHLO mail.kernel.org"
+        id S1727680AbfKVTt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 14:49:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727665AbfKVTt4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 14:49:56 -0500
+        id S1727673AbfKVTt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 14:49:57 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C31120726;
-        Fri, 22 Nov 2019 19:49:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BCB220658;
+        Fri, 22 Nov 2019 19:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574452196;
-        bh=jDfD+CL5wDqvqEFQmPaEED4yz67Luv316LwnHkstN0E=;
+        s=default; t=1574452197;
+        bh=XhNv7iixGGYfrnwFrZP69LTjw0pSmMl69WAWUf+8ME4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6Uc6QRTA+6NB0Tw05cj9ECyErRGTjUMtUXO70Pnc6CFSNPEt132ZcQzZGoKB70l/
-         JgP3H0UYaYs5WZ+2XgEHyA4hdHJAGpj50aRhbKKIetDDCUwc3/Nh0HZiJLfJtE3b/O
-         kQl4N+ae32B4CdU7QCTaoVQImTS6IBzOKoOs4jIs=
+        b=bIupUgpwRbiFPBIbFknnWeJn5bNabWw9+ufe1n4UCACMom+Y72cZecQsX6PYSkdhU
+         6a1wOk1n0UcvqEJRQW/o285ReJjyZa2i8u6DOEhBl/IuMNiCaMtSk7li8QtIt0xQFL
+         snzwxfiwek99BORRQWlEq3RN9OGhNr7MgocE5dDk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wen Yang <wenyang@linux.alibaba.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 20/21] i2c: core: fix use after free in of_i2c_notify
-Date:   Fri, 22 Nov 2019 14:49:30 -0500
-Message-Id: <20191122194931.24732-20-sashal@kernel.org>
+Cc:     Lyude Paul <lyude@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 21/21] Input: synaptics - enable RMI mode for X1 Extreme 2nd Generation
+Date:   Fri, 22 Nov 2019 14:49:31 -0500
+Message-Id: <20191122194931.24732-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122194931.24732-1-sashal@kernel.org>
 References: <20191122194931.24732-1-sashal@kernel.org>
@@ -43,41 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Yang <wenyang@linux.alibaba.com>
+From: Lyude Paul <lyude@redhat.com>
 
-[ Upstream commit a4c2fec16f5e6a5fee4865e6e0e91e2bc2d10f37 ]
+[ Upstream commit 768ea88bcb235ac3a92754bf82afcd3f12200bcc ]
 
-We can't use "adap->dev" after it has been freed.
+Just got one of these for debugging some unrelated issues, and noticed
+that Lenovo seems to have gone back to using RMI4 over smbus with
+Synaptics touchpads on some of their new systems, particularly this one.
+So, let's enable RMI mode for the X1 Extreme 2nd Generation.
 
-Fixes: 5bf4fa7daea6 ("i2c: break out OF support into separate file")
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://lore.kernel.org/r/20191115221814.31903-1-lyude@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-core-of.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/mouse/synaptics.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
-index 8d474bb1dc157..17d727e0b8424 100644
---- a/drivers/i2c/i2c-core-of.c
-+++ b/drivers/i2c/i2c-core-of.c
-@@ -238,14 +238,14 @@ static int of_i2c_notify(struct notifier_block *nb, unsigned long action,
- 		}
- 
- 		client = of_i2c_register_device(adap, rd->dn);
--		put_device(&adap->dev);
--
- 		if (IS_ERR(client)) {
- 			dev_err(&adap->dev, "failed to create client for '%pOF'\n",
- 				 rd->dn);
-+			put_device(&adap->dev);
- 			of_node_clear_flag(rd->dn, OF_POPULATED);
- 			return notifier_from_errno(PTR_ERR(client));
- 		}
-+		put_device(&adap->dev);
- 		break;
- 	case OF_RECONFIG_CHANGE_REMOVE:
- 		/* already depopulated? */
+diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+index 7db53eab70121..1962db0431dea 100644
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -180,6 +180,7 @@ static const char * const smbus_pnp_ids[] = {
+ 	"LEN0096", /* X280 */
+ 	"LEN0097", /* X280 -> ALPS trackpoint */
+ 	"LEN009b", /* T580 */
++	"LEN0402", /* X1 Extreme 2nd Generation */
+ 	"LEN200f", /* T450s */
+ 	"LEN2054", /* E480 */
+ 	"LEN2055", /* E580 */
 -- 
 2.20.1
 
