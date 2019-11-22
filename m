@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3792106EB6
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F29110706D
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:22:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731032AbfKVLA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:00:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52474 "EHLO mail.kernel.org"
+        id S1728414AbfKVKok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:44:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727179AbfKVLA0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:00:26 -0500
+        id S1728972AbfKVKok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:44:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 915BE2073B;
-        Fri, 22 Nov 2019 11:00:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C339205C9;
+        Fri, 22 Nov 2019 10:44:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420425;
-        bh=tXZk9214sgJzo8KjHLglNwAtrSjYARemGMUZSBxff4Q=;
+        s=default; t=1574419480;
+        bh=4ElWsVrVIaG8mM1b7IaApAMRwb0A/8ZhKWfzOuGRZXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xZmfBPyfKPEmgTLmPQp1RTmJ+TWc38OIbkWVZSZ7UAGfTbej7GZ/AAY/qmtXEa/ZO
-         /cXN4cB3Vo+1cYsWraI0mPr32HecFPFMsZxXowfgJiczittfyIGCoB+oxqqnf9/WBB
-         lSpGpiina8ILJ7Mjs0I9k/CUOD7DeN1jvgqCHWmE=
+        b=mvdLM/m7qyuRQ73nsNugyHDngyfSIrBXMQT7Q20zM2BjhqamXk2mlkJHv4iimH0/4
+         boLboDc/MhWqlS1J8u7MlH6QJQ+m9Q4HrEqgTfb4sXOf5zhgWp92wBV2/B6urJIj4H
+         BR7Qwm7RJ1Ymgxxy6P8UH19VChBk6AXw4Zxx/r08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Marc Dietrich <marvin24@gmx.de>,
+        Nicolas Chauvet <kwizart@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 102/220] media: rcar-vin: fix redeclaration of symbol
+Subject: [PATCH 4.9 127/222] ARM: dts: paz00: fix wakeup gpio keycode
 Date:   Fri, 22 Nov 2019 11:27:47 +0100
-Message-Id: <20191122100920.111655154@linuxfoundation.org>
+Message-Id: <20191122100912.186113816@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,41 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Marc Dietrich <marvin24@gmx.de>
 
-[ Upstream commit 4e673ed4e2bfac00b3c3043a84e007874c17c84d ]
+[ Upstream commit ebea2a43fdafdbce918bd7e200b709d6c33b9f3b ]
 
-When adding support for parallel subdev for Gen3 it was missed that the
-symbol 'i' in rvin_group_link_notify() was already declared, remove the
-dupe as it's only used as a loop variable this have no functional
-change. This fixes warning:
+The power key is controlled solely by the EC, which only tiggeres this
+gpio after wakeup.
+Fixes immediately return to suspend after wake from LP1.
 
-    rcar-core.c:117:52: originally declared here
-    rcar-core.c:173:30: warning: symbol 'i' shadows an earlier one
-
-Fixes: 1284605dc821cebd ("media: rcar-vin: Handle parallel subdev in link_notify")
-
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Acked-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Marc Dietrich <marvin24@gmx.de>
+Tested-by: Nicolas Chauvet <kwizart@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar-vin/rcar-core.c | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/tegra20-paz00.dts | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-core.c b/drivers/media/platform/rcar-vin/rcar-core.c
-index e1085e3ab3cc6..485fa3fa8b49a 100644
---- a/drivers/media/platform/rcar-vin/rcar-core.c
-+++ b/drivers/media/platform/rcar-vin/rcar-core.c
-@@ -174,7 +174,6 @@ static int rvin_group_link_notify(struct media_link *link, u32 flags,
+diff --git a/arch/arm/boot/dts/tegra20-paz00.dts b/arch/arm/boot/dts/tegra20-paz00.dts
+index b4bfa5586c233..23d4c837b87a6 100644
+--- a/arch/arm/boot/dts/tegra20-paz00.dts
++++ b/arch/arm/boot/dts/tegra20-paz00.dts
+@@ -521,10 +521,10 @@
+ 	gpio-keys {
+ 		compatible = "gpio-keys";
  
- 	if (csi_id == -ENODEV) {
- 		struct v4l2_subdev *sd;
--		unsigned int i;
- 
- 		/*
- 		 * Make sure the source entity subdevice is registered as
+-		power {
+-			label = "Power";
++		wakeup {
++			label = "Wakeup";
+ 			gpios = <&gpio TEGRA_GPIO(J, 7) GPIO_ACTIVE_LOW>;
+-			linux,code = <KEY_POWER>;
++			linux,code = <KEY_WAKEUP>;
+ 			wakeup-source;
+ 		};
+ 	};
 -- 
 2.20.1
 
