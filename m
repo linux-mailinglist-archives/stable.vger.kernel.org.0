@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B69D41065D5
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:28:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE0A10661C
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:29:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727509AbfKVFuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:50:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54498 "EHLO mail.kernel.org"
+        id S1727333AbfKVG2o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:28:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727497AbfKVFuG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:50:06 -0500
+        id S1727508AbfKVFuH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:50:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6FF820717;
-        Fri, 22 Nov 2019 05:50:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAD882068F;
+        Fri, 22 Nov 2019 05:50:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401805;
-        bh=MqCGkEaFKEvYpnpR5yjcDLhn3RcaqfJeMd3Ts7sMgNM=;
+        s=default; t=1574401806;
+        bh=O8wyPceWayF533GAkTF/pAHkQtQKQAuf8TKGcWkyJoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R3oXOUGVWqiYX3ZX+VjhQIxeOHU2e1+aVBH7X83ywNuZF1sVAbF70IlALeCg3IhRz
-         M0kIiP9Ohnvln2U5rECHsWBeU2KdLalerJvSS488+yeY5oFpq4+UklGjb2TQeFI5jX
-         TI5TuAbtHkgJHDf1GuJR6b5FenlLIwhFxVS2yv7I=
+        b=Wui7xc7b8H4Xmf2RtO2/lOcI19UqcrNRKrKQOgpJqT5hcVTrlnDhcF4haH7X28F7O
+         y3zs63khc/TXnDmqB+bsEIjrmBZ9wbMv5ccMX83TmbNTJJiALJ6l/4MLOLs0Jv7CBZ
+         J54YXy6WOXJc9dhAlswQJn9b/8Z/I1LY0daO5C2M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shenghui Wang <shhuiw@foxmail.com>, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-bcache@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 050/219] bcache: do not mark writeback_running too early
-Date:   Fri, 22 Nov 2019 00:46:22 -0500
-Message-Id: <20191122054911.1750-43-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Bill O'Donnell <billodo@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 051/219] xfs: require both realtime inodes to mount
+Date:   Fri, 22 Nov 2019 00:46:23 -0500
+Message-Id: <20191122054911.1750-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -43,93 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shenghui Wang <shhuiw@foxmail.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit 79b791466e525c98f6aeee9acf5726e7b27f4231 ]
+[ Upstream commit 64bafd2f1e484e27071e7584642005d56516cb77 ]
 
-A fresh backing device is not attached to any cache_set, and
-has no writeback kthread created until first attached to some
-cache_set.
+Since mkfs always formats the filesystem with the realtime bitmap and
+summary inodes immediately after the root directory, we should expect
+that both of them are present and loadable, even if there isn't a
+realtime volume attached.  There's no reason to skip this if rbmino ==
+NULLFSINO; in fact, this causes an immediate crash if the there /is/ a
+realtime volume and someone writes to it.
 
-But bch_cached_dev_writeback_init run
-"
-	dc->writeback_running		= true;
-	WARN_ON(test_and_clear_bit(BCACHE_DEV_WB_RUNNING,
-			&dc->disk.flags));
-"
-for any newly formatted backing devices.
-
-For a fresh standalone backing device, we can get something like
-following even if no writeback kthread created:
-------------------------
-/sys/block/bcache0/bcache# cat writeback_running
-1
-/sys/block/bcache0/bcache# cat writeback_rate_debug
-rate:		512.0k/sec
-dirty:		0.0k
-target:		0.0k
-proportional:	0.0k
-integral:	0.0k
-change:		0.0k/sec
-next io:	-15427384ms
-
-The none ZERO fields are misleading as no alive writeback kthread yet.
-
-Set dc->writeback_running false as no writeback thread created in
-bch_cached_dev_writeback_init().
-
-We have writeback thread created and woken up in bch_cached_dev_writeback
-_start(). Set dc->writeback_running true before bch_writeback_queue()
-called, as a writeback thread will check if dc->writeback_running is true
-before writing back dirty data, and hung if false detected.
-
-After the change, we can get the following output for a fresh standalone
-backing device:
------------------------
-/sys/block/bcache0/bcache$ cat writeback_running
-0
-/sys/block/bcache0/bcache# cat writeback_rate_debug
-rate:		0.0k/sec
-dirty:		0.0k
-target:		0.0k
-proportional:	0.0k
-integral:	0.0k
-change:		0.0k/sec
-next io:	0ms
-
-v1 -> v2:
-  Set dc->writeback_running before bch_writeback_queue() called,
-
-Signed-off-by: Shenghui Wang <shhuiw@foxmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Bill O'Donnell <billodo@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/writeback.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_rtalloc.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/md/bcache/writeback.c b/drivers/md/bcache/writeback.c
-index ba5395fd386d5..b5fc3c6c7178e 100644
---- a/drivers/md/bcache/writeback.c
-+++ b/drivers/md/bcache/writeback.c
-@@ -781,7 +781,7 @@ void bch_cached_dev_writeback_init(struct cached_dev *dc)
- 	bch_keybuf_init(&dc->writeback_keys);
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 926ed314ffba1..484eb0adcefb2 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -1198,13 +1198,11 @@ xfs_rtmount_inodes(
+ 	xfs_sb_t	*sbp;
  
- 	dc->writeback_metadata		= true;
--	dc->writeback_running		= true;
-+	dc->writeback_running		= false;
- 	dc->writeback_percent		= 10;
- 	dc->writeback_delay		= 30;
- 	atomic_long_set(&dc->writeback_rate.rate, 1024);
-@@ -810,6 +810,7 @@ int bch_cached_dev_writeback_start(struct cached_dev *dc)
- 		destroy_workqueue(dc->writeback_write_wq);
- 		return PTR_ERR(dc->writeback_thread);
- 	}
-+	dc->writeback_running = true;
- 
- 	WARN_ON(test_and_set_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags));
- 	schedule_delayed_work(&dc->writeback_rate_update,
+ 	sbp = &mp->m_sb;
+-	if (sbp->sb_rbmino == NULLFSINO)
+-		return 0;
+ 	error = xfs_iget(mp, NULL, sbp->sb_rbmino, 0, 0, &mp->m_rbmip);
+ 	if (error)
+ 		return error;
+ 	ASSERT(mp->m_rbmip != NULL);
+-	ASSERT(sbp->sb_rsumino != NULLFSINO);
++
+ 	error = xfs_iget(mp, NULL, sbp->sb_rsumino, 0, 0, &mp->m_rsumip);
+ 	if (error) {
+ 		xfs_irele(mp->m_rbmip);
 -- 
 2.20.1
 
