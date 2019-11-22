@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ACBF1061BE
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:59:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B214810619B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726933AbfKVF6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:58:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36650 "EHLO mail.kernel.org"
+        id S1729603AbfKVF6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:58:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728789AbfKVF6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:58:01 -0500
+        id S1729599AbfKVF6D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:58:03 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 688982084B;
-        Fri, 22 Nov 2019 05:58:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7724920659;
+        Fri, 22 Nov 2019 05:58:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402281;
-        bh=Bem4WhKsnLL+Ib474HsvJfup41+lAtVmwSQHdCk7+NM=;
+        s=default; t=1574402282;
+        bh=EdxHinHYPcPse218dukcZpO0bocSEKqsp7nvcOd+QtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnFaCxyjzX4OibSkLI2oZ3Y6oQ4h8sKr4opl+OBlDuYFmS0wNCvPkdMLGmtZvDCGj
-         w3sCcTV8NZ38AmWjXmxiGKu9z9PsvCaggVmChSmJzIuMZxRoIra4AZrWYe5FZq5UVq
-         Wh6EVcIBV11R2boApGur+320oqcJrDNfJzdAx+t8=
+        b=zMQU3r1ogvHRHp+8IoUzBrVpv6zaVl9PSNAPDHWd+QePO77/hvZ46LwFtE6LMKYXc
+         Weq/wYBn56cOiA7EMu6ibRbXs8wX4ysx/vykVKZjuvSlnmLCtZjPHHAW5huwOnBOYN
+         zGziH5qh84neyqt2lDOVNyToqyQ660UXQYG8itWg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Coulson <chris.coulson@canonical.com>,
-        John Johansen <john.johansen@canonical.com>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-security-module@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 120/127] apparmor: delete the dentry in aafs_remove() to avoid a leak
-Date:   Fri, 22 Nov 2019 00:55:37 -0500
-Message-Id: <20191122055544.3299-118-sashal@kernel.org>
+Cc:     John Garry <john.garry@huawei.com>, Jian Luo <luojian5@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 121/127] scsi: libsas: Support SATA PHY connection rate unmatch fixing during discovery
+Date:   Fri, 22 Nov 2019 00:55:38 -0500
+Message-Id: <20191122055544.3299-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -44,41 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Coulson <chris.coulson@canonical.com>
+From: John Garry <john.garry@huawei.com>
 
-[ Upstream commit 201218e4d3dfa1346e30997f48725acce3f26d01 ]
+[ Upstream commit cec9771d2e954650095aa37a6a97722c8194e7d2 ]
 
-Although the apparmorfs dentries are always dropped from the dentry cache
-when the usage count drops to zero, there is no guarantee that this will
-happen in aafs_remove(), as another thread might still be using it. In
-this scenario, this means that the dentry will temporarily continue to
-appear in the results of lookups, even after the call to aafs_remove().
+   +----------+             +----------+
+   |          |             |          |
+   |          |--- 3.0 G ---|          |--- 6.0 G --- SAS  disk
+   |          |             |          |
+   |          |--- 3.0 G ---|          |--- 6.0 G --- SAS  disk
+   |initiator |             |          |
+   | device   |--- 3.0 G ---| Expander |--- 6.0 G --- SAS  disk
+   |          |             |          |
+   |          |--- 3.0 G ---|          |--- 6.0 G --- SATA disk  -->failed to connect
+   |          |             |          |
+   |          |             |          |--- 6.0 G --- SATA disk  -->failed to connect
+   |          |             |          |
+   +----------+             +----------+
 
-In the case of removal of a profile - it also causes simple_rmdir()
-on the profile directory to fail, as the directory won't be empty until
-the usage counts of all child dentries have decreased to zero. This
-results in the dentry for the profile directory leaking and appearing
-empty in the file system tree forever.
+According to Serial Attached SCSI - 1.1 (SAS-1.1):
+If an expander PHY attached to a SATA PHY is using a physical link rate
+greater than the maximum connection rate supported by the pathway from an
+STP initiator port, a management application client should use the SMP PHY
+CONTROL function (see 10.4.3.10) to set the PROGRAMMED MAXIMUM PHYSICAL
+LINK RATE field of the expander PHY to the maximum connection rate
+supported by the pathway from that STP initiator port.
 
-Signed-off-by: Chris Coulson <chris.coulson@canonical.com>
-Signed-off-by: John Johansen <john.johansen@canonical.com>
+Currently libsas does not support checking if this condition occurs, nor
+rectifying when it does.
+
+Such a condition is not at all common, however it has been seen on some
+pre-silicon environments where the initiator PHY only supports a 1.5 Gbit
+maximum linkrate, mated with 12G expander PHYs and 3/6G SATA phy.
+
+This patch adds support for checking and rectifying this condition during
+initial device discovery only.
+
+We do support checking min pathway connection rate during revalidation phase,
+when new devices can be detected in the topology. However we do not
+support in the case of the the user reprogramming PHY linkrates, such that
+min pathway condition is not met/maintained.
+
+A note on root port PHY rates:
+The libsas root port PHY rates calculation is broken. Libsas sets the
+rates (min, max, and current linkrate) of a root port to the same linkrate
+of the first PHY member of that same port. In doing so, it assumes that
+all other PHYs which subsequently join the port to have the same
+negotiated linkrate, when they could actually be different.
+
+In practice this doesn't happen, as initiator and expander PHYs are
+normally initialised with consistent min/max linkrates.
+
+This has not caused an issue so far, so leave alone for now.
+
+Tested-by: Jian Luo <luojian5@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/apparmorfs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/libsas/sas_expander.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index dd746bd69a9b2..c106988c1b254 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -363,6 +363,7 @@ static void aafs_remove(struct dentry *dentry)
- 			simple_rmdir(dir, dentry);
- 		else
- 			simple_unlink(dir, dentry);
-+		d_delete(dentry);
- 		dput(dentry);
- 	}
- 	inode_unlock(dir);
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index 259ee0d3c3e61..819a655473588 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -817,6 +817,26 @@ static struct domain_device *sas_ex_discover_end_dev(
+ 
+ #ifdef CONFIG_SCSI_SAS_ATA
+ 	if ((phy->attached_tproto & SAS_PROTOCOL_STP) || phy->attached_sata_dev) {
++		if (child->linkrate > parent->min_linkrate) {
++			struct sas_phy_linkrates rates = {
++				.maximum_linkrate = parent->min_linkrate,
++				.minimum_linkrate = parent->min_linkrate,
++			};
++			int ret;
++
++			pr_notice("ex %016llx phy%02d SATA device linkrate > min pathway connection rate, attempting to lower device linkrate\n",
++				   SAS_ADDR(child->sas_addr), phy_id);
++			ret = sas_smp_phy_control(parent, phy_id,
++						  PHY_FUNC_LINK_RESET, &rates);
++			if (ret) {
++				pr_err("ex %016llx phy%02d SATA device could not set linkrate (%d)\n",
++				       SAS_ADDR(child->sas_addr), phy_id, ret);
++				goto out_free;
++			}
++			pr_notice("ex %016llx phy%02d SATA device set linkrate successfully\n",
++				  SAS_ADDR(child->sas_addr), phy_id);
++			child->linkrate = child->min_linkrate;
++		}
+ 		res = sas_get_ata_info(child, phy);
+ 		if (res)
+ 			goto out_free;
 -- 
 2.20.1
 
