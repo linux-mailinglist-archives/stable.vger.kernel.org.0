@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A37D106E90
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:09:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A464C106F50
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730776AbfKVLCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:02:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56632 "EHLO mail.kernel.org"
+        id S1728806AbfKVKwc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:52:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731356AbfKVLCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:02:49 -0500
+        id S1727846AbfKVKw2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:52:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB1F22075E;
-        Fri, 22 Nov 2019 11:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46ACB20656;
+        Fri, 22 Nov 2019 10:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420569;
-        bh=0gEzsh+7Ngn7kbU3KfbwyUiSURyxIcBfrRMxOaEwNbA=;
+        s=default; t=1574419947;
+        bh=kk9s2ECVWRZh6QKxhKPAVyCqzJNCNwA+1D7J7+tmnYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8Bny6AFkiC9EAXwhdf3nrqwCM6txxIVTdpoic7uVHnMZxHHJkgm1HDZVBrwCdUWh
-         +H8j/v5RXp2t8xZpmZRTsd5gzIituzA77x/PI4sj2m2YM2vYdOMvNBm7j/S/CFKT3Z
-         6dqtMHjzhdxKfGjwQW5lG4Z1FIj6MkknIbzlKvKU=
+        b=H3MLsTwTIBoRnJTpolK5RDqQCyMGyM7TpgNBAyldQhi6k+VrD+MJ+jZI0VA6yQ93e
+         n302IPkJ+PtuU3Q8Uv6b+mKDndh/GJ2uUXT1syKREL6J3zywXZtnsKd6VZH/Hm8kCV
+         7jBbFsFyIf0B3mUvbMMMoXt7ise1fyx9q5xgvj5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Cameron Kaiser <spectre@floodgap.com>,
+        Paul Mackerras <paulus@ozlabs.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 150/220] mmc: renesas_sdhi_internal_dmac: set scatter/gather max segment size
+Subject: [PATCH 4.14 062/122] KVM: PPC: Book3S PR: Exiting split hack mode needs to fixup both PC and LR
 Date:   Fri, 22 Nov 2019 11:28:35 +0100
-Message-Id: <20191122100923.526919896@linuxfoundation.org>
+Message-Id: <20191122100805.666729402@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,54 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Cameron Kaiser <spectre@floodgap.com>
 
-[ Upstream commit 54541815b43f4e49c82628bf28bbb31d86d2f58a ]
+[ Upstream commit 1006284c5e411872333967b1970c2ca46a9e225f ]
 
-Fix warning when running with CONFIG_DMA_API_DEBUG_SG=y by allocating a
-device_dma_parameters structure and filling in the max segment size. The
-size used is the result of a discussion with Renesas hardware engineers
-and unfortunately not found in the datasheet.
+When an OS (currently only classic Mac OS) is running in KVM-PR and makes a
+linked jump from code with split hack addressing enabled into code that does
+not, LR is not correctly updated and reflects the previously munged PC.
 
-  renesas_sdhi_internal_dmac ee140000.sd: DMA-API: mapping sg segment
-  longer than device claims to support [len=126976] [max=65536]
+To fix this, this patch undoes the address munge when exiting split
+hack mode so that code relying on LR being a proper address will now
+execute. This does not affect OS X or other operating systems running
+on KVM-PR.
 
-Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-[wsa: simplified some logic after validating intended dma_parms life cycle
-      and added comment]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Cameron Kaiser <spectre@floodgap.com>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/renesas_sdhi_internal_dmac.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/powerpc/kvm/book3s.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mmc/host/renesas_sdhi_internal_dmac.c b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-index f4aefa8954bfc..382172fb3da8f 100644
---- a/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-+++ b/drivers/mmc/host/renesas_sdhi_internal_dmac.c
-@@ -310,12 +310,20 @@ static const struct soc_device_attribute gen3_soc_whitelist[] = {
- static int renesas_sdhi_internal_dmac_probe(struct platform_device *pdev)
+diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
+index d38280b01ef08..1eda812499376 100644
+--- a/arch/powerpc/kvm/book3s.c
++++ b/arch/powerpc/kvm/book3s.c
+@@ -79,8 +79,11 @@ void kvmppc_unfixup_split_real(struct kvm_vcpu *vcpu)
  {
- 	const struct soc_device_attribute *soc = soc_device_match(gen3_soc_whitelist);
-+	struct device *dev = &pdev->dev;
- 
- 	if (!soc)
- 		return -ENODEV;
- 
- 	global_flags |= (unsigned long)soc->data;
- 
-+	dev->dma_parms = devm_kzalloc(dev, sizeof(*dev->dma_parms), GFP_KERNEL);
-+	if (!dev->dma_parms)
-+		return -ENOMEM;
-+
-+	/* value is max of SD_SECCNT. Confirmed by HW engineers */
-+	dma_set_max_seg_size(dev, 0xffffffff);
-+
- 	return renesas_sdhi_probe(pdev, &renesas_sdhi_internal_dmac_dma_ops);
+ 	if (vcpu->arch.hflags & BOOK3S_HFLAG_SPLIT_HACK) {
+ 		ulong pc = kvmppc_get_pc(vcpu);
++		ulong lr = kvmppc_get_lr(vcpu);
+ 		if ((pc & SPLIT_HACK_MASK) == SPLIT_HACK_OFFS)
+ 			kvmppc_set_pc(vcpu, pc & ~SPLIT_HACK_MASK);
++		if ((lr & SPLIT_HACK_MASK) == SPLIT_HACK_OFFS)
++			kvmppc_set_lr(vcpu, lr & ~SPLIT_HACK_MASK);
+ 		vcpu->arch.hflags &= ~BOOK3S_HFLAG_SPLIT_HACK;
+ 	}
  }
- 
 -- 
 2.20.1
 
