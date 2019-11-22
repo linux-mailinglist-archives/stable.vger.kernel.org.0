@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE19107038
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:21:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B9CC106D91
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727556AbfKVKpY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:45:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51656 "EHLO mail.kernel.org"
+        id S1728265AbfKVLBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:01:10 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729070AbfKVKpW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:45:22 -0500
+        id S1730109AbfKVLBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:01:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 11B242071C;
-        Fri, 22 Nov 2019 10:45:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C704520706;
+        Fri, 22 Nov 2019 11:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419521;
-        bh=qFMPdXUEH6vwVV5eu/FaLP6bhy2xtehholYH6iinTzU=;
+        s=default; t=1574420469;
+        bh=9tlsXAq1wvbQ7vXhH0WzC2FHYWWLkSRWNraPNNPO6MY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rxa4exafLJ8MJ5A8ZOT4VbYJIMbn+4C8OX8Cj7NWXiJNiegvjjFBLsIODYIywg6pr
-         Btjl1WMPPVjRp3i5qWOdl7+hl4JjFCg+WGVUHxDHDDQ85ZlAUNtWu/Gw2Y5jVVJTbP
-         tRmvmyV9RtlFOaMRB2X/uuDpKGrfrKbS+hMYPjWY=
+        b=ODEThaCoj5Sw/zS9EFFOkLzTW58dJ3d8VKomapIxgd2hay6Kk4TBp+dVTyDXXykke
+         7gS9GXm6IvUKywu+jQlK1RL2OR9XqEc/nen2v7xGYJaHOv6Xa5FSqQ9v6sXfb0E1Fn
+         mLVLZu7ZHoZOOdN38e6oSQvv853626l+0tb7dImA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brijesh Singh <brijeshkumar.singh@amd.com>,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Rob Herring <robh@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org,
+        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 140/222] arm64: dts: amd: Fix SPI bus warnings
+Subject: [PATCH 4.19 115/220] qtnfmac: inform wireless core about supported extended capabilities
 Date:   Fri, 22 Nov 2019 11:28:00 +0100
-Message-Id: <20191122100912.955623871@linuxfoundation.org>
+Message-Id: <20191122100921.014116895@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +45,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
 
-[ Upstream commit e9f0878c4b2004ac19581274c1ae4c61ae3ca70e ]
+[ Upstream commit ab1c64a1d349cc7f1090a60ce85a53298e3d371d ]
 
-dtc has new checks for SPI buses. Fix the warnings in node names.
+Driver retrieves information about supported extended capabilities
+from wireless card. However this information is not propagated
+further to Linux wireless core. Fix this by setting extended
+capabilities fields of wiphy structure.
 
-arch/arm64/boot/dts/amd/amd-overdrive.dtb: Warning (spi_bus_bridge): /smb/ssp@e1030000: node name for SPI buses should be 'spi'
-arch/arm64/boot/dts/amd/amd-overdrive-rev-b0.dtb: Warning (spi_bus_bridge): /smb/ssp@e1030000: node name for SPI buses should be 'spi'
-arch/arm64/boot/dts/amd/amd-overdrive-rev-b1.dtb: Warning (spi_bus_bridge): /smb/ssp@e1030000: node name for SPI buses should be 'spi'
-
-Cc: Brijesh Singh <brijeshkumar.singh@amd.com>
-Cc: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../net/wireless/quantenna/qtnfmac/cfg80211.c    |  9 +++++++++
+ .../net/wireless/quantenna/qtnfmac/commands.c    |  3 +--
+ drivers/net/wireless/quantenna/qtnfmac/core.c    | 16 ++++++++++++++--
+ drivers/net/wireless/quantenna/qtnfmac/core.h    |  1 +
+ 4 files changed, 25 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi b/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
-index bd3adeac374f4..2973a14523eaf 100644
---- a/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
-+++ b/arch/arm64/boot/dts/amd/amd-seattle-soc.dtsi
-@@ -106,7 +106,7 @@
- 			clock-names = "uartclk", "apb_pclk";
- 		};
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c b/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c
+index 1519d986b74a4..05b93f301ca08 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c
++++ b/drivers/net/wireless/quantenna/qtnfmac/cfg80211.c
+@@ -1126,6 +1126,15 @@ int qtnf_wiphy_register(struct qtnf_hw_info *hw_info, struct qtnf_wmac *mac)
+ 		wiphy->regulatory_flags |= REGULATORY_WIPHY_SELF_MANAGED;
+ 	}
  
--		spi0: ssp@e1020000 {
-+		spi0: spi@e1020000 {
- 			status = "disabled";
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0 0xe1020000 0 0x1000>;
-@@ -116,7 +116,7 @@
- 			clock-names = "apb_pclk";
- 		};
++	if (mac->macinfo.extended_capabilities_len) {
++		wiphy->extended_capabilities =
++			mac->macinfo.extended_capabilities;
++		wiphy->extended_capabilities_mask =
++			mac->macinfo.extended_capabilities_mask;
++		wiphy->extended_capabilities_len =
++			mac->macinfo.extended_capabilities_len;
++	}
++
+ 	strlcpy(wiphy->fw_version, hw_info->fw_version,
+ 		sizeof(wiphy->fw_version));
+ 	wiphy->hw_version = hw_info->hw_version;
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/commands.c b/drivers/net/wireless/quantenna/qtnfmac/commands.c
+index 7fe22bb53bfc4..734844b34c266 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/commands.c
++++ b/drivers/net/wireless/quantenna/qtnfmac/commands.c
+@@ -1356,8 +1356,7 @@ static int qtnf_parse_variable_mac_info(struct qtnf_wmac *mac,
+ 		ext_capa_mask = NULL;
+ 	}
  
--		spi1: ssp@e1030000 {
-+		spi1: spi@e1030000 {
- 			status = "disabled";
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0 0xe1030000 0 0x1000>;
+-	kfree(mac->macinfo.extended_capabilities);
+-	kfree(mac->macinfo.extended_capabilities_mask);
++	qtnf_mac_ext_caps_free(mac);
+ 	mac->macinfo.extended_capabilities = ext_capa;
+ 	mac->macinfo.extended_capabilities_mask = ext_capa_mask;
+ 	mac->macinfo.extended_capabilities_len = ext_capa_len;
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/core.c b/drivers/net/wireless/quantenna/qtnfmac/core.c
+index 19abbc4e23e06..08928d5e252d7 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/core.c
++++ b/drivers/net/wireless/quantenna/qtnfmac/core.c
+@@ -304,6 +304,19 @@ void qtnf_mac_iface_comb_free(struct qtnf_wmac *mac)
+ 	}
+ }
+ 
++void qtnf_mac_ext_caps_free(struct qtnf_wmac *mac)
++{
++	if (mac->macinfo.extended_capabilities_len) {
++		kfree(mac->macinfo.extended_capabilities);
++		mac->macinfo.extended_capabilities = NULL;
++
++		kfree(mac->macinfo.extended_capabilities_mask);
++		mac->macinfo.extended_capabilities_mask = NULL;
++
++		mac->macinfo.extended_capabilities_len = 0;
++	}
++}
++
+ static void qtnf_vif_reset_handler(struct work_struct *work)
+ {
+ 	struct qtnf_vif *vif = container_of(work, struct qtnf_vif, reset_work);
+@@ -493,8 +506,7 @@ static void qtnf_core_mac_detach(struct qtnf_bus *bus, unsigned int macid)
+ 	}
+ 
+ 	qtnf_mac_iface_comb_free(mac);
+-	kfree(mac->macinfo.extended_capabilities);
+-	kfree(mac->macinfo.extended_capabilities_mask);
++	qtnf_mac_ext_caps_free(mac);
+ 	kfree(mac->macinfo.wowlan);
+ 	wiphy_free(wiphy);
+ 	bus->mac[macid] = NULL;
+diff --git a/drivers/net/wireless/quantenna/qtnfmac/core.h b/drivers/net/wireless/quantenna/qtnfmac/core.h
+index a1e338a1f055a..ecb5c41c8ed76 100644
+--- a/drivers/net/wireless/quantenna/qtnfmac/core.h
++++ b/drivers/net/wireless/quantenna/qtnfmac/core.h
+@@ -151,6 +151,7 @@ struct qtnf_hw_info {
+ struct qtnf_vif *qtnf_mac_get_free_vif(struct qtnf_wmac *mac);
+ struct qtnf_vif *qtnf_mac_get_base_vif(struct qtnf_wmac *mac);
+ void qtnf_mac_iface_comb_free(struct qtnf_wmac *mac);
++void qtnf_mac_ext_caps_free(struct qtnf_wmac *mac);
+ struct wiphy *qtnf_wiphy_allocate(struct qtnf_bus *bus);
+ int qtnf_core_net_attach(struct qtnf_wmac *mac, struct qtnf_vif *priv,
+ 			 const char *name, unsigned char name_assign_type);
 -- 
 2.20.1
 
