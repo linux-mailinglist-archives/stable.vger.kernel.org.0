@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E221065F7
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51470106601
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:29:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727755AbfKVFuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:50:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55076 "EHLO mail.kernel.org"
+        id S1728230AbfKVG1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:27:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727743AbfKVFub (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:50:31 -0500
+        id S1727754AbfKVFuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:50:32 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1800C2071B;
-        Fri, 22 Nov 2019 05:50:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AF2520717;
+        Fri, 22 Nov 2019 05:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401830;
-        bh=ak0oafLdw9C8TV8kEB7ReTBdXAP8KMKwZSruFOSqZQo=;
+        s=default; t=1574401831;
+        bh=ixzM77mmAEzKa7tBc5NRii33XANhKZZ0LS4L+LzBBAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uw4HWBmQK2KhYnFeV8N5eSq/lPQnl6fNVBxCVnbmr3cZMUkxbn9LS+dfDzegh51He
-         6hb2R+6uxVQptECpME7Jd50cPlZ2HnxUXMdH67tsEaAXwTRm6iH4mMn8n0lCrP1umI
-         ujEoUblDsZlfxjpVDlBORzRJ6v9468T2P7o8fEV4=
+        b=SL6V17rwLHmPR2f1WhIsWGInhUj1ukWuEfQ3pVFEX5j8u4YgsX5PJ+7J0eaWsfmcP
+         u20EKvGtl8PdeX/xH1K7nxPYk0yv5w6Kbejc5I5bty5Iet6LalReFqqAqonEax3kOt
+         AYRKgdNLXKp2YiNcDr/Ot06QeuvQ6Nl5uR5zzlhE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans van Kranenburg <hans.van.kranenburg@mendix.com>,
-        Nikolay Borisov <nborisov@suse.com>,
+Cc:     Anand Jain <anand.jain@oracle.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 072/219] btrfs: fix ncopies raid_attr for RAID56
-Date:   Fri, 22 Nov 2019 00:46:44 -0500
-Message-Id: <20191122054911.1750-65-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 073/219] btrfs: dev-replace: set result code of cancel by status of scrub
+Date:   Fri, 22 Nov 2019 00:46:45 -0500
+Message-Id: <20191122054911.1750-66-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,43 +43,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans van Kranenburg <hans.van.kranenburg@mendix.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-[ Upstream commit da612e31aee51bd13231c78a47c714b543bd3ad8 ]
+[ Upstream commit b47dda2ef6d793b67fd5979032dcd106e3f0a5c9 ]
 
-RAID5 and RAID6 profile store one copy of the data, not 2 or 3. These
-values are not yet used anywhere so there's no change.
+The device-replace needs to check the result code of the scrub workers
+in btrfs_dev_replace_cancel and distinguish if successful cancel
+operation and when the there was no operation running.
 
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Hans van Kranenburg <hans.van.kranenburg@mendix.com>
+If btrfs_scrub_cancel() fails, return
+BTRFS_IOCTL_DEV_REPLACE_RESULT_NOT_STARTED so that user can try
+to cancel the replace again.
+
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ update changelog ]
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/btrfs/dev-replace.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index f84c18e86c816..5bbcdcff68a9e 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -96,7 +96,7 @@ const struct btrfs_raid_attr btrfs_raid_array[BTRFS_NR_RAID_TYPES] = {
- 		.devs_min	= 2,
- 		.tolerated_failures = 1,
- 		.devs_increment	= 1,
--		.ncopies	= 2,
-+		.ncopies	= 1,
- 		.raid_name	= "raid5",
- 		.bg_flag	= BTRFS_BLOCK_GROUP_RAID5,
- 		.mindev_error	= BTRFS_ERROR_DEV_RAID5_MIN_NOT_MET,
-@@ -108,7 +108,7 @@ const struct btrfs_raid_attr btrfs_raid_array[BTRFS_NR_RAID_TYPES] = {
- 		.devs_min	= 3,
- 		.tolerated_failures = 2,
- 		.devs_increment	= 1,
--		.ncopies	= 3,
-+		.ncopies	= 1,
- 		.raid_name	= "raid6",
- 		.bg_flag	= BTRFS_BLOCK_GROUP_RAID6,
- 		.mindev_error	= BTRFS_ERROR_DEV_RAID6_MIN_NOT_MET,
+diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
+index 23b13fbecdc22..96763805787ed 100644
+--- a/fs/btrfs/dev-replace.c
++++ b/fs/btrfs/dev-replace.c
+@@ -810,16 +810,23 @@ int btrfs_dev_replace_cancel(struct btrfs_fs_info *fs_info)
+ 		btrfs_dev_replace_write_unlock(dev_replace);
+ 		break;
+ 	case BTRFS_IOCTL_DEV_REPLACE_STATE_STARTED:
+-		result = BTRFS_IOCTL_DEV_REPLACE_RESULT_NO_ERROR;
+ 		tgt_device = dev_replace->tgtdev;
+ 		src_device = dev_replace->srcdev;
+ 		btrfs_dev_replace_write_unlock(dev_replace);
+-		btrfs_scrub_cancel(fs_info);
+-		/* btrfs_dev_replace_finishing() will handle the cleanup part */
+-		btrfs_info_in_rcu(fs_info,
+-			"dev_replace from %s (devid %llu) to %s canceled",
+-			btrfs_dev_name(src_device), src_device->devid,
+-			btrfs_dev_name(tgt_device));
++		ret = btrfs_scrub_cancel(fs_info);
++		if (ret < 0) {
++			result = BTRFS_IOCTL_DEV_REPLACE_RESULT_NOT_STARTED;
++		} else {
++			result = BTRFS_IOCTL_DEV_REPLACE_RESULT_NO_ERROR;
++			/*
++			 * btrfs_dev_replace_finishing() will handle the
++			 * cleanup part
++			 */
++			btrfs_info_in_rcu(fs_info,
++				"dev_replace from %s (devid %llu) to %s canceled",
++				btrfs_dev_name(src_device), src_device->devid,
++				btrfs_dev_name(tgt_device));
++		}
+ 		break;
+ 	case BTRFS_IOCTL_DEV_REPLACE_STATE_SUSPENDED:
+ 		/*
 -- 
 2.20.1
 
