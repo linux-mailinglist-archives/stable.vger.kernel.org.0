@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 688D7106E3A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8A5106E23
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:06:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731863AbfKVLG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:06:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34692 "EHLO mail.kernel.org"
+        id S1727842AbfKVLG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:06:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727842AbfKVLGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:06:25 -0500
+        id S1731865AbfKVLG2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:06:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF06520726;
-        Fri, 22 Nov 2019 11:06:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 917AF2075E;
+        Fri, 22 Nov 2019 11:06:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420785;
-        bh=ETy3/oLlODMF6IqyyikE3r7NS0VCBoZzrTvaSa//SfQ=;
+        s=default; t=1574420788;
+        bh=PoHu/DhS+f5VCbwNRPxqlH6ZIVZ4cG59h9sqHS6KGpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Egb5sNNcgrNDeCyH8A5/piT2JXZ26um48yzOyjGmvHThTU0Nal5HXIAwt6QXunKtF
-         OuOWjfoju1lqpWjhkRDSYigGr8/JdfGY/YEFtrwZcO5/YJ/nWIgIBB9u4VutgMWhNB
-         VNpu6jQ0se9Bt+A0QRwyiK2WRSqyZAV9XoeMD1JQ=
+        b=ZUB/Nm68KOLfk2JGB1OTrs8eDwssgaiG5BMTaqdXFxsFIWF98x5xyAwVXrKTwVWKe
+         5YRuXXwK43zpKRvZOglcboPIRBMbkMwhBSBSCisFtDClejIQTbP2fEp2oirvU+Wcvj
+         vGjRz9O8iY9MbOjF9kC7lBt48FjVp/+5I4yP/2tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Takeshi Saito <takeshi.saito.xv@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 218/220] powerpc/time: Fix clockevent_decrementer initalisation for PR KVM
-Date:   Fri, 22 Nov 2019 11:29:43 +0100
-Message-Id: <20191122100929.297295181@linuxfoundation.org>
+Subject: [PATCH 4.19 219/220] mmc: tmio: fix SCC error handling to avoid false positive CRC error
+Date:   Fri, 22 Nov 2019 11:29:44 +0100
+Message-Id: <20191122100929.359156615@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
 References: <20191122100912.732983531@linuxfoundation.org>
@@ -43,47 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Takeshi Saito <takeshi.saito.xv@renesas.com>
 
-[ Upstream commit b4d16ab58c41ff0125822464bdff074cebd0fe47 ]
+[ Upstream commit 51b72656bb39fdcb8f3174f4007bcc83ad1d275f ]
 
-In the recent commit 8b78fdb045de ("powerpc/time: Use
-clockevents_register_device(), fixing an issue with large
-decrementer") we changed the way we initialise the decrementer
-clockevent(s).
+If an SCC error occurs during a read/write command execution, a false
+positive CRC error message is output.
 
-We no longer initialise the mult & shift values of
-decrementer_clockevent itself.
+mmcblk0: response CRC error sending r/w cmd command, card status 0x900
 
-This has the effect of breaking PR KVM, because it uses those values
-in kvmppc_emulate_dec(). The symptom is guest kernels spin forever
-mid-way through boot.
+check_scc_error() checks SCC_RVSREQ.RVSERR bit. RVSERR detects a
+correction error in the next (up or down) delay tap position. However,
+since the command is successful, only retuning needs to be executed.
+This has been confirmed by HW engineers.
 
-For now fix it by assigning back to decrementer_clockevent the mult
-and shift values.
+Thus, on SCC error, set retuning flag instead of setting an error code.
 
-Fixes: 8b78fdb045de ("powerpc/time: Use clockevents_register_device(), fixing an issue with large decrementer")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Fixes: b85fb0a1c8ae ("mmc: tmio: Fix SCC error detection")
+Signed-off-by: Takeshi Saito <takeshi.saito.xv@renesas.com>
+[wsa: updated comment and commit message, removed some braces]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/time.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/mmc/host/tmio_mmc_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
-index 6a1f0a084ca35..7707990c4c169 100644
---- a/arch/powerpc/kernel/time.c
-+++ b/arch/powerpc/kernel/time.c
-@@ -988,6 +988,10 @@ static void register_decrementer_clockevent(int cpu)
+diff --git a/drivers/mmc/host/tmio_mmc_core.c b/drivers/mmc/host/tmio_mmc_core.c
+index 94c43c3d3ae58..35630ccbe9e5d 100644
+--- a/drivers/mmc/host/tmio_mmc_core.c
++++ b/drivers/mmc/host/tmio_mmc_core.c
+@@ -926,8 +926,9 @@ static void tmio_mmc_finish_request(struct tmio_mmc_host *host)
+ 	if (mrq->cmd->error || (mrq->data && mrq->data->error))
+ 		tmio_mmc_abort_dma(host);
  
- 	printk_once(KERN_DEBUG "clockevent: %s mult[%x] shift[%d] cpu[%d]\n",
- 		    dec->name, dec->mult, dec->shift, cpu);
-+
-+	/* Set values for KVM, see kvm_emulate_dec() */
-+	decrementer_clockevent.mult = dec->mult;
-+	decrementer_clockevent.shift = dec->shift;
- }
++	/* SCC error means retune, but executed command was still successful */
+ 	if (host->check_scc_error && host->check_scc_error(host))
+-		mrq->cmd->error = -EILSEQ;
++		mmc_retune_needed(host->mmc);
  
- static void enable_large_decrementer(void)
+ 	/* If SET_BLOCK_COUNT, continue with main command */
+ 	if (host->mrq && !mrq->cmd->error) {
 -- 
 2.20.1
 
