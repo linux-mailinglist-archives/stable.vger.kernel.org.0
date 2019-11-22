@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7AF3106100
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:54:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE33106113
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728827AbfKVFxS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:53:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59326 "EHLO mail.kernel.org"
+        id S1727400AbfKVFx6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:53:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727664AbfKVFxR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:53:17 -0500
+        id S1727669AbfKVFxS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:53:18 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E95E72084D;
-        Fri, 22 Nov 2019 05:53:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 03E60207FA;
+        Fri, 22 Nov 2019 05:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401996;
-        bh=fQn98bLhgm6bfWPbcu3qdZ9JqgF7NX3bu10YEr5k6fc=;
+        s=default; t=1574401997;
+        bh=pz78iwdXUENbZcbYUMALJIFQGQOKoTGxA9AdC7L3WZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zk14JjbbSgnW+M7qIrO0C2Uky8b0kUB6V7xbAmsgH82NMANtEaprhZ/68sDpcA/VV
-         yoo/SlhjGKKulqyHB4fg6VB9W4PuQdzM44Y/ipyZmLBUjoXFKtDJwUKthXRIOGrbGz
-         O3jPIpXI5ZwDFC93baT8bnF4LO5eAVlgcpemdXfg=
+        b=tsry0BzOfr/ITWMcYzCLSjqO3Nel0KOHa6QWVsM+1FW6xC8ebcS6y7Ffd8gNcPAw4
+         yF/G0oN5FehqIjZ5ofeuSKSj2jcbkJuyBykoBK3stQ7vStYfPj5ksYmtXgFMx611JY
+         qQ/XRUZY+az3cRYkVu7Z5ubmbexZq8OB4VCG4wdY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 214/219] RDMA/hns: Use GFP_ATOMIC in hns_roce_v2_modify_qp
-Date:   Fri, 22 Nov 2019 00:49:05 -0500
-Message-Id: <20191122054911.1750-206-sashal@kernel.org>
+Cc:     Hui Wang <hui.wang@canonical.com>, Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 215/219] ASoC: rt5645: Headphone Jack sense inverts on the LattePanda board
+Date:   Fri, 22 Nov 2019 00:49:06 -0500
+Message-Id: <20191122054911.1750-207-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -43,33 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit 4e69cf1fe2c52d189acdd06c1fd99cc258aba61f ]
+[ Upstream commit 406dcbc55a0a20fd155be889a4a0c4b812f7c18e ]
 
-The the below commit, hns_roce_v2_modify_qp is called inside spinlock
-while using GFP_KERNEL. Change it to GFP_ATOMIC.
+The LattePanda board has a sound card chtrt5645, when there is nothing
+plugged in the headphone jack, the system thinks the headphone is
+plugged in, while we plug a headphone in the jack, the system thinks
+the headphone is unplugged.
 
-Fixes: 0425e3e6e0c7 ("RDMA/hns: Support flush cqe for hip08 in kernel space")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+If adding quirk=0x21 in the module parameter, the headphone jack can
+work well. So let us fix it via platform_data.
+
+https://bugs.launchpad.net/bugs/182459
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hw_v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/rt5645.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-index 9ab3ab3c4219f..2caa95ed966c5 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_hw_v2.c
-@@ -3442,7 +3442,7 @@ static int hns_roce_v2_modify_qp(struct ib_qp *ibqp,
- 	struct device *dev = hr_dev->dev;
- 	int ret = -EINVAL;
+diff --git a/sound/soc/codecs/rt5645.c b/sound/soc/codecs/rt5645.c
+index 1dc70f452c1b9..f842db498c741 100644
+--- a/sound/soc/codecs/rt5645.c
++++ b/sound/soc/codecs/rt5645.c
+@@ -3662,6 +3662,11 @@ static const struct rt5645_platform_data jd_mode3_platform_data = {
+ 	.jd_mode = 3,
+ };
  
--	context = kcalloc(2, sizeof(*context), GFP_KERNEL);
-+	context = kcalloc(2, sizeof(*context), GFP_ATOMIC);
- 	if (!context)
- 		return -ENOMEM;
++static const struct rt5645_platform_data lattepanda_board_platform_data = {
++	.jd_mode = 2,
++	.inv_jd1_1 = true
++};
++
+ static const struct dmi_system_id dmi_platform_data[] = {
+ 	{
+ 		.ident = "Chrome Buddy",
+@@ -3759,6 +3764,15 @@ static const struct dmi_system_id dmi_platform_data[] = {
+ 		},
+ 		.driver_data = (void *)&intel_braswell_platform_data,
+ 	},
++	{
++		.ident = "LattePanda board",
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
++		  DMI_EXACT_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++		  DMI_EXACT_MATCH(DMI_BOARD_VERSION, "Default string"),
++		},
++		.driver_data = (void *)&lattepanda_board_platform_data,
++	},
+ 	{ }
+ };
  
 -- 
 2.20.1
