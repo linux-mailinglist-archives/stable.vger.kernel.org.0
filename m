@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 14CAA106B4B
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:43:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAE19106B4F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729183AbfKVKnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:43:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48624 "EHLO mail.kernel.org"
+        id S1729192AbfKVKnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:43:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729172AbfKVKnG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:43:06 -0500
+        id S1728031AbfKVKnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:43:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43FE420717;
-        Fri, 22 Nov 2019 10:43:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6A6D20637;
+        Fri, 22 Nov 2019 10:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419385;
-        bh=hdjgwnbCXaX75t0UDxSR3kAVZIU9Y421d0mh+DbJK0U=;
+        s=default; t=1574419389;
+        bh=/NIyCPyZeLdBwZL2f6/XlX7dwDQA8o09yF4PJxAG3WA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1Vq1QBBNVULXvKom7IV/REVe4GhNnH5FlsVktT0hPnrY4vV85U7CrONr+/SzhybK
-         UDAD4ckQSwbnzAQrnhSoYCbUbglBN3rZdXM64LwPT//pyTk/NLB/EvTtUFdT0AFWnu
-         QWD0SzqkZ9iTCBaQpfwcyqoxnxPh/0WVR6YDyGYk=
+        b=2pydndonjjVUX4nzh3zAsRHTma9XSxTXgCwCkjkSUas9/q0jj3w0nrwOBMSofU/rM
+         pub70Fs5KaZDFOAfQmuZ66hPrTGQNWhHeS5OVSULa0kcN2TVAd8fru2o+3sBm/qjVU
+         VhW2Hh3TZ8PIWLrKqwAO4WrQmYyCTSF9trcvupbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Adell <nicolas.adell@actia.fr>,
+        stable@vger.kernel.org, Loic Poulain <loic.poulain@linaro.org>,
         Peter Chen <peter.chen@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 094/222] usb: chipidea: imx: enable OTG overcurrent in case USB subsystem is already started
-Date:   Fri, 22 Nov 2019 11:27:14 +0100
-Message-Id: <20191122100910.260315838@linuxfoundation.org>
+Subject: [PATCH 4.9 095/222] usb: chipidea: Fix otg event handler
+Date:   Fri, 22 Nov 2019 11:27:15 +0100
+Message-Id: <20191122100910.315599583@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -44,37 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Adell <nicolas.adell@actia.fr>
+From: Loic Poulain <loic.poulain@linaro.org>
 
-[ Upstream commit 1dedbdf2bbb1ede8d96f35f9845ecae179dc1988 ]
+[ Upstream commit 59739131e0ca06db7560f9073fff2fb83f6bc2a5 ]
 
-When initializing the USB subsystem before starting the kernel,
-OTG overcurrent detection is disabled. In case the OTG polarity of
-overcurrent is low active, the overcurrent detection is never enabled
-again and events cannot be reported as expected. Because imx usb
-overcurrent polarity is low active by default, only detection needs
-to be enable in usbmisc init function.
+At OTG work running time, it's possible that several events need to be
+addressed (e.g. ID and VBUS events). The current implementation handles
+only one event at a time which leads to ignoring the other one. Fix it.
 
-Signed-off-by: Nicolas Adell <nicolas.adell@actia.fr>
+Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
 Signed-off-by: Peter Chen <peter.chen@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/chipidea/usbmisc_imx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/chipidea/otg.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/usb/chipidea/usbmisc_imx.c b/drivers/usb/chipidea/usbmisc_imx.c
-index 20d02a5e418d9..c6577f489d0f6 100644
---- a/drivers/usb/chipidea/usbmisc_imx.c
-+++ b/drivers/usb/chipidea/usbmisc_imx.c
-@@ -273,6 +273,8 @@ static int usbmisc_imx6q_init(struct imx_usbmisc_data *data)
- 	} else if (data->oc_polarity == 1) {
- 		/* High active */
- 		reg &= ~(MX6_BM_OVER_CUR_DIS | MX6_BM_OVER_CUR_POLARITY);
-+	} else {
-+		reg &= ~(MX6_BM_OVER_CUR_DIS);
+diff --git a/drivers/usb/chipidea/otg.c b/drivers/usb/chipidea/otg.c
+index f36a1ac3bfbdf..b8650210be0f7 100644
+--- a/drivers/usb/chipidea/otg.c
++++ b/drivers/usb/chipidea/otg.c
+@@ -206,14 +206,17 @@ static void ci_otg_work(struct work_struct *work)
  	}
- 	writel(reg, usbmisc->base + data->index * 4);
  
+ 	pm_runtime_get_sync(ci->dev);
++
+ 	if (ci->id_event) {
+ 		ci->id_event = false;
+ 		ci_handle_id_switch(ci);
+-	} else if (ci->b_sess_valid_event) {
++	}
++
++	if (ci->b_sess_valid_event) {
+ 		ci->b_sess_valid_event = false;
+ 		ci_handle_vbus_change(ci);
+-	} else
+-		dev_err(ci->dev, "unexpected event occurs at %s\n", __func__);
++	}
++
+ 	pm_runtime_put_sync(ci->dev);
+ 
+ 	enable_irq(ci->irq);
 -- 
 2.20.1
 
