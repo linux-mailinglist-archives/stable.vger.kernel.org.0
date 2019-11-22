@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 172A5106A07
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:31:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8781C106D12
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:57:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727113AbfKVKbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:31:16 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51154 "EHLO mail.kernel.org"
+        id S1729119AbfKVK5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:57:21 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726546AbfKVKbQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:31:16 -0500
+        id S1730656AbfKVK5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:57:20 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F54F20715;
-        Fri, 22 Nov 2019 10:31:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 387592071C;
+        Fri, 22 Nov 2019 10:57:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418674;
-        bh=hjgsGYra9ME33CEuTHD6rBp6RT0p7NsNyjSyCJszLY0=;
+        s=default; t=1574420239;
+        bh=dw1Od3tfqTRHm8dZLv6SR3k035VggA/mPAxizj5RnQ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qzmaXdSSNgmKhc8hkkBKozuuUViRl1OQ/U7h2CiUMKBSyS4do7ng7+vWuIVvBxeAP
-         74gqHjuJ1BuCECi8/4iCCNQOmm4get2J9D5XyFUVvSg4M+TAAZkRwPubEWa88EUmnJ
-         rSX4LVRP2IXs6b9lWpFajXJChenjoMN0rmcEhVIk=
+        b=O+ruqCKa/iHDwby+qjv/l5VkoNVSNs5TP2t8Yea+ToHBCIDpW7h6CVupDKaG2cnsL
+         HIzLqVsew/JKj+bGcNj0q4NfFeF7GfRXawaDDFYsv9szv+0SW8hHrQ5fwPckXycuab
+         nWk4jKUZpIiWOexSR6m/xKZOG0017sLmiew0oU3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Foster <jayfoster@ieee.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 014/159] ARM: dts: at91/trivial: Fix USART1 definition for at91sam9g45
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 040/220] ata: ahci_brcm: Allow using driver or DSL SoCs
 Date:   Fri, 22 Nov 2019 11:26:45 +0100
-Message-Id: <20191122100719.375961994@linuxfoundation.org>
+Message-Id: <20191122100915.191592569@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jay Foster <jayfoster@ieee.org>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 10af10db8c76fa5b9bf1f52a895c1cb2c0ac24da ]
+[ Upstream commit 7fb44929cb0e5cdcde143e1ca3ca57b5b8247db0 ]
 
-Fix a typo. No functional change made by this patch.
+The Broadcom STB AHCI controller is the same as the one found on DSL
+SoCs, so we will utilize the same driver on these systems as well.
 
-Signed-off-by: Jay Foster <jayfoster@ieee.org>
-Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/at91sam9g45.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/at91sam9g45.dtsi b/arch/arm/boot/dts/at91sam9g45.dtsi
-index af8b708ac312a..53a5a0e311e9d 100644
---- a/arch/arm/boot/dts/at91sam9g45.dtsi
-+++ b/arch/arm/boot/dts/at91sam9g45.dtsi
-@@ -546,7 +546,7 @@
- 					};
- 				};
+diff --git a/drivers/ata/Kconfig b/drivers/ata/Kconfig
+index 39b181d6bd0d8..99698d7fe585a 100644
+--- a/drivers/ata/Kconfig
++++ b/drivers/ata/Kconfig
+@@ -121,7 +121,8 @@ config SATA_AHCI_PLATFORM
  
--				uart1 {
-+				usart1 {
- 					pinctrl_usart1: usart1-0 {
- 						atmel,pins =
- 							<AT91_PIOB 4 AT91_PERIPH_A AT91_PINCTRL_PULL_UP	/* PB4 periph A with pullup */
+ config AHCI_BRCM
+ 	tristate "Broadcom AHCI SATA support"
+-	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_NSP
++	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_NSP || \
++		   ARCH_BCM_63XX
+ 	help
+ 	  This option enables support for the AHCI SATA3 controller found on
+ 	  Broadcom SoC's.
 -- 
 2.20.1
 
