@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16724107134
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBEAD107072
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:22:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727847AbfKVKdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:33:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54972 "EHLO mail.kernel.org"
+        id S1727636AbfKVLWS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:22:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727833AbfKVKc5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:32:57 -0500
+        id S1729231AbfKVKn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:43:27 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8605520708;
-        Fri, 22 Nov 2019 10:32:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53A0120707;
+        Fri, 22 Nov 2019 10:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418777;
-        bh=ON1L6FHRZCSgyfc+YX7cNsYgDakQmYbouwjMn0KnQBE=;
+        s=default; t=1574419406;
+        bh=5UlIQR2DCq+pOvDPurmJbhIK5FNedXV0/VZEjZx8hAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/I7/hHmjJsxkt2YOfX6lOV3sCmVw/jQBWht/McL6ZRZ/cxZX+ZHvRc2icjaV42iT
-         GTz7azdJG1I/dqSTHdAjfc6yIuoOvuerVXIlfoohDcwd5abxQhxxChuVK0WxFW8etp
-         8LLXvSyVXdTja1bC7B4BkS1gD9cvYxZ3YhfH9qvQ=
+        b=DqhEl1ENfYOqg9bgVGXj/Ni318rTSfEbvlypGV30eTbp3uuJSxwtyEbBX2wR78HiY
+         PC0ysLjbJcRJQJm0A9tZ/SJz0fhy+GDW24nxiHWp2XLmjQuVTHZb1XtOjK9SFcEecL
+         nfZLn9DWqq5XLl+4dZRYPFNYMmtAJW/b2y0wIqvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 048/159] llc: avoid blocking in llc_sap_close()
-Date:   Fri, 22 Nov 2019 11:27:19 +0100
-Message-Id: <20191122100740.546114454@linuxfoundation.org>
+Subject: [PATCH 4.9 100/222] ARM: dts: ux500: Fix LCDA clock line muxing
+Date:   Fri, 22 Nov 2019 11:27:20 +0100
+Message-Id: <20191122100910.620083043@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <xiyou.wangcong@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 9708d2b5b7c648e8e0a40d11e8cea12f6277f33c ]
+[ Upstream commit ecde29569e3484e1d0a032bf4074449bce4d4a03 ]
 
-llc_sap_close() is called by llc_sap_put() which
-could be called in BH context in llc_rcv(). We can't
-block in BH.
+The "lcdaclk_b_1" group is muxed with the function "lcd"
+but needs a separate entry to be muxed in with "lcda"
+rather than "lcd".
 
-There is no reason to block it here, kfree_rcu() should
-be sufficient.
-
-Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/llc.h  | 1 +
- net/llc/llc_core.c | 4 +---
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/boot/dts/ste-href-family-pinctrl.dtsi | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/llc.h b/include/net/llc.h
-index 82d989995d18a..95e5ced4c1339 100644
---- a/include/net/llc.h
-+++ b/include/net/llc.h
-@@ -66,6 +66,7 @@ struct llc_sap {
- 	int sk_count;
- 	struct hlist_nulls_head sk_laddr_hash[LLC_SK_LADDR_HASH_ENTRIES];
- 	struct hlist_head sk_dev_hash[LLC_SK_DEV_HASH_ENTRIES];
-+	struct rcu_head rcu;
- };
+diff --git a/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi b/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi
+index 5c5cea232743d..1ec193b0c5065 100644
+--- a/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi
++++ b/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi
+@@ -607,16 +607,20 @@
  
- static inline
-diff --git a/net/llc/llc_core.c b/net/llc/llc_core.c
-index e896a2c53b120..f1e442a39db8d 100644
---- a/net/llc/llc_core.c
-+++ b/net/llc/llc_core.c
-@@ -127,9 +127,7 @@ void llc_sap_close(struct llc_sap *sap)
- 	list_del_rcu(&sap->node);
- 	spin_unlock_bh(&llc_sap_list_lock);
- 
--	synchronize_rcu();
--
--	kfree(sap);
-+	kfree_rcu(sap, rcu);
- }
- 
- static struct packet_type llc_packet_type __read_mostly = {
+ 			mcde {
+ 				lcd_default_mode: lcd_default {
+-					default_mux {
++					default_mux1 {
+ 						/* Mux in VSI0 and all the data lines */
+ 						function = "lcd";
+ 						groups =
+ 						"lcdvsi0_a_1", /* VSI0 for LCD */
+ 						"lcd_d0_d7_a_1", /* Data lines */
+ 						"lcd_d8_d11_a_1", /* TV-out */
+-						"lcdaclk_b_1", /* Clock line for TV-out */
+ 						"lcdvsi1_a_1"; /* VSI1 for HDMI */
+ 					};
++					default_mux2 {
++						function = "lcda";
++						groups =
++						"lcdaclk_b_1"; /* Clock line for TV-out */
++					};
+ 					default_cfg1 {
+ 						pins =
+ 						"GPIO68_E1", /* VSI0 */
 -- 
 2.20.1
 
