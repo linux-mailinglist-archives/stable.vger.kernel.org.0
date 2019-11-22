@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0AA10700C
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:20:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A605106EC5
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbfKVLT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:19:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53698 "EHLO mail.kernel.org"
+        id S1730504AbfKVLAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:00:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728297AbfKVKqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:46:32 -0500
+        id S1730215AbfKVLAK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:00:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06C67205C9;
-        Fri, 22 Nov 2019 10:46:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4651F207DD;
+        Fri, 22 Nov 2019 11:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419591;
-        bh=6yocqwmT1R9PbCLWfIRomMKgZoo1uKcOq6TLIs/TVFQ=;
+        s=default; t=1574420409;
+        bh=TXAeVPZQIlJLpRPoHXA1jv03E1+kjV0v9WTqAsq50W8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rUUjX9yjoY/VqxmOBjx1ru+mqkndN7rv1gsTAjXodFyMDs2M8S3m+MTZ8x489yp0m
-         NjlRGKYaEgwjsfYuYc+ITqU3kI3PbrhG7xEMp7ZbphJm+thkx3dJ5GZg+Mhx4XJ7/Z
-         XzXWbt067uVid4nARUy2VXU+bqKVscYYzBBUnri0=
+        b=fW+ZCwSALVr4NCSRVg2vJPPqaJCXw2qzhHgRwvbihUAXE/TvZBAdtHqv1c2wfKadp
+         FVMDiWXLOpWAjX9dsHpcjBZBP/MPTOtJHYSLMu5exgBckRMRs2G5aokU3SMQPoLcC0
+         r0JJfN6JEv9rclwLIiAGxD+g45u+msAQMkVkUJRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 121/222] misc: genwqe: should return proper error value.
-Date:   Fri, 22 Nov 2019 11:27:41 +0100
-Message-Id: <20191122100911.844134552@linuxfoundation.org>
+Subject: [PATCH 4.19 097/220] powerpc/64s/radix: Explicitly flush ERAT with local LPID invalidation
+Date:   Fri, 22 Nov 2019 11:27:42 +0100
+Message-Id: <20191122100919.703593369@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 02241995b004faa7d9ff628e97f24056190853f8 ]
+[ Upstream commit 053c5a753e951c5dd1729af2cf4d8107f2e6e09b ]
 
-The function should return -EFAULT when copy_from_user fails. Even
-though the caller does not distinguish them. but we should keep backward
-compatibility.
+Local radix TLB flush operations that operate on congruence classes
+have explicit ERAT flushes for POWER9. The process scoped LPID flush
+did not have a flush, so add it.
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/genwqe/card_utils.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/powerpc/mm/tlb-radix.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/genwqe/card_utils.c b/drivers/misc/genwqe/card_utils.c
-index b642b4fd731b6..95584bffa4eaf 100644
---- a/drivers/misc/genwqe/card_utils.c
-+++ b/drivers/misc/genwqe/card_utils.c
-@@ -298,7 +298,7 @@ static int genwqe_sgl_size(int num_pages)
- int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 			  void __user *user_addr, size_t user_size)
- {
--	int rc;
-+	int ret = -ENOMEM;
- 	struct pci_dev *pci_dev = cd->pci_dev;
+diff --git a/arch/powerpc/mm/tlb-radix.c b/arch/powerpc/mm/tlb-radix.c
+index 62be0e5732b70..796ff5de26d09 100644
+--- a/arch/powerpc/mm/tlb-radix.c
++++ b/arch/powerpc/mm/tlb-radix.c
+@@ -429,6 +429,7 @@ static inline void _tlbiel_lpid_guest(unsigned long lpid, unsigned long ric)
+ 		__tlbiel_lpid_guest(lpid, set, RIC_FLUSH_TLB);
  
- 	sgl->fpage_offs = offset_in_page((unsigned long)user_addr);
-@@ -317,7 +317,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 	if (get_order(sgl->sgl_size) > MAX_ORDER) {
- 		dev_err(&pci_dev->dev,
- 			"[%s] err: too much memory requested!\n", __func__);
--		return -ENOMEM;
-+		return ret;
- 	}
- 
- 	sgl->sgl = __genwqe_alloc_consistent(cd, sgl->sgl_size,
-@@ -325,7 +325,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 	if (sgl->sgl == NULL) {
- 		dev_err(&pci_dev->dev,
- 			"[%s] err: no memory available!\n", __func__);
--		return -ENOMEM;
-+		return ret;
- 	}
- 
- 	/* Only use buffering on incomplete pages */
-@@ -338,7 +338,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 		/* Sync with user memory */
- 		if (copy_from_user(sgl->fpage + sgl->fpage_offs,
- 				   user_addr, sgl->fpage_size)) {
--			rc = -EFAULT;
-+			ret = -EFAULT;
- 			goto err_out;
- 		}
- 	}
-@@ -351,7 +351,7 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 		/* Sync with user memory */
- 		if (copy_from_user(sgl->lpage, user_addr + user_size -
- 				   sgl->lpage_size, sgl->lpage_size)) {
--			rc = -EFAULT;
-+			ret = -EFAULT;
- 			goto err_out2;
- 		}
- 	}
-@@ -373,7 +373,8 @@ int genwqe_alloc_sync_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
- 	sgl->sgl = NULL;
- 	sgl->sgl_dma_addr = 0;
- 	sgl->sgl_size = 0;
--	return -ENOMEM;
-+
-+	return ret;
+ 	asm volatile("ptesync": : :"memory");
++	asm volatile(PPC_INVALIDATE_ERAT : : :"memory");
  }
  
- int genwqe_setup_sgl(struct genwqe_dev *cd, struct genwqe_sgl *sgl,
+ 
 -- 
 2.20.1
 
