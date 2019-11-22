@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79567106F75
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:15:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BBF010700B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:20:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729978AbfKVKvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:51:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34486 "EHLO mail.kernel.org"
+        id S1728517AbfKVKq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:46:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730083AbfKVKvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:51:35 -0500
+        id S1727356AbfKVKqY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:46:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F8BA2071F;
-        Fri, 22 Nov 2019 10:51:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0596320637;
+        Fri, 22 Nov 2019 10:46:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419894;
-        bh=M1E2zeGQOllJsdnBB7tV0tpZO9EA7JfKu/yCiqqWZV4=;
+        s=default; t=1574419583;
+        bh=Yxln0144vos7Du5zQnUGkOlxhmdUTQgrIMTzV0Joh3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=upQo39tLY9dlqJ3eyQqZUM4t7hSjqo4vREMtpsLDJmSC+peyYme8zCKsgA0rGuXoN
-         7AygGMooOOWELH5CguGz0jRbuxXq7amJJsbKLjwsz4fLKxBrJCMxe1dypOtv5oHk3k
-         Lfqg20Jq0R96us0jam3NRrck2k36ITUVDAarCJ74=
+        b=t1608geWJGNVMZa3gbYSlcH6eonxDtiBRZGqvTo+HcnPwwCDdpItrbf0eQuntnEdP
+         3IWqz57cPzgxXsqf/ObPqsOKqoo89CzupK8Qqb98+jPV+/danRSqJtoOMbC/meE7Iw
+         EDlXkwsRJ+TX2w4TnR99VWFZ6RDksBkwKdBRDIjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gustavo Pimentel <gustavo.pimentel@synopsys.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Christoffer Dall <cdall@kernel.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Eric Auger <eric.auger@redhat.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 046/122] tools: PCI: Fix compilation warnings
-Date:   Fri, 22 Nov 2019 11:28:19 +0100
-Message-Id: <20191122100755.710725575@linuxfoundation.org>
+Subject: [PATCH 4.9 160/222] kvm: arm/arm64: Fix stage2_flush_memslot for 4 level page table
+Date:   Fri, 22 Nov 2019 11:28:20 +0100
+Message-Id: <20191122100914.210051442@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,75 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
 
-[ Upstream commit fef31ecaaf2c5c54db85b35e893bf8abec96b93f ]
+[ Upstream commit d2db7773ba864df6b4e19643dfc54838550d8049 ]
 
-Current compilation produces the following warnings:
+So far we have only supported 3 level page table with fixed IPA of
+40bits, where PUD is folded. With 4 level page tables, we need
+to check if the PUD entry is valid or not. Fix stage2_flush_memslot()
+to do this check, before walking down the table.
 
-tools/pci/pcitest.c: In function 'run_test':
-tools/pci/pcitest.c:56:9: warning: unused variable 'time'
-[-Wunused-variable]
-  double time;
-         ^~~~
-tools/pci/pcitest.c:55:25: warning: unused variable 'end'
-[-Wunused-variable]
-  struct timespec start, end;
-                         ^~~
-tools/pci/pcitest.c:55:18: warning: unused variable 'start'
-[-Wunused-variable]
-  struct timespec start, end;
-                  ^~~~~
-tools/pci/pcitest.c:146:1: warning: control reaches end of non-void
-function [-Wreturn-type]
- }
- ^
-
-Fix them:
- - remove unused variables
- - change function return from int to void, since it's not used
-
-Signed-off-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
-[lorenzo.pieralisi@arm.com: rewrote the commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
+Acked-by: Christoffer Dall <cdall@kernel.org>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/pci/pcitest.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ arch/arm/kvm/mmu.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/pci/pcitest.c b/tools/pci/pcitest.c
-index 9074b477bff0f..8ca1c62bc06db 100644
---- a/tools/pci/pcitest.c
-+++ b/tools/pci/pcitest.c
-@@ -23,7 +23,6 @@
- #include <stdio.h>
- #include <stdlib.h>
- #include <sys/ioctl.h>
--#include <time.h>
- #include <unistd.h>
+diff --git a/arch/arm/kvm/mmu.c b/arch/arm/kvm/mmu.c
+index b3d268a79f057..bb0d5e21d60bd 100644
+--- a/arch/arm/kvm/mmu.c
++++ b/arch/arm/kvm/mmu.c
+@@ -366,7 +366,8 @@ static void stage2_flush_memslot(struct kvm *kvm,
+ 	pgd = kvm->arch.pgd + stage2_pgd_index(addr);
+ 	do {
+ 		next = stage2_pgd_addr_end(addr, end);
+-		stage2_flush_puds(kvm, pgd, addr, next);
++		if (!stage2_pgd_none(*pgd))
++			stage2_flush_puds(kvm, pgd, addr, next);
+ 	} while (pgd++, addr = next, addr != end);
+ }
  
- #include <linux/pcitest.h>
-@@ -43,17 +42,15 @@ struct pci_test {
- 	unsigned long	size;
- };
- 
--static int run_test(struct pci_test *test)
-+static void run_test(struct pci_test *test)
- {
- 	long ret;
- 	int fd;
--	struct timespec start, end;
--	double time;
- 
- 	fd = open(test->device, O_RDWR);
- 	if (fd < 0) {
- 		perror("can't open PCI Endpoint Test device");
--		return fd;
-+		return;
- 	}
- 
- 	if (test->barnum >= 0 && test->barnum <= 5) {
 -- 
 2.20.1
 
