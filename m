@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B9F106E51
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B7F106F01
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730749AbfKVLHu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:07:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:32992 "EHLO mail.kernel.org"
+        id S1730062AbfKVKzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:55:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731043AbfKVLF1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:05:27 -0500
+        id S1730425AbfKVKzJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:55:09 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 203582075E;
-        Fri, 22 Nov 2019 11:05:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09E6E20706;
+        Fri, 22 Nov 2019 10:55:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420726;
-        bh=Nbm+0sMkxlk6HRLaRQOFwTLW1an+JMQpxxCNSerK81o=;
+        s=default; t=1574420109;
+        bh=mHyJix8TS0iTdx7zM4Zt5aMG7j8CE7oo13sYuj57jpA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GbDfBdziNQxr1UDGKg43lIPoFey3MOj8yZDcn0VHN/n5G8BKGgMJxxxJaXDD8jXsx
-         eJmER9oRMaCtoBK0SHQX+imHa0Sudw5SJALf7d0dSKposYQz7y3/DWCGQQQO8xPnph
-         hH8Kck7DlV4BjqE7ejpUJlZo3taIaNdHzXpW0JoI=
+        b=ezcx/ydfBddLRno5RFgXDnPFxswOnnmyddm/zk//k1tc55mrCvWnLOqw4cf329/lv
+         IDpVGFbFA3C2bsBmt4XabFh9lllrgvOpc+IqZxHlTW7+J5HzytYoaT/sANHLZZrGvK
+         HogBxKCOGMr7NNyoxLWi6RqkvtPDjb+tXv5UB8v4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Machata <petrm@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Huibin Hong <huibin.hong@rock-chips.com>,
+        Emil Renner Berthing <kernel@esmil.dk>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 204/220] selftests: forwarding: Have lldpad_app_wait_set() wait for unknown, too
-Date:   Fri, 22 Nov 2019 11:29:29 +0100
-Message-Id: <20191122100928.511539235@linuxfoundation.org>
+Subject: [PATCH 4.14 117/122] spi: rockchip: initialize dma_slave_config properly
+Date:   Fri, 22 Nov 2019 11:29:30 +0100
+Message-Id: <20191122100836.880999789@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Machata <petrm@mellanox.com>
+From: Huibin Hong <huibin.hong@rock-chips.com>
 
-[ Upstream commit 372809055f6c830ff978564e09f58bcb9e9b937c ]
+[ Upstream commit dd8fd2cbc73f8650f651da71fc61a6e4f30c1566 ]
 
-Immediately after mlxsw module is probed and lldpad started, added APP
-entries are briefly in "unknown" state before becoming "pending". That's
-the state that lldpad_app_wait_set() typically sees, and since there are
-no pending entries at that time, it bails out. However the entries have
-not been pushed to the kernel yet at that point, and thus the test case
-fails.
+The rxconf and txconf structs are allocated on the
+stack, so make sure we zero them before filling out
+the relevant fields.
 
-Fix by waiting for both unknown and pending entries to disappear before
-proceeding.
-
-Fixes: d159261f3662 ("selftests: mlxsw: Add test for trust-DSCP")
-Signed-off-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Huibin Hong <huibin.hong@rock-chips.com>
+Signed-off-by: Emil Renner Berthing <kernel@esmil.dk>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/forwarding/lib.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-rockchip.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
-index ca53b539aa2d1..08bac6cf1bb3a 100644
---- a/tools/testing/selftests/net/forwarding/lib.sh
-+++ b/tools/testing/selftests/net/forwarding/lib.sh
-@@ -251,7 +251,7 @@ lldpad_app_wait_set()
- {
- 	local dev=$1; shift
+diff --git a/drivers/spi/spi-rockchip.c b/drivers/spi/spi-rockchip.c
+index fdcf3076681b5..185bbdce62b14 100644
+--- a/drivers/spi/spi-rockchip.c
++++ b/drivers/spi/spi-rockchip.c
+@@ -445,6 +445,9 @@ static int rockchip_spi_prepare_dma(struct rockchip_spi *rs)
+ 	struct dma_slave_config rxconf, txconf;
+ 	struct dma_async_tx_descriptor *rxdesc, *txdesc;
  
--	while lldptool -t -i $dev -V APP -c app | grep -q pending; do
-+	while lldptool -t -i $dev -V APP -c app | grep -Eq "pending|unknown"; do
- 		echo "$dev: waiting for lldpad to push pending APP updates"
- 		sleep 5
- 	done
++	memset(&rxconf, 0, sizeof(rxconf));
++	memset(&txconf, 0, sizeof(txconf));
++
+ 	spin_lock_irqsave(&rs->lock, flags);
+ 	rs->state &= ~RXBUSY;
+ 	rs->state &= ~TXBUSY;
 -- 
 2.20.1
 
