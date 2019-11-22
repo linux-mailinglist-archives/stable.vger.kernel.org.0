@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96C2D106452
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:17:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A016106454
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:17:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729355AbfKVGQr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729070AbfKVGQr (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 22 Nov 2019 01:16:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51108 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727302AbfKVGNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:13:43 -0500
+        id S1728428AbfKVGNp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:13:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA8B52068E;
-        Fri, 22 Nov 2019 06:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B803520718;
+        Fri, 22 Nov 2019 06:13:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574403223;
-        bh=krRnmuaqC7qVirxcwWinxCXHxJDjFmPmqqWCcCAM/RA=;
+        s=default; t=1574403224;
+        bh=IP5ew8cinng8wN83PXrqL1p/+8xz9WNlKNL1skXB5BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eeCMiuaQUvh99xGE8hoRYnQuxEBuIKXtOLjFST0QIjQwBkUsuOCVivo8iTgjSI28S
-         Hge6wrYUlay4sx1xBFlBqY9TXLxWLPFfOmLJDDccWoXHVTglZsoohjZzI4u5jNe7X1
-         5EhwZ3fp7RXUOSzAUG1YL1gDVR8NY2/xUKSucOtM=
+        b=zwJPVXH8QDbwEtv/oCUZY3FpTRlPZZHHSpbVxg6IpZjDKYaf44kHP1ClL5Kc8a1VB
+         LWCf3zvRNjQ5l3lEhjDCreJ9bSlPno7SGMC/lYu3J5mM1zOlaRkCcSrSwNA3uJCnM8
+         hdfKVdU22bzTob4WlGVoDOeejCW6+oulGRMdenp0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Varun Prakash <varun@chelsio.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 37/68] scsi: csiostor: fix incorrect dma device in case of vport
-Date:   Fri, 22 Nov 2019 01:12:30 -0500
-Message-Id: <20191122061301.4947-36-sashal@kernel.org>
+Cc:     Kyle Roeschley <kyle.roeschley@ni.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 38/68] ath6kl: Only use match sets when firmware supports it
+Date:   Fri, 22 Nov 2019 01:12:31 -0500
+Message-Id: <20191122061301.4947-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122061301.4947-1-sashal@kernel.org>
 References: <20191122061301.4947-1-sashal@kernel.org>
@@ -43,33 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Varun Prakash <varun@chelsio.com>
+From: Kyle Roeschley <kyle.roeschley@ni.com>
 
-[ Upstream commit 9934613edcb40b92a216122876cd3b7e76d08390 ]
+[ Upstream commit fb376a495fbdb886f38cfaf5a3805401b9e46f13 ]
 
-In case of ->vport_create() call scsi_add_host_with_dma() instead of
-scsi_add_host() to pass correct dma device.
+Commit dd45b7598f1c ("ath6kl: Include match ssid list in scheduled scan")
+merged the probed and matched SSID lists before sending them to the
+firmware. In the process, it assumed match set support is always available
+in ath6kl_set_probed_ssids, which breaks scans for hidden SSIDs. Now, check
+that the firmware supports matching SSIDs in scheduled scans before setting
+MATCH_SSID_FLAG.
 
-Signed-off-by: Varun Prakash <varun@chelsio.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: dd45b7598f1c ("ath6kl: Include match ssid list in scheduled scan")
+Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/csiostor/csio_init.c | 2 +-
+ drivers/net/wireless/ath/ath6kl/cfg80211.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/csiostor/csio_init.c b/drivers/scsi/csiostor/csio_init.c
-index dbe416ff46c27..776b992786881 100644
---- a/drivers/scsi/csiostor/csio_init.c
-+++ b/drivers/scsi/csiostor/csio_init.c
-@@ -648,7 +648,7 @@ csio_shost_init(struct csio_hw *hw, struct device *dev,
- 	if (csio_lnode_init(ln, hw, pln))
- 		goto err_shost_put;
+diff --git a/drivers/net/wireless/ath/ath6kl/cfg80211.c b/drivers/net/wireless/ath/ath6kl/cfg80211.c
+index 81ac8c59f0ecd..2b79815f59093 100644
+--- a/drivers/net/wireless/ath/ath6kl/cfg80211.c
++++ b/drivers/net/wireless/ath/ath6kl/cfg80211.c
+@@ -932,7 +932,7 @@ static int ath6kl_set_probed_ssids(struct ath6kl *ar,
+ 		else
+ 			ssid_list[i].flag = ANY_SSID_FLAG;
  
--	if (scsi_add_host(shost, dev))
-+	if (scsi_add_host_with_dma(shost, dev, &hw->pdev->dev))
- 		goto err_lnode_exit;
+-		if (n_match_ssid == 0)
++		if (ar->wiphy->max_match_sets != 0 && n_match_ssid == 0)
+ 			ssid_list[i].flag |= MATCH_SSID_FLAG;
+ 	}
  
- 	return ln;
 -- 
 2.20.1
 
