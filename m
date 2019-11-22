@@ -2,48 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB3421070F7
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58F0B106DA3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:01:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727771AbfKVKft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:35:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34586 "EHLO mail.kernel.org"
+        id S1731235AbfKVLBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:01:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727793AbfKVKfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:35:48 -0500
+        id S1731233AbfKVLBs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:01:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1AD0C20717;
-        Fri, 22 Nov 2019 10:35:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7A9782075B;
+        Fri, 22 Nov 2019 11:01:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418947;
-        bh=p7kYc3mDoZahh+BPsxnEMV48Z55VykrGFPQXMU/r7Y8=;
+        s=default; t=1574420508;
+        bh=1eXkFWEjcePNjzFPmGb5k9Ej3dTFFQjf7HftCKIGBz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCDPSUgsrofOrTuZA0IH33n1Z9oacSVnVQqr0+dfyArHLMA3g7INLm62afO3A0wmy
-         rBEeeJLKLU+u9SvE7jgVCwRkI8lGDrnj6u25/N5B+TT7GF/abkLTIDhalvP39kN49j
-         VZ2n+AwvRX5jW6Jc14xkgEkIGGmXL3sr2LuwhXZ0=
+        b=b6btlVSPnE1lwu480mFYPQi3Tq9K6coz1kOnt0hxGmeNh776K9cCNQ2cHVLoTaIT6
+         HryUBrg8i8Wi/srcpVIcu3YPEApwfodFtHgNYk+MjjbLxosIR4xfshknApvWKrZLDS
+         bvpBWoE8gXfzJ9wNc2VIZ96C1yuB2EJ7W9PwHvbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
-        Francis Deslauriers <francis.deslauriers@efficios.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        "H . Peter Anvin" <hpa@zytor.com>, Yonghong Song <yhs@fb.com>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 105/159] kprobes/x86: Prohibit probing on exception masking instructions
+        stable@vger.kernel.org, Martin Kepplinger <martink@posteo.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 131/220] Input: st1232 - set INPUT_PROP_DIRECT property
 Date:   Fri, 22 Nov 2019 11:28:16 +0100
-Message-Id: <20191122100823.611923386@linuxfoundation.org>
+Message-Id: <20191122100922.246941927@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,83 +44,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Martin Kepplinger <martink@posteo.de>
 
-commit ee6a7354a3629f9b65bc18dbe393503e9440d6f5 upstream.
+[ Upstream commit 20bbb312079494a406c10c90932e3c80837c9d94 ]
 
-Since MOV SS and POP SS instructions will delay the exceptions until the
-next instruction is executed, single-stepping on it by kprobes must be
-prohibited.
+This is how userspace checks for touchscreen devices most reliably.
 
-However, kprobes usually executes those instructions directly on trampoline
-buffer (a.k.a. kprobe-booster), except for the kprobes which has
-post_handler. Thus if kprobe user probes MOV SS with post_handler, it will
-do single-stepping on the MOV SS.
-
-This means it is safe that if it is used via ftrace or perf/bpf since those
-don't use the post_handler.
-
-Anyway, since the stack switching is a rare case, it is safer just
-rejecting kprobes on such instructions.
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ricardo Neri <ricardo.neri-calderon@linux.intel.com>
-Cc: Francis Deslauriers <francis.deslauriers@efficios.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "David S . Miller" <davem@davemloft.net>
-Link: https://lkml.kernel.org/r/152587069574.17316.3311695234863248641.stgit@devbox
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Martin Kepplinger <martink@posteo.de>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/insn.h    |   18 ++++++++++++++++++
- arch/x86/kernel/kprobes/core.c |    4 ++++
- 2 files changed, 22 insertions(+)
+ drivers/input/touchscreen/st1232.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/x86/include/asm/insn.h
-+++ b/arch/x86/include/asm/insn.h
-@@ -198,4 +198,22 @@ static inline int insn_offset_immediate(
- 	return insn_offset_displacement(insn) + insn->displacement.nbytes;
- }
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index d5dfa4053bbf2..b71673911aac3 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -195,6 +195,7 @@ static int st1232_ts_probe(struct i2c_client *client,
+ 	input_dev->id.bustype = BUS_I2C;
+ 	input_dev->dev.parent = &client->dev;
  
-+#define POP_SS_OPCODE 0x1f
-+#define MOV_SREG_OPCODE 0x8e
-+
-+/*
-+ * Intel SDM Vol.3A 6.8.3 states;
-+ * "Any single-step trap that would be delivered following the MOV to SS
-+ * instruction or POP to SS instruction (because EFLAGS.TF is 1) is
-+ * suppressed."
-+ * This function returns true if @insn is MOV SS or POP SS. On these
-+ * instructions, single stepping is suppressed.
-+ */
-+static inline int insn_masking_exception(struct insn *insn)
-+{
-+	return insn->opcode.bytes[0] == POP_SS_OPCODE ||
-+		(insn->opcode.bytes[0] == MOV_SREG_OPCODE &&
-+		 X86_MODRM_REG(insn->modrm.bytes[0]) == 2);
-+}
-+
- #endif /* _ASM_X86_INSN_H */
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -372,6 +372,10 @@ int __copy_instruction(u8 *dest, u8 *src
- 		return 0;
- 	memcpy(dest, insn.kaddr, length);
- 
-+	/* We should not singlestep on the exception masking instructions */
-+	if (insn_masking_exception(&insn))
-+		return 0;
-+
- #ifdef CONFIG_X86_64
- 	if (insn_rip_relative(&insn)) {
- 		s64 newdisp;
++	__set_bit(INPUT_PROP_DIRECT, input_dev->propbit);
+ 	__set_bit(EV_SYN, input_dev->evbit);
+ 	__set_bit(EV_KEY, input_dev->evbit);
+ 	__set_bit(EV_ABS, input_dev->evbit);
+-- 
+2.20.1
+
 
 
