@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B5523106BB2
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:46:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68F0D106C1A
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:50:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728368AbfKVKqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:46:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53872 "EHLO mail.kernel.org"
+        id S1728604AbfKVKtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:49:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727746AbfKVKqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:46:38 -0500
+        id S1727102AbfKVKtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:52 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2AE5205C9;
-        Fri, 22 Nov 2019 10:46:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10CDF20715;
+        Fri, 22 Nov 2019 10:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419597;
-        bh=h18vsG2/dOzyz5ekVxrrjJAtpSd/yKL1s/yBtgCB0t8=;
+        s=default; t=1574419791;
+        bh=H4FtUxAgb8VUgFh06eAzC1WMy5cEloH2ZAE49aqsZR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HhO3x5bKVME22TqgYNxtPKTo11IxqrOi6Oqm0RQrJIPCd6kPX4IbnuJWJfWZLOxCB
-         VP5i10e1jqABx1M7KOMR5VD8VxnIcMuQTmohhGEldX9mOFaBycOCdXyu7QyeTacSAy
-         /IHQkT11fURgoO/4a2b8mbxjnMeq8u+t2kRrTmE4=
+        b=dSoq+7aFye8ZLMKDbsFJYazFB/fuXdYjKO2wmnJ5q5SEekoCXT/RtBLxiVkYgrF1f
+         D62gmpcHDk2iRlD/0221KdHZHMG3D4yfsgNvmDNTUBvsDLvOcQzV8m0zyLtPbOaKB+
+         Z+O9ZuSTZSKJ8mtkMe6JGPKs8pxFqOpQ+tz/spnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gage Eads <gage.eads@intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Wei Liu <wei.liu2@citrix.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 123/222] vfio/pci: Mask buggy SR-IOV VF INTx support
-Date:   Fri, 22 Nov 2019 11:27:43 +0100
-Message-Id: <20191122100911.959197110@linuxfoundation.org>
+Subject: [PATCH 4.14 011/122] net: xen-netback: fix return type of ndo_start_xmit function
+Date:   Fri, 22 Nov 2019 11:27:44 +0100
+Message-Id: <20191122100730.698209002@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,100 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Williamson <alex.williamson@redhat.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit db04264fe9bc0f2b62e036629f9afb530324b693 ]
+[ Upstream commit a9ca7f17c6d240e269a24cbcd76abf9a940309dd ]
 
-The SR-IOV spec requires that VFs must report zero for the INTx pin
-register as VFs are precluded from INTx support.  It's much easier for
-the host kernel to understand whether a device is a VF and therefore
-whether a non-zero pin register value is bogus than it is to do the
-same in userspace.  Override the INTx count for such devices and
-virtualize the pin register to provide a consistent view of the device
-to the user.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-As this is clearly a spec violation, warn about it to support hardware
-validation, but also provide a known whitelist as it doesn't do much
-good to continue complaining if the hardware vendor doesn't plan to
-fix it.
+Found by coccinelle.
 
-Known devices with this issue: 8086:270c
-
-Tested-by: Gage Eads <gage.eads@intel.com>
-Reviewed-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Wei Liu <wei.liu2@citrix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci.c        |  8 ++++++--
- drivers/vfio/pci/vfio_pci_config.c | 27 +++++++++++++++++++++++++++
- 2 files changed, 33 insertions(+), 2 deletions(-)
+ drivers/net/xen-netback/interface.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
-index a1a712d18e028..da3f0ed18c769 100644
---- a/drivers/vfio/pci/vfio_pci.c
-+++ b/drivers/vfio/pci/vfio_pci.c
-@@ -426,10 +426,14 @@ static int vfio_pci_get_irq_count(struct vfio_pci_device *vdev, int irq_type)
- {
- 	if (irq_type == VFIO_PCI_INTX_IRQ_INDEX) {
- 		u8 pin;
-+
-+		if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) ||
-+		    vdev->nointx || vdev->pdev->is_virtfn)
-+			return 0;
-+
- 		pci_read_config_byte(vdev->pdev, PCI_INTERRUPT_PIN, &pin);
--		if (IS_ENABLED(CONFIG_VFIO_PCI_INTX) && !vdev->nointx && pin)
--			return 1;
- 
-+		return pin ? 1 : 0;
- 	} else if (irq_type == VFIO_PCI_MSI_IRQ_INDEX) {
- 		u8 pos;
- 		u16 flags;
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index 06a20ea183dd6..84905d074c4ff 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1608,6 +1608,15 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
- 	return 0;
+diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
+index 2641e76d03d9d..b5fa910b47b70 100644
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -172,7 +172,8 @@ static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
+ 	return vif->hash.mapping[skb_get_hash_raw(skb) % size];
  }
  
-+/*
-+ * Nag about hardware bugs, hopefully to have vendors fix them, but at least
-+ * to collect a list of dependencies for the VF INTx pin quirk below.
-+ */
-+static const struct pci_device_id known_bogus_vf_intx_pin[] = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x270c) },
-+	{}
-+};
-+
- /*
-  * For each device we allocate a pci_config_map that indicates the
-  * capability occupying each dword and thus the struct perm_bits we
-@@ -1673,6 +1682,24 @@ int vfio_config_init(struct vfio_pci_device *vdev)
- 	if (pdev->is_virtfn) {
- 		*(__le16 *)&vconfig[PCI_VENDOR_ID] = cpu_to_le16(pdev->vendor);
- 		*(__le16 *)&vconfig[PCI_DEVICE_ID] = cpu_to_le16(pdev->device);
-+
-+		/*
-+		 * Per SR-IOV spec rev 1.1, 3.4.1.18 the interrupt pin register
-+		 * does not apply to VFs and VFs must implement this register
-+		 * as read-only with value zero.  Userspace is not readily able
-+		 * to identify whether a device is a VF and thus that the pin
-+		 * definition on the device is bogus should it violate this
-+		 * requirement.  We already virtualize the pin register for
-+		 * other purposes, so we simply need to replace the bogus value
-+		 * and consider VFs when we determine INTx IRQ count.
-+		 */
-+		if (vconfig[PCI_INTERRUPT_PIN] &&
-+		    !pci_match_id(known_bogus_vf_intx_pin, pdev))
-+			pci_warn(pdev,
-+				 "Hardware bug: VF reports bogus INTx pin %d\n",
-+				 vconfig[PCI_INTERRUPT_PIN]);
-+
-+		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
- 	}
- 
- 	if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) || vdev->nointx)
+-static int xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct xenvif *vif = netdev_priv(dev);
+ 	struct xenvif_queue *queue = NULL;
 -- 
 2.20.1
 
