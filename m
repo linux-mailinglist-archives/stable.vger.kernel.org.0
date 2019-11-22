@@ -2,88 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90CEE107748
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 19:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A32DC107747
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 19:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726744AbfKVSZK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 13:25:10 -0500
-Received: from outils.crapouillou.net ([89.234.176.41]:40654 "EHLO
-        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726676AbfKVSZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 13:25:10 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
-        s=mail; t=1574447108; h=from:from:sender:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=cDQ9DP+nSpXqUMgZar+w9Dd+vKhFlMEv57dus8BQRpQ=;
-        b=O7+ZGTvuyaTyah38XNcampj8b2AQe77fHoHdyG3LjKC2c2Jr8xPQqNtD7XMZiKaCJQ/XjP
-        cN22cPAhCW3DKqqtYLQ2MJHqICR+A64kPZ9vDyBKDRgt1hCX3YxQHff/U0kjVotvHi+JGv
-        RwByXPqV+5afr8ADMfB23s+cwS3edIA=
-Date:   Fri, 22 Nov 2019 19:25:02 +0100
-From:   Paul Cercueil <paul@crapouillou.net>
-Subject: Re: [PATCH 4.19 070/422] pinctrl: ingenic: Probe driver at
- subsys_initcall
-To:     Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Message-Id: <1574447102.3.1@crapouillou.net>
-In-Reply-To: <20191121101750.GB26882@amd>
-References: <20191119051400.261610025@linuxfoundation.org>
-        <20191119051404.162474836@linuxfoundation.org> <20191121101750.GB26882@amd>
+        id S1726716AbfKVSZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 13:25:09 -0500
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:44944 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726676AbfKVSZI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 13:25:08 -0500
+Received: by mail-lj1-f194.google.com with SMTP id g3so8409114ljl.11
+        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 10:25:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=OEloUzzpKFkm1+15RL3k2pakFTYLD6AVgZz0vOUOR34=;
+        b=M90mNbQslfcNLH3QytQjvBBgDNfEeOEQPZGJWFgaTS+GBHR3N2KrOgki8pQ/o4cHXN
+         8ZFapDW9NKKj+QgvIYoZcMhpnY1W6LDWPZFO9J2FRRpqQ86L3lajNJS62Gm1a4lIQJjW
+         jTZR1fKHKDF7tsicvwL8XSkS1S+PtnyZJUVSEGRr27jUfKJtxb0uGWhMrAjQs0xcpzSv
+         4TB7lLmMNqRfCLDRzj+rXPMphdInzrDH1ZAxRWNy88u+p3y+hup3khOhz+jWOfSX1wqT
+         uSxpxT0+bxGfPrymsMQsmsspfhSWX7cFZ95yuhYIl7at9IlOt2c2VuIYdCTT5/dMJYaf
+         37FA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=OEloUzzpKFkm1+15RL3k2pakFTYLD6AVgZz0vOUOR34=;
+        b=XEhTU+iP1YrnXQx9LvxZkgsf+IwD0gM94pcYy/LKeboiF/HuF7k1uu1583tl3jYUUd
+         V/gWu4XmpJqRZgx7NCQSEIzCMzWZqrAQLgz6h8badDyAkIlrTbk6UXYi7R5WvriUHrwj
+         qsByIZfwjraCn93ZOtweNQk6o1OvdbrpjcbZNaCKu0wvOyi+mIFIxJiAIIlGyhO2B6FQ
+         AwKHAxRsCoTEHU7M2VUQjqFuraa97sZ/9q+jfrZghjDVErvIu0rGhl1G7oxLIboR/zro
+         FDq71sK6JsWUAGHQnNcQrRb6/QsuQ4OflrhSzJoChXvHhBtQwMYsvyGQZ2uon4JyYH06
+         t3Tg==
+X-Gm-Message-State: APjAAAUDLXYtWhac+xp8kNuCaC/ErbNU+eiIh1QAsn+jiqq3mO8OXQnm
+        pOaz1tM1he9CYzK5imjGaP/obLMSpuC7Dz66Bok=
+X-Google-Smtp-Source: APXvYqzermu5WZzImv7JZi1+Qr7weCXQODV+LamIVefhWweGYobzYHDYOhs/qIdrdsu2PachTrUZZ1EaLeoJSXnhIg4=
+X-Received: by 2002:a2e:9a8b:: with SMTP id p11mr13047012lji.164.1574447106631;
+ Fri, 22 Nov 2019 10:25:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Received: by 2002:a19:610f:0:0:0:0:0 with HTTP; Fri, 22 Nov 2019 10:25:06
+ -0800 (PST)
+Reply-To: mrdavidkekeli01@gmail.com
+From:   "Mr.David Keller" <davidkekeli442@gmail.com>
+Date:   Fri, 22 Nov 2019 18:25:06 +0000
+Message-ID: <CABGDXtqndC9gsXNTOMVS+tso_JHRH9ENW08hr0ykrVCF+b4uvg@mail.gmail.com>
+Subject: Answer Me Please.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Pavel,
+My Greeting,God Bless You, Did you receive the letter i sent to
+you.Please answer me.
 
-
-Le jeu., nov. 21, 2019 at 11:17, Pavel Machek <pavel@denx.de> a =E9crit :
-> On Tue 2019-11-19 06:14:27, Greg Kroah-Hartman wrote:
->>  From: Paul Cercueil <paul@crapouillou.net>
->>=20
->>  [ Upstream commit 556a36a71ed80e17ade49225b58513ea3c9e4558 ]
->>=20
->>  Using postcore_initcall() makes the driver try to initialize way too
->>  early.
->=20
-> Does it fix concrete bug / would you say it is suitable for -stable?
-
-When using postcore_initcall() it locks up early in the boot process,=20
-so it definitely fixes a bug. I think it locks up because standard=20
-(non-early) platform drivers can't be probed postcore (but they can be=20
-registered and probed later).
-
->=20
->>  +++ b/drivers/pinctrl/pinctrl-ingenic.c
->>  @@ -847,4 +847,4 @@ static int __init=20
->> ingenic_pinctrl_drv_register(void)
->>   {
->>   	return platform_driver_register(&ingenic_pinctrl_driver);
->>   }
->>  -postcore_initcall(ingenic_pinctrl_drv_register);
->>  +subsys_initcall(ingenic_pinctrl_drv_register);
->=20
-> There are other pinctrl drivers initialized very early, do they need
-> fixing, too?
-
-The other drivers call platform_driver_register(), not=20
-platform_driver_probe(), which means that they will probe at the same=20
-time as the other platform drivers.
-
-The reason platform_driver_probe() is used in pinctrl-ingenic is that=20
-it allows the probe function and all the code attached to be marked=20
-__init.
-
-Cheers,
--Paul
-
-=
-
+Best Regard,
+Mr.David Keller.
