@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFCD8106E96
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:10:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CA71106FAD
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731316AbfKVLCg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:02:36 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56234 "EHLO mail.kernel.org"
+        id S1728734AbfKVKtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:49:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730991AbfKVLCf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:02:35 -0500
+        id S1729393AbfKVKtC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A507220840;
-        Fri, 22 Nov 2019 11:02:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82B2920637;
+        Fri, 22 Nov 2019 10:49:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420555;
-        bh=seh6PmXvSTkNpVGMUR2DlyeDVyJ5I38GlRYzKWTGXiY=;
+        s=default; t=1574419742;
+        bh=Hrd8Tdvryc7oSkiufmHyOEffL6pZMUZ+GAVv0e3zuzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m732d10en112HLLS7Qj1z4RcqAwzOvdl8Z1QSnrEsfJLqD94HxmN2h1+ISZ0RqDRd
-         Xn9cZcTiRFmHEkbU/HsJIl3o1eTw2sr0v8tNqQjH53M/AWZqwCeMHyNScYTQrjkHkH
-         ki3Y1BgkU5G59JtHW/pjWXoeLmXySaKdSAKQXhms=
+        b=VcXXgbGX9pbZEnyMuwz6farqWDdquOm5rnhWlhin7ptBz1W/ZFoiavlvEopSGxAdF
+         U2XxcfMINdTTlmzuMH+NSs+bJgyalcrN/1/1mcdW5QcdqbNcvrYcKeTdyV+el9xP1+
+         LdVNRW9m+yaXf/uV5HqIa4LIal0gX6k4/ntKfE3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn.topel@intel.com>,
-        Song Liu <songliubraving@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 146/220] xsk: proper AF_XDP socket teardown ordering
-Date:   Fri, 22 Nov 2019 11:28:31 +0100
-Message-Id: <20191122100923.263721887@linuxfoundation.org>
+Subject: [PATCH 4.9 172/222] powerpc/pseries: Fix DTL buffer registration
+Date:   Fri, 22 Nov 2019 11:28:32 +0100
+Message-Id: <20191122100914.905923398@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,102 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Björn Töpel <bjorn.topel@intel.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 541d7fdd7694560404c502f64298a90ffe017e6b ]
+[ Upstream commit db787af1b8a6b4be428ee2ea7d409dafcaa4a43c ]
 
-The AF_XDP socket struct can exist in three different, implicit
-states: setup, bound and released. Setup is prior the socket has been
-bound to a device. Bound is when the socket is active for receive and
-send. Released is when the process/userspace side of the socket is
-released, but the sock object is still lingering, e.g. when there is a
-reference to the socket in an XSKMAP after process termination.
+When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we register the DTL
+buffer for a cpu when the associated file under powerpc/dtl in debugfs
+is opened. When doing so, we need to set the size of the buffer being
+registered in the second u32 word of the buffer. This needs to be in big
+endian, but we are not doing the conversion resulting in the below error
+showing up in dmesg:
 
-The Rx fast-path code uses the "dev" member of struct xdp_sock to
-check whether a socket is bound or relased, and the Tx code uses the
-struct xdp_umem "xsk_list" member in conjunction with "dev" to
-determine the state of a socket.
+	dtl_start: DTL registration for cpu 0 (hw 0) failed with -4
 
-However, the transition from bound to released did not tear the socket
-down in correct order.
+Fix this in the obvious manner.
 
-On the Rx side "dev" was cleared after synchronize_net() making the
-synchronization useless. On the Tx side, the internal queues were
-destroyed prior removing them from the "xsk_list".
-
-This commit corrects the cleanup order, and by doing so
-xdp_del_sk_umem() can be simplified and one synchronize_net() can be
-removed.
-
-Fixes: 965a99098443 ("xsk: add support for bind for Rx")
-Fixes: ac98d8aab61b ("xsk: wire upp Tx zero-copy functions")
-Reported-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Björn Töpel <bjorn.topel@intel.com>
-Acked-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: 7c105b63bd98 ("powerpc: Add CONFIG_CPU_LITTLE_ENDIAN kernel config option.")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xdp_umem.c | 11 +++--------
- net/xdp/xsk.c      | 13 ++++++++-----
- 2 files changed, 11 insertions(+), 13 deletions(-)
+ arch/powerpc/platforms/pseries/dtl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/xdp/xdp_umem.c b/net/xdp/xdp_umem.c
-index 8cab91c482ff5..d9117ab035f7c 100644
---- a/net/xdp/xdp_umem.c
-+++ b/net/xdp/xdp_umem.c
-@@ -32,14 +32,9 @@ void xdp_del_sk_umem(struct xdp_umem *umem, struct xdp_sock *xs)
- {
- 	unsigned long flags;
+diff --git a/arch/powerpc/platforms/pseries/dtl.c b/arch/powerpc/platforms/pseries/dtl.c
+index 39049e4884fbd..37de83c5ef172 100644
+--- a/arch/powerpc/platforms/pseries/dtl.c
++++ b/arch/powerpc/platforms/pseries/dtl.c
+@@ -150,7 +150,7 @@ static int dtl_start(struct dtl *dtl)
  
--	if (xs->dev) {
--		spin_lock_irqsave(&umem->xsk_list_lock, flags);
--		list_del_rcu(&xs->list);
--		spin_unlock_irqrestore(&umem->xsk_list_lock, flags);
--
--		if (umem->zc)
--			synchronize_net();
--	}
-+	spin_lock_irqsave(&umem->xsk_list_lock, flags);
-+	list_del_rcu(&xs->list);
-+	spin_unlock_irqrestore(&umem->xsk_list_lock, flags);
- }
+ 	/* Register our dtl buffer with the hypervisor. The HV expects the
+ 	 * buffer size to be passed in the second word of the buffer */
+-	((u32 *)dtl->buf)[1] = DISPATCH_LOG_BYTES;
++	((u32 *)dtl->buf)[1] = cpu_to_be32(DISPATCH_LOG_BYTES);
  
- int xdp_umem_query(struct net_device *dev, u16 queue_id)
-diff --git a/net/xdp/xsk.c b/net/xdp/xsk.c
-index 661504042d304..ff15207036dc5 100644
---- a/net/xdp/xsk.c
-+++ b/net/xdp/xsk.c
-@@ -343,12 +343,18 @@ static int xsk_release(struct socket *sock)
- 	local_bh_enable();
- 
- 	if (xs->dev) {
-+		struct net_device *dev = xs->dev;
-+
- 		/* Wait for driver to stop using the xdp socket. */
--		synchronize_net();
--		dev_put(xs->dev);
-+		xdp_del_sk_umem(xs->umem, xs);
- 		xs->dev = NULL;
-+		synchronize_net();
-+		dev_put(dev);
- 	}
- 
-+	xskq_destroy(xs->rx);
-+	xskq_destroy(xs->tx);
-+
- 	sock_orphan(sk);
- 	sock->sk = NULL;
- 
-@@ -707,9 +713,6 @@ static void xsk_destruct(struct sock *sk)
- 	if (!sock_flag(sk, SOCK_DEAD))
- 		return;
- 
--	xskq_destroy(xs->rx);
--	xskq_destroy(xs->tx);
--	xdp_del_sk_umem(xs->umem, xs);
- 	xdp_put_umem(xs->umem);
- 
- 	sk_refcnt_debug_dec(sk);
+ 	hwcpu = get_hard_smp_processor_id(dtl->cpu);
+ 	addr = __pa(dtl->buf);
 -- 
 2.20.1
 
