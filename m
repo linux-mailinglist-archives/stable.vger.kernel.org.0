@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ECF410616E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:57:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7C4B106173
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:57:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729201AbfKVF4p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:56:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34582 "EHLO mail.kernel.org"
+        id S1729316AbfKVF45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:56:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729242AbfKVF4p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:45 -0500
+        id S1728853AbfKVF44 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:56 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D194E2070A;
-        Fri, 22 Nov 2019 05:56:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE7532071B;
+        Fri, 22 Nov 2019 05:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402204;
-        bh=c92/BLyGFwnUnlC9RHs4LORE2AeBCegKXnWlVU3xO4I=;
+        s=default; t=1574402215;
+        bh=XnpCKP1VGa9Neef0VB7/f4VFR7F6r56u+ItKvz+RVng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ag1hiuwq+f7gVMVcSyqAu9k+m7mzb8HGIoMQeCQ2WQoFA1zYqfkMexv9WOiUpfj8b
-         6tW8TWAc7iFmG1q5nDqrUb6Gs99ijSj/2aBGtXqxVx8s+OFrP2kJDEoDrS5BLFbOCU
-         jBDHkMdayZK9/MwGPM6LSNlBKrO6/xq4zqqf4rNA=
+        b=DYs0Yo1iz7FmK4NVdqN/w67yRaULKgvrCQq/g4ZiqiljWUl7CEC455hdfYSimfBbv
+         oOKDqNr010tw5UJ6OJI/EQw663bUsS9Y0KCqLy2Vm17R3l3L1MzBtB+99QVgD+nthQ
+         yDNOoQ76/ZAyCjOTFvFXQdCp32Ie+gnrIzx8Yo8w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.14 053/127] powerpc/book3s/32: fix number of bats in p/v_block_mapped()
-Date:   Fri, 22 Nov 2019 00:54:31 -0500
-Message-Id: <20191122055544.3299-52-sashal@kernel.org>
+Cc:     Kyle Roeschley <kyle.roeschley@ni.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 063/127] ath6kl: Fix off by one error in scan completion
+Date:   Fri, 22 Nov 2019 00:54:41 -0500
+Message-Id: <20191122055544.3299-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -43,42 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@c-s.fr>
+From: Kyle Roeschley <kyle.roeschley@ni.com>
 
-[ Upstream commit e93ba1b7eb5b188c749052df7af1c90821c5f320 ]
+[ Upstream commit 5803c12816c43bd09e5f4247dd9313c2d9a2c41b ]
 
-This patch fixes the loop in p_block_mapped() and v_block_mapped()
-to scan the entire bat_addrs[] array.
+When ath6kl was reworked to share code between regular and scheduled scans
+in commit 3b8ffc6a22ba ("ath6kl: Configure probed SSID list consistently"),
+probed SSID entry changed from 1-index to 0-indexed. However,
+ath6kl_cfg80211_scan_complete_event() was missed in that change. Fix its
+indexing so that we correctly clear out the probed SSID list.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/ppc_mmu_32.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath6kl/cfg80211.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/ppc_mmu_32.c b/arch/powerpc/mm/ppc_mmu_32.c
-index 2a049fb8523d5..96c52271e9c2d 100644
---- a/arch/powerpc/mm/ppc_mmu_32.c
-+++ b/arch/powerpc/mm/ppc_mmu_32.c
-@@ -52,7 +52,7 @@ struct batrange {		/* stores address ranges mapped by BATs */
- phys_addr_t v_block_mapped(unsigned long va)
- {
- 	int b;
--	for (b = 0; b < 4; ++b)
-+	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
- 		if (va >= bat_addrs[b].start && va < bat_addrs[b].limit)
- 			return bat_addrs[b].phys + (va - bat_addrs[b].start);
- 	return 0;
-@@ -64,7 +64,7 @@ phys_addr_t v_block_mapped(unsigned long va)
- unsigned long p_block_mapped(phys_addr_t pa)
- {
- 	int b;
--	for (b = 0; b < 4; ++b)
-+	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
- 		if (pa >= bat_addrs[b].phys
- 	    	    && pa < (bat_addrs[b].limit-bat_addrs[b].start)
- 		              +bat_addrs[b].phys)
+diff --git a/drivers/net/wireless/ath/ath6kl/cfg80211.c b/drivers/net/wireless/ath/ath6kl/cfg80211.c
+index f790d8021fa17..37deb9bae3643 100644
+--- a/drivers/net/wireless/ath/ath6kl/cfg80211.c
++++ b/drivers/net/wireless/ath/ath6kl/cfg80211.c
+@@ -1093,7 +1093,7 @@ void ath6kl_cfg80211_scan_complete_event(struct ath6kl_vif *vif, bool aborted)
+ 	if (vif->scan_req->n_ssids && vif->scan_req->ssids[0].ssid_len) {
+ 		for (i = 0; i < vif->scan_req->n_ssids; i++) {
+ 			ath6kl_wmi_probedssid_cmd(ar->wmi, vif->fw_vif_idx,
+-						  i + 1, DISABLE_SSID_FLAG,
++						  i, DISABLE_SSID_FLAG,
+ 						  0, NULL);
+ 		}
+ 	}
 -- 
 2.20.1
 
