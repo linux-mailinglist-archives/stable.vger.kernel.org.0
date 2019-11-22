@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32D6D106DD7
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FB41106F87
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:16:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731452AbfKVLDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:03:44 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58030 "EHLO mail.kernel.org"
+        id S1727289AbfKVKvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:51:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731029AbfKVLDn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:03:43 -0500
+        id S1729252AbfKVKvM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:51:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41BF1207DD;
-        Fri, 22 Nov 2019 11:03:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E56D02072E;
+        Fri, 22 Nov 2019 10:51:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420622;
-        bh=j7hhSDZ7CtrD2nv5ImgbrakypO9BBw85VDk4h55n7J4=;
+        s=default; t=1574419871;
+        bh=TpNyeSDmfELcoGLhQcP1ky6+6+Aylb/u+dAmwQSzoVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmjNdGjx+Rfig4gyUyR8cYbRQNe7Qg86LAyVs3y7CUVs20gsqA0oldegddl0ydW55
-         zL87zozX3J8vxl7YjK+bYsExqVM5xQN3/pX9Oceaoz404X9rqDvqPe0UAn7h3/Gqne
-         O1q/zYHMTt3i4qJFfrGG26CL949O6ezstKwUAxJU=
+        b=a5IuxPDVBPlYapbtOLa/598cA279/Jk5onfmlabAhpsg51RFNYAsoQlfZ1iXZhPtQ
+         t8aEl/6cpGh8tr4xlUIbI3qJLz6DtVGcHQuX45b1jGNlrKFODxXbZ//bYtURLUVvq0
+         sQ9xfTW23RGk6+Zw0bTkmP8Tkl3YIJEj1ppCGP8Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 126/220] gfs2: slow the deluge of io error messages
+Subject: [PATCH 4.14 038/122] cxgb4: Use proper enum in IEEE_FAUX_SYNC
 Date:   Fri, 22 Nov 2019 11:28:11 +0100
-Message-Id: <20191122100921.851990005@linuxfoundation.org>
+Message-Id: <20191122100752.871426333@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit b524abcc01483b2ac093cc6a8a2a7375558d2b64 ]
+[ Upstream commit 258b6d141878530ba1f8fc44db683822389de914 ]
 
-When an io error is hit, it calls gfs2_io_error_bh_i for every
-journal buffer it can't write. Since we changed gfs2_io_error_bh_i
-recently to withdraw later in the cycle, it sends a flood of
-errors to the console. This patch checks for the file system already
-being withdrawn, and if so, doesn't send more messages. It doesn't
-stop the flood of messages, but it slows it down and keeps it more
-reasonable.
+Clang warns when one enumerated type is implicitly converted to another.
 
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c:390:4: warning: implicit
+conversion from enumeration type 'enum cxgb4_dcb_state' to different
+enumeration type 'enum cxgb4_dcb_state_input' [-Wenum-conversion]
+                        IEEE_FAUX_SYNC(dev, dcb);
+                        ^~~~~~~~~~~~~~~~~~~~~~~~
+drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h:70:10: note: expanded
+from macro 'IEEE_FAUX_SYNC'
+                                            CXGB4_DCB_STATE_FW_ALLSYNCED);
+                                            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Use the equivalent value of the expected type to silence Clang while
+resulting in no functional change.
+
+CXGB4_DCB_STATE_FW_ALLSYNCED = CXGB4_DCB_INPUT_FW_ALLSYNCED = 3
+
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/incore.h |  1 +
- fs/gfs2/log.c    |  7 +++++--
- fs/gfs2/util.c   | 13 +++++++------
- 3 files changed, 13 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/incore.h b/fs/gfs2/incore.h
-index b96d39c28e17c..5d72e8b66a269 100644
---- a/fs/gfs2/incore.h
-+++ b/fs/gfs2/incore.h
-@@ -623,6 +623,7 @@ enum {
- 	SDF_RORECOVERY		= 7, /* read only recovery */
- 	SDF_SKIP_DLM_UNLOCK	= 8,
- 	SDF_FORCE_AIL_FLUSH     = 9,
-+	SDF_AIL1_IO_ERROR	= 10,
- };
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
+index ccf24d3dc9824..2c418c405c508 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.h
+@@ -67,7 +67,7 @@
+ 	do { \
+ 		if ((__dcb)->dcb_version == FW_PORT_DCB_VER_IEEE) \
+ 			cxgb4_dcb_state_fsm((__dev), \
+-					    CXGB4_DCB_STATE_FW_ALLSYNCED); \
++					    CXGB4_DCB_INPUT_FW_ALLSYNCED); \
+ 	} while (0)
  
- enum gfs2_freeze_state {
-diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
-index cd85092723dea..90b5c8d0c56ac 100644
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -108,7 +108,9 @@ __acquires(&sdp->sd_ail_lock)
- 		gfs2_assert(sdp, bd->bd_tr == tr);
- 
- 		if (!buffer_busy(bh)) {
--			if (!buffer_uptodate(bh)) {
-+			if (!buffer_uptodate(bh) &&
-+			    !test_and_set_bit(SDF_AIL1_IO_ERROR,
-+					      &sdp->sd_flags)) {
- 				gfs2_io_error_bh(sdp, bh);
- 				*withdraw = true;
- 			}
-@@ -206,7 +208,8 @@ static void gfs2_ail1_empty_one(struct gfs2_sbd *sdp, struct gfs2_trans *tr,
- 		gfs2_assert(sdp, bd->bd_tr == tr);
- 		if (buffer_busy(bh))
- 			continue;
--		if (!buffer_uptodate(bh)) {
-+		if (!buffer_uptodate(bh) &&
-+		    !test_and_set_bit(SDF_AIL1_IO_ERROR, &sdp->sd_flags)) {
- 			gfs2_io_error_bh(sdp, bh);
- 			*withdraw = true;
- 		}
-diff --git a/fs/gfs2/util.c b/fs/gfs2/util.c
-index 59c811de0dc7a..6a02cc890daf9 100644
---- a/fs/gfs2/util.c
-+++ b/fs/gfs2/util.c
-@@ -256,12 +256,13 @@ void gfs2_io_error_bh_i(struct gfs2_sbd *sdp, struct buffer_head *bh,
- 			const char *function, char *file, unsigned int line,
- 			bool withdraw)
- {
--	fs_err(sdp,
--	       "fatal: I/O error\n"
--	       "  block = %llu\n"
--	       "  function = %s, file = %s, line = %u\n",
--	       (unsigned long long)bh->b_blocknr,
--	       function, file, line);
-+	if (!test_bit(SDF_SHUTDOWN, &sdp->sd_flags))
-+		fs_err(sdp,
-+		       "fatal: I/O error\n"
-+		       "  block = %llu\n"
-+		       "  function = %s, file = %s, line = %u\n",
-+		       (unsigned long long)bh->b_blocknr,
-+		       function, file, line);
- 	if (withdraw)
- 		gfs2_lm_withdraw(sdp, NULL);
- }
+ /* States we can be in for a port's Data Center Bridging.
 -- 
 2.20.1
 
