@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65BEB106E5A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:08:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79846106FB1
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731579AbfKVLEl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:04:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59798 "EHLO mail.kernel.org"
+        id S1727666AbfKVKt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:49:27 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730950AbfKVLEk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:04:40 -0500
+        id S1729086AbfKVKt0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:26 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4455E2084D;
-        Fri, 22 Nov 2019 11:04:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0415620718;
+        Fri, 22 Nov 2019 10:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420679;
-        bh=Bb7rzqBJjmBbvr7XAuy08cxKHrBROKdq85oHPWcCyEI=;
+        s=default; t=1574419765;
+        bh=njXyVfjBG0LIkr/kk7vRsRBmHRAmpy7aAcVwBzyjTw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7gObVwqSsgOKKeIrBDyO1GqhlwIiIMityrRj21csgSU8z+2/3NGCazgWzPWXdELX
-         hd5geR1/3nJ7LybBqZZpZEWhuUltnW/8eWTajW9gGaPr18D1mRRIlshs1g2hzb0MWm
-         0GO1hdMWC9+zchP8OaVlNzCQ5Pt7PEnY3O9gQb1M=
+        b=ukZJaAY0R9Ll0dOafsaemLWWjxzt6DDUsJeBCVHK7RahYuf+j82Tio1I5+j2GdU66
+         Q2Yzh6GN04MeZaGjPB5MawsHgS42ZD0FWue5uIdjBkf/SDapzlcIU5z3or320KbSue
+         mObZG8G+zr4fFWTsf23x8hzXPwQ2Dm/XkZlUxLHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org,
+        Timothy E Baldwin <T.E.Baldwin99@members.leeds.ac.uk>,
+        Eugene Syromyatnikov <evgsyr@gmail.com>,
+        Kees Cook <keescook@chromium.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 189/220] net: fix generic XDP to handle if eth header was mangled
+Subject: [PATCH 4.9 214/222] ARM: 8802/1: Call syscall_trace_exit even when system call skipped
 Date:   Fri, 22 Nov 2019 11:29:14 +0100
-Message-Id: <20191122100927.741135903@linuxfoundation.org>
+Message-Id: <20191122100917.916466078@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesper Dangaard Brouer <brouer@redhat.com>
+From: Timothy E Baldwin <T.E.Baldwin99@members.leeds.ac.uk>
 
-[ Upstream commit 2972495699320229b55b8e5065a310be5c81485b ]
+[ Upstream commit f18aef742c8fbd68e280dff0a63ba0ca6ee8ad85 ]
 
-XDP can modify (and resize) the Ethernet header in the packet.
+On at least x86 and ARM64, and as documented in the ptrace man page
+a skipped system call will still cause a syscall exit ptrace stop.
 
-There is a bug in generic-XDP, because skb->protocol and skb->pkt_type
-are setup before reaching (netif_receive_)generic_xdp.
+Previous to this commit 32-bit ARM did not, resulting in strace
+being confused when seccomp skips system calls.
 
-This bug was hit when XDP were popping VLAN headers (changing
-eth->h_proto), as skb->protocol still contains VLAN-indication
-(ETH_P_8021Q) causing invocation of skb_vlan_untag(skb), which corrupt
-the packet (basically popping the VLAN again).
+This change also impacts programs that use ptrace to skip system calls.
 
-This patch catch if XDP changed eth header in such a way, that SKB
-fields needs to be updated.
-
-V2: on request from Song Liu, use ETH_HLEN instead of mac_len,
-in __skb_push() as eth_type_trans() use ETH_HLEN in paired skb_pull_inline().
-
-Fixes: d445516966dc ("net: xdp: support xdp generic on virtual devices")
-Signed-off-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: ad75b51459ae ("ARM: 7579/1: arch/allow a scno of -1 to not cause a SIGILL")
+Signed-off-by: Timothy E Baldwin <T.E.Baldwin99@members.leeds.ac.uk>
+Signed-off-by: Eugene Syromyatnikov <evgsyr@gmail.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Tested-by: Kees Cook <keescook@chromium.org>
+Tested-by: Eugene Syromyatnikov <evgsyr@gmail.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ arch/arm/kernel/entry-common.S | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 4a2ee1ce6c024..e96c88b1465d7 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4296,6 +4296,9 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
- 	struct netdev_rx_queue *rxqueue;
- 	void *orig_data, *orig_data_end;
- 	u32 metalen, act = XDP_DROP;
-+	__be16 orig_eth_type;
-+	struct ethhdr *eth;
-+	bool orig_bcast;
- 	int hlen, off;
- 	u32 mac_len;
+diff --git a/arch/arm/kernel/entry-common.S b/arch/arm/kernel/entry-common.S
+index d69adfb3d79e6..178a2a9606595 100644
+--- a/arch/arm/kernel/entry-common.S
++++ b/arch/arm/kernel/entry-common.S
+@@ -263,16 +263,15 @@ __sys_trace:
+ 	cmp	scno, #-1			@ skip the syscall?
+ 	bne	2b
+ 	add	sp, sp, #S_OFF			@ restore stack
+-	b	ret_slow_syscall
  
-@@ -4336,6 +4339,9 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
- 	xdp->data_hard_start = skb->data - skb_headroom(skb);
- 	orig_data_end = xdp->data_end;
- 	orig_data = xdp->data;
-+	eth = (struct ethhdr *)xdp->data;
-+	orig_bcast = is_multicast_ether_addr_64bits(eth->h_dest);
-+	orig_eth_type = eth->h_proto;
+-__sys_trace_return:
+-	str	r0, [sp, #S_R0 + S_OFF]!	@ save returned r0
++__sys_trace_return_nosave:
++	enable_irq_notrace
+ 	mov	r0, sp
+ 	bl	syscall_trace_exit
+ 	b	ret_slow_syscall
  
- 	rxqueue = netif_get_rxqueue(skb);
- 	xdp->rxq = &rxqueue->xdp_rxq;
-@@ -4359,6 +4365,14 @@ static u32 netif_receive_generic_xdp(struct sk_buff *skb,
- 
- 	}
- 
-+	/* check if XDP changed eth hdr such SKB needs update */
-+	eth = (struct ethhdr *)xdp->data;
-+	if ((orig_eth_type != eth->h_proto) ||
-+	    (orig_bcast != is_multicast_ether_addr_64bits(eth->h_dest))) {
-+		__skb_push(skb, ETH_HLEN);
-+		skb->protocol = eth_type_trans(skb, skb->dev);
-+	}
-+
- 	switch (act) {
- 	case XDP_REDIRECT:
- 	case XDP_TX:
+-__sys_trace_return_nosave:
+-	enable_irq_notrace
++__sys_trace_return:
++	str	r0, [sp, #S_R0 + S_OFF]!	@ save returned r0
+ 	mov	r0, sp
+ 	bl	syscall_trace_exit
+ 	b	ret_slow_syscall
 -- 
 2.20.1
 
