@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 814A6107023
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:20:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2B06106E98
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:10:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729529AbfKVKps (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:45:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52412 "EHLO mail.kernel.org"
+        id S1727102AbfKVLJu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:09:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729545AbfKVKps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:45:48 -0500
+        id S1731342AbfKVLCr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:02:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3806820715;
-        Fri, 22 Nov 2019 10:45:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 336672075E;
+        Fri, 22 Nov 2019 11:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419547;
-        bh=rJDJge3+QKwft/bx/SfxZuk9VqWcGSI7AVWouRhcak4=;
+        s=default; t=1574420566;
+        bh=nFIHgYARN6QoZyAs6j4pPa0Obg16o0fLwzGO5HLl37g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IbohhMmcT7VGBWn5bVOP/uiDYiVfM/YuiEEvfbLp0YhEO0pAdD6vDvM2AvhI2pCs9
-         3Ly9DiJqDSxf38JM3SqdEIur7Rvo+owV7+IqUKJimJXGDqOSft3xzEIdzNCO81eu/N
-         Zk5T/dkeuka0q5gfVAWPikjpVH3L0uEVuWpP2f5U=
+        b=rwSP38dYMgWhRPBoqKnNKIGuqJ/hr7+M5OLMjb850nM6kqVzXNQ5AwQf7528Llf3k
+         3uA3xNoY30+jh4hSRG3KgtHtk81m4EulyuYD8UOIQHDMXnDbiUOzJQrd78Z08tdzIu
+         vCq21u9O4v5AlzSCQqJi0E6AYLsjd9LH409jjZmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.9 148/222] net: cdc_ncm: Signedness bug in cdc_ncm_set_dgram_size()
+        stable@vger.kernel.org, Rami Rosen <ramirose@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 123/220] dmaengine: ioat: fix prototype of ioat_enumerate_channels
 Date:   Fri, 22 Nov 2019 11:28:08 +0100
-Message-Id: <20191122100913.462388506@linuxfoundation.org>
+Message-Id: <20191122100921.592923006@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Rami Rosen <ramirose@gmail.com>
 
-commit a56dcc6b455830776899ce3686735f1172e12243 upstream.
+[ Upstream commit f4d34aa8c887a8a2d23ef546da0efa10e3f77241 ]
 
-This code is supposed to test for negative error codes and partial
-reads, but because sizeof() is size_t (unsigned) type then negative
-error codes are type promoted to high positive values and the condition
-doesn't work as expected.
-
-Fixes: 332f989a3b00 ("CDC-NCM: handle incomplete transfer of MTU")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Rami Rosen <ramirose@gmail.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/cdc_ncm.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/ioat/init.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/net/usb/cdc_ncm.c
-+++ b/drivers/net/usb/cdc_ncm.c
-@@ -577,7 +577,7 @@ static void cdc_ncm_set_dgram_size(struc
- 	err = usbnet_read_cmd(dev, USB_CDC_GET_MAX_DATAGRAM_SIZE,
- 			      USB_TYPE_CLASS | USB_DIR_IN | USB_RECIP_INTERFACE,
- 			      0, iface_no, &max_datagram_size, sizeof(max_datagram_size));
--	if (err < sizeof(max_datagram_size)) {
-+	if (err != sizeof(max_datagram_size)) {
- 		dev_dbg(&dev->intf->dev, "GET_MAX_DATAGRAM_SIZE failed\n");
- 		goto out;
+diff --git a/drivers/dma/ioat/init.c b/drivers/dma/ioat/init.c
+index 21a5708985bc2..0fec3c554fe35 100644
+--- a/drivers/dma/ioat/init.c
++++ b/drivers/dma/ioat/init.c
+@@ -129,7 +129,7 @@ static void
+ ioat_init_channel(struct ioatdma_device *ioat_dma,
+ 		  struct ioatdma_chan *ioat_chan, int idx);
+ static void ioat_intr_quirk(struct ioatdma_device *ioat_dma);
+-static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma);
++static void ioat_enumerate_channels(struct ioatdma_device *ioat_dma);
+ static int ioat3_dma_self_test(struct ioatdma_device *ioat_dma);
+ 
+ static int ioat_dca_enabled = 1;
+@@ -575,7 +575,7 @@ static void ioat_dma_remove(struct ioatdma_device *ioat_dma)
+  * ioat_enumerate_channels - find and initialize the device's channels
+  * @ioat_dma: the ioat dma device to be enumerated
+  */
+-static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
++static void ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
+ {
+ 	struct ioatdma_chan *ioat_chan;
+ 	struct device *dev = &ioat_dma->pdev->dev;
+@@ -594,7 +594,7 @@ static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
+ 	xfercap_log = readb(ioat_dma->reg_base + IOAT_XFERCAP_OFFSET);
+ 	xfercap_log &= 0x1f; /* bits [4:0] valid */
+ 	if (xfercap_log == 0)
+-		return 0;
++		return;
+ 	dev_dbg(dev, "%s: xfercap = %d\n", __func__, 1 << xfercap_log);
+ 
+ 	for (i = 0; i < dma->chancnt; i++) {
+@@ -611,7 +611,6 @@ static int ioat_enumerate_channels(struct ioatdma_device *ioat_dma)
+ 		}
  	}
+ 	dma->chancnt = i;
+-	return i;
+ }
+ 
+ /**
+-- 
+2.20.1
+
 
 
