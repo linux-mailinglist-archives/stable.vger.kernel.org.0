@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 553B31070A0
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:23:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2A7A106F12
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728925AbfKVKkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:40:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44788 "EHLO mail.kernel.org"
+        id S1729782AbfKVK4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:56:25 -0500
+Received: from mail.kernel.org ([198.145.29.99]:44322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728257AbfKVKkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:40:42 -0500
+        id S1730580AbfKVK4Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:56:24 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CB5D20707;
-        Fri, 22 Nov 2019 10:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2807C2073B;
+        Fri, 22 Nov 2019 10:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419241;
-        bh=5ASHEqf75+P521LBguttK0v1MZgEuN4XJ6jUdODwdSM=;
+        s=default; t=1574420183;
+        bh=AZovaWb7kUE5S+uJuZWRgFGbFjGvS0V6bJLQ2mcQLZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qlWrqvqRNJNEk3xnCruLVcNXZDyTQ+PVsPCA+V5c9W86AJQ/5efantIRSvDnbRyeX
-         /yOhUY0po7wUJ84UcvD8amYxUrnPzaNKKGAmG7oRWbI6QJ8+SuCsNhnhaGcXH8cBCl
-         CYDzrFh5z9N1H6l8TavbnQlYuwcQGzVyV1wHUaC4=
+        b=h30SwN6HjlVCBkFRHAqyy4dyRHZE+4xTAnwfGFsQjCgYt8f0Z+k+xGvCGAVGr+icm
+         PTeUo0YzdFvOhl4K94YJglJ4vI9zrgEaTtuEqbnrUzAwQu6x0wG0/NBfevemX9MYG7
+         r5zJexqg8Rc7pOYuJF8ksaeGFe2SfVPHVhG/tEi8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 045/222] ARM: dts: omap3-gta04: tvout: enable as display1 alias
-Date:   Fri, 22 Nov 2019 11:26:25 +0100
-Message-Id: <20191122100852.495051975@linuxfoundation.org>
+Subject: [PATCH 4.19 021/220] f2fs: return correct errno in f2fs_gc
+Date:   Fri, 22 Nov 2019 11:26:26 +0100
+Message-Id: <20191122100914.034146505@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: H. Nikolaus Schaller <hns@goldelico.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-[ Upstream commit 8905592b6e50cec905e6c6035bbd36201a3bfac1 ]
+[ Upstream commit 61f7725aa148ee870436a29d3a24d5c00ab7e9af ]
 
-The omap dss susbystem takes the display aliases to find
-out which displays exist. To enable tv-out we must define
-an alias.
+This fixes overriding error number in f2fs_gc.
 
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-gta04.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/gc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/omap3-gta04.dtsi b/arch/arm/boot/dts/omap3-gta04.dtsi
-index 67b50dbe28189..e86f42086a29b 100644
---- a/arch/arm/boot/dts/omap3-gta04.dtsi
-+++ b/arch/arm/boot/dts/omap3-gta04.dtsi
-@@ -28,6 +28,7 @@
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index dd29a49143f54..8c4cb1eee10a6 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1244,7 +1244,7 @@ int f2fs_gc(struct f2fs_sb_info *sbi, bool sync,
  
- 	aliases {
- 		display0 = &lcd;
-+		display1 = &tv0;
- 	};
+ 	put_gc_inode(&gc_list);
  
- 	gpio-keys {
+-	if (sync)
++	if (sync && !ret)
+ 		ret = sec_freed ? 0 : -EAGAIN;
+ 	return ret;
+ }
 -- 
 2.20.1
 
