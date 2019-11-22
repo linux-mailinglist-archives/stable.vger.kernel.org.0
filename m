@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98EB6106FA3
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:16:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF1D106EC2
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727388AbfKVKt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:49:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59606 "EHLO mail.kernel.org"
+        id S1730532AbfKVLAX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:00:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729007AbfKVKtz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:49:55 -0500
+        id S1730166AbfKVLAW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:00:22 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36FDF20656;
-        Fri, 22 Nov 2019 10:49:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AAA1207DD;
+        Fri, 22 Nov 2019 11:00:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419794;
-        bh=UThevYjOWrjqoe8lNkAfqn/QK8mwMPAoI0Tg0kzVEwY=;
+        s=default; t=1574420421;
+        bh=mh1zORXvu0FZrYjtkaqRU48F03LGzPErdFzjrRjApG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OI3e/yyibC/5+eVOAGI2defEDdwwGtHhGFrpEec1Bh9i+kmBJDS83LRMizK6Sxgai
-         xHNYqujay54hdT0lfo9n3mxF5CVTgeAN05hJScb58Ne1s8lbhhEUBY43o98FR3h2ho
-         h1Qv9W4zREClVY5acDdveVsUn4x6R+5je7Gtr5XM=
+        b=KPvK5n/KVC60aAUn+YEL5cVuzDnzbbD+XQZl9DipogrvcKjy5EgpcCVIBULRZiLjf
+         w8Byrj+uNe/Ix87hqYmfwm5hSAbuVsAVpdCbJaULlxmzLE1Z5TFhIg+GpLL9b9Ze1+
+         18mdhDQUVEWGKGc5fLOYFbHeph/OvyI30hxZLFMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vignesh R <vigneshr@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 012/122] ARM: dts: dra7: Enable workaround for errata i870 in PCIe host mode
-Date:   Fri, 22 Nov 2019 11:27:45 +0100
-Message-Id: <20191122100731.375944773@linuxfoundation.org>
+Subject: [PATCH 4.19 101/220] media: pxa_camera: Fix check for pdev->dev.of_node
+Date:   Fri, 22 Nov 2019 11:27:46 +0100
+Message-Id: <20191122100920.035154221@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vignesh R <vigneshr@ti.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit b830526f304764753fcb8b4a563a94080e982a6c ]
+[ Upstream commit 44d7f1a77d8c84f8e42789b5475b74ae0e6d4758 ]
 
-Add ti,syscon-unaligned-access property to PCIe RC nodes to set
-appropriate bits in CTRL_CORE_SMA_SW_7 register to enable workaround for
-errata i870.
+Clang warns that the address of a pointer will always evaluated as true
+in a boolean context.
 
-Signed-off-by: Vignesh R <vigneshr@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+drivers/media/platform/pxa_camera.c:2400:17: warning: address of
+'pdev->dev.of_node' will always evaluate to 'true'
+[-Wpointer-bool-conversion]
+        if (&pdev->dev.of_node && !pcdev->pdata) {
+             ~~~~~~~~~~^~~~~~~ ~~
+1 warning generated.
+
+Judging from the rest of the kernel, it seems like this was an error and
+just the value of of_node should be checked rather than the address.
+
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/dra7.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/platform/pxa_camera.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
-index 09686d73f9479..fec965009b9fc 100644
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -314,6 +314,7 @@
- 						<0 0 0 2 &pcie1_intc 2>,
- 						<0 0 0 3 &pcie1_intc 3>,
- 						<0 0 0 4 &pcie1_intc 4>;
-+				ti,syscon-unaligned-access = <&scm_conf1 0x14 1>;
- 				status = "disabled";
- 				pcie1_intc: interrupt-controller {
- 					interrupt-controller;
-@@ -367,6 +368,7 @@
- 						<0 0 0 2 &pcie2_intc 2>,
- 						<0 0 0 3 &pcie2_intc 3>,
- 						<0 0 0 4 &pcie2_intc 4>;
-+				ti,syscon-unaligned-access = <&scm_conf1 0x14 2>;
- 				pcie2_intc: interrupt-controller {
- 					interrupt-controller;
- 					#address-cells = <0>;
+diff --git a/drivers/media/platform/pxa_camera.c b/drivers/media/platform/pxa_camera.c
+index b6e9e93bde7a8..406ac673ad84c 100644
+--- a/drivers/media/platform/pxa_camera.c
++++ b/drivers/media/platform/pxa_camera.c
+@@ -2397,7 +2397,7 @@ static int pxa_camera_probe(struct platform_device *pdev)
+ 	pcdev->res = res;
+ 
+ 	pcdev->pdata = pdev->dev.platform_data;
+-	if (&pdev->dev.of_node && !pcdev->pdata) {
++	if (pdev->dev.of_node && !pcdev->pdata) {
+ 		err = pxa_camera_pdata_from_dt(&pdev->dev, pcdev, &pcdev->asd);
+ 	} else {
+ 		pcdev->platform_flags = pcdev->pdata->flags;
 -- 
 2.20.1
 
