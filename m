@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00215106E35
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8013A106E19
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:06:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731800AbfKVLGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:06:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34076 "EHLO mail.kernel.org"
+        id S1731806AbfKVLGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:06:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727881AbfKVLGF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:06:05 -0500
+        id S1730087AbfKVLGI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:06:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47DB52088F;
-        Fri, 22 Nov 2019 11:06:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 633E520870;
+        Fri, 22 Nov 2019 11:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420764;
-        bh=+G/Hb5yXy8J1/R9Fa07bK3eEpG/8DlxjsJp1lvjGrEM=;
+        s=default; t=1574420767;
+        bh=H98E+O2rGiNbR2/s9wKrb2qi+Flmw69WX72yGfxD1Vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ra9TBkugYUTA2u867sVtjjk76fKvuRiDYYqZb/SA7E/Pb19s548K4L4oHGeShcI5g
-         Af6DDaBYBNI12Oqly+tyuMxG5lTcXUDekVVmmqDHjoZu/lvQK3M3S5ZrOupHpz7QAG
-         sWbytJXJgB8E4VrBQ+6ZS6YMYUUVhhESGSexnboA=
+        b=jM8p5G2lwWvTmgU8ZOkwaFZc6KkNdRIP9lzW6/QaP/IcwiYKGeDF0RUbOvcBADVtQ
+         zTRVMhRqNICcT8lwjYXauaI+KTQF8R9RTFbwzDOg4kdAov83fgjOVnhKMtG6cOZC0G
+         WeSAyfWOWMnWtb/wwkwIbhw3P3B+nlPUh0u0+HVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
-        Hans Verkuil <hverkuil@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Tim Smith <tim.smith@citrix.com>,
+        Mark Syms <mark.syms@citrix.com>,
+        Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 174/220] media: isif: fix a NULL pointer dereference bug
-Date:   Fri, 22 Nov 2019 11:28:59 +0100
-Message-Id: <20191122100925.367404978@linuxfoundation.org>
+Subject: [PATCH 4.19 175/220] GFS2: Flush the GFS2 delete workqueue before stopping the kernel threads
+Date:   Fri, 22 Nov 2019 11:29:00 +0100
+Message-Id: <20191122100925.439875114@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
 References: <20191122100912.732983531@linuxfoundation.org>
@@ -45,47 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wenwen Wang <wang6495@umn.edu>
+From: Tim Smith <tim.smith@citrix.com>
 
-[ Upstream commit a26ac6c1bed951b2066cc4b2257facd919e35c0b ]
+[ Upstream commit 1eb8d7387908022951792a46fa040ad3942b3b08 ]
 
-In isif_probe(), there is a while loop to get the ISIF base address and
-linearization table0 and table1 address. In the loop body, the function
-platform_get_resource() is called to get the resource. If
-platform_get_resource() returns NULL, the loop is terminated and the
-execution goes to 'fail_nobase_res'. Suppose the loop is terminated at the
-first iteration because platform_get_resource() returns NULL and the
-execution goes to 'fail_nobase_res'. Given that there is another while loop
-at 'fail_nobase_res' and i equals to 0, one iteration of the second while
-loop will be executed. However, the second while loop does not check the
-return value of platform_get_resource(). This can cause a NULL pointer
-dereference bug if the return value is a NULL pointer.
+Flushing the workqueue can cause operations to happen which might
+call gfs2_log_reserve(), or get stuck waiting for locks taken by such
+operations.  gfs2_log_reserve() can io_schedule(). If this happens, it
+will never wake because the only thing which can wake it is gfs2_logd()
+which was already stopped.
 
-This patch avoids the above issue by adding a check in the second while
-loop after the call to platform_get_resource().
+This causes umount of a gfs2 filesystem to wedge permanently if, for
+example, the umount immediately follows a large delete operation.
 
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+When this occured, the following stack trace was obtained from the
+umount command
+
+[<ffffffff81087968>] flush_workqueue+0x1c8/0x520
+[<ffffffffa0666e29>] gfs2_make_fs_ro+0x69/0x160 [gfs2]
+[<ffffffffa0667279>] gfs2_put_super+0xa9/0x1c0 [gfs2]
+[<ffffffff811b7edf>] generic_shutdown_super+0x6f/0x100
+[<ffffffff811b7ff7>] kill_block_super+0x27/0x70
+[<ffffffffa0656a71>] gfs2_kill_sb+0x71/0x80 [gfs2]
+[<ffffffff811b792b>] deactivate_locked_super+0x3b/0x70
+[<ffffffff811b79b9>] deactivate_super+0x59/0x60
+[<ffffffff811d2998>] cleanup_mnt+0x58/0x80
+[<ffffffff811d2a12>] __cleanup_mnt+0x12/0x20
+[<ffffffff8108c87d>] task_work_run+0x7d/0xa0
+[<ffffffff8106d7d9>] exit_to_usermode_loop+0x73/0x98
+[<ffffffff81003961>] syscall_return_slowpath+0x41/0x50
+[<ffffffff815a594c>] int_ret_from_sys_call+0x25/0x8f
+[<ffffffffffffffff>] 0xffffffffffffffff
+
+Signed-off-by: Tim Smith <tim.smith@citrix.com>
+Signed-off-by: Mark Syms <mark.syms@citrix.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/davinci/isif.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/gfs2/super.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/davinci/isif.c b/drivers/media/platform/davinci/isif.c
-index f924e76e2fbf8..340f8218f54d3 100644
---- a/drivers/media/platform/davinci/isif.c
-+++ b/drivers/media/platform/davinci/isif.c
-@@ -1100,7 +1100,8 @@ static int isif_probe(struct platform_device *pdev)
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index c212893534ed6..a971862b186e3 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -854,10 +854,10 @@ static int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
+ 	if (error && !test_bit(SDF_SHUTDOWN, &sdp->sd_flags))
+ 		return error;
  
- 	while (i >= 0) {
- 		res = platform_get_resource(pdev, IORESOURCE_MEM, i);
--		release_mem_region(res->start, resource_size(res));
-+		if (res)
-+			release_mem_region(res->start, resource_size(res));
- 		i--;
- 	}
- 	vpfe_unregister_ccdc_device(&isif_hw_dev);
++	flush_workqueue(gfs2_delete_workqueue);
+ 	kthread_stop(sdp->sd_quotad_process);
+ 	kthread_stop(sdp->sd_logd_process);
+ 
+-	flush_workqueue(gfs2_delete_workqueue);
+ 	gfs2_quota_sync(sdp->sd_vfs, 0);
+ 	gfs2_statfs_sync(sdp->sd_vfs, 0);
+ 
 -- 
 2.20.1
 
