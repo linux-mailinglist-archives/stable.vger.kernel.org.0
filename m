@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E2C51070A8
+	by mail.lfdr.de (Postfix) with ESMTP id 816C21070A9
 	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:24:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727673AbfKVKkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:40:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43912 "EHLO mail.kernel.org"
+        id S1728477AbfKVKkQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:40:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727653AbfKVKkN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:40:13 -0500
+        id S1728292AbfKVKkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:40:16 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D85D020717;
-        Fri, 22 Nov 2019 10:40:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E4CA820717;
+        Fri, 22 Nov 2019 10:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419212;
-        bh=SLrivsqtWUW1YaeUJjXQacHkwJO/47lWejE0nFG1YqU=;
+        s=default; t=1574419215;
+        bh=4HfRl1/n8kiP+P07FQPm8TIcE+1tLtK/NGNIKkyFGsg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cNQ6KyMy7hv+sz/8UXFkrB+Ic8cjWR8zcgYXp4uqYZY+gqpxmIbXJB/QQP6QrwTQw
-         Txrc4xEpth5rJV37HmqH9hg0bx10k1Jll0OXbH9gvx/sqv+/1AsygINUtauERkd4xP
-         EzR95oEP3w+F2+VYgsrA14shrgLABJ8/ypROaAb8=
+        b=pfYVMiRVok1Hc5NU+fjJp/rkxwsQUIKqpOxOaSlCSoWk3abfDAI7/QqmEpSHJttuT
+         KPCQwETcRMEZwaJJV8/Vq46UY2YxC/1rmjILj5DW6QJWO2YnQX0FLjIyIQlB+BoJkd
+         WepdEFxyL/TC/oWN77LoN5kUFWSfGnxYPnrArKIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Raghuram Chary Jallipalli 
-        <raghuramchary.jallipalli@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 036/222] net: lan78xx: Bail out if lan78xx_get_endpoints fails
-Date:   Fri, 22 Nov 2019 11:26:16 +0100
-Message-Id: <20191122100846.707774879@linuxfoundation.org>
+Subject: [PATCH 4.9 037/222] ASoC: sgtl5000: avoid division by zero if lo_vag is zero
+Date:   Fri, 22 Nov 2019 11:26:17 +0100
+Message-Id: <20191122100847.869255141@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -46,38 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Wahren <stefan.wahren@i2se.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit fa8cd98c06407b5798b927cd7fd14d30f360ed02 ]
+[ Upstream commit 9ab708aef61f5620113269a9d1bdb1543d1207d0 ]
 
-We need to bail out if lan78xx_get_endpoints() fails, otherwise the
-result is overwritten.
+In the case where lo_vag <= SGTL5000_LINE_OUT_GND_BASE, lo_vag
+is set to zero and later vol_quot is computed by dividing by
+lo_vag causing a division by zero error.  Fix this by avoiding
+a zero division and set vol_quot to zero in this specific case
+so that the lowest setting for i is correctly set.
 
-Fixes: 55d7de9de6c3 ("Microchip's LAN7800 family USB 2/3 to 10/100/1000 Ethernet")
-Signed-off-by: Stefan Wahren <stefan.wahren@i2se.com>
-Reviewed-by: Raghuram Chary Jallipalli <raghuramchary.jallipalli@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/lan78xx.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ sound/soc/codecs/sgtl5000.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/lan78xx.c b/drivers/net/usb/lan78xx.c
-index e143a7fe93201..a3f9d8f05db4a 100644
---- a/drivers/net/usb/lan78xx.c
-+++ b/drivers/net/usb/lan78xx.c
-@@ -2621,6 +2621,11 @@ static int lan78xx_bind(struct lan78xx_net *dev, struct usb_interface *intf)
- 	int i;
- 
- 	ret = lan78xx_get_endpoints(dev, intf);
-+	if (ret) {
-+		netdev_warn(dev->net, "lan78xx_get_endpoints failed: %d\n",
-+			    ret);
-+		return ret;
-+	}
- 
- 	dev->data[0] = (unsigned long)kzalloc(sizeof(*pdata), GFP_KERNEL);
- 
+diff --git a/sound/soc/codecs/sgtl5000.c b/sound/soc/codecs/sgtl5000.c
+index 7406ea5c9a4f7..39810b713d5f2 100644
+--- a/sound/soc/codecs/sgtl5000.c
++++ b/sound/soc/codecs/sgtl5000.c
+@@ -1217,7 +1217,7 @@ static int sgtl5000_set_power_regs(struct snd_soc_codec *codec)
+ 	 * Searching for a suitable index solving this formula:
+ 	 * idx = 40 * log10(vag_val / lo_cagcntrl) + 15
+ 	 */
+-	vol_quot = (vag * 100) / lo_vag;
++	vol_quot = lo_vag ? (vag * 100) / lo_vag : 0;
+ 	lo_vol = 0;
+ 	for (i = 0; i < ARRAY_SIZE(vol_quot_table); i++) {
+ 		if (vol_quot >= vol_quot_table[i])
 -- 
 2.20.1
 
