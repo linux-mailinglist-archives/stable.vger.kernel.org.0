@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F832106A8A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:35:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC06B106BA7
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:46:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727729AbfKVKfr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:35:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34460 "EHLO mail.kernel.org"
+        id S1728203AbfKVKqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:46:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728288AbfKVKfq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:35:46 -0500
+        id S1729622AbfKVKqN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:46:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16C7120715;
-        Fri, 22 Nov 2019 10:35:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28DE120730;
+        Fri, 22 Nov 2019 10:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418944;
-        bh=edcdRs8qjLW9Buch9MPov4jh7ZiXSUmJVTFNJjzWTOs=;
+        s=default; t=1574419572;
+        bh=YoAQqpCpMdIlQ80ZmYkZIXm+v4XVPdSGfske2Le15so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTVI54vZCS0NEJDkkYttvVLJDZ/bFgXUFhQFjuZy73oLalCWlRUt9qC0mDqpXl2W9
-         6ZHhVhOF6lAvIbb3npdcxyWwE6QOFjLTwRSKSDtU8YiGWY89I6Bil+MxSpD9KFe3r6
-         uNNh43PTQKAUl0L/WiwSecKfZduMiheGGXBDb8y8=
+        b=CLtsKLmvCAP969A9sKV66ZtU7xzPze6eICkCusQP4qtTBmpCkWomWOowmoKwRsBuB
+         EWZepPvnZ3XGD+LIWV8az7cAowL7SeL++elr2+/2HZ5HmVb5qcAZaisnzazoaXk1HD
+         y2F3vK+lWr6Jn1TAiHnGwYorsQ3vobs5TH6NjyLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Johansen <john.johansen@canonical.com>
-Subject: [PATCH 4.4 104/159] apparmor: fix module parameters can be changed after policy is locked
-Date:   Fri, 22 Nov 2019 11:28:15 +0100
-Message-Id: <20191122100823.450440259@linuxfoundation.org>
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Wei Liu <wei.liu2@citrix.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 156/222] net: xen-netback: fix return type of ndo_start_xmit function
+Date:   Fri, 22 Nov 2019 11:28:16 +0100
+Message-Id: <20191122100913.961717661@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,158 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Johansen <john.johansen@canonical.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-commit 58acf9d911c8831156634a44d0b022d683e1e50c upstream.
+[ Upstream commit a9ca7f17c6d240e269a24cbcd76abf9a940309dd ]
 
-the policy_lock parameter is a one way switch that prevents policy
-from being further modified. Unfortunately some of the module parameters
-can effectively modify policy by turning off enforcement.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-split policy_admin_capable into a view check and a full admin check,
-and update the admin check to test the policy_lock parameter.
+Found by coccinelle.
 
-Signed-off-by: John Johansen <john.johansen@canonical.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Acked-by: Wei Liu <wei.liu2@citrix.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/apparmor/include/policy.h |    2 ++
- security/apparmor/lsm.c            |   22 ++++++++++------------
- security/apparmor/policy.c         |   18 +++++++++++++++++-
- 3 files changed, 29 insertions(+), 13 deletions(-)
+ drivers/net/xen-netback/interface.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/security/apparmor/include/policy.h
-+++ b/security/apparmor/include/policy.h
-@@ -403,6 +403,8 @@ static inline int AUDIT_MODE(struct aa_p
- 	return profile->audit;
+diff --git a/drivers/net/xen-netback/interface.c b/drivers/net/xen-netback/interface.c
+index e1f47b6ea3b76..46008f2845502 100644
+--- a/drivers/net/xen-netback/interface.c
++++ b/drivers/net/xen-netback/interface.c
+@@ -171,7 +171,8 @@ static u16 xenvif_select_queue(struct net_device *dev, struct sk_buff *skb,
+ 	return vif->hash.mapping[skb_get_hash_raw(skb) % size];
  }
  
-+bool policy_view_capable(void);
-+bool policy_admin_capable(void);
- bool aa_may_manage_policy(int op);
- 
- #endif /* __AA_POLICY_H */
---- a/security/apparmor/lsm.c
-+++ b/security/apparmor/lsm.c
-@@ -749,51 +749,49 @@ __setup("apparmor=", apparmor_enabled_se
- /* set global flag turning off the ability to load policy */
- static int param_set_aalockpolicy(const char *val, const struct kernel_param *kp)
+-static int xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t
++xenvif_start_xmit(struct sk_buff *skb, struct net_device *dev)
  {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_admin_capable())
- 		return -EPERM;
--	if (aa_g_lock_policy)
--		return -EACCES;
- 	return param_set_bool(val, kp);
- }
- 
- static int param_get_aalockpolicy(char *buffer, const struct kernel_param *kp)
- {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_view_capable())
- 		return -EPERM;
- 	return param_get_bool(buffer, kp);
- }
- 
- static int param_set_aabool(const char *val, const struct kernel_param *kp)
- {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_admin_capable())
- 		return -EPERM;
- 	return param_set_bool(val, kp);
- }
- 
- static int param_get_aabool(char *buffer, const struct kernel_param *kp)
- {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_view_capable())
- 		return -EPERM;
- 	return param_get_bool(buffer, kp);
- }
- 
- static int param_set_aauint(const char *val, const struct kernel_param *kp)
- {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_admin_capable())
- 		return -EPERM;
- 	return param_set_uint(val, kp);
- }
- 
- static int param_get_aauint(char *buffer, const struct kernel_param *kp)
- {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_view_capable())
- 		return -EPERM;
- 	return param_get_uint(buffer, kp);
- }
- 
- static int param_get_audit(char *buffer, struct kernel_param *kp)
- {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_view_capable())
- 		return -EPERM;
- 
- 	if (!apparmor_enabled)
-@@ -805,7 +803,7 @@ static int param_get_audit(char *buffer,
- static int param_set_audit(const char *val, struct kernel_param *kp)
- {
- 	int i;
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_admin_capable())
- 		return -EPERM;
- 
- 	if (!apparmor_enabled)
-@@ -826,7 +824,7 @@ static int param_set_audit(const char *v
- 
- static int param_get_mode(char *buffer, struct kernel_param *kp)
- {
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_admin_capable())
- 		return -EPERM;
- 
- 	if (!apparmor_enabled)
-@@ -838,7 +836,7 @@ static int param_get_mode(char *buffer,
- static int param_set_mode(const char *val, struct kernel_param *kp)
- {
- 	int i;
--	if (!capable(CAP_MAC_ADMIN))
-+	if (!policy_admin_capable())
- 		return -EPERM;
- 
- 	if (!apparmor_enabled)
---- a/security/apparmor/policy.c
-+++ b/security/apparmor/policy.c
-@@ -916,6 +916,22 @@ static int audit_policy(int op, gfp_t gf
- 			&sa, NULL);
- }
- 
-+bool policy_view_capable(void)
-+{
-+	struct user_namespace *user_ns = current_user_ns();
-+	bool response = false;
-+
-+	if (ns_capable(user_ns, CAP_MAC_ADMIN))
-+		response = true;
-+
-+	return response;
-+}
-+
-+bool policy_admin_capable(void)
-+{
-+	return policy_view_capable() && !aa_g_lock_policy;
-+}
-+
- /**
-  * aa_may_manage_policy - can the current task manage policy
-  * @op: the policy manipulation operation being done
-@@ -930,7 +946,7 @@ bool aa_may_manage_policy(int op)
- 		return 0;
- 	}
- 
--	if (!capable(CAP_MAC_ADMIN)) {
-+	if (!policy_admin_capable()) {
- 		audit_policy(op, GFP_KERNEL, NULL, "not policy admin", -EACCES);
- 		return 0;
- 	}
+ 	struct xenvif *vif = netdev_priv(dev);
+ 	struct xenvif_queue *queue = NULL;
+-- 
+2.20.1
+
 
 
