@@ -2,132 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EF5C10697F
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:04:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF295106AED
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726666AbfKVKE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:04:58 -0500
-Received: from mail-eopbgr150085.outbound.protection.outlook.com ([40.107.15.85]:18563
-        "EHLO EUR01-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726417AbfKVKE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:04:57 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZQDht7dRWtYC/Rq6o6cEZZrUBioR+Rb5fgEzyw+lEELNJ5AUKxUsM9B0Jn3pE2Zi2plKFQb+u0E7j9Gv3H4tB42XwWX31rnko/pE/m1CBGPsiKm1K50weSCSi0ra1mXN7UuuvqGgu0rXg3GTYFVmIHG26XMLVYrCwmdBMZypFmudwhWVd4EFGSvHHXfCtbD4BwhOZ+BJosTes4AUh0TwalunDXdkZQvbwPsRFdEh31KP4qY5p/8jnrp3AeOS8vN+NxHGZ0PjCUng2SqbAWcBL8X5IiWJln08TRPuojVk3IL4HCrKeTYDKlYGpqsonQ7rhIO1/+t494yfgkFd6hpHWA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nasq4Kzwbp+1Bz7M3ImYiiVEpr7ppoY09uVt22CM3HI=;
- b=inO15Zbqf1gwR9mR0fG1r3T/fy+lqvnn/tUFtHDxWu80bzUFj1vHfdvVkgBtk9YsS2KNh2ScFzPkacW5u2VHYCPUk0CGj1Qf3UqwybNth2UJ1gRioLI6AwSNlnPToFJg5Vpqcs2c3zJ5ykXLODcfgMoW+O1qdQGlEeTsA1G9lAcXnTaNIkwHYoyHPgBRjwbhy8AoK1wMOdNZY7XKgyKOH6UPI+NJvgsFGeVGKFYQ2P8bYL44M4Jlol8q47k84TdR8vsoCXmECMyQknnkFrW1VpXrLQrDbnZPUMZuQX3D932CszvIIPSrBMJDFQzTtJrZ1kwOWMiPLEDJAo4edjRTSw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nasq4Kzwbp+1Bz7M3ImYiiVEpr7ppoY09uVt22CM3HI=;
- b=PiBwbXUNH929Hs6RqkvhdDQBN/Eve2Quzmr4W/J7yZ8Gi5eMxBwP5AsuNjJWu10baGDptd8llNYIf5jjWBqP5iDVRjAbhtS5K4RVVtXPk8ub8vYL+OqxLD9TuWp6EvuP1us3jfcwqd8SMqGWqlUPdfUUMijXYv9Zdye7djuyMNA=
-Received: from AM0PR04MB4481.eurprd04.prod.outlook.com (52.135.147.15) by
- AM0PR04MB4594.eurprd04.prod.outlook.com (52.135.149.20) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2451.30; Fri, 22 Nov 2019 10:04:53 +0000
-Received: from AM0PR04MB4481.eurprd04.prod.outlook.com
- ([fe80::f16d:a26a:840:f97c]) by AM0PR04MB4481.eurprd04.prod.outlook.com
- ([fe80::f16d:a26a:840:f97c%4]) with mapi id 15.20.2474.021; Fri, 22 Nov 2019
- 10:04:53 +0000
-From:   Peng Fan <peng.fan@nxp.com>
-To:     "sboyd@kernel.org" <sboyd@kernel.org>,
-        "shawnguo@kernel.org" <shawnguo@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        Abel Vesa <abel.vesa@nxp.com>,
-        Aisheng Dong <aisheng.dong@nxp.com>
-CC:     "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        dl-linux-imx <linux-imx@nxp.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Alice Guo <alice.guo@nxp.com>, Peng Fan <peng.fan@nxp.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH V2] clk: imx: clk-imx7ulp: Add missing sentinel of
- ulp_div_table
-Thread-Topic: [PATCH V2] clk: imx: clk-imx7ulp: Add missing sentinel of
- ulp_div_table
-Thread-Index: AQHVoRxJ5RRsuDSV80CDoqBvpvLXvA==
-Date:   Fri, 22 Nov 2019 10:04:53 +0000
-Message-ID: <1574416982-3467-1-git-send-email-peng.fan@nxp.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-mailer: git-send-email 2.7.4
-x-clientproxiedby: HK2PR02CA0201.apcprd02.prod.outlook.com
- (2603:1096:201:20::13) To AM0PR04MB4481.eurprd04.prod.outlook.com
- (2603:10a6:208:70::15)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=peng.fan@nxp.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [119.31.174.66]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-ht: Tenant
-x-ms-office365-filtering-correlation-id: 8573dbcd-70a8-40c0-e920-08d76f336b76
-x-ms-traffictypediagnostic: AM0PR04MB4594:|AM0PR04MB4594:
-x-ms-exchange-transport-forked: True
-x-microsoft-antispam-prvs: <AM0PR04MB459471BE5692C620F63D374F88490@AM0PR04MB4594.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:873;
-x-forefront-prvs: 02296943FF
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(4636009)(376002)(396003)(136003)(346002)(366004)(39860400002)(199004)(189003)(81166006)(6636002)(256004)(14444005)(2501003)(52116002)(4326008)(305945005)(5660300002)(110136005)(2906002)(71200400001)(81156014)(86362001)(66946007)(44832011)(478600001)(102836004)(3846002)(66446008)(71190400001)(6116002)(2616005)(14454004)(26005)(8676002)(386003)(6506007)(8936002)(50226002)(186003)(54906003)(2201001)(316002)(66066001)(25786009)(64756008)(66476007)(6436002)(66556008)(7736002)(4744005)(6512007)(36756003)(6486002)(99286004);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB4594;H:AM0PR04MB4481.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 0WemzPL8aN9nSrZ/N6O7KabnSk75+w8tfys0FmDF7xq05VqsqU1tiK3zqsOsBMji03xNi/7psbqERd3f6C4YdLFHZ0UqSPRHQtCY1Nhou3BUrjc386atgzB5IcsaMn17WDsAqoBXq9/cOxzLH9PGRiwlFFSWjLuDobMJ5UNSb20qC4YcpX9pUKaOAe4sf0Lvu/lLVrByjy2cRIlic/Aa2HyEvGg97Z2w4r1lKwYybNpTXwmJk8ZZK5qgoZN6IcQ0d7TPOlJpMAzE+5vGlPzqa20I0RPM7LxRjnnsUg6NGw7VziHvTOyxKHdSRSWauI0xlegSCn5WQsXi65QLadsVr9WfVEG9pt7AUW83d5/BP7Qz+F2MHv7lUTxGuVk+RE1LQFT1g1fd4ovH2kbwBnJUFgwQHQ7kYxss7JgUJohamOMJI/gdToga4dt5OkSiIXii
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+        id S1728049AbfKVKjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:39:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:42992 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728090AbfKVKjk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:39:40 -0500
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3232920718;
+        Fri, 22 Nov 2019 10:39:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1574419179;
+        bh=QIdrYBN1CMXCnK5GnZ7PBljurGUU0QC3Y6NR8gwZJLw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LFwswbRk+NL8NJe5QfhF1lLsBABxrSPWqIGEcl37P5q1K86S4yU43h5njY36Mp+H1
+         tbqkVro6qkRS9sGEVsGrt+oWlu8sEznTKgpf/tUrMngeCiWv1bDUbLQ9oBYExNHpj/
+         2E96IMQGy34FkxZFo6sDhZ4QCVHDehRwQSVzrRwA=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.9 006/222] Input: synaptics-rmi4 - fix video buffer size
+Date:   Fri, 22 Nov 2019 11:25:46 +0100
+Message-Id: <20191122100831.559220488@linuxfoundation.org>
+X-Mailer: git-send-email 2.24.0
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8573dbcd-70a8-40c0-e920-08d76f336b76
-X-MS-Exchange-CrossTenant-originalarrivaltime: 22 Nov 2019 10:04:53.6702
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: mwALuZk3u1VELHZEj/rJLcBeY1KCL6mEoEhroi534XX6mZBegc5aYe9MLQ4J0yaXklIfOG6rX3BY6JnWmBbN2g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB4594
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peng Fan <peng.fan@nxp.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-There should be a sentinel of ulp_div_table, otherwise _get_table_div
-may access data out of the array.
+commit 003f01c780020daa9a06dea1db495b553a868c29 upstream.
 
-Fixes: b1260067ac3d ("clk: imx: add imx7ulp clk driver")
+The video buffer used by the queue is a vb2_v4l2_buffer, not a plain
+vb2_buffer. Using the wrong type causes the allocation of the buffer
+storage to be too small, causing a out of bounds write when
+__init_vb2_v4l2_buffer initializes the buffer.
+
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Fixes: 3a762dbd5347 ("[media] Input: synaptics-rmi4 - add support for F54 diagnostics")
 Cc: stable@vger.kernel.org
-Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/20191104114454.10500-1-l.stach@pengutronix.de
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
+ drivers/input/rmi4/rmi_f54.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-V2:
- cc stable mail list
+--- a/drivers/input/rmi4/rmi_f54.c
++++ b/drivers/input/rmi4/rmi_f54.c
+@@ -364,7 +364,7 @@ static const struct vb2_ops rmi_f54_queu
+ static const struct vb2_queue rmi_f54_queue = {
+ 	.type = V4L2_BUF_TYPE_VIDEO_CAPTURE,
+ 	.io_modes = VB2_MMAP | VB2_USERPTR | VB2_DMABUF | VB2_READ,
+-	.buf_struct_size = sizeof(struct vb2_buffer),
++	.buf_struct_size = sizeof(struct vb2_v4l2_buffer),
+ 	.ops = &rmi_f54_queue_ops,
+ 	.mem_ops = &vb2_vmalloc_memops,
+ 	.timestamp_flags = V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC,
 
- drivers/clk/imx/clk-imx7ulp.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/clk/imx/clk-imx7ulp.c b/drivers/clk/imx/clk-imx7ulp.c
-index 3fdf3d494f0a..281191b55b3a 100644
---- a/drivers/clk/imx/clk-imx7ulp.c
-+++ b/drivers/clk/imx/clk-imx7ulp.c
-@@ -40,6 +40,7 @@ static const struct clk_div_table ulp_div_table[] =3D {
- 	{ .val =3D 5, .div =3D 16, },
- 	{ .val =3D 6, .div =3D 32, },
- 	{ .val =3D 7, .div =3D 64, },
-+	{ /* sentinel */ },
- };
-=20
- static const int pcc2_uart_clk_ids[] __initconst =3D {
---=20
-2.16.4
 
