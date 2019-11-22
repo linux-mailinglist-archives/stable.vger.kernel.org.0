@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB4DB106F4F
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D58E106DC8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728573AbfKVKwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:52:50 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36746 "EHLO mail.kernel.org"
+        id S1730788AbfKVLDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:03:07 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729359AbfKVKws (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:52:48 -0500
+        id S1730939AbfKVLDG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:03:06 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE2A720718;
-        Fri, 22 Nov 2019 10:52:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 337892084F;
+        Fri, 22 Nov 2019 11:03:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419968;
-        bh=54L7zZCQNF70dbdU0EblUtAgWZSXmhYJn0NofEvp4Y0=;
+        s=default; t=1574420585;
+        bh=eTpx9tamZQwPzwO6LWZ1fM9HmGoF86TvRZSkGzpGxuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kx7wQYbUbPFDG82+uj8J0VCh9FYzJeGyAPqPiDr/lzINkRQUJg56XqhWUoW0XdR/g
-         jiC5VoVVzAAbkeho6s5csQQU+8wN2kYoJoWfD1LbvXvBzXlH6QCHDFovNU2rESuWhM
-         2eCqsG+raHVnZ8ht/5buU2iEw0KxK28rvih2bnJE=
+        b=SNHC/nQhvcQoSevsDtWX362NGgFcoMmkr6PGGBtJc7A4OM7YNIcmrUDwJcyZ1QHcN
+         RuVIluT4CvmO9U8SicM4vefO4hy579TjahaqpBavQTh0/5QqI8Ubr0njHrToIMH65E
+         8Eq1wXqepjMzkxh+KWgRV7mo64yA92kEzaqcDBUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Shenghui Wang <shhuiw@foxmail.com>,
+        Tang Junhui <tang.junhui.linux@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 068/122] qtnfmac: pass sgi rate info flag to wireless core
+Subject: [PATCH 4.19 156/220] bcache: account size of buckets used in uuid write to ca->meta_sectors_written
 Date:   Fri, 22 Nov 2019 11:28:41 +0100
-Message-Id: <20191122100810.970496400@linuxfoundation.org>
+Message-Id: <20191122100923.929643756@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+From: Shenghui Wang <shhuiw@foxmail.com>
 
-[ Upstream commit d5657b709e2a92a0e581109010765d1d485580df ]
+[ Upstream commit 7a55948d38eb9b274cbbdd56dc1dd4b96ebfbe04 ]
 
-SGI should be passed to wireless core as a part of rate structure.
-Otherwise wireless core performs incorrect rate calculation when
-SGI is enabled in hardware but not reported to host.
+UUIDs are considered as metadata. __uuid_write should add the number
+of buckets (in sectors) written to disk to ca->meta_sectors_written.
+Currently only 1 bucket is used in uuid write.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Steps to test:
+1) create a fresh backing device and a fresh cache device separately.
+   The backing device didn't attach to any cache set.
+2) cd /sys/block/<cache device>/bcache
+   cat metadata_written      // record the output value
+   cat bucket_size
+3) attach the backing device to cache set
+4) cat metadata_written
+   The output value is almost the same as the value in step 2
+   before the change.
+   After the change, the value is bigger about 1 bucket size.
+
+Signed-off-by: Shenghui Wang <shhuiw@foxmail.com>
+Reviewed-by: Tang Junhui <tang.junhui.linux@gmail.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/quantenna/qtnfmac/commands.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/bcache/super.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/quantenna/qtnfmac/commands.c b/drivers/net/wireless/quantenna/qtnfmac/commands.c
-index 4206886b110ce..ed087bbc6f631 100644
---- a/drivers/net/wireless/quantenna/qtnfmac/commands.c
-+++ b/drivers/net/wireless/quantenna/qtnfmac/commands.c
-@@ -485,6 +485,9 @@ qtnf_sta_info_parse_rate(struct rate_info *rate_dst,
- 		rate_dst->flags |= RATE_INFO_FLAGS_MCS;
- 	else if (rate_src->flags & QLINK_STA_INFO_RATE_FLAG_VHT_MCS)
- 		rate_dst->flags |= RATE_INFO_FLAGS_VHT_MCS;
-+
-+	if (rate_src->flags & QLINK_STA_INFO_RATE_FLAG_SHORT_GI)
-+		rate_dst->flags |= RATE_INFO_FLAGS_SHORT_GI;
- }
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 2321643974dab..c4da2fe623e9e 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -418,6 +418,7 @@ static int __uuid_write(struct cache_set *c)
+ {
+ 	BKEY_PADDED(key) k;
+ 	struct closure cl;
++	struct cache *ca;
  
- static void
+ 	closure_init_stack(&cl);
+ 	lockdep_assert_held(&bch_register_lock);
+@@ -429,6 +430,10 @@ static int __uuid_write(struct cache_set *c)
+ 	uuid_io(c, REQ_OP_WRITE, 0, &k.key, &cl);
+ 	closure_sync(&cl);
+ 
++	/* Only one bucket used for uuid write */
++	ca = PTR_CACHE(c, &k.key, 0);
++	atomic_long_add(ca->sb.bucket_size, &ca->meta_sectors_written);
++
+ 	bkey_copy(&c->uuid_bucket, &k.key);
+ 	bkey_put(c, &k.key);
+ 	return 0;
 -- 
 2.20.1
 
