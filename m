@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3398E106A8D
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:36:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F76106C5C
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:51:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727793AbfKVKfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:35:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34720 "EHLO mail.kernel.org"
+        id S1729996AbfKVKvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:51:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728300AbfKVKfv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:35:51 -0500
+        id S1729978AbfKVKvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:51:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1668C20656;
-        Fri, 22 Nov 2019 10:35:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 237D52070E;
+        Fri, 22 Nov 2019 10:51:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418950;
-        bh=DuCIBAqhdSOob/5HkZMdAhgQxPJHm9GEVLYGMGLpj1I=;
+        s=default; t=1574419891;
+        bh=lFxxBxjXHU5mvLq0/vlgvYPguApXQkNTD64lNsNZdvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4ZywKGE3tL3jALClCkP8jnWSK1s+a3MGuq6LHbQfFQN5VDnPpfAQhPp470EZkRc9
-         kM4ztwaBZxyjTyONRZzcaXlXXra+bbL8CguoSIhCtjc6MOpgQlZVnQyrFAyOMF8aRK
-         KbZx/bkkide2ZvqFb9hHADaNdIjpmKqk0iGomW64=
+        b=wnuizhxxlxzS8fQfSk8ciiZefuBtWVG1Zqou18DB2riGy9yiIBq5kSlr2Ast3GKyx
+         G5WjWwLPFt/YRYnpJTQgrtWLeebJyMGh51bbiaw4/ZmWJPXN0/SuTjcWg/4EI5IqSq
+         o6urh0V3JVqAi0JR/JsDPC3ytGvFX3LqgqiLxgBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ricardo Neri <ricardo.neri-calderon@linux.intel.com>,
-        Francis Deslauriers <francis.deslauriers@efficios.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        "H . Peter Anvin" <hpa@zytor.com>, Yonghong Song <yhs@fb.com>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 106/159] uprobes/x86: Prohibit probing on MOV SS instruction
-Date:   Fri, 22 Nov 2019 11:28:17 +0100
-Message-Id: <20191122100824.676608025@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Pavel Machek <pavel@ucw.cz>, Chen Yu <yu.c.chen@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 045/122] PM / hibernate: Check the success of generating md5 digest before hibernation
+Date:   Fri, 22 Nov 2019 11:28:18 +0100
+Message-Id: <20191122100755.423093841@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Chen Yu <yu.c.chen@intel.com>
 
-commit 13ebe18c94f5b0665c01ae7fad2717ae959f4212 upstream.
+[ Upstream commit 749fa17093ff67b31dea864531a3698b6a95c26c ]
 
-Since MOV SS and POP SS instructions will delay the exceptions until the
-next instruction is executed, single-stepping on it by uprobes must be
-prohibited.
+Currently if get_e820_md5() fails, then it will hibernate nevertheless.
+Actually the error code should be propagated to upper caller so that
+the hibernation could be aware of the result and terminates the process
+if md5 digest fails.
 
-uprobe already rejects probing on POP SS (0x1f), but allows probing on MOV
-SS (0x8e and reg == 2).  This checks the target instruction and if it is
-MOV SS or POP SS, returns -ENOTSUPP to reject probing.
-
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Ricardo Neri <ricardo.neri-calderon@linux.intel.com>
-Cc: Francis Deslauriers <francis.deslauriers@efficios.com>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "H . Peter Anvin" <hpa@zytor.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: "David S . Miller" <davem@davemloft.net>
-Link: https://lkml.kernel.org/r/152587072544.17316.5950935243917346341.stgit@devbox
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/uprobes.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/power/hibernate_64.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/uprobes.c
-+++ b/arch/x86/kernel/uprobes.c
-@@ -296,6 +296,10 @@ static int uprobe_init_insn(struct arch_
- 	if (is_prefix_bad(insn))
- 		return -ENOTSUPP;
+diff --git a/arch/x86/power/hibernate_64.c b/arch/x86/power/hibernate_64.c
+index 9c80966c80bae..692a179b1ba32 100644
+--- a/arch/x86/power/hibernate_64.c
++++ b/arch/x86/power/hibernate_64.c
+@@ -250,9 +250,9 @@ static int get_e820_md5(struct e820_table *table, void *buf)
+ 	return ret;
+ }
  
-+	/* We should not singlestep on the exception masking instructions */
-+	if (insn_masking_exception(insn))
-+		return -ENOTSUPP;
-+
- 	if (x86_64)
- 		good_insns = good_insns_64;
- 	else
+-static void hibernation_e820_save(void *buf)
++static int hibernation_e820_save(void *buf)
+ {
+-	get_e820_md5(e820_table_firmware, buf);
++	return get_e820_md5(e820_table_firmware, buf);
+ }
+ 
+ static bool hibernation_e820_mismatch(void *buf)
+@@ -272,8 +272,9 @@ static bool hibernation_e820_mismatch(void *buf)
+ 	return memcmp(result, buf, MD5_DIGEST_SIZE) ? true : false;
+ }
+ #else
+-static void hibernation_e820_save(void *buf)
++static int hibernation_e820_save(void *buf)
+ {
++	return 0;
+ }
+ 
+ static bool hibernation_e820_mismatch(void *buf)
+@@ -318,9 +319,7 @@ int arch_hibernation_header_save(void *addr, unsigned int max_size)
+ 
+ 	rdr->magic = RESTORE_MAGIC;
+ 
+-	hibernation_e820_save(rdr->e820_digest);
+-
+-	return 0;
++	return hibernation_e820_save(rdr->e820_digest);
+ }
+ 
+ /**
+-- 
+2.20.1
+
 
 
