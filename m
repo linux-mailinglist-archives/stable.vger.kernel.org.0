@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9C7106E61
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EEC61070DD
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731108AbfKVLFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:05:04 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60508 "EHLO mail.kernel.org"
+        id S1727332AbfKVKhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:37:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731281AbfKVLFD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:05:03 -0500
+        id S1728572AbfKVKhq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:37:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 947D02075E;
-        Fri, 22 Nov 2019 11:05:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8E4120707;
+        Fri, 22 Nov 2019 10:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420703;
-        bh=CISu5P/jMUfzxYshfYe9HfhmQSco0Rm52SQyQxCrb00=;
+        s=default; t=1574419065;
+        bh=JdrTXh+ixgefAJIjHzB9L7T40uj7SjS+wb8WCtZ8x34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oXrttcLWCi8aFEbfmM786mInEo9iwyacALsTm0BSI8QYPpXvgjst0hKgcS3nXThqC
-         WAgEXAX+mZXBKlsvON6OLQGqNHaBTdKP2yqI1kPaAgvU8zRf51D0y/OUEHXMeLfY78
-         xudwUkLt4N11XcnaZmrqd6FVnjAp49m9kNT+kEeY=
+        b=xDwmPflU1+PNN1aCkxW3pm9yslSCaAAqgNl9HxKw+eUlwZZxeBGAZwvhH8Mh8Emf+
+         rMUe/Wy6dpE/fjIjlNTCSVYEgDqaYk/i1mylxJjeb7Ix2O/aJaJVAePSqf2wbUS1N6
+         U0EUa2NA0hQ/r82yskgBaFoWhhVdEZLVP3Du66q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lianbo Jiang <lijiang@redhat.com>,
         Borislav Petkov <bp@suse.de>, x86@kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 170/220] proc/vmcore: Fix i386 build error of missing copy_oldmem_page_encrypted()
-Date:   Fri, 22 Nov 2019 11:28:55 +0100
-Message-Id: <20191122100925.051133866@linuxfoundation.org>
+Subject: [PATCH 4.4 145/159] proc/vmcore: Fix i386 build error of missing copy_oldmem_page_encrypted()
+Date:   Fri, 22 Nov 2019 11:28:56 +0100
+Message-Id: <20191122100839.810388716@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,10 +65,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 10 insertions(+)
 
 diff --git a/fs/proc/vmcore.c b/fs/proc/vmcore.c
-index cbde728f8ac60..5c5f161763c8c 100644
+index 4e61388ec03d2..08143139b65a7 100644
 --- a/fs/proc/vmcore.c
 +++ b/fs/proc/vmcore.c
-@@ -176,6 +176,16 @@ int __weak remap_oldmem_pfn_range(struct vm_area_struct *vma,
+@@ -164,6 +164,16 @@ int __weak remap_oldmem_pfn_range(struct vm_area_struct *vma,
  	return remap_pfn_range(vma, from, pfn, size, prot);
  }
  
