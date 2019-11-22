@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F9110631E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44EEC106324
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:09:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729151AbfKVGBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:01:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40038 "EHLO mail.kernel.org"
+        id S1726792AbfKVGIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:08:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729119AbfKVGBp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:01:45 -0500
+        id S1729127AbfKVGBq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:01:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99FE82068E;
-        Fri, 22 Nov 2019 06:01:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF0D020714;
+        Fri, 22 Nov 2019 06:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402504;
-        bh=bj6XBP8ylTa1ul4GAmiTOHUvhP1gVcBdVe0nXVxbj4c=;
+        s=default; t=1574402505;
+        bh=bDG4xtoh/SrBstjX3anlU4xsiDOvEQgQgmYJo+6L2m8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmwZ6CSSZc4fyQujx401ytqLaMJklRvXk1TDo6mpMwiXo3aLLdSkp6+qIAVJC9GuV
-         D29wc0qMzuKpVKUIElHeKXtUWPIeYaGzf8vOJYpoPr7xMnECXlDzDMVckByjkayAbS
-         dSw/kj2frskpctdS88FJpfwlbgWch2NNbLgSyyeE=
+        b=irI5Tp8hdXAqCK1P3Nypah+lNyayM5cWnAHJ6klvm1nkoCr8P4o8YMoOremLkkHjf
+         Hs1wC++2Hvbdm6jlvZCn8OZp9DFYM9RRE/QdF1Tu6aNCC4IYOPiydkyQ+HuTV5Ftm5
+         emLFH496OFECF01nDnzhAP2xY9NDDhHRSbnX+G7s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pan Bian <bianpan2016@163.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 14/91] rtl818x: fix potential use after free
-Date:   Fri, 22 Nov 2019 01:00:12 -0500
-Message-Id: <20191122060129.4239-13-sashal@kernel.org>
+Cc:     "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Bill O'Donnell <billodo@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-xfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 15/91] xfs: require both realtime inodes to mount
+Date:   Fri, 22 Nov 2019 01:00:13 -0500
+Message-Id: <20191122060129.4239-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -45,41 +43,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-[ Upstream commit afbb1947db94eacc5a13302eee88a9772fb78935 ]
+[ Upstream commit 64bafd2f1e484e27071e7584642005d56516cb77 ]
 
-entry is released via usb_put_urb just after calling usb_submit_urb.
-However, entry is used if the submission fails, resulting in a use after
-free bug. The patch fixes this.
+Since mkfs always formats the filesystem with the realtime bitmap and
+summary inodes immediately after the root directory, we should expect
+that both of them are present and loadable, even if there isn't a
+realtime volume attached.  There's no reason to skip this if rbmino ==
+NULLFSINO; in fact, this causes an immediate crash if the there /is/ a
+realtime volume and someone writes to it.
 
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-ACKed-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Bill O'Donnell <billodo@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_rtalloc.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c b/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
-index 6113624ccec39..17e3d5e830626 100644
---- a/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
-+++ b/drivers/net/wireless/realtek/rtl818x/rtl8187/dev.c
-@@ -446,12 +446,13 @@ static int rtl8187_init_urbs(struct ieee80211_hw *dev)
- 		skb_queue_tail(&priv->rx_queue, skb);
- 		usb_anchor_urb(entry, &priv->anchored);
- 		ret = usb_submit_urb(entry, GFP_KERNEL);
--		usb_put_urb(entry);
- 		if (ret) {
- 			skb_unlink(skb, &priv->rx_queue);
- 			usb_unanchor_urb(entry);
-+			usb_put_urb(entry);
- 			goto err;
- 		}
-+		usb_put_urb(entry);
- 	}
- 	return ret;
+diff --git a/fs/xfs/xfs_rtalloc.c b/fs/xfs/xfs_rtalloc.c
+index 802bcc326d9fb..0d93d3c10fcc4 100644
+--- a/fs/xfs/xfs_rtalloc.c
++++ b/fs/xfs/xfs_rtalloc.c
+@@ -1222,13 +1222,11 @@ xfs_rtmount_inodes(
+ 	xfs_sb_t	*sbp;
  
+ 	sbp = &mp->m_sb;
+-	if (sbp->sb_rbmino == NULLFSINO)
+-		return 0;
+ 	error = xfs_iget(mp, NULL, sbp->sb_rbmino, 0, 0, &mp->m_rbmip);
+ 	if (error)
+ 		return error;
+ 	ASSERT(mp->m_rbmip != NULL);
+-	ASSERT(sbp->sb_rsumino != NULLFSINO);
++
+ 	error = xfs_iget(mp, NULL, sbp->sb_rsumino, 0, 0, &mp->m_rsumip);
+ 	if (error) {
+ 		IRELE(mp->m_rbmip);
 -- 
 2.20.1
 
