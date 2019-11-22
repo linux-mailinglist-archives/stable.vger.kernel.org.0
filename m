@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3321061E9
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:00:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4D1610630F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:09:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727367AbfKVF7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:59:46 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
+        id S1728741AbfKVGBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:01:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39764 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728496AbfKVF5q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:46 -0500
+        id S1727602AbfKVGBb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:01:31 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D5972070A;
-        Fri, 22 Nov 2019 05:57:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6205D2068F;
+        Fri, 22 Nov 2019 06:01:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402265;
-        bh=OUxMEqaedTerczHBI7WUPaEO4Ds7NoVMV/fIilPn1tk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IrwlhPWDKxUkK4fMnELIT8wlVhj9Jd6oGP9tPiTEMjZrdnDypCg7hgqgQ3pityuGV
-         ZFz1NdTX2BViq0VfIb4YU19eaA82DxsJ1QINnC29kXv+/K+nkfMR8ipHqfX0ox77C/
-         7FRmEwtGUrZr5CJZeC4XdCBdEolHVbKOPK6kd7rU=
+        s=default; t=1574402491;
+        bh=lhL1UpcXPjZuPgvTxh6qj4Kz7MUW0YwV4aqksO/IBvo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=RZDOP9niXzhzt7xDbDJxFtqXqJX8l55cO/5xyu6MtbWCnEQXTB1d3PPns0ScMoH7J
+         d5zADghjafHSKz9UDueWgsmB9J49bevk/9BVnyvNN46JbF8mDw9OB/rbyv+jvwSkgE
+         7hTDje3d/4idj0k8Mhp4xXI2zqDL1D+x2taclOW0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     wenxu <wenxu@ucloud.cn>, "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 106/127] ip_tunnel: Make none-tunnel-dst tunnel port work with lwtunnel
-Date:   Fri, 22 Nov 2019 00:55:24 -0500
-Message-Id: <20191122055544.3299-105-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/91] scsi: lpfc: Fix dif and first burst use in write commands
+Date:   Fri, 22 Nov 2019 01:00:00 -0500
+Message-Id: <20191122060129.4239-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
-References: <20191122055544.3299-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,51 +42,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wenxu <wenxu@ucloud.cn>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit d71b57532d70c03f4671dd04e84157ac6bf021b0 ]
+[ Upstream commit 7c4042a4d0b7532cfbc90478fd3084b2dab5849e ]
 
-ip l add dev tun type gretap key 1000
-ip a a dev tun 10.0.0.1/24
+When dif and first burst is used in a write command wqe, the driver was not
+properly setting fields in the io command request. This resulted in no dif
+bytes being sent and invalid xfer_rdy's, resulting in the io being aborted
+by the hardware.
 
-Packets with tun-id 1000 can be recived by tun dev. But packet can't
-be sent through dev tun for non-tunnel-dst
+Correct the wqe initializaton when both dif and first burst are used.
 
-With this patch: tunnel-dst can be get through lwtunnel like beflow:
-ip r a 10.0.0.7 encap ip dst 172.168.0.11 dev tun
-
-Signed-off-by: wenxu <wenxu@ucloud.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_tunnel.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_scsi.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
-index fabc299cb875f..7a31287ff1232 100644
---- a/net/ipv4/ip_tunnel.c
-+++ b/net/ipv4/ip_tunnel.c
-@@ -661,13 +661,19 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
- 	dst = tnl_params->daddr;
- 	if (dst == 0) {
- 		/* NBMA tunnel */
-+		struct ip_tunnel_info *tun_info;
+diff --git a/drivers/scsi/lpfc/lpfc_scsi.c b/drivers/scsi/lpfc/lpfc_scsi.c
+index d197aa176dee3..d489cc1018b5c 100644
+--- a/drivers/scsi/lpfc/lpfc_scsi.c
++++ b/drivers/scsi/lpfc/lpfc_scsi.c
+@@ -2707,6 +2707,7 @@ lpfc_bg_scsi_prep_dma_buf_s3(struct lpfc_hba *phba,
+ 	int datasegcnt, protsegcnt, datadir = scsi_cmnd->sc_data_direction;
+ 	int prot_group_type = 0;
+ 	int fcpdl;
++	struct lpfc_vport *vport = phba->pport;
  
- 		if (!skb_dst(skb)) {
- 			dev->stats.tx_fifo_errors++;
- 			goto tx_error;
- 		}
+ 	/*
+ 	 * Start the lpfc command prep by bumping the bpl beyond fcp_cmnd
+@@ -2812,6 +2813,14 @@ lpfc_bg_scsi_prep_dma_buf_s3(struct lpfc_hba *phba,
+ 	 */
+ 	iocb_cmd->un.fcpi.fcpi_parm = fcpdl;
  
--		if (skb->protocol == htons(ETH_P_IP)) {
-+		tun_info = skb_tunnel_info(skb);
-+		if (tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) &&
-+		    ip_tunnel_info_af(tun_info) == AF_INET &&
-+		    tun_info->key.u.ipv4.dst)
-+			dst = tun_info->key.u.ipv4.dst;
-+		else if (skb->protocol == htons(ETH_P_IP)) {
- 			rt = skb_rtable(skb);
- 			dst = rt_nexthop(rt, inner_iph->daddr);
- 		}
++	/*
++	 * For First burst, we may need to adjust the initial transfer
++	 * length for DIF
++	 */
++	if (iocb_cmd->un.fcpi.fcpi_XRdy &&
++	    (fcpdl < vport->cfg_first_burst_size))
++		iocb_cmd->un.fcpi.fcpi_XRdy = fcpdl;
++
+ 	return 0;
+ err:
+ 	if (lpfc_cmd->seg_cnt)
+@@ -3364,6 +3373,7 @@ lpfc_bg_scsi_prep_dma_buf_s4(struct lpfc_hba *phba,
+ 	int datasegcnt, protsegcnt, datadir = scsi_cmnd->sc_data_direction;
+ 	int prot_group_type = 0;
+ 	int fcpdl;
++	struct lpfc_vport *vport = phba->pport;
+ 
+ 	/*
+ 	 * Start the lpfc command prep by bumping the sgl beyond fcp_cmnd
+@@ -3479,6 +3489,14 @@ lpfc_bg_scsi_prep_dma_buf_s4(struct lpfc_hba *phba,
+ 	 */
+ 	iocb_cmd->un.fcpi.fcpi_parm = fcpdl;
+ 
++	/*
++	 * For First burst, we may need to adjust the initial transfer
++	 * length for DIF
++	 */
++	if (iocb_cmd->un.fcpi.fcpi_XRdy &&
++	    (fcpdl < vport->cfg_first_burst_size))
++		iocb_cmd->un.fcpi.fcpi_XRdy = fcpdl;
++
+ 	/*
+ 	 * If the OAS driver feature is enabled and the lun is enabled for
+ 	 * OAS, set the oas iocb related flags.
 -- 
 2.20.1
 
