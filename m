@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E7D0107052
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:21:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02BF5106FA8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:16:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729369AbfKVKor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:44:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50784 "EHLO mail.kernel.org"
+        id S1729417AbfKVLQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:16:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727630AbfKVKoq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:44:46 -0500
+        id S1727994AbfKVKuK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:50:10 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8312720717;
-        Fri, 22 Nov 2019 10:44:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEAF620656;
+        Fri, 22 Nov 2019 10:50:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419486;
-        bh=0TzDo2o1u8nxxb/Sq/KXyMi+SDVIeTDpEFCStzh3eEk=;
+        s=default; t=1574419809;
+        bh=yEwg5eq9AJUgDswCxH1W7TOiH2oQz7hZu2VUsre4Ml0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qZgQC28leLQVYHbvJpm3Vx0nd+p8LrYHdNnaDtFipUAh/iA0aVhbxFMomJMjulxB
-         urcTYILi4oU0NYnqeMkjSa5iCGMNL80hbJAM0GhahIsJTTQDzRT/RmXgW/hiuyU42f
-         7dpdKganmAaATSy9hxbAlbjqvQB/vGKWckKmbxgo=
+        b=BTk+QK/WgYua/TDE6IAxsufqY5OD0Y4B4HF8hvMq2716i9y7lfta6bFHybymp03s7
+         vtTpMpA+11AEBO9ks5lWmvripcYbfri03t3QHdKrvipUffhXyWit0BW7ZHm7j2+95Z
+         lgk0chvmfNhz/oLkUgS3lhGUlsJf99pr0yazmqaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Ernst <justin.ernst@hpe.com>,
-        Borislav Petkov <bp@suse.de>,
-        Russ Anderson <russ.anderson@hpe.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 129/222] EDAC: Raise the maximum number of memory controllers
-Date:   Fri, 22 Nov 2019 11:27:49 +0100
-Message-Id: <20191122100912.297510008@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 017/122] SUNRPC: Fix priority queue fairness
+Date:   Fri, 22 Nov 2019 11:27:50 +0100
+Message-Id: <20191122100734.658499425@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +44,224 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Justin Ernst <justin.ernst@hpe.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 6b58859419554fb824e09cfdd73151a195473cbc ]
+[ Upstream commit f42f7c283078ce3c1e8368b140e270755b1ae313 ]
 
-We observe an oops in the skx_edac module during boot:
+Fix up the priority queue to not batch by owner, but by queue, so that
+we allow '1 << priority' elements to be dequeued before switching to
+the next priority queue.
+The owner field is still used to wake up requests in round robin order
+by owner to avoid single processes hogging the RPC layer by loading the
+queues.
 
-  EDAC MC0: Giving out device to module skx_edac controller Skylake Socket#0 IMC#0
-  EDAC MC1: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
-  EDAC MC2: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
-  ...
-  EDAC MC13: Giving out device to module skx_edac controller Skylake Socket#0 IMC#1
-  EDAC MC14: Giving out device to module skx_edac controller Skylake Socket#1 IMC#0
-  EDAC MC15: Giving out device to module skx_edac controller Skylake Socket#1 IMC#1
-  Too many memory controllers: 16
-  EDAC MC: Removed device 0 for skx_edac Skylake Socket#0 IMC#0
-
-We observe there are two memory controllers per socket, with a limit
-of 16. Raise the maximum number of memory controllers from 16 to 2 *
-MAX_NUMNODES (1024).
-
-[ bp: This is just a band-aid fix until we've sorted out the whole issue
-  with the bus_type association and handling in EDAC and can get rid of
-  this arbitrary limit. ]
-
-Signed-off-by: Justin Ernst <justin.ernst@hpe.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Russ Anderson <russ.anderson@hpe.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac@vger.kernel.org
-Link: https://lkml.kernel.org/r/20180925143449.284634-1-justin.ernst@hpe.com
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/edac.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/sunrpc/sched.h |   2 -
+ net/sunrpc/sched.c           | 109 +++++++++++++++++------------------
+ 2 files changed, 54 insertions(+), 57 deletions(-)
 
-diff --git a/include/linux/edac.h b/include/linux/edac.h
-index 9e0d78966552c..c6233227720c7 100644
---- a/include/linux/edac.h
-+++ b/include/linux/edac.h
-@@ -17,6 +17,7 @@
- #include <linux/completion.h>
- #include <linux/workqueue.h>
- #include <linux/debugfs.h>
-+#include <linux/numa.h>
- 
- struct device;
- 
-@@ -778,6 +779,6 @@ struct mem_ctl_info {
- /*
-  * Maximum number of memory controllers in the coherent fabric.
+diff --git a/include/linux/sunrpc/sched.h b/include/linux/sunrpc/sched.h
+index d96e74e114c06..c9548a63d09bb 100644
+--- a/include/linux/sunrpc/sched.h
++++ b/include/linux/sunrpc/sched.h
+@@ -188,7 +188,6 @@ struct rpc_timer {
+ struct rpc_wait_queue {
+ 	spinlock_t		lock;
+ 	struct list_head	tasks[RPC_NR_PRIORITY];	/* task queue for each priority level */
+-	pid_t			owner;			/* process id of last task serviced */
+ 	unsigned char		maxpriority;		/* maximum priority (0 if queue is not a priority queue) */
+ 	unsigned char		priority;		/* current priority */
+ 	unsigned char		nr;			/* # tasks remaining for cookie */
+@@ -204,7 +203,6 @@ struct rpc_wait_queue {
+  * from a single cookie.  The aim is to improve
+  * performance of NFS operations such as read/write.
   */
--#define EDAC_MAX_MCS	16
-+#define EDAC_MAX_MCS	2 * MAX_NUMNODES
+-#define RPC_BATCH_COUNT			16
+ #define RPC_IS_PRIORITY(q)		((q)->maxpriority > 0)
  
- #endif
+ /*
+diff --git a/net/sunrpc/sched.c b/net/sunrpc/sched.c
+index f9db5fe52d367..aff76fb434300 100644
+--- a/net/sunrpc/sched.c
++++ b/net/sunrpc/sched.c
+@@ -99,64 +99,78 @@ __rpc_add_timer(struct rpc_wait_queue *queue, struct rpc_task *task)
+ 	list_add(&task->u.tk_wait.timer_list, &queue->timer_list.list);
+ }
+ 
+-static void rpc_rotate_queue_owner(struct rpc_wait_queue *queue)
+-{
+-	struct list_head *q = &queue->tasks[queue->priority];
+-	struct rpc_task *task;
+-
+-	if (!list_empty(q)) {
+-		task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
+-		if (task->tk_owner == queue->owner)
+-			list_move_tail(&task->u.tk_wait.list, q);
+-	}
+-}
+-
+ static void rpc_set_waitqueue_priority(struct rpc_wait_queue *queue, int priority)
+ {
+ 	if (queue->priority != priority) {
+-		/* Fairness: rotate the list when changing priority */
+-		rpc_rotate_queue_owner(queue);
+ 		queue->priority = priority;
++		queue->nr = 1U << priority;
+ 	}
+ }
+ 
+-static void rpc_set_waitqueue_owner(struct rpc_wait_queue *queue, pid_t pid)
+-{
+-	queue->owner = pid;
+-	queue->nr = RPC_BATCH_COUNT;
+-}
+-
+ static void rpc_reset_waitqueue_priority(struct rpc_wait_queue *queue)
+ {
+ 	rpc_set_waitqueue_priority(queue, queue->maxpriority);
+-	rpc_set_waitqueue_owner(queue, 0);
+ }
+ 
+ /*
+- * Add new request to a priority queue.
++ * Add a request to a queue list
+  */
+-static void __rpc_add_wait_queue_priority(struct rpc_wait_queue *queue,
+-		struct rpc_task *task,
+-		unsigned char queue_priority)
++static void
++__rpc_list_enqueue_task(struct list_head *q, struct rpc_task *task)
+ {
+-	struct list_head *q;
+ 	struct rpc_task *t;
+ 
+-	INIT_LIST_HEAD(&task->u.tk_wait.links);
+-	if (unlikely(queue_priority > queue->maxpriority))
+-		queue_priority = queue->maxpriority;
+-	if (queue_priority > queue->priority)
+-		rpc_set_waitqueue_priority(queue, queue_priority);
+-	q = &queue->tasks[queue_priority];
+ 	list_for_each_entry(t, q, u.tk_wait.list) {
+ 		if (t->tk_owner == task->tk_owner) {
+-			list_add_tail(&task->u.tk_wait.list, &t->u.tk_wait.links);
++			list_add_tail(&task->u.tk_wait.links,
++					&t->u.tk_wait.links);
++			/* Cache the queue head in task->u.tk_wait.list */
++			task->u.tk_wait.list.next = q;
++			task->u.tk_wait.list.prev = NULL;
+ 			return;
+ 		}
+ 	}
++	INIT_LIST_HEAD(&task->u.tk_wait.links);
+ 	list_add_tail(&task->u.tk_wait.list, q);
+ }
+ 
++/*
++ * Remove request from a queue list
++ */
++static void
++__rpc_list_dequeue_task(struct rpc_task *task)
++{
++	struct list_head *q;
++	struct rpc_task *t;
++
++	if (task->u.tk_wait.list.prev == NULL) {
++		list_del(&task->u.tk_wait.links);
++		return;
++	}
++	if (!list_empty(&task->u.tk_wait.links)) {
++		t = list_first_entry(&task->u.tk_wait.links,
++				struct rpc_task,
++				u.tk_wait.links);
++		/* Assume __rpc_list_enqueue_task() cached the queue head */
++		q = t->u.tk_wait.list.next;
++		list_add_tail(&t->u.tk_wait.list, q);
++		list_del(&task->u.tk_wait.links);
++	}
++	list_del(&task->u.tk_wait.list);
++}
++
++/*
++ * Add new request to a priority queue.
++ */
++static void __rpc_add_wait_queue_priority(struct rpc_wait_queue *queue,
++		struct rpc_task *task,
++		unsigned char queue_priority)
++{
++	if (unlikely(queue_priority > queue->maxpriority))
++		queue_priority = queue->maxpriority;
++	__rpc_list_enqueue_task(&queue->tasks[queue_priority], task);
++}
++
+ /*
+  * Add new request to wait queue.
+  *
+@@ -194,13 +208,7 @@ static void __rpc_add_wait_queue(struct rpc_wait_queue *queue,
+  */
+ static void __rpc_remove_wait_queue_priority(struct rpc_task *task)
+ {
+-	struct rpc_task *t;
+-
+-	if (!list_empty(&task->u.tk_wait.links)) {
+-		t = list_entry(task->u.tk_wait.links.next, struct rpc_task, u.tk_wait.list);
+-		list_move(&t->u.tk_wait.list, &task->u.tk_wait.list);
+-		list_splice_init(&task->u.tk_wait.links, &t->u.tk_wait.links);
+-	}
++	__rpc_list_dequeue_task(task);
+ }
+ 
+ /*
+@@ -212,7 +220,8 @@ static void __rpc_remove_wait_queue(struct rpc_wait_queue *queue, struct rpc_tas
+ 	__rpc_disable_timer(queue, task);
+ 	if (RPC_IS_PRIORITY(queue))
+ 		__rpc_remove_wait_queue_priority(task);
+-	list_del(&task->u.tk_wait.list);
++	else
++		list_del(&task->u.tk_wait.list);
+ 	queue->qlen--;
+ 	dprintk("RPC: %5u removed from queue %p \"%s\"\n",
+ 			task->tk_pid, queue, rpc_qname(queue));
+@@ -481,17 +490,9 @@ static struct rpc_task *__rpc_find_next_queued_priority(struct rpc_wait_queue *q
+ 	 * Service a batch of tasks from a single owner.
+ 	 */
+ 	q = &queue->tasks[queue->priority];
+-	if (!list_empty(q)) {
+-		task = list_entry(q->next, struct rpc_task, u.tk_wait.list);
+-		if (queue->owner == task->tk_owner) {
+-			if (--queue->nr)
+-				goto out;
+-			list_move_tail(&task->u.tk_wait.list, q);
+-		}
+-		/*
+-		 * Check if we need to switch queues.
+-		 */
+-		goto new_owner;
++	if (!list_empty(q) && --queue->nr) {
++		task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -503,7 +504,7 @@ static struct rpc_task *__rpc_find_next_queued_priority(struct rpc_wait_queue *q
+ 		else
+ 			q = q - 1;
+ 		if (!list_empty(q)) {
+-			task = list_entry(q->next, struct rpc_task, u.tk_wait.list);
++			task = list_first_entry(q, struct rpc_task, u.tk_wait.list);
+ 			goto new_queue;
+ 		}
+ 	} while (q != &queue->tasks[queue->priority]);
+@@ -513,8 +514,6 @@ static struct rpc_task *__rpc_find_next_queued_priority(struct rpc_wait_queue *q
+ 
+ new_queue:
+ 	rpc_set_waitqueue_priority(queue, (unsigned int)(q - &queue->tasks[0]));
+-new_owner:
+-	rpc_set_waitqueue_owner(queue, task->tk_owner);
+ out:
+ 	return task;
+ }
 -- 
 2.20.1
 
