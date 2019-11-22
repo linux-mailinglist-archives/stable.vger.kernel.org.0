@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8138106FB8
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9EF3106DE8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbfKVKsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:48:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57638 "EHLO mail.kernel.org"
+        id S1730564AbfKVLEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:04:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729949AbfKVKsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:48:41 -0500
+        id S1731537AbfKVLET (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:04:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D56E205C9;
-        Fri, 22 Nov 2019 10:48:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14B312084D;
+        Fri, 22 Nov 2019 11:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419721;
-        bh=Y5gSmstb9HkkjIeygMwLJ2UsJ94HGuiTlu/bS/iLyic=;
+        s=default; t=1574420658;
+        bh=I/hN7bioODU5zQWOx0AH4pWxYq6n0Y2wxs/LWEPYvns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzKyzDIeJeM/3vGyUQCf4wlWbvMF1NnNpx/RejzvEwlRV2ez+IBXegl/VlKU++2Ov
-         ro/ZYCAGRSVmXyMsc8QyqVdG96basl38kYw4t0JNj3eDBg4YMg+0UrqtKbnIZP9xmH
-         4xseShym+CtNdL/DrC75EyClQ4aXuehkyOk288to=
+        b=VGFUsbn6um+wiAWUkZRkD4+oMTE5q9aH9wpIsGmkFr4kusgfJvfpIfw7o0Ms0I2Fv
+         hSriu/7/35Pq2DEh5X2MLo/W6U69h1DryfwsDBHlON/mosEa449V/kS45Lo0TsE8Lb
+         8vbgeCOy/3a66Oe2yJt7kIoKO0qnipS6Old93S/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, rostedt@goodmis.org,
-        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
-        He Zhe <zhe.he@windriver.com>, Petr Mladek <pmladek@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 207/222] printk: Give error on attempt to set log buffer length to over 2G
-Date:   Fri, 22 Nov 2019 11:29:07 +0100
-Message-Id: <20191122100917.268363697@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Javier=20Gonz=C3=A1lez?= <javier@cnexlabs.com>,
+        =?UTF-8?q?Matias=20Bj=C3=B8rling?= <mb@lightnvm.io>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 183/220] lightnvm: pblk: guarantee mw_cunits on read buffer
+Date:   Fri, 22 Nov 2019 11:29:08 +0100
+Message-Id: <20191122100927.433258602@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: He Zhe <zhe.he@windriver.com>
+From: Javier González <javier@javigon.com>
 
-[ Upstream commit e6fe3e5b7d16e8f146a4ae7fe481bc6e97acde1e ]
+[ Upstream commit d672d92d9c433c365fd6cdb4da1c02562b5f1178 ]
 
-The current printk() is ready to handle log buffer size up to 2G.
-Give an explicit error for users who want to use larger log buffer.
+OCSSD 2.0 defines the amount of data that the host must buffer per chunk
+to guarantee reads through the geometry field mw_cunits. This value is
+the base that pblk uses to determine the size of its read buffer.
+Currently, this size is set to be the closes power-of-2 to mw_cunits
+times the number of parallel units available to the pblk instance for
+each open line (currently one). When an entry (4KB) is put in the
+buffer, the L2P table points to it. As the buffer wraps up, the L2P is
+updated to point to addresses on the device, thus guaranteeing mw_cunits
+at a chunk level.
 
-Also fix printk formatting to show the 2G as a positive number.
+However, given that pblk cannot write to the device under ws_min
+(normally ws_opt), there might be a window in which the buffer starts
+wrapping up and updating L2P entries before the mw_cunits value in a
+chunk has been surpassed.
 
-Link: http://lkml.kernel.org/r/20181008135916.gg4kkmoki5bgtco5@pathway.suse.cz
-Cc: rostedt@goodmis.org
-Cc: linux-kernel@vger.kernel.org
-Suggested-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-Signed-off-by: He Zhe <zhe.he@windriver.com>
-Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
-[pmladek: Fixed to the really safe limit 2GB.]
-Signed-off-by: Petr Mladek <pmladek@suse.com>
+In order not to violate the mw_cunits constrain in this case, account
+for ws_opt on the read buffer creation.
+
+Signed-off-by: Javier González <javier@cnexlabs.com>
+Signed-off-by: Matias Bjørling <mb@lightnvm.io>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/printk.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/lightnvm/pblk-init.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
-index 6607d77afe55a..a0339c458c140 100644
---- a/kernel/printk/printk.c
-+++ b/kernel/printk/printk.c
-@@ -383,6 +383,7 @@ static u32 clear_idx;
- /* record buffer */
- #define LOG_ALIGN __alignof__(struct printk_log)
- #define __LOG_BUF_LEN (1 << CONFIG_LOG_BUF_SHIFT)
-+#define LOG_BUF_LEN_MAX (u32)(1 << 31)
- static char __log_buf[__LOG_BUF_LEN] __aligned(LOG_ALIGN);
- static char *log_buf = __log_buf;
- static u32 log_buf_len = __LOG_BUF_LEN;
-@@ -983,18 +984,23 @@ void log_buf_kexec_setup(void)
- static unsigned long __initdata new_log_buf_len;
+diff --git a/drivers/lightnvm/pblk-init.c b/drivers/lightnvm/pblk-init.c
+index 145922589b0c6..dc32274881b2f 100644
+--- a/drivers/lightnvm/pblk-init.c
++++ b/drivers/lightnvm/pblk-init.c
+@@ -181,7 +181,8 @@ static int pblk_rwb_init(struct pblk *pblk)
+ 	unsigned int power_size, power_seg_sz;
+ 	int pgs_in_buffer;
  
- /* we practice scaling the ring buffer by powers of 2 */
--static void __init log_buf_len_update(unsigned size)
-+static void __init log_buf_len_update(u64 size)
- {
-+	if (size > (u64)LOG_BUF_LEN_MAX) {
-+		size = (u64)LOG_BUF_LEN_MAX;
-+		pr_err("log_buf over 2G is not supported.\n");
-+	}
-+
- 	if (size)
- 		size = roundup_pow_of_two(size);
- 	if (size > log_buf_len)
--		new_log_buf_len = size;
-+		new_log_buf_len = (unsigned long)size;
- }
+-	pgs_in_buffer = max(geo->mw_cunits, geo->ws_opt) * geo->all_luns;
++	pgs_in_buffer = (max(geo->mw_cunits, geo->ws_opt) + geo->ws_opt)
++								* geo->all_luns;
  
- /* save requested log_buf_len since it's too early to process it */
- static int __init log_buf_len_setup(char *str)
- {
--	unsigned int size;
-+	u64 size;
- 
- 	if (!str)
- 		return -EINVAL;
-@@ -1064,7 +1070,7 @@ void __init setup_log_buf(int early)
- 	}
- 
- 	if (unlikely(!new_log_buf)) {
--		pr_err("log_buf_len: %ld bytes not available\n",
-+		pr_err("log_buf_len: %lu bytes not available\n",
- 			new_log_buf_len);
- 		return;
- 	}
-@@ -1077,8 +1083,8 @@ void __init setup_log_buf(int early)
- 	memcpy(log_buf, __log_buf, __LOG_BUF_LEN);
- 	raw_spin_unlock_irqrestore(&logbuf_lock, flags);
- 
--	pr_info("log_buf_len: %d bytes\n", log_buf_len);
--	pr_info("early log buf free: %d(%d%%)\n",
-+	pr_info("log_buf_len: %u bytes\n", log_buf_len);
-+	pr_info("early log buf free: %u(%u%%)\n",
- 		free, (free * 100) / __LOG_BUF_LEN);
- }
- 
+ 	if (write_buffer_size && (write_buffer_size > pgs_in_buffer))
+ 		buffer_size = write_buffer_size;
 -- 
 2.20.1
 
