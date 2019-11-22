@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE3B106A2B
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:32:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6130106B41
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:42:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727650AbfKVKcY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:32:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53748 "EHLO mail.kernel.org"
+        id S1728249AbfKVKmq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:42:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726620AbfKVKcW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:32:22 -0500
+        id S1727994AbfKVKmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:42:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7FE62071C;
-        Fri, 22 Nov 2019 10:32:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11E7420637;
+        Fri, 22 Nov 2019 10:42:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418742;
-        bh=ZKWg/Y1KmJNgMsofkiUlWzykTgkpMN8uQPB8iR2OldM=;
+        s=default; t=1574419365;
+        bh=mhEsLx7KU48NwFqWRHpN8NgSjlodsAZnIe6j3ihnMZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eO2l2T8iEwG/KM58yEvnX/TLIk+unVBQ1DAjnQZE9aY6+H/crC2gn1pt/sU57yDMy
-         pypfwLcojye73uBGiNaYeOGjUUjxnp73I8KMN7zmtgYQ0L2KH32sfae7+ghLekbMPF
-         XhnGedJJUq9C760mqB0lwGKFeHeVYzofm6IPxfW8=
+        b=w2k5w+P+g5crDlTb/gAX1EuNl9kxMFaJeCd5XLaUT4AUQ/zF0tqphw123GQeVtf9E
+         gRZdFFPTZh8kPqVDbSufxSk7h5uXURy0qf3wVA5TmxrU9Lfd3ooxf70nv11PnjAZD4
+         IO4Nt++hhIj2lvwEs2yx9BraaodeLYu6c7U0b5b4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
+        stable@vger.kernel.org, Andreas Kemnade <andreas@kemnade.info>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 037/159] signal: Properly deliver SIGILL from uprobes
+Subject: [PATCH 4.9 088/222] power: supply: twl4030_charger: fix charging current out-of-bounds
 Date:   Fri, 22 Nov 2019 11:27:08 +0100
-Message-Id: <20191122100732.528463184@linuxfoundation.org>
+Message-Id: <20191122100909.908074851@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-[ Upstream commit 55a3235fc71bf34303e34a95eeee235b2d2a35dd ]
+[ Upstream commit 8314c212f995bc0d06b54ad02ef0ab4089781540 ]
 
-For userspace to tell the difference between a random signal and an
-exception, the exception must include siginfo information.
+the charging current uses unsigned int variables, if we step back
+if the current is still low, we would run into negative which
+means setting the target to a huge value.
+Better add checks here.
 
-Using SEND_SIG_FORCED for SIGILL is thus wrong, and it will result
-in userspace seeing si_code == SI_USER (like a random signal) instead
-of si_code == SI_KERNEL or a more specific si_code as all exceptions
-deliver.
-
-Therefore replace force_sig_info(SIGILL, SEND_SIG_FORCE, current)
-with force_sig(SIG_ILL, current) which gets this right and is
-shorter and easier to type.
-
-Fixes: 014940bad8e4 ("uprobes/x86: Send SIGILL if arch_uprobe_post_xol() fails")
-Fixes: 0b5256c7f173 ("uprobes: Send SIGILL if handle_trampoline() fails")
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/uprobes.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/power/supply/twl4030_charger.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/events/uprobes.c b/kernel/events/uprobes.c
-index aad43c88a6685..8cad3cd92e23e 100644
---- a/kernel/events/uprobes.c
-+++ b/kernel/events/uprobes.c
-@@ -1836,7 +1836,7 @@ static void handle_trampoline(struct pt_regs *regs)
+diff --git a/drivers/power/supply/twl4030_charger.c b/drivers/power/supply/twl4030_charger.c
+index bcd4dc304f270..14fed11e8f6e3 100644
+--- a/drivers/power/supply/twl4030_charger.c
++++ b/drivers/power/supply/twl4030_charger.c
+@@ -449,7 +449,8 @@ static void twl4030_current_worker(struct work_struct *data)
  
-  sigill:
- 	uprobe_warn(current, "handle uretprobe, sending SIGILL.");
--	force_sig_info(SIGILL, SEND_SIG_FORCED, current);
-+	force_sig(SIGILL, current);
- 
- }
- 
-@@ -1952,7 +1952,7 @@ static void handle_singlestep(struct uprobe_task *utask, struct pt_regs *regs)
- 
- 	if (unlikely(err)) {
- 		uprobe_warn(current, "execute the probed insn, sending SIGILL.");
--		force_sig_info(SIGILL, SEND_SIG_FORCED, current);
-+		force_sig(SIGILL, current);
- 	}
- }
- 
+ 	if (v < USB_MIN_VOLT) {
+ 		/* Back up and stop adjusting. */
+-		bci->usb_cur -= USB_CUR_STEP;
++		if (bci->usb_cur >= USB_CUR_STEP)
++			bci->usb_cur -= USB_CUR_STEP;
+ 		bci->usb_cur_target = bci->usb_cur;
+ 	} else if (bci->usb_cur >= bci->usb_cur_target ||
+ 		   bci->usb_cur + USB_CUR_STEP > USB_MAX_CURRENT) {
 -- 
 2.20.1
 
