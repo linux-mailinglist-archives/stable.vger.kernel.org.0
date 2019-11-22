@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DCE6106A36
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:33:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CBDE106D4E
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:59:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727763AbfKVKcr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:32:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54590 "EHLO mail.kernel.org"
+        id S1730858AbfKVK7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:59:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727785AbfKVKcq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:32:46 -0500
+        id S1730374AbfKVK7C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:59:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E790E20726;
-        Fri, 22 Nov 2019 10:32:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B133020721;
+        Fri, 22 Nov 2019 10:59:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418765;
-        bh=7t+zd6ApZDLHyDBXxaHnsvqdU5V0/DfKsl898ThufDs=;
+        s=default; t=1574420342;
+        bh=NObG4ppKYgwiPwjuxGjJCTSDOQBfWncIECXrZIt8Aws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBlderYvG8ubym8YNaMbdNqKXY1DFkrJbnRsKol0xYoKj1iafbti1F5at7c/+ASZW
-         ASXQsHubdvTVMqAWe96qOfvsohnoniDL8IgRvGQU+9TZ82YCRJkyZ0LQ/gjNyjLpnH
-         0a86Quwj+cHEleCH5zBAW4ptgsK7Cpq4egOp6J+k=
+        b=MA2SD5MYYioNdTut1HKdZaVlJAsnx6lsaqM9kI9w1EA1RRaFVJVVl1hnYs/oXrV4W
+         bYAAPFjtMUUhHoaG2/in8jP0WX60bs1OtdXWpg/xuPmye3zR/m/dMP1mQSwo+S/5/E
+         Nxv2yoi2IihAcEr9GoakRJuEjNnCUhHMEC0oTvaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lao Wei <zrlw@qq.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 045/159] media: fix: media: pci: meye: validate offset to avoid arbitrary access
-Date:   Fri, 22 Nov 2019 11:27:16 +0100
-Message-Id: <20191122100738.056313239@linuxfoundation.org>
+Subject: [PATCH 4.19 072/220] ARM: dts: at91: sama5d2_ptc_ek: fix bootloader env offsets
+Date:   Fri, 22 Nov 2019 11:27:17 +0100
+Message-Id: <20191122100917.399704323@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lao Wei <zrlw@qq.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit eac7230fdb4672c2cb56f6a01a1744f562c01f80 ]
+[ Upstream commit f602b4871c5f7ac01d37d8b285ca947ba7613065 ]
 
-Motion eye video4linux driver for Sony Vaio PictureBook desn't validate user-controlled parameter
-'vma->vm_pgoff', a malicious process might access all of kernel memory from user space by trying
-pass different arbitrary address.
-Discussion: http://www.openwall.com/lists/oss-security/2018/07/06/1
+The offsets for the bootloader environment and its redundant partition
+were inverted. Fix the addresses to match our nand flash map available at:
 
-Signed-off-by: Lao Wei <zrlw@qq.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+http://www.at91.com/linux4sam/pub/Linux4SAM/SambaSubsections//demo_nandflash_map_lnx4sam5x.png
+
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Ludovic Desroches <ludovic.desroches@microchip.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/meye/meye.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/pci/meye/meye.c b/drivers/media/pci/meye/meye.c
-index ba887e8e1b171..a85c5199ccd30 100644
---- a/drivers/media/pci/meye/meye.c
-+++ b/drivers/media/pci/meye/meye.c
-@@ -1469,7 +1469,7 @@ static int meye_mmap(struct file *file, struct vm_area_struct *vma)
- 	unsigned long page, pos;
+diff --git a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
+index 3b1baa8605a77..2214bfe7aa205 100644
+--- a/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
++++ b/arch/arm/boot/dts/at91-sama5d2_ptc_ek.dts
+@@ -92,13 +92,13 @@
+ 							reg = <0x40000 0xc0000>;
+ 						};
  
- 	mutex_lock(&meye.lock);
--	if (size > gbuffers * gbufsize) {
-+	if (size > gbuffers * gbufsize || offset > gbuffers * gbufsize - size) {
- 		mutex_unlock(&meye.lock);
- 		return -EINVAL;
- 	}
+-						bootloaderenv@0x100000 {
+-							label = "bootloader env";
++						bootloaderenvred@0x100000 {
++							label = "bootloader env redundant";
+ 							reg = <0x100000 0x40000>;
+ 						};
+ 
+-						bootloaderenvred@0x140000 {
+-							label = "bootloader env redundant";
++						bootloaderenv@0x140000 {
++							label = "bootloader env";
+ 							reg = <0x140000 0x40000>;
+ 						};
+ 
 -- 
 2.20.1
 
