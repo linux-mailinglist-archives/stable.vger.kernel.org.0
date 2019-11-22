@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69CE41061EA
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3321061E9
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:00:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727297AbfKVGAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:00:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36242 "EHLO mail.kernel.org"
+        id S1727367AbfKVF7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:59:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727360AbfKVF5o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:44 -0500
+        id S1728496AbfKVF5q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:57:46 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1914A2072D;
-        Fri, 22 Nov 2019 05:57:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D5972070A;
+        Fri, 22 Nov 2019 05:57:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402263;
-        bh=m46hbcDViVWHgP9ujJrVxd/nsrnZXJ5GEUJVDJ3t0e8=;
+        s=default; t=1574402265;
+        bh=OUxMEqaedTerczHBI7WUPaEO4Ds7NoVMV/fIilPn1tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KK0bZ9fhzzjjm2U7Lwq8YxByOBPdC43Zs+++Z6dS7OKKNXoVdoWQlhbweok5tRZF/
-         6K9kp8Ry1e9lEGMVlTa0o4BppzRMAH/v6aClI/3fVmBOnr0gnods8mBmJal6VLSA9P
-         /mO1ncDnqXfMebJ/K7JdNgOu5wHGmfepoKRMtDew=
+        b=IrwlhPWDKxUkK4fMnELIT8wlVhj9Jd6oGP9tPiTEMjZrdnDypCg7hgqgQ3pityuGV
+         ZFz1NdTX2BViq0VfIb4YU19eaA82DxsJ1QINnC29kXv+/K+nkfMR8ipHqfX0ox77C/
+         7FRmEwtGUrZr5CJZeC4XdCBdEolHVbKOPK6kd7rU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.14 104/127] gpu: ipu-v3: pre: don't trigger update if buffer address doesn't change
-Date:   Fri, 22 Nov 2019 00:55:22 -0500
-Message-Id: <20191122055544.3299-103-sashal@kernel.org>
+Cc:     wenxu <wenxu@ucloud.cn>, "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 106/127] ip_tunnel: Make none-tunnel-dst tunnel port work with lwtunnel
+Date:   Fri, 22 Nov 2019 00:55:24 -0500
+Message-Id: <20191122055544.3299-105-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -44,59 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: wenxu <wenxu@ucloud.cn>
 
-[ Upstream commit eb0200a4357da100064971689d3a0e9e3cf57f33 ]
+[ Upstream commit d71b57532d70c03f4671dd04e84157ac6bf021b0 ]
 
-On a NOP double buffer update where current buffer address is the same
-as the next buffer address, the SDW_UPDATE bit clears too late. As we
-are now using this bit to determine when it is safe to signal flip
-completion to userspace this will delay completion of atomic commits
-where one plane doesn't change the buffer by a whole frame period.
+ip l add dev tun type gretap key 1000
+ip a a dev tun 10.0.0.1/24
 
-Fix this by remembering the last buffer address and just skip the
-double buffer update if it would not change the buffer address.
+Packets with tun-id 1000 can be recived by tun dev. But packet can't
+be sent through dev tun for non-tunnel-dst
 
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-[p.zabel@pengutronix.de: initialize last_bufaddr in ipu_pre_configure]
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+With this patch: tunnel-dst can be get through lwtunnel like beflow:
+ip r a 10.0.0.7 encap ip dst 172.168.0.11 dev tun
+
+Signed-off-by: wenxu <wenxu@ucloud.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/ipu-v3/ipu-pre.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ net/ipv4/ip_tunnel.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/ipu-v3/ipu-pre.c b/drivers/gpu/ipu-v3/ipu-pre.c
-index 1d1612e28854b..6fd4af647f599 100644
---- a/drivers/gpu/ipu-v3/ipu-pre.c
-+++ b/drivers/gpu/ipu-v3/ipu-pre.c
-@@ -102,6 +102,7 @@ struct ipu_pre {
- 	void			*buffer_virt;
- 	bool			in_use;
- 	unsigned int		safe_window_end;
-+	unsigned int		last_bufaddr;
- };
+diff --git a/net/ipv4/ip_tunnel.c b/net/ipv4/ip_tunnel.c
+index fabc299cb875f..7a31287ff1232 100644
+--- a/net/ipv4/ip_tunnel.c
++++ b/net/ipv4/ip_tunnel.c
+@@ -661,13 +661,19 @@ void ip_tunnel_xmit(struct sk_buff *skb, struct net_device *dev,
+ 	dst = tnl_params->daddr;
+ 	if (dst == 0) {
+ 		/* NBMA tunnel */
++		struct ip_tunnel_info *tun_info;
  
- static DEFINE_MUTEX(ipu_pre_list_mutex);
-@@ -177,6 +178,7 @@ void ipu_pre_configure(struct ipu_pre *pre, unsigned int width,
+ 		if (!skb_dst(skb)) {
+ 			dev->stats.tx_fifo_errors++;
+ 			goto tx_error;
+ 		}
  
- 	writel(bufaddr, pre->regs + IPU_PRE_CUR_BUF);
- 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
-+	pre->last_bufaddr = bufaddr;
- 
- 	val = IPU_PRE_PREF_ENG_CTRL_INPUT_PIXEL_FORMAT(0) |
- 	      IPU_PRE_PREF_ENG_CTRL_INPUT_ACTIVE_BPP(active_bpp) |
-@@ -218,7 +220,11 @@ void ipu_pre_update(struct ipu_pre *pre, unsigned int bufaddr)
- 	unsigned short current_yblock;
- 	u32 val;
- 
-+	if (bufaddr == pre->last_bufaddr)
-+		return;
-+
- 	writel(bufaddr, pre->regs + IPU_PRE_NEXT_BUF);
-+	pre->last_bufaddr = bufaddr;
- 
- 	do {
- 		if (time_after(jiffies, timeout)) {
+-		if (skb->protocol == htons(ETH_P_IP)) {
++		tun_info = skb_tunnel_info(skb);
++		if (tun_info && (tun_info->mode & IP_TUNNEL_INFO_TX) &&
++		    ip_tunnel_info_af(tun_info) == AF_INET &&
++		    tun_info->key.u.ipv4.dst)
++			dst = tun_info->key.u.ipv4.dst;
++		else if (skb->protocol == htons(ETH_P_IP)) {
+ 			rt = skb_rtable(skb);
+ 			dst = rt_nexthop(rt, inner_iph->daddr);
+ 		}
 -- 
 2.20.1
 
