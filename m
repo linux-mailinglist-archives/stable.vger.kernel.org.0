@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6AA7107131
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:27:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB5FD10712D
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:27:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727936AbfKVL1G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:27:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55830 "EHLO mail.kernel.org"
+        id S1727923AbfKVKdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:33:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726722AbfKVKdQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:33:16 -0500
+        id S1727050AbfKVKdT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:33:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1C872072D;
-        Fri, 22 Nov 2019 10:33:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6983C20714;
+        Fri, 22 Nov 2019 10:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418796;
-        bh=Klx/vYedqDT/UALTFgFJbMomfAZhczkTY09h71IdXCw=;
+        s=default; t=1574418798;
+        bh=46tdXdSQHPeM2Uf2IhlUgJGdfheCHnVWs3MdbyS8Qd0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uEUtB12QEaAAtIzrA7YWSRfP6kgsQ5R6CW7phIR3jX5Ilj3joCkn7GqM+4+HJUsuH
-         +9RKpEqrFA3qbCkHkERo/V7WrULFTerKsMCadklNUfW5mnIcDy6jv3hq5cq7TdBO4i
-         hd4LYl+Xoce9k66XSgiX1sKYoH2wRWIM01vDhzr0=
+        b=SGD66E1e/SrhG1HmwxmSXRxpK6t0p+wrpRc/2O9VuCEfxBMW57L+ABKIXH3CmOcdy
+         88UW1g2bzO+CnN3PO+38nOOY/uED3ltbHEWk3P05SFoaLliFUm2wxaCOaeIEW2yZCv
+         cLOfOYOBhUJM9/U+BESvR8W0VzOcokgPis/QBD0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tomasz Figa <tomasz.figa@gmail.com>,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 054/159] power: supply: max8998-charger: Fix platform data retrieval
-Date:   Fri, 22 Nov 2019 11:27:25 +0100
-Message-Id: <20191122100746.610472481@linuxfoundation.org>
+        stable@vger.kernel.org, Bernd Edlinger <bernd.edlinger@hotmail.de>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 055/159] kernfs: Fix range checks in kernfs_get_target_path
+Date:   Fri, 22 Nov 2019 11:27:26 +0100
+Message-Id: <20191122100747.383847982@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
 References: <20191122100704.194776704@linuxfoundation.org>
@@ -45,36 +43,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Figa <tomasz.figa@gmail.com>
+From: Bernd Edlinger <bernd.edlinger@hotmail.de>
 
-[ Upstream commit cb90a2c6f77fe9b43d1e3f759bb2f13fe7fa1811 ]
+[ Upstream commit a75e78f21f9ad4b810868c89dbbabcc3931591ca ]
 
-Since the max8998 MFD driver supports instantiation by DT, platform data
-retrieval is handled in MFD probe and cell drivers should get use
-the pdata field of max8998_dev struct to obtain them.
+The terminating NUL byte is only there because the buffer is
+allocated with kzalloc(PAGE_SIZE, GFP_KERNEL), but since the
+range-check is off-by-one, and PAGE_SIZE==PATH_MAX, the
+returned string may not be zero-terminated if it is exactly
+PATH_MAX characters long.  Furthermore also the initial loop
+may theoretically exceed PATH_MAX and cause a fault.
 
-Fixes: ee999fb3f17f ("mfd: max8998: Add support for Device Tree")
-Signed-off-by: Tomasz Figa <tomasz.figa@gmail.com>
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Bernd Edlinger <bernd.edlinger@hotmail.de>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/max8998_charger.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/kernfs/symlink.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/power/max8998_charger.c b/drivers/power/max8998_charger.c
-index b64cf0f141425..66438029bdd0c 100644
---- a/drivers/power/max8998_charger.c
-+++ b/drivers/power/max8998_charger.c
-@@ -85,7 +85,7 @@ static const struct power_supply_desc max8998_battery_desc = {
- static int max8998_battery_probe(struct platform_device *pdev)
- {
- 	struct max8998_dev *iodev = dev_get_drvdata(pdev->dev.parent);
--	struct max8998_platform_data *pdata = dev_get_platdata(iodev->dev);
-+	struct max8998_platform_data *pdata = iodev->pdata;
- 	struct power_supply_config psy_cfg = {};
- 	struct max8998_battery_data *max8998;
- 	struct i2c_client *i2c;
+diff --git a/fs/kernfs/symlink.c b/fs/kernfs/symlink.c
+index b3b293e2c0990..0a379a86ff768 100644
+--- a/fs/kernfs/symlink.c
++++ b/fs/kernfs/symlink.c
+@@ -63,6 +63,9 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
+ 		if (base == kn)
+ 			break;
+ 
++		if ((s - path) + 3 >= PATH_MAX)
++			return -ENAMETOOLONG;
++
+ 		strcpy(s, "../");
+ 		s += 3;
+ 		base = base->parent;
+@@ -79,7 +82,7 @@ static int kernfs_get_target_path(struct kernfs_node *parent,
+ 	if (len < 2)
+ 		return -EINVAL;
+ 	len--;
+-	if ((s - path) + len > PATH_MAX)
++	if ((s - path) + len >= PATH_MAX)
+ 		return -ENAMETOOLONG;
+ 
+ 	/* reverse fillup of target string from target to base */
 -- 
 2.20.1
 
