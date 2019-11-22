@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D282106FB3
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:17:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FDD9106DF3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:04:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729375AbfKVLRB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:17:01 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58972 "EHLO mail.kernel.org"
+        id S1731614AbfKVLEt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:04:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:60022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730021AbfKVKtb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:49:31 -0500
+        id S1731592AbfKVLEs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:04:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D35CC20715;
-        Fri, 22 Nov 2019 10:49:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91E7A207FC;
+        Fri, 22 Nov 2019 11:04:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419771;
-        bh=pkcEKusfz9+5qS3xEeIaSulh+3jZtNJAPw1hijWklJk=;
+        s=default; t=1574420688;
+        bh=B9AoKmD1xmcv4P7KtG1+SP2sJt/qlkpf6OAJSMxaA8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDjhsMlZimocLUqX08gaSC6TZeHYmbgjCow98mfCOEz1teU7lOfkNcL2ZEjxMLn9X
-         LnybtSlI5l9kiMVGvxdtbCJUsdEi+Y+/Ps/o14acyONVQ7WBcFd/KnGkppzzNgqVPr
-         U4X2KWXmRGS2N9obQvfvTaCZcZyXqx2hRe9BJZDs=
+        b=c0xnZ6Nd1JBitPGNQwRr1EWtD2d59mw+1i/trRhj3VjX3QWltGKXPSsQbhYYfZo1N
+         7tZxrZv1GwZYWLnbnGzzK59P+8PAj3/4fFYpBB8isvvUC/I3oXPUQwsnSay8DwGNQh
+         QugeZlkGkzp2qsZeM3lzn738CHJCOtJFyOdkjBns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 216/222] hwmon: (pwm-fan) Silence error on probe deferral
-Date:   Fri, 22 Nov 2019 11:29:16 +0100
-Message-Id: <20191122100918.107448103@linuxfoundation.org>
+Subject: [PATCH 4.19 192/220] pinctrl: gemini: Mask and set properly
+Date:   Fri, 22 Nov 2019 11:29:17 +0100
+Message-Id: <20191122100927.895075849@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 9f67f7583e77fe5dc57aab3a6159c2642544eaad ]
+[ Upstream commit d17f477c5bc6b4a5dd9f51ae263870da132a8e89 ]
 
-Probe deferrals aren't actual errors, so silence the error message in
-case the PWM cannot yet be acquired.
+The code was written under the assumption that the
+regmap_update_bits() would mask the bits in the mask and
+set the bits in the value.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+It missed the points that it will not set bits in the value
+unless these are also masked in the mask. Set value bits
+that are not in the mask will simply be ignored.
+
+Fixes: 06351d133dea ("pinctrl: add a Gemini SoC pin controller")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pwm-fan.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/pinctrl/pinctrl-gemini.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pwm-fan.c b/drivers/hwmon/pwm-fan.c
-index fb03449de2e07..aa6333620c37d 100644
---- a/drivers/hwmon/pwm-fan.c
-+++ b/drivers/hwmon/pwm-fan.c
-@@ -231,8 +231,12 @@ static int pwm_fan_probe(struct platform_device *pdev)
+diff --git a/drivers/pinctrl/pinctrl-gemini.c b/drivers/pinctrl/pinctrl-gemini.c
+index fa7d998e1d5a8..1e484a36ff07e 100644
+--- a/drivers/pinctrl/pinctrl-gemini.c
++++ b/drivers/pinctrl/pinctrl-gemini.c
+@@ -2184,7 +2184,8 @@ static int gemini_pmx_set_mux(struct pinctrl_dev *pctldev,
+ 		 func->name, grp->name);
  
- 	ctx->pwm = devm_of_pwm_get(&pdev->dev, pdev->dev.of_node, NULL);
- 	if (IS_ERR(ctx->pwm)) {
--		dev_err(&pdev->dev, "Could not get PWM\n");
--		return PTR_ERR(ctx->pwm);
-+		ret = PTR_ERR(ctx->pwm);
-+
-+		if (ret != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Could not get PWM: %d\n", ret);
-+
-+		return ret;
- 	}
+ 	regmap_read(pmx->map, GLOBAL_MISC_CTRL, &before);
+-	regmap_update_bits(pmx->map, GLOBAL_MISC_CTRL, grp->mask,
++	regmap_update_bits(pmx->map, GLOBAL_MISC_CTRL,
++			   grp->mask | grp->value,
+ 			   grp->value);
+ 	regmap_read(pmx->map, GLOBAL_MISC_CTRL, &after);
  
- 	platform_set_drvdata(pdev, ctx);
 -- 
 2.20.1
 
