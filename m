@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 366AE1063CA
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:13:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 423C61063C0
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729037AbfKVF4L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:56:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33942 "EHLO mail.kernel.org"
+        id S1728698AbfKVF4N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:56:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727968AbfKVF4L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:11 -0500
+        id S1729040AbfKVF4M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:12 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2910020659;
-        Fri, 22 Nov 2019 05:56:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2832D20717;
+        Fri, 22 Nov 2019 05:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402170;
-        bh=BN0DhflK9aTP7pbgnOI1FtlaLz5PDG30I11spKOXY7I=;
+        s=default; t=1574402171;
+        bh=hoHaxQ1FpR1KmrO2bIdXBLQAaLGfFdc4kghUGkigRBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PbTKPM4mvtSS6Uj2bgowykF/2RjQCMd2nGyQD5nxFaoD0t0l4valt8cu2+TLBc9R5
-         hZxKyrGrEfIpHEq/kDiW/Y/RuWwHrr0j/OTG1FMz0AjL18ACb2rSBuQcY5uc47dh/g
-         fRmaBCIWcNS5Utk1tCWOn7rt9OUjRqp2Lt85DgdE=
+        b=tL0EPnYfbHSxpSnLeTpfm/bdPPN8wr4y6DaAvfKC3iDKIGUfdClmjbttwCnSp56M2
+         hUm9dlULp8YRO5xouLs2aXx1c5Pv2nhrRDk8iDA7VhOkPc323GKj68jLwCx2uTnnHg
+         iHZB8F0BNSe92JZi+XE7HkV3D4XuVUoBIRUO5W8E=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
         Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 023/127] microblaze: adjust the help to the real behavior
-Date:   Fri, 22 Nov 2019 00:54:01 -0500
-Message-Id: <20191122055544.3299-22-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 024/127] microblaze: move "... is ready" messages to arch/microblaze/Makefile
+Date:   Fri, 22 Nov 2019 00:54:02 -0500
+Message-Id: <20191122055544.3299-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -45,57 +45,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Masahiro Yamada <yamada.masahiro@socionext.com>
 
-[ Upstream commit bafcc61d998c1ca18f556d92a0e95335ac68c7da ]
+[ Upstream commit 2e14f94cf4bc2f15ca5362e81ca3a987c79e3062 ]
 
-"make ARCH=microblaze help" mentions simpleImage.<dt>.unstrip,
-but it is not a real Make target. It does not work because Makefile
-assumes "system.unstrip" is the name of DT.
-
-$ make ARCH=microblaze CROSS_COMPILE=microblaze-linux- simpleImage.system.unstrip
-  [ snip ]
-make[1]: *** No rule to make target 'arch/microblaze/boot/dts/system.unstrip.dtb', needed by 'arch/microblaze/boot/dts/system.dtb'.  Stop.
-make: *** [Makefile;1060: arch/microblaze/boot/dts] Error 2
-make: *** Waiting for unfinished jobs....
-
-simpleImage.<dt> works like a phony target that generates multiple
-images. Reflect the real behavior. I removed the DT directory path
-information because it is already explained a few lines below.
-
-While I am here, I deleted the redundant *_defconfig explanation.
-
-The top-level Makefile caters to list available defconfig files:
-
-  mmu_defconfig            - Build for mmu
-  nommu_defconfig          - Build for nommu
+To prepare for more fixes, move this to arch/microblaze/Makefile.
+Otherwise, the same "... is ready" would be printed multiple times.
 
 Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
 Signed-off-by: Michal Simek <michal.simek@xilinx.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/microblaze/Makefile | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/microblaze/Makefile      | 2 ++
+ arch/microblaze/boot/Makefile | 4 ----
+ 2 files changed, 2 insertions(+), 4 deletions(-)
 
 diff --git a/arch/microblaze/Makefile b/arch/microblaze/Makefile
-index d269dd4b82795..188f07bba0959 100644
+index 188f07bba0959..fe5e48184c3c2 100644
 --- a/arch/microblaze/Makefile
 +++ b/arch/microblaze/Makefile
-@@ -91,11 +91,11 @@ define archhelp
+@@ -83,9 +83,11 @@ archclean:
+ 
+ linux.bin linux.bin.gz linux.bin.ub: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
++	@echo 'Kernel: $(boot)/$@ is ready' ' (#'`cat .version`')'
+ 
+ simpleImage.%: vmlinux
+ 	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
++	@echo 'Kernel: $(boot)/$@ is ready' ' (#'`cat .version`')'
+ 
+ define archhelp
    echo '* linux.bin    - Create raw binary'
-   echo '  linux.bin.gz - Create compressed raw binary'
-   echo '  linux.bin.ub - Create U-Boot wrapped raw binary'
--  echo '  simpleImage.<dt> - ELF image with $(arch)/boot/dts/<dt>.dts linked in'
--  echo '                   - stripped elf with fdt blob'
--  echo '  simpleImage.<dt>.unstrip - full ELF image with fdt blob'
--  echo '  *_defconfig      - Select default config from arch/microblaze/configs'
--  echo ''
-+  echo '  simpleImage.<dt> - Create the following images with <dt>.dtb linked in'
-+  echo '                    simpleImage.<dt>        : raw image'
-+  echo '                    simpleImage.<dt>.ub     : raw image with U-Boot header'
-+  echo '                    simpleImage.<dt>.unstrip: ELF (identical to vmlinux)'
-+  echo '                    simpleImage.<dt>.strip  : stripped ELF'
-   echo '  Targets with <dt> embed a device tree blob inside the image'
-   echo '  These targets support board with firmware that does not'
-   echo '  support passing a device tree directly. Replace <dt> with the'
+diff --git a/arch/microblaze/boot/Makefile b/arch/microblaze/boot/Makefile
+index 7c2f52d4a0e45..49dbd1063d717 100644
+--- a/arch/microblaze/boot/Makefile
++++ b/arch/microblaze/boot/Makefile
+@@ -9,15 +9,12 @@ OBJCOPYFLAGS := -R .note -R .comment -R .note.gnu.build-id -O binary
+ 
+ $(obj)/linux.bin: vmlinux FORCE
+ 	$(call if_changed,objcopy)
+-	@echo 'Kernel: $@ is ready' ' (#'`cat .version`')'
+ 
+ $(obj)/linux.bin.ub: $(obj)/linux.bin FORCE
+ 	$(call if_changed,uimage)
+-	@echo 'Kernel: $@ is ready' ' (#'`cat .version`')'
+ 
+ $(obj)/linux.bin.gz: $(obj)/linux.bin FORCE
+ 	$(call if_changed,gzip)
+-	@echo 'Kernel: $@ is ready' ' (#'`cat .version`')'
+ 
+ quiet_cmd_cp = CP      $< $@$2
+ 	cmd_cp = cat $< >$@$2 || (rm -f $@ && echo false)
+@@ -35,6 +32,5 @@ $(obj)/simpleImage.%: vmlinux FORCE
+ 	$(call if_changed,objcopy)
+ 	$(call if_changed,uimage)
+ 	$(call if_changed,strip,.strip)
+-	@echo 'Kernel: $(UIMAGE_OUT) is ready' ' (#'`cat .version`')'
+ 
+ clean-files += simpleImage.*.unstrip linux.bin.ub dts/*.dtb
 -- 
 2.20.1
 
