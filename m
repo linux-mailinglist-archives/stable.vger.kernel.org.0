@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34DA31060B4
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:51:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7D31060CB
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:52:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728059AbfKVFvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:51:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56432 "EHLO mail.kernel.org"
+        id S1728318AbfKVFvy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:51:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728106AbfKVFvY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:51:24 -0500
+        id S1728313AbfKVFvx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:51:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8134E20730;
-        Fri, 22 Nov 2019 05:51:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39A752072D;
+        Fri, 22 Nov 2019 05:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401883;
-        bh=gjGA4RaMSHT64+qS1HoDY2NasMLucSNVblWZNdWGt3U=;
+        s=default; t=1574401912;
+        bh=89gxeJGzthezn63gW8QWdpmf0myFbNkTNKcj5J4kHOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PMoaUNZlFrpuE0iaU3D7r+pSHdJPSLWCSqMmfhrAzzE4K1Kx1AXsTrSFguB0U4KYD
-         cithAVcCPR8F/fXWPPc4ts6GcrZDB+DmzpxwKXGWeGkeyt9wfK0/sFNTXettWWOGFb
-         POXlsFhkChTZtL2SIU3eHS0NFGaZ8X5+mzebTzzs=
+        b=k8yU9nyO2MCMRRYUq1qfTlMQZKQcIT7fxnAheWoNGxHVkzoZgS4xWOeNcDRcQWyh9
+         2dDZ2cZlvV4DNMPmC8ne4RPmAZC19OJwBTgdY6c+1Lh0agdQdv8tLnMGYzz1gSdOY7
+         55dhWb0SJ5Q5EPvx0skzz9sLWjCwAgfic3WizAAY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kyle Roeschley <kyle.roeschley@ni.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 117/219] ath6kl: Fix off by one error in scan completion
-Date:   Fri, 22 Nov 2019 00:47:29 -0500
-Message-Id: <20191122054911.1750-110-sashal@kernel.org>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 143/219] um: Include sys/uio.h to have writev()
+Date:   Fri, 22 Nov 2019 00:47:55 -0500
+Message-Id: <20191122054911.1750-136-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,36 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyle Roeschley <kyle.roeschley@ni.com>
+From: Richard Weinberger <richard@nod.at>
 
-[ Upstream commit 5803c12816c43bd09e5f4247dd9313c2d9a2c41b ]
+[ Upstream commit 0053102a869f1b909904b1b85ac282e2744deaab ]
 
-When ath6kl was reworked to share code between regular and scheduled scans
-in commit 3b8ffc6a22ba ("ath6kl: Configure probed SSID list consistently"),
-probed SSID entry changed from 1-index to 0-indexed. However,
-ath6kl_cfg80211_scan_complete_event() was missed in that change. Fix its
-indexing so that we correctly clear out the probed SSID list.
+sys/uio.h gives us writev(), otherwise the build might fail on
+some systems.
 
-Signed-off-by: Kyle Roeschley <kyle.roeschley@ni.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: 49da7e64f33e ("High Performance UML Vector Network Driver")
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath6kl/cfg80211.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/um/drivers/vector_user.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/cfg80211.c b/drivers/net/wireless/ath/ath6kl/cfg80211.c
-index 6c98d7903ffb6..d7c626d9594e1 100644
---- a/drivers/net/wireless/ath/ath6kl/cfg80211.c
-+++ b/drivers/net/wireless/ath/ath6kl/cfg80211.c
-@@ -1093,7 +1093,7 @@ void ath6kl_cfg80211_scan_complete_event(struct ath6kl_vif *vif, bool aborted)
- 	if (vif->scan_req->n_ssids && vif->scan_req->ssids[0].ssid_len) {
- 		for (i = 0; i < vif->scan_req->n_ssids; i++) {
- 			ath6kl_wmi_probedssid_cmd(ar->wmi, vif->fw_vif_idx,
--						  i + 1, DISABLE_SSID_FLAG,
-+						  i, DISABLE_SSID_FLAG,
- 						  0, NULL);
- 		}
- 	}
+diff --git a/arch/um/drivers/vector_user.c b/arch/um/drivers/vector_user.c
+index 4d6a78e31089f..00c4c2735a5f7 100644
+--- a/arch/um/drivers/vector_user.c
++++ b/arch/um/drivers/vector_user.c
+@@ -30,6 +30,7 @@
+ #include <stdlib.h>
+ #include <os.h>
+ #include <um_malloc.h>
++#include <sys/uio.h>
+ #include "vector_user.h"
+ 
+ #define ID_GRE 0
 -- 
 2.20.1
 
