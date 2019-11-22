@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17B00106D68
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:00:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB734106A55
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:34:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730959AbfKVK7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:59:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51322 "EHLO mail.kernel.org"
+        id S1728020AbfKVKd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:33:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730662AbfKVK7u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:59:50 -0500
+        id S1728017AbfKVKd5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:33:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B01420706;
-        Fri, 22 Nov 2019 10:59:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3885C20714;
+        Fri, 22 Nov 2019 10:33:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420389;
-        bh=GnLDcU3GQlLVz86X48Q6AD2uliaNpA6HTGkKvjNyt+w=;
+        s=default; t=1574418835;
+        bh=PZRlICB5aO4OWvYpbx6HZcXJmevUP+PXMNBT0wS6Slc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbZSo5fGaLiJJLRCmV+08MyHYIHH8OPVX5fm+rYs7jXd8Jfz6fJBGWnyDph4WdQvI
-         YvmqWdzZmZXEHvZLlXeDWIJujoPZQMrk4e8/neJKxmPNsrg8U3aY4vxR96BjOpo15M
-         xEQYDFh8kauF6I9eRfR66llzVKlG9MUTaR9cEnoM=
+        b=np1GtKB4Ts+2Xcmiv5WikOjfmNG0U10aRezgOuAahZ5HLXl4rPOCFl3Y6I/wWmVMZ
+         VYwurTZLQWjZ2ANFb8w2uDkOd3s7ieIhTK7G4Xi+aZTR7dbv2kThCBMapZGdzo1Tq6
+         ON2dk5oLTLKolUi7LKtRpQ5QoH1gQfVulE6cU1vk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jordan Crouse <jcrouse@codeaurora.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        Rob Clark <robdclark@gmail.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/220] msm/gpu/a6xx: Force of_dma_configure to setup DMA for GMU
-Date:   Fri, 22 Nov 2019 11:27:36 +0100
-Message-Id: <20191122100919.197631621@linuxfoundation.org>
+Subject: [PATCH 4.4 066/159] net: xilinx: fix return type of ndo_start_xmit function
+Date:   Fri, 22 Nov 2019 11:27:37 +0100
+Message-Id: <20191122100755.166954662@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jordan Crouse <jcrouse@codeaurora.org>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 32aa27e15c28d3898ed6f9b3c98f95f34a81eab2 ]
+[ Upstream commit 81255af8d9d5565004792c295dde49344df450ca ]
 
-The point of the 'force_dma' parameter for of_dma_configure
-is to force the device to be set up even if DMA capability is
-not described by the firmware which is exactly the use case
- we have for GMU - we need SMMU to get set up but we have no
-other dma capabilities since memory is managed by the GPU
-driver. Currently we pass false so of_dma_configure() fails
-and subsequently GMU and GPU probe does as well.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Fixes: 4b565ca5a2c ("drm/msm: Add A6XX device support")
-Signed-off-by: Jordan Crouse <jcrouse@codeaurora.org>
-Tested-by: Sibi Sankar <sibis@codeaurora.org>
-Signed-off-by: Rob Clark <robdclark@gmail.com>
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/xilinx/ll_temac_main.c       | 3 ++-
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c | 3 ++-
+ drivers/net/ethernet/xilinx/xilinx_emaclite.c     | 9 +++++----
+ 3 files changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-index 9acb9dfaf57e6..9cde79a7335c8 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-@@ -1140,7 +1140,7 @@ int a6xx_gmu_probe(struct a6xx_gpu *a6xx_gpu, struct device_node *node)
+diff --git a/drivers/net/ethernet/xilinx/ll_temac_main.c b/drivers/net/ethernet/xilinx/ll_temac_main.c
+index 5a1068df7038c..ed6a88cf3281c 100644
+--- a/drivers/net/ethernet/xilinx/ll_temac_main.c
++++ b/drivers/net/ethernet/xilinx/ll_temac_main.c
+@@ -673,7 +673,8 @@ static inline int temac_check_tx_bd_space(struct temac_local *lp, int num_frag)
+ 	return 0;
+ }
  
- 	gmu->dev = &pdev->dev;
+-static int temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++static netdev_tx_t
++temac_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ {
+ 	struct temac_local *lp = netdev_priv(ndev);
+ 	struct cdmac_bd *cur_p;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+index f1e969128a4ee..7f1a57bb2ab10 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -656,7 +656,8 @@ static inline int axienet_check_tx_bd_space(struct axienet_local *lp,
+  * start the transmission. Additionally if checksum offloading is supported,
+  * it populates AXI Stream Control fields with appropriate values.
+  */
+-static int axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++static netdev_tx_t
++axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ {
+ 	u32 ii;
+ 	u32 num_frag;
+diff --git a/drivers/net/ethernet/xilinx/xilinx_emaclite.c b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+index 4cb8b85cbf2c2..909a008f99276 100644
+--- a/drivers/net/ethernet/xilinx/xilinx_emaclite.c
++++ b/drivers/net/ethernet/xilinx/xilinx_emaclite.c
+@@ -1008,9 +1008,10 @@ static int xemaclite_close(struct net_device *dev)
+  * deferred and the Tx queue is stopped so that the deferred socket buffer can
+  * be transmitted when the Emaclite device is free to transmit data.
+  *
+- * Return:	0, always.
++ * Return:	NETDEV_TX_OK, always.
+  */
+-static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
++static netdev_tx_t
++xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
+ {
+ 	struct net_local *lp = netdev_priv(dev);
+ 	struct sk_buff *new_skb;
+@@ -1031,7 +1032,7 @@ static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
+ 		/* Take the time stamp now, since we can't do this in an ISR. */
+ 		skb_tx_timestamp(new_skb);
+ 		spin_unlock_irqrestore(&lp->reset_lock, flags);
+-		return 0;
++		return NETDEV_TX_OK;
+ 	}
+ 	spin_unlock_irqrestore(&lp->reset_lock, flags);
  
--	of_dma_configure(gmu->dev, node, false);
-+	of_dma_configure(gmu->dev, node, true);
+@@ -1040,7 +1041,7 @@ static int xemaclite_send(struct sk_buff *orig_skb, struct net_device *dev)
+ 	dev->stats.tx_bytes += len;
+ 	dev_consume_skb_any(new_skb);
  
- 	/* Fow now, don't do anything fancy until we get our feet under us */
- 	gmu->idle_level = GMU_IDLE_STATE_ACTIVE;
+-	return 0;
++	return NETDEV_TX_OK;
+ }
+ 
+ /**
 -- 
 2.20.1
 
