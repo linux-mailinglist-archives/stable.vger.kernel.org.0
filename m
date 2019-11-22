@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C93F106290
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:05:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CAF7106286
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:04:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728028AbfKVGEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:04:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41718 "EHLO mail.kernel.org"
+        id S1727882AbfKVGEm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:04:42 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729770AbfKVGCt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:02:49 -0500
+        id S1728839AbfKVGCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:02:50 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B92362068F;
-        Fri, 22 Nov 2019 06:02:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8B3720659;
+        Fri, 22 Nov 2019 06:02:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402568;
-        bh=6N6utb28xFcbw1WnBmmazrCLf9h//ber+CLlhqfmkag=;
+        s=default; t=1574402569;
+        bh=ZK8IW9ixll6gcK15zLwQ+Fsl2kqOkRxWzoox6wnNZ+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erjhXJbrJtfJbyhwrKc/QaKNCpBcd5gbdgdrViSYOLTFXFSl7rbbOnMVYlAuC5dhS
-         NKh/N/w+/weDd0BwY2HBmXCfcjAqYAiSvgOtYa92o+S4x8eggGx7zjBRMqofLi00PW
-         4jMimTa7zCQMUh+HWlPUz9m41fLW2YnrfsdHb6J4=
+        b=RM2gqio05wqwM61kqCc7KQ+Ei6g5+zGNdsHr49Yfvennvsa/zWlMk4aW3fpMe7k28
+         +oNgwPVNDem+qWMA+w/QbYxL8sgMIaJtJzSOk8gnfpefLRaWVW+g5ufY9z/wovQxst
+         cB9AjdMPzYrFB7JLC8l/K81FDe6NpJDqmhEXyvzg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Huang Shijie <sjhuang@iluvatar.ai>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexey Skidanov <alexey.skidanov@intel.com>,
+Cc:     Qian Cai <cai@gmx.us>, Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 71/91] lib/genalloc.c: use vzalloc_node() to allocate the bitmap
-Date:   Fri, 22 Nov 2019 01:01:09 -0500
-Message-Id: <20191122060129.4239-70-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 72/91] drivers/base/platform.c: kmemleak ignore a known leak
+Date:   Fri, 22 Nov 2019 01:01:10 -0500
+Message-Id: <20191122060129.4239-71-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -45,50 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Huang Shijie <sjhuang@iluvatar.ai>
+From: Qian Cai <cai@gmx.us>
 
-[ Upstream commit 6862d2fc81859f88c1f3f660886427893f2b4f3f ]
+[ Upstream commit 967d3010df8b6f6f9aa95c198edc5fe3646ebf36 ]
 
-Some devices may have big memory on chip, such as over 1G.  In some
-cases, the nbytes maybe bigger then 4M which is the bounday of the
-memory buddy system (4K default).
+unreferenced object 0xffff808ec6dc5a80 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294938063 (age 2560.530s)
+  hex dump (first 32 bytes):
+    ff ff ff ff 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b  ........kkkkkkkk
+    6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+  backtrace:
+    [<00000000476dcf8c>] kmem_cache_alloc_trace+0x430/0x500
+    [<000000004f708d37>] platform_device_register_full+0xbc/0x1e8
+    [<000000006c2a7ec7>] acpi_create_platform_device+0x370/0x450
+    [<00000000ef135642>] acpi_default_enumeration+0x34/0x78
+    [<000000003bd9a052>] acpi_bus_attach+0x2dc/0x3e0
+    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
+    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
+    [<000000002968643e>] acpi_bus_scan+0xb0/0x110
+    [<0000000010dd0bd7>] acpi_scan_init+0x1a8/0x410
+    [<00000000965b3c5a>] acpi_init+0x408/0x49c
+    [<00000000ed4b9fe2>] do_one_initcall+0x178/0x7f4
+    [<00000000a5ac5a74>] kernel_init_freeable+0x9d4/0xa9c
+    [<0000000070ea6c15>] kernel_init+0x18/0x138
+    [<00000000fb8fff06>] ret_from_fork+0x10/0x1c
+    [<0000000041273a0d>] 0xffffffffffffffff
 
-So use vzalloc_node() to allocate the bitmap.  Also use vfree to free
-it.
+Then, faddr2line pointed out this line,
 
-Link: http://lkml.kernel.org/r/20181225015701.6289-1-sjhuang@iluvatar.ai
-Signed-off-by: Huang Shijie <sjhuang@iluvatar.ai>
+/*
+ * This memory isn't freed when the device is put,
+ * I don't have a nice idea for that though.  Conceptually
+ * dma_mask in struct device should not be a pointer.
+ * See http://thread.gmane.org/gmane.linux.kernel.pci/9081
+ */
+pdev->dev.dma_mask =
+	kmalloc(sizeof(*pdev->dev.dma_mask), GFP_KERNEL);
+
+Since this leak has existed for more than 8 years and it does not
+reference other parts of the memory, let kmemleak ignore it, so users
+don't need to waste time reporting this in the future.
+
+Link: http://lkml.kernel.org/r/20181206160751.36211-1-cai@gmx.us
+Signed-off-by: Qian Cai <cai@gmx.us>
 Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Alexey Skidanov <alexey.skidanov@intel.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/genalloc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/base/platform.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/lib/genalloc.c b/lib/genalloc.c
-index 5deb25c40a5a1..f365d71cdc774 100644
---- a/lib/genalloc.c
-+++ b/lib/genalloc.c
-@@ -187,7 +187,7 @@ int gen_pool_add_virt(struct gen_pool *pool, unsigned long virt, phys_addr_t phy
- 	int nbytes = sizeof(struct gen_pool_chunk) +
- 				BITS_TO_LONGS(nbits) * sizeof(long);
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 14ff40371f013..f90b1b9bbad0d 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -27,6 +27,7 @@
+ #include <linux/clk/clk-conf.h>
+ #include <linux/limits.h>
+ #include <linux/property.h>
++#include <linux/kmemleak.h>
  
--	chunk = kzalloc_node(nbytes, GFP_KERNEL, nid);
-+	chunk = vzalloc_node(nbytes, nid);
- 	if (unlikely(chunk == NULL))
- 		return -ENOMEM;
+ #include "base.h"
+ #include "power/power.h"
+@@ -516,6 +517,8 @@ struct platform_device *platform_device_register_full(
+ 		if (!pdev->dev.dma_mask)
+ 			goto err;
  
-@@ -251,7 +251,7 @@ void gen_pool_destroy(struct gen_pool *pool)
- 		bit = find_next_bit(chunk->bits, end_bit, 0);
- 		BUG_ON(bit < end_bit);
- 
--		kfree(chunk);
-+		vfree(chunk);
++		kmemleak_ignore(pdev->dev.dma_mask);
++
+ 		*pdev->dev.dma_mask = pdevinfo->dma_mask;
+ 		pdev->dev.coherent_dma_mask = pdevinfo->dma_mask;
  	}
- 	kfree_const(pool->name);
- 	kfree(pool);
 -- 
 2.20.1
 
