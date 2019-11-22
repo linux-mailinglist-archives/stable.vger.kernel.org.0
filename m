@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA36310714C
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:28:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75985107064
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727401AbfKVKbk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:31:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51984 "EHLO mail.kernel.org"
+        id S1728447AbfKVKny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:43:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727316AbfKVKbj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:31:39 -0500
+        id S1727646AbfKVKnx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:43:53 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45BD120714;
-        Fri, 22 Nov 2019 10:31:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4FE6320715;
+        Fri, 22 Nov 2019 10:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418699;
-        bh=G07mmmbZxw4U7sCnfcE050gp+/zMjMUqCmkE3k+kAnc=;
+        s=default; t=1574419432;
+        bh=HShIySpLPUNeFNOt26VHwgmGLAKWF2+VsW+uRVUMwGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFJxmSUYjyEbQnSseeQznRKGvoblB2qCSIbtD0me0YKmvoIlBU7p9aLI5uHLijvhY
-         Acy0nFqC3hCInn7VA7VtklMpMSvl2TKYx2YDlZaBLLrElRfeH71btMusZ7s9g2Q2Zm
-         GjJXpOPsUHZZmxpmMI5zT5KIsD42ipd2+mlVEekI=
+        b=zLhCZQutHFwWZWeF0dS9XhHMW7tg5lLPWLW8DxOsw6v5TrTWfne8xg5PYCch6AVnZ
+         nWk/r65sdOms7WfI3fR5MZI2vpg3a5FaP1YcMwjDzI5izD97BRV4iQXhvttDEyikFN
+         DLE+dYeqxe06i3GbNsLJXfrIgnsd72vdthJ2h5Xw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Patryk=20Ma=C5=82ek?= <patryk.malek@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 021/159] i40e: hold the rtnl lock on clearing interrupt scheme
-Date:   Fri, 22 Nov 2019 11:26:52 +0100
-Message-Id: <20191122100721.840727280@linuxfoundation.org>
+Subject: [PATCH 4.9 073/222] power: reset: at91-poweroff: do not procede if at91_shdwc is allocated
+Date:   Fri, 22 Nov 2019 11:26:53 +0100
+Message-Id: <20191122100907.543194787@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patryk Małek <patryk.malek@intel.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit 5cba17b14182696d6bb0ec83a1d087933f252241 ]
+[ Upstream commit 9f1e44774be578fb92776add95f1fcaf8284d692 ]
 
-Hold the rtnl lock when we're clearing interrupt scheme
-in i40e_shutdown and in i40e_remove.
+There should be only one instance of struct shdwc in the system. This is
+referenced through at91_shdwc. Return in probe if at91_shdwc is already
+allocated.
 
-Signed-off-by: Patryk Małek <patryk.malek@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/power/reset/at91-sama5d2_shdwc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 22c43a776c6cd..756c4ea176554 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -10828,6 +10828,7 @@ static void i40e_remove(struct pci_dev *pdev)
- 	mutex_destroy(&hw->aq.asq_mutex);
+diff --git a/drivers/power/reset/at91-sama5d2_shdwc.c b/drivers/power/reset/at91-sama5d2_shdwc.c
+index 90b0b5a70ce52..04ca990e8f6cb 100644
+--- a/drivers/power/reset/at91-sama5d2_shdwc.c
++++ b/drivers/power/reset/at91-sama5d2_shdwc.c
+@@ -246,6 +246,9 @@ static int __init at91_shdwc_probe(struct platform_device *pdev)
+ 	if (!pdev->dev.of_node)
+ 		return -ENODEV;
  
- 	/* Clear all dynamic memory lists of rings, q_vectors, and VSIs */
-+	rtnl_lock();
- 	i40e_clear_interrupt_scheme(pf);
- 	for (i = 0; i < pf->num_alloc_vsi; i++) {
- 		if (pf->vsi[i]) {
-@@ -10836,6 +10837,7 @@ static void i40e_remove(struct pci_dev *pdev)
- 			pf->vsi[i] = NULL;
- 		}
- 	}
-+	rtnl_unlock();
- 
- 	for (i = 0; i < I40E_MAX_VEB; i++) {
- 		kfree(pf->veb[i]);
-@@ -10982,7 +10984,13 @@ static void i40e_shutdown(struct pci_dev *pdev)
- 	wr32(hw, I40E_PFPM_WUFC,
- 	     (pf->wol_en ? I40E_PFPM_WUFC_MAG_MASK : 0));
- 
-+	/* Since we're going to destroy queues during the
-+	 * i40e_clear_interrupt_scheme() we should hold the RTNL lock for this
-+	 * whole section
-+	 */
-+	rtnl_lock();
- 	i40e_clear_interrupt_scheme(pf);
-+	rtnl_unlock();
- 
- 	if (system_state == SYSTEM_POWER_OFF) {
- 		pci_wake_from_d3(pdev, pf->wol_en);
++	if (at91_shdwc)
++		return -EBUSY;
++
+ 	at91_shdwc = devm_kzalloc(&pdev->dev, sizeof(*at91_shdwc), GFP_KERNEL);
+ 	if (!at91_shdwc)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
