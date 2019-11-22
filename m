@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 557C910643D
+	by mail.lfdr.de (Postfix) with ESMTP id CDA9B10643E
 	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:16:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729491AbfKVGNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:13:51 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51298 "EHLO mail.kernel.org"
+        id S1729497AbfKVGNw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:13:52 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51326 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729144AbfKVGNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:13:51 -0500
+        id S1729294AbfKVGNw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:13:52 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57E8120718;
-        Fri, 22 Nov 2019 06:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 743842071C;
+        Fri, 22 Nov 2019 06:13:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574403230;
-        bh=4n5Hz48TXnqrIXsGHju1Wnpfhr59qkX+mio24jYPjxs=;
+        s=default; t=1574403231;
+        bh=ZKAtWUsN0FqEAoJtA7XbheslHWVtULPIZOm3hQjh9nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2gVIPtvgBYKqG4anOc+pwKEpaD+XrQhwhfeD3d2zWDklzaMXxL5Sq5pabDJZ6z/O+
-         GyrEOK0T2dkWvxwqpKswX6t4lpAeEIbxuiYQpkhg4IWf/ktMKTvuZJ+rT0AhhFz3AU
-         y322Npr/DSmditF+HUm2JqZTVYX25iBjVDHEskjA=
+        b=vHift0Qs0tJbq2rRq4SCRtrg82znDRSK3Ouey/3+3b8FJiiH9IISkJ9LKhqc9bNXy
+         I6N5jiP9/YltENrKoJ5DKDqT2kPM054TFy6estp+zwvz3CksjjsA72pLuUSHRE5ule
+         tXWfEMKd5W3N6ezxPIGMYXrT1PgknEwO/xjiDfcw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lars Ellenberg <lars.ellenberg@linbit.com>,
+Cc:     Luc Van Oostenryck <luc.vanoostenryck@gmail.com>,
+        Roland Kammerer <roland.kammerer@linbit.com>,
+        Lars Ellenberg <lars.ellenberg@linbit.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
         drbd-dev@lists.linbit.com, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 43/68] drbd: reject attach of unsuitable uuids even if connected
-Date:   Fri, 22 Nov 2019 01:12:36 -0500
-Message-Id: <20191122061301.4947-42-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 44/68] drbd: fix print_st_err()'s prototype to match the definition
+Date:   Fri, 22 Nov 2019 01:12:37 -0500
+Message-Id: <20191122061301.4947-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122061301.4947-1-sashal@kernel.org>
 References: <20191122061301.4947-1-sashal@kernel.org>
@@ -43,100 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lars Ellenberg <lars.ellenberg@linbit.com>
+From: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
 
-[ Upstream commit fe43ed97bba3b11521abd934b83ed93143470e4f ]
+[ Upstream commit 2c38f035117331eb78d0504843c79ea7c7fabf37 ]
 
-Multiple failure scenario:
-a) all good
-   Connected Primary/Secondary UpToDate/UpToDate
-b) lose disk on Primary,
-   Connected Primary/Secondary Diskless/UpToDate
-c) continue to write to the device,
-   changes only make it to the Secondary storage.
-d) lose disk on Secondary,
-   Connected Primary/Secondary Diskless/Diskless
-e) now try to re-attach on Primary
+print_st_err() is defined with its 4th argument taking an
+'enum drbd_state_rv' but its prototype use an int for it.
 
-This would have succeeded before, even though that is clearly the
-wrong data set to attach to (missing the modifications from c).
-Because we only compared our "effective" and the "to-be-attached"
-data generation uuid tags if (device->state.conn < C_CONNECTED).
+Fix this by using 'enum drbd_state_rv' in the prototype too.
 
-Fix: change that constraint to (device->state.pdsk != D_UP_TO_DATE)
-compare the uuids, and reject the attach.
-
-This patch also tries to improve the reverse scenario:
-first lose Secondary, then Primary disk,
-then try to attach the disk on Secondary.
-
-Before this patch, the attach on the Secondary succeeds, but since commit
-drbd: disconnect, if the wrong UUIDs are attached on a connected peer
-the Primary will notice unsuitable data, and drop the connection hard.
-
-Though unfortunately at a point in time during the handshake where
-we cannot easily abort the attach on the peer without more
-refactoring of the handshake.
-
-We now reject any attach to "unsuitable" uuids,
-as long as we can see a Primary role,
-unless we already have access to "good" data.
-
+Signed-off-by: Luc Van Oostenryck <luc.vanoostenryck@gmail.com>
+Signed-off-by: Roland Kammerer <roland.kammerer@linbit.com>
 Signed-off-by: Lars Ellenberg <lars.ellenberg@linbit.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/drbd/drbd_nl.c       |  6 +++---
- drivers/block/drbd/drbd_receiver.c | 19 +++++++++++++++++++
- 2 files changed, 22 insertions(+), 3 deletions(-)
+ drivers/block/drbd/drbd_state.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/drbd/drbd_nl.c b/drivers/block/drbd/drbd_nl.c
-index 27e1abcf57100..4adbf4c8d532c 100644
---- a/drivers/block/drbd/drbd_nl.c
-+++ b/drivers/block/drbd/drbd_nl.c
-@@ -1685,9 +1685,9 @@ int drbd_adm_attach(struct sk_buff *skb, struct genl_info *info)
- 		}
- 	}
+diff --git a/drivers/block/drbd/drbd_state.h b/drivers/block/drbd/drbd_state.h
+index 7f53c40823cd5..75219cd2534aa 100644
+--- a/drivers/block/drbd/drbd_state.h
++++ b/drivers/block/drbd/drbd_state.h
+@@ -126,7 +126,7 @@ extern enum drbd_state_rv __drbd_set_state(struct drbd_device *, union drbd_stat
+ 					   enum chg_state_flags,
+ 					   struct completion *done);
+ extern void print_st_err(struct drbd_device *, union drbd_state,
+-			union drbd_state, int);
++			union drbd_state, enum drbd_state_rv);
  
--	if (device->state.conn < C_CONNECTED &&
--	    device->state.role == R_PRIMARY && device->ed_uuid &&
--	    (device->ed_uuid & ~((u64)1)) != (nbc->md.uuid[UI_CURRENT] & ~((u64)1))) {
-+	if (device->state.pdsk != D_UP_TO_DATE && device->ed_uuid &&
-+	    (device->state.role == R_PRIMARY || device->state.peer == R_PRIMARY) &&
-+            (device->ed_uuid & ~((u64)1)) != (nbc->md.uuid[UI_CURRENT] & ~((u64)1))) {
- 		drbd_err(device, "Can only attach to data with current UUID=%016llX\n",
- 		    (unsigned long long)device->ed_uuid);
- 		retcode = ERR_DATA_NOT_CURRENT;
-diff --git a/drivers/block/drbd/drbd_receiver.c b/drivers/block/drbd/drbd_receiver.c
-index b1ee358edd3b4..afd8f315d29b1 100644
---- a/drivers/block/drbd/drbd_receiver.c
-+++ b/drivers/block/drbd/drbd_receiver.c
-@@ -4116,6 +4116,25 @@ static int receive_state(struct drbd_connection *connection, struct packet_info
- 	if (peer_state.conn == C_AHEAD)
- 		ns.conn = C_BEHIND;
- 
-+	/* TODO:
-+	 * if (primary and diskless and peer uuid != effective uuid)
-+	 *     abort attach on peer;
-+	 *
-+	 * If this node does not have good data, was already connected, but
-+	 * the peer did a late attach only now, trying to "negotiate" with me,
-+	 * AND I am currently Primary, possibly frozen, with some specific
-+	 * "effective" uuid, this should never be reached, really, because
-+	 * we first send the uuids, then the current state.
-+	 *
-+	 * In this scenario, we already dropped the connection hard
-+	 * when we received the unsuitable uuids (receive_uuids().
-+	 *
-+	 * Should we want to change this, that is: not drop the connection in
-+	 * receive_uuids() already, then we would need to add a branch here
-+	 * that aborts the attach of "unsuitable uuids" on the peer in case
-+	 * this node is currently Diskless Primary.
-+	 */
-+
- 	if (device->p_uuid && peer_state.disk >= D_NEGOTIATING &&
- 	    get_ldev_if_state(device, D_NEGOTIATING)) {
- 		int cr; /* consider resync */
+ enum drbd_state_rv
+ _conn_request_state(struct drbd_connection *connection, union drbd_state mask, union drbd_state val,
 -- 
 2.20.1
 
