@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59BA81061E3
+	by mail.lfdr.de (Postfix) with ESMTP id C37441061E4
 	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729466AbfKVF5f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:57:35 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35948 "EHLO mail.kernel.org"
+        id S1729474AbfKVF5g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:57:36 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729458AbfKVF5d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:33 -0500
+        id S1729464AbfKVF5g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:57:36 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7FAEF20731;
-        Fri, 22 Nov 2019 05:57:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B621020717;
+        Fri, 22 Nov 2019 05:57:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402253;
-        bh=q/nXUueN+PhY2qiBQi4R8Z9iq0FW4Qo7pZkcszenzB0=;
+        s=default; t=1574402254;
+        bh=/Ilz3DQrQMnik72iidlCKhIT7D03qFszYXIadrSkDLE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QjdHVcS1Np72Bd+fVIUQafMA6yIIjHzigrNBZSr8yFqNKuxT8rlBQtg6kd68XSWLc
-         cO0CkBMp0eOiljq0qUoCTR8p/HjI98Rj2mh+PoiFK9KHICvBxh+u4r7jmgLYA2iVoC
-         TSONfV9thI3WqDcUdS0bycB9LWMGtxc8vUAnIdnk=
+        b=KXo2mnDvK68r69gl/ufoRXUEvkdGrmGqYXtO05ywXOJWBiLpdLGf6S0jGmSV8tmy1
+         JW2hBdouZGxpk1Cu0ZINjYZuauM0A8+QFuoeUiTn6C3ZbbsLzJb5NNBoLB/kihrpF4
+         7cA6k0jfFbkoDLpOme2s1ZYV0oJw2nJ6aK+D3yl4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yi Wang <wang.yi59@zte.com.cn>, Michal Hocko <mhocko@suse.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
+Cc:     Qian Cai <cai@gmx.us>, Andrew Morton <akpm@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 095/127] fork: fix some -Wmissing-prototypes warnings
-Date:   Fri, 22 Nov 2019 00:55:13 -0500
-Message-Id: <20191122055544.3299-94-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 096/127] drivers/base/platform.c: kmemleak ignore a known leak
+Date:   Fri, 22 Nov 2019 00:55:14 -0500
+Message-Id: <20191122055544.3299-95-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -45,81 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yi Wang <wang.yi59@zte.com.cn>
+From: Qian Cai <cai@gmx.us>
 
-[ Upstream commit fb5bf31722d0805a3f394f7d59f2e8cd07acccb7 ]
+[ Upstream commit 967d3010df8b6f6f9aa95c198edc5fe3646ebf36 ]
 
-We get a warning when building kernel with W=1:
+unreferenced object 0xffff808ec6dc5a80 (size 128):
+  comm "swapper/0", pid 1, jiffies 4294938063 (age 2560.530s)
+  hex dump (first 32 bytes):
+    ff ff ff ff 00 00 00 00 6b 6b 6b 6b 6b 6b 6b 6b  ........kkkkkkkk
+    6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b  kkkkkkkkkkkkkkkk
+  backtrace:
+    [<00000000476dcf8c>] kmem_cache_alloc_trace+0x430/0x500
+    [<000000004f708d37>] platform_device_register_full+0xbc/0x1e8
+    [<000000006c2a7ec7>] acpi_create_platform_device+0x370/0x450
+    [<00000000ef135642>] acpi_default_enumeration+0x34/0x78
+    [<000000003bd9a052>] acpi_bus_attach+0x2dc/0x3e0
+    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
+    [<000000003cf4f7f2>] acpi_bus_attach+0x108/0x3e0
+    [<000000002968643e>] acpi_bus_scan+0xb0/0x110
+    [<0000000010dd0bd7>] acpi_scan_init+0x1a8/0x410
+    [<00000000965b3c5a>] acpi_init+0x408/0x49c
+    [<00000000ed4b9fe2>] do_one_initcall+0x178/0x7f4
+    [<00000000a5ac5a74>] kernel_init_freeable+0x9d4/0xa9c
+    [<0000000070ea6c15>] kernel_init+0x18/0x138
+    [<00000000fb8fff06>] ret_from_fork+0x10/0x1c
+    [<0000000041273a0d>] 0xffffffffffffffff
 
-  kernel/fork.c:167:13: warning: no previous prototype for `arch_release_thread_stack' [-Wmissing-prototypes]
-  kernel/fork.c:779:13: warning: no previous prototype for `fork_init' [-Wmissing-prototypes]
+Then, faddr2line pointed out this line,
 
-Add the missing declaration in head file to fix this.
+/*
+ * This memory isn't freed when the device is put,
+ * I don't have a nice idea for that though.  Conceptually
+ * dma_mask in struct device should not be a pointer.
+ * See http://thread.gmane.org/gmane.linux.kernel.pci/9081
+ */
+pdev->dev.dma_mask =
+	kmalloc(sizeof(*pdev->dev.dma_mask), GFP_KERNEL);
 
-Also, remove arch_release_thread_stack() completely because no arch
-seems to implement it since bb9d81264 (arch: remove tile port).
+Since this leak has existed for more than 8 years and it does not
+reference other parts of the memory, let kmemleak ignore it, so users
+don't need to waste time reporting this in the future.
 
-Link: http://lkml.kernel.org/r/1542170087-23645-1-git-send-email-wang.yi59@zte.com.cn
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+Link: http://lkml.kernel.org/r/20181206160751.36211-1-cai@gmx.us
+Signed-off-by: Qian Cai <cai@gmx.us>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sched/task.h | 2 ++
- init/main.c                | 1 -
- kernel/fork.c              | 5 -----
- 3 files changed, 2 insertions(+), 6 deletions(-)
+ drivers/base/platform.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index a74ec619ac510..11b4fba82950f 100644
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -39,6 +39,8 @@ void __noreturn do_task_dead(void);
+diff --git a/drivers/base/platform.c b/drivers/base/platform.c
+index 9045c5f3734e8..f1105de0d9fed 100644
+--- a/drivers/base/platform.c
++++ b/drivers/base/platform.c
+@@ -27,6 +27,7 @@
+ #include <linux/clk/clk-conf.h>
+ #include <linux/limits.h>
+ #include <linux/property.h>
++#include <linux/kmemleak.h>
  
- extern void proc_caches_init(void);
+ #include "base.h"
+ #include "power/power.h"
+@@ -526,6 +527,8 @@ struct platform_device *platform_device_register_full(
+ 		if (!pdev->dev.dma_mask)
+ 			goto err;
  
-+extern void fork_init(void);
++		kmemleak_ignore(pdev->dev.dma_mask);
 +
- extern void release_task(struct task_struct * p);
- 
- #ifdef CONFIG_HAVE_COPY_THREAD_TLS
-diff --git a/init/main.c b/init/main.c
-index 51067e2db509d..b1ab36fe1a55c 100644
---- a/init/main.c
-+++ b/init/main.c
-@@ -98,7 +98,6 @@
- static int kernel_init(void *);
- 
- extern void init_IRQ(void);
--extern void fork_init(void);
- extern void radix_tree_init(void);
- 
- /*
-diff --git a/kernel/fork.c b/kernel/fork.c
-index 3352fdbd5e20d..3d9d6a28e21d9 100644
---- a/kernel/fork.c
-+++ b/kernel/fork.c
-@@ -162,10 +162,6 @@ static inline void free_task_struct(struct task_struct *tsk)
- }
- #endif
- 
--void __weak arch_release_thread_stack(unsigned long *stack)
--{
--}
--
- #ifndef CONFIG_ARCH_THREAD_STACK_ALLOCATOR
- 
- /*
-@@ -348,7 +344,6 @@ static void release_task_stack(struct task_struct *tsk)
- 		return;  /* Better to leak the stack than to free prematurely */
- 
- 	account_kernel_stack(tsk, -1);
--	arch_release_thread_stack(tsk->stack);
- 	free_thread_stack(tsk);
- 	tsk->stack = NULL;
- #ifdef CONFIG_VMAP_STACK
+ 		*pdev->dev.dma_mask = pdevinfo->dma_mask;
+ 		pdev->dev.coherent_dma_mask = pdevinfo->dma_mask;
+ 	}
 -- 
 2.20.1
 
