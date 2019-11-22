@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8639106D99
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:01:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2427107063
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:22:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730886AbfKVLB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:01:28 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54396 "EHLO mail.kernel.org"
+        id S1728430AbfKVKnn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:43:43 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730766AbfKVLB2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:01:28 -0500
+        id S1729272AbfKVKnm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:43:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 88F2920706;
-        Fri, 22 Nov 2019 11:01:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C025520637;
+        Fri, 22 Nov 2019 10:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420487;
-        bh=SLDHED6xIDXCXATD9sFjZPXRCps2xfzuuQ0qam3yhVM=;
+        s=default; t=1574419421;
+        bh=5UItLLFjlDhOXz3KBCG5KhmUDXK4+F73pnrDOEoTvcQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1gJrn85hgpXLZQF1YJaLLVcTRU4adGL1A5VSiITsJDMlNUZ/pafQfGFIYZszIWih
-         4ybB5TkhTZ9wrl2o+4vaGLT4lAOpFiyTOPhxxRcMJcOZfJ80+k4BpejujLbGmtKVdQ
-         oTHwd9gvXEWfubL6Fgt/jrjQ9j1Is5g3IWbihxwM=
+        b=vvuBw88VL2szRDmg548yLETw2eks98+ALKQ7qsZ/fhKUdXtSy/3sQ3GKBAsIGfAvG
+         9DSE3tGc7WBYoEaHxZo5lG7SR3gJYeCmUn6lgwvG6mIj6gC8M9jG4oZxhobJy/i30J
+         fSfFWi756Cr8NAn3zBjMkPhA9fZCfp3Z9owhwfcQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
-        NeilBrown <neilb@suse.com>, Shaohua Li <shli@fb.com>,
+        stable@vger.kernel.org, Shahed Shaikh <Shahed.Shaikh@cavium.com>,
+        Ariel Elior <ariel.elior@cavium.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 079/220] md: allow metadata updates while suspending an array - fix
-Date:   Fri, 22 Nov 2019 11:27:24 +0100
-Message-Id: <20191122100918.048620714@linuxfoundation.org>
+Subject: [PATCH 4.9 105/222] bnx2x: Ignore bandwidth attention in single function mode
+Date:   Fri, 22 Nov 2019 11:27:25 +0100
+Message-Id: <20191122100910.916537002@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.com>
+From: Shahed Shaikh <Shahed.Shaikh@cavium.com>
 
-[ Upstream commit 059421e041eb461fb2b3e81c9adaec18ef03ca3c ]
+[ Upstream commit 75a110a1783ef8324ffd763b24f4ac268253cbca ]
 
-Commit 35bfc52187f6 ("md: allow metadata update while suspending.")
-added support for allowing md_check_recovery() to still perform
-metadata updates while the array is entering the 'suspended' state.
-This is needed to allow the processes of entering the state to
-complete.
+This is a workaround for FW bug -
+MFW generates bandwidth attention in single function mode, which
+is only expected to be generated in multi function mode.
+This undesired attention in SF mode results in incorrect HW
+configuration and resulting into Tx timeout.
 
-Unfortunately, the patch doesn't really work.  The test for
-"mddev->suspended" at the start of md_check_recovery() means that the
-function doesn't try to do anything at all while entering suspend.
-
-This patch moves the code of updating the metadata while suspending to
-*before* the test on mddev->suspended.
-
-Reported-by: Jeff Mahoney <jeffm@suse.com>
-Fixes: 35bfc52187f6 ("md: allow metadata update while suspending.")
-Signed-off-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Shaohua Li <shli@fb.com>
+Signed-off-by: Shahed Shaikh <Shahed.Shaikh@cavium.com>
+Signed-off-by: Ariel Elior <ariel.elior@cavium.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index a8fbaa384e9ae..2fe4f93d1d7d4 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -8778,6 +8778,18 @@ static void md_start_sync(struct work_struct *ws)
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+index a9681b191304a..ce8a777b1e975 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+@@ -3540,6 +3540,16 @@ static void bnx2x_drv_info_iscsi_stat(struct bnx2x *bp)
   */
- void md_check_recovery(struct mddev *mddev)
+ static void bnx2x_config_mf_bw(struct bnx2x *bp)
  {
-+	if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags) && mddev->sb_flags) {
-+		/* Write superblock - thread that called mddev_suspend()
-+		 * holds reconfig_mutex for us.
-+		 */
-+		set_bit(MD_UPDATING_SB, &mddev->flags);
-+		smp_mb__after_atomic();
-+		if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags))
-+			md_update_sb(mddev, 0);
-+		clear_bit_unlock(MD_UPDATING_SB, &mddev->flags);
-+		wake_up(&mddev->sb_wait);
++	/* Workaround for MFW bug.
++	 * MFW is not supposed to generate BW attention in
++	 * single function mode.
++	 */
++	if (!IS_MF(bp)) {
++		DP(BNX2X_MSG_MCP,
++		   "Ignoring MF BW config in single function mode\n");
++		return;
 +	}
 +
- 	if (mddev->suspended)
- 		return;
- 
-@@ -8938,16 +8950,6 @@ void md_check_recovery(struct mddev *mddev)
- 	unlock:
- 		wake_up(&mddev->sb_wait);
- 		mddev_unlock(mddev);
--	} else if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags) && mddev->sb_flags) {
--		/* Write superblock - thread that called mddev_suspend()
--		 * holds reconfig_mutex for us.
--		 */
--		set_bit(MD_UPDATING_SB, &mddev->flags);
--		smp_mb__after_atomic();
--		if (test_bit(MD_ALLOW_SB_UPDATE, &mddev->flags))
--			md_update_sb(mddev, 0);
--		clear_bit_unlock(MD_UPDATING_SB, &mddev->flags);
--		wake_up(&mddev->sb_wait);
- 	}
- }
- EXPORT_SYMBOL(md_check_recovery);
+ 	if (bp->link_vars.link_up) {
+ 		bnx2x_cmng_fns_init(bp, true, CMNG_FNS_MINMAX);
+ 		bnx2x_link_sync_notify(bp);
 -- 
 2.20.1
 
