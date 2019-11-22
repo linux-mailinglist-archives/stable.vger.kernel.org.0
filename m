@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B53BF106E74
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D609E106DA0
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:01:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731475AbfKVLD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:03:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58420 "EHLO mail.kernel.org"
+        id S1730659AbfKVLBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:01:44 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731474AbfKVLDz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:03:55 -0500
+        id S1731220AbfKVLBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:01:42 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5908520659;
-        Fri, 22 Nov 2019 11:03:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80B1A20679;
+        Fri, 22 Nov 2019 11:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420634;
-        bh=nn7wuo1qLQGHzAKEC4nO1MUzJUASpsgxIwya/ME3rxQ=;
+        s=default; t=1574420502;
+        bh=KyMv468KYUxa0zlBPzJSuBJ/C6Qe6r6JSM8MqWf4Ufw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tNUZ7yuZKNPQXpCmB/4tBFq/bXJHomPIlGqoax+mLCko8wy4pcoE4H9alRzgQ5auK
-         gpRFYPAT2anXkSzrIg5DVHpYjenw8RbhKPodERTvH2jQqzx0qUJDSc+suye2+SGxx5
-         eg0/8/jsE36w492cZdLYM7V6nzoLd2i8aS2s91qw=
+        b=Tj0wquWCTL3z/5ztb79/H7p/VmAvhTucVeWYnTmCRjnKG1sovW8cd8AmNFNgyIdz/
+         MYQpl/rL9yc3dyhO2kvviD8v0zasxaNAjRljGUOP2qlFJgwgJ7EeOxgkFD9ltJdXPE
+         YfUPO/gy7UKBmzq5yMsftAE3o0hjEVn8A7f4ltQc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 120/220] i2c: brcmstb: Allow enabling the driver on DSL SoCs
-Date:   Fri, 22 Nov 2019 11:28:05 +0100
-Message-Id: <20191122100921.367868186@linuxfoundation.org>
+        stable@vger.kernel.org, rostedt@goodmis.org,
+        He Zhe <zhe.he@windriver.com>,
+        Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+        Petr Mladek <pmladek@suse.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 121/220] printk: Correct wrong casting
+Date:   Fri, 22 Nov 2019 11:28:06 +0100
+Message-Id: <20191122100921.440779527@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
 References: <20191122100912.732983531@linuxfoundation.org>
@@ -44,42 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: He Zhe <zhe.he@windriver.com>
 
-[ Upstream commit e1eba2ea54a2de0e4c58d87270d25706bb77b844 ]
+[ Upstream commit 51a72ab7372d85c96104e58036f1b49ba11e5d2b ]
 
-ARCH_BCM_63XX which is used by ARM-based DSL SoCs from Broadcom uses the
-same controller, make it possible to select the STB driver and update
-the Kconfig and help text a bit.
+log_first_seq and console_seq are 64-bit unsigned integers.
+Correct a wrong casting that might cut off the output.
 
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Link: http://lkml.kernel.org/r/1538239553-81805-2-git-send-email-zhe.he@windriver.com
+Cc: rostedt@goodmis.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: He Zhe <zhe.he@windriver.com>
+[sergey.senozhatsky@gmail.com: More descriptive commit message]
+Reviewed-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Signed-off-by: Petr Mladek <pmladek@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/Kconfig | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/printk/printk.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 8f803812ea244..ee6dd1b84fac8 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -433,12 +433,13 @@ config I2C_BCM_KONA
- 	  If you do not need KONA I2C interface, say N.
+diff --git a/kernel/printk/printk.c b/kernel/printk/printk.c
+index 11d70fd15e706..52390f5a1db11 100644
+--- a/kernel/printk/printk.c
++++ b/kernel/printk/printk.c
+@@ -2358,8 +2358,9 @@ void console_unlock(void)
+ 		printk_safe_enter_irqsave(flags);
+ 		raw_spin_lock(&logbuf_lock);
+ 		if (console_seq < log_first_seq) {
+-			len = sprintf(text, "** %u printk messages dropped **\n",
+-				      (unsigned)(log_first_seq - console_seq));
++			len = sprintf(text,
++				      "** %llu printk messages dropped **\n",
++				      log_first_seq - console_seq);
  
- config I2C_BRCMSTB
--	tristate "BRCM Settop I2C controller"
--	depends on ARCH_BRCMSTB || BMIPS_GENERIC || COMPILE_TEST
-+	tristate "BRCM Settop/DSL I2C controller"
-+	depends on ARCH_BRCMSTB || BMIPS_GENERIC || ARCH_BCM_63XX || \
-+		   COMPILE_TEST
- 	default y
- 	help
- 	  If you say yes to this option, support will be included for the
--	  I2C interface on the Broadcom Settop SoCs.
-+	  I2C interface on the Broadcom Settop/DSL SoCs.
- 
- 	  If you do not need I2C interface, say N.
- 
+ 			/* messages are gone, move to first one */
+ 			console_seq = log_first_seq;
 -- 
 2.20.1
 
