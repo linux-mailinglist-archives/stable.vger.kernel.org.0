@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F25681061A1
+	by mail.lfdr.de (Postfix) with ESMTP id 834DC1061A0
 	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:58:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729629AbfKVF6J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:58:09 -0500
-Received: from mail.kernel.org ([198.145.29.99]:36770 "EHLO mail.kernel.org"
+        id S1729624AbfKVF6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:58:08 -0500
+Received: from mail.kernel.org ([198.145.29.99]:36810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727833AbfKVF6I (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728791AbfKVF6I (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Nov 2019 00:58:08 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BCBD2072D;
-        Fri, 22 Nov 2019 05:58:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BDA9207FA;
+        Fri, 22 Nov 2019 05:58:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402286;
-        bh=y40CnV5sHXNfG/OegqL8DiLflmo4CWKLC0HwFbpNTzU=;
+        s=default; t=1574402287;
+        bh=5flbKH9/7SuKJsXQ0njpu5dTP+T8KsdOIIJV4h6GRxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/qZL745Wc/0VGWUHqIEwcRDLXqbBzHvM5dS6eFV/9r7bFhZm/u44hdGc6Itjn8Gt
-         bVmmhvnoLsofJ/xkCHy8tXd6hD3aKFfWbIaxpMM8tDeG2KBKhvmTPNfmyjIV+5oPf8
-         sGHkzGf4T01KiVi5olZsUuSI6RfWIH0OQ+zBIHzs=
+        b=NpQt2H6XlNjMWmLqSrvUHGl2Ee21NoCVKQwIefMvYIDSwBhdVn/HQoSrHVGh5M6FF
+         ve4gCe0o3UC3In6eQbpitfC2wvRWAkB0FbCLGaZlQqcpIvUsu1xwm9EEYUiTF0asjy
+         ce0iiNB+3xfRSGm3KP+NaF9PBf+ZiGghYExz48d4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     zhengliang <zhengliang6@huawei.com>, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 125/127] f2fs: fix to data block override node segment by mistake
-Date:   Fri, 22 Nov 2019 00:55:42 -0500
-Message-Id: <20191122055544.3299-123-sashal@kernel.org>
+Cc:     Gen Zhang <blackgod016574@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 126/127] powerpc/pseries/dlpar: Fix a missing check in dlpar_parse_cc_property()
+Date:   Fri, 22 Nov 2019 00:55:43 -0500
+Message-Id: <20191122055544.3299-124-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -44,67 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhengliang <zhengliang6@huawei.com>
+From: Gen Zhang <blackgod016574@gmail.com>
 
-[ Upstream commit a0770e13c8da83bdb64738c0209ab02dd3cfff8b ]
+[ Upstream commit efa9ace68e487ddd29c2b4d6dd23242158f1f607 ]
 
-v4: Rearrange the previous three versions.
+In dlpar_parse_cc_property(), 'prop->name' is allocated by kstrdup().
+kstrdup() may return NULL, so it should be checked and handle error.
+And prop should be freed if 'prop->name' is NULL.
 
-The following scenario could lead to data block override by mistake.
-
-TASK A            |  TASK kworker                                            |     TASK B                                            |       TASK C
-                  |                                                          |                                                       |
-open              |                                                          |                                                       |
-write             |                                                          |                                                       |
-close             |                                                          |                                                       |
-                  |  f2fs_write_data_pages                                   |                                                       |
-                  |    f2fs_write_cache_pages                                |                                                       |
-                  |      f2fs_outplace_write_data                            |                                                       |
-                  |        f2fs_allocate_data_block (get block in seg S,     |                                                       |
-                  |                                  S is full, and only     |                                                       |
-                  |                                  have this valid data    |                                                       |
-                  |                                  block)                  |                                                       |
-                  |          allocate_segment                                |                                                       |
-                  |          locate_dirty_segment (mark S as PRE)            |                                                       |
-                  |        f2fs_submit_page_write (submit but is not         |                                                       |
-                  |                                written on dev)           |                                                       |
-unlink            |                                                          |                                                       |
- iput_final       |                                                          |                                                       |
-  f2fs_drop_inode |                                                          |                                                       |
-    f2fs_truncate |                                                          |                                                       |
- (not evict)      |                                                          |                                                       |
-                  |                                                          | write_checkpoint                                      |
-                  |                                                          |  flush merged bio but not wait file data writeback    |
-                  |                                                          |  set_prefree_as_free (mark S as FREE)                 |
-                  |                                                          |                                                       | update NODE/DATA
-                  |                                                          |                                                       | allocate_segment (select S)
-                  |     writeback done                                       |                                                       |
-
-So we need to guarantee io complete before truncate inode in f2fs_drop_inode.
-
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Zheng Liang <zhengliang6@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 4 ++++
+ arch/powerpc/platforms/pseries/dlpar.c | 4 ++++
  1 file changed, 4 insertions(+)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index 0f3209b23c940..331f16a7c676f 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -668,6 +668,10 @@ static int f2fs_drop_inode(struct inode *inode)
- 			sb_start_intwrite(inode->i_sb);
- 			f2fs_i_size_write(inode, 0);
+diff --git a/arch/powerpc/platforms/pseries/dlpar.c b/arch/powerpc/platforms/pseries/dlpar.c
+index f4e6565dd7a94..fb2876a84fbe6 100644
+--- a/arch/powerpc/platforms/pseries/dlpar.c
++++ b/arch/powerpc/platforms/pseries/dlpar.c
+@@ -63,6 +63,10 @@ static struct property *dlpar_parse_cc_property(struct cc_workarea *ccwa)
  
-+			f2fs_submit_merged_write_cond(F2FS_I_SB(inode),
-+					inode, NULL, 0, DATA);
-+			truncate_inode_pages_final(inode->i_mapping);
-+
- 			if (F2FS_HAS_BLOCKS(inode))
- 				f2fs_truncate(inode);
+ 	name = (char *)ccwa + be32_to_cpu(ccwa->name_offset);
+ 	prop->name = kstrdup(name, GFP_KERNEL);
++	if (!prop->name) {
++		dlpar_free_cc_property(prop);
++		return NULL;
++	}
  
+ 	prop->length = be32_to_cpu(ccwa->prop_length);
+ 	value = (char *)ccwa + be32_to_cpu(ccwa->prop_offset);
 -- 
 2.20.1
 
