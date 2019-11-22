@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A23F106FF8
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9259106DDC
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:04:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727051AbfKVKr6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:47:58 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
+        id S1731481AbfKVLD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:03:59 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728281AbfKVKr5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:47:57 -0500
+        id S1731478AbfKVLD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:03:58 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 765B820715;
-        Fri, 22 Nov 2019 10:47:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D90020659;
+        Fri, 22 Nov 2019 11:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419677;
-        bh=uwR+ZkkgiwpN6ZchteRgte5Qy/AWfYAwBCYwH+Xv/ZM=;
+        s=default; t=1574420638;
+        bh=+cr+gRA2SshBODWMDln8Yq9d8VynUPdCUo4G0OSVzV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zzhvlcZj/5LrBjU7vWbhoOb6IT3tsbhoYB2Jxf3LbiQB2gmsJnH9V2U7+hFORmi9o
-         eS+mvB/xdx8AdO6Jef1JZ9QPbnzOuLU4XgGKkLoAEwPj8xFWilKtzAcTSZrN6mrsW9
-         MhmHgH1kkcKmbn2S5R3LPwiMaiceiXm6MjuO79jA=
+        b=Oj4joLBFDoPWalXV1qRw+YuQpuEfRpmHmYBUfjIBfZDsYM5r13CSRntaHdElwrVSF
+         wXvwDDylMJMzG4rWLCm4vILtylH5kLPHqdeTmwa+9lJ352CGnEFY2lbJolOq0OgJAo
+         YJUreaSnY1bsv4NhIBqBRn/SKjSFJzD9xmR6KsG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Sax <jsbc@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 193/222] Input: silead - try firmware reload after unsuccessful resume
+Subject: [PATCH 4.19 168/220] s390/kasan: avoid instrumentation of early C code
 Date:   Fri, 22 Nov 2019 11:28:53 +0100
-Message-Id: <20191122100916.197821172@linuxfoundation.org>
+Message-Id: <20191122100924.889563952@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Sax <jsbc@gmx.de>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit dde27443211062e841806feaf690674b7c3a599f ]
+[ Upstream commit 0a9b40911baffac6fc9cc2d88e893585870a97f7 ]
 
-A certain silead controller (Chip ID: 0x56810000) loses its firmware
-after suspend, causing the resume to fail. This patch tries to load
-the firmware, should a resume error occur and retries the resuming.
+Instrumented C code cannot run without the kasan shadow area. Exempt
+source code files from kasan which are running before / used during
+kasan initialization.
 
-Signed-off-by: Julian Sax <jsbc@gmx.de>
-Acked-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/silead.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/s390/boot/Makefile            | 1 +
+ arch/s390/boot/compressed/Makefile | 1 +
+ arch/s390/kernel/Makefile          | 2 ++
+ drivers/s390/char/Makefile         | 1 +
+ 4 files changed, 5 insertions(+)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index f502c8488be86..867772878c0c8 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -504,20 +504,33 @@ static int __maybe_unused silead_ts_suspend(struct device *dev)
- static int __maybe_unused silead_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-+	bool second_try = false;
- 	int error, status;
+diff --git a/arch/s390/boot/Makefile b/arch/s390/boot/Makefile
+index 9e6668ee93de8..f6a9b0c203553 100644
+--- a/arch/s390/boot/Makefile
++++ b/arch/s390/boot/Makefile
+@@ -6,6 +6,7 @@
+ KCOV_INSTRUMENT := n
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
++KASAN_SANITIZE := n
  
- 	silead_ts_set_power(client, SILEAD_POWER_ON);
+ KBUILD_AFLAGS := $(KBUILD_AFLAGS_DECOMPRESSOR)
+ KBUILD_CFLAGS := $(KBUILD_CFLAGS_DECOMPRESSOR)
+diff --git a/arch/s390/boot/compressed/Makefile b/arch/s390/boot/compressed/Makefile
+index b375c6c5ae7b1..9b3d821e5b46e 100644
+--- a/arch/s390/boot/compressed/Makefile
++++ b/arch/s390/boot/compressed/Makefile
+@@ -8,6 +8,7 @@
+ KCOV_INSTRUMENT := n
+ GCOV_PROFILE := n
+ UBSAN_SANITIZE := n
++KASAN_SANITIZE := n
  
-+ retry:
- 	error = silead_ts_reset(client);
- 	if (error)
- 		return error;
+ obj-y	:= $(if $(CONFIG_KERNEL_UNCOMPRESSED),,head.o misc.o) piggy.o
+ targets	:= vmlinux.lds vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2
+diff --git a/arch/s390/kernel/Makefile b/arch/s390/kernel/Makefile
+index b205c0ff0b220..762fc45376ffd 100644
+--- a/arch/s390/kernel/Makefile
++++ b/arch/s390/kernel/Makefile
+@@ -23,6 +23,8 @@ KCOV_INSTRUMENT_early_nobss.o	:= n
+ UBSAN_SANITIZE_early.o		:= n
+ UBSAN_SANITIZE_early_nobss.o	:= n
  
-+	if (second_try) {
-+		error = silead_ts_load_fw(client);
-+		if (error)
-+			return error;
-+	}
++KASAN_SANITIZE_early_nobss.o	:= n
 +
- 	error = silead_ts_startup(client);
- 	if (error)
- 		return error;
+ #
+ # Passing null pointers is ok for smp code, since we access the lowcore here.
+ #
+diff --git a/drivers/s390/char/Makefile b/drivers/s390/char/Makefile
+index c6ab34f94b1b5..3072b89785ddf 100644
+--- a/drivers/s390/char/Makefile
++++ b/drivers/s390/char/Makefile
+@@ -11,6 +11,7 @@ endif
+ GCOV_PROFILE_sclp_early_core.o		:= n
+ KCOV_INSTRUMENT_sclp_early_core.o	:= n
+ UBSAN_SANITIZE_sclp_early_core.o	:= n
++KASAN_SANITIZE_sclp_early_core.o	:= n
  
- 	status = silead_ts_get_status(client);
- 	if (status != SILEAD_STATUS_OK) {
-+		if (!second_try) {
-+			second_try = true;
-+			dev_dbg(dev, "Reloading firmware after unsuccessful resume\n");
-+			goto retry;
-+		}
- 		dev_err(dev, "Resume error, status: 0x%02x\n", status);
- 		return -ENODEV;
- 	}
+ CFLAGS_sclp_early_core.o		+= -D__NO_FORTIFY
+ 
 -- 
 2.20.1
 
