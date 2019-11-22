@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D51E7106B32
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37E92106CFF
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:57:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbfKVKmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:42:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47034 "EHLO mail.kernel.org"
+        id S1729394AbfKVK4q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:56:46 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727972AbfKVKmI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:42:08 -0500
+        id S1730348AbfKVK4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:56:45 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FAF020718;
-        Fri, 22 Nov 2019 10:42:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 86A3120715;
+        Fri, 22 Nov 2019 10:56:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419327;
-        bh=7fjEwiSTXkaGr+C2UuO1PVeK6otW8t2730r5OGPfeSI=;
+        s=default; t=1574420205;
+        bh=1tGftarjUnn0WkDsVLhvxVIToADcwZUnJ117RERnNJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLyC6/y8a0uXSfPbHrUewX9RJ2x0gF4SkIjSxgBaGkD3MPjl1NCJQPaxz9UI0Hhwh
-         XjiicBohg/7IEHL3Yk4tgOSTqF9dO5HqC8gxALMcQ6fV3Ii3PIUgdgCLqYfbAZBK3p
-         SILkMvBvnBrVjz42Mc/pNPFs4vaklm1ZhBbBwjvE=
+        b=XPu5qOqhG/qqXUkYDNwI50IK1/2YkFqXO+00CoSvNl7m5vwbDb65bGn93YrfgztUQ
+         SOuZwhzywMOWeGsjS+NVHnITxxq5r2E673F8I++v8ez0wduABgjKxKGpo16vmTQjet
+         h8SND3dh9CUPHATknuCV6y5suGDD3PvG5lJojaE8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 029/222] i40e: use correct length for strncpy
-Date:   Fri, 22 Nov 2019 11:26:09 +0100
-Message-Id: <20191122100841.743459007@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.19 005/220] net: cdc_ncm: Signedness bug in cdc_ncm_set_dgram_size()
+Date:   Fri, 22 Nov 2019 11:26:10 +0100
+Message-Id: <20191122100913.071503274@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 7eb74ff891b4e94b8bac48f648a21e4b94ddee64 ]
+commit a56dcc6b455830776899ce3686735f1172e12243 upstream.
 
-Caught by GCC 8. When we provide a length for strncpy, we should not
-include the terminating null. So we must tell it one less than the size
-of the destination buffer.
+This code is supposed to test for negative error codes and partial
+reads, but because sizeof() is size_t (unsigned) type then negative
+error codes are type promoted to high positive values and the condition
+doesn't work as expected.
 
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 332f989a3b00 ("CDC-NCM: handle incomplete transfer of MTU")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/intel/i40e/i40e_ptp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/cdc_ncm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_ptp.c b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-index f1feceab758a5..41cbcb0ac2d94 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_ptp.c
-@@ -604,7 +604,8 @@ static long i40e_ptp_create_clock(struct i40e_pf *pf)
- 	if (!IS_ERR_OR_NULL(pf->ptp_clock))
- 		return 0;
- 
--	strncpy(pf->ptp_caps.name, i40e_driver_name, sizeof(pf->ptp_caps.name));
-+	strncpy(pf->ptp_caps.name, i40e_driver_name,
-+		sizeof(pf->ptp_caps.name) - 1);
- 	pf->ptp_caps.owner = THIS_MODULE;
- 	pf->ptp_caps.max_adj = 999999999;
- 	pf->ptp_caps.n_ext_ts = 0;
--- 
-2.20.1
-
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -579,7 +579,7 @@ static void cdc_ncm_set_dgram_size(struc
+ 	err = usbnet_read_cmd(dev, USB_CDC_GET_MAX_DATAGRAM_SIZE,
+ 			      USB_TYPE_CLASS | USB_DIR_IN | USB_RECIP_INTERFACE,
+ 			      0, iface_no, &max_datagram_size, sizeof(max_datagram_size));
+-	if (err < sizeof(max_datagram_size)) {
++	if (err != sizeof(max_datagram_size)) {
+ 		dev_dbg(&dev->intf->dev, "GET_MAX_DATAGRAM_SIZE failed\n");
+ 		goto out;
+ 	}
 
 
