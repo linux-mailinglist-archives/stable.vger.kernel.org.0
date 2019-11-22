@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DF6106DBD
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:02:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C30FD106F61
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730790AbfKVLCk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:02:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56276 "EHLO mail.kernel.org"
+        id S1728662AbfKVKwX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:52:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731324AbfKVLCi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:02:38 -0500
+        id S1728617AbfKVKwX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:52:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2814E207FC;
-        Fri, 22 Nov 2019 11:02:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8DEB720731;
+        Fri, 22 Nov 2019 10:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420557;
-        bh=ccBzI2Hxcp+UN6EicYvhJ9LXXZoZN5mA1p4W63Ng3vg=;
+        s=default; t=1574419942;
+        bh=EhcSo8vNuwqG/106wsz1akokDZbbuDP/sd69P+FeMeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AveORbk3PhJsKTEVUvOcuxogMmLBu/pJDfzBchqcoQ34NKL0qQEGPbI3CbBINF2qT
-         h6YxCOpb41GiStyc+wVGGozF7x6F6uUNU+yNDCNGQaiNs8TwosIlE5rfWmBijF1lP2
-         Xa6LTb/t3YCElbzSPa/mTpCzcHps9qzlS+adwC70=
+        b=PWmaC8w1MWoHUEdLL5juHWV92GTuil+pE+jRWedosWZCGG2k7mzeWzAcpiHk1id04
+         wqTqaknSnc3oMnMC58+YLa4AqpP9Ddu8if8Tspe4ZDPhqFqZo/qUraQrn/nrroFh4U
+         7C9F0Fs2sBRRFwPDZn9yfZY8Vf0vH3210TdViXpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
-        "Chang S. Bae" <chang.seok.bae@intel.com>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Borislav Petkov <bp@alien8.de>,
-        Brian Gerst <brgerst@gmail.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Denys Vlasenko <dvlasenk@redhat.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Markus T Metzger <markus.t.metzger@intel.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Shankar <ravi.v.shankar@intel.com>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 147/220] x86/fsgsbase/64: Fix ptrace() to read the FS/GS base accurately
-Date:   Fri, 22 Nov 2019 11:28:32 +0100
-Message-Id: <20191122100923.327851010@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Hans Verkuil <hans.verkuil@cisco.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 060/122] media: i2c: adv748x: Support probing a single output
+Date:   Fri, 22 Nov 2019 11:28:33 +0100
+Message-Id: <20191122100803.924138044@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,131 +48,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Lutomirski <luto@kernel.org>
+From: Jacopo Mondi <jacopo+renesas@jmondi.org>
 
-[ Upstream commit 07e1d88adaaeab247b300926f78cc3f950dbeda3 ]
+[ Upstream commit eccf442ce156ec2b4e06b1239d5fdcb0c732f63f ]
 
-On 64-bit kernels ptrace can read the FS/GS base using the register access
-APIs (PTRACE_PEEKUSER, etc.) or PTRACE_ARCH_PRCTL.
+Currently the adv748x driver will fail to probe unless both of its
+output endpoints (TXA and TXB) are connected.
 
-Make both of these mechanisms return the actual FS/GS base.
+Make the driver support probing provided that there is at least one
+input, and one output connected and protect the clean-up function from
+accessing un-initialized fields.
 
-This will improve debuggability by providing the correct information
-to ptracer such as GDB.
+Following patches will fix other uses of un-initialized TXs in the driver,
+such as power management functions.
 
-[ chang: Rebased and revised patch description. ]
-[ mingo: Revised the changelog some more. ]
-
-Signed-off-by: Andy Lutomirski <luto@kernel.org>
-Signed-off-by: Chang S. Bae <chang.seok.bae@intel.com>
-Cc: Andy Lutomirski <luto@amacapital.net>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Brian Gerst <brgerst@gmail.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Denys Vlasenko <dvlasenk@redhat.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Markus T Metzger <markus.t.metzger@intel.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Shankar <ravi.v.shankar@intel.com>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/1537312139-5580-2-git-send-email-chang.seok.bae@intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ptrace.c | 62 +++++++++++++++++++++++++++++++++-------
- 1 file changed, 52 insertions(+), 10 deletions(-)
+ drivers/media/i2c/adv748x/adv748x-core.c | 25 +++++++++++++++++++++---
+ drivers/media/i2c/adv748x/adv748x-csi2.c | 18 ++++++-----------
+ drivers/media/i2c/adv748x/adv748x.h      |  2 ++
+ 3 files changed, 30 insertions(+), 15 deletions(-)
 
-diff --git a/arch/x86/kernel/ptrace.c b/arch/x86/kernel/ptrace.c
-index 516ec7586a5fb..8d4d506453106 100644
---- a/arch/x86/kernel/ptrace.c
-+++ b/arch/x86/kernel/ptrace.c
-@@ -40,6 +40,7 @@
- #include <asm/hw_breakpoint.h>
- #include <asm/traps.h>
- #include <asm/syscall.h>
-+#include <asm/mmu_context.h>
+diff --git a/drivers/media/i2c/adv748x/adv748x-core.c b/drivers/media/i2c/adv748x/adv748x-core.c
+index 5ee14f2c27478..cfec08593ac88 100644
+--- a/drivers/media/i2c/adv748x/adv748x-core.c
++++ b/drivers/media/i2c/adv748x/adv748x-core.c
+@@ -642,7 +642,8 @@ static int adv748x_parse_dt(struct adv748x_state *state)
+ {
+ 	struct device_node *ep_np = NULL;
+ 	struct of_endpoint ep;
+-	bool found = false;
++	bool out_found = false;
++	bool in_found = false;
  
- #include "tls.h"
+ 	for_each_endpoint_of_node(state->dev->of_node, ep_np) {
+ 		of_graph_parse_endpoint(ep_np, &ep);
+@@ -667,10 +668,17 @@ static int adv748x_parse_dt(struct adv748x_state *state)
+ 		of_node_get(ep_np);
+ 		state->endpoints[ep.port] = ep_np;
  
-@@ -343,6 +344,49 @@ static int set_segment_reg(struct task_struct *task,
- 	return 0;
+-		found = true;
++		/*
++		 * At least one input endpoint and one output endpoint shall
++		 * be defined.
++		 */
++		if (ep.port < ADV748X_PORT_TXA)
++			in_found = true;
++		else
++			out_found = true;
+ 	}
+ 
+-	return found ? 0 : -ENODEV;
++	return in_found && out_found ? 0 : -ENODEV;
  }
  
-+static unsigned long task_seg_base(struct task_struct *task,
-+				   unsigned short selector)
-+{
-+	unsigned short idx = selector >> 3;
-+	unsigned long base;
-+
-+	if (likely((selector & SEGMENT_TI_MASK) == 0)) {
-+		if (unlikely(idx >= GDT_ENTRIES))
-+			return 0;
-+
-+		/*
-+		 * There are no user segments in the GDT with nonzero bases
-+		 * other than the TLS segments.
-+		 */
-+		if (idx < GDT_ENTRY_TLS_MIN || idx > GDT_ENTRY_TLS_MAX)
-+			return 0;
-+
-+		idx -= GDT_ENTRY_TLS_MIN;
-+		base = get_desc_base(&task->thread.tls_array[idx]);
-+	} else {
-+#ifdef CONFIG_MODIFY_LDT_SYSCALL
-+		struct ldt_struct *ldt;
-+
-+		/*
-+		 * If performance here mattered, we could protect the LDT
-+		 * with RCU.  This is a slow path, though, so we can just
-+		 * take the mutex.
-+		 */
-+		mutex_lock(&task->mm->context.lock);
-+		ldt = task->mm->context.ldt;
-+		if (unlikely(idx >= ldt->nr_entries))
-+			base = 0;
-+		else
-+			base = get_desc_base(ldt->entries + idx);
-+		mutex_unlock(&task->mm->context.lock);
-+#else
-+		base = 0;
-+#endif
-+	}
-+
-+	return base;
-+}
-+
- #endif	/* CONFIG_X86_32 */
+ static void adv748x_dt_cleanup(struct adv748x_state *state)
+@@ -702,6 +710,17 @@ static int adv748x_probe(struct i2c_client *client,
+ 	state->i2c_clients[ADV748X_PAGE_IO] = client;
+ 	i2c_set_clientdata(client, state);
  
- static unsigned long get_flags(struct task_struct *task)
-@@ -436,18 +480,16 @@ static unsigned long getreg(struct task_struct *task, unsigned long offset)
++	/*
++	 * We can not use container_of to get back to the state with two TXs;
++	 * Initialize the TXs's fields unconditionally on the endpoint
++	 * presence to access them later.
++	 */
++	state->txa.state = state->txb.state = state;
++	state->txa.page = ADV748X_PAGE_TXA;
++	state->txb.page = ADV748X_PAGE_TXB;
++	state->txa.port = ADV748X_PORT_TXA;
++	state->txb.port = ADV748X_PORT_TXB;
++
+ 	/* Discover and process ports declared by the Device tree endpoints */
+ 	ret = adv748x_parse_dt(state);
+ 	if (ret) {
+diff --git a/drivers/media/i2c/adv748x/adv748x-csi2.c b/drivers/media/i2c/adv748x/adv748x-csi2.c
+index 979825d4a419b..0953ba0bcc09b 100644
+--- a/drivers/media/i2c/adv748x/adv748x-csi2.c
++++ b/drivers/media/i2c/adv748x/adv748x-csi2.c
+@@ -265,19 +265,10 @@ static int adv748x_csi2_init_controls(struct adv748x_csi2 *tx)
  
- #ifdef CONFIG_X86_64
- 	case offsetof(struct user_regs_struct, fs_base): {
--		/*
--		 * XXX: This will not behave as expected if called on
--		 * current or if fsindex != 0.
--		 */
--		return task->thread.fsbase;
-+		if (task->thread.fsindex == 0)
-+			return task->thread.fsbase;
-+		else
-+			return task_seg_base(task, task->thread.fsindex);
- 	}
- 	case offsetof(struct user_regs_struct, gs_base): {
--		/*
--		 * XXX: This will not behave as expected if called on
--		 * current or if fsindex != 0.
--		 */
--		return task->thread.gsbase;
-+		if (task->thread.gsindex == 0)
-+			return task->thread.gsbase;
-+		else
-+			return task_seg_base(task, task->thread.gsindex);
- 	}
- #endif
- 	}
+ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
+ {
+-	struct device_node *ep;
+ 	int ret;
+ 
+-	/* We can not use container_of to get back to the state with two TXs */
+-	tx->state = state;
+-	tx->page = is_txa(tx) ? ADV748X_PAGE_TXA : ADV748X_PAGE_TXB;
+-
+-	ep = state->endpoints[is_txa(tx) ? ADV748X_PORT_TXA : ADV748X_PORT_TXB];
+-	if (!ep) {
+-		adv_err(state, "No endpoint found for %s\n",
+-				is_txa(tx) ? "txa" : "txb");
+-		return -ENODEV;
+-	}
++	if (!is_tx_enabled(tx))
++		return 0;
+ 
+ 	/* Initialise the virtual channel */
+ 	adv748x_csi2_set_virtual_channel(tx, 0);
+@@ -287,7 +278,7 @@ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
+ 			    is_txa(tx) ? "txa" : "txb");
+ 
+ 	/* Ensure that matching is based upon the endpoint fwnodes */
+-	tx->sd.fwnode = of_fwnode_handle(ep);
++	tx->sd.fwnode = of_fwnode_handle(state->endpoints[tx->port]);
+ 
+ 	/* Register internal ops for incremental subdev registration */
+ 	tx->sd.internal_ops = &adv748x_csi2_internal_ops;
+@@ -320,6 +311,9 @@ int adv748x_csi2_init(struct adv748x_state *state, struct adv748x_csi2 *tx)
+ 
+ void adv748x_csi2_cleanup(struct adv748x_csi2 *tx)
+ {
++	if (!is_tx_enabled(tx))
++		return;
++
+ 	v4l2_async_unregister_subdev(&tx->sd);
+ 	media_entity_cleanup(&tx->sd.entity);
+ 	v4l2_ctrl_handler_free(&tx->ctrl_hdl);
+diff --git a/drivers/media/i2c/adv748x/adv748x.h b/drivers/media/i2c/adv748x/adv748x.h
+index cc4151b5b31e2..296c5f8a8c633 100644
+--- a/drivers/media/i2c/adv748x/adv748x.h
++++ b/drivers/media/i2c/adv748x/adv748x.h
+@@ -94,6 +94,7 @@ struct adv748x_csi2 {
+ 	struct adv748x_state *state;
+ 	struct v4l2_mbus_framefmt format;
+ 	unsigned int page;
++	unsigned int port;
+ 
+ 	struct media_pad pads[ADV748X_CSI2_NR_PADS];
+ 	struct v4l2_ctrl_handler ctrl_hdl;
+@@ -102,6 +103,7 @@ struct adv748x_csi2 {
+ 
+ #define notifier_to_csi2(n) container_of(n, struct adv748x_csi2, notifier)
+ #define adv748x_sd_to_csi2(sd) container_of(sd, struct adv748x_csi2, sd)
++#define is_tx_enabled(_tx) ((_tx)->state->endpoints[(_tx)->port] != NULL)
+ 
+ enum adv748x_hdmi_pads {
+ 	ADV748X_HDMI_SINK,
 -- 
 2.20.1
 
