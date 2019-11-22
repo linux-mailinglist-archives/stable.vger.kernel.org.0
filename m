@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BBF010700B
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:20:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 32ABB106DAA
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728517AbfKVKq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:46:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53526 "EHLO mail.kernel.org"
+        id S1730673AbfKVLCC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:02:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727356AbfKVKqY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:46:24 -0500
+        id S1731253AbfKVLCA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:02:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0596320637;
-        Fri, 22 Nov 2019 10:46:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 765782075B;
+        Fri, 22 Nov 2019 11:01:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419583;
-        bh=Yxln0144vos7Du5zQnUGkOlxhmdUTQgrIMTzV0Joh3c=;
+        s=default; t=1574420520;
+        bh=7kkQdKM17MDDKEtGn+Zxkx5RKER3gUy2kCYhpw782+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t1608geWJGNVMZa3gbYSlcH6eonxDtiBRZGqvTo+HcnPwwCDdpItrbf0eQuntnEdP
-         3IWqz57cPzgxXsqf/ObPqsOKqoo89CzupK8Qqb98+jPV+/danRSqJtoOMbC/meE7Iw
-         EDlXkwsRJ+TX2w4TnR99VWFZ6RDksBkwKdBRDIjY=
+        b=nUBKjVJDGI9eYSB8p9sAkHL/RQDA+RR1FvXPJe09uHcHfPIG/GBqIHqteqGJnRDii
+         BERShfQ785cF+FGdqzxrqwxDLdFozM0UDsnl7qDHnfscUbUOd8gNYvS5k9+wGoYqhb
+         /SgI3v/opLEBR4mhvVB9IekpwBBqRHE3OPg+pMeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoffer Dall <cdall@kernel.org>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        stable@vger.kernel.org, Lucas Bates <lucasb@mojatatu.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 160/222] kvm: arm/arm64: Fix stage2_flush_memslot for 4 level page table
+Subject: [PATCH 4.19 135/220] tc-testing: fix build of eBPF programs
 Date:   Fri, 22 Nov 2019 11:28:20 +0100
-Message-Id: <20191122100914.210051442@linuxfoundation.org>
+Message-Id: <20191122100922.526045628@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +45,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Davide Caratti <dcaratti@redhat.com>
 
-[ Upstream commit d2db7773ba864df6b4e19643dfc54838550d8049 ]
+[ Upstream commit cf5eafbfa586d030f9321cee516b91d089e38280 ]
 
-So far we have only supported 3 level page table with fixed IPA of
-40bits, where PUD is folded. With 4 level page tables, we need
-to check if the PUD entry is valid or not. Fix stage2_flush_memslot()
-to do this check, before walking down the table.
+rely on uAPI headers in the current kernel tree, rather than requiring the
+correct version installed on the test system. While at it, group all
+sections in a single binary and test the 'section' parameter.
 
-Acked-by: Christoffer Dall <cdall@kernel.org>
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Reported-by: Lucas Bates <lucasb@mojatatu.com>
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kvm/mmu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ .../testing/selftests/tc-testing/bpf/Makefile | 29 +++++++++++++++++++
+ .../testing/selftests/tc-testing/bpf/action.c | 23 +++++++++++++++
+ .../tc-testing/tc-tests/actions/bpf.json      | 16 +++++-----
+ .../selftests/tc-testing/tdc_config.py        |  4 ++-
+ 4 files changed, 63 insertions(+), 9 deletions(-)
+ create mode 100644 tools/testing/selftests/tc-testing/bpf/Makefile
+ create mode 100644 tools/testing/selftests/tc-testing/bpf/action.c
 
-diff --git a/arch/arm/kvm/mmu.c b/arch/arm/kvm/mmu.c
-index b3d268a79f057..bb0d5e21d60bd 100644
---- a/arch/arm/kvm/mmu.c
-+++ b/arch/arm/kvm/mmu.c
-@@ -366,7 +366,8 @@ static void stage2_flush_memslot(struct kvm *kvm,
- 	pgd = kvm->arch.pgd + stage2_pgd_index(addr);
- 	do {
- 		next = stage2_pgd_addr_end(addr, end);
--		stage2_flush_puds(kvm, pgd, addr, next);
-+		if (!stage2_pgd_none(*pgd))
-+			stage2_flush_puds(kvm, pgd, addr, next);
- 	} while (pgd++, addr = next, addr != end);
- }
+diff --git a/tools/testing/selftests/tc-testing/bpf/Makefile b/tools/testing/selftests/tc-testing/bpf/Makefile
+new file mode 100644
+index 0000000000000..dc92eb271d9a1
+--- /dev/null
++++ b/tools/testing/selftests/tc-testing/bpf/Makefile
+@@ -0,0 +1,29 @@
++# SPDX-License-Identifier: GPL-2.0
++
++APIDIR := ../../../../include/uapi
++TEST_GEN_FILES = action.o
++
++top_srcdir = ../../../../..
++include ../../lib.mk
++
++CLANG ?= clang
++LLC   ?= llc
++PROBE := $(shell $(LLC) -march=bpf -mcpu=probe -filetype=null /dev/null 2>&1)
++
++ifeq ($(PROBE),)
++  CPU ?= probe
++else
++  CPU ?= generic
++endif
++
++CLANG_SYS_INCLUDES := $(shell $(CLANG) -v -E - </dev/null 2>&1 \
++	| sed -n '/<...> search starts here:/,/End of search list./{ s| \(/.*\)|-idirafter \1|p }')
++
++CLANG_FLAGS = -I. -I$(APIDIR) \
++	      $(CLANG_SYS_INCLUDES) \
++	      -Wno-compare-distinct-pointer-types
++
++$(OUTPUT)/%.o: %.c
++	$(CLANG) $(CLANG_FLAGS) \
++		 -O2 -target bpf -emit-llvm -c $< -o - |      \
++	$(LLC) -march=bpf -mcpu=$(CPU) $(LLC_FLAGS) -filetype=obj -o $@
+diff --git a/tools/testing/selftests/tc-testing/bpf/action.c b/tools/testing/selftests/tc-testing/bpf/action.c
+new file mode 100644
+index 0000000000000..c32b99b80e19e
+--- /dev/null
++++ b/tools/testing/selftests/tc-testing/bpf/action.c
+@@ -0,0 +1,23 @@
++/* SPDX-License-Identifier: GPL-2.0
++ * Copyright (c) 2018 Davide Caratti, Red Hat inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of version 2 of the GNU General Public
++ * License as published by the Free Software Foundation.
++ */
++
++#include <linux/bpf.h>
++#include <linux/pkt_cls.h>
++
++__attribute__((section("action-ok"),used)) int action_ok(struct __sk_buff *s)
++{
++	return TC_ACT_OK;
++}
++
++__attribute__((section("action-ko"),used)) int action_ko(struct __sk_buff *s)
++{
++	s->data = 0x0;
++	return TC_ACT_OK;
++}
++
++char _license[] __attribute__((section("license"),used)) = "GPL";
+diff --git a/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json b/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
+index 6f289a49e5ecf..1a9b282dd0be2 100644
+--- a/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
++++ b/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
+@@ -55,7 +55,7 @@
+             "bpf"
+         ],
+         "setup": [
+-            "printf '#include <linux/bpf.h>\nchar l[] __attribute__((section(\"license\"),used))=\"GPL\"; __attribute__((section(\"action\"),used)) int m(struct __sk_buff *s) { return 2; }' | clang -O2 -x c -c - -target bpf -o _b.o",
++            "make -C bpf",
+             [
+                 "$TC action flush action bpf",
+                 0,
+@@ -63,14 +63,14 @@
+                 255
+             ]
+         ],
+-        "cmdUnderTest": "$TC action add action bpf object-file _b.o index 667",
++        "cmdUnderTest": "$TC action add action bpf object-file $EBPFDIR/action.o section action-ok index 667",
+         "expExitCode": "0",
+         "verifyCmd": "$TC action get action bpf index 667",
+-        "matchPattern": "action order [0-9]*: bpf _b.o:\\[action\\] id [0-9]* tag 3b185187f1855c4c( jited)? default-action pipe.*index 667 ref",
++        "matchPattern": "action order [0-9]*: bpf action.o:\\[action-ok\\] id [0-9]* tag [0-9a-f]{16}( jited)? default-action pipe.*index 667 ref",
+         "matchCount": "1",
+         "teardown": [
+             "$TC action flush action bpf",
+-            "rm -f _b.o"
++            "make -C bpf clean"
+         ]
+     },
+     {
+@@ -81,7 +81,7 @@
+             "bpf"
+         ],
+         "setup": [
+-            "printf '#include <linux/bpf.h>\nchar l[] __attribute__((section(\"license\"),used))=\"GPL\"; __attribute__((section(\"action\"),used)) int m(struct __sk_buff *s) { s->data = 0x0; return 2; }' | clang -O2 -x c -c - -target bpf -o _c.o",
++            "make -C bpf",
+             [
+                 "$TC action flush action bpf",
+                 0,
+@@ -89,10 +89,10 @@
+                 255
+             ]
+         ],
+-        "cmdUnderTest": "$TC action add action bpf object-file _c.o index 667",
++        "cmdUnderTest": "$TC action add action bpf object-file $EBPFDIR/action.o section action-ko index 667",
+         "expExitCode": "255",
+         "verifyCmd": "$TC action get action bpf index 667",
+-        "matchPattern": "action order [0-9]*: bpf _c.o:\\[action\\] id [0-9].*index 667 ref",
++        "matchPattern": "action order [0-9]*: bpf action.o:\\[action-ko\\] id [0-9].*index 667 ref",
+         "matchCount": "0",
+         "teardown": [
+             [
+@@ -101,7 +101,7 @@
+                 1,
+                 255
+             ],
+-            "rm -f _c.o"
++            "make -C bpf clean"
+         ]
+     },
+     {
+diff --git a/tools/testing/selftests/tc-testing/tdc_config.py b/tools/testing/selftests/tc-testing/tdc_config.py
+index a023d0d62b25c..d651bc1501bdb 100644
+--- a/tools/testing/selftests/tc-testing/tdc_config.py
++++ b/tools/testing/selftests/tc-testing/tdc_config.py
+@@ -16,7 +16,9 @@ NAMES = {
+           'DEV2': '',
+           'BATCH_FILE': './batch.txt',
+           # Name of the namespace to use
+-          'NS': 'tcut'
++          'NS': 'tcut',
++          # Directory containing eBPF test programs
++          'EBPFDIR': './bpf'
+         }
+ 
  
 -- 
 2.20.1
