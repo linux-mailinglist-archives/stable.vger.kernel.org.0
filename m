@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A348C106E7E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9F611070BD
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731047AbfKVLCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:02:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56718 "EHLO mail.kernel.org"
+        id S1728189AbfKVKii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:38:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731023AbfKVLCx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:02:53 -0500
+        id S1728162AbfKVKif (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:38:35 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD458207FA;
-        Fri, 22 Nov 2019 11:02:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EEF42071C;
+        Fri, 22 Nov 2019 10:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420572;
-        bh=eHQG1+45UnU0f2+tIK6SyHL4QPGWNo5WyA4FhoQxtTo=;
+        s=default; t=1574419115;
+        bh=3q8u0klQBwS/SXsgHA9M3plNrZgWLC6kftn5zeoaxME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3nKADSxQVzPkG2n+ptOA1HEdul8Rm0arjl2MJ5KJ3cDynQjB7n2gQJYmPbJ/a4Uo
-         bekQybriS15IlWUKhjal1j86v0Y6ViElMte6W+6j2ot48fiI3Vq0ZQSdIAk80A/opc
-         GHEyxEfQGkNNisgPEHdvepL2Od1lSzDEAaYm3q34=
+        b=VTYTRQ4ZrMeNYsl+Ij87mcS4HOO0jNZOVIOTJpkTsIt7gz6+xV6dWKsMLrIrwg4b5
+         NqBOeaO/IAlZVNSwRPH38lJVpSHnBsLvWKjXGwB6ySZ+ZGeEXc74c4aDCjOqf1EGhE
+         hsnj/O7KACslUf6pJTE6whU8rqzrpxsGZh5AiTdM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 151/220] atmel_lcdfb: support native-mode display-timings
+Subject: [PATCH 4.4 125/159] powerpc/pseries: Fix how we iterate over the DTL entries
 Date:   Fri, 22 Nov 2019 11:28:36 +0100
-Message-Id: <20191122100923.595617511@linuxfoundation.org>
+Message-Id: <20191122100831.804266833@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,114 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam Ravnborg <sam@ravnborg.org>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit 60e5e48dba72c6b59a7a9c7686ba320766913368 ]
+[ Upstream commit 9258227e9dd1da8feddb07ad9702845546a581c9 ]
 
-When a device tree set a display-timing using native-mode
-then according to the bindings doc this should:
+When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we look up dtl_idx in
+the lppaca to determine the number of entries in the buffer. Since
+lppaca is in big endian, we need to do an endian conversion before using
+this in our calculation to determine the number of entries in the
+buffer. Without this, we do not iterate over the existing entries in the
+DTL buffer properly.
 
-    native-mode:
-    The native mode for the display, in case multiple
-    modes are provided.
-    When omitted, assume the first node is the native.
-
-The atmel_lcdfb used the last timing subnode and did not
-respect the timing mode specified with native-mode.
-
-Introduce use of of_get_videomode() which allowed
-a nice simplification of the code while also
-added support for native-mode.
-
-As a nice side-effect this fixes a memory leak where the
-data used for timings and the display_np was not freed.
-
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Fixes: 7c105b63bd98 ("powerpc: Add CONFIG_CPU_LITTLE_ENDIAN kernel config option.")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/atmel_lcdfb.c | 43 +++++++------------------------
- 1 file changed, 9 insertions(+), 34 deletions(-)
+ arch/powerpc/platforms/pseries/dtl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/atmel_lcdfb.c b/drivers/video/fbdev/atmel_lcdfb.c
-index 076d24afbd728..4ed55e6bbb840 100644
---- a/drivers/video/fbdev/atmel_lcdfb.c
-+++ b/drivers/video/fbdev/atmel_lcdfb.c
-@@ -22,6 +22,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/of_device.h>
-+#include <video/of_videomode.h>
- #include <video/of_display_timing.h>
- #include <linux/regulator/consumer.h>
- #include <video/videomode.h>
-@@ -1028,11 +1029,11 @@ static int atmel_lcdfb_of_init(struct atmel_lcdfb_info *sinfo)
- 	struct device *dev = &sinfo->pdev->dev;
- 	struct device_node *np =dev->of_node;
- 	struct device_node *display_np;
--	struct device_node *timings_np;
--	struct display_timings *timings;
- 	struct atmel_lcdfb_power_ctrl_gpio *og;
- 	bool is_gpio_power = false;
-+	struct fb_videomode fb_vm;
- 	struct gpio_desc *gpiod;
-+	struct videomode vm;
- 	int ret = -ENOENT;
- 	int i;
+diff --git a/arch/powerpc/platforms/pseries/dtl.c b/arch/powerpc/platforms/pseries/dtl.c
+index 37de83c5ef172..7a4d172c93765 100644
+--- a/arch/powerpc/platforms/pseries/dtl.c
++++ b/arch/powerpc/platforms/pseries/dtl.c
+@@ -185,7 +185,7 @@ static void dtl_stop(struct dtl *dtl)
  
-@@ -1105,44 +1106,18 @@ static int atmel_lcdfb_of_init(struct atmel_lcdfb_info *sinfo)
- 	pdata->lcdcon_is_backlight = of_property_read_bool(display_np, "atmel,lcdcon-backlight");
- 	pdata->lcdcon_pol_negative = of_property_read_bool(display_np, "atmel,lcdcon-backlight-inverted");
+ static u64 dtl_current_index(struct dtl *dtl)
+ {
+-	return lppaca_of(dtl->cpu).dtl_idx;
++	return be64_to_cpu(lppaca_of(dtl->cpu).dtl_idx);
+ }
+ #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
  
--	timings = of_get_display_timings(display_np);
--	if (!timings) {
--		dev_err(dev, "failed to get display timings\n");
--		ret = -EINVAL;
-+	ret = of_get_videomode(display_np, &vm, OF_USE_NATIVE_MODE);
-+	if (ret) {
-+		dev_err(dev, "failed to get videomode from DT\n");
- 		goto put_display_node;
- 	}
- 
--	timings_np = of_get_child_by_name(display_np, "display-timings");
--	if (!timings_np) {
--		dev_err(dev, "failed to find display-timings node\n");
--		ret = -ENODEV;
-+	ret = fb_videomode_from_videomode(&vm, &fb_vm);
-+	if (ret < 0)
- 		goto put_display_node;
--	}
- 
--	for (i = 0; i < of_get_child_count(timings_np); i++) {
--		struct videomode vm;
--		struct fb_videomode fb_vm;
--
--		ret = videomode_from_timings(timings, &vm, i);
--		if (ret < 0)
--			goto put_timings_node;
--		ret = fb_videomode_from_videomode(&vm, &fb_vm);
--		if (ret < 0)
--			goto put_timings_node;
--
--		fb_add_videomode(&fb_vm, &info->modelist);
--	}
--
--	/*
--	 * FIXME: Make sure we are not referencing any fields in display_np
--	 * and timings_np and drop our references to them before returning to
--	 * avoid leaking the nodes on probe deferral and driver unbind.
--	 */
--
--	return 0;
-+	fb_add_videomode(&fb_vm, &info->modelist);
- 
--put_timings_node:
--	of_node_put(timings_np);
- put_display_node:
- 	of_node_put(display_np);
- 	return ret;
 -- 
 2.20.1
 
