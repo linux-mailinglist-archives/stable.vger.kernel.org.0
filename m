@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EA64107155
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:28:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0352E107156
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727090AbfKVKbG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:31:06 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50896 "EHLO mail.kernel.org"
+        id S1726526AbfKVKbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:31:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726417AbfKVKbG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:31:06 -0500
+        id S1726546AbfKVKbR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:31:17 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 160A520708;
-        Fri, 22 Nov 2019 10:31:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA3AB20714;
+        Fri, 22 Nov 2019 10:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418665;
-        bh=Ihs03V0acXFwzpCbFFOo0fWqOQ4u9LrOg/yDjzFWxTo=;
+        s=default; t=1574418677;
+        bh=ib4vu3ssWv+BcS446FDJwbNCxuG0zk6e/VuXGHHpq9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UHRD7uUX0YVBFfEzPf4VbjHPuyTL1bicQPVa3i11oTnXtonGnDvNlBCfx7+Brlbg/
-         NUu0VjpDQnoAAW/UnkZ9CvaVH0qEgYE49lm97ZnrcNcnd4cMtqWZG1zykCBAjvELGX
-         Kzsoty/iwWuQXC08WHTFIIcoCI9upO5LfNv5LLzc=
+        b=muei4eGIJeupfwF/RUubW7HqryKomCoDkUSO8IhFfiZdYYwjGyvWMm8eA5GtqarQT
+         d5RCFcjVeUidhM6zOIx9kt+mCJ/DpZGVra0UttmPcRmbmb4nRhIlchVCOYPnyzN+yn
+         sQKt+ambYHo+X5C729Nugku/b1w+tf6JqwI7Dd18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Eugen Hristev <eugen.hristev@microchip.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.4 011/159] mmc: sdhci-of-at91: fix quirk2 overwrite
-Date:   Fri, 22 Nov 2019 11:26:42 +0100
-Message-Id: <20191122100717.490100948@linuxfoundation.org>
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 015/159] ALSA: seq: Do error checks at creating system ports
+Date:   Fri, 22 Nov 2019 11:26:46 +0100
+Message-Id: <20191122100719.708083696@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
 References: <20191122100704.194776704@linuxfoundation.org>
@@ -45,35 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eugen Hristev <eugen.hristev@microchip.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit fed23c5829ecab4ddc712d7b0046e59610ca3ba4 upstream.
+[ Upstream commit b8e131542b47b81236ecf6768c923128e1f5db6e ]
 
-The quirks2 are parsed and set (e.g. from DT) before the quirk for broken
-HS200 is set in the driver.
-The driver needs to enable just this flag, not rewrite the whole quirk set.
+snd_seq_system_client_init() doesn't check the errors returned from
+its port creations.  Let's do it properly and handle the error paths.
 
-Fixes: 7871aa60ae00 ("mmc: sdhci-of-at91: add quirk for broken HS200")
-Signed-off-by: Eugen Hristev <eugen.hristev@microchip.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-at91.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/seq/seq_system.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
---- a/drivers/mmc/host/sdhci-of-at91.c
-+++ b/drivers/mmc/host/sdhci-of-at91.c
-@@ -145,7 +145,7 @@ static int sdhci_at91_probe(struct platf
- 	sdhci_get_of_property(pdev);
+diff --git a/sound/core/seq/seq_system.c b/sound/core/seq/seq_system.c
+index 8ce1d0b40dce1..ce1f1e4727ab1 100644
+--- a/sound/core/seq/seq_system.c
++++ b/sound/core/seq/seq_system.c
+@@ -123,6 +123,7 @@ int __init snd_seq_system_client_init(void)
+ {
+ 	struct snd_seq_port_callback pcallbacks;
+ 	struct snd_seq_port_info *port;
++	int err;
  
- 	/* HS200 is broken at this moment */
--	host->quirks2 = SDHCI_QUIRK2_BROKEN_HS200;
-+	host->quirks2 |= SDHCI_QUIRK2_BROKEN_HS200;
+ 	port = kzalloc(sizeof(*port), GFP_KERNEL);
+ 	if (!port)
+@@ -144,7 +145,10 @@ int __init snd_seq_system_client_init(void)
+ 	port->flags = SNDRV_SEQ_PORT_FLG_GIVEN_PORT;
+ 	port->addr.client = sysclient;
+ 	port->addr.port = SNDRV_SEQ_PORT_SYSTEM_TIMER;
+-	snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT, port);
++	err = snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT,
++					port);
++	if (err < 0)
++		goto error_port;
  
- 	ret = sdhci_add_host(host);
- 	if (ret)
+ 	/* register announcement port */
+ 	strcpy(port->name, "Announce");
+@@ -154,16 +158,24 @@ int __init snd_seq_system_client_init(void)
+ 	port->flags = SNDRV_SEQ_PORT_FLG_GIVEN_PORT;
+ 	port->addr.client = sysclient;
+ 	port->addr.port = SNDRV_SEQ_PORT_SYSTEM_ANNOUNCE;
+-	snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT, port);
++	err = snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT,
++					port);
++	if (err < 0)
++		goto error_port;
+ 	announce_port = port->addr.port;
+ 
+ 	kfree(port);
+ 	return 0;
++
++ error_port:
++	snd_seq_system_client_done();
++	kfree(port);
++	return err;
+ }
+ 
+ 
+ /* unregister our internal client */
+-void __exit snd_seq_system_client_done(void)
++void snd_seq_system_client_done(void)
+ {
+ 	int oldsysclient = sysclient;
+ 
+-- 
+2.20.1
+
 
 
