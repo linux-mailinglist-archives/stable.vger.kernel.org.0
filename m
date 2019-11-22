@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94003107060
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:22:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 235F3106D7B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:00:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728377AbfKVKnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:43:31 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49040 "EHLO mail.kernel.org"
+        id S1730272AbfKVLA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:00:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52592 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729245AbfKVKna (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:43:30 -0500
+        id S1727179AbfKVLA2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:00:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1B4C20637;
-        Fri, 22 Nov 2019 10:43:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3351C2073F;
+        Fri, 22 Nov 2019 11:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419409;
-        bh=FOVcOpNfuIOcgBF8jxuJLGTmJrkqwb7DmspDQpK4ivA=;
+        s=default; t=1574420427;
+        bh=mvmcZdrkG5dSBFb2qDk8NGuPqozB3u6Kci68/K4eDoA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9JVlAxH2lurc1vVXrg9bOGt9QSRJtxO4o8eOm79UKS0ZDOvhIiJtUhAUQ1egpPv6
-         nB4FgVLFWn8QLuaCPsz8B/o6OTGwYVyYBHRG9VS/WiMo3y9SO4bXTQTHTC5mpJHnEd
-         b2aHpmsbyQC0QwWGeVHZVUucq6Nebet0pKXDu4+0=
+        b=wLU5itDn/RB3znULosEzETWwQ4w684MaOBffi3lWNl0Bz39pQj3cArHZL8ao/v8fC
+         XPQIC8uk8qpiPCNaNgHbbptFt6/nfui4ln1DwJYwcKMa27JGg2BBysNOMFQdPiLd0g
+         Et7w4qkksJZdH2Nd0q2mGrwhNwuMVWhSAodOIsrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 101/222] ARM: dts: ste: Fix SPI controller node names
+Subject: [PATCH 4.19 076/220] clocksource/drivers/sh_cmt: Fixup for 64-bit machines
 Date:   Fri, 22 Nov 2019 11:27:21 +0100
-Message-Id: <20191122100910.674324587@linuxfoundation.org>
+Message-Id: <20191122100917.792973619@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +46,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
 
-[ Upstream commit 2f967f9e9fa076affb711da1a8389b5d33814fc6 ]
+[ Upstream commit 22627c6f3ed3d9d0df13eec3c831b08f8186c38e ]
 
-SPI controller nodes should be named 'spi' rather than 'ssp'. Fixing the
-name enables dtc SPI bus checks.
+When trying to use CMT for clockevents on R-Car gen3 SoCs, I noticed
+that 'max_delta_ns' for the broadcast timer (CMT) was shown as 1000 in
+/proc/timer_list. It turned out that when calculating it, the driver did
+1 << 32 (causing what I think was undefined behavior) resulting in a zero
+delta, later clamped to 1000 by cev_delta2ns(). The root cause turned out
+to be that the driver abused *unsigned long* for the CMT register values
+(which are 16/32-bit), so that the calculation of 'ch->max_match_value'
+in sh_cmt_setup_channel() used the wrong branch. Using more proper 'u32'
+instead fixed 'max_delta_ns' and even fixed the switching an active
+clocksource to CMT (which caused the system to turn non-interactive
+before).
 
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-dbx5x0.dtsi     | 4 ++--
- arch/arm/boot/dts/ste-hrefprev60.dtsi | 2 +-
- arch/arm/boot/dts/ste-snowball.dts    | 2 +-
- arch/arm/boot/dts/ste-u300.dts        | 2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/clocksource/sh_cmt.c | 72 +++++++++++++++++-------------------
+ 1 file changed, 33 insertions(+), 39 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ste-dbx5x0.dtsi b/arch/arm/boot/dts/ste-dbx5x0.dtsi
-index 45869c3234358..5f1769209526a 100644
---- a/arch/arm/boot/dts/ste-dbx5x0.dtsi
-+++ b/arch/arm/boot/dts/ste-dbx5x0.dtsi
-@@ -864,7 +864,7 @@
- 			power-domains = <&pm_domains DOMAIN_VAPE>;
- 		};
+diff --git a/drivers/clocksource/sh_cmt.c b/drivers/clocksource/sh_cmt.c
+index bbbf37c471a39..49302086f36fd 100644
+--- a/drivers/clocksource/sh_cmt.c
++++ b/drivers/clocksource/sh_cmt.c
+@@ -78,18 +78,17 @@ struct sh_cmt_info {
+ 	unsigned int channels_mask;
  
--		ssp@80002000 {
-+		spi@80002000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x80002000 0x1000>;
- 			interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
-@@ -878,7 +878,7 @@
- 			power-domains = <&pm_domains DOMAIN_VAPE>;
- 		};
+ 	unsigned long width; /* 16 or 32 bit version of hardware block */
+-	unsigned long overflow_bit;
+-	unsigned long clear_bits;
++	u32 overflow_bit;
++	u32 clear_bits;
  
--		ssp@80003000 {
-+		spi@80003000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0x80003000 0x1000>;
- 			interrupts = <GIC_SPI 52 IRQ_TYPE_LEVEL_HIGH>;
-diff --git a/arch/arm/boot/dts/ste-hrefprev60.dtsi b/arch/arm/boot/dts/ste-hrefprev60.dtsi
-index ece222d51717c..cf8d03bc42c15 100644
---- a/arch/arm/boot/dts/ste-hrefprev60.dtsi
-+++ b/arch/arm/boot/dts/ste-hrefprev60.dtsi
-@@ -57,7 +57,7 @@
- 			};
- 		};
+ 	/* callbacks for CMSTR and CMCSR access */
+-	unsigned long (*read_control)(void __iomem *base, unsigned long offs);
++	u32 (*read_control)(void __iomem *base, unsigned long offs);
+ 	void (*write_control)(void __iomem *base, unsigned long offs,
+-			      unsigned long value);
++			      u32 value);
  
--		ssp@80002000 {
-+		spi@80002000 {
- 			/*
- 			 * On the first generation boards, this SSP/SPI port was connected
- 			 * to the AB8500.
-diff --git a/arch/arm/boot/dts/ste-snowball.dts b/arch/arm/boot/dts/ste-snowball.dts
-index 386eee6de2320..272d36c3d223b 100644
---- a/arch/arm/boot/dts/ste-snowball.dts
-+++ b/arch/arm/boot/dts/ste-snowball.dts
-@@ -386,7 +386,7 @@
- 			pinctrl-1 = <&i2c3_sleep_mode>;
- 		};
+ 	/* callbacks for CMCNT and CMCOR access */
+-	unsigned long (*read_count)(void __iomem *base, unsigned long offs);
+-	void (*write_count)(void __iomem *base, unsigned long offs,
+-			    unsigned long value);
++	u32 (*read_count)(void __iomem *base, unsigned long offs);
++	void (*write_count)(void __iomem *base, unsigned long offs, u32 value);
+ };
  
--		ssp@80002000 {
-+		spi@80002000 {
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&ssp0_snowball_mode>;
- 		};
-diff --git a/arch/arm/boot/dts/ste-u300.dts b/arch/arm/boot/dts/ste-u300.dts
-index 2f5107ffeef04..ea6768b96a9df 100644
---- a/arch/arm/boot/dts/ste-u300.dts
-+++ b/arch/arm/boot/dts/ste-u300.dts
-@@ -441,7 +441,7 @@
- 			dma-names = "rx";
- 		};
+ struct sh_cmt_channel {
+@@ -103,9 +102,9 @@ struct sh_cmt_channel {
  
--		spi: ssp@c0006000 {
-+		spi: spi@c0006000 {
- 			compatible = "arm,pl022", "arm,primecell";
- 			reg = <0xc0006000 0x1000>;
- 			interrupt-parent = <&vica>;
+ 	unsigned int timer_bit;
+ 	unsigned long flags;
+-	unsigned long match_value;
+-	unsigned long next_match_value;
+-	unsigned long max_match_value;
++	u32 match_value;
++	u32 next_match_value;
++	u32 max_match_value;
+ 	raw_spinlock_t lock;
+ 	struct clock_event_device ced;
+ 	struct clocksource cs;
+@@ -160,24 +159,22 @@ struct sh_cmt_device {
+ #define SH_CMT32_CMCSR_CKS_RCLK1	(7 << 0)
+ #define SH_CMT32_CMCSR_CKS_MASK		(7 << 0)
+ 
+-static unsigned long sh_cmt_read16(void __iomem *base, unsigned long offs)
++static u32 sh_cmt_read16(void __iomem *base, unsigned long offs)
+ {
+ 	return ioread16(base + (offs << 1));
+ }
+ 
+-static unsigned long sh_cmt_read32(void __iomem *base, unsigned long offs)
++static u32 sh_cmt_read32(void __iomem *base, unsigned long offs)
+ {
+ 	return ioread32(base + (offs << 2));
+ }
+ 
+-static void sh_cmt_write16(void __iomem *base, unsigned long offs,
+-			   unsigned long value)
++static void sh_cmt_write16(void __iomem *base, unsigned long offs, u32 value)
+ {
+ 	iowrite16(value, base + (offs << 1));
+ }
+ 
+-static void sh_cmt_write32(void __iomem *base, unsigned long offs,
+-			   unsigned long value)
++static void sh_cmt_write32(void __iomem *base, unsigned long offs, u32 value)
+ {
+ 	iowrite32(value, base + (offs << 2));
+ }
+@@ -242,7 +239,7 @@ static const struct sh_cmt_info sh_cmt_info[] = {
+ #define CMCNT 1 /* channel register */
+ #define CMCOR 2 /* channel register */
+ 
+-static inline unsigned long sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
++static inline u32 sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
+ {
+ 	if (ch->iostart)
+ 		return ch->cmt->info->read_control(ch->iostart, 0);
+@@ -250,8 +247,7 @@ static inline unsigned long sh_cmt_read_cmstr(struct sh_cmt_channel *ch)
+ 		return ch->cmt->info->read_control(ch->cmt->mapbase, 0);
+ }
+ 
+-static inline void sh_cmt_write_cmstr(struct sh_cmt_channel *ch,
+-				      unsigned long value)
++static inline void sh_cmt_write_cmstr(struct sh_cmt_channel *ch, u32 value)
+ {
+ 	if (ch->iostart)
+ 		ch->cmt->info->write_control(ch->iostart, 0, value);
+@@ -259,39 +255,35 @@ static inline void sh_cmt_write_cmstr(struct sh_cmt_channel *ch,
+ 		ch->cmt->info->write_control(ch->cmt->mapbase, 0, value);
+ }
+ 
+-static inline unsigned long sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
++static inline u32 sh_cmt_read_cmcsr(struct sh_cmt_channel *ch)
+ {
+ 	return ch->cmt->info->read_control(ch->ioctrl, CMCSR);
+ }
+ 
+-static inline void sh_cmt_write_cmcsr(struct sh_cmt_channel *ch,
+-				      unsigned long value)
++static inline void sh_cmt_write_cmcsr(struct sh_cmt_channel *ch, u32 value)
+ {
+ 	ch->cmt->info->write_control(ch->ioctrl, CMCSR, value);
+ }
+ 
+-static inline unsigned long sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
++static inline u32 sh_cmt_read_cmcnt(struct sh_cmt_channel *ch)
+ {
+ 	return ch->cmt->info->read_count(ch->ioctrl, CMCNT);
+ }
+ 
+-static inline void sh_cmt_write_cmcnt(struct sh_cmt_channel *ch,
+-				      unsigned long value)
++static inline void sh_cmt_write_cmcnt(struct sh_cmt_channel *ch, u32 value)
+ {
+ 	ch->cmt->info->write_count(ch->ioctrl, CMCNT, value);
+ }
+ 
+-static inline void sh_cmt_write_cmcor(struct sh_cmt_channel *ch,
+-				      unsigned long value)
++static inline void sh_cmt_write_cmcor(struct sh_cmt_channel *ch, u32 value)
+ {
+ 	ch->cmt->info->write_count(ch->ioctrl, CMCOR, value);
+ }
+ 
+-static unsigned long sh_cmt_get_counter(struct sh_cmt_channel *ch,
+-					int *has_wrapped)
++static u32 sh_cmt_get_counter(struct sh_cmt_channel *ch, u32 *has_wrapped)
+ {
+-	unsigned long v1, v2, v3;
+-	int o1, o2;
++	u32 v1, v2, v3;
++	u32 o1, o2;
+ 
+ 	o1 = sh_cmt_read_cmcsr(ch) & ch->cmt->info->overflow_bit;
+ 
+@@ -311,7 +303,8 @@ static unsigned long sh_cmt_get_counter(struct sh_cmt_channel *ch,
+ 
+ static void sh_cmt_start_stop_ch(struct sh_cmt_channel *ch, int start)
+ {
+-	unsigned long flags, value;
++	unsigned long flags;
++	u32 value;
+ 
+ 	/* start stop register shared by multiple timer channels */
+ 	raw_spin_lock_irqsave(&ch->cmt->lock, flags);
+@@ -418,11 +411,11 @@ static void sh_cmt_disable(struct sh_cmt_channel *ch)
+ static void sh_cmt_clock_event_program_verify(struct sh_cmt_channel *ch,
+ 					      int absolute)
+ {
+-	unsigned long new_match;
+-	unsigned long value = ch->next_match_value;
+-	unsigned long delay = 0;
+-	unsigned long now = 0;
+-	int has_wrapped;
++	u32 value = ch->next_match_value;
++	u32 new_match;
++	u32 delay = 0;
++	u32 now = 0;
++	u32 has_wrapped;
+ 
+ 	now = sh_cmt_get_counter(ch, &has_wrapped);
+ 	ch->flags |= FLAG_REPROGRAM; /* force reprogram */
+@@ -619,9 +612,10 @@ static struct sh_cmt_channel *cs_to_sh_cmt(struct clocksource *cs)
+ static u64 sh_cmt_clocksource_read(struct clocksource *cs)
+ {
+ 	struct sh_cmt_channel *ch = cs_to_sh_cmt(cs);
+-	unsigned long flags, raw;
++	unsigned long flags;
+ 	unsigned long value;
+-	int has_wrapped;
++	u32 has_wrapped;
++	u32 raw;
+ 
+ 	raw_spin_lock_irqsave(&ch->lock, flags);
+ 	value = ch->total_cycles;
 -- 
 2.20.1
 
