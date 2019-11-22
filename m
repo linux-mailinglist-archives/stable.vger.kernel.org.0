@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BA25106337
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:09:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F4F5106205
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:01:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727794AbfKVGJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:09:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35450 "EHLO mail.kernel.org"
+        id S1728333AbfKVF5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:57:16 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729384AbfKVF5O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:14 -0500
+        id S1729396AbfKVF5P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:57:15 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1701C20659;
-        Fri, 22 Nov 2019 05:57:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AB782070A;
+        Fri, 22 Nov 2019 05:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402234;
-        bh=rsLBM3cma18JC08uAkyl2VGiLgFBkK5qXvuZx/pyph4=;
+        s=default; t=1574402235;
+        bh=wLBO30qA8tZlK3OT5pGv0t3ty/ImslmbiEW2j4YjAG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ioxdETCZ88eV/ef3xk8JFJSYbqa4ARXTWXcolDm+VjQI4gd0Djq1RBh1OfXE8g374
-         kEz5u91MzoT3HSwMSVgmTXAw4F+NizKFV8TlyWJyFstYfQmKGUo8yzRAV/QCs+pnQO
-         OvfmPfBlMt9RdWr51h0YrJak5xPnVWs5AN+yX6Yw=
+        b=OzMIdrCsc6ZPu85A8u5NdpIX2gnXxt29o3X6N6Qtn6IS0LmIewxikfjH3AVbiSXGz
+         EpfX6MpFC5enteSPJjNhuzbvE3HtSm+ZoooqHBHslgjTdCuNHAEDCdoch6CdZBZWIy
+         OsQgJfovYMs/Y8oA9mYZVLS9K1BG/y8h3swtCQd4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jonas Gorski <jonas.gorski@gmail.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
+Cc:     Alexander Shiyan <shc_work@mail.ru>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pwm@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 079/127] MIPS: BCM63XX: fix switch core reset on BCM6368
-Date:   Fri, 22 Nov 2019 00:54:57 -0500
-Message-Id: <20191122055544.3299-78-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 080/127] pwm: clps711x: Fix period calculation
+Date:   Fri, 22 Nov 2019 00:54:58 -0500
+Message-Id: <20191122055544.3299-79-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -47,39 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Gorski <jonas.gorski@gmail.com>
+From: Alexander Shiyan <shc_work@mail.ru>
 
-[ Upstream commit 8a38dacf87180738d42b058334c951eba15d2d47 ]
+[ Upstream commit b0f17570b8203c22f139459c86cfbaa0311313ed ]
 
-The Ethernet Switch core mask was set to 0, causing the switch core to
-be not reset on BCM6368 on boot. Provide the proper mask so the switch
-core gets reset to a known good state.
+Commit e39c0df1be5a ("pwm: Introduce the pwm_args concept") has
+changed the variable for the period for clps711x-pwm driver, so now
+pwm_get/set_period() works with pwm->state.period variable instead
+of pwm->args.period.
+This patch changes the period variable in other places where it is used.
 
-Fixes: 799faa626c71 ("MIPS: BCM63XX: add core reset helper")
-Signed-off-by: Jonas Gorski <jonas.gorski@gmail.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@vger.kernel.org
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/bcm63xx/reset.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pwm/pwm-clps711x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/bcm63xx/reset.c b/arch/mips/bcm63xx/reset.c
-index a2af38cf28a70..64574e74cb236 100644
---- a/arch/mips/bcm63xx/reset.c
-+++ b/arch/mips/bcm63xx/reset.c
-@@ -120,7 +120,7 @@
- #define BCM6368_RESET_DSL	0
- #define BCM6368_RESET_SAR	SOFTRESET_6368_SAR_MASK
- #define BCM6368_RESET_EPHY	SOFTRESET_6368_EPHY_MASK
--#define BCM6368_RESET_ENETSW	0
-+#define BCM6368_RESET_ENETSW	SOFTRESET_6368_ENETSW_MASK
- #define BCM6368_RESET_PCM	SOFTRESET_6368_PCM_MASK
- #define BCM6368_RESET_MPI	SOFTRESET_6368_MPI_MASK
- #define BCM6368_RESET_PCIE	0
+diff --git a/drivers/pwm/pwm-clps711x.c b/drivers/pwm/pwm-clps711x.c
+index 26ec24e457b12..7e16b7def0dcb 100644
+--- a/drivers/pwm/pwm-clps711x.c
++++ b/drivers/pwm/pwm-clps711x.c
+@@ -48,7 +48,7 @@ static void clps711x_pwm_update_val(struct clps711x_chip *priv, u32 n, u32 v)
+ static unsigned int clps711x_get_duty(struct pwm_device *pwm, unsigned int v)
+ {
+ 	/* Duty cycle 0..15 max */
+-	return DIV_ROUND_CLOSEST(v * 0xf, pwm_get_period(pwm));
++	return DIV_ROUND_CLOSEST(v * 0xf, pwm->args.period);
+ }
+ 
+ static int clps711x_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
+@@ -71,7 +71,7 @@ static int clps711x_pwm_config(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	struct clps711x_chip *priv = to_clps711x_chip(chip);
+ 	unsigned int duty;
+ 
+-	if (period_ns != pwm_get_period(pwm))
++	if (period_ns != pwm->args.period)
+ 		return -EINVAL;
+ 
+ 	duty = clps711x_get_duty(pwm, duty_ns);
 -- 
 2.20.1
 
