@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F4BA106E3E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC71106E3D
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:07:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731023AbfKVLFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:05:54 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33708 "EHLO mail.kernel.org"
+        id S1731789AbfKVLF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:05:57 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730559AbfKVLFx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:05:53 -0500
+        id S1730559AbfKVLF4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:05:56 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BA4D2084D;
-        Fri, 22 Nov 2019 11:05:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A254E2075E;
+        Fri, 22 Nov 2019 11:05:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420753;
-        bh=QpPlVOH8XrovDhe/giG6zh7Ap7H68BvM/SfG639B8S8=;
+        s=default; t=1574420756;
+        bh=Yk0BthtfhCwG5HdWsol18bF1E9VmSioqlac3A/a++5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxieqrOVAfPjysVtZqJNmzTsmYXiAK51Un9EhGnUCFLfuOCqwYtnafdHwurAnnsMp
-         8Xh2IxrOLJnlh4kbRoCsxLZGD82QVlqsOcATtAuV9ljrAMqXenxkAZo/bru+k+YarO
-         st0HTuOmLaxaXwy9ZEYUqOriVnBkSFJZN5+7PX+I=
+        b=Py1K5Pvo0lzKf2Xb+REbt0aQd/glp2O0hk/TfKKsmgLdA3NozDfh9bmJi8pKwvq2y
+         i15YzNoUD6ggGsSseM6mfQL0Iqlxh7p9cz9MRF3dGu9HuULUTrgLfx3coBnF3G+6qw
+         r8AHKkfENjHyqMU/teTMKr7zxWiOdiLzZ4mZCCuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ido Schimmel <idosch@mellanox.com>,
-        Petr Machata <petrm@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Roger Quadros <rogerq@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 212/220] mlxsw: spectrum_switchdev: Check notification relevance based on upper device
-Date:   Fri, 22 Nov 2019 11:29:37 +0100
-Message-Id: <20191122100928.933327853@linuxfoundation.org>
+Subject: [PATCH 4.19 213/220] ARM: dts: omap5: Fix dual-role mode on Super-Speed port
+Date:   Fri, 22 Nov 2019 11:29:38 +0100
+Message-Id: <20191122100928.991365476@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
 References: <20191122100912.732983531@linuxfoundation.org>
@@ -45,44 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@mellanox.com>
+From: Roger Quadros <rogerq@ti.com>
 
-[ Upstream commit 5050f6ae253ad1307af3486c26fc4f94287078b7 ]
+[ Upstream commit a763ecc15d0e37c3a15ff6825183061209832685 ]
 
-VxLAN FDB updates are sent with the VxLAN device which is not our upper
-and will therefore be ignored by current code.
+OMAP5's Super-Speed USB port has a software mailbox register
+that needs to be fed with VBUS and ID events from an external
+VBUS/ID comparator.
 
-Solve this by checking whether the upper device (bridge) is our upper.
+Without this, Host role will not work correctly.
 
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Petr Machata <petrm@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 656c1a65ab55 ("ARM: dts: omap5: enable OTG role for DWC3 controller")
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/omap5-board-common.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-index a4f237f815d1a..8d556eb37b7aa 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_switchdev.c
-@@ -2324,8 +2324,15 @@ static int mlxsw_sp_switchdev_event(struct notifier_block *unused,
- 	struct net_device *dev = switchdev_notifier_info_to_dev(ptr);
- 	struct mlxsw_sp_switchdev_event_work *switchdev_work;
- 	struct switchdev_notifier_fdb_info *fdb_info = ptr;
-+	struct net_device *br_dev;
+diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
+index c2dc4199b4ec2..61a06f6add3ca 100644
+--- a/arch/arm/boot/dts/omap5-board-common.dtsi
++++ b/arch/arm/boot/dts/omap5-board-common.dtsi
+@@ -704,6 +704,7 @@
+ };
  
--	if (!mlxsw_sp_port_dev_lower_find_rcu(dev))
-+	/* Tunnel devices are not our uppers, so check their master instead */
-+	br_dev = netdev_master_upper_dev_get_rcu(dev);
-+	if (!br_dev)
-+		return NOTIFY_DONE;
-+	if (!netif_is_bridge_master(br_dev))
-+		return NOTIFY_DONE;
-+	if (!mlxsw_sp_port_dev_lower_find_rcu(br_dev))
- 		return NOTIFY_DONE;
+ &dwc3 {
++	extcon = <&extcon_usb3>;
+ 	dr_mode = "otg";
+ };
  
- 	switchdev_work = kzalloc(sizeof(*switchdev_work), GFP_ATOMIC);
 -- 
 2.20.1
 
