@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 853E3106D89
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:00:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2387106EB8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728095AbfKVLAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:00:49 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53222 "EHLO mail.kernel.org"
+        id S1731095AbfKVLA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:00:56 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730440AbfKVLAp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:00:45 -0500
+        id S1728932AbfKVLAt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:00:49 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0CE92073B;
-        Fri, 22 Nov 2019 11:00:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 167FB20706;
+        Fri, 22 Nov 2019 11:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420445;
-        bh=m9VhWDbXbHgBh8aFo56pVeSLUAJfO+QY+O/6sQJbDBk=;
+        s=default; t=1574420448;
+        bh=VZ69EaVF1a9oQj7zBLNDMh1JGIjNLhQeYaadd78Ayrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VErxQdVBMubsjiIEmWqcnAVuPORKjr4GlqhgCCl2jWdZSSkIPh3W27Dv7uO5RoCH7
-         o4TbVYzIrrsbIichdo1sqLKcxRT+iGwE0FLFX4lCDOn7ZrEh8xnNX10fP2Bb5h/667
-         dZXMQbCdtnABpZUz/WevfQ9lN9S9zPdTI769Lqxw=
+        b=VY+kL1bJ1xMrX1BxAFg1bgftH1UfQO6+j5jQeDgUcus52es/lSEQPPTFWgbUpSGTc
+         gGqHGgAdDvh7Xr5aITT/Ca5VNlygFgJkgMpd5fEcEgrlSnQ9aC56UhPGcqzP4tSrLF
+         wWu1KWSK+Kg+5PLWcJ8FomtiWjqylY8e+tys3QN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, SolidHal <hal@halemmerich.com>,
-        Minas Harutyunyan <hminas@synopsys.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org,
+        Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>,
+        Boris Brezillon <boris.brezillon@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/220] usb: dwc2: disable power_down on rockchip devices
-Date:   Fri, 22 Nov 2019 11:27:53 +0100
-Message-Id: <20191122100920.538922656@linuxfoundation.org>
+Subject: [PATCH 4.19 109/220] mtd: physmap_of: Release resources on error
+Date:   Fri, 22 Nov 2019 11:27:54 +0100
+Message-Id: <20191122100920.607987616@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
 References: <20191122100912.732983531@linuxfoundation.org>
@@ -45,49 +45,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: SolidHal <hal@halemmerich.com>
+From: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
 
-[ Upstream commit c216765d3a1defda5e7e2dabd878f99f0cd2ebf2 ]
+[ Upstream commit ef0de747f7ad179c7698a5b0e28db05f18ecbf57 ]
 
- The bug would let the usb controller enter partial power down,
- which was formally known as hibernate, upon boot if nothing was plugged
- in to the port. Partial power down couldn't be exited properly, so any
- usb devices plugged in after boot would not be usable.
+During probe, if there was an error the memory region and the memory
+map were not properly released.This can lead a system unusable if
+deferred probe is in use.
 
- Before the name change, params.hibernation was false by default, so
- _dwc2_hcd_suspend() would skip entering hibernation. With the
- rename, _dwc2_hcd_suspend() was changed to use  params.power_down
- to decide whether or not to enter partial power down.
+Replace mem_request and map with devm_ioremap_resource
 
- Since params.power_down is non-zero by default, it needs to be set
- to 0 for rockchip devices to restore functionality.
-
- This bug was reported in the linux-usb thread:
- REGRESSION: usb: dwc2: USB device not seen after boot
-
- The commit that caused this regression is:
-6d23ee9caa6790aea047f9aca7f3c03cb8d96eb6
-
-Signed-off-by: SolidHal <hal@halemmerich.com>
-Acked-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Signed-off-by: Ricardo Ribalda Delgado <ricardo.ribalda@gmail.com>
+Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/params.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/maps/physmap_of_core.c | 27 +++++----------------------
+ 1 file changed, 5 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/usb/dwc2/params.c b/drivers/usb/dwc2/params.c
-index dff2c6e8d797c..a93415f33bf36 100644
---- a/drivers/usb/dwc2/params.c
-+++ b/drivers/usb/dwc2/params.c
-@@ -88,6 +88,7 @@ static void dwc2_set_rk_params(struct dwc2_hsotg *hsotg)
- 	p->host_perio_tx_fifo_size = 256;
- 	p->ahbcfg = GAHBCFG_HBSTLEN_INCR16 <<
- 		GAHBCFG_HBSTLEN_SHIFT;
-+	p->power_down = 0;
+diff --git a/drivers/mtd/maps/physmap_of_core.c b/drivers/mtd/maps/physmap_of_core.c
+index 4129535b8e46f..ece605d78c215 100644
+--- a/drivers/mtd/maps/physmap_of_core.c
++++ b/drivers/mtd/maps/physmap_of_core.c
+@@ -31,7 +31,6 @@
+ struct of_flash_list {
+ 	struct mtd_info *mtd;
+ 	struct map_info map;
+-	struct resource *res;
+ };
+ 
+ struct of_flash {
+@@ -56,18 +55,10 @@ static int of_flash_remove(struct platform_device *dev)
+ 			mtd_concat_destroy(info->cmtd);
+ 	}
+ 
+-	for (i = 0; i < info->list_size; i++) {
++	for (i = 0; i < info->list_size; i++)
+ 		if (info->list[i].mtd)
+ 			map_destroy(info->list[i].mtd);
+ 
+-		if (info->list[i].map.virt)
+-			iounmap(info->list[i].map.virt);
+-
+-		if (info->list[i].res) {
+-			release_resource(info->list[i].res);
+-			kfree(info->list[i].res);
+-		}
+-	}
+ 	return 0;
  }
  
- static void dwc2_set_ltq_params(struct dwc2_hsotg *hsotg)
+@@ -215,10 +206,11 @@ static int of_flash_probe(struct platform_device *dev)
+ 
+ 		err = -EBUSY;
+ 		res_size = resource_size(&res);
+-		info->list[i].res = request_mem_region(res.start, res_size,
+-						       dev_name(&dev->dev));
+-		if (!info->list[i].res)
++		info->list[i].map.virt = devm_ioremap_resource(&dev->dev, &res);
++		if (IS_ERR(info->list[i].map.virt)) {
++			err = PTR_ERR(info->list[i].map.virt);
+ 			goto err_out;
++		}
+ 
+ 		err = -ENXIO;
+ 		width = of_get_property(dp, "bank-width", NULL);
+@@ -246,15 +238,6 @@ static int of_flash_probe(struct platform_device *dev)
+ 		if (err)
+ 			goto err_out;
+ 
+-		err = -ENOMEM;
+-		info->list[i].map.virt = ioremap(info->list[i].map.phys,
+-						 info->list[i].map.size);
+-		if (!info->list[i].map.virt) {
+-			dev_err(&dev->dev, "Failed to ioremap() flash"
+-				" region\n");
+-			goto err_out;
+-		}
+-
+ 		simple_map_init(&info->list[i].map);
+ 
+ 		/*
 -- 
 2.20.1
 
