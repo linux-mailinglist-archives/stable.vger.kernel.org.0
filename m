@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79BD2106D6B
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7123106A59
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:34:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730503AbfKVK77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:59:59 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51592 "EHLO mail.kernel.org"
+        id S1727277AbfKVKeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:34:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57848 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728201AbfKVK76 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:59:58 -0500
+        id S1727568AbfKVKeD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:34:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C26820721;
-        Fri, 22 Nov 2019 10:59:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CD6A20708;
+        Fri, 22 Nov 2019 10:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420397;
-        bh=B2KYIyJoPWeC/UNCnJwJ0lmKqBLfynwxhRwcJ6I1OCA=;
+        s=default; t=1574418841;
+        bh=yZBjIYUSvTUH+vh5HgsliBEQ/jj7faC66rAHinOBbjk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tQwN/+eViaqTndfaYBqpwYSMORPV7EH4HQ1JqKOyfXky+YsYwNG0kogksEn7UkeZn
-         h7FbF3Kkj+OkuEQbLs9AppYFoIpbF/Dset5obQbG+OUNJfX5eIeOAdohPDCL7R12DV
-         NpaRwCSfERp/Ahb0RNXQcDAYil5E+y+gYOiJo78A=
+        b=RU1/xljAvoIt2sLsoXkzgoB8bxAF8ypbt9U9nF03M/FZaUZbeL63SH/QnIemb8Ys5
+         QlbZ/NEtEhHZAauGkb803w84AIWEwCoWzHfz8J1wgFQAe8GZ/8SwUf9knUZDhErbNb
+         QmFCIiUqsJnkjt5efMkdmu4XpLhcQsiiOTkByAa4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bob Moore <robert.moore@intel.com>,
-        Erik Schmauss <erik.schmauss@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 093/220] ACPICA: Never run _REG on system_memory and system_IO
-Date:   Fri, 22 Nov 2019 11:27:38 +0100
-Message-Id: <20191122100919.368561070@linuxfoundation.org>
+Subject: [PATCH 4.4 068/159] net: amd: fix return type of ndo_start_xmit function
+Date:   Fri, 22 Nov 2019 11:27:39 +0100
+Message-Id: <20191122100755.461419551@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,132 +44,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Moore <robert.moore@intel.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 8b1cafdcb4b75c5027c52f1e82b47ebe727ad7ed ]
+[ Upstream commit fe72352e37ae8478f4c97975a9831f0c50f22e73 ]
 
-These address spaces are defined by the ACPI spec to be
-"always available", and thus _REG should never be run on them.
-Provides compatibility with other ACPI implementations.
+The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
+which is a typedef for an enum type, so make sure the implementation in
+this driver has returns 'netdev_tx_t' value, and change the function
+return type to netdev_tx_t.
 
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Erik Schmauss <erik.schmauss@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Found by coccinelle.
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/acevents.h |  2 ++
- drivers/acpi/acpica/aclocal.h  |  2 +-
- drivers/acpi/acpica/evregion.c | 17 +++++++++++++++--
- drivers/acpi/acpica/evrgnini.c |  6 +-----
- drivers/acpi/acpica/evxfregn.c |  1 -
- 5 files changed, 19 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/amd/am79c961a.c     | 2 +-
+ drivers/net/ethernet/amd/atarilance.c    | 6 ++++--
+ drivers/net/ethernet/amd/declance.c      | 2 +-
+ drivers/net/ethernet/amd/sun3lance.c     | 6 ++++--
+ drivers/net/ethernet/amd/sunlance.c      | 2 +-
+ drivers/net/ethernet/amd/xgbe/xgbe-drv.c | 4 ++--
+ 6 files changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/acpi/acpica/acevents.h b/drivers/acpi/acpica/acevents.h
-index 298180bf7e3c1..bfcc68b9f708d 100644
---- a/drivers/acpi/acpica/acevents.h
-+++ b/drivers/acpi/acpica/acevents.h
-@@ -230,6 +230,8 @@ acpi_ev_default_region_setup(acpi_handle handle,
- 
- acpi_status acpi_ev_initialize_region(union acpi_operand_object *region_obj);
- 
-+u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node);
-+
+diff --git a/drivers/net/ethernet/amd/am79c961a.c b/drivers/net/ethernet/amd/am79c961a.c
+index 87e727b921dc0..1ad401fed4698 100644
+--- a/drivers/net/ethernet/amd/am79c961a.c
++++ b/drivers/net/ethernet/amd/am79c961a.c
+@@ -440,7 +440,7 @@ static void am79c961_timeout(struct net_device *dev)
  /*
-  * evsci - SCI (System Control Interrupt) handling/dispatch
+  * Transmit a packet
   */
-diff --git a/drivers/acpi/acpica/aclocal.h b/drivers/acpi/acpica/aclocal.h
-index 0f28a38a43ea1..99b0da8991098 100644
---- a/drivers/acpi/acpica/aclocal.h
-+++ b/drivers/acpi/acpica/aclocal.h
-@@ -395,9 +395,9 @@ struct acpi_simple_repair_info {
- /* Info for running the _REG methods */
- 
- struct acpi_reg_walk_info {
--	acpi_adr_space_type space_id;
- 	u32 function;
- 	u32 reg_run_count;
-+	acpi_adr_space_type space_id;
- };
- 
- /*****************************************************************************
-diff --git a/drivers/acpi/acpica/evregion.c b/drivers/acpi/acpica/evregion.c
-index 70c2bd169f669..49decca4e08ff 100644
---- a/drivers/acpi/acpica/evregion.c
-+++ b/drivers/acpi/acpica/evregion.c
-@@ -653,6 +653,19 @@ acpi_ev_execute_reg_methods(struct acpi_namespace_node *node,
- 
- 	ACPI_FUNCTION_TRACE(ev_execute_reg_methods);
- 
-+	/*
-+	 * These address spaces do not need a call to _REG, since the ACPI
-+	 * specification defines them as: "must always be accessible". Since
-+	 * they never change state (never become unavailable), no need to ever
-+	 * call _REG on them. Also, a data_table is not a "real" address space,
-+	 * so do not call _REG. September 2018.
-+	 */
-+	if ((space_id == ACPI_ADR_SPACE_SYSTEM_MEMORY) ||
-+	    (space_id == ACPI_ADR_SPACE_SYSTEM_IO) ||
-+	    (space_id == ACPI_ADR_SPACE_DATA_TABLE)) {
-+		return_VOID;
-+	}
-+
- 	info.space_id = space_id;
- 	info.function = function;
- 	info.reg_run_count = 0;
-@@ -714,8 +727,8 @@ acpi_ev_reg_run(acpi_handle obj_handle,
- 	}
- 
- 	/*
--	 * We only care about regions.and objects that are allowed to have address
--	 * space handlers
-+	 * We only care about regions and objects that are allowed to have
-+	 * address space handlers
- 	 */
- 	if ((node->type != ACPI_TYPE_REGION) && (node != acpi_gbl_root_node)) {
- 		return (AE_OK);
-diff --git a/drivers/acpi/acpica/evrgnini.c b/drivers/acpi/acpica/evrgnini.c
-index 39284deedd885..17df5dacd43cf 100644
---- a/drivers/acpi/acpica/evrgnini.c
-+++ b/drivers/acpi/acpica/evrgnini.c
-@@ -16,9 +16,6 @@
- #define _COMPONENT          ACPI_EVENTS
- ACPI_MODULE_NAME("evrgnini")
- 
--/* Local prototypes */
--static u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node);
--
- /*******************************************************************************
-  *
-  * FUNCTION:    acpi_ev_system_memory_region_setup
-@@ -33,7 +30,6 @@ static u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node);
-  * DESCRIPTION: Setup a system_memory operation region
-  *
-  ******************************************************************************/
--
- acpi_status
- acpi_ev_system_memory_region_setup(acpi_handle handle,
- 				   u32 function,
-@@ -313,7 +309,7 @@ acpi_ev_pci_config_region_setup(acpi_handle handle,
-  *
-  ******************************************************************************/
- 
--static u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node)
-+u8 acpi_ev_is_pci_root_bridge(struct acpi_namespace_node *node)
+-static int
++static netdev_tx_t
+ am79c961_sendpacket(struct sk_buff *skb, struct net_device *dev)
  {
- 	acpi_status status;
- 	struct acpi_pnp_device_id *hid;
-diff --git a/drivers/acpi/acpica/evxfregn.c b/drivers/acpi/acpica/evxfregn.c
-index 091415b14fbf1..3b3a25d9f0e6d 100644
---- a/drivers/acpi/acpica/evxfregn.c
-+++ b/drivers/acpi/acpica/evxfregn.c
-@@ -193,7 +193,6 @@ acpi_remove_address_space_handler(acpi_handle device,
- 				 */
- 				region_obj =
- 				    handler_obj->address_space.region_list;
--
- 			}
+ 	struct dev_priv *priv = netdev_priv(dev);
+diff --git a/drivers/net/ethernet/amd/atarilance.c b/drivers/net/ethernet/amd/atarilance.c
+index b10964e8cb546..a1dc65136d9fa 100644
+--- a/drivers/net/ethernet/amd/atarilance.c
++++ b/drivers/net/ethernet/amd/atarilance.c
+@@ -339,7 +339,8 @@ static unsigned long lance_probe1( struct net_device *dev, struct lance_addr
+                                    *init_rec );
+ static int lance_open( struct net_device *dev );
+ static void lance_init_ring( struct net_device *dev );
+-static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev );
++static netdev_tx_t lance_start_xmit(struct sk_buff *skb,
++				    struct net_device *dev);
+ static irqreturn_t lance_interrupt( int irq, void *dev_id );
+ static int lance_rx( struct net_device *dev );
+ static int lance_close( struct net_device *dev );
+@@ -770,7 +771,8 @@ static void lance_tx_timeout (struct net_device *dev)
  
- 			/* Remove this Handler object from the list */
+ /* XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX */
+ 
+-static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev )
++static netdev_tx_t
++lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct lance_private *lp = netdev_priv(dev);
+ 	struct lance_ioreg	 *IO = lp->iobase;
+diff --git a/drivers/net/ethernet/amd/declance.c b/drivers/net/ethernet/amd/declance.c
+index b584b78237dfd..5e994f981feae 100644
+--- a/drivers/net/ethernet/amd/declance.c
++++ b/drivers/net/ethernet/amd/declance.c
+@@ -893,7 +893,7 @@ static void lance_tx_timeout(struct net_device *dev)
+ 	netif_wake_queue(dev);
+ }
+ 
+-static int lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct lance_private *lp = netdev_priv(dev);
+ 	volatile struct lance_regs *ll = lp->ll;
+diff --git a/drivers/net/ethernet/amd/sun3lance.c b/drivers/net/ethernet/amd/sun3lance.c
+index 3d8c6b2cdea4c..09271665712da 100644
+--- a/drivers/net/ethernet/amd/sun3lance.c
++++ b/drivers/net/ethernet/amd/sun3lance.c
+@@ -235,7 +235,8 @@ struct lance_private {
+ static int lance_probe( struct net_device *dev);
+ static int lance_open( struct net_device *dev );
+ static void lance_init_ring( struct net_device *dev );
+-static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev );
++static netdev_tx_t lance_start_xmit(struct sk_buff *skb,
++				    struct net_device *dev);
+ static irqreturn_t lance_interrupt( int irq, void *dev_id);
+ static int lance_rx( struct net_device *dev );
+ static int lance_close( struct net_device *dev );
+@@ -511,7 +512,8 @@ static void lance_init_ring( struct net_device *dev )
+ }
+ 
+ 
+-static int lance_start_xmit( struct sk_buff *skb, struct net_device *dev )
++static netdev_tx_t
++lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct lance_private *lp = netdev_priv(dev);
+ 	int entry, len;
+diff --git a/drivers/net/ethernet/amd/sunlance.c b/drivers/net/ethernet/amd/sunlance.c
+index 8914170fccfff..babb0a5fb8de4 100644
+--- a/drivers/net/ethernet/amd/sunlance.c
++++ b/drivers/net/ethernet/amd/sunlance.c
+@@ -1106,7 +1106,7 @@ static void lance_tx_timeout(struct net_device *dev)
+ 	netif_wake_queue(dev);
+ }
+ 
+-static int lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
++static netdev_tx_t lance_start_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct lance_private *lp = netdev_priv(dev);
+ 	int entry, skblen, len;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+index 64034ff081a0c..23fc244eb8a4d 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-drv.c
+@@ -1390,7 +1390,7 @@ static int xgbe_close(struct net_device *netdev)
+ 	return 0;
+ }
+ 
+-static int xgbe_xmit(struct sk_buff *skb, struct net_device *netdev)
++static netdev_tx_t xgbe_xmit(struct sk_buff *skb, struct net_device *netdev)
+ {
+ 	struct xgbe_prv_data *pdata = netdev_priv(netdev);
+ 	struct xgbe_hw_if *hw_if = &pdata->hw_if;
+@@ -1399,7 +1399,7 @@ static int xgbe_xmit(struct sk_buff *skb, struct net_device *netdev)
+ 	struct xgbe_ring *ring;
+ 	struct xgbe_packet_data *packet;
+ 	struct netdev_queue *txq;
+-	int ret;
++	netdev_tx_t ret;
+ 
+ 	DBGPR("-->xgbe_xmit: skb->len = %d\n", skb->len);
+ 
 -- 
 2.20.1
 
