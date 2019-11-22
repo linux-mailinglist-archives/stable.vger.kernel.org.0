@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 087271063AB
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:12:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 463761063B0
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728036AbfKVF4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:56:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34154 "EHLO mail.kernel.org"
+        id S1726765AbfKVGMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:12:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729122AbfKVF4X (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728453AbfKVF4X (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Nov 2019 00:56:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4A982072D;
-        Fri, 22 Nov 2019 05:56:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB17120731;
+        Fri, 22 Nov 2019 05:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402182;
-        bh=yswybrNRsWsvoHS/VoCxngFKHac2PIA2wYGZakRfmRY=;
+        s=default; t=1574402183;
+        bh=Ql9x8nBLRruSTrj/axpdo25m6wC+H80WPeR0h+hYPu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+q+2/Glb6WU8ZwFmsNg6I5xhV4s9ySSqyHWo/FTXSizJQYC29G3EW0Wc6XYPKeX4
-         58vWNq37wQdFdSwiHZn5qVqsPsGSKO836PUTRdV4KXE5GZOIoDWG5/LCLAAYIK3NBv
-         jbtNzHQ6Cg0NClDmhLw1DARYURFEE0gyADeIIm0U=
+        b=qd+3XPy6zlhXxtu5cRJ1Np3D9i9Pc34ajdppcHJqCeJxkO0OipEBwZUaQOZ55sESe
+         CGhtd1g1K2TloEZ2qnhiOY75oaR5ClgnDYdtMDav+EIQDbnDrbfR8dATWfoes/ymvn
+         mSkhx7fkYmNPuZWJwLEzgg2vDRYXBkFjpaiAeaJA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Darwin Dingel <darwin.dingel@alliedtelesis.co.nz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 033/127] serial: 8250: Rate limit serial port rx interrupts during input overruns
-Date:   Fri, 22 Nov 2019 00:54:11 -0500
-Message-Id: <20191122055544.3299-32-sashal@kernel.org>
+Cc:     Andrea Righi <righi.andrea@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 4.14 034/127] kprobes/x86/xen: blacklist non-attachable xen interrupt functions
+Date:   Fri, 22 Nov 2019 00:54:12 -0500
+Message-Id: <20191122055544.3299-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -43,143 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darwin Dingel <darwin.dingel@alliedtelesis.co.nz>
+From: Andrea Righi <righi.andrea@gmail.com>
 
-[ Upstream commit 6d7f677a2afa1c82d7fc7af7f9159cbffd5dc010 ]
+[ Upstream commit bf9445a33ae6ac2f0822d2f1ce1365408387d568 ]
 
-When a serial port gets faulty or gets flooded with inputs, its interrupt
-handler starts to work double time to get the characters to the workqueue
-for the tty layer to handle them. When this busy time on the serial/tty
-subsystem happens during boot, where it is also busy on the userspace
-trying to initialise, some processes can continuously get preempted
-and will be on hold until the interrupts subside.
+Blacklist symbols in Xen probe-prohibited areas, so that user can see
+these prohibited symbols in debugfs.
 
-The fix is to backoff on processing received characters for a specified
-amount of time when an input overrun is seen (received a new character
-before the previous one is processed). This only stops receive and will
-continue to transmit characters to serial port. After the backoff period
-is done, it receive will be re-enabled. This is optional and will only
-be enabled by setting 'overrun-throttle-ms' in the dts.
+See also: a50480cb6d61.
 
-Signed-off-by: Darwin Dingel <darwin.dingel@alliedtelesis.co.nz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrea Righi <righi.andrea@gmail.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_core.c | 25 +++++++++++++++++++++++++
- drivers/tty/serial/8250/8250_fsl.c  | 23 ++++++++++++++++++++++-
- drivers/tty/serial/8250/8250_of.c   |  5 +++++
- include/linux/serial_8250.h         |  4 ++++
- 4 files changed, 56 insertions(+), 1 deletion(-)
+ arch/x86/xen/xen-asm_64.S | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/tty/serial/8250/8250_core.c b/drivers/tty/serial/8250/8250_core.c
-index d29b512a7d9fa..ceeea4b159c4b 100644
---- a/drivers/tty/serial/8250/8250_core.c
-+++ b/drivers/tty/serial/8250/8250_core.c
-@@ -953,6 +953,21 @@ static struct uart_8250_port *serial8250_find_match_or_unused(struct uart_port *
- 	return NULL;
- }
+diff --git a/arch/x86/xen/xen-asm_64.S b/arch/x86/xen/xen-asm_64.S
+index 3a6feed76dfc1..a93d8a7cef26c 100644
+--- a/arch/x86/xen/xen-asm_64.S
++++ b/arch/x86/xen/xen-asm_64.S
+@@ -12,6 +12,7 @@
+ #include <asm/segment.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/thread_info.h>
++#include <asm/asm.h>
  
-+static void serial_8250_overrun_backoff_work(struct work_struct *work)
-+{
-+	struct uart_8250_port *up =
-+	    container_of(to_delayed_work(work), struct uart_8250_port,
-+			 overrun_backoff);
-+	struct uart_port *port = &up->port;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&port->lock, flags);
-+	up->ier |= UART_IER_RLSI | UART_IER_RDI;
-+	up->port.read_status_mask |= UART_LSR_DR;
-+	serial_out(up, UART_IER, up->ier);
-+	spin_unlock_irqrestore(&port->lock, flags);
-+}
-+
- /**
-  *	serial8250_register_8250_port - register a serial port
-  *	@up: serial port template
-@@ -1063,6 +1078,16 @@ int serial8250_register_8250_port(struct uart_8250_port *up)
- 			ret = 0;
- 		}
- 	}
-+
-+	/* Initialise interrupt backoff work if required */
-+	if (up->overrun_backoff_time_ms > 0) {
-+		uart->overrun_backoff_time_ms = up->overrun_backoff_time_ms;
-+		INIT_DELAYED_WORK(&uart->overrun_backoff,
-+				  serial_8250_overrun_backoff_work);
-+	} else {
-+		uart->overrun_backoff_time_ms = 0;
-+	}
-+
- 	mutex_unlock(&serial_mutex);
+ #include <xen/interface/xen.h>
  
- 	return ret;
-diff --git a/drivers/tty/serial/8250/8250_fsl.c b/drivers/tty/serial/8250/8250_fsl.c
-index 910bfee5a88b7..cc138c24ae889 100644
---- a/drivers/tty/serial/8250/8250_fsl.c
-+++ b/drivers/tty/serial/8250/8250_fsl.c
-@@ -48,8 +48,29 @@ int fsl8250_handle_irq(struct uart_port *port)
+@@ -24,6 +25,7 @@ ENTRY(xen_\name)
+ 	pop %r11
+ 	jmp  \name
+ END(xen_\name)
++_ASM_NOKPROBE(xen_\name)
+ .endm
  
- 	lsr = orig_lsr = up->port.serial_in(&up->port, UART_LSR);
- 
--	if (lsr & (UART_LSR_DR | UART_LSR_BI))
-+	/* Process incoming characters first */
-+	if ((lsr & (UART_LSR_DR | UART_LSR_BI)) &&
-+	    (up->ier & (UART_IER_RLSI | UART_IER_RDI))) {
- 		lsr = serial8250_rx_chars(up, lsr);
-+	}
-+
-+	/* Stop processing interrupts on input overrun */
-+	if ((orig_lsr & UART_LSR_OE) && (up->overrun_backoff_time_ms > 0)) {
-+		unsigned long delay;
-+
-+		up->ier = port->serial_in(port, UART_IER);
-+		if (up->ier & (UART_IER_RLSI | UART_IER_RDI)) {
-+			port->ops->stop_rx(port);
-+		} else {
-+			/* Keep restarting the timer until
-+			 * the input overrun subsides.
-+			 */
-+			cancel_delayed_work(&up->overrun_backoff);
-+		}
-+
-+		delay = msecs_to_jiffies(up->overrun_backoff_time_ms);
-+		schedule_delayed_work(&up->overrun_backoff, delay);
-+	}
- 
- 	serial8250_modem_status(up);
- 
-diff --git a/drivers/tty/serial/8250/8250_of.c b/drivers/tty/serial/8250/8250_of.c
-index ec510e342e06c..c51044ba503c3 100644
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -232,6 +232,11 @@ static int of_platform_serial_probe(struct platform_device *ofdev)
- 	if (of_property_read_bool(ofdev->dev.of_node, "auto-flow-control"))
- 		port8250.capabilities |= UART_CAP_AFE;
- 
-+	if (of_property_read_u32(ofdev->dev.of_node,
-+			"overrun-throttle-ms",
-+			&port8250.overrun_backoff_time_ms) != 0)
-+		port8250.overrun_backoff_time_ms = 0;
-+
- 	ret = serial8250_register_8250_port(&port8250);
- 	if (ret < 0)
- 		goto err_dispose;
-diff --git a/include/linux/serial_8250.h b/include/linux/serial_8250.h
-index a27ef5f564317..791a6be0e3949 100644
---- a/include/linux/serial_8250.h
-+++ b/include/linux/serial_8250.h
-@@ -134,6 +134,10 @@ struct uart_8250_port {
- 	void			(*dl_write)(struct uart_8250_port *, int);
- 
- 	struct uart_8250_em485 *em485;
-+
-+	/* Serial port overrun backoff */
-+	struct delayed_work overrun_backoff;
-+	u32 overrun_backoff_time_ms;
- };
- 
- static inline struct uart_8250_port *up_to_u8250p(struct uart_port *up)
+ xen_pv_trap divide_error
 -- 
 2.20.1
 
