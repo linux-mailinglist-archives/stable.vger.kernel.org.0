@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33F38106F82
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 376E6107013
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:20:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726977AbfKVLPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:15:55 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33982 "EHLO mail.kernel.org"
+        id S1729595AbfKVKqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:46:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729831AbfKVKvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:51:17 -0500
+        id S1729545AbfKVKqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:46:02 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B14E020854;
-        Fri, 22 Nov 2019 10:51:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3060020748;
+        Fri, 22 Nov 2019 10:46:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419877;
-        bh=UVaB9uRriPUJ3gCh//YHEKoxCmJWEb6T3hdy2VJoApU=;
+        s=default; t=1574419561;
+        bh=DLqtyD3FkQpL4d6hSuqWxbmsfSbHPKfvIDSHACFVQUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+V83I945lzpk5zZy4t1vVxgbB/VNQ9YqvflnKNFCMdKXAesGtsENzNwDm2ouXBHv
-         pqjItyiGWA8vYMaQdS5q8BC9uRK8tt0CKqjpdQwZMHzzxgKlVougeGqx9xWwSYdHWv
-         BdhLqnezUFuBDQWtFjSqy33hmsEfeXh//l5gK538=
+        b=CMikqmNJ69Z2h5ffuKYtmu61LgraIdDEvszalaFTG8fAUww1L9nK4R48IZa9lUXB6
+         Ow+hJoO6TGHrer6EAx5Nfn6XU/9t9fokvC+MOLw6fAmQ0yQacWCoDOlYqwZrrO2EqG
+         UoRDjWBtFdMS0lpl5xh4krjjHTJsAwMctCJSWjNQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 040/122] powerpc/pseries: Fix how we iterate over the DTL entries
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@fb.com>
+Subject: [PATCH 4.9 153/222] block: introduce blk_rq_is_passthrough
 Date:   Fri, 22 Nov 2019 11:28:13 +0100
-Message-Id: <20191122100754.122659764@linuxfoundation.org>
+Message-Id: <20191122100913.777795515@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 9258227e9dd1da8feddb07ad9702845546a581c9 ]
+commit 57292b58ddb58689e8c3b4c6eadbef10d9ca44dd upstream.
 
-When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we look up dtl_idx in
-the lppaca to determine the number of entries in the buffer. Since
-lppaca is in big endian, we need to do an endian conversion before using
-this in our calculation to determine the number of entries in the
-buffer. Without this, we do not iterate over the existing entries in the
-DTL buffer properly.
+This can be used to check for fs vs non-fs requests and basically
+removes all knowledge of BLOCK_PC specific from the block layer,
+as well as preparing for removing the cmd_type field in struct request.
 
-Fixes: 7c105b63bd98 ("powerpc: Add CONFIG_CPU_LITTLE_ENDIAN kernel config option.")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@fb.com>
+[only take the blkdev.h changes as we only want the function for backported
+patches - gregkh]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/platforms/pseries/dtl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/blkdev.h |    9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/platforms/pseries/dtl.c b/arch/powerpc/platforms/pseries/dtl.c
-index c762689e0eb33..ef6595153642e 100644
---- a/arch/powerpc/platforms/pseries/dtl.c
-+++ b/arch/powerpc/platforms/pseries/dtl.c
-@@ -184,7 +184,7 @@ static void dtl_stop(struct dtl *dtl)
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -212,6 +212,11 @@ struct request {
+ 	(req)->cmd_flags |= flags;		\
+ } while (0)
  
- static u64 dtl_current_index(struct dtl *dtl)
++static inline bool blk_rq_is_passthrough(struct request *rq)
++{
++	return rq->cmd_type != REQ_TYPE_FS;
++}
++
+ static inline unsigned short req_get_ioprio(struct request *req)
  {
--	return lppaca_of(dtl->cpu).dtl_idx;
-+	return be64_to_cpu(lppaca_of(dtl->cpu).dtl_idx);
- }
- #endif /* CONFIG_VIRT_CPU_ACCOUNTING_NATIVE */
+ 	return req->ioprio;
+@@ -663,7 +668,7 @@ static inline void blk_clear_rl_full(str
  
--- 
-2.20.1
-
+ static inline bool rq_mergeable(struct request *rq)
+ {
+-	if (rq->cmd_type != REQ_TYPE_FS)
++	if (blk_rq_is_passthrough(rq))
+ 		return false;
+ 
+ 	if (req_op(rq) == REQ_OP_FLUSH)
+@@ -910,7 +915,7 @@ static inline unsigned int blk_rq_get_ma
+ {
+ 	struct request_queue *q = rq->q;
+ 
+-	if (unlikely(rq->cmd_type != REQ_TYPE_FS))
++	if (blk_rq_is_passthrough(rq))
+ 		return q->limits.max_hw_sectors;
+ 
+ 	if (!q->limits.chunk_sectors ||
 
 
