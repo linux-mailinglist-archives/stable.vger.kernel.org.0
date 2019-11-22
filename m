@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1380D106A5E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:34:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5523106BB2
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:46:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727329AbfKVKeO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:34:14 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58382 "EHLO mail.kernel.org"
+        id S1728368AbfKVKqj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:46:39 -0500
+Received: from mail.kernel.org ([198.145.29.99]:53872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728036AbfKVKeN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:34:13 -0500
+        id S1727746AbfKVKqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:46:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B745D20656;
-        Fri, 22 Nov 2019 10:34:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2AE5205C9;
+        Fri, 22 Nov 2019 10:46:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418853;
-        bh=5UlIQR2DCq+pOvDPurmJbhIK5FNedXV0/VZEjZx8hAs=;
+        s=default; t=1574419597;
+        bh=h18vsG2/dOzyz5ekVxrrjJAtpSd/yKL1s/yBtgCB0t8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJtPjGO5R9I5aVkgRpIz8rtUDNla+5zbAb+swg/a6zp3s+jWHmgiyjf2H9F52tLnz
-         F+yzuL8w32P6uh4p/NydCn/n3oqsbrcjZav9El+PSAiOVwX4BpThyrDmdnUavJaVX9
-         /yiveIr5RQMt+pAKgMPpvAKrvFh4qvxEt9TMUTCM=
+        b=HhO3x5bKVME22TqgYNxtPKTo11IxqrOi6Oqm0RQrJIPCd6kPX4IbnuJWJfWZLOxCB
+         VP5i10e1jqABx1M7KOMR5VD8VxnIcMuQTmohhGEldX9mOFaBycOCdXyu7QyeTacSAy
+         /IHQkT11fURgoO/4a2b8mbxjnMeq8u+t2kRrTmE4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Gage Eads <gage.eads@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 072/159] ARM: dts: ux500: Fix LCDA clock line muxing
+Subject: [PATCH 4.9 123/222] vfio/pci: Mask buggy SR-IOV VF INTx support
 Date:   Fri, 22 Nov 2019 11:27:43 +0100
-Message-Id: <20191122100757.430426569@linuxfoundation.org>
+Message-Id: <20191122100911.959197110@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +45,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Alex Williamson <alex.williamson@redhat.com>
 
-[ Upstream commit ecde29569e3484e1d0a032bf4074449bce4d4a03 ]
+[ Upstream commit db04264fe9bc0f2b62e036629f9afb530324b693 ]
 
-The "lcdaclk_b_1" group is muxed with the function "lcd"
-but needs a separate entry to be muxed in with "lcda"
-rather than "lcd".
+The SR-IOV spec requires that VFs must report zero for the INTx pin
+register as VFs are precluded from INTx support.  It's much easier for
+the host kernel to understand whether a device is a VF and therefore
+whether a non-zero pin register value is bogus than it is to do the
+same in userspace.  Override the INTx count for such devices and
+virtualize the pin register to provide a consistent view of the device
+to the user.
 
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+As this is clearly a spec violation, warn about it to support hardware
+validation, but also provide a known whitelist as it doesn't do much
+good to continue complaining if the hardware vendor doesn't plan to
+fix it.
+
+Known devices with this issue: 8086:270c
+
+Tested-by: Gage Eads <gage.eads@intel.com>
+Reviewed-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-href-family-pinctrl.dtsi | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/vfio/pci/vfio_pci.c        |  8 ++++++--
+ drivers/vfio/pci/vfio_pci_config.c | 27 +++++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi b/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi
-index 5c5cea232743d..1ec193b0c5065 100644
---- a/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi
-+++ b/arch/arm/boot/dts/ste-href-family-pinctrl.dtsi
-@@ -607,16 +607,20 @@
+diff --git a/drivers/vfio/pci/vfio_pci.c b/drivers/vfio/pci/vfio_pci.c
+index a1a712d18e028..da3f0ed18c769 100644
+--- a/drivers/vfio/pci/vfio_pci.c
++++ b/drivers/vfio/pci/vfio_pci.c
+@@ -426,10 +426,14 @@ static int vfio_pci_get_irq_count(struct vfio_pci_device *vdev, int irq_type)
+ {
+ 	if (irq_type == VFIO_PCI_INTX_IRQ_INDEX) {
+ 		u8 pin;
++
++		if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) ||
++		    vdev->nointx || vdev->pdev->is_virtfn)
++			return 0;
++
+ 		pci_read_config_byte(vdev->pdev, PCI_INTERRUPT_PIN, &pin);
+-		if (IS_ENABLED(CONFIG_VFIO_PCI_INTX) && !vdev->nointx && pin)
+-			return 1;
  
- 			mcde {
- 				lcd_default_mode: lcd_default {
--					default_mux {
-+					default_mux1 {
- 						/* Mux in VSI0 and all the data lines */
- 						function = "lcd";
- 						groups =
- 						"lcdvsi0_a_1", /* VSI0 for LCD */
- 						"lcd_d0_d7_a_1", /* Data lines */
- 						"lcd_d8_d11_a_1", /* TV-out */
--						"lcdaclk_b_1", /* Clock line for TV-out */
- 						"lcdvsi1_a_1"; /* VSI1 for HDMI */
- 					};
-+					default_mux2 {
-+						function = "lcda";
-+						groups =
-+						"lcdaclk_b_1"; /* Clock line for TV-out */
-+					};
- 					default_cfg1 {
- 						pins =
- 						"GPIO68_E1", /* VSI0 */
++		return pin ? 1 : 0;
+ 	} else if (irq_type == VFIO_PCI_MSI_IRQ_INDEX) {
+ 		u8 pos;
+ 		u16 flags;
+diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
+index 06a20ea183dd6..84905d074c4ff 100644
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -1608,6 +1608,15 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
+ 	return 0;
+ }
+ 
++/*
++ * Nag about hardware bugs, hopefully to have vendors fix them, but at least
++ * to collect a list of dependencies for the VF INTx pin quirk below.
++ */
++static const struct pci_device_id known_bogus_vf_intx_pin[] = {
++	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x270c) },
++	{}
++};
++
+ /*
+  * For each device we allocate a pci_config_map that indicates the
+  * capability occupying each dword and thus the struct perm_bits we
+@@ -1673,6 +1682,24 @@ int vfio_config_init(struct vfio_pci_device *vdev)
+ 	if (pdev->is_virtfn) {
+ 		*(__le16 *)&vconfig[PCI_VENDOR_ID] = cpu_to_le16(pdev->vendor);
+ 		*(__le16 *)&vconfig[PCI_DEVICE_ID] = cpu_to_le16(pdev->device);
++
++		/*
++		 * Per SR-IOV spec rev 1.1, 3.4.1.18 the interrupt pin register
++		 * does not apply to VFs and VFs must implement this register
++		 * as read-only with value zero.  Userspace is not readily able
++		 * to identify whether a device is a VF and thus that the pin
++		 * definition on the device is bogus should it violate this
++		 * requirement.  We already virtualize the pin register for
++		 * other purposes, so we simply need to replace the bogus value
++		 * and consider VFs when we determine INTx IRQ count.
++		 */
++		if (vconfig[PCI_INTERRUPT_PIN] &&
++		    !pci_match_id(known_bogus_vf_intx_pin, pdev))
++			pci_warn(pdev,
++				 "Hardware bug: VF reports bogus INTx pin %d\n",
++				 vconfig[PCI_INTERRUPT_PIN]);
++
++		vconfig[PCI_INTERRUPT_PIN] = 0; /* Gratuitous for good VFs */
+ 	}
+ 
+ 	if (!IS_ENABLED(CONFIG_VFIO_PCI_INTX) || vdev->nointx)
 -- 
 2.20.1
 
