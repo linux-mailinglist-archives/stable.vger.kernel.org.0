@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35F0C106EB4
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E593910703E
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:21:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731170AbfKVLBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:01:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54244 "EHLO mail.kernel.org"
+        id S1729495AbfKVKpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:45:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731168AbfKVLBW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:01:22 -0500
+        id S1729486AbfKVKpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:45:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9107F20721;
-        Fri, 22 Nov 2019 11:01:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 354A820715;
+        Fri, 22 Nov 2019 10:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420481;
-        bh=3xOrFvEETPELfuNZgkHn7Y2v1ZZIxqMiDdP4KdOnb0M=;
+        s=default; t=1574419532;
+        bh=8iD2RbErPWDnc+352S6Dt9T6EhXU+MLXptMB07sJbVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lljjz2NclBzXgSlcRgvN5HzwrZ0gud83s77J2k+76NxGzuO2l43R2MzHTc48I832K
-         0zbOyG39d7fIe3wRiBKwZN0qXzMdsjclRFPaKWOpvwgt1kRwHUn/mcpBYAAgpWnJdx
-         6TeL9rL1pdXWRrP9SoalWwOn9TgZHyql/OLhtrqM=
+        b=bOff5lxYhu9lpNhM/KUg+6LN7y/ehJcxyjzIh/WnfZaO1L5bRpokXJDiUHkMAtWQQ
+         NhtxV3HccCzRJrvdJXsKz1KVuJxHwYI+SCDNZy9cXgXuQpOvYGkEmsuLtCgOzoqo6K
+         8O2LWEyrUaWhdX2QxOVqjPkx69Am5SgovXIm6LVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Sylwester Nawrocki <snawrocki@kernel.org>,
+        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/220] clk: samsung: Use clk_hw API for calling clk framework from clk notifiers
+Subject: [PATCH 4.9 144/222] fuse: use READ_ONCE on congestion_threshold and max_background
 Date:   Fri, 22 Nov 2019 11:28:04 +0100
-Message-Id: <20191122100921.297126508@linuxfoundation.org>
+Message-Id: <20191122100913.230281494@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Kirill Tkhai <ktkhai@virtuozzo.com>
 
-[ Upstream commit 1da220e3a5d22fccda0bc8542997abc1d1741268 ]
+[ Upstream commit 2a23f2b8adbe4bd584f936f7ac17a99750eed9d7 ]
 
-clk_notifier_register() documentation states, that the provided notifier
-callbacks associated with the notifier must not re-enter into the clk
-framework by calling any top-level clk APIs. Fix this by replacing
-clk_get_rate() calls with clk_hw_get_rate(), which is safe in this
-context.
+Since they are of unsigned int type, it's allowed to read them
+unlocked during reporting to userspace. Let's underline this fact
+with READ_ONCE() macroses.
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Sylwester Nawrocki <snawrocki@kernel.org>
+Signed-off-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-cpu.c | 6 +++---
- drivers/clk/samsung/clk-cpu.h | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ fs/fuse/control.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/samsung/clk-cpu.c b/drivers/clk/samsung/clk-cpu.c
-index d2c99d8916b83..a5fddebbe5305 100644
---- a/drivers/clk/samsung/clk-cpu.c
-+++ b/drivers/clk/samsung/clk-cpu.c
-@@ -152,7 +152,7 @@ static int exynos_cpuclk_pre_rate_change(struct clk_notifier_data *ndata,
- 			struct exynos_cpuclk *cpuclk, void __iomem *base)
- {
- 	const struct exynos_cpuclk_cfg_data *cfg_data = cpuclk->cfg;
--	unsigned long alt_prate = clk_get_rate(cpuclk->alt_parent);
-+	unsigned long alt_prate = clk_hw_get_rate(cpuclk->alt_parent);
- 	unsigned long alt_div = 0, alt_div_mask = DIV_MASK;
- 	unsigned long div0, div1 = 0, mux_reg;
- 	unsigned long flags;
-@@ -280,7 +280,7 @@ static int exynos5433_cpuclk_pre_rate_change(struct clk_notifier_data *ndata,
- 			struct exynos_cpuclk *cpuclk, void __iomem *base)
- {
- 	const struct exynos_cpuclk_cfg_data *cfg_data = cpuclk->cfg;
--	unsigned long alt_prate = clk_get_rate(cpuclk->alt_parent);
-+	unsigned long alt_prate = clk_hw_get_rate(cpuclk->alt_parent);
- 	unsigned long alt_div = 0, alt_div_mask = DIV_MASK;
- 	unsigned long div0, div1 = 0, mux_reg;
- 	unsigned long flags;
-@@ -432,7 +432,7 @@ int __init exynos_register_cpu_clock(struct samsung_clk_provider *ctx,
- 	else
- 		cpuclk->clk_nb.notifier_call = exynos_cpuclk_notifier_cb;
+diff --git a/fs/fuse/control.c b/fs/fuse/control.c
+index e25c40c10f4fa..97ac2f5843fcc 100644
+--- a/fs/fuse/control.c
++++ b/fs/fuse/control.c
+@@ -107,7 +107,7 @@ static ssize_t fuse_conn_max_background_read(struct file *file,
+ 	if (!fc)
+ 		return 0;
  
--	cpuclk->alt_parent = __clk_lookup(alt_parent);
-+	cpuclk->alt_parent = __clk_get_hw(__clk_lookup(alt_parent));
- 	if (!cpuclk->alt_parent) {
- 		pr_err("%s: could not lookup alternate parent %s\n",
- 				__func__, alt_parent);
-diff --git a/drivers/clk/samsung/clk-cpu.h b/drivers/clk/samsung/clk-cpu.h
-index d4b6b517fe1b4..bd38c6aa38970 100644
---- a/drivers/clk/samsung/clk-cpu.h
-+++ b/drivers/clk/samsung/clk-cpu.h
-@@ -49,7 +49,7 @@ struct exynos_cpuclk_cfg_data {
-  */
- struct exynos_cpuclk {
- 	struct clk_hw				hw;
--	struct clk				*alt_parent;
-+	struct clk_hw				*alt_parent;
- 	void __iomem				*ctrl_base;
- 	spinlock_t				*lock;
- 	const struct exynos_cpuclk_cfg_data	*cfg;
+-	val = fc->max_background;
++	val = READ_ONCE(fc->max_background);
+ 	fuse_conn_put(fc);
+ 
+ 	return fuse_conn_limit_read(file, buf, len, ppos, val);
+@@ -144,7 +144,7 @@ static ssize_t fuse_conn_congestion_threshold_read(struct file *file,
+ 	if (!fc)
+ 		return 0;
+ 
+-	val = fc->congestion_threshold;
++	val = READ_ONCE(fc->congestion_threshold);
+ 	fuse_conn_put(fc);
+ 
+ 	return fuse_conn_limit_read(file, buf, len, ppos, val);
 -- 
 2.20.1
 
