@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81DF7106528
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:22:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A366A106526
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:22:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726822AbfKVGWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:22:15 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57542 "EHLO mail.kernel.org"
+        id S1726546AbfKVGWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:22:04 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728385AbfKVFwF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:52:05 -0500
+        id S1728405AbfKVFwH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:52:07 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9C2120731;
-        Fri, 22 Nov 2019 05:52:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C3B22075E;
+        Fri, 22 Nov 2019 05:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401924;
-        bh=oNBqdYSXAouMXgZlhci/zN6zu5Zhf9kVY0HjsV12KZc=;
+        s=default; t=1574401926;
+        bh=7h6dwNVHY+1AQQph4vopgpi5NMKwVpbXI1hUGCpEHyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kDYHAhFlh8FWyYJUf161xbFhh2r+ZZsQk0fRIaQ+hQSzx7IMnRX/zqo5Z01x8fdyJ
-         Bizr3HwzflAo+tgM9sosvL50XKEyfkJ+ukoYyq0qhD8usGnYFCSVYPvHP5WZjVHb1U
-         LiyhuN4fecqUyrwZX7e1Xdoc7dDIwrsL+13lNy3E=
+        b=LLobdi53F2bwPNJXQhWW+/PkqPuqwHCld5KxoMw+prl5t0Umfh8jXyi1xjIXZ5ydc
+         9T8oktvS9iVHdj+HfJF5xadu5lO/M5gN+dNhGm3A44ofaLm/FM/fo8/FqTCkJNm8xe
+         VuxrRnQ9tmtfnCOySA0MFCIBKFHI77l4fDBj18+g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yang <richard.weiyang@gmail.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Matthew Wilcox <willy@infradead.org>,
+Cc:     Aaron Lu <aaron.lu@intel.com>,
+        Pawel Staszewski <pstaszewski@itcare.pl>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
         Mel Gorman <mgorman@techsingularity.net>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Alexander Duyck <alexander.h.duyck@linux.intel.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        Pankaj gupta <pagupta@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.19 153/219] vmscan: return NODE_RECLAIM_NOSCAN in node_reclaim() when CONFIG_NUMA is n
-Date:   Fri, 22 Nov 2019 00:48:05 -0500
-Message-Id: <20191122054911.1750-146-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 154/219] mm/page_alloc.c: free order-0 pages through PCP in page_frag_free()
+Date:   Fri, 22 Nov 2019 00:48:06 -0500
+Message-Id: <20191122054911.1750-147-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -47,75 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yang <richard.weiyang@gmail.com>
+From: Aaron Lu <aaron.lu@intel.com>
 
-[ Upstream commit 8b09549c2bfd9f3f8f4cdad74107ef4f4ff9cdd7 ]
+[ Upstream commit 65895b67ad27df0f62bfaf82dd5622f95ea29196 ]
 
-Commit fa5e084e43eb ("vmscan: do not unconditionally treat zones that
-fail zone_reclaim() as full") changed the return value of
-node_reclaim().  The original return value 0 means NODE_RECLAIM_SOME
-after this commit.
+page_frag_free() calls __free_pages_ok() to free the page back to Buddy.
+This is OK for high order page, but for order-0 pages, it misses the
+optimization opportunity of using Per-Cpu-Pages and can cause zone lock
+contention when called frequently.
 
-While the return value of node_reclaim() when CONFIG_NUMA is n is not
-changed.  This will leads to call zone_watermark_ok() again.
+Pawel Staszewski recently shared his result of 'how Linux kernel handles
+normal traffic'[1] and from perf data, Jesper Dangaard Brouer found the
+lock contention comes from page allocator:
 
-This patch fixes the return value by adjusting to NODE_RECLAIM_NOSCAN.
-Since node_reclaim() is only called in page_alloc.c, move it to
-mm/internal.h.
+  mlx5e_poll_tx_cq
+  |
+   --16.34%--napi_consume_skb
+             |
+             |--12.65%--__free_pages_ok
+             |          |
+             |           --11.86%--free_one_page
+             |                     |
+             |                     |--10.10%--queued_spin_lock_slowpath
+             |                     |
+             |                      --0.65%--_raw_spin_lock
+             |
+             |--1.55%--page_frag_free
+             |
+              --1.44%--skb_release_data
 
-Link: http://lkml.kernel.org/r/20181113080436.22078-1-richard.weiyang@gmail.com
-Signed-off-by: Wei Yang <richard.weiyang@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Matthew Wilcox <willy@infradead.org>
-Cc: Mel Gorman <mgorman@techsingularity.net>
+Jesper explained how it happened: mlx5 driver RX-page recycle mechanism is
+not effective in this workload and pages have to go through the page
+allocator.  The lock contention happens during mlx5 DMA TX completion
+cycle.  And the page allocator cannot keep up at these speeds.[2]
+
+I thought that __free_pages_ok() are mostly freeing high order pages and
+thought this is an lock contention for high order pages but Jesper
+explained in detail that __free_pages_ok() here are actually freeing
+order-0 pages because mlx5 is using order-0 pages to satisfy its page pool
+allocation request.[3]
+
+The free path as pointed out by Jesper is:
+skb_free_head()
+  -> skb_free_frag()
+    -> page_frag_free()
+And the pages being freed on this path are order-0 pages.
+
+Fix this by doing similar things as in __page_frag_cache_drain() - send
+the being freed page to PCP if it's an order-0 page, or directly to Buddy
+if it is a high order page.
+
+With this change, Paweł hasn't noticed lock contention yet in his
+workload and Jesper has noticed a 7% performance improvement using a micro
+benchmark and lock contention is gone.  Ilias' test on a 'low' speed 1Gbit
+interface on an cortex-a53 shows ~11% performance boost testing with
+64byte packets and __free_pages_ok() disappeared from perf top.
+
+[1]: https://www.spinics.net/lists/netdev/msg531362.html
+[2]: https://www.spinics.net/lists/netdev/msg531421.html
+[3]: https://www.spinics.net/lists/netdev/msg531556.html
+
+[akpm@linux-foundation.org: add comment]
+Link: http://lkml.kernel.org/r/20181120014544.GB10657@intel.com
+Signed-off-by: Aaron Lu <aaron.lu@intel.com>
+Reported-by: Pawel Staszewski <pstaszewski@itcare.pl>
+Analysed-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Acked-by: Mel Gorman <mgorman@techsingularity.net>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Tested-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Acked-by: Tariq Toukan <tariqt@mellanox.com>
+Acked-by: Pankaj gupta <pagupta@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/swap.h |  6 ------
- mm/internal.h        | 10 ++++++++++
- 2 files changed, 10 insertions(+), 6 deletions(-)
+ mm/page_alloc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/swap.h b/include/linux/swap.h
-index 7bd0a6f2ac2b0..ee8f9f554a9e1 100644
---- a/include/linux/swap.h
-+++ b/include/linux/swap.h
-@@ -371,14 +371,8 @@ extern unsigned long vm_total_pages;
- extern int node_reclaim_mode;
- extern int sysctl_min_unmapped_ratio;
- extern int sysctl_min_slab_ratio;
--extern int node_reclaim(struct pglist_data *, gfp_t, unsigned int);
- #else
- #define node_reclaim_mode 0
--static inline int node_reclaim(struct pglist_data *pgdat, gfp_t mask,
--				unsigned int order)
--{
--	return 0;
--}
- #endif
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index b34348a41bfed..dcc46d955df2e 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -4581,8 +4581,14 @@ void page_frag_free(void *addr)
+ {
+ 	struct page *page = virt_to_head_page(addr);
  
- extern int page_evictable(struct page *page);
-diff --git a/mm/internal.h b/mm/internal.h
-index 87256ae1bef86..397183c8fe47b 100644
---- a/mm/internal.h
-+++ b/mm/internal.h
-@@ -444,6 +444,16 @@ static inline void mminit_validate_memmodel_limits(unsigned long *start_pfn,
- #define NODE_RECLAIM_SOME	0
- #define NODE_RECLAIM_SUCCESS	1
- 
-+#ifdef CONFIG_NUMA
-+extern int node_reclaim(struct pglist_data *, gfp_t, unsigned int);
-+#else
-+static inline int node_reclaim(struct pglist_data *pgdat, gfp_t mask,
-+				unsigned int order)
-+{
-+	return NODE_RECLAIM_NOSCAN;
-+}
-+#endif
+-	if (unlikely(put_page_testzero(page)))
+-		__free_pages_ok(page, compound_order(page));
++	if (unlikely(put_page_testzero(page))) {
++		unsigned int order = compound_order(page);
 +
- extern int hwpoison_filter(struct page *p);
++		if (order == 0)		/* Via pcp? */
++			free_unref_page(page);
++		else
++			__free_pages_ok(page, order);
++	}
+ }
+ EXPORT_SYMBOL(page_frag_free);
  
- extern u32 hwpoison_filter_dev_major;
 -- 
 2.20.1
 
