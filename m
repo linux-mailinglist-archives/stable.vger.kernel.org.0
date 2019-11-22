@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E66BA106D42
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:58:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE31106A2F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:32:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730349AbfKVK6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:58:40 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48868 "EHLO mail.kernel.org"
+        id S1727696AbfKVKcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:32:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54000 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730138AbfKVK6j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:58:39 -0500
+        id S1727684AbfKVKc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:32:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 164C820706;
-        Fri, 22 Nov 2019 10:58:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62E6320726;
+        Fri, 22 Nov 2019 10:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420318;
-        bh=tdM4px7N/SUXA7AVlSHCbaiQKS2rLnq7VuLZXvmZw7U=;
+        s=default; t=1574418747;
+        bh=YWaFJwHRcxWDbhkR+hZxM1T/r643o/UQYp0ATZ5LpZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KSHu73fcFqZXXQOaCfilPPFYtGNBpKEqQIy7BDoMYJsSTBcUrZaez2ETyqwYsAuPU
-         jW67XJrDtiZq9/Cun0NDFoKdxi81Gzfu4cB6dO5H4iSAdi5JmkaTQvxpDUu2pcmSot
-         DkebFnc8/80NoxO71QiYMunpbzBu4zBpgayDiO5g=
+        b=jxsLNeWswcQcrIoqIpEFtC5BaSNzX8NndUUSNw9mxWAw9D7R6iKfRW2esRPOZnT3B
+         qSDVPYUiA499bgqqKrsRWjoPCCoUn2BiQQu6mMXEC0HtE5sWznvfQ22l2Sk/bSvZ7k
+         gSxUnn23j7nMN4Qsdt2DrKLIdjFTDBEInMsTW0S0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Matthew Wilcox <matthew.wilcox@oracle.com>,
+        George Kennedy <george.kennedy@oracle.com>,
+        Mark Kanda <mark.kanda@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 065/220] cxgb4: Use proper enum in cxgb4_dcb_handle_fw_update
+Subject: [PATCH 4.4 039/159] scsi: sym53c8xx: fix NULL pointer dereference panic in sym_int_sir()
 Date:   Fri, 22 Nov 2019 11:27:10 +0100
-Message-Id: <20191122100916.787111665@linuxfoundation.org>
+Message-Id: <20191122100734.323426078@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: George Kennedy <george.kennedy@oracle.com>
 
-[ Upstream commit 3b0b8f0d9a259f6a428af63e7a77547325f8e081 ]
+[ Upstream commit 288315e95264b6355e26609e9dec5dc4563d4ab0 ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+sym_int_sir() in sym_hipd.c does not check the command pointer for NULL before
+using it in debug message prints.
 
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c:303:7: warning: implicit
-conversion from enumeration type 'enum cxgb4_dcb_state' to different
-enumeration type 'enum cxgb4_dcb_state_input' [-Wenum-conversion]
-                         ? CXGB4_DCB_STATE_FW_ALLSYNCED
-                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c:304:7: warning: implicit
-conversion from enumeration type 'enum cxgb4_dcb_state' to different
-enumeration type 'enum cxgb4_dcb_state_input' [-Wenum-conversion]
-                         : CXGB4_DCB_STATE_FW_INCOMPLETE);
-                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-2 warnings generated.
-
-Use the equivalent value of the expected type to silence Clang while
-resulting in no functional change.
-
-CXGB4_DCB_STATE_FW_INCOMPLETE = CXGB4_DCB_INPUT_FW_INCOMPLETE = 2
-CXGB4_DCB_STATE_FW_ALLSYNCED = CXGB4_DCB_INPUT_FW_ALLSYNCED = 3
-
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Suggested-by: Matthew Wilcox <matthew.wilcox@oracle.com>
+Signed-off-by: George Kennedy <george.kennedy@oracle.com>
+Reviewed-by: Mark Kanda <mark.kanda@oracle.com>
+Acked-by: Matthew Wilcox <matthew.wilcox@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/sym53c8xx_2/sym_hipd.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c
-index b34f0f077a310..838692948c0b2 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_dcb.c
-@@ -273,8 +273,8 @@ void cxgb4_dcb_handle_fw_update(struct adapter *adap,
- 		enum cxgb4_dcb_state_input input =
- 			((pcmd->u.dcb.control.all_syncd_pkd &
- 			  FW_PORT_CMD_ALL_SYNCD_F)
--			 ? CXGB4_DCB_STATE_FW_ALLSYNCED
--			 : CXGB4_DCB_STATE_FW_INCOMPLETE);
-+			 ? CXGB4_DCB_INPUT_FW_ALLSYNCED
-+			 : CXGB4_DCB_INPUT_FW_INCOMPLETE);
+diff --git a/drivers/scsi/sym53c8xx_2/sym_hipd.c b/drivers/scsi/sym53c8xx_2/sym_hipd.c
+index c6425e3df5a04..f1c7714377524 100644
+--- a/drivers/scsi/sym53c8xx_2/sym_hipd.c
++++ b/drivers/scsi/sym53c8xx_2/sym_hipd.c
+@@ -4371,6 +4371,13 @@ static void sym_nego_rejected(struct sym_hcb *np, struct sym_tcb *tp, struct sym
+ 	OUTB(np, HS_PRT, HS_BUSY);
+ }
  
- 		if (dcb->dcb_version != FW_PORT_DCB_VER_UNKNOWN) {
- 			dcb_running_version = FW_PORT_CMD_DCB_VERSION_G(
++#define sym_printk(lvl, tp, cp, fmt, v...) do { \
++	if (cp)							\
++		scmd_printk(lvl, cp->cmd, fmt, ##v);		\
++	else							\
++		starget_printk(lvl, tp->starget, fmt, ##v);	\
++} while (0)
++
+ /*
+  *  chip exception handler for programmed interrupts.
+  */
+@@ -4416,7 +4423,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	 *  been selected with ATN.  We do not want to handle that.
+ 	 */
+ 	case SIR_SEL_ATN_NO_MSG_OUT:
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 				"No MSG OUT phase after selection with ATN\n");
+ 		goto out_stuck;
+ 	/*
+@@ -4424,7 +4431,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	 *  having reselected the initiator.
+ 	 */
+ 	case SIR_RESEL_NO_MSG_IN:
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 				"No MSG IN phase after reselection\n");
+ 		goto out_stuck;
+ 	/*
+@@ -4432,7 +4439,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	 *  an IDENTIFY.
+ 	 */
+ 	case SIR_RESEL_NO_IDENTIFY:
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 				"No IDENTIFY after reselection\n");
+ 		goto out_stuck;
+ 	/*
+@@ -4461,7 +4468,7 @@ static void sym_int_sir(struct sym_hcb *np)
+ 	case SIR_RESEL_ABORTED:
+ 		np->lastmsg = np->msgout[0];
+ 		np->msgout[0] = M_NOOP;
+-		scmd_printk(KERN_WARNING, cp->cmd,
++		sym_printk(KERN_WARNING, tp, cp,
+ 			"message %x sent on bad reselection\n", np->lastmsg);
+ 		goto out;
+ 	/*
 -- 
 2.20.1
 
