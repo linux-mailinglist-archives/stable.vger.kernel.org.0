@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD50107124
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A625106FA2
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:16:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727979AbfKVKdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:33:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56822 "EHLO mail.kernel.org"
+        id S1728691AbfKVKtt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:49:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727976AbfKVKdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:33:42 -0500
+        id S1729587AbfKVKtq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:46 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C02720708;
-        Fri, 22 Nov 2019 10:33:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3266E2072E;
+        Fri, 22 Nov 2019 10:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418821;
-        bh=0K5Le4/yUVvQ+7LVnDH2eIxwNTpwnAm+e6EkDjNqOyY=;
+        s=default; t=1574419785;
+        bh=6pmJeMGmgveo2F8W5HfH26LHnPnw77rwTGUaqDtjx2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwZjmDhqYV+rgw2kcZLQWnPHu+66eFQ35Z27AbL3SsoGImpjiy2EXlxe6h5tlp/JP
-         eIzSqJ+eKbNd6GhpWLOCtL4EBPE1u2Yb/a+fWbz8/J1WrRaEjj4bP81hh10cnBZ9Af
-         4nK1P7o3QSq0uJcG78mjZfk8iSyN/8eEOuRfAdrE=
+        b=yMD8SorJF71cqh+c4tlKT8EiL6T2x+7OyPvBnwOiWO5FbVm7oUMB5DdsfINRMdCjD
+         1v/4jA3uxWBfTKuHzaBp5iZidm/b78QSo6DS+QmCCUTF2OGehP4PqU5y5nynGdbi82
+         oERAr4mHE9xE6R0WThoMgeKecq1BolBcbr4dv9MY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <linux@armlinux.org.uk>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linux-arm-kernel@lists.infradead.org,
-        linuxppc-dev@lists.ozlabs.org, Rob Herring <robh@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 062/159] libfdt: Ensure INT_MAX is defined in libfdt_env.h
-Date:   Fri, 22 Nov 2019 11:27:33 +0100
-Message-Id: <20191122100752.929251532@linuxfoundation.org>
+        stable@vger.kernel.org, Leilk Liu <leilk.liu@mediatek.com>,
+        Mark Brown <broonie@kernel.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 001/122] spi: mediatek: use correct mata->xfer_len when in fifo transfer
+Date:   Fri, 22 Nov 2019 11:27:34 +0100
+Message-Id: <20191122100722.782908443@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,68 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Leilk Liu <leilk.liu@mediatek.com>
 
-[ Upstream commit 53dd9dce6979bc54d64a3a09a2fb20187a025be7 ]
+commit a4d8f64f7267a88d4688f5c216926f5f6cafbae6 upstream.
 
-The next update of libfdt has a new dependency on INT_MAX. Update the
-instances of libfdt_env.h in the kernel to either include the necessary
-header with the definition or define it locally.
+when xfer_len is greater than 64 bytes and use fifo mode
+to transfer, the actual length from the third time is mata->xfer_len
+but not len in mtk_spi_interrupt().
 
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Leilk Liu <leilk.liu@mediatek.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/arm/boot/compressed/libfdt_env.h | 2 ++
- arch/powerpc/boot/libfdt_env.h        | 2 ++
- include/linux/libfdt_env.h            | 1 +
- 3 files changed, 5 insertions(+)
+ drivers/spi/spi-mt65xx.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/compressed/libfdt_env.h b/arch/arm/boot/compressed/libfdt_env.h
-index 17ae0f3efac8e..005bf4ff1b4cb 100644
---- a/arch/arm/boot/compressed/libfdt_env.h
-+++ b/arch/arm/boot/compressed/libfdt_env.h
-@@ -5,6 +5,8 @@
- #include <linux/string.h>
- #include <asm/byteorder.h>
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -522,11 +522,11 @@ static irqreturn_t mtk_spi_interrupt(int
+ 		mdata->xfer_len = min(MTK_SPI_MAX_FIFO_SIZE, len);
+ 		mtk_spi_setup_packet(master);
  
-+#define INT_MAX			((int)(~0U>>1))
-+
- typedef __be16 fdt16_t;
- typedef __be32 fdt32_t;
- typedef __be64 fdt64_t;
-diff --git a/arch/powerpc/boot/libfdt_env.h b/arch/powerpc/boot/libfdt_env.h
-index 7e3789ea396b8..0b3db6322c793 100644
---- a/arch/powerpc/boot/libfdt_env.h
-+++ b/arch/powerpc/boot/libfdt_env.h
-@@ -4,6 +4,8 @@
- #include <types.h>
- #include <string.h>
+-		cnt = len / 4;
++		cnt = mdata->xfer_len / 4;
+ 		iowrite32_rep(mdata->base + SPI_TX_DATA_REG,
+ 				trans->tx_buf + mdata->num_xfered, cnt);
  
-+#define INT_MAX			((int)(~0U>>1))
-+
- #include "of.h"
- 
- typedef u32 uint32_t;
-diff --git a/include/linux/libfdt_env.h b/include/linux/libfdt_env.h
-index 2a663c6bb4285..8850e243c9406 100644
---- a/include/linux/libfdt_env.h
-+++ b/include/linux/libfdt_env.h
-@@ -1,6 +1,7 @@
- #ifndef _LIBFDT_ENV_H
- #define _LIBFDT_ENV_H
- 
-+#include <linux/kernel.h>	/* For INT_MAX */
- #include <linux/string.h>
- 
- #include <asm/byteorder.h>
--- 
-2.20.1
-
+-		remainder = len % 4;
++		remainder = mdata->xfer_len % 4;
+ 		if (remainder > 0) {
+ 			reg_val = 0;
+ 			memcpy(&reg_val,
 
 
