@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73F4B1062FB
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 957D41062F9
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:08:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727729AbfKVGHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:07:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40400 "EHLO mail.kernel.org"
+        id S1727135AbfKVGHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:07:22 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728666AbfKVGB7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:01:59 -0500
+        id S1729476AbfKVGCA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:02:00 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4B0E2068F;
-        Fri, 22 Nov 2019 06:01:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3B0920714;
+        Fri, 22 Nov 2019 06:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402518;
-        bh=8rpbA/I/vOJX++ZcZmL05DkRyFxZUOMgDCs+tabDovA=;
+        s=default; t=1574402519;
+        bh=H8nhKXKNYwhdnZ1oxHBgqJQ/mhf3pJpP7CyzoovXYOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1vZoCTmKOxyHFxicJqjW54jbnaNLG3e7LCdveY4BdhrisKYyq5Evq4RHPjQC4dA+y
-         /04a1z/wMMwZMYwdH+GThvJaYM5cne6rDe2o/NspQ6vaywGkbFP6rb1TwH270VRpI+
-         Bnl7YjZUCkhbhJy+cIpjFaYtPG+xZbIVeFfOqqqA=
+        b=XjE5IACapaKc3V9RlVpBq9VMCplpCP/wSDm+M8JxSEf48cflE8amWX/GUjikjquVF
+         gJlSgZKU29SM0pPwg+jI3s2+UlcvUcHqTXMnw9agQcJT4Zrwtg2/SsvB6zCH//CS66
+         /oOen0z6TsNYKNkBfw6RhPLr550so2a6ei81YkDM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 27/91] net/mlx5: Continue driver initialization despite debugfs failure
-Date:   Fri, 22 Nov 2019 01:00:25 -0500
-Message-Id: <20191122060129.4239-26-sashal@kernel.org>
+Cc:     Michael Mueller <mimu@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        David Hildenbrand <david@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 28/91] KVM: s390: unregister debug feature on failing arch init
+Date:   Fri, 22 Nov 2019 01:00:26 -0500
+Message-Id: <20191122060129.4239-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -44,42 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@mellanox.com>
+From: Michael Mueller <mimu@linux.ibm.com>
 
-[ Upstream commit 199fa087dc6b503baad06712716fac645a983e8a ]
+[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
 
-The failure to create debugfs entry is unpleasant event, but not enough
-to abort drier initialization. Align the mlx5_core code to debugfs design
-and continue execution whenever debugfs_create_dir() successes or not.
+Make sure the debug feature and its allocated resources get
+released upon unsuccessful architecture initialization.
 
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Reviewed-by: Saeed Mahameed <saeedm@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+A related indication of the issue will be reported as kernel
+message.
+
+Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index d676088512cf8..c9fb589690ee9 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -786,11 +786,9 @@ static int mlx5_pci_init(struct mlx5_core_dev *dev, struct mlx5_priv *priv)
+diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
+index 37c254677ccda..d8fd2eadcda7f 100644
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -319,19 +319,30 @@ static void kvm_s390_cpu_feat_init(void)
  
- 	priv->numa_node = dev_to_node(&dev->pdev->dev);
+ int kvm_arch_init(void *opaque)
+ {
++	int rc;
++
+ 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
+ 	if (!kvm_s390_dbf)
+ 		return -ENOMEM;
  
--	priv->dbg_root = debugfs_create_dir(dev_name(&pdev->dev), mlx5_debugfs_root);
--	if (!priv->dbg_root) {
--		dev_err(&pdev->dev, "Cannot create debugfs dir, aborting\n");
+ 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
+-		debug_unregister(kvm_s390_dbf);
 -		return -ENOMEM;
--	}
-+	if (mlx5_debugfs_root)
-+		priv->dbg_root =
-+			debugfs_create_dir(pci_name(pdev), mlx5_debugfs_root);
++		rc = -ENOMEM;
++		goto out_debug_unreg;
+ 	}
  
- 	err = mlx5_pci_enable_device(dev);
- 	if (err) {
+ 	kvm_s390_cpu_feat_init();
+ 
+ 	/* Register floating interrupt controller interface. */
+-	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
++	if (rc) {
++		pr_err("Failed to register FLIC rc=%d\n", rc);
++		goto out_debug_unreg;
++	}
++	return 0;
++
++out_debug_unreg:
++	debug_unregister(kvm_s390_dbf);
++	return rc;
+ }
+ 
+ void kvm_arch_exit(void)
 -- 
 2.20.1
 
