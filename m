@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FFB6106DF5
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:04:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AD93106EF6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:13:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731253AbfKVLEw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:04:52 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60146 "EHLO mail.kernel.org"
+        id S1728721AbfKVKyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:54:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731108AbfKVLEv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:04:51 -0500
+        id S1727991AbfKVKyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:54:33 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A90E720854;
-        Fri, 22 Nov 2019 11:04:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 10EF620706;
+        Fri, 22 Nov 2019 10:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420691;
-        bh=ZhaejBiZlZmk0+HgH9Jh1GY+ficYYpHrDSmFxd6848E=;
+        s=default; t=1574420071;
+        bh=5ZZg/xigrTA2+oyrMBGTOMx97kcHllNc7EFKeSaV/nQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CgGkjHUCJB92/1HmRrxHsHsyG2AclTnPvycLNoHWHDPEY6TlHF2jJjO2GvMKy/Rt5
-         rzFi7mKbDQjCBxkQFv/uX9tXV/nUEHhX+LWROAK3MHYjj5IPVjrrm2N665TYIKdTmn
-         NhB4Fgt/9ewx6gD8HVd22QqX6V6t9WodKYMp5yMI=
+        b=vPj6wGbVT9wKmO/kQ45Ay0l1k4eSSw+5RrXporQnB4c2QNg6jtXsK6X8n16aZjno3
+         eW8HwPrIllHm2EAWRVIecz48I0OBdO1rYbSE0ZuMF1E6zL2XM8ZQpMW3X6+8aOx4yX
+         taOGaCR8aGFFba23jyyC2M3c/5ax/C41Zw5MJwUg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Trent Piepho <tpiepho@impinj.com>,
-        =?UTF-8?q?Jan=20Kundr=C3=83=C2=A1t?= <jan.kundrat@cesnet.cz>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 193/220] spi: spidev: Fix OF tree warning logic
+Subject: [PATCH 4.14 105/122] pinctrl: gemini: Mask and set properly
 Date:   Fri, 22 Nov 2019 11:29:18 +0100
-Message-Id: <20191122100927.947018059@linuxfoundation.org>
+Message-Id: <20191122100832.406597374@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,49 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trent Piepho <tpiepho@impinj.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-[ Upstream commit 605b3bec73cbd74b4ac937b580cd0b47d1300484 ]
+[ Upstream commit d17f477c5bc6b4a5dd9f51ae263870da132a8e89 ]
 
-spidev will make a big fuss if a device tree node binds a device by
-using "spidev" as the node's compatible property.
+The code was written under the assumption that the
+regmap_update_bits() would mask the bits in the mask and
+set the bits in the value.
 
-However, the logic for this isn't looking for "spidev" in the
-compatible, but rather checking that the device is NOT compatible with
-spidev's list of devices.
+It missed the points that it will not set bits in the value
+unless these are also masked in the mask. Set value bits
+that are not in the mask will simply be ignored.
 
-This causes a false positive if a device not named "rohm,dh2228fv", etc.
-binds to spidev, even if a means other than putting "spidev" in the
-device tree was used.  E.g., the sysfs driver_override attribute.
-
-Signed-off-by: Trent Piepho <tpiepho@impinj.com>
-Reviewed-by: Jan KundrÃ¡t <jan.kundrat@cesnet.cz>
-Tested-by: Jan KundrÃ¡t <jan.kundrat@cesnet.cz>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 06351d133dea ("pinctrl: add a Gemini SoC pin controller")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/pinctrl/pinctrl-gemini.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index cda10719d1d1b..c5fe08bc34a0a 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -724,11 +724,9 @@ static int spidev_probe(struct spi_device *spi)
- 	 * compatible string, it is a Linux implementation thing
- 	 * rather than a description of the hardware.
- 	 */
--	if (spi->dev.of_node && !of_match_device(spidev_dt_ids, &spi->dev)) {
--		dev_err(&spi->dev, "buggy DT: spidev listed directly in DT\n");
--		WARN_ON(spi->dev.of_node &&
--			!of_match_device(spidev_dt_ids, &spi->dev));
--	}
-+	WARN(spi->dev.of_node &&
-+	     of_device_is_compatible(spi->dev.of_node, "spidev"),
-+	     "%pOF: buggy DT: spidev listed directly in DT\n", spi->dev.of_node);
+diff --git a/drivers/pinctrl/pinctrl-gemini.c b/drivers/pinctrl/pinctrl-gemini.c
+index 39e6221e71000..05441dc2519d2 100644
+--- a/drivers/pinctrl/pinctrl-gemini.c
++++ b/drivers/pinctrl/pinctrl-gemini.c
+@@ -2164,7 +2164,8 @@ static int gemini_pmx_set_mux(struct pinctrl_dev *pctldev,
+ 		 func->name, grp->name);
  
- 	spidev_probe_acpi(spi);
+ 	regmap_read(pmx->map, GLOBAL_MISC_CTRL, &before);
+-	regmap_update_bits(pmx->map, GLOBAL_MISC_CTRL, grp->mask,
++	regmap_update_bits(pmx->map, GLOBAL_MISC_CTRL,
++			   grp->mask | grp->value,
+ 			   grp->value);
+ 	regmap_read(pmx->map, GLOBAL_MISC_CTRL, &after);
  
 -- 
 2.20.1
