@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06BD3106612
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:29:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3D9310660F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:29:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728053AbfKVG2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:28:21 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54730 "EHLO mail.kernel.org"
+        id S1727794AbfKVG2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:28:12 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54742 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727561AbfKVFuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:50:14 -0500
+        id S1727568AbfKVFuQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:50:16 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D6012070A;
-        Fri, 22 Nov 2019 05:50:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D6E620731;
+        Fri, 22 Nov 2019 05:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401814;
-        bh=IJ+0jeSZb9ortcdzj9j4dxSaRyrGAGfxWZNhRfCNZIs=;
+        s=default; t=1574401815;
+        bh=cPUc9BD9WzvMPqJG1za/uFkew6pNIQo4k/jUTu9jzNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2iAcNVDoT//OSIQQxeyspNErwT+D3Hc+EzV5Ktnjd5mpY0EVjBXsIkfPPS2qiZAwV
-         BW1N0DWCjPD2lPxBACMA+F3AUsKk+Vo971UlwSG9jokla+QzCvoX4QN2IayxTu4kuP
-         B0Ha1y6VtCvzEi6FLrv3wEqscKXrsbCFYxgKHPQY=
+        b=ch71PrgV9+31tgrekd47gW/qjBjW1uL3/Uy9OGtl/d8IrMN3Lv/WhhuhdSbXS80ze
+         /W8Pe7arZwOVO+hUVku0aiJPfJ9JMVJNZ9vdVB1f9SfDbN6AY1xafqdY0vfzvNySnn
+         zkA4I04kD8p1GpttRTcsqCF/XrWBmrPj5y7X7HF0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 058/219] microblaze: fix multiple bugs in arch/microblaze/boot/Makefile
-Date:   Fri, 22 Nov 2019 00:46:30 -0500
-Message-Id: <20191122054911.1750-51-sashal@kernel.org>
+Cc:     Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 059/219] iwlwifi: move iwl_nvm_check_version() into dvm
+Date:   Fri, 22 Nov 2019 00:46:31 -0500
+Message-Id: <20191122054911.1750-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -43,109 +43,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 4722a3e6b716d9d4594c3cf3856b03bbd24a59a8 ]
+[ Upstream commit 64866e5da1eabd0c52ff45029b245f5465920031 ]
 
-This commit fixes some build issues.
+This function is only half-used by mvm (i.e. only the nvm_version part
+matters, since the calibration version is irrelevant), so it's
+pointless to export it from iwlwifi.  If mvm uses this function, it
+has the additional complexity of setting the calib version to a bogus
+value on all cfg structs.
 
-The first issue is the breakage of linux.bin.ub target since commit
-ece97f3a5fb5 ("microblaze: Fix simpleImage format generation")
-because the addition of UIMAGE_{IN,OUT} affected it.
+To avoid this, move the function to dvm and make a simple comparison
+of the nvm_version in mvm instead.
 
-make ARCH=microblaze CROSS_COMPILE=microblaze-linux- linux.bin.ub
-  [ snip ]
-  OBJCOPY arch/microblaze/boot/linux.bin
-  UIMAGE  arch/microblaze/boot/linux.bin.ub.ub
-/usr/bin/mkimage: Can't open arch/microblaze/boot/linux.bin.ub: No such file or directory
-make[1]: *** [arch/microblaze/boot/Makefile;14: arch/microblaze/boot/linux.bin.ub] Error 1
-make: *** [arch/microblaze/Makefile;83: linux.bin.ub] Error 2
-
-The second issue is the use of the "if_changed" multiple times for
-the same target.
-
-As commit 92a4728608a8 ("x86/boot: Fix if_changed build flip/flop bug")
-pointed out, this never works properly. Moreover, generating multiple
-images as a side-effect is confusing.
-
-Let's split the build recipe for each image.
-
-simpleImage.<dt>*.unstrip is just a copy of vmlinux.
-
-simpleImage.<dt> and simpleImage.<dt>.ub are created in the same way
-as linux.bin and linux.bin.ub, respectively.
-
-I kept simpleImage.* recipes independent of linux.bin.* ones to not
-change the behavior.
-
-Lastly, this commit fixes "make ARCH=microblaze clean". Previously,
-it only cleaned up the unstrip image. Now, all the simpleImage files
-are cleaned.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Signed-off-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/microblaze/Makefile      |  2 +-
- arch/microblaze/boot/Makefile | 19 +++++++++----------
- 2 files changed, 10 insertions(+), 11 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/dvm/main.c | 17 +++++++++++++++++
+ .../wireless/intel/iwlwifi/iwl-eeprom-parse.c | 19 -------------------
+ .../wireless/intel/iwlwifi/iwl-eeprom-parse.h |  5 ++---
+ drivers/net/wireless/intel/iwlwifi/mvm/fw.c   |  4 +++-
+ 4 files changed, 22 insertions(+), 23 deletions(-)
 
-diff --git a/arch/microblaze/Makefile b/arch/microblaze/Makefile
-index b9808ddaf985f..548bac6c60f8c 100644
---- a/arch/microblaze/Makefile
-+++ b/arch/microblaze/Makefile
-@@ -86,7 +86,7 @@ linux.bin linux.bin.gz linux.bin.ub: vmlinux
- 	@echo 'Kernel: $(boot)/$@ is ready' ' (#'`cat .version`')'
+diff --git a/drivers/net/wireless/intel/iwlwifi/dvm/main.c b/drivers/net/wireless/intel/iwlwifi/dvm/main.c
+index 030482b357a3c..06dd4e81b7374 100644
+--- a/drivers/net/wireless/intel/iwlwifi/dvm/main.c
++++ b/drivers/net/wireless/intel/iwlwifi/dvm/main.c
+@@ -1227,6 +1227,23 @@ static int iwl_eeprom_init_hw_params(struct iwl_priv *priv)
+ 	return 0;
+ }
  
- simpleImage.%: vmlinux
--	$(Q)$(MAKE) $(build)=$(boot) $(boot)/$@
-+	$(Q)$(MAKE) $(build)=$(boot) $(addprefix $(boot)/$@., ub unstrip strip)
- 	@echo 'Kernel: $(boot)/$@ is ready' ' (#'`cat .version`')'
- 
- define archhelp
-diff --git a/arch/microblaze/boot/Makefile b/arch/microblaze/boot/Makefile
-index 96eefdca0d9b3..cff570a719461 100644
---- a/arch/microblaze/boot/Makefile
-+++ b/arch/microblaze/boot/Makefile
-@@ -3,7 +3,7 @@
- # arch/microblaze/boot/Makefile
- #
- 
--targets := linux.bin linux.bin.gz linux.bin.ub simpleImage.%
-+targets := linux.bin linux.bin.gz linux.bin.ub simpleImage.*
- 
- OBJCOPYFLAGS := -R .note -R .comment -R .note.gnu.build-id -O binary
- 
-@@ -16,21 +16,20 @@ $(obj)/linux.bin.ub: $(obj)/linux.bin FORCE
- $(obj)/linux.bin.gz: $(obj)/linux.bin FORCE
- 	$(call if_changed,gzip)
- 
--quiet_cmd_cp = CP      $< $@$2
--	cmd_cp = cat $< >$@$2 || (rm -f $@ && echo false)
++static int iwl_nvm_check_version(struct iwl_nvm_data *data,
++				 struct iwl_trans *trans)
++{
++	if (data->nvm_version >= trans->cfg->nvm_ver ||
++	    data->calib_version >= trans->cfg->nvm_calib_ver) {
++		IWL_DEBUG_INFO(trans, "device EEPROM VER=0x%x, CALIB=0x%x\n",
++			       data->nvm_version, data->calib_version);
++		return 0;
++	}
++
++	IWL_ERR(trans,
++		"Unsupported (too old) EEPROM VER=0x%x < 0x%x CALIB=0x%x < 0x%x\n",
++		data->nvm_version, trans->cfg->nvm_ver,
++		data->calib_version,  trans->cfg->nvm_calib_ver);
++	return -EINVAL;
++}
++
+ static struct iwl_op_mode *iwl_op_mode_dvm_start(struct iwl_trans *trans,
+ 						 const struct iwl_cfg *cfg,
+ 						 const struct iwl_fw *fw,
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c
+index a4c96215933ba..a59bab8345f4e 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.c
+@@ -928,22 +928,3 @@ iwl_parse_eeprom_data(struct device *dev, const struct iwl_cfg *cfg,
+ 	return NULL;
+ }
+ IWL_EXPORT_SYMBOL(iwl_parse_eeprom_data);
 -
- quiet_cmd_strip = STRIP   $< $@$2
- 	cmd_strip = $(STRIP) -K microblaze_start -K _end -K __log_buf \
- 				-K _fdt_start $< -o $@$2
+-/* helper functions */
+-int iwl_nvm_check_version(struct iwl_nvm_data *data,
+-			     struct iwl_trans *trans)
+-{
+-	if (data->nvm_version >= trans->cfg->nvm_ver ||
+-	    data->calib_version >= trans->cfg->nvm_calib_ver) {
+-		IWL_DEBUG_INFO(trans, "device EEPROM VER=0x%x, CALIB=0x%x\n",
+-			       data->nvm_version, data->calib_version);
+-		return 0;
+-	}
+-
+-	IWL_ERR(trans,
+-		"Unsupported (too old) EEPROM VER=0x%x < 0x%x CALIB=0x%x < 0x%x\n",
+-		data->nvm_version, trans->cfg->nvm_ver,
+-		data->calib_version,  trans->cfg->nvm_calib_ver);
+-	return -EINVAL;
+-}
+-IWL_EXPORT_SYMBOL(iwl_nvm_check_version);
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h
+index 8be50ed12300f..c59dd47cf15d3 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-eeprom-parse.h
+@@ -7,6 +7,7 @@
+  *
+  * Copyright(c) 2008 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2015 Intel Mobile Communications GmbH
++ * Copyright (C) 2018 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of version 2 of the GNU General Public License as
+@@ -33,6 +34,7 @@
+  *
+  * Copyright(c) 2005 - 2014 Intel Corporation. All rights reserved.
+  * Copyright(c) 2015 Intel Mobile Communications GmbH
++ * Copyright (C) 2018 Intel Corporation
+  * All rights reserved.
+  *
+  * Redistribution and use in source and binary forms, with or without
+@@ -122,9 +124,6 @@ struct iwl_nvm_data *
+ iwl_parse_eeprom_data(struct device *dev, const struct iwl_cfg *cfg,
+ 		      const u8 *eeprom, size_t eeprom_size);
  
- UIMAGE_LOADADDR = $(CONFIG_KERNEL_BASE_ADDR)
--UIMAGE_IN = $@
--UIMAGE_OUT = $@.ub
+-int iwl_nvm_check_version(struct iwl_nvm_data *data,
+-			  struct iwl_trans *trans);
+-
+ int iwl_init_sband_channels(struct iwl_nvm_data *data,
+ 			    struct ieee80211_supported_band *sband,
+ 			    int n_channels, enum nl80211_band band);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+index 2eba6d6f367f8..9808d954dca29 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/fw.c
+@@ -547,7 +547,9 @@ int iwl_run_init_mvm_ucode(struct iwl_mvm *mvm, bool read_nvm)
+ 	if (mvm->nvm_file_name)
+ 		iwl_mvm_load_nvm_to_nic(mvm);
  
--$(obj)/simpleImage.%: vmlinux FORCE
--	$(call if_changed,cp,.unstrip)
-+$(obj)/simpleImage.$(DTB): vmlinux FORCE
- 	$(call if_changed,objcopy)
-+
-+$(obj)/simpleImage.$(DTB).ub: $(obj)/simpleImage.$(DTB) FORCE
- 	$(call if_changed,uimage)
--	$(call if_changed,strip,.strip)
+-	WARN_ON(iwl_nvm_check_version(mvm->nvm_data, mvm->trans));
++	WARN_ONCE(mvm->nvm_data->nvm_version < mvm->trans->cfg->nvm_ver,
++		  "Too old NVM version (0x%0x, required = 0x%0x)",
++		  mvm->nvm_data->nvm_version, mvm->trans->cfg->nvm_ver);
  
--clean-files += simpleImage.*.unstrip linux.bin.ub
-+$(obj)/simpleImage.$(DTB).unstrip: vmlinux FORCE
-+	$(call if_changed,shipped)
-+
-+$(obj)/simpleImage.$(DTB).strip: vmlinux FORCE
-+	$(call if_changed,strip)
+ 	/*
+ 	 * abort after reading the nvm in case RF Kill is on, we will complete
 -- 
 2.20.1
 
