@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE34210714A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65856107094
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727467AbfKVKb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:31:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:52610 "EHLO mail.kernel.org"
+        id S1728984AbfKVKlO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:41:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727453AbfKVKby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:31:54 -0500
+        id S1727648AbfKVKlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:41:14 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E84E320715;
-        Fri, 22 Nov 2019 10:31:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B8472071C;
+        Fri, 22 Nov 2019 10:41:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418713;
-        bh=9eGy7rDJK9QWTl0r5O5OE6yxX5YP5muOp9WUESCQ99w=;
+        s=default; t=1574419273;
+        bh=sFmxPLvoOWEfl00tsENoIxTweNEQt91iXnciTX2cmDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STMAWPDJD1yMN+e2Pl5SwNDGLJhZZ7uVdoEzHLKY6AIdHvMoa1JfR9fzDA1U+4foW
-         xYY3XUfjr7+uY3KA43uCreV2fG/NRJW+F70wvHFZ0gAZRCFMiajnZnsY6vk4F4c/fW
-         3MxFRqOO7roG90+HiAF1TNnLI6FwoNXRVRZzrsyM=
+        b=tpKd4f6rbOwafNgJVwvjKJcBr9zhAdDliIylGujmo83NBbm2aNZuMQAoNXlL5siH2
+         WtW6mlmTIaqUc8114SbWsLALHwOV/XV1fTM4Pul4jL0UmnMzojRDmfcM48e/yBCmh3
+         QL4pm1AIltChR3pvmuMCnG9zUODkRZByj2q8OmDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 003/159] ALSA: usb-audio: Fix missing error check at mixer resolution test
-Date:   Fri, 22 Nov 2019 11:26:34 +0100
-Message-Id: <20191122100707.180070936@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 055/222] f2fs: fix memory leak of percpu counter in fill_super()
+Date:   Fri, 22 Nov 2019 11:26:35 +0100
+Message-Id: <20191122100856.252357588@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,46 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Chao Yu <yuchao0@huawei.com>
 
-commit 167beb1756791e0806365a3f86a0da10d7a327ee upstream.
+[ Upstream commit 4a70e255449c9a13eed7a6eeecc85a1ea63cef76 ]
 
-A check of the return value from get_cur_mix_raw() is missing at the
-resolution test code in get_min_max_with_quirks(), which may leave the
-variable untouched, leading to a random uninitialized value, as
-detected by syzkaller fuzzer.
+In fill_super -> init_percpu_info, we should destroy percpu counter
+in error path, otherwise memory allcoated for percpu counter will
+leak.
 
-Add the missing return error check for fixing that.
-
-Reported-and-tested-by: syzbot+abe1ab7afc62c6bb6377@syzkaller.appspotmail.com
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20191109181658.30368-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/mixer.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/f2fs/super.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/sound/usb/mixer.c
-+++ b/sound/usb/mixer.c
-@@ -1045,7 +1045,8 @@ static int get_min_max_with_quirks(struc
- 		if (cval->min + cval->res < cval->max) {
- 			int last_valid_res = cval->res;
- 			int saved, test, check;
--			get_cur_mix_raw(cval, minchn, &saved);
-+			if (get_cur_mix_raw(cval, minchn, &saved) < 0)
-+				goto no_res_check;
- 			for (;;) {
- 				test = saved;
- 				if (test < cval->max)
-@@ -1065,6 +1066,7 @@ static int get_min_max_with_quirks(struc
- 			snd_usb_set_cur_mix_value(cval, minchn, 0, saved);
- 		}
+diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
+index 9eff18c1f3e46..e0ac676e0a35c 100644
+--- a/fs/f2fs/super.c
++++ b/fs/f2fs/super.c
+@@ -1650,8 +1650,12 @@ static int init_percpu_info(struct f2fs_sb_info *sbi)
+ 	if (err)
+ 		return err;
  
-+no_res_check:
- 		cval->initialized = 1;
- 	}
+-	return percpu_counter_init(&sbi->total_valid_inode_count, 0,
++	err = percpu_counter_init(&sbi->total_valid_inode_count, 0,
+ 								GFP_KERNEL);
++	if (err)
++		percpu_counter_destroy(&sbi->alloc_valid_block_count);
++
++	return err;
+ }
  
+ /*
+-- 
+2.20.1
+
 
 
