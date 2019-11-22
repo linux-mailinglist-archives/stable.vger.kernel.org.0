@@ -2,73 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E51106256
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01AEA10627F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:04:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727876AbfKVGDM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:03:12 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42142 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727555AbfKVGDL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:03:11 -0500
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 406252068E;
-        Fri, 22 Nov 2019 06:03:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402590;
-        bh=QHKteMkunbJlctgILnKR+J0vR47GMm2EXyhGDIVjrLM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=00BaIfqH4TFaauFIrfiEaX6OYkDxoffn1znXU/FlVmQrPntjRgKYu2OskeoNjnFLm
-         9BhJWkVUxfXwt4cyYBKnRAutnSO5tuZx654gNfQswv45e4ZtOiYGx4Ip2XVwIK5tpd
-         PAfgLECJ2hBGMZ+ba5A8HKMTlcx0ykeH4NyFFD3s=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Boris Brezillon <bbrezillon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 91/91] mtd: Remove a debug trace in mtdpart.c
-Date:   Fri, 22 Nov 2019 01:01:29 -0500
-Message-Id: <20191122060129.4239-90-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
-References: <20191122060129.4239-1-sashal@kernel.org>
+        id S1728857AbfKVGE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:04:27 -0500
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:45603 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728484AbfKVGEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 01:04:25 -0500
+Received: by mail-pl1-f196.google.com with SMTP id w7so2644025plz.12
+        for <stable@vger.kernel.org>; Thu, 21 Nov 2019 22:04:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=mbobrowski-org.20150623.gappssmtp.com; s=20150623;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=IJ0HXeQ4d+68jwWIyI+XQ5DbgzQ1/j4dM9G5pBOB+eo=;
+        b=vJ9jtHmYPtLtKFi3vCRLLTUHiSSKMy3wEpuZ12W/IL3jWTM11eh2l9uDYBR1l2hDOP
+         ATt0hRwOr3n8y9U2u/6ryAlcdnOnhzlpxg58f9f7giJvyGr79bFrUUhKK6PQByG97I9d
+         +Ahkv0MKlnD6BC83ogQrOuNWQytOtf/83m6tFEqQtPu2OKZcDhrliEOaLu+aCPq3G8B8
+         PXMHjMPwI8cXeLW3OH7Yh/ivcgf6WxQ/BpWY+NPj4/xP0L5pBcKCsnZNN8MemRcbIHIj
+         8Vs6YxOifbHIKkPWlwVK4RfIG1iOiIQXF11sjAYUj9Hx9RjtqTiKCupuCUawpElp0SZv
+         TnTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=IJ0HXeQ4d+68jwWIyI+XQ5DbgzQ1/j4dM9G5pBOB+eo=;
+        b=Ta3xlc69h7oRk818gQ7R/XCU5ZAQ8ziNmHA6vEW3KTc6G224W385e0zzD9DIlxm+rm
+         wG7LLXbxRAyoGKoll2ctNlQr1/kxcNrZgHt3DiMdz0AB82wY0vYdWK1Pgfw1ZPUxCNGJ
+         TQJ+nNeQcD5murecm0Xl20FLP0FTgFy97Fhc+qculnZelRWyCF9AyCNJgnMAKSy3pY3h
+         N1xe+fcdrpzMetGqI7g5bAR3dOiTW/0kyiheGVlVbcAx/PjEYEO5gKLFJ7z4719BNAKs
+         ZfMFDNEdgIFWCNnmJ7uiFaAEIY0WlcY3h2q5fo/+iAZkDzddeyO4EeasD/LPOMIwQIH2
+         Mbzg==
+X-Gm-Message-State: APjAAAWpk7/X/yOq6Fsxn/DK9G8OEMw069mRXDUTXszqIIDTR9fu033Q
+        Wu5LUsFcXhHQzB18Iz/zngip
+X-Google-Smtp-Source: APXvYqzoH8MKHCeNwMO8iuN66ncBbRVk1BNgd3NNugpsk+1JUny3bvPS9DWSBHfRL8gsi9eV2ebyoA==
+X-Received: by 2002:a17:90b:281:: with SMTP id az1mr17024907pjb.27.1574402664010;
+        Thu, 21 Nov 2019 22:04:24 -0800 (PST)
+Received: from bobrowski ([110.232.114.101])
+        by smtp.gmail.com with ESMTPSA id b24sm5607526pfi.148.2019.11.21.22.04.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Nov 2019 22:04:23 -0800 (PST)
+Date:   Fri, 22 Nov 2019 17:04:17 +1100
+From:   Matthew Bobrowski <mbobrowski@mbobrowski.org>
+To:     "Darrick J. Wong" <darrick.wong@oracle.com>
+Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>,
+        Eric Biggers <ebiggers@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] iomap: Fix pipe page leakage during splicing
+Message-ID: <20191122060415.GA13786@bobrowski>
+References: <20191121161144.30802-1-jack@suse.cz>
+ <20191121161538.18445-1-jack@suse.cz>
+ <20191121235528.GO6211@magnolia>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191121235528.GO6211@magnolia>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <bbrezillon@kernel.org>
+On Thu, Nov 21, 2019 at 03:55:28PM -0800, Darrick J. Wong wrote:
+> On Thu, Nov 21, 2019 at 05:15:34PM +0100, Jan Kara wrote:
+> > @@ -497,8 +497,15 @@ iomap_dio_rw(struct kiocb *iocb, struct iov_iter *iter,
+> >  		}
+> >  		pos += ret;
+> >  
+> > -		if (iov_iter_rw(iter) == READ && pos >= dio->i_size)
+> > +		if (iov_iter_rw(iter) == READ && pos >= dio->i_size) {
+> > +			/*
+> > +			 * We will report we've read data only upto i_size.
+> 
+> Nit: "up to"; will fix that on the way in.
 
-[ Upstream commit bda2ab56356b9acdfab150f31c4bac9846253092 ]
+A nit of a nit: "We will report that we've read..."; I think it reads
+better, so might as well update it if you're already fixing the other
+nit up as you're pulling this in. :P
 
-Commit 2b6f0090a333 ("mtd: Check add_mtd_device() ret code") contained
-a leftover of the debug session that led to this bug fix. Remove this
-pr_info().
-
-Fixes: 2b6f0090a333 ("mtd: Check add_mtd_device() ret code")
-Signed-off-by: Boris Brezillon <bbrezillon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/mtd/mtdpart.c | 1 -
- 1 file changed, 1 deletion(-)
-
-diff --git a/drivers/mtd/mtdpart.c b/drivers/mtd/mtdpart.c
-index 70e476c1c474d..5e2d1aa5e81e1 100644
---- a/drivers/mtd/mtdpart.c
-+++ b/drivers/mtd/mtdpart.c
-@@ -662,7 +662,6 @@ int mtd_add_partition(struct mtd_info *master, const char *name,
- 	mutex_unlock(&mtd_partitions_mutex);
- 
- 	free_partition(new);
--	pr_info("%s:%i\n", __func__, __LINE__);
- 
- 	return ret;
- }
--- 
-2.20.1
-
+/M
