@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08DDD106CC8
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:56:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 13027106CD2
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729398AbfKVKy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:54:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41050 "EHLO mail.kernel.org"
+        id S1730076AbfKVKzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:55:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728979AbfKVKyz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:54:55 -0500
+        id S1730447AbfKVKzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:55:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7129C20721;
-        Fri, 22 Nov 2019 10:54:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B5D22071C;
+        Fri, 22 Nov 2019 10:55:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420094;
-        bh=+ugDS3NL4mHHN24G7VTK1jmCHcSW7yZCBs8zU+QAsHI=;
+        s=default; t=1574420118;
+        bh=1/VSmpTTU9BsP9TQjL/wDX5Ico+dlFB6FyvPaSDKljY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+ldxuwjR5HQHsu6GRs3bmiEWMCJsa20oH/Ef3OuN4oiS7Y3OMzG1UQtOQC98Qeea
-         CcDg7ZOY1diMJbmKNLP9EA3F6UQ2zhomluVpQFCH6J6AOOsWyXz2WMR0blAZhAoFWq
-         9TgvJ9SkWZPtbUIuALi1TVyVI5xN7LOFWex8z2YY=
+        b=05Iga1h9mF3gjozIXVTMge8lcznBTznHbf0RiZZC12BGyLenRTJ2ZJNlwxMFooFNy
+         O/XnLeGWeIT3ZMgEwjDiu8k9fKg3InLSzNSJs6QKj2idAdOcsZksRF6JsJaxXZgnt5
+         N9Nl62J0kMnLZtqLpxdkxMhUCv6AgGvbvBH3FZOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
-        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
+        stable@vger.kernel.org, Alan Mikhak <alan.mikhak@sifive.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 113/122] misc: cxl: Fix possible null pointer dereference
-Date:   Fri, 22 Nov 2019 11:29:26 +0100
-Message-Id: <20191122100835.272176088@linuxfoundation.org>
+Subject: [PATCH 4.14 120/122] tools: PCI: Fix broken pcitest compilation
+Date:   Fri, 22 Nov 2019 11:29:33 +0100
+Message-Id: <20191122100837.625992481@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
 References: <20191122100722.177052205@linuxfoundation.org>
@@ -45,35 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Alan Mikhak <alan.mikhak@sifive.com>
 
-[ Upstream commit 3dac3583bf1a61db6aaf31dfd752c677a4400afd ]
+[ Upstream commit 8a5e0af240e07dd3d4897eb8ff52aab757da7fab ]
 
-It is not safe to dereference an object before a null test. It is
-not needed and just remove them. Ftrace can be used instead.
+pcitest is currently broken due to the following compiler error
+and related warning. Fix by changing the run_test() function
+signature to return an integer result.
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Acked-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+pcitest.c: In function run_test:
+pcitest.c:143:9: warning: return with a value, in function
+returning void
+  return (ret < 0) ? ret : 1 - ret; /* return 0 if test succeeded */
+
+pcitest.c: In function main:
+pcitest.c:232:9: error: void value not ignored as it ought to be
+  return run_test(test);
+
+Fixes: fef31ecaaf2c ("tools: PCI: Fix compilation warnings")
+Signed-off-by: Alan Mikhak <alan.mikhak@sifive.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Paul Walmsley <paul.walmsley@sifive.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cxl/guest.c | 2 --
- 1 file changed, 2 deletions(-)
+ tools/pci/pcitest.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/misc/cxl/guest.c b/drivers/misc/cxl/guest.c
-index 1a64eb185cfd5..de2ce55395454 100644
---- a/drivers/misc/cxl/guest.c
-+++ b/drivers/misc/cxl/guest.c
-@@ -1028,8 +1028,6 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+diff --git a/tools/pci/pcitest.c b/tools/pci/pcitest.c
+index 8ca1c62bc06db..7002df55826f4 100644
+--- a/tools/pci/pcitest.c
++++ b/tools/pci/pcitest.c
+@@ -42,15 +42,15 @@ struct pci_test {
+ 	unsigned long	size;
+ };
  
- void cxl_guest_remove_afu(struct cxl_afu *afu)
+-static void run_test(struct pci_test *test)
++static int run_test(struct pci_test *test)
  {
--	pr_devel("in %s - AFU(%d)\n", __func__, afu->slice);
--
- 	if (!afu)
- 		return;
+-	long ret;
++	int ret = -EINVAL;
+ 	int fd;
  
+ 	fd = open(test->device, O_RDWR);
+ 	if (fd < 0) {
+ 		perror("can't open PCI Endpoint Test device");
+-		return;
++		return -ENODEV;
+ 	}
+ 
+ 	if (test->barnum >= 0 && test->barnum <= 5) {
 -- 
 2.20.1
 
