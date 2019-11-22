@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69A37106EC7
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 995E4107120
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730359AbfKVLAH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:00:07 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51854 "EHLO mail.kernel.org"
+        id S1727603AbfKVL0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:26:37 -0500
+Received: from mail.kernel.org ([198.145.29.99]:58072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728201AbfKVLAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:00:04 -0500
+        id S1726984AbfKVKeI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:34:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F9D220679;
-        Fri, 22 Nov 2019 11:00:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E129920656;
+        Fri, 22 Nov 2019 10:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420403;
-        bh=rmpRqWBuUsMLm26OG9t+wtXYQizGsK/WZIguKaUORQM=;
+        s=default; t=1574418847;
+        bh=wFarCmC1vgEJ83u0SNHI/6bTj2VuSACrgAQl9SOjl9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nk/3eLiWkP5oOhTGaYvonPH1HNFfqfIzgBvOGNS//h6abUHcn4Qc/sxkMEEgqYpRr
-         QVrmB1f3+0vbPTVBt9n5bha9YoMLTIXRS4+OShrpl1mu8ziuoxvcO/wOryTDGl7Cw4
-         omXemC/Je5vNjXM2BsmbbmPzyMAAJGTU2ivsS/IU=
+        b=AziTzzy1jeP3ExBoO2HQG5T2OnVtjRuXxekg99FlgqQ2gBp0nLnzjyRSt91aLdeUl
+         749XEcT5C5/2a97SS2fNT9wIAnUoy/h5LAOgKguHt0B/rS2M1YNSyn9uVX+E7W9JFS
+         nHW1oMkWXvipjQj2hcd2/z5BpnHTYw+pJL+3WEwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 095/220] ASoC: qdsp6: q6asm-dai: checking NULL vs IS_ERR()
-Date:   Fri, 22 Nov 2019 11:27:40 +0100
-Message-Id: <20191122100919.549015965@linuxfoundation.org>
+Subject: [PATCH 4.4 070/159] ARM: dts: am335x-evm: fix number of cpsw
+Date:   Fri, 22 Nov 2019 11:27:41 +0100
+Message-Id: <20191122100756.409105340@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Grygorii Strashko <grygorii.strashko@ti.com>
 
-[ Upstream commit 8e9f7265eda9f3a662ca1ca47a69042a7840735b ]
+[ Upstream commit dcbf6b18d81bcdc51390ca1b258c17e2e13b7d0c ]
 
-The q6asm_audio_client_alloc() doesn't return NULL, it returns error
-pointers.
+am335x-evm has only one CPSW external port physically wired, but DT defines
+2 ext. ports. As result, PHY connection failure reported for the second
+ext. port.
 
-Fixes: 2a9e92d371db ("ASoC: qdsp6: q6asm: Add q6asm dai driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Update DT to reflect am335x-evm board HW configuration, and, while here,
+switch to use phy-handle instead of phy_id.
+
+Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/qdsp6/q6asm-dai.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/am335x-evm.dts | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/qcom/qdsp6/q6asm-dai.c b/sound/soc/qcom/qdsp6/q6asm-dai.c
-index 9db9a2944ef26..c1a7d376a3fea 100644
---- a/sound/soc/qcom/qdsp6/q6asm-dai.c
-+++ b/sound/soc/qcom/qdsp6/q6asm-dai.c
-@@ -319,10 +319,11 @@ static int q6asm_dai_open(struct snd_pcm_substream *substream)
- 	prtd->audio_client = q6asm_audio_client_alloc(dev,
- 				(q6asm_cb)event_handler, prtd, stream_id,
- 				LEGACY_PCM_MODE);
--	if (!prtd->audio_client) {
-+	if (IS_ERR(prtd->audio_client)) {
- 		pr_info("%s: Could not allocate memory\n", __func__);
-+		ret = PTR_ERR(prtd->audio_client);
- 		kfree(prtd);
--		return -ENOMEM;
-+		return ret;
- 	}
+diff --git a/arch/arm/boot/dts/am335x-evm.dts b/arch/arm/boot/dts/am335x-evm.dts
+index d9d00ab863a21..2b8614e406f03 100644
+--- a/arch/arm/boot/dts/am335x-evm.dts
++++ b/arch/arm/boot/dts/am335x-evm.dts
+@@ -697,6 +697,7 @@
+ 	pinctrl-0 = <&cpsw_default>;
+ 	pinctrl-1 = <&cpsw_sleep>;
+ 	status = "okay";
++	slaves = <1>;
+ };
  
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+ &davinci_mdio {
+@@ -704,15 +705,14 @@
+ 	pinctrl-0 = <&davinci_mdio_default>;
+ 	pinctrl-1 = <&davinci_mdio_sleep>;
+ 	status = "okay";
+-};
+ 
+-&cpsw_emac0 {
+-	phy_id = <&davinci_mdio>, <0>;
+-	phy-mode = "rgmii-txid";
++	ethphy0: ethernet-phy@0 {
++		reg = <0>;
++	};
+ };
+ 
+-&cpsw_emac1 {
+-	phy_id = <&davinci_mdio>, <1>;
++&cpsw_emac0 {
++	phy-handle = <&ethphy0>;
+ 	phy-mode = "rgmii-txid";
+ };
+ 
 -- 
 2.20.1
 
