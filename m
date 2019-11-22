@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA259106E78
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:09:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFADC1070F3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731439AbfKVLDl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:03:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:57978 "EHLO mail.kernel.org"
+        id S1728251AbfKVKfb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:35:31 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731437AbfKVLDk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:03:40 -0500
+        id S1727096AbfKVKfa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:35:30 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92203207FC;
-        Fri, 22 Nov 2019 11:03:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7BDE120637;
+        Fri, 22 Nov 2019 10:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420620;
-        bh=dVNRZUOppbIJs5ql/gl9Dfu+yySfO+0rBHt2dBpyjbo=;
+        s=default; t=1574418930;
+        bh=PZ4mNX3BZ5ujetohvjV/4ez0wEdlzaYIfrhi0antStA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s072tu2MA58vMHKgF9QKhexH4N8abuDn5wkA3OceOr7qHzUe8/9rjOwbQO7kzE2V7
-         o40N+llf/5lgEsIkrNF0ezOzh1QWXNfs4HxXO/7DDEccV5C2hb8DlzI3pkovHIxOTs
-         o41mb+7PMqZZM1PxsByCA8MkNT/FaUR8ayCreLQU=
+        b=nyuXxMcYs9HQosPk+cuRs1/iHk9SUeCQcXWtdR2H3eiQtUhhlUAVzHCbQ3PEiHptC
+         8g/EMem0hQe+h5iTYgHFmPgXLCOEkjv1uAL5p3O8YsZaNohF+Q0uoViBHipV1uATPx
+         rXQStn2JpyKS94r+1D98ezm0KEwEngaZjGftM0Dc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hans.verkuil@cisco.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 125/220] media: cec-gpio: select correct Signal Free Time
-Date:   Fri, 22 Nov 2019 11:28:10 +0100
-Message-Id: <20191122100921.767282759@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.4 100/159] net: cdc_ncm: Signedness bug in cdc_ncm_set_dgram_size()
+Date:   Fri, 22 Nov 2019 11:28:11 +0100
+Message-Id: <20191122100820.277001861@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hans.verkuil@cisco.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c439d5c1e13dbf66cff53455432f21d4d0536c51 ]
+commit a56dcc6b455830776899ce3686735f1172e12243 upstream.
 
-If a receive is in progress or starts before the transmit has
-a chance, then lower the Signal Free Time of the upcoming transmit
-to no more than CEC_SIGNAL_FREE_TIME_NEW_INITIATOR.
+This code is supposed to test for negative error codes and partial
+reads, but because sizeof() is size_t (unsigned) type then negative
+error codes are type promoted to high positive values and the condition
+doesn't work as expected.
 
-This is per the specification requirements.
+Fixes: 332f989a3b00 ("CDC-NCM: handle incomplete transfer of MTU")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Hans Verkuil <hans.verkuil@cisco.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/cec/cec-pin.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+ drivers/net/usb/cdc_ncm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/cec/cec-pin.c b/drivers/media/cec/cec-pin.c
-index 0496d93b2b8fa..8f987bc0dd883 100644
---- a/drivers/media/cec/cec-pin.c
-+++ b/drivers/media/cec/cec-pin.c
-@@ -936,6 +936,17 @@ static enum hrtimer_restart cec_pin_timer(struct hrtimer *timer)
- 			/* Start bit, switch to receive state */
- 			pin->ts = ts;
- 			pin->state = CEC_ST_RX_START_BIT_LOW;
-+			/*
-+			 * If a transmit is pending, then that transmit should
-+			 * use a signal free time of no more than
-+			 * CEC_SIGNAL_FREE_TIME_NEW_INITIATOR since it will
-+			 * have a new initiator due to the receive that is now
-+			 * starting.
-+			 */
-+			if (pin->tx_msg.len && pin->tx_signal_free_time >
-+			    CEC_SIGNAL_FREE_TIME_NEW_INITIATOR)
-+				pin->tx_signal_free_time =
-+					CEC_SIGNAL_FREE_TIME_NEW_INITIATOR;
- 			break;
- 		}
- 		if (ktime_to_ns(pin->ts) == 0)
-@@ -1158,6 +1169,15 @@ static int cec_pin_adap_transmit(struct cec_adapter *adap, u8 attempts,
- {
- 	struct cec_pin *pin = adap->pin;
- 
-+	/*
-+	 * If a receive is in progress, then this transmit should use
-+	 * a signal free time of max CEC_SIGNAL_FREE_TIME_NEW_INITIATOR
-+	 * since when it starts transmitting it will have a new initiator.
-+	 */
-+	if (pin->state != CEC_ST_IDLE &&
-+	    signal_free_time > CEC_SIGNAL_FREE_TIME_NEW_INITIATOR)
-+		signal_free_time = CEC_SIGNAL_FREE_TIME_NEW_INITIATOR;
-+
- 	pin->tx_signal_free_time = signal_free_time;
- 	pin->tx_extra_bytes = 0;
- 	pin->tx_msg = *msg;
--- 
-2.20.1
-
+--- a/drivers/net/usb/cdc_ncm.c
++++ b/drivers/net/usb/cdc_ncm.c
+@@ -534,7 +534,7 @@ static void cdc_ncm_set_dgram_size(struc
+ 	err = usbnet_read_cmd(dev, USB_CDC_GET_MAX_DATAGRAM_SIZE,
+ 			      USB_TYPE_CLASS | USB_DIR_IN | USB_RECIP_INTERFACE,
+ 			      0, iface_no, &max_datagram_size, sizeof(max_datagram_size));
+-	if (err < sizeof(max_datagram_size)) {
++	if (err != sizeof(max_datagram_size)) {
+ 		dev_dbg(&dev->intf->dev, "GET_MAX_DATAGRAM_SIZE failed\n");
+ 		goto out;
+ 	}
 
 
