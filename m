@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCD0A1063D0
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:13:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02217106491
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728719AbfKVGNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728755AbfKVGNL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 22 Nov 2019 01:13:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50306 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728697AbfKVGNK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:13:10 -0500
+        id S1728711AbfKVGNL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:13:11 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D935820717;
-        Fri, 22 Nov 2019 06:13:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 128E22070E;
+        Fri, 22 Nov 2019 06:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574403189;
-        bh=2NavNmSSRIUFC61aNh873EINxN+3wfIG+QCBYvnDcQ0=;
+        s=default; t=1574403190;
+        bh=cxbX40+yMebtvgtypjYfDbKSAlYOdV5SCSC0zAhdyaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7YmesbZd3v+t2ed/lPjgaVlaD5/O4RFwNdXExqYaa3E1k7uyBPzjFfLSgDwz41/c
-         7jTTWMayFnWBjYnwVkEN1eRwaKalkGk5sdX0zm8comTlHLJFRrJtKhYLeQQ4BMQw3M
-         qpZMQBXbMOf2HoHAE88MjkM2mpWEjqO0HOj+A7F4=
+        b=KNh+4u74GcBR4YXOzev/Jtqm1d0iCAJTCkzNK6O6dFh9jPt8R/tXqD0flm/LvZUYH
+         J5otqDc+/jeut/hTJZhjs07VrfWK9Xd30se5gFPpPo9+NKMYGD9T2163xGKcAmtVpq
+         bEL9anZmTz3BfSF4+HFz7QiHWNRPm44UomhDzJYo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Meyer <thomas@m3y3r.de>,
-        Kevin Hilman <khilman@baylibre.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 07/68] PM / AVS: SmartReflex: NULL check before some freeing functions is not needed
-Date:   Fri, 22 Nov 2019 01:12:00 -0500
-Message-Id: <20191122061301.4947-6-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 08/68] ARM: ks8695: fix section mismatch warning
+Date:   Fri, 22 Nov 2019 01:12:01 -0500
+Message-Id: <20191122061301.4947-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122061301.4947-1-sashal@kernel.org>
 References: <20191122061301.4947-1-sashal@kernel.org>
@@ -44,34 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Meyer <thomas@m3y3r.de>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 14d338a857f05f894ba3badd9e6d3039c68b8180 ]
+[ Upstream commit 4aa64677330beeeed721b4b122884dabad845d66 ]
 
-NULL check before some freeing functions is not needed.
+WARNING: vmlinux.o(.text+0x13250): Section mismatch in reference from the function acs5k_i2c_init() to the (unknown reference) .init.data:(unknown)
+The function acs5k_i2c_init() references
+the (unknown reference) __initdata (unknown).
+This is often because acs5k_i2c_init lacks a __initdata
+annotation or the annotation of (unknown) is wrong.
 
-Signed-off-by: Thomas Meyer <thomas@m3y3r.de>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Olof Johansson <olof@lixom.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/avs/smartreflex.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm/mach-ks8695/board-acs5k.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/power/avs/smartreflex.c b/drivers/power/avs/smartreflex.c
-index db9973bb53f19..ecc59798fd0aa 100644
---- a/drivers/power/avs/smartreflex.c
-+++ b/drivers/power/avs/smartreflex.c
-@@ -1001,8 +1001,7 @@ static int omap_sr_remove(struct platform_device *pdev)
+diff --git a/arch/arm/mach-ks8695/board-acs5k.c b/arch/arm/mach-ks8695/board-acs5k.c
+index 9f9c0441a9175..e372609c48dd0 100644
+--- a/arch/arm/mach-ks8695/board-acs5k.c
++++ b/arch/arm/mach-ks8695/board-acs5k.c
+@@ -92,7 +92,7 @@ static struct i2c_board_info acs5k_i2c_devs[] __initdata = {
+ 	},
+ };
  
- 	if (sr_info->autocomp_active)
- 		sr_stop_vddautocomp(sr_info);
--	if (sr_info->dbg_dir)
--		debugfs_remove_recursive(sr_info->dbg_dir);
-+	debugfs_remove_recursive(sr_info->dbg_dir);
- 
- 	pm_runtime_disable(&pdev->dev);
- 	list_del(&sr_info->node);
+-static void acs5k_i2c_init(void)
++static void __init acs5k_i2c_init(void)
+ {
+ 	/* The gpio interface */
+ 	platform_device_register(&acs5k_i2c_device);
 -- 
 2.20.1
 
