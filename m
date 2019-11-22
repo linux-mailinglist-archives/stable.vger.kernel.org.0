@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E92310711F
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BCFD106EC4
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:11:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726744AbfKVKeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:34:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58198 "EHLO mail.kernel.org"
+        id S1729194AbfKVLAO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:00:14 -0500
+Received: from mail.kernel.org ([198.145.29.99]:52126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728036AbfKVKeK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:34:10 -0500
+        id S1730215AbfKVLAN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:00:13 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85B0720708;
-        Fri, 22 Nov 2019 10:34:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 80D4E2073B;
+        Fri, 22 Nov 2019 11:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418850;
-        bh=zwiB0jeC03ZgwzHt91IsT3P3zsTUgNluiRma6fPjWNA=;
+        s=default; t=1574420413;
+        bh=EaemQSMRjOoOZA9hgJ+Xxl+flpaibVvlHklLcHHBV1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dJT09dIuRbtI3Mkt/cE+pA7W4obbTYaceOczvtlDSirT6FmKpwwg6xJDJ37DolGTW
-         E5uJtL538zUaLfQTm8xqErA5V3BbNTbvlFVst71WxbUczMVXfusXy77mBNCrEBvvVQ
-         gQ7rxriWcOC2ppirE6+eysLtwhcFFR9KaQbIy878=
+        b=ypX87GbCVuBinC+CRqa/galefcrqSgoPoEEJqMBra5KrBlQ+pcGMkPTUsI9zQiiAz
+         6MhALTYW1fWgv4ovurRrl+Ula9H+oaNaVQdcqLyUIkKd3vmSVZjP8SNp7CT1H2Hujm
+         cjWPTjHYjUOl+wIcmDseG1OTDrtFSOhuFAnOqP2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 071/159] ARM: dts: ux500: Correct SCU unit address
-Date:   Fri, 22 Nov 2019 11:27:42 +0100
-Message-Id: <20191122100756.858577292@linuxfoundation.org>
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 098/220] ata: ep93xx: Use proper enums for directions
+Date:   Fri, 22 Nov 2019 11:27:43 +0100
+Message-Id: <20191122100919.794046625@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 2f217d24ecaec2012e628d21e244eef0608656a4 ]
+[ Upstream commit 6adde4a36f1b6a562a1057fbb1065007851050e7 ]
 
-The unit address of the Cortex-A9 SCU device node contains one zero too
-many.  Remove it.
+Clang warns when one enumerated type is implicitly converted to another.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+drivers/ata/pata_ep93xx.c:662:36: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+        drv_data->dma_rx_data.direction = DMA_FROM_DEVICE;
+                                        ~ ^~~~~~~~~~~~~~~
+drivers/ata/pata_ep93xx.c:670:36: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+        drv_data->dma_tx_data.direction = DMA_TO_DEVICE;
+                                        ~ ^~~~~~~~~~~~~
+drivers/ata/pata_ep93xx.c:681:19: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+        conf.direction = DMA_FROM_DEVICE;
+                       ~ ^~~~~~~~~~~~~~~
+drivers/ata/pata_ep93xx.c:692:19: warning: implicit conversion from
+enumeration type 'enum dma_data_direction' to different enumeration type
+'enum dma_transfer_direction' [-Wenum-conversion]
+        conf.direction = DMA_TO_DEVICE;
+                       ~ ^~~~~~~~~~~~~
+
+Use the equivalent valued enums from the expected type so that Clang no
+longer warns about a conversion.
+
+DMA_TO_DEVICE = DMA_MEM_TO_DEV = 1
+DMA_FROM_DEVICE = DMA_DEV_TO_MEM = 2
+
+Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/ste-dbx5x0.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ata/pata_ep93xx.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/ste-dbx5x0.dtsi b/arch/arm/boot/dts/ste-dbx5x0.dtsi
-index 50f5e9d092038..86bd320057a38 100644
---- a/arch/arm/boot/dts/ste-dbx5x0.dtsi
-+++ b/arch/arm/boot/dts/ste-dbx5x0.dtsi
-@@ -186,7 +186,7 @@
- 			      <0xa0410100 0x100>;
- 		};
+diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
+index 0a550190955ad..cc6d06c1b2c70 100644
+--- a/drivers/ata/pata_ep93xx.c
++++ b/drivers/ata/pata_ep93xx.c
+@@ -659,7 +659,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
+ 	 * start of new transfer.
+ 	 */
+ 	drv_data->dma_rx_data.port = EP93XX_DMA_IDE;
+-	drv_data->dma_rx_data.direction = DMA_FROM_DEVICE;
++	drv_data->dma_rx_data.direction = DMA_DEV_TO_MEM;
+ 	drv_data->dma_rx_data.name = "ep93xx-pata-rx";
+ 	drv_data->dma_rx_channel = dma_request_channel(mask,
+ 		ep93xx_pata_dma_filter, &drv_data->dma_rx_data);
+@@ -667,7 +667,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
+ 		return;
  
--		scu@a04100000 {
-+		scu@a0410000 {
- 			compatible = "arm,cortex-a9-scu";
- 			reg = <0xa0410000 0x100>;
- 		};
+ 	drv_data->dma_tx_data.port = EP93XX_DMA_IDE;
+-	drv_data->dma_tx_data.direction = DMA_TO_DEVICE;
++	drv_data->dma_tx_data.direction = DMA_MEM_TO_DEV;
+ 	drv_data->dma_tx_data.name = "ep93xx-pata-tx";
+ 	drv_data->dma_tx_channel = dma_request_channel(mask,
+ 		ep93xx_pata_dma_filter, &drv_data->dma_tx_data);
+@@ -678,7 +678,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
+ 
+ 	/* Configure receive channel direction and source address */
+ 	memset(&conf, 0, sizeof(conf));
+-	conf.direction = DMA_FROM_DEVICE;
++	conf.direction = DMA_DEV_TO_MEM;
+ 	conf.src_addr = drv_data->udma_in_phys;
+ 	conf.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+ 	if (dmaengine_slave_config(drv_data->dma_rx_channel, &conf)) {
+@@ -689,7 +689,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
+ 
+ 	/* Configure transmit channel direction and destination address */
+ 	memset(&conf, 0, sizeof(conf));
+-	conf.direction = DMA_TO_DEVICE;
++	conf.direction = DMA_MEM_TO_DEV;
+ 	conf.dst_addr = drv_data->udma_out_phys;
+ 	conf.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
+ 	if (dmaengine_slave_config(drv_data->dma_tx_channel, &conf)) {
 -- 
 2.20.1
 
