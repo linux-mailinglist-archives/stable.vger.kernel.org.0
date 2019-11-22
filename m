@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32ABB106DAA
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 500701070F8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730673AbfKVLCC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:02:02 -0500
-Received: from mail.kernel.org ([198.145.29.99]:55294 "EHLO mail.kernel.org"
+        id S1728315AbfKVKgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:36:00 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731253AbfKVLCA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:02:00 -0500
+        id S1727838AbfKVKgA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:36:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 765782075B;
-        Fri, 22 Nov 2019 11:01:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3D8720715;
+        Fri, 22 Nov 2019 10:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420520;
-        bh=7kkQdKM17MDDKEtGn+Zxkx5RKER3gUy2kCYhpw782+w=;
+        s=default; t=1574418959;
+        bh=PSGBCmK1vQnLwrXnLndA1ipR72bdzcBxl+nx8cOli5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUBKjVJDGI9eYSB8p9sAkHL/RQDA+RR1FvXPJe09uHcHfPIG/GBqIHqteqGJnRDii
-         BERShfQ785cF+FGdqzxrqwxDLdFozM0UDsnl7qDHnfscUbUOd8gNYvS5k9+wGoYqhb
-         /SgI3v/opLEBR4mhvVB9IekpwBBqRHE3OPg+pMeU=
+        b=T0hy9d+f2tQ8h8y/nRtADb1xeJH3k22E8IEsukuAbwSXCE3RidTV0sZ0eRBOa+KCP
+         Yp+zx8nRr2QaK7CtuqFcb8tL8kf2hMmq3G0jJV6Nt7moZyn1/nocdljLLpWlIX3jHr
+         XOOahqsTR+JwexkNZcl6iV6BoPnVtIW4wzoCtkns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Bates <lucasb@mojatatu.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 135/220] tc-testing: fix build of eBPF programs
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Jens Axboe <axboe@fb.com>
+Subject: [PATCH 4.4 109/159] block: introduce blk_rq_is_passthrough
 Date:   Fri, 22 Nov 2019 11:28:20 +0100
-Message-Id: <20191122100922.526045628@linuxfoundation.org>
+Message-Id: <20191122100826.862750257@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,170 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit cf5eafbfa586d030f9321cee516b91d089e38280 ]
+commit 57292b58ddb58689e8c3b4c6eadbef10d9ca44dd upstream.
 
-rely on uAPI headers in the current kernel tree, rather than requiring the
-correct version installed on the test system. While at it, group all
-sections in a single binary and test the 'section' parameter.
+This can be used to check for fs vs non-fs requests and basically
+removes all knowledge of BLOCK_PC specific from the block layer,
+as well as preparing for removing the cmd_type field in struct request.
 
-Reported-by: Lucas Bates <lucasb@mojatatu.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Jens Axboe <axboe@fb.com>
+[only take the blkdev.h changes as we only want the function for backported
+patches - gregkh]
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../testing/selftests/tc-testing/bpf/Makefile | 29 +++++++++++++++++++
- .../testing/selftests/tc-testing/bpf/action.c | 23 +++++++++++++++
- .../tc-testing/tc-tests/actions/bpf.json      | 16 +++++-----
- .../selftests/tc-testing/tdc_config.py        |  4 ++-
- 4 files changed, 63 insertions(+), 9 deletions(-)
- create mode 100644 tools/testing/selftests/tc-testing/bpf/Makefile
- create mode 100644 tools/testing/selftests/tc-testing/bpf/action.c
+ include/linux/blkdev.h |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/tools/testing/selftests/tc-testing/bpf/Makefile b/tools/testing/selftests/tc-testing/bpf/Makefile
-new file mode 100644
-index 0000000000000..dc92eb271d9a1
---- /dev/null
-+++ b/tools/testing/selftests/tc-testing/bpf/Makefile
-@@ -0,0 +1,29 @@
-+# SPDX-License-Identifier: GPL-2.0
-+
-+APIDIR := ../../../../include/uapi
-+TEST_GEN_FILES = action.o
-+
-+top_srcdir = ../../../../..
-+include ../../lib.mk
-+
-+CLANG ?= clang
-+LLC   ?= llc
-+PROBE := $(shell $(LLC) -march=bpf -mcpu=probe -filetype=null /dev/null 2>&1)
-+
-+ifeq ($(PROBE),)
-+  CPU ?= probe
-+else
-+  CPU ?= generic
-+endif
-+
-+CLANG_SYS_INCLUDES := $(shell $(CLANG) -v -E - </dev/null 2>&1 \
-+	| sed -n '/<...> search starts here:/,/End of search list./{ s| \(/.*\)|-idirafter \1|p }')
-+
-+CLANG_FLAGS = -I. -I$(APIDIR) \
-+	      $(CLANG_SYS_INCLUDES) \
-+	      -Wno-compare-distinct-pointer-types
-+
-+$(OUTPUT)/%.o: %.c
-+	$(CLANG) $(CLANG_FLAGS) \
-+		 -O2 -target bpf -emit-llvm -c $< -o - |      \
-+	$(LLC) -march=bpf -mcpu=$(CPU) $(LLC_FLAGS) -filetype=obj -o $@
-diff --git a/tools/testing/selftests/tc-testing/bpf/action.c b/tools/testing/selftests/tc-testing/bpf/action.c
-new file mode 100644
-index 0000000000000..c32b99b80e19e
---- /dev/null
-+++ b/tools/testing/selftests/tc-testing/bpf/action.c
-@@ -0,0 +1,23 @@
-+/* SPDX-License-Identifier: GPL-2.0
-+ * Copyright (c) 2018 Davide Caratti, Red Hat inc.
-+ *
-+ * This program is free software; you can redistribute it and/or
-+ * modify it under the terms of version 2 of the GNU General Public
-+ * License as published by the Free Software Foundation.
-+ */
-+
-+#include <linux/bpf.h>
-+#include <linux/pkt_cls.h>
-+
-+__attribute__((section("action-ok"),used)) int action_ok(struct __sk_buff *s)
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -199,6 +199,11 @@ struct request {
+ 	struct request *next_rq;
+ };
+ 
++static inline bool blk_rq_is_passthrough(struct request *rq)
 +{
-+	return TC_ACT_OK;
++	return rq->cmd_type != REQ_TYPE_FS;
 +}
 +
-+__attribute__((section("action-ko"),used)) int action_ko(struct __sk_buff *s)
+ static inline unsigned short req_get_ioprio(struct request *req)
+ {
+ 	return req->ioprio;
+@@ -582,9 +587,10 @@ static inline void queue_flag_clear(unsi
+ 	((rq)->cmd_flags & (REQ_FAILFAST_DEV|REQ_FAILFAST_TRANSPORT| \
+ 			     REQ_FAILFAST_DRIVER))
+ 
+-#define blk_account_rq(rq) \
+-	(((rq)->cmd_flags & REQ_STARTED) && \
+-	 ((rq)->cmd_type == REQ_TYPE_FS))
++static inline bool blk_account_rq(struct request *rq)
 +{
-+	s->data = 0x0;
-+	return TC_ACT_OK;
++	return (rq->cmd_flags & REQ_STARTED) && !blk_rq_is_passthrough(rq);
 +}
-+
-+char _license[] __attribute__((section("license"),used)) = "GPL";
-diff --git a/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json b/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
-index 6f289a49e5ecf..1a9b282dd0be2 100644
---- a/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
-+++ b/tools/testing/selftests/tc-testing/tc-tests/actions/bpf.json
-@@ -55,7 +55,7 @@
-             "bpf"
-         ],
-         "setup": [
--            "printf '#include <linux/bpf.h>\nchar l[] __attribute__((section(\"license\"),used))=\"GPL\"; __attribute__((section(\"action\"),used)) int m(struct __sk_buff *s) { return 2; }' | clang -O2 -x c -c - -target bpf -o _b.o",
-+            "make -C bpf",
-             [
-                 "$TC action flush action bpf",
-                 0,
-@@ -63,14 +63,14 @@
-                 255
-             ]
-         ],
--        "cmdUnderTest": "$TC action add action bpf object-file _b.o index 667",
-+        "cmdUnderTest": "$TC action add action bpf object-file $EBPFDIR/action.o section action-ok index 667",
-         "expExitCode": "0",
-         "verifyCmd": "$TC action get action bpf index 667",
--        "matchPattern": "action order [0-9]*: bpf _b.o:\\[action\\] id [0-9]* tag 3b185187f1855c4c( jited)? default-action pipe.*index 667 ref",
-+        "matchPattern": "action order [0-9]*: bpf action.o:\\[action-ok\\] id [0-9]* tag [0-9a-f]{16}( jited)? default-action pipe.*index 667 ref",
-         "matchCount": "1",
-         "teardown": [
-             "$TC action flush action bpf",
--            "rm -f _b.o"
-+            "make -C bpf clean"
-         ]
-     },
-     {
-@@ -81,7 +81,7 @@
-             "bpf"
-         ],
-         "setup": [
--            "printf '#include <linux/bpf.h>\nchar l[] __attribute__((section(\"license\"),used))=\"GPL\"; __attribute__((section(\"action\"),used)) int m(struct __sk_buff *s) { s->data = 0x0; return 2; }' | clang -O2 -x c -c - -target bpf -o _c.o",
-+            "make -C bpf",
-             [
-                 "$TC action flush action bpf",
-                 0,
-@@ -89,10 +89,10 @@
-                 255
-             ]
-         ],
--        "cmdUnderTest": "$TC action add action bpf object-file _c.o index 667",
-+        "cmdUnderTest": "$TC action add action bpf object-file $EBPFDIR/action.o section action-ko index 667",
-         "expExitCode": "255",
-         "verifyCmd": "$TC action get action bpf index 667",
--        "matchPattern": "action order [0-9]*: bpf _c.o:\\[action\\] id [0-9].*index 667 ref",
-+        "matchPattern": "action order [0-9]*: bpf action.o:\\[action-ko\\] id [0-9].*index 667 ref",
-         "matchCount": "0",
-         "teardown": [
-             [
-@@ -101,7 +101,7 @@
-                 1,
-                 255
-             ],
--            "rm -f _c.o"
-+            "make -C bpf clean"
-         ]
-     },
-     {
-diff --git a/tools/testing/selftests/tc-testing/tdc_config.py b/tools/testing/selftests/tc-testing/tdc_config.py
-index a023d0d62b25c..d651bc1501bdb 100644
---- a/tools/testing/selftests/tc-testing/tdc_config.py
-+++ b/tools/testing/selftests/tc-testing/tdc_config.py
-@@ -16,7 +16,9 @@ NAMES = {
-           'DEV2': '',
-           'BATCH_FILE': './batch.txt',
-           # Name of the namespace to use
--          'NS': 'tcut'
-+          'NS': 'tcut',
-+          # Directory containing eBPF test programs
-+          'EBPFDIR': './bpf'
-         }
  
+ #define blk_rq_cpu_valid(rq)	((rq)->cpu != -1)
+ #define blk_bidi_rq(rq)		((rq)->next_rq != NULL)
+@@ -645,7 +651,7 @@ static inline void blk_clear_rl_full(str
  
--- 
-2.20.1
-
+ static inline bool rq_mergeable(struct request *rq)
+ {
+-	if (rq->cmd_type != REQ_TYPE_FS)
++	if (blk_rq_is_passthrough(rq))
+ 		return false;
+ 
+ 	if (rq->cmd_flags & REQ_NOMERGE_FLAGS)
+@@ -890,7 +896,7 @@ static inline unsigned int blk_rq_get_ma
+ {
+ 	struct request_queue *q = rq->q;
+ 
+-	if (unlikely(rq->cmd_type != REQ_TYPE_FS))
++	if (blk_rq_is_passthrough(rq))
+ 		return q->limits.max_hw_sectors;
+ 
+ 	if (!q->limits.chunk_sectors || (rq->cmd_flags & REQ_DISCARD))
 
 
