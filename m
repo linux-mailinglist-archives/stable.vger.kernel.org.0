@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 38FDE106D19
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:57:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E44B7106B16
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730693AbfKVK5h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:57:37 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46598 "EHLO mail.kernel.org"
+        id S1728024AbfKVKlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:41:13 -0500
+Received: from mail.kernel.org ([198.145.29.99]:45614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728894AbfKVK5h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:57:37 -0500
+        id S1727733AbfKVKlM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:41:12 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FF4A2071F;
-        Fri, 22 Nov 2019 10:57:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB78220717;
+        Fri, 22 Nov 2019 10:41:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420256;
-        bh=vjRm5z1f7VAIKpx122Lgmut+qlfiEoylkat97rE7Dos=;
+        s=default; t=1574419271;
+        bh=8AN2pFZyrm0yIe8Lxq0JW9552ptGWoMKWXo+U6zPmiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WElz8L5HTFxC5Xb1qwxrkahBqU8sDmhu2SDTSGWAn8bhqWbzFL9lVj2LCuy1k1o23
-         DJ1/fBt12LhJdfyNusW7q2Og55lQBjhlzitNW2uhjhgfiJKAlZahI8Yui9Ak1KAY9i
-         /oaY3vOUDHoESLQafkKAcBZEwpl84ObDWM35m4Ao=
+        b=wznjFRwZVAPirzAIoWQSArb5KEs9dsQ3nQ0pb9MabssGPpEXtoYY2eCrYvD1Z+P/1
+         rs8RiLS6ZQwNjN7R/JgHQZ60wGrVg6MFXqh7WOZxXGC+0moDygy2A2YgM4BdHq00PE
+         9e4fkgsg3QfQvj70Ft5iOntvRtGpYLHtRYptVk3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 028/220] f2fs: keep lazytime on remount
-Date:   Fri, 22 Nov 2019 11:26:33 +0100
-Message-Id: <20191122100914.461904944@linuxfoundation.org>
+Subject: [PATCH 4.9 054/222] signal: Properly deliver SIGSEGV from x86 uprobes
+Date:   Fri, 22 Nov 2019 11:26:34 +0100
+Message-Id: <20191122100856.164465952@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
+References: <20191122100830.874290814@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,31 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Eric W. Biederman <ebiederm@xmission.com>
 
-[ Upstream commit 095680f24f2673d860fd1d3d2f54f40f330b4c63 ]
+[ Upstream commit 4a63c1ffd384ebdce40aac9c997dab68379137be ]
 
-This patch fixes losing lazytime when remounting f2fs.
+For userspace to tell the difference between an random signal
+and an exception, the exception must include siginfo information.
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Using SEND_SIG_FORCED for SIGSEGV is thus wrong, and it will result in
+userspace seeing si_code == SI_USER (like a random signal) instead of
+si_code == SI_KERNEL or a more specific si_code as all exceptions
+deliver.
+
+Therefore replace force_sig_info(SIGSEGV, SEND_SIG_FORCE, current)
+with force_sig(SIG_SEGV, current) which gets this right and is shorter
+and easier to type.
+
+Fixes: 791eca10107f ("uretprobes/x86: Hijack return address")
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/uprobes.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/super.c b/fs/f2fs/super.c
-index b05e10c332b7e..15779123d0895 100644
---- a/fs/f2fs/super.c
-+++ b/fs/f2fs/super.c
-@@ -1556,6 +1556,7 @@ static int f2fs_remount(struct super_block *sb, int *flags, char *data)
- 		(test_opt(sbi, POSIX_ACL) ? SB_POSIXACL : 0);
+diff --git a/arch/x86/kernel/uprobes.c b/arch/x86/kernel/uprobes.c
+index e35466afe989d..eac679ab543f6 100644
+--- a/arch/x86/kernel/uprobes.c
++++ b/arch/x86/kernel/uprobes.c
+@@ -983,7 +983,7 @@ arch_uretprobe_hijack_return_addr(unsigned long trampoline_vaddr, struct pt_regs
+ 		pr_err("uprobe: return address clobbered: pid=%d, %%sp=%#lx, "
+ 			"%%ip=%#lx\n", current->pid, regs->sp, regs->ip);
  
- 	limit_reserve_root(sbi);
-+	*flags = (*flags & ~SB_LAZYTIME) | (sb->s_flags & SB_LAZYTIME);
- 	return 0;
- restore_gc:
- 	if (need_restart_gc) {
+-		force_sig_info(SIGSEGV, SEND_SIG_FORCED, current);
++		force_sig(SIGSEGV, current);
+ 	}
+ 
+ 	return -1;
 -- 
 2.20.1
 
