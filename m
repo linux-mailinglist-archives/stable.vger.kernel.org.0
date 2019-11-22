@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60148106164
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:56:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ECF410616E
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:57:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728123AbfKVF4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:56:32 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34316 "EHLO mail.kernel.org"
+        id S1729201AbfKVF4p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:56:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728379AbfKVF4b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:31 -0500
+        id S1729242AbfKVF4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:45 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 521A720659;
-        Fri, 22 Nov 2019 05:56:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D194E2070A;
+        Fri, 22 Nov 2019 05:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402190;
-        bh=vdwaTwkiAhmYG/mez884oyyzASldPyX2HzsGMIGaA/8=;
+        s=default; t=1574402204;
+        bh=c92/BLyGFwnUnlC9RHs4LORE2AeBCegKXnWlVU3xO4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVKsZl4XUrzgUOTGd3I0+A0DH7oSKKEPYXF5T+Zm0mkrLczmG89dKH/YMGsNT0FCv
-         6bXNk+4i/+NRl6K9vVtYZdzJCxce22b2BC9XgiEEoahqR8DxcpJ4EIyjexAWhEzt9W
-         dyMirfQnI9LqaouhtiA7KBmZd2LT6hvS9WMII3Aw=
+        b=ag1hiuwq+f7gVMVcSyqAu9k+m7mzb8HGIoMQeCQ2WQoFA1zYqfkMexv9WOiUpfj8b
+         6tW8TWAc7iFmG1q5nDqrUb6Gs99ijSj/2aBGtXqxVx8s+OFrP2kJDEoDrS5BLFbOCU
+         jBDHkMdayZK9/MwGPM6LSNlBKrO6/xq4zqqf4rNA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 040/127] bnxt_en: Return linux standard errors in bnxt_ethtool.c
-Date:   Fri, 22 Nov 2019 00:54:18 -0500
-Message-Id: <20191122055544.3299-39-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@c-s.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 053/127] powerpc/book3s/32: fix number of bats in p/v_block_mapped()
+Date:   Fri, 22 Nov 2019 00:54:31 -0500
+Message-Id: <20191122055544.3299-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -44,147 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
 
-[ Upstream commit 7c675421afef18253a86ffc383f57bc15ef32ea8 ]
+[ Upstream commit e93ba1b7eb5b188c749052df7af1c90821c5f320 ]
 
-Currently firmware specific errors are returned directly in flash_device
-and reset ethtool hooks. Modify it to return linux standard errors
-to userspace when flashing operations fail.
+This patch fixes the loop in p_block_mapped() and v_block_mapped()
+to scan the entire bat_addrs[] array.
 
-Signed-off-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christophe Leroy <christophe.leroy@c-s.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 56 +++++++++++++------
- 1 file changed, 39 insertions(+), 17 deletions(-)
+ arch/powerpc/mm/ppc_mmu_32.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-index a22336fef66b2..4879371ad0c75 100644
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
-@@ -1339,14 +1339,22 @@ static int bnxt_flash_nvram(struct net_device *dev,
- 	rc = hwrm_send_message(bp, &req, sizeof(req), FLASH_NVRAM_TIMEOUT);
- 	dma_free_coherent(&bp->pdev->dev, data_len, kmem, dma_handle);
- 
-+	if (rc == HWRM_ERR_CODE_RESOURCE_ACCESS_DENIED) {
-+		netdev_info(dev,
-+			    "PF does not have admin privileges to flash the device\n");
-+		rc = -EACCES;
-+	} else if (rc) {
-+		rc = -EIO;
-+	}
- 	return rc;
- }
- 
- static int bnxt_firmware_reset(struct net_device *dev,
- 			       u16 dir_type)
+diff --git a/arch/powerpc/mm/ppc_mmu_32.c b/arch/powerpc/mm/ppc_mmu_32.c
+index 2a049fb8523d5..96c52271e9c2d 100644
+--- a/arch/powerpc/mm/ppc_mmu_32.c
++++ b/arch/powerpc/mm/ppc_mmu_32.c
+@@ -52,7 +52,7 @@ struct batrange {		/* stores address ranges mapped by BATs */
+ phys_addr_t v_block_mapped(unsigned long va)
  {
--	struct bnxt *bp = netdev_priv(dev);
- 	struct hwrm_fw_reset_input req = {0};
-+	struct bnxt *bp = netdev_priv(dev);
-+	int rc;
- 
- 	bnxt_hwrm_cmd_hdr_init(bp, &req, HWRM_FW_RESET, -1, -1);
- 
-@@ -1380,7 +1388,15 @@ static int bnxt_firmware_reset(struct net_device *dev,
- 		return -EINVAL;
- 	}
- 
--	return hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
-+	rc = hwrm_send_message(bp, &req, sizeof(req), HWRM_CMD_TIMEOUT);
-+	if (rc == HWRM_ERR_CODE_RESOURCE_ACCESS_DENIED) {
-+		netdev_info(dev,
-+			    "PF does not have admin privileges to reset the device\n");
-+		rc = -EACCES;
-+	} else if (rc) {
-+		rc = -EIO;
-+	}
-+	return rc;
- }
- 
- static int bnxt_flash_firmware(struct net_device *dev,
-@@ -1587,9 +1603,9 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
- 	struct hwrm_nvm_install_update_output *resp = bp->hwrm_cmd_resp_addr;
- 	struct hwrm_nvm_install_update_input install = {0};
- 	const struct firmware *fw;
-+	int rc, hwrm_err = 0;
- 	u32 item_len;
- 	u16 index;
--	int rc;
- 
- 	bnxt_hwrm_fw_set_time(bp);
- 
-@@ -1632,15 +1648,16 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
- 			memcpy(kmem, fw->data, fw->size);
- 			modify.host_src_addr = cpu_to_le64(dma_handle);
- 
--			rc = hwrm_send_message(bp, &modify, sizeof(modify),
--					       FLASH_PACKAGE_TIMEOUT);
-+			hwrm_err = hwrm_send_message(bp, &modify,
-+						     sizeof(modify),
-+						     FLASH_PACKAGE_TIMEOUT);
- 			dma_free_coherent(&bp->pdev->dev, fw->size, kmem,
- 					  dma_handle);
- 		}
- 	}
- 	release_firmware(fw);
--	if (rc)
--		return rc;
-+	if (rc || hwrm_err)
-+		goto err_exit;
- 
- 	if ((install_type & 0xffff) == 0)
- 		install_type >>= 16;
-@@ -1648,12 +1665,10 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
- 	install.install_type = cpu_to_le32(install_type);
- 
- 	mutex_lock(&bp->hwrm_cmd_lock);
--	rc = _hwrm_send_message(bp, &install, sizeof(install),
--				INSTALL_PACKAGE_TIMEOUT);
--	if (rc) {
--		rc = -EOPNOTSUPP;
-+	hwrm_err = _hwrm_send_message(bp, &install, sizeof(install),
-+				      INSTALL_PACKAGE_TIMEOUT);
-+	if (hwrm_err)
- 		goto flash_pkg_exit;
--	}
- 
- 	if (resp->error_code) {
- 		u8 error_code = ((struct hwrm_err_output *)resp)->cmd_err;
-@@ -1661,12 +1676,11 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
- 		if (error_code == NVM_INSTALL_UPDATE_CMD_ERR_CODE_FRAG_ERR) {
- 			install.flags |= cpu_to_le16(
- 			       NVM_INSTALL_UPDATE_REQ_FLAGS_ALLOWED_TO_DEFRAG);
--			rc = _hwrm_send_message(bp, &install, sizeof(install),
--						INSTALL_PACKAGE_TIMEOUT);
--			if (rc) {
--				rc = -EOPNOTSUPP;
-+			hwrm_err = _hwrm_send_message(bp, &install,
-+						      sizeof(install),
-+						      INSTALL_PACKAGE_TIMEOUT);
-+			if (hwrm_err)
- 				goto flash_pkg_exit;
--			}
- 		}
- 	}
- 
-@@ -1677,6 +1691,14 @@ static int bnxt_flash_package_from_file(struct net_device *dev,
- 	}
- flash_pkg_exit:
- 	mutex_unlock(&bp->hwrm_cmd_lock);
-+err_exit:
-+	if (hwrm_err == HWRM_ERR_CODE_RESOURCE_ACCESS_DENIED) {
-+		netdev_info(dev,
-+			    "PF does not have admin privileges to flash the device\n");
-+		rc = -EACCES;
-+	} else if (hwrm_err) {
-+		rc = -EOPNOTSUPP;
-+	}
- 	return rc;
- }
- 
+ 	int b;
+-	for (b = 0; b < 4; ++b)
++	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
+ 		if (va >= bat_addrs[b].start && va < bat_addrs[b].limit)
+ 			return bat_addrs[b].phys + (va - bat_addrs[b].start);
+ 	return 0;
+@@ -64,7 +64,7 @@ phys_addr_t v_block_mapped(unsigned long va)
+ unsigned long p_block_mapped(phys_addr_t pa)
+ {
+ 	int b;
+-	for (b = 0; b < 4; ++b)
++	for (b = 0; b < ARRAY_SIZE(bat_addrs); ++b)
+ 		if (pa >= bat_addrs[b].phys
+ 	    	    && pa < (bat_addrs[b].limit-bat_addrs[b].start)
+ 		              +bat_addrs[b].phys)
 -- 
 2.20.1
 
