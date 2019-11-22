@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF9A107083
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:23:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CB7A10711A
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:26:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728602AbfKVKml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:42:41 -0500
-Received: from mail.kernel.org ([198.145.29.99]:47914 "EHLO mail.kernel.org"
+        id S1728096AbfKVKe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:34:28 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728529AbfKVKmk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:42:40 -0500
+        id S1728093AbfKVKe2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:34:28 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A91B20707;
-        Fri, 22 Nov 2019 10:42:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EBE720656;
+        Fri, 22 Nov 2019 10:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419359;
-        bh=/iiWpYIah33RZaJSah7hoPv2+EwlM7QCexritnX69Z8=;
+        s=default; t=1574418867;
+        bh=VD4UdahY3GQ+xQ2/+jHwTXiwPVyL987arVvNOOss+w0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXbz5uQt8xAergb0A0D0omWlMWO8FYbXerWc60z2YvMzeZRpjrHU+0JHI7Vl4BndO
-         WOsicMK8yxLXtTU93HHW6sC17VRHJDjhX+STlC+xsn06F5vS1hEdEptSrbxxXnPoW1
-         270Cjsnbj4VjAIaLHcEx5vLb+p7WRKyBj8fj67oY=
+        b=ea7IAH5rnDm5kEu5/sDA/dsVgQxhTcDxu7Pw5HwkQ3zJIJCnc5AUMVrt848e22rdi
+         OCkTdGrDjK9bhFTtj7ITjPp/QFD/3ZwSkP1VGvTT2nIWwWbGnyyGp+ApQfRxk+6G33
+         r+ptG050Gd9bO28Gelm0uDN192q7nWdfGM05Gpmc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 086/222] RDMA/i40iw: Fix incorrect iterator type
+        stable@vger.kernel.org, Daniel Silsby <dansilsby@gmail.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Mathieu Malaterre <malat@debian.org>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 035/159] dmaengine: dma-jz4780: Further residue status fix
 Date:   Fri, 22 Nov 2019 11:27:06 +0100
-Message-Id: <20191122100909.781384355@linuxfoundation.org>
+Message-Id: <20191122100731.330660345@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <Haakon.Bugge@oracle.com>
+From: Daniel Silsby <dansilsby@gmail.com>
 
-[ Upstream commit 802fa45cd320de319e86c93bca72abec028ba059 ]
+[ Upstream commit 83ef4fb7556b6a673f755da670cbacab7e2c7f1b ]
 
-Commit f27b4746f378 ("i40iw: add connection management code") uses an
-incorrect rcu iterator, whilst holding the rtnl_lock. Since the
-critical region invokes i40iw_manage_qhash(), which is a sleeping
-function, the rcu locking and traversal cannot be used.
+Func jz4780_dma_desc_residue() expects the index to the next hw
+descriptor as its last parameter. Caller func jz4780_dma_tx_status(),
+however, applied modulus before passing it. When the current hw
+descriptor was last in the list, the index passed became zero.
 
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+The resulting excess of reported residue especially caused problems
+with cyclic DMA transfer clients, i.e. ALSA AIC audio output, which
+rely on this for determining current DMA location within buffer.
+
+Combined with the recent and related residue-reporting fixes, spurious
+ALSA audio underruns on jz4770 hardware are now fixed.
+
+Signed-off-by: Daniel Silsby <dansilsby@gmail.com>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Tested-by: Mathieu Malaterre <malat@debian.org>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_cm.c | 2 +-
+ drivers/dma/dma-jz4780.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_cm.c b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-index 85637696f6e96..282a726351c81 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_cm.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_cm.c
-@@ -1652,7 +1652,7 @@ static enum i40iw_status_code i40iw_add_mqh_6(struct i40iw_device *iwdev,
- 	unsigned long flags;
+diff --git a/drivers/dma/dma-jz4780.c b/drivers/dma/dma-jz4780.c
+index 8344b7c91fe35..1d01e3805f9c2 100644
+--- a/drivers/dma/dma-jz4780.c
++++ b/drivers/dma/dma-jz4780.c
+@@ -576,7 +576,7 @@ static enum dma_status jz4780_dma_tx_status(struct dma_chan *chan,
+ 					to_jz4780_dma_desc(vdesc), 0);
+ 	} else if (cookie == jzchan->desc->vdesc.tx.cookie) {
+ 		txstate->residue = jz4780_dma_desc_residue(jzchan, jzchan->desc,
+-			  (jzchan->curr_hwdesc + 1) % jzchan->desc->count);
++					jzchan->curr_hwdesc + 1);
+ 	} else
+ 		txstate->residue = 0;
  
- 	rtnl_lock();
--	for_each_netdev_rcu(&init_net, ip_dev) {
-+	for_each_netdev(&init_net, ip_dev) {
- 		if ((((rdma_vlan_dev_vlan_id(ip_dev) < I40IW_NO_VLAN) &&
- 		      (rdma_vlan_dev_real_dev(ip_dev) == iwdev->netdev)) ||
- 		     (ip_dev == iwdev->netdev)) && (ip_dev->flags & IFF_UP)) {
 -- 
 2.20.1
 
