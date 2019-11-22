@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 593D4107844
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:50:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15002107867
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727706AbfKVTuD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 14:50:03 -0500
-Received: from mail.kernel.org ([198.145.29.99]:50442 "EHLO mail.kernel.org"
+        id S1727698AbfKVTuC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 14:50:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727628AbfKVTuB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 14:50:01 -0500
+        id S1727673AbfKVTuC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 14:50:02 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E4772073F;
-        Fri, 22 Nov 2019 19:50:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D6F32075B;
+        Fri, 22 Nov 2019 19:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574452201;
-        bh=QncCh4pQTgUhpPvU4k9NamkWDYyRUhFGs+V6hZtJi64=;
+        s=default; t=1574452202;
+        bh=KBWdRp1C0diqcB72JfhHtC2PPDRx4lRZjSBB2xMIzcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sAtvHM26/3fcohRJ8mMXgidLhdk2w5IQ0ulbMEpQtajuWBR6ikLJ23OiIDrtE+M9N
-         nRgVkuc/qXjOKTucq+kEq21hlEaz+cF6T9dFWj8h5Dd0yeJgvUPZwb/h5c+IHnyckh
-         Ra0plRlcTWbTUsWCyF5kJ3XgsPdDloHCj+jPA9z0=
+        b=WEgFOJ6jncme/aVhsiDTtx638FHRzn7w+Rytn/6F31R1MHVYqLfSZl8fxwR9xCDDP
+         xf+hqkeqLaWSCxxLOb/KCnUtKXIxEv4hhYk8N6ehPzTIumSVI1MTcjricyb9aSFm1W
+         FHpgHo5+mSvQhPs9XfNlFd0ifblMF6aVGkm3NhWc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sirong Wang <wangsirong@huawei.com>,
-        Weihang Li <liweihang@hisilicon.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 02/13] RDMA/hns: Correct the value of HNS_ROCE_HEM_CHUNK_LEN
-Date:   Fri, 22 Nov 2019 14:49:47 -0500
-Message-Id: <20191122194958.24926-2-sashal@kernel.org>
+Cc:     Al Viro <viro@zeniv.linux.org.uk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 03/13] exportfs_decode_fh(): negative pinned may become positive without the parent locked
+Date:   Fri, 22 Nov 2019 14:49:48 -0500
+Message-Id: <20191122194958.24926-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122194958.24926-1-sashal@kernel.org>
 References: <20191122194958.24926-1-sashal@kernel.org>
@@ -44,37 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sirong Wang <wangsirong@huawei.com>
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-[ Upstream commit 531eb45b3da4267fc2a64233ba256c8ffb02edd2 ]
+[ Upstream commit a2ece088882666e1dc7113744ac912eb161e3f87 ]
 
-Size of pointer to buf field of struct hns_roce_hem_chunk should be
-considered when calculating HNS_ROCE_HEM_CHUNK_LEN, or sg table size will
-be larger than expected when allocating hem.
-
-Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
-Link: https://lore.kernel.org/r/1572575610-52530-2-git-send-email-liweihang@hisilicon.com
-Signed-off-by: Sirong Wang <wangsirong@huawei.com>
-Signed-off-by: Weihang Li <liweihang@hisilicon.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_hem.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/exportfs/expfs.c | 31 +++++++++++++++++++------------
+ 1 file changed, 19 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hns/hns_roce_hem.h b/drivers/infiniband/hw/hns/hns_roce_hem.h
-index 435748858252d..8e8917ebb013b 100644
---- a/drivers/infiniband/hw/hns/hns_roce_hem.h
-+++ b/drivers/infiniband/hw/hns/hns_roce_hem.h
-@@ -52,7 +52,7 @@ enum {
+diff --git a/fs/exportfs/expfs.c b/fs/exportfs/expfs.c
+index 7a7bba7c23284..3706939e5dd5e 100644
+--- a/fs/exportfs/expfs.c
++++ b/fs/exportfs/expfs.c
+@@ -506,26 +506,33 @@ struct dentry *exportfs_decode_fh(struct vfsmount *mnt, struct fid *fid,
+ 		 * inode is actually connected to the parent.
+ 		 */
+ 		err = exportfs_get_name(mnt, target_dir, nbuf, result);
+-		if (!err) {
+-			inode_lock(target_dir->d_inode);
+-			nresult = lookup_one_len(nbuf, target_dir,
+-						 strlen(nbuf));
+-			inode_unlock(target_dir->d_inode);
+-			if (!IS_ERR(nresult)) {
+-				if (nresult->d_inode) {
+-					dput(result);
+-					result = nresult;
+-				} else
+-					dput(nresult);
+-			}
++		if (err) {
++			dput(target_dir);
++			goto err_result;
+ 		}
  
- #define HNS_ROCE_HEM_CHUNK_LEN	\
- 	 ((256 - sizeof(struct list_head) - 2 * sizeof(int)) /	 \
--	 (sizeof(struct scatterlist)))
-+	 (sizeof(struct scatterlist) + sizeof(void *)))
++		inode_lock(target_dir->d_inode);
++		nresult = lookup_one_len(nbuf, target_dir, strlen(nbuf));
++		if (!IS_ERR(nresult)) {
++			if (unlikely(nresult->d_inode != result->d_inode)) {
++				dput(nresult);
++				nresult = ERR_PTR(-ESTALE);
++			}
++		}
++		inode_unlock(target_dir->d_inode);
+ 		/*
+ 		 * At this point we are done with the parent, but it's pinned
+ 		 * by the child dentry anyway.
+ 		 */
+ 		dput(target_dir);
  
- enum {
- 	 HNS_ROCE_HEM_PAGE_SHIFT = 12,
++		if (IS_ERR(nresult)) {
++			err = PTR_ERR(nresult);
++			goto err_result;
++		}
++		dput(result);
++		result = nresult;
++
+ 		/*
+ 		 * And finally make sure the dentry is actually acceptable
+ 		 * to NFSD.
 -- 
 2.20.1
 
