@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A8E0106FFF
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:19:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFCE61070BB
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:24:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728648AbfKVKq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:46:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54506 "EHLO mail.kernel.org"
+        id S1728020AbfKVKid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:38:33 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729695AbfKVKqz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:46:55 -0500
+        id S1727888AbfKVKic (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:38:32 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4ED602071F;
-        Fri, 22 Nov 2019 10:46:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D92CD20717;
+        Fri, 22 Nov 2019 10:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419614;
-        bh=zWC4O1+FzD5XCxY6cfO9t5+HbfsT82QfocFT7nsEfbA=;
+        s=default; t=1574419112;
+        bh=Hrd8Tdvryc7oSkiufmHyOEffL6pZMUZ+GAVv0e3zuzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1JL8HOoghsoi49MQO0BGcIWf0LQ6jzaeN3AclOFOtaqLi599AwmA5tk1SuPIUza/O
-         tpO5Ddv29GeuZK4fUgjO/WnC5CwBvFgi0n5C83GebnB71HnvZlnl/awfbTDksalGUL
-         iPmcN4mA1/opi9Uxm51clcMCoq8mScsc+qfBYRQc=
+        b=xxUeR0BExnBD7UdmeqVohSNQvPj5/eiEyDMOU+dB8zOm3LPWfCfsJe8YPqgMQuKVp
+         gShzQowWFzdR6SvG1RHp0amN+dV8P1K/EfVwZiLNQVHEeSzGhC5+iw0yZclo7RVMR/
+         oQcCezVTdceXv4nLdsiwr+sokSYI1LcPldO5AKKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 174/222] mtd: rawnand: sh_flctl: Use proper enum for flctl_dma_fifo0_transfer
-Date:   Fri, 22 Nov 2019 11:28:34 +0100
-Message-Id: <20191122100915.034384817@linuxfoundation.org>
+Subject: [PATCH 4.4 124/159] powerpc/pseries: Fix DTL buffer registration
+Date:   Fri, 22 Nov 2019 11:28:35 +0100
+Message-Id: <20191122100831.665820415@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-[ Upstream commit e2bfa4ca23d9b5a7bdfcf21319fad9b59e38a05c ]
+[ Upstream commit db787af1b8a6b4be428ee2ea7d409dafcaa4a43c ]
 
-Clang warns when one enumerated type is converted implicitly to another:
+When CONFIG_VIRT_CPU_ACCOUNTING_NATIVE is not set, we register the DTL
+buffer for a cpu when the associated file under powerpc/dtl in debugfs
+is opened. When doing so, we need to set the size of the buffer being
+registered in the second u32 word of the buffer. This needs to be in big
+endian, but we are not doing the conversion resulting in the below error
+showing up in dmesg:
 
-drivers/mtd/nand/raw/sh_flctl.c:483:46: warning: implicit conversion
-from enumeration type 'enum dma_transfer_direction' to different
-enumeration type 'enum dma_data_direction' [-Wenum-conversion]
-                flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_DEV_TO_MEM) > 0)
-                ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
-drivers/mtd/nand/raw/sh_flctl.c:542:46: warning: implicit conversion
-from enumeration type 'enum dma_transfer_direction' to different
-enumeration type 'enum dma_data_direction' [-Wenum-conversion]
-                flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_MEM_TO_DEV) > 0)
-                ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
-2 warnings generated.
+	dtl_start: DTL registration for cpu 0 (hw 0) failed with -4
 
-Use the proper enums from dma_data_direction to satisfy Clang.
+Fix this in the obvious manner.
 
-DMA_MEM_TO_DEV = DMA_TO_DEVICE = 1
-DMA_DEV_TO_MEM = DMA_FROM_DEVICE = 2
-
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Fixes: 7c105b63bd98 ("powerpc: Add CONFIG_CPU_LITTLE_ENDIAN kernel config option.")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/sh_flctl.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/pseries/dtl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/nand/sh_flctl.c b/drivers/mtd/nand/sh_flctl.c
-index 442ce619b3b6d..d6c013f93b8c0 100644
---- a/drivers/mtd/nand/sh_flctl.c
-+++ b/drivers/mtd/nand/sh_flctl.c
-@@ -480,7 +480,7 @@ static void read_fiforeg(struct sh_flctl *flctl, int rlen, int offset)
+diff --git a/arch/powerpc/platforms/pseries/dtl.c b/arch/powerpc/platforms/pseries/dtl.c
+index 39049e4884fbd..37de83c5ef172 100644
+--- a/arch/powerpc/platforms/pseries/dtl.c
++++ b/arch/powerpc/platforms/pseries/dtl.c
+@@ -150,7 +150,7 @@ static int dtl_start(struct dtl *dtl)
  
- 	/* initiate DMA transfer */
- 	if (flctl->chan_fifo0_rx && rlen >= 32 &&
--		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_DEV_TO_MEM) > 0)
-+		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_FROM_DEVICE) > 0)
- 			goto convert;	/* DMA success */
+ 	/* Register our dtl buffer with the hypervisor. The HV expects the
+ 	 * buffer size to be passed in the second word of the buffer */
+-	((u32 *)dtl->buf)[1] = DISPATCH_LOG_BYTES;
++	((u32 *)dtl->buf)[1] = cpu_to_be32(DISPATCH_LOG_BYTES);
  
- 	/* do polling transfer */
-@@ -539,7 +539,7 @@ static void write_ec_fiforeg(struct sh_flctl *flctl, int rlen,
- 
- 	/* initiate DMA transfer */
- 	if (flctl->chan_fifo0_tx && rlen >= 32 &&
--		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_MEM_TO_DEV) > 0)
-+		flctl_dma_fifo0_transfer(flctl, buf, rlen, DMA_TO_DEVICE) > 0)
- 			return;	/* DMA success */
- 
- 	/* do polling transfer */
+ 	hwcpu = get_hard_smp_processor_id(dtl->cpu);
+ 	addr = __pa(dtl->buf);
 -- 
 2.20.1
 
