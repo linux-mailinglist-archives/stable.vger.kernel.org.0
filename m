@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69085106BA6
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:46:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77708106C49
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:51:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729545AbfKVKqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:46:11 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53132 "EHLO mail.kernel.org"
+        id S1729068AbfKVKu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:50:58 -0500
+Received: from mail.kernel.org ([198.145.29.99]:33138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728907AbfKVKqK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:46:10 -0500
+        id S1728482AbfKVKu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:50:57 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6ED6920730;
-        Fri, 22 Nov 2019 10:46:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BC232073B;
+        Fri, 22 Nov 2019 10:50:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419569;
-        bh=BpAp6XH2uSlXE1JsPhrWmKuprZOOpZwsT4hO8c9rf1g=;
+        s=default; t=1574419856;
+        bh=le8YsAdSof++XonceReapTGQ5IqL5e0lvkiY/PXkKr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpsZHrsaVSH+MDlQRaWNJ3O9LsHdtFmGQsKYv2Qg7uaNSHn9PztdS7cTLVBhR92FY
-         wxtfsGMFRDDW1ioVuSZVdYcUS7jRAONwX9cDw4ILTVnhrFNLJpm4nHuwFL+0Xs+nbL
-         d0OMRIGlWgmlXr4OrHHGuHkmIAe2gP9BxYx1DRW0=
+        b=xsYyK0l6fiGPyF6Mn8pF+k+f/oQgPxgTQWiO6HYh12GauaMeMLdHc4W7tIS1B3Bwz
+         1YVK90DN8RBWlsCRjoeHSRlp+5Ou3uCwWsby1Uqqgizi/kcmYWjbK6iBgDE8ev9B1l
+         Rh/vdHNteu0Rvuz+Eug5FRvTJaXKp7ivh3FkW7sM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 120/222] misc: kgdbts: Fix restrict error
-Date:   Fri, 22 Nov 2019 11:27:40 +0100
-Message-Id: <20191122100911.777591688@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 4.14 008/122] arm64: uaccess: Ensure PAN is re-enabled after unhandled uaccess fault
+Date:   Fri, 22 Nov 2019 11:27:41 +0100
+Message-Id: <20191122100728.780935539@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laura Abbott <labbott@redhat.com>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-[ Upstream commit fa0218ef733e6f247a1a3986e3eb12460064ac77 ]
+commit 94bb804e1e6f0a9a77acf20d7c70ea141c6c821e upstream.
 
-kgdbts current fails when compiled with restrict:
+A number of our uaccess routines ('__arch_clear_user()' and
+'__arch_copy_{in,from,to}_user()') fail to re-enable PAN if they
+encounter an unhandled fault whilst accessing userspace.
 
-drivers/misc/kgdbts.c: In function ‘configure_kgdbts’:
-drivers/misc/kgdbts.c:1070:2: error: ‘strcpy’ source argument is the same as destination [-Werror=restrict]
-  strcpy(config, opt);
-  ^~~~~~~~~~~~~~~~~~~
+For CPUs implementing both hardware PAN and UAO, this bug has no effect
+when both extensions are in use by the kernel.
 
-As the error says, config is being used in both the source and destination.
-Refactor the code to avoid the extra copy and put the parsing closer to
-the actual location.
+For CPUs implementing hardware PAN but not UAO, this means that a kernel
+using hardware PAN may execute portions of code with PAN inadvertently
+disabled, opening us up to potential security vulnerabilities that rely
+on userspace access from within the kernel which would usually be
+prevented by this mechanism. In other words, parts of the kernel run the
+same way as they would on a CPU without PAN implemented/emulated at all.
 
-Signed-off-by: Laura Abbott <labbott@redhat.com>
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+For CPUs not implementing hardware PAN and instead relying on software
+emulation via 'CONFIG_ARM64_SW_TTBR0_PAN=y', the impact is unfortunately
+much worse. Calling 'schedule()' with software PAN disabled means that
+the next task will execute in the kernel using the page-table and ASID
+of the previous process even after 'switch_mm()', since the actual
+hardware switch is deferred until return to userspace. At this point, or
+if there is a intermediate call to 'uaccess_enable()', the page-table
+and ASID of the new process are installed. Sadly, due to the changes
+introduced by KPTI, this is not an atomic operation and there is a very
+small window (two instructions) where the CPU is configured with the
+page-table of the old task and the ASID of the new task; a speculative
+access in this state is disastrous because it would corrupt the TLB
+entries for the new task with mappings from the previous address space.
+
+As Pavel explains:
+
+  | I was able to reproduce memory corruption problem on Broadcom's SoC
+  | ARMv8-A like this:
+  |
+  | Enable software perf-events with PERF_SAMPLE_CALLCHAIN so userland's
+  | stack is accessed and copied.
+  |
+  | The test program performed the following on every CPU and forking
+  | many processes:
+  |
+  |	unsigned long *map = mmap(NULL, PAGE_SIZE, PROT_READ|PROT_WRITE,
+  |				  MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+  |	map[0] = getpid();
+  |	sched_yield();
+  |	if (map[0] != getpid()) {
+  |		fprintf(stderr, "Corruption detected!");
+  |	}
+  |	munmap(map, PAGE_SIZE);
+  |
+  | From time to time I was getting map[0] to contain pid for a
+  | different process.
+
+Ensure that PAN is re-enabled when returning after an unhandled user
+fault from our uaccess routines.
+
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Tested-by: Mark Rutland <mark.rutland@arm.com>
+Cc: <stable@vger.kernel.org>
+Fixes: 338d4f49d6f7 ("arm64: kernel: Add support for Privileged Access Never")
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+[will: rewrote commit message]
+Signed-off-by: Will Deacon <will@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/misc/kgdbts.c | 16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ arch/arm64/lib/clear_user.S     |    1 +
+ arch/arm64/lib/copy_from_user.S |    1 +
+ arch/arm64/lib/copy_in_user.S   |    1 +
+ arch/arm64/lib/copy_to_user.S   |    1 +
+ 4 files changed, 4 insertions(+)
 
-diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
-index bb3a76ad80da2..fc8cb855c6e66 100644
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -979,6 +979,12 @@ static void kgdbts_run_tests(void)
- 	int nmi_sleep = 0;
- 	int i;
- 
-+	verbose = 0;
-+	if (strstr(config, "V1"))
-+		verbose = 1;
-+	if (strstr(config, "V2"))
-+		verbose = 2;
-+
- 	ptr = strchr(config, 'F');
- 	if (ptr)
- 		fork_test = simple_strtol(ptr + 1, NULL, 10);
-@@ -1062,13 +1068,6 @@ static int kgdbts_option_setup(char *opt)
- 		return -ENOSPC;
- 	}
- 	strcpy(config, opt);
--
--	verbose = 0;
--	if (strstr(config, "V1"))
--		verbose = 1;
--	if (strstr(config, "V2"))
--		verbose = 2;
--
- 	return 0;
- }
- 
-@@ -1080,9 +1079,6 @@ static int configure_kgdbts(void)
- 
- 	if (!strlen(config) || isspace(config[0]))
- 		goto noconfig;
--	err = kgdbts_option_setup(config);
--	if (err)
--		goto noconfig;
- 
- 	final_ack = 0;
- 	run_plant_and_detach_test(1);
--- 
-2.20.1
-
+--- a/arch/arm64/lib/clear_user.S
++++ b/arch/arm64/lib/clear_user.S
+@@ -57,5 +57,6 @@ ENDPROC(__arch_clear_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9:	mov	x0, x2			// return the original size
++	uaccess_disable_not_uao x2, x3
+ 	ret
+ 	.previous
+--- a/arch/arm64/lib/copy_from_user.S
++++ b/arch/arm64/lib/copy_from_user.S
+@@ -75,5 +75,6 @@ ENDPROC(__arch_copy_from_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9998:	sub	x0, end, dst			// bytes not copied
++	uaccess_disable_not_uao x3, x4
+ 	ret
+ 	.previous
+--- a/arch/arm64/lib/copy_in_user.S
++++ b/arch/arm64/lib/copy_in_user.S
+@@ -77,5 +77,6 @@ ENDPROC(__arch_copy_in_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9998:	sub	x0, end, dst			// bytes not copied
++	uaccess_disable_not_uao x3, x4
+ 	ret
+ 	.previous
+--- a/arch/arm64/lib/copy_to_user.S
++++ b/arch/arm64/lib/copy_to_user.S
+@@ -74,5 +74,6 @@ ENDPROC(__arch_copy_to_user)
+ 	.section .fixup,"ax"
+ 	.align	2
+ 9998:	sub	x0, end, dst			// bytes not copied
++	uaccess_disable_not_uao x3, x4
+ 	ret
+ 	.previous
 
 
