@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B21A1078F0
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:55:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E24B1078F3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 20:55:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727188AbfKVTtK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 14:49:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48240 "EHLO mail.kernel.org"
+        id S1727200AbfKVTtL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 14:49:11 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727176AbfKVTtJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 14:49:09 -0500
+        id S1727184AbfKVTtK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 14:49:10 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 015BB2072E;
-        Fri, 22 Nov 2019 19:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EFE120731;
+        Fri, 22 Nov 2019 19:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574452148;
-        bh=TWUIFvYxcxpAcHyaC4L/g1aet1SZVEHMCG8j8roj8dk=;
+        s=default; t=1574452149;
+        bh=8NshHneGRG7k7YiIYNZXeV+IEn+KbPHnQmV0vh4/T0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fF23hjvp1tDxYdvXp9cWBQQsSHn0vb54DZx8JPJ4KaNWCr9UvOfXgNHpCw3yU1CF5
-         w/GLYpBPAQTFzj6H8+SAmQJuq2Ho2n9P2/h+F9XHlF4MUoaSs4rmqiiN7ktyz26fWt
-         CJbs/qICXsUb2hU1Q10Z1mIrdfpg4BMHvfUfDncc=
+        b=v0eomDsk1ER/+/KUNQQ7L3Hc1vILZ713pDWUGnNkmCASHr2ZM3e8zAAvBSFzhC/TU
+         YnrD11LLfQ6AZDlYeIKZk+1Fv8UQXJInyXe9aEHlOHmyTIifpKFhQMxsxnT7E/M4js
+         E2kknHiM5NF0vxIS9hNdqPpxshX+3ieyLs/rcp+M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xiaodong Xu <stid.smth@gmail.com>, Bo Chen <chenborfc@163.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 08/25] xfrm: release device reference for invalid state
-Date:   Fri, 22 Nov 2019 14:48:41 -0500
-Message-Id: <20191122194859.24508-8-sashal@kernel.org>
+Cc:     Pan Bian <bianpan2016@163.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 09/25] Input: cyttsp4_core - fix use after free bug
+Date:   Fri, 22 Nov 2019 14:48:42 -0500
+Message-Id: <20191122194859.24508-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122194859.24508-1-sashal@kernel.org>
 References: <20191122194859.24508-1-sashal@kernel.org>
@@ -43,60 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaodong Xu <stid.smth@gmail.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 4944a4b1077f74d89073624bd286219d2fcbfce3 ]
+[ Upstream commit 79aae6acbef16f720a7949f8fc6ac69816c79d62 ]
 
-An ESP packet could be decrypted in async mode if the input handler for
-this packet returns -EINPROGRESS in xfrm_input(). At this moment the device
-reference in skb is held. Later xfrm_input() will be invoked again to
-resume the processing.
-If the transform state is still valid it would continue to release the
-device reference and there won't be a problem; however if the transform
-state is not valid when async resumption happens, the packet will be
-dropped while the device reference is still being held.
-When the device is deleted for some reason and the reference to this
-device is not properly released, the kernel will keep logging like:
+The device md->input is used after it is released. Setting the device
+data to NULL is unnecessary as the device is never used again. Instead,
+md->input should be assigned NULL to avoid accessing the freed memory
+accidently. Besides, checking md->si against NULL is superfluous as it
+points to a variable address, which cannot be NULL.
 
-unregister_netdevice: waiting for ppp2 to become free. Usage count = 1
-
-The issue is observed when running IPsec traffic over a PPPoE device based
-on a bridge interface. By terminating the PPPoE connection on the server
-end for multiple times, the PPPoE device on the client side will eventually
-get stuck on the above warning message.
-
-This patch will check the async mode first and continue to release device
-reference in async resumption, before it is dropped due to invalid state.
-
-v2: Do not assign address family from outer_mode in the transform if the
-state is invalid
-
-v3: Release device reference in the error path instead of jumping to resume
-
-Fixes: 4ce3dbe397d7b ("xfrm: Fix xfrm_input() to verify state is valid when (encap_type < 0)")
-Signed-off-by: Xiaodong Xu <stid.smth@gmail.com>
-Reported-by: Bo Chen <chenborfc@163.com>
-Tested-by: Bo Chen <chenborfc@163.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/1572936379-6423-1-git-send-email-bianpan2016@163.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_input.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/input/touchscreen/cyttsp4_core.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/net/xfrm/xfrm_input.c b/net/xfrm/xfrm_input.c
-index 790b514f86b62..b0b1294daef17 100644
---- a/net/xfrm/xfrm_input.c
-+++ b/net/xfrm/xfrm_input.c
-@@ -246,6 +246,9 @@ int xfrm_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
- 			else
- 				XFRM_INC_STATS(net,
- 					       LINUX_MIB_XFRMINSTATEINVALID);
-+
-+			if (encap_type == -1)
-+				dev_put(skb->dev);
- 			goto drop;
- 		}
+diff --git a/drivers/input/touchscreen/cyttsp4_core.c b/drivers/input/touchscreen/cyttsp4_core.c
+index 727c3232517cd..c84ee739a8d50 100644
+--- a/drivers/input/touchscreen/cyttsp4_core.c
++++ b/drivers/input/touchscreen/cyttsp4_core.c
+@@ -2000,11 +2000,6 @@ static int cyttsp4_mt_probe(struct cyttsp4 *cd)
  
+ 	/* get sysinfo */
+ 	md->si = &cd->sysinfo;
+-	if (!md->si) {
+-		dev_err(dev, "%s: Fail get sysinfo pointer from core p=%p\n",
+-			__func__, md->si);
+-		goto error_get_sysinfo;
+-	}
+ 
+ 	rc = cyttsp4_setup_input_device(cd);
+ 	if (rc)
+@@ -2014,8 +2009,6 @@ static int cyttsp4_mt_probe(struct cyttsp4 *cd)
+ 
+ error_init_input:
+ 	input_free_device(md->input);
+-error_get_sysinfo:
+-	input_set_drvdata(md->input, NULL);
+ error_alloc_failed:
+ 	dev_err(dev, "%s failed.\n", __func__);
+ 	return rc;
 -- 
 2.20.1
 
