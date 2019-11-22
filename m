@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C50E106207
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:01:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10CC8106208
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:01:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728325AbfKVF5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:57:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35576 "EHLO mail.kernel.org"
+        id S1729408AbfKVF5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:57:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728314AbfKVF5S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:18 -0500
+        id S1729400AbfKVF5T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:57:19 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD47B207FA;
-        Fri, 22 Nov 2019 05:57:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD9BE207FC;
+        Fri, 22 Nov 2019 05:57:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402237;
-        bh=2fVdgC/fjirU6vo9EcK3UR87dC/f+jTse9YxNMAOxKE=;
+        s=default; t=1574402238;
+        bh=uAYZUiGgVZVA8TdMU5/qfdvQ0kgDh1SXmr8vRZKpNZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KfkF0P9VeLPAD2Q+U/vPSu2FqYBhInIkBtnq8WGvxkniUiwWTpqT2Qr6flFfgnnfz
-         Uoi+ZZ5g8g+r1x4hElkh7OKiYGUDslj8U0R1pg+cl6dGluoyvap/Oq+L1gbVyYU4wH
-         daFbHmVaipz9tDcE4MK5ibbLc+F/y4Jo+7EEVhII=
+        b=ZzKK302VcYvJFFo7kva7NWMVthVCuFws18/JDtkX9oRDhmMQaJGYHWl2ZmSdOhN6p
+         MuBcyLQIpRhxSuWvFeMZ1D4bn5VX2F7u08AjJx9VHDnLfd9+nLsCXCSPWzTb6JB8kb
+         maqT2lGY/eO+TNQZ8MDpTNn7RcOyBmWIZpTmihv0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aditya Pakki <pakki001@umn.edu>,
-        Kirill Tkhai <ktkhai@virtuozzo.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 082/127] net/net_namespace: Check the return value of register_pernet_subsys()
-Date:   Fri, 22 Nov 2019 00:55:00 -0500
-Message-Id: <20191122055544.3299-81-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 083/127] f2fs: fix to dirty inode synchronously
+Date:   Fri, 22 Nov 2019 00:55:01 -0500
+Message-Id: <20191122055544.3299-82-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -44,36 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aditya Pakki <pakki001@umn.edu>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 0eb987c874dc93f9c9d85a6465dbde20fdd3884c ]
+[ Upstream commit b32e019049e959ee10ec359893c9dd5d057dad55 ]
 
-In net_ns_init(), register_pernet_subsys() could fail while registering
-network namespace subsystems. The fix checks the return value and
-sends a panic() on failure.
+If user change inode's i_flags via ioctl, let's add it into global
+dirty list, so that checkpoint can guarantee its persistence before
+fsync, it can make checkpoint keeping strong consistency.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net_namespace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/f2fs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
-index 60b88718b1d48..1af25d53f63ca 100644
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -854,7 +854,8 @@ static int __init net_ns_init(void)
+diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
+index 1b17921994459..d68b0132718a6 100644
+--- a/fs/f2fs/file.c
++++ b/fs/f2fs/file.c
+@@ -1593,7 +1593,7 @@ static int __f2fs_ioc_setflags(struct inode *inode, unsigned int flags)
  
- 	mutex_unlock(&net_mutex);
+ 	inode->i_ctime = current_time(inode);
+ 	f2fs_set_inode_flags(inode);
+-	f2fs_mark_inode_dirty_sync(inode, false);
++	f2fs_mark_inode_dirty_sync(inode, true);
+ 	return 0;
+ }
  
--	register_pernet_subsys(&net_ns_ops);
-+	if (register_pernet_subsys(&net_ns_ops))
-+		panic("Could not register network namespace subsystems");
- 
- 	rtnl_register(PF_UNSPEC, RTM_NEWNSID, rtnl_net_newid, NULL,
- 		      RTNL_FLAG_DOIT_UNLOCKED);
 -- 
 2.20.1
 
