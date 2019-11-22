@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D13B11070D9
+	by mail.lfdr.de (Postfix) with ESMTP id 637731070D8
 	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728600AbfKVKiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:38:00 -0500
-Received: from mail.kernel.org ([198.145.29.99]:39952 "EHLO mail.kernel.org"
+        id S1727329AbfKVLYt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:24:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727893AbfKVKh5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:37:57 -0500
+        id S1727856AbfKVKiD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:38:03 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84E2B2072D;
-        Fri, 22 Nov 2019 10:37:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66B8620637;
+        Fri, 22 Nov 2019 10:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419077;
-        bh=e1wBrB3GGsfoNvFx3VCcrXtM39XVDHUzUOTodt4IOHE=;
+        s=default; t=1574419082;
+        bh=pzCrFdyTu6amgVjmgFdPH1l5OGz2X7021cO4ee28UHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGmT+k2d3LRlqMrGD5IUbczQYN/t9c5vSe8KRc88jahviDj4HypQPHd+I+OAHxzKJ
-         VVgeUsE0mauURiOCQyZ/N128vrWBR/Mf3/JGY2KDG75lxYzW6aZeY7q8SqHfQl1wHc
-         G59pO2hk7oolHyMWPinwCWKZVz4WSbNAhNXdIkX8=
+        b=neXynS8JRnIWGhYjrYvPq9YrjTnj63MYUo9sC8ofmHITS1MWPZoVLBO2weBZXgd2s
+         oXcDfbutX0ZZeWSDRO/pIpAASmTr1UhjgUozlRmBq1ZY1k/HX/3apYuMPsf6K0TAhE
+         GU3fDgWdfh7GzG81wnImJTLOmpi+N418tX76OVLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Smith <tim.smith@citrix.com>,
-        Mark Syms <mark.syms@citrix.com>,
-        Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Hans Verkuil <hverkuil@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 149/159] GFS2: Flush the GFS2 delete workqueue before stopping the kernel threads
-Date:   Fri, 22 Nov 2019 11:29:00 +0100
-Message-Id: <20191122100843.116471321@linuxfoundation.org>
+Subject: [PATCH 4.4 150/159] media: cx231xx: fix potential sign-extension overflow on large shift
+Date:   Fri, 22 Nov 2019 11:29:01 +0100
+Message-Id: <20191122100843.765167158@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
 References: <20191122100704.194776704@linuxfoundation.org>
@@ -45,62 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Smith <tim.smith@citrix.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 1eb8d7387908022951792a46fa040ad3942b3b08 ]
+[ Upstream commit 32ae592036d7aeaabcccb2b1715373a68639a768 ]
 
-Flushing the workqueue can cause operations to happen which might
-call gfs2_log_reserve(), or get stuck waiting for locks taken by such
-operations.  gfs2_log_reserve() can io_schedule(). If this happens, it
-will never wake because the only thing which can wake it is gfs2_logd()
-which was already stopped.
+Shifting the u8 value[3] by an int can lead to sign-extension
+overflow. For example, if value[3] is 0xff and the shift is 24 then it
+is promoted to int and then the top bit is sign-extended so that all
+upper 32 bits are set.  Fix this by casting value[3] to a u32 before
+the shift.
 
-This causes umount of a gfs2 filesystem to wedge permanently if, for
-example, the umount immediately follows a large delete operation.
+Detected by CoverityScan, CID#1016522 ("Unintended sign extension")
 
-When this occured, the following stack trace was obtained from the
-umount command
+Fixes: e0d3bafd0258 ("V4L/DVB (10954): Add cx231xx USB driver")
 
-[<ffffffff81087968>] flush_workqueue+0x1c8/0x520
-[<ffffffffa0666e29>] gfs2_make_fs_ro+0x69/0x160 [gfs2]
-[<ffffffffa0667279>] gfs2_put_super+0xa9/0x1c0 [gfs2]
-[<ffffffff811b7edf>] generic_shutdown_super+0x6f/0x100
-[<ffffffff811b7ff7>] kill_block_super+0x27/0x70
-[<ffffffffa0656a71>] gfs2_kill_sb+0x71/0x80 [gfs2]
-[<ffffffff811b792b>] deactivate_locked_super+0x3b/0x70
-[<ffffffff811b79b9>] deactivate_super+0x59/0x60
-[<ffffffff811d2998>] cleanup_mnt+0x58/0x80
-[<ffffffff811d2a12>] __cleanup_mnt+0x12/0x20
-[<ffffffff8108c87d>] task_work_run+0x7d/0xa0
-[<ffffffff8106d7d9>] exit_to_usermode_loop+0x73/0x98
-[<ffffffff81003961>] syscall_return_slowpath+0x41/0x50
-[<ffffffff815a594c>] int_ret_from_sys_call+0x25/0x8f
-[<ffffffffffffffff>] 0xffffffffffffffff
-
-Signed-off-by: Tim Smith <tim.smith@citrix.com>
-Signed-off-by: Mark Syms <mark.syms@citrix.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/super.c | 2 +-
+ drivers/media/usb/cx231xx/cx231xx-video.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
-index 894fb01a91dab..a4eb38c1f5548 100644
---- a/fs/gfs2/super.c
-+++ b/fs/gfs2/super.c
-@@ -835,10 +835,10 @@ static int gfs2_make_fs_ro(struct gfs2_sbd *sdp)
- 	if (error && !test_bit(SDF_SHUTDOWN, &sdp->sd_flags))
- 		return error;
- 
-+	flush_workqueue(gfs2_delete_workqueue);
- 	kthread_stop(sdp->sd_quotad_process);
- 	kthread_stop(sdp->sd_logd_process);
- 
--	flush_workqueue(gfs2_delete_workqueue);
- 	gfs2_quota_sync(sdp->sd_vfs, 0);
- 	gfs2_statfs_sync(sdp->sd_vfs, 0);
- 
+diff --git a/drivers/media/usb/cx231xx/cx231xx-video.c b/drivers/media/usb/cx231xx/cx231xx-video.c
+index d0d8f08e37c87..de80925ee4cbd 100644
+--- a/drivers/media/usb/cx231xx/cx231xx-video.c
++++ b/drivers/media/usb/cx231xx/cx231xx-video.c
+@@ -1346,7 +1346,7 @@ int cx231xx_g_register(struct file *file, void *priv,
+ 		ret = cx231xx_read_ctrl_reg(dev, VRT_GET_REGISTER,
+ 				(u16)reg->reg, value, 4);
+ 		reg->val = value[0] | value[1] << 8 |
+-			value[2] << 16 | value[3] << 24;
++			value[2] << 16 | (u32)value[3] << 24;
+ 		reg->size = 4;
+ 		break;
+ 	case 1:	/* AFE - read byte */
 -- 
 2.20.1
 
