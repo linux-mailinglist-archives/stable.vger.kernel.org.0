@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 09696106027
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:31:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6CA106022
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727362AbfKVFan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:30:43 -0500
-Received: from mail.kernel.org ([198.145.29.99]:48066 "EHLO mail.kernel.org"
+        id S1727270AbfKVFaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:30:35 -0500
+Received: from mail.kernel.org ([198.145.29.99]:48078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726792AbfKVFaW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:30:22 -0500
+        id S1727262AbfKVFaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:30:23 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E6C120707;
-        Fri, 22 Nov 2019 05:30:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A500920718;
+        Fri, 22 Nov 2019 05:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574400622;
-        bh=zfH7E1dQ0QMkwOWmVhltnebB7TPcOcSQTtCRkRBoYr0=;
+        s=default; t=1574400623;
+        bh=lYgW7XNs/bbUDwrVycp3txPbcFxD4o6rSDmCKbDXXEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a8b4LXilkL8YMiErjTrbJluWnZVW7o5PQhmW746h+AlCN7rG0yNfAR9Q3mDfUiB9S
-         XH5ORpA/dasEzkupNgkSCAr9S6x7H0OuMhyzq4aFj1UFwC5sJ+OOpCw0327tDXGt8U
-         lwd7lmKjsFvLBH0flfzg25nx/aAN3nDbTEAdORk0=
+        b=FSPdlMAvEHKIRhIficCSyYErNuz6msqkIeq8LPWyFw2PsJ/NEtoGBudmZwsH6krEp
+         EA+ElGsuHnHEG98aROevsKgnpuJRpbspwUoOrA2svB/me72yvlDOjWcTaped68gjfD
+         kf2p/YPhT8Ye/wHMa58WBZnAW10C22CzhmR/acFQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabio Estevam <festevam@gmail.com>,
-        Marco Franchi <marco.franchi@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 021/219] ARM: dts: imx53-voipac-dmm-668: Fix memory node duplication
-Date:   Fri, 22 Nov 2019 00:26:43 -0500
-Message-Id: <20191122053001.752-14-sashal@kernel.org>
+Cc:     Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        linux-parisc@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 022/219] parisc: Fix serio address output
+Date:   Fri, 22 Nov 2019 00:26:44 -0500
+Message-Id: <20191122053001.752-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122053001.752-1-sashal@kernel.org>
 References: <20191122053001.752-1-sashal@kernel.org>
@@ -45,42 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Helge Deller <deller@gmx.de>
 
-[ Upstream commit 998a84c27a7f3f9133d32af64e19c05cec161a1a ]
+[ Upstream commit 785145171d17af2554128becd6a7c8f89e101141 ]
 
-imx53-voipac-dmm-668 has two memory nodes, but the correct representation
-would be to use a single one with two reg entries - one for each RAM chip
-select, so fix it accordingly.
+We want the hpa addresses printed in the serio modules, not some
+virtual ioremap()ed address, e.g.:
 
-Reported-by: Marco Franchi <marco.franchi@nxp.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Marco Franchi <marco.franchi@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+ serio: gsc-ps2-keyboard port at 0xf0108000 irq 22 @ 2:0:11
+ serio: gsc-ps2-mouse port at 0xf0108100 irq 22 @ 2:0:12
+
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/input/serio/gscps2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
-index f83a8c62ea531..d595034f3f1bf 100644
---- a/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
-+++ b/arch/arm/boot/dts/imx53-voipac-dmm-668.dtsi
-@@ -17,12 +17,8 @@
+diff --git a/drivers/input/serio/gscps2.c b/drivers/input/serio/gscps2.c
+index 49d8d53e50b7b..96f9b5397367f 100644
+--- a/drivers/input/serio/gscps2.c
++++ b/drivers/input/serio/gscps2.c
+@@ -381,9 +381,9 @@ static int __init gscps2_probe(struct parisc_device *dev)
+ 		goto fail;
+ #endif
  
- 	memory@70000000 {
- 		device_type = "memory";
--		reg = <0x70000000 0x20000000>;
--	};
--
--	memory@b0000000 {
--		device_type = "memory";
--		reg = <0xb0000000 0x20000000>;
-+		reg = <0x70000000 0x20000000>,
-+		      <0xb0000000 0x20000000>;
- 	};
+-	printk(KERN_INFO "serio: %s port at 0x%p irq %d @ %s\n",
++	pr_info("serio: %s port at 0x%08lx irq %d @ %s\n",
+ 		ps2port->port->name,
+-		ps2port->addr,
++		hpa,
+ 		ps2port->padev->irq,
+ 		ps2port->port->phys);
  
- 	regulators {
 -- 
 2.20.1
 
