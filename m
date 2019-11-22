@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8921065EA
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:29:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 021C01065F2
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:29:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727709AbfKVFu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:50:27 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54996 "EHLO mail.kernel.org"
+        id S1727733AbfKVFu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:50:29 -0500
+Received: from mail.kernel.org ([198.145.29.99]:55008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726836AbfKVFu1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:50:27 -0500
+        id S1727725AbfKVFu3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:50:29 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F4A120717;
-        Fri, 22 Nov 2019 05:50:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 459102070E;
+        Fri, 22 Nov 2019 05:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401826;
-        bh=ZhYdnqrQS3F5kpXHrKSeIvpgv9N6bcqn9/aggzXh2+0=;
+        s=default; t=1574401828;
+        bh=ifwruHAoHqHKLv+HjbF5JGJp7pgttRgm2PgncmfAWrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6ElRlx0LRre2ou7+frSRVjLZ6l1L3ByvzJpPAJbORXLnfovfGcNiwsT4gfIETp2m
-         ygkXSCIJv0gVHs+18iTMQfdObbVBSdRkuUCnu+RjxdnFgjs6nzh40GbmPm/mbKDeVp
-         uO9+z0iSB37m/RJ/ZK5y57D/URwSJxZhqZBNi+sU=
+        b=VfaJo8jLZPKwwa0r//JrrvKBAgjxaNFkyNE4qqLAqDgshZ91g+LJ+dJ5kQfEuIwau
+         CwtLJWd28IDprh9rFlelG0ZF/+Dqivb2XdmQr2TUv/ZiQ5g0U24QBq36rhU+bd7QvX
+         pF4i96dpqaCBdRofT9naouugx1q+WvUmNaHvOWYo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Boris Brezillon <boris.brezillon@bootlin.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 069/219] mtd: rawnand: sunxi: Write pageprog related opcodes to WCMD_SET
-Date:   Fri, 22 Nov 2019 00:46:41 -0500
-Message-Id: <20191122054911.1750-62-sashal@kernel.org>
+Cc:     Roger Quadros <rogerq@ti.com>, Johan Hovold <johan@kernel.org>,
+        Ladislav Michl <ladis@linux-mips.org>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-usb@vger.kernel.org,
+        linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 070/219] usb: ehci-omap: Fix deferred probe for phy handling
+Date:   Fri, 22 Nov 2019 00:46:42 -0500
+Message-Id: <20191122054911.1750-63-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,36 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <boris.brezillon@bootlin.com>
+From: Roger Quadros <rogerq@ti.com>
 
-[ Upstream commit 732774437ae01d9882e60314e303898e63c7f038 ]
+[ Upstream commit 8dc7623bf608495b6e6743e805807c7840673573 ]
 
-The opcodes used by the controller when doing batched page prog should
-be written in NFC_REG_WCMD_SET not FC_REG_RCMD_SET. Luckily, the
-default NFC_REG_WCMD_SET value matches the one we set in the driver
-which explains why we didn't notice the problem.
+PHY model is being used on omap5 platforms even if port mode
+is not OMAP_EHCI_PORT_MODE_PHY. So don't guess if PHY is required
+or not based on PHY mode.
 
-Fixes: 614049a8d904 ("mtd: nand: sunxi: add support for DMA assisted operations")
-Signed-off-by: Boris Brezillon <boris.brezillon@bootlin.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+If PHY is provided in device tree, it must be required. So, if
+devm_usb_get_phy_by_phandle() gives us an error code other
+than -ENODEV (no PHY) then error out.
+
+This fixes USB Ethernet on omap5-uevm if PHY happens to
+probe after EHCI thus causing a -EPROBE_DEFER.
+
+Cc: Johan Hovold <johan@kernel.org>
+Cc: Ladislav Michl <ladis@linux-mips.org>
+Reported-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Tested-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/nand/raw/sunxi_nand.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/host/ehci-omap.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mtd/nand/raw/sunxi_nand.c b/drivers/mtd/nand/raw/sunxi_nand.c
-index 1f0b7ee38df56..5b5f4d25a3e12 100644
---- a/drivers/mtd/nand/raw/sunxi_nand.c
-+++ b/drivers/mtd/nand/raw/sunxi_nand.c
-@@ -1397,7 +1397,7 @@ static int sunxi_nfc_hw_ecc_write_page_dma(struct mtd_info *mtd,
- 	sunxi_nfc_randomizer_enable(mtd);
+diff --git a/drivers/usb/host/ehci-omap.c b/drivers/usb/host/ehci-omap.c
+index 7e4c13346a1ee..7d20296cbe9f9 100644
+--- a/drivers/usb/host/ehci-omap.c
++++ b/drivers/usb/host/ehci-omap.c
+@@ -159,11 +159,12 @@ static int ehci_hcd_omap_probe(struct platform_device *pdev)
+ 		/* get the PHY device */
+ 		phy = devm_usb_get_phy_by_phandle(dev, "phys", i);
+ 		if (IS_ERR(phy)) {
+-			/* Don't bail out if PHY is not absolutely necessary */
+-			if (pdata->port_mode[i] != OMAP_EHCI_PORT_MODE_PHY)
++			ret = PTR_ERR(phy);
++			if (ret == -ENODEV) { /* no PHY */
++				phy = NULL;
+ 				continue;
++			}
  
- 	writel((NAND_CMD_RNDIN << 8) | NAND_CMD_PAGEPROG,
--	       nfc->regs + NFC_REG_RCMD_SET);
-+	       nfc->regs + NFC_REG_WCMD_SET);
- 
- 	dma_async_issue_pending(nfc->dmac);
- 
+-			ret = PTR_ERR(phy);
+ 			if (ret != -EPROBE_DEFER)
+ 				dev_err(dev, "Can't get PHY for port %d: %d\n",
+ 					i, ret);
 -- 
 2.20.1
 
