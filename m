@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B162105FEF
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4CB105FFE
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:31:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727107AbfKVF2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:28:47 -0500
-Received: from mail.kernel.org ([198.145.29.99]:46770 "EHLO mail.kernel.org"
+        id S1726546AbfKVFaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:30:05 -0500
+Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727072AbfKVF2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:28:46 -0500
+        id S1726248AbfKVFaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:30:05 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE7942070B;
-        Fri, 22 Nov 2019 05:28:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FA1B20707;
+        Fri, 22 Nov 2019 05:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574400525;
-        bh=EfdXdmgPbL7KrEcnb9ASYZq3zIOjABUQfQHZzLN0W94=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hEbxTQ0T2u2AQQZgU9B9VGfyMcmvzcJId8wyTOu6c6sG7Ei0b6At+RdVkcczv+jMA
-         py9HYHcWXeCX1QOC9FkSmLhx3kN/MPYWkbcAUj/2T0uV2+zG/tWTs1LtyVcEeghxjQ
-         dddTeuAEWyiMg5JmZiyG/lgEOOlZrCUq/MCdXlBc=
+        s=default; t=1574400604;
+        bh=K8/nosl4hE+hkkP23VwLxak+ntPZZn18CaUsFIU+arU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=cO8HNhb0I4+RIYxQaTtyvH45VDd/VZ7P3wF7jA1KTYrHKPYLs6sNEnXWbG6Qzl0Sc
+         +6H2mU3ebeESkkbpIyQ3xokvUe8qIu0+2+oVQFoMOjWOzDVh88yvzBkmA9abneFt1j
+         LLWDyOl7QTmKMMIyjHkzSXbN76GaVCQsWnymJVqM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <tom.zanussi@linux.intel.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 006/219] tracing: Lock event_mutex before synth_event_mutex
-Date:   Fri, 22 Nov 2019 00:25:04 -0500
-Message-Id: <20191122052837.357-6-sashal@kernel.org>
+Cc:     Fabio Estevam <festevam@gmail.com>, Rob Herring <robh@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 008/219] ARM: dts: imx51: Fix memory node duplication
+Date:   Fri, 22 Nov 2019 00:26:30 -0500
+Message-Id: <20191122053001.752-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20191122052837.357-1-sashal@kernel.org>
-References: <20191122052837.357-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,232 +42,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Fabio Estevam <festevam@gmail.com>
 
-[ Upstream commit fc800a10be26017f8f338bc8e500d48e3e6429d9 ]
+[ Upstream commit 6a9681168b83c62abfa457c709f2f4b126bd6b92 ]
 
-synthetic event is using synth_event_mutex for protecting
-synth_event_list, and event_trigger_write() path acquires
-locks as below order.
+Boards based on imx51 have duplicate memory nodes:
 
-event_trigger_write(event_mutex)
-  ->trigger_process_regex(trigger_cmd_mutex)
-    ->event_hist_trigger_func(synth_event_mutex)
+- One coming from the board dts file: memory@
 
-On the other hand, synthetic event creation and deletion paths
-call trace_add_event_call() and trace_remove_event_call()
-which acquires event_mutex. In that case, if we keep the
-synth_event_mutex locked while registering/unregistering synthetic
-events, its dependency will be inversed.
+- One coming from the imx51.dtsi file.
 
-To avoid this issue, current synthetic event is using a 2 phase
-process to create/delete events. For example, it searches existing
-events under synth_event_mutex to check for event-name conflicts, and
-unlocks synth_event_mutex, then registers a new event under event_mutex
-locked. Finally, it locks synth_event_mutex and tries to add the
-new event to the list. But it can introduce complexity and a chance
-for name conflicts.
+Fix the duplication by removing the memory node from the dtsi file
+and by adding 'device_type = "memory";' in the board dts.
 
-To solve this simpler, this introduces trace_add_event_call_nolock()
-and trace_remove_event_call_nolock() which don't acquire
-event_mutex inside. synthetic event can lock event_mutex before
-synth_event_mutex to solve the lock dependency issue simpler.
-
-Link: http://lkml.kernel.org/r/154140844377.17322.13781091165954002713.stgit@devbox
-
-Reviewed-by: Tom Zanussi <tom.zanussi@linux.intel.com>
-Tested-by: Tom Zanussi <tom.zanussi@linux.intel.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Fabio Estevam <festevam@gmail.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/trace_events.h     |  2 ++
- kernel/trace/trace_events.c      | 34 ++++++++++++++++++++++++++------
- kernel/trace/trace_events_hist.c | 24 ++++++++++------------
- 3 files changed, 40 insertions(+), 20 deletions(-)
+ arch/arm/boot/dts/imx51-apf51.dts                 | 1 +
+ arch/arm/boot/dts/imx51-babbage.dts               | 1 +
+ arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi | 1 +
+ arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi      | 1 +
+ arch/arm/boot/dts/imx51-ts4800.dts                | 1 +
+ arch/arm/boot/dts/imx51-zii-rdu1.dts              | 1 +
+ arch/arm/boot/dts/imx51-zii-scu2-mezz.dts         | 1 +
+ arch/arm/boot/dts/imx51-zii-scu3-esb.dts          | 1 +
+ arch/arm/boot/dts/imx51.dtsi                      | 2 --
+ 9 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/trace_events.h b/include/linux/trace_events.h
-index 78a010e19ed41..0643c083ed862 100644
---- a/include/linux/trace_events.h
-+++ b/include/linux/trace_events.h
-@@ -529,6 +529,8 @@ extern int trace_event_raw_init(struct trace_event_call *call);
- extern int trace_define_field(struct trace_event_call *call, const char *type,
- 			      const char *name, int offset, int size,
- 			      int is_signed, int filter_type);
-+extern int trace_add_event_call_nolock(struct trace_event_call *call);
-+extern int trace_remove_event_call_nolock(struct trace_event_call *call);
- extern int trace_add_event_call(struct trace_event_call *call);
- extern int trace_remove_event_call(struct trace_event_call *call);
- extern int trace_event_get_offsets(struct trace_event_call *call);
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index 7345f5f8f3fe6..017f737237e60 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -2302,11 +2302,11 @@ __trace_early_add_new_event(struct trace_event_call *call,
- struct ftrace_module_file_ops;
- static void __add_event_to_tracers(struct trace_event_call *call);
+diff --git a/arch/arm/boot/dts/imx51-apf51.dts b/arch/arm/boot/dts/imx51-apf51.dts
+index 79d80036f74de..1eddf2908b3f2 100644
+--- a/arch/arm/boot/dts/imx51-apf51.dts
++++ b/arch/arm/boot/dts/imx51-apf51.dts
+@@ -22,6 +22,7 @@
+ 	compatible = "armadeus,imx51-apf51", "fsl,imx51";
  
--/* Add an additional event_call dynamically */
--int trace_add_event_call(struct trace_event_call *call)
-+int trace_add_event_call_nolock(struct trace_event_call *call)
- {
- 	int ret;
--	mutex_lock(&event_mutex);
-+	lockdep_assert_held(&event_mutex);
-+
- 	mutex_lock(&trace_types_lock);
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0x20000000>;
+ 	};
  
- 	ret = __register_event(call, NULL);
-@@ -2314,6 +2314,16 @@ int trace_add_event_call(struct trace_event_call *call)
- 		__add_event_to_tracers(call);
+diff --git a/arch/arm/boot/dts/imx51-babbage.dts b/arch/arm/boot/dts/imx51-babbage.dts
+index ba60b0cb3cc13..99191466a8085 100644
+--- a/arch/arm/boot/dts/imx51-babbage.dts
++++ b/arch/arm/boot/dts/imx51-babbage.dts
+@@ -15,6 +15,7 @@
+ 	};
  
- 	mutex_unlock(&trace_types_lock);
-+	return ret;
-+}
-+
-+/* Add an additional event_call dynamically */
-+int trace_add_event_call(struct trace_event_call *call)
-+{
-+	int ret;
-+
-+	mutex_lock(&event_mutex);
-+	ret = trace_add_event_call_nolock(call);
- 	mutex_unlock(&event_mutex);
- 	return ret;
- }
-@@ -2363,17 +2373,29 @@ static int probe_remove_event_call(struct trace_event_call *call)
- 	return 0;
- }
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0x20000000>;
+ 	};
  
--/* Remove an event_call */
--int trace_remove_event_call(struct trace_event_call *call)
-+/* no event_mutex version */
-+int trace_remove_event_call_nolock(struct trace_event_call *call)
- {
- 	int ret;
+diff --git a/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi b/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
+index 5761a66e8a0d3..82d8df097ef1f 100644
+--- a/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
++++ b/arch/arm/boot/dts/imx51-digi-connectcore-som.dtsi
+@@ -17,6 +17,7 @@
+ 	compatible = "digi,connectcore-ccxmx51-som", "fsl,imx51";
  
--	mutex_lock(&event_mutex);
-+	lockdep_assert_held(&event_mutex);
-+
- 	mutex_lock(&trace_types_lock);
- 	down_write(&trace_event_sem);
- 	ret = probe_remove_event_call(call);
- 	up_write(&trace_event_sem);
- 	mutex_unlock(&trace_types_lock);
-+
-+	return ret;
-+}
-+
-+/* Remove an event_call */
-+int trace_remove_event_call(struct trace_event_call *call)
-+{
-+	int ret;
-+
-+	mutex_lock(&event_mutex);
-+	ret = trace_remove_event_call_nolock(call);
- 	mutex_unlock(&event_mutex);
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0x08000000>;
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
+index f8902a338e49a..2e3125391bc49 100644
+--- a/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
++++ b/arch/arm/boot/dts/imx51-eukrea-cpuimx51.dtsi
+@@ -23,6 +23,7 @@
+ 	compatible = "eukrea,cpuimx51", "fsl,imx51";
  
- 	return ret;
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index dac518977e7d0..11d952650fa72 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -914,7 +914,7 @@ static int register_synth_event(struct synth_event *event)
- 	call->data = event;
- 	call->tp = event->tp;
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0x10000000>; /* 256M */
+ 	};
+ };
+diff --git a/arch/arm/boot/dts/imx51-ts4800.dts b/arch/arm/boot/dts/imx51-ts4800.dts
+index 39eb067904c3d..4344632f79400 100644
+--- a/arch/arm/boot/dts/imx51-ts4800.dts
++++ b/arch/arm/boot/dts/imx51-ts4800.dts
+@@ -18,6 +18,7 @@
+ 	};
  
--	ret = trace_add_event_call(call);
-+	ret = trace_add_event_call_nolock(call);
- 	if (ret) {
- 		pr_warn("Failed to register synthetic event: %s\n",
- 			trace_event_name(call));
-@@ -938,7 +938,7 @@ static int unregister_synth_event(struct synth_event *event)
- 	struct trace_event_call *call = &event->call;
- 	int ret;
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0x10000000>;
+ 	};
  
--	ret = trace_remove_event_call(call);
-+	ret = trace_remove_event_call_nolock(call);
+diff --git a/arch/arm/boot/dts/imx51-zii-rdu1.dts b/arch/arm/boot/dts/imx51-zii-rdu1.dts
+index 6e80254c4562a..d0e0eb9c9adfa 100644
+--- a/arch/arm/boot/dts/imx51-zii-rdu1.dts
++++ b/arch/arm/boot/dts/imx51-zii-rdu1.dts
+@@ -53,6 +53,7 @@
  
- 	return ret;
- }
-@@ -1015,12 +1015,10 @@ static void add_or_delete_synth_event(struct synth_event *event, int delete)
- 	if (delete)
- 		free_synth_event(event);
- 	else {
--		mutex_lock(&synth_event_mutex);
- 		if (!find_synth_event(event->name))
- 			list_add(&event->list, &synth_event_list);
- 		else
- 			free_synth_event(event);
--		mutex_unlock(&synth_event_mutex);
- 	}
- }
+ 	/* Will be filled by the bootloader */
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0>;
+ 	};
  
-@@ -1032,6 +1030,7 @@ static int create_synth_event(int argc, char **argv)
- 	int i, consumed = 0, n_fields = 0, ret = 0;
- 	char *name;
+diff --git a/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts b/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts
+index 26cf08549df40..f5b2d768fe47f 100644
+--- a/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts
++++ b/arch/arm/boot/dts/imx51-zii-scu2-mezz.dts
+@@ -18,6 +18,7 @@
  
-+	mutex_lock(&event_mutex);
- 	mutex_lock(&synth_event_mutex);
+ 	/* Will be filled by the bootloader */
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0>;
+ 	};
  
- 	/*
-@@ -1104,8 +1103,6 @@ static int create_synth_event(int argc, char **argv)
- 		goto err;
- 	}
-  out:
--	mutex_unlock(&synth_event_mutex);
--
- 	if (event) {
- 		if (delete_event) {
- 			ret = unregister_synth_event(event);
-@@ -1115,10 +1112,13 @@ static int create_synth_event(int argc, char **argv)
- 			add_or_delete_synth_event(event, ret);
- 		}
- 	}
-+	mutex_unlock(&synth_event_mutex);
-+	mutex_unlock(&event_mutex);
+diff --git a/arch/arm/boot/dts/imx51-zii-scu3-esb.dts b/arch/arm/boot/dts/imx51-zii-scu3-esb.dts
+index e6ebac8f43e4f..ad90d66ccca6c 100644
+--- a/arch/arm/boot/dts/imx51-zii-scu3-esb.dts
++++ b/arch/arm/boot/dts/imx51-zii-scu3-esb.dts
+@@ -18,6 +18,7 @@
  
- 	return ret;
-  err:
- 	mutex_unlock(&synth_event_mutex);
-+	mutex_unlock(&event_mutex);
+ 	/* Will be filled by the bootloader */
+ 	memory@90000000 {
++		device_type = "memory";
+ 		reg = <0x90000000 0>;
+ 	};
  
- 	for (i = 0; i < n_fields; i++)
- 		free_synth_field(fields[i]);
-@@ -1129,12 +1129,10 @@ static int create_synth_event(int argc, char **argv)
+diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
+index ef2abc0978439..81f60c96a2e41 100644
+--- a/arch/arm/boot/dts/imx51.dtsi
++++ b/arch/arm/boot/dts/imx51.dtsi
+@@ -16,10 +16,8 @@
+ 	 * The decompressor and also some bootloaders rely on a
+ 	 * pre-existing /chosen node to be available to insert the
+ 	 * command line and merge other ATAGS info.
+-	 * Also for U-Boot there must be a pre-existing /memory node.
+ 	 */
+ 	chosen {};
+-	memory { device_type = "memory"; };
  
- static int release_all_synth_events(void)
- {
--	struct list_head release_events;
- 	struct synth_event *event, *e;
- 	int ret = 0;
- 
--	INIT_LIST_HEAD(&release_events);
--
-+	mutex_lock(&event_mutex);
- 	mutex_lock(&synth_event_mutex);
- 
- 	list_for_each_entry(event, &synth_event_list, list) {
-@@ -1144,16 +1142,14 @@ static int release_all_synth_events(void)
- 		}
- 	}
- 
--	list_splice_init(&event->list, &release_events);
--
--	mutex_unlock(&synth_event_mutex);
--
--	list_for_each_entry_safe(event, e, &release_events, list) {
-+	list_for_each_entry_safe(event, e, &synth_event_list, list) {
- 		list_del(&event->list);
- 
- 		ret = unregister_synth_event(event);
- 		add_or_delete_synth_event(event, !ret);
- 	}
-+	mutex_unlock(&synth_event_mutex);
-+	mutex_unlock(&event_mutex);
- 
- 	return ret;
- }
+ 	aliases {
+ 		ethernet0 = &fec;
 -- 
 2.20.1
 
