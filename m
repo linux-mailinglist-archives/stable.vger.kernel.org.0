@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7248D1063AC
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:12:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9423A1063A0
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:11:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729138AbfKVF4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:56:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:34218 "EHLO mail.kernel.org"
+        id S1728168AbfKVGLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:11:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:34244 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729133AbfKVF4Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:56:25 -0500
+        id S1729146AbfKVF40 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:56:26 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD3EB2071B;
-        Fri, 22 Nov 2019 05:56:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E655420659;
+        Fri, 22 Nov 2019 05:56:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402184;
-        bh=jQHII3kekIjKGDfMOcLc7BNncRQEMcbsFHnnxjyp1vE=;
+        s=default; t=1574402185;
+        bh=VAQuNsQmSre+s2/0iXEv1rQrYfM5/lf41sEGigsfDzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yxbzHQvpX+zpqfqS2r+p68LeFowzlVIbLf31yoMlbjoSmLLJfzCWxEYWmb0bkgy1Q
-         lLaMffvEinTfky3gNKWxFjzmmicaFoY/n+WqxJkfG4PzNBGcAjFCArxdWYokjjD14/
-         q0P1NLlBIyG0JgrBVw8TUocovrDfRKKUxTQ79BoM=
+        b=ZgXefGPLPImCVd9N70pWHFpurTAIrrmTihT7FaXrDBb6IEIGVSDbFWXZEsB1D6Cjt
+         y0CNmeRWeMCgjYqPUl+96eqhu20wQX5IGOwytaSZ4HGW0GmsOcXSFv0lB7wGpzhq3A
+         4F7QsGKpBZFGJpSBDMI93pbcKX8M5IH30RGOLYYo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 4.14 035/127] xen/pciback: Check dev_data before using it
-Date:   Fri, 22 Nov 2019 00:54:13 -0500
-Message-Id: <20191122055544.3299-34-sashal@kernel.org>
+Cc:     Nathan Chancellor <natechancellor@gmail.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+        clang-built-linux@googlegroups.com
+Subject: [PATCH AUTOSEL 4.14 036/127] vfio-mdev/samples: Use u8 instead of char for handle functions
+Date:   Fri, 22 Nov 2019 00:54:14 -0500
+Message-Id: <20191122055544.3299-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -43,36 +44,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Lagerwall <ross.lagerwall@citrix.com>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 1669907e3d1abfa3f7586e2d55dbbc117b5adba2 ]
+[ Upstream commit 8ba35b3a0046d6573c98f00461d9bd1b86250d35 ]
 
-If pcistub_init_device fails, the release function will be called with
-dev_data set to NULL.  Check it before using it to avoid a NULL pointer
-dereference.
+Clang warns:
 
-Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+samples/vfio-mdev/mtty.c:592:39: warning: implicit conversion from 'int'
+to 'char' changes value from 162 to -94 [-Wconstant-conversion]
+                *buf = UART_MSR_DSR | UART_MSR_DDSR | UART_MSR_DCD;
+                     ~ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~
+1 warning generated.
+
+Turns out that all uses of buf in this function ultimately end up stored
+or cast to an unsigned type. Just use u8, which has the same number of
+bits but can store this larger number so Clang no longer warns.
+
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/pci_stub.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ samples/vfio-mdev/mtty.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/xen/xen-pciback/pci_stub.c b/drivers/xen/xen-pciback/pci_stub.c
-index 9e480fdebe1f0..8c250f4a3a97a 100644
---- a/drivers/xen/xen-pciback/pci_stub.c
-+++ b/drivers/xen/xen-pciback/pci_stub.c
-@@ -106,7 +106,8 @@ static void pcistub_device_release(struct kref *kref)
- 	 * is called from "unbind" which takes a device_lock mutex.
- 	 */
- 	__pci_reset_function_locked(dev);
--	if (pci_load_and_free_saved_state(dev, &dev_data->pci_saved_state))
-+	if (dev_data &&
-+	    pci_load_and_free_saved_state(dev, &dev_data->pci_saved_state))
- 		dev_info(&dev->dev, "Could not reload PCI state\n");
- 	else
- 		pci_restore_state(dev);
+diff --git a/samples/vfio-mdev/mtty.c b/samples/vfio-mdev/mtty.c
+index ca495686b9c31..f8c7249fa705d 100644
+--- a/samples/vfio-mdev/mtty.c
++++ b/samples/vfio-mdev/mtty.c
+@@ -171,7 +171,7 @@ static struct mdev_state *find_mdev_state_by_uuid(uuid_le uuid)
+ 	return NULL;
+ }
+ 
+-void dump_buffer(char *buf, uint32_t count)
++void dump_buffer(u8 *buf, uint32_t count)
+ {
+ #if defined(DEBUG)
+ 	int i;
+@@ -250,7 +250,7 @@ static void mtty_create_config_space(struct mdev_state *mdev_state)
+ }
+ 
+ static void handle_pci_cfg_write(struct mdev_state *mdev_state, u16 offset,
+-				 char *buf, u32 count)
++				 u8 *buf, u32 count)
+ {
+ 	u32 cfg_addr, bar_mask, bar_index = 0;
+ 
+@@ -304,7 +304,7 @@ static void handle_pci_cfg_write(struct mdev_state *mdev_state, u16 offset,
+ }
+ 
+ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
+-				u16 offset, char *buf, u32 count)
++				u16 offset, u8 *buf, u32 count)
+ {
+ 	u8 data = *buf;
+ 
+@@ -475,7 +475,7 @@ static void handle_bar_write(unsigned int index, struct mdev_state *mdev_state,
+ }
+ 
+ static void handle_bar_read(unsigned int index, struct mdev_state *mdev_state,
+-			    u16 offset, char *buf, u32 count)
++			    u16 offset, u8 *buf, u32 count)
+ {
+ 	/* Handle read requests by guest */
+ 	switch (offset) {
+@@ -650,7 +650,7 @@ static void mdev_read_base(struct mdev_state *mdev_state)
+ 	}
+ }
+ 
+-static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
++static ssize_t mdev_access(struct mdev_device *mdev, u8 *buf, size_t count,
+ 			   loff_t pos, bool is_write)
+ {
+ 	struct mdev_state *mdev_state;
+@@ -698,7 +698,7 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
+ #if defined(DEBUG_REGS)
+ 			pr_info("%s: BAR%d  WR @0x%llx %s val:0x%02x dlab:%d\n",
+ 				__func__, index, offset, wr_reg[offset],
+-				(u8)*buf, mdev_state->s[index].dlab);
++				*buf, mdev_state->s[index].dlab);
+ #endif
+ 			handle_bar_write(index, mdev_state, offset, buf, count);
+ 		} else {
+@@ -708,7 +708,7 @@ static ssize_t mdev_access(struct mdev_device *mdev, char *buf, size_t count,
+ #if defined(DEBUG_REGS)
+ 			pr_info("%s: BAR%d  RD @0x%llx %s val:0x%02x dlab:%d\n",
+ 				__func__, index, offset, rd_reg[offset],
+-				(u8)*buf, mdev_state->s[index].dlab);
++				*buf, mdev_state->s[index].dlab);
+ #endif
+ 		}
+ 		break;
+@@ -827,7 +827,7 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
+ 		if (count >= 4 && !(*ppos % 4)) {
+ 			u32 val;
+ 
+-			ret =  mdev_access(mdev, (char *)&val, sizeof(val),
++			ret =  mdev_access(mdev, (u8 *)&val, sizeof(val),
+ 					   *ppos, false);
+ 			if (ret <= 0)
+ 				goto read_err;
+@@ -839,7 +839,7 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
+ 		} else if (count >= 2 && !(*ppos % 2)) {
+ 			u16 val;
+ 
+-			ret = mdev_access(mdev, (char *)&val, sizeof(val),
++			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+ 					  *ppos, false);
+ 			if (ret <= 0)
+ 				goto read_err;
+@@ -851,7 +851,7 @@ ssize_t mtty_read(struct mdev_device *mdev, char __user *buf, size_t count,
+ 		} else {
+ 			u8 val;
+ 
+-			ret = mdev_access(mdev, (char *)&val, sizeof(val),
++			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+ 					  *ppos, false);
+ 			if (ret <= 0)
+ 				goto read_err;
+@@ -889,7 +889,7 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
+ 			if (copy_from_user(&val, buf, sizeof(val)))
+ 				goto write_err;
+ 
+-			ret = mdev_access(mdev, (char *)&val, sizeof(val),
++			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+ 					  *ppos, true);
+ 			if (ret <= 0)
+ 				goto write_err;
+@@ -901,7 +901,7 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
+ 			if (copy_from_user(&val, buf, sizeof(val)))
+ 				goto write_err;
+ 
+-			ret = mdev_access(mdev, (char *)&val, sizeof(val),
++			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+ 					  *ppos, true);
+ 			if (ret <= 0)
+ 				goto write_err;
+@@ -913,7 +913,7 @@ ssize_t mtty_write(struct mdev_device *mdev, const char __user *buf,
+ 			if (copy_from_user(&val, buf, sizeof(val)))
+ 				goto write_err;
+ 
+-			ret = mdev_access(mdev, (char *)&val, sizeof(val),
++			ret = mdev_access(mdev, (u8 *)&val, sizeof(val),
+ 					  *ppos, true);
+ 			if (ret <= 0)
+ 				goto write_err;
 -- 
 2.20.1
 
