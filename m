@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B9010608A
+	by mail.lfdr.de (Postfix) with ESMTP id E588510608C
 	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:50:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727287AbfKVFts (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:49:48 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54082 "EHLO mail.kernel.org"
+        id S1727320AbfKVFtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:49:51 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727269AbfKVFts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:49:48 -0500
+        id S1727312AbfKVFtv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:49:51 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 69B1B20708;
-        Fri, 22 Nov 2019 05:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E297D2082F;
+        Fri, 22 Nov 2019 05:49:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401788;
-        bh=TdQPgtFlO5dSn5dVBSQBaPwxIW+NrmCLiLXyK8OT3FI=;
+        s=default; t=1574401790;
+        bh=9Vyqt3zmn8NcG/gtQP2AQNm8fvqB9tSopBcJdG0d62E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ExA6NxJXr0plclW3L2s8YKChQfkFYPR35do7NNtPl18JcSFHIfVc8p9+HpvRYITVx
-         fB7KTqDjZJiSNszlBaPStF2JhG02FAuoBN5aBTpiSoBFGB2t4nFB08VGwJQLK30ATD
-         bxvZ4f6Gcg2Q8+9DxbDb7fFz4/SQKgQkYM7R3nx4=
+        b=Ghl2ECi+jPhGhAD142ensyFs9fMnVkOtXn9tsh3EkhuubaIj8nIoLvmlPWAon4cak
+         DGOMxGjaAMP2WgogDLjna6W+xepuyXMDSPJtyvobdX93TTAUQgTcQiG9+F+6N4XMR6
+         Dc7CWYqHXJN9hVQw2JL5egvxG2WDtp2tFmsQ8V8Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 036/219] ACPI / LPSS: Ignore acpi_device_fix_up_power() return value
-Date:   Fri, 22 Nov 2019 00:46:08 -0500
-Message-Id: <20191122054911.1750-29-sashal@kernel.org>
+Cc:     Himanshu Madhani <hmadhani@marvell.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 038/219] scsi: qla2xxx: Fix NPIV handling for FC-NVMe
+Date:   Fri, 22 Nov 2019 00:46:10 -0500
+Message-Id: <20191122054911.1750-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -43,52 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Himanshu Madhani <hmadhani@marvell.com>
 
-[ Upstream commit 1a2fa02f7489dc4d746f2a15fb77b3ce1affade8 ]
+[ Upstream commit 5e6803b409ba3c18434de6693062d98a470bcb1e ]
 
-Ignore acpi_device_fix_up_power() return value. If we return an error
-we end up with acpi_default_enumeration() still creating a platform-
-device for the device and we end up with the device still being used
-but without the special LPSS related handling which is not useful.
+This patch fixes issues with NPIV port with FC-NVMe. Clean up code for
+remoteport delete and also call nvme_delete when deleting VPs.
 
-Specicifically ignoring the error fixes the touchscreen no longer
-working after a suspend/resume on a Prowise PT301 tablet.
-
-This tablet has a broken _PS0 method on the touchscreen's I2C controller,
-causing acpi_device_fix_up_power() to fail, causing fallback to standard
-platform-dev handling and specifically causing acpi_lpss_save/restore_ctx
-to not run.
-
-The I2C controllers _PS0 method does actually turn on the device, but then
-does some more nonsense which fails when run during early boot trying to
-use I2C opregion handling on another not-yet registered I2C controller.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpi_lpss.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/scsi/qla2xxx/qla_nvme.c | 16 +++-------------
+ drivers/scsi/qla2xxx/qla_os.c   |  2 ++
+ 2 files changed, 5 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
-index c651e206d7960..d79245e9dff72 100644
---- a/drivers/acpi/acpi_lpss.c
-+++ b/drivers/acpi/acpi_lpss.c
-@@ -637,12 +637,7 @@ static int acpi_lpss_create_device(struct acpi_device *adev,
- 	 * have _PS0 and _PS3 without _PSC (and no power resources), so
- 	 * acpi_bus_init_power() will assume that the BIOS has put them into D0.
- 	 */
--	ret = acpi_device_fix_up_power(adev);
--	if (ret) {
--		/* Skip the device, but continue the namespace scan. */
--		ret = 0;
--		goto err_out;
--	}
-+	acpi_device_fix_up_power(adev);
+diff --git a/drivers/scsi/qla2xxx/qla_nvme.c b/drivers/scsi/qla2xxx/qla_nvme.c
+index e6545cb9a2c19..5590d6e8b5762 100644
+--- a/drivers/scsi/qla2xxx/qla_nvme.c
++++ b/drivers/scsi/qla2xxx/qla_nvme.c
+@@ -474,21 +474,10 @@ static int qla_nvme_post_cmd(struct nvme_fc_local_port *lport,
+ 	int rval = -ENODEV;
+ 	srb_t *sp;
+ 	struct qla_qpair *qpair = hw_queue_handle;
+-	struct nvme_private *priv;
++	struct nvme_private *priv = fd->private;
+ 	struct qla_nvme_rport *qla_rport = rport->private;
  
- 	adev->driver_data = pdata;
- 	pdev = acpi_create_platform_device(adev, dev_desc->properties);
+-	if (!fd || !qpair) {
+-		ql_log(ql_log_warn, NULL, 0x2134,
+-		    "NO NVMe request or Queue Handle\n");
+-		return rval;
+-	}
+-
+-	priv = fd->private;
+ 	fcport = qla_rport->fcport;
+-	if (!fcport) {
+-		ql_log(ql_log_warn, NULL, 0x210e, "No fcport ptr\n");
+-		return rval;
+-	}
+ 
+ 	vha = fcport->vha;
+ 
+@@ -517,6 +506,7 @@ static int qla_nvme_post_cmd(struct nvme_fc_local_port *lport,
+ 	sp->name = "nvme_cmd";
+ 	sp->done = qla_nvme_sp_done;
+ 	sp->qpair = qpair;
++	sp->vha = vha;
+ 	nvme = &sp->u.iocb_cmd;
+ 	nvme->u.nvme.desc = fd;
+ 
+@@ -564,7 +554,7 @@ static void qla_nvme_remoteport_delete(struct nvme_fc_remote_port *rport)
+ 		schedule_work(&fcport->free_work);
+ 	}
+ 
+-	fcport->nvme_flag &= ~(NVME_FLAG_REGISTERED | NVME_FLAG_DELETING);
++	fcport->nvme_flag &= ~NVME_FLAG_DELETING;
+ 	ql_log(ql_log_info, fcport->vha, 0x2110,
+ 	    "remoteport_delete of %p completed.\n", fcport);
+ }
+diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
+index 18ee614fe07f5..fb6b5de098f58 100644
+--- a/drivers/scsi/qla2xxx/qla_os.c
++++ b/drivers/scsi/qla2xxx/qla_os.c
+@@ -3537,6 +3537,8 @@ qla2x00_delete_all_vps(struct qla_hw_data *ha, scsi_qla_host_t *base_vha)
+ 		spin_unlock_irqrestore(&ha->vport_slock, flags);
+ 		mutex_unlock(&ha->vport_lock);
+ 
++		qla_nvme_delete(vha);
++
+ 		fc_vport_terminate(vha->fc_vport);
+ 		scsi_host_put(vha->host);
+ 
 -- 
 2.20.1
 
