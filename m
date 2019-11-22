@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10CC8106208
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:01:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B1B106215
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:01:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729408AbfKVF5T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:57:19 -0500
-Received: from mail.kernel.org ([198.145.29.99]:35612 "EHLO mail.kernel.org"
+        id S1726725AbfKVGBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:01:20 -0500
+Received: from mail.kernel.org ([198.145.29.99]:35624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729400AbfKVF5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:57:19 -0500
+        id S1727227AbfKVF5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:57:20 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD9BE207FC;
-        Fri, 22 Nov 2019 05:57:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9AF92084B;
+        Fri, 22 Nov 2019 05:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402238;
-        bh=uAYZUiGgVZVA8TdMU5/qfdvQ0kgDh1SXmr8vRZKpNZc=;
+        s=default; t=1574402239;
+        bh=GQas2avcl0NjPgNPlaAfiSvtV+EZURLJOYzb58XTsXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzKK302VcYvJFFo7kva7NWMVthVCuFws18/JDtkX9oRDhmMQaJGYHWl2ZmSdOhN6p
-         MuBcyLQIpRhxSuWvFeMZ1D4bn5VX2F7u08AjJx9VHDnLfd9+nLsCXCSPWzTb6JB8kb
-         maqT2lGY/eO+TNQZ8MDpTNn7RcOyBmWIZpTmihv0=
+        b=hgLAOvSDmTOjGhN+FdzDQ4udPT8ypYSPgx4rOE0mmBoV9q6y30Kcya9qV3NWoygxZ
+         J1srnaXX/+n0d2gfQZ3n71D+hwPrw1dYG14gdZwF5udFSwPVRvazdM98nMRb9is9dM
+         eM7UZt+TvvM9WBOfE7T7cbTw7oeXhlXMeCIpjFPI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.14 083/127] f2fs: fix to dirty inode synchronously
-Date:   Fri, 22 Nov 2019 00:55:01 -0500
-Message-Id: <20191122055544.3299-82-sashal@kernel.org>
+Cc:     Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, linux-um@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 084/127] um: Make GCOV depend on !KCOV
+Date:   Fri, 22 Nov 2019 00:55:02 -0500
+Message-Id: <20191122055544.3299-83-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122055544.3299-1-sashal@kernel.org>
 References: <20191122055544.3299-1-sashal@kernel.org>
@@ -43,34 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Richard Weinberger <richard@nod.at>
 
-[ Upstream commit b32e019049e959ee10ec359893c9dd5d057dad55 ]
+[ Upstream commit 550ed0e2036663b35cec12374b835444f9c60454 ]
 
-If user change inode's i_flags via ioctl, let's add it into global
-dirty list, so that checkpoint can guarantee its persistence before
-fsync, it can make checkpoint keeping strong consistency.
+Both do more or less the same thing and are mutually exclusive.
+If both are enabled the build will fail.
+Sooner or later we can kill UML's GCOV.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/um/Kconfig.debug | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 1b17921994459..d68b0132718a6 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1593,7 +1593,7 @@ static int __f2fs_ioc_setflags(struct inode *inode, unsigned int flags)
- 
- 	inode->i_ctime = current_time(inode);
- 	f2fs_set_inode_flags(inode);
--	f2fs_mark_inode_dirty_sync(inode, false);
-+	f2fs_mark_inode_dirty_sync(inode, true);
- 	return 0;
- }
- 
+diff --git a/arch/um/Kconfig.debug b/arch/um/Kconfig.debug
+index 967d3109689ff..39d44bfb241d5 100644
+--- a/arch/um/Kconfig.debug
++++ b/arch/um/Kconfig.debug
+@@ -19,6 +19,7 @@ config GPROF
+ config GCOV
+ 	bool "Enable gcov support"
+ 	depends on DEBUG_INFO
++	depends on !KCOV
+ 	help
+ 	  This option allows developers to retrieve coverage data from a UML
+ 	  session.
 -- 
 2.20.1
 
