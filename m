@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 663D8106C2A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:50:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDC3106A69
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728516AbfKVKuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:50:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:60402 "EHLO mail.kernel.org"
+        id S1727394AbfKVKei (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:34:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730070AbfKVKuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:50:24 -0500
+        id S1727367AbfKVKei (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:34:38 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9AA8205C9;
-        Fri, 22 Nov 2019 10:50:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2904320715;
+        Fri, 22 Nov 2019 10:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419824;
-        bh=YJh3dwXnlo6J40iWdRCkulTOyWzvrfmmV1Y3oAGdLM8=;
+        s=default; t=1574418876;
+        bh=cWDR+bK9eieHFdL6aHLtdxeVnto+yzXb3nykupc4aDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGONeeURufVWSGzwQtrWqMOziwbbK2ihT1j6lqSqwBlNEpdjkeDxMkVKbTZzAUOB2
-         CtFtiva/0huxUNhWZJNZ5E/eRqcjEE/5tALGAP2tWttqh8LT5pIB+2FFQwQn2hWSqP
-         UOpAL3XjeVLgjpC/6oEgQ08oImuFTHTZeepgNXHg=
+        b=dPmCWz8oOle2Ez7lXBlTFuVLGJWfQDQQ1Si20UDivtZCz4u2HtlWhUtYUAAooo0PV
+         uYb/WyF+Xcg9gvI9spnyh+GU4Jz/Qb8zSvzLTE5reE0LdRF0sokXa4RNExwizj/Kyb
+         mqReHCOFtCiy9HgS2TaaDxcma8XTcKSup17xX7Xs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Punit Agrawal <punit.agrawal@arm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Paul Elder <paul.elder@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 021/122] arm64/numa: Report correct memblock range for the dummy node
+Subject: [PATCH 4.4 083/159] usb: gadget: uvc: Factor out video USB request queueing
 Date:   Fri, 22 Nov 2019 11:27:54 +0100
-Message-Id: <20191122100737.184106881@linuxfoundation.org>
+Message-Id: <20191122100805.666703358@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +46,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anshuman Khandual <anshuman.khandual@arm.com>
+From: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 
-[ Upstream commit 77cfe950901e5c13aca2df6437a05f39dd9a929b ]
+[ Upstream commit 9d1ff5dcb3cd3390b1e56f1c24ae42c72257c4a3 ]
 
-The dummy node ID is marked into all memory ranges on the system. So the
-dummy node really extends the entire memblock.memory. Hence report correct
-extent information for the dummy node using memblock range helper functions
-instead of the range [0LLU, PFN_PHYS(max_pfn) - 1)].
+USB requests for video data are queued from two different locations in
+the driver, with the same code block occurring twice. Factor it out to a
+function.
 
-Fixes: 1a2db30034 ("arm64, numa: Add NUMA support for arm64 platforms")
-Acked-by: Punit Agrawal <punit.agrawal@arm.com>
-Signed-off-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Paul Elder <paul.elder@ideasonboard.com>
+Tested-by: Paul Elder <paul.elder@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/mm/numa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/uvc_video.c | 30 ++++++++++++++++---------
+ 1 file changed, 20 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm64/mm/numa.c b/arch/arm64/mm/numa.c
-index dad128ba98bf8..e9c843e0c1727 100644
---- a/arch/arm64/mm/numa.c
-+++ b/arch/arm64/mm/numa.c
-@@ -419,7 +419,7 @@ static int __init dummy_numa_init(void)
- 	if (numa_off)
- 		pr_info("NUMA disabled\n"); /* Forced off on command line. */
- 	pr_info("Faking a node at [mem %#018Lx-%#018Lx]\n",
--		0LLU, PFN_PHYS(max_pfn) - 1);
-+		memblock_start_of_DRAM(), memblock_end_of_DRAM() - 1);
+diff --git a/drivers/usb/gadget/function/uvc_video.c b/drivers/usb/gadget/function/uvc_video.c
+index 0f01c04d7cbd8..540917f54506a 100644
+--- a/drivers/usb/gadget/function/uvc_video.c
++++ b/drivers/usb/gadget/function/uvc_video.c
+@@ -129,6 +129,19 @@ uvc_video_encode_isoc(struct usb_request *req, struct uvc_video *video,
+  * Request handling
+  */
  
- 	for_each_memblock(memory, mblk) {
- 		ret = numa_add_memblk(0, mblk->base, mblk->base + mblk->size);
++static int uvcg_video_ep_queue(struct uvc_video *video, struct usb_request *req)
++{
++	int ret;
++
++	ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
++	if (ret < 0) {
++		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
++		usb_ep_set_halt(video->ep);
++	}
++
++	return ret;
++}
++
+ /*
+  * I somehow feel that synchronisation won't be easy to achieve here. We have
+  * three events that control USB requests submission:
+@@ -193,14 +206,13 @@ uvc_video_complete(struct usb_ep *ep, struct usb_request *req)
+ 
+ 	video->encode(req, video, buf);
+ 
+-	if ((ret = usb_ep_queue(ep, req, GFP_ATOMIC)) < 0) {
+-		printk(KERN_INFO "Failed to queue request (%d).\n", ret);
+-		usb_ep_set_halt(ep);
+-		spin_unlock_irqrestore(&video->queue.irqlock, flags);
++	ret = uvcg_video_ep_queue(video, req);
++	spin_unlock_irqrestore(&video->queue.irqlock, flags);
++
++	if (ret < 0) {
+ 		uvcg_queue_cancel(queue, 0);
+ 		goto requeue;
+ 	}
+-	spin_unlock_irqrestore(&video->queue.irqlock, flags);
+ 
+ 	return;
+ 
+@@ -320,15 +332,13 @@ int uvcg_video_pump(struct uvc_video *video)
+ 		video->encode(req, video, buf);
+ 
+ 		/* Queue the USB request */
+-		ret = usb_ep_queue(video->ep, req, GFP_ATOMIC);
++		ret = uvcg_video_ep_queue(video, req);
++		spin_unlock_irqrestore(&queue->irqlock, flags);
++
+ 		if (ret < 0) {
+-			printk(KERN_INFO "Failed to queue request (%d)\n", ret);
+-			usb_ep_set_halt(video->ep);
+-			spin_unlock_irqrestore(&queue->irqlock, flags);
+ 			uvcg_queue_cancel(queue, 0);
+ 			break;
+ 		}
+-		spin_unlock_irqrestore(&queue->irqlock, flags);
+ 	}
+ 
+ 	spin_lock_irqsave(&video->req_lock, flags);
 -- 
 2.20.1
 
