@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C1C31070D1
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E9310708D
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:23:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728413AbfKVKj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:39:57 -0500
-Received: from mail.kernel.org ([198.145.29.99]:43416 "EHLO mail.kernel.org"
+        id S1727406AbfKVKlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:41:32 -0500
+Received: from mail.kernel.org ([198.145.29.99]:46110 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728021AbfKVKjz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:39:55 -0500
+        id S1728282AbfKVKlb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:41:31 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3E0902071F;
-        Fri, 22 Nov 2019 10:39:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D452920718;
+        Fri, 22 Nov 2019 10:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419194;
-        bh=ib4vu3ssWv+BcS446FDJwbNCxuG0zk6e/VuXGHHpq9s=;
+        s=default; t=1574419291;
+        bh=UcVJUPglSscPWgOYcHOUcXLNRDwLqyUnDRJRi2uan6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zTmz7cBj2Ra+nAzzdzKhiPAX5gpxPeXNGd1QNusB0NJrMoXzlHvB73e61gGPk29wg
-         OBZSAzAvy1hPm3uGKCTTBBVvhn0WzSV2IlBQf7+DNwlWhM1i9FQm0NfL6tMZxN653s
-         grdjcG4GPRMVjXy+tYj1A6LPMcM/Cdv0SmE9fC/E=
+        b=1nG3EM9Z/OP+WBhnhWojqSxG+nu/qQK8zARAiZoUkODWe2aYpNR/0QJ8ylJ6m68uG
+         qMpYzrsnFo9zabHErC5Hsh7s/iNHos08jC4Rz+II4yRx4BTUX/kWtcducH5RV5QLlT
+         hF/JWQnLpMkhEDYQfmMNg9OK6ZfbQyRFERQ3rQZY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 022/222] ALSA: seq: Do error checks at creating system ports
-Date:   Fri, 22 Nov 2019 11:26:02 +0100
-Message-Id: <20191122100837.381830286@linuxfoundation.org>
+Subject: [PATCH 4.9 025/222] ASoC: dpcm: Properly initialise hw->rate_max
+Date:   Fri, 22 Nov 2019 11:26:05 +0100
+Message-Id: <20191122100838.904100409@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -43,70 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Charles Keepax <ckeepax@opensource.cirrus.com>
 
-[ Upstream commit b8e131542b47b81236ecf6768c923128e1f5db6e ]
+[ Upstream commit e33ffbd9cd39da09831ce62c11025d830bf78d9e ]
 
-snd_seq_system_client_init() doesn't check the errors returned from
-its port creations.  Let's do it properly and handle the error paths.
+If the CPU DAI does not initialise rate_max, say if using
+using KNOT or CONTINUOUS, then the rate_max field will be
+initialised to 0. A value of zero in the rate_max field of
+the hardware runtime will cause the sound card to support no
+sample rates at all. Obviously this is not desired, just a
+different mechanism is being used to apply the constraints. As
+such update the setting of rate_max in dpcm_init_runtime_hw
+to be consistent with the non-DPCM cases and set rate_max to
+UINT_MAX if nothing is defined on the CPU DAI.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_system.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ sound/soc/soc-pcm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/core/seq/seq_system.c b/sound/core/seq/seq_system.c
-index 8ce1d0b40dce1..ce1f1e4727ab1 100644
---- a/sound/core/seq/seq_system.c
-+++ b/sound/core/seq/seq_system.c
-@@ -123,6 +123,7 @@ int __init snd_seq_system_client_init(void)
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index 1d00f6e894ef4..d69559e458725 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -1592,7 +1592,7 @@ static void dpcm_init_runtime_hw(struct snd_pcm_runtime *runtime,
+ 				 u64 formats)
  {
- 	struct snd_seq_port_callback pcallbacks;
- 	struct snd_seq_port_info *port;
-+	int err;
- 
- 	port = kzalloc(sizeof(*port), GFP_KERNEL);
- 	if (!port)
-@@ -144,7 +145,10 @@ int __init snd_seq_system_client_init(void)
- 	port->flags = SNDRV_SEQ_PORT_FLG_GIVEN_PORT;
- 	port->addr.client = sysclient;
- 	port->addr.port = SNDRV_SEQ_PORT_SYSTEM_TIMER;
--	snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT, port);
-+	err = snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT,
-+					port);
-+	if (err < 0)
-+		goto error_port;
- 
- 	/* register announcement port */
- 	strcpy(port->name, "Announce");
-@@ -154,16 +158,24 @@ int __init snd_seq_system_client_init(void)
- 	port->flags = SNDRV_SEQ_PORT_FLG_GIVEN_PORT;
- 	port->addr.client = sysclient;
- 	port->addr.port = SNDRV_SEQ_PORT_SYSTEM_ANNOUNCE;
--	snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT, port);
-+	err = snd_seq_kernel_client_ctl(sysclient, SNDRV_SEQ_IOCTL_CREATE_PORT,
-+					port);
-+	if (err < 0)
-+		goto error_port;
- 	announce_port = port->addr.port;
- 
- 	kfree(port);
- 	return 0;
-+
-+ error_port:
-+	snd_seq_system_client_done();
-+	kfree(port);
-+	return err;
- }
- 
- 
- /* unregister our internal client */
--void __exit snd_seq_system_client_done(void)
-+void snd_seq_system_client_done(void)
- {
- 	int oldsysclient = sysclient;
- 
+ 	runtime->hw.rate_min = stream->rate_min;
+-	runtime->hw.rate_max = stream->rate_max;
++	runtime->hw.rate_max = min_not_zero(stream->rate_max, UINT_MAX);
+ 	runtime->hw.channels_min = stream->channels_min;
+ 	runtime->hw.channels_max = stream->channels_max;
+ 	if (runtime->hw.formats)
 -- 
 2.20.1
 
