@@ -2,98 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC2C7106CD9
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:56:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9E3E106BCF
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:47:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730494AbfKVKzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:55:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:42682 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730205AbfKVKzj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:55:39 -0500
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6213E20637;
-        Fri, 22 Nov 2019 10:55:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420138;
-        bh=xfiRYlBrrR42DVKHJwACyiYlj/Argp6WATZos1+CRlg=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G09i9nCxSXOY5taRVOwEy+7xcmVPrSP41Krs67Oytz+o31iCTt5aPA1fJoBUgavaM
-         nUlqqj9u4047xHprgGcJw6Mp3XO5+dge5BxFcNg+n+eogQ4SrZlhdsudG3p6VwQsT7
-         7COBBoSHG3MIrLab34AazM2jXtTLKRymOaJryqzQ=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Takeshi Saito <takeshi.saito.xv@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 122/122] mmc: tmio: fix SCC error handling to avoid false positive CRC error
-Date:   Fri, 22 Nov 2019 11:29:35 +0100
-Message-Id: <20191122100838.472460553@linuxfoundation.org>
-X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
-References: <20191122100722.177052205@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1727395AbfKVKr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:47:27 -0500
+Received: from mx2.suse.de ([195.135.220.15]:37254 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729131AbfKVKr0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:47:26 -0500
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 00DA1AE00;
+        Fri, 22 Nov 2019 10:47:24 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 7AC9C1E484C; Fri, 22 Nov 2019 11:47:24 +0100 (CET)
+Date:   Fri, 22 Nov 2019 11:47:24 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     "Darrick J. Wong" <darrick.wong@oracle.com>
+Cc:     Jan Kara <jack@suse.cz>, linux-fsdevel@vger.kernel.org,
+        Christoph Hellwig <hch@infradead.org>,
+        Matthew Bobrowski <mbobrowski@mbobrowski.org>,
+        Eric Biggers <ebiggers@kernel.org>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] iomap: Fix pipe page leakage during splicing
+Message-ID: <20191122104724.GA26721@quack2.suse.cz>
+References: <20191121161144.30802-1-jack@suse.cz>
+ <20191121161538.18445-1-jack@suse.cz>
+ <20191121235528.GO6211@magnolia>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20191121235528.GO6211@magnolia>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takeshi Saito <takeshi.saito.xv@renesas.com>
+On Thu 21-11-19 15:55:28, Darrick J. Wong wrote:
+> On Thu, Nov 21, 2019 at 05:15:34PM +0100, Jan Kara wrote:
+> > When splicing using iomap_dio_rw() to a pipe, we may leak pipe pages
+> > because bio_iov_iter_get_pages() records that the pipe will have full
+> > extent worth of data however if file size is not block size aligned
+> > iomap_dio_rw() returns less than what bio_iov_iter_get_pages() set up
+> > and splice code gets confused leaking a pipe page with the file tail.
+> > 
+> > Handle the situation similarly to the old direct IO implementation and
+> > revert iter to actually returned read amount which makes iter consistent
+> > with value returned from iomap_dio_rw() and thus the splice code is
+> > happy.
+> > 
+> > Fixes: ff6a9292e6f6 ("iomap: implement direct I/O")
+> > CC: stable@vger.kernel.org
+> > Reported-by: syzbot+991400e8eba7e00a26e1@syzkaller.appspotmail.com
+> > Signed-off-by: Jan Kara <jack@suse.cz>
+> > ---
+> >  fs/iomap/direct-io.c | 9 ++++++++-
+> >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/fs/iomap/direct-io.c b/fs/iomap/direct-io.c
+> > index 1fc28c2da279..30189652c560 100644
+> > --- a/fs/iomap/direct-io.c
+> > +++ b/fs/iomap/direct-io.c
+> > @@ -497,8 +497,15 @@ iomap_dio_rw(struct kiocb *iocb, struct iov_iter *iter,
+> >  		}
+> >  		pos += ret;
+> >  
+> > -		if (iov_iter_rw(iter) == READ && pos >= dio->i_size)
+> > +		if (iov_iter_rw(iter) == READ && pos >= dio->i_size) {
+> > +			/*
+> > +			 * We will report we've read data only upto i_size.
+> 
+> Nit: "up to"; will fix that on the way in.
+> 
+> > +			 * Revert iter to a state corresponding to that as
+> > +			 * some callers (such as splice code) rely on it.
+> > +			 */
+> > +			iov_iter_revert(iter, pos - dio->i_size);
+> 
+> Just to make sure I'm getting this right, iov_iter_revert walks the
+> iterator variables backwards through pipe buffers/bvec/iovec, which has
+> the effect of undoing whatever iterator walking we've just done.
+> 
+> In contrast, iov_iter_reexpand undoes a previous subtraction to
+> iov->count which was (presumably) done via iov_iter_truncate.
+> 
+> Or to put it another way, _revert walks the iteration pointer backwards,
+> whereas _truncate/_reexpand modify where the iteration ends.  Right?
 
-[ Upstream commit 51b72656bb39fdcb8f3174f4007bcc83ad1d275f ]
+Correct.
 
-If an SCC error occurs during a read/write command execution, a false
-positive CRC error message is output.
+> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
 
-mmcblk0: response CRC error sending r/w cmd command, card status 0x900
+Thanks!
 
-check_scc_error() checks SCC_RVSREQ.RVSERR bit. RVSERR detects a
-correction error in the next (up or down) delay tap position. However,
-since the command is successful, only retuning needs to be executed.
-This has been confirmed by HW engineers.
-
-Thus, on SCC error, set retuning flag instead of setting an error code.
-
-Fixes: b85fb0a1c8ae ("mmc: tmio: Fix SCC error detection")
-Signed-off-by: Takeshi Saito <takeshi.saito.xv@renesas.com>
-[wsa: updated comment and commit message, removed some braces]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/mmc/host/tmio_mmc_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/mmc/host/tmio_mmc_core.c b/drivers/mmc/host/tmio_mmc_core.c
-index 01e51b7945750..2fd862dc97701 100644
---- a/drivers/mmc/host/tmio_mmc_core.c
-+++ b/drivers/mmc/host/tmio_mmc_core.c
-@@ -914,8 +914,9 @@ static void tmio_mmc_finish_request(struct tmio_mmc_host *host)
- 	if (mrq->cmd->error || (mrq->data && mrq->data->error))
- 		tmio_mmc_abort_dma(host);
- 
-+	/* SCC error means retune, but executed command was still successful */
- 	if (host->check_scc_error && host->check_scc_error(host))
--		mrq->cmd->error = -EILSEQ;
-+		mmc_retune_needed(host->mmc);
- 
- 	/* If SET_BLOCK_COUNT, continue with main command */
- 	if (host->mrq && !mrq->cmd->error) {
+								Honza
 -- 
-2.20.1
-
-
-
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
