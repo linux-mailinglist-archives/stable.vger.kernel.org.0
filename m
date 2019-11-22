@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B631070E3
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C9C106DD3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728531AbfKVKh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:37:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:38918 "EHLO mail.kernel.org"
+        id S1731087AbfKVLDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:03:38 -0500
+Received: from mail.kernel.org ([198.145.29.99]:57874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727961AbfKVKhZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:37:25 -0500
+        id S1730607AbfKVLDh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:03:37 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DDA9620637;
-        Fri, 22 Nov 2019 10:37:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3DAFC207DD;
+        Fri, 22 Nov 2019 11:03:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419044;
-        bh=Hu7H6Gd7xqdBLTMuYsjBXuc2ZJmlAFn0a4M6+861rQY=;
+        s=default; t=1574420616;
+        bh=ki+pDiUQ4TAJihOkdBBUuOsWB5MDl13oiTbkGVRNnaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hXgRpJ+ioZDUbm0a6oIKc+nk4s85da1wUxBUT03BR86pO+qKLwT0loSDH9pyrYHMP
-         wHGOslGQhaZzlU/xPjKXAsvW/6twVkKRjCy9Rx9YufQKu+TjHRfbvq1GdhnWRn3PeJ
-         aDhGdbTtguF8c13PpmGLch1mREJFax1k94WufACU=
+        b=NYbsm/YnAoEy6rbWlDEgXjhlC082bmxVzMEozCtSRK+RZrRl7sq8tpdHyrFE+A9HF
+         f08W6Islm7vR7Jc3J6gulNFZp3ltcXUJvVNKLMNCN7aKEX5f+sthxycLw2JIqPad8U
+         wZscsNKb1HMTSyo2hX8MAnfP0eGjBVlHqyQnvETI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Radu Solea <radu.solea@nxp.com>,
-        Leonard Crestez <leonard.crestez@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 139/159] crypto: mxs-dcp - Fix SHA null hashes and output length
-Date:   Fri, 22 Nov 2019 11:28:50 +0100
-Message-Id: <20191122100836.845081523@linuxfoundation.org>
+Subject: [PATCH 4.19 166/220] mmc: mmci: expand startbiterr to irqmask and error check
+Date:   Fri, 22 Nov 2019 11:28:51 +0100
+Message-Id: <20191122100924.727930440@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,131 +44,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Radu Solea <radu.solea@nxp.com>
+From: Ludovic Barre <ludovic.barre@st.com>
 
-[ Upstream commit c709eebaf5c5faa8a0f140355f9cfe67e8f7afb1 ]
+[ Upstream commit daf9713c5ef8c3ffb0bdf7de11b53b2b2756c4f1 ]
 
-DCP writes at least 32 bytes in the output buffer instead of hash length
-as documented. Add intermediate buffer to prevent write out of bounds.
+All variants don't pretend to have a startbiterr.
+-While data error check, if status register return an error
+(like  MCI_DATACRCFAIL) we must avoid to check MCI_STARTBITERR
+(if not desired).
+-expand start_err to MCI_IRQENABLE to avoid to set this bit by default.
 
-When requested to produce null hashes DCP fails to produce valid output.
-Add software workaround to bypass hardware and return valid output.
-
-Signed-off-by: Radu Solea <radu.solea@nxp.com>
-Signed-off-by: Leonard Crestez <leonard.crestez@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/mxs-dcp.c | 47 +++++++++++++++++++++++++++++++---------
- 1 file changed, 37 insertions(+), 10 deletions(-)
+ drivers/mmc/host/mmci.c | 27 ++++++++++++++++-----------
+ drivers/mmc/host/mmci.h |  6 +++---
+ 2 files changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/crypto/mxs-dcp.c b/drivers/crypto/mxs-dcp.c
-index fe8cfe24c518f..38c5dd8891138 100644
---- a/drivers/crypto/mxs-dcp.c
-+++ b/drivers/crypto/mxs-dcp.c
-@@ -28,9 +28,24 @@
- 
- #define DCP_MAX_CHANS	4
- #define DCP_BUF_SZ	PAGE_SIZE
-+#define DCP_SHA_PAY_SZ  64
- 
- #define DCP_ALIGNMENT	64
- 
-+/*
-+ * Null hashes to align with hw behavior on imx6sl and ull
-+ * these are flipped for consistency with hw output
-+ */
-+const uint8_t sha1_null_hash[] =
-+	"\x09\x07\xd8\xaf\x90\x18\x60\x95\xef\xbf"
-+	"\x55\x32\x0d\x4b\x6b\x5e\xee\xa3\x39\xda";
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index eb1a65cb878f0..fa6268c0f1232 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -895,14 +895,18 @@ static void
+ mmci_data_irq(struct mmci_host *host, struct mmc_data *data,
+ 	      unsigned int status)
+ {
++	unsigned int status_err;
 +
-+const uint8_t sha256_null_hash[] =
-+	"\x55\xb8\x52\x78\x1b\x99\x95\xa4"
-+	"\x4c\x93\x9b\x64\xe4\x41\xae\x27"
-+	"\x24\xb9\x6f\x99\xc8\xf4\xfb\x9a"
-+	"\x14\x1c\xfc\x98\x42\xc4\xb0\xe3";
+ 	/* Make sure we have data to handle */
+ 	if (!data)
+ 		return;
+ 
+ 	/* First check for errors */
+-	if (status & (MCI_DATACRCFAIL | MCI_DATATIMEOUT |
+-		      host->variant->start_err |
+-		      MCI_TXUNDERRUN | MCI_RXOVERRUN)) {
++	status_err = status & (host->variant->start_err |
++			       MCI_DATACRCFAIL | MCI_DATATIMEOUT |
++			       MCI_TXUNDERRUN | MCI_RXOVERRUN);
 +
- /* DCP DMA descriptor. */
- struct dcp_dma_desc {
- 	uint32_t	next_cmd_addr;
-@@ -48,6 +63,7 @@ struct dcp_coherent_block {
- 	uint8_t			aes_in_buf[DCP_BUF_SZ];
- 	uint8_t			aes_out_buf[DCP_BUF_SZ];
- 	uint8_t			sha_in_buf[DCP_BUF_SZ];
-+	uint8_t			sha_out_buf[DCP_SHA_PAY_SZ];
++	if (status_err) {
+ 		u32 remain, success;
  
- 	uint8_t			aes_key[2 * AES_KEYSIZE_128];
+ 		/* Terminate the DMA transfer */
+@@ -922,18 +926,18 @@ mmci_data_irq(struct mmci_host *host, struct mmc_data *data,
+ 		success = data->blksz * data->blocks - remain;
  
-@@ -518,8 +534,6 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	struct crypto_ahash *tfm = crypto_ahash_reqtfm(req);
- 	struct dcp_async_ctx *actx = crypto_ahash_ctx(tfm);
- 	struct dcp_sha_req_ctx *rctx = ahash_request_ctx(req);
--	struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
--
- 	struct dcp_dma_desc *desc = &sdcp->coh->desc[actx->chan];
- 
- 	dma_addr_t digest_phys = 0;
-@@ -541,10 +555,23 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	desc->payload = 0;
- 	desc->status = 0;
- 
-+	/*
-+	 * Align driver with hw behavior when generating null hashes
-+	 */
-+	if (rctx->init && rctx->fini && desc->size == 0) {
-+		struct hash_alg_common *halg = crypto_hash_alg_common(tfm);
-+		const uint8_t *sha_buf =
-+			(actx->alg == MXS_DCP_CONTROL1_HASH_SELECT_SHA1) ?
-+			sha1_null_hash : sha256_null_hash;
-+		memcpy(sdcp->coh->sha_out_buf, sha_buf, halg->digestsize);
-+		ret = 0;
-+		goto done_run;
-+	}
-+
- 	/* Set HASH_TERM bit for last transfer block. */
- 	if (rctx->fini) {
--		digest_phys = dma_map_single(sdcp->dev, req->result,
--					     halg->digestsize, DMA_FROM_DEVICE);
-+		digest_phys = dma_map_single(sdcp->dev, sdcp->coh->sha_out_buf,
-+					     DCP_SHA_PAY_SZ, DMA_FROM_DEVICE);
- 		desc->control0 |= MXS_DCP_CONTROL0_HASH_TERM;
- 		desc->payload = digest_phys;
- 	}
-@@ -552,9 +579,10 @@ static int mxs_dcp_run_sha(struct ahash_request *req)
- 	ret = mxs_dcp_start_dma(actx);
- 
- 	if (rctx->fini)
--		dma_unmap_single(sdcp->dev, digest_phys, halg->digestsize,
-+		dma_unmap_single(sdcp->dev, digest_phys, DCP_SHA_PAY_SZ,
- 				 DMA_FROM_DEVICE);
- 
-+done_run:
- 	dma_unmap_single(sdcp->dev, buf_phys, DCP_BUF_SZ, DMA_TO_DEVICE);
- 
- 	return ret;
-@@ -572,6 +600,7 @@ static int dcp_sha_req_to_buf(struct crypto_async_request *arq)
- 	const int nents = sg_nents(req->src);
- 
- 	uint8_t *in_buf = sdcp->coh->sha_in_buf;
-+	uint8_t *out_buf = sdcp->coh->sha_out_buf;
- 
- 	uint8_t *src_buf;
- 
-@@ -626,11 +655,9 @@ static int dcp_sha_req_to_buf(struct crypto_async_request *arq)
- 
- 		actx->fill = 0;
- 
--		/* For some reason, the result is flipped. */
--		for (i = 0; i < halg->digestsize / 2; i++) {
--			swap(req->result[i],
--			     req->result[halg->digestsize - i - 1]);
--		}
-+		/* For some reason the result is flipped */
-+		for (i = 0; i < halg->digestsize; i++)
-+			req->result[i] = out_buf[halg->digestsize - i - 1];
+ 		dev_dbg(mmc_dev(host->mmc), "MCI ERROR IRQ, status 0x%08x at 0x%08x\n",
+-			status, success);
+-		if (status & MCI_DATACRCFAIL) {
++			status_err, success);
++		if (status_err & MCI_DATACRCFAIL) {
+ 			/* Last block was not successful */
+ 			success -= 1;
+ 			data->error = -EILSEQ;
+-		} else if (status & MCI_DATATIMEOUT) {
++		} else if (status_err & MCI_DATATIMEOUT) {
+ 			data->error = -ETIMEDOUT;
+-		} else if (status & MCI_STARTBITERR) {
++		} else if (status_err & MCI_STARTBITERR) {
+ 			data->error = -ECOMM;
+-		} else if (status & MCI_TXUNDERRUN) {
++		} else if (status_err & MCI_TXUNDERRUN) {
+ 			data->error = -EIO;
+-		} else if (status & MCI_RXOVERRUN) {
++		} else if (status_err & MCI_RXOVERRUN) {
+ 			if (success > host->variant->fifosize)
+ 				success -= host->variant->fifosize;
+ 			else
+@@ -1790,7 +1794,7 @@ static int mmci_probe(struct amba_device *dev,
+ 			goto clk_disable;
  	}
  
- 	return 0;
+-	writel(MCI_IRQENABLE, host->base + MMCIMASK0);
++	writel(MCI_IRQENABLE | variant->start_err, host->base + MMCIMASK0);
+ 
+ 	amba_set_drvdata(dev, mmc);
+ 
+@@ -1877,7 +1881,8 @@ static void mmci_restore(struct mmci_host *host)
+ 		writel(host->datactrl_reg, host->base + MMCIDATACTRL);
+ 		writel(host->pwr_reg, host->base + MMCIPOWER);
+ 	}
+-	writel(MCI_IRQENABLE, host->base + MMCIMASK0);
++	writel(MCI_IRQENABLE | host->variant->start_err,
++	       host->base + MMCIMASK0);
+ 	mmci_reg_delay(host);
+ 
+ 	spin_unlock_irqrestore(&host->lock, flags);
+diff --git a/drivers/mmc/host/mmci.h b/drivers/mmc/host/mmci.h
+index 517591d219e93..613d37ab08d20 100644
+--- a/drivers/mmc/host/mmci.h
++++ b/drivers/mmc/host/mmci.h
+@@ -181,9 +181,9 @@
+ #define MMCIFIFO		0x080 /* to 0x0bc */
+ 
+ #define MCI_IRQENABLE	\
+-	(MCI_CMDCRCFAILMASK|MCI_DATACRCFAILMASK|MCI_CMDTIMEOUTMASK|	\
+-	MCI_DATATIMEOUTMASK|MCI_TXUNDERRUNMASK|MCI_RXOVERRUNMASK|	\
+-	MCI_CMDRESPENDMASK|MCI_CMDSENTMASK|MCI_STARTBITERRMASK)
++	(MCI_CMDCRCFAILMASK | MCI_DATACRCFAILMASK | MCI_CMDTIMEOUTMASK | \
++	MCI_DATATIMEOUTMASK | MCI_TXUNDERRUNMASK | MCI_RXOVERRUNMASK |	\
++	MCI_CMDRESPENDMASK | MCI_CMDSENTMASK)
+ 
+ /* These interrupts are directed to IRQ1 when two IRQ lines are available */
+ #define MCI_IRQ1MASK \
 -- 
 2.20.1
 
