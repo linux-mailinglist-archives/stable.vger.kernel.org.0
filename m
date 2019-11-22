@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C63FB106245
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:02:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9FBD106283
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:04:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729795AbfKVGCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:02:53 -0500
-Received: from mail.kernel.org ([198.145.29.99]:41792 "EHLO mail.kernel.org"
+        id S1729812AbfKVGCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:02:54 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729351AbfKVGCx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729809AbfKVGCx (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 22 Nov 2019 01:02:53 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65A4B20730;
-        Fri, 22 Nov 2019 06:02:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59F0420659;
+        Fri, 22 Nov 2019 06:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402572;
-        bh=tI+Me4l/Tp44n2yNMTP+jfpnQPT4d2ccg/rfEF2XdTs=;
+        s=default; t=1574402573;
+        bh=2I9Q5RZv4vFqcYUDXsOPoH6jOFkXbntQMaM9J+ZkrvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xE1hQAt7ZZL8l9h3nrAftA5n+zjgESX1CMKenxq6Soz9pk0+fWUcQgjBiv2sJzo3p
-         kYSq7ERNzCoTGla11BmNvt8gxzZV0US9mWZsIfuwjg9Pj0BG4FtuSfUvQRofWZ3+gV
-         EgmIYdbIyvf3I5mZWpzNYUpoR1newkZAl0icAHHs=
+        b=pR9YNRaToR9lO8p5a6Ct4rmrD6st6pPieUlL5d1yVU1Kwoi7rGrK85LGkdCPlJbWm
+         P22JwN+9ElOMcA1oZJaD8Xi+tx4delOWsSTgdHP0cc4d6BmUED4mM96BR3i7ncYzX9
+         AIxUvi3dWLyeUDLig8HrQ+Y7RKvwjRrPNl7NcCrc=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Boris Brezillon <bbrezillon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mtd@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.9 74/91] mtd: Check add_mtd_device() ret code
-Date:   Fri, 22 Nov 2019 01:01:12 -0500
-Message-Id: <20191122060129.4239-73-sashal@kernel.org>
+Cc:     "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        Ying Xue <ying.xue@windriver.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        tipc-discussion@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.9 75/91] tipc: fix memory leak in tipc_nl_compat_publ_dump
+Date:   Fri, 22 Nov 2019 01:01:13 -0500
+Message-Id: <20191122060129.4239-74-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -42,110 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Brezillon <bbrezillon@kernel.org>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 
-[ Upstream commit 2b6f0090a3335b7bdd03ca520c35591159463041 ]
+[ Upstream commit f87d8ad9233f115db92c6c087d58403b0009ed36 ]
 
-add_mtd_device() can fail. We should always check its return value
-and gracefully handle the failure case. Fix the call sites where this
-not done (in mtdpart.c) and add a __must_check attribute to the
-prototype to avoid this kind of mistakes.
+There is a memory leak in case genlmsg_put fails.
 
-Signed-off-by: Boris Brezillon <bbrezillon@kernel.org>
+Fix this by freeing *args* before return.
+
+Addresses-Coverity-ID: 1476406 ("Resource leak")
+Fixes: 46273cf7e009 ("tipc: fix a missing check of genlmsg_put")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Acked-by: Ying Xue <ying.xue@windriver.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.h |  2 +-
- drivers/mtd/mtdpart.c | 36 +++++++++++++++++++++++++++++++-----
- 2 files changed, 32 insertions(+), 6 deletions(-)
+ net/tipc/netlink_compat.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/mtdcore.h b/drivers/mtd/mtdcore.h
-index 55fdb8e1fd2a8..488b652ba9e63 100644
---- a/drivers/mtd/mtdcore.h
-+++ b/drivers/mtd/mtdcore.h
-@@ -6,7 +6,7 @@
- extern struct mutex mtd_table_mutex;
+diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
+index 454ed8ea194c8..e3fc959e496d4 100644
+--- a/net/tipc/netlink_compat.c
++++ b/net/tipc/netlink_compat.c
+@@ -974,8 +974,10 @@ static int tipc_nl_compat_publ_dump(struct tipc_nl_compat_msg *msg, u32 sock)
  
- struct mtd_info *__mtd_next_device(int i);
--int add_mtd_device(struct mtd_info *mtd);
-+int __must_check add_mtd_device(struct mtd_info *mtd);
- int del_mtd_device(struct mtd_info *mtd);
- int add_mtd_partitions(struct mtd_info *, const struct mtd_partition *, int);
- int del_mtd_partitions(struct mtd_info *);
-diff --git a/drivers/mtd/mtdpart.c b/drivers/mtd/mtdpart.c
-index fccdd49bb9640..70e476c1c474d 100644
---- a/drivers/mtd/mtdpart.c
-+++ b/drivers/mtd/mtdpart.c
-@@ -648,10 +648,22 @@ int mtd_add_partition(struct mtd_info *master, const char *name,
- 	list_add(&new->list, &mtd_partitions);
- 	mutex_unlock(&mtd_partitions_mutex);
+ 	hdr = genlmsg_put(args, 0, 0, &tipc_genl_family, NLM_F_MULTI,
+ 			  TIPC_NL_PUBL_GET);
+-	if (!hdr)
++	if (!hdr) {
++		kfree_skb(args);
+ 		return -EMSGSIZE;
++	}
  
--	add_mtd_device(&new->mtd);
-+	ret = add_mtd_device(&new->mtd);
-+	if (ret)
-+		goto err_remove_part;
- 
- 	mtd_add_partition_attrs(new);
- 
-+	return 0;
-+
-+err_remove_part:
-+	mutex_lock(&mtd_partitions_mutex);
-+	list_del(&new->list);
-+	mutex_unlock(&mtd_partitions_mutex);
-+
-+	free_partition(new);
-+	pr_info("%s:%i\n", __func__, __LINE__);
-+
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(mtd_add_partition);
-@@ -696,28 +708,42 @@ int add_mtd_partitions(struct mtd_info *master,
- {
- 	struct mtd_part *slave;
- 	uint64_t cur_offset = 0;
--	int i;
-+	int i, ret;
- 
- 	printk(KERN_NOTICE "Creating %d MTD partitions on \"%s\":\n", nbparts, master->name);
- 
- 	for (i = 0; i < nbparts; i++) {
- 		slave = allocate_partition(master, parts + i, i, cur_offset);
- 		if (IS_ERR(slave)) {
--			del_mtd_partitions(master);
--			return PTR_ERR(slave);
-+			ret = PTR_ERR(slave);
-+			goto err_del_partitions;
- 		}
- 
- 		mutex_lock(&mtd_partitions_mutex);
- 		list_add(&slave->list, &mtd_partitions);
- 		mutex_unlock(&mtd_partitions_mutex);
- 
--		add_mtd_device(&slave->mtd);
-+		ret = add_mtd_device(&slave->mtd);
-+		if (ret) {
-+			mutex_lock(&mtd_partitions_mutex);
-+			list_del(&slave->list);
-+			mutex_unlock(&mtd_partitions_mutex);
-+
-+			free_partition(slave);
-+			goto err_del_partitions;
-+		}
-+
- 		mtd_add_partition_attrs(slave);
- 
- 		cur_offset = slave->offset + slave->mtd.size;
- 	}
- 
- 	return 0;
-+
-+err_del_partitions:
-+	del_mtd_partitions(master);
-+
-+	return ret;
- }
- 
- static DEFINE_SPINLOCK(part_parser_lock);
+ 	nest = nla_nest_start(args, TIPC_NLA_SOCK);
+ 	if (!nest) {
 -- 
 2.20.1
 
