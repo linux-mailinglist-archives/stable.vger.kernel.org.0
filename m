@@ -2,48 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57018107679
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 18:34:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 695051076CC
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 18:56:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726574AbfKVReN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 12:34:13 -0500
-Received: from mail.stusta.mhn.de ([141.84.69.5]:54714 "EHLO
-        mail.stusta.mhn.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726046AbfKVReN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 12:34:13 -0500
-X-Greylist: delayed 575 seconds by postgrey-1.27 at vger.kernel.org; Fri, 22 Nov 2019 12:34:12 EST
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-        by mail.stusta.mhn.de (Postfix) with ESMTPSA id 47KNb62SwHz4Y;
-        Fri, 22 Nov 2019 18:24:34 +0100 (CET)
-Date:   Fri, 22 Nov 2019 19:24:31 +0200
-From:   Adrian Bunk <bunk@kernel.org>
-To:     netdev@vger.kernel.org
-Cc:     Amitkumar Karwar <amitkarwar@gmail.com>,
-        Nishant Sarmukadam <nishants@marvell.com>,
-        Ganapathi Bhat <gbhat@marvell.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        linux-wireless@vger.kernel.org, stable@vger.kernel.org
-Subject: Please backport "mwifiex: Fix NL80211_TX_POWER_LIMITED" to stable
- branches
-Message-ID: <20191122172431.GA24156@localhost>
+        id S1726638AbfKVR4b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 12:56:31 -0500
+Received: from mga05.intel.com ([192.55.52.43]:31968 "EHLO mga05.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726046AbfKVR4b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 12:56:31 -0500
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 22 Nov 2019 09:56:31 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.69,230,1571727600"; 
+   d="scan'208";a="290714835"
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga001.jf.intel.com with SMTP; 22 Nov 2019 09:56:27 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Fri, 22 Nov 2019 19:56:27 +0200
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     dri-devel@lists.freedesktop.org
+Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Benjamin Gaignard <benjamin.gaignard@st.com>,
+        Daniel Vetter <daniel@ffwll.ch>
+Subject: [PATCH v2 1/4] drm/rect: Avoid division by zero
+Date:   Fri, 22 Nov 2019 19:56:20 +0200
+Message-Id: <20191122175623.13565-2-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.23.0
+In-Reply-To: <20191122175623.13565-1-ville.syrjala@linux.intel.com>
+References: <20191122175623.13565-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Please backport commit 65a576e27309120e0621f54d5c81eb9128bd56be
-"mwifiex: Fix NL80211_TX_POWER_LIMITED" to stable branches.
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-It is a non-CVE kind of security issue when a wifi adapter
-exceeds the configured TX power limit.
+Check for zero width/height destination rectangle in
+drm_rect_clip_scaled() to avoid a division by zero.
 
-The commit applies and builds against all branches from 3.16 to 4.19, 
-confirmed working with 4.14. It is already included in kernel 5.3.
+Cc: stable@vger.kernel.org
+Fixes: f96bdf564f3e ("drm/rect: Handle rounding errors in drm_rect_clip_scaled, v3.")
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Benjamin Gaignard <benjamin.gaignard@st.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Testcase: igt/kms_selftest/drm_rect_clip_scaled_div_by_zero
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+---
+ drivers/gpu/drm/drm_rect.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-Thanks in advance
-Adrian
+diff --git a/drivers/gpu/drm/drm_rect.c b/drivers/gpu/drm/drm_rect.c
+index b8363aaa9032..818738e83d06 100644
+--- a/drivers/gpu/drm/drm_rect.c
++++ b/drivers/gpu/drm/drm_rect.c
+@@ -54,7 +54,12 @@ EXPORT_SYMBOL(drm_rect_intersect);
+ 
+ static u32 clip_scaled(u32 src, u32 dst, u32 clip)
+ {
+-	u64 tmp = mul_u32_u32(src, dst - clip);
++	u64 tmp;
++
++	if (dst == 0)
++		return 0;
++
++	tmp = mul_u32_u32(src, dst - clip);
+ 
+ 	/*
+ 	 * Round toward 1.0 when clipping so that we don't accidentally
+-- 
+2.23.0
+
