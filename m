@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BED4A10714F
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:28:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 383D9107152
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:28:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727267AbfKVKbY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:31:24 -0500
-Received: from mail.kernel.org ([198.145.29.99]:51502 "EHLO mail.kernel.org"
+        id S1727345AbfKVKbe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:31:34 -0500
+Received: from mail.kernel.org ([198.145.29.99]:51720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727263AbfKVKbX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:31:23 -0500
+        id S1727316AbfKVKb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:31:29 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B409A20708;
-        Fri, 22 Nov 2019 10:31:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A807220731;
+        Fri, 22 Nov 2019 10:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418683;
-        bh=T1HMhi80T0r4Z48YLTNxWYaKRA822E5fSoTlYrs4cMo=;
+        s=default; t=1574418689;
+        bh=yb2jTU2J1Pcb1tIvnOIHJBWKHeSbxjsNa/OwZZEyHl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdfjKLaDeaywvDlQBCTo8xh1PP3bKFzpTx5KnQUa3eBk1aGSaKS1MvnsCNMQ9tWY0
-         0ec1tYi8/Mpi0zubSrUluxAY6wLHJuG871w3jX6oys/LfzJnXIpmHbpeeiSMopyf0g
-         zKMgZzZqXvqS6ptz2INYPjTX68KNAIHVCJPOjUco=
+        b=oo6qjxn58J23CCOWvWeEIfkalwtj2WO/jEjoi7H1f6V+i6A5/8bI+WDGd1jL7e3Dv
+         HRMvpTmFS9rk9K8plTaxamjydVr0ABykvTvqIodTfV5v9UFPOsQUZcxb1nDE9UOVEy
+         BjgPb51I453K8L+kDJ68FmWgye35pFRnfF76fO1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 017/159] ASoC: dpcm: Properly initialise hw->rate_max
-Date:   Fri, 22 Nov 2019 11:26:48 +0100
-Message-Id: <20191122100720.162399840@linuxfoundation.org>
+Subject: [PATCH 4.4 019/159] ARM: dts: exynos: Fix sound in Snow-rev5 Chromebook
+Date:   Fri, 22 Nov 2019 11:26:50 +0100
+Message-Id: <20191122100720.731102034@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
 References: <20191122100704.194776704@linuxfoundation.org>
@@ -45,40 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Charles Keepax <ckeepax@opensource.cirrus.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit e33ffbd9cd39da09831ce62c11025d830bf78d9e ]
+[ Upstream commit 64858773d78e820003a94e5a7179d368213655d6 ]
 
-If the CPU DAI does not initialise rate_max, say if using
-using KNOT or CONTINUOUS, then the rate_max field will be
-initialised to 0. A value of zero in the rate_max field of
-the hardware runtime will cause the sound card to support no
-sample rates at all. Obviously this is not desired, just a
-different mechanism is being used to apply the constraints. As
-such update the setting of rate_max in dpcm_init_runtime_hw
-to be consistent with the non-DPCM cases and set rate_max to
-UINT_MAX if nothing is defined on the CPU DAI.
+This patch adds missing properties to the CODEC and sound nodes, so the
+audio will work also on Snow rev5 Chromebook. This patch is an extension
+to the commit e9eefc3f8ce0 ("ARM: dts: exynos: Add missing clock and
+DAI properties to the max98095 node in Snow Chromebook")
+and commit 6ab569936d60 ("ARM: dts: exynos: Enable HDMI audio on Snow
+Chromebook").  It has been reported that such changes work fine on the
+rev5 board too.
 
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+[krzk: Fixed typo in phandle to &max98090]
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-pcm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos5250-snow-rev5.dts | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index 1c0d44c86c018..78813057167d7 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1541,7 +1541,7 @@ static void dpcm_init_runtime_hw(struct snd_pcm_runtime *runtime,
- 				 u64 formats)
- {
- 	runtime->hw.rate_min = stream->rate_min;
--	runtime->hw.rate_max = stream->rate_max;
-+	runtime->hw.rate_max = min_not_zero(stream->rate_max, UINT_MAX);
- 	runtime->hw.channels_min = stream->channels_min;
- 	runtime->hw.channels_max = stream->channels_max;
- 	if (runtime->hw.formats)
+diff --git a/arch/arm/boot/dts/exynos5250-snow-rev5.dts b/arch/arm/boot/dts/exynos5250-snow-rev5.dts
+index f811dc8006605..0d46f754070e4 100644
+--- a/arch/arm/boot/dts/exynos5250-snow-rev5.dts
++++ b/arch/arm/boot/dts/exynos5250-snow-rev5.dts
+@@ -23,6 +23,14 @@
+ 
+ 		samsung,model = "Snow-I2S-MAX98090";
+ 		samsung,audio-codec = <&max98090>;
++
++		cpu {
++			sound-dai = <&i2s0 0>;
++		};
++
++		codec {
++			sound-dai = <&max98090 0>, <&hdmi>;
++		};
+ 	};
+ };
+ 
+@@ -34,6 +42,9 @@
+ 		interrupt-parent = <&gpx0>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&max98090_irq>;
++		clocks = <&pmu_system_controller 0>;
++		clock-names = "mclk";
++		#sound-dai-cells = <1>;
+ 	};
+ };
+ 
 -- 
 2.20.1
 
