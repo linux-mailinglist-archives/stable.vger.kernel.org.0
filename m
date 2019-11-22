@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0512106FF2
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:19:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31CB11070DC
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729852AbfKVKsK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:48:10 -0500
-Received: from mail.kernel.org ([198.145.29.99]:56590 "EHLO mail.kernel.org"
+        id S1727975AbfKVKht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:37:49 -0500
+Received: from mail.kernel.org ([198.145.29.99]:39706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729403AbfKVKsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:48:09 -0500
+        id S1727706AbfKVKhs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:37:48 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 601ED205C9;
-        Fri, 22 Nov 2019 10:48:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F88F20708;
+        Fri, 22 Nov 2019 10:37:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419688;
-        bh=znLn9LJ2/eO4Ye50gjLxQYVnp33OeM+DWzZHWQSYY7Q=;
+        s=default; t=1574419067;
+        bh=julWjBlCYWiwOVW4slF5Jvmglxdu1fcIEx8uEPF98IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfbpXHbW0n1PaG+L9/0TBGmjb80640V6aMiR+Nuv8n9Dpi+Q9Myh6NdNmC5+y5skZ
-         4rfWo/hMj+Pr+R08cxo6cfdXjvuLO5fEOZgj4+MHZDpohVreD1OakqhyKBbaF6FxHj
-         Dhjf6iuNXos8RDrqNUyywIU1nVAiG5kNBnmNaCrY=
+        b=BKQroPfpglQIcrxeak4SjIHpk0NbhH8dgeHdijfhKxwRp9wQSoyOFZRuQ9HMBFMjV
+         1alLPH9N0W8co2pPooqkMMwR228or3SA/XrUr3GXcMIU6owlgI7In4XiGUfzEH6/vV
+         uCmJF/SQusrSrfsEKj3XBolYqEAiqfQQjeGkuNj8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Ronald=20Tschal=C3=83=C2=A4r?= <ronald@innovation.ch>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 197/222] ACPI / SBS: Fix rare oops when removing modules
+Subject: [PATCH 4.4 146/159] backlight: lm3639: Unconditionally call led_classdev_unregister
 Date:   Fri, 22 Nov 2019 11:28:57 +0100
-Message-Id: <20191122100916.452503754@linuxfoundation.org>
+Message-Id: <20191122100841.344611282@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
+References: <20191122100704.194776704@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronald Tschalär <ronald@innovation.ch>
+From: Nathan Chancellor <natechancellor@gmail.com>
 
-[ Upstream commit 757c968c442397f1249bb775a7c8c03842e3e0c7 ]
+[ Upstream commit 7cea645ae9c5a54aa7904fddb2cdf250acd63a6c ]
 
-There was a small race when removing the sbshc module where
-smbus_alarm() had queued acpi_smbus_callback() for deferred execution
-but it hadn't been run yet, so that when it did run hc had been freed
-and the module unloaded, resulting in an invalid paging request.
+Clang warns that the address of a pointer will always evaluated as true
+in a boolean context.
 
-A similar race existed when removing the sbs module with regards to
-acpi_sbs_callback() (which is called from acpi_smbus_callback()).
+drivers/video/backlight/lm3639_bl.c:403:14: warning: address of
+'pchip->cdev_torch' will always evaluate to 'true'
+[-Wpointer-bool-conversion]
+        if (&pchip->cdev_torch)
+        ~~   ~~~~~~~^~~~~~~~~~
+drivers/video/backlight/lm3639_bl.c:405:14: warning: address of
+'pchip->cdev_flash' will always evaluate to 'true'
+[-Wpointer-bool-conversion]
+        if (&pchip->cdev_flash)
+        ~~   ~~~~~~~^~~~~~~~~~
+2 warnings generated.
 
-We therefore need to ensure no callbacks are pending or executing before
-the cleanups are done and the modules are removed.
+These statements have been present since 2012, introduced by
+commit 0f59858d5119 ("backlight: add new lm3639 backlight
+driver"). Given that they have been called unconditionally since
+then presumably without any issues, removing the always true if
+statements to fix the warnings without any real world changes.
 
-Signed-off-by: Ronald TschalÃ¤r <ronald@innovation.ch>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/119
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/osl.c   | 1 +
- drivers/acpi/sbshc.c | 2 ++
- 2 files changed, 3 insertions(+)
+ drivers/video/backlight/lm3639_bl.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/acpi/osl.c b/drivers/acpi/osl.c
-index 416953a425109..b9fade7a3bcf4 100644
---- a/drivers/acpi/osl.c
-+++ b/drivers/acpi/osl.c
-@@ -1126,6 +1126,7 @@ void acpi_os_wait_events_complete(void)
- 	flush_workqueue(kacpid_wq);
- 	flush_workqueue(kacpi_notify_wq);
- }
-+EXPORT_SYMBOL(acpi_os_wait_events_complete);
+diff --git a/drivers/video/backlight/lm3639_bl.c b/drivers/video/backlight/lm3639_bl.c
+index cd50df5807ead..086611c7bc03c 100644
+--- a/drivers/video/backlight/lm3639_bl.c
++++ b/drivers/video/backlight/lm3639_bl.c
+@@ -400,10 +400,8 @@ static int lm3639_remove(struct i2c_client *client)
  
- struct acpi_hp_work {
- 	struct work_struct work;
-diff --git a/drivers/acpi/sbshc.c b/drivers/acpi/sbshc.c
-index 7a3431018e0ab..5008ead4609a4 100644
---- a/drivers/acpi/sbshc.c
-+++ b/drivers/acpi/sbshc.c
-@@ -196,6 +196,7 @@ int acpi_smbus_unregister_callback(struct acpi_smb_hc *hc)
- 	hc->callback = NULL;
- 	hc->context = NULL;
- 	mutex_unlock(&hc->lock);
-+	acpi_os_wait_events_complete();
- 	return 0;
- }
+ 	regmap_write(pchip->regmap, REG_ENABLE, 0x00);
  
-@@ -292,6 +293,7 @@ static int acpi_smbus_hc_remove(struct acpi_device *device)
- 
- 	hc = acpi_driver_data(device);
- 	acpi_ec_remove_query_handler(hc->ec, hc->query_bit);
-+	acpi_os_wait_events_complete();
- 	kfree(hc);
- 	device->driver_data = NULL;
+-	if (&pchip->cdev_torch)
+-		led_classdev_unregister(&pchip->cdev_torch);
+-	if (&pchip->cdev_flash)
+-		led_classdev_unregister(&pchip->cdev_flash);
++	led_classdev_unregister(&pchip->cdev_torch);
++	led_classdev_unregister(&pchip->cdev_flash);
+ 	if (pchip->bled)
+ 		device_remove_file(&(pchip->bled->dev), &dev_attr_bled_mode);
  	return 0;
 -- 
 2.20.1
