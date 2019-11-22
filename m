@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B9B3106C13
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:50:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F358106C15
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbfKVKti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:49:38 -0500
-Received: from mail.kernel.org ([198.145.29.99]:59138 "EHLO mail.kernel.org"
+        id S1730031AbfKVKtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:49:40 -0500
+Received: from mail.kernel.org ([198.145.29.99]:59210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729540AbfKVKth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:49:37 -0500
+        id S1730045AbfKVKtk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:49:40 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 92E5220656;
-        Fri, 22 Nov 2019 10:49:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3767A20718;
+        Fri, 22 Nov 2019 10:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419777;
-        bh=7jmaLZ+hrUZZxUmiRO0qSUqbgKSq96bs8xMAOPC8FKM=;
+        s=default; t=1574419779;
+        bh=j9Zcp3P2qjbCbgdGS8uBWmnp7vlhR4j9Ra7HKixGESQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdTi89NqkiiSO05QW91383OXPpk9LOW7ltU+54j8NSbmeP22y5FzDIwFQ0cjbnXbL
-         7KxGq7rYMHB8rICze2/qgy+Y9qbCBbD1p+BsT5m8pXa7tCCuBCl7D/LdIbG1bXE1Gu
-         A70kdfAg/8YBsfDyzaLk4+Ioo4kU1eXfn/ULGaNg=
+        b=JKhc/FE2KSk/Jj5hn0eUq8CxDcHYbVggL8Jqwzr8uL/Gj0n1xsJ6Hpzje0BF0Zzf/
+         TNtmBEkKPtqozN7M3/dqgXQaQfzCIPK99M+mrRjUFdr8eI4S9Is4x68ajkvpuZVyK1
+         9mf9aaZZPQa5SJo43gJOO5zbCJk/G5fltUSy1OjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
-        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 218/222] misc: cxl: Fix possible null pointer dereference
-Date:   Fri, 22 Nov 2019 11:29:18 +0100
-Message-Id: <20191122100918.319643938@linuxfoundation.org>
+Subject: [PATCH 4.9 219/222] mac80211: minstrel: fix CCK rate group streams value
+Date:   Fri, 22 Nov 2019 11:29:19 +0100
+Message-Id: <20191122100918.403586496@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -45,35 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 3dac3583bf1a61db6aaf31dfd752c677a4400afd ]
+[ Upstream commit 80df9be67c44cb636bbc92caeddad8caf334c53c ]
 
-It is not safe to dereference an object before a null test. It is
-not needed and just remove them. Ftrace can be used instead.
+Fixes a harmless underflow issue when CCK rates are actively being used
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Acked-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cxl/guest.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/mac80211/rc80211_minstrel_ht.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/misc/cxl/guest.c b/drivers/misc/cxl/guest.c
-index 3e102cd6ed914..d08509cd978a4 100644
---- a/drivers/misc/cxl/guest.c
-+++ b/drivers/misc/cxl/guest.c
-@@ -1026,8 +1026,6 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+diff --git a/net/mac80211/rc80211_minstrel_ht.c b/net/mac80211/rc80211_minstrel_ht.c
+index 30fbabf4bcbc1..593184d14b3ef 100644
+--- a/net/mac80211/rc80211_minstrel_ht.c
++++ b/net/mac80211/rc80211_minstrel_ht.c
+@@ -128,7 +128,7 @@
  
- void cxl_guest_remove_afu(struct cxl_afu *afu)
- {
--	pr_devel("in %s - AFU(%d)\n", __func__, afu->slice);
--
- 	if (!afu)
- 		return;
- 
+ #define CCK_GROUP					\
+ 	[MINSTREL_CCK_GROUP] = {			\
+-		.streams = 0,				\
++		.streams = 1,				\
+ 		.flags = 0,				\
+ 		.duration = {				\
+ 			CCK_DURATION_LIST(false),	\
 -- 
 2.20.1
 
