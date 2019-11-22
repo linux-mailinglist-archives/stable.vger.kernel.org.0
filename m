@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B479910607B
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:49:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B9010608A
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 06:50:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726957AbfKVFt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 00:49:26 -0500
-Received: from mail.kernel.org ([198.145.29.99]:53384 "EHLO mail.kernel.org"
+        id S1727287AbfKVFts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 00:49:48 -0500
+Received: from mail.kernel.org ([198.145.29.99]:54082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726895AbfKVFtX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 00:49:23 -0500
+        id S1727269AbfKVFts (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 00:49:48 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38E2320708;
-        Fri, 22 Nov 2019 05:49:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 69B1B20708;
+        Fri, 22 Nov 2019 05:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574401762;
-        bh=PdKlgkUbmjtGXd4lr35779+IJqQhfvMEQr7fvNa42pU=;
+        s=default; t=1574401788;
+        bh=TdQPgtFlO5dSn5dVBSQBaPwxIW+NrmCLiLXyK8OT3FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGwU6KzEBtIfh4UPPgMShh7qa4TgU1xvdBs0iCpBfyqxauU/CEx1lajFlxlolVEW4
-         q6HBN004Quy7nOf+jakLFGczyurchpZo4ieOeG8Iznsl8DDi0xQF9HU1Ygo8hmdZR3
-         ZbPX/z4JgvzqOkhvvPzyWu8ueq6urD/Ye04JY114=
+        b=ExA6NxJXr0plclW3L2s8YKChQfkFYPR35do7NNtPl18JcSFHIfVc8p9+HpvRYITVx
+         fB7KTqDjZJiSNszlBaPStF2JhG02FAuoBN5aBTpiSoBFGB2t4nFB08VGwJQLK30ATD
+         bxvZ4f6Gcg2Q8+9DxbDb7fFz4/SQKgQkYM7R3nx4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fabio Estevam <festevam@gmail.com>, Rob Herring <robh@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 014/219] ARM: dts: imx6sx: Fix memory node duplication
-Date:   Fri, 22 Nov 2019 00:45:46 -0500
-Message-Id: <20191122054911.1750-7-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 036/219] ACPI / LPSS: Ignore acpi_device_fix_up_power() return value
+Date:   Fri, 22 Nov 2019 00:46:08 -0500
+Message-Id: <20191122054911.1750-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122054911.1750-1-sashal@kernel.org>
 References: <20191122054911.1750-1-sashal@kernel.org>
@@ -44,133 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 216f35fedd8688c8b654ebfbad18c6e64713fad7 ]
+[ Upstream commit 1a2fa02f7489dc4d746f2a15fb77b3ce1affade8 ]
 
-Boards based on imx6sx have duplicate memory nodes:
+Ignore acpi_device_fix_up_power() return value. If we return an error
+we end up with acpi_default_enumeration() still creating a platform-
+device for the device and we end up with the device still being used
+but without the special LPSS related handling which is not useful.
 
-- One coming from the board dts file: memory@
+Specicifically ignoring the error fixes the touchscreen no longer
+working after a suspend/resume on a Prowise PT301 tablet.
 
-- One coming from the imx6sx.dtsi file.
+This tablet has a broken _PS0 method on the touchscreen's I2C controller,
+causing acpi_device_fix_up_power() to fail, causing fallback to standard
+platform-dev handling and specifically causing acpi_lpss_save/restore_ctx
+to not run.
 
-Fix the duplication by removing the memory node from the dtsi file
-and by adding 'device_type = "memory";' in the board dts.
+The I2C controllers _PS0 method does actually turn on the device, but then
+does some more nonsense which fails when run during early boot trying to
+use I2C opregion handling on another not-yet registered I2C controller.
 
-Reported-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6sx-nitrogen6sx.dts         | 1 +
- arch/arm/boot/dts/imx6sx-sabreauto.dts           | 1 +
- arch/arm/boot/dts/imx6sx-sdb.dtsi                | 1 +
- arch/arm/boot/dts/imx6sx-softing-vining-2000.dts | 1 +
- arch/arm/boot/dts/imx6sx-udoo-neo-basic.dts      | 1 +
- arch/arm/boot/dts/imx6sx-udoo-neo-extended.dts   | 1 +
- arch/arm/boot/dts/imx6sx-udoo-neo-full.dts       | 1 +
- arch/arm/boot/dts/imx6sx.dtsi                    | 2 --
- 8 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/acpi/acpi_lpss.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6sx-nitrogen6sx.dts b/arch/arm/boot/dts/imx6sx-nitrogen6sx.dts
-index adb5cc7d8ce2f..832b5c5d7441a 100644
---- a/arch/arm/boot/dts/imx6sx-nitrogen6sx.dts
-+++ b/arch/arm/boot/dts/imx6sx-nitrogen6sx.dts
-@@ -12,6 +12,7 @@
- 	compatible = "boundary,imx6sx-nitrogen6sx", "fsl,imx6sx";
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x40000000>;
- 	};
- 
-diff --git a/arch/arm/boot/dts/imx6sx-sabreauto.dts b/arch/arm/boot/dts/imx6sx-sabreauto.dts
-index 841a27f3198ff..48aede543612b 100644
---- a/arch/arm/boot/dts/imx6sx-sabreauto.dts
-+++ b/arch/arm/boot/dts/imx6sx-sabreauto.dts
-@@ -11,6 +11,7 @@
- 	compatible = "fsl,imx6sx-sabreauto", "fsl,imx6sx";
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x80000000>;
- 	};
- 
-diff --git a/arch/arm/boot/dts/imx6sx-sdb.dtsi b/arch/arm/boot/dts/imx6sx-sdb.dtsi
-index f8f31872fa144..7f5ede5ca4c30 100644
---- a/arch/arm/boot/dts/imx6sx-sdb.dtsi
-+++ b/arch/arm/boot/dts/imx6sx-sdb.dtsi
-@@ -21,6 +21,7 @@
- 	};
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x40000000>;
- 	};
- 
-diff --git a/arch/arm/boot/dts/imx6sx-softing-vining-2000.dts b/arch/arm/boot/dts/imx6sx-softing-vining-2000.dts
-index 252175b592475..2bc51623a8060 100644
---- a/arch/arm/boot/dts/imx6sx-softing-vining-2000.dts
-+++ b/arch/arm/boot/dts/imx6sx-softing-vining-2000.dts
-@@ -21,6 +21,7 @@
- 	};
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x40000000>;
- 	};
- 
-diff --git a/arch/arm/boot/dts/imx6sx-udoo-neo-basic.dts b/arch/arm/boot/dts/imx6sx-udoo-neo-basic.dts
-index 40ccdf43dffc5..db0feb9b9f5d7 100644
---- a/arch/arm/boot/dts/imx6sx-udoo-neo-basic.dts
-+++ b/arch/arm/boot/dts/imx6sx-udoo-neo-basic.dts
-@@ -49,6 +49,7 @@
- 	compatible = "udoo,neobasic", "fsl,imx6sx";
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x20000000>;
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6sx-udoo-neo-extended.dts b/arch/arm/boot/dts/imx6sx-udoo-neo-extended.dts
-index 42bfc8f8f7f6b..5c7a2bb9141cb 100644
---- a/arch/arm/boot/dts/imx6sx-udoo-neo-extended.dts
-+++ b/arch/arm/boot/dts/imx6sx-udoo-neo-extended.dts
-@@ -49,6 +49,7 @@
- 	compatible = "udoo,neoextended", "fsl,imx6sx";
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x40000000>;
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6sx-udoo-neo-full.dts b/arch/arm/boot/dts/imx6sx-udoo-neo-full.dts
-index c84c877f09d49..13dfe2afaba56 100644
---- a/arch/arm/boot/dts/imx6sx-udoo-neo-full.dts
-+++ b/arch/arm/boot/dts/imx6sx-udoo-neo-full.dts
-@@ -49,6 +49,7 @@
- 	compatible = "udoo,neofull", "fsl,imx6sx";
- 
- 	memory@80000000 {
-+		device_type = "memory";
- 		reg = <0x80000000 0x40000000>;
- 	};
- };
-diff --git a/arch/arm/boot/dts/imx6sx.dtsi b/arch/arm/boot/dts/imx6sx.dtsi
-index 7b62e6fb47ebe..ae0728df542e9 100644
---- a/arch/arm/boot/dts/imx6sx.dtsi
-+++ b/arch/arm/boot/dts/imx6sx.dtsi
-@@ -15,10 +15,8 @@
- 	 * The decompressor and also some bootloaders rely on a
- 	 * pre-existing /chosen node to be available to insert the
- 	 * command line and merge other ATAGS info.
--	 * Also for U-Boot there must be a pre-existing /memory node.
+diff --git a/drivers/acpi/acpi_lpss.c b/drivers/acpi/acpi_lpss.c
+index c651e206d7960..d79245e9dff72 100644
+--- a/drivers/acpi/acpi_lpss.c
++++ b/drivers/acpi/acpi_lpss.c
+@@ -637,12 +637,7 @@ static int acpi_lpss_create_device(struct acpi_device *adev,
+ 	 * have _PS0 and _PS3 without _PSC (and no power resources), so
+ 	 * acpi_bus_init_power() will assume that the BIOS has put them into D0.
  	 */
- 	chosen {};
--	memory { device_type = "memory"; };
+-	ret = acpi_device_fix_up_power(adev);
+-	if (ret) {
+-		/* Skip the device, but continue the namespace scan. */
+-		ret = 0;
+-		goto err_out;
+-	}
++	acpi_device_fix_up_power(adev);
  
- 	aliases {
- 		can0 = &flexcan1;
+ 	adev->driver_data = pdata;
+ 	pdev = acpi_create_platform_device(adev, dev_desc->properties);
 -- 
 2.20.1
 
