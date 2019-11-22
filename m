@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D48E107003
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:19:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3899106DC6
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:03:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729311AbfKVKrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:47:13 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
+        id S1731388AbfKVLDC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 06:03:02 -0500
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbfKVKrK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:47:10 -0500
+        id S1731381AbfKVLDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 06:03:00 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C5372072D;
-        Fri, 22 Nov 2019 10:47:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5A422075E;
+        Fri, 22 Nov 2019 11:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419629;
-        bh=l51evxqU8zJCOrGtKLHrLz9etFFXDJe12qIraGCuN0U=;
+        s=default; t=1574420580;
+        bh=Pa5fKk6CHyK6RI2MGsaLXHeaFP6X1ftK/j9elCp552A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nicBKheNa4gLazAWllnTzu87dnug6/8faKTSWLeFKx0SgrGTlRZnb4M5Y6BKlBWbU
-         ZzJjeR2qZfA2kbLygygKpAxrz2GoTytX9nW7rdOFJCKcT8tKNa89kgmfLNgZPF5S8A
-         dAxwcbYiWss8JPkZcXQnjZUvv7n1ddLjUu5sdrRU=
+        b=LNolhz4rc2pqtk6yppIM4xiB0WC+NzNApGJAT3Cp+bJ0Z7heFISm48lfzQ+Em7K7I
+         QVe1lvcKWS/dTjvtJxAPxw+IvDuF/3wWFh0yEwD4gjIdUcDTiyyTT5/Rpi83fxwkRT
+         bBHSN19linIPAWaDVW+5KPLE8ktXNVU8ZLMh9PbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Alexander Shiyan <shc_work@mail.ru>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 179/222] ata: ep93xx: Use proper enums for directions
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 154/220] fbdev: fix broken menu dependencies
 Date:   Fri, 22 Nov 2019 11:28:39 +0100
-Message-Id: <20191122100915.325927049@linuxfoundation.org>
+Message-Id: <20191122100923.797486909@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +47,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 6adde4a36f1b6a562a1057fbb1065007851050e7 ]
+[ Upstream commit aae3394ef0ef90cf00a21133357448385f13a5d4 ]
 
-Clang warns when one enumerated type is implicitly converted to another.
+The framebuffer options and devices menu is unintentionally split
+or broken because some items in it do not depend on FB (including
+several under omap and mmp).
+Fix this by moving FB_CMDLINE, FB_NOTIFY, and FB_CLPS711X_OLD to
+just before the FB Kconfig symbol definition and by moving the
+omap, omap2, and mmp menus to last, following FB_SM712.
 
-drivers/ata/pata_ep93xx.c:662:36: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-        drv_data->dma_rx_data.direction = DMA_FROM_DEVICE;
-                                        ~ ^~~~~~~~~~~~~~~
-drivers/ata/pata_ep93xx.c:670:36: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-        drv_data->dma_tx_data.direction = DMA_TO_DEVICE;
-                                        ~ ^~~~~~~~~~~~~
-drivers/ata/pata_ep93xx.c:681:19: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-        conf.direction = DMA_FROM_DEVICE;
-                       ~ ^~~~~~~~~~~~~~~
-drivers/ata/pata_ep93xx.c:692:19: warning: implicit conversion from
-enumeration type 'enum dma_data_direction' to different enumeration type
-'enum dma_transfer_direction' [-Wenum-conversion]
-        conf.direction = DMA_TO_DEVICE;
-                       ~ ^~~~~~~~~~~~~
+Also, the FB_VIA dependencies are duplicated by both being inside
+an "if FB_VIA/endif" block and "depends on FB_VIA", so drop the
+"depends on FB_VIA" lines since they are redundant.
 
-Use the equivalent valued enums from the expected type so that Clang no
-longer warns about a conversion.
+Fixes: ea6763c104c9 ("video/fbdev: Always built-in video= cmdline parsing")
+Fixes: 5ec9653806ba ("fbdev: Make fb-notify a no-op if CONFIG_FB=n")
+Fixes: ef74d46a4ef3 ("video: clps711x: Add new Cirrus Logic CLPS711X framebuffer driver")
 
-DMA_TO_DEVICE = DMA_MEM_TO_DEV = 1
-DMA_FROM_DEVICE = DMA_DEV_TO_MEM = 2
-
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Ezequiel Garcia <ezequiel@vanguardiasur.com.ar>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Alexander Shiyan <shc_work@mail.ru>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_ep93xx.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/Kconfig | 34 ++++++++++++++++------------------
+ 1 file changed, 16 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/ata/pata_ep93xx.c b/drivers/ata/pata_ep93xx.c
-index bd6b089c67a3a..634c814cbeda4 100644
---- a/drivers/ata/pata_ep93xx.c
-+++ b/drivers/ata/pata_ep93xx.c
-@@ -659,7 +659,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
- 	 * start of new transfer.
- 	 */
- 	drv_data->dma_rx_data.port = EP93XX_DMA_IDE;
--	drv_data->dma_rx_data.direction = DMA_FROM_DEVICE;
-+	drv_data->dma_rx_data.direction = DMA_DEV_TO_MEM;
- 	drv_data->dma_rx_data.name = "ep93xx-pata-rx";
- 	drv_data->dma_rx_channel = dma_request_channel(mask,
- 		ep93xx_pata_dma_filter, &drv_data->dma_rx_data);
-@@ -667,7 +667,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
- 		return;
+diff --git a/drivers/video/fbdev/Kconfig b/drivers/video/fbdev/Kconfig
+index 591a13a597874..f99558d006bf4 100644
+--- a/drivers/video/fbdev/Kconfig
++++ b/drivers/video/fbdev/Kconfig
+@@ -2,6 +2,18 @@
+ # fbdev configuration
+ #
  
- 	drv_data->dma_tx_data.port = EP93XX_DMA_IDE;
--	drv_data->dma_tx_data.direction = DMA_TO_DEVICE;
-+	drv_data->dma_tx_data.direction = DMA_MEM_TO_DEV;
- 	drv_data->dma_tx_data.name = "ep93xx-pata-tx";
- 	drv_data->dma_tx_channel = dma_request_channel(mask,
- 		ep93xx_pata_dma_filter, &drv_data->dma_tx_data);
-@@ -678,7 +678,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
++config FB_CMDLINE
++	bool
++
++config FB_NOTIFY
++	bool
++
++config FB_CLPS711X_OLD
++	tristate
++	select FB_CFB_FILLRECT
++	select FB_CFB_COPYAREA
++	select FB_CFB_IMAGEBLIT
++
+ menuconfig FB
+ 	tristate "Support for frame buffer devices"
+ 	select FB_CMDLINE
+@@ -54,12 +66,6 @@ config FIRMWARE_EDID
+ 	 combination with certain motherboards and monitors are known to
+ 	 suffer from this problem.
  
- 	/* Configure receive channel direction and source address */
- 	memset(&conf, 0, sizeof(conf));
--	conf.direction = DMA_FROM_DEVICE;
-+	conf.direction = DMA_DEV_TO_MEM;
- 	conf.src_addr = drv_data->udma_in_phys;
- 	conf.src_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
- 	if (dmaengine_slave_config(drv_data->dma_rx_channel, &conf)) {
-@@ -689,7 +689,7 @@ static void ep93xx_pata_dma_init(struct ep93xx_pata_data *drv_data)
+-config FB_CMDLINE
+-	bool
+-
+-config FB_NOTIFY
+-	bool
+-
+ config FB_DDC
+        tristate
+        depends on FB
+@@ -329,12 +335,6 @@ config FB_ACORN
+ 	  hardware found in Acorn RISC PCs and other ARM-based machines.  If
+ 	  unsure, say N.
  
- 	/* Configure transmit channel direction and destination address */
- 	memset(&conf, 0, sizeof(conf));
--	conf.direction = DMA_TO_DEVICE;
-+	conf.direction = DMA_MEM_TO_DEV;
- 	conf.dst_addr = drv_data->udma_out_phys;
- 	conf.dst_addr_width = DMA_SLAVE_BUSWIDTH_4_BYTES;
- 	if (dmaengine_slave_config(drv_data->dma_tx_channel, &conf)) {
+-config FB_CLPS711X_OLD
+-	tristate
+-	select FB_CFB_FILLRECT
+-	select FB_CFB_COPYAREA
+-	select FB_CFB_IMAGEBLIT
+-
+ config FB_CLPS711X
+ 	tristate "CLPS711X LCD support"
+ 	depends on FB && (ARCH_CLPS711X || COMPILE_TEST)
+@@ -1456,7 +1456,6 @@ if FB_VIA
+ 
+ config FB_VIA_DIRECT_PROCFS
+ 	bool "direct hardware access via procfs (DEPRECATED)(DANGEROUS)"
+-	depends on FB_VIA
+ 	default n
+ 	help
+ 	  Allow direct hardware access to some output registers via procfs.
+@@ -1466,7 +1465,6 @@ config FB_VIA_DIRECT_PROCFS
+ 
+ config FB_VIA_X_COMPATIBILITY
+ 	bool "X server compatibility"
+-	depends on FB_VIA
+ 	default n
+ 	help
+ 	  This option reduces the functionality (power saving, ...) of the
+@@ -2308,10 +2306,6 @@ config FB_SIMPLE
+ 	  Configuration re: surface address, size, and format must be provided
+ 	  through device tree, or plain old platform data.
+ 
+-source "drivers/video/fbdev/omap/Kconfig"
+-source "drivers/video/fbdev/omap2/Kconfig"
+-source "drivers/video/fbdev/mmp/Kconfig"
+-
+ config FB_SSD1307
+ 	tristate "Solomon SSD1307 framebuffer support"
+ 	depends on FB && I2C
+@@ -2341,3 +2335,7 @@ config FB_SM712
+ 	  This driver is also available as a module. The module will be
+ 	  called sm712fb. If you want to compile it as a module, say M
+ 	  here and read <file:Documentation/kbuild/modules.txt>.
++
++source "drivers/video/fbdev/omap/Kconfig"
++source "drivers/video/fbdev/omap2/Kconfig"
++source "drivers/video/fbdev/mmp/Kconfig"
 -- 
 2.20.1
 
