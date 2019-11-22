@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C65106A80
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:35:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27318106C8F
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:53:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726767AbfKVKfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:35:25 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33536 "EHLO mail.kernel.org"
+        id S1727887AbfKVKxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:53:19 -0500
+Received: from mail.kernel.org ([198.145.29.99]:37654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727388AbfKVKfZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:35:25 -0500
+        id S1729794AbfKVKxT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:53:19 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A59BE20637;
-        Fri, 22 Nov 2019 10:35:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 215AD20656;
+        Fri, 22 Nov 2019 10:53:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418924;
-        bh=wdelKJofsea4ejOrCFnoP4sWAiQO/Sw8Fby/doyW6Sk=;
+        s=default; t=1574419997;
+        bh=/ocGoJgUZnU/MR4jKC+MPYAL4fHXHIMop3CtzsQDJYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e8Vh8VI3vuniwKnWScme6N14cHl7nTdBJOMgR7wRbFrJExkCk6K90tI1e5dNp+pbl
-         /6HAj5051tMP0eA+/mPPX9RSo7V9MdfsDiww2SWu7IvqYyJyoamoQXntJzPFTvU8zh
-         XWi9oaDwD6/9aEXvta2urjHNX/v61ZP0fE7AX/c8=
+        b=H9T8XcSTEEi3hnzBcMNVOsnx2D0bpokzGbC8quPikNRjXxP/nqKefGv/wg84x9U3d
+         cxLktvQ9vqCVlVz62smJLFP3wCy1rFzxoiY1hC9Z2lIrCUtHLRGSrUfud37vRgYld8
+         w741kqmnq18etXJLZ9Gh91p/3PeV/PNVdr+t2Kr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: [PATCH 4.4 098/159] memfd: Use radix_tree_deref_slot_protected to avoid the warning.
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 036/122] mei: samples: fix a signedness bug in amt_host_if_call()
 Date:   Fri, 22 Nov 2019 11:28:09 +0100
-Message-Id: <20191122100818.517338061@linuxfoundation.org>
+Message-Id: <20191122100751.460721675@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-The commit eb4058d8daf8 ("memfd: Fix locking when tagging pins")
-introduces the following warning messages.
+[ Upstream commit 185647813cac080453cb73a2e034a8821049f2a7 ]
 
-*WARNING: suspicious RCU usage in memfd_wait_for_pins*
+"out_buf_sz" needs to be signed for the error handling to work.
 
-It is because we still use radix_tree_deref_slot without read_rcu_lock.
-We should use radix_tree_deref_slot_protected instead in the case.
-
-Cc: stable@vger.kernel.org
-Fixes: eb4058d8daf8 ("memfd: Fix locking when tagging pins")
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/shmem.c |    2 +-
+ samples/mei/mei-amt-version.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -1862,7 +1862,7 @@ static void shmem_tag_pins(struct addres
- 	spin_lock_irq(&mapping->tree_lock);
- restart:
- 	radix_tree_for_each_slot(slot, &mapping->page_tree, &iter, start) {
--		page = radix_tree_deref_slot(slot);
-+		page = radix_tree_deref_slot_protected(slot, &mapping->tree_lock);
- 		if (!page || radix_tree_exception(page)) {
- 			if (radix_tree_deref_retry(page))
- 				goto restart;
+diff --git a/samples/mei/mei-amt-version.c b/samples/mei/mei-amt-version.c
+index bb9988914a563..32234481ad7db 100644
+--- a/samples/mei/mei-amt-version.c
++++ b/samples/mei/mei-amt-version.c
+@@ -370,7 +370,7 @@ static uint32_t amt_host_if_call(struct amt_host_if *acmd,
+ 			unsigned int expected_sz)
+ {
+ 	uint32_t in_buf_sz;
+-	uint32_t out_buf_sz;
++	ssize_t out_buf_sz;
+ 	ssize_t written;
+ 	uint32_t status;
+ 	struct amt_host_if_resp_header *msg_hdr;
+-- 
+2.20.1
+
 
 
