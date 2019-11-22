@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 957D41062F9
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:08:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EDC371062DA
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 07:07:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727135AbfKVGHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 01:07:22 -0500
-Received: from mail.kernel.org ([198.145.29.99]:40426 "EHLO mail.kernel.org"
+        id S1729405AbfKVGCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 01:02:03 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729476AbfKVGCA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 01:02:00 -0500
+        id S1729500AbfKVGCB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 01:02:01 -0500
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3B0920714;
-        Fri, 22 Nov 2019 06:01:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 502522068E;
+        Fri, 22 Nov 2019 06:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574402519;
-        bh=H8nhKXKNYwhdnZ1oxHBgqJQ/mhf3pJpP7CyzoovXYOM=;
+        s=default; t=1574402521;
+        bh=2ruCfQM2uGTJfrjE1Ri3MmU/nY3aN8p9UYu2mdRhDEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XjE5IACapaKc3V9RlVpBq9VMCplpCP/wSDm+M8JxSEf48cflE8amWX/GUjikjquVF
-         gJlSgZKU29SM0pPwg+jI3s2+UlcvUcHqTXMnw9agQcJT4Zrwtg2/SsvB6zCH//CS66
-         /oOen0z6TsNYKNkBfw6RhPLr550so2a6ei81YkDM=
+        b=m5ZpWQp9Bvk5RybFFjQKLeyCX+jx0m7dQzYkhBwxiXBoR+HZXtXgHJjKH8IQGryRb
+         mQ4qBta4TzAOfs98vL4GbrDwzmUFBXNF/FrVdchQSaKGxWPexc1aSEITIFUHfVjZj3
+         0xOZ/N/oxXNLAXnHHBNYObcgylTXu3FwW2OS+1VQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Mueller <mimu@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 28/91] KVM: s390: unregister debug feature on failing arch init
-Date:   Fri, 22 Nov 2019 01:00:26 -0500
-Message-Id: <20191122060129.4239-27-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-renesas-soc@vger.kernel.org, linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 29/91] pinctrl: sh-pfc: sh7264: Fix PFCR3 and PFCR0 register configuration
+Date:   Fri, 22 Nov 2019 01:00:27 -0500
+Message-Id: <20191122060129.4239-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20191122060129.4239-1-sashal@kernel.org>
 References: <20191122060129.4239-1-sashal@kernel.org>
@@ -47,65 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Mueller <mimu@linux.ibm.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 308c3e6673b012beecb96ef04cc65f4a0e7cdd99 ]
+[ Upstream commit 1b99d0c80bbe1810572c2cb77b90f67886adfa8d ]
 
-Make sure the debug feature and its allocated resources get
-released upon unsuccessful architecture initialization.
+The Port F Control Register 3 (PFCR3) contains only a single field.
+However, counting from left to right, it is the fourth field, not the
+first field.
+Insert the missing dummy configuration values (3 fields of 16 values) to
+fix this.
 
-A related indication of the issue will be reported as kernel
-message.
+The descriptor for the Port F Control Register 0 (PFCR0) lacks the
+description for the 4th field (PF0 Mode, PF0MD[2:0]).
+Add the missing configuration values to fix this.
 
-Signed-off-by: Michael Mueller <mimu@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Message-Id: <20181130143215.69496-2-mimu@linux.ibm.com>
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: a8d42fc4217b1ea1 ("sh-pfc: Add sh7264 pinmux support")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/pinctrl/sh-pfc/pfc-sh7264.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 37c254677ccda..d8fd2eadcda7f 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -319,19 +319,30 @@ static void kvm_s390_cpu_feat_init(void)
+diff --git a/drivers/pinctrl/sh-pfc/pfc-sh7264.c b/drivers/pinctrl/sh-pfc/pfc-sh7264.c
+index 8070765311dbf..e1c34e19222ee 100644
+--- a/drivers/pinctrl/sh-pfc/pfc-sh7264.c
++++ b/drivers/pinctrl/sh-pfc/pfc-sh7264.c
+@@ -1716,6 +1716,9 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 	},
  
- int kvm_arch_init(void *opaque)
- {
-+	int rc;
-+
- 	kvm_s390_dbf = debug_register("kvm-trace", 32, 1, 7 * sizeof(long));
- 	if (!kvm_s390_dbf)
- 		return -ENOMEM;
+ 	{ PINMUX_CFG_REG("PFCR3", 0xfffe38a8, 16, 4) {
++		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
++		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 		PF12MD_000, PF12MD_001, 0, PF12MD_011,
+ 		PF12MD_100, PF12MD_101, 0, 0,
+ 		0, 0, 0, 0, 0, 0, 0, 0 }
+@@ -1759,8 +1762,10 @@ static const struct pinmux_cfg_reg pinmux_config_regs[] = {
+ 		0, 0, 0, 0, 0, 0, 0, 0,
+ 		PF1MD_000, PF1MD_001, PF1MD_010, PF1MD_011,
+ 		PF1MD_100, PF1MD_101, 0, 0,
+-		0, 0, 0, 0, 0, 0, 0, 0
+-	 }
++		0, 0, 0, 0, 0, 0, 0, 0,
++		PF0MD_000, PF0MD_001, PF0MD_010, PF0MD_011,
++		PF0MD_100, PF0MD_101, 0, 0,
++		0, 0, 0, 0, 0, 0, 0, 0 }
+ 	},
  
- 	if (debug_register_view(kvm_s390_dbf, &debug_sprintf_view)) {
--		debug_unregister(kvm_s390_dbf);
--		return -ENOMEM;
-+		rc = -ENOMEM;
-+		goto out_debug_unreg;
- 	}
- 
- 	kvm_s390_cpu_feat_init();
- 
- 	/* Register floating interrupt controller interface. */
--	return kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	rc = kvm_register_device_ops(&kvm_flic_ops, KVM_DEV_TYPE_FLIC);
-+	if (rc) {
-+		pr_err("Failed to register FLIC rc=%d\n", rc);
-+		goto out_debug_unreg;
-+	}
-+	return 0;
-+
-+out_debug_unreg:
-+	debug_unregister(kvm_s390_dbf);
-+	return rc;
- }
- 
- void kvm_arch_exit(void)
+ 	{ PINMUX_CFG_REG("PFIOR0", 0xfffe38b2, 16, 1) {
 -- 
 2.20.1
 
