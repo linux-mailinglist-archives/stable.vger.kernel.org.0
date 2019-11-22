@@ -2,36 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA763106B5E
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:44:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CFD106B61
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729277AbfKVKnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:43:45 -0500
-Received: from mail.kernel.org ([198.145.29.99]:49394 "EHLO mail.kernel.org"
+        id S1728237AbfKVKnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:43:50 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728856AbfKVKno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:43:44 -0500
+        id S1728856AbfKVKnr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:43:47 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E79C720637;
-        Fri, 22 Nov 2019 10:43:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76B95205C9;
+        Fri, 22 Nov 2019 10:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419424;
-        bh=6hPBnO6cyInfrI7QPc5HYLgV1DJSGN4IqdU+EtM4yrE=;
+        s=default; t=1574419427;
+        bh=pVwVyxF2N9wnorQ5Bgsg+Gc9P53KWGzWUXl79vsexVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UIK4PSt8645a/tdGCg+uhXims8/zMKZWaVGmYBwtuGRkp7sZV2lcC9oz8jB9WCx51
-         bLxjnk2Y1B2WZdes8TiwxSW5WSxIrvyW7OztLbHuXx8rvDjnXKFQVK/60iQTHVUPB8
-         Q/cbW0gUny3GGA/SFoL7Wm6sQZ1sbePa0zFqNnyM=
+        b=SQJhvRlMu/JUst4VDlLjb6/Hp37gfDowrse8vMGaNY14OmYnbMKQCa43fp6XQMlaQ
+         L4k0infZz8v+POadT0QtzszRVpMl5j0a3RhGafx2Q8BJQeyL57NuNoZt+2u9kfuDfk
+         H5p3fLUjgbhhDWGJjx6KGWZflTDOcIjs7iwg5Ntc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Matthew Whitehead <tedheadster@gmail.com>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@amacapital.net>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        Jia Zhang <qianyue.zj@alibaba-inc.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Philippe Ombredanne <pombredanne@nexb.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 106/222] net: micrel: fix return type of ndo_start_xmit function
-Date:   Fri, 22 Nov 2019 11:27:26 +0100
-Message-Id: <20191122100910.975533656@linuxfoundation.org>
+Subject: [PATCH 4.9 107/222] x86/CPU: Use correct macros for Cyrix calls
+Date:   Fri, 22 Nov 2019 11:27:27 +0100
+Message-Id: <20191122100911.032076915@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
 In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
 References: <20191122100830.874290814@linuxfoundation.org>
@@ -44,54 +50,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Matthew Whitehead <tedheadster@gmail.com>
 
-[ Upstream commit 2b49117a5abee8478b0470cba46ac74f93b4a479 ]
+[ Upstream commit 03b099bdcdf7125d4a63dc9ddeefdd454e05123d ]
 
-The method ndo_start_xmit() is defined as returning an 'netdev_tx_t',
-which is a typedef for an enum type, so make sure the implementation in
-this driver has returns 'netdev_tx_t' value, and change the function
-return type to netdev_tx_t.
+There are comments in processor-cyrix.h advising you to _not_ make calls
+using the deprecated macros in this style:
 
-Found by coccinelle.
+  setCx86_old(CX86_CCR4, getCx86_old(CX86_CCR4) | 0x80);
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This is because it expands the macro into a non-functioning calling
+sequence. The calling order must be:
+
+  outb(CX86_CCR2, 0x22);
+  inb(0x23);
+
+>From the comments:
+
+ * When using the old macros a line like
+ *   setCx86(CX86_CCR2, getCx86(CX86_CCR2) | 0x88);
+ * gets expanded to:
+ *  do {
+ *    outb((CX86_CCR2), 0x22);
+ *    outb((({
+ *        outb((CX86_CCR2), 0x22);
+ *        inb(0x23);
+ *    }) | 0x88), 0x23);
+ *  } while (0);
+
+The new macros fix this problem, so use them instead.
+
+Signed-off-by: Matthew Whitehead <tedheadster@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Andy Lutomirski <luto@amacapital.net>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Jia Zhang <qianyue.zj@alibaba-inc.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Philippe Ombredanne <pombredanne@nexb.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/20180921212041.13096-2-tedheadster@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/micrel/ks8695net.c  | 2 +-
- drivers/net/ethernet/micrel/ks8851_mll.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/cyrix.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/micrel/ks8695net.c b/drivers/net/ethernet/micrel/ks8695net.c
-index 20cb85bc0c5f8..6135d90f368fa 100644
---- a/drivers/net/ethernet/micrel/ks8695net.c
-+++ b/drivers/net/ethernet/micrel/ks8695net.c
-@@ -1156,7 +1156,7 @@ ks8695_timeout(struct net_device *ndev)
-  *	sk_buff and adds it to the TX ring. It then kicks the TX DMA
-  *	engine to ensure transmission begins.
-  */
--static int
-+static netdev_tx_t
- ks8695_start_xmit(struct sk_buff *skb, struct net_device *ndev)
- {
- 	struct ks8695_priv *ksp = netdev_priv(ndev);
-diff --git a/drivers/net/ethernet/micrel/ks8851_mll.c b/drivers/net/ethernet/micrel/ks8851_mll.c
-index 2fc5cd56c0a84..8dc1f0277117d 100644
---- a/drivers/net/ethernet/micrel/ks8851_mll.c
-+++ b/drivers/net/ethernet/micrel/ks8851_mll.c
-@@ -1020,9 +1020,9 @@ static void ks_write_qmu(struct ks_net *ks, u8 *pdata, u16 len)
-  * spin_lock_irqsave is required because tx and rx should be mutual exclusive.
-  * So while tx is in-progress, prevent IRQ interrupt from happenning.
-  */
--static int ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
-+static netdev_tx_t ks_start_xmit(struct sk_buff *skb, struct net_device *netdev)
- {
--	int retv = NETDEV_TX_OK;
-+	netdev_tx_t retv = NETDEV_TX_OK;
- 	struct ks_net *ks = netdev_priv(netdev);
- 
- 	disable_irq(netdev->irq);
+diff --git a/arch/x86/kernel/cpu/cyrix.c b/arch/x86/kernel/cpu/cyrix.c
+index 311d0fad17e6b..a4f6e0ec4ba0f 100644
+--- a/arch/x86/kernel/cpu/cyrix.c
++++ b/arch/x86/kernel/cpu/cyrix.c
+@@ -434,7 +434,7 @@ static void cyrix_identify(struct cpuinfo_x86 *c)
+ 			/* enable MAPEN  */
+ 			setCx86(CX86_CCR3, (ccr3 & 0x0f) | 0x10);
+ 			/* enable cpuid  */
+-			setCx86_old(CX86_CCR4, getCx86_old(CX86_CCR4) | 0x80);
++			setCx86(CX86_CCR4, getCx86(CX86_CCR4) | 0x80);
+ 			/* disable MAPEN */
+ 			setCx86(CX86_CCR3, ccr3);
+ 			local_irq_restore(flags);
 -- 
 2.20.1
 
