@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CEF7B106E0D
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:05:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 633C6106F03
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 12:14:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731038AbfKVLFj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 06:05:39 -0500
-Received: from mail.kernel.org ([198.145.29.99]:33258 "EHLO mail.kernel.org"
+        id S1730432AbfKVKzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:55:18 -0500
+Received: from mail.kernel.org ([198.145.29.99]:41824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728326AbfKVLFj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 06:05:39 -0500
+        id S1730439AbfKVKzP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:55:15 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09D312075E;
-        Fri, 22 Nov 2019 11:05:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E114020706;
+        Fri, 22 Nov 2019 10:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574420738;
-        bh=ynIhFj/qx4jDaE1Oo3VHwQCKtQ8asuUgAcjpPSkosCY=;
+        s=default; t=1574420115;
+        bh=E4c7E0E0gF6jfSVz2Pxox2hy9Q5loNqXt/ABscsuXqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDPGXjZ7hzIoVCgrqZA8HPzfCpiN2vWxbdk3jUfVxc7VzlEeWsNrNwxWTydD1qrWs
-         qunva8rLZHuxSAYtG8CvM+Y95BdyNN0Telu7E20dvz8TgxbYsgcSyI3NVmcaRt7jsM
-         WPPt/eCN4DpGmo6D8N1bdKV5Jypf0ND1oZuRoUD4=
+        b=OWtVenTnxN3Vw6UN2Un07beD1ZckxjXWCwdmc6xPDdfV2BIXbE8121f3bYQZDDuEv
+         SBiORRQPmyauANLqvqgU0C8U3kuR+nm3CZpg9EFnJmD2lRzoIb5NJzXdXhgL/CYyeE
+         Lllwr7BZTXMH/JJHrCAWIpH3S6v9De6FCJDmpNX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhong jiang <zhongjiang@huawei.com>,
-        Andrew Donnellan <andrew.donnellan@au1.ibm.com>,
-        Frederic Barrat <fbarrat@linux.ibm.com>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Roger Quadros <rogerq@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 207/220] misc: cxl: Fix possible null pointer dereference
+Subject: [PATCH 4.14 119/122] ARM: dts: omap5: Fix dual-role mode on Super-Speed port
 Date:   Fri, 22 Nov 2019 11:29:32 +0100
-Message-Id: <20191122100928.666665210@linuxfoundation.org>
+Message-Id: <20191122100837.456100988@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
-References: <20191122100912.732983531@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhong jiang <zhongjiang@huawei.com>
+From: Roger Quadros <rogerq@ti.com>
 
-[ Upstream commit 3dac3583bf1a61db6aaf31dfd752c677a4400afd ]
+[ Upstream commit a763ecc15d0e37c3a15ff6825183061209832685 ]
 
-It is not safe to dereference an object before a null test. It is
-not needed and just remove them. Ftrace can be used instead.
+OMAP5's Super-Speed USB port has a software mailbox register
+that needs to be fed with VBUS and ID events from an external
+VBUS/ID comparator.
 
-Signed-off-by: zhong jiang <zhongjiang@huawei.com>
-Acked-by: Andrew Donnellan <andrew.donnellan@au1.ibm.com>
-Acked-by: Frederic Barrat <fbarrat@linux.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Without this, Host role will not work correctly.
+
+Fixes: 656c1a65ab55 ("ARM: dts: omap5: enable OTG role for DWC3 controller")
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/cxl/guest.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm/boot/dts/omap5-board-common.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/misc/cxl/guest.c b/drivers/misc/cxl/guest.c
-index b83a373e3a8dd..08f4a512afad2 100644
---- a/drivers/misc/cxl/guest.c
-+++ b/drivers/misc/cxl/guest.c
-@@ -1020,8 +1020,6 @@ int cxl_guest_init_afu(struct cxl *adapter, int slice, struct device_node *afu_n
+diff --git a/arch/arm/boot/dts/omap5-board-common.dtsi b/arch/arm/boot/dts/omap5-board-common.dtsi
+index f65343f8e1d69..c58f14de01451 100644
+--- a/arch/arm/boot/dts/omap5-board-common.dtsi
++++ b/arch/arm/boot/dts/omap5-board-common.dtsi
+@@ -695,6 +695,7 @@
+ };
  
- void cxl_guest_remove_afu(struct cxl_afu *afu)
- {
--	pr_devel("in %s - AFU(%d)\n", __func__, afu->slice);
--
- 	if (!afu)
- 		return;
+ &dwc3 {
++	extcon = <&extcon_usb3>;
+ 	dr_mode = "otg";
+ };
  
 -- 
 2.20.1
