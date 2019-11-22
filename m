@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28950106A3A
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:33:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C92C9106D5B
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:59:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727826AbfKVKc4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:32:56 -0500
-Received: from mail.kernel.org ([198.145.29.99]:54722 "EHLO mail.kernel.org"
+        id S1730894AbfKVK7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:59:23 -0500
+Received: from mail.kernel.org ([198.145.29.99]:50328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727796AbfKVKcv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:32:51 -0500
+        id S1730906AbfKVK7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:59:23 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B331C2071C;
-        Fri, 22 Nov 2019 10:32:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28A2A20706;
+        Fri, 22 Nov 2019 10:59:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574418771;
-        bh=IKe3NgO/UtZdXa4rzM4MFaxevILnmTQeYY26tJYkwg0=;
+        s=default; t=1574420362;
+        bh=GwUErkfOcTNNe8fJakwxrN+hDieJPLPdT00X3OCbnKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TO1vCRGE1B+W/cS0Sm4hoiz5n+5pSKifeq7u0lrBu+rrby32xy4vxNp2PwY0fTqfJ
-         pi5LbO/Dd7zdQWUMdmHaDUJ/X8yWanFiKt7paIElGjPZGOYbk2wBlTQZPlE2BwsL/n
-         4l22k/Q3yUze5N6J8oXFZ5DGAW8l4MXFfLeyX43g=
+        b=I1ZgLjG1xq5Rx2d6r7x8UvbP7fq8OgjUfhpfcE2qPtYGMRIi0MYAsZ69as7goAu4l
+         qrBwYl8AAzjw31dl0l0+w26LNis+gyr+3xLnSWCqL4aloYYO6xC8t+4xZ0Q4Wippte
+         EXxAVbBcs9bXgLBiETAwZY5KS4UofE3qeX0gkvxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Pavel Machek <pavel@ucw.cz>, Chen Yu <yu.c.chen@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 046/159] ALSA: intel8x0m: Register irq handler after register initializations
-Date:   Fri, 22 Nov 2019 11:27:17 +0100
-Message-Id: <20191122100739.390511399@linuxfoundation.org>
+Subject: [PATCH 4.19 074/220] PM / hibernate: Check the success of generating md5 digest before hibernation
+Date:   Fri, 22 Nov 2019 11:27:19 +0100
+Message-Id: <20191122100917.596370205@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100704.194776704@linuxfoundation.org>
-References: <20191122100704.194776704@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,64 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Chen Yu <yu.c.chen@intel.com>
 
-[ Upstream commit 7064f376d4a10686f51c879401a569bb4babf9c6 ]
+[ Upstream commit 749fa17093ff67b31dea864531a3698b6a95c26c ]
 
-The interrupt handler has to be acquired after the other resource
-initialization when allocated with IRQF_SHARED.  Otherwise it's
-triggered before the resource gets ready, and may lead to unpleasant
-behavior.
+Currently if get_e820_md5() fails, then it will hibernate nevertheless.
+Actually the error code should be propagated to upper caller so that
+the hibernation could be aware of the result and terminates the process
+if md5 digest fails.
 
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Suggested-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Chen Yu <yu.c.chen@intel.com>
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/intel8x0m.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ arch/x86/power/hibernate_64.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/sound/pci/intel8x0m.c b/sound/pci/intel8x0m.c
-index 1bc98c867133d..2286dfd72ff7e 100644
---- a/sound/pci/intel8x0m.c
-+++ b/sound/pci/intel8x0m.c
-@@ -1171,16 +1171,6 @@ static int snd_intel8x0m_create(struct snd_card *card,
- 	}
+diff --git a/arch/x86/power/hibernate_64.c b/arch/x86/power/hibernate_64.c
+index c9986041a5e12..6c3ec193a2465 100644
+--- a/arch/x86/power/hibernate_64.c
++++ b/arch/x86/power/hibernate_64.c
+@@ -266,9 +266,9 @@ static int get_e820_md5(struct e820_table *table, void *buf)
+ 	return ret;
+ }
  
-  port_inited:
--	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
--			KBUILD_MODNAME, chip)) {
--		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
--		snd_intel8x0m_free(chip);
--		return -EBUSY;
--	}
--	chip->irq = pci->irq;
--	pci_set_master(pci);
--	synchronize_irq(chip->irq);
+-static void hibernation_e820_save(void *buf)
++static int hibernation_e820_save(void *buf)
+ {
+-	get_e820_md5(e820_table_firmware, buf);
++	return get_e820_md5(e820_table_firmware, buf);
+ }
+ 
+ static bool hibernation_e820_mismatch(void *buf)
+@@ -288,8 +288,9 @@ static bool hibernation_e820_mismatch(void *buf)
+ 	return memcmp(result, buf, MD5_DIGEST_SIZE) ? true : false;
+ }
+ #else
+-static void hibernation_e820_save(void *buf)
++static int hibernation_e820_save(void *buf)
+ {
++	return 0;
+ }
+ 
+ static bool hibernation_e820_mismatch(void *buf)
+@@ -334,9 +335,7 @@ int arch_hibernation_header_save(void *addr, unsigned int max_size)
+ 
+ 	rdr->magic = RESTORE_MAGIC;
+ 
+-	hibernation_e820_save(rdr->e820_digest);
 -
- 	/* initialize offsets */
- 	chip->bdbars_count = 2;
- 	tbl = intel_regs;
-@@ -1224,11 +1214,21 @@ static int snd_intel8x0m_create(struct snd_card *card,
- 	chip->int_sta_reg = ICH_REG_GLOB_STA;
- 	chip->int_sta_mask = int_sta_masks;
+-	return 0;
++	return hibernation_e820_save(rdr->e820_digest);
+ }
  
-+	pci_set_master(pci);
-+
- 	if ((err = snd_intel8x0m_chip_init(chip, 1)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
- 	}
- 
-+	if (request_irq(pci->irq, snd_intel8x0m_interrupt, IRQF_SHARED,
-+			KBUILD_MODNAME, chip)) {
-+		dev_err(card->dev, "unable to grab IRQ %d\n", pci->irq);
-+		snd_intel8x0m_free(chip);
-+		return -EBUSY;
-+	}
-+	chip->irq = pci->irq;
-+
- 	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0) {
- 		snd_intel8x0m_free(chip);
- 		return err;
+ /**
 -- 
 2.20.1
 
