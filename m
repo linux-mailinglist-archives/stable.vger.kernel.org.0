@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF2C8106C06
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:49:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AD4106CC3
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:56:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729654AbfKVKtS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:49:18 -0500
-Received: from mail.kernel.org ([198.145.29.99]:58532 "EHLO mail.kernel.org"
+        id S1728882AbfKVKyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:54:45 -0500
+Received: from mail.kernel.org ([198.145.29.99]:40606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729086AbfKVKtR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:49:17 -0500
+        id S1730359AbfKVKyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:54:44 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E77142071F;
-        Fri, 22 Nov 2019 10:49:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE83820706;
+        Fri, 22 Nov 2019 10:54:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419756;
-        bh=7NbcbOX9UA3F0MFEH7FNxiYd1n69q/bArO3OE8ol0a0=;
+        s=default; t=1574420083;
+        bh=dGEC+nqkPb1i9AgxpXOdAXvdLV5Tx+gdoEhw72xa2Qo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxPuR7lyyThikTIY4TvtJP4mRcBoF2Ig4N1B3SMxmeEL6s9UPBPfbeVVdmw4WPje0
-         zrsaWCWvJ+1pJHsVr2yAqcKjOf/6/dqnVwW9t63xikpeg8QtTDXYsjEwUUtEATWWj8
-         l7QrfktGgTxYF3aGpiFXUx7A3O3q8hTY39Zp21Fw=
+        b=snC3ioPRpPydJOIQMlfreeKAs9g150HhEECkDdsX+etNKpbAk9TwjrgOqkSUkFj32
+         xvnKwOGko+tTS1oHLMAL7Eorva02X8pvnJr3doReDfto4DVTw4xpG9lLcav29QiU7V
+         CzjfvWMAjsBtSQi3nvhIeHcton+8sJnbcJ/OK6Jw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 4.9 222/222] arm64: uaccess: Ensure PAN is re-enabled after unhandled uaccess fault
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 109/122] pinctrl: gemini: Fix up TVC clock group
 Date:   Fri, 22 Nov 2019 11:29:22 +0100
-Message-Id: <20191122100918.689070544@linuxfoundation.org>
+Message-Id: <20191122100833.536604851@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100722.177052205@linuxfoundation.org>
+References: <20191122100722.177052205@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,121 +43,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Tatashin <pasha.tatashin@soleen.com>
+From: Linus Walleij <linus.walleij@linaro.org>
 
-commit 94bb804e1e6f0a9a77acf20d7c70ea141c6c821e upstream.
+[ Upstream commit a85c928f6a7856a09e47d9b37faa3407c7ac6a8e ]
 
-A number of our uaccess routines ('__arch_clear_user()' and
-'__arch_copy_{in,from,to}_user()') fail to re-enable PAN if they
-encounter an unhandled fault whilst accessing userspace.
+The previous fix made the TVC clock get muxed in on the
+D-Link DIR-685 instead of giving nagging warnings of this
+not working. Not good. We didn't want that, as it breaks
+video.
 
-For CPUs implementing both hardware PAN and UAO, this bug has no effect
-when both extensions are in use by the kernel.
+Create a specific group for the TVC CLK, and break out
+a specific GPIO group for it on the SL3516 so we can use
+that line as GPIO if we don't need the TVC CLK.
 
-For CPUs implementing hardware PAN but not UAO, this means that a kernel
-using hardware PAN may execute portions of code with PAN inadvertently
-disabled, opening us up to potential security vulnerabilities that rely
-on userspace access from within the kernel which would usually be
-prevented by this mechanism. In other words, parts of the kernel run the
-same way as they would on a CPU without PAN implemented/emulated at all.
-
-For CPUs not implementing hardware PAN and instead relying on software
-emulation via 'CONFIG_ARM64_SW_TTBR0_PAN=y', the impact is unfortunately
-much worse. Calling 'schedule()' with software PAN disabled means that
-the next task will execute in the kernel using the page-table and ASID
-of the previous process even after 'switch_mm()', since the actual
-hardware switch is deferred until return to userspace. At this point, or
-if there is a intermediate call to 'uaccess_enable()', the page-table
-and ASID of the new process are installed. Sadly, due to the changes
-introduced by KPTI, this is not an atomic operation and there is a very
-small window (two instructions) where the CPU is configured with the
-page-table of the old task and the ASID of the new task; a speculative
-access in this state is disastrous because it would corrupt the TLB
-entries for the new task with mappings from the previous address space.
-
-As Pavel explains:
-
-  | I was able to reproduce memory corruption problem on Broadcom's SoC
-  | ARMv8-A like this:
-  |
-  | Enable software perf-events with PERF_SAMPLE_CALLCHAIN so userland's
-  | stack is accessed and copied.
-  |
-  | The test program performed the following on every CPU and forking
-  | many processes:
-  |
-  |	unsigned long *map = mmap(NULL, PAGE_SIZE, PROT_READ|PROT_WRITE,
-  |				  MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-  |	map[0] = getpid();
-  |	sched_yield();
-  |	if (map[0] != getpid()) {
-  |		fprintf(stderr, "Corruption detected!");
-  |	}
-  |	munmap(map, PAGE_SIZE);
-  |
-  | From time to time I was getting map[0] to contain pid for a
-  | different process.
-
-Ensure that PAN is re-enabled when returning after an unhandled user
-fault from our uaccess routines.
-
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Tested-by: Mark Rutland <mark.rutland@arm.com>
-Cc: <stable@vger.kernel.org>
-Fixes: 338d4f49d6f7 ("arm64: kernel: Add support for Privileged Access Never")
-Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-[will: rewrote commit message]
-[will: backport for 4.9.y stable kernels]
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: d17f477c5bc6 ("pinctrl: gemini: Mask and set properly")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/lib/clear_user.S     |    2 ++
- arch/arm64/lib/copy_from_user.S |    2 ++
- arch/arm64/lib/copy_in_user.S   |    2 ++
- arch/arm64/lib/copy_to_user.S   |    2 ++
- 4 files changed, 8 insertions(+)
+ drivers/pinctrl/pinctrl-gemini.c | 44 ++++++++++++++++++++++++++------
+ 1 file changed, 36 insertions(+), 8 deletions(-)
 
---- a/arch/arm64/lib/clear_user.S
-+++ b/arch/arm64/lib/clear_user.S
-@@ -62,5 +62,7 @@ ENDPROC(__arch_clear_user)
- 	.section .fixup,"ax"
- 	.align	2
- 9:	mov	x0, x2			// return the original size
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
-+	    CONFIG_ARM64_PAN)
- 	ret
- 	.previous
---- a/arch/arm64/lib/copy_from_user.S
-+++ b/arch/arm64/lib/copy_from_user.S
-@@ -80,5 +80,7 @@ ENDPROC(__arch_copy_from_user)
- 	.section .fixup,"ax"
- 	.align	2
- 9998:	sub	x0, end, dst			// bytes not copied
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
-+	    CONFIG_ARM64_PAN)
- 	ret
- 	.previous
---- a/arch/arm64/lib/copy_in_user.S
-+++ b/arch/arm64/lib/copy_in_user.S
-@@ -81,5 +81,7 @@ ENDPROC(__arch_copy_in_user)
- 	.section .fixup,"ax"
- 	.align	2
- 9998:	sub	x0, end, dst			// bytes not copied
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
-+	    CONFIG_ARM64_PAN)
- 	ret
- 	.previous
---- a/arch/arm64/lib/copy_to_user.S
-+++ b/arch/arm64/lib/copy_to_user.S
-@@ -79,5 +79,7 @@ ENDPROC(__arch_copy_to_user)
- 	.section .fixup,"ax"
- 	.align	2
- 9998:	sub	x0, end, dst			// bytes not copied
-+ALTERNATIVE("nop", __stringify(SET_PSTATE_PAN(1)), ARM64_ALT_PAN_NOT_UAO, \
-+	    CONFIG_ARM64_PAN)
- 	ret
- 	.previous
+diff --git a/drivers/pinctrl/pinctrl-gemini.c b/drivers/pinctrl/pinctrl-gemini.c
+index 05441dc2519d2..78fa26c1a89f3 100644
+--- a/drivers/pinctrl/pinctrl-gemini.c
++++ b/drivers/pinctrl/pinctrl-gemini.c
+@@ -551,13 +551,16 @@ static const unsigned int tvc_3512_pins[] = {
+ 	319, /* TVC_DATA[1] */
+ 	301, /* TVC_DATA[2] */
+ 	283, /* TVC_DATA[3] */
+-	265, /* TVC_CLK */
+ 	320, /* TVC_DATA[4] */
+ 	302, /* TVC_DATA[5] */
+ 	284, /* TVC_DATA[6] */
+ 	266, /* TVC_DATA[7] */
+ };
+ 
++static const unsigned int tvc_clk_3512_pins[] = {
++	265, /* TVC_CLK */
++};
++
+ /* NAND flash pins */
+ static const unsigned int nflash_3512_pins[] = {
+ 	199, 200, 201, 202, 216, 217, 218, 219, 220, 234, 235, 236, 237, 252,
+@@ -589,7 +592,7 @@ static const unsigned int pflash_3512_pins_extended[] = {
+ /* Serial flash pins CE0, CE1, DI, DO, CK */
+ static const unsigned int sflash_3512_pins[] = { 230, 231, 232, 233, 211 };
+ 
+-/* The GPIO0A (0) pin overlap with TVC and extended parallel flash */
++/* The GPIO0A (0) pin overlap with TVC CLK and extended parallel flash */
+ static const unsigned int gpio0a_3512_pins[] = { 265 };
+ 
+ /* The GPIO0B (1-4) pins overlap with TVC and ICE */
+@@ -772,7 +775,13 @@ static const struct gemini_pin_group gemini_3512_pin_groups[] = {
+ 		.num_pins = ARRAY_SIZE(tvc_3512_pins),
+ 		/* Conflict with character LCD and ICE */
+ 		.mask = LCD_PADS_ENABLE,
+-		.value = TVC_PADS_ENABLE | TVC_CLK_PAD_ENABLE,
++		.value = TVC_PADS_ENABLE,
++	},
++	{
++		.name = "tvcclkgrp",
++		.pins = tvc_clk_3512_pins,
++		.num_pins = ARRAY_SIZE(tvc_clk_3512_pins),
++		.value = TVC_CLK_PAD_ENABLE,
+ 	},
+ 	/*
+ 	 * The construction is done such that it is possible to use a serial
+@@ -809,8 +818,8 @@ static const struct gemini_pin_group gemini_3512_pin_groups[] = {
+ 		.name = "gpio0agrp",
+ 		.pins = gpio0a_3512_pins,
+ 		.num_pins = ARRAY_SIZE(gpio0a_3512_pins),
+-		/* Conflict with TVC */
+-		.mask = TVC_PADS_ENABLE,
++		/* Conflict with TVC CLK */
++		.mask = TVC_CLK_PAD_ENABLE,
+ 	},
+ 	{
+ 		.name = "gpio0bgrp",
+@@ -1476,13 +1485,16 @@ static const unsigned int tvc_3516_pins[] = {
+ 	311, /* TVC_DATA[1] */
+ 	394, /* TVC_DATA[2] */
+ 	374, /* TVC_DATA[3] */
+-	333, /* TVC_CLK */
+ 	354, /* TVC_DATA[4] */
+ 	395, /* TVC_DATA[5] */
+ 	312, /* TVC_DATA[6] */
+ 	334, /* TVC_DATA[7] */
+ };
+ 
++static const unsigned int tvc_clk_3516_pins[] = {
++	333, /* TVC_CLK */
++};
++
+ /* NAND flash pins */
+ static const unsigned int nflash_3516_pins[] = {
+ 	243, 260, 261, 224, 280, 262, 281, 264, 300, 263, 282, 301, 320, 283,
+@@ -1515,7 +1527,7 @@ static const unsigned int pflash_3516_pins_extended[] = {
+ static const unsigned int sflash_3516_pins[] = { 296, 338, 295, 359, 339 };
+ 
+ /* The GPIO0A (0-4) pins overlap with TVC and extended parallel flash */
+-static const unsigned int gpio0a_3516_pins[] = { 333, 354, 395, 312, 334 };
++static const unsigned int gpio0a_3516_pins[] = { 354, 395, 312, 334 };
+ 
+ /* The GPIO0B (5-7) pins overlap with ICE */
+ static const unsigned int gpio0b_3516_pins[] = { 375, 396, 376 };
+@@ -1547,6 +1559,9 @@ static const unsigned int gpio0j_3516_pins[] = { 359, 339 };
+ /* The GPIO0K (30,31) pins overlap with NAND flash */
+ static const unsigned int gpio0k_3516_pins[] = { 275, 298 };
+ 
++/* The GPIO0L (0) pins overlap with TVC_CLK */
++static const unsigned int gpio0l_3516_pins[] = { 333 };
++
+ /* The GPIO1A (0-4) pins that overlap with IDE and parallel flash */
+ static const unsigned int gpio1a_3516_pins[] = { 221, 200, 222, 201, 220 };
+ 
+@@ -1693,7 +1708,13 @@ static const struct gemini_pin_group gemini_3516_pin_groups[] = {
+ 		.num_pins = ARRAY_SIZE(tvc_3516_pins),
+ 		/* Conflict with character LCD */
+ 		.mask = LCD_PADS_ENABLE,
+-		.value = TVC_PADS_ENABLE | TVC_CLK_PAD_ENABLE,
++		.value = TVC_PADS_ENABLE,
++	},
++	{
++		.name = "tvcclkgrp",
++		.pins = tvc_clk_3516_pins,
++		.num_pins = ARRAY_SIZE(tvc_clk_3516_pins),
++		.value = TVC_CLK_PAD_ENABLE,
+ 	},
+ 	/*
+ 	 * The construction is done such that it is possible to use a serial
+@@ -1804,6 +1825,13 @@ static const struct gemini_pin_group gemini_3516_pin_groups[] = {
+ 		/* Conflict with parallel and NAND flash */
+ 		.value = PFLASH_PADS_DISABLE | NAND_PADS_DISABLE,
+ 	},
++	{
++		.name = "gpio0lgrp",
++		.pins = gpio0l_3516_pins,
++		.num_pins = ARRAY_SIZE(gpio0l_3516_pins),
++		/* Conflict with TVE CLK */
++		.mask = TVC_CLK_PAD_ENABLE,
++	},
+ 	{
+ 		.name = "gpio1agrp",
+ 		.pins = gpio1a_3516_pins,
+-- 
+2.20.1
+
 
 
