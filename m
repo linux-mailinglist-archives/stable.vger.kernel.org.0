@@ -2,84 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 868B41075C2
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 17:27:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 474051075D8
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 17:32:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727109AbfKVQ1j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 11:27:39 -0500
-Received: from mail-io1-f65.google.com ([209.85.166.65]:45265 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726664AbfKVQ1i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 11:27:38 -0500
-Received: by mail-io1-f65.google.com with SMTP id v17so8640165iol.12
-        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 08:27:38 -0800 (PST)
+        id S1726664AbfKVQc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 11:32:58 -0500
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:51643 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726633AbfKVQc6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 22 Nov 2019 11:32:58 -0500
+Received: by mail-wm1-f65.google.com with SMTP id g206so7828004wme.1
+        for <stable@vger.kernel.org>; Fri, 22 Nov 2019 08:32:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=XlWqqCQ+zgEV72jaObyUbNZTFY8rKw/Sl0dnc6Dl/5A=;
-        b=Q3de4ll9e8KMpxI6muGFZLyE6AtK8cNP9PPf7FhGVILpdUDr2/fmfkA6lyoQW2n2TR
-         n/d4o06GOFMQKFA/uxZwpohzLAewPAEWEl1D0i3RqNxIxxH3yCaK3+CaFFHK91qnMiPa
-         JnHQ+AP3izQjZA8A7uZRODuPBE2ygcvsWnFI25OD4yGrQjWYMpxYHzNoBfGTKyRlkLvS
-         lG3ibCe/VgG0y5KwtrkoVOJ5YlJfrK5JwIHTw3ruMuM/D9c50iLAd7Svfuxmw08j9X+n
-         DuWPON1UvQXTEWc4VQAk+szrUVfQdjN8OJ0oQAhQyoo1I43xjI01M6nie/C6DSNvvJir
-         GZtg==
+        h=date:from:to:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=ia/lzVKxfww33iqRsLBLiSmQop3hQK5gp/YYL2H2vf4=;
+        b=Xa/5OxwwzYhMTw1TkmD6+3+QOf8jNKO3BdMwf1R9Gy5hk6TVN43UGeNYEXDtDOXLPN
+         Cl05w7MpsH+1RhSZwcU9a5T3qYHANUHSmwCpozdUkeCGeHbHfZXNCaju0bbOXqpE0fil
+         XLpRyK682vnBYc9NC/+K5NCyeOfSLTZKMMX2zr0BSFHaU5xd1bGoN7cJSASUTKGQygOB
+         3R9AmieCRNGqPQ0P0SKe7cWm/9NnhYvAY16xi6HdM/PiManOInA/25MOyfu5Kna5rchh
+         Ydv0xWryXPkRoa8loOsamT+bY1hbRjhsLshawzfTbBzNPGREa1X5D4rWHKvlaA/g6Mlz
+         y4BQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=XlWqqCQ+zgEV72jaObyUbNZTFY8rKw/Sl0dnc6Dl/5A=;
-        b=svH4e52BfMDAZgosEp8q84upV3g+k1lPtWpV1qOU2aVksWr4Y/2X2DUa+SToc5rk7Y
-         EFAiQCLZ32ZCWrE2Mc9t2tSwXrZiSX6l5o8InpWvEkpe6GOoT9soL2spaaaStUkv4R2h
-         idBUESZ8nklSljoKbVQMpSn2smwgdpDaAsqvmAlGV5lSlNv/4Hg0+hUITKphdPUbS6mH
-         JtSlSfojezyMV5hC2jKXmAPqEtDtjtozKlU3slKwHmIbC9fjCXsoy4j0dsH5fGVH8pYn
-         fxa8wT7uNfC0Y0jlEJKEb3MUbQLyONW+ZzHWDfkM5+rpyUegEjFRRF17jYFOlJ0YfKzz
-         XpOA==
-X-Gm-Message-State: APjAAAWaFevXLwUPiVtRzJj7r8RzlA5bM/aCmreoJvv3bKtXrq0TAEFr
-        IJWml4tuz+FQYWpXjM+7nJCstK1HPdr0NSHVmMU6RKRB
-X-Google-Smtp-Source: APXvYqyif/FcVg31H4mCMrqc1tAv9+xfOMC4ku1jEbZz0D4MzKrvW2UuCa7rSztTlQQZp6E44d6wzwy8qjw4Fx0IG+w=
-X-Received: by 2002:a6b:c389:: with SMTP id t131mr13745566iof.50.1574440057783;
- Fri, 22 Nov 2019 08:27:37 -0800 (PST)
+        h=x-gm-message-state:date:from:to:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=ia/lzVKxfww33iqRsLBLiSmQop3hQK5gp/YYL2H2vf4=;
+        b=bSQ3cgBSJedQo+deq9svw5I/sy4DjElHM/qsTVrXc8yGyNKCDqs/JRczWtcOlCVHH6
+         AB2v2LOYkdMYw1ZAcf14+2N48YGiUhOGlShXmCkGCc/CZ7DJ23Ms+k2DjIXtsW34GbXH
+         vJQ0Sl5jCld/Yz5a/2SKTEAJh23yh5ogvLzrHpZWr65TvmYAB/oYdqk/6uAb31t30Jt8
+         eqB5fknPAlqunhkpMpX04DIQ/2ASj9V7pA5z4auEYTHYqlJyrNBkAR6pevc15IGEtmTi
+         JKge1eLcFVyj9vsl/t/ix4p+EqK5VMEfgvO0Y3XcAjgkc+ZgIQe5bImRJ/rL6nZKEsZt
+         rwdA==
+X-Gm-Message-State: APjAAAV3ZmPMjvbK2IvHp/qt8Y1CTWdXeEjscmdSZdQwiAZ2BSWVMtkx
+        rM8XhsSLKd4EQRNN7ie37CorZvsNmw4=
+X-Google-Smtp-Source: APXvYqx66nh6tbyxruiuPsZyce9yb2FKnIH9MSPjgOXpDDoJDJ4MtVP/s5IhjfyPvrDniFZdMkTwxA==
+X-Received: by 2002:a7b:c651:: with SMTP id q17mr4652589wmk.109.1574440376469;
+        Fri, 22 Nov 2019 08:32:56 -0800 (PST)
+Received: from dell ([2.27.35.135])
+        by smtp.gmail.com with ESMTPSA id x5sm3801833wmj.7.2019.11.22.08.32.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Nov 2019 08:32:56 -0800 (PST)
+Date:   Fri, 22 Nov 2019 16:32:39 +0000
+From:   Lee Jones <lee.jones@linaro.org>
+To:     gregkh@google.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.4 1/9] ARM: 8904/1: skip nomap memblocks while finding
+ the lowmem/highmem boundary
+Message-ID: <20191122163239.GE3296@dell>
+References: <20191122105113.11213-1-lee.jones@linaro.org>
 MIME-Version: 1.0
-References: <20191115223356.27675-1-mathieu.poirier@linaro.org> <20191121203555.GC813260@kroah.com>
-In-Reply-To: <20191121203555.GC813260@kroah.com>
-From:   Mathieu Poirier <mathieu.poirier@linaro.org>
-Date:   Fri, 22 Nov 2019 09:27:26 -0700
-Message-ID: <CANLsYkyumUDrP6ic0towr68S6pxL1psZHVP0XTRC+Tf82O4wQQ@mail.gmail.com>
-Subject: Re: [stable 4.19+][PATCH 01/20] i2c: stm32f7: fix first byte to send
- in slave mode
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     "# 4 . 7" <stable@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20191122105113.11213-1-lee.jones@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 21 Nov 2019 at 13:35, Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Fri, Nov 15, 2019 at 03:33:37PM -0700, Mathieu Poirier wrote:
-> > From: Fabrice Gasnier <fabrice.gasnier@st.com>
-> >
-> > commit 915da2b794ce4fc98b1acf64d64354f22a5e4931 upstream
->
-> That commit is not in Linus's tree :(
+On Fri, 22 Nov 2019, Lee Jones wrote:
 
-:o(  Apologies for that - probably a copy/paste problem.
+> From: Chester Lin <clin@suse.com>
+> 
+> [ Upstream commit 1d31999cf04c21709f72ceb17e65b54a401330da ]
+> 
+> adjust_lowmem_bounds() checks every memblocks in order to find the boundary
+> between lowmem and highmem. However some memblocks could be marked as NOMAP
+> so they are not used by kernel, which should be skipped while calculating
+> the boundary.
+> 
+> Signed-off-by: Chester Lin <clin@suse.com>
+> Reviewed-by: Mike Rapoport <rppt@linux.ibm.com>
+> Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> ---
+>  arch/arm/mm/mmu.c | 3 +++
+>  1 file changed, 3 insertions(+)
 
->
-> I'll stop here.  Please check all of these and resend the whole thing.
->
-> Also, does this series also apply fully to 5.3.y?
+Please don't apply this.
 
-Normally it should have and that is what I assumed.  I just did a
-quick test and I'm wrong - as you probably noticed since you're
-pointing it out.  Forget the whole thing and I'll send another set (or
-two).
+> diff --git a/arch/arm/mm/mmu.c b/arch/arm/mm/mmu.c
+> index aead23f15213..d9ddb5721565 100644
+> --- a/arch/arm/mm/mmu.c
+> +++ b/arch/arm/mm/mmu.c
+> @@ -1121,6 +1121,9 @@ void __init sanity_check_meminfo(void)
+>  		phys_addr_t block_end = reg->base + reg->size;
+>  		phys_addr_t size_limit = reg->size;
+>  
+> +		if (memblock_is_nomap(reg))
+> +			continue;
+> +
+>  		if (reg->base >= vmalloc_limit)
+>  			highmem = 1;
+>  		else
 
->
-> thanks,
->
-> greg k-h
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
