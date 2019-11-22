@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F40106B00
-	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:40:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC0B106CE7
+	for <lists+stable@lfdr.de>; Fri, 22 Nov 2019 11:56:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728905AbfKVKka (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 22 Nov 2019 05:40:30 -0500
-Received: from mail.kernel.org ([198.145.29.99]:44412 "EHLO mail.kernel.org"
+        id S1727706AbfKVK4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 22 Nov 2019 05:56:09 -0500
+Received: from mail.kernel.org ([198.145.29.99]:43760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728899AbfKVKka (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 22 Nov 2019 05:40:30 -0500
+        id S1727584AbfKVK4I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 22 Nov 2019 05:56:08 -0500
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5659320718;
-        Fri, 22 Nov 2019 10:40:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E124A20706;
+        Fri, 22 Nov 2019 10:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1574419229;
-        bh=93VE6Y/iJda7YDrNkr7BnN8q9ahcrr3mWS4oxRWt8W4=;
+        s=default; t=1574420168;
+        bh=+VJErx/wWi7Jg4RzKAxxwKufOvaUnQ/mB6KGXubhYd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZAza2QgiTvsGyO3xxEjG3Sp1Y+5cwlNE3McWeoqPxwb3SVXgJ3lUtvJ5QXUtvPS2
-         8zwWlqoi9az+Jc+1Yw7f32NVzs97NAgx8qBsj/vSLSB5BGjWxjJuot3gQsL16fEFq2
-         bbq0tfSTN934qN7xZQDmdjp8ezZXfF8iXeZgzAk8=
+        b=yw24mVp1qVrS2fW5J4FD/17kn4pVva33KAzoh8C15td+y+wwOldNQYlGDY/Yn8TeN
+         XY8Tr7C6CrIrlyIaScmBDNkupNGgtlAzjWt7sSz5WPEYngak30q8AsswPBqjWttpMM
+         bdiZFxQzAl0m8HsF8Fgk/2IRCw9DOGiDSVvhI7N0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yong Zhi <yong.zhi@intel.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vignesh R <vigneshr@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 041/222] ASoC: Intel: hdac_hdmi: Limit sampling rates at dai creation
-Date:   Fri, 22 Nov 2019 11:26:21 +0100
-Message-Id: <20191122100849.887094775@linuxfoundation.org>
+Subject: [PATCH 4.19 017/220] ARM: dts: dra7: Enable workaround for errata i870 in PCIe host mode
+Date:   Fri, 22 Nov 2019 11:26:22 +0100
+Message-Id: <20191122100913.788921749@linuxfoundation.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <20191122100830.874290814@linuxfoundation.org>
-References: <20191122100830.874290814@linuxfoundation.org>
+In-Reply-To: <20191122100912.732983531@linuxfoundation.org>
+References: <20191122100912.732983531@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yong Zhi <yong.zhi@intel.com>
+From: Vignesh R <vigneshr@ti.com>
 
-[ Upstream commit 3b857472f34faa7d11001afa5e158833812c98d7 ]
+[ Upstream commit b830526f304764753fcb8b4a563a94080e982a6c ]
 
-Playback of 44.1Khz contents with HDMI plugged returns
-"Invalid pipe config" because HDMI paths in the FW
-topology are configured to operate at 48Khz.
+Add ti,syscon-unaligned-access property to PCIe RC nodes to set
+appropriate bits in CTRL_CORE_SMA_SW_7 register to enable workaround for
+errata i870.
 
-This patch filters out sampling rates not supported
-at hdac_hdmi_create_dais() to let user space SRC
-to do the converting.
-
-Signed-off-by: Yong Zhi <yong.zhi@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Vignesh R <vigneshr@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdac_hdmi.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm/boot/dts/dra7.dtsi | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/hdac_hdmi.c b/sound/soc/codecs/hdac_hdmi.c
-index c602c4960924c..88355d1719a30 100644
---- a/sound/soc/codecs/hdac_hdmi.c
-+++ b/sound/soc/codecs/hdac_hdmi.c
-@@ -1267,6 +1267,12 @@ static int hdac_hdmi_create_dais(struct hdac_device *hdac,
- 		if (ret)
- 			return ret;
- 
-+		/* Filter out 44.1, 88.2 and 176.4Khz */
-+		rates &= ~(SNDRV_PCM_RATE_44100 | SNDRV_PCM_RATE_88200 |
-+			   SNDRV_PCM_RATE_176400);
-+		if (!rates)
-+			return -EINVAL;
-+
- 		sprintf(dai_name, "intel-hdmi-hifi%d", i+1);
- 		hdmi_dais[i].name = devm_kstrdup(&hdac->dev,
- 					dai_name, GFP_KERNEL);
+diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
+index 9136b3cf9a2ce..7ce24b282d421 100644
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -336,6 +336,7 @@
+ 						<0 0 0 2 &pcie1_intc 2>,
+ 						<0 0 0 3 &pcie1_intc 3>,
+ 						<0 0 0 4 &pcie1_intc 4>;
++				ti,syscon-unaligned-access = <&scm_conf1 0x14 1>;
+ 				status = "disabled";
+ 				pcie1_intc: interrupt-controller {
+ 					interrupt-controller;
+@@ -387,6 +388,7 @@
+ 						<0 0 0 2 &pcie2_intc 2>,
+ 						<0 0 0 3 &pcie2_intc 3>,
+ 						<0 0 0 4 &pcie2_intc 4>;
++				ti,syscon-unaligned-access = <&scm_conf1 0x14 2>;
+ 				pcie2_intc: interrupt-controller {
+ 					interrupt-controller;
+ 					#address-cells = <0>;
 -- 
 2.20.1
 
